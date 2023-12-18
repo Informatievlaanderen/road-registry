@@ -74,21 +74,21 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
             throw new DownloadExtractNotFoundException("Could not find extract with empty download identifier");
         }
 
-        if (!Guid.TryParseExact(request.DownloadId, "N", out var parsedDownloadId))
+        if (!DownloadId.TryParse(request.DownloadId, out var downloadId))
         {
             throw new UploadExtractNotFoundException($"Could not upload the extract with filename {request.Archive.FileName}");
         }
 
-        var extractRequest = await _context.ExtractRequests.FindAsync(new object[] { parsedDownloadId }, cancellationToken)
-                             ?? throw new ExtractDownloadNotFoundException(new DownloadId(parsedDownloadId));
+        var extractRequest = await _context.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken)
+                             ?? throw new ExtractDownloadNotFoundException(downloadId);
 
         if (extractRequest.IsInformative)
         {
-            throw new ExtractRequestMarkedInformativeException(new DownloadId(parsedDownloadId));
+            throw new ExtractRequestMarkedInformativeException(downloadId);
         }
 
-        var download = await _context.ExtractDownloads.FindAsync(new object[] { parsedDownloadId }, cancellationToken)
-                       ?? throw new ExtractDownloadNotFoundException(new DownloadId(parsedDownloadId));
+        var download = await _context.ExtractDownloads.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken)
+                       ?? throw new ExtractDownloadNotFoundException(downloadId);
         
         await using var readStream = request.Archive.ReadStream;
         ArchiveId archiveId = new(Guid.NewGuid().ToString("N"));
@@ -104,7 +104,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         var extractRequestId = ExtractRequestId.FromString(download.RequestId);
         var extract = await _roadRegistryContext.RoadNetworkExtracts.Get(extractRequestId, cancellationToken);
 
-        var upload = extract.Upload(new DownloadId(parsedDownloadId), uploadId, archiveId);
+        var upload = extract.Upload(downloadId, uploadId, archiveId);
         
         using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
         {

@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Messages;
 
+using System;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("RoadNetworkExtractDownloadTimeoutOccurred")]
@@ -7,6 +8,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 public class RoadNetworkExtractDownloadTimeoutOccurred : IMessage
 {
     public string Description { get; set; }
+    public Guid? DownloadId { get; set; }
     public string RequestId { get; set; }
     public string ExternalRequestId { get; set; }
     public string When { get; set; }

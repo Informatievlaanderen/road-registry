@@ -23,4 +23,22 @@ public static class DbSetExtensions
         return dbSet.Local.SingleOrDefault(predicate.Compile())
                ?? await dbSet.SingleOrDefaultAsync(predicate, cancellationToken);
     }
+
+    public static async Task<T> SingleIncludingLocalAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
+        where T : class
+    {
+        return dbSet.Local.SingleOrDefault(predicate.Compile())
+               ?? await dbSet.SingleAsync(predicate, cancellationToken);
+    }
+
+    public static async Task<List<T>> ToListIncludingLocalAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
+        where T : class
+    {
+        return dbSet.Local
+            .Where(predicate.Compile())
+            .Concat(await dbSet
+                .Where(predicate)
+                .ToListAsync(cancellationToken))
+            .ToList();
+    }
 }

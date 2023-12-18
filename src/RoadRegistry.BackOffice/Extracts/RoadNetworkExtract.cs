@@ -88,13 +88,14 @@ public class RoadNetworkExtract : EventSourcedEntity
             });
     }
 
-    public void AnnounceTimeoutOccurred()
+    public void AnnounceTimeoutOccurred(DownloadId? downloadId)
     {
         Apply(new RoadNetworkExtractDownloadTimeoutOccurred
         {
             Description = Description,
             RequestId = Id.ToString(),
             ExternalRequestId = _externalExtractRequestId,
+            DownloadId = downloadId,
             IsInformative = IsInformative
         });
     }

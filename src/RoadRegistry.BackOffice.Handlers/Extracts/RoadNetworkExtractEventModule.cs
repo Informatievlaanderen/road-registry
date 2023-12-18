@@ -169,38 +169,48 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                 new ExtractDescription(extractDescription),
                 GeometryTranslator.Translate(message.Body.Contour));
 
-            try
+            var maxAttempt = 3;
+
+            for (var attempt = 1; attempt <= maxAttempt; attempt++)
             {
-                using (var content = await assembler.AssembleArchive(request, ct)) //(content, revision)
+                try
                 {
-                    content.Position = 0L;
+                    using (var content = await assembler.AssembleArchive(request, ct)) //(content, revision)
+                    {
+                        content.Position = 0L;
 
-                    await downloadsBlobClient.CreateBlobAsync(
-                        new BlobName(archiveId),
-                        Metadata.None,
-                        ContentType.Parse("application/x-zip-compressed"),
-                        content,
-                        ct);
+                        await downloadsBlobClient.CreateBlobAsync(
+                            new BlobName(archiveId),
+                            Metadata.None,
+                            ContentType.Parse("application/x-zip-compressed"),
+                            content,
+                            ct);
+                    }
+
+                    await queue.Write(new Command(
+                            new AnnounceRoadNetworkExtractDownloadBecameAvailable
+                            {
+                                RequestId = message.Body.RequestId,
+                                DownloadId = message.Body.DownloadId,
+                                //Revision = revision,
+                                ArchiveId = archiveId
+                            })
+                        .WithMessageId(message.MessageId), ct);
+                    break;
                 }
-
-                await queue.Write(new Command(
-                        new AnnounceRoadNetworkExtractDownloadBecameAvailable
-                        {
-                            RequestId = message.Body.RequestId,
-                            DownloadId = message.Body.DownloadId,
-                            //Revision = revision,
-                            ArchiveId = archiveId
-                        })
-                    .WithMessageId(message.MessageId), ct);
-            }
-            catch (SqlException ex) when (ex.Number.Equals(-2))
-            {
-                await queue.Write(new Command(
-                        new AnnounceRoadNetworkExtractDownloadTimeoutOccurred
-                        {
-                            RequestId = message.Body.RequestId
-                        })
-                    .WithMessageId(message.MessageId), ct);
+                catch (SqlException ex) when (ex.Number.Equals(-2))
+                {
+                    if (attempt == maxAttempt)
+                    {
+                        await queue.Write(new Command(
+                                new AnnounceRoadNetworkExtractDownloadTimeoutOccurred
+                                {
+                                    RequestId = message.Body.RequestId,
+                                    DownloadId = message.Body.DownloadId
+                                })
+                            .WithMessageId(message.MessageId), ct);
+                    }
+                }
             }
         }
     }

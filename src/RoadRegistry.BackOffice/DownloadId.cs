@@ -18,6 +18,13 @@ public readonly struct DownloadId : IEquatable<DownloadId>
         return value != Guid.Empty;
     }
 
+    public static DownloadId? FromValue(Guid? value)
+    {
+        return value.HasValue
+            ? new DownloadId(value.Value)
+            : null;
+    }
+
     public static bool CanParse(string value)
     {
         return TryParse(value, out _);
