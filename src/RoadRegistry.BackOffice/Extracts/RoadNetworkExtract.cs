@@ -88,7 +88,7 @@ public class RoadNetworkExtract : EventSourcedEntity
             });
     }
 
-    public void AnnounceTimeoutOccurred(DownloadId downloadId)
+    public void AnnounceTimeoutOccurred(DownloadId? downloadId)
     {
         Apply(new RoadNetworkExtractDownloadTimeoutOccurred
         {

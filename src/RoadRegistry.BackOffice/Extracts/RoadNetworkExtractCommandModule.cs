@@ -115,7 +115,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 logger.LogInformation("Command handler started for {Command}", nameof(AnnounceRoadNetworkExtractDownloadTimeoutOccurred));
 
                 var extractRequestId = ExtractRequestId.FromString(message.Body.RequestId);
-                var downloadId = new DownloadId(message.Body.DownloadId);
+                var downloadId = DownloadId.FromValue(message.Body.DownloadId);
 
                 var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
                 extract.AnnounceTimeoutOccurred(downloadId);
