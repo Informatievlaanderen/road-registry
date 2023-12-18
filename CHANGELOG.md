@@ -1,3 +1,11 @@
+## [3.65.3](https://github.com/informatievlaanderen/road-registry/compare/v3.65.2...v3.65.3) (2023-12-18)
+
+
+### Bug Fixes
+
+* WR-797 map MaintenanceAuthority to internal OrgId in FC before processing the feature ([#1330](https://github.com/informatievlaanderen/road-registry/issues/1330)) ([5e2202b](https://github.com/informatievlaanderen/road-registry/commit/5e2202b266459ede0cdacbb251f2fc38b17da82b))
+* WR-908 downloadtimeoutoccurred for extracts with previously download available ([#1329](https://github.com/informatievlaanderen/road-registry/issues/1329)) ([e5f4cd9](https://github.com/informatievlaanderen/road-registry/commit/e5f4cd9b13e85a02623db6eb401ac608484b0c0c))
+
 ## [3.65.2](https://github.com/informatievlaanderen/road-registry/compare/v3.65.1...v3.65.2) (2023-12-12)
 
 
