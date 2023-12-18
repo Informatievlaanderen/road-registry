@@ -139,11 +139,12 @@ public class ExtractScenarios : RoadRegistryTestBase
                 IsInformative = true,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             })
-            .When(OurSystem.AnnouncesRoadNetworkExtractDownloadTimeoutOccurred(extractRequestId))
+            .When(OurSystem.AnnouncesRoadNetworkExtractDownloadTimeoutOccurred(extractRequestId, downloadId))
             .Then(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractDownloadTimeoutOccurred
             {
                 RequestId = extractRequestId,
                 ExternalRequestId = externalExtractRequestId,
+                DownloadId = downloadId,
                 Description = extractDescription,
                 IsInformative = true,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())

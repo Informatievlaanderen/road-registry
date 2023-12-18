@@ -19,11 +19,12 @@ public static class OurSystem
         });
     }
 
-    public static Command AnnouncesRoadNetworkExtractDownloadTimeoutOccurred(ExtractRequestId requestId)
+    public static Command AnnouncesRoadNetworkExtractDownloadTimeoutOccurred(ExtractRequestId requestId, DownloadId downloadId)
     {
         return new Command(new AnnounceRoadNetworkExtractDownloadTimeoutOccurred
         {
-            RequestId = requestId
+            RequestId = requestId,
+            DownloadId = downloadId
         });
     }
 }
