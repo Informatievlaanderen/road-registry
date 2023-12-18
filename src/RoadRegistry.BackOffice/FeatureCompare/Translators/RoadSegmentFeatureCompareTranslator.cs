@@ -33,7 +33,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         var problems = ZipArchiveProblems.None;
 
         var processedRecords = new List<RoadSegmentFeatureCompareRecord>();
-        
+
         List<Feature<RoadSegmentFeatureCompareAttributes>> FindMatchingExtractFeatures(RoadSegmentFeatureCompareAttributes changeFeatureAttributes)
         {
             if (changeFeatureAttributes.Method == RoadSegmentGeometryDrawMethod.Outlined)
@@ -98,21 +98,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     EndNodeId = endNodeFeature.GetActualId()
                 };
             }
-
-            var maintenanceAuthority = await _organizationRepository.FindByIdOrOvoCodeAsync(changeFeature.Attributes.MaintenanceAuthority, cancellationToken);
-            if (maintenanceAuthority is null)
-            {
-                var recordContext = FileName.AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber);
-
-                problems += recordContext.RoadSegmentMaintenanceAuthorityNotKnown(changeFeature.Attributes.MaintenanceAuthority);
-                continue;
-            }
-
-            changeFeatureAttributes = changeFeatureAttributes with
-            {
-                MaintenanceAuthority = maintenanceAuthority.Code
-            };
-
+            
             var matchingExtractFeatures = FindMatchingExtractFeatures(changeFeatureAttributes);
             if (matchingExtractFeatures.Any())
             {
@@ -194,7 +180,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         return (processedRecords, problems);
     }
-    
+
     public override async Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
     {
         var (extractFeatures, changeFeatures, integrationFeatures, problems) = ReadExtractAndChangeAndIntegrationFeatures(context.Archive, FileName, context);
@@ -207,6 +193,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         if (changeFeatures.Any())
         {
+            (changeFeatures, var maintenanceAuthorityProblems) = await ValidateMaintenanceAuthorityAndMapToInternalId(changeFeatures, cancellationToken);
+            problems += maintenanceAuthorityProblems;
+
             var batchCount = Debugger.IsAttached ? 1 : 2;
 
             var processedLeveringRecords = await Task.WhenAll(
@@ -234,6 +223,34 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         changes = TranslateProcessedRecords(changes, context.RoadSegmentRecords, cancellationToken);
 
         return (changes, problems);
+    }
+
+    private async Task<(List<Feature<RoadSegmentFeatureCompareAttributes>>, ZipArchiveProblems)> ValidateMaintenanceAuthorityAndMapToInternalId(List<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures, CancellationToken cancellationToken)
+    {
+        var problems = ZipArchiveProblems.None;
+        var result = new List<Feature<RoadSegmentFeatureCompareAttributes>>();
+
+        foreach (var changeFeature in changeFeatures)
+        {
+            var maintenanceAuthority = await _organizationRepository.FindByIdOrOvoCodeAsync(changeFeature.Attributes.MaintenanceAuthority, cancellationToken);
+            if (maintenanceAuthority is null)
+            {
+                var recordContext = FileName.AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber);
+
+                problems += recordContext.RoadSegmentMaintenanceAuthorityNotKnown(changeFeature.Attributes.MaintenanceAuthority);
+                continue;
+            }
+
+            result.Add(changeFeature with
+            {
+                Attributes = changeFeature.Attributes with
+                {
+                    MaintenanceAuthority = maintenanceAuthority.Code
+                }
+            });
+        }
+
+        return (result, problems);
     }
 
     private ZipArchiveProblems AddProcessedRecordsToContext(RoadSegmentId maxId, ICollection<RoadSegmentFeatureCompareRecord> processedRecords, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
