@@ -1,3 +1,10 @@
+## [3.65.4](https://github.com/informatievlaanderen/road-registry/compare/v3.65.3...v3.65.4) (2023-12-18)
+
+
+### Bug Fixes
+
+* Dutch translation ([#1332](https://github.com/informatievlaanderen/road-registry/issues/1332)) ([842e6e6](https://github.com/informatievlaanderen/road-registry/commit/842e6e606b867c3b46c1f52b11bce266d422ed9d))
+
 ## [3.65.3](https://github.com/informatievlaanderen/road-registry/compare/v3.65.2...v3.65.3) (2023-12-18)
 
 
