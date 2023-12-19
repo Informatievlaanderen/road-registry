@@ -10,6 +10,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Extracts.Dbase.GradeSeparatedJuntions;
 using Uploads;
 
 public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTranslatorBase<GradeSeparatedJunctionFeatureCompareAttributes>
@@ -91,7 +92,9 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var recordContext = FileName.AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber);
+            var recordContext = FileName
+                .AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber)
+                .WithIdentifier(nameof(GradeSeparatedJunctionDbaseRecord.OK_OIDN), changeFeature.Attributes.Id);
 
             if (_useGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle.FeatureEnabled)
             {

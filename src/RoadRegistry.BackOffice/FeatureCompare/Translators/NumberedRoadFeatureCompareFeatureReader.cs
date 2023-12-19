@@ -97,7 +97,9 @@ public class NumberedRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
 
         public (Feature<NumberedRoadFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
         {
-            var problemBuilder = fileName.AtDbaseRecord(featureType, recordNumber);
+            var problemBuilder = fileName
+                .AtDbaseRecord(featureType, recordNumber)
+                .WithIdentifier(nameof(GW_OIDN), GW_OIDN);
 
             var problems = ZipArchiveProblems.None;
 

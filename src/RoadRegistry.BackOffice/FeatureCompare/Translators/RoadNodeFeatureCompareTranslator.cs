@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Extracts.Dbase.RoadNodes;
 using Uploads;
 using AddRoadNode = Uploads.AddRoadNode;
 using ModifyRoadNode = Uploads.ModifyRoadNode;
@@ -168,14 +169,16 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
 
             if (record.RecordType != RecordType.Removed)
             {
+                var recordContext = FileName
+                    .AtDbaseRecord(FeatureType.Change, record.RecordNumber)
+                    .WithIdentifier(nameof(RoadNodeDbaseRecord.WK_OIDN), record.GetOriginalId());
+
                 var existingRecords = context.RoadNodeRecords
                     .Where(x => x.RecordType != RecordType.Removed && x.GetActualId() == record.GetActualId())
                     .ToArray();
 
                 if (existingRecords.Length > 1)
                 {
-                    var recordContext = FileName.AtDbaseRecord(FeatureType.Change, record.RecordNumber);
-
                     problems += recordContext.IdentifierNotUnique(record.GetActualId(), record.RecordNumber);
                     continue;
                 }
@@ -183,8 +186,6 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                 var existingRecord = existingRecords.SingleOrDefault();
                 if (existingRecord is not null)
                 {
-                    var recordContext = FileName.AtDbaseRecord(FeatureType.Change, record.RecordNumber);
-
                     problems += recordContext.RoadNodeIsAlreadyProcessed(record.GetOriginalId(), existingRecord.GetOriginalId());
                     continue;
                 }

@@ -151,16 +151,16 @@ public static class ProblemTranslator
     {
         var sb = new StringBuilder();
         sb.AppendFormat("Het opgegeven wegknoop type {0} van knoop {1} komt niet overeen met een van de verwachte wegknoop types: ",
-            RoadNodeType.Parse(problem.Parameters.Single(p => p.Name == "Actual").Value).Translation.Name,
-            problem.Parameters.Single(p => p.Name == "RoadNodeId").Value);
+            RoadNodeType.Parse(problem.GetParameterValue("Actual")).Translation.Name,
+            problem.GetParameterValue("RoadNodeId"));
         sb.AppendFormat("{0} ", string.Join(',', problem.Parameters
             .Where(p => p.Name == "Expected")
             .Select(parameter => RoadNodeType.Parse(parameter.Value).Translation.Name)));
-        sb.AppendFormat("De wegknoop is verbonden met {0} wegsegment(-en)",
-            problem.Parameters.Single(p => p.Name == "ConnectedSegmentCount").Value);
+        sb.AppendFormat(". De wegknoop is verbonden met {0} wegsegment(-en)",
+            problem.GetParameterValue("ConnectedSegmentCount"));
         if (problem.Parameters.Any(p => p.Name == "ConnectedSegmentId"))
         {
-            sb.AppendFormat("{0} ", string.Join(',', problem.Parameters
+            sb.AppendFormat(": {0} ", string.Join(',', problem.Parameters
                 .Where(p => p.Name == "ConnectedSegmentId")
                 .Select(parameter => parameter.Value)));
         }

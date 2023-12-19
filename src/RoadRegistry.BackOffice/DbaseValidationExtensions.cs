@@ -1,14 +1,15 @@
 namespace RoadRegistry.BackOffice
 {
     using Extracts.Dbase.RoadSegments;
-    using RoadRegistry.BackOffice;
-    using RoadRegistry.BackOffice.Uploads;
+    using Uploads;
 
     public static class ValidationExtensions
     {
         public static ZipArchiveProblems Validate<T>(this IDbaseFileRecordProblemBuilder recordContext, T record)
             where T : IRoadSegmentDbaseRecord
         {
+            recordContext = recordContext.WithIdentifier(nameof(record.WS_OIDN), record.WS_OIDN.Value);
+
             var problems = ZipArchiveProblems.None;
 
             if (!record.METHODE.HasValue)

@@ -30,7 +30,7 @@ public abstract class ZipArchiveDbaseFeatureReader<TDbaseRecord, TFeature> : IZi
     {
         var problems = ZipArchiveProblems.None;
 
-        var dbfFileName = featureType.GetDbaseFileName(fileName);
+        var dbfFileName = featureType.ToDbaseFileName(fileName);
         var entry = archive.FindEntry(dbfFileName);
         if (entry is null)
         {

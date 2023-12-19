@@ -14,7 +14,7 @@ public static class ZipArchiveEntryProblems
     // builder
     public static IDbaseFileRecordProblemBuilder AtDbaseRecord(this ExtractFileName file, FeatureType featureType, RecordNumber number)
     {
-        return new FileProblemBuilder(featureType.GetDbaseFileName(file)).AtDbaseRecord(number);
+        return new FileProblemBuilder(featureType.ToDbaseFileName(file)).AtDbaseRecord(number);
     }
     public static IDbaseFileRecordProblemBuilder AtDbaseRecord(this ZipArchiveEntry entry, RecordNumber number)
     {
@@ -23,7 +23,7 @@ public static class ZipArchiveEntryProblems
 
     public static IShapeFileRecordProblemBuilder AtShapeRecord(this ExtractFileName file, FeatureType featureType, RecordNumber number)
     {
-        return new FileProblemBuilder(featureType.GetShapeFileName(file)).AtShapeRecord(number);
+        return new FileProblemBuilder(featureType.ToShapeFileName(file)).AtShapeRecord(number);
     }
     public static IShapeFileRecordProblemBuilder AtShapeRecord(this ZipArchiveEntry entry, RecordNumber number)
     {
@@ -107,7 +107,7 @@ public static class ZipArchiveEntryProblems
 
         public FileProblemBuilder(string file)
         {
-            _file = file ?? throw new ArgumentNullException(nameof(file));
+            _file = file.ThrowIfNull();
             _parameters = ImmutableList<ProblemParameter>.Empty;
         }
 
@@ -119,12 +119,22 @@ public static class ZipArchiveEntryProblems
 
         public IDbaseFileRecordProblemBuilder AtDbaseRecord(RecordNumber number)
         {
-            return new FileProblemBuilder(_file, _parameters.Add(new ProblemParameter("RecordNumber", number.ToString())));
+            return (IDbaseFileRecordProblemBuilder)WithParameter(new ProblemParameter("RecordNumber", number.ToString()));
         }
 
         public IShapeFileRecordProblemBuilder AtShapeRecord(RecordNumber number)
         {
-            return new FileProblemBuilder(_file, _parameters.Add(new ProblemParameter("RecordNumber", number.ToString())));
+            return (IShapeFileRecordProblemBuilder)WithParameter(new ProblemParameter("RecordNumber", number.ToString()));
+        }
+
+        public IFileRecordProblemBuilder WithParameter(ProblemParameter parameter)
+        {
+            return WithParameters(parameter);
+        }
+
+        public IFileRecordProblemBuilder WithParameters(params ProblemParameter[] parameters)
+        {
+            return new FileProblemBuilder(_file, _parameters.AddRange(parameters));
         }
 
         public IFileErrorBuilder Error(string reason)

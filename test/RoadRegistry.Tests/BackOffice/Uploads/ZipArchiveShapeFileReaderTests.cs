@@ -29,7 +29,7 @@ public class ZipArchiveShapeFileReaderTests
 
         using (var beforeFcArchive = new ZipArchive(beforeFcArchiveStream))
         {
-            var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name,  FeatureType.Extract.GetShapeFileName(entryFileName), StringComparison.InvariantCultureIgnoreCase));
+            var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name,  FeatureType.Extract.ToShapeFileName(entryFileName), StringComparison.InvariantCultureIgnoreCase));
 
             var dbfRecords = new SimpleExtractDbfReader<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema).Read(beforeFcArchive, entryFileName).Item1;
             Assert.True(dbfRecords.Any());
@@ -55,7 +55,7 @@ public class ZipArchiveShapeFileReaderTests
 
         using (var beforeFcArchive = new ZipArchive(beforeFcArchiveStream))
         {
-            var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name, FeatureType.Extract.GetShapeFileName(entryFileName), StringComparison.InvariantCultureIgnoreCase));
+            var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name, FeatureType.Extract.ToShapeFileName(entryFileName), StringComparison.InvariantCultureIgnoreCase));
 
             var dbfRecords = new SimpleExtractDbfReader<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema).Read(beforeFcArchive, entryFileName).Item1;
             Assert.True(dbfRecords.Any());

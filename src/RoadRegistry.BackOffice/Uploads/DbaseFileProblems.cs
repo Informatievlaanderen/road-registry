@@ -1,13 +1,12 @@
 namespace RoadRegistry.BackOffice.Uploads;
 
+using Be.Vlaanderen.Basisregisters.Shaperon;
+using Core;
+using Extensions;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Be.Vlaanderen.Basisregisters.Shaperon;
-using Core;
-using Core.ProblemCodes;
-using Extensions;
 
 public static class DbaseFileProblems
 {
@@ -15,6 +14,24 @@ public static class DbaseFileProblems
     {
         NumberDecimalSeparator = "."
     };
+
+    public static IDbaseFileRecordProblemBuilder WithIdentifier(this IDbaseFileRecordProblemBuilder builder, string field, int? value)
+    {
+        return WithDbaseIdentifier(builder, field, value);
+    }
+    public static IDbaseFileRecordProblemBuilder WithIdentifier(this IDbaseFileRecordProblemBuilder builder, string field, string value)
+    {
+        return WithDbaseIdentifier(builder, field, value);
+    }
+
+    private static IDbaseFileRecordProblemBuilder WithDbaseIdentifier(this IDbaseFileRecordProblemBuilder builder, string field, object value)
+    {
+        return (IDbaseFileRecordProblemBuilder)builder
+            .WithParameters(
+                new ProblemParameter("IdentifierField", field),
+                new ProblemParameter("IdentifierValue", value?.ToString(Provider))
+            );
+    }
 
     public static FileError BeginRoadNodeIdEqualsEndRoadNode(this IDbaseFileRecordProblemBuilder builder,
         int beginNode,
@@ -128,7 +145,7 @@ public static class DbaseFileProblems
             .Error(nameof(GradeSeparatedJunctionMissing))
             .WithParameter(new ProblemParameter("RoadSegmentId1", roadSegmentId1.ToString()))
             .WithParameter(new ProblemParameter("RoadSegmentId2", roadSegmentId2.ToString()))
-        .WithParameter(new ProblemParameter("IntersectionX", intersectionX.ToRoundedMeasurementString()))
+            .WithParameter(new ProblemParameter("IntersectionX", intersectionX.ToRoundedMeasurementString()))
             .WithParameter(new ProblemParameter("IntersectionY", intersectionY.ToRoundedMeasurementString()))
             .Build();
     }
@@ -491,6 +508,7 @@ public static class DbaseFileProblems
     {
         return RequiredFieldIsNull(builder, field?.Name.ToString());
     }
+
     public static FileError RequiredFieldIsNull(this IDbaseFileRecordProblemBuilder builder, string field)
     {
         ArgumentNullException.ThrowIfNull(builder);

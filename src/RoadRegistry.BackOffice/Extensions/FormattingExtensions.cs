@@ -1,6 +1,5 @@
 using RoadRegistry.BackOffice.Core;
 using System;
-using System.Globalization;
 
 namespace RoadRegistry.BackOffice.Extensions
 {
@@ -8,7 +7,7 @@ namespace RoadRegistry.BackOffice.Extensions
     {
         public static string ToRoundedMeasurementString(this double value)
         {
-            return Math.Round(value, Precisions.GeometryPrecision).ToString(CultureInfo.InvariantCulture);
+            return Math.Round(value, Precisions.GeometryPrecision).ToInvariantString();
         }
     }
 }
