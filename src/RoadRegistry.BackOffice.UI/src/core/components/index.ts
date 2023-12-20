@@ -4,7 +4,6 @@ import H2 from "./H2.vue";
 import H3 from "./H3.vue";
 import Footer from "./Footer.vue";
 const VlUiVueComponents = require("@govflanders/vl-ui-vue-components");
-const { VlModalToggle } = require("@govflanders/vl-ui-vue-components");
 
 Vue.component("wr-header", Header);
 Vue.component("wr-footer", Footer);
@@ -22,4 +21,4 @@ Vue.use(VlUiVueComponents, {
     validation: validatorConfig,
 });
   
-Vue.directive("vl-modal-toggle", VlModalToggle);
+Vue.directive("vl-modal-toggle", VlUiVueComponents.VlModalToggle);
