@@ -1,11 +1,11 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
 
-using System.IO.Compression;
-using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Core.ProblemCodes;
 using Extracts;
 using FeatureCompare;
 using FeatureCompare.Translators;
+using System.IO.Compression;
 using Uploads;
 
 public static class ZipArchiveCleanerExtensions
@@ -35,17 +35,22 @@ public static class ZipArchiveCleanerExtensions
         var (roadSegmentFeatures, problems) = new RoadSegmentFeatureCompareFeatureReader(encoding)
             .Read(archive, FeatureType.Change, ExtractFileName.Wegsegment, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
 
-        if (!problems.HasError())
+        var hasRoadSegmentError = problems
+            .Where(x => x.Reason != ProblemCode.RoadSegment.StartNode.Missing && x.Reason != ProblemCode.RoadSegment.EndNode.Missing)
+            .OfType<FileError>()
+            .Any();
+
+        if (!hasRoadSegmentError)
         {
             var featuresGroupedByRoadSegment = dbfRecords
-            .Select(record => new
-            {
-                RoadSegmentId = getRoadSegmentId(record),
-                Record = record
-            })
-            .Where(x => x.RoadSegmentId is not null && RoadSegmentId.Accepts(x.RoadSegmentId.Value))
-            .GroupBy(x => x.RoadSegmentId.Value, x => x.Record)
-            .ToDictionary(x => x.Key, x => x.ToArray());
+                .Select(record => new
+                {
+                    RoadSegmentId = getRoadSegmentId(record),
+                    Record = record
+                })
+                .Where(x => x.RoadSegmentId is not null && RoadSegmentId.Accepts(x.RoadSegmentId.Value))
+                .GroupBy(x => x.RoadSegmentId.Value, x => x.Record)
+                .ToDictionary(x => x.Key, x => x.ToArray());
 
             foreach (var group in featuresGroupedByRoadSegment)
             {

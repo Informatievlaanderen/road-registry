@@ -4,11 +4,11 @@ using Extracts;
 
 public static class FeatureTypeExtensions
 {
-    public static string GetDbaseFileName(this FeatureType featureType, ExtractFileName fileName)
+    public static string ToDbaseFileName(this FeatureType featureType, ExtractFileName fileName)
     {
         return $"{GetFileNamePrefix(featureType)}{fileName.ToDbaseFileName()}";
     }
-    public static string GetShapeFileName(this FeatureType featureType, ExtractFileName fileName)
+    public static string ToShapeFileName(this FeatureType featureType, ExtractFileName fileName)
     {
         return $"{GetFileNamePrefix(featureType)}{fileName.ToShapeFileName()}";
     }
@@ -16,7 +16,7 @@ public static class FeatureTypeExtensions
     {
         return $"{GetFileNamePrefix(featureType)}{fileName.ToShapeIndexFileName()}";
     }
-    public static string GetProjectionFileName(this FeatureType featureType, ExtractFileName fileName)
+    public static string ToProjectionFileName(this FeatureType featureType, ExtractFileName fileName)
     {
         return $"{GetFileNamePrefix(featureType)}{fileName.ToProjectionFileName()}";
     }

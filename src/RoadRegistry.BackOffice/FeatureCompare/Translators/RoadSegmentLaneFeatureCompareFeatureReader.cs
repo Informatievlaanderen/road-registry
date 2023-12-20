@@ -157,7 +157,9 @@ public class RoadSegmentLaneFeatureCompareFeatureReader : VersionedZipArchiveFea
 
         public (Feature<RoadSegmentLaneFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
         {
-            var problemBuilder = fileName.AtDbaseRecord(featureType, recordNumber);
+            var problemBuilder = fileName
+                .AtDbaseRecord(featureType, recordNumber)
+                .WithIdentifier(nameof(RS_OIDN), RS_OIDN);
 
             var problems = ZipArchiveProblems.None;
 

@@ -44,7 +44,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
             case FeatureType.Integration:
                 problems = ZipArchiveProblems.None + problems
                     .GetMissingOrInvalidFileProblems()
-                    .Where(x => !x.File.Equals(featureType.GetProjectionFileName(fileName), StringComparison.InvariantCultureIgnoreCase));
+                    .Where(x => !x.File.Equals(featureType.ToProjectionFileName(fileName), StringComparison.InvariantCultureIgnoreCase));
 
                 foreach (var feature in features)
                 {
@@ -64,7 +64,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
     {
         var problems = ZipArchiveProblems.None;
 
-        var shpFileName = featureType.GetShapeFileName(fileName);
+        var shpFileName = featureType.ToShapeFileName(fileName);
         var shpEntry = archive.FindEntry(shpFileName);
         if (shpEntry is null)
         {
@@ -72,7 +72,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         }
         else
         {
-            var dbfFileName = featureType.GetDbaseFileName(fileName);
+            var dbfFileName = featureType.ToDbaseFileName(fileName);
             var dbfEntry = archive.FindEntry(dbfFileName);
             if (dbfEntry is not null)
             {
@@ -275,7 +275,9 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 
         public (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
         {
-            var problemBuilder = fileName.AtDbaseRecord(featureType, recordNumber);
+            var problemBuilder = fileName
+                .AtDbaseRecord(featureType, recordNumber)
+                .WithIdentifier(nameof(WS_OIDN), WS_OIDN);
 
             var problems = ZipArchiveProblems.None;
 

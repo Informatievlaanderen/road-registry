@@ -93,7 +93,9 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
 
         public (Feature<GradeSeparatedJunctionFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
         {
-            var problemBuilder = fileName.AtDbaseRecord(featureType, recordNumber);
+            var problemBuilder = fileName
+                .AtDbaseRecord(featureType, recordNumber)
+                .WithIdentifier(nameof(OK_OIDN), OK_OIDN);
 
             var problems = ZipArchiveProblems.None;
 

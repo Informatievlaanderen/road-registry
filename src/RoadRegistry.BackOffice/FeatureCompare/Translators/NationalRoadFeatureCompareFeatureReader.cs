@@ -96,7 +96,9 @@ public class NationalRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
 
         public (Feature<NationalRoadFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
         {
-            var problemBuilder = fileName.AtDbaseRecord(featureType, recordNumber);
+            var problemBuilder = fileName
+                .AtDbaseRecord(featureType, recordNumber)
+                .WithIdentifier(nameof(NW_OIDN), NW_OIDN);
 
             var problems = ZipArchiveProblems.None;
 

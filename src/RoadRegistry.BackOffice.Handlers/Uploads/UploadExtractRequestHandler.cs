@@ -15,6 +15,8 @@ using FeatureToggles;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
+using ZipArchiveWriters;
+using ZipArchiveWriters.Cleaning;
 
 /// <summary>Upload controller, post upload</summary>
 /// <exception cref="BlobClientNotFoundException"></exception>
@@ -31,7 +33,8 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     private readonly EditorContext _editorContext;
     private readonly IZipArchiveBeforeFeatureCompareValidator _beforeFeatureCompareValidator;
     private readonly UseUploadZipArchiveValidationFeatureToggle _uploadZipArchiveValidationFeatureToggle;
-    private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
+    private readonly UseCleanZipArchiveFeatureToggle _useCleanZipArchiveFeatureToggle;
+    private readonly IBeforeFeatureCompareZipArchiveCleaner _beforeFeatureCompareZipArchiveCleaner;
     private readonly IZipArchiveAfterFeatureCompareValidator _afterFeatureCompareValidator;
     private readonly TransactionZoneFeatureCompareFeatureReader _transactionZoneFeatureReader;
 
@@ -43,17 +46,18 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         IZipArchiveAfterFeatureCompareValidator afterFeatureCompareValidator,
         UseUploadZipArchiveValidationFeatureToggle uploadZipArchiveValidationFeatureToggle,
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
-        FileEncoding encoding,
         UseCleanZipArchiveFeatureToggle useCleanZipArchiveFeatureToggle,
+        IBeforeFeatureCompareZipArchiveCleaner beforeFeatureCompareZipArchiveCleaner,
         ILogger<UploadExtractRequestHandler> logger) : base(roadNetworkCommandQueue, logger)
     {
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
         _editorContext = editorContext ?? throw new EditorContextNotFoundException(nameof(editorContext));
         _beforeFeatureCompareValidator = beforeFeatureCompareValidator ?? throw new ValidatorNotFoundException(nameof(beforeFeatureCompareValidator));
         _afterFeatureCompareValidator = afterFeatureCompareValidator ?? throw new ValidatorNotFoundException(nameof(afterFeatureCompareValidator));
-        _uploadZipArchiveValidationFeatureToggle = uploadZipArchiveValidationFeatureToggle ?? throw new ArgumentNullException(nameof(uploadZipArchiveValidationFeatureToggle));
-        _roadNetworkCommandQueue = roadNetworkCommandQueue;
-        _transactionZoneFeatureReader = transactionZoneFeatureReader ?? throw new ArgumentNullException(nameof(transactionZoneFeatureReader));
+        _uploadZipArchiveValidationFeatureToggle = uploadZipArchiveValidationFeatureToggle.ThrowIfNull();
+        _useCleanZipArchiveFeatureToggle = useCleanZipArchiveFeatureToggle;
+        _beforeFeatureCompareZipArchiveCleaner = beforeFeatureCompareZipArchiveCleaner.ThrowIfNull();
+        _transactionZoneFeatureReader = transactionZoneFeatureReader.ThrowIfNull();
     }
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
@@ -63,7 +67,10 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             throw new UnsupportedMediaTypeException();
         }
         
-        var readStream = request.Archive.ReadStream;
+        await using var readStream = _useCleanZipArchiveFeatureToggle.FeatureEnabled
+            ? await CleanArchive(request.Archive.ReadStream, cancellationToken)
+            : request.Archive.ReadStream;
+
         ArchiveId archiveId = new(Guid.NewGuid().ToString("N"));
         
         var metadata = Metadata.None.Add(
@@ -80,7 +87,37 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
         return new UploadExtractResponse(archiveId);
     }
-    
+
+    private async Task<Stream> CleanArchive(Stream readStream, CancellationToken cancellationToken)
+    {
+        var writeStream = new MemoryStream();
+        await readStream.CopyToAsync(writeStream, cancellationToken);
+        writeStream.Position = 0;
+
+        using (var archive = new ZipArchive(writeStream, ZipArchiveMode.Update, true))
+        {
+            CleanResult cleanResult;
+            try
+            {
+                cleanResult = await _beforeFeatureCompareZipArchiveCleaner.CleanAsync(archive, cancellationToken);
+            }
+            catch
+            {
+                // ignore exceptions, let the validation handle it
+                cleanResult = CleanResult.NotApplicable;
+            }
+
+            if (cleanResult != CleanResult.Changed)
+            {
+                readStream.Position = 0;
+                return readStream;
+            }
+        }
+
+        writeStream.Position = 0;
+        return writeStream;
+    }
+
     private async Task UploadAndQueueCommand(UploadExtractRequest request, Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
     {
         readStream.Position = 0;

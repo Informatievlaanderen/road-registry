@@ -71,7 +71,8 @@ public partial class UploadControllerTests
                 new UseZipArchiveFeatureCompareTranslatorFeatureToggle(true),
                 await EmbeddedResourceReader.ReadFormFileAsync("empty.zip", "application/zip", CancellationToken.None),
                 CancellationToken.None);
-            throw new ValidationException("This should not be reachable");
+            
+            Assert.Fail("This should not be reachable");
         }
         catch (ZipArchiveValidationException ex)
         {

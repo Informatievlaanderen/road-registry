@@ -11,12 +11,13 @@ namespace RoadRegistry.BackOffice.Uploads
     using System.Linq;
     using System.Text;
     using Extensions;
+    using Extracts.Dbase.RoadSegments;
 
     public static class FeatureValidationExtensions
     {
         public static ZipArchiveProblems ValidateProjectionFile(this ZipArchive archive, FeatureType featureType, ExtractFileName fileName, Encoding encoding)
         {
-            var prjFileName = featureType.GetProjectionFileName(fileName);
+            var prjFileName = featureType.ToProjectionFileName(fileName);
             var prjEntry = archive.FindEntry(prjFileName);
             if (prjEntry is null)
             {
@@ -180,7 +181,7 @@ namespace RoadRegistry.BackOffice.Uploads
 
             if (segmentsWithoutAttributes.Any())
             {
-                var dbfEntry = archive.FindEntry(featureType.GetDbaseFileName(fileName));
+                var dbfEntry = archive.FindEntry(featureType.ToDbaseFileName(fileName));
                 problems += problemBuilder(dbfEntry, segmentsWithoutAttributes);
             }
 
@@ -191,7 +192,7 @@ namespace RoadRegistry.BackOffice.Uploads
             where T : RoadSegmentAttributeFeatureCompareAttributes
         {
             var featureType = FeatureType.Change;
-            var problemFile = featureType.GetDbaseFileName(fileName);
+            var problemFile = featureType.ToDbaseFileName(fileName);
 
             var roadSegmentGroups = features
                 .Where(x => x.Attributes.RoadSegmentId > 0)

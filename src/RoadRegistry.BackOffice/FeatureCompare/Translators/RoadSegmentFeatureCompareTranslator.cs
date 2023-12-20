@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Core;
+using Extracts.Dbase.RoadSegments;
 using Uploads;
 using AddRoadSegment = Uploads.AddRoadSegment;
 using ModifyRoadSegment = Uploads.ModifyRoadSegment;
@@ -269,14 +270,16 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            var recordContext = FileName
+                .AtDbaseRecord(FeatureType.Change, record.RecordNumber)
+                .WithIdentifier(nameof(RoadSegmentDbaseRecord.WS_OIDN), record.Attributes.Id);
+
             var existingRecords = context.RoadSegmentRecords
                 .Where(x => x.GetActualId() == record.GetActualId())
                 .ToArray();
 
             if (existingRecords.Length > 1)
             {
-                var recordContext = FileName.AtDbaseRecord(FeatureType.Change, record.RecordNumber);
-
                 problems += recordContext.IdentifierNotUnique(record.GetActualId(), record.RecordNumber);
                 continue;
             }
@@ -284,8 +287,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             var existingRecord = existingRecords.SingleOrDefault();
             if (existingRecord is not null)
             {
-                var recordContext = FileName.AtDbaseRecord(FeatureType.Change, record.RecordNumber);
-
                 problems += recordContext.RoadSegmentIsAlreadyProcessed(record.GetOriginalId(), existingRecord.GetOriginalId());
                 continue;
             }

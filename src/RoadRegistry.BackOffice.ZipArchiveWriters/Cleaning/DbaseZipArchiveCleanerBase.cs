@@ -25,7 +25,7 @@ public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveClea
 
     private IReadOnlyCollection<TDbaseRecord> ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName)
     {
-        var dbfFileName = featureType.GetDbaseFileName(fileName);
+        var dbfFileName = featureType.ToDbaseFileName(fileName);
         var entry = archive.FindEntry(dbfFileName);
         if (entry is null)
         {
@@ -98,7 +98,7 @@ public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveClea
     
     private async Task Save(ZipArchive archive, IReadOnlyCollection<TDbaseRecord> dbfRecords, CancellationToken cancellationToken)
     {
-        var fileName = FeatureType.Change.GetDbaseFileName(_fileName);
+        var fileName = FeatureType.Change.ToDbaseFileName(_fileName);
         archive.Entries
             .Single(x => string.Equals(x.Name, fileName, StringComparison.InvariantCultureIgnoreCase))
             .Delete();
