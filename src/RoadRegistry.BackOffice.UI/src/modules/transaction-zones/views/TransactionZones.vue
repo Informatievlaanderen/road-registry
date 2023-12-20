@@ -33,9 +33,9 @@
 <script lang="ts">
 import Vue from "vue";
 import { trimEnd } from "lodash";
-import Map from "ol/map";
-import TileLayer from "ol/layer/tile";
-import TileWMS from "ol/source/tilewms";
+import Map from "ol/Map";
+import Tile from "ol/layer/Tile";
+import TileWMS from "ol/source/TileWMS";
 import { WR_ENV, API_ENDPOINT, API_OLDENDPOINT } from "@/environment";
 
 const usePublicApi = WR_ENV !== "development";
@@ -47,7 +47,7 @@ export default Vue.extend({
   data() {
     return {
       showRoadRegistryLayer: false,
-      roadRegistryLayer: null as TileLayer | null,
+      roadRegistryLayer: null as any,
     };
   },
   computed: {
@@ -66,7 +66,7 @@ export default Vue.extend({
       const olMap = this.olMap;
 
       if (this.showRoadRegistryLayer) {
-        this.roadRegistryLayer = new TileLayer({
+        this.roadRegistryLayer = new Tile({
           source: new TileWMS({
             url: "https://geo.api.vlaanderen.be/Wegenregister/wms",
             params: {
@@ -83,11 +83,7 @@ export default Vue.extend({
         });
         olMap.addLayer(this.roadRegistryLayer);
       } else {
-        let layer = this.roadRegistryLayer;
-        debugger;
-        let layers = olMap.getLayers();
-        //olMap.getLayers().getArray().find(x => x.uid)
-        //olMap.removeLayer(this.roadRegistryLayer);
+        olMap.removeLayer(this.roadRegistryLayer);
         this.roadRegistryLayer = null;
       }
     },
@@ -97,26 +93,8 @@ export default Vue.extend({
       //console.log("onSelectTransactionZone", arguments);
     },
   },
-  mounted() {
-    // debugger;
-    // this.olMap.addLayer(new TileLayer({
-    //   source: new TileWMS({
-    //     url: 'https://geo.api.vlaanderen.be/GRB-basiskaart/wms',
-    //     params: {
-    //       VERSION: '1.3.0',
-    //       SERVICE: 'WMS',
-    //       REQUEST: 'GetMap',
-    //       FORMAT: 'image/png',
-    //       TRANSPARENT: 'true',
-    //       LAYERS: 'GRB_BSK',
-    //       CRS: 'EPSG:3857'
-    //     },
-    //     serverType: 'geoserver'
-    //   })
-    // }));
-  },
+  mounted() {},
 });
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>
