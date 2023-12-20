@@ -1,3 +1,10 @@
+## [3.65.5](https://github.com/informatievlaanderen/road-registry/compare/v3.65.4...v3.65.5) (2023-12-20)
+
+
+### Bug Fixes
+
+* WR-271 add more record info to Dutch error messages + re-enable ziparchivecleaner for standard upload ([#1333](https://github.com/informatievlaanderen/road-registry/issues/1333)) ([d6fec36](https://github.com/informatievlaanderen/road-registry/commit/d6fec36e23878e04e8ae4651911635daf8efb345))
+
 ## [3.65.4](https://github.com/informatievlaanderen/road-registry/compare/v3.65.3...v3.65.4) (2023-12-18)
 
 
