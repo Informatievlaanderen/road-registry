@@ -4,6 +4,7 @@ using System.IO.Compression;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V2.Schema;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V2.Validation;
@@ -296,6 +297,7 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
 
         Assert.Contains(_entry
             .AtDbaseRecord(new RecordNumber(1))
+            .WithIdentifier("WS_OIDN", record.WS_OIDN.GetValue())
             .RequiredFieldIsNull(field), result);
         Assert.Equal(expectedContext, actualContext);
     }
