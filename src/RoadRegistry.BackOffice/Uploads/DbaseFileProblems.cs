@@ -17,15 +17,6 @@ public static class DbaseFileProblems
 
     public static IDbaseFileRecordProblemBuilder WithIdentifier(this IDbaseFileRecordProblemBuilder builder, string field, int? value)
     {
-        return WithDbaseIdentifier(builder, field, value);
-    }
-    public static IDbaseFileRecordProblemBuilder WithIdentifier(this IDbaseFileRecordProblemBuilder builder, string field, string value)
-    {
-        return WithDbaseIdentifier(builder, field, value);
-    }
-
-    private static IDbaseFileRecordProblemBuilder WithDbaseIdentifier(this IDbaseFileRecordProblemBuilder builder, string field, object value)
-    {
         return (IDbaseFileRecordProblemBuilder)builder
             .WithParameters(
                 new ProblemParameter("IdentifierField", field),
