@@ -36,18 +36,19 @@
                   <div class="vl-tabs" data-vl-tabs-list role="tablist">
                     <router-link :to="`/activiteit`" class="vl-tab" role="tab">Activiteit</router-link>
                     <router-link :to="`/informatie`" class="vl-tab" role="tab">Informatie</router-link>
-                    <router-link v-if="userCanEdit" :to="`/download-extract`" class="vl-tab" role="tab"
-                      >Download Extract</router-link
-                    >
+                    <router-link v-if="userCanEdit" :to="`/download-extract`" class="vl-tab" role="tab">
+                      Download Extract
+                    </router-link>
                     <router-link :to="`/download-product`" class="vl-tab" role="tab">Download Product</router-link>
                     <router-link v-if="userCanEdit" :to="`/uploads`" class="vl-tab" role="tab">Uploads</router-link>
                     <router-link
-                      v-if="featureToggles.useTransactionZonesTab"
+                      v-if="userCanEdit && featureToggles.useTransactionZonesTab"
                       :to="`/transaction-zones`"
                       class="vl-tab"
                       role="tab"
-                      >Bijwerkingszones</router-link
                     >
+                      Bijwerkingszones
+                    </router-link>
                   </div>
                 </div>
               </div>
