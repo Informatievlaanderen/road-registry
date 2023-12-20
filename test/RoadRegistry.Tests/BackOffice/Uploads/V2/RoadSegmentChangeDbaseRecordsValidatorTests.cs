@@ -321,9 +321,11 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
             ZipArchiveProblems.Many(
                 _entry
                     .AtDbaseRecord(new RecordNumber(1))
+                    .WithIdentifier("WS_OIDN", 1)
                     .RecordTypeMismatch(-1),
                 _entry
                     .AtDbaseRecord(new RecordNumber(2))
+                    .WithIdentifier("WS_OIDN", 2)
                     .RecordTypeMismatch(-1)
             ),
             result);
@@ -389,9 +391,10 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
 
         Assert.Equal(
             ZipArchiveProblems.Single(
-                _entry.AtDbaseRecord(new RecordNumber(2)).IdentifierNotUnique(
-                    new RoadSegmentId(1),
-                    new RecordNumber(1))
+                _entry
+                    .AtDbaseRecord(new RecordNumber(2))
+                    .WithIdentifier("WS_OIDN", 1)
+                    .IdentifierNotUnique(new RoadSegmentId(1), new RecordNumber(1))
             ),
             result);
         Assert.Equal(expectedContext, actualContext);
@@ -413,8 +416,14 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
 
         Assert.Equal(
             ZipArchiveProblems.Many(
-                _entry.AtDbaseRecord(new RecordNumber(1)).IdentifierZero(),
-                _entry.AtDbaseRecord(new RecordNumber(2)).IdentifierZero()
+                _entry
+                    .AtDbaseRecord(new RecordNumber(1))
+                    .WithIdentifier("WS_OIDN", 0)
+                    .IdentifierZero(),
+                _entry
+                    .AtDbaseRecord(new RecordNumber(2))
+                    .WithIdentifier("WS_OIDN", 0)
+                    .IdentifierZero()
             ),
             result);
         Assert.Same(_context, context);
