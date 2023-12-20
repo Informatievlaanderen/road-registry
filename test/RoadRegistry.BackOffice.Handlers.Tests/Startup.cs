@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using RoadRegistry.BackOffice.FeatureToggles;
 using SqlStreamStore;
 using DomainAssemblyMarker = BackOffice.DomainAssemblyMarker;
 
@@ -35,6 +36,8 @@ public class Startup : TestStartup
                     sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IClock>(),
+                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
+                    new FakeExtractUploadFailedEmailClient(),
                     sp.GetService<ILoggerFactory>()
                 ),
                 new RoadNetworkExtractCommandModule(

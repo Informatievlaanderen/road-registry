@@ -6,7 +6,6 @@ using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
 using NetTopologySuite.Geometries;
-using LineString = NetTopologySuite.Geometries.LineString;
 
 public class ModifyRoadSegment : IRequestedChange, IHaveHash
 {
@@ -32,7 +31,8 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         CrabStreetnameId? rightSideStreetNameId,
         IReadOnlyList<RoadSegmentLaneAttribute> lanes,
         IReadOnlyList<RoadSegmentWidthAttribute> widths,
-        IReadOnlyList<RoadSegmentSurfaceAttribute> surfaces)
+        IReadOnlyList<RoadSegmentSurfaceAttribute> surfaces,
+        bool convertedFromOutlined)
     {
         Id = id;
         Version = version;
@@ -54,6 +54,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         Lanes = lanes ?? throw new ArgumentNullException(nameof(lanes));
         Widths = widths ?? throw new ArgumentNullException(nameof(widths));
         Surfaces = surfaces ?? throw new ArgumentNullException(nameof(surfaces));
+        ConvertedFromOutlined = convertedFromOutlined;
     }
 
     public RoadSegmentAccessRestriction AccessRestriction { get; }
@@ -76,6 +77,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
     public RoadNodeId? TemporaryEndNodeId { get; }
     public RoadNodeId? TemporaryStartNodeId { get; }
     public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
+    public bool ConvertedFromOutlined { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -92,7 +94,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
             MaintenanceAuthority = new MaintenanceAuthority
             {
                 Code = MaintenanceAuthorityId,
-                Name = MaintenanceAuthorityName ?? string.Empty
+                Name = MaintenanceAuthorityName ?? Organization.PredefinedTranslations.Unknown.Name
             },
             GeometryDrawMethod = GeometryDrawMethod,
             Morphology = Morphology,
@@ -137,7 +139,8 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
                     FromPosition = item.From,
                     ToPosition = item.To
                 })
-                .ToArray()
+                .ToArray(),
+            ConvertedFromOutlined = ConvertedFromOutlined
         };
     }
 
@@ -186,19 +189,18 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
                     FromPosition = item.From,
                     ToPosition = item.To
                 })
-                .ToArray()
+                .ToArray(),
+            ConvertedFromOutlined = ConvertedFromOutlined
         };
     }
 
     public Problems VerifyAfter(AfterVerificationContext context)
     {
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(context);
 
         var problems = Problems.None;
         
-        var line = Geometry.Geometries
-            .OfType<LineString>()
-            .Single();
+        var line = Geometry.GetSingleLineString();
 
         if (GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
         {
@@ -210,23 +212,32 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         var byOtherSegment =
             context.AfterView.Segments.Values.FirstOrDefault(segment =>
                 segment.Id != Id &&
-                segment.Geometry.EqualsWithinTolerance(Geometry, context.Tolerances.GeometryTolerance));
+                segment.Geometry.IsReasonablyEqualTo(Geometry, context.Tolerances));
         if (byOtherSegment != null)
             problems = problems.Add(new RoadSegmentGeometryTaken(
                 context.Translator.TranslateToTemporaryOrId(byOtherSegment.Id)
             ));
 
-        var segmentBefore = context.BeforeView.Segments[Id];
+        var checkSegmentBefore = true;
+        if (ConvertedFromOutlined && !context.BeforeView.Segments.ContainsKey(Id))
+        {
+            checkSegmentBefore = false;
+        }
 
-        if (segmentBefore.Start != StartNodeId && segmentBefore.Start != EndNodeId &&
-            context.AfterView.Nodes.TryGetValue(segmentBefore.Start, out var beforeStartNode))
-            problems = problems.AddRange(
-                beforeStartNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
+        if (checkSegmentBefore)
+        {
+            var segmentBefore = context.BeforeView.Segments[Id];
 
-        if (segmentBefore.End != StartNodeId && segmentBefore.End != EndNodeId &&
-            context.AfterView.Nodes.TryGetValue(segmentBefore.End, out var beforeEndNode))
-            problems = problems.AddRange(
-                beforeEndNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
+            if (segmentBefore.Start != StartNodeId && segmentBefore.Start != EndNodeId &&
+                context.AfterView.Nodes.TryGetValue(segmentBefore.Start, out var beforeStartNode))
+                problems = problems.AddRange(
+                    beforeStartNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
+
+            if (segmentBefore.End != StartNodeId && segmentBefore.End != EndNodeId &&
+                context.AfterView.Nodes.TryGetValue(segmentBefore.End, out var beforeEndNode))
+                problems = problems.AddRange(
+                    beforeEndNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
+        }
 
         if (!context.AfterView.View.Nodes.TryGetValue(StartNodeId, out var startNode))
         {
@@ -235,7 +246,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         else
         {
             problems = problems.AddRange(startNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
-            if (line.StartPoint != null && !line.StartPoint.EqualsWithinTolerance(startNode.Geometry, context.Tolerances.GeometryTolerance)) problems = problems.Add(new RoadSegmentStartPointDoesNotMatchNodeGeometry());
+            if (line.StartPoint != null && !line.StartPoint.IsReasonablyEqualTo(startNode.Geometry, context.Tolerances)) problems = problems.Add(new RoadSegmentStartPointDoesNotMatchNodeGeometry());
         }
 
         if (!context.AfterView.View.Nodes.TryGetValue(EndNodeId, out var endNode))
@@ -245,7 +256,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         else
         {
             problems = problems.AddRange(endNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
-            if (line.EndPoint != null && !line.EndPoint.EqualsWithinTolerance(endNode.Geometry, context.Tolerances.GeometryTolerance)) problems = problems.Add(new RoadSegmentEndPointDoesNotMatchNodeGeometry());
+            if (line.EndPoint != null && !line.EndPoint.IsReasonablyEqualTo(endNode.Geometry, context.Tolerances)) problems = problems.Add(new RoadSegmentEndPointDoesNotMatchNodeGeometry());
         }
 
         var intersectingSegments = context.AfterView.View.CreateScopedView(Geometry.EnvelopeInternal).FindIntersectingRoadSegments(this);
@@ -266,131 +277,17 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
 
         var problems = Problems.None;
 
-        if (!context.BeforeView.Segments.ContainsKey(Id))
+        if (!context.BeforeView.Segments.ContainsKey(Id) && !ConvertedFromOutlined)
         {
             problems = problems.Add(new RoadSegmentNotFound());
         }
         
-        var line = Geometry.Geometries
-            .OfType<LineString>()
-            .Single();
+        var line = Geometry.GetSingleLineString();
 
         problems += line.GetProblemsForRoadSegmentGeometry(context.Tolerances);
-
-        RoadSegmentLaneAttribute previousLane = null;
-        foreach (var lane in Lanes)
-        {
-            if (previousLane == null)
-            {
-                if (lane.From != RoadSegmentPosition.Zero)
-                    problems =
-                        problems.Add(new RoadSegmentLaneAttributeFromPositionNotEqualToZero(
-                            lane.TemporaryId,
-                            lane.From));
-            }
-            else
-            {
-                if (lane.From != previousLane.To)
-                    problems =
-                        problems.Add(new RoadSegmentLaneAttributesNotAdjacent(
-                            previousLane.TemporaryId,
-                            previousLane.To,
-                            lane.TemporaryId,
-                            lane.From));
-
-                if (lane.From == lane.To)
-                    problems =
-                        problems.Add(new RoadSegmentLaneAttributeHasLengthOfZero(
-                            lane.TemporaryId,
-                            lane.From,
-                            lane.To));
-            }
-
-            previousLane = lane;
-        }
-
-        if (previousLane != null
-            && !previousLane.To.ToDouble().EqualsWithTolerance(line.Length, context.Tolerances.DynamicRoadSegmentAttributePositionTolerance))
-            problems = problems.Add(new RoadSegmentLaneAttributeToPositionNotEqualToLength(
-                previousLane.TemporaryId,
-                previousLane.To,
-                line.Length));
-
-        RoadSegmentWidthAttribute previousWidth = null;
-        foreach (var width in Widths)
-        {
-            if (previousWidth == null)
-            {
-                if (width.From != RoadSegmentPosition.Zero)
-                    problems =
-                        problems.Add(new RoadSegmentWidthAttributeFromPositionNotEqualToZero(
-                            width.TemporaryId,
-                            width.From));
-            }
-            else
-            {
-                if (width.From != previousWidth.To)
-                    problems =
-                        problems.Add(new RoadSegmentWidthAttributesNotAdjacent(
-                            previousWidth.TemporaryId,
-                            previousWidth.To,
-                            width.TemporaryId,
-                            width.From));
-
-                if (width.From == width.To)
-                    problems =
-                        problems.Add(new RoadSegmentWidthAttributeHasLengthOfZero(
-                            width.TemporaryId,
-                            width.From,
-                            width.To));
-            }
-
-            previousWidth = width;
-        }
-
-        if (previousWidth != null
-            && !previousWidth.To.ToDouble().EqualsWithTolerance(line.Length, context.Tolerances.DynamicRoadSegmentAttributePositionTolerance))
-            problems = problems.Add(new RoadSegmentWidthAttributeToPositionNotEqualToLength(
-                previousWidth.TemporaryId,
-                previousWidth.To,
-                line.Length));
-
-        RoadSegmentSurfaceAttribute previousSurface = null;
-        foreach (var surface in Surfaces)
-        {
-            if (previousSurface == null)
-            {
-                if (surface.From != RoadSegmentPosition.Zero)
-                    problems =
-                        problems.Add(new RoadSegmentSurfaceAttributeFromPositionNotEqualToZero(
-                            surface.TemporaryId,
-                            surface.From));
-            }
-            else
-            {
-                if (surface.From != previousSurface.To)
-                    problems =
-                        problems.Add(new RoadSegmentSurfaceAttributesNotAdjacent(
-                            previousSurface.TemporaryId,
-                            previousSurface.To,
-                            surface.TemporaryId,
-                            surface.From));
-
-                if (surface.From == surface.To)
-                    problems =
-                        problems.Add(new RoadSegmentSurfaceAttributeHasLengthOfZero(
-                            surface.TemporaryId,
-                            surface.From,
-                            surface.To));
-            }
-
-            previousSurface = surface;
-        }
-
-        if (previousSurface != null
-            && !previousSurface.To.ToDouble().EqualsWithTolerance(line.Length, context.Tolerances.DynamicRoadSegmentAttributePositionTolerance))
-            problems = problems.Add(new RoadSegmentSurfaceAttributeToPositionNotEqualToLength(
-                previousSurface.TemporaryId, previousSurface.To, line.Length));
+        problems += line.GetProblemsForRoadSegmentLanes(Lanes, context.Tolerances);
+        problems += line.GetProblemsForRoadSegmentWidths(Widths, context.Tolerances);
+        problems += line.GetProblemsForRoadSegmentSurfaces(Surfaces, context.Tolerances);
 
         return problems;
     }

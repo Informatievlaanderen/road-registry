@@ -117,7 +117,7 @@ public class NumberedRoadChangeDbaseRecordsValidator : IZipArchiveDbaseRecordsVa
             }
             else
             {
-                problems += entry.HasNoDbaseRecords(true);
+                problems += entry.HasNoDbaseRecords();
             }
         }
         catch (Exception exception)

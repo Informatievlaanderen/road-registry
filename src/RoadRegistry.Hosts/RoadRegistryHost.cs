@@ -29,7 +29,7 @@ public class RoadRegistryHost<T>
         _host = host;
         _streamStore = host.Services.GetRequiredService<IStreamStore>();
         _logger = host.Services.GetRequiredService<ILogger<T>>();
-        _runCommandDelegate = runCommandDelegate ?? ((sp) => _host.RunAsync());
+        _runCommandDelegate = runCommandDelegate ?? (_ => _host.RunAsync());
     }
 
     public string ApplicationName => typeof(T).Namespace;
@@ -81,6 +81,7 @@ public class RoadRegistryHost<T>
                     await distributedLockCallback(_host.Services, _host, Configuration);
 
                     Console.WriteLine($"Started {ApplicationName}");
+
                     await _runCommandDelegate(_host.Services).ConfigureAwait(false);
                 },
                 DistributedLockOptions.LoadFromConfiguration(Configuration), _logger);

@@ -9,6 +9,7 @@ using Messages;
 using Microsoft.Extensions.Configuration;
 using NodaTime;
 using NodaTime.Text;
+using RoadRegistry.Tests.BackOffice.Extracts;
 using AcceptedChange = Messages.AcceptedChange;
 
 public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesFixture
@@ -58,6 +59,9 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
             },
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
+;
+        await EditorContext.RoadSegments.AddAsync(TestData.Segment1Added.ToRoadSegmentRecord(TestData.ChangedByOrganization, Clock));
+        await EditorContext.SaveChangesAsync();
     }
 
     protected override async Task<bool> VerifyTicketAsync()

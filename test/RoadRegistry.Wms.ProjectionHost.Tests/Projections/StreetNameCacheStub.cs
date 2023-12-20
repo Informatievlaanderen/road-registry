@@ -1,7 +1,7 @@
 namespace RoadRegistry.Wms.ProjectionHost.Tests.Projections;
 
+using BackOffice.Abstractions;
 using Syndication.Schema;
-using Wms.Projections;
 
 public class StreetNameCacheStub : IStreetNameCache
 {
@@ -14,18 +14,22 @@ public class StreetNameCacheStub : IStreetNameCache
         _position = position;
     }
 
-    public Task<StreetNameRecord> GetAsync(int streetNameId, CancellationToken token)
-    {
-        return Task.FromResult(_stubbedValue);
-    }
-
-    public Task<long> GetMaxPositionAsync(CancellationToken token)
-    {
-        return Task.FromResult(_position);
-    }
-
-    public Task<Dictionary<int, string>> GetStreetNamesByIdAsync(IEnumerable<int> streetNameIds, CancellationToken token)
+    public Task<Dictionary<int, string>> GetStreetNamesById(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
+    }
+
+    public Task<StreetNameCacheItem> GetAsync(int streetNameId, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(new StreetNameCacheItem
+        {
+            NisCode = _stubbedValue?.NisCode,
+            Name = _stubbedValue?.DutchName
+        });
+    }
+    
+    public Task<long> GetMaxPositionAsync(CancellationToken cancellationToken)
+    {
+        return Task.FromResult(_position);
     }
 }

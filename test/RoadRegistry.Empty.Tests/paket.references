@@ -1,0 +1,5 @@
+Microsoft.NET.Test.Sdk
+xunit
+xunit.assert
+xunit.categories
+xunit.runner.visualstudio

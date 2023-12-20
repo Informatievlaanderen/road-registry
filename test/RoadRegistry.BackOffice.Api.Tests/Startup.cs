@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Tests;
 
-using System.Text;
 using Autofac;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
@@ -18,7 +17,17 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using Product.Schema;
+using RoadRegistry.BackOffice.Api.Organizations;
+using RoadRegistry.Hosts.Infrastructure.Options;
 using SqlStreamStore;
+using System.Reflection;
+using Api.Changes;
+using Api.Downloads;
+using Api.Extracts;
+using Api.Information;
+using Api.RoadSegments;
+using Api.Uploads;
+using FeatureToggles;
 using MediatorModule = BackOffice.MediatorModule;
 
 public class Startup : TestStartup
@@ -43,6 +52,8 @@ public class Startup : TestStartup
                     sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IClock>(),
+                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
+                    sp.GetService<IExtractUploadFailedEmailClient>(),
                     sp.GetService<ILoggerFactory>()
                 ),
                 new RoadNetworkExtractCommandModule(
@@ -86,7 +97,24 @@ public class Startup : TestStartup
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 .UseInMemoryDatabase(Guid.NewGuid().ToString("N")))
-            .AddSingleton<TransactionZoneFeatureCompareFeatureReader>(sp => new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()))
+            .AddSingleton<TicketingOptions>(new FakeTicketingOptions())
+            .AddScoped<ChangeFeedController>()
+            .AddScoped<DownloadController>()
+            .AddScoped<ExtractsController>()
+            .AddScoped<InformationController>()
+            .AddScoped<OrganizationsController>()
+            .AddScoped<UploadController>()
+            .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
+            .AddSingleton(new UseCleanZipArchiveFeatureToggle(true))
             ;
+    }
+
+    protected override IEnumerable<Assembly> DetermineAvailableAssemblyCollection()
+    {
+        var executorAssemblyLocation = Assembly.GetExecutingAssembly().Location;
+        var executorDirectoryInfo = new DirectoryInfo(executorAssemblyLocation).Parent;
+        var assemblyFileInfoCollection = executorDirectoryInfo.EnumerateFiles("RoadRegistry.*.dll");
+        var assemblyCollection = assemblyFileInfoCollection.Select(fi => Assembly.LoadFrom(fi.FullName));
+        return assemblyCollection.ToList();
     }
 }

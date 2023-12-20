@@ -35,7 +35,7 @@ AND (AvailableOn - RequestedOn) <= (
         return defaultValue;
     }
 
-    public static async Task<int> TookAverageProcessDuration(this DbSet<ExtractUploadRecord> source, Instant since, int defaultValue)
+    public static async Task<TimeSpan> TookAverageProcessDuration(this DbSet<ExtractUploadRecord> source, Instant since, TimeSpan defaultValue)
     {
         // NOTE: This query takes into account all extract uploads that took an hour or less to assemble
         // and computes the median (or the 0.5 or 50th percentile) of that dataset, that is, 50% of the assembly durations
@@ -58,7 +58,10 @@ AND (CompletedOn - ReceivedOn) <= (
     AND (CompletedOn - ReceivedOn) <= 3600)
     AND ReceivedOn >= {1}", since.ToUnixTimeSeconds(), since.ToUnixTimeSeconds())
                 .AverageAsync(upload => (long?)(upload.CompletedOn - upload.ReceivedOn));
-            if (average.HasValue) return Convert.ToInt32(average.Value);
+            if (average.HasValue)
+            {
+                return new TimeSpan(0,0, Convert.ToInt32(average.Value));
+            }
         }
 
         return defaultValue;

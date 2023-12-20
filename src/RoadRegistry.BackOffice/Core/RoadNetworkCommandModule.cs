@@ -1,188 +1,350 @@
 namespace RoadRegistry.BackOffice.Core;
 
-using System;
-using System.Threading.Tasks;
 using Autofac;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using FeatureToggles;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using SqlStreamStore;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 public class RoadNetworkCommandModule : CommandHandlerModule
 {
+    private readonly IStreamStore _store;
+    private readonly ILifetimeScope _lifetimeScope;
+    private readonly UseOvoCodeInChangeRoadNetworkFeatureToggle _useOvoCodeInChangeRoadNetworkFeatureToggle;
+    private readonly IExtractUploadFailedEmailClient _emailClient;
+    private readonly ILogger _logger;
+    private readonly EventEnricher _enricher;
+
     public RoadNetworkCommandModule(
         IStreamStore store,
         ILifetimeScope lifetimeScope,
         IRoadNetworkSnapshotReader snapshotReader,
         IClock clock,
+        UseOvoCodeInChangeRoadNetworkFeatureToggle useOvoCodeInChangeRoadNetworkFeatureToggle,
+        IExtractUploadFailedEmailClient emailClient,
         ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(store);
+        ArgumentNullException.ThrowIfNull(lifetimeScope);
         ArgumentNullException.ThrowIfNull(snapshotReader);
         ArgumentNullException.ThrowIfNull(clock);
+        ArgumentNullException.ThrowIfNull(emailClient);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
-        var logger = loggerFactory.CreateLogger<RoadNetworkCommandModule>();
-        var enricher = EnrichEvent.WithTime(clock);
-        
+        _store = store;
+        _lifetimeScope = lifetimeScope;
+        _useOvoCodeInChangeRoadNetworkFeatureToggle = useOvoCodeInChangeRoadNetworkFeatureToggle;
+        _emailClient = emailClient;
+        _logger = loggerFactory.CreateLogger<RoadNetworkCommandModule>();
+        _enricher = EnrichEvent.WithTime(clock);
+
         For<ChangeRoadNetwork>()
             .UseValidator(new ChangeRoadNetworkValidator())
-            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
-            .Handle(async (context, message, _, ct) =>
-            {
-                logger.LogInformation("Command handler started for {CommandName}", nameof(ChangeRoadNetwork));
-
-                var request = ChangeRequestId.FromString(message.Body.RequestId);
-                DownloadId? downloadId = message.Body.DownloadId is not null ? new DownloadId(message.Body.DownloadId.Value) : null;
-                var @operator = new OperatorName(message.Body.Operator);
-                var reason = new Reason(message.Body.Reason);
-                var organizationId = new OrganizationId(message.Body.OrganizationId);
-                var organization = await context.Organizations.FindAsync(organizationId, ct);
-                var translation = organization == null ? Organization.PredefinedTranslations.Unknown : organization.Translation;
-
-                var network = await context.RoadNetworks.Get(ct);
-                var translator = new RequestedChangeTranslator(
-                    network.ProvidesNextTransactionId(),
-                    network.ProvidesNextRoadNodeId(),
-                    network.ProvidesNextRoadNodeVersion(),
-                    network.ProvidesNextRoadSegmentId(),
-                    network.ProvidesNextGradeSeparatedJunctionId(),
-                    network.ProvidesNextEuropeanRoadAttributeId(),
-                    network.ProvidesNextNationalRoadAttributeId(),
-                    network.ProvidesNextNumberedRoadAttributeId(),
-                    network.ProvidesNextRoadSegmentVersion(),
-                    network.ProvidesNextRoadSegmentGeometryVersion(),
-                    network.ProvidesNextRoadSegmentLaneAttributeId(),
-                    network.ProvidesNextRoadSegmentWidthAttributeId(),
-                    network.ProvidesNextRoadSegmentSurfaceAttributeId()
-                );
-                var requestedChanges = await translator.Translate(message.Body.Changes, context.Organizations, ct);
-
-                network.Change(request, downloadId, reason, @operator, translation, requestedChanges);
-
-                logger.LogInformation("Command handler finished for {Command}", nameof(ChangeRoadNetwork));
-            });
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, _enricher)
+            .Handle(ChangeRoadNetwork);
 
         For<CreateOrganization>()
             .UseValidator(new CreateOrganizationValidator())
-            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
-            .Handle(async (context, command, commandMetadata, ct) =>
-            {
-                logger.LogInformation("Command handler started for {CommandName}", nameof(CreateOrganization));
-
-                var organizationId = new OrganizationId(command.Body.Code);
-                var organization = await context.Organizations.FindAsync(organizationId, ct);
-
-                if (organization != null)
-                {
-                    var rejectedCommand = new CreateOrganizationRejected
-                    {
-                        Code = command.Body.Code,
-                        Name = command.Body.Name
-                    };
-                    enricher(rejectedCommand);
-
-                    await new RoadNetworkCommandQueue(store, commandMetadata)
-                        .Write(new Command(rejectedCommand), ct);
-                }
-                else
-                {
-                    var acceptedCommand = new CreateOrganizationAccepted
-                    {
-                        Code = command.Body.Code,
-                        Name = command.Body.Name
-                    };
-                    enricher(acceptedCommand);
-
-                    await new OrganizationCommandQueue(store)
-                        .Write(organizationId, new Command(acceptedCommand), ct);
-                }
-
-                logger.LogInformation("Command handler finished for {Command}", nameof(CreateOrganization));
-            });
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, _enricher)
+            .Handle(CreateOrganization);
 
         For<CreateOrganizationRejected>()
-            .Handle((_, _, _) =>
-            {
-                logger.LogInformation("Command handler started for {CommandName}", nameof(CreateOrganizationRejected));
-                logger.LogInformation("Command handler finished for {Command}", nameof(CreateOrganizationRejected));
-                return Task.CompletedTask;
-            });
+            .Handle(Ignore);
 
         For<DeleteOrganization>()
             .UseValidator(new DeleteOrganizationValidator())
-            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
-            .Handle(async (context, command, commandMetadata, ct) =>
-            {
-                logger.LogInformation("Command handler started for {CommandName}", nameof(DeleteOrganization));
-
-                var organizationId = new OrganizationId(command.Body.Code);
-                var organization = await context.Organizations.FindAsync(organizationId, ct);
-
-                if (organization != null)
-                {
-                    organization.Delete();
-                }
-                else
-                {
-                    var rejectedCommand = new DeleteOrganizationRejected
-                    {
-                        Code = command.Body.Code
-                    };
-                    enricher(rejectedCommand);
-
-                    await new RoadNetworkCommandQueue(store, commandMetadata)
-                        .Write(new Command(rejectedCommand), ct);
-                }
-
-                logger.LogInformation("Command handler finished for {Command}", nameof(DeleteOrganization));
-            });
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, _enricher)
+            .Handle(DeleteOrganization);
 
         For<DeleteOrganizationRejected>()
-            .Handle((_, _, _) =>
-            {
-                logger.LogInformation("Command handler started for {CommandName}", nameof(DeleteOrganizationRejected));
-                logger.LogInformation("Command handler finished for {Command}", nameof(DeleteOrganizationRejected));
-                return Task.CompletedTask;
-            });
+            .Handle(Ignore);
 
         For<RenameOrganization>()
             .UseValidator(new RenameOrganizationValidator())
-            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
-            .Handle(async (context, command, commandMetadata, ct) =>
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, _enricher)
+            .Handle(RenameOrganization);
+
+        For<RenameOrganizationRejected>()
+            .Handle(Ignore);
+
+        For<ChangeOrganization>()
+            .UseValidator(new ChangeOrganizationValidator())
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, _enricher)
+            .Handle(ChangeOrganization);
+
+        For<ChangeOrganizationRejected>()
+            .Handle(Ignore);
+    }
+
+    private async Task ChangeRoadNetwork(IRoadRegistryContext context, Command<ChangeRoadNetwork> command, ApplicationMetadata commandMetadata, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Command handler started for {CommandName}", command.Body.GetType().Name);
+
+        var request = ChangeRequestId.FromString(command.Body.RequestId);
+        DownloadId? downloadId = command.Body.DownloadId is not null ? new DownloadId(command.Body.DownloadId.Value) : null;
+        var @operator = new OperatorName(command.Body.Operator);
+        var reason = new Reason(command.Body.Reason);
+
+        var sw = Stopwatch.StartNew();
+        var organizationId = new OrganizationId(command.Body.OrganizationId);
+        var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
+        _logger.LogInformation("TIMETRACKING changeroadnetwork: finding organization took {Elapsed}", sw.Elapsed);
+
+        var organizationTranslation = ToDutchTranslation(organization, organizationId);
+
+        sw.Restart();
+
+        var successChangedMessages = new Dictionary<IEventSourcedEntity, List<IMessage>>();
+        var failedChangedMessages = new Dictionary<IEventSourcedEntity, List<IMessage>>();
+
+        using (var container = _lifetimeScope.BeginLifetimeScope())
+        {
+            var idGenerator = container.Resolve<IRoadNetworkIdGenerator>();
+
+            var roadNetworkStreamChanges = await SplitChangesByRoadNetworkStream(idGenerator, command.Body.Changes);
+
+            foreach (var roadNetworkStreamChange in roadNetworkStreamChanges)
             {
-                logger.LogInformation("Command handler started for {CommandName}", nameof(RenameOrganization));
+                var streamName = roadNetworkStreamChange.Key;
+                var changes = roadNetworkStreamChange.Value;
 
-                var organizationId = new OrganizationId(command.Body.Code);
-                var organization = await context.Organizations.FindAsync(organizationId, ct);
+                var network = await context.RoadNetworks.Get(streamName, cancellationToken);
+                _logger.LogInformation("TIMETRACKING changeroadnetwork: loading RoadNetwork [{StreamName}] took {Elapsed}", streamName, sw.Elapsed);
 
-                if (organization != null)
+                var translator = new RequestedChangeTranslator(
+                    network.CreateIdProvider(idGenerator),
+                    network.ProvidesNextRoadNodeVersion(),
+                    network.ProvidesNextRoadSegmentVersion(),
+                    network.ProvidesNextRoadSegmentGeometryVersion()
+                );
+                sw.Restart();
+                var requestedChanges = await translator.Translate(changes, context.Organizations, cancellationToken);
+                _logger.LogInformation("TIMETRACKING changeroadnetwork: translating command changes to RequestedChanges took {Elapsed}", sw.Elapsed);
+
+                sw.Restart();
+                var changedMessage = await network.Change(request, downloadId, reason, @operator, organizationTranslation, requestedChanges, _emailClient, cancellationToken);
+                _logger.LogInformation("TIMETRACKING changeroadnetwork: applying RequestedChanges to RoadNetwork took {Elapsed}", sw.Elapsed);
+
+                if (changedMessage is RoadNetworkChangesRejected)
                 {
-                    organization.Rename(command.Body.Name);
+                    failedChangedMessages.TryAdd(network, new List<IMessage>());
+                    failedChangedMessages[network].Add(changedMessage);
                 }
                 else
                 {
-                    var rejectedCommand = new RenameOrganizationRejected
-                    {
-                        Code = command.Body.Code,
-                        Name = command.Body.Name
-                    };
-                    enricher(rejectedCommand);
-
-                    await new RoadNetworkCommandQueue(store, commandMetadata)
-                        .Write(new Command(rejectedCommand), ct);
+                    successChangedMessages.TryAdd(network, new List<IMessage>());
+                    successChangedMessages[network].Add(changedMessage);
                 }
-
-                logger.LogInformation("Command handler finished for {Command}", nameof(RenameOrganization));
-            });
-
-        For<RenameOrganizationRejected>()
-            .Handle((_, _, _) =>
+            }
+        }
+        
+        if (failedChangedMessages.Any() && successChangedMessages.Any())
+        {
+            foreach (var item in successChangedMessages)
+            foreach (var @event in item.Value)
             {
-                logger.LogInformation("Command handler started for {CommandName}", nameof(RenameOrganizationRejected));
-                logger.LogInformation("Command handler finished for {Command}", nameof(RenameOrganizationRejected));
-                return Task.CompletedTask;
-            });
+                context.EventFilter.Exclude(item.Key, @event);
+            }
+        }
+
+        _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
+    }
+
+    private async Task CreateOrganization(IRoadRegistryContext context, Command<CreateOrganization> command, ApplicationMetadata commandMetadata, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Command handler started for {CommandName}", command.Body.GetType().Name);
+
+        var organizationId = new OrganizationId(command.Body.Code);
+        var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
+
+        if (organization != null)
+        {
+            var rejectedCommand = new CreateOrganizationRejected
+            {
+                Code = command.Body.Code,
+                Name = command.Body.Name,
+                OvoCode = command.Body.OvoCode
+            };
+            _enricher(rejectedCommand);
+
+            await new RoadNetworkCommandQueue(_store, commandMetadata)
+                .Write(new Command(rejectedCommand), cancellationToken);
+        }
+        else
+        {
+            var acceptedCommand = new CreateOrganizationAccepted
+            {
+                Code = command.Body.Code,
+                Name = command.Body.Name,
+                OvoCode = command.Body.OvoCode
+            };
+            _enricher(acceptedCommand);
+
+            await new OrganizationCommandQueue(_store)
+                .Write(organizationId, new Command(acceptedCommand), cancellationToken);
+        }
+
+        _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
+    }
+
+    private async Task DeleteOrganization(IRoadRegistryContext context, Command<DeleteOrganization> command, ApplicationMetadata commandMetadata, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Command handler started for {CommandName}", command.Body.GetType().Name);
+
+        var organizationId = new OrganizationId(command.Body.Code);
+        var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
+
+        if (organization != null)
+        {
+            organization.Delete();
+        }
+        else
+        {
+            var rejectedCommand = new DeleteOrganizationRejected
+            {
+                Code = command.Body.Code
+            };
+            _enricher(rejectedCommand);
+
+            await new RoadNetworkCommandQueue(_store, commandMetadata)
+                .Write(new Command(rejectedCommand), cancellationToken);
+        }
+
+        _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
+    }
+
+    private async Task RenameOrganization(IRoadRegistryContext context, Command<RenameOrganization> command, ApplicationMetadata commandMetadata, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Command handler started for {CommandName}", command.Body.GetType().Name);
+
+        var organizationId = new OrganizationId(command.Body.Code);
+        var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
+
+        if (organization != null)
+        {
+            organization.Rename(new OrganizationName(command.Body.Name));
+        }
+        else
+        {
+            var rejectedCommand = new RenameOrganizationRejected
+            {
+                Code = command.Body.Code,
+                Name = command.Body.Name
+            };
+            _enricher(rejectedCommand);
+
+            await new RoadNetworkCommandQueue(_store, commandMetadata)
+                .Write(new Command(rejectedCommand), cancellationToken);
+        }
+
+        _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
+    }
+
+    private async Task ChangeOrganization(IRoadRegistryContext context, Command<ChangeOrganization> command, ApplicationMetadata commandMetadata, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Command handler started for {CommandName}", command.Body.GetType().Name);
+
+        var organizationId = new OrganizationId(command.Body.Code);
+        var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
+
+        if (organization != null)
+        {
+            organization.Change(
+                command.Body.Name is not null ? OrganizationName.WithoutExcessLength(command.Body.Name) : null,
+                OrganizationOvoCode.FromValue(command.Body.OvoCode)
+            );
+        }
+        else
+        {
+            var rejectedCommand = new ChangeOrganizationRejected
+            {
+                Code = command.Body.Code,
+                Name = command.Body.Name,
+                OvoCode = command.Body.OvoCode
+            };
+            _enricher(rejectedCommand);
+
+            await new RoadNetworkCommandQueue(_store, commandMetadata)
+                .Write(new Command(rejectedCommand), cancellationToken);
+        }
+
+        _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
+    }
+
+    private Task Ignore<TCommand>(Command<TCommand> command, ApplicationMetadata commandMetadata, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    private async Task FillMissingPermanentIdsForAddedOutlineRoadSegments(IRoadNetworkIdGenerator idGenerator, RequestedChange[] changes)
+    {
+        foreach (var change in changes
+                     .Where(x => x.AddRoadSegment?.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
+                                 && x.AddRoadSegment.PermanentId is null))
+        {
+            change.AddRoadSegment.PermanentId = await idGenerator.NewRoadSegmentId();
+        }
+    }
+
+    private async Task<Dictionary<StreamName, RequestedChange[]>> SplitChangesByRoadNetworkStream(IRoadNetworkIdGenerator idGenerator, RequestedChange[] changes)
+    {
+        await FillMissingPermanentIdsForAddedOutlineRoadSegments(idGenerator, changes);
+        
+        var roadNetworkStreamChanges = changes
+            .Select(change => new
+            {
+                RoadSegmentId = change.AddRoadSegment?.PermanentId
+                                ?? change.ModifyRoadSegment?.Id
+                                ?? change.RemoveRoadSegment?.Id
+                                ?? change.ModifyRoadSegmentAttributes?.Id
+                                ?? change.ModifyRoadSegmentGeometry?.Id
+                                ?? change.RemoveOutlinedRoadSegment?.Id,
+                GeometryDrawMethod = change.AddRoadSegment?.GeometryDrawMethod
+                                     ?? change.ModifyRoadSegment?.GeometryDrawMethod
+                                     ?? change.RemoveRoadSegment?.GeometryDrawMethod
+                                     ?? change.ModifyRoadSegmentAttributes?.GeometryDrawMethod
+                                     ?? change.ModifyRoadSegmentGeometry?.GeometryDrawMethod
+                                     ?? (change.RemoveOutlinedRoadSegment is not null ? RoadSegmentGeometryDrawMethod.Outlined : null),
+                Change = change
+            })
+            .GroupBy(x =>
+                x.RoadSegmentId is not null && x.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
+                    ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(x.RoadSegmentId.Value))
+                    : RoadNetworkStreamNameProvider.Default, x => x.Change)
+            .ToDictionary(x => x.Key, x => x.ToArray());
+
+        if (!roadNetworkStreamChanges.Any())
+        {
+            roadNetworkStreamChanges.Add(RoadNetworkStreamNameProvider.Default, changes);
+        }
+
+        return roadNetworkStreamChanges;
+    }
+    
+    private Organization.DutchTranslation ToDutchTranslation(Organization organization, OrganizationId organizationId)
+    {
+        if (organization is null)
+        {
+            return organizationId == OrganizationId.Other
+                ? Organization.PredefinedTranslations.Other
+                : Organization.PredefinedTranslations.Unknown;
+        }
+
+        if (_useOvoCodeInChangeRoadNetworkFeatureToggle.FeatureEnabled && organization.OvoCode is not null)
+        {
+            return new Organization.DutchTranslation(new OrganizationId(organization.OvoCode.Value), organization.Translation.Name);
+        }
+
+        return organization.Translation
+               ?? ToDutchTranslation(null, organizationId);
     }
 }

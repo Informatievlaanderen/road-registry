@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 
-using System.IO.Compression;
 using Abstractions.Configuration;
 using Abstractions.Exceptions;
 using Abstractions.Extracts;
@@ -16,6 +15,7 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.Abstractions;
 using SqlStreamStore.Streams;
+using System.IO.Compression;
 using UploadExtractFeatureCompareRequest = Abstractions.Extracts.UploadExtractFeatureCompareRequest;
 
 /// <summary>
@@ -27,6 +27,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
     private readonly RoadNetworkFeatureCompareBlobClient _client;
     private readonly ISqsQueuePublisher _sqsQueuePublisher;
     private readonly IZipArchiveBeforeFeatureCompareValidator _validator;
+    private readonly IExtractUploadFailedEmailClient _emailClient;
     private readonly IRoadNetworkEventWriter _roadNetworkEventWriter;
     private readonly IRoadRegistryContext _roadRegistryContext;
 
@@ -44,6 +45,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         RoadNetworkFeatureCompareBlobClient client,
         ISqsQueuePublisher sqsQueuePublisher,
         IZipArchiveBeforeFeatureCompareValidator validator,
+        IExtractUploadFailedEmailClient emailClient,
         IRoadNetworkEventWriter roadNetworkEventWriter,
         EditorContext context,
         IRoadRegistryContext roadRegistryContext,
@@ -54,6 +56,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         _client = client;
         _sqsQueuePublisher = sqsQueuePublisher;
         _validator = validator;
+        _emailClient = emailClient;
         _roadNetworkEventWriter = roadNetworkEventWriter;
         _roadRegistryContext = roadRegistryContext;
         _context = context.ThrowIfNull();
@@ -71,21 +74,21 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
             throw new DownloadExtractNotFoundException("Could not find extract with empty download identifier");
         }
 
-        if (!Guid.TryParseExact(request.DownloadId, "N", out var parsedDownloadId))
+        if (!DownloadId.TryParse(request.DownloadId, out var downloadId))
         {
             throw new UploadExtractNotFoundException($"Could not upload the extract with filename {request.Archive.FileName}");
         }
 
-        var extractRequest = await _context.ExtractRequests.FindAsync(new object[] { parsedDownloadId }, cancellationToken)
-                             ?? throw new ExtractDownloadNotFoundException(new DownloadId(parsedDownloadId));
+        var extractRequest = await _context.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken)
+                             ?? throw new ExtractDownloadNotFoundException(downloadId);
 
         if (extractRequest.IsInformative)
         {
-            throw new ExtractRequestMarkedInformativeException(new DownloadId(parsedDownloadId));
+            throw new ExtractRequestMarkedInformativeException(downloadId);
         }
 
-        var download = await _context.ExtractDownloads.FindAsync(new object[] { parsedDownloadId }, cancellationToken)
-                       ?? throw new ExtractDownloadNotFoundException(new DownloadId(parsedDownloadId));
+        var download = await _context.ExtractDownloads.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken)
+                       ?? throw new ExtractDownloadNotFoundException(downloadId);
         
         await using var readStream = request.Archive.ReadStream;
         ArchiveId archiveId = new(Guid.NewGuid().ToString("N"));
@@ -101,17 +104,12 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         var extractRequestId = ExtractRequestId.FromString(download.RequestId);
         var extract = await _roadRegistryContext.RoadNetworkExtracts.Get(extractRequestId, cancellationToken);
 
-        var upload = extract.Upload(new DownloadId(parsedDownloadId), uploadId, archiveId);
+        var upload = extract.Upload(downloadId, uploadId, archiveId);
         
         using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
         {
-            var problems = upload.ValidateArchiveUsing(archive, _validator);
-
-            var fileProblems = problems.OfType<FileError>();
-            if (fileProblems.Any())
-            {
-                throw new ZipArchiveValidationException(problems);
-            }
+            var problems = await upload.ValidateArchiveUsing(archive, _validator, _emailClient, cancellationToken);
+            problems.ThrowIfError();
 
             readStream.Position = 0;
             await _client.CreateBlobAsync(

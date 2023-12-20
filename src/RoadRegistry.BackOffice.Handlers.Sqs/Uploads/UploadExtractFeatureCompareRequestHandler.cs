@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Uploads;
 
-using System.IO.Compression;
 using Abstractions;
 using Abstractions.Configuration;
 using Abstractions.Exceptions;
@@ -13,8 +12,8 @@ using FeatureToggles;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
-using Microsoft.IO;
 using SqlStreamStore.Streams;
+using System.IO.Compression;
 using ZipArchiveWriters;
 using ZipArchiveWriters.Cleaning;
 
@@ -79,12 +78,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
         {
             var problems = entity.ValidateArchiveUsing(archive, _validator);
-
-            var fileProblems = problems.OfType<FileError>();
-            if (fileProblems.Any())
-            {
-                throw new ZipArchiveValidationException(problems);
-            }
+            problems.ThrowIfError();
 
             readStream.Position = 0;
             await _client.CreateBlobAsync(
@@ -116,7 +110,17 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         using (var archive = new ZipArchive(writeStream, ZipArchiveMode.Update, true))
         {
             var cleaner = new BeforeFeatureCompareZipArchiveCleaner(_encoding);
-            var cleanResult = await cleaner.CleanAsync(archive, cancellationToken);
+            CleanResult cleanResult;
+            try
+            {
+                cleanResult = await cleaner.CleanAsync(archive, cancellationToken);
+            }
+            catch
+            {
+                // ignore exceptions, let the validation handle it
+                cleanResult = CleanResult.NotApplicable;
+            }
+
             if (cleanResult != CleanResult.Changed)
             {
                 readStream.Position = 0;

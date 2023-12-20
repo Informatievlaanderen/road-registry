@@ -10,7 +10,6 @@ public static class SwaggerExtensions
     {
         options.SchemaFilter<OutlinedRoadSegmentMorphologySchemaFilter>();
         options.SchemaFilter<OutlinedRoadSegmentStatusSchemaFilter>();
-        options.SchemaFilter<OutlinedRoadSegmentSurfaceTypeSchemaFilter>();
         options.SchemaFilter<RoadSegmentAccessRestrictionSchemaFilter>();
         options.SchemaFilter<RoadSegmentCategorySchemaFilter>();
         options.SchemaFilter<RoadSegmentGeometryDrawMethodSchemaFilter>();

@@ -2,7 +2,6 @@
 
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
-using Abstractions;
 using Autofac;
 using BackOffice.Extensions;
 using BackOffice.Infrastructure.Modules;
@@ -13,9 +12,9 @@ using FluentValidation;
 using Framework;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
-using Infrastructure.Modules;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using StreetName;
 using System.Reflection;
 
 public class Function : RoadRegistryLambdaFunction<MessageHandler>
@@ -34,11 +33,12 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
     protected override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
         services
-            .AddSingleton<IStreetNameCache, StreetNameCache>()
+            .AddStreetNameCache()
             .AddDistributedStreamStoreLockOptions()
             .AddRoadNetworkCommandQueue()
             .AddRoadNetworkEventWriter()
             .AddChangeRoadNetworkDispatcher()
+            .AddRoadNetworkDbIdGenerator()
             .AddCommandHandlerDispatcher(sp => Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
                 {
@@ -46,9 +46,10 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
                 })
             )
             .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
+            .AddStreetNameClient()
             ;
     }
-
+    
     protected override void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
     {
         builder
@@ -57,7 +58,6 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .RegisterModule(new EventHandlingModule(typeof(BackOffice.Handlers.DomainAssemblyMarker).Assembly, EventSerializerSettings))
             .RegisterModule<CommandHandlingModule>()
             .RegisterModule<ContextModule>()
-            .RegisterModule<SyndicationModule>()
             .RegisterModule<SqsHandlersModule>()
             ;
 

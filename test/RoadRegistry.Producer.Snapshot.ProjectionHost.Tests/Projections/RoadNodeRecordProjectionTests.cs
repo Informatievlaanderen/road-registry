@@ -41,6 +41,51 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
         _fixture.CustomizeRoadNodeRemoved();
     }
 
+    private static Mock<IKafkaProducer> BuildKafkaProducer()
+    {
+        var kafkaProducer = new Mock<IKafkaProducer>();
+        kafkaProducer
+            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadNodeSnapshot>(), CancellationToken.None))
+            .ReturnsAsync(Result<RoadNodeSnapshot>.Success(It.IsAny<RoadNodeSnapshot>()));
+        return kafkaProducer;
+    }
+
+    private static ICollection<object> ConvertToRoadNodeRecords(RoadNetworkChangesAccepted message, DateTimeOffset created, Action<RoadNodeRecord> modifier = null)
+    {
+        return Array.ConvertAll(message.Changes, change =>
+        {
+            var roadNodeAdded = change.RoadNodeAdded;
+
+            var typeTranslation = RoadNodeType.Parse(roadNodeAdded.Type).Translation;
+            var point = GeometryTranslator.Translate(roadNodeAdded.Geometry);
+
+            var record = new RoadNodeRecord(
+                roadNodeAdded.Id,
+                roadNodeAdded.Version,
+                typeTranslation.Identifier,
+                typeTranslation.Name,
+                point,
+                message.ToOrigin(),
+                created);
+
+            modifier?.Invoke(record);
+            return (object)record;
+        });
+    }
+
+    private void KafkaVerify(Mock<IKafkaProducer> kafkaProducer, IEnumerable<object> expectedRecords, Times? times = null)
+    {
+        foreach (var expectedRecord in expectedRecords.Cast<RoadNodeRecord>())
+        {
+            kafkaProducer.Verify(
+                x => x.Produce(
+                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
+                    It.Is(expectedRecord.ToContract(), new RoadNodeSnapshotEqualityComparer()),
+                    It.IsAny<CancellationToken>()),
+                times ?? Times.Once());
+        }
+    }
+
     [Fact]
     public async Task When_adding_road_nodes()
     {
@@ -50,41 +95,15 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
 
         var created = DateTimeOffset.UtcNow;
 
-        var expectedRecords = Array.ConvertAll(message.Changes, change =>
-        {
-            var roadNodeAdded = change.RoadNodeAdded;
-            var typeTranslation = RoadNodeType.Parse(roadNodeAdded.Type).Translation;
-            var point = GeometryTranslator.Translate(roadNodeAdded.Geometry);
+        var expectedRecords = ConvertToRoadNodeRecords(message, created);
 
-            return (object)new RoadNodeRecord(
-                roadNodeAdded.Id,
-                roadNodeAdded.Version,
-                typeTranslation.Identifier,
-                typeTranslation.Name,
-                point,
-                message.ToOrigin(),
-                created);
-        });
-
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadNodeSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<RoadNodeSnapshot>.Success(It.IsAny<RoadNodeSnapshot>()));
-
+        var kafkaProducer = BuildKafkaProducer();
         await new RoadNodeRecordProjection(kafkaProducer.Object)
             .Scenario()
             .Given(message)
             .Expect(created.UtcDateTime, expectedRecords);
 
-        foreach (var expectedRecord in expectedRecords.Cast<RoadNodeRecord>())
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new RoadNodeSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        KafkaVerify(kafkaProducer, expectedRecords);
     }
 
     [Fact]
@@ -118,25 +137,13 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
                 created);
         });
 
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadNodeSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<RoadNodeSnapshot>.Success(It.IsAny<RoadNodeSnapshot>()));
-
+        var kafkaProducer = BuildKafkaProducer();
         await new RoadNodeRecordProjection(kafkaProducer.Object)
             .Scenario()
             .Given(acceptedRoadNodeAdded, acceptedRoadNodeModified)
             .Expect(created.UtcDateTime, expectedRecords);
 
-        foreach (var expectedRecord in expectedRecords.Cast<RoadNodeRecord>())
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new RoadNodeSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        KafkaVerify(kafkaProducer, expectedRecords);
     }
 
     [Fact]
@@ -154,21 +161,9 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
 
         var created = DateTimeOffset.UtcNow;
 
-        var expectedRecords = Array.ConvertAll(acceptedRoadNodeAdded.Changes, change =>
+        var expectedRecords = ConvertToRoadNodeRecords(acceptedRoadNodeAdded, created.AddDays(-1), record =>
         {
-            var roadNodeAdded = change.RoadNodeAdded;
-            var typeTranslation = RoadNodeType.Parse(roadNodeAdded.Type).Translation;
-            var point = GeometryTranslator.Translate(roadNodeAdded.Geometry);
-
-            return (object)new RoadNodeRecord(
-                    roadNodeAdded.Id,
-                    roadNodeAdded.Version,
-                    typeTranslation.Identifier,
-                    typeTranslation.Name,
-                    point,
-                    acceptedRoadNodeAdded.ToOrigin(),
-                    created.AddDays(-1))
-                { IsRemoved = true };
+            record.IsRemoved = true;
         });
 
         expectedRecords = Array.ConvertAll(acceptedRoadNodeRemoved.Changes, change =>
@@ -183,25 +178,13 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
             return (object)record;
         });
 
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadNodeSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<RoadNodeSnapshot>.Success(It.IsAny<RoadNodeSnapshot>()));
-
+        var kafkaProducer = BuildKafkaProducer();
         await new RoadNodeRecordProjection(kafkaProducer.Object)
             .Scenario()
             .Given(acceptedRoadNodeAdded, acceptedRoadNodeRemoved)
             .Expect(created.UtcDateTime, expectedRecords);
 
-        foreach (var expectedRecord in expectedRecords.Cast<RoadNodeRecord>())
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new RoadNodeSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        KafkaVerify(kafkaProducer, expectedRecords);
     }
 
     [Fact]
@@ -233,24 +216,39 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
                 };
             }).ToList();
 
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadNodeSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<RoadNodeSnapshot>.Success(It.IsAny<RoadNodeSnapshot>()));
-
+        var kafkaProducer = BuildKafkaProducer();
         await new RoadNodeRecordProjection(kafkaProducer.Object)
             .Scenario()
             .Given(data.Select(d => d.ImportedRoadNode))
             .Expect(created.UtcDateTime, data.Select(d => d.ExpectedRecord));
 
-        foreach (var expectedRecord in data.AsReadOnly().Select(x => x.ExpectedRecord))
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new RoadNodeSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        var expectedRecords = data.AsReadOnly().Select(x => x.ExpectedRecord).ToArray();
+        KafkaVerify(kafkaProducer, expectedRecords);
+    }
+
+    [Fact]
+    public async Task When_adding_road_nodes_which_were_previously_removed()
+    {
+        _fixture.Freeze<RoadNodeId>();
+
+        var created = DateTimeOffset.UtcNow;
+        
+        var acceptedRoadNodeAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadNodeAdded>());
+
+        var acceptedRoadNodeRemoved = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadNodeRemoved>());
+
+        var expectedRecords = ConvertToRoadNodeRecords(acceptedRoadNodeAdded, created);
+
+        var kafkaProducer = BuildKafkaProducer();
+        await new RoadNodeRecordProjection(kafkaProducer.Object)
+            .Scenario()
+            .Given(acceptedRoadNodeAdded, acceptedRoadNodeRemoved, acceptedRoadNodeAdded)
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        KafkaVerify(kafkaProducer, expectedRecords, Times.Exactly(2));
     }
 }

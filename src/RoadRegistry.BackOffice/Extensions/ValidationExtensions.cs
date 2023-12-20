@@ -59,9 +59,7 @@ public static class ValidationExtensions
                 {
                     Severity = ProblemSeverity.Error,
                     Reason = x.ErrorCode,
-                    Parameters = ((ProblemParameter[])x.CustomState)?
-                        .Select(problemParameter => problemParameter.Translate())
-                        .ToArray() ?? Array.Empty<Messages.ProblemParameter>()
+                    Parameters = ParseCustomState(x.CustomState)
                 }
             })
             .Select(x =>
@@ -93,5 +91,22 @@ public static class ValidationExtensions
         {
             throw exceptionBuilder(validationResult) ?? new ValidationException(validationResult.Errors);
         }
+    }
+
+    private static Messages.ProblemParameter[] ParseCustomState(object customState)
+    {
+        if (customState is null)
+        {
+            return Array.Empty<Messages.ProblemParameter>();
+        }
+
+        if (customState is Messages.ProblemParameter[] problemParameters)
+        {
+            return problemParameters;
+        }
+
+        return ((ProblemParameter[])customState)
+            .Select(problemParameter => problemParameter.Translate())
+            .ToArray();
     }
 }

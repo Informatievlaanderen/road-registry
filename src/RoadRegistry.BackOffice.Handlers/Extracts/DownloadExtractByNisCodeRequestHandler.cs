@@ -26,14 +26,14 @@ public class DownloadExtractByNisCodeRequestHandler : ExtractRequestHandler<Down
         var message = new RequestRoadNetworkExtract
         {
             ExternalRequestId = randomExternalRequestId,
-            Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry((MultiPolygon)municipalityGeometry.Geometry, request.Buffer),
+            Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(municipalityGeometry.Geometry.ToMultiPolygon(), request.Buffer),
             DownloadId = downloadId,
             Description = request.Description,
             IsInformative = request.IsInformative
         };
 
         var command = new Command(message);
-        await Dispatcher(command, cancellationToken);
+        await Dispatch(command, cancellationToken);
 
         return new DownloadExtractByNisCodeResponse(downloadId, request.IsInformative);
     }

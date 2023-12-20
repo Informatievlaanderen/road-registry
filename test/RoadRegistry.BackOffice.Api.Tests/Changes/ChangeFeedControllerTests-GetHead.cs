@@ -61,7 +61,7 @@ public partial class ChangeFeedControllerTests
         Assert.Equal("01", item.Day);
 
         // YR: Different versions of libicu use different casing
-        Assert.Equal("jan.", item.Month.ToLowerInvariant());
+        Assert.Equal("jan", item.Month.ToLowerInvariant());
         Assert.Equal("01:00", item.TimeOfDay);
     }
 

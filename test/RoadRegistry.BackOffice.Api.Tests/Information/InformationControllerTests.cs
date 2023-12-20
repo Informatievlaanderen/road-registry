@@ -13,12 +13,12 @@ public partial class InformationControllerTests : ControllerMinimalTests<Informa
     private readonly SqlServer _fixture;
     private readonly CancellationTokenSource _tokenSource;
 
-
     public InformationControllerTests(
         SqlServer fixture,
+        InformationController controller,
         EditorContext editorContext,
         IMediator mediator)
-        : base(mediator)
+        : base(controller, mediator)
     {
         _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         _tokenSource = new CancellationTokenSource();

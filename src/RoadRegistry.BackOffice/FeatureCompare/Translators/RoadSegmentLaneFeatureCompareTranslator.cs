@@ -1,15 +1,13 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
+using Extracts;
 using System.Collections.Generic;
-using System.IO.Compression;
-using System.Text;
-using RoadRegistry.BackOffice.Extracts;
 using Uploads;
 
-internal class RoadSegmentLaneFeatureCompareTranslator : RoadSegmentAttributeFeatureCompareTranslatorBase<RoadSegmentLaneFeatureCompareAttributes>
+public class RoadSegmentLaneFeatureCompareTranslator : RoadSegmentAttributeFeatureCompareTranslatorBase<RoadSegmentLaneFeatureCompareAttributes>
 {
-    public RoadSegmentLaneFeatureCompareTranslator(Encoding encoding)
-        : base(encoding, ExtractFileName.AttRijstroken)
+    public RoadSegmentLaneFeatureCompareTranslator(RoadSegmentLaneFeatureCompareFeatureReader featureReader)
+        : base(featureReader, ExtractFileName.AttRijstroken)
     {
     }
 
@@ -20,24 +18,18 @@ internal class RoadSegmentLaneFeatureCompareTranslator : RoadSegmentAttributeFea
                && feature1.Attributes.Count == feature2.Attributes.Count
                && feature1.Attributes.Direction == feature2.Attributes.Direction;
     }
-
-    protected override List<Feature<RoadSegmentLaneFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
-    {
-        var featureReader = new RoadSegmentLaneFeatureCompareFeatureReader(Encoding);
-        return featureReader.Read(entries, featureType, fileName);
-    }
-
+    
     protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)
     {
         foreach (var record in records)
         {
-            var segmentId = new RoadSegmentId(record.Feature.Attributes.RoadSegmentId!.Value);
+            var segmentId = record.Feature.Attributes.RoadSegmentId;
             var lane = new RoadSegmentLaneAttribute(
-                new AttributeId(record.Feature.Attributes.Id!.Value),
-                new RoadSegmentLaneCount(record.Feature.Attributes.Count),
-                RoadSegmentLaneDirection.ByIdentifier[record.Feature.Attributes.Direction],
-                RoadSegmentPosition.FromDouble(record.Feature.Attributes.FromPosition!.Value),
-                RoadSegmentPosition.FromDouble(record.Feature.Attributes.ToPosition!.Value)
+                record.Feature.Attributes.Id,
+                record.Feature.Attributes.Count,
+                record.Feature.Attributes.Direction,
+                record.Feature.Attributes.FromPosition,
+                record.Feature.Attributes.ToPosition
             );
 
             if (changes.TryFindRoadSegmentProvisionalChange(segmentId, out var provisionalChange))

@@ -1,61 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <Project Sdk="Microsoft.NET.Sdk.Web">
-	<Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.App.props" />
-
-	<PropertyGroup>
-		<RootNamespace>RoadRegistry.BackOffice.Api</RootNamespace>
-		<AssemblyName>RoadRegistry.BackOffice.Api</AssemblyName>
-		<StartupObject>RoadRegistry.BackOffice.Api.Infrastructure.Program</StartupObject>
-		<ServerGarbageCollection>true</ServerGarbageCollection>
-		<Nullable>disable</Nullable>
-		<Platforms>AnyCPU;x64;x86</Platforms>
-		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
-		<EnableDefaultContentItems>false</EnableDefaultContentItems>
-		<DocumentationFile>RoadRegistry.BackOffice.Api.xml</DocumentationFile>
-		<NoWarn>1701;1702;1705;1591;8632</NoWarn>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\RoadRegistry.BackOffice.Handlers.Sqs\RoadRegistry.BackOffice.Handlers.Sqs.csproj" />
-		<ProjectReference Include="..\RoadRegistry.BackOffice.Handlers\RoadRegistry.BackOffice.Handlers.csproj" />
-		<ProjectReference Include="..\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />
-		<ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
-		<ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
-		<ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
-		<ProjectReference Include="..\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" />
-		<ProjectReference Include="..\RoadRegistry.Snapshot.Handlers.Sqs\RoadRegistry.Snapshot.Handlers.Sqs.csproj" />
-		<ProjectReference Include="..\RoadRegistry.Snapshot.Handlers\RoadRegistry.Snapshot.Handlers.csproj" />
-		<ProjectReference Include="..\RoadRegistry.Syndication.Schema\RoadRegistry.Syndication.Schema.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Content Include="Dockerfile" CopyToOutputDirectory="Always" />
-		<Content Include="appsettings.json" CopyToOutputDirectory="Always" />
-		<Content Include="appsettings.*.json" CopyToOutputDirectory="Always">
-			<DependentUpon>appsettings.json</DependentUpon>
-		</Content>
-		<Content Include="init.sh" CopyToOutputDirectory="Always" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-			<_Parameter1>$(AssemblyName).Tests</_Parameter1>
-		</AssemblyAttribute>
-	</ItemGroup>
-
-	<ItemGroup>
-		<Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Update="paket.template" CopyToOutputDirectory="Never" />
-		<None Update="RoadRegistry.BackOffice.Api.xml">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-
-	<Import Project="..\..\.paket\Paket.Restore.targets" />
-
-	<ProjectExtensions><VisualStudio><UserProperties appsettings_1development_1json__JsonSchema="https://citation-file-format.github.io/1.2.0/schema.json" /></VisualStudio></ProjectExtensions>
+  <Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.App.props" />
+  <PropertyGroup>
+    <RootNamespace>RoadRegistry.BackOffice.Api</RootNamespace>
+    <AssemblyName>RoadRegistry.BackOffice.Api</AssemblyName>
+    <StartupObject>RoadRegistry.BackOffice.Api.Infrastructure.Program</StartupObject>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <Nullable>disable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <DocumentationFile>RoadRegistry.BackOffice.Api.xml</DocumentationFile>
+    <NoWarn>1701;1702;1705;1591;8632</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers.Sqs\RoadRegistry.BackOffice.Handlers.Sqs.csproj" />
+    <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers\RoadRegistry.BackOffice.Handlers.csproj" />
+    <ProjectReference Include="..\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />
+    <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Snapshot.Handlers.Sqs\RoadRegistry.Snapshot.Handlers.Sqs.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Snapshot.Handlers\RoadRegistry.Snapshot.Handlers.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Syndication.Schema\RoadRegistry.Syndication.Schema.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Dockerfile" CopyToOutputDirectory="Always" />
+    <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
+    <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
+    <Content Include="init.sh" CopyToOutputDirectory="Always" />
+    <Content Include="paket.template" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>$(AssemblyName).Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="RoadRegistry.BackOffice.Api.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties appsettings_1development_1json__JsonSchema="https://citation-file-format.github.io/1.2.0/schema.json" />
+    </VisualStudio>
+  </ProjectExtensions>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

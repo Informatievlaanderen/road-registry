@@ -8,16 +8,6 @@ using NetTopologySuite.Geometries;
 public interface IRoadNetworkView
 {
     IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; }
-    AttributeId MaximumEuropeanRoadAttributeId { get; }
-    GradeSeparatedJunctionId MaximumGradeSeparatedJunctionId { get; }
-    AttributeId MaximumLaneAttributeId { get; }
-    AttributeId MaximumNationalRoadAttributeId { get; }
-    RoadNodeId MaximumNodeId { get; }
-    AttributeId MaximumNumberedRoadAttributeId { get; }
-    RoadSegmentId MaximumSegmentId { get; }
-    AttributeId MaximumSurfaceAttributeId { get; }
-    TransactionId MaximumTransactionId { get; }
-    AttributeId MaximumWidthAttributeId { get; }
 
     // data
     IReadOnlyDictionary<RoadNodeId, RoadNode> Nodes { get; }

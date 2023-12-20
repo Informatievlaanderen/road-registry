@@ -6,7 +6,8 @@ using MediatR;
 
 public class WhenChangeOutlineGeometryWithInvalidGeometrySridFixture : WhenChangeOutlineGeometryWithValidRequestFixture
 {
-    public WhenChangeOutlineGeometryWithInvalidGeometrySridFixture(IMediator mediator, EditorContext editorContext) : base(mediator, editorContext)
+    public WhenChangeOutlineGeometryWithInvalidGeometrySridFixture(IMediator mediator, EditorContext editorContext, IRoadSegmentRepository roadSegmentRepository)
+        : base(mediator, editorContext, roadSegmentRepository)
     {
     }
 

@@ -40,7 +40,7 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
         : base(messageAssemblies, SqsJsonSerializerSettingsProvider.CreateSerializerSettings())
     {
     }
-    
+
     protected virtual IConfiguration BuildConfiguration(IHostEnvironment hostEnvironment)
     {
         var configurationBuilder = new ConfigurationBuilder()
@@ -70,6 +70,8 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
         services.AddSingleton<IHostEnvironment>(hostEnvironment);
 
         var configuration = BuildConfiguration(hostEnvironment);
+        services.AddEmailClient();
+
         var context = new HostBuilderContext(new Dictionary<object, object>())
         {
             HostingEnvironment = hostEnvironment,
@@ -78,7 +80,7 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
 
         ConfigureDefaultServices(context, services);
         ConfigureServices(context, services);
-
+        
         var builder = new ContainerBuilder();
         builder.RegisterConfiguration(configuration);
         builder.Populate(services);
@@ -96,11 +98,12 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
     protected virtual void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
     }
+
     protected virtual void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
     {
     }
 
-    private void ConfigureDefaultServices(HostBuilderContext context, IServiceCollection services)
+    private void ConfigureDefaultServices(HostBuilderContext hostContext, IServiceCollection services)
     {
         services
             .AddTicketing()
@@ -109,14 +112,19 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
             .AddSingleton(FileEncoding.WindowsAnsi)
             .AddEditorContext()
             .AddStreamStore()
-            .AddLogging(configure => { configure.AddRoadRegistryLambdaLogger(); })
+            .AddLogging(builder =>
+            {
+                builder.AddRoadRegistryLambdaLogger();
+                builder.AddSerilog<TMessageHandler>(hostContext.Configuration);
+            })
             .AddSqsLambdaHandlerOptions()
             .AddRoadRegistrySnapshot()
-            .AddFeatureToggles<ApplicationFeatureToggle>(context.Configuration)
+            .AddFeatureToggles<ApplicationFeatureToggle>(hostContext.Configuration)
+            .AddOrganizationRepository()
             ;
     }
 
-    private void ConfigureDefaultContainer(HostBuilderContext context, ContainerBuilder builder)
+    private static void ConfigureDefaultContainer(HostBuilderContext context, ContainerBuilder builder)
     {
         builder
             .RegisterAssemblyTypes(typeof(TMessageHandler).GetTypeInfo().Assembly)
@@ -144,10 +152,8 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
         var configuration = sp.GetRequiredService<IConfiguration>();
         logger.LogKnownSqlServerConnectionStrings(configuration);
 
-        using (var scope = sp.CreateScope())
-        {
-            var optionsValidator = scope.ServiceProvider.GetRequiredService<OptionsValidator>();
-            optionsValidator.ValidateAndThrow();
-        }
+        using var scope = sp.CreateScope();
+        var optionsValidator = scope.ServiceProvider.GetRequiredService<OptionsValidator>();
+        optionsValidator.ValidateAndThrow();
     }
 }

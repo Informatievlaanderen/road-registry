@@ -82,6 +82,7 @@ public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
                     change.ModifyRoadSegmentAttributes,
                     change.ModifyRoadSegmentGeometry,
                     change.RemoveRoadSegment,
+                    change.RemoveOutlinedRoadSegment,
                     change.AddRoadSegmentToEuropeanRoad,
                     change.RemoveRoadSegmentFromEuropeanRoad,
                     change.AddRoadSegmentToNationalRoad,
@@ -93,7 +94,7 @@ public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
                     change.ModifyGradeSeparatedJunction,
                     change.RemoveGradeSeparatedJunction
                 }
-                .Count(_ => !ReferenceEquals(_, null)) == 1;
+                .Count(changeEvent => !ReferenceEquals(changeEvent, null)) == 1;
     }
 
     private static bool OnlyHaveUniqueLaneAttributeIdentifiers(RequestedChange[] changes)

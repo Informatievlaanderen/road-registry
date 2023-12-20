@@ -1,11 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.RoadSegmentsOutline;
 using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
@@ -13,20 +7,22 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Core;
 using Core.ProblemCodes;
-using Editor.Schema;
 using Extensions;
 using FeatureToggles;
 using FluentValidation;
 using Handlers.Sqs.RoadSegments;
+using Infrastructure.Authentication;
 using Infrastructure.Controllers.Attributes;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using System;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class RoadSegmentsController
 {
@@ -43,7 +39,7 @@ public partial class RoadSegmentsController
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost(CreateOutlineRoute, Name = nameof(CreateOutline))]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
@@ -77,12 +73,12 @@ public partial class RoadSegmentsController
                     RoadSegmentAccessRestriction.ParseUsingDutchName(parameters.Toegangsbeperking),
                     new OrganizationId(parameters.Wegbeheerder),
                     RoadSegmentSurfaceType.ParseUsingDutchName(parameters.Wegverharding),
-                    new RoadSegmentWidth(parameters.Wegbreedte!.Value),
-                    new RoadSegmentLaneCount(parameters.AantalRijstroken.Aantal!.Value),
+                    RoadSegmentWidth.ParseUsingDutchName(parameters.Wegbreedte),
+                    RoadSegmentLaneCount.ParseUsingDutchName(parameters.AantalRijstroken.Aantal),
                     RoadSegmentLaneDirection.ParseUsingDutchName(parameters.AantalRijstroken.Richting)
                 )
             };
-            var result = await _mediator.Send(Enrich(sqsRequest), cancellationToken);
+            var result = await _mediator.Send(sqsRequest, cancellationToken);
 
             return Accepted(result);
         }
@@ -140,31 +136,31 @@ public record PostRoadSegmentOutlineParameters
     /// </summary>
     [DataMember(Name = "Wegverharding", Order = 6)]
     [JsonProperty(Required = Required.Always)]
-    [RoadRegistryEnumDataType(typeof(RoadSegmentSurfaceType.Edit))]
+    [RoadRegistryEnumDataType(typeof(RoadSegmentSurfaceType))]
     public string Wegverharding { get; set; }
 
     /// <summary>
-    ///     Breedte van het wegsegment(in meter).
+    ///     Breedte van het wegsegment in meter (geheel getal tussen 1 en 50 of "niet gekend" of "niet van toepassing").
     /// </summary>
     [DataMember(Name = "Wegbreedte", Order = 7)]
     [JsonProperty(Required = Required.Always)]
-    public int? Wegbreedte { get; set; }
+    public string Wegbreedte { get; set; }
 
-    /// <summary>
-    ///     Aantal rijstroken van het wegsegment, en hun richting t.o.v. de richting van het wegsegment (begin- naar
-    ///     eindknoop).
-    /// </summary>
     [DataMember(Name = "AantalRijstroken", Order = 8)]
     [JsonProperty(Required = Required.Always)]
     public RoadSegmentLaneParameters AantalRijstroken { get; set; }
 }
 
+/// <summary>
+///     Aantal rijstroken van het wegsegment, en hun richting t.o.v. de richting van het wegsegment (begin- naar
+///     eindknoop).
+/// </summary>
 public class RoadSegmentLaneParameters
 {
-    /// <summary>Aantal rijstroken van de wegsegmentschets.</summary>
+    /// <summary>Aantal rijstroken van de wegsegmentschets (geheel getal tussen 1 en 10 of "niet gekend" of "niet van toepassing").</summary>
     [DataMember(Name = "Aantal", Order = 1)]
     [JsonProperty(Required = Required.Always)]
-    public int? Aantal { get; set; }
+    public string Aantal { get; set; }
 
     /// <summary>De richting van deze rijstroken t.o.v. de richting van het wegsegment (begin- naar eindknoop).</summary>
     [DataMember(Name = "Richting", Order = 2)]
@@ -175,11 +171,11 @@ public class RoadSegmentLaneParameters
 
 public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostRoadSegmentOutlineParameters>
 {
-    private readonly EditorContext _editorContext;
+    private readonly IOrganizationRepository _organizationRepository;
 
-    public PostRoadSegmentOutlineParametersValidator(EditorContext editorContext)
+    public PostRoadSegmentOutlineParametersValidator(IOrganizationRepository organizationRepository)
     {
-        _editorContext = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
+        _organizationRepository = organizationRepository.ThrowIfNull();
 
         RuleFor(x => x.MiddellijnGeometrie)
             .Cascade(CascadeMode.Stop)
@@ -196,14 +192,14 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithProblemCode(ProblemCode.RoadSegment.Status.IsRequired)
-            .Must(value => RoadSegmentStatus.CanParseUsingDutchName(value) && RoadSegmentStatus.ParseUsingDutchName(value).IsValidForRoadSegmentEdit())
+            .Must(value => RoadSegmentStatus.CanParseUsingDutchName(value) && RoadSegmentStatus.ParseUsingDutchName(value).IsValidForEdit())
             .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid);
 
         RuleFor(x => x.MorfologischeWegklasse)
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithProblemCode(ProblemCode.RoadSegment.Morphology.IsRequired)
-            .Must(value => RoadSegmentMorphology.CanParseUsingDutchName(value) && RoadSegmentMorphology.ParseUsingDutchName(value).IsValidForRoadSegmentEdit())
+            .Must(value => RoadSegmentMorphology.CanParseUsingDutchName(value) && RoadSegmentMorphology.ParseUsingDutchName(value).IsValidForEdit())
             .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid);
 
         RuleFor(x => x.Toegangsbeperking)
@@ -217,23 +213,23 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.IsRequired)
+            .Must(OrganizationId.AcceptsValue)
+            .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotValid)
             .MustAsync(BeKnownOrganization)
-            .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotValid);
+            .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotKnown, value => new MaintenanceAuthorityNotKnown(new OrganizationId(value)));
         
         RuleFor(x => x.Wegverharding)
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithProblemCode(ProblemCode.RoadSegment.SurfaceType.IsRequired)
-            .Must(x => RoadSegmentSurfaceType.CanParseUsingDutchName(x) && RoadSegmentSurfaceType.ParseUsingDutchName(x).IsValidForRoadSegmentEdit())
+            .Must(RoadSegmentSurfaceType.CanParseUsingDutchName)
             .WithProblemCode(ProblemCode.RoadSegment.SurfaceType.NotValid);
 
         RuleFor(x => x.Wegbreedte)
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithProblemCode(ProblemCode.RoadSegment.Width.IsRequired)
-            .LessThanOrEqualTo(RoadSegmentWidth.Maximum)
-            .WithProblemCode(ProblemCode.RoadSegment.Width.LessThanOrEqualToMaximum)
-            .Must(width => RoadSegmentWidth.Accepts(width!.Value))
+            .Must(x => RoadSegmentWidth.CanParseUsingDutchName(x) && RoadSegmentWidth.ParseUsingDutchName(x).IsValidForEdit())
             .WithProblemCode(ProblemCode.RoadSegment.Width.NotValid);
 
         RuleFor(x => x.AantalRijstroken)
@@ -243,9 +239,15 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
             .SetValidator(new RoadSegmentLaneParametersValidator());
     }
 
-    private Task<bool> BeKnownOrganization(string code, CancellationToken cancellationToken)
+    private async Task<bool> BeKnownOrganization(string code, CancellationToken cancellationToken)
     {
-        return _editorContext.Organizations.AnyAsync(x => x.Code == code, cancellationToken);
+        if (!OrganizationId.AcceptsValue(code))
+        {
+            return false;
+        }
+
+        var organization = await _organizationRepository.FindByIdOrOvoCodeAsync(new OrganizationId(code), cancellationToken);
+        return organization is not null;
     }
 }
 
@@ -256,11 +258,9 @@ public class RoadSegmentLaneParametersValidator : AbstractValidator<RoadSegmentL
         RuleFor(x => x.Aantal)
             .Cascade(CascadeMode.Stop)
             .NotNull()
-            .WithProblemCode(ProblemCode.RoadSegment.Lane.IsRequired)
-            .GreaterThan(0)
-            .WithProblemCode(ProblemCode.RoadSegment.Lane.GreaterThanZero)
-            .LessThanOrEqualTo(RoadSegmentLaneCount.Maximum)
-            .WithProblemCode(ProblemCode.RoadSegment.Lane.LessThanOrEqualToMaximum);
+            .WithProblemCode(ProblemCode.RoadSegment.LaneCount.IsRequired)
+            .Must(x => RoadSegmentLaneCount.CanParseUsingDutchName(x) && RoadSegmentLaneCount.ParseUsingDutchName(x).IsValidForEdit())
+            .WithProblemCode(ProblemCode.RoadSegment.LaneCount.NotValid);
 
         RuleFor(x => x.Richting)
             .Cascade(CascadeMode.Stop)
@@ -285,10 +285,10 @@ public class PostRoadSegmentOutlineParametersExamples : IExamplesProvider<PostRo
             Toegangsbeperking = RoadSegmentAccessRestriction.PublicRoad.Translation.Name,
             Wegbeheerder = "44021",
             Wegverharding = RoadSegmentSurfaceType.SolidSurface.Translation.Name,
-            Wegbreedte = 5,
+            Wegbreedte = "5",
             AantalRijstroken = new RoadSegmentLaneParameters
             {
-                Aantal = 2,
+                Aantal = "2",
                 Richting = RoadSegmentLaneDirection.Forward.Translation.Name
             }
         };

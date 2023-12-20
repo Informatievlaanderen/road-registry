@@ -1,42 +1,56 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extracts;
 using System.Collections.Generic;
 using System.IO.Compression;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Extracts;
 using Uploads;
+
+public static class Feature
+{
+    public static Feature<TAttributes> New<TAttributes>(RecordNumber recordNumber, TAttributes attributes)
+        where TAttributes : class
+    {
+        return new Feature<TAttributes>(recordNumber, attributes);
+    }
+}
 
 public record Feature<TAttributes>(RecordNumber RecordNumber, TAttributes Attributes) where TAttributes : class;
 
-internal abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveEntryFeatureCompareTranslator
+public abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveEntryFeatureCompareTranslator
     where TAttributes : class
 {
-    protected FeatureCompareTranslatorBase(Encoding encoding)
+    private readonly IZipArchiveFeatureReader<Feature<TAttributes>> _featureReader;
+
+    protected FeatureCompareTranslatorBase(IZipArchiveFeatureReader<Feature<TAttributes>> featureReader)
     {
-        Encoding = encoding;
+        _featureReader = featureReader;
     }
 
-    protected Encoding Encoding { get; }
+    protected (List<Feature<TAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    {
+        return _featureReader.Read(archive, featureType, fileName, context);
+    }
+
+    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>, ZipArchiveProblems) ReadExtractAndChangeFeatures(ZipArchive archive, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    {
+        var (extractFeatures, extractFeaturesProblems) = ReadFeatures(archive, FeatureType.Extract, fileName, context);
+        var (changeFeatures, changeFeaturesProblems) = ReadFeatures(archive, FeatureType.Change, fileName, context);
+        return (extractFeatures, changeFeatures, extractFeaturesProblems + changeFeaturesProblems);
+    }
+
+    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>, List<Feature<TAttributes>>, ZipArchiveProblems) ReadExtractAndChangeAndIntegrationFeatures(ZipArchive archive, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    {
+        var (extractFeatures, extractFeaturesProblems) = ReadFeatures(archive, FeatureType.Extract, fileName, context);
+        var (changeFeatures, changeFeaturesProblems) = ReadFeatures(archive, FeatureType.Change, fileName, context);
+        var (integrationFeatures, integrationFeaturesProblems) = ReadFeatures(archive, FeatureType.Integration, fileName, context);
+
+        var problems = extractFeaturesProblems + changeFeaturesProblems + integrationFeaturesProblems;
+
+        return (extractFeatures, changeFeatures, integrationFeatures, problems);
+    }
     
-    protected abstract List<Feature<TAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName);
-
-    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>) ReadExtractAndChangeFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, ExtractFileName fileName)
-    {
-        var extractFeatures = ReadFeatures(entries, FeatureType.Extract, fileName);
-        var changeFeatures = ReadFeatures(entries, FeatureType.Change, fileName);
-        return (extractFeatures, changeFeatures);
-    }
-
-    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>, List<Feature<TAttributes>>) ReadExtractAndLeveringAndIntegrationFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, ExtractFileName fileName)
-    {
-        var extractFeatures = ReadFeatures(entries, FeatureType.Extract, fileName);
-        var changeFeatures = ReadFeatures(entries, FeatureType.Change, fileName);
-        var integrationFeatures = ReadFeatures(entries, FeatureType.Integration, fileName);
-        return (extractFeatures, changeFeatures, integrationFeatures);
-    }
-    
-    public abstract Task<TranslatedChanges> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken);
+    public abstract Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken);
 }

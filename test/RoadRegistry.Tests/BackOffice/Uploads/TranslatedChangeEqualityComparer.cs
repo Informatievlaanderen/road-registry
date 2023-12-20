@@ -105,6 +105,12 @@ public class TranslatedChangeEqualityComparer : IEqualityComparer<ITranslatedCha
                 new TranslatedChangeEqualityComparer<RemoveRoadSegment>(
                     new RemoveRoadSegmentEqualityComparer(ignoreRecordNumber)
                 )
+            },
+            {
+                (typeof(RemoveOutlinedRoadSegment), typeof(RemoveOutlinedRoadSegment)),
+                new TranslatedChangeEqualityComparer<RemoveOutlinedRoadSegment>(
+                    new RemoveOutlinedRoadSegmentEqualityComparer(ignoreRecordNumber)
+                )
             }
         };
     }

@@ -1,8 +1,5 @@
 namespace RoadRegistry.BackOffice.Extracts;
 
-using System;
-using System.IO.Compression;
-using System.Threading;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Core;
@@ -11,6 +8,8 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using SqlStreamStore;
+using System;
+using System.IO.Compression;
 using Uploads;
 
 public class RoadNetworkExtractCommandModule : CommandHandlerModule
@@ -31,7 +30,6 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
         ArgumentNullException.ThrowIfNull(snapshotReader);
         ArgumentNullException.ThrowIfNull(beforeFeatureCompareValidator);
         ArgumentNullException.ThrowIfNull(afterFeatureCompareValidator);
-        ArgumentNullException.ThrowIfNull(extractUploadFailedEmailClient);
         ArgumentNullException.ThrowIfNull(clock);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
@@ -89,7 +87,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 var extractRequestId = ExtractRequestId.FromExternalRequestId(message.Body.ExternalRequestId);
                 var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
 
-                extract.Close(message.Body.Reason);
+                extract.Close(message.Body.Reason, message.Body.DownloadId);
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(CloseRoadNetworkExtract));
             });
@@ -117,40 +115,45 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 logger.LogInformation("Command handler started for {Command}", nameof(AnnounceRoadNetworkExtractDownloadTimeoutOccurred));
 
                 var extractRequestId = ExtractRequestId.FromString(message.Body.RequestId);
+                var downloadId = DownloadId.FromValue(message.Body.DownloadId);
+
                 var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
-                extract.AnnounceTimeoutOccurred();
+                extract.AnnounceTimeoutOccurred(downloadId);
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(AnnounceRoadNetworkExtractDownloadTimeoutOccurred));
             });
 
         For<UploadRoadNetworkExtractChangesArchive>()
             .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
-            .Handle(async (context, message, _, ct) =>
+            .Handle(async (context, command, _, ct) =>
             {
                 logger.LogInformation("Command handler started for {Command}", nameof(UploadRoadNetworkExtractChangesArchive));
 
-                    var downloadId = new DownloadId(message.Body.DownloadId);
-                    var archiveId = new ArchiveId(message.Body.ArchiveId);
-                    var uploadId = new UploadId(message.Body.UploadId);
+                var downloadId = new DownloadId(command.Body.DownloadId);
+                var archiveId = new ArchiveId(command.Body.ArchiveId);
+                var uploadId = new UploadId(command.Body.UploadId);
 
-                    var extractRequestId = ExtractRequestId.FromString(message.Body.RequestId);
-                    var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
+                var extractRequestId = ExtractRequestId.FromString(command.Body.RequestId);
+                var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
 
                 try
                 {
-                    var upload = extract.Upload(downloadId, uploadId, archiveId, message.Body.FeatureCompareCompleted);
+                    var upload = extract.Upload(downloadId, uploadId, archiveId, command.Body.FeatureCompareCompleted);
 
                     var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
                     await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
-                        IZipArchiveValidator validator = message.Body.UseZipArchiveFeatureCompareTranslator ? beforeFeatureCompareValidator : afterFeatureCompareValidator;
-                        upload.ValidateArchiveUsing(archive, validator, message.Body.UseZipArchiveFeatureCompareTranslator);
+                        IZipArchiveValidator validator = command.Body.UseZipArchiveFeatureCompareTranslator ? beforeFeatureCompareValidator : afterFeatureCompareValidator;
+                        await upload.ValidateArchiveUsing(archive, validator, extractUploadFailedEmailClient, ct, command.Body.UseZipArchiveFeatureCompareTranslator);
                     }
                 }
                 catch (Exception ex)
                 {
-                    await extractUploadFailedEmailClient.SendAsync(extract.Description, ex, ct);
+                    if (extractUploadFailedEmailClient is not null)
+                    {
+                        await extractUploadFailedEmailClient.SendAsync(extract.Description, ex, ct);
+                    }
                     throw;
                 }
 

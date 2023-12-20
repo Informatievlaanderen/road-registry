@@ -8,6 +8,8 @@ using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.FeatureCompare;
+using RoadRegistry.BackOffice.ShapeFile;
+using RoadRegistry.BackOffice.Uploads;
 
 public class ZipArchiveShapeFileReaderTests
 {
@@ -27,9 +29,9 @@ public class ZipArchiveShapeFileReaderTests
 
         using (var beforeFcArchive = new ZipArchive(beforeFcArchiveStream))
         {
-            var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name,  FeatureType.Extract.GetShpFileName(entryFileName), StringComparison.InvariantCultureIgnoreCase));
+            var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name,  FeatureType.Extract.ToShapeFileName(entryFileName), StringComparison.InvariantCultureIgnoreCase));
 
-            var dbfRecords = new SimpleExtractDbfReader<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema).Read(beforeFcArchive.Entries, entryFileName);
+            var dbfRecords = new SimpleExtractDbfReader<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema).Read(beforeFcArchive, entryFileName).Item1;
             Assert.True(dbfRecords.Any());
 
             var records = sut.Read(shpEntry).ToArray();
@@ -53,9 +55,9 @@ public class ZipArchiveShapeFileReaderTests
 
         using (var beforeFcArchive = new ZipArchive(beforeFcArchiveStream))
         {
-            var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name, FeatureType.Extract.GetShpFileName(entryFileName), StringComparison.InvariantCultureIgnoreCase));
+            var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name, FeatureType.Extract.ToShapeFileName(entryFileName), StringComparison.InvariantCultureIgnoreCase));
 
-            var dbfRecords = new SimpleExtractDbfReader<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema).Read(beforeFcArchive.Entries, entryFileName);
+            var dbfRecords = new SimpleExtractDbfReader<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema).Read(beforeFcArchive, entryFileName).Item1;
             Assert.True(dbfRecords.Any());
 
             var records = sut.Read(shpEntry).ToArray();
@@ -63,7 +65,7 @@ public class ZipArchiveShapeFileReaderTests
         }
     }
 
-    private class SimpleExtractDbfReader<TDbaseRecord> : DbaseFeatureReader<TDbaseRecord, object>
+    private class SimpleExtractDbfReader<TDbaseRecord> : ZipArchiveDbaseFeatureReader<TDbaseRecord, object>
         where TDbaseRecord : DbaseRecord, new()
     {
         public SimpleExtractDbfReader(DbaseSchema dbaseSchema)
@@ -71,14 +73,14 @@ public class ZipArchiveShapeFileReaderTests
         {
         }
 
-        protected override object ConvertDbfRecordToFeature(RecordNumber recordNumber, TDbaseRecord dbaseRecord)
+        protected override (object, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, TDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
-            return dbaseRecord;
+            return (dbaseRecord, ZipArchiveProblems.None);
         }
 
-        public List<object> Read(IReadOnlyCollection<ZipArchiveEntry> entries, ExtractFileName fileName)
+        public (List<object>, ZipArchiveProblems) Read(ZipArchive archive, ExtractFileName fileName)
         {
-            return Read(entries, FeatureType.Extract, fileName);
+            return Read(archive, FeatureType.Extract, fileName, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
         }
     }
 }

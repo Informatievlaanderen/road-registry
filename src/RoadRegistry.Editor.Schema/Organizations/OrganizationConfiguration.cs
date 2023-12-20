@@ -19,5 +19,6 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<OrganizationRe
         b.Property(p => p.Code).IsRequired();
         b.Property(p => p.SortableCode).IsRequired();
         b.Property(p => p.DbaseRecord).IsRequired();
+        b.Property(p => p.DbaseSchemaVersion).HasDefaultValue("V1").IsRequired();
     }
 }

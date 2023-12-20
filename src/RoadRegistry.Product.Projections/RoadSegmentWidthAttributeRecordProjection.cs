@@ -1,10 +1,5 @@
 namespace RoadRegistry.Product.Projections;
 
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -12,6 +7,11 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Schema;
+using System;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 public class RoadSegmentWidthAttributeRecordProjection : ConnectedProjection<ProductContext>
 {

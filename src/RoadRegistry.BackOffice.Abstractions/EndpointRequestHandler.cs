@@ -1,39 +1,41 @@
 namespace RoadRegistry.BackOffice.Abstractions;
 
 using Framework;
-using MediatR;
 using Microsoft.Extensions.Logging;
 
-public abstract class EndpointRequestHandler<TRequest> : IRequestHandler<TRequest>
-    where TRequest : IRequest
-{
-    public async Task Handle(TRequest request, CancellationToken cancellationToken)
-    {
-        await HandleAsync(request, cancellationToken);
-    }
-
-    public abstract Task HandleAsync(TRequest request, CancellationToken cancellationToken);
-}
-
-public abstract class EndpointRequestHandler<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
+public abstract class EndpointRequestHandler<TRequest, TResponse> : RequestHandler<TRequest, TResponse>
     where TRequest : EndpointRequest<TResponse>
     where TResponse : EndpointResponse
 {
-    protected readonly ILogger _logger;
+    private readonly RoadRegistryCommandSender _commandSender;
 
-    protected EndpointRequestHandler(CommandHandlerDispatcher dispatcher, ILogger logger)
+    protected delegate Task RoadRegistryCommandSender(Command command, CancellationToken cancellationToken);
+
+    protected RoadRegistryCommandSender Dispatch { get; private set; }
+    protected RoadRegistryCommandSender Queue { get; private set; }
+
+    protected EndpointRequestHandler(IRoadNetworkCommandQueue commandQueue, ILogger logger) : base(logger)
     {
-        Dispatcher = dispatcher;
-        _logger = logger;
+        _commandSender = async (command, cancellationToken) => await commandQueue.Write(command, cancellationToken);
     }
 
-    protected CommandHandlerDispatcher Dispatcher { get; init; }
-
-    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken)
+    protected EndpointRequestHandler(CommandHandlerDispatcher commandHandlerDispatcher, ILogger logger) : base(logger)
     {
+        _commandSender = (command, cancellationToken) => commandHandlerDispatcher(command, cancellationToken);
+    }
+
+    public override async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken)
+    {
+        Dispatch = async (command, token) => await HandleInitializer(command, token);
+        Queue = async (command, token) => await HandleInitializer(command, token);
+
         var response = await HandleAsync(request, cancellationToken);
         return response;
-    }
 
-    public abstract Task<TResponse> HandleAsync(TRequest request, CancellationToken cancellationToken);
+        async Task HandleInitializer(Command command, CancellationToken token)
+        {
+            var decoratedCommand = command.WithProvenanceData(request.ProvenanceData);
+            await _commandSender(decoratedCommand, token);
+        }
+    }
 }

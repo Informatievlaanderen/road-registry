@@ -2,6 +2,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
 {
     using System;
     using System.Globalization;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using BackOffice;
@@ -9,6 +10,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Extensions;
+    using Microsoft.EntityFrameworkCore;
     using Projections;
 
     public class RoadNodeRecordProjection : ConnectedProjection<RoadNodeProducerSnapshotContext>
@@ -61,6 +63,13 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             RoadNodeAdded roadNodeAdded,
             CancellationToken token)
         {
+            var removedRecord = context.RoadNodes.Local.SingleOrDefault(x => x.Id == roadNodeAdded.Id && x.IsRemoved)
+                ?? await context.RoadNodes.SingleOrDefaultAsync(x => x.Id == roadNodeAdded.Id && x.IsRemoved, token);
+            if (removedRecord is not null)
+            {
+                context.RoadNodes.Remove(removedRecord);
+            }
+
             var typeTranslation = RoadNodeType.Parse(roadNodeAdded.Type).Translation;
 
             var roadNode = await context.RoadNodes.AddAsync(new RoadNodeRecord(

@@ -375,37 +375,9 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
             {
                 StreetNameId = AddSegment1.RightSideStreetNameId
             },
-            Lanes = AddSegment1.Lanes
-                .Select((lane, index) => new RoadSegmentLaneAttributes
-                {
-                    AttributeId = index + 1,
-                    Direction = lane.Direction,
-                    Count = lane.Count,
-                    FromPosition = lane.FromPosition,
-                    ToPosition = lane.ToPosition,
-                    AsOfGeometryVersion = 1
-                })
-                .ToArray(),
-            Widths = AddSegment1.Widths
-                .Select((width, index) => new RoadSegmentWidthAttributes
-                {
-                    AttributeId = index + 1,
-                    Width = width.Width,
-                    FromPosition = width.FromPosition,
-                    ToPosition = width.ToPosition,
-                    AsOfGeometryVersion = 1
-                })
-                .ToArray(),
-            Surfaces = AddSegment1.Surfaces
-                .Select((surface, index) => new RoadSegmentSurfaceAttributes
-                {
-                    AttributeId = index + 1,
-                    Type = surface.Type,
-                    FromPosition = surface.FromPosition,
-                    ToPosition = surface.ToPosition,
-                    AsOfGeometryVersion = 1
-                })
-                .ToArray(),
+            Lanes = AddSegment1.Lanes.ToRoadSegmentLaneAttributes(startAttributeId: 0),
+            Widths = AddSegment1.Widths.ToRoadSegmentWidthAttributes(startAttributeId: 0),
+            Surfaces = AddSegment1.Surfaces.ToRoadSegmentSurfaceAttributes(startAttributeId: 0),
             Version = 1
         };
 
@@ -505,37 +477,9 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
             {
                 StreetNameId = AddSegment2.RightSideStreetNameId
             },
-            Lanes = AddSegment2.Lanes
-                .Select((lane, index) => new RoadSegmentLaneAttributes
-                {
-                    AttributeId = laneCount1 + index + 1,
-                    Direction = lane.Direction,
-                    Count = lane.Count,
-                    FromPosition = lane.FromPosition,
-                    ToPosition = lane.ToPosition,
-                    AsOfGeometryVersion = 1
-                })
-                .ToArray(),
-            Widths = AddSegment2.Widths
-                .Select((width, index) => new RoadSegmentWidthAttributes
-                {
-                    AttributeId = widthCount1 + index + 1,
-                    Width = width.Width,
-                    FromPosition = width.FromPosition,
-                    ToPosition = width.ToPosition,
-                    AsOfGeometryVersion = 1
-                })
-                .ToArray(),
-            Surfaces = AddSegment2.Surfaces
-                .Select((surface, index) => new RoadSegmentSurfaceAttributes
-                {
-                    AttributeId = surfaceCount1 + index + 1,
-                    Type = surface.Type,
-                    FromPosition = surface.FromPosition,
-                    ToPosition = surface.ToPosition,
-                    AsOfGeometryVersion = 1
-                })
-                .ToArray(),
+            Lanes = AddSegment2.Lanes.ToRoadSegmentLaneAttributes(startAttributeId: laneCount1),
+            Widths = AddSegment2.Widths.ToRoadSegmentWidthAttributes(startAttributeId: widthCount1),
+            Surfaces = AddSegment2.Surfaces.ToRoadSegmentSurfaceAttributes(startAttributeId: surfaceCount1),
             Version = 1
         };
 
@@ -635,37 +579,9 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
             {
                 StreetNameId = AddSegment3.RightSideStreetNameId
             },
-            Lanes = AddSegment3.Lanes
-                .Select((lane, index) => new RoadSegmentLaneAttributes
-                {
-                    AttributeId = laneCount1 + laneCount2 + index + 1,
-                    Direction = lane.Direction,
-                    Count = lane.Count,
-                    FromPosition = lane.FromPosition,
-                    ToPosition = lane.ToPosition,
-                    AsOfGeometryVersion = 1
-                })
-                .ToArray(),
-            Widths = AddSegment3.Widths
-                .Select((width, index) => new RoadSegmentWidthAttributes
-                {
-                    AttributeId = widthCount1 + widthCount2 + index + 1,
-                    Width = width.Width,
-                    FromPosition = width.FromPosition,
-                    ToPosition = width.ToPosition,
-                    AsOfGeometryVersion = 1
-                })
-                .ToArray(),
-            Surfaces = AddSegment3.Surfaces
-                .Select((surface, index) => new RoadSegmentSurfaceAttributes
-                {
-                    AttributeId = surfaceCount1 + surfaceCount2 + index + 1,
-                    Type = surface.Type,
-                    FromPosition = surface.FromPosition,
-                    ToPosition = surface.ToPosition,
-                    AsOfGeometryVersion = 1
-                })
-                .ToArray(),
+            Lanes = AddSegment3.Lanes.ToRoadSegmentLaneAttributes(startAttributeId: laneCount1 + laneCount2),
+            Widths = AddSegment3.Widths.ToRoadSegmentWidthAttributes(startAttributeId: widthCount1 + widthCount2),
+            Surfaces = AddSegment3.Surfaces.ToRoadSegmentSurfaceAttributes(startAttributeId: surfaceCount1 + surfaceCount2),
             Version = 1
         };
 

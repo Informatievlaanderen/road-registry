@@ -23,12 +23,13 @@ public static class ProblemTranslator
         {ProblemCode.Direction.NotValid, problem => new(problem.Severity, "RichtingNietCorrect", $"Richting is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
         {ProblemCode.EuropeanRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason, $"Het wegsegment is reeds geen onderdeel meer van deze europese weg met nummer {problem.Parameters[0].Value}.") },
         {ProblemCode.FromPosition.IsRequired, problem => new(problem.Severity, "VanPositieVerplicht", "VanPositie is verplicht.")},
+        {ProblemCode.FromPosition.NotEqualToZero, problem => new(problem.Severity, "VanPositieNulOntbreekt", "De VanPositie van het eerste element is niet gelijk aan 0.")},
         {ProblemCode.FromPosition.NotValid, problem => new(problem.Severity, "VanPositieNietCorrect", $"VanPositie is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
         {ProblemCode.GradeSeparatedJunction.NotFound, problem => new(problem.Severity, problem.Reason, "De ongelijkgrondse kruising is niet langer onderdeel van het wegen netwerk.") },
         {ProblemCode.NationalRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason, $"Het wegsegment is reeds geen onderdeel meer van deze nationale weg met nummer {problem.Parameters[0].Value}.") },
         {ProblemCode.NumberedRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason, $"Het wegsegment is reeds geen onderdeel meer van deze genummerde weg met nummer {problem.Parameters[0].Value}.") },
         {ProblemCode.RoadNetwork.NotFound, problem => new(problem.Severity, "NotFound", "Onbestaand wegen netwerk.")},
-        {ProblemCode.RoadNode.NotConnectedToAnySegment, problem => new(problem.Severity, problem.Reason, "De wegknoop is met geen enkel wegsegment verbonden.") },
+        {ProblemCode.RoadNode.NotConnectedToAnySegment, problem => new(problem.Severity, problem.Reason, $"De wegknoop {problem.Parameters[0].Value} is met geen enkel wegsegment verbonden.") },
         {ProblemCode.RoadNode.NotFound, problem => new(problem.Severity, problem.Reason, "De wegknoop is niet langer onderdeel van het wegen netwerk.") },
         {ProblemCode.RoadNode.TooClose, problem => new(problem.Severity, problem.Reason, $"De geometrie ligt te dicht bij wegsegment met id {problem.Parameters[0].Value}.") },
         {ProblemCode.RoadNode.TypeMismatch, problem => new(problem.Severity, problem.Reason, GetRoadNodeTypeMismatch(problem)) },
@@ -39,7 +40,7 @@ public static class ProblemTranslator
         {ProblemCode.RoadSegment.IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction, problem => new(problem.Severity, problem.Reason, $"Het wegsegment {problem.Parameters[0].Value} mag niet kruisen met wegsegment {problem.Parameters[1].Value}.") },
         {ProblemCode.RoadSegment.LowerMissing, problem => new(problem.Severity, problem.Reason, "Het onderste wegsegment ontbreekt.") },
         {ProblemCode.RoadSegment.Missing, problem => new(problem.Severity, problem.Reason, $"Het wegsegment met id {problem.Parameters[0].Value} ontbreekt.") },
-        {ProblemCode.RoadSegment.NotFound, problem => new(problem.Severity, "NotFound", "Dit wegsegment bestaat niet.") },
+        {ProblemCode.RoadSegment.NotFound, problem => new(problem.Severity, "NotFound", problem.Parameters.Any() ? $"Het wegsegment met id {problem.Parameters[0].Value} bestaat niet." : "Dit wegsegment bestaat niet.") },
         {ProblemCode.RoadSegment.OutlinedNotFound, problem => new(problem.Severity, "NotFound", "Dit wegsegment bestaat niet of heeft niet de geometriemethode 'ingeschetst'.") },
         {ProblemCode.RoadSegment.UpperAndLowerDoNotIntersect, problem => new(problem.Severity, problem.Reason, "Het bovenste en onderste wegsegment kruisen elkaar niet.") },
         {ProblemCode.RoadSegment.UpperMissing, problem => new(problem.Severity, problem.Reason, "Het bovenste wegsegment ontbreekt.") },
@@ -70,10 +71,13 @@ public static class ProblemTranslator
         {ProblemCode.RoadSegment.Lane.LessThanOrEqualToMaximum, problem => new(problem.Severity, "AantalRijstrokenKleinerOfGelijkAanMaximum", $"Aantal rijstroken mag niet groter dan {RoadSegmentLaneCount.Maximum} zijn.")},
         {ProblemCode.RoadSegment.Lanes.CountGreaterThanOne, problem => new(problem.Severity, problem.Reason, "Wegsegment heeft meer dan 1 rijstrook.")},
         {ProblemCode.RoadSegment.Lanes.HasCountOfZero, problem => new(problem.Severity, problem.Reason, "Wegsegment heeft geen enkel rijstrook.")},
+        {ProblemCode.RoadSegment.LaneCount.IsRequired, problem => new(problem.Severity, "AantalRijstrokenVerplicht", "Aantal rijstroken is verplicht.")},
+        {ProblemCode.RoadSegment.LaneCount.NotValid, problem => new(problem.Severity, "AantalRijstrokenNietCorrect", $"Aantal rijstroken is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
         {ProblemCode.RoadSegment.LaneDirection.IsRequired, problem => new(problem.Severity, "AantalRijstrokenRichtingVerplicht", "Aantal rijstroken richting is verplicht.")},
         {ProblemCode.RoadSegment.LaneDirection.NotValid, problem => new(problem.Severity, "AantalRijstrokenRichtingNietCorrect", $"Aantal rijstroken richting is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
         {ProblemCode.RoadSegment.MaintenanceAuthority.IsRequired, problem => new(problem.Severity, "WegbeheerderVerplicht", "Wegbeheerder is verplicht.") },
         {ProblemCode.RoadSegment.MaintenanceAuthority.NotValid, problem => new(problem.Severity, "WegbeheerderNietCorrect", $"Wegbeheerder is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.") },
+        {ProblemCode.RoadSegment.MaintenanceAuthority.NotKnown, problem => new(problem.Severity, "WegbeheerderNietGekend", $"De opgegeven wegbeheerdercode '{problem.GetParameterValue(MaintenanceAuthorityNotKnown.ParameterName.OrganizationId)}' komt niet overeen met een (OVO-code die correspondeert met een) code gekend door het Wegenregister.") },
         {ProblemCode.RoadSegment.Morphology.NotValid, problem => new(problem.Severity, "MorfologischeWegklasseNietCorrect", $"Morfologische wegklasse is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.") },
         {ProblemCode.RoadSegment.Morphology.IsRequired, problem => new(problem.Severity, "MorfologischeWegklasseVerplicht", "Morfologische wegklasse is verplicht.") },
         {ProblemCode.RoadSegment.Point.MeasureValueDoesNotIncrease, problem => new(problem.Severity, problem.Reason, $"De meting ({problem.Parameters[2].Value}) op het punt [X={problem.Parameters[0].Value},Y={problem.Parameters[1].Value}] is niet groter dan de meting ({problem.Parameters[3].Value}) op het vorige punt.") },
@@ -113,8 +117,10 @@ public static class ProblemTranslator
         {ProblemCode.ShapeFile.InvalidHeader, problem => new(problem.Severity, problem.Reason, $"Kan header van de shape file niet lezen: '{problem.Parameters[0].Value}'")},
         {ProblemCode.ShapeFile.InvalidPolygonShellOrientation, problem => new(problem.Severity, problem.Reason, "De orientatie van de polygoon moet in wijzerzin zijn.")},
         {ProblemCode.StreetName.NotFound, problem => new(problem.Severity, "StraatnaamNietGekend", "De straatnaam is niet gekend in het Straatnamenregister.")},
+        {ProblemCode.StreetName.RegistryUnexpectedError, problem => new(problem.Severity, "StraatnamenregisterOnverwachteFout", $"Het Straatnamenregister gaf een onverwachte fout {problem.GetParameterValue("StatusCode")}.")},
         {ProblemCode.ToPosition.IsRequired, problem => new(problem.Severity, "TotPositieVerplicht", "TotPositie is verplicht.")},
         {ProblemCode.ToPosition.NotEqualToNextFromPosition, problem => new(problem.Severity, "TotPositieNietGelijkAanVolgendeVanPositie", $"De totPositie verschilt van de volgende vanPositie.")},
+        {ProblemCode.ToPosition.LessThanOrEqualFromPosition, problem => new(problem.Severity, "TotPositieKleinerOfGelijkAanVanPositie", $"De totPositie moet groter zijn dan de vanPositie.")},
         {ProblemCode.ToPosition.NotValid, problem => new(problem.Severity, "TotPositieNietCorrect", $"TotPositie is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
         {ProblemCode.Type.IsRequired, problem => new(problem.Severity, "TypeVerplicht", "Type is verplicht.")},
         {ProblemCode.Type.NotValid, problem => new(problem.Severity, "TypeNietCorrect", $"Type is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
@@ -145,16 +151,16 @@ public static class ProblemTranslator
     {
         var sb = new StringBuilder();
         sb.AppendFormat("Het opgegeven wegknoop type {0} van knoop {1} komt niet overeen met een van de verwachte wegknoop types: ",
-            RoadNodeType.Parse(problem.Parameters.Single(p => p.Name == "Actual").Value).Translation.Name,
-            problem.Parameters.Single(p => p.Name == "RoadNodeId").Value);
+            RoadNodeType.Parse(problem.GetParameterValue("Actual")).Translation.Name,
+            problem.GetParameterValue("RoadNodeId"));
         sb.AppendFormat("{0} ", string.Join(',', problem.Parameters
             .Where(p => p.Name == "Expected")
             .Select(parameter => RoadNodeType.Parse(parameter.Value).Translation.Name)));
-        sb.AppendFormat("De wegknoop is verbonden met {0} wegsegment(-en)",
-            problem.Parameters.Single(p => p.Name == "ConnectedSegmentCount").Value);
+        sb.AppendFormat(". De wegknoop is verbonden met {0} wegsegment(-en)",
+            problem.GetParameterValue("ConnectedSegmentCount"));
         if (problem.Parameters.Any(p => p.Name == "ConnectedSegmentId"))
         {
-            sb.AppendFormat("{0} ", string.Join(',', problem.Parameters
+            sb.AppendFormat(": {0} ", string.Join(',', problem.Parameters
                 .Where(p => p.Name == "ConnectedSegmentId")
                 .Select(parameter => parameter.Value)));
         }

@@ -1,20 +1,18 @@
 namespace RoadRegistry.Editor.ProjectionHost.Extensions;
 
-using System;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
-using Hosts;
 using Microsoft.Extensions.DependencyInjection;
+using Schema;
+using System;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddDbContextEventProcessor<TDbContext, TDbContextEventProcessor>(this IServiceCollection services,
-        Func<IServiceProvider, ConnectedProjection<TDbContext>[]> projections)
-        where TDbContext : RunnerDbContext<TDbContext>
-        where TDbContextEventProcessor : DbContextEventProcessor<TDbContext>
+    public static IServiceCollection AddEditorContextEventProcessor<TDbContextEventProcessor>(this IServiceCollection services,
+        Func<IServiceProvider, ConnectedProjection<EditorContext>[]> projections)
+        where TDbContextEventProcessor : EditorContextEventProcessor
     {
         services
-            .AddSingleton(sp => new DbContextEventProcessorProjections<TDbContextEventProcessor, TDbContext>(projections(sp)))
+            .AddSingleton(sp => new EditorContextEventProcessorProjections<TDbContextEventProcessor>(projections(sp)))
             .AddHostedService<TDbContextEventProcessor>();
 
         return services;

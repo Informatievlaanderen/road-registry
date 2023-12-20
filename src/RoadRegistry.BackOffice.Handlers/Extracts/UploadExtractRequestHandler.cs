@@ -29,18 +29,15 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     };
 
     private readonly RoadNetworkExtractUploadsBlobClient _client;
-    private readonly IExtractUploadFailedEmailClient _emailClient;
     private readonly EditorContext _context;
 
     public UploadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkExtractUploadsBlobClient client,
-        IExtractUploadFailedEmailClient emailClient,
         EditorContext context,
         ILogger<UploadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
-        _emailClient = emailClient;
         _context = context ?? throw new EditorContextNotFoundException(nameof(context));
     }
 
@@ -56,31 +53,25 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             throw new DownloadExtractNotFoundException("Could not find extract with empty download identifier");
         }
 
-        if (!Guid.TryParseExact(request.DownloadId, "N", out var parsedDownloadId))
+        if (!DownloadId.TryParse(request.DownloadId, out var downloadId))
         {
-            throw new UploadExtractNotFoundException($"Could not upload the extract with filename {request.Archive.FileName}");
+            throw new InvalidGuidValidationException(nameof(request.DownloadId));
         }
 
-        var extractRequest = await _context.ExtractRequests.FindAsync(new object[] { parsedDownloadId }, cancellationToken);
+        var extractRequest = await _context.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
         if (extractRequest is null)
         {
-            var ex = new ExtractDownloadNotFoundException(new DownloadId(parsedDownloadId));
-            await _emailClient.SendAsync(null, ex, cancellationToken);
-            throw ex;
+            throw new ExtractDownloadNotFoundException(downloadId);
         }
         if (extractRequest.IsInformative)
         {
-            var ex = new ExtractRequestMarkedInformativeException(new DownloadId(parsedDownloadId));
-            await _emailClient.SendAsync(extractRequest.Description, ex, cancellationToken);
-            throw ex;
+            throw new ExtractRequestMarkedInformativeException(downloadId);
         }
 
-        var download = await _context.ExtractDownloads.FindAsync(new object[] { parsedDownloadId }, cancellationToken);
+        var download = await _context.ExtractDownloads.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
         if (download is null)
         {
-            var ex = new ExtractDownloadNotFoundException(new DownloadId(parsedDownloadId));
-            await _emailClient.SendAsync(null, ex, cancellationToken);
-            throw ex;
+            throw new ExtractDownloadNotFoundException(downloadId);
         }
 
         await using var readStream = request.Archive.ReadStream;
@@ -102,12 +93,12 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             {
                 RequestId = download.RequestId,
                 DownloadId = download.DownloadId,
-                UploadId = uploadId.ToGuid(),
-                ArchiveId = archiveId.ToString(),
+                UploadId = uploadId,
+                ArchiveId = archiveId,
                 UseZipArchiveFeatureCompareTranslator = request.UseZipArchiveFeatureCompareTranslator
             });
 
-        await Dispatcher(message, cancellationToken);
+        await Dispatch(message, cancellationToken);
 
         return new UploadExtractResponse(uploadId);
     }

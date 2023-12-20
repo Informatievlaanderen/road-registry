@@ -127,7 +127,7 @@ public class NumberedRoadChangeDbaseRecordsValidatorTests : IDisposable
         var (result, context) = _sut.Validate(_entry, _enumerator, _context);
 
         Assert.Equal(
-            ZipArchiveProblems.Single(_entry.HasNoDbaseRecords(true)),
+            ZipArchiveProblems.Single(_entry.HasNoDbaseRecords()),
             result);
         Assert.Same(_context, context);
     }

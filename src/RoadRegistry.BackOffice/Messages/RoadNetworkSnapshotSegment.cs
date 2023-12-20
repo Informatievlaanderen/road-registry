@@ -16,4 +16,7 @@ public class RoadNetworkSnapshotSegment
     [Key(8)] public string LastEventHash { get; set; }
     [Key(9)] public int Version { get; set; }
     [Key(10)] public int GeometryVersion { get; set; }
+    [Key(11)] public RoadNetworkSnapshotSegmentLaneAttribute[] Lanes { get; set; }
+    [Key(12)] public RoadNetworkSnapshotSegmentSurfaceAttribute[] Surfaces { get; set; }
+    [Key(13)] public RoadNetworkSnapshotSegmentWidthAttribute[] Widths { get; set; }
 }

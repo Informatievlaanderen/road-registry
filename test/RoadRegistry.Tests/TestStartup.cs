@@ -24,6 +24,7 @@ using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 using SqlStreamStore;
 using Xunit.DependencyInjection;
@@ -93,9 +94,12 @@ public abstract class TestStartup
                         RequestQueueUrl = "request.fifo",
                         ResponseQueueUrl = "response.fifo"
                     })
-                    .AddSingleton(new FileEncoding(Encoding.UTF8))
+                    .AddSingleton(FileEncoding.UTF8)
+                    .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
                     .AddTransient<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
                     .AddTransient<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
+                    .AddSingleton<IBeforeFeatureCompareZipArchiveCleaner, BeforeFeatureCompareZipArchiveCleaner>()
+                    .AddFeatureCompareTranslator()
                     .AddValidatorsFromAssemblies(availableModuleAssemblyCollection)
                     .AddFeatureToggles<ApplicationFeatureToggle>(context.Configuration)
                     .AddLogging();
@@ -132,12 +136,5 @@ public abstract class TestStartup
     {
     }
 
-    private static IEnumerable<Assembly> DetermineAvailableAssemblyCollection()
-    {
-        var executorAssemblyLocation = Assembly.GetExecutingAssembly().Location;
-        var executorDirectoryInfo = new DirectoryInfo(executorAssemblyLocation).Parent;
-        var assemblyFileInfoCollection = executorDirectoryInfo.EnumerateFiles("RoadRegistry.*.dll");
-        var assemblyCollection = assemblyFileInfoCollection.Select(fi => Assembly.LoadFrom(fi.FullName));
-        return assemblyCollection.ToList();
-    }
+    protected virtual IEnumerable<Assembly> DetermineAvailableAssemblyCollection() => Enumerable.Empty<Assembly>();
 }

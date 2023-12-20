@@ -1,20 +1,20 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
 
-using System.IO.Compression;
-using System.Text;
+using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extracts;
 using FeatureCompare;
+using System.IO.Compression;
 
 public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveCleaner
     where TDbaseRecord : DbaseRecord, new()
 {
-    protected Encoding Encoding { get; }
+    protected FileEncoding Encoding { get; }
 
     private readonly DbaseSchema _dbaseSchema;
     private readonly ExtractFileName _fileName;
 
-    protected DbaseZipArchiveCleanerBase(DbaseSchema dbaseSchema, Encoding encoding, ExtractFileName fileName)
+    protected DbaseZipArchiveCleanerBase(DbaseSchema dbaseSchema, FileEncoding encoding, ExtractFileName fileName)
     {
         _dbaseSchema = dbaseSchema;
         Encoding = encoding;
@@ -23,10 +23,10 @@ public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveClea
 
     protected abstract bool FixDataInArchive(ZipArchive archive, IReadOnlyCollection<TDbaseRecord> dbfRecords);
 
-    private IReadOnlyCollection<TDbaseRecord> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
+    private IReadOnlyCollection<TDbaseRecord> ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName)
     {
-        var dbfFileName = featureType.GetDbfFileName(fileName);
-        var entry = entries.SingleOrDefault(x => x.Name.Equals(dbfFileName, StringComparison.InvariantCultureIgnoreCase));
+        var dbfFileName = featureType.ToDbaseFileName(fileName);
+        var entry = archive.FindEntry(dbfFileName);
         if (entry is null)
         {
             throw new OperationCanceledException();
@@ -75,7 +75,7 @@ public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveClea
     {
         try
         {
-            var features = ReadFeatures(archive.Entries, FeatureType.Change, _fileName);
+            var features = ReadFeatures(archive, FeatureType.Change, _fileName);
             if (!features.Any())
             {
                 return CleanResult.NoChanges;
@@ -98,7 +98,7 @@ public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveClea
     
     private async Task Save(ZipArchive archive, IReadOnlyCollection<TDbaseRecord> dbfRecords, CancellationToken cancellationToken)
     {
-        var fileName = FeatureType.Change.GetDbfFileName(_fileName);
+        var fileName = FeatureType.Change.ToDbaseFileName(_fileName);
         archive.Entries
             .Single(x => string.Equals(x.Name, fileName, StringComparison.InvariantCultureIgnoreCase))
             .Delete();

@@ -40,6 +40,48 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
         _fixture.CustomizeGradeSeparatedJunctionRemoved();
     }
 
+    private static Mock<IKafkaProducer> BuildKafkaProducer()
+    {
+        var kafkaProducer = new Mock<IKafkaProducer>();
+        kafkaProducer
+            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<GradeSeparatedJunctionSnapshot>(), CancellationToken.None))
+            .ReturnsAsync(Result<GradeSeparatedJunctionSnapshot>.Success(It.IsAny<GradeSeparatedJunctionSnapshot>()));
+        return kafkaProducer;
+    }
+
+    private static ICollection<object> ConvertToGradeSeparatedJunctionRecords(RoadNetworkChangesAccepted message, DateTimeOffset created, Action<GradeSeparatedJunctionRecord> modifier = null)
+    {
+        return Array.ConvertAll(message.Changes, change =>
+            {
+                var gradeSeparatedJunctionAdded = change.GradeSeparatedJunctionAdded;
+                var typeTranslation = GradeSeparatedJunctionType.Parse(gradeSeparatedJunctionAdded.Type).Translation;
+
+                var record = new GradeSeparatedJunctionRecord(
+                    gradeSeparatedJunctionAdded.Id,
+                    gradeSeparatedJunctionAdded.LowerRoadSegmentId,
+                    gradeSeparatedJunctionAdded.UpperRoadSegmentId,
+                    typeTranslation.Identifier,
+                    typeTranslation.Name,
+                    message.ToOrigin(),
+                    created);
+                modifier?.Invoke(record);
+                return (object)record;
+            });
+    }
+
+    private void KafkaVerify(Mock<IKafkaProducer> kafkaProducer, IEnumerable<object> expectedRecords, Times? times = null)
+    {
+        foreach (var expectedRecord in expectedRecords.Cast<GradeSeparatedJunctionRecord>())
+        {
+            kafkaProducer.Verify(
+                x => x.Produce(
+                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
+                    It.Is(expectedRecord.ToContract(), new GradeSeparatedJunctionSnapshotEqualityComparer()),
+                    It.IsAny<CancellationToken>()),
+                times ?? Times.Once());
+        }
+    }
+
     [Fact]
     public async Task When_adding_grade_separated_junctions()
     {
@@ -49,40 +91,15 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
 
         var created = DateTimeOffset.UtcNow;
 
-        var expectedRecords = Array.ConvertAll(message.Changes, change =>
-        {
-            var gradeSeparatedJunctionAdded = change.GradeSeparatedJunctionAdded;
-            var typeTranslation = GradeSeparatedJunctionType.Parse(gradeSeparatedJunctionAdded.Type).Translation;
+        var expectedRecords = ConvertToGradeSeparatedJunctionRecords(message, created);
 
-            return (object)new GradeSeparatedJunctionRecord(
-                gradeSeparatedJunctionAdded.Id,
-                gradeSeparatedJunctionAdded.LowerRoadSegmentId,
-                gradeSeparatedJunctionAdded.UpperRoadSegmentId,
-                typeTranslation.Identifier,
-                typeTranslation.Name,
-                message.ToOrigin(),
-                created);
-        });
-
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<GradeSeparatedJunctionSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<GradeSeparatedJunctionSnapshot>.Success(It.IsAny<GradeSeparatedJunctionSnapshot>()));
-
+        var kafkaProducer = BuildKafkaProducer();
         await new GradeSeparatedJunctionRecordProjection(kafkaProducer.Object)
             .Scenario()
             .Given(message)
             .Expect(created.UtcDateTime, expectedRecords);
 
-        foreach (var expectedRecord in expectedRecords.Cast<GradeSeparatedJunctionRecord>())
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new GradeSeparatedJunctionSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        KafkaVerify(kafkaProducer, expectedRecords);
     }
 
     [Fact]
@@ -114,25 +131,14 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
             })
             .ToList();
 
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<GradeSeparatedJunctionSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<GradeSeparatedJunctionSnapshot>.Success(It.IsAny<GradeSeparatedJunctionSnapshot>()));
-
+        var kafkaProducer = BuildKafkaProducer();
         await new GradeSeparatedJunctionRecordProjection(kafkaProducer.Object)
             .Scenario()
             .Given(data.Select(d => d.ImportedGradeSeparatedJunction))
             .Expect(created.UtcDateTime, data.Select(d => d.ExpectedRecord));
 
-        foreach (var expectedRecord in data.AsReadOnly().Select(x => x.ExpectedRecord))
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new GradeSeparatedJunctionSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        var expectedRecords = data.AsReadOnly().Select(x => x.ExpectedRecord).ToArray();
+        KafkaVerify(kafkaProducer, expectedRecords);
     }
 
     [Fact]
@@ -165,25 +171,13 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
                 created);
         });
 
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<GradeSeparatedJunctionSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<GradeSeparatedJunctionSnapshot>.Success(It.IsAny<GradeSeparatedJunctionSnapshot>()));
-
+        var kafkaProducer = BuildKafkaProducer();
         await new GradeSeparatedJunctionRecordProjection(kafkaProducer.Object)
             .Scenario()
             .Given(acceptedGradeSeparatedJunctionAdded, acceptedGradeSeparatedJunctionModified)
             .Expect(created.UtcDateTime, expectedRecords);
 
-        foreach (var expectedRecord in expectedRecords.Cast<GradeSeparatedJunctionRecord>())
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new GradeSeparatedJunctionSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        KafkaVerify(kafkaProducer, expectedRecords);
     }
 
     [Fact]
@@ -201,20 +195,9 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
 
         var created = DateTimeOffset.UtcNow;
 
-        var expectedRecords = Array.ConvertAll(acceptedGradeSeparatedJunctionAdded.Changes, change =>
+        var expectedRecords = ConvertToGradeSeparatedJunctionRecords(acceptedGradeSeparatedJunctionAdded, created.AddDays(-1), record =>
         {
-            var gradeSeparatedJunctionAdded = change.GradeSeparatedJunctionAdded;
-            var typeTranslation = GradeSeparatedJunctionType.Parse(gradeSeparatedJunctionAdded.Type).Translation;
-
-            return (object)new GradeSeparatedJunctionRecord(
-                    gradeSeparatedJunctionAdded.Id,
-                    gradeSeparatedJunctionAdded.LowerRoadSegmentId,
-                    gradeSeparatedJunctionAdded.UpperRoadSegmentId,
-                    typeTranslation.Identifier,
-                    typeTranslation.Name,
-                    acceptedGradeSeparatedJunctionAdded.ToOrigin(),
-                    created.AddDays(-1))
-                { IsRemoved = true };
+            record.IsRemoved = true;
         });
 
         expectedRecords = Array.ConvertAll(acceptedGradeSeparatedJunctionRemoved.Changes, change =>
@@ -229,24 +212,38 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
             return (object)record;
         });
 
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<GradeSeparatedJunctionSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<GradeSeparatedJunctionSnapshot>.Success(It.IsAny<GradeSeparatedJunctionSnapshot>()));
-
+        var kafkaProducer = BuildKafkaProducer();
         await new GradeSeparatedJunctionRecordProjection(kafkaProducer.Object)
             .Scenario()
             .Given(acceptedGradeSeparatedJunctionAdded, acceptedGradeSeparatedJunctionRemoved)
             .Expect(created.UtcDateTime, expectedRecords);
+        
+        KafkaVerify(kafkaProducer, expectedRecords);
+    }
 
-        foreach (var expectedRecord in expectedRecords.Cast<GradeSeparatedJunctionRecord>())
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new GradeSeparatedJunctionSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+    [Fact]
+    public async Task When_adding_grade_separated_junctions_which_were_previously_removed()
+    {
+        _fixture.Freeze<GradeSeparatedJunctionId>();
+
+        var created = DateTimeOffset.UtcNow;
+
+        var acceptedGradeSeparatedJunctionAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<GradeSeparatedJunctionAdded>());
+
+        var acceptedGradeSeparatedJunctionRemoved = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<GradeSeparatedJunctionRemoved>());
+
+        var expectedRecords = ConvertToGradeSeparatedJunctionRecords(acceptedGradeSeparatedJunctionAdded, created);
+
+        var kafkaProducer = BuildKafkaProducer();
+        await new GradeSeparatedJunctionRecordProjection(kafkaProducer.Object)
+            .Scenario()
+            .Given(acceptedGradeSeparatedJunctionAdded, acceptedGradeSeparatedJunctionRemoved, acceptedGradeSeparatedJunctionAdded)
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        KafkaVerify(kafkaProducer, expectedRecords, Times.Exactly(2));
     }
 }

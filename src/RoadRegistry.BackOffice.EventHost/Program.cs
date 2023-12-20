@@ -5,6 +5,9 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Configuration;
 using Core;
+using Extensions;
+using FeatureCompare;
+using FeatureCompare.Translators;
 using FeatureToggles;
 using Framework;
 using Handlers;
@@ -21,15 +24,13 @@ using NodaTime;
 using Snapshot.Handlers;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
-using System.Text;
 using System.Threading.Tasks;
-using Extensions;
-using FeatureCompare;
-using FeatureCompare.Translators;
 using Uploads;
 
 public class Program
 {
+    public const int HostingPort = 10001;
+
     private static readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.BackOffice);
 
     protected Program()
@@ -43,6 +44,7 @@ public class Program
             {
                 services
                     .AddHostedService<EventProcessor>()
+                    .AddEmailClient()
                     .AddTicketing()
                     .AddRoadRegistrySnapshot()
                     .AddRoadNetworkEventWriter()
@@ -53,15 +55,20 @@ public class Program
                                 sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.EventHost)
                             ),
                             WellknownSchemas.EventHostSchema))
+                    .AddEditorContext()
+                    .AddOrganizationRepository()
+                    .AddFeatureCompareTranslator()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {
                         new RoadNetworkChangesArchiveEventModule(
+                            sp.GetService<ILifetimeScope>(),
                             sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
                             new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveTranslator>>()),
-                            new ZipArchiveFeatureCompareTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>()),
                             sp.GetRequiredService<IStreamStore>(),
                             ApplicationMetadata,
-                            new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()),
+                            sp.GetRequiredService<TransactionZoneFeatureCompareFeatureReader>(),
+                            sp.GetRequiredService<IRoadNetworkEventWriter>(),
+                            sp.GetService<IExtractUploadFailedEmailClient>(),
                             sp.GetRequiredService<ILogger<RoadNetworkChangesArchiveEventModule>>()
                         ),
                         new RoadNetworkBackOfficeEventModule(
@@ -84,9 +91,23 @@ public class Program
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));
             })
+            .ConfigureHealthChecks(HostingPort, builder => builder
+                .AddSqlServer()
+                .AddHostedServicesStatus()
+                .AddS3(x => x
+                    .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
+                    .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Read)
+                    .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read)
+                )
+                .AddSqs(x => x
+                    .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Read)
+                )
+                .AddTicketing()
+            )
             .ConfigureContainer((context, builder) =>
             {
                 builder
+                    .RegisterModule<ContextModule>()
                     .RegisterModule<RoadRegistry.Snapshot.Handlers.Sqs.MediatorModule>()
                     .RegisterModule<SqsHandlersModule>()
                     .RegisterModule<SnapshotSqsHandlersModule>();

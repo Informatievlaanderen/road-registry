@@ -34,7 +34,7 @@ public partial class ExtractsController
         {
             var request = new DownloadExtractByFileRequest(BuildRequestItem(".shp"), BuildRequestItem(".prj"), body.Buffer, body.Description, body.IsInformative);
             var response = await _mediator.Send(request, cancellationToken);
-            return Accepted(new DownloadExtractResponseBody(response.DownloadId.ToString(), response.IsInformative));
+            return Accepted(new DownloadExtractResponseBody(response.DownloadId, response.IsInformative));
 
             DownloadExtractByFileRequestItem BuildRequestItem(string extension)
             {

@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +15,7 @@ public partial class RoadRegistrySystemController
     /// <summary>
     ///     Corrects the road segment versions.
     /// </summary>
+    /// <param name="parameters">
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
     ///     of cancellation.
@@ -23,17 +23,18 @@ public partial class RoadRegistrySystemController
     /// <returns>IActionResult.</returns>
     [HttpPost(CorrectRoadSegmentVersionsRoute, Name = nameof(CorrectRoadSegmentVersions))]
     [SwaggerOperation(OperationId = nameof(CorrectRoadSegmentVersions), Description = "")]
-    public async Task<IActionResult> CorrectRoadSegmentVersions(CancellationToken cancellationToken)
+    [RequestSizeLimit(long.MaxValue)]
+    public async Task<IActionResult> CorrectRoadSegmentVersions([FromBody] CorrectRoadSegmentVersionsParameters parameters, CancellationToken cancellationToken)
     {
         await Mediator.Send(new CorrectRoadSegmentVersionsSqsRequest
         {
-            ProvenanceData = new RoadRegistryProvenanceData(),
-            Metadata = new Dictionary<string, object>
-            {
-                { "CorrelationId", Guid.NewGuid() }
-            },
-            Request = new CorrectRoadSegmentVersionsRequest()
+            Request = new CorrectRoadSegmentVersionsRequest(parameters?.RoadSegmentIds)
         }, cancellationToken);
         return Accepted();
+    }
+
+    public class CorrectRoadSegmentVersionsParameters
+    {
+        public List<int> RoadSegmentIds { get; set; }
     }
 }

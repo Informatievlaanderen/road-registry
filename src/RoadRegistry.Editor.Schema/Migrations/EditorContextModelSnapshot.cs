@@ -63,6 +63,12 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
+                    b.Property<string>("DbaseSchemaVersion")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("V1");
+
                     b.Property<string>("SortableCode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -200,6 +206,38 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.HasIndex("RoadSegmentId");
 
                     b.ToTable("RoadSegmentWidthAttribute", "RoadRegistryEditor");
+                });
+
+            modelBuilder.Entity("RoadRegistry.BackOffice.Metrics.EventProcessorMetricsRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DbContext")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("EditorContext");
+
+                    b.Property<long>("ElapsedMilliseconds")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("EventProcessorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("FromPosition")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ToPosition")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.ToTable("EventProcessors", "RoadRegistryEditorMetrics");
                 });
 
             modelBuilder.Entity("RoadRegistry.BackOffice.RoadNetworkInfo", b =>

@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NodaTime;
 using Requests;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Tests.BackOffice;
 using Sqs.RoadSegments;
 
@@ -24,7 +25,7 @@ public abstract class WhenDeleteOutlineFixture : SqsLambdaHandlerFixture<DeleteR
         : base(configuration, customRetryPolicy, clock, options)
     {
         ObjectProvider.CustomizeRoadSegmentOutlineStatus();
-        ObjectProvider.CustomizeRoadSegmentOutlineSurfaceType();
+        ObjectProvider.CustomizeRoadSegmentSurfaceType();
         ObjectProvider.CustomizeRoadSegmentOutlineWidth();
         ObjectProvider.CustomizeRoadSegmentOutlineLaneCount();
         ObjectProvider.CustomizeRoadSegmentOutlineMorphology();
@@ -52,7 +53,6 @@ public abstract class WhenDeleteOutlineFixture : SqsLambdaHandlerFixture<DeleteR
         IdempotentCommandHandler,
         RoadRegistryContext,
         ChangeRoadNetworkDispatcher,
-        new FakeDistributedStreamStoreLockOptions(),
         new NullLogger<DeleteRoadSegmentOutlineSqsLambdaRequestHandler>()
     );
 
@@ -66,6 +66,8 @@ public abstract class WhenDeleteOutlineFixture : SqsLambdaHandlerFixture<DeleteR
                     LifetimeScope,
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
+                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
+                    new FakeExtractUploadFailedEmailClient(),
                     LoggerFactory
                 )
             }), ApplicationMetadata);

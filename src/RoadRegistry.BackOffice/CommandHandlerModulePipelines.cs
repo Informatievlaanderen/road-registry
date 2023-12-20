@@ -1,8 +1,5 @@
 namespace RoadRegistry.BackOffice;
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Core;
@@ -12,7 +9,10 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SqlStreamStore;
-using SqlStreamStore.Streams;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 public static class CommandHandlerModulePipelines
 {
@@ -69,17 +69,19 @@ public static class CommandHandlerModulePipelines
         using (var container = lifetimeScope.BeginLifetimeScope())
         {
             var map = container.Resolve<EventSourcedEntityMap>();
-       
+
             var context = new RoadRegistryContext(map, store, snapshotReader, SerializerSettings, EventMapping, loggerFactory);
+            IRoadNetworkEventWriter roadNetworkEventWriter = new RoadNetworkEventWriter(store, enricher);
 
             await next(context);
 
-            IRoadNetworkEventWriter roadNetworkEventWriter = new RoadNetworkEventWriter(store, enricher);
-
             foreach (var entry in map.Entries)
             {
-                var events = entry.Entity.TakeEvents();
-                if (events.Length != 0)
+                var events = entry.Entity
+                    .TakeEvents()
+                    .Where(@event => context.EventFilter.IsAllowed(entry.Entity, @event))
+                    .ToArray();
+                if (events.Any())
                 {
                     await roadNetworkEventWriter.WriteAsync(entry.Stream, message, entry.ExpectedVersion, events, ct);
                 }

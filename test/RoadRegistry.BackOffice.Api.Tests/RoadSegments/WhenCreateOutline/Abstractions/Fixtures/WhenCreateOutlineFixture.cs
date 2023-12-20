@@ -4,21 +4,32 @@ using Api.RoadSegments;
 using BackOffice.Extracts.Dbase.Organizations;
 using Editor.Schema;
 using FeatureToggles;
-using Hosts.Infrastructure.Options;
 using Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RoadRegistry.Tests.BackOffice.Scenarios;
 
 public abstract class WhenCreateOutlineFixture : ControllerActionFixture<PostRoadSegmentOutlineParameters>
 {
     private readonly EditorContext _editorContext;
     private readonly IMediator _mediator;
+    public readonly RoadNetworkTestData TestData = new();
+    private IOrganizationRepository _organizationRepository;
 
     protected WhenCreateOutlineFixture(IMediator mediator, EditorContext editorContext)
     {
         _mediator = mediator;
         _editorContext = editorContext;
+
+        TestData.CopyCustomizationsTo(ObjectProvider);
+
+        _organizationRepository = new FakeOrganizationRepository();
+    }
+
+    public void CustomizeOrganizationRepository(IOrganizationRepository organizationRepository)
+    {
+        _organizationRepository = organizationRepository.ThrowIfNull();
     }
 
     protected override async Task<IActionResult> GetResultAsync(PostRoadSegmentOutlineParameters request)
@@ -28,12 +39,13 @@ public abstract class WhenCreateOutlineFixture : ControllerActionFixture<PostRoa
             Id = 0,
             Code = "TEST",
             SortableCode = "TEST",
+            DbaseSchemaVersion = WellKnownDbaseSchemaVersions.V2,
             DbaseRecord = Array.Empty<byte>()
         }, CancellationToken.None);
 
         await _editorContext.SaveChangesAsync(CancellationToken.None);
 
-        var controller = new RoadSegmentsController(new TicketingOptions { InternalBaseUrl = "http://internal/tickets", PublicBaseUrl = "http://public/tickets" }, _mediator)
+        var controller = new RoadSegmentsController(new FakeTicketingOptions(), _mediator)
         {
             ControllerContext = new ControllerContext
             {
@@ -41,7 +53,7 @@ public abstract class WhenCreateOutlineFixture : ControllerActionFixture<PostRoa
             }
         };
 
-        var validator = new PostRoadSegmentOutlineParametersValidator(_editorContext);
+        var validator = new PostRoadSegmentOutlineParametersValidator(_organizationRepository);
         return await controller.CreateOutline(new UseRoadSegmentOutlineFeatureToggle(true), validator, request, CancellationToken.None);
     }
 }

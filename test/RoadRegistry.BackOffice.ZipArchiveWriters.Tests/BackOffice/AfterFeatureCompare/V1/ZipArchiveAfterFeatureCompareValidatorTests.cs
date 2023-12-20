@@ -1070,7 +1070,7 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
         {
             var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
-            var result = sut.Validate(archive, ZipArchiveMetadata.Empty);
+            var result = sut.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
 
             result.Count.Should().Be(0);
         }
@@ -1081,7 +1081,7 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
     {
         var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
-        Assert.Throws<ArgumentNullException>(() => sut.Validate(null, ZipArchiveMetadata.Empty));
+        Assert.Throws<ArgumentNullException>(() => sut.Validate(null, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty)));
     }
 
     [Fact]
@@ -1099,20 +1099,11 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
     [Fact]
     public void ValidateReturnsExpectedResultFromEntryValidators()
     {
-        var filesWithWarning = new[]
-        {
-            "TRANSACTIEZONES.DBF",
-            "ATTEUROPWEG_ALL.DBF",
-            "ATTNATIONWEG_ALL.DBF",
-            "ATTGENUMWEG_ALL.DBF",
-            "RLTOGKRUISING_ALL.DBF"
-        };
-
         using (var archive = CreateArchiveWithEmptyFiles())
         {
             var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
-            var result = sut.Validate(archive, ZipArchiveMetadata.Empty);
+            var result = sut.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
 
             var expected = ZipArchiveProblems.Many(
                 archive.Entries.Select
@@ -1124,7 +1115,7 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
                         case ".SHP":
                             return entry.HasNoShapeRecords();
                         case ".DBF":
-                            return entry.HasNoDbaseRecords(filesWithWarning.Contains(entry.Name));
+                            return entry.HasNoDbaseRecords();
                         case ".PRJ":
                             return entry.ProjectionFormatInvalid();
                     }
@@ -1152,7 +1143,7 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
         {
             var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
-            var result = sut.Validate(archive, ZipArchiveMetadata.Empty);
+            var result = sut.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
 
             Assert.Equal(expected, result);
         }

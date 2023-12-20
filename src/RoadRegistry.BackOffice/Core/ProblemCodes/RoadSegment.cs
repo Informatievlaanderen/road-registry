@@ -61,18 +61,25 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode HasCountOfZero = new("RoadSegmentLanesHasCountOfZero");
         }
         
+        public static class LaneCount
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentLaneCountNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentLaneCountIsRequired");
+        }
+        
         public static class LaneDirection
         {
-            public static readonly ProblemCode IsRequired = new("RoadSegmentLaneDirectionIsRequired");
             public static readonly ProblemCode NotValid = new("RoadSegmentLaneDirectionNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentLaneDirectionIsRequired");
         }
 
         public static class MaintenanceAuthority
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentMaintenanceAuthorityNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentMaintenanceAuthorityIsRequired");
+            public static readonly ProblemCode NotKnown = new("RoadSegmentMaintenanceAuthorityNotKnown");
         }
-
+        
         public static class Morphology
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentMorphologyNotValid");
@@ -90,8 +97,8 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode FromPositionNotEqualToZero = new("RoadSegmentWidthAttributeFromPositionNotEqualToZero");
             public static readonly ProblemCode HasLengthOfZero = new("RoadSegmentWidthHasLengthOfZero");
             public static readonly ProblemCode IsRequired = new("RoadSegmentWidthIsRequired");
-            public static readonly ProblemCode NotAdjacent = new("RoadSegmentWidthAttributesNotAdjacent");
             public static readonly ProblemCode NotValid = new("RoadSegmentWidthNotValid");
+            public static readonly ProblemCode NotAdjacent = new("RoadSegmentWidthAttributesNotAdjacent");
             public static readonly ProblemCode ToPositionNotEqualToLength = new("RoadSegmentWidthAttributeToPositionNotEqualToLength");
             public static readonly ProblemCode LessThanOrEqualToMaximum = new("RoadSegmentWidthLessThanOrEqualToMaximum");
         }
@@ -191,6 +198,7 @@ public sealed partial record ProblemCode
     public static class FromPosition
     {
         public static readonly ProblemCode IsRequired = new("FromPositionIsRequired");
+        public static readonly ProblemCode NotEqualToZero = new("FromPositionNotEqualToZero");
         public static readonly ProblemCode NotValid = new("FromPositionNotValid");
     }
 
@@ -199,6 +207,7 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode IsRequired = new("ToPositionIsRequired");
         public static readonly ProblemCode NotValid = new("ToPositionNotValid");
         public static readonly ProblemCode NotEqualToNextFromPosition = new("ToPositionNotEqualToNextFromPosition");
+        public static readonly ProblemCode LessThanOrEqualFromPosition = new("ToPositionLessThanOrEqualFromPosition");
     }
 
     public static class Width

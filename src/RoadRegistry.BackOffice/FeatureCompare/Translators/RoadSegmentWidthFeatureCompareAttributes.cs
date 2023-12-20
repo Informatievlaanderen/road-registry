@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
-public class RoadSegmentWidthFeatureCompareAttributes : RoadSegmentAttributeFeatureCompareAttributes
+public record RoadSegmentWidthFeatureCompareAttributes : RoadSegmentAttributeFeatureCompareAttributes
 {
-    public int Width { get; init; }
+    public RoadSegmentWidth Width { get; init; }
 }

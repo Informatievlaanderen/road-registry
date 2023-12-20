@@ -58,7 +58,7 @@ public class ExtractRequestRecordProjection : ConnectedProjection<EditorContext>
 
         When<Envelope<RoadNetworkExtractClosed>>(async (context, envelope, ct) =>
         {
-            await CloseExtractRequests(context, envelope.Message.ExternalRequestId, ct);
+            await CloseExtractRequests(context, envelope.Message.DownloadIds.Select(x => DownloadId.Parse(x).ToGuid()).ToArray(), ct);
         });
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, ct) =>
@@ -67,27 +67,21 @@ public class ExtractRequestRecordProjection : ConnectedProjection<EditorContext>
             {
                 return;
             }
-            
-            var downloadRecord = context.ExtractRequests.Local.SingleOrDefault(record => record.DownloadId == envelope.Message.DownloadId.Value)
-                ?? await context.ExtractRequests.SingleAsync(record => record.DownloadId == envelope.Message.DownloadId.Value, ct);
 
-            await CloseExtractRequests(context, downloadRecord.ExternalRequestId, ct);
+            await CloseExtractRequests(context, new[] { envelope.Message.DownloadId.Value }, ct);
         });
     }
 
-    private async Task CloseExtractRequests(EditorContext editorContext, string externalRequestId, CancellationToken cancellationToken)
+    private async Task CloseExtractRequests(EditorContext editorContext, Guid[] downloadIds, CancellationToken cancellationToken)
     {
         var records = editorContext.ExtractRequests.Local
-            .Where(record => record.ExternalRequestId == externalRequestId)
+            .Where(record => downloadIds.Contains(record.DownloadId))
             .ToList()
             .Concat(await editorContext.ExtractRequests
-                .Where(record => record.ExternalRequestId == externalRequestId)
+                .Where(record => downloadIds.Contains(record.DownloadId))
                 .ToListAsync(cancellationToken))
-            ;
+            .ToList();
 
-        foreach (var record in records)
-        {
-            record.IsInformative = true;
-        }
+        records.ForEach(record => record.IsInformative = true);
     }
 }

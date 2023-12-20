@@ -13,7 +13,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Authorization
 
         private static AuthorizationOptions AddPolicy(this AuthorizationOptions options, string policyName, string scope)
         {
-            options.AddPolicy(policyName, policyBuilder => policyBuilder.AddRequirements(new AcmIdmAuthorizationRequirement(new[] { scope })));
+            options.AddPolicy(policyName, policyBuilder => policyBuilder.AddRequirements(new AcmIdmAuthorizationRequirement(new []{ scope })));
 
             return options;
         }

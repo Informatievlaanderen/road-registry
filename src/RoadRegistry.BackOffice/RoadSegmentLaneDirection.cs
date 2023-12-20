@@ -46,9 +46,19 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
             )
         );
 
+    public static readonly RoadSegmentLaneDirection NotApplicable =
+        new(
+            nameof(NotApplicable),
+            new DutchTranslation(
+                -9,
+                "niet van toepassing",
+                "Niet van toepassing"
+            )
+        );
+    
     public static readonly RoadSegmentLaneDirection[] All =
     {
-        Unknown, Forward, Backward, Independent
+        NotApplicable, Unknown, Forward, Backward, Independent
     };
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentLaneDirection> ByIdentifier =

@@ -71,7 +71,7 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
 
     public ZipArchiveProblems ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator, bool useZipArchiveFeatureCompareTranslator = false)
     {
-        var problems = validator.Validate(archive, ZipArchiveMetadata.Empty);
+        var problems = validator.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
         if (!problems.OfType<FileError>().Any())
             Apply(
                 new RoadNetworkChangesArchiveAccepted

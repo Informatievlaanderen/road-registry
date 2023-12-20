@@ -1,5 +1,4 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
-
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.IO;

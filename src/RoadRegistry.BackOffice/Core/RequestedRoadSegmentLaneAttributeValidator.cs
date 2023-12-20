@@ -1,7 +1,9 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using Extensions;
 using FluentValidation;
 using Messages;
+using ProblemCodes;
 
 public class RequestedRoadSegmentLaneAttributeValidator : AbstractValidator<RequestedRoadSegmentLaneAttribute>
 {
@@ -11,21 +13,22 @@ public class RequestedRoadSegmentLaneAttributeValidator : AbstractValidator<Requ
         RuleFor(c => c.FromPosition).GreaterThanOrEqualTo(0.0m);
         RuleFor(c => c.ToPosition).GreaterThan(_ => _.FromPosition);
         RuleFor(c => c.Count)
-            .InclusiveBetween(0, RoadSegmentLaneCount.Maximum.ToInt32())
-            .When(_ => _.Count != RoadSegmentLaneCount.Unknown && _.Count != RoadSegmentLaneCount.NotApplicable, ApplyConditionTo.CurrentValidator);
+            .Must(RoadSegmentLaneCount.Accepts)
+            .WithProblemCode(ProblemCode.RoadSegment.LaneCount.NotValid);
         RuleFor(c => c.Direction)
             .NotEmpty()
             .Must(RoadSegmentLaneDirection.CanParse)
             .When(c => c.Direction != null, ApplyConditionTo.CurrentValidator)
-            .WithMessage("The 'Direction' is not a RoadSegmentLaneDirection.");
+            .WithProblemCode(ProblemCode.RoadSegment.LaneDirection.NotValid);
     }
 }
 
-public class RequestedRoadSegmentOutlineLaneAttributeValidator : RequestedRoadSegmentLaneAttributeValidator
+public class RequestedRoadSegmentOutlinedLaneAttributeValidator : RequestedRoadSegmentLaneAttributeValidator
 {
-    public RequestedRoadSegmentOutlineLaneAttributeValidator()
+    public RequestedRoadSegmentOutlinedLaneAttributeValidator()
     {
         RuleFor(c => c.Count)
-            .GreaterThan(0);
+            .Must(x => RoadSegmentLaneCount.Accepts(x) && new RoadSegmentLaneCount(x).IsValidForEdit())
+            .WithProblemCode(ProblemCode.RoadSegment.LaneCount.NotValid);
     }
 }

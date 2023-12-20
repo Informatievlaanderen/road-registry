@@ -3,38 +3,34 @@ namespace RoadRegistry.AdminHost.Infrastructure;
 using Autofac;
 using BackOffice;
 using BackOffice.Configuration;
+using BackOffice.Core;
 using BackOffice.Extensions;
+using BackOffice.Extracts;
 using BackOffice.Framework;
 using BackOffice.Handlers.Sqs;
+using BackOffice.Uploads;
+using BackOffice.ZipArchiveWriters.Validation;
 using Consumers;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using System.Threading.Tasks;
-using BackOffice.Core;
-using BackOffice.Extracts;
-using BackOffice.Uploads;
-using BackOffice.ZipArchiveWriters.Validation;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
-using Editor.Schema;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using SqlStreamStore;
+using System.Threading.Tasks;
+using Options;
 
 public class Program
 {
     protected Program()
     {
     }
-    
+
     public static async Task Main(string[] args)
     {
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
             .ConfigureServices((hostContext, services) => services
-                .AddEmailClient(hostContext.Configuration)
+                .AddEmailClient()
                 .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                     new CommandHandlerModule[]
                     {
@@ -50,9 +46,12 @@ public class Program
                             sp.GetService<ILoggerFactory>()
                         )
                     })))
+                .RegisterOptions<AdminHostOptions>()
                 .AddSingleton<AdminMessageConsumer>()
                 .AddSingleton<ExtractRequestCleanup>()
                 .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
+                .AddOrganizationRepository()
+                .AddFeatureCompareTranslator()
                 .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
                 .AddSingleton<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
                 .AddScoped(_ => new EventSourcedEntityMap())
@@ -63,17 +62,8 @@ public class Program
                 .AddRoadRegistrySnapshot()
                 .AddRoadNetworkSnapshotStrategyOptions()
                 .AddEditorContext()
-                .AddScoped(sp => new TraceDbConnection<EditorContext>(
-                    new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.EditorProjections)),
-                    sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
-                .AddDbContext<EditorContext>((sp, options) => options
-                    .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                    .UseSqlServer(
-                        sp.GetRequiredService<TraceDbConnection<EditorContext>>(),
-                        sqlOptions => sqlOptions
-                            .UseNetTopologySuite())
-                ))
+                .AddProductContext()
+            )
             .ConfigureContainer((hostContext, builder) =>
             {
                 builder.RegisterModule<MediatorModule>();
@@ -89,11 +79,10 @@ public class Program
                 var adminMessageConsumer = sp.GetRequiredService<AdminMessageConsumer>();
                 var extractRequestCleanup = sp.GetRequiredService<ExtractRequestCleanup>();
 
-                Task.WaitAll(new[]
-                {
+                await Task.WhenAll(
                     adminMessageConsumer.ExecuteAsync(stoppingToken),
                     extractRequestCleanup.ExecuteAsync(stoppingToken)
-                });
+                );
             })
             .Build();
 
@@ -104,6 +93,16 @@ public class Program
                 var blobClientOptions = sp.GetRequiredService<BlobClientOptions>();
                 logger.LogBlobClientCredentials(blobClientOptions);
             })
-            .RunAsync();
+            .RunAsync((sp, _, _) =>
+            {
+                var adminHostOptions = sp.GetRequiredService<AdminHostOptions>();
+                if (adminHostOptions.AlwaysRunning)
+                {
+                    var logger = sp.GetRequiredService<ILogger<Program>>();
+                    logger.LogInformation("Host is configured to be always running.");
+                }
+
+                return Task.CompletedTask;
+            });
     }
 }

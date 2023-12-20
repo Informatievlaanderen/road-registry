@@ -3,7 +3,11 @@ namespace RoadRegistry.BackOffice.Extracts;
 using System;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Amazon.SimpleNotificationService.Model;
 using Messages;
+using Newtonsoft.Json;
 using Uploads;
 
 public class RoadNetworkExtractUpload
@@ -32,12 +36,13 @@ public class RoadNetworkExtractUpload
         _applier(@event);
     }
 
-    public ZipArchiveProblems ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator, bool useZipArchiveFeatureCompareTranslator = false)
+    public async Task<ZipArchiveProblems> ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator, IExtractUploadFailedEmailClient emailClient, CancellationToken cancellationToken, bool useZipArchiveFeatureCompareTranslator = false)
     {
         var zipArchiveMetadata = ZipArchiveMetadata.Empty.WithDownloadId(_downloadId);
 
-        var problems = validator.Validate(archive, zipArchiveMetadata);
+        var problems = validator.Validate(archive, new ZipArchiveValidatorContext(zipArchiveMetadata));
         if (!problems.OfType<FileError>().Any())
+        {
             Apply(
                 new RoadNetworkExtractChangesArchiveAccepted
                 {
@@ -50,8 +55,10 @@ public class RoadNetworkExtractUpload
                     Problems = problems.Select(problem => problem.Translate()).ToArray(),
                     UseZipArchiveFeatureCompareTranslator = useZipArchiveFeatureCompareTranslator
                 });
+        }
         else
-            Apply(
+        {
+            var @event =
                 new RoadNetworkExtractChangesArchiveRejected
                 {
                     Description = _extractDescription,
@@ -61,7 +68,15 @@ public class RoadNetworkExtractUpload
                     UploadId = _uploadId,
                     ArchiveId = _archiveId,
                     Problems = problems.Select(problem => problem.Translate()).ToArray()
-                });
+                };
+
+            Apply(@event);
+
+            if (emailClient is not null)
+            {
+                await emailClient.SendAsync(_extractDescription, new ValidationException(JsonConvert.SerializeObject(@event, Formatting.Indented)), cancellationToken);
+            }
+        }
 
         return problems;
     }

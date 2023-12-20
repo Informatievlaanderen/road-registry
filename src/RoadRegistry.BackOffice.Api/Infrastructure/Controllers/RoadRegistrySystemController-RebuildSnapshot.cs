@@ -1,7 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.RoadNetworks;
@@ -41,12 +39,10 @@ public partial class RoadRegistrySystemController
         {
             await Mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest
             {
-                ProvenanceData = new RoadRegistryProvenanceData(),
-                Metadata = new Dictionary<string, object>
+                Request = new RebuildRoadNetworkSnapshotRequest
                 {
-                    { "CorrelationId", Guid.NewGuid() }
-                },
-                Request = new RebuildRoadNetworkSnapshotRequest()
+                    MaxStreamVersion = parameters.MaxStreamVersion
+                }
             }, cancellationToken);
             return Accepted();
         }
@@ -60,6 +56,7 @@ public partial class RoadRegistrySystemController
 
 public class RebuildSnapshotParameters
 {
+    public int MaxStreamVersion { get; set; }
 }
 
 public class RebuildSnapshotParametersValidator : AbstractValidator<RebuildSnapshotParameters>

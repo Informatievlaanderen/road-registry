@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Core;
-
-using System.Globalization;
+using Extensions;
 using ProblemCodes;
 
 public class RoadSegmentSurfaceAttributeToPositionNotEqualToLength : Error
@@ -9,7 +8,7 @@ public class RoadSegmentSurfaceAttributeToPositionNotEqualToLength : Error
         : base(ProblemCode.RoadSegment.Surface.ToPositionNotEqualToLength,
             new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()),
             new ProblemParameter("ToPosition", toPosition.ToString()),
-            new ProblemParameter("Length", length.ToString(CultureInfo.InvariantCulture)))
+            new ProblemParameter("Length", length.ToRoundedMeasurementString()))
     {
     }
 }

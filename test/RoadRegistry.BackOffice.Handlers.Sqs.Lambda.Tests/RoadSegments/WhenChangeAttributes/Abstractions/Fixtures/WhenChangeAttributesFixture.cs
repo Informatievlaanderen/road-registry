@@ -3,16 +3,20 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenCha
 using AutoFixture;
 using BackOffice.Abstractions.RoadSegments;
 using BackOffice.Framework;
+using Be.Vlaanderen.Basisregisters.GrAr.Contracts.BuildingRegistry;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
+using Editor.Schema;
 using Framework;
 using Handlers;
 using Hosts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.IO;
 using NodaTime;
 using Requests;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Tests.BackOffice;
 using Sqs.RoadSegments;
 
@@ -24,9 +28,9 @@ public abstract class WhenChangeAttributesFixture : SqsLambdaHandlerFixture<Chan
         : base(configuration, customRetryPolicy, clock, options)
     {
         ObjectProvider.CustomizeRoadSegmentOutlineStatus();
-        ObjectProvider.CustomizeRoadSegmentOutlineSurfaceType();
-        ObjectProvider.CustomizeRoadSegmentOutlineWidth();
-        ObjectProvider.CustomizeRoadSegmentOutlineLaneCount();
+        ObjectProvider.CustomizeRoadSegmentSurfaceType();
+        ObjectProvider.CustomizeRoadSegmentWidth();
+        ObjectProvider.CustomizeRoadSegmentLaneCount();
         ObjectProvider.CustomizeRoadSegmentOutlineMorphology();
 
         Organisation = ObjectProvider.Create<Organisation>();
@@ -52,6 +56,10 @@ public abstract class WhenChangeAttributesFixture : SqsLambdaHandlerFixture<Chan
         IdempotentCommandHandler,
         RoadRegistryContext,
         ChangeRoadNetworkDispatcher,
+        EditorContext,
+        new RecyclableMemoryStreamManager(),
+        FileEncoding.UTF8,
+        new FakeOrganizationRepository(),
         new NullLogger<ChangeRoadSegmentAttributesSqsLambdaRequestHandler>()
     );
 
@@ -65,6 +73,8 @@ public abstract class WhenChangeAttributesFixture : SqsLambdaHandlerFixture<Chan
                     LifetimeScope,
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
+                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
+                    new FakeExtractUploadFailedEmailClient(),
                     LoggerFactory
                 )
             }), ApplicationMetadata);

@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
-using Core;
 using TicketingService.Abstractions;
 
 public class CreateRoadSegmentOutlineSqsRequestHandler : SqsHandler<CreateRoadSegmentOutlineSqsRequest>

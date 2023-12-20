@@ -1,14 +1,14 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.StreetName;
 
-using Abstractions;
 using Autofac;
 using BackOffice.Framework;
 using Core;
+using FeatureToggles;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
 using NodaTime.Text;
-using StreetNameConsumer.Schema;
+using RoadRegistry.StreetName;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 
@@ -19,15 +19,15 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
     protected LinkUnlinkStreetNameTestsBase(ITestOutputHelper testOutputHelper, ILoggerFactory loggerFactory)
         : base(testOutputHelper, loggerFactory)
     {
-        StreetNameCache = new FakeStreetNameCache()
-                .AddStreetName(WellKnownStreetNameIds.Proposed, "Proposed street", nameof(StreetNameStatus.Proposed))
-                .AddStreetName(WellKnownStreetNameIds.Current, "Current street", nameof(StreetNameStatus.Current))
-                .AddStreetName(WellKnownStreetNameIds.Retired, "Retired street", nameof(StreetNameStatus.Retired))
-                .AddStreetName(WellKnownStreetNameIds.Null, "Not found street", null)
-            ;
+        StreetNameClient = new StreetNameCacheClient(new FakeStreetNameCache()
+            .AddStreetName(WellKnownStreetNameIds.Proposed, "Proposed street", nameof(StreetNameStatus.Proposed))
+            .AddStreetName(WellKnownStreetNameIds.Current, "Current street", nameof(StreetNameStatus.Current))
+            .AddStreetName(WellKnownStreetNameIds.Retired, "Retired street", nameof(StreetNameStatus.Retired))
+            .AddStreetName(WellKnownStreetNameIds.Null, "Not found street", null)
+        );
     }
 
-    protected IStreetNameCache StreetNameCache { get; }
+    protected IStreetNameClient StreetNameClient { get; }
 
     protected override void ConfigureCommandHandling(ContainerBuilder builder)
     {
@@ -41,6 +41,8 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
                     EntityMapFactory,
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
+                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
+                    new FakeExtractUploadFailedEmailClient(),
                     LoggerFactory
                 )
             }), ApplicationMetadata));

@@ -1,3 +1,4 @@
+Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
 Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache
 Be.Vlaanderen.Basisregisters.Sqs
 Be.Vlaanderen.Basisregisters.Sqs.Lambda
@@ -12,3 +13,4 @@ xunit.runner.visualstudio
 Amazon.Lambda.Serialization.SystemTextJson
 Amazon.Lambda.SQSEvents
 Amazon.Lambda.TestUtilities
+System.IO.Pipelines

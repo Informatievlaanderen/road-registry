@@ -1,61 +1,68 @@
 namespace RoadRegistry.Editor.Projections;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using BackOffice;
+using BackOffice.Abstractions.Organizations;
 using BackOffice.Extracts.Dbase.Organizations;
+using BackOffice.Extracts.Dbase.Organizations.V2;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Schema;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Schema.Extensions;
 
 public class OrganizationRecordProjection : ConnectedProjection<EditorContext>
 {
+    private readonly RecyclableMemoryStreamManager _manager;
+    private readonly Encoding _encoding;
+
     private static readonly IDictionary<string, string> SortableCodeAnomalies =
         new Dictionary<string, string>
         {
-            { "-7", "00007" },
-            { "-8", "00008" }
+            { OrganizationId.Other, "00007" },
+            { OrganizationId.Unknown, "00008" }
         };
 
     public OrganizationRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
     {
-        ArgumentNullException.ThrowIfNull(manager);
-        ArgumentNullException.ThrowIfNull(encoding);
-
+        _manager = manager.ThrowIfNull();
+        _encoding = encoding.ThrowIfNull();
+        
         When<Envelope<ImportedOrganization>>(async (context, envelope, token) =>
         {
             var organization = new OrganizationRecord
             {
                 Code = envelope.Message.Code,
-                SortableCode = GetSortableCodeFor(envelope.Message.Code),
-                DbaseRecord = new OrganizationDbaseRecord
-                {
-                    ORG = { Value = envelope.Message.Code },
-                    LBLORG = { Value = envelope.Message.Name }
-                }.ToBytes(manager, encoding)
+                SortableCode = GetSortableCodeFor(envelope.Message.Code)
             };
+            Update(organization, envelope.Message.Code, envelope.Message.Name, null);
 
             await context.Organizations.AddAsync(organization, token);
         });
 
         When<Envelope<CreateOrganizationAccepted>>(async (context, envelope, token) =>
         {
-            var organization = new OrganizationRecord
+            var organization = context.Organizations.Local.SingleOrDefault(o => o.Code == envelope.Message.Code)
+                               ?? await context.Organizations.SingleOrDefaultAsync(o => o.Code == envelope.Message.Code, token);
+            
+            if (organization is null)
             {
-                Code = envelope.Message.Code,
-                SortableCode = GetSortableCodeFor(envelope.Message.Code),
-                DbaseRecord = new OrganizationDbaseRecord
+                organization = new OrganizationRecord
                 {
-                    ORG = { Value = envelope.Message.Code },
-                    LBLORG = { Value = envelope.Message.Name }
-                }.ToBytes(manager, encoding)
-            };
+                    Code = envelope.Message.Code,
+                    SortableCode = GetSortableCodeFor(envelope.Message.Code),
+                    DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion
+                };
 
-            await context.Organizations.AddAsync(organization, token);
+                await context.Organizations.AddAsync(organization, token);
+            }
+
+            Update(organization, envelope.Message.Code, envelope.Message.Name, envelope.Message.OvoCode);
         });
 
         When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
@@ -63,11 +70,18 @@ public class OrganizationRecordProjection : ConnectedProjection<EditorContext>
             var organization = context.Organizations.Local.SingleOrDefault(o => o.Code == envelope.Message.Code)
                                ?? await context.Organizations.SingleAsync(o => o.Code == envelope.Message.Code, token);
 
-            organization.DbaseRecord = new OrganizationDbaseRecord
-            {
-                ORG = { Value = envelope.Message.Code },
-                LBLORG = { Value = envelope.Message.Name }
-            }.ToBytes(manager, encoding);
+            var organizationDetail = new OrganizationDbaseRecordReader(manager, encoding)
+                .Read(organization.DbaseRecord, organization.DbaseSchemaVersion);
+
+            Update(organization, envelope.Message.Code, envelope.Message.Name, organizationDetail.OvoCode);
+        });
+
+        When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            var organization = context.Organizations.Local.SingleOrDefault(o => o.Code == envelope.Message.Code)
+                               ?? await context.Organizations.SingleAsync(o => o.Code == envelope.Message.Code, token);
+
+            Update(organization, envelope.Message.Code, envelope.Message.Name, envelope.Message.OvoCode);
         });
 
         When<Envelope<DeleteOrganizationAccepted>>(async (context, envelope, token) =>
@@ -84,8 +98,24 @@ public class OrganizationRecordProjection : ConnectedProjection<EditorContext>
 
     public static string GetSortableCodeFor(string code)
     {
-        return SortableCodeAnomalies.ContainsKey(code)
-            ? SortableCodeAnomalies[code]
+        return SortableCodeAnomalies.TryGetValue(code, out var anomaly)
+            ? anomaly
             : code;
+    }
+
+    private void Update(OrganizationRecord organization, string code, string name, string ovoCode)
+    {
+        var dbaseRecord = new OrganizationDbaseRecord
+        {
+            ORG = { Value = new OrganizationId(code) },
+            LBLORG = { Value = OrganizationName.WithoutExcessLength(name) }
+        };
+        if (ovoCode is not null)
+        {
+            dbaseRecord.OVOCODE.Value = new OrganizationOvoCode(ovoCode);
+        }
+
+        organization.DbaseRecord = dbaseRecord.ToBytes(_manager, _encoding);
+        organization.DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion;
     }
 }

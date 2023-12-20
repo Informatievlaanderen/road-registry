@@ -19,7 +19,7 @@ public class ImplicitConversionOperatorAssertion<TResult> : IdiomaticAssertion
     {
         Builder = null;
         ValueFactory = valueFactory ?? throw new ArgumentNullException(nameof(valueFactory));
-        SutFactory = sutFactory ?? throw new ArgumentNullException(nameof(valueFactory));
+        SutFactory = sutFactory ?? throw new ArgumentNullException(nameof(sutFactory));
     }
 
     public ISpecimenBuilder Builder { get; }

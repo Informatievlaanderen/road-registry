@@ -1,18 +1,17 @@
 namespace RoadRegistry.BackOffice.Core.ProblemCodes;
 
-using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 
 public sealed partial record ProblemCode
 {
-    private static readonly SortedList<string, ProblemCode> Values = new();
+    private static readonly ConcurrentDictionary<string, ProblemCode> Values = new();
     private readonly string _value;
 
     private ProblemCode(string value)
     {
         _value = value;
-        Values.Add(value, this);
+        Values.TryAdd(value, this);
     }
 
     public static ProblemCode[] GetValues() => Values.Values.ToArray();

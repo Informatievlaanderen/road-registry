@@ -2,8 +2,10 @@ namespace RoadRegistry.BackOffice.ExtractHost.Tests.ZipArchiveWriters;
 
 using System.IO.Compression;
 using System.Text;
+using Abstractions.Extracts;
 using AutoFixture;
 using BackOffice.ZipArchiveWriters.ExtractHost;
+using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Extracts;
@@ -13,17 +15,21 @@ using Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO.Streams;
+using RoadRegistry.BackOffice.Handlers.Extracts;
+using RoadRegistry.BackOffice.ShapeFile;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
+using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public class TransactionZoneToZipArchiveWriterTests
 {
     private readonly Fixture _fixture;
-    private readonly TransactionZoneToZipArchiveWriter _sut;
+    private readonly IZipArchiveWriter<EditorContext> _sut;
 
     public TransactionZoneToZipArchiveWriterTests()
     {
-        _sut = new TransactionZoneToZipArchiveWriter(Encoding.UTF8);
+        _sut = new TransactionZoneToZipArchiveWriterNetTopologySuite(Encoding.UTF8);
         _fixture = new Fixture();
 
         CustomizeRoadNetworkExtractAssemblyRequestFixture(_fixture);
@@ -86,6 +92,23 @@ public class TransactionZoneToZipArchiveWriterTests
         }
     }
 
+    private static Polygon ReadGeometryFromArchive(ZipArchive archive, string fileName)
+    {
+        var archiveFileEntry = archive.GetEntry(fileName);
+        Assert.NotNull(archiveFileEntry);
+        
+        using (var entryStream = archiveFileEntry.Open())
+        {
+            var ms = new MemoryStream();
+            entryStream.CopyTo(ms);
+
+            ms.Position = 0;
+            
+            var (_, geometry) = new ExtractGeometryShapeFileReader().Read(ms, WellKnownGeometryFactories.Default);
+            return (Polygon)geometry;
+        }
+    }
+
     [Theory]
     [MemberData(nameof(WriteAsyncWritesExpectedBeschrijvCases))]
     public Task WriteAsyncWritesExpectedBeschrijv(ExtractDescription extractDescription, ExternalExtractRequestId externalRequestId, string expectedBeschrijv)
@@ -143,6 +166,36 @@ public class TransactionZoneToZipArchiveWriterTests
 
                 records.Count.Should().Be(1);
                 records[0].Item2.DOWNLOADID.Value.Should().Be(request.DownloadId.ToGuid().ToString("N"));
+            });
+    }
+
+    [Fact]
+    public Task GeometryOrdinatesShouldBeOnlyXAndY()
+    {
+        var editorContext = CreateContextFor(nameof(GeometryOrdinatesShouldBeOnlyXAndY));
+        var request = _fixture.Create<RoadNetworkExtractAssemblyRequest>();
+        var contour = new Polygon(new LinearRing(new Coordinate[]
+        {
+            new CoordinateZM(0, 0),
+            new CoordinateZM(1, 0),
+            new CoordinateZM(1, 1),
+            new CoordinateZM(0, 1),
+            new CoordinateZM(0, 0)
+        }));
+        request = new RoadNetworkExtractAssemblyRequest(request.ExternalRequestId, request.DownloadId, request.ExtractDescription, contour);
+
+        Assert.IsType<CoordinateZM>(contour.Coordinate);
+
+        return new ZipArchiveScenarioWithWriter<EditorContext>(new RecyclableMemoryStreamManager(), _sut)
+            .WithContext(editorContext)
+            .WithRequest(request)
+            .Assert(readArchive =>
+            {
+                var polygon = ReadGeometryFromArchive(readArchive, "Transactiezones.shp");
+
+                var coordinate = Assert.IsType<CoordinateZ>(polygon.Coordinate);
+                Assert.Equal(double.NaN, coordinate.M);
+                Assert.Equal(double.NaN, coordinate.Z);
             });
     }
 }

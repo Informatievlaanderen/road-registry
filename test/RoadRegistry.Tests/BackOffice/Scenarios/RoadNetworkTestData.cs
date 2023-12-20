@@ -33,13 +33,19 @@ public class RoadNetworkTestData
         ObjectProvider.CustomizeRoadSegmentMorphology();
         ObjectProvider.CustomizeRoadSegmentStatus();
         ObjectProvider.CustomizeRoadSegmentAccessRestriction();
+        ObjectProvider.CustomizeRoadSegmentLaneAttribute();
+        ObjectProvider.CustomizeRoadSegmentLaneAttributes();
         ObjectProvider.CustomizeRoadSegmentLaneCount();
         ObjectProvider.CustomizeRoadSegmentLaneDirection();
         ObjectProvider.CustomizeRoadSegmentNumberedRoadDirection();
         ObjectProvider.CustomizeRoadSegmentGeometry();
         ObjectProvider.CustomizeRoadSegmentGeometryDrawMethod();
         ObjectProvider.CustomizeRoadSegmentNumberedRoadOrdinal();
+        ObjectProvider.CustomizeRoadSegmentSurfaceAttribute();
+        ObjectProvider.CustomizeRoadSegmentSurfaceAttributes();
         ObjectProvider.CustomizeRoadSegmentSurfaceType();
+        ObjectProvider.CustomizeRoadSegmentWidthAttribute();
+        ObjectProvider.CustomizeRoadSegmentWidthAttributes();
         ObjectProvider.CustomizeRoadSegmentWidth();
         ObjectProvider.CustomizeEuropeanRoadNumber();
         ObjectProvider.CustomizeNationalRoadNumber();
@@ -77,34 +83,8 @@ public class RoadNetworkTestData
                 instance.Direction = ObjectProvider.Create<RoadSegmentNumberedRoadDirection>();
                 instance.Ordinal = ObjectProvider.Create<RoadSegmentNumberedRoadOrdinal>();
             }).OmitAutoProperties());
-        ObjectProvider.Customize<RequestedRoadSegmentLaneAttribute>(composer =>
-            composer.Do(instance =>
-            {
-                var positionGenerator = new Generator<RoadSegmentPosition>(ObjectProvider);
-                instance.AttributeId = ObjectProvider.Create<AttributeId>();
-                instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
-                instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
-                instance.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
-                instance.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
-            }).OmitAutoProperties());
-        ObjectProvider.Customize<RequestedRoadSegmentWidthAttribute>(composer =>
-            composer.Do(instance =>
-            {
-                var positionGenerator = new Generator<RoadSegmentPosition>(ObjectProvider);
-                instance.AttributeId = ObjectProvider.Create<AttributeId>();
-                instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
-                instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
-                instance.Width = ObjectProvider.Create<RoadSegmentWidth>();
-            }).OmitAutoProperties());
-        ObjectProvider.Customize<RequestedRoadSegmentSurfaceAttribute>(composer =>
-            composer.Do(instance =>
-            {
-                var positionGenerator = new Generator<RoadSegmentPosition>(ObjectProvider);
-                instance.AttributeId = ObjectProvider.Create<AttributeId>();
-                instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
-                instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
-                instance.Type = ObjectProvider.Create<RoadSegmentSurfaceType>();
-            }).OmitAutoProperties());
+        
+        
 
         customize?.Invoke(ObjectProvider);
 
@@ -735,7 +715,7 @@ public class RoadNetworkTestData
         };
     }
 
-    private Fixture ObjectProvider { get; }
+    public Fixture ObjectProvider { get; }
     public AddRoadNode AddEndNode1 { get; }
     public AddRoadNode AddEndNode2 { get; }
     public AddRoadNode AddEndNode3 { get; }
@@ -893,7 +873,7 @@ public class RoadNetworkTestData
                         new ProblemParameter
                         {
                             Name = "Length",
-                            Value = "141.4213562373095"
+                            Value = "141.421"
                         }
                     }
                 }
@@ -1022,7 +1002,7 @@ public class RoadNetworkTestData
                         new ProblemParameter
                         {
                             Name = "Length",
-                            Value = "141.4213562373095"
+                            Value = "141.421"
                         }
                     }
                 }
@@ -1151,7 +1131,7 @@ public class RoadNetworkTestData
                         new ProblemParameter
                         {
                             Name = "Length",
-                            Value = "141.4213562373095"
+                            Value = "141.421"
                         }
                     }
                 }

@@ -2,11 +2,15 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 
 using System.IO.Compression;
 using System.Text;
+using System.Threading;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Extensions;
 using Extracts;
 using Extracts.Dbase;
+using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
+using DbaseFileHeader = Be.Vlaanderen.Basisregisters.Shaperon.DbaseFileHeader;
 
 public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
@@ -56,7 +60,7 @@ public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter<EditorContext
             await dbfEntryStream.FlushAsync(cancellationToken);
         }
 
-        var polygon = PolygonalGeometryTranslator.FromGeometry(request.Contour);
+        var polygon = BackOffice.GeometryTranslator.FromPolygonal(request.Contour);
         var shapeContent = new PolygonShapeContent(polygon);
         var shpBoundingBox = BoundingBox3D.FromGeometry(polygon);
 
@@ -90,5 +94,69 @@ public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter<EditorContext
         }
 
         await archive.CreateCpgEntry("Transactiezones.cpg", _encoding, cancellationToken);
+    }
+}
+
+public class TransactionZoneToZipArchiveWriterNetTopologySuite : IZipArchiveWriter<EditorContext>
+{
+    private readonly Encoding _encoding;
+    private const ExtractFileName ExtractFileName = Extracts.ExtractFileName.Transactiezones;
+
+    public TransactionZoneToZipArchiveWriterNetTopologySuite(Encoding encoding)
+    {
+        _encoding = encoding.ThrowIfNull();
+    }
+
+    public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
+        EditorContext context,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(archive);
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(context);
+
+        await CreateDbaseEntry(archive, ExtractFileName, new[]
+        {
+            new TransactionZoneDbaseRecord
+            {
+                SOURCEID = { Value = 1 },
+                TYPE = { Value = 2 },
+                BESCHRIJV =
+                {
+                    Value = string.IsNullOrEmpty(request.ExtractDescription) ? request.ExternalRequestId : request.ExtractDescription
+                },
+                OPERATOR = { Value = "" },
+                ORG = { Value = "AGIV" },
+                APPLICATIE = { Value = "Wegenregister" },
+                DOWNLOADID = { Value = request.DownloadId.ToGuid().ToString("N") }
+            }
+        }, cancellationToken);
+
+        var features = new List<IFeature>
+        {
+            new Feature((Geometry)request.Contour, new AttributesTable())
+        };
+
+        await archive.CreateShapeEntry(ExtractFileName, _encoding, features, WellKnownGeometryFactories.WithoutMAndZ, cancellationToken);
+        await archive.CreateCpgEntry(ExtractFileName, _encoding, cancellationToken);
+    }
+
+    private async Task CreateDbaseEntry(ZipArchive archive, ExtractFileName fileName, ICollection<TransactionZoneDbaseRecord> dbfRecords, CancellationToken cancellationToken)
+    {
+        var dbfEntry = archive.CreateEntry(fileName.ToDbaseFileName());
+        var dbfHeader = new DbaseFileHeader(
+            DateTime.Now,
+            DbaseCodePage.Western_European_ANSI,
+            new DbaseRecordCount(dbfRecords.Count),
+            TransactionZoneDbaseRecord.Schema
+        );
+
+        await using var dbfEntryStream = dbfEntry.Open();
+
+        using var dbfWriter = new DbaseBinaryWriter(dbfHeader, new BinaryWriter(dbfEntryStream, _encoding, true));
+        dbfWriter.Write(dbfRecords);
+        dbfWriter.Writer.Flush();
+
+        await dbfEntryStream.FlushAsync(cancellationToken);
     }
 }

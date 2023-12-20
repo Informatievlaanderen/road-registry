@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes;
 
 using Abstractions;
-using Api.RoadSegments;
 using Api.RoadSegments.ChangeAttributes;
 using Fixtures;
 using Xunit.Abstractions;
@@ -23,5 +22,22 @@ public class WhenChangeAttributesWithInvalidWegbeheerder : WhenChangeAttributesW
                 Wegsegmenten = new[] { Fixture.TestData.Segment1Added.Id }
             }
         }, "WegbeheerderNietCorrect", null);
+    }
+
+    [Fact]
+    public async Task Wegbeheerder_WegbeheerderNietGekend()
+    {
+        var wegbeheerder = new OrganizationId(Fixture.TestData.Segment1Added.MaintenanceAuthority.Code);
+
+        Fixture.CustomizeOrganizationRepository(new FakeOrganizationRepository().Seed(wegbeheerder, null));
+
+        await ItShouldHaveExpectedError(new ChangeRoadSegmentAttributesParameters
+        {
+            new()
+            {
+                Wegbeheerder = wegbeheerder,
+                Wegsegmenten = new[] { Fixture.TestData.Segment1Added.Id }
+            }
+        }, "WegbeheerderNietGekend", null);
     }
 }

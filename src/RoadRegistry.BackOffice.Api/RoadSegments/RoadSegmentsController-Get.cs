@@ -1,11 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Api.ETag;
@@ -13,15 +7,21 @@ using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy.SpatialTools;
 using Extensions;
+using Infrastructure.Attributes;
 using Infrastructure.Controllers.Attributes;
+using Infrastructure.Options;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Infrastructure.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using System;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class RoadSegmentsController
 {
@@ -67,14 +67,14 @@ public partial class RoadSegmentsController
                 BeginknoopObjectId = detailResponse.StartNodeId,
                 EindknoopObjectId = detailResponse.EndNodeId,
                 Linkerstraatnaam = detailResponse.LeftStreetNameId != null
-                    ? new StraatnaamObject
+                    ? new WegsegmentStraatnaamObject
                     {
                         ObjectId = new StreetNamePuri(detailResponse.LeftStreetNameId.Value).ToString(),
                         Straatnaam = detailResponse.LeftStreetName
                     }
                     : null,
                 Rechterstraatnaam = detailResponse.RightStreetNameId != null
-                    ? new StraatnaamObject
+                    ? new WegsegmentStraatnaamObject
                     {
                         ObjectId = new StreetNamePuri(detailResponse.RightStreetNameId.Value).ToString(),
                         Straatnaam = detailResponse.RightStreetName
@@ -121,6 +121,9 @@ public partial class RoadSegmentsController
     }
 }
 
+/// <summary>
+///     Bevat informatie waarmee het wegsegment kan geïdentificeerd worden.
+/// </summary>
 [DataContract(Name = "Identificator", Namespace = "")]
 public class WegsegmentIdentificator : Identificator
 {
@@ -146,10 +149,16 @@ public class WegsegmentIdentificator : Identificator
 [DataContract(Name = "Straatnaam", Namespace = "")]
 public class StraatnaamObject
 {
+    /// <summary>
+    /// De objectidentificator van de straatnaam.
+    /// </summary>
     [DataMember(Name = "ObjectId", Order = 1)]
     [JsonProperty]
     public string ObjectId { get; set; }
 
+    /// <summary>
+    /// De naam van de straatnaam.
+    /// </summary>
     [DataMember(Name = "Straatnaam", Order = 2)]
     [JsonProperty]
     public string Straatnaam { get; set; }
@@ -158,14 +167,23 @@ public class StraatnaamObject
 [DataContract(Name = "Wegverharding", Namespace = "")]
 public class WegverhardingObject
 {
+    /// <summary>
+    /// Van positie.
+    /// </summary>
     [DataMember(Name = "VanPositie", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
     public double VanPositie { get; set; }
 
+    /// <summary>
+    /// Tot positie.
+    /// </summary>
     [DataMember(Name = "TotPositie", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
     public double TotPositie { get; set; }
 
+    /// <summary>
+    /// Type wegverharding van het wegsegment.
+    /// </summary>
     [DataMember(Name = "Verharding", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentSurfaceType))]
@@ -175,14 +193,23 @@ public class WegverhardingObject
 [DataContract(Name = "Wegbreedte", Namespace = "")]
 public class WegbreedteObject
 {
+    /// <summary>
+    /// Van positie.
+    /// </summary>
     [DataMember(Name = "VanPositie", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
     public double VanPositie { get; set; }
 
+    /// <summary>
+    /// Tot positie.
+    /// </summary>
     [DataMember(Name = "TotPositie", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
     public double TotPositie { get; set; }
 
+    /// <summary>
+    /// Breedte van het wegsegment.
+    /// </summary>
     [DataMember(Name = "Breedte", Order = 3)]
     [JsonProperty(Required = Required.DisallowNull)]
     public int Breedte { get; set; }
@@ -191,30 +218,48 @@ public class WegbreedteObject
 [DataContract(Name = "AantalRijstroken", Namespace = "")]
 public class AantalRijstrokenObject
 {
+    /// <summary>
+    /// Van positie.
+    /// </summary>
     [DataMember(Name = "VanPositie", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
     public double VanPositie { get; set; }
 
+    /// <summary>
+    /// Tot positie.
+    /// </summary>
     [DataMember(Name = "TotPositie", Order = 2)]
     [JsonProperty(Required = Required.DisallowNull)]
     public double TotPositie { get; set; }
 
+    /// <summary>
+    /// Aantal rijstroken van het wegsegment.
+    /// </summary>
     [DataMember(Name = "Aantal", Order = 3)]
     [JsonProperty]
     public int Aantal { get; set; }
 
+    /// <summary>
+    /// Richting t.o.v. de richting van het wegsegment (begin- naar eindknoop).
+    /// </summary>
     [DataMember(Name = "Richting", Order = 4)]
     [JsonProperty(Required = Required.DisallowNull)]
     [RoadRegistryEnumDataType(typeof(RoadSegmentLaneDirection))]
     public string Richting { get; set; }
 }
 
+/// <summary>
+///     Bevat informatie over de straatnaam van het wegsegment.
+/// </summary>
+[DataContract(Name = "StraatnaamObject", Namespace = "")]
+[CustomSwaggerSchemaId("StraatnaamObject")]
+public class WegsegmentStraatnaamObject : StraatnaamObject
+{
+}
+
 [DataContract(Name = "WegsegmentDetail", Namespace = "")]
 public class GetRoadSegmentResponse
 {
-    /// <summary>
-    ///     De unieke identificator van het wegsegment.
-    /// </summary>
     [DataMember(Name = "Identificator", Order = 1)]
     [JsonProperty(Required = Required.DisallowNull)]
     public WegsegmentIdentificator Identificator { get; set; }
@@ -248,19 +293,13 @@ public class GetRoadSegmentResponse
     [JsonProperty(Required = Required.DisallowNull)]
     public int EindknoopObjectId { get; set; }
 
-    /// <summary>
-    ///     De identificator van de linkerstraatnaam.
-    /// </summary>
     [DataMember(Name = "Linkerstraatnaam", Order = 6)]
     [JsonProperty]
-    public StraatnaamObject Linkerstraatnaam { get; set; }
+    public WegsegmentStraatnaamObject Linkerstraatnaam { get; set; }
 
-    /// <summary>
-    ///     De identificator van de rechterstraatnaam.
-    /// </summary>
     [DataMember(Name = "Rechterstraatnaam", Order = 7)]
     [JsonProperty]
-    public StraatnaamObject Rechterstraatnaam { get; set; }
+    public WegsegmentStraatnaamObject Rechterstraatnaam { get; set; }
 
     /// <summary>
     ///     De status van het wegsegment.
@@ -353,12 +392,12 @@ public class GetRoadSegmentResponseResponseExamples : IExamplesProvider<GetRoadS
             MethodeWegsegmentgeometrie = RoadSegmentGeometryDrawMethod.Outlined.Translation.Name,
             BeginknoopObjectId = 287335,
             EindknoopObjectId = 287336,
-            Linkerstraatnaam = new StraatnaamObject
+            Linkerstraatnaam = new WegsegmentStraatnaamObject
             {
                 ObjectId = new StreetNamePuri(71671).ToString(),
                 Straatnaam = "Smidsestraat"
             },
-            Rechterstraatnaam = new StraatnaamObject
+            Rechterstraatnaam = new WegsegmentStraatnaamObject
             {
                 ObjectId = new StreetNamePuri(71671).ToString(),
                 Straatnaam = "Smidsestraat"

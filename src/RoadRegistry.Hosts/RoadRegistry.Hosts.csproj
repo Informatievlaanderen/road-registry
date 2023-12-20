@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Library.props" />
 
@@ -15,6 +14,9 @@
     <ProjectReference Include="..\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.RoadNetwork.Schema\RoadRegistry.RoadNetwork.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.StreetNameConsumer.Projections\RoadRegistry.StreetNameConsumer.Projections.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Syndication.Projections\RoadRegistry.Syndication.Projections.csproj" />
   </ItemGroup>
 
   <ItemGroup>

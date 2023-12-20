@@ -39,6 +39,13 @@ public readonly struct RoadNodeId : IEquatable<RoadNodeId>, IComparable<RoadNode
         return new RoadNodeId(Math.Min(left._value, right._value));
     }
 
+    public static RoadNodeId? FromValue(int? value)
+    {
+        return value.HasValue
+            ? new RoadNodeId(value.Value)
+            : null;
+    }
+
     public int ToInt32()
     {
         return _value;

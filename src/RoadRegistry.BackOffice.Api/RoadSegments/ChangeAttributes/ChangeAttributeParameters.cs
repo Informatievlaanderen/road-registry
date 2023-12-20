@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeAttributes;
 
-using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Infrastructure.Controllers.Attributes;
 using Newtonsoft.Json;

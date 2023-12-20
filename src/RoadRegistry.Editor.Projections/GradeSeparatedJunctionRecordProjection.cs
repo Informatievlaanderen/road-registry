@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.IO;
 using Schema;
+using Schema.Extensions;
 using Schema.GradeSeparatedJunctions;
 
 public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<EditorContext>

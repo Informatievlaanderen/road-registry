@@ -19,6 +19,7 @@ using NodaTime.Testing;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Infrastructure.Modules;
 using RoadRegistry.BackOffice.Messages;
@@ -41,6 +42,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     {
         var containerBuilder = new ContainerBuilder();
         containerBuilder.RegisterInstance(new EventSourcedEntityMap());
+        containerBuilder.RegisterInstance(new FakeRoadNetworkIdGenerator()).As<IRoadNetworkIdGenerator>();
         var container = containerBuilder.Build();
         EntityMapFactory = container.BeginLifetimeScope();
 
@@ -125,7 +127,15 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
             throw new ArgumentNullException(nameof(builder));
         }
 
-        return builder(new Scenario()).AssertAsync(_runner);
+        var scenarioBuilder = builder(new Scenario());
+        
+        var idGenerator = (FakeRoadNetworkIdGenerator)EntityMapFactory.Resolve<IRoadNetworkIdGenerator>();
+        idGenerator.SeedEvents(scenarioBuilder.Build()
+            .Givens
+            .Select(x => x.Event)
+            .ToList());
+
+        return scenarioBuilder.AssertAsync(_runner);
     }
 
     public RoadRegistryTestBase WithStore(IStreamStore store, ComparisonConfig comparisonConfig = null)
@@ -135,7 +145,14 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
         _runner = new ScenarioRunner(
             Resolve.WhenEqualToMessage(new CommandHandlerModule[]
             {
-                new RoadNetworkCommandModule(Store, EntityMapFactory, new FakeRoadNetworkSnapshotReader(), Clock, LoggerFactory),
+                new RoadNetworkCommandModule(
+                    Store,
+                    EntityMapFactory,
+                    new FakeRoadNetworkSnapshotReader(),
+                    Clock,
+                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
+                    new FakeExtractUploadFailedEmailClient(),
+                    LoggerFactory),
                 new RoadNetworkExtractCommandModule(
                     new RoadNetworkExtractUploadsBlobClient(Client),
                     Store,

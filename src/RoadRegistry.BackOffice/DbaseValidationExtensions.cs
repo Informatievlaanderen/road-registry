@@ -1,8 +1,7 @@
 namespace RoadRegistry.BackOffice
 {
     using Extracts.Dbase.RoadSegments;
-    using RoadRegistry.BackOffice;
-    using RoadRegistry.BackOffice.Uploads;
+    using Uploads;
 
     public static class ValidationExtensions
     {
@@ -124,7 +123,7 @@ namespace RoadRegistry.BackOffice
             {
                 problems += recordContext.RequiredFieldIsNull(record.STATUS.Field);
             }
-            else if (!RoadSegmentStatus.ByIdentifier.TryGetValue(record.STATUS.Value, out var status) || !status.IsValidForRoadSegmentEdit())
+            else if (!RoadSegmentStatus.ByIdentifier.TryGetValue(record.STATUS.Value, out var status) || !status.IsValidForEdit())
             {
                 problems += recordContext.RoadSegmentStatusMismatch(record.STATUS.Value, true);
             }
@@ -133,7 +132,7 @@ namespace RoadRegistry.BackOffice
             {
                 problems += recordContext.RequiredFieldIsNull(record.MORFOLOGIE.Field);
             }
-            else if (!RoadSegmentMorphology.ByIdentifier.TryGetValue(record.MORFOLOGIE.Value, out var morphology) || !morphology.IsValidForRoadSegmentEdit())
+            else if (!RoadSegmentMorphology.ByIdentifier.TryGetValue(record.MORFOLOGIE.Value, out var morphology) || !morphology.IsValidForEdit())
             {
                 problems += recordContext.RoadSegmentMorphologyMismatch(record.MORFOLOGIE.Value, true);
             }

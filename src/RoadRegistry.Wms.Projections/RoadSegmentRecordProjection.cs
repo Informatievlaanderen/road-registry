@@ -1,17 +1,18 @@
 namespace RoadRegistry.Wms.Projections;
 
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using BackOffice;
+using BackOffice.Abstractions;
+using BackOffice.FeatureToggles;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.EntityFrameworkCore;
-using RoadRegistry.BackOffice.FeatureToggles;
+using RoadRegistry.BackOffice.Extensions;
 using Schema;
-using Syndication.Schema;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
 {
@@ -33,7 +34,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
                 .Where(i => i.HasValue)
                 .Select(i => i.Value);
 
-            var streetNamesById = await streetNameCache.GetStreetNamesByIdAsync(outdatedStreetNameIds, token);
+            var streetNamesById = await streetNameCache.GetStreetNamesById(outdatedStreetNameIds, token);
 
             foreach (var roadSegment in outdatedRoadSegments)
             {
@@ -97,12 +98,12 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
                 LeftSideMunicipalityId = null,
                 LeftSideMunicipalityNisCode = leftSideStreetNameRecord?.NisCode,
                 LeftSideStreetNameId = envelope.Message.LeftSide.StreetNameId,
-                LeftSideStreetName = leftSideStreetNameRecord?.DutchNameWithHomonymAddition ??
+                LeftSideStreetName = leftSideStreetNameRecord?.Name ??
                                      envelope.Message.LeftSide.StreetName,
                 RightSideMunicipalityId = null,
                 RightSideMunicipalityNisCode = rightSideStreetNameRecord?.NisCode,
                 RightSideStreetNameId = envelope.Message.RightSide.StreetNameId,
-                RightSideStreetName = rightSideStreetNameRecord?.DutchNameWithHomonymAddition ??
+                RightSideStreetName = rightSideStreetNameRecord?.Name ??
                                       envelope.Message.RightSide.StreetName,
 
                 RoadSegmentVersion = envelope.Message.Version,
@@ -139,6 +140,19 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
                         break;
                 }
         });
+
+        When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+        });
+
+        When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            if (envelope.Message.NameModified)
+            {
+                await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+            }
+        });
     }
 
     private static async Task AddRoadSegment(IStreetNameCache streetNameCache,
@@ -163,8 +177,12 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.LeftSide.StreetNameId, token);
         var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.RightSide.StreetNameId, token);
 
-        await context.RoadSegments.AddAsync(UpdateBeginFields(new RoadSegmentRecord
+        await context.RoadSegments.AddAsync(new RoadSegmentRecord
         {
+            BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
+            BeginOrganizationId = envelope.Message.OrganizationId,
+            BeginOrganizationName = envelope.Message.Organization,
+
             Id = roadSegmentAdded.Id,
             BeginApplication = null,
 
@@ -195,19 +213,19 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
             LeftSideMunicipalityId = null,
             LeftSideMunicipalityNisCode = leftSideStreetNameRecord?.NisCode,
             LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId,
-            LeftSideStreetName = leftSideStreetNameRecord?.DutchName,
+            LeftSideStreetName = leftSideStreetNameRecord?.Name,
 
             RightSideMunicipalityId = null,
             RightSideMunicipalityNisCode = rightSideStreetNameRecord?.NisCode,
             RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId,
-            RightSideStreetName = rightSideStreetNameRecord?.DutchName,
+            RightSideStreetName = rightSideStreetNameRecord?.Name,
 
             RoadSegmentVersion = roadSegmentAdded.Version,
 
             BeginRoadNodeId = roadSegmentAdded.StartNodeId,
             EndRoadNodeId = roadSegmentAdded.EndNodeId,
             StreetNameCachePosition = streetNameCachePosition
-        }, envelope), token);
+        }, token);
     }
 
     private static async Task ModifyRoadSegment(IStreetNameCache streetNameCache,
@@ -240,7 +258,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
             throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
         }
 
-        UpdateBeginFields(roadSegmentRecord, envelope);
+        roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
         roadSegmentRecord.Id = roadSegmentModified.Id;
         roadSegmentRecord.BeginApplication = null;
@@ -271,12 +289,12 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         roadSegmentRecord.LeftSideMunicipalityId = null;
         roadSegmentRecord.LeftSideMunicipalityNisCode = leftSideStreetNameRecord?.NisCode;
         roadSegmentRecord.LeftSideStreetNameId = roadSegmentModified.LeftSide.StreetNameId;
-        roadSegmentRecord.LeftSideStreetName = leftSideStreetNameRecord?.DutchName;
+        roadSegmentRecord.LeftSideStreetName = leftSideStreetNameRecord?.Name;
 
         roadSegmentRecord.RightSideMunicipalityId = null;
         roadSegmentRecord.RightSideMunicipalityNisCode = rightSideStreetNameRecord?.NisCode;
         roadSegmentRecord.RightSideStreetNameId = roadSegmentModified.RightSide.StreetNameId;
-        roadSegmentRecord.RightSideStreetName = rightSideStreetNameRecord?.DutchName;
+        roadSegmentRecord.RightSideStreetName = rightSideStreetNameRecord?.Name;
 
         roadSegmentRecord.RoadSegmentVersion = roadSegmentModified.Version;
 
@@ -297,7 +315,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
             throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentAttributesModified.Id} is not found");
         }
 
-        UpdateBeginFields(roadSegmentRecord, envelope);
+        roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
         if (roadSegmentAttributesModified.AccessRestriction is not null)
         {
@@ -361,7 +379,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         roadSegmentRecord.Geometry2D = WmsGeometryTranslator.Translate2D(segment.Geometry);
         roadSegmentRecord.GeometryVersion = segment.GeometryVersion;
 
-        UpdateBeginFields(roadSegmentRecord, envelope);
+        roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         roadSegmentRecord.RoadSegmentVersion = segment.Version;
 
         var transactionId = new TransactionId(envelope.Message.TransactionId);
@@ -384,7 +402,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
             {
                 if (!roadSegmentRecord.IsRemoved)
                 {
-                    UpdateBeginFields(roadSegmentRecord, envelope);
+                    roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
                     roadSegmentRecord.IsRemoved = true;
                 }
             }
@@ -395,19 +413,30 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         }
     }
 
-    private static async Task<StreetNameRecord> TryGetFromCache(
+    private async Task RenameOrganization(
+        WmsContext context,
+        OrganizationId organizationId,
+        OrganizationName organizationName,
+        CancellationToken cancellationToken)
+    {
+        await context.RoadSegments
+            .ForEachBatchAsync(q => q
+                .Where(x => x.MaintainerId == organizationId), 5000, dbRecords =>
+            {
+                foreach (var dbRecord in dbRecords)
+                {
+                    dbRecord.MaintainerName = organizationName;
+                }
+
+                return Task.CompletedTask;
+            }, cancellationToken);
+    }
+
+    private static async Task<StreetNameCacheItem> TryGetFromCache(
         IStreetNameCache streetNameCache,
         int? streetNameId,
         CancellationToken token)
     {
         return streetNameId.HasValue ? await streetNameCache.GetAsync(streetNameId.Value, token).ConfigureAwait(false) : null;
-    }
-
-    private static RoadSegmentRecord UpdateBeginFields(RoadSegmentRecord record, Envelope<RoadNetworkChangesAccepted> envelope)
-    {
-        record.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        record.BeginOrganizationId = envelope.Message.OrganizationId;
-        record.BeginOrganizationName = envelope.Message.Organization;
-        return record;
     }
 }

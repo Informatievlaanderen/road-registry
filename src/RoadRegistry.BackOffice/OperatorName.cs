@@ -21,6 +21,11 @@ public readonly struct OperatorName : IEquatable<OperatorName>
         _value = value;
     }
 
+    public static bool AcceptsValue(string value)
+    {
+        return !string.IsNullOrEmpty(value) && value.Length <= MaxLength;
+    }
+
     public bool Equals(OperatorName other)
     {
         return _value == other._value;

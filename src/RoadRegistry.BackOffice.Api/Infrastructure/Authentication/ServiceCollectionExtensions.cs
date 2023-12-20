@@ -2,6 +2,8 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 
 using System;
 using System.Configuration;
+using System.Threading.Tasks;
+using Configuration;
 using Controllers.Attributes;
 using IdentityModel.AspNetCore.OAuth2Introspection;
 using Microsoft.AspNetCore.Authentication;
@@ -13,25 +15,49 @@ using NisCodeService.Proxy.HttpProxy;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddAcmIdmAuth(
+    public static IServiceCollection AddAcmIdmAuthentication(
         this IServiceCollection services,
-        OAuth2IntrospectionOptions oAuth2IntrospectionOptions)
+        OAuth2IntrospectionOptions oAuth2IntrospectionOptions,
+        OpenIdConnectOptions openIdConnectOptions)
     {
         services
             .AddHttpProxyNisCodeService()
             .AddAuthentication(options =>
             {
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = AuthenticationSchemes.Bearer;
+                options.DefaultAuthenticateScheme = AuthenticationSchemes.Bearer;
+                options.DefaultChallengeScheme = AuthenticationSchemes.Bearer;
             })
-            .AddOAuth2Introspection(JwtBearerDefaults.AuthenticationScheme, options =>
+            .AddOAuth2Introspection(AuthenticationSchemes.Bearer, options =>
             {
                 options.ClientId = oAuth2IntrospectionOptions.ClientId;
                 options.ClientSecret = oAuth2IntrospectionOptions.ClientSecret;
                 options.Authority = oAuth2IntrospectionOptions.Authority;
                 options.IntrospectionEndpoint = oAuth2IntrospectionOptions.IntrospectionEndpoint;
-            });
+            })
+            .AddJwtBearer(AuthenticationSchemes.JwtBearer, options =>
+            {
+                options.TokenValidationParameters = new RoadRegistryTokenValidationParameters(openIdConnectOptions);
+                options.Events ??= new JwtBearerEvents();
+                options.Events.OnMessageReceived = context =>
+                {
+                    var authHeader = context.Request.Headers.Authorization.ToString();
+
+                    var authHeaderPrefix = $"{AuthenticationSchemes.JwtBearer} ";
+                    if (authHeader.StartsWith(authHeaderPrefix, StringComparison.Ordinal))
+                    {
+                        context.Token = authHeader[authHeaderPrefix.Length..];
+                    }
+                    else
+                    {
+                        context.NoResult();
+                    }
+
+                    return Task.CompletedTask;
+                };
+            })
+            ;
+
         return services;
     }
 
@@ -42,11 +68,11 @@ public static class ServiceCollectionExtensions
                 .AddSingleton<IApiKeyAuthenticator, ApiKeyAuthenticator>()
                 .AddAuthentication(options =>
                 {
-                    options.DefaultScheme = ApiKeyDefaults.AuthenticationScheme;
-                    options.DefaultAuthenticateScheme = ApiKeyDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = ApiKeyDefaults.AuthenticationScheme;
+                    options.DefaultScheme = AuthenticationSchemes.ApiKey;
+                    options.DefaultAuthenticateScheme = AuthenticationSchemes.ApiKey;
+                    options.DefaultChallengeScheme = AuthenticationSchemes.ApiKey;
                 })
-                .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyDefaults.AuthenticationScheme, options => { })
+                .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(AuthenticationSchemes.ApiKey, options => { })
             ;
     }
 

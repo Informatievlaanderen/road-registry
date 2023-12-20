@@ -1,43 +1,35 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
+using Extracts;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using RoadRegistry.BackOffice.Extracts;
 using Uploads;
 
-internal class TransactionZoneFeatureCompareTranslator : FeatureCompareTranslatorBase<TransactionZoneFeatureCompareAttributes>
+public class TransactionZoneFeatureCompareTranslator : FeatureCompareTranslatorBase<TransactionZoneFeatureCompareAttributes>
 {
-    public TransactionZoneFeatureCompareTranslator(Encoding encoding)
-        : base(encoding)
+    public TransactionZoneFeatureCompareTranslator(TransactionZoneFeatureCompareFeatureReader featureReader)
+        : base(featureReader)
     {
     }
 
-    protected override List<Feature<TransactionZoneFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
+    public override Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
     {
-        var featureReader = new TransactionZoneFeatureCompareFeatureReader(Encoding);
-        return featureReader.Read(entries, featureType, fileName);
-    }
+        var (features, problems) = ReadFeatures(context.Archive, FeatureType.Change, ExtractFileName.Transactiezones, context);
 
-    public override Task<TranslatedChanges> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
-    {
-        var entries = context.Entries;
+        problems.ThrowIfError();
 
-        var features = ReadFeatures(entries, FeatureType.Change, ExtractFileName.Transactiezones);
-        var feature = features.SingleOrDefault();
-        if (feature is not null)
-        {
-            changes = changes
-                .WithReason(new Reason(feature.Attributes.Description))
-                .WithOperatorName(string.IsNullOrEmpty(feature.Attributes.OperatorName)
-                    ? OperatorName.Unknown
-                    : new OperatorName(feature.Attributes.OperatorName))
-                .WithOrganization(new OrganizationId(feature.Attributes.Organization));
-        }
+        var feature = features.Single();
 
-        return Task.FromResult(changes);
+        changes = changes
+            .WithReason(new Reason(feature.Attributes.Description))
+            .WithOperatorName(string.IsNullOrEmpty(feature.Attributes.OperatorName)
+                ? OperatorName.Unknown
+                : new OperatorName(feature.Attributes.OperatorName))
+            .WithOrganization(new OrganizationId(feature.Attributes.Organization));
+
+        return Task.FromResult((changes, problems));
     }
 }

@@ -2,9 +2,9 @@ namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
 using NetTopologySuite.Geometries;
 
-public class RoadNodeFeatureCompareAttributes
+public record RoadNodeFeatureCompareAttributes
 {
-    public int Id { get; init; }
-    public int Type { get; init; }
-    public Point Geometry { get; set; }
+    public RoadNodeId Id { get; init; }
+    public RoadNodeType Type { get; init; }
+    public Point Geometry { get; init; }
 }

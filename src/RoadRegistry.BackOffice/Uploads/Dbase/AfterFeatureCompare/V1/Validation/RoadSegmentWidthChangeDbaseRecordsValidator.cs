@@ -144,7 +144,7 @@ public class RoadSegmentWidthChangeDbaseRecordsValidator : IZipArchiveDbaseRecor
             }
             else
             {
-                problems += entry.HasNoDbaseRecords(false);
+                problems += entry.HasNoDbaseRecords();
             }
         }
         catch (Exception exception)

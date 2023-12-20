@@ -31,12 +31,12 @@ public class CloseRoadNetworkExtractRequestHandler : EndpointRequestHandler<Clos
 
         var message = new CloseRoadNetworkExtract
         {
-            ExternalRequestId = extractRequest.ExternalRequestId,
+            ExternalRequestId = new ExternalExtractRequestId(extractRequest.ExternalRequestId),
             Reason = request.Reason
         };
 
         var command = new Command(message);
-        await Dispatcher(command, cancellationToken);
+        await Dispatch(command, cancellationToken);
 
         return new CloseRoadNetworkExtractResponse();
     }

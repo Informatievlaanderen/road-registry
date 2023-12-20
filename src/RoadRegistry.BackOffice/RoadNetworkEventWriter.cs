@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.Generators.Guid;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Framework;
 using Messages;
 using Newtonsoft.Json;
@@ -39,27 +40,28 @@ public class RoadNetworkEventWriter : IRoadNetworkEventWriter
 
     public Task WriteAsync(StreamName streamName, Guid messageId, int expectedVersion, object[] events, CancellationToken cancellationToken)
     {
-        return Write(streamName, messageId, expectedVersion, events, null, cancellationToken);
+        return Write(streamName, messageId, expectedVersion, events, null, null, cancellationToken);
     }
 
     public Task WriteAsync(StreamName streamName, IRoadRegistryMessage message, int expectedVersion, object[] events, CancellationToken cancellationToken)
     {
-        return Write(streamName, message.MessageId, expectedVersion, events, message.Principal, cancellationToken);
+        return Write(streamName, message.MessageId, expectedVersion, events, message.Principal, message.ProvenanceData, cancellationToken);
     }
 
-    private static string SerializeJsonMetadata(ClaimsPrincipal principal)
+    private static string SerializeJsonMetadata(ClaimsPrincipal principal, ProvenanceData provenanceData)
     {
         var jsonMetadata = JsonConvert.SerializeObject(new MessageMetadata
         {
             Principal = principal
                 .Claims
                 .Select(claim => new Claim { Type = claim.Type, Value = claim.Value })
-                .ToArray()
+                .ToArray(),
+            ProvenanceData = provenanceData
         }, SerializerSettings);
         return jsonMetadata;
     }
 
-    private async Task Write(StreamName streamName, Guid messageId, int expectedVersion, object[] events, ClaimsPrincipal principal, CancellationToken cancellationToken)
+    private async Task Write(StreamName streamName, Guid messageId, int expectedVersion, object[] events, ClaimsPrincipal principal, ProvenanceData provenanceData, CancellationToken cancellationToken)
     {
         Array.ForEach(events, @event => _enricher(@event));
 
@@ -73,7 +75,7 @@ public class RoadNetworkEventWriter : IRoadNetworkEventWriter
                         $"{messageId:N}-{version++}"),
                     EventMapping.GetEventName(@event.GetType()),
                     JsonConvert.SerializeObject(@event, SerializerSettings),
-                    principal != null ? SerializeJsonMetadata(principal) : null
+                    principal != null ? SerializeJsonMetadata(principal, provenanceData) : null
                 ));
 
         await _store.AppendToStream(streamName, expectedVersion, messages, cancellationToken);

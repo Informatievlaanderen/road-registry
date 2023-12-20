@@ -1,9 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Infrastructure;
 
-using Api.Infrastructure.Controllers;
 using Containers;
 using Editor.Schema.RoadNetworkChanges;
-using Hosts.Infrastructure.Options;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,24 +9,16 @@ using Microsoft.Data.SqlClient;
 
 public abstract class ControllerMinimalTests<TController> where TController : ControllerBase
 {
-    protected ControllerMinimalTests(IMediator mediator)
+    protected ControllerMinimalTests(TController controller, IMediator mediator)
     {
-        if (typeof(TController).IsAssignableTo(typeof(BackofficeApiController)))
-        {
-            Controller = (TController)Activator.CreateInstance(typeof(TController), new TicketingOptions(), mediator);
-        }
-        else
-        {
-            Controller = (TController)Activator.CreateInstance(typeof(TController), mediator);
-        }
-
-        Controller!.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        Controller = controller;
+        Controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         Mediator = mediator;
     }
 
-    protected TController Controller { get; init; }
+    protected TController Controller { get; }
     protected IMediator Mediator { get; }
-
+    
     protected async Task<SqlConnectionStringBuilder> ApplyChangeCollectionIntoContext(SqlServer fixture, Func<ArchiveId, RoadNetworkChange[]> changeCallback)
     {
         var database = await fixture.CreateDatabaseAsync();

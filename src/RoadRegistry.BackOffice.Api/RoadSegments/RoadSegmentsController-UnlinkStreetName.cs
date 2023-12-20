@@ -1,8 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
-using System.Runtime.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.Extensions;
 using Abstractions.RoadSegments;
 using Be.Vlaanderen.Basisregisters.AcmIdm;
@@ -13,13 +10,17 @@ using FeatureToggles;
 using FluentValidation;
 using Handlers.Sqs.RoadSegments;
 using Infrastructure;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class RoadSegmentsController
 {
@@ -30,11 +31,12 @@ public partial class RoadSegmentsController
     /// </summary>
     /// <param name="featureToggle"></param>
     /// <param name="ifMatchHeaderValidator"></param>
+    /// <param name="idValidator"></param>
+    /// <param name="validator"></param>
+    /// <param name="roadSegmentRepository"></param>
     /// <param name="parameters"></param>
     /// <param name="id">Identificator van het wegsegment.</param>
     /// <param name="ifMatchHeaderValue"></param>
-    /// <param name="idValidator"></param>
-    /// <param name="validator"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="202">Als het wegsegment gevonden is.</response>
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
@@ -42,7 +44,7 @@ public partial class RoadSegmentsController
     /// <response code="412">Als de If-Match header niet overeenkomt met de laatste ETag.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost(UnlinkStreetNameRoute, Name = nameof(UnlinkStreetName))]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = PolicyNames.WegenAttribuutWaarden.Beheerder)]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.WegenAttribuutWaarden.Beheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -60,6 +62,7 @@ public partial class RoadSegmentsController
         [FromServices] IIfMatchHeaderValidator ifMatchHeaderValidator,
         [FromServices] RoadSegmentIdValidator idValidator,
         [FromServices] IValidator<UnlinkStreetNameRequest> validator,
+        [FromServices] IRoadSegmentRepository roadSegmentRepository,
         [FromBody] PostUnlinkStreetNameParameters parameters,
         [FromRoute] int id,
         [FromHeader(Name = "If-Match")] string? ifMatchHeaderValue,
@@ -74,19 +77,21 @@ public partial class RoadSegmentsController
         {
             await idValidator.ValidateRoadSegmentIdAndThrowAsync(id, cancellationToken);
 
-            if (!await ifMatchHeaderValidator.IsValid(ifMatchHeaderValue, new RoadSegmentId(id), cancellationToken))
+            var roadSegment = await roadSegmentRepository.FindAsync(new RoadSegmentId(id), cancellationToken);
+            if (roadSegment is null)
+            {
+                throw new RoadSegmentNotFoundException();
+            }
+
+            if (!await ifMatchHeaderValidator.IsValid(ifMatchHeaderValue, roadSegment, cancellationToken))
             {
                 return new PreconditionFailedResult();
             }
 
-            var request = new UnlinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
+            var request = new UnlinkStreetNameRequest(id, roadSegment.GeometryDrawMethod, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
             await validator.ValidateAndThrowAsync(request, cancellationToken);
 
-            var result = await _mediator.Send(Enrich(
-                new UnlinkStreetNameSqsRequest
-                {
-                    Request = request
-                }), cancellationToken);
+            var result = await _mediator.Send(new UnlinkStreetNameSqsRequest { Request = request }, cancellationToken);
 
             return Accepted(result);
         }

@@ -1,9 +1,5 @@
 namespace RoadRegistry.Hosts;
 
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Core;
 using BackOffice.Framework;
@@ -15,6 +11,13 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Reason = BackOffice.Reason;
 
 public interface IChangeRoadNetworkDispatcher
 {
@@ -26,22 +29,39 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
     private readonly IRoadNetworkCommandQueue _commandQueue;
     private readonly IIdempotentCommandHandler _idempotentCommandHandler;
     private readonly EventSourcedEntityMap _eventSourcedEntityMap;
+    private readonly IOrganizationRepository _organizationRepository;
+    private readonly ILogger<ChangeRoadNetworkDispatcher> _logger;
 
-    public ChangeRoadNetworkDispatcher(IRoadNetworkCommandQueue commandQueue, IIdempotentCommandHandler idempotentCommandHandler, EventSourcedEntityMap eventSourcedEntityMap)
+    public ChangeRoadNetworkDispatcher(
+        IRoadNetworkCommandQueue commandQueue,
+        IIdempotentCommandHandler idempotentCommandHandler,
+        EventSourcedEntityMap eventSourcedEntityMap,
+        IOrganizationRepository organizationRepository,
+        ILogger<ChangeRoadNetworkDispatcher> logger)
     {
         _commandQueue = commandQueue;
         _idempotentCommandHandler = idempotentCommandHandler;
         _eventSourcedEntityMap = eventSourcedEntityMap;
+        _organizationRepository = organizationRepository;
+        _logger = logger;
     }
 
     public async Task<ChangeRoadNetwork> DispatchAsync(SqsLambdaRequest lambdaRequest, string reason, Func<TranslatedChanges, Task<TranslatedChanges>> translatedChangesBuilder, CancellationToken cancellationToken)
     {
+        var sw = Stopwatch.StartNew();
+        var organizationId = new OrganizationId(lambdaRequest.Provenance.Operator);
+        var organization = await _organizationRepository.FindByIdOrOvoCodeAsync(organizationId, cancellationToken)
+                           ?? OrganizationDetail.FromCode(organizationId);
+        _logger.LogInformation("TIMETRACKING dispatcher: finding organization by '{Operator}' took {Elapsed}", lambdaRequest.Provenance.Operator, sw.Elapsed);
+        sw.Restart();
+
         var translatedChanges = TranslatedChanges.Empty
-            .WithOrganization(new OrganizationId(lambdaRequest.Provenance.Organisation.ToString()))
-            .WithOperatorName(new OperatorName(lambdaRequest.Provenance.Operator))
+            .WithOrganization(organization.Code)
+            .WithOperatorName(new OperatorName(organization.Name))
             .WithReason(new Reason(reason));
 
         translatedChanges = await translatedChangesBuilder(translatedChanges);
+        _logger.LogInformation("TIMETRACKING dispatcher: building TranslatedChanges took {Elapsed}",  sw.Elapsed);
 
         var requestedChanges = translatedChanges.Select(change =>
         {
@@ -64,18 +84,22 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
             Operator = translatedChanges.Operator,
             OrganizationId = translatedChanges.Organization
         };
+        sw.Restart();
         await new ChangeRoadNetworkValidator().ValidateAndThrowAsync(changeRoadNetwork, cancellationToken);
+        _logger.LogInformation("TIMETRACKING dispatcher: validating ChangeRoadNetwork took {Elapsed}", sw.Elapsed);
 
         var commandId = changeRoadNetwork.CreateCommandId();
         await _commandQueue.Write(new Command(changeRoadNetwork).WithMessageId(commandId), cancellationToken);
 
         try
         {
+            sw.Restart();
             await _idempotentCommandHandler.Dispatch(
                 commandId,
                 changeRoadNetwork,
                 lambdaRequest.Metadata,
                 cancellationToken);
+            _logger.LogInformation("TIMETRACKING dispatcher: dispatching ChangeRoadNetwork took {Elapsed}", sw.Elapsed);
         }
         catch (IdempotencyException)
         {
@@ -84,8 +108,12 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
 
         var entityMap = _eventSourcedEntityMap;
 
-        var roadNetwork = entityMap.Entries.Single(x => x.Stream == RoadNetworks.Stream);
-        foreach (var @event in roadNetwork.Entity.TakeEvents())
+        var roadNetworkEvents = entityMap.Entries
+            .Select(x => x.Entity)
+            .Where(x => x is RoadNetwork)
+            .SelectMany(x => x.TakeEvents())
+            .ToList();
+        foreach (var @event in roadNetworkEvents)
         {
             switch (@event)
             {

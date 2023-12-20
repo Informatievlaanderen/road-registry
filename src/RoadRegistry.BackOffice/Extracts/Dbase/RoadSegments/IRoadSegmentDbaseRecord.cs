@@ -4,6 +4,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public interface IRoadSegmentDbaseRecord
 {
+    DbaseInt32 WS_OIDN { get; }
     DbaseString BEHEERDER { get; }
     DbaseInt32 METHODE { get; }
     DbaseInt32 MORFOLOGIE { get; }

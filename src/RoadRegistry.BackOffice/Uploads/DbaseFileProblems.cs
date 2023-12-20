@@ -1,11 +1,12 @@
 namespace RoadRegistry.BackOffice.Uploads;
 
+using Be.Vlaanderen.Basisregisters.Shaperon;
+using Core;
+using Extensions;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Be.Vlaanderen.Basisregisters.Shaperon;
-using Core;
 
 public static class DbaseFileProblems
 {
@@ -13,6 +14,15 @@ public static class DbaseFileProblems
     {
         NumberDecimalSeparator = "."
     };
+
+    public static IDbaseFileRecordProblemBuilder WithIdentifier(this IDbaseFileRecordProblemBuilder builder, string field, int? value)
+    {
+        return (IDbaseFileRecordProblemBuilder)builder
+            .WithParameters(
+                new ProblemParameter("IdentifierField", field),
+                new ProblemParameter("IdentifierValue", value?.ToString(Provider) ?? string.Empty)
+            );
+    }
 
     public static FileError BeginRoadNodeIdEqualsEndRoadNode(this IDbaseFileRecordProblemBuilder builder,
         int beginNode,
@@ -112,6 +122,36 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    public static FileError GradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegment(this IDbaseFileRecordProblemBuilder builder, RoadSegmentId roadSegmentId)
+    {
+        return builder
+            .Error(nameof(GradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegment))
+            .WithParameter(new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()))
+            .Build();
+    }
+
+    public static FileError GradeSeparatedJunctionMissing(this IDbaseFileRecordProblemBuilder builder, RoadSegmentId roadSegmentId1, RoadSegmentId roadSegmentId2, double intersectionX, double intersectionY)
+    {
+        return builder
+            .Error(nameof(GradeSeparatedJunctionMissing))
+            .WithParameter(new ProblemParameter("RoadSegmentId1", roadSegmentId1.ToString()))
+            .WithParameter(new ProblemParameter("RoadSegmentId2", roadSegmentId2.ToString()))
+            .WithParameter(new ProblemParameter("IntersectionX", intersectionX.ToRoundedMeasurementString()))
+            .WithParameter(new ProblemParameter("IntersectionY", intersectionY.ToRoundedMeasurementString()))
+            .Build();
+    }
+
+    public static FileError ExpectedGradeSeparatedJunctionsCountDiffersFromActual(this IDbaseFileRecordProblemBuilder builder, RoadSegmentId roadSegmentId1, RoadSegmentId roadSegmentId2, int intersectionsCount, int gradeSeparatedJunctionsCount)
+    {
+        return builder
+            .Error(nameof(ExpectedGradeSeparatedJunctionsCountDiffersFromActual))
+            .WithParameter(new ProblemParameter("RoadSegmentId1", roadSegmentId1.ToString()))
+            .WithParameter(new ProblemParameter("RoadSegmentId2", roadSegmentId2.ToString()))
+            .WithParameter(new ProblemParameter("IntersectionsCount", intersectionsCount.ToString()))
+            .WithParameter(new ProblemParameter("GradeSeparatedJunctionsCount", gradeSeparatedJunctionsCount.ToString()))
+            .Build();
+    }
+
     public static FileError HasDbaseHeaderFormatError(this IFileProblemBuilder builder, Exception exception)
     {
         if (exception == null) throw new ArgumentNullException(nameof(exception));
@@ -123,7 +163,6 @@ public static class DbaseFileProblems
     }
 
     // record
-
     public static FileError HasDbaseRecordFormatError(this IDbaseFileRecordProblemBuilder builder, Exception exception)
     {
         if (exception == null) throw new ArgumentNullException(nameof(exception));
@@ -147,13 +186,15 @@ public static class DbaseFileProblems
             )
             .Build();
     }
-    // file
 
-    public static FileProblem HasNoDbaseRecords(this IFileProblemBuilder builder, bool treatAsWarning)
+    // file
+    public static FileProblem HasNoDbaseRecords(this IFileProblemBuilder builder, bool treatAsError = false)
     {
-        if (treatAsWarning)
-            return builder.Warning(nameof(HasNoDbaseRecords)).Build();
-        return builder.Error(nameof(HasNoDbaseRecords)).Build();
+        if (treatAsError)
+        {
+            return builder.Error(nameof(HasNoDbaseRecords)).Build();
+        }
+        return builder.Warning(nameof(HasNoDbaseRecords)).Build();
     }
 
     public static FileProblem HasTooManyDbaseRecords(this IFileProblemBuilder builder, int expectedCount, int actualCount)
@@ -167,15 +208,22 @@ public static class DbaseFileProblems
     }
 
     public static FileError IdentifierNotUnique(this IDbaseFileRecordProblemBuilder builder,
-        AttributeId identifier,
+        string identifier,
         RecordNumber takenByRecordNumber)
     {
         return builder
             .Error(nameof(IdentifierNotUnique))
             .WithParameters(
-                new ProblemParameter("Identifier", identifier.ToString()),
+                new ProblemParameter("Identifier", identifier),
                 new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()))
             .Build();
+    }
+
+    public static FileError IdentifierNotUnique(this IDbaseFileRecordProblemBuilder builder,
+        AttributeId identifier,
+        RecordNumber takenByRecordNumber)
+    {
+        return IdentifierNotUnique(builder, identifier.ToString(), takenByRecordNumber);
     }
 
     // grade separated junction
@@ -184,13 +232,7 @@ public static class DbaseFileProblems
         GradeSeparatedJunctionId identifier,
         RecordNumber takenByRecordNumber)
     {
-        return builder
-            .Error(nameof(IdentifierNotUnique))
-            .WithParameters(
-                new ProblemParameter("Identifier", identifier.ToString()),
-                new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
-            )
-            .Build();
+        return IdentifierNotUnique(builder, identifier.ToString(), takenByRecordNumber);
     }
 
     // road node
@@ -199,12 +241,27 @@ public static class DbaseFileProblems
         RoadNodeId identifier,
         RecordNumber takenByRecordNumber)
     {
+        return IdentifierNotUnique(builder, identifier.ToString(), takenByRecordNumber);
+    }
+
+    public static FileError RoadNodeIdentifierNotUniqueAcrossIntegrationAndChange(this IDbaseFileRecordProblemBuilder builder,
+        RoadNodeId roadNodeId,
+        RecordNumber takenByRecordNumber)
+    {
         return builder
-            .Error(nameof(IdentifierNotUnique))
+            .Error(nameof(RoadNodeIdentifierNotUniqueAcrossIntegrationAndChange))
             .WithParameters(
-                new ProblemParameter("Identifier", identifier.ToString()),
-                new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
-            )
+                new ProblemParameter("Identifier", roadNodeId.ToString()),
+                new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()))
+            .Build();
+    }
+
+    public static FileError RoadNodeIsAlreadyProcessed(this IDbaseFileRecordProblemBuilder builder, RoadNodeId identifier, RoadNodeId processedId)
+    {
+        return builder
+            .Error(nameof(RoadNodeIsAlreadyProcessed))
+            .WithParameter(new ProblemParameter("Identifier", identifier.ToString()))
+            .WithParameter(new ProblemParameter("ProcessedId", processedId.ToString()))
             .Build();
     }
 
@@ -214,13 +271,7 @@ public static class DbaseFileProblems
         RoadSegmentId identifier,
         RecordNumber takenByRecordNumber)
     {
-        return builder
-            .Error(nameof(IdentifierNotUnique))
-            .WithParameters(
-                new ProblemParameter("Identifier", identifier.ToString()),
-                new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString())
-            )
-            .Build();
+        return IdentifierNotUnique(builder, identifier.ToString(), takenByRecordNumber);
     }
 
     public static FileWarning IdentifierNotUniqueButAllowed(this IDbaseFileRecordProblemBuilder builder,
@@ -240,9 +291,30 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    public static FileError RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange(this IDbaseFileRecordProblemBuilder builder,
+        RoadSegmentId roadSegmentId,
+        RecordNumber takenByRecordNumber)
+    {
+        return builder
+            .Error(nameof(RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange))
+            .WithParameters(
+                new ProblemParameter("Identifier", roadSegmentId.ToString()),
+                new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()))
+            .Build();
+    }
+
     public static FileError IdentifierZero(this IDbaseFileRecordProblemBuilder builder)
     {
         return builder.Error(nameof(IdentifierZero)).Build();
+    }
+
+    public static FileError RoadSegmentIsAlreadyProcessed(this IDbaseFileRecordProblemBuilder builder, RoadSegmentId identifier, RoadSegmentId processedId)
+    {
+        return builder
+            .Error(nameof(RoadSegmentIsAlreadyProcessed))
+            .WithParameter(new ProblemParameter("Identifier", identifier.ToString()))
+            .WithParameter(new ProblemParameter("ProcessedId", processedId.ToString()))
+            .Build();
     }
 
     // lane
@@ -289,11 +361,24 @@ public static class DbaseFileProblems
 
     public static FileError NotEuropeanRoadNumber(this IDbaseFileRecordProblemBuilder builder, string number)
     {
-        if (number == null) throw new ArgumentNullException(nameof(number));
+        ArgumentNullException.ThrowIfNull(number);
 
         return builder
             .Error(nameof(NotEuropeanRoadNumber))
             .WithParameter(new ProblemParameter("Number", number.ToUpperInvariant()))
+            .Build();
+    }
+    public static FileError EuropeanRoadNotUnique(this IDbaseFileRecordProblemBuilder builder, AttributeId attributeId, RecordNumber takenByRecordNumber, AttributeId takenByAttributeId)
+    {
+        ArgumentNullException.ThrowIfNull(attributeId);
+        ArgumentNullException.ThrowIfNull(takenByRecordNumber);
+        ArgumentNullException.ThrowIfNull(takenByAttributeId);
+
+        return builder
+            .Error(nameof(EuropeanRoadNotUnique))
+            .WithParameter(new ProblemParameter("AttributeId", attributeId.ToString()))
+            .WithParameter(new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()))
+            .WithParameter(new ProblemParameter("TakenByAttributeId", takenByAttributeId.ToString()))
             .Build();
     }
 
@@ -301,11 +386,24 @@ public static class DbaseFileProblems
 
     public static FileError NotNationalRoadNumber(this IDbaseFileRecordProblemBuilder builder, string number)
     {
-        if (number == null) throw new ArgumentNullException(nameof(number));
+        ArgumentNullException.ThrowIfNull(number);
 
         return builder
             .Error(nameof(NotNationalRoadNumber))
             .WithParameter(new ProblemParameter("Number", number.ToUpperInvariant()))
+            .Build();
+    }
+    public static FileError NationalRoadNotUnique(this IDbaseFileRecordProblemBuilder builder, AttributeId attributeId, RecordNumber takenByRecordNumber, AttributeId takenByAttributeId)
+    {
+        ArgumentNullException.ThrowIfNull(attributeId);
+        ArgumentNullException.ThrowIfNull(takenByRecordNumber);
+        ArgumentNullException.ThrowIfNull(takenByAttributeId);
+
+        return builder
+            .Error(nameof(NationalRoadNotUnique))
+            .WithParameter(new ProblemParameter("AttributeId", attributeId.ToString()))
+            .WithParameter(new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()))
+            .WithParameter(new ProblemParameter("TakenByAttributeId", takenByAttributeId.ToString()))
             .Build();
     }
 
@@ -313,7 +411,7 @@ public static class DbaseFileProblems
 
     public static FileError NotNumberedRoadNumber(this IDbaseFileRecordProblemBuilder builder, string number)
     {
-        if (number == null) throw new ArgumentNullException(nameof(number));
+        ArgumentNullException.ThrowIfNull(number);
 
         return builder
             .Error(nameof(NotNumberedRoadNumber))
@@ -351,6 +449,22 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    public static FileError ExtractDescriptionOutOfRange(this IDbaseFileRecordProblemBuilder builder, string value)
+    {
+        return builder
+            .Error(nameof(ExtractDescriptionOutOfRange))
+            .WithParameter(new ProblemParameter("Actual", value))
+            .Build();
+    }
+
+    public static FileError OperatorNameOutOfRange(this IDbaseFileRecordProblemBuilder builder, string value)
+    {
+        return builder
+            .Error(nameof(OperatorNameOutOfRange))
+            .WithParameter(new ProblemParameter("Actual", value))
+            .Build();
+    }
+
     // record type
 
     public static FileError RecordTypeMismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
@@ -383,11 +497,17 @@ public static class DbaseFileProblems
 
     public static FileError RequiredFieldIsNull(this IDbaseFileRecordProblemBuilder builder, DbaseField field)
     {
-        if (field == null) throw new ArgumentNullException(nameof(field));
+        return RequiredFieldIsNull(builder, field?.Name.ToString());
+    }
+
+    public static FileError RequiredFieldIsNull(this IDbaseFileRecordProblemBuilder builder, string field)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(field);
 
         return builder
             .Error(nameof(RequiredFieldIsNull))
-            .WithParameter(new ProblemParameter("Field", field.Name.ToString()))
+            .WithParameter(new ProblemParameter("Field", field))
             .Build();
     }
 
@@ -418,6 +538,13 @@ public static class DbaseFileProblems
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
+    public static FileError RoadNodeGeometryMissing(this IDbaseFileRecordProblemBuilder builder, int value)
+    {
+        return builder
+            .Error(nameof(RoadNodeGeometryMissing))
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
             .Build();
     }
 
@@ -478,6 +605,27 @@ public static class DbaseFileProblems
             .WithParameter(new ProblemParameter("Actual", value.ToString()))
             .Build();
     }
+    public static FileError RoadSegmentStartNodeMissing(this IDbaseFileRecordProblemBuilder builder, int value)
+    {
+        return builder
+            .Error(nameof(RoadSegmentStartNodeMissing))
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
+            .Build();
+    }
+    public static FileError RoadSegmentEndNodeMissing(this IDbaseFileRecordProblemBuilder builder, int value)
+    {
+        return builder
+            .Error(nameof(RoadSegmentEndNodeMissing))
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
+            .Build();
+    }
+    public static FileError RoadSegmentGeometryMissing(this IDbaseFileRecordProblemBuilder builder, int value)
+    {
+        return builder
+            .Error(nameof(RoadSegmentGeometryMissing))
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
+            .Build();
+    }
 
     public static FileError RoadSegmentMorphologyMismatch(this IDbaseFileRecordProblemBuilder builder, int actual, bool outline = false)
     {
@@ -508,6 +656,14 @@ public static class DbaseFileProblems
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
+
+    public static FileError RoadSegmentMaintenanceAuthorityNotKnown(this IDbaseFileRecordProblemBuilder builder, OrganizationId organizationId)
+    {
+        return builder
+            .Error(nameof(RoadSegmentMaintenanceAuthorityNotKnown))
+            .WithParameter(new ProblemParameter(MaintenanceAuthorityNotKnown.ParameterName.OrganizationId, organizationId.ToString()))
             .Build();
     }
 

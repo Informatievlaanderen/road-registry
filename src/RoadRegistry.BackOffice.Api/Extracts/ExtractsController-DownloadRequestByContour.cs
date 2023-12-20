@@ -25,47 +25,8 @@ public partial class ExtractsController
     {
         var request = new DownloadExtractByContourRequest(body.Contour, body.Buffer, body.Description, body.IsInformative);
         var response = await _mediator.Send(request, cancellationToken);
-        return Accepted(new DownloadExtractResponseBody(response.DownloadId.ToString(), response.IsInformative));
+        return Accepted(new DownloadExtractResponseBody(response.DownloadId, response.IsInformative));
     }
 }
 
-/// <summary>
-///     Class DownloadExtractByContourRequestBody.
-///     Implements the
-///     <see cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
-/// </summary>
-/// <seealso cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
-public record DownloadExtractByContourRequestBody
-{
-    /// <summary>
-    ///     Class DownloadExtractByContourRequestBody.
-    ///     Implements the
-    ///     <see cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
-    /// </summary>
-    /// <seealso cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
-    public DownloadExtractByContourRequestBody(int Buffer, string Contour, string Description, bool IsInformative)
-    {
-        this.Buffer = Buffer;
-        this.Contour = Contour;
-        this.Description = Description;
-        this.IsInformative = IsInformative;
-    }
-
-    /// <summary>
-    ///     Gets the buffer.
-    /// </summary>
-    /// <value>The buffer.</value>
-    public int Buffer { get; init; }
-
-    public string Contour { get; init; }
-    public string Description { get; init; }
-    public bool IsInformative { get; init; }
-
-    public void Deconstruct(out int Buffer, out string Contour, out string Description, out bool IsInformative)
-    {
-        Buffer = this.Buffer;
-        Contour = this.Contour;
-        Description = this.Description;
-        IsInformative = this.IsInformative;
-    }
-}
+public record DownloadExtractByContourRequestBody(int Buffer, string Contour, string Description, bool IsInformative);

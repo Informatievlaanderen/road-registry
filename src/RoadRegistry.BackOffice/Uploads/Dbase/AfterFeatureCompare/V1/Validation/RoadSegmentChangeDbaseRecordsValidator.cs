@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extensions;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Uploads;
 using Schema;
@@ -25,10 +26,13 @@ public class RoadSegmentChangeDbaseRecordsValidator : IZipArchiveDbaseRecordsVal
             {
                 while (moved)
                 {
-                    var recordContext = entry.AtDbaseRecord(records.CurrentRecordNumber);
                     var record = records.Current;
                     if (record != null)
                     {
+                        var recordContext = entry
+                            .AtDbaseRecord(records.CurrentRecordNumber)
+                            .WithIdentifier(nameof(RoadSegmentChangeDbaseRecord.WS_OIDN), record.WS_OIDN.GetValue());
+
                         RecordType recordType = default;
                         if (!record.RECORDTYPE.HasValue)
                         {
@@ -112,7 +116,7 @@ public class RoadSegmentChangeDbaseRecordsValidator : IZipArchiveDbaseRecordsVal
             }
             else
             {
-                problems += entry.HasNoDbaseRecords(false);
+                problems += entry.HasNoDbaseRecords();
             }
         }
         catch (Exception exception)

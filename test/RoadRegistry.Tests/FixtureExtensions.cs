@@ -1,7 +1,5 @@
 namespace RoadRegistry.Tests;
 
-using System.IO.Compression;
-using System.Text;
 using AutoFixture;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -13,7 +11,11 @@ using RoadRegistry.BackOffice.Extracts.Dbase;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
+using System.IO.Compression;
+using System.Text;
+using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
+using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public static class Customizations
 {
@@ -92,6 +94,11 @@ public static class Customizations
         return CreateRoadSegmentShapeFile(fixture, Array.Empty<PolyLineMShapeContent>());
     }
 
+    public static MemoryStream CreateEmptyTransactionZoneShapeFile(this IFixture fixture)
+    {
+        return CreateTransactionZoneShapeFile(fixture, Array.Empty<PolygonShapeContent>());
+    }
+
     public static IEnumerable<T> CreateManyWhichIsDifferentThan<T>(this IFixture fixture, IEnumerable<T> illegalValue)
     {
         var value = fixture.CreateMany<T>();
@@ -131,6 +138,11 @@ public static class Customizations
     public static MemoryStream CreateRoadSegmentShapeFile(this IFixture fixture, ICollection<PolyLineMShapeContent> shapes)
     {
         return CreateShapeFile(fixture, ShapeType.PolyLineM, shapes, shape => shape.Shape.NumberOfPoints > 0 ? BoundingBox3D.FromGeometry(shape.Shape) : BoundingBox3D.Empty);
+    }
+
+    public static MemoryStream CreateTransactionZoneShapeFile(this IFixture fixture, ICollection<PolygonShapeContent> shapes)
+    {
+        return CreateShapeFile(fixture, ShapeType.Polygon, shapes, shape => shape.Shape.NumberOfPoints > 0 ? BoundingBox3D.FromGeometry(shape.Shape) : BoundingBox3D.Empty);
     }
 
     public static MemoryStream CreateRoadSegmentShapeFileWithOneRecord(this IFixture fixture, PolyLineMShapeContent polyLineMShapeContent = null)
@@ -221,24 +233,29 @@ public static class Customizations
         MemoryStream roadSegmentDbaseIntegrationStream = null,
         MemoryStream roadNodeShapeIntegrationStream = null,
         MemoryStream roadNodeDbaseIntegrationStream = null,
-        MemoryStream archiveStream = null
+        MemoryStream archiveStream = null,
+        ICollection<string> excludeFileNames = null
     )
     {
         var files = new Dictionary<string, Stream>
         {
-            { "IWEGSEGMENT.DBF", roadSegmentDbaseIntegrationStream ?? fixture.CreateEmptyDbfFile<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema) },
             { "IWEGSEGMENT.SHP", roadSegmentShapeIntegrationStream ?? fixture.CreateEmptyRoadSegmentShapeFile() },
-            { "WEGSEGMENT.SHP", roadSegmentShapeChangeStream },
+            { "IWEGSEGMENT.DBF", roadSegmentDbaseIntegrationStream ?? fixture.CreateEmptyDbfFile<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema) },
+            { "IWEGSEGMENT.PRJ", roadSegmentProjectionFormatStream },
             { "EWEGSEGMENT.SHP", roadSegmentShapeExtractStream },
-            { "WEGSEGMENT.DBF", roadSegmentDbaseChangeStream },
             { "EWEGSEGMENT.DBF", roadSegmentDbaseExtractStream },
+            { "EWEGSEGMENT.PRJ", roadSegmentProjectionFormatStream },
+            { "WEGSEGMENT.SHP", roadSegmentShapeChangeStream },
+            { "WEGSEGMENT.DBF", roadSegmentDbaseChangeStream },
             { "WEGSEGMENT.PRJ", roadSegmentProjectionFormatStream },
-            { "IWEGKNOOP.DBF", roadNodeDbaseIntegrationStream ?? fixture.CreateEmptyDbfFile<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema) },
             { "IWEGKNOOP.SHP", roadNodeShapeIntegrationStream ?? fixture.CreateEmptyRoadNodeShapeFile() },
-            { "WEGKNOOP.SHP", roadNodeShapeChangeStream },
+            { "IWEGKNOOP.DBF", roadNodeDbaseIntegrationStream ?? fixture.CreateEmptyDbfFile<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema) },
+            { "IWEGKNOOP.PRJ", roadNodeProjectionFormatStream },
             { "EWEGKNOOP.SHP", roadNodeShapeExtractStream },
-            { "WEGKNOOP.DBF", roadNodeDbaseChangeStream },
             { "EWEGKNOOP.DBF", roadNodeDbaseExtractStream },
+            { "EWEGKNOOP.PRJ", roadNodeProjectionFormatStream },
+            { "WEGKNOOP.SHP", roadNodeShapeChangeStream },
+            { "WEGKNOOP.DBF", roadNodeDbaseChangeStream },
             { "WEGKNOOP.PRJ", roadNodeProjectionFormatStream },
             { "ATTEUROPWEG.DBF", europeanRoadChangeStream },
             { "EATTEUROPWEG.DBF", europeanRoadExtractStream },
@@ -258,7 +275,12 @@ public static class Customizations
         };
 
         var random = new Random(fixture.Create<int>());
-        var writeOrder = files.Keys.OrderBy(_ => random.Next()).ToArray();
+        var fileNames = files.Keys.ToList();
+        if (excludeFileNames is not null && excludeFileNames.Any())
+        {
+            fileNames = fileNames.Where(fileName => !excludeFileNames.Contains(fileName, StringComparer.InvariantCultureIgnoreCase)).ToList();
+        }
+        var writeOrder = fileNames.OrderBy(_ => random.Next()).ToArray();
 
         archiveStream ??= new MemoryStream();
 
@@ -277,7 +299,12 @@ public static class Customizations
                 }
                 else
                 {
-                    var extractFileEntry = testData.ZipArchiveWithEmptyFiles.Entries.Single(x => string.Equals(x.Name, file, StringComparison.InvariantCultureIgnoreCase));
+                    var extractFileEntry = testData.ZipArchiveWithEmptyFiles.Entries.SingleOrDefault(x => string.Equals(x.Name, file, StringComparison.InvariantCultureIgnoreCase));
+                    if (extractFileEntry is null)
+                    {
+                        throw new Exception($"No file found in {nameof(testData.ZipArchiveWithEmptyFiles)} with name {file}");
+                    }
+
                     using (var extractFileEntryStream = extractFileEntry.Open())
                     using (var entryStream = createArchive.CreateEntry(file).Open())
                     {
@@ -294,9 +321,24 @@ public static class Customizations
 
     public static T CreateWhichIsDifferentThan<T>(this IFixture fixture, params T[] illegalValues)
     {
+        if (!illegalValues.Any())
+        {
+            throw new ArgumentException(nameof(illegalValues));
+        }
+
+        return CreateUntil<T>(fixture, value => illegalValues.All(illegalValue => !Equals(value, illegalValue)));
+    }
+
+    public static T CreateWhichIsDifferentThan<T>(this IFixture fixture, Func<T, T, bool> comparer, params T[] illegalValues)
+    {
+        return CreateUntil<T>(fixture, value => illegalValues.All(illegalValue => !comparer(value, illegalValue)));
+    }
+
+    public static T CreateUntil<T>(this IFixture fixture, Predicate<T> predicate)
+    {
         var value = fixture.Create<T>();
 
-        while (illegalValues.Any(illegalValue => Equals(value, illegalValue)))
+        while (!predicate(value))
         {
             value = fixture.Create<T>();
         }
@@ -774,6 +816,35 @@ public static class Customizations
                 )
                 .OmitAutoProperties()
         );
+
+        fixture.Customize<RequestedRoadSegmentLaneAttribute>(composer =>
+            composer.Do(instance =>
+            {
+                var positionGenerator = new Generator<RoadSegmentPosition>(fixture);
+                instance.AttributeId = fixture.Create<AttributeId>();
+                instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
+                instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
+                instance.Count = fixture.Create<RoadSegmentLaneCount>();
+                instance.Direction = fixture.Create<RoadSegmentLaneDirection>();
+            }).OmitAutoProperties());
+    }
+    public static RoadSegmentLaneAttributes CreateRoadSegmentLaneAttribute(this IFixture fixture, double roadSegmentGeometryLength)
+    {
+        var lane = fixture.Create<RoadSegmentLaneAttributes>();
+        lane.FromPosition = 0;
+        lane.ToPosition = RoadSegmentPosition.FromDouble(roadSegmentGeometryLength);
+        return lane;
+    }
+    public static RequestedRoadSegmentLaneAttribute CreateRequestedRoadSegmentLaneAttribute(this IFixture fixture, double roadSegmentGeometryLength, int? attributeId = null)
+    {
+        var lane = fixture.Create<RequestedRoadSegmentLaneAttribute>();
+        lane.FromPosition = 0;
+        lane.ToPosition = RoadSegmentPosition.FromDouble(roadSegmentGeometryLength);
+        if (attributeId is not null)
+        {
+            lane.AttributeId = attributeId.Value;
+        }
+        return lane;
     }
 
     public static void CustomizeRoadSegmentModified(this IFixture fixture)
@@ -906,6 +977,34 @@ public static class Customizations
                 )
                 .OmitAutoProperties()
         );
+
+        fixture.Customize<RequestedRoadSegmentSurfaceAttribute>(composer =>
+            composer.Do(instance =>
+            {
+                var positionGenerator = new Generator<RoadSegmentPosition>(fixture);
+                instance.AttributeId = fixture.Create<AttributeId>();
+                instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
+                instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
+                instance.Type = fixture.Create<RoadSegmentSurfaceType>();
+            }).OmitAutoProperties());
+    }
+    public static RoadSegmentSurfaceAttributes CreateRoadSegmentSurfaceAttribute(this IFixture fixture, double roadSegmentGeometryLength)
+    {
+        var surface = fixture.Create<RoadSegmentSurfaceAttributes>();
+        surface.FromPosition = 0;
+        surface.ToPosition = RoadSegmentPosition.FromDouble(roadSegmentGeometryLength);
+        return surface;
+    }
+    public static RequestedRoadSegmentSurfaceAttribute CreateRequestedRoadSegmentSurfaceAttribute(this IFixture fixture, double roadSegmentGeometryLength, int? attributeId = null)
+    {
+        var surface = fixture.Create<RequestedRoadSegmentSurfaceAttribute>();
+        surface.FromPosition = 0;
+        surface.ToPosition = RoadSegmentPosition.FromDouble(roadSegmentGeometryLength);
+        if (attributeId is not null)
+        {
+            surface.AttributeId = attributeId.Value;
+        }
+        return surface;
     }
 
     public static void CustomizeRoadSegmentWidthAttributes(this IFixture fixture)
@@ -924,6 +1023,34 @@ public static class Customizations
                 )
                 .OmitAutoProperties()
         );
+
+        fixture.Customize<RequestedRoadSegmentWidthAttribute>(composer =>
+            composer.Do(instance =>
+            {
+                var positionGenerator = new Generator<RoadSegmentPosition>(fixture);
+                instance.AttributeId = fixture.Create<AttributeId>();
+                instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
+                instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
+                instance.Width = fixture.Create<RoadSegmentWidth>();
+            }).OmitAutoProperties());
+    }
+    public static RoadSegmentWidthAttributes CreateRoadSegmentWidthAttribute(this IFixture fixture, double roadSegmentGeometryLength)
+    {
+        var width = fixture.Create<RoadSegmentWidthAttributes>();
+        width.FromPosition = 0;
+        width.ToPosition = RoadSegmentPosition.FromDouble(roadSegmentGeometryLength);
+        return width;
+    }
+    public static RequestedRoadSegmentWidthAttribute CreateRequestedRoadSegmentWidthAttribute(this IFixture fixture, double roadSegmentGeometryLength, int? attributeId = null)
+    {
+        var width = fixture.Create<RequestedRoadSegmentWidthAttribute>();
+        width.FromPosition = 0;
+        width.ToPosition = RoadSegmentPosition.FromDouble(roadSegmentGeometryLength);
+        if (attributeId is not null)
+        {
+            width.AttributeId = attributeId.Value;
+        }
+        return width;
     }
 
     public static bool EqualsCollection<T>(this IEnumerable<T> enumerable1, IEnumerable<T> enumerable2)
@@ -966,5 +1093,26 @@ public static class Customizations
         }
 
         return true;
+    }
+
+    public static PointShapeContent ToShapeContent(this Point point)
+    {
+        return new PointShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(point));
+    }
+    public static PolyLineMShapeContent ToShapeContent(this LineString lineString)
+    {
+        return lineString.ToMultiLineString().ToShapeContent();
+    }
+    public static PolyLineMShapeContent ToShapeContent(this MultiLineString lineString)
+    {
+        return new PolyLineMShapeContent(
+            Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(lineString)
+        );
+    }
+    public static PolygonShapeContent ToShapeContent(this Polygon polygon)
+    {
+        return new PolygonShapeContent(
+            Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPolygon(polygon)
+        );
     }
 }

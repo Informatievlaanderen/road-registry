@@ -1,21 +1,28 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
-using System.Text;
 using Abstractions.Extracts;
 using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
-using DutchTranslations;
-using Editor.Projections.DutchTranslations;
 using Exceptions;
 using FluentValidation;
 using FluentValidation.Results;
 using Messages;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
+using RoadRegistry.BackOffice.ShapeFile;
+using System.Text;
+using GeometryTranslator = BackOffice.GeometryTranslator;
 using Polygon = NetTopologySuite.Geometries.Polygon;
 using Problem = Core.Problem;
 
-public class DownloadExtractByFileRequestItemTranslator
+public interface IDownloadExtractByFileRequestItemTranslator
+{
+    RoadNetworkExtractGeometry Translate(DownloadExtractByFileRequestItem shapeFile, int buffer);
+}
+
+[Obsolete("Use DownloadExtractByFileRequestItemTranslatorNetTopologySuite instead")]
+public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFileRequestItemTranslator
 {
     private readonly Encoding _encoding;
 
@@ -61,7 +68,6 @@ public class DownloadExtractByFileRequestItemTranslator
                                     {
                                         problems.Add(new ShapeFileInvalidPolygonShellOrientation());
                                     }
-
                                     break;
 
                                 default:
@@ -73,7 +79,10 @@ public class DownloadExtractByFileRequestItemTranslator
                     if (polygons.Any())
                     {
                         var srids = polygons.Select(x => x.SRID).Distinct().ToArray();
-                        if (srids.Length > 1) problems.Add(new ShapeFileGeometrySridMustBeEqual());
+                        if (srids.Length > 1)
+                        {
+                            problems.Add(new ShapeFileGeometrySridMustBeEqual());
+                        }
                     }
                     else
                     {
@@ -95,8 +104,9 @@ public class DownloadExtractByFileRequestItemTranslator
                         return new ValidationFailure
                         {
                             PropertyName = nameof(DownloadExtractByFileRequest.ShpFile),
-                            ErrorMessage = problem.TranslateToDutch().Message,
-                            ErrorCode = problemTranslation.Code
+                            ErrorMessage = problemTranslation.Message,
+                            ErrorCode = problemTranslation.Code,
+                            CustomState = problem.Parameters.ToArray()
                         };
                     }));
             }
@@ -104,5 +114,75 @@ public class DownloadExtractByFileRequestItemTranslator
             var srid = polygons.First().SRID;
             return GeometryTranslator.TranslateToRoadNetworkExtractGeometry(new MultiPolygon(polygons.ToArray()) { SRID = srid }, buffer);
         }
+    }
+}
+
+
+public class DownloadExtractByFileRequestItemTranslatorNetTopologySuite : IDownloadExtractByFileRequestItemTranslator
+{
+    public RoadNetworkExtractGeometry Translate(DownloadExtractByFileRequestItem shapeFile, int buffer)
+    {
+        var problems = new List<Problem>();
+
+        ShapefileHeader header = null;
+        Geometry geometry = null;
+        try
+        {
+            (header, geometry) = new ExtractGeometryShapeFileReader().Read(shapeFile.ReadStream);
+        }
+        catch (Exception ex)
+        {
+            problems.Add(new ShapeFileInvalidHeader(ex));
+        }
+
+        var polygons = new List<Polygon>();
+
+        if (header is not null)
+        {
+            if (new[] { ShapeGeometryType.Polygon, ShapeGeometryType.PolygonM, ShapeGeometryType.PolygonZ, ShapeGeometryType.PolygonZM }.Contains(header.ShapeType))
+            {
+                if (geometry is Polygon || geometry is MultiPolygon)
+                {
+                    polygons.AddRange(geometry.ToMultiPolygon().Cast<Polygon>());
+                }
+                else
+                {
+                    problems.Add(new ShapeFileGeometryTypeMustBePolygon());
+                }
+
+                if (polygons.Any())
+                {
+                    var srids = polygons.Select(x => x.SRID).Distinct().ToArray();
+                    if (srids.Length > 1)
+                    {
+                        problems.Add(new ShapeFileGeometrySridMustBeEqual());
+                    }
+                }
+                else
+                {
+                    problems.Add(new ShapeFileHasNoValidPolygons());
+                }
+            }
+            else
+            {
+                problems.Add(new ShapeFileGeometryTypeMustBePolygon());
+            }
+        }
+
+        if (problems.Any())
+        {
+            throw new ValidationException("Shape file content contains some errors",
+                problems
+                    .Select(problem => problem.TranslateToDutch())
+                    .Select(problemTranslation => new ValidationFailure
+                    {
+                        PropertyName = nameof(DownloadExtractByFileRequest.ShpFile),
+                        ErrorMessage = problemTranslation.Message,
+                        ErrorCode = problemTranslation.Code
+                    }));
+        }
+
+        var srid = polygons.First().SRID;
+        return GeometryTranslator.TranslateToRoadNetworkExtractGeometry(new MultiPolygon(polygons.ToArray()) { SRID = srid }, buffer);
     }
 }

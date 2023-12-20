@@ -158,6 +158,78 @@ public class ExtractDownloadRecordProjectionTests
     }
 
     [Fact]
+    public async Task When_extract_download_timeout_occurred()
+    {
+        var gotRequested = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
+        var timeoutOccurred = _fixture.Create<RoadNetworkExtractDownloadTimeoutOccurred>();
+        timeoutOccurred.DownloadId = gotRequested.DownloadId;
+        timeoutOccurred.ExternalRequestId = gotRequested.ExternalRequestId;
+        timeoutOccurred.RequestId = gotRequested.RequestId;
+
+        await new ExtractDownloadRecordProjection()
+            .Scenario()
+            .Given(gotRequested)
+            .Given(timeoutOccurred)
+            .Expect(new ExtractDownloadRecord
+            {
+                DownloadId = timeoutOccurred.DownloadId.Value,
+                RequestId = timeoutOccurred.RequestId,
+                ExternalRequestId = timeoutOccurred.ExternalRequestId,
+                ArchiveId = null,
+                Available = true,
+                AvailableOn = InstantPattern.ExtendedIso.Parse(timeoutOccurred.When).Value.ToUnixTimeSeconds(),
+                RequestedOn = InstantPattern.ExtendedIso.Parse(gotRequested.When).Value.ToUnixTimeSeconds()
+            });
+    }
+
+    [Fact]
+    public async Task When_extract_download_timeout_occurred_with_multiple_extract_downloads()
+    {
+        var download1GotRequested = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
+        var download1BecameAvailable = _fixture.Create<RoadNetworkExtractDownloadBecameAvailable>();
+        download1BecameAvailable.DownloadId = download1GotRequested.DownloadId;
+        download1BecameAvailable.ExternalRequestId = download1GotRequested.ExternalRequestId;
+        download1BecameAvailable.RequestId = download1GotRequested.RequestId;
+
+        var download2GotRequested = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
+        download2GotRequested.ExternalRequestId = download1GotRequested.ExternalRequestId;
+        download2GotRequested.RequestId = download1GotRequested.RequestId;
+
+        var download2TimeoutOccurred = _fixture.Create<RoadNetworkExtractDownloadTimeoutOccurred>();
+        download2TimeoutOccurred.DownloadId = download2GotRequested.DownloadId;
+        download2TimeoutOccurred.ExternalRequestId = download2GotRequested.ExternalRequestId;
+        download2TimeoutOccurred.RequestId = download2GotRequested.RequestId;
+
+        await new ExtractDownloadRecordProjection()
+            .Scenario()
+            .Given(download1GotRequested)
+            .Given(download1BecameAvailable)
+            .Given(download2GotRequested)
+            .Given(download2TimeoutOccurred)
+            .Expect(
+                new ExtractDownloadRecord
+                {
+                    DownloadId = download1GotRequested.DownloadId,
+                    RequestId = download1GotRequested.RequestId,
+                    ExternalRequestId = download1GotRequested.ExternalRequestId,
+                    ArchiveId = download1BecameAvailable.ArchiveId,
+                    Available = true,
+                    AvailableOn = InstantPattern.ExtendedIso.Parse(download1BecameAvailable.When).Value.ToUnixTimeSeconds(),
+                    RequestedOn = InstantPattern.ExtendedIso.Parse(download1GotRequested.When).Value.ToUnixTimeSeconds()
+                },
+                new ExtractDownloadRecord
+                {
+                    DownloadId = download2GotRequested.DownloadId,
+                    RequestId = download2GotRequested.RequestId,
+                    ExternalRequestId = download2GotRequested.ExternalRequestId,
+                    ArchiveId = null,
+                    Available = true,
+                    AvailableOn = InstantPattern.ExtendedIso.Parse(download2TimeoutOccurred.When).Value.ToUnixTimeSeconds(),
+                    RequestedOn = InstantPattern.ExtendedIso.Parse(download2GotRequested.When).Value.ToUnixTimeSeconds()
+                });
+    }
+
+    [Fact]
     public Task When_extract_got_requested()
     {
         var data = _fixture

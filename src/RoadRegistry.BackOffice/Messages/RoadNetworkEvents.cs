@@ -18,6 +18,8 @@ public static class RoadNetworkEvents
         typeof(DeleteOrganizationRejected),
         typeof(RenameOrganizationAccepted),
         typeof(RenameOrganizationRejected),
+        typeof(ChangeOrganizationAccepted),
+        typeof(ChangeOrganizationRejected),
         typeof(RoadNetworkChangesArchiveAccepted),
         typeof(RoadNetworkChangesArchiveRejected),
         typeof(RoadNetworkChangesArchiveUploaded),

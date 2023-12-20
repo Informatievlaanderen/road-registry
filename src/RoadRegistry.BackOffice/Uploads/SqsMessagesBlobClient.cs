@@ -53,6 +53,10 @@ public class SqsMessagesBlobClient : IBlobClient
     public async Task<object> GetBlobMessageAsync(BlobName name, CancellationToken cancellationToken = default)
     {
         var blob = await GetBlobAsync(name, cancellationToken);
+        if (blob is null)
+        {
+            return null;
+        }
 
         using (var blobStream = await blob.OpenAsync(cancellationToken))
         using (var memoryStream = new MemoryStream())

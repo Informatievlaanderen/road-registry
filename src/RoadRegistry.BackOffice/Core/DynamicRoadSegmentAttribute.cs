@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.BackOffice.Core;
 
 using System;
 
@@ -12,10 +12,6 @@ public abstract class DynamicRoadSegmentAttribute
         GeometryVersion asOfGeometryVersion
     )
     {
-        if (from >= to)
-            throw new ArgumentException(nameof(From),
-                $"The from position ({from.ToDecimal()}) must be less than the to position ({to.ToDecimal()}).");
-
         Id = id;
         TemporaryId = temporaryId;
         From = from;

@@ -7,34 +7,34 @@ using Point = NetTopologySuite.Geometries.Point;
 
 public class AddRoadNode : ITranslatedChange
 {
-    public AddRoadNode(RecordNumber recordNumber, RoadNodeId temporaryId, RoadNodeType type)
+    public AddRoadNode(RecordNumber recordNumber, RoadNodeId temporaryId, RoadNodeId? originalId, RoadNodeType type)
+        : this(recordNumber, temporaryId, originalId, type, null)
     {
-        RecordNumber = recordNumber;
-        TemporaryId = temporaryId;
-        Type = type ?? throw new ArgumentNullException(nameof(type));
-        Geometry = null;
     }
 
-    private AddRoadNode(RecordNumber recordNumber, RoadNodeId temporaryId, RoadNodeType type, Point geometry)
+    private AddRoadNode(RecordNumber recordNumber, RoadNodeId temporaryId, RoadNodeId? originalId, RoadNodeType type, Point geometry)
     {
         RecordNumber = recordNumber;
         TemporaryId = temporaryId;
-        Type = type;
+        OriginalId = originalId;
+        Type = type.ThrowIfNull();
         Geometry = geometry;
     }
 
     public Point Geometry { get; }
     public RecordNumber RecordNumber { get; }
     public RoadNodeId TemporaryId { get; }
+    public RoadNodeId? OriginalId { get; }
     public RoadNodeType Type { get; }
 
     public void TranslateTo(RequestedChange message)
     {
-        if (message == null) throw new ArgumentNullException(nameof(message));
+        ArgumentNullException.ThrowIfNull(message);
 
         message.AddRoadNode = new Messages.AddRoadNode
         {
             TemporaryId = TemporaryId,
+            OriginalId = OriginalId,
             Type = Type.ToString(),
             Geometry = GeometryTranslator.Translate(Geometry)
         };
@@ -42,7 +42,7 @@ public class AddRoadNode : ITranslatedChange
 
     public AddRoadNode WithGeometry(Point geometry)
     {
-        if (geometry == null) throw new ArgumentNullException(nameof(geometry));
-        return new AddRoadNode(RecordNumber, TemporaryId, Type, geometry);
+        ArgumentNullException.ThrowIfNull(geometry);
+        return new AddRoadNode(RecordNumber, TemporaryId, OriginalId, Type, geometry);
     }
 }

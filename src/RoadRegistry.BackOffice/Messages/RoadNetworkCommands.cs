@@ -18,6 +18,8 @@ public static class RoadNetworkCommands
         typeof(DeleteOrganizationRejected),
         typeof(RenameOrganization),
         typeof(RenameOrganizationRejected),
+        typeof(ChangeOrganization),
+        typeof(ChangeOrganizationRejected),
         typeof(UploadRoadNetworkChangesArchive),
         typeof(UploadRoadNetworkExtractChangesArchive)
     };

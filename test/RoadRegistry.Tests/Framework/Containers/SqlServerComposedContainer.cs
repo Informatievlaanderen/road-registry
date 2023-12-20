@@ -4,6 +4,8 @@ using Microsoft.Data.SqlClient;
 
 public class SqlServerComposedContainer : ISqlServerDatabase
 {
+    private const string Password = "E@syP@ssw0rd";
+
     private readonly SqlConnectionStringBuilder _builder;
     private readonly string _serviceName;
     private int _db;
@@ -11,10 +13,6 @@ public class SqlServerComposedContainer : ISqlServerDatabase
     public SqlServerComposedContainer(RoadRegistryAssembly serviceName)
     {
         _serviceName = ((int)serviceName).ToString();
-        if (Environment.GetEnvironmentVariable("SA_PASSWORD") == null)
-        {
-            throw new Exception("The SA_PASSWORD environment variable is missing.");
-        }
 
         _builder =
             new SqlConnectionStringBuilder
@@ -22,7 +20,7 @@ public class SqlServerComposedContainer : ISqlServerDatabase
                 DataSource = "tcp:localhost,1433",
                 InitialCatalog = "master",
                 UserID = "sa",
-                Password = Environment.GetEnvironmentVariable("SA_PASSWORD"),
+                Password = Password,
                 Encrypt = false,
                 Enlist = false,
                 IntegratedSecurity = false

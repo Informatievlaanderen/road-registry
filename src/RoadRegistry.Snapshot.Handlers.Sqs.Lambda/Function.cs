@@ -2,12 +2,12 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda;
 
 using Autofac;
+using BackOffice;
 using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
 using Hosts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using RoadRegistry.BackOffice;
 
 public class Function : RoadRegistryLambdaFunction<MessageHandler>
 {
@@ -23,7 +23,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .AddRoadNetworkSnapshotStrategyOptions()
             ;
     }
-
+    
     protected override void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
     {
         builder

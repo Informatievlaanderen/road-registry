@@ -31,10 +31,10 @@ internal static class LineStringExtensions
                     new CoordinateArraySequence(
                         new[]
                         {
-                            new Coordinate(Math.Round(fromPoint.X, Precisions.MeasurementPrecision), Math.Round(fromPoint.Y, Precisions.MeasurementPrecision)),
-                            new Coordinate(Math.Round(toPoint.X, Precisions.MeasurementPrecision), Math.Round(toPoint.Y, Precisions.MeasurementPrecision))
+                            new Coordinate(Math.Round(fromPoint.X, Precisions.GeometryPrecision), Math.Round(fromPoint.Y, Precisions.GeometryPrecision)),
+                            new Coordinate(Math.Round(toPoint.X, Precisions.GeometryPrecision), Math.Round(toPoint.Y, Precisions.GeometryPrecision))
                         })
-                    , GeometryConfiguration.GeometryFactory);
+                    , WellKnownGeometryFactories.Default);
             fromPoint = toPoint;
         }
 

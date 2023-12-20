@@ -1,17 +1,14 @@
 namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Consumers;
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.Configuration;
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Exceptions;
 using MediatR;
 using Messages;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 public class FeatureCompareMessageConsumer : BackgroundService
 {

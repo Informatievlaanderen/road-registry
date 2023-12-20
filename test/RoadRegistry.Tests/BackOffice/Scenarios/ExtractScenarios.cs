@@ -1,6 +1,5 @@
 namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
-using System.IO.Compression;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Framework.Projections;
@@ -10,6 +9,8 @@ using NodaTime.Text;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Messages;
+using System.IO.Compression;
+using FileProblem = RoadRegistry.BackOffice.Messages.FileProblem;
 
 public class ExtractScenarios : RoadRegistryTestBase
 {
@@ -138,11 +139,12 @@ public class ExtractScenarios : RoadRegistryTestBase
                 IsInformative = true,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             })
-            .When(OurSystem.AnnouncesRoadNetworkExtractDownloadTimeoutOccurred(extractRequestId))
+            .When(OurSystem.AnnouncesRoadNetworkExtractDownloadTimeoutOccurred(extractRequestId, downloadId))
             .Then(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractDownloadTimeoutOccurred
             {
                 RequestId = extractRequestId,
                 ExternalRequestId = externalExtractRequestId,
+                DownloadId = downloadId,
                 Description = extractDescription,
                 IsInformative = true,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())

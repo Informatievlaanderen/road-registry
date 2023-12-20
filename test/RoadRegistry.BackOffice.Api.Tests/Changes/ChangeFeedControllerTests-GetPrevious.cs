@@ -99,7 +99,7 @@ public partial class ChangeFeedControllerTests
         Assert.Equal(nameof(RoadNetworkChangesArchiveAccepted), item1.Type);
         Assert.Equal("01", item1.Day);
         // YR: Different versions of libicu use different casing
-        Assert.Equal("jan.", item1.Month.ToLowerInvariant());
+        Assert.Equal("jan", item1.Month.ToLowerInvariant());
         Assert.Equal("01:00", item1.TimeOfDay);
 
         var item2 = response.Entries[1];
@@ -109,7 +109,7 @@ public partial class ChangeFeedControllerTests
         Assert.Equal(nameof(RoadNetworkChangesArchiveUploaded), item2.Type);
         Assert.Equal("01", item2.Day);
         // YR: Different versions of libicu use different casing
-        Assert.Equal("jan.", item2.Month.ToLowerInvariant());
+        Assert.Equal("jan", item2.Month.ToLowerInvariant());
         Assert.Equal("01:00", item2.TimeOfDay);
     }
 

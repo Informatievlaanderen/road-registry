@@ -24,8 +24,7 @@ public abstract class WhenCreateOutlineWithInvalidRequest<TFixture> : IClassFixt
     [Fact]
     public void ItShouldHaveExpectedCode()
     {
-        var err = ItShouldHaveValidationException();
-        var errMessage = err.Single().ErrorCode;
+        var errMessage = ItShouldHaveSingleError().ErrorCode;
 
         Assert.Equal(ExpectedErrorCode, errMessage);
     }
@@ -33,14 +32,12 @@ public abstract class WhenCreateOutlineWithInvalidRequest<TFixture> : IClassFixt
     [Fact]
     public void ItShouldHaveExpectedMessage()
     {
-        var err = ItShouldHaveValidationException();
-        var errMessage = err.Single().ErrorMessage;
+        var errMessage = ItShouldHaveSingleError().ErrorMessage;
 
         Assert.StartsWith(ExpectedErrorMessagePrefix, errMessage);
     }
-
-    [Fact]
-    public IEnumerable<ValidationFailure> ItShouldHaveValidationException()
+    
+    private IEnumerable<ValidationFailure> ItShouldHaveValidationException()
     {
         var ex = Assert.IsType<ValidationException>(Fixture.Exception);
         var err = Assert.IsAssignableFrom<IEnumerable<ValidationFailure>>(ex.Errors);
@@ -53,5 +50,19 @@ public abstract class WhenCreateOutlineWithInvalidRequest<TFixture> : IClassFixt
         Assert.True(Fixture.HasException);
         Assert.NotNull(Fixture.Exception);
         Assert.Null(Fixture.Result);
+    }
+
+    private ValidationFailure ItShouldHaveSingleError()
+    {
+        var err = ItShouldHaveValidationException().ToArray();
+        if (err.Length > 1)
+        {
+            foreach (var error in err)
+            {
+                OutputHelper.WriteLine(error.ToString());
+            }
+        }
+
+        return err.Single();
     }
 }

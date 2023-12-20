@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 public class StreetNameConsumerContextMigrationFactory : RunnerDbContextMigrationFactory<StreetNameConsumerContext>
 {
     public StreetNameConsumerContextMigrationFactory()
-        : this(WellknownConnectionNames.StreetNameConsumerAdmin)
+        : this(WellknownConnectionNames.StreetNameConsumerProjectionsAdmin)
     {
     }
 

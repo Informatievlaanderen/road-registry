@@ -8,4 +8,5 @@ public class CreateOrganization : IMessage
 {
     public string Code { get; set; }
     public string Name { get; set; }
+    public string OvoCode { get; set; }
 }

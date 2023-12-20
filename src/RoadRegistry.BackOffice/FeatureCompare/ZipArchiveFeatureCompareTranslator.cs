@@ -1,13 +1,12 @@
 namespace RoadRegistry.BackOffice.FeatureCompare;
 
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Compression;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Translators;
 using Uploads;
 
@@ -20,24 +19,34 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
     private readonly ILogger _logger;
     private readonly IReadOnlyCollection<IZipArchiveEntryFeatureCompareTranslator> _translators;
 
-    public ZipArchiveFeatureCompareTranslator(Encoding encoding, ILogger logger)
+    public ZipArchiveFeatureCompareTranslator(
+        TransactionZoneFeatureCompareTranslator transactionZoneTranslator,
+        RoadNodeFeatureCompareTranslator roadNodeTranslator,
+        RoadSegmentFeatureCompareTranslator roadSegmentTranslator,
+        RoadSegmentLaneFeatureCompareTranslator roadSegmentLaneTranslator,
+        RoadSegmentWidthFeatureCompareTranslator roadSegmentWidthTranslator,
+        RoadSegmentSurfaceFeatureCompareTranslator roadSegmentSurfaceTranslator,
+        EuropeanRoadFeatureCompareTranslator europeanRoadTranslator,
+        NationalRoadFeatureCompareTranslator nationalRoadTranslator,
+        NumberedRoadFeatureCompareTranslator numberedRoadTranslator,
+        GradeSeparatedJunctionFeatureCompareTranslator gradeSeparatedJunctionTranslator,
+        ILogger<ZipArchiveFeatureCompareTranslator> logger
+    )
     {
-        ArgumentNullException.ThrowIfNull(encoding);
-
         _logger = logger.ThrowIfNull();
 
         _translators = new IZipArchiveEntryFeatureCompareTranslator[]
         {
-            new TransactionZoneFeatureCompareTranslator(encoding),
-            new RoadNodeFeatureCompareTranslator(encoding),
-            new RoadSegmentFeatureCompareTranslator(encoding),
-            new RoadSegmentLaneFeatureCompareTranslator(encoding),
-            new RoadSegmentWidthFeatureCompareTranslator(encoding),
-            new RoadSegmentSurfaceFeatureCompareTranslator(encoding),
-            new EuropeanRoadFeatureCompareTranslator(encoding),
-            new NationalRoadFeatureCompareTranslator(encoding),
-            new NumberedRoadFeatureCompareTranslator(encoding),
-            new GradeSeparatedJunctionFeatureCompareTranslator(encoding)
+            transactionZoneTranslator.ThrowIfNull(),
+            roadNodeTranslator.ThrowIfNull(),
+            roadSegmentTranslator.ThrowIfNull(),
+            roadSegmentLaneTranslator.ThrowIfNull(),
+            roadSegmentWidthTranslator.ThrowIfNull(),
+            roadSegmentSurfaceTranslator.ThrowIfNull(),
+            europeanRoadTranslator.ThrowIfNull(),
+            nationalRoadTranslator.ThrowIfNull(),
+            numberedRoadTranslator.ThrowIfNull(),
+            gradeSeparatedJunctionTranslator.ThrowIfNull()
         };
     }
 
@@ -46,8 +55,8 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
         ArgumentNullException.ThrowIfNull(archive);
 
         var changes = TranslatedChanges.Empty;
-
-        var roadSegments = new List<RoadSegmentRecord>();
+        
+        var context = new ZipArchiveEntryFeatureCompareTranslateContext(archive, ZipArchiveMetadata.Empty);
 
         foreach (var translator in _translators)
         {
@@ -55,11 +64,13 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
 
             var sw = Stopwatch.StartNew();
             _logger.LogInformation("{Type} started...", translator.GetType().Name);
-            var context = new ZipArchiveEntryFeatureCompareTranslateContext(archive.Entries, roadSegments);
-            changes = await translator.TranslateAsync(context, changes, cancellationToken);
+            
+            (changes, var problems) = await translator.TranslateAsync(context, changes, cancellationToken);
+            problems.ThrowIfError();
+
             _logger.LogInformation("{Type} completed in {Elapsed}", translator.GetType().Name, sw.Elapsed);
         }
-
+        
         return changes;
     }
 }

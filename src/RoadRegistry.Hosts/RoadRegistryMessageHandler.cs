@@ -6,6 +6,7 @@ using Autofac;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using Infrastructure;
 using MediatR;
 
 public abstract class RoadRegistryMessageHandler : IMessageHandler
@@ -24,6 +25,11 @@ public abstract class RoadRegistryMessageHandler : IMessageHandler
         if (messageData is not SqsRequest sqsRequest)
         {
             messageMetadata.Logger?.LogInformation($"Unable to cast '{nameof(messageData)}' as {nameof(SqsRequest)}.");
+            return;
+        }
+
+        if (sqsRequest is HealthCheckSqsRequest)
+        {
             return;
         }
 

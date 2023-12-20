@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Exceptions;
 
 public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEquatable<ZipArchiveProblems>
 {
@@ -45,6 +46,13 @@ public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEqua
         if (problems == null) throw new ArgumentNullException(nameof(problems));
 
         return new ZipArchiveProblems(_problems.AddRange(problems));
+    }
+
+    public ZipArchiveProblems Remove(Func<FileProblem, bool> predicate)
+    {
+        ArgumentNullException.ThrowIfNull(predicate);
+
+        return new ZipArchiveProblems(_problems.Where(problem => !predicate(problem)).ToImmutableList());
     }
 
     public override bool Equals(object obj)
@@ -93,6 +101,30 @@ public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEqua
         return new ZipArchiveProblems(_problems.Add(
             new FileError(file.ToUpperInvariant(), nameof(RequiredFileMissing)))
         );
+    }
+
+    public bool HasError()
+    {
+        return _problems.OfType<FileError>().Any();
+    }
+
+    public void ThrowIfError()
+    {
+        if (HasError())
+        {
+            throw new ZipArchiveValidationException(this);
+        }
+    }
+
+    public IEnumerable<FileProblem> GetMissingOrInvalidFileProblems()
+    {
+        var allowedIntegrationProblemReasons = new[]
+        {
+            nameof(ZipArchiveProblems.RequiredFileMissing),
+            nameof(DbaseFileProblems.HasDbaseHeaderFormatError),
+            nameof(DbaseFileProblems.HasDbaseSchemaMismatch)
+        };
+        return _problems.Where(x => allowedIntegrationProblemReasons.Contains(x.Reason));
     }
 
     public static ZipArchiveProblems Single(FileProblem problem)

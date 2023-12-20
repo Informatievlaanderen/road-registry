@@ -1,14 +1,10 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure;
 
-using System;
-using System.Configuration;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
 using Abstractions;
 using Abstractions.Configuration;
 using Amazon;
 using Amazon.DynamoDBv2;
+using Authentication;
 using Authorization;
 using Autofac;
 using BackOffice.Extensions;
@@ -22,21 +18,23 @@ using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Behaviors;
 using Configuration;
 using Controllers.Attributes;
 using Core;
 using Editor.Schema;
-using FeatureCompare.Translators;
+using Extensions;
+using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Handlers.Extensions;
 using Hosts.Infrastructure.Extensions;
+using Hosts.Infrastructure.HealthChecks;
 using Hosts.Infrastructure.Modules;
 using IdentityModel.AspNetCore.OAuth2Introspection;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Data.SqlClient;
@@ -51,14 +49,19 @@ using Microsoft.OpenApi.Models;
 using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
+using Options;
 using Product.Schema;
-using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
-using RoadRegistry.BackOffice.Api.Infrastructure.Extensions;
-using RoadRegistry.BackOffice.Api.Infrastructure.Options;
+using RoadRegistry.BackOffice.Api.RoadSegments;
+using RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
 using Syndication.Schema;
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using ZipArchiveWriters.Validation;
 using DomainAssemblyMarker = Handlers.Sqs.DomainAssemblyMarker;
 using MediatorModule = Snapshot.Handlers.MediatorModule;
@@ -148,20 +151,11 @@ public class Startup
                     AfterMiddleware = x =>
                     {
                         x.UseMiddleware<AddNoCacheHeadersMiddleware>();
-                        x.UseHealthChecks(new PathString("/health"), Program.HostingPort, new HealthCheckOptions
-                        {
-                            ResultStatusCodes =
-                            {
-                                [HealthStatus.Healthy] = StatusCodes.Status200OK,
-                                [HealthStatus.Degraded] = StatusCodes.Status200OK,
-                                [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
-                            }
-                        });
+                        x.UseHealthChecks();
                     }
                 }
             })
             ;
-        
     }
 
     public void ConfigureContainer(ContainerBuilder builder)
@@ -170,8 +164,10 @@ public class Startup
             .RegisterModule(new DataDogModule(_configuration))
             .RegisterModule<BlobClientModule>()
             .RegisterModule<MediatorModule>()
-            .RegisterModule<SnapshotSqsHandlersModule>()
-            ;
+            .RegisterModule<SnapshotSqsHandlersModule>();
+
+        builder
+            .RegisterGeneric(typeof(IdentityPipelineBehavior<,>)).As(typeof(IPipelineBehavior<,>));
 
         builder
             .RegisterModulesFromAssemblyContaining<Startup>()
@@ -182,14 +178,13 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        var oAuth2IntrospectionOptions = _configuration
-            .GetSection(nameof(OAuth2IntrospectionOptions))
-            .Get<OAuth2IntrospectionOptions>();
+        var oAuth2IntrospectionOptions = _configuration.GetOptions<OAuth2IntrospectionOptions>(nameof(OAuth2IntrospectionOptions));
+        var openIdConnectOptions = _configuration.GetOptions<OpenIdConnectOptions>();
 
-        var baseUrl = _configuration.GetValue<string>("BaseUrl");
-        var baseUrlForExceptions = baseUrl.EndsWith("/")
-            ? baseUrl.Substring(0, baseUrl.Length - 1)
-            : baseUrl;
+        var baseUrl = _configuration.GetValue<string>("BaseUrl")?.TrimEnd('/') ?? string.Empty;
+
+        var featureToggles = _configuration.GetFeatureToggles<ApplicationFeatureToggle>();
+        var useHealthChecksFeatureToggle = featureToggles.OfType<UseHealthChecksFeatureToggle>().Single();
 
         services
             .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
@@ -206,7 +201,7 @@ public class Startup
                 },
                 Server =
                 {
-                    BaseUrl = baseUrlForExceptions
+                    BaseUrl = baseUrl
                 },
                 Swagger =
                 {
@@ -229,23 +224,34 @@ public class Startup
                         AfterSwaggerGen = options =>
                         {
                             options.AddRoadRegistrySchemaFilters();
+                            options.CustomSchemaIds(t => SwashbuckleHelpers.GetCustomSchemaId(t)
+                                                         ?? SwashbuckleHelpers.PublicApiDefaultSchemaIdSelector(t));
                         }
                     }
                 },
                 MiddlewareHooks =
                 {
-                    AfterHealthChecks = health =>
+                    AfterHealthChecks = builder =>
                     {
-                        var connectionStrings = _configuration
-                            .GetSection("ConnectionStrings")
-                            .GetChildren();
+                        var healthCheckInitializer = HealthCheckInitializer.Configure(builder, _configuration, _webHostEnvironment)
+                            .AddSqlServer();
 
-                        foreach (var connectionString in connectionStrings)
+                        if (useHealthChecksFeatureToggle.FeatureEnabled)
                         {
-                            health.AddSqlServer(
-                                connectionString.Value,
-                                name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
-                                tags: new[] { DatabaseTag, "sql", "sqlserver" });
+                            healthCheckInitializer
+                                .AddS3(x => x
+                                    .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read, Permission.Write)
+                                    .CheckPermission(WellknownBuckets.ExtractDownloadsBucket, Permission.Read)
+                                    .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Write)
+                                    .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
+                                )
+                                .AddSqs(x => x
+                                    .CheckPermission(WellknownQueues.AdminQueue, Permission.Write)
+                                    .CheckPermission(WellknownQueues.BackOfficeQueue, Permission.Write)
+                                    .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Write)
+                                )
+                                .AddTicketing()
+                                ;
                         }
                     },
                     FluentValidation = _ =>
@@ -257,15 +263,18 @@ public class Startup
                     {
                         options
                             .AddAcmIdmAuthorization()
-                            .AddAcmIdmPolicyVoInfo();
+                            .AddAcmIdmPolicyVoInfo()
+                            ;
                     }
                 }
             })
             .AddAcmIdmAuthorizationHandlers()
             .AddSingleton(new AmazonDynamoDBClient(RegionEndpoint.EUWest1))
             .AddSingleton(FileEncoding.WindowsAnsi)
+            .AddFeatureCompareTranslator()
             .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
             .AddSingleton<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
+            .AddSingleton<IBeforeFeatureCompareZipArchiveCleaner, BeforeFeatureCompareZipArchiveCleaner>()
             .AddSingleton<ProblemDetailsHelper>()
             .RegisterOptions<ZipArchiveWriterOptions>()
             .RegisterOptions<ExtractDownloadsOptions>()
@@ -288,7 +297,7 @@ public class Startup
             .AddRoadRegistrySnapshot()
             .AddRoadNetworkEventWriter()
             .AddScoped(_ => new EventSourcedEntityMap())
-            .AddEmailClient(_configuration)
+            .AddEmailClient()
             .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
                 {
@@ -306,6 +315,8 @@ public class Startup
                         sp.GetService<ILifetimeScope>(),
                         sp.GetService<IRoadNetworkSnapshotReader>(),
                         sp.GetService<IClock>(),
+                        sp.GetRequiredService<UseOvoCodeInChangeRoadNetworkFeatureToggle>(),
+                        sp.GetService<IExtractUploadFailedEmailClient>(),
                         sp.GetService<ILoggerFactory>()
                     ),
                     new RoadNetworkExtractCommandModule(
@@ -326,21 +337,7 @@ public class Startup
             .AddScoped(sp => new TraceDbConnection<SyndicationContext>(
                 new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.SyndicationProjections)),
                 sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
-            .AddSingleton<IStreetNameCache, StreetNameCache>()
-            .AddSingleton<Func<SyndicationContext>>(sp =>
-                () =>
-                    new SyndicationContext(
-                        new DbContextOptionsBuilder<SyndicationContext>()
-                            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                            .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                            .UseSqlServer(
-                                _configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
-                                options => options
-                                    .EnableRetryOnFailure()
-                            )
-                            .Options)
-            )
-            .AddSingleton<TransactionZoneFeatureCompareFeatureReader>(sp => new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()))
+            .AddStreetNameCache()
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
@@ -357,18 +354,20 @@ public class Startup
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 .UseSqlServer(
                     sp.GetRequiredService<TraceDbConnection<ProductContext>>()))
+            .AddOrganizationRepository()
+            .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
             .AddValidatorsAsScopedFromAssemblyContaining<Startup>()
             .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<Handlers.DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<DomainAssemblyMarker>()
-            .AddFeatureToggles<ApplicationFeatureToggle>(_configuration)
+            .AddFeatureToggles(featureToggles)
             .AddTicketing()
             .AddRoadRegistrySnapshot()
             .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
             .AddRoadNetworkCommandQueue()
             .AddRoadNetworkSnapshotStrategyOptions()
             .Configure<ResponseOptions>(_configuration)
-            .AddAcmIdmAuth(oAuth2IntrospectionOptions!)
+            .AddAcmIdmAuthentication(oAuth2IntrospectionOptions, openIdConnectOptions)
             .AddApiKeyAuth()
             ;
 
@@ -392,5 +391,21 @@ public class Startup
     private static string GetApiLeadingText(ApiVersionDescription description)
     {
         return $"Momenteel leest u de documentatie voor versie {description.ApiVersion} van de Basisregisters Vlaanderen Road Registry API{string.Format(description.IsDeprecated ? ", **deze API versie is niet meer ondersteund * *." : ".")}";
+    }
+}
+
+public class SqlServerHealthCheck : IHealthCheck
+{
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
+    {
+        try
+        {
+            return HealthCheckResult.Healthy();
+        }
+        catch (Exception ex)
+        {
+            return new HealthCheckResult(HealthStatus.Unhealthy, "dfd", ex);
+        }
+        throw new NotImplementedException();
     }
 }

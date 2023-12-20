@@ -111,7 +111,7 @@ public class GradeSeparatedJunctionChangeDbaseRecordsValidator : IZipArchiveDbas
             }
             else
             {
-                problems += entry.HasNoDbaseRecords(true);
+                problems += entry.HasNoDbaseRecords();
             }
         }
         catch (Exception exception)

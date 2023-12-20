@@ -2,19 +2,17 @@ namespace RoadRegistry.BackOffice.Api.Information;
 
 using Be.Vlaanderen.Basisregisters.Api;
 using Infrastructure;
+using Infrastructure.Authentication;
 using Infrastructure.Authorization;
-using Infrastructure.Controllers.Attributes;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[ApiKey]
 [ApiVersion(Version.Current)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("information")]
 [ApiExplorerSettings(GroupName = "Info")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = AcmIdmConstants.PolicyNames.VoInfo)]
+[Authorize(AuthenticationSchemes = AuthenticationSchemes.AllSchemes, Policy = AcmIdmConstants.PolicyNames.VoInfo)]
 public partial class InformationController : ApiController
 {
     private readonly IMediator _mediator;

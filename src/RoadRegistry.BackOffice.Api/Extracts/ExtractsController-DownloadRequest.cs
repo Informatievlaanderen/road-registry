@@ -25,7 +25,7 @@ public partial class ExtractsController
     {
         var request = new DownloadExtractRequest(body.RequestId, body.Contour, body.IsInformative);
         var response = await _mediator.Send(request, cancellationToken);
-        return Accepted(new DownloadExtractResponseBody(response.DownloadId.ToString(), response.IsInformative));
+        return Accepted(new DownloadExtractResponseBody(response.DownloadId, response.IsInformative));
     }
 }
 

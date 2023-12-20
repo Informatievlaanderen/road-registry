@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.ExtractHost;
 
 using Abstractions;
+using Autofac;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Configuration;
 using Editor.Schema;
@@ -9,23 +10,24 @@ using Extracts;
 using Framework;
 using Handlers.Extracts;
 using Hosts;
+using Hosts.Infrastructure.Extensions;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using RoadRegistry.BackOffice.FeatureToggles;
 using SqlStreamStore;
-using Syndication.Schema;
 using System;
-using System.Text;
 using System.Threading.Tasks;
-using FeatureCompare;
 using Uploads;
 using ZipArchiveWriters.ExtractHost;
 
 public class Program
 {
+    public const int HostingPort = 10003;
+
     private static readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.BackOffice);
 
     protected Program()
@@ -40,62 +42,67 @@ public class Program
                 services
                     .AddHostedService<EventProcessor>()
                     .RegisterOptions<ZipArchiveWriterOptions>()
+                    .AddEmailClient()
                     .AddRoadRegistrySnapshot()
+                    .AddRoadNetworkEventWriter()
+                    .AddScoped(_ => new EventSourcedEntityMap())
                     .AddSingleton<IEventProcessorPositionStore>(sp =>
                         new SqlEventProcessorPositionStore(
                             new SqlConnectionStringBuilder(
                                 sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.ExtractHost)
                             ),
                             WellknownSchemas.ExtractHostSchema))
-                    .AddSingleton<IStreetNameCache, StreetNameCache>()
-                    .AddSingleton<Func<SyndicationContext>>(sp =>
-                        () =>
-                            new SyndicationContext(
-                                new DbContextOptionsBuilder<SyndicationContext>()
-                                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                                    .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                                    .UseSqlServer(
-                                        hostContext.Configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
-                                        options => options
-                                            .EnableRetryOnFailure()
-                                    ).Options)
-                    )
+                    .AddStreetNameCache()
                     .AddSingleton<IZipArchiveWriter<EditorContext>>(sp =>
                         new RoadNetworkExtractToZipArchiveWriter(
                             sp.GetService<ZipArchiveWriterOptions>(),
                             sp.GetService<IStreetNameCache>(),
                             sp.GetService<RecyclableMemoryStreamManager>(),
-                            sp.GetRequiredService<FileEncoding>()))
-                    .AddSingleton<Func<EditorContext>>(sp =>
-                        () =>
-                            new EditorContext(
-                                new DbContextOptionsBuilder<EditorContext>()
-                                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                                    .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                                    .UseSqlServer(
-                                        hostContext.Configuration.GetConnectionString(WellknownConnectionNames.EditorProjections),
-                                        options => options
-                                            .UseNetTopologySuite()
-                                    ).Options)
-                    )
+                            sp.GetRequiredService<FileEncoding>(),
+                            sp.GetRequiredService<UseNetTopologySuiteShapeReaderWriterFeatureToggle>()
+                        ))
                     .AddSingleton<IRoadNetworkExtractArchiveAssembler>(sp =>
                         new RoadNetworkExtractArchiveAssembler(
                             sp.GetService<RecyclableMemoryStreamManager>(),
                             sp.GetService<Func<EditorContext>>(),
                             sp.GetService<IZipArchiveWriter<EditorContext>>()))
+                    .AddEditorContext()
+                    .AddOrganizationRepository()
+                    .AddFeatureCompareTranslator()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {
                         new RoadNetworkExtractEventModule(
+                            sp.GetService<ILifetimeScope>(),
                             sp.GetService<RoadNetworkExtractDownloadsBlobClient>(),
                             sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                             sp.GetService<IRoadNetworkExtractArchiveAssembler>(),
                             new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>()),
-                            new ZipArchiveFeatureCompareTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>()),
                             sp.GetService<IStreamStore>(),
-                            ApplicationMetadata)
+                            ApplicationMetadata,
+                            sp.GetService<IRoadNetworkEventWriter>(),
+                            sp.GetService<IExtractUploadFailedEmailClient>(),
+                            sp.GetService<ILogger<RoadNetworkExtractEventModule>>())
                     })
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));
+            })
+            .ConfigureHealthChecks(HostingPort, builder => builder
+                .AddSqlServer()
+                .AddHostedServicesStatus()
+                .AddS3(x => x
+                    .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
+                    .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Read)
+                    .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read)
+                    .CheckPermission(WellknownBuckets.ExtractDownloadsBucket, Permission.Read, Permission.Delete)
+                )
+                .AddSqs(x => x
+                    .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Read)
+                )
+            )
+            .ConfigureContainer((context, builder) =>
+            {
+                builder
+                    .RegisterModule<ContextModule>();
             })
             .Build();
 

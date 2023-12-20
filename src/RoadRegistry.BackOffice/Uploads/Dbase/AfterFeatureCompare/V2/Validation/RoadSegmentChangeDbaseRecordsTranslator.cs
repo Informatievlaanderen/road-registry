@@ -92,7 +92,8 @@ public class
                         changes = changes.AppendChange(
                             new RemoveRoadSegment(
                                 records.CurrentRecordNumber,
-                                new RoadSegmentId(record.WS_OIDN.Value)
+                                new RoadSegmentId(record.WS_OIDN.Value),
+                                RoadSegmentGeometryDrawMethod.ByIdentifier[record.METHODE.Value]
                             )
                         );
                         break;

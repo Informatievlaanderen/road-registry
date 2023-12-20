@@ -1,6 +1,8 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Tests.Projections;
 
 using System.Globalization;
+using System.Linq;
+using System.Reflection.Emit;
 using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
@@ -112,7 +114,7 @@ public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionT
             .ToArray();
     }
 
-    private void KafkaVerify(Mock<IKafkaProducer> kafkaProducer, IEnumerable<object> expectedRecords)
+    private void KafkaVerify(Mock<IKafkaProducer> kafkaProducer, IEnumerable<object> expectedRecords, Times? times = null)
     {
         foreach (var expectedRecord in expectedRecords.Cast<RoadSegmentSurfaceRecord>())
         {
@@ -121,7 +123,7 @@ public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionT
                     expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
                     It.Is(expectedRecord.ToContract(), new RoadSegmentSurfaceSnapshotEqualityComparer()),
                     It.IsAny<CancellationToken>()),
-                Times.Once);
+                times ?? Times.Once());
         }
     }
 
@@ -493,6 +495,74 @@ public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionT
         await new RoadSegmentSurfaceRecordProjection(kafkaProducer.Object)
             .Scenario()
             .Given(data.Select(x => x.ImportedRoadSegment))
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        KafkaVerify(kafkaProducer, expectedRecords);
+    }
+
+    [Fact]
+    public async Task When_adding_surfaces_which_were_previously_removed()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var created = DateTimeOffset.UtcNow;
+        var surfaces = _fixture.CreateMany<RoadSegmentSurfaceAttributes>(2).ToArray();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+        acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded.Surfaces = surfaces;
+
+        var acceptedRoadSegmentRemoved = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentRemoved>());
+        
+        var expectedRecords = ConvertToRoadSegmentSurfaceRecords(acceptedRoadSegmentAdded, created);
+
+        var kafkaProducer = BuildKafkaProducer();
+        await new RoadSegmentSurfaceRecordProjection(kafkaProducer.Object)
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentRemoved, acceptedRoadSegmentAdded)
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        KafkaVerify(kafkaProducer, expectedRecords, Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task When_modifying_surfaces_which_were_previously_removed_from_another_roadsegment()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var roadSegmentId = _fixture.Create<RoadSegmentId>();
+
+        var created = DateTimeOffset.UtcNow;
+        var surfaces = _fixture.CreateMany<RoadSegmentSurfaceAttributes>(3).ToArray();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+        acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded.Surfaces = surfaces;
+
+        var acceptedRoadSegmentModified1 = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentModified>());
+        acceptedRoadSegmentModified1.Changes.Single().RoadSegmentModified.Surfaces = surfaces.Take(surfaces.Length - 1).ToArray();
+        
+        var acceptedRoadSegmentModified2 = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentModified>());
+        acceptedRoadSegmentModified2.Changes.Single().RoadSegmentModified.Id = roadSegmentId.Next();
+        acceptedRoadSegmentModified2.Changes.Single().RoadSegmentModified.Surfaces.First().AttributeId = surfaces.Last().AttributeId;
+
+        var expectedRecords = Array.Empty<object>()
+            .Concat(ConvertToRoadSegmentSurfaceRecords(acceptedRoadSegmentModified1, created))
+            .Concat(ConvertToRoadSegmentSurfaceRecords(acceptedRoadSegmentModified2, created))
+            .ToArray();
+
+        var kafkaProducer = BuildKafkaProducer();
+        await new RoadSegmentSurfaceRecordProjection(kafkaProducer.Object)
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified1, acceptedRoadSegmentModified2)
             .Expect(created.UtcDateTime, expectedRecords);
 
         KafkaVerify(kafkaProducer, expectedRecords);

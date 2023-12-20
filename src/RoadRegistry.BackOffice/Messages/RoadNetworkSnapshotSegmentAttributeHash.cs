@@ -13,7 +13,4 @@ public class RoadNetworkSnapshotSegmentAttributeHash
     [Key(5)] public int? RightSideStreetNameId { get; set; }
     [Key(6)] public string OrganizationId { get; set; }
     [Key(7)] public string GeometryDrawMethod { get; set; }
-    [Key(8)] public RoadNetworkSnapshotSegmentLaneAttribute[] Lanes { get; set; }
-    [Key(9)] public RoadNetworkSnapshotSegmentSurfaceAttribute[] Surfaces { get; set; }
-    [Key(10)] public RoadNetworkSnapshotSegmentWidthAttribute[] Widths { get; set; }
 }

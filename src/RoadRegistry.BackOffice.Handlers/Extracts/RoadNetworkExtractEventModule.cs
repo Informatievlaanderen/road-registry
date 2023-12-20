@@ -1,40 +1,50 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
-using System;
-using System.Collections.Generic;
-using System.IO.Compression;
-using System.Threading;
-using System.Threading.Tasks;
 using BackOffice.Extracts;
 using BackOffice.FeatureCompare;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Core;
+using Exceptions;
+using FluentValidation;
+using Framework;
+using Messages;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Polly;
-using RoadRegistry.BackOffice.Framework;
-using RoadRegistry.BackOffice.Messages;
 using SqlStreamStore;
+using System;
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Threading;
+using System.Threading.Tasks;
+using Autofac;
 
 public class RoadNetworkExtractEventModule : EventHandlerModule
 {
     public RoadNetworkExtractEventModule(
+        ILifetimeScope lifetimeScope,
         RoadNetworkExtractDownloadsBlobClient downloadsBlobClient,
         RoadNetworkExtractUploadsBlobClient uploadsBlobClient,
         IRoadNetworkExtractArchiveAssembler assembler,
         IZipArchiveTranslator translator,
-        IZipArchiveFeatureCompareTranslator featureCompareTranslator,
         IStreamStore store,
-        ApplicationMetadata applicationMetadata)
+        ApplicationMetadata applicationMetadata,
+        IRoadNetworkEventWriter roadNetworkEventWriter,
+        IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
+        ILogger<RoadNetworkExtractEventModule> logger)
     {
+        ArgumentNullException.ThrowIfNull(lifetimeScope);
         ArgumentNullException.ThrowIfNull(downloadsBlobClient);
         ArgumentNullException.ThrowIfNull(uploadsBlobClient);
         ArgumentNullException.ThrowIfNull(assembler);
         ArgumentNullException.ThrowIfNull(translator);
-        ArgumentNullException.ThrowIfNull(featureCompareTranslator);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(applicationMetadata);
-        
+        ArgumentNullException.ThrowIfNull(roadNetworkEventWriter);
+        ArgumentNullException.ThrowIfNull(logger);
+
         For<RoadNetworkExtractGotRequested>()
             .UseRoadNetworkExtractCommandQueue(store)
             .Handle(async (queue, message, ct) => await RoadNetworkExtractRequestHandler(queue, assembler, downloadsBlobClient, message, ct));
@@ -47,37 +57,73 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
             .UseRoadNetworkCommandQueue(store, applicationMetadata)
             .Handle(async (queue, message, ct) =>
             {
+                await using var container = lifetimeScope.BeginLifetimeScope();
+
+                logger.LogInformation("Event handler started for {EventName}", message.Body.GetType().Name);
+
                 var uploadId = new UploadId(message.Body.UploadId);
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
                 var downloadId = new DownloadId(message.Body.DownloadId);
                 var requestId = ChangeRequestId.FromUploadId(uploadId);
+                var extractRequestId = ExtractRequestId.FromString(message.Body.RequestId);
+
                 var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
-                await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
-                using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
+
+                try
                 {
-                    var requestedChanges = new List<RequestedChange>();
-                    var translatedChanges = message.Body.UseZipArchiveFeatureCompareTranslator
-                        ? await featureCompareTranslator.Translate(archive, ct)
-                        : translator.Translate(archive);
-                    foreach (var change in translatedChanges)
+                    var featureCompareTranslator = container.Resolve<IZipArchiveFeatureCompareTranslator>();
+
+                    await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
+                    using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
-                        var requestedChange = new RequestedChange();
-                        change.TranslateTo(requestedChange);
-                        requestedChanges.Add(requestedChange);
-                    }
-
-                    var command = new Command(new ChangeRoadNetwork
+                        var requestedChanges = new List<RequestedChange>();
+                        var translatedChanges = message.Body.UseZipArchiveFeatureCompareTranslator
+                            ? await featureCompareTranslator.Translate(archive, ct)
+                            : translator.Translate(archive);
+                        foreach (var change in translatedChanges)
                         {
-                            RequestId = requestId,
-                            DownloadId = downloadId,
-                            Changes = requestedChanges.ToArray(),
-                            Reason = translatedChanges.Reason,
-                            Operator = translatedChanges.Operator,
-                            OrganizationId = translatedChanges.Organization
-                        })
-                        .WithMessageId(message.MessageId);
+                            var requestedChange = new RequestedChange();
+                            change.TranslateTo(requestedChange);
+                            requestedChanges.Add(requestedChange);
+                        }
 
-                    await queue.Write(command, ct);
+                        var command = new Command(new ChangeRoadNetwork
+                            {
+                                RequestId = requestId,
+                                DownloadId = downloadId,
+                                Changes = requestedChanges.ToArray(),
+                                Reason = translatedChanges.Reason,
+                                Operator = translatedChanges.Operator,
+                                OrganizationId = translatedChanges.Organization
+                            })
+                            .WithMessageId(message.MessageId);
+
+                        await queue.Write(command, ct);
+                    }
+                }
+                catch (ZipArchiveValidationException ex)
+                {
+                    var rejectedChangeEvent = new RoadNetworkExtractChangesArchiveRejected
+                    {
+                        Description = message.Body.Description,
+                        ExternalRequestId = message.Body.ExternalRequestId,
+                        RequestId = requestId,
+                        DownloadId = downloadId,
+                        UploadId = uploadId,
+                        ArchiveId = archiveId,
+                        Problems = ex.Problems.Select(problem => problem.Translate()).ToArray()
+                    };
+
+                    await roadNetworkEventWriter.WriteAsync(RoadNetworkExtracts.ToStreamName(extractRequestId), message, message.StreamVersion, new object[]
+                    {
+                        rejectedChangeEvent
+                    }, ct);
+
+                    await extractUploadFailedEmailClient.SendAsync(message.Body.Description, new ValidationException(JsonConvert.SerializeObject(rejectedChangeEvent, Formatting.Indented)), ct);
+                }
+                finally
+                {
+                    logger.LogInformation("Event handler finished for {EventName}", message.Body.GetType().Name);
                 }
             });
     }
@@ -123,38 +169,48 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                 new ExtractDescription(extractDescription),
                 GeometryTranslator.Translate(message.Body.Contour));
 
-            try
+            var maxAttempt = 3;
+
+            for (var attempt = 1; attempt <= maxAttempt; attempt++)
             {
-                using (var content = await assembler.AssembleArchive(request, ct)) //(content, revision)
+                try
                 {
-                    content.Position = 0L;
+                    using (var content = await assembler.AssembleArchive(request, ct)) //(content, revision)
+                    {
+                        content.Position = 0L;
 
-                    await downloadsBlobClient.CreateBlobAsync(
-                        new BlobName(archiveId),
-                        Metadata.None,
-                        ContentType.Parse("application/x-zip-compressed"),
-                        content,
-                        ct);
+                        await downloadsBlobClient.CreateBlobAsync(
+                            new BlobName(archiveId),
+                            Metadata.None,
+                            ContentType.Parse("application/x-zip-compressed"),
+                            content,
+                            ct);
+                    }
+
+                    await queue.Write(new Command(
+                            new AnnounceRoadNetworkExtractDownloadBecameAvailable
+                            {
+                                RequestId = message.Body.RequestId,
+                                DownloadId = message.Body.DownloadId,
+                                //Revision = revision,
+                                ArchiveId = archiveId
+                            })
+                        .WithMessageId(message.MessageId), ct);
+                    break;
                 }
-
-                await queue.Write(new Command(
-                        new AnnounceRoadNetworkExtractDownloadBecameAvailable
-                        {
-                            RequestId = message.Body.RequestId,
-                            DownloadId = message.Body.DownloadId,
-                            //Revision = revision,
-                            ArchiveId = archiveId
-                        })
-                    .WithMessageId(message.MessageId), ct);
-            }
-            catch (SqlException ex) when (ex.Number.Equals(-2))
-            {
-                await queue.Write(new Command(
-                        new AnnounceRoadNetworkExtractDownloadTimeoutOccurred
-                        {
-                            RequestId = message.Body.RequestId
-                        })
-                    .WithMessageId(message.MessageId), ct);
+                catch (SqlException ex) when (ex.Number.Equals(-2))
+                {
+                    if (attempt == maxAttempt)
+                    {
+                        await queue.Write(new Command(
+                                new AnnounceRoadNetworkExtractDownloadTimeoutOccurred
+                                {
+                                    RequestId = message.Body.RequestId,
+                                    DownloadId = message.Body.DownloadId
+                                })
+                            .WithMessageId(message.MessageId), ct);
+                    }
+                }
             }
         }
     }

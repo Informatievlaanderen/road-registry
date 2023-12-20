@@ -7,6 +7,7 @@ using BackOffice.Extracts.Dbase.RoadNodes;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Projections;
+using Editor.Schema.Extensions;
 using Editor.Schema.RoadNodes;
 using Microsoft.IO;
 using RoadRegistry.Tests.BackOffice;

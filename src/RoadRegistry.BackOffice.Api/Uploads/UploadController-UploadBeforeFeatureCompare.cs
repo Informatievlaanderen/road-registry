@@ -45,15 +45,15 @@ public partial class UploadController
         {
             return NotFound();
         }
-
+        
         return await PostUpload(archive, async () =>
         {
-            if (useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled)
+            if (GetFeatureToggleValue(useZipArchiveFeatureCompareTranslatorFeatureToggle))
             {
                 UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
                 var request = new UploadExtractRequest(requestArchive)
                 {
-                    UseZipArchiveFeatureCompareTranslator = useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled
+                    UseZipArchiveFeatureCompareTranslator = true
                 };
                 var response = await _mediator.Send(request, cancellationToken);
                 return Accepted(new UploadExtractFeatureCompareResponseBody(response.ArchiveId.ToString()));

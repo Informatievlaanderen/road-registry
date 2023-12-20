@@ -24,7 +24,7 @@ public class RoadSegmentStatusTests
             {
                 RoadSegmentStatus.Unknown,
                 RoadSegmentStatus.PermitRequested,
-                RoadSegmentStatus.BuildingPermitGranted,
+                RoadSegmentStatus.PermitGranted,
                 RoadSegmentStatus.UnderConstruction,
                 RoadSegmentStatus.InUse,
                 RoadSegmentStatus.OutOfUse
@@ -35,13 +35,13 @@ public class RoadSegmentStatusTests
     [Fact]
     public void BuildingPermitGrantedReturnsExpectedResult()
     {
-        Assert.Equal("BuildingPermitGranted", RoadSegmentStatus.BuildingPermitGranted);
+        Assert.Equal("BuildingPermitGranted", RoadSegmentStatus.PermitGranted);
     }
 
     [Fact]
     public void BuildingPermitGrantedTranslationReturnsExpectedResult()
     {
-        Assert.Equal(2, RoadSegmentStatus.BuildingPermitGranted.Translation.Identifier);
+        Assert.Equal(2, RoadSegmentStatus.PermitGranted.Translation.Identifier);
     }
 
     [Fact]

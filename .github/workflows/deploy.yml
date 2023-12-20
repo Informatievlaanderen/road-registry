@@ -1,0 +1,163 @@
+name: 3. Deploy
+run-name: 'Deploy road-registry to ${{ github.event.inputs.environment }}: ${{ github.event.inputs.version }}'
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Select the environment
+        options:
+        - tst
+        - stg
+        - prd
+        required: true
+      version:
+        description: Version
+        required: true
+
+jobs:
+  deploy_start_slack:
+    if: github.repository_owner == 'Informatievlaanderen'
+    name: Deploy started
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Parse repository name
+      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
+      shell: bash
+
+    - name: Notify deployment started
+      uses: slackapi/slack-github-action@v1.23.0
+      with:
+        channel-id: '#team-wegenregister-dev'
+        slack-message: Deployment of road-registry ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
+
+  deploy_services:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [deploy_start_slack]
+    name: Deploy services
+    runs-on: ubuntu-latest
+    strategy:
+       matrix: 
+         services: [
+          'road-registry-adminhost',
+          'road-registry-backoffice-api',
+          'road-registry-backoffice-commandhost',
+          'road-registry-backoffice-eventhost',
+          'road-registry-backoffice-extracthost',
+          'road-registry-backoffice-ui',
+          'road-registry-editor-projectionhost',
+          'road-registry-producer-snapshot-projectionhost',
+          'road-registry-product-projectionhost',
+          'road-registry-projector',
+          'road-registry-synchost',
+          'road-registry-syndication-projectionhost',
+          'road-registry-wfs-projectionhost',
+          'road-registry-wms-projectionhost'
+        ]
+
+    steps:
+    - name: CD services
+      env:
+        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{matrix.services}}
+        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{matrix.services}}
+      uses: informatievlaanderen/awscurl-polling-action/polling-action@main
+      with:
+        environment: ${{ github.event.inputs.environment == 'tst' && 'test' || github.event.inputs.environment == 'prd' && 'acc' || github.event.inputs.environment }}
+        version: ${{ github.event.inputs.version }}
+        status-url: $STATUS_URL
+        deploy-url: $BUILD_URL
+        access-key: ${{ secrets.VBR_AWS_BUILD_USER_ACCESS_KEY_ID }}
+        secret-key: ${{ secrets.VBR_AWS_BUILD_USER_SECRET_ACCESS_KEY }}
+        region: eu-west-1
+        interval: 2
+
+    - name: Output CD services
+      shell: bash
+      run: |
+        echo build-uuid: ${{ steps.awscurl-polling-action.outputs.build-uuid }}
+        echo Status: ${{ steps.awscurl-polling-action.outputs.status }}
+        echo ${{ steps.awscurl-polling-action.outputs.final-message }}
+
+  deploy_lambda:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [deploy_services]
+    name: Deploy lambda(s)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: CD Lambda(s) Configure credentials
+      uses: aws-actions/configure-aws-credentials@v1.7.0
+      with:
+        aws-access-key-id: ${{ github.event.inputs.environment == 'tst' && secrets.VBR_AWS_ACCESS_KEY_ID_TST || github.event.inputs.environment == 'stg' && secrets.VBR_AWS_ACCESS_KEY_ID || github.event.inputs.environment == 'prd' && secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD || ''}}
+        aws-secret-access-key: ${{ github.event.inputs.environment == 'tst' && secrets.VBR_AWS_SECRET_ACCESS_KEY_TST || github.event.inputs.environment == 'stg' && secrets.VBR_AWS_SECRET_ACCESS_KEY || github.event.inputs.environment == 'prd' && secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD || ''}}
+        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
+
+    - name: Prepare Lambda(s)
+      shell: bash
+      run: |
+        aws s3 cp $S3_BASEURL-$FUNCTION_BACKOFFICE/$VERSION/lambda.zip $S3_BASEURL-$FUNCTION_BACKOFFICE/lambda.zip --copy-props none
+        aws s3 cp $S3_BASEURL-$FUNCTION_SNAPSHOT/$VERSION/lambda.zip $S3_BASEURL-$FUNCTION_SNAPSHOT/lambda.zip --copy-props none
+      env:
+        VERSION: ${{ github.event.inputs.version }}
+        S3_BASEURL: ${{ github.event.inputs.environment == 'tst' && 's3://196194905350-vbr-test-lam' || github.event.inputs.environment == 'stg' && 's3://s3-vbr-stg-basisregisters-lam' || github.event.inputs.environment == 'prd' && 's3://077849980894-vbr-prd-lam' || '' }}
+        FUNCTION_BACKOFFICE: ${{ (github.event.inputs.environment == 'tst' || github.event.inputs.environment == 'prd') && 'rr-sqsbackoffice' || 'wr-sqsbackofficehandlerfunction' }}
+        FUNCTION_SNAPSHOT: ${{ (github.event.inputs.environment == 'tst' || github.event.inputs.environment == 'prd') && 'rr-sqssnapshot' || 'wr-sqssnapshothandlerfunction' }}
+        
+    - name: Promote Lambda(s)
+      shell: bash
+      run: |
+        docker pull ghcr.io/okigan/awscurl:latest
+        
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "'$FUNCTION_BACKOFFICE'", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "'$FUNCTION_SNAPSHOT'", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
+      env:
+        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
+        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
+        ENVIRONMENT: ${{ github.event.inputs.environment == 'tst' && 'test' || github.event.inputs.environment == 'prd' && 'acc' || github.event.inputs.environment }}
+        REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
+        PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
+        FUNCTION_BACKOFFICE: ${{ (github.event.inputs.environment == 'tst' || github.event.inputs.environment == 'prd') && 'rr-sqsbackofficefunction' || 'wr-sqsbackofficehandlerfunction' }}
+        FUNCTION_SNAPSHOT: ${{ (github.event.inputs.environment == 'tst' || github.event.inputs.environment == 'prd') && 'rr-sqssnapshotfunction' || 'wr-sqssnapshothandlerfunction' }}
+
+  deploy_finish_slack:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [deploy_lambda]
+    name: Deploy finished
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Parse repository name
+      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
+      shell: bash
+
+    - name: Notify deployment finished
+      uses: slackapi/slack-github-action@v1.23.0
+      with:
+        channel-id: '#team-wegenregister-dev'
+        slack-message: ":white_check_mark: Deployment of road-registry ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has finished."
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
+
+  deployment_notify_failure:
+    if: ${{ github.repository_owner == 'Informatievlaanderen' && failure() }}
+    name: Notify deployment failed
+    runs-on: ubuntu-latest
+    needs: [ deploy_services ]
+    steps:
+      - name: Notify deployment failed
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          channel-id: '#team-wegenregister-dev'
+          slack-message: ":x: Deployment of road-registry ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}

@@ -1,23 +1,21 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using Attributes;
+using Authentication;
 using Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 
 public partial class RoadRegistrySecurityController
 {
     private const string UserRoute = "user";
 
-    [ApiKey]
     [HttpGet(UserRoute, Name = nameof(GetUser))]
     [SwaggerOperation(OperationId = nameof(GetUser), Description = "")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = AcmIdmConstants.PolicyNames.VoInfo)]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllSchemes, Policy = AcmIdmConstants.PolicyNames.VoInfo)]
     public IActionResult GetUser()
     {
         return Ok(new UserData(HttpContext.User));

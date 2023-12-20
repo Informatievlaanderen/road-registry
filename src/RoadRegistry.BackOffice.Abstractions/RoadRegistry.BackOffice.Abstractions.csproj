@@ -13,19 +13,7 @@
 	  <PublishReadyToRun>false</PublishReadyToRun>
 	  <EnableDefaultContentItems>false</EnableDefaultContentItems>
 	  <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <DocumentationFile>bin\Debug\net6.0\RoadRegistry.BackOffice.Abstractions.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <DocumentationFile>bin\Debug\net6.0\RoadRegistry.BackOffice.Abstractions.xml</DocumentationFile>
-    <DefineConstants>TRACE;DEBUG;NETCOREAPP;NET6_0</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <DocumentationFile>bin\Release\net6.0\RoadRegistry.BackOffice.Abstractions.xml</DocumentationFile>
+    <DocumentationFile>RoadRegistry.BackOffice.Abstractions.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,6 +22,10 @@
 
   <ItemGroup>
     <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <Content Include="paket.template" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

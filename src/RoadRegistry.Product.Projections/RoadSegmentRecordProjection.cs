@@ -1,10 +1,8 @@
 namespace RoadRegistry.Product.Projections;
 
-using System;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using BackOffice;
+using BackOffice.Core;
+using BackOffice.Extensions;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -13,6 +11,10 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.IO;
 using Schema;
 using Schema.RoadSegments;
+using System;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 
 public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
@@ -99,6 +101,19 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
                         await RemoveRoadSegment(context, roadSegmentRemoved, token);
                         break;
                 }
+        });
+
+        When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+        });
+
+        When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            if (envelope.Message.NameModified)
+            {
+                await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+            }
         });
     }
 
@@ -200,13 +215,13 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         dbaseRecord.RSTRNMID.Value = roadSegmentModified.RightSide.StreetNameId;
         dbaseRecord.RSTRNM.Value = null; // This value is fetched from cache when downloading (see RoadSegmentsToZipArchiveWriter)
         dbaseRecord.BEHEER.Value = roadSegmentModified.MaintenanceAuthority.Code;
-        dbaseRecord.LBLBEHEER.Value = roadSegmentModified.MaintenanceAuthority.Name;
+        dbaseRecord.LBLBEHEER.Value = roadSegmentModified.MaintenanceAuthority.Name.NullIfEmpty() ?? Organization.PredefinedTranslations.Unknown.Name;
         dbaseRecord.METHODE.Value = geometryDrawMethodTranslation.Identifier;
         dbaseRecord.LBLMETHOD.Value = geometryDrawMethodTranslation.Name;
-        // dbaseRecord.OPNDATUM.Value remains unchanged upon modification
+        // dbaseRecord.OPNDATUM.Value; //remains unchanged upon modification
         dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId;
-        dbaseRecord.LBLBGNORG.Value = envelope.Message.Organization;
+        // dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId; //remains unchanged upon modification
+        // dbaseRecord.LBLBGNORG.Value = envelope.Message.Organization; //remains unchanged upon modification
         dbaseRecord.TGBEP.Value = accessRestrictionTranslation.Identifier;
         dbaseRecord.LBLTGBEP.Value = accessRestrictionTranslation.Name;
         roadSegmentRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
@@ -265,15 +280,15 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         if (roadSegmentAttributesModified.MaintenanceAuthority is not null)
         {
             dbaseRecord.BEHEER.Value = roadSegmentAttributesModified.MaintenanceAuthority.Code;
-            dbaseRecord.LBLBEHEER.Value = roadSegmentAttributesModified.MaintenanceAuthority.Name;
+            dbaseRecord.LBLBEHEER.Value = roadSegmentAttributesModified.MaintenanceAuthority.Name.NullIfEmpty() ?? Organization.PredefinedTranslations.Unknown.Name;
         }
 
         // dbaseRecord.WS_OIDN.Value remains unchanged upon modification (it's the key)
         dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentAttributesModified.Id, roadSegmentAttributesModified.Version);
-        // dbaseRecord.OPNDATUM.Value remains unchanged upon modification
+        // dbaseRecord.OPNDATUM.Value; //remains unchanged upon modification
         dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId;
-        dbaseRecord.LBLBGNORG.Value = envelope.Message.Organization;
+        // dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId; //remains unchanged upon modification
+        // dbaseRecord.LBLBGNORG.Value = envelope.Message.Organization; //remains unchanged upon modification
 
         roadSegmentRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
     }
@@ -306,10 +321,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
 
         // dbaseRecord.WS_OIDN.Value remains unchanged upon modification (it's the key)
         dbaseRecord.WS_UIDN.Value = new UIDN(segment.Id, segment.Version);
-        // dbaseRecord.OPNDATUM.Value remains unchanged upon modification
+        // dbaseRecord.OPNDATUM.Value; //remains unchanged upon modification
         dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId;
-        dbaseRecord.LBLBGNORG.Value = envelope.Message.Organization;
+        // dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId; //remains unchanged upon modification
+        // dbaseRecord.LBLBGNORG.Value = envelope.Message.Organization; //remains unchanged upon modification
 
         roadSegmentRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
     }
@@ -321,5 +336,37 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         {
             context.RoadSegments.Remove(roadSegmentRecord);
         }
+    }
+    
+    private async Task RenameOrganization(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        ProductContext context,
+        OrganizationId organizationId,
+        OrganizationName organizationName,
+        CancellationToken cancellationToken)
+    {
+        await context.RoadSegments
+            .ForEachBatchAsync(q => q, 5000, dbRecords =>
+            {
+                foreach (var dbRecord in dbRecords)
+                {
+                    var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
+                    var dataChanged = false;
+
+                    if (dbaseRecord.BEHEER.Value == organizationId)
+                    {
+                        dbaseRecord.LBLBEHEER.Value = organizationName;
+                        dataChanged = true;
+                    }
+
+                    if (dataChanged)
+                    {
+                        dbRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
+                    }
+                }
+
+                return Task.CompletedTask;
+            }, cancellationToken);
     }
 }
