@@ -52,6 +52,7 @@ using NodaTime;
 using Options;
 using Product.Schema;
 using RoadRegistry.BackOffice.Api.RoadSegments;
+using RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
@@ -273,6 +274,7 @@ public class Startup
             .AddFeatureCompareTranslator()
             .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
             .AddSingleton<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
+            .AddSingleton<IBeforeFeatureCompareZipArchiveCleaner, BeforeFeatureCompareZipArchiveCleaner>()
             .AddSingleton<ProblemDetailsHelper>()
             .RegisterOptions<ZipArchiveWriterOptions>()
             .RegisterOptions<ExtractDownloadsOptions>()

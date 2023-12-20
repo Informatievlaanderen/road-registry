@@ -4,6 +4,7 @@ using System.IO.Compression;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V1.Schema;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V1.Validation;
@@ -276,7 +277,7 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
 
         Assert.Contains(_entry
             .AtDbaseRecord(new RecordNumber(1))
-            .WithIdentifier("WS_OIDN", record.WS_OIDN.Value)
+            .WithIdentifier("WS_OIDN", record.WS_OIDN.GetValue())
             .RequiredFieldIsNull(field), result);
         Assert.Equal(expectedContext, actualContext);
     }
@@ -296,7 +297,7 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
 
         Assert.Contains(_entry
             .AtDbaseRecord(new RecordNumber(1))
-            .WithIdentifier("WS_OIDN", record.WS_OIDN.Value)
+            .WithIdentifier("WS_OIDN", record.WS_OIDN.GetValue())
             .RequiredFieldIsNull(field), result);
         Assert.Equal(expectedContext, actualContext);
     }
@@ -433,7 +434,7 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
         Assert.Equal(
             ZipArchiveProblems.Single(_entry
                 .AtDbaseRecord(new RecordNumber(1))
-                .WithIdentifier("WS_OIDN", record.WS_OIDN.Value)
+                .WithIdentifier("WS_OIDN", record.WS_OIDN.GetValue())
                 .RoadSegmentAccessRestrictionMismatch(-1)),
             result);
         Assert.Equal(expectedContext, actualContext);
@@ -453,7 +454,7 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
         Assert.Equal(
             ZipArchiveProblems.Single(_entry
                 .AtDbaseRecord(new RecordNumber(1))
-                .WithIdentifier("WS_OIDN", record.WS_OIDN.Value)
+                .WithIdentifier("WS_OIDN", record.WS_OIDN.GetValue())
                 .BeginRoadNodeIdOutOfRange(-1)),
             result);
         Assert.Equal(expectedContext, actualContext);
@@ -473,7 +474,7 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
         Assert.Equal(
             ZipArchiveProblems.Single(_entry
                 .AtDbaseRecord(new RecordNumber(1))
-                .WithIdentifier("WS_OIDN", record.WS_OIDN.Value)
+                .WithIdentifier("WS_OIDN", record.WS_OIDN.GetValue())
                 .RoadSegmentCategoryMismatch("-1")),
             result);
         Assert.Equal(expectedContext, actualContext);
@@ -493,7 +494,7 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
         Assert.Equal(
             ZipArchiveProblems.Single(_entry
                 .AtDbaseRecord(new RecordNumber(1))
-                .WithIdentifier("WS_OIDN", record.WS_OIDN.Value)
+                .WithIdentifier("WS_OIDN", record.WS_OIDN.GetValue())
                 .EndRoadNodeIdOutOfRange(-1)),
             result);
         Assert.Equal(expectedContext, actualContext);
@@ -513,7 +514,7 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
         Assert.Equal(
             ZipArchiveProblems.Single(_entry
                 .AtDbaseRecord(new RecordNumber(1))
-                .WithIdentifier("WS_OIDN", record.WS_OIDN.Value)
+                .WithIdentifier("WS_OIDN", record.WS_OIDN.GetValue())
                 .RoadSegmentGeometryDrawMethodMismatch(-1)),
             result);
         Assert.Equal(expectedContext, actualContext);
@@ -533,7 +534,7 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
         Assert.Equal(
             ZipArchiveProblems.Single(_entry
                 .AtDbaseRecord(new RecordNumber(1))
-                .WithIdentifier("WS_OIDN", record.WS_OIDN.Value)
+                .WithIdentifier("WS_OIDN", record.WS_OIDN.GetValue())
                 .LeftStreetNameIdOutOfRange(-12)),
             result);
         Assert.Equal(expectedContext, actualContext);
@@ -553,7 +554,7 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
         Assert.Equal(
             ZipArchiveProblems.Single(_entry
                 .AtDbaseRecord(new RecordNumber(1))
-                .WithIdentifier("WS_OIDN", record.WS_OIDN.Value)
+                .WithIdentifier("WS_OIDN", record.WS_OIDN.GetValue())
                 .RoadSegmentMorphologyMismatch(-1)),
             result);
         Assert.Equal(expectedContext, actualContext);
@@ -573,7 +574,7 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
         Assert.Equal(
             ZipArchiveProblems.Single(_entry
                 .AtDbaseRecord(new RecordNumber(1))
-                .WithIdentifier("WS_OIDN", record.WS_OIDN.Value)
+                .WithIdentifier("WS_OIDN", record.WS_OIDN.GetValue())
                 .RightStreetNameIdOutOfRange(-12)),
             result);
         Assert.Equal(expectedContext, actualContext);
@@ -593,7 +594,7 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
         Assert.Equal(
             ZipArchiveProblems.Single(_entry
                 .AtDbaseRecord(new RecordNumber(1))
-                .WithIdentifier("WS_OIDN", record.WS_OIDN.Value)
+                .WithIdentifier("WS_OIDN", record.WS_OIDN.GetValue())
                 .RoadSegmentStatusMismatch(-1)),
             result);
         Assert.Equal(expectedContext, actualContext);
@@ -613,7 +614,7 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
         Assert.Equal(
             ZipArchiveProblems.Single(_entry
                 .AtDbaseRecord(new RecordNumber(1))
-                .WithIdentifier("WS_OIDN", record.WS_OIDN.Value)
+                .WithIdentifier("WS_OIDN", record.WS_OIDN.GetValue())
                 .BeginRoadNodeIdEqualsEndRoadNode(record.B_WK_OIDN.Value, record.E_WK_OIDN.Value)),
             result);
         Assert.Equal(expectedContext, actualContext);
