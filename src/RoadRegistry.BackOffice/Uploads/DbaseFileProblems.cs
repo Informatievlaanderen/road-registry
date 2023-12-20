@@ -20,7 +20,7 @@ public static class DbaseFileProblems
         return (IDbaseFileRecordProblemBuilder)builder
             .WithParameters(
                 new ProblemParameter("IdentifierField", field),
-                new ProblemParameter("IdentifierValue", value?.ToString(Provider))
+                new ProblemParameter("IdentifierValue", value?.ToString(Provider) ?? string.Empty)
             );
     }
 

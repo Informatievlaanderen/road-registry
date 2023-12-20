@@ -297,7 +297,6 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
 
         Assert.Contains(_entry
             .AtDbaseRecord(new RecordNumber(1))
-            .WithIdentifier("WS_OIDN", record.WS_OIDN.GetValue())
             .RequiredFieldIsNull(field), result);
         Assert.Equal(expectedContext, actualContext);
     }
