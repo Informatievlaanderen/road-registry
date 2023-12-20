@@ -1,3 +1,10 @@
+## [3.65.6](https://github.com/informatievlaanderen/road-registry/compare/v3.65.5...v3.65.6) (2023-12-20)
+
+
+### Bug Fixes
+
+* WR-258 transactionzones map ([#1334](https://github.com/informatievlaanderen/road-registry/issues/1334)) ([10f2261](https://github.com/informatievlaanderen/road-registry/commit/10f226190e2fa9bcc82c4e49cd47ad97284f6c8f))
+
 ## [3.65.5](https://github.com/informatievlaanderen/road-registry/compare/v3.65.4...v3.65.5) (2023-12-20)
 
 
