@@ -1,3 +1,10 @@
+## [3.65.7](https://github.com/informatievlaanderen/road-registry/compare/v3.65.6...v3.65.7) (2023-12-20)
+
+
+### Bug Fixes
+
+* WR-258 transactionzones in header only when authenticated ([#1335](https://github.com/informatievlaanderen/road-registry/issues/1335)) ([9a8db9b](https://github.com/informatievlaanderen/road-registry/commit/9a8db9b7d1e33ba4e7ef83beae430e5304a0ea71))
+
 ## [3.65.6](https://github.com/informatievlaanderen/road-registry/compare/v3.65.5...v3.65.6) (2023-12-20)
 
 
