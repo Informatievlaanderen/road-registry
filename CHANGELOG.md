@@ -1,3 +1,10 @@
+## [3.65.8](https://github.com/informatievlaanderen/road-registry/compare/v3.65.7...v3.65.8) (2023-12-21)
+
+
+### Bug Fixes
+
+* WR-258 styling activity page ([#1336](https://github.com/informatievlaanderen/road-registry/issues/1336)) ([a0cedd5](https://github.com/informatievlaanderen/road-registry/commit/a0cedd50ee5826b4c23cf37011b3cd5c644e8b46))
+
 ## [3.65.7](https://github.com/informatievlaanderen/road-registry/compare/v3.65.6...v3.65.7) (2023-12-20)
 
 
