@@ -44,6 +44,10 @@ public partial class ExtractsController
                 IsInformative = response.IsInformative
             });
         }
+        catch (ExtractArchiveNotCreatedException)
+        {
+            return StatusCode((int)HttpStatusCode.Gone);
+        }
         catch (BlobNotFoundException) // This condition can only occur if the blob no longer exists in the bucket
         {
             return StatusCode((int)HttpStatusCode.Gone);
