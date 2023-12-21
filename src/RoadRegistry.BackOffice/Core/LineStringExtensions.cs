@@ -1,10 +1,9 @@
 namespace RoadRegistry.BackOffice.Core;
 
-using System;
-using System.Linq;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
+using System;
+using System.Linq;
 
 internal static class LineStringExtensions
 {

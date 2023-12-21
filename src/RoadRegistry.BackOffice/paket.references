@@ -29,6 +29,7 @@ Microsoft.IdentityModel.JsonWebTokens
 Microsoft.IdentityModel.Logging
 Microsoft.IdentityModel.Tokens
 Microsoft.IO.RecyclableMemoryStream
+Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
 NetTopologySuite
 NetTopologySuite.IO.GeoJSON
 NetTopologySuite.IO.ShapeFile
