@@ -135,6 +135,6 @@ WHERE [attribute].[RoadSegmentId] IN (
 
     private static SqlParameter ToSqlParameter(this IPolygonal contour)
     {
-        return contour.ToSqlParameter("contour");
+        return ((Geometry)contour).ToSqlParameter("contour");
     }
 }

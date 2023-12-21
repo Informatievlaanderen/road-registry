@@ -30,12 +30,12 @@ public class GetOverlappingTransactionZonesGeoJsonRequestHandler : EndpointReque
         return new GetOverlappingTransactionZonesGeoJsonResponse
         {
             FeatureCollection = new FeatureCollection(overlaps
-                .Select(overlap => new Feature(overlap.Contour.ToMultiPolygon().ToGeoJson(), new Dictionary<string, object>
+                .Select(overlap => new Feature(overlap.Contour.ToMultiPolygon().ToGeoJson(), new
                 {
-                    {"DownloadId1", DownloadId.FromValue(overlap.DownloadId1).ToString()},
-                    {"DownloadId2", DownloadId.FromValue(overlap.DownloadId2).ToString()},
-                    {"Description1", overlap.Description1},
-                    {"Description2", overlap.Description2}
+                    DownloadId1 = DownloadId.FromValue(overlap.DownloadId1).ToString(),
+                    DownloadId2 = DownloadId.FromValue(overlap.DownloadId2).ToString(),
+                    Description1 = overlap.Description1,
+                    Description2 = overlap.Description2
                 }))
                 .ToList()
             )

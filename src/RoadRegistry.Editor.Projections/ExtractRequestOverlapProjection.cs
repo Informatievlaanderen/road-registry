@@ -41,13 +41,18 @@ public class ExtractRequestOverlapRecordProjection : ConnectedProjection<EditorC
         
         When<Envelope<RoadNetworkExtractClosed>>(async (context, envelope, ct) =>
         {
-            var downloadIds = envelope.Message.DownloadIds.Select(DownloadId.Parse).Select(x => x.ToGuid()).ToList();
+            var downloadIds = envelope.Message.DownloadIds.Select(DownloadId.Parse).Select(x => x.ToGuid()).ToArray();
+            await DeleteLinkedRecords(context, downloadIds, ct);
+        });
 
-            var requestsToRemoved = await context.ExtractRequestOverlaps
-                .Where(x => downloadIds.Contains(x.DownloadId1) || downloadIds.Contains(x.DownloadId2))
-                .ToListAsync(ct);
+        When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, ct) =>
+        {
+            if (envelope.Message.DownloadId is null)
+            {
+                return;
+            }
 
-            context.ExtractRequestOverlaps.RemoveRange(requestsToRemoved);
+            await DeleteLinkedRecords(context, new[] { envelope.Message.DownloadId.Value }, ct);
         });
     }
 
@@ -75,11 +80,20 @@ WHERE r.IsInformative = 0
 ) as o
 WHERE o.Contour.STIsEmpty() = 0 AND o.Contour.STGeometryType() LIKE '%POLYGON'
 ",
-                geometry.ToSqlParameter("contour"),
+                ((Geometry)geometry).ToSqlParameter("contour"),
                 new SqlParameter("downloadId", downloadId),
                 new SqlParameter("description", description))
             .ToListAsync(cancellationToken);
 
         await context.ExtractRequestOverlaps.AddRangeAsync(overlapRecords, cancellationToken);
+    }
+
+    private async Task DeleteLinkedRecords(EditorContext context, Guid[] downloadIds, CancellationToken cancellationToken)
+    {
+        var requestsToRemoved = await context.ExtractRequestOverlaps
+            .Where(x => downloadIds.Contains(x.DownloadId1) || downloadIds.Contains(x.DownloadId2))
+            .ToListAsync(cancellationToken);
+
+        context.ExtractRequestOverlaps.RemoveRange(requestsToRemoved);
     }
 }

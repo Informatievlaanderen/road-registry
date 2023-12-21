@@ -433,10 +433,16 @@ public static class NetTopologySuiteExtensions
         return geometry;
     }
 
-    public static SqlParameter ToSqlParameter(this IPolygonal contour, string name)
+    public static SqlParameter ToSqlParameter(this Geometry geometry, string name)
     {
+        ArgumentNullException.ThrowIfNull(geometry);
+
         var writer = new SqlServerBytesWriter { IsGeography = false };
-        var bytes = writer.Write((Geometry)contour);
-        return new SqlParameter($"@{name}", SqlDbType.Udt) { UdtTypeName = "geometry", SqlValue = new SqlBytes(bytes) };
+        var bytes = writer.Write(geometry);
+        return new SqlParameter($"@{name}", SqlDbType.Udt)
+        {
+            UdtTypeName = "geometry",
+            SqlValue = new SqlBytes(bytes)
+        };
     }
 }
