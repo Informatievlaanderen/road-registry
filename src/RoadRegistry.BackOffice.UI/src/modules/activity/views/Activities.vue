@@ -13,7 +13,7 @@
           <li class="vl-step vl-step" v-for="activity in activities" :key="activity.id">
             <div class="vl-step__container">
               <div class="vl-step__icon">
-                {{ activity.changeFeedEntry.day }}
+                <span class="vl-step__icon__sub">{{ activity.changeFeedEntry.day }}</span>
                 <span class="vl-step__icon__sub">{{ activity.changeFeedEntry.month }}</span>
                 <span class="vl-step__icon__sub">{{ activity.changeFeedEntry.timeOfDay }}</span>
               </div>
@@ -56,12 +56,8 @@
                           ].some((x) => x === activity.changeFeedEntry.type)
                         "
                       >
-                        <vl-button v-if="isDownloading" mod-loading>
-                          Download...
-                        </vl-button>
-                        <vl-button v-else @click="downloadUpload(activity)">
-                          Download
-                        </vl-button>
+                        <vl-button v-if="isDownloading" mod-loading> Download... </vl-button>
+                        <vl-button v-else @click="downloadUpload(activity)"> Download </vl-button>
                       </div>
                       <div
                         v-else-if="
@@ -69,12 +65,8 @@
                           ['RoadNetworkExtractDownloadBecameAvailable'].some((x) => x === activity.changeFeedEntry.type)
                         "
                       >
-                        <vl-button v-if="isDownloading" mod-loading>
-                          Download...
-                        </vl-button>
-                        <vl-button v-else @click="downloadExtract(activity)">
-                          Download
-                        </vl-button>
+                        <vl-button v-if="isDownloading" mod-loading> Download... </vl-button>
+                        <vl-button v-else @click="downloadExtract(activity)"> Download </vl-button>
                       </div>
 
                       <div
@@ -98,12 +90,8 @@
                           <br />
                         </div>
                         <div v-if="activity.changeFeedContent.content.archive.id">
-                          <vl-button v-if="isDownloading" mod-loading>
-                            Download...
-                          </vl-button>
-                          <vl-button v-else @click="downloadUpload(activity)">
-                            Download
-                          </vl-button>
+                          <vl-button v-if="isDownloading" mod-loading> Download... </vl-button>
+                          <vl-button v-else @click="downloadUpload(activity)"> Download </vl-button>
                         </div>
                       </div>
                       <div
@@ -209,12 +197,8 @@
                           <br />
                         </div>
                         <div v-if="activity.changeFeedContent.content.archive.id">
-                          <vl-button v-if="isDownloading" mod-loading>
-                            Download...
-                          </vl-button>
-                          <vl-button v-else @click="downloadUpload(activity)">
-                            Download
-                          </vl-button>
+                          <vl-button v-if="isDownloading" mod-loading> Download... </vl-button>
+                          <vl-button v-else @click="downloadUpload(activity)"> Download </vl-button>
                         </div>
                       </div>
                       <div v-else-if="['RoadNetworkChangesRejected'].some((x) => x === activity.changeFeedEntry.type)">
@@ -226,12 +210,8 @@
                           <br />
                         </div>
                         <div v-if="activity.changeFeedContent.content.archive.id">
-                          <vl-button v-if="isDownloading" mod-loading>
-                            Download...
-                          </vl-button>
-                          <vl-button v-else @click="downloadUpload(activity)">
-                            Download
-                          </vl-button>
+                          <vl-button v-if="isDownloading" mod-loading> Download... </vl-button>
+                          <vl-button v-else @click="downloadUpload(activity)"> Download </vl-button>
                         </div>
                       </div>
                     </div>
@@ -295,14 +275,14 @@ export default Vue.extend({
     this.autoRefreshInterval = setInterval(this.loadToTop, 10000);
   },
   beforeDestroy() {
-    if(this.autoRefreshInterval){
+    if (this.autoRefreshInterval) {
       clearInterval(this.autoRefreshInterval);
     }
   },
   methods: {
     async loadToTop(): Promise<any> {
       if (this.pagination.isLoadingTop) {
-      	console.warn('Skipping load, loading is still in progress');
+        console.warn("Skipping load, loading is still in progress");
         return;
       }
 
@@ -318,7 +298,7 @@ export default Vue.extend({
           if (firstActivityInReceivedData) {
             let index = activities.indexOf(firstActivityInReceivedData);
             activities = activities.slice(0, index);
-            if (!activities.length){
+            if (!activities.length) {
               return;
             }
           } else {
@@ -334,7 +314,7 @@ export default Vue.extend({
     },
     async loadNextPage(): Promise<any> {
       if (this.pagination.isLoading) {
-      	console.warn('Skipping load, loading is still in progress');
+        console.warn("Skipping load, loading is still in progress");
         return;
       }
 
@@ -443,5 +423,20 @@ class Activity {
   margin-bottom: 5px;
   margin-left: 0px;
   padding-bottom: 10px;
+}
+
+.vl-steps--timeline {
+  .vl-step__container::after {
+    top: 6rem;
+  }
+
+  .vl-step__icon {
+    height: 6rem;
+
+    .vl-step__icon__sub {
+      font-weight: 500;
+      font-size: 1.8rem;
+    }
+  }
 }
 </style>
