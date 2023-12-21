@@ -5,14 +5,12 @@ using Abstractions.Extracts;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Editor.Schema;
-using FluentValidation;
-using FluentValidation.Results;
 using Framework;
+using Handlers;
 using Messages;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using NodaTime;
-using Handlers;
 using SqlStreamStore;
 
 public class DownloadFileContentRequestHandler : EndpointRetryableRequestHandler<DownloadFileContentRequest, DownloadFileContentResponse>
@@ -50,10 +48,17 @@ public class DownloadFileContentRequestHandler : EndpointRetryableRequestHandler
             throw new DownloadExtractNotFoundException(Convert.ToInt32(retryAfter.TotalSeconds));
         }
 
+        if (string.IsNullOrEmpty(record.ArchiveId))
+        {
+            throw new ExtractArchiveNotCreatedException();
+        }
+
         var blobName = new BlobName(record.ArchiveId);
 
         if (!await _client.BlobExistsAsync(blobName, cancellationToken))
+        {
             throw new BlobNotFoundException(blobName);
+        }
 
         var blob = await _client.GetBlobAsync(blobName, cancellationToken);
         var filename = request.DownloadId + ".zip";

@@ -39,6 +39,10 @@ public partial class ExtractsController
             var response = await _mediator.Send(request, cancellationToken);
             return new FileCallbackResult(response);
         }
+        catch (ExtractArchiveNotCreatedException)
+        {
+            return StatusCode((int)HttpStatusCode.Gone);
+        }
         catch (BlobNotFoundException) // This condition can only occur if the blob no longer exists in the bucket
         {
             return StatusCode((int)HttpStatusCode.Gone);
