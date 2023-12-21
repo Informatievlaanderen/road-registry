@@ -12,7 +12,7 @@ public class ExtractRequestConfiguration : IEntityTypeConfiguration<ExtractReque
     {
         b.ToTable(TableName, WellknownSchemas.EditorSchema)
             .HasKey(p => p.DownloadId)
-            .IsClustered(false);
+            .IsClustered();
 
         b.Property(p => p.DownloadId)
             .ValueGeneratedNever()

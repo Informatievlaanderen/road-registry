@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Editor.Schema;
@@ -12,9 +13,10 @@ using RoadRegistry.Editor.Schema;
 namespace RoadRegistry.Editor.Schema.Migrations
 {
     [DbContext(typeof(EditorContext))]
-    partial class EditorContextModelSnapshot : ModelSnapshot
+    [Migration("20231221123838_AddExtractRequestSpatialIndex")]
+    partial class AddExtractRequestSpatialIndex
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -416,7 +418,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
 
                     b.HasKey("DownloadId");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("DownloadId"));
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("DownloadId"), false);
 
                     b.ToTable("ExtractRequest", "RoadRegistryEditor");
                 });
