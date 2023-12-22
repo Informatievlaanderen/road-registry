@@ -1,74 +1,118 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace RoadRegistry.BackOffice.Api.IntegrationTests.Extracts
 {
-    using System.Net.Http;
-    using Newtonsoft.Json;
-    using RoadRegistry.BackOffice.Api.Extracts;
-    using System.Net.Http.Json;
-    using System.Threading;
     using Be.Vlaanderen.Basisregisters.AcmIdm;
-    using GeoJSON.Net.Feature;
+    using Messages;
+    using RoadRegistry.BackOffice.Api.Extracts;
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Xunit;
 
-    internal static class HttpClientExtensions
+    public partial class ExtractsTests
     {
-        public static async Task<T?> PostAsJsonAsync<T>(this HttpClient client, string requestUri, object value, CancellationToken cancellationToken)
+        private const string ExtractDescriptionPrefix = "IntegrationTest_";
+        
+        [Fact]
+        public async Task WhenExtractGotRequestedWithOverlap()
         {
-            var response = await client.PostAsJsonAsync(requestUri, value, cancellationToken);
-            var json = await response.Content.ReadAsStringAsync(cancellationToken);
-            return JsonConvert.DeserializeObject<T>(json);
+            var apiClient = await Fixture.CreateApiClient(new[] { Scopes.DvWrIngemetenWegBeheer });
+
+            await CloseRemainingTestExtracts(apiClient);
+
+            var extractRequest1 = await apiClient.RequestDownloadExtract(new DownloadExtractRequestBody(
+                "MULTIPOLYGON(((55000 200000,55000 200100,55100 200100,55100 200000,55000 200000)))",
+                $"{ExtractDescriptionPrefix}{DateTime.Today:yyyyMMdd}_{DateTime.Now:HHmmssfff}",
+                false
+                ), CancellationToken.None);
+
+            var extractRequest2 = await apiClient.RequestDownloadExtract(new DownloadExtractRequestBody(
+                "MULTIPOLYGON(((55050 200000,55050 200100,55150 200100,55150 200000,55050 200000)))",
+                $"{ExtractDescriptionPrefix}{DateTime.Today:yyyyMMdd}_{DateTime.Now:HHmmssfff}",
+                false
+                ), CancellationToken.None);
+
+            TestOutputHelper.WriteLine("Requested extract 1: {0}", extractRequest1.DownloadId);
+            TestOutputHelper.WriteLine("Requested extract 2: {0}", extractRequest2.DownloadId);
+
+            // Wait until overlap is created
+            try
+            {
+                var sw = Stopwatch.StartNew();
+                while (true)
+                {
+                    Thread.Sleep(1000);
+
+                    var overlappings = await apiClient.GetOverlappingTransactionZonesGeoJson(CancellationToken.None);
+
+                    var matchingOverlap = overlappings.Features
+                        .SingleOrDefault(x => Equals(x.Properties["downloadId1"], extractRequest1.DownloadId) && Equals(x.Properties["downloadId2"], extractRequest2.DownloadId));
+                    if (matchingOverlap is not null)
+                    {
+                        TestOutputHelper.WriteLine("Overlap found");
+                        break;
+                    }
+
+                    if (sw.Elapsed.TotalMinutes > 2)
+                    {
+                        Assert.Fail($"Timed out, waited {sw.Elapsed} for overlap to be created");
+                    }
+                }
+            }
+            finally
+            {
+                await Task.WhenAll(
+                    apiClient.CloseExtract(extractRequest1.DownloadId, new CloseRequestBody { Reason = RoadNetworkExtractCloseReason.InformativeExtract.ToString() }, CancellationToken.None),
+                    apiClient.CloseExtract(extractRequest2.DownloadId, new CloseRequestBody { Reason = RoadNetworkExtractCloseReason.InformativeExtract.ToString() }, CancellationToken.None)
+                );
+            }
+
+            // Assert that overlap is removed
+            {
+                var sw = Stopwatch.StartNew();
+                while (true)
+                {
+                    Thread.Sleep(1000);
+
+                    var overlappings = await apiClient.GetOverlappingTransactionZonesGeoJson(CancellationToken.None);
+
+                    var matchingOverlap = overlappings.Features
+                        .SingleOrDefault(x => Equals(x.Properties["downloadId1"], extractRequest1.DownloadId) && Equals(x.Properties["downloadId2"], extractRequest2.DownloadId));
+                    if (matchingOverlap is null)
+                    {
+                        TestOutputHelper.WriteLine("Overlap is removed");
+                        break;
+                    }
+
+                    if (sw.Elapsed.TotalMinutes > 2)
+                    {
+                        Assert.Fail($"Timed out, waited {sw.Elapsed} for overlap to be removed");
+                    }
+                }
+            }
         }
 
-        public static async Task<DownloadExtractResponseBody> PostExtractsDownloadrequests(this HttpClient client, DownloadExtractRequestBody request, CancellationToken cancellationToken)
+        private async Task CloseRemainingTestExtracts(HttpClient apiClient)
         {
-            var response = await client.PostAsJsonAsync("v1/extracts/downloadrequests", request, cancellationToken);
-            var json = await response.Content.ReadAsStringAsync(cancellationToken);
-            return JsonConvert.DeserializeObject<DownloadExtractResponseBody>(json);
-        }
+            var overlappings = await apiClient.GetOverlappingTransactionZonesGeoJson(CancellationToken.None);
 
-        public static async Task<FeatureCollection> GetOverlappingTransactionZonesGeoJson(this HttpClient client, CancellationToken cancellationToken)
-        {
-            return await client.GetFromJsonAsync<FeatureCollection>("v1/extracts/overlappingtransactionzones.geojson", cancellationToken);
+            var downloadIds = Array.Empty<string>()
+                .Concat(overlappings.Features
+                    .Where(x => ((string)x.Properties["description1"]).StartsWith(ExtractDescriptionPrefix))
+                    .Select(x => (string)x.Properties["downloadId1"]))
+                .Concat(overlappings.Features
+                    .Where(x => ((string)x.Properties["description2"]).StartsWith(ExtractDescriptionPrefix))
+                    .Select(x => (string)x.Properties["downloadId2"]))
+                .Distinct()
+                .ToList();
+
+            if (downloadIds.Any())
+            {
+                await Task.WhenAll(downloadIds.Select(downloadId => apiClient.CloseExtract(downloadId, new CloseRequestBody { Reason = RoadNetworkExtractCloseReason.InformativeExtract.ToString() }, CancellationToken.None)));
+            }
         }
     }
-
-    //public partial class ExtractsTests
-    //{
-    //    //TODO-rik unit test with overlap
-    //    [Fact]
-    //    public async Task WhenExtractGotRequestedWithOverlap()
-    //    {
-    //        var apiClient = await Fixture.CreateApiClient(new[] { Scopes.DvWrIngemetenWegBeheer });
-
-    //        var extractRequest1 = await apiClient.PostExtractsDownloadrequests(new DownloadExtractRequestBody(
-    //            "MULTIPOLYGON(((55000 200000,55000 200001,55001 200001,55001 200000,55000 200000)))",
-    //            $"TEST_{DateTime.Today:yyyyMMdd}_{DateTime.Now:HHmmssfff}",
-    //            false
-    //            ), CancellationToken.None);
-
-    //        var extractRequest2 = await apiClient.PostExtractsDownloadrequests(new DownloadExtractRequestBody(
-    //            "MULTIPOLYGON(((55000.5 200000,55000.5 200001,55001.5 200001,55001.5 200000,55000.5 200000)))",
-    //            $"TEST_{DateTime.Today:yyyyMMdd}_{DateTime.Now:HHmmssfff}",
-    //            false
-    //            ), CancellationToken.None);
-
-
-    //        //TODO-rik end2end test
-    //        var overlappings = await apiClient.GetOverlappingTransactionZonesGeoJson(CancellationToken.None);
-
-    //        //get overlapping geometries, both should exist in there
-
-    //        //close both extracts
-    //        //PUT {downloadId}/close
-    //        //{ Reason: "" }
-    //        //RoadNetworkExtractCloseReason
-    //    }
-
-    //    //TODO-rik unit test closing extract should delete overlap
-    //}
 }
