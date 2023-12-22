@@ -80,7 +80,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
                 if (startNodeFeature is null || endNodeFeature is null)
                 {
-                    var recordContext = FileName.AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber);
+                    var recordContext = FileName
+                        .AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber)
+                        .WithIdentifier(nameof(RoadSegmentDbaseRecord.WS_OIDN), changeFeature.Attributes.Id);
 
                     if (startNodeFeature is null)
                     {
@@ -236,7 +238,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             var maintenanceAuthority = await _organizationRepository.FindByIdOrOvoCodeAsync(changeFeature.Attributes.MaintenanceAuthority, cancellationToken);
             if (maintenanceAuthority is null)
             {
-                var recordContext = FileName.AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber);
+                var recordContext = FileName
+                    .AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber)
+                    .WithIdentifier(nameof(RoadSegmentDbaseRecord.WS_OIDN), changeFeature.Attributes.Id);
 
                 problems += recordContext.RoadSegmentMaintenanceAuthorityNotKnown(changeFeature.Attributes.MaintenanceAuthority);
                 continue;
