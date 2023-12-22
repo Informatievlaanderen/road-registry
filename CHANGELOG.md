@@ -1,3 +1,11 @@
+## [3.65.11](https://github.com/informatievlaanderen/road-registry/compare/v3.65.10...v3.65.11) (2023-12-22)
+
+
+### Bug Fixes
+
+* WR-271 missing identifier for translations ([#1340](https://github.com/informatievlaanderen/road-registry/issues/1340)) ([a14c0e7](https://github.com/informatievlaanderen/road-registry/commit/a14c0e710ee4cb3c64bc50f39361641b357c05b6))
+* WR-796 add projection for overlapping extracts ([#1337](https://github.com/informatievlaanderen/road-registry/issues/1337)) ([f2b7d7b](https://github.com/informatievlaanderen/road-registry/commit/f2b7d7b828dbe0e3f9c642078d8718982a63af10))
+
 ## [3.65.10](https://github.com/informatievlaanderen/road-registry/compare/v3.65.9...v3.65.10) (2023-12-22)
 
 
