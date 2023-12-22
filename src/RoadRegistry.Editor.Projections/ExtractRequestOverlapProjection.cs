@@ -25,7 +25,7 @@ public class ExtractRequestOverlapRecordProjection : ConnectedProjection<EditorC
                 return;
             }
 
-            await CreateOverlappingRecords(context, GeometryTranslator.Translate(message.Contour), message.DownloadId, message.Description, ct);
+            await CreateOverlappingRecords(context, (Geometry)GeometryTranslator.Translate(message.Contour), message.DownloadId, message.Description, ct);
         });
 
         When<Envelope<RoadNetworkExtractGotRequestedV2>>(async (context, envelope, ct) =>
@@ -36,7 +36,7 @@ public class ExtractRequestOverlapRecordProjection : ConnectedProjection<EditorC
                 return;
             }
 
-            await CreateOverlappingRecords(context, GeometryTranslator.Translate(message.Contour), message.DownloadId, message.Description, ct);
+            await CreateOverlappingRecords(context, (Geometry)GeometryTranslator.Translate(message.Contour), message.DownloadId, message.Description, ct);
         });
         
         When<Envelope<RoadNetworkExtractClosed>>(async (context, envelope, ct) =>
@@ -56,7 +56,7 @@ public class ExtractRequestOverlapRecordProjection : ConnectedProjection<EditorC
         });
     }
 
-    private async Task CreateOverlappingRecords(EditorContext context, IPolygonal geometry, Guid downloadId, string description, CancellationToken cancellationToken)
+    private async Task CreateOverlappingRecords(EditorContext context, Geometry geometry, Guid downloadId, string description, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(description))
         {
@@ -80,7 +80,7 @@ WHERE r.IsInformative = 0
 ) as o
 WHERE o.Contour.STIsEmpty() = 0 AND o.Contour.STGeometryType() LIKE '%POLYGON'
 ",
-                ((Geometry)geometry).ToSqlParameter("contour"),
+                geometry.ToSqlParameter("contour"),
                 new SqlParameter("downloadId", downloadId),
                 new SqlParameter("description", description))
             .ToListAsync(cancellationToken);
