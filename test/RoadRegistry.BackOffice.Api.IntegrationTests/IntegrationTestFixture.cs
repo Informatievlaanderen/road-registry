@@ -15,7 +15,9 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests
     using System.IO;
     using System.Linq;
     using System.Net.Http;
+    using System.Net.Http.Headers;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.DependencyInjection;
     using Xunit;
 
     public class IntegrationTestFixture : IAsyncLifetime
@@ -116,6 +118,32 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests
         public async Task DisposeAsync()
         {
             await SqlConnection.DisposeAsync();
+        }
+
+        public async Task<HttpClient> CreateApiClient(string[] requiredScopes)
+        {
+            var configuration = TestServer.Services.GetRequiredService<IConfiguration>();
+
+            var httpClient = new HttpClient
+            {
+                BaseAddress = new Uri(configuration.GetRequiredValue<string>("BackOfficeApiBaseUrl"))
+            };
+            
+            if (requiredScopes.Any())
+            {
+                var apiKey = configuration.GetRequiredValue<string>("ApiKey");
+                if (!string.IsNullOrEmpty(apiKey))
+                {
+                    httpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
+                }
+                else
+                {
+                    var client = TestServer.CreateClient();
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await GetAcmIdmAccessToken(string.Join(" ", requiredScopes)));
+                }
+            }
+
+            return httpClient;
         }
     }
 
