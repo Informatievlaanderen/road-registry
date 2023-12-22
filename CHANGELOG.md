@@ -1,3 +1,10 @@
+## [3.65.10](https://github.com/informatievlaanderen/road-registry/compare/v3.65.9...v3.65.10) (2023-12-22)
+
+
+### Bug Fixes
+
+* parameter IdentifierField in translation is optional ([#1339](https://github.com/informatievlaanderen/road-registry/issues/1339)) ([756bbd9](https://github.com/informatievlaanderen/road-registry/commit/756bbd96c40456d3f858f84052773b20c5325057))
+
 ## [3.65.9](https://github.com/informatievlaanderen/road-registry/compare/v3.65.8...v3.65.9) (2023-12-21)
 
 
