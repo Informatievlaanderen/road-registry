@@ -1,14 +1,15 @@
 namespace RoadRegistry.BackOffice.Api.IntegrationTests.Extracts
 {
+    using IntegrationTests;
     using Xunit;
     using Xunit.Abstractions;
 
-    public partial class ExtractsTests : IClassFixture<IntegrationTestFixture>
+    public partial class ExtractsTests : IClassFixture<ApiClientTestFixture>
     {
-        protected IntegrationTestFixture Fixture { get; }
+        protected ApiClientTestFixture Fixture { get; }
         protected ITestOutputHelper TestOutputHelper { get; }
 
-        public ExtractsTests(IntegrationTestFixture fixture, ITestOutputHelper testOutputHelper)
+        public ExtractsTests(ApiClientTestFixture fixture, ITestOutputHelper testOutputHelper)
         {
             Fixture = fixture;
             TestOutputHelper = testOutputHelper;
