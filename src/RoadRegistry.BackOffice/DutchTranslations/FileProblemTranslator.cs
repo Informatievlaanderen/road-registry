@@ -22,8 +22,8 @@ public static class FileProblemTranslator
             sb.Append("dbase record ");
             sb.Append(problem.GetParameterValue("RecordNumber"));
 
-            identifierField ??= problem.GetParameterValue("IdentifierField");
-            identifierValue ??= problem.GetParameterValue("IdentifierValue");
+            identifierField ??= problem.GetParameterValue("IdentifierField", required: false);
+            identifierValue ??= problem.GetParameterValue("IdentifierValue", required: false);
             if (!string.IsNullOrEmpty(identifierField) && !string.IsNullOrEmpty(identifierValue))
             {
                 sb.Append(" met ");
