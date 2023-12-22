@@ -34,6 +34,7 @@ public class EditorContext : RunnerDbContext<EditorContext>
     #endregion
 
     public DbSet<ExtractRequestRecord> ExtractRequests { get; set; }
+    public DbSet<ExtractRequestOverlapRecord> ExtractRequestOverlaps { get; set; }
     public DbSet<ExtractDownloadRecord> ExtractDownloads { get; set; }
     public DbSet<ExtractUploadRecord> ExtractUploads { get; set; }
     public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }

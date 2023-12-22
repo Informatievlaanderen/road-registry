@@ -1,13 +1,15 @@
 namespace NetTopologySuite.Geometries;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Polly;
+using Microsoft.Data.SqlClient;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Messages;
+using System;
+using System.Collections.Generic;
+using System.Data.SqlTypes;
+using System.Data;
+using System.Linq;
+using IO;
 
 public static class NetTopologySuiteExtensions
 {
@@ -429,5 +431,18 @@ public static class NetTopologySuiteExtensions
             : GeometryConfiguration.GeometryFactory.SRID;
 
         return geometry;
+    }
+
+    public static SqlParameter ToSqlParameter(this Geometry geometry, string name)
+    {
+        ArgumentNullException.ThrowIfNull(geometry);
+
+        var writer = new SqlServerBytesWriter { IsGeography = false };
+        var bytes = writer.Write(geometry);
+        return new SqlParameter($"@{name}", SqlDbType.Udt)
+        {
+            UdtTypeName = "geometry",
+            SqlValue = new SqlBytes(bytes)
+        };
     }
 }

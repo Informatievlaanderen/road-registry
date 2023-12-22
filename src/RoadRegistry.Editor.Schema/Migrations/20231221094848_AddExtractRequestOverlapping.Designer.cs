@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Editor.Schema;
@@ -12,9 +13,10 @@ using RoadRegistry.Editor.Schema;
 namespace RoadRegistry.Editor.Schema.Migrations
 {
     [DbContext(typeof(EditorContext))]
-    partial class EditorContextModelSnapshot : ModelSnapshot
+    [Migration("20231221094848_AddExtractRequestOverlap")]
+    partial class AddExtractRequestOverlap
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -354,7 +356,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.ToTable("ExtractDownload", "RoadRegistryEditor");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Editor.Schema.Extracts.ExtractRequestOverlapRecord", b =>
+            modelBuilder.Entity("RoadRegistry.Editor.Schema.Extracts.ExtractRequestOverlap", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -380,11 +382,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
 
                     b.HasKey("Id");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
-
-                    b.HasIndex("DownloadId1");
-
-                    b.HasIndex("DownloadId2");
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
 
                     b.ToTable("ExtractRequestOverlap", "RoadRegistryEditor");
                 });
@@ -416,7 +414,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
 
                     b.HasKey("DownloadId");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("DownloadId"));
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("DownloadId"), false);
 
                     b.ToTable("ExtractRequest", "RoadRegistryEditor");
                 });

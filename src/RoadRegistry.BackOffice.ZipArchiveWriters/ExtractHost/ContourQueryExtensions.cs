@@ -135,8 +135,6 @@ WHERE [attribute].[RoadSegmentId] IN (
 
     private static SqlParameter ToSqlParameter(this IPolygonal contour)
     {
-        var writer = new SqlServerBytesWriter { IsGeography = false };
-        var bytes = writer.Write((Geometry)contour);
-        return new SqlParameter("@contour", SqlDbType.Udt) { UdtTypeName = "geometry", SqlValue = new SqlBytes(bytes) };
+        return ((Geometry)contour).ToSqlParameter("contour");
     }
 }

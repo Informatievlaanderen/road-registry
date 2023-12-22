@@ -24,23 +24,19 @@ public class GetOverlappingTransactionZonesGeoJsonRequestHandler : EndpointReque
 
     public override async Task<GetOverlappingTransactionZonesGeoJsonResponse> HandleAsync(GetOverlappingTransactionZonesGeoJsonRequest request, CancellationToken cancellationToken)
     {
-        var transactionZones = await _context.ExtractRequests
-            .Where(x => !x.IsInformative)
+        var overlaps = await _context.ExtractRequestOverlaps
             .ToListAsync(cancellationToken);
-
-        var intersectionGeometries = (
-            from t1 in transactionZones
-            from t2 in transactionZones
-            where t1.DownloadId != t2.DownloadId
-            let intersection = t1.Contour.Intersection(t2.Contour)
-            where intersection is not null && intersection != Polygon.Empty
-            select intersection
-        ).Distinct().ToArray();
 
         return new GetOverlappingTransactionZonesGeoJsonResponse
         {
-            FeatureCollection = new FeatureCollection(intersectionGeometries
-                .Select(geometry => new Feature(geometry.ToMultiPolygon().ToGeoJson()))
+            FeatureCollection = new FeatureCollection(overlaps
+                .Select(overlap => new Feature(overlap.Contour.ToMultiPolygon().ToGeoJson(), new
+                {
+                    DownloadId1 = DownloadId.FromValue(overlap.DownloadId1).ToString(),
+                    DownloadId2 = DownloadId.FromValue(overlap.DownloadId2).ToString(),
+                    Description1 = overlap.Description1,
+                    Description2 = overlap.Description2
+                }))
                 .ToList()
             )
         };
