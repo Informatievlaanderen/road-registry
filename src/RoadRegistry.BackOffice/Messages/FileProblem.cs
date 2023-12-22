@@ -10,13 +10,19 @@ public class FileProblem
     public string Reason { get; set; }
     public ProblemSeverity Severity { get; set; }
 
-    public string GetParameterValue(string parameterName)
+    public string GetParameterValue(string parameterName, bool required = true)
     {
         var parameter = Parameters.SingleOrDefault(x => x.Name == parameterName);
         if (parameter is null)
         {
-            throw new ArgumentException($"No parameter found with name '{parameterName}'");
+            if (required)
+            {
+                throw new ArgumentException($"No parameter found with name '{parameterName}'");
+            }
+
+            return null;
         }
+
         return parameter.Value;
     }
 }

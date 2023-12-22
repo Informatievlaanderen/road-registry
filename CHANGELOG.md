@@ -1,3 +1,10 @@
+## [3.65.9](https://github.com/informatievlaanderen/road-registry/compare/v3.65.8...v3.65.9) (2023-12-21)
+
+
+### Bug Fixes
+
+* trying to download an archive which timed out during creation ([#1338](https://github.com/informatievlaanderen/road-registry/issues/1338)) ([d3cad84](https://github.com/informatievlaanderen/road-registry/commit/d3cad84ab364006e3d9440092a20533c96230807))
+
 ## [3.65.8](https://github.com/informatievlaanderen/road-registry/compare/v3.65.7...v3.65.8) (2023-12-21)
 
 
