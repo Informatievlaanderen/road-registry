@@ -1,3 +1,11 @@
+## [3.65.13](https://github.com/informatievlaanderen/road-registry/compare/v3.65.12...v3.65.13) (2024-01-03)
+
+
+### Bug Fixes
+
+* show activity in changefeed when download timeout occurred ([#1345](https://github.com/informatievlaanderen/road-registry/issues/1345)) ([d3a9c92](https://github.com/informatievlaanderen/road-registry/commit/d3a9c92fb43d8a09e9d31fc24209a6c4053446ed))
+* WR-796 overlap record uniqueness ([#1344](https://github.com/informatievlaanderen/road-registry/issues/1344)) ([5ded26b](https://github.com/informatievlaanderen/road-registry/commit/5ded26becd0333fca5b564c5cd1e05a3e9136178))
+
 ## [3.65.12](https://github.com/informatievlaanderen/road-registry/compare/v3.65.11...v3.65.12) (2024-01-03)
 
 
