@@ -95,11 +95,6 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkExtractDownloadTimeoutOccurred>>(async (context, envelope, ct) =>
         {
-            if (!MessageIsFromDefaultRoadNetwork(envelope))
-            {
-                return;
-            }
-
             var content = new RoadNetworkExtractDownloadTimeoutOccurredEntry
             {
                 RequestId = envelope.Message.RequestId,
