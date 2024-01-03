@@ -27,6 +27,11 @@ public readonly struct OrganizationId : IEquatable<OrganizationId>
         return !string.IsNullOrEmpty(value) && value.Length <= MaxLength;
     }
 
+    public static bool IsSystemValue(OrganizationId value)
+    {
+        return value == Other || value == Unknown;
+    }
+
     public bool Equals(OrganizationId other)
     {
         return _value == other._value;
