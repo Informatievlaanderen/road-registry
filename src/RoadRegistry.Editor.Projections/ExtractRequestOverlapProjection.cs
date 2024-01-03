@@ -86,7 +86,7 @@ WHERE o.Contour.STIsEmpty() = 0 AND o.Contour.STGeometryType() LIKE '%POLYGON'
             .ToListAsync(cancellationToken);
 
         overlapRecords = overlapRecords
-            .DistinctBy(x => new { x.DownloadId1, x.DownloadId2, x.Contour })
+            .DistinctBy(x => new { x.DownloadId1, x.DownloadId2 })
             .ToList();
 
         await context.ExtractRequestOverlaps.AddRangeAsync(overlapRecords, cancellationToken);

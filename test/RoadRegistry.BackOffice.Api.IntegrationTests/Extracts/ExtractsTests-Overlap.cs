@@ -28,6 +28,8 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Extracts
                 false
                 ), CancellationToken.None);
 
+            Thread.Sleep(TimeSpan.FromSeconds(30));
+
             var extractRequest2 = await apiClient.RequestDownloadExtract(new DownloadExtractRequestBody(
                 "MULTIPOLYGON(((55050 200000,55050 200100,55150 200100,55150 200000,55050 200000)))",
                 $"{ExtractDescriptionPrefix}{DateTime.Today:yyyyMMdd}_{DateTime.Now:HHmmssfff}",
@@ -43,7 +45,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Extracts
                 var sw = Stopwatch.StartNew();
                 while (true)
                 {
-                    Thread.Sleep(1000);
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
 
                     var overlappings = await apiClient.GetOverlappingTransactionZonesGeoJson(CancellationToken.None);
 
@@ -74,7 +76,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Extracts
                 var sw = Stopwatch.StartNew();
                 while (true)
                 {
-                    Thread.Sleep(1000);
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
 
                     var overlappings = await apiClient.GetOverlappingTransactionZonesGeoJson(CancellationToken.None);
 
