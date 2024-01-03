@@ -117,4 +117,17 @@ public class OrganizationIdTests
             )
         ).Verify(Constructors.Select(() => new OrganizationId(null)));
     }
+
+    [Theory]
+    [InlineData(false, "-6")]
+    [InlineData(true, "-7")]
+    [InlineData(true, "-8")]
+    [InlineData(false, "-9")]
+    [InlineData(false, "0")]
+    [InlineData(false, "1")]
+    [InlineData(false, "OVO123456")]
+    public void AcceptsValueReturnsExpectedResultWhenValueIsSystemValue(bool expected, string value)
+    {
+        Assert.Equal(expected, OrganizationId.IsSystemValue(new OrganizationId(value)));
+    }
 }
