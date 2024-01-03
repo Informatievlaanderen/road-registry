@@ -1,3 +1,12 @@
+## [3.65.12](https://github.com/informatievlaanderen/road-registry/compare/v3.65.11...v3.65.12) (2024-01-03)
+
+
+### Bug Fixes
+
+* allow MaintenanceAuthority of "-7" or "-8" in FeatureCompare ([#1343](https://github.com/informatievlaanderen/road-registry/issues/1343)) ([dea2507](https://github.com/informatievlaanderen/road-registry/commit/dea2507b1984dd0732f74fec981075e4dbbf156d))
+* running ACM/IDM integration tests with api integration tests ([#1342](https://github.com/informatievlaanderen/road-registry/issues/1342)) ([ba98001](https://github.com/informatievlaanderen/road-registry/commit/ba98001758559ecb07bfd84e5671d7c8e0de7f90))
+* WR-796 add projection for overlapping extracts ([#1341](https://github.com/informatievlaanderen/road-registry/issues/1341)) ([90ecb7c](https://github.com/informatievlaanderen/road-registry/commit/90ecb7c2aee505539a9992139a2d492e7875ed78))
+
 ## [3.65.11](https://github.com/informatievlaanderen/road-registry/compare/v3.65.10...v3.65.11) (2023-12-22)
 
 
