@@ -8,6 +8,7 @@ using Be.Vlaanderen.Basisregisters.Api;
 using Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Response;
 using SqlStreamStore;
 
@@ -15,8 +16,12 @@ using SqlStreamStore;
 [ApiRoute("projections")]
 public class ProjectionsController : DefaultProjectionsController
 {
-    public ProjectionsController(IStreamStore streamStore, Dictionary<ProjectionDetail, Func<DbContext>> listOfProjections) : base(streamStore, listOfProjections)
+    private readonly ILogger<ProjectionsController> _logger;
+
+    public ProjectionsController(IStreamStore streamStore, Dictionary<ProjectionDetail, Func<DbContext>> listOfProjections, ILogger<ProjectionsController> logger)
+        : base(streamStore, listOfProjections)
     {
+        _logger = logger;
     }
 
     [HttpGet]
@@ -50,8 +55,10 @@ public class ProjectionsController : DefaultProjectionsController
                     State = state
                 });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogWarning("Error trying to load projection {ProjectionId}: {Exception}", detail.Id, ex.ToString());
+
                 response.Projections.Add(new ProjectionStatus
                 {
                     CurrentPosition = 0,

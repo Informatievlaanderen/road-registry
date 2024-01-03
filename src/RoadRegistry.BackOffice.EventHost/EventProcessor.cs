@@ -7,7 +7,7 @@ using SqlStreamStore;
 
 public class EventProcessor : PositionStoreEventProcessor<SqlEventProcessorPositionStore>
 {
-    private const string QueueName = "roadnetworkarchive-event-queue";
+    private const string QueueName = WellknownQueues.EventQueue;
 
     public EventProcessor(
         IStreamStore streamStore,

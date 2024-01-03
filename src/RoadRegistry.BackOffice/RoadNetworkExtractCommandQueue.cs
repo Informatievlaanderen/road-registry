@@ -13,7 +13,7 @@ public class RoadNetworkExtractCommandQueue : RoadRegistryCommandQueue, IRoadNet
     private static readonly EventMapping CommandMapping =
         new(RoadNetworkCommands.All.ToDictionary(command => command.Name));
 
-    public static readonly StreamName Stream = new("roadnetworkextract-command-queue");
+    public static readonly StreamName Stream = new(WellknownQueues.ExtractCommandQueue);
 
     public RoadNetworkExtractCommandQueue(IStreamStore store)
         : base(store, CommandMapping)

@@ -14,6 +14,7 @@ using RoadRegistry.Hosts.Infrastructure.Extensions;
 using Syndication.Schema;
 using System;
 using System.Collections.Generic;
+using Hosts;
 using Options;
 using Wfs.Schema;
 using Wms.Schema;
@@ -76,6 +77,11 @@ public class ApiModule : Module
         if (projectionOptions.Wfs.Enabled)
         {
             RegisterWfsProjections();
+        }
+
+        if (projectionOptions.BackOfficeProcessors.Enabled)
+        {
+            RegisterBackOfficeProcessors();
         }
     }
 
@@ -179,6 +185,49 @@ public class ApiModule : Module
             Description = "Projectie die de wegen data voor het WFS wegenregister voorziet.",
             Name = "WFS Wegen",
             WellKnownConnectionName = WellknownConnectionNames.WfsProjections,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
+        });
+    }
+
+    private void RegisterBackOfficeProcessors()
+    {
+        RegisterProjection<BackOfficeProcessorDbContext>(new ProjectionDetail
+        {
+            Id = WellknownQueues.EventQueue,
+            Description = "Verwerker van events",
+            Name = "BackOffice Processor - Event",
+            WellKnownConnectionName = WellknownConnectionNames.Events,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
+        });
+
+        RegisterProjection<BackOfficeProcessorDbContext>(new ProjectionDetail
+        {
+            Id = WellknownQueues.ExtractQueue,
+            Description = "Verwerker van extract events",
+            Name = "BackOffice Processor - Extract Event",
+            WellKnownConnectionName = WellknownConnectionNames.Events,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
+        });
+
+        RegisterProjection<BackOfficeProcessorDbContext>(new ProjectionDetail
+        {
+            Id = WellknownQueues.CommandQueue,
+            Description = "Verwerker van commando's",
+            Name = "BackOffice Processor - Command",
+            WellKnownConnectionName = WellknownConnectionNames.Events,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
+        });
+
+        RegisterProjection<BackOfficeProcessorDbContext>(new ProjectionDetail
+        {
+            Id = WellknownQueues.ExtractCommandQueue,
+            Description = "Verwerker van extract commando's",
+            Name = "BackOffice Processor - Extract Command",
+            WellKnownConnectionName = WellknownConnectionNames.Events,
             FallbackDesiredState = "subscribed",
             IsSyndication = false
         });

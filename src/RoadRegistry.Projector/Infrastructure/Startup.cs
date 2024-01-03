@@ -30,6 +30,7 @@ using Syndication.Schema;
 using System;
 using System.Linq;
 using System.Reflection;
+using Hosts;
 using Wfs.Schema;
 using Wms.Schema;
 
@@ -200,6 +201,11 @@ public class Startup
                             health.AddDbContextCheck<GradeSeparatedJunctionProducerSnapshotContext>();
                             health.AddDbContextCheck<NationalRoadProducerSnapshotContext>();
                         }
+
+                        if (projectionOptions.BackOfficeProcessors.Enabled)
+                        {
+                            health.AddDbContextCheck<BackOfficeProcessorDbContext>();
+                        }
                     }
                 }
             })
@@ -215,6 +221,7 @@ public class Startup
             .AddDbContext<NationalRoadProducerSnapshotContext>(WellknownConnectionNames.ProducerSnapshotProjections)
             .AddDbContext<GradeSeparatedJunctionProducerSnapshotContext>(WellknownConnectionNames.ProducerSnapshotProjections)
             .AddDbContext<RoadSegmentSurfaceProducerSnapshotContext>(WellknownConnectionNames.ProducerSnapshotProjections)
+            .AddDbContext<BackOfficeProcessorDbContext>(WellknownConnectionNames.Events)
             ;
 
         var containerBuilder = new ContainerBuilder();
