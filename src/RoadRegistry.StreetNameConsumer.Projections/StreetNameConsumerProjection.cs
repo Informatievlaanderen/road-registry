@@ -1,13 +1,13 @@
 namespace RoadRegistry.StreetNameConsumer.Projections;
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Schema;
 using StreetName;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsumerContext>
 {

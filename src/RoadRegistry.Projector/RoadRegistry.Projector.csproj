@@ -28,6 +28,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
+    <ProjectReference Include="..\RoadRegistry.StreetNameConsumer.Projections\RoadRegistry.StreetNameConsumer.Projections.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Sync.OrganizationRegistry\RoadRegistry.Sync.OrganizationRegistry.csproj" />
     <ProjectReference Include="..\RoadRegistry.Syndication.Schema\RoadRegistry.Syndication.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Wfs.Schema\RoadRegistry.Wfs.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Wms.Schema\RoadRegistry.Wms.Schema.csproj" />

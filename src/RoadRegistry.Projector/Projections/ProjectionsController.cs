@@ -1,16 +1,16 @@
 namespace RoadRegistry.Projector.Projections;
 
+using Be.Vlaanderen.Basisregisters.Api;
+using Infrastructure;
+using Infrastructure.Controllers;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using SqlStreamStore;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.Api;
-using Infrastructure;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Response;
-using SqlStreamStore;
 
 [ApiVersion("1.0")]
 [ApiRoute("projections")]
@@ -29,11 +29,11 @@ public class ProjectionsController : DefaultProjectionsController
     {
         var response = new ProjectionsStatusList
         {
-            StreamPosition = await _streamStore.ReadHeadPosition(cancellationToken),
+            StreamPosition = await StreamStore.ReadHeadPosition(cancellationToken),
             Projections = new List<ProjectionStatus>()
         };
 
-        foreach (var p in _listOfProjections)
+        foreach (var p in Projections)
         {
             var detail = p.Key;
 
@@ -42,8 +42,8 @@ public class ProjectionsController : DefaultProjectionsController
             try
             {
                 var projection = await GetProjectionStateItem(detail.Id, p.Value, cancellationToken);
-
                 if (projection == null) continue;
+
                 var state = projection.DesiredState ?? detail.FallbackDesiredState;
                 response.Projections.Add(new ProjectionStatus
                 {

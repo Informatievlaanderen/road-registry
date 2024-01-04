@@ -4,6 +4,7 @@ using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.Extensions;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Hosts;
 using Infrastructure;
@@ -80,6 +81,8 @@ public class StreetNameConsumer : RoadRegistryBackgroundService
                             Record = record
                         }, cancellationToken);
 
+                        await context.ProcessedMessages.AddAsync(new ProcessedMessage($"streetname-{snapshotMessage.Offset}".ToSha512(), DateTimeOffset.UtcNow), cancellationToken);
+
                         await context.SaveChangesAsync(cancellationToken);
 
                         Logger.LogInformation("Processed streetname {Key}", snapshotMessage.Key);
@@ -94,7 +97,7 @@ public class StreetNameConsumer : RoadRegistryBackgroundService
             {
                 const int waitSeconds = 30;
                 Logger.LogCritical(ex, "Error consuming kafka events, trying again in {seconds} seconds", waitSeconds);
-                await Task.Delay(waitSeconds * 1000, cancellationToken);
+                await Task.Delay(TimeSpan.FromSeconds(waitSeconds), cancellationToken);
             }
         }
     }

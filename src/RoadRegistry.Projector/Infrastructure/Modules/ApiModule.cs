@@ -11,11 +11,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Product.Schema;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
-using Syndication.Schema;
 using System;
 using System.Collections.Generic;
 using Hosts;
 using Options;
+using RoadRegistry.Syndication.Schema;
 using Wfs.Schema;
 using Wms.Schema;
 

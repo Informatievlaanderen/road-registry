@@ -5,6 +5,7 @@ Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 Be.Vlaanderen.Basisregisters.Generators.Guid.Deterministic
 Be.Vlaanderen.Basisregisters.GrAr.Provenance
 Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple
+Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer
 Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.Shaperon.Geometries
 

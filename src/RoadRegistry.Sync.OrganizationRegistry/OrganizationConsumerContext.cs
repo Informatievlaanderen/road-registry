@@ -1,8 +1,9 @@
 namespace RoadRegistry.Sync.OrganizationRegistry;
 
+using BackOffice;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Microsoft.EntityFrameworkCore;
-using RoadRegistry.BackOffice;
 
 public class OrganizationConsumerContext : RunnerDbContext<OrganizationConsumerContext>
 {
@@ -18,6 +19,8 @@ public class OrganizationConsumerContext : RunnerDbContext<OrganizationConsumerC
 
     public override string ProjectionStateSchema => WellknownSchemas.OrganizationConsumerSchema;
 
+    public DbSet<ProcessedMessage> ProcessedMessages { get; set; }
+    
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
@@ -28,5 +31,6 @@ public class OrganizationConsumerContext : RunnerDbContext<OrganizationConsumerC
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
+        modelBuilder.ApplyConfiguration(new ProcessedMessageConfiguration(ProjectionStateSchema));
     }
 }

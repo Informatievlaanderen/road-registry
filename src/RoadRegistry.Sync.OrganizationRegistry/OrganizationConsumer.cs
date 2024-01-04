@@ -7,6 +7,8 @@ using BackOffice.Core;
 using BackOffice.Framework;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.Extensions;
 using Editor.Schema;
 using Extensions;
 using Hosts;
@@ -69,10 +71,10 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
 
             await using var scope = _container.BeginLifetimeScope();
             await using var context = scope.Resolve<OrganizationConsumerContext>();
-
+            
             var projectionState = await context.InitializeProjectionState(ProjectionStateName, cancellationToken);
             projectionState.ErrorMessage = null;
-
+            
             try
             {
                 var map = _container.Resolve<EventSourcedEntityMap>();
@@ -83,7 +85,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                 await _organizationReader.ReadAsync(projectionState.Position + 1, async organization =>
                 {
                     Logger.LogInformation("Processing organization {OvoNumber}", organization.OvoNumber);
-
+                    
                     if (processedCount > 0 && organization.ChangeId != projectionState.Position)
                     {
                         await context.SaveChangesAsync(cancellationToken);
@@ -106,12 +108,14 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                             .ToLookup(x => x.OvoCode!.Value, x => x.Code);
                         Logger.LogInformation("{Count} organizations have an OVO-code", orgIdMapping.Count);
                     }
-
+                    
                     await CreateOrUpdateOrganizationWithOvoCode(organizationsContext, organization, cancellationToken);
                     await UpdateOrganizationsWithOldOrganizationId(orgIdMapping, organization, cancellationToken);
 
                     projectionState.Position = organization.ChangeId;
                     processedCount++;
+
+                    await context.ProcessedMessages.AddAsync(new ProcessedMessage($"organization-{projectionState.Position}-{organization.OvoNumber}".ToSha512(), DateTimeOffset.UtcNow), cancellationToken);
 
                     Logger.LogInformation("Processed organization {OvoNumber}", organization.OvoNumber);
                 }, cancellationToken);
@@ -146,7 +150,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                 break;
             }
 
-            await Task.Delay(_options.ConsumerDelaySeconds * 1000, cancellationToken);
+            await Task.Delay(TimeSpan.FromSeconds(_options.ConsumerDelaySeconds), cancellationToken);
         }
     }
 
