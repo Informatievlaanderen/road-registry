@@ -400,7 +400,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 }
                 else
                 {
-                    problems += problemBuilder.OrganizationIdOutOfRange(BEHEER);
+                    problems += problemBuilder.RoadSegmentMaintenanceAuthorityOutOfRange(BEHEER);
                 }
 
                 return default;
