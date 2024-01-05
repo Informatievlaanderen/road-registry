@@ -34,7 +34,7 @@ public class BackOfficeProcessorDbContext : RunnerDbContext<BackOfficeProcessorD
         modelBuilder.ApplyConfiguration(new ProcessorPositionConfiguration());
     }
 
-    private class ProcessorPositionConfiguration : IEntityTypeConfiguration<ProjectionStateItem>
+    private sealed class ProcessorPositionConfiguration : IEntityTypeConfiguration<ProjectionStateItem>
     {
         public void Configure(EntityTypeBuilder<ProjectionStateItem> b)
         {
