@@ -1,3 +1,11 @@
+## [3.66.1](https://github.com/informatievlaanderen/road-registry/compare/v3.66.0...v3.66.1) (2024-01-05)
+
+
+### Bug Fixes
+
+* projector consumer endpoint response to be readable by public-api ([#1348](https://github.com/informatievlaanderen/road-registry/issues/1348)) ([ecee992](https://github.com/informatievlaanderen/road-registry/commit/ecee992420105cae02d6212139a9e7a9cbad8c19))
+* WR-916 add featuretoggle for ProcessedMessages + OrganizationId must not contain whitespace ([#1347](https://github.com/informatievlaanderen/road-registry/issues/1347)) ([2bc61a6](https://github.com/informatievlaanderen/road-registry/commit/2bc61a6dbcf01a06d2b4aa120ccbf5a60117b086))
+
 # [3.66.0](https://github.com/informatievlaanderen/road-registry/compare/v3.65.13...v3.66.0) (2024-01-05)
 
 
