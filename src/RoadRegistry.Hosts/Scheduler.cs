@@ -18,6 +18,7 @@ public class Scheduler
     private readonly Task _messagePump;
     private readonly CancellationTokenSource _messagePumpCancellation;
     private readonly Timer _timer;
+    private bool? _isRunning = null;
 
     public Scheduler(IClock clock, ILogger<Scheduler> logger)
     {
@@ -114,6 +115,7 @@ public class Scheduler
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
+        _isRunning = true;
         _logger.LogInformation("Starting scheduler ...");
         _logger.LogInformation("Started scheduler ...");
         return Task.CompletedTask;
@@ -122,12 +124,18 @@ public class Scheduler
     public async Task StopAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Stopping scheduler ...");
-        _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
-        _messageChannel.Writer.Complete();
-        _messagePumpCancellation.Cancel();
-        await _messagePump.ConfigureAwait(false);
-        _messagePumpCancellation.Dispose();
-        await _timer.DisposeAsync().ConfigureAwait(false);
+
+        if (_isRunning == true)
+        {
+            _isRunning = false;
+            _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+            _messageChannel.Writer.Complete();
+            _messagePumpCancellation.Cancel();
+            await _messagePump.ConfigureAwait(false);
+            _messagePumpCancellation.Dispose();
+            await _timer.DisposeAsync().ConfigureAwait(false);
+        }
+        
         _logger.LogInformation("Stopped scheduler.");
     }
 
