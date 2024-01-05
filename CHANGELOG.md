@@ -1,3 +1,11 @@
+## [3.66.2](https://github.com/informatievlaanderen/road-registry/compare/v3.66.1...v3.66.2) (2024-01-05)
+
+
+### Bug Fixes
+
+* add apikey to streetname-api calls ([#1350](https://github.com/informatievlaanderen/road-registry/issues/1350)) ([3cc78cb](https://github.com/informatievlaanderen/road-registry/commit/3cc78cb9fb5b5c143f261b968c9e03fe1e6f6498))
+* error message with invalid roadsegment BEHEER value ([#1349](https://github.com/informatievlaanderen/road-registry/issues/1349)) ([bc2059c](https://github.com/informatievlaanderen/road-registry/commit/bc2059cda33125415ceaa5c2733624e1fff57362))
+
 ## [3.66.1](https://github.com/informatievlaanderen/road-registry/compare/v3.66.0...v3.66.1) (2024-01-05)
 
 
