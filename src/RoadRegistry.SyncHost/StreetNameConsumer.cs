@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.StreetNameConsumer.Projections;
 using RoadRegistry.StreetNameConsumer.Schema;
 using StreetName;
@@ -21,16 +22,19 @@ public class StreetNameConsumer : RoadRegistryBackgroundService
 {
     private readonly ILifetimeScope _container;
     private readonly KafkaOptions _options;
+    private readonly UseStreetNameProcessedMessagesFeatureToggle _useStreetNameProcessedMessagesFeatureToggle;
     private readonly ILoggerFactory _loggerFactory;
 
     public StreetNameConsumer(
         ILifetimeScope container,
         KafkaOptions options,
+        UseStreetNameProcessedMessagesFeatureToggle useStreetNameProcessedMessagesFeatureToggle,
         ILoggerFactory loggerFactory)
         : base(loggerFactory.CreateLogger<StreetNameConsumer>())
     {
         _container = container;
         _options = options;
+        _useStreetNameProcessedMessagesFeatureToggle = useStreetNameProcessedMessagesFeatureToggle.ThrowIfNull();
         _loggerFactory = loggerFactory;
     }
 
@@ -81,7 +85,10 @@ public class StreetNameConsumer : RoadRegistryBackgroundService
                             Record = record
                         }, cancellationToken);
 
-                        await context.ProcessedMessages.AddAsync(new ProcessedMessage($"streetname-{snapshotMessage.Offset}".ToSha512(), DateTimeOffset.UtcNow), cancellationToken);
+                        if (_useStreetNameProcessedMessagesFeatureToggle.FeatureEnabled)
+                        {
+                            await context.ProcessedMessages.AddAsync(new ProcessedMessage($"streetname-{snapshotMessage.Offset}".ToSha512(), DateTimeOffset.UtcNow), cancellationToken);
+                        }
 
                         await context.SaveChangesAsync(cancellationToken);
 

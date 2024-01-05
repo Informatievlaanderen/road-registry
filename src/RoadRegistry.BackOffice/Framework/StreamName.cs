@@ -13,6 +13,10 @@ public struct StreamName : IEquatable<StreamName>
     public StreamName(string value)
     {
         _value = value ?? throw new ArgumentNullException(nameof(value));
+        if (value.Contains(" "))
+        {
+            throw new ArgumentException($"Value '{value}' cannot contain whitespace");
+        }
         SupportsSnapshot = false;
     }
 

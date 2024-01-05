@@ -4,6 +4,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
     using BackOffice;
     using BackOffice.Extracts.Dbase.Organizations;
     using BackOffice.Extracts.Dbase.Organizations.V2;
+    using BackOffice.FeatureToggles;
     using BackOffice.Framework;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
@@ -77,6 +78,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
                 _memoryStreamManager,
                 _fileEncoding,
                 new RoadNetworkCommandQueue(store, new ApplicationMetadata(RoadRegistryApplication.BackOffice)),
+                new UseOrganizationProcessedMessagesFeatureToggle(true),
                 _loggerFactory
             ), store);
         }
