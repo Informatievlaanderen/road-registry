@@ -659,6 +659,14 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    public static FileError RoadSegmentMaintenanceAuthorityOutOfRange(this IDbaseFileRecordProblemBuilder builder, string value)
+    {
+        return builder
+            .Error(nameof(RoadSegmentMaintenanceAuthorityOutOfRange))
+            .WithParameter(new ProblemParameter("Actual", value))
+            .Build();
+    }
+
     public static FileError RoadSegmentMaintenanceAuthorityNotKnown(this IDbaseFileRecordProblemBuilder builder, OrganizationId organizationId)
     {
         return builder
