@@ -11,8 +11,8 @@ public class RoadSegmentStatusDbaseRecord : DbaseRecord
     public RoadSegmentStatusDbaseRecord()
     {
         STATUS = new DbaseInt32(Schema.STATUS);
-        LBLSTATUS = new DbaseString(Schema.LBLSTATUS);
-        DEFSTATUS = new DbaseString(Schema.DEFSTATUS);
+        LBLSTATUS = new TrimmedDbaseString(Schema.LBLSTATUS);
+        DEFSTATUS = new TrimmedDbaseString(Schema.DEFSTATUS);
 
         Values = new DbaseFieldValue[]
         {

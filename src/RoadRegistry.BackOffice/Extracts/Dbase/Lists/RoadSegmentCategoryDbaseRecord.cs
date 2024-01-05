@@ -10,9 +10,9 @@ public class RoadSegmentCategoryDbaseRecord : DbaseRecord
 
     public RoadSegmentCategoryDbaseRecord()
     {
-        WEGCAT = new DbaseString(Schema.WEGCAT);
-        LBLWEGCAT = new DbaseString(Schema.LBLWEGCAT);
-        DEFWEGCAT = new DbaseString(Schema.DEFWEGCAT);
+        WEGCAT = new TrimmedDbaseString(Schema.WEGCAT);
+        LBLWEGCAT = new TrimmedDbaseString(Schema.LBLWEGCAT);
+        DEFWEGCAT = new TrimmedDbaseString(Schema.DEFWEGCAT);
 
         Values = new DbaseFieldValue[]
         {

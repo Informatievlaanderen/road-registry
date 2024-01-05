@@ -10,12 +10,12 @@ public class GradeSeparatedJunctionDbaseRecord : DbaseRecord
     {
         OK_OIDN = new DbaseInt32(Schema.OK_OIDN);
         TYPE = new DbaseInt32(Schema.TYPE);
-        LBLTYPE = new DbaseString(Schema.LBLTYPE);
+        LBLTYPE = new TrimmedDbaseString(Schema.LBLTYPE);
         BO_WS_OIDN = new DbaseInt32(Schema.BO_WS_OIDN);
         ON_WS_OIDN = new DbaseInt32(Schema.ON_WS_OIDN);
         BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
-        BEGINORG = new DbaseString(Schema.BEGINORG);
-        LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
+        BEGINORG = new TrimmedDbaseString(Schema.BEGINORG);
+        LBLBGNORG = new TrimmedDbaseString(Schema.LBLBGNORG);
 
         Values = new DbaseFieldValue[]
         {

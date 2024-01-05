@@ -9,9 +9,9 @@ public class OrganizationDbaseRecord : DbaseRecord
 
     public OrganizationDbaseRecord()
     {
-        ORG = new DbaseString(Schema.ORG);
-        LBLORG = new DbaseString(Schema.LBLORG);
-        OVOCODE = new DbaseString(Schema.OVOCODE);
+        ORG = new TrimmedDbaseString(Schema.ORG);
+        LBLORG = new TrimmedDbaseString(Schema.LBLORG);
+        OVOCODE = new TrimmedDbaseString(Schema.OVOCODE);
 
         Values = new DbaseFieldValue[]
         {

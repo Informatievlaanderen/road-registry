@@ -10,10 +10,10 @@ public class TransactionZoneDbaseRecord : DbaseRecord
     {
         SOURCEID = new DbaseInt32(Schema.SOURCEID);
         TYPE = new DbaseInt32(Schema.TYPE);
-        BESCHRIJV = new DbaseString(Schema.BESCHRIJV);
-        OPERATOR = new DbaseString(Schema.OPERATOR);
-        ORG = new DbaseString(Schema.ORG);
-        APPLICATIE = new DbaseString(Schema.APPLICATIE);
+        BESCHRIJV = new TrimmedDbaseString(Schema.BESCHRIJV);
+        OPERATOR = new TrimmedDbaseString(Schema.OPERATOR);
+        ORG = new TrimmedDbaseString(Schema.ORG);
+        APPLICATIE = new TrimmedDbaseString(Schema.APPLICATIE);
 
         Values = new DbaseFieldValue[]
         {

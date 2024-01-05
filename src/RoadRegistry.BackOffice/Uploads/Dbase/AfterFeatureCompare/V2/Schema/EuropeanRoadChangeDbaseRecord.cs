@@ -10,7 +10,7 @@ public class EuropeanRoadChangeDbaseRecord : DbaseRecord
     {
         EU_OIDN = new DbaseInt32(Schema.EU_OIDN);
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
-        EUNUMMER = new DbaseString(Schema.EUNUMMER);
+        EUNUMMER = new TrimmedDbaseString(Schema.EUNUMMER);
         TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
         RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
 

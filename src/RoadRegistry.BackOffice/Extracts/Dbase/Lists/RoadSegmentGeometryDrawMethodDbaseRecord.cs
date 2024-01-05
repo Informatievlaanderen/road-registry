@@ -11,8 +11,8 @@ public class RoadSegmentGeometryDrawMethodDbaseRecord : DbaseRecord
     public RoadSegmentGeometryDrawMethodDbaseRecord()
     {
         METHODE = new DbaseInt32(Schema.METHODE);
-        LBLMETHOD = new DbaseString(Schema.LBLMETHOD);
-        DEFMETHOD = new DbaseString(Schema.DEFMETHOD);
+        LBLMETHOD = new TrimmedDbaseString(Schema.LBLMETHOD);
+        DEFMETHOD = new TrimmedDbaseString(Schema.DEFMETHOD);
 
         Values = new DbaseFieldValue[]
         {

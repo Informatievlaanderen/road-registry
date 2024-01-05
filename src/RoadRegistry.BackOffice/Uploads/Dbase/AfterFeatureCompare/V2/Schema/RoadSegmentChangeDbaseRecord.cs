@@ -11,10 +11,10 @@ public class RoadSegmentChangeDbaseRecord : DbaseRecord, IRoadSegmentDbaseRecord
     {
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
         METHODE = new DbaseInt32(Schema.METHODE);
-        BEHEERDER = new DbaseString(Schema.BEHEERDER);
+        BEHEERDER = new TrimmedDbaseString(Schema.BEHEERDER);
         MORFOLOGIE = new DbaseInt32(Schema.MORFOLOGIE);
         STATUS = new DbaseInt32(Schema.STATUS);
-        CATEGORIE = new DbaseString(Schema.CATEGORIE);
+        CATEGORIE = new TrimmedDbaseString(Schema.CATEGORIE);
         B_WK_OIDN = new DbaseInt32(Schema.B_WK_OIDN);
         E_WK_OIDN = new DbaseInt32(Schema.E_WK_OIDN);
         LSTRNMID = new DbaseNullableInt32(Schema.LSTRNMID);

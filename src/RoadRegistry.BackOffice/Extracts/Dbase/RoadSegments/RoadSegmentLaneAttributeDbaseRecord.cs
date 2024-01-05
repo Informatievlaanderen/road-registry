@@ -10,15 +10,15 @@ public class RoadSegmentLaneAttributeDbaseRecord : DbaseRecord
     {
         RS_OIDN = new DbaseInt32(Schema.RS_OIDN);
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
-        WS_GIDN = new DbaseString(Schema.WS_GIDN);
+        WS_GIDN = new TrimmedDbaseString(Schema.WS_GIDN);
         AANTAL = new DbaseInt32(Schema.AANTAL);
         RICHTING = new DbaseInt32(Schema.RICHTING);
-        LBLRICHT = new DbaseString(Schema.LBLRICHT);
+        LBLRICHT = new TrimmedDbaseString(Schema.LBLRICHT);
         VANPOS = new DbaseNullableDouble(Schema.VANPOS);
         TOTPOS = new DbaseNullableDouble(Schema.TOTPOS);
         BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
-        BEGINORG = new DbaseString(Schema.BEGINORG);
-        LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
+        BEGINORG = new TrimmedDbaseString(Schema.BEGINORG);
+        LBLBGNORG = new TrimmedDbaseString(Schema.LBLBGNORG);
 
         Values = new DbaseFieldValue[]
         {
