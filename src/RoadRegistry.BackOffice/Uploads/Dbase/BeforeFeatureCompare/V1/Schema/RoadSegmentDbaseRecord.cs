@@ -16,10 +16,10 @@ public class RoadSegmentDbaseRecord : DbaseRecord, IRoadSegmentDbaseRecord
         E_WK_OIDN = new DbaseInt32(Schema.E_WK_OIDN);
         STATUS = new DbaseInt32(Schema.STATUS);
         MORF = new DbaseInt32(Schema.MORF);
-        WEGCAT = new DbaseString(Schema.WEGCAT);
+        WEGCAT = new TrimmedDbaseString(Schema.WEGCAT);
         LSTRNMID = new DbaseNullableInt32(Schema.LSTRNMID);
         RSTRNMID = new DbaseNullableInt32(Schema.RSTRNMID);
-        BEHEER = new DbaseString(Schema.BEHEER);
+        BEHEER = new TrimmedDbaseString(Schema.BEHEER);
         METHODE = new DbaseInt32(Schema.METHODE);
         TGBEP = new DbaseInt32(Schema.TGBEP);
 

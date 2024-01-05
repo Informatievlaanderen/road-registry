@@ -11,8 +11,8 @@ public class LaneDirectionDbaseRecord : DbaseRecord
     public LaneDirectionDbaseRecord()
     {
         RICHTING = new DbaseInt32(Schema.RICHTING);
-        LBLRICHT = new DbaseString(Schema.LBLRICHT);
-        DEFRICHT = new DbaseString(Schema.DEFRICHT);
+        LBLRICHT = new TrimmedDbaseString(Schema.LBLRICHT);
+        DEFRICHT = new TrimmedDbaseString(Schema.DEFRICHT);
 
         Values = new DbaseFieldValue[]
         {

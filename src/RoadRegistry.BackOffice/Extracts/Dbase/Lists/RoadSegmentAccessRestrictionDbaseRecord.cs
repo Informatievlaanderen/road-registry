@@ -11,8 +11,8 @@ public class RoadSegmentAccessRestrictionDbaseRecord : DbaseRecord
     public RoadSegmentAccessRestrictionDbaseRecord()
     {
         TYPE = new DbaseInt32(Schema.TYPE);
-        LBLTYPE = new DbaseString(Schema.LBLTYPE);
-        DEFTYPE = new DbaseString(Schema.DEFTYPE);
+        LBLTYPE = new TrimmedDbaseString(Schema.LBLTYPE);
+        DEFTYPE = new TrimmedDbaseString(Schema.DEFTYPE);
 
         Values = new DbaseFieldValue[]
         {

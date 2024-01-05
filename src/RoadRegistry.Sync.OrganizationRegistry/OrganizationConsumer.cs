@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.FeatureToggles;
 using SqlStreamStore;
 using System;
 using System.Configuration;
@@ -26,6 +27,8 @@ using Organization = Models.Organization;
 
 public class OrganizationConsumer : RoadRegistryBackgroundService
 {
+    private readonly UseOrganizationProcessedMessagesFeatureToggle _useOrganizationProcessedMessagesFeatureToggle;
+
     private static readonly EventMapping EventMapping =
         new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
 
@@ -49,6 +52,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
         RecyclableMemoryStreamManager manager,
         FileEncoding fileEncoding,
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
+        UseOrganizationProcessedMessagesFeatureToggle useOrganizationProcessedMessagesFeatureToggle,
         ILoggerFactory loggerFactory)
         : base(loggerFactory.CreateLogger<OrganizationConsumer>())
     {
@@ -57,7 +61,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
         _organizationReader = organizationReader.ThrowIfNull();
         _store = store.ThrowIfNull();
         _roadNetworkCommandQueue = roadNetworkCommandQueue.ThrowIfNull();
-
+        _useOrganizationProcessedMessagesFeatureToggle = useOrganizationProcessedMessagesFeatureToggle.ThrowIfNull();
         _organizationRecordReader = new OrganizationDbaseRecordReader(manager, fileEncoding);
     }
 
@@ -115,7 +119,10 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                     projectionState.Position = organization.ChangeId;
                     processedCount++;
 
-                    await context.ProcessedMessages.AddAsync(new ProcessedMessage($"organization-{projectionState.Position}-{organization.OvoNumber}".ToSha512(), DateTimeOffset.UtcNow), cancellationToken);
+                    if (_useOrganizationProcessedMessagesFeatureToggle.FeatureEnabled)
+                    {
+                        await context.ProcessedMessages.AddAsync(new ProcessedMessage($"organization-{projectionState.Position}-{organization.OvoNumber}".ToSha512(), DateTimeOffset.UtcNow), cancellationToken);
+                    }
 
                     Logger.LogInformation("Processed organization {OvoNumber}", organization.OvoNumber);
                 }, cancellationToken);

@@ -11,30 +11,30 @@ public class RoadSegmentDbaseRecord : DbaseRecord, IRoadSegmentDbaseRecord
     public RoadSegmentDbaseRecord()
     {
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
-        WS_UIDN = new DbaseString(Schema.WS_UIDN);
-        WS_GIDN = new DbaseString(Schema.WS_GIDN);
+        WS_UIDN = new TrimmedDbaseString(Schema.WS_UIDN);
+        WS_GIDN = new TrimmedDbaseString(Schema.WS_GIDN);
         B_WK_OIDN = new DbaseInt32(Schema.B_WK_OIDN);
         E_WK_OIDN = new DbaseInt32(Schema.E_WK_OIDN);
         STATUS = new DbaseInt32(Schema.STATUS);
-        LBLSTATUS = new DbaseString(Schema.LBLSTATUS);
+        LBLSTATUS = new TrimmedDbaseString(Schema.LBLSTATUS);
         MORF = new DbaseInt32(Schema.MORF);
-        LBLMORF = new DbaseString(Schema.LBLMORF);
-        WEGCAT = new DbaseString(Schema.WEGCAT);
-        LBLWEGCAT = new DbaseString(Schema.LBLWEGCAT);
+        LBLMORF = new TrimmedDbaseString(Schema.LBLMORF);
+        WEGCAT = new TrimmedDbaseString(Schema.WEGCAT);
+        LBLWEGCAT = new TrimmedDbaseString(Schema.LBLWEGCAT);
         LSTRNMID = new DbaseNullableInt32(Schema.LSTRNMID);
-        LSTRNM = new DbaseString(Schema.LSTRNM);
+        LSTRNM = new TrimmedDbaseString(Schema.LSTRNM);
         RSTRNMID = new DbaseNullableInt32(Schema.RSTRNMID);
-        RSTRNM = new DbaseString(Schema.RSTRNM);
-        BEHEER = new DbaseString(Schema.BEHEER);
-        LBLBEHEER = new DbaseString(Schema.LBLBEHEER);
+        RSTRNM = new TrimmedDbaseString(Schema.RSTRNM);
+        BEHEER = new TrimmedDbaseString(Schema.BEHEER);
+        LBLBEHEER = new TrimmedDbaseString(Schema.LBLBEHEER);
         METHODE = new DbaseInt32(Schema.METHODE);
-        LBLMETHOD = new DbaseString(Schema.LBLMETHOD);
+        LBLMETHOD = new TrimmedDbaseString(Schema.LBLMETHOD);
         OPNDATUM = new DbaseDateTime(Schema.OPNDATUM);
         BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
-        BEGINORG = new DbaseString(Schema.BEGINORG);
-        LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
+        BEGINORG = new TrimmedDbaseString(Schema.BEGINORG);
+        LBLBGNORG = new TrimmedDbaseString(Schema.LBLBGNORG);
         TGBEP = new DbaseInt32(Schema.TGBEP);
-        LBLTGBEP = new DbaseString(Schema.LBLTGBEP);
+        LBLTGBEP = new TrimmedDbaseString(Schema.LBLTGBEP);
 
         Values = new DbaseFieldValue[]
         {

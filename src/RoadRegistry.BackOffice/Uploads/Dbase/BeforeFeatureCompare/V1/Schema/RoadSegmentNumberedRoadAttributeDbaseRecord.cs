@@ -11,7 +11,7 @@ public class RoadSegmentNumberedRoadAttributeDbaseRecord : DbaseRecord
     {
         GW_OIDN = new DbaseInt32(Schema.GW_OIDN);
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
-        IDENT8 = new DbaseString(Schema.IDENT8);
+        IDENT8 = new TrimmedDbaseString(Schema.IDENT8);
         RICHTING = new DbaseInt32(Schema.RICHTING);
         VOLGNUMMER = new DbaseInt32(Schema.VOLGNUMMER);
 

@@ -11,8 +11,8 @@ public class RoadSegmentMorphologyDbaseRecord : DbaseRecord
     public RoadSegmentMorphologyDbaseRecord()
     {
         MORF = new DbaseInt32(Schema.MORF);
-        LBLMORF = new DbaseString(Schema.LBLMORF);
-        DEFMORF = new DbaseString(Schema.DEFMORF);
+        LBLMORF = new TrimmedDbaseString(Schema.LBLMORF);
+        DEFMORF = new TrimmedDbaseString(Schema.DEFMORF);
 
         Values = new DbaseFieldValue[]
         {

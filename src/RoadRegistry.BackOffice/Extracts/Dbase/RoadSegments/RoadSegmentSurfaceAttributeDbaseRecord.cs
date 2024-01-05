@@ -10,14 +10,14 @@ public class RoadSegmentSurfaceAttributeDbaseRecord : DbaseRecord
     {
         WV_OIDN = new DbaseInt32(Schema.WV_OIDN);
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
-        WS_GIDN = new DbaseString(Schema.WS_GIDN);
+        WS_GIDN = new TrimmedDbaseString(Schema.WS_GIDN);
         TYPE = new DbaseInt32(Schema.TYPE);
-        LBLTYPE = new DbaseString(Schema.LBLTYPE);
+        LBLTYPE = new TrimmedDbaseString(Schema.LBLTYPE);
         VANPOS = new DbaseNullableDouble(Schema.VANPOS);
         TOTPOS = new DbaseNullableDouble(Schema.TOTPOS);
         BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
-        BEGINORG = new DbaseString(Schema.BEGINORG);
-        LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
+        BEGINORG = new TrimmedDbaseString(Schema.BEGINORG);
+        LBLBGNORG = new TrimmedDbaseString(Schema.LBLBGNORG);
 
         Values = new DbaseFieldValue[]
         {

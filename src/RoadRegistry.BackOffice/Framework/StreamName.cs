@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Framework;
 
 using System;
 using System.Diagnostics.Contracts;
+using Extensions;
 using SqlStreamStore.Streams;
 
 public struct StreamName : IEquatable<StreamName>
@@ -12,7 +13,13 @@ public struct StreamName : IEquatable<StreamName>
 
     public StreamName(string value)
     {
-        _value = value ?? throw new ArgumentNullException(nameof(value));
+        _value = value.ThrowIfNull();
+
+        if (value.ContainsWhitespace())
+        {
+            throw new ArgumentException($"Value '{value}' cannot contain whitespace");
+        }
+
         SupportsSnapshot = false;
     }
 

@@ -9,12 +9,12 @@ public class RoadNodeDbaseRecord : DbaseRecord
     public RoadNodeDbaseRecord()
     {
         WK_OIDN = new DbaseInt32(Schema.WK_OIDN);
-        WK_UIDN = new DbaseString(Schema.WK_UIDN);
+        WK_UIDN = new TrimmedDbaseString(Schema.WK_UIDN);
         TYPE = new DbaseInt32(Schema.TYPE);
-        LBLTYPE = new DbaseString(Schema.LBLTYPE);
+        LBLTYPE = new TrimmedDbaseString(Schema.LBLTYPE);
         BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
-        BEGINORG = new DbaseString(Schema.BEGINORG);
-        LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
+        BEGINORG = new TrimmedDbaseString(Schema.BEGINORG);
+        LBLBGNORG = new TrimmedDbaseString(Schema.LBLBGNORG);
 
         Values = new DbaseFieldValue[]
         {

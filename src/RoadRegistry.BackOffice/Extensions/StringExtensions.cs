@@ -13,4 +13,9 @@ public static class StringExtensions
     {
         return value?.Substring(0, Math.Min(value.Length, maxLength));
     }
+
+    public static bool ContainsWhitespace(this string value)
+    {
+        return value is not null && value.Contains(" ");
+    }
 }

@@ -10,10 +10,10 @@ public class RoadSegmentEuropeanRoadAttributeDbaseRecord : DbaseRecord
     {
         EU_OIDN = new DbaseInt32(Schema.EU_OIDN);
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
-        EUNUMMER = new DbaseString(Schema.EUNUMMER);
+        EUNUMMER = new TrimmedDbaseString(Schema.EUNUMMER);
         BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
-        BEGINORG = new DbaseString(Schema.BEGINORG);
-        LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
+        BEGINORG = new TrimmedDbaseString(Schema.BEGINORG);
+        LBLBGNORG = new TrimmedDbaseString(Schema.LBLBGNORG);
 
         Values = new DbaseFieldValue[]
         {

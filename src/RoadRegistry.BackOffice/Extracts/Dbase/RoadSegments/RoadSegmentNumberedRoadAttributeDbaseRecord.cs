@@ -10,13 +10,13 @@ public class RoadSegmentNumberedRoadAttributeDbaseRecord : DbaseRecord
     {
         GW_OIDN = new DbaseInt32(Schema.GW_OIDN);
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
-        IDENT8 = new DbaseString(Schema.IDENT8);
+        IDENT8 = new TrimmedDbaseString(Schema.IDENT8);
         RICHTING = new DbaseInt32(Schema.RICHTING);
-        LBLRICHT = new DbaseString(Schema.LBLRICHT);
+        LBLRICHT = new TrimmedDbaseString(Schema.LBLRICHT);
         VOLGNUMMER = new DbaseInt32(Schema.VOLGNUMMER);
         BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
-        BEGINORG = new DbaseString(Schema.BEGINORG);
-        LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
+        BEGINORG = new TrimmedDbaseString(Schema.BEGINORG);
+        LBLBGNORG = new TrimmedDbaseString(Schema.LBLBGNORG);
 
         Values = new DbaseFieldValue[]
         {

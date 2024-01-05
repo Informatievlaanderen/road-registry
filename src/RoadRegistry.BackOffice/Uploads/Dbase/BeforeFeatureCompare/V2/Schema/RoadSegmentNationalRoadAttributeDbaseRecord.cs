@@ -10,7 +10,7 @@ public class RoadSegmentNationalRoadAttributeDbaseRecord : DbaseRecord
     {
         NW_OIDN = new DbaseInt32(Schema.NW_OIDN);
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
-        IDENT2 = new DbaseString(Schema.IDENT2);
+        IDENT2 = new TrimmedDbaseString(Schema.IDENT2);
 
         Values = new DbaseFieldValue[]
         {

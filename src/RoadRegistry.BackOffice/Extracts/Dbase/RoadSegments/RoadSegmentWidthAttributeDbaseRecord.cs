@@ -10,13 +10,13 @@ public class RoadSegmentWidthAttributeDbaseRecord : DbaseRecord
     {
         WB_OIDN = new DbaseInt32(Schema.WB_OIDN);
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
-        WS_GIDN = new DbaseString(Schema.WS_GIDN);
+        WS_GIDN = new TrimmedDbaseString(Schema.WS_GIDN);
         BREEDTE = new DbaseInt32(Schema.BREEDTE);
         VANPOS = new DbaseNullableDouble(Schema.VANPOS);
         TOTPOS = new DbaseNullableDouble(Schema.TOTPOS);
         BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
-        BEGINORG = new DbaseString(Schema.BEGINORG);
-        LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
+        BEGINORG = new TrimmedDbaseString(Schema.BEGINORG);
+        LBLBGNORG = new TrimmedDbaseString(Schema.LBLBGNORG);
 
         Values = new DbaseFieldValue[]
         {
