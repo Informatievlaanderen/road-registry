@@ -32,23 +32,25 @@ namespace RoadRegistry.Projector.Consumers
 
             await Task.WhenAll(organizationConsumerResult ?? Task.CompletedTask, streetNameConsumerResult ?? Task.CompletedTask);
 
-            return Ok(new ConsumerStatus?[]
+            var statuses = new ConsumerStatus?[]
             {
-                organizationConsumerResult is not null
+                organizationConsumerResult?.Result is not null
                     ? new()
                     {
                         Name = "Synchronisatie van organisatie register",
-                        LastProcessedMessage = organizationConsumerResult.Result
+                        LastProcessedMessage = organizationConsumerResult.Result.Value
                     }
                     : null,
-                streetNameConsumerResult is not null
+                streetNameConsumerResult?.Result is not null
                     ? new()
                     {
                         Name = "Synchronisatie van straatnaam register",
-                        LastProcessedMessage = streetNameConsumerResult.Result
+                        LastProcessedMessage = streetNameConsumerResult.Result.Value
                     }
                     : null
-            }.Where(x => x is not null).ToArray());
+            }.Where(x => x is not null).ToArray();
+
+            return Ok(statuses);
         }
 
         private async Task<DateTimeOffset?> GetLastProcessedMessageDateProcessed(IConfiguration configuration, string connectionStringName, string schemaName)
