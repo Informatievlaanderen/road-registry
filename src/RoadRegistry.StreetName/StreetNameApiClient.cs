@@ -35,6 +35,10 @@ namespace RoadRegistry.StreetName
             var httpClient = _httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/ld+json"));
+            if (!string.IsNullOrEmpty(_options.ApiKey))
+            {
+                httpClient.DefaultRequestHeaders.Add("x-api-key", _options.ApiKey);
+            }
             var response = await httpClient.GetAsync(CreateUri(id), cancellationToken);
             if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.Gone)
             {
