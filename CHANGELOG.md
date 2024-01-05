@@ -1,3 +1,10 @@
+# [3.66.0](https://github.com/informatievlaanderen/road-registry/compare/v3.65.13...v3.66.0) (2024-01-05)
+
+
+### Features
+
+* WR-909 add backoffice processors and organization/streetname sync to projector api ([#1346](https://github.com/informatievlaanderen/road-registry/issues/1346)) ([4be4c90](https://github.com/informatievlaanderen/road-registry/commit/4be4c90d5ddae9b501da4fa465ecc0ed525b1697))
+
 ## [3.65.13](https://github.com/informatievlaanderen/road-registry/compare/v3.65.12...v3.65.13) (2024-01-03)
 
 
