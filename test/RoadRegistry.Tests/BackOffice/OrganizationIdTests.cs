@@ -38,7 +38,9 @@ public class OrganizationIdTests
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void AcceptsValueReturnsExpectedResultWhenValueNullOrEmpty(string value)
+    [InlineData(" ")]
+    [InlineData(" a ")]
+    public void AcceptsValueReturnsExpectedResultWhenValueNullOrEmptyOrContainsWhitespace(string value)
     {
         Assert.False(OrganizationId.AcceptsValue(value));
     }

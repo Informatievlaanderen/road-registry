@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice;
 
 using System;
+using Extensions;
 using Framework;
 
 public readonly struct OrganizationId : IEquatable<OrganizationId>
@@ -13,18 +14,27 @@ public readonly struct OrganizationId : IEquatable<OrganizationId>
 
     public OrganizationId(string value)
     {
-        if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value), "The organization identifier must not be null or empty.");
+        if (string.IsNullOrEmpty(value))
+        {
+            throw new ArgumentNullException(nameof(value), "The organization identifier must not be null or empty.");
+        }
+
+        if (value.ContainsWhitespace())
+        {
+            throw new ArgumentNullException(nameof(value), "The organization identifier must not contain whitespace.");
+        }
 
         if (value.Length > MaxLength)
-            throw new ArgumentOutOfRangeException(nameof(value),
-                $"The organization identifier must be {MaxLength} characters or less.");
+        {
+            throw new ArgumentOutOfRangeException(nameof(value), $"The organization identifier must be {MaxLength} characters or less.");
+        }
 
         _value = value;
     }
 
     public static bool AcceptsValue(string value)
     {
-        return !string.IsNullOrEmpty(value) && value.Length <= MaxLength;
+        return !string.IsNullOrEmpty(value) && !value.ContainsWhitespace() && value.Length <= MaxLength;
     }
 
     public static bool IsSystemValue(OrganizationId value)
