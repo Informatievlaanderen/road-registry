@@ -21,7 +21,7 @@ public readonly struct OrganizationId : IEquatable<OrganizationId>
 
         if (value.ContainsWhitespace())
         {
-            throw new ArgumentNullException(nameof(value), "The organization identifier must not contain whitespace.");
+            throw new ArgumentException("The organization identifier must not contain whitespace.", nameof(value));
         }
 
         if (value.Length > MaxLength)
