@@ -139,7 +139,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
             Event<RoadNetworkExtractGotRequestedV2> v2 => v2.Body.Description,
             _ => throw new NotSupportedException($"Message type '{message.GetType().Name}' does not have support to extract the description")
         };
-
+        
         var policy = Policy
             .HandleResult<bool>(exists => !exists)
             .WaitAndRetryAsync(new[]
@@ -157,7 +157,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                 {
                     RequestId = message.Body.RequestId,
                     DownloadId = message.Body.DownloadId,
-                    ArchiveId = archiveId
+                    ArchiveId = archiveId,
+                    IsInformative = message.Body.IsInformative
                 })
                 .WithMessageId(message.MessageId), ct);
         }
@@ -192,8 +193,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                             {
                                 RequestId = message.Body.RequestId,
                                 DownloadId = message.Body.DownloadId,
-                                //Revision = revision,
-                                ArchiveId = archiveId
+                                ArchiveId = archiveId,
+                                IsInformative = message.Body.IsInformative
                             })
                         .WithMessageId(message.MessageId), ct);
                     break;

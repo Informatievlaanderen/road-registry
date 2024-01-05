@@ -256,7 +256,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         var organizationId = new OrganizationId(command.Body.Code);
         var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
 
-        if (organization != null)
+        if (organization is not null)
         {
             organization.Change(
                 command.Body.Name is not null ? OrganizationName.WithoutExcessLength(command.Body.Name) : null,
