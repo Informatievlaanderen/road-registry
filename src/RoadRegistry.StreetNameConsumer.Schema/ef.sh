@@ -1,1 +1,1 @@
-dotnet ef --startup-project ../RoadRegistry.StreetNameConsumer.ProjectionHost "$@"
+dotnet ef --startup-project ../RoadRegistry.SyncHost "$@"

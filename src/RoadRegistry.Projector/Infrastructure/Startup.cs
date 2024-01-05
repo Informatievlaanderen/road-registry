@@ -26,10 +26,13 @@ using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode;
 using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment;
 using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface;
 using RoadRegistry.Projector.Infrastructure.Extensions;
-using Syndication.Schema;
 using System;
 using System.Linq;
 using System.Reflection;
+using Hosts;
+using RoadRegistry.Syndication.Schema;
+using StreetNameConsumer.Schema;
+using Sync.OrganizationRegistry;
 using Wfs.Schema;
 using Wms.Schema;
 
@@ -118,7 +121,8 @@ public class Startup
     public IServiceProvider ConfigureServices(IServiceCollection services)
     {
         var baseUrl = _configuration.GetValue<string>("BaseUrl")?.TrimEnd('/') ?? string.Empty;
-        
+        var projectionOptions = _configuration.GetOptions<ProjectionOptions>("Projections");
+
         services
             .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
             {
@@ -157,8 +161,7 @@ public class Startup
                         var connectionStrings = _configuration
                             .GetSection("ConnectionStrings")
                             .GetChildren();
-                        var projectionOptions = _configuration.GetOptions<ProjectionOptions>("Projections");
-
+                        
                         foreach (var connectionString in connectionStrings)
                         {
                             health.AddSqlServer(
@@ -200,10 +203,26 @@ public class Startup
                             health.AddDbContextCheck<GradeSeparatedJunctionProducerSnapshotContext>();
                             health.AddDbContextCheck<NationalRoadProducerSnapshotContext>();
                         }
+
+                        if (projectionOptions.BackOfficeProcessors.Enabled)
+                        {
+                            health.AddDbContextCheck<BackOfficeProcessorDbContext>();
+                        }
+
+                        if (projectionOptions.OrganizationSync.Enabled)
+                        {
+                            health.AddDbContextCheck<OrganizationConsumerContext>();
+                        }
+
+                        if (projectionOptions.StreetNameSync.Enabled)
+                        {
+                            health.AddDbContextCheck<StreetNameConsumerContext>();
+                        }
                     }
                 }
             })
             .AddValidatorsFromAssemblyContaining<Startup>()
+            .AddSingleton(projectionOptions)
 
             .AddDbContext<EditorContext>(WellknownConnectionNames.EditorProjections)
             .AddDbContext<ProductContext>(WellknownConnectionNames.ProductProjections)
@@ -215,6 +234,9 @@ public class Startup
             .AddDbContext<NationalRoadProducerSnapshotContext>(WellknownConnectionNames.ProducerSnapshotProjections)
             .AddDbContext<GradeSeparatedJunctionProducerSnapshotContext>(WellknownConnectionNames.ProducerSnapshotProjections)
             .AddDbContext<RoadSegmentSurfaceProducerSnapshotContext>(WellknownConnectionNames.ProducerSnapshotProjections)
+            .AddDbContext<BackOfficeProcessorDbContext>(WellknownConnectionNames.Events)
+            .AddDbContext<OrganizationConsumerContext>(WellknownConnectionNames.OrganizationConsumerProjections)
+            .AddDbContext<StreetNameConsumerContext>(WellknownConnectionNames.StreetNameConsumerProjections)
             ;
 
         var containerBuilder = new ContainerBuilder();

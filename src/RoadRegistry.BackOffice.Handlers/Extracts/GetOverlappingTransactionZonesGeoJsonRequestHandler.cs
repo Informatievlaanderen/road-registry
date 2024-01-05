@@ -24,12 +24,17 @@ public class GetOverlappingTransactionZonesGeoJsonRequestHandler : EndpointReque
 
     public override async Task<GetOverlappingTransactionZonesGeoJsonResponse> HandleAsync(GetOverlappingTransactionZonesGeoJsonRequest request, CancellationToken cancellationToken)
     {
-        var overlaps = await _context.ExtractRequestOverlaps
-            .ToListAsync(cancellationToken);
+        var availableOverlaps = await (
+            from overlap in _context.ExtractRequestOverlaps
+            join download1 in _context.ExtractDownloads on overlap.DownloadId1 equals download1.DownloadId
+            join download2 in _context.ExtractDownloads on overlap.DownloadId2 equals download2.DownloadId
+            where download1.Available && download2.Available
+            select overlap
+        ).ToListAsync(cancellationToken);
 
         return new GetOverlappingTransactionZonesGeoJsonResponse
         {
-            FeatureCollection = new FeatureCollection(overlaps
+            FeatureCollection = new FeatureCollection(availableOverlaps
                 .Select(overlap => new Feature(overlap.Contour.ToMultiPolygon().ToGeoJson(), new
                 {
                     DownloadId1 = DownloadId.FromValue(overlap.DownloadId1).ToString(),

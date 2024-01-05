@@ -1,6 +1,7 @@
 namespace RoadRegistry.StreetNameConsumer.Schema;
 
 using BackOffice;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,9 @@ public class StreetNameConsumerContext : RunnerDbContext<StreetNameConsumerConte
     }
 
     public override string ProjectionStateSchema => WellknownSchemas.StreetNameConsumerSchema;
+
     public DbSet<StreetNameConsumerItem> StreetNames { get; set; }
+    public DbSet<ProcessedMessage> ProcessedMessages { get; set; }
 
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
@@ -29,5 +32,6 @@ public class StreetNameConsumerContext : RunnerDbContext<StreetNameConsumerConte
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
+        modelBuilder.ApplyConfiguration(new ProcessedMessageConfiguration(ProjectionStateSchema));
     }
 }

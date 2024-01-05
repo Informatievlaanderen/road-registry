@@ -123,6 +123,7 @@ nuget Be.Vlaanderen.Basisregisters.GrAr.Legacy 19.1.0
 nuget Be.Vlaanderen.Basisregisters.GrAr.Provenance 19.1.0
 nuget Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple 4.9.1
 nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer 4.9.1
+nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer 4.9.1
 nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Producer 4.9.1
 nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple 4.9.1
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.LastChangedList 11.1.2

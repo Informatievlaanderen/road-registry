@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Core;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.EventHandling;
@@ -38,7 +39,11 @@ public class Organizations : IOrganizations
 
         var organization = Organization.Factory();
         var page = await _store.ReadStreamForwards(stream, StreamVersion.Start, 100, ct);
-        if (page.Status == PageReadStatus.StreamNotFound) return null;
+        if (page.Status == PageReadStatus.StreamNotFound || !page.Messages.Any())
+        {
+            return null;
+        }
+
         IEventSourcedEntity entity = organization;
         var messages = new List<object>(page.Messages.Length);
         foreach (var message in page.Messages)
@@ -52,7 +57,10 @@ public class Organizations : IOrganizations
         {
             messages.Clear();
             page = await page.ReadNext(ct);
-            if (page.Status == PageReadStatus.StreamNotFound) return null;
+            if (page.Status == PageReadStatus.StreamNotFound)
+            {
+                return null;
+            }
             foreach (var message in page.Messages)
                 messages.Add(
                     JsonConvert.DeserializeObject(

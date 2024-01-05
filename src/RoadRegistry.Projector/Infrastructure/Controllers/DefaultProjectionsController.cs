@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projector.Projections;
+namespace RoadRegistry.Projector.Infrastructure.Controllers;
 
 using System;
 using System.Collections.Generic;
@@ -10,15 +10,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SqlStreamStore;
 
-public class DefaultProjectionsController : ControllerBase
+public abstract class DefaultProjectionsController : ControllerBase
 {
-    protected readonly Dictionary<ProjectionDetail, Func<DbContext>> _listOfProjections;
-    protected readonly IStreamStore _streamStore;
+    protected readonly Dictionary<ProjectionDetail, Func<DbContext>> Projections;
+    protected readonly IStreamStore StreamStore;
 
-    public DefaultProjectionsController(IStreamStore streamStore, Dictionary<ProjectionDetail, Func<DbContext>> listOfProjections)
+    protected DefaultProjectionsController(IStreamStore streamStore, Dictionary<ProjectionDetail, Func<DbContext>> projections)
     {
-        _streamStore = streamStore;
-        _listOfProjections = listOfProjections;
+        StreamStore = streamStore;
+        Projections = projections;
     }
 
     protected async Task<ProjectionStateItem?> GetProjectionStateItem(string id, Func<DbContext> ctxFactory, CancellationToken cancellationToken)
