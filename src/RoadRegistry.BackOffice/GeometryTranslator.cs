@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Messages;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;

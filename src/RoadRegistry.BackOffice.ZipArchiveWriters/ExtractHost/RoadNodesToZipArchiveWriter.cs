@@ -24,10 +24,10 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         EditorContext context,
         CancellationToken cancellationToken)
     {
-        if (archive == null) throw new ArgumentNullException(nameof(archive));
-        if (request == null) throw new ArgumentNullException(nameof(request));
-        if (context == null) throw new ArgumentNullException(nameof(context));
-
+        ArgumentNullException.ThrowIfNull(archive);
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(context);
+        //TODO-rik only get IDs in this query, get objects in 2nd step
         var nodes = await context.RoadNodes
             .ToListWithPolygonials(request.Contour,
                 (dbSet, polygon) => dbSet.InsideContour(polygon),
@@ -48,7 +48,7 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                    new BinaryWriter(dbfEntryStream, _encoding, true)))
         {
             var dbfRecord = new RoadNodeDbaseRecord();
-            foreach (var data in nodes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
+            foreach (var data in nodes.OrderBy(record => record.Id).Select(record => record.DbaseRecord))
             {
                 dbfRecord.FromBytes(data, _manager, _encoding);
                 dbfWriter.Write(dbfRecord);

@@ -28,6 +28,20 @@ public static class GeoJsonExtensions
     {
         return new LineString(geometry.Coordinates.Select(x => x.ToPosition()));
     }
+    
+    public static NetTopologySuite.Geometries.MultiPolygon ToMultiPolygon(this MultiPolygon geometry)
+    {
+        return new NetTopologySuite.Geometries.MultiPolygon(
+            geometry.Coordinates.Select(polygon =>
+                new NetTopologySuite.Geometries.Polygon(
+                    new LinearRing(
+                        polygon.Coordinates
+                            .SelectMany(linestring => linestring.Coordinates)
+                            .Select(coordinate => new Coordinate(coordinate.Longitude, coordinate.Latitude))
+                            .ToArray()
+                    ))
+            ).ToArray());
+    }
 
     public static double[][][] ToCoordinateArray(this MultiLineString geometry)
     {
