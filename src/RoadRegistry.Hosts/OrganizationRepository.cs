@@ -11,6 +11,7 @@ namespace RoadRegistry.Hosts
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using BackOffice.Core;
 
     public class OrganizationRepository : IOrganizationRepository
     {
@@ -38,6 +39,17 @@ namespace RoadRegistry.Hosts
 
         public async Task<OrganizationDetail?> FindByIdOrOvoCodeAsync(OrganizationId organizationId, CancellationToken cancellationToken)
         {
+            if (OrganizationId.IsSystemValue(organizationId))
+            {
+                var translation = Organization.PredefinedTranslations.FromSystemValue(organizationId);
+
+                return new OrganizationDetail
+                {
+                    Code = translation.Identifier,
+                    Name = translation.Name
+                };
+            }
+
             if (_cache.TryGetValue(organizationId, out var cachedOrganization))
             {
                 return cachedOrganization;

@@ -23,11 +23,14 @@ namespace RoadRegistry.Tests.BackOffice
         private static readonly JsonSerializerSettings Settings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
         private static readonly StreamNameConverter StreamNameConverter = StreamNameConversions.PassThru;
         
-        [Fact]
-        public async Task ShouldFindById()
+        [Theory]
+        [InlineData("ABC", "DV")]
+        [InlineData("-7", "andere")]
+        [InlineData("-8", "niet gekend")]
+        public async Task ShouldFindById(string organizationIdValue, string organizationNameValue)
         {
-            var organizationId = new OrganizationId("ABC");
-            var organizationName = new OrganizationName("DV");
+            var organizationId = new OrganizationId(organizationIdValue);
+            var organizationName = new OrganizationName(organizationNameValue);
 
             var sut = await BuildOrganizationRepository(
                 configureStore: async store =>

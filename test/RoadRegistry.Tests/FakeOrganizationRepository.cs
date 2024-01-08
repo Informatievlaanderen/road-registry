@@ -1,6 +1,7 @@
 namespace RoadRegistry.Tests
 {
     using RoadRegistry.BackOffice;
+    using RoadRegistry.BackOffice.Core;
 
     public class FakeOrganizationRepository: IOrganizationRepository
     {
@@ -8,6 +9,17 @@ namespace RoadRegistry.Tests
 
         public Task<OrganizationDetail> FindByIdOrOvoCodeAsync(OrganizationId organizationId, CancellationToken cancellationToken)
         {
+            if (OrganizationId.IsSystemValue(organizationId))
+            {
+                var translation = Organization.PredefinedTranslations.FromSystemValue(organizationId);
+
+                return Task.FromResult(new OrganizationDetail
+                {
+                    Code = translation.Identifier,
+                    Name = translation.Name
+                });
+            }
+
             if (_organizations.TryGetValue(organizationId, out var organization))
             {
                 return Task.FromResult(organization);

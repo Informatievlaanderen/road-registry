@@ -237,21 +237,18 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         {
             var maintenanceAuthorityCode = changeFeature.Attributes.MaintenanceAuthority;
 
-            if (!OrganizationId.IsSystemValue(maintenanceAuthorityCode))
+            var maintenanceAuthority = await _organizationRepository.FindByIdOrOvoCodeAsync(maintenanceAuthorityCode, cancellationToken);
+            if (maintenanceAuthority is null)
             {
-                var maintenanceAuthority = await _organizationRepository.FindByIdOrOvoCodeAsync(maintenanceAuthorityCode, cancellationToken);
-                if (maintenanceAuthority is null)
-                {
-                    var recordContext = FileName
-                        .AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber)
-                        .WithIdentifier(nameof(RoadSegmentDbaseRecord.WS_OIDN), changeFeature.Attributes.Id);
+                var recordContext = FileName
+                    .AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber)
+                    .WithIdentifier(nameof(RoadSegmentDbaseRecord.WS_OIDN), changeFeature.Attributes.Id);
 
-                    problems += recordContext.RoadSegmentMaintenanceAuthorityNotKnown(maintenanceAuthorityCode);
-                    continue;
-                }
-
-                maintenanceAuthorityCode = maintenanceAuthority.Code;
+                problems += recordContext.RoadSegmentMaintenanceAuthorityNotKnown(maintenanceAuthorityCode);
+                continue;
             }
+
+            maintenanceAuthorityCode = maintenanceAuthority.Code;
 
             result.Add(changeFeature with
             {

@@ -334,9 +334,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
     {
         if (organization is null)
         {
-            return organizationId == OrganizationId.Other
-                ? Organization.PredefinedTranslations.Other
-                : Organization.PredefinedTranslations.Unknown;
+            return Organization.PredefinedTranslations.FromSystemValue(organizationId);
         }
 
         if (_useOvoCodeInChangeRoadNetworkFeatureToggle.FeatureEnabled && organization.OvoCode is not null)
