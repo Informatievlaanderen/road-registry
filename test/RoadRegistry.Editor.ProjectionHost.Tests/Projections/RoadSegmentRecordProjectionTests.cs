@@ -83,7 +83,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 EndNodeId = segment.EndNodeId,
                 ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                 ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
-                BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
                 Geometry = geometry,
                 DbaseRecord = new RoadSegmentDbaseRecord
                 {
@@ -114,7 +113,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name }
                 }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                 LastEventHash = segment.GetHash()
-            };
+            }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         });
 
         return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
@@ -151,7 +150,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 EndNodeId = segmentAdded.EndNodeId,
                 ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                 ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
-                BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
                 Geometry = geometry,
                 DbaseRecord = new RoadSegmentDbaseRecord
                 {
@@ -182,7 +180,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name }
                 }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                 LastEventHash = segment.GetHash()
-            };
+            }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         });
 
         return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
@@ -219,7 +217,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 EndNodeId = segmentAdded.EndNodeId,
                 ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                 ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
-                BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
                 Geometry = geometry,
                 DbaseRecord = new RoadSegmentDbaseRecord
                 {
@@ -250,7 +247,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(segmentAdded.AccessRestriction).Translation.Name }
                 }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                 LastEventHash = segment.GetHash()
-            };
+            }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         });
 
         return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
@@ -285,7 +282,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 EndNodeId = segment.EndNodeId,
                 ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                 ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
-                BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
                 Geometry = geometry,
                 DbaseRecord = new RoadSegmentDbaseRecord
                 {
@@ -316,7 +312,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name }
                 }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                 LastEventHash = segment.GetHash()
-            };
+            }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         });
 
         return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
@@ -357,7 +353,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 EndNodeId = segment.EndNodeId,
                 ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                 ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
-                BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
                 Geometry = geometry,
                 DbaseRecord = new RoadSegmentDbaseRecord
                 {
@@ -389,7 +384,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                 LastEventHash = acceptedRoadSegmentRemoved.Changes[0].RoadSegmentRemoved.GetHash(),
                 IsRemoved = true
-            };
+            }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         });
 
         return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
@@ -416,7 +411,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     EndNodeId = importedRoadSegment.EndNodeId,
                     ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                     ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
-                    BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
                     Geometry = geometry,
                     DbaseRecord = new RoadSegmentDbaseRecord
                     {
@@ -447,7 +441,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                         LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(importedRoadSegment.AccessRestriction).Translation.Name }
                     }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                     LastEventHash = importedRoadSegment.GetHash()
-                };
+                }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
                 return new { importedRoadSegment, expected };
             }).ToList();
 
@@ -517,7 +511,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 EndNodeId = segment.EndNodeId,
                 ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                 ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
-                BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
                 Geometry = geometry,
                 DbaseRecord = new RoadSegmentDbaseRecord
                 {
@@ -548,7 +541,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name }
                 }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                 LastEventHash = segment.GetHash()
-            };
+            }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         });
 
         return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)

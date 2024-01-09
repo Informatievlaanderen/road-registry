@@ -7,6 +7,7 @@ using Editor.Schema;
 using Extensions;
 using Extracts;
 using Extracts.Dbase.RoadNodes;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 
 public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
@@ -27,7 +28,7 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(context);
-        //TODO-rik only get IDs in this query, get objects in 2nd step
+        
         var nodes = await context.RoadNodes
             .ToListWithPolygonials(request.Contour,
                 (dbSet, polygon) => dbSet.InsideContour(polygon),
@@ -61,7 +62,7 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         var shpBoundingBox =
             nodes.Aggregate(
                 BoundingBox3D.Empty,
-                (box, record) => box.ExpandWith(record.BoundingBox.ToBoundingBox3D()));
+                (box, record) => box.ExpandWith(record.GetBoundingBox().ToBoundingBox3D()));
 
         var shpEntry = archive.CreateEntry("eWegknoop.shp");
         var shpHeader = new ShapeFileHeader(

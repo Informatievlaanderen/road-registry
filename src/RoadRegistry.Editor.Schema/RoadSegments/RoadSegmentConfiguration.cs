@@ -27,7 +27,13 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
         b.HasIndex(p => p.IsRemoved)
             .IsClustered(false);
 
-        b.OwnsOne(p => p.BoundingBox);
+		//b.OwnsOne(p => p.BoundingBox); // WR-913 Flattened due to performance issues with OwnsOne
+        b.Property(p => p.BoundingBoxMaximumX).HasColumnName("BoundingBox_MaximumX");
+        b.Property(p => p.BoundingBoxMaximumY).HasColumnName("BoundingBox_MaximumY");
+        b.Property(p => p.BoundingBoxMaximumM).HasColumnName("BoundingBox_MaximumM");
+        b.Property(p => p.BoundingBoxMinimumX).HasColumnName("BoundingBox_MinimumX");
+        b.Property(p => p.BoundingBoxMinimumY).HasColumnName("BoundingBox_MinimumY");
+        b.Property(p => p.BoundingBoxMinimumM).HasColumnName("BoundingBox_MinimumM");
 
         b.HasQueryFilter(p => p.IsRemoved == false);
     }

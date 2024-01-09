@@ -93,7 +93,7 @@ public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 
         var shpBoundingBox = segments.Aggregate(
             BoundingBox3D.Empty,
-            (box, record) => box.ExpandWith(record.BoundingBox.ToBoundingBox3D()));
+            (box, record) => box.ExpandWith(record.GetBoundingBox().ToBoundingBox3D()));
 
         var shpEntry = archive.CreateEntry("eWegsegment.shp");
         var shpHeader = new ShapeFileHeader(

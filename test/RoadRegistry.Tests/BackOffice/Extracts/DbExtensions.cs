@@ -31,7 +31,6 @@ namespace RoadRegistry.Tests.BackOffice.Extracts
                 EndNodeId = segment.EndNodeId,
                 ShapeRecordContent = polyLineMShapeContent.ToBytes(new RecyclableMemoryStreamManager(), Encoding.UTF8),
                 ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
-                BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
                 Geometry = geometry,
                 DbaseRecord = new RoadSegmentDbaseRecord
                 {
@@ -62,7 +61,7 @@ namespace RoadRegistry.Tests.BackOffice.Extracts
                     LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name }
                 }.ToBytes(new RecyclableMemoryStreamManager(), Encoding.UTF8),
                 LastEventHash = segment.GetHash()
-            };
+            }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         }
     }
 }

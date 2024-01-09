@@ -45,7 +45,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                     EndNodeId = envelope.Message.EndNodeId,
                     ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding),
                     ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
-                    BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
                     Geometry = BackOffice.GeometryTranslator.Translate(envelope.Message.Geometry),
                     DbaseRecord = new RoadSegmentDbaseRecord
                     {
@@ -75,7 +74,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                         TGBEP = { Value = accessRestrictionTranslation.Identifier },
                         LBLTGBEP = { Value = accessRestrictionTranslation.Name }
                     }.ToBytes(manager, encoding)
-                }, envelope.Message),
+                }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape)), envelope.Message),
                 token);
         });
 
@@ -143,7 +142,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                 EndNodeId = segment.EndNodeId,
                 ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding),
                 ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
-                BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
                 Geometry = BackOffice.GeometryTranslator.Translate(segment.Geometry),
                 DbaseRecord = new RoadSegmentDbaseRecord
                 {
@@ -173,7 +171,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                     TGBEP = { Value = accessRestrictionTranslation.Identifier },
                     LBLTGBEP = { Value = accessRestrictionTranslation.Name }
                 }.ToBytes(manager, encoding)
-            }, segment),
+            }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape)), segment),
             token);
     }
 
@@ -205,7 +203,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         roadSegmentRecord.EndNodeId = roadSegmentModified.EndNodeId;
         roadSegmentRecord.ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding);
         roadSegmentRecord.ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32();
-        roadSegmentRecord.BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape);
+        roadSegmentRecord.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         roadSegmentRecord.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentModified.Geometry);
 
         var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegmentRecord.DbaseRecord, manager, encoding);
@@ -317,7 +315,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
 
         roadSegmentRecord.ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding);
         roadSegmentRecord.ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32();
-        roadSegmentRecord.BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape);
+        roadSegmentRecord.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         roadSegmentRecord.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentGeometryModified.Geometry);
 
         dbaseRecord.WS_GIDN.Value = new UIDN(roadSegmentGeometryModified.Id, roadSegmentGeometryModified.GeometryVersion);

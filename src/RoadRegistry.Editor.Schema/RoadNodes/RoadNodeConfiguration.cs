@@ -20,6 +20,10 @@ public class RoadNodeConfiguration : IEntityTypeConfiguration<RoadNodeRecord>
         b.Property(p => p.DbaseRecord).IsRequired();
         b.Property(p => p.Geometry).HasColumnType("Geometry").IsRequired();
 
-        b.OwnsOne(p => p.BoundingBox);
+		//b.OwnsOne(p => p.BoundingBox); // WR-913 Flattened due to performance issues with OwnsOne
+        b.Property(p => p.BoundingBoxMaximumX).HasColumnName("BoundingBox_MaximumX");
+        b.Property(p => p.BoundingBoxMaximumY).HasColumnName("BoundingBox_MaximumY");
+        b.Property(p => p.BoundingBoxMinimumX).HasColumnName("BoundingBox_MinimumX");
+        b.Property(p => p.BoundingBoxMinimumY).HasColumnName("BoundingBox_MinimumY");
     }
 }
