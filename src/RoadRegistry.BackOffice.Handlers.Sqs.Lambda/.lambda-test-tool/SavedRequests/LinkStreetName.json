@@ -3,7 +3,7 @@
     {
       "messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78",
       "receiptHandle": "MessageReceiptHandle",
-      "body": "{\"type\":\"RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.LinkStreetNameSqsRequest\",\"data\":\"{\\\"TicketId\\\":\\\"018601ac-4de6-40be-8354-d21431cd4a6f\\\",\\\"Request\\\":{\\\"wegsegmentId\\\":2,\\\"linkerstraatnaamId\\\":\\\"https://data.vlaanderen.be/id/straatnaam/36847\\\"},\\\"ProvenanceData\\\":{\\\"Operator\\\":\\\"DEV\\\"}}\"}",
+      "body": "{\"type\":\"RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.LinkStreetNameSqsRequest\",\"data\":\"{\\\"TicketId\\\":\\\"018601ac-4de6-40be-8354-d21431cd4a6f\\\",\\\"Request\\\":{\\\"wegsegmentId\\\":2,\\\"methode\\\":\\\"Measured\\\",\\\"linkerstraatnaamId\\\":\\\"https://data.vlaanderen.be/id/straatnaam/36847\\\"},\\\"ProvenanceData\\\":{\\\"Operator\\\":\\\"DEV\\\"}}\"}",
       "attributes": {
         "MessageGroupId": ""
       },

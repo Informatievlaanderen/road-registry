@@ -1,0 +1,3 @@
+namespace RoadRegistry.BackOffice.FeatureToggles;
+
+public sealed record UseDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle(bool FeatureEnabled) : ApplicationFeatureToggle(FeatureEnabled);
