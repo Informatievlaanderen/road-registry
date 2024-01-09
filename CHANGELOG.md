@@ -1,3 +1,11 @@
+## [3.66.5](https://github.com/informatievlaanderen/road-registry/compare/v3.66.4...v3.66.5) (2024-01-09)
+
+
+### Bug Fixes
+
+* version bump ([#1354](https://github.com/informatievlaanderen/road-registry/issues/1354)) ([12a873c](https://github.com/informatievlaanderen/road-registry/commit/12a873cad4fc8e4a1e4552a1bb6b98375f927aeb))
+* WR-913 remove usage of OwnsOne due to slow SQL being generated ([#1353](https://github.com/informatievlaanderen/road-registry/issues/1353)) ([5cde113](https://github.com/informatievlaanderen/road-registry/commit/5cde1137d50a8a434b25dd07dd024bbfa693c4cc))
+
 ## [3.66.4](https://github.com/informatievlaanderen/road-registry/compare/v3.66.3...v3.66.4) (2024-01-09)
 
 
