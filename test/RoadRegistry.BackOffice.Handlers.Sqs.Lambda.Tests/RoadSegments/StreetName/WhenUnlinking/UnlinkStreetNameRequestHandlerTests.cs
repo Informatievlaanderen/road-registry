@@ -14,6 +14,7 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Requests;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
@@ -44,6 +45,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
                 new FakeOrganizationRepository(),
                 LoggerFactory.CreateLogger<ChangeRoadNetworkDispatcher>()),
             new FakeDistributedStreamStoreLockOptions(),
+            new UseDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle(false),
             LoggerFactory.CreateLogger<UnlinkStreetNameSqsLambdaRequestHandler>()
         );
 

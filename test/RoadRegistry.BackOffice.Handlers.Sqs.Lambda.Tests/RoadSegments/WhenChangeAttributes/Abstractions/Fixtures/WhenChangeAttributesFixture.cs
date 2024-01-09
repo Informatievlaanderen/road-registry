@@ -60,6 +60,7 @@ public abstract class WhenChangeAttributesFixture : SqsLambdaHandlerFixture<Chan
         new RecyclableMemoryStreamManager(),
         FileEncoding.UTF8,
         new FakeOrganizationRepository(),
+        new UseDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle(false),
         new NullLogger<ChangeRoadSegmentAttributesSqsLambdaRequestHandler>()
     );
 
