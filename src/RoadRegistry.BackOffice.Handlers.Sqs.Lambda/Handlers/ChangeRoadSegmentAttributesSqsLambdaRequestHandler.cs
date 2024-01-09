@@ -17,6 +17,8 @@ using Microsoft.IO;
 using Requests;
 using RoadRegistry.BackOffice.Abstractions.Organizations;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
+using RoadRegistry.BackOffice.FeatureToggles;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
 using TicketingService.Abstractions;
 using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
 
@@ -27,6 +29,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly FileEncoding _fileEncoding;
     private readonly IOrganizationRepository _organizationRepository;
+    private readonly UseDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle _useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle;
 
     public ChangeRoadSegmentAttributesSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -39,6 +42,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         RecyclableMemoryStreamManager manager,
         FileEncoding fileEncoding,
         IOrganizationRepository organizationRepository,
+        UseDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle,
         ILogger<ChangeRoadSegmentAttributesSqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -53,6 +57,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         _manager = manager;
         _fileEncoding = fileEncoding;
         _organizationRepository = organizationRepository;
+        _useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle = useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle;
     }
 
     protected override async Task<object> InnerHandle(ChangeRoadSegmentAttributesSqsLambdaRequest request, CancellationToken cancellationToken)
@@ -77,11 +82,8 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
 
                 var roadSegmentDbaseRecord = new RoadSegmentDbaseRecord().FromBytes(editorRoadSegment.DbaseRecord, _manager, _fileEncoding);
                 var geometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord.METHODE.Value];
-                var streamName = RoadNetworkStreamNameProvider.Get(roadSegmentId, geometryDrawMethod);
-
-                var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(streamName, cancellationToken);
-
-                var networkRoadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
+                
+                var networkRoadSegment = await RoadRegistryContext.RoadNetworks.FindRoadSegment(roadSegmentId, geometryDrawMethod, _useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle, cancellationToken);
                 if (networkRoadSegment is null)
                 {
                     problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));
@@ -91,16 +93,8 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                 var maintenanceAuthority = change.MaintenanceAuthority;
                 if (maintenanceAuthority is not null)
                 {
-                    var organization = await _organizationRepository.FindByIdOrOvoCodeAsync(maintenanceAuthority.Value, cancellationToken);
-                    if (organization is not null)
-                    {
-                        maintenanceAuthority = organization.Code;
-                    }
-                    else if (OrganizationOvoCode.AcceptsValue(maintenanceAuthority.Value))
-                    {
-                        problems = problems.Add(new MaintenanceAuthorityNotKnown(maintenanceAuthority.Value));
-                        continue;
-                    }
+                    (maintenanceAuthority, var maintenanceAuthorityProblems) = await FindOrganizationId(maintenanceAuthority.Value, cancellationToken);
+                    problems += maintenanceAuthorityProblems;
                 }
 
                 translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegmentAttributes(recordNumber, roadSegmentId, geometryDrawMethod)
@@ -124,5 +118,23 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         }, cancellationToken);
 
         return new ChangeRoadSegmentAttributesResponse();
+    }
+
+    private async Task<(OrganizationId, Problems)> FindOrganizationId(OrganizationId organizationId, CancellationToken cancellationToken)
+    {
+        var problems = Problems.None;
+        
+        var maintenanceAuthorityOrganization = await _organizationRepository.FindByIdOrOvoCodeAsync(organizationId, cancellationToken);
+        if (maintenanceAuthorityOrganization is not null)
+        {
+            return (maintenanceAuthorityOrganization.Code, problems);
+        }
+
+        if (OrganizationOvoCode.AcceptsValue(organizationId))
+        {
+            problems = problems.Add(new MaintenanceAuthorityNotKnown(organizationId));
+        }
+
+        return (organizationId, problems);
     }
 }

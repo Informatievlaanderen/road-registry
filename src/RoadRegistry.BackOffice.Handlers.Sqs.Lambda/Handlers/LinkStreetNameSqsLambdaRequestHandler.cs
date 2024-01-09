@@ -7,10 +7,12 @@ using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Core;
 using Exceptions;
 using Extensions;
+using FeatureToggles;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
 using StreetName;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
@@ -23,6 +25,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
     private readonly IStreetNameClient _streetNameClient;
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
     private readonly DistributedStreamStoreLockOptions _distributedStreamStoreLockOptions;
+    private readonly UseDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle _useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle;
 
     private static readonly string[] ProposedOrCurrentStreetNameStatuses = new[]
     {
@@ -41,6 +44,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
         IStreetNameClient streetNameClient,
         IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
         DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
+        UseDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle,
         ILogger<LinkStreetNameSqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -53,6 +57,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
         _streetNameClient = streetNameClient;
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
         _distributedStreamStoreLockOptions = distributedStreamStoreLockOptions;
+        _useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle = useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle;
     }
 
     protected override async Task<object> InnerHandle(LinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
@@ -68,8 +73,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
             {
                 var problems = Problems.None;
                 
-                var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(streamName, cancellationToken);
-                var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
+                var roadSegment = await RoadRegistryContext.RoadNetworks.FindRoadSegment(roadSegmentId, geometryDrawMethod, _useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle, cancellationToken);
                 if (roadSegment == null)
                 {
                     problems += new RoadSegmentNotFound(roadSegmentId);
