@@ -1,3 +1,10 @@
+## [3.66.4](https://github.com/informatievlaanderen/road-registry/compare/v3.66.3...v3.66.4) (2024-01-09)
+
+
+### Bug Fixes
+
+* WR-920 find old outlined roadsegments in default roadnetwork as fallback ([#1352](https://github.com/informatievlaanderen/road-registry/issues/1352)) ([69e93f6](https://github.com/informatievlaanderen/road-registry/commit/69e93f649714aee7d3ca6df457877d0deee9b9f5))
+
 ## [3.66.3](https://github.com/informatievlaanderen/road-registry/compare/v3.66.2...v3.66.3) (2024-01-09)
 
 
