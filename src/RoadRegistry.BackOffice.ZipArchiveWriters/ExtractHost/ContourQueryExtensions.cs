@@ -1,7 +1,5 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 
-using System.Data;
-using System.Data.SqlTypes;
 using Editor.Schema.GradeSeparatedJunctions;
 using Editor.Schema.RoadNodes;
 using Editor.Schema.RoadSegments;
@@ -9,7 +7,6 @@ using Extracts.Dbase.RoadSegments;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
 
 // NOTE: If you change the properties of any of the entities used below, you will need to update these queries too!
 public static class ContourQueryExtensions

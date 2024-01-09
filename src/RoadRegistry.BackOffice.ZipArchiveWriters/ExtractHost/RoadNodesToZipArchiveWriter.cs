@@ -7,6 +7,7 @@ using Editor.Schema;
 using Extensions;
 using Extracts;
 using Extracts.Dbase.RoadNodes;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 
 public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
@@ -24,10 +25,10 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         EditorContext context,
         CancellationToken cancellationToken)
     {
-        if (archive == null) throw new ArgumentNullException(nameof(archive));
-        if (request == null) throw new ArgumentNullException(nameof(request));
-        if (context == null) throw new ArgumentNullException(nameof(context));
-
+        ArgumentNullException.ThrowIfNull(archive);
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(context);
+        
         var nodes = await context.RoadNodes
             .ToListWithPolygonials(request.Contour,
                 (dbSet, polygon) => dbSet.InsideContour(polygon),
@@ -48,7 +49,7 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                    new BinaryWriter(dbfEntryStream, _encoding, true)))
         {
             var dbfRecord = new RoadNodeDbaseRecord();
-            foreach (var data in nodes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
+            foreach (var data in nodes.OrderBy(record => record.Id).Select(record => record.DbaseRecord))
             {
                 dbfRecord.FromBytes(data, _manager, _encoding);
                 dbfWriter.Write(dbfRecord);
@@ -61,7 +62,7 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         var shpBoundingBox =
             nodes.Aggregate(
                 BoundingBox3D.Empty,
-                (box, record) => box.ExpandWith(record.BoundingBox.ToBoundingBox3D()));
+                (box, record) => box.ExpandWith(record.GetBoundingBox().ToBoundingBox3D()));
 
         var shpEntry = archive.CreateEntry("eWegknoop.shp");
         var shpHeader = new ShapeFileHeader(

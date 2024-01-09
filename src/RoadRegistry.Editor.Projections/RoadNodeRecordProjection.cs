@@ -46,9 +46,8 @@ public class RoadNodeRecordProjection : ConnectedProjection<EditorContext>
                 ShapeRecordContent = pointShapeContent.ToBytes(manager, encoding),
                 ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
                 DbaseRecord = dbaseRecord.ToBytes(manager, encoding),
-                Geometry = BackOffice.GeometryTranslator.Translate(envelope.Message.Geometry),
-                BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
-            }, token);
+                Geometry = BackOffice.GeometryTranslator.Translate(envelope.Message.Geometry)
+            }.WithBoundingBox(RoadNodeBoundingBox.From(pointShapeContent.Shape)), token);
         });
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
@@ -99,9 +98,8 @@ public class RoadNodeRecordProjection : ConnectedProjection<EditorContext>
             ShapeRecordContent = pointShapeContent.ToBytes(manager, encoding),
             ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
             DbaseRecord = dbaseRecord.ToBytes(manager, encoding),
-            Geometry = BackOffice.GeometryTranslator.Translate(node.Geometry),
-            BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
-        }, token);
+            Geometry = BackOffice.GeometryTranslator.Translate(node.Geometry)
+        }.WithBoundingBox(RoadNodeBoundingBox.From(pointShapeContent.Shape)), token);
     }
 
     private static async Task ModifyRoadNode(RecyclableMemoryStreamManager manager,
@@ -135,7 +133,7 @@ public class RoadNodeRecordProjection : ConnectedProjection<EditorContext>
         roadNode.ShapeRecordContent = pointShapeContent.ToBytes(manager, encoding);
         roadNode.ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32();
         roadNode.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
-        roadNode.BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape);
+        roadNode.WithBoundingBox(RoadNodeBoundingBox.From(pointShapeContent.Shape));
         roadNode.Geometry = BackOffice.GeometryTranslator.Translate(node.Geometry);
     }
 

@@ -1,20 +1,19 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 
-using System.IO.Compression;
-using System.Text;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Editor.Schema;
 using Editor.Schema.RoadNodes;
 using Editor.Schema.RoadSegments;
 using Extensions;
 using Extracts;
-using Extracts.Dbase.RoadSegments;
 using Extracts.Dbase.RoadNodes;
+using Extracts.Dbase.RoadSegments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
+using System.IO.Compression;
+using System.Text;
 
 public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
@@ -103,8 +102,8 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
             using (var dbfWriter = new DbaseBinaryWriter(dbfHeader, new BinaryWriter(dbfEntryStream, _encoding, true)))
             {
                 foreach (var batch in integrationSegments
-                             .OrderBy(_ => _.Id)
-                             .Select(_ => _.DbaseRecord)
+                             .OrderBy(record => record.Id)
+                             .Select(record => record.DbaseRecord)
                              .AsEnumerable()
                              .Batch(_zipArchiveWriterOptions.RoadSegmentBatchSize))
                 {
@@ -143,7 +142,7 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 
             var shpBoundingBox = integrationSegments.Aggregate(
                 BoundingBox3D.Empty,
-                (box, record) => box.ExpandWith(record.BoundingBox.ToBoundingBox3D()));
+                (box, record) => box.ExpandWith(record.GetBoundingBox().ToBoundingBox3D()));
 
             var shpEntry = archive.CreateEntry("iWegsegment.shp");
             var shpHeader = new ShapeFileHeader(
@@ -158,7 +157,7 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                        new BinaryWriter(shpEntryStream, _encoding, true)))
             {
                 var number = RecordNumber.Initial;
-                foreach (var data in integrationSegments.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
+                foreach (var data in integrationSegments.OrderBy(record => record.Id).Select(record => record.ShapeRecordContent))
                 {
                     shpWriter.Write(
                         ShapeContentFactory
@@ -182,7 +181,7 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
             {
                 var offset = ShapeIndexRecord.InitialOffset;
                 var number = RecordNumber.Initial;
-                foreach (var data in integrationSegments.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
+                foreach (var data in integrationSegments.OrderBy(record => record.Id).Select(record => record.ShapeRecordContent))
                 {
                     var shpRecord = ShapeContentFactory
                         .FromBytes(data, _manager, _encoding)
@@ -215,7 +214,7 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                        new BinaryWriter(dbfEntryStream, _encoding, true)))
             {
                 var dbfRecord = new RoadNodeDbaseRecord();
-                foreach (var data in integrationNodes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
+                foreach (var data in integrationNodes.OrderBy(record => record.Id).Select(record => record.DbaseRecord))
                 {
                     dbfRecord.FromBytes(data, _manager, _encoding);
                     dbfWriter.Write(dbfRecord);
@@ -228,7 +227,7 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
             var shpBoundingBox =
                 integrationNodes.Aggregate(
                     BoundingBox3D.Empty,
-                    (box, record) => box.ExpandWith(record.BoundingBox.ToBoundingBox3D()));
+                    (box, record) => box.ExpandWith(record.GetBoundingBox().ToBoundingBox3D()));
 
             var shpEntry = archive.CreateEntry("iWegknoop.shp");
             var shpHeader = new ShapeFileHeader(
@@ -243,7 +242,7 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                        new BinaryWriter(shpEntryStream, _encoding, true)))
             {
                 var number = RecordNumber.Initial;
-                foreach (var data in integrationNodes.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
+                foreach (var data in integrationNodes.OrderBy(record => record.Id).Select(record => record.ShapeRecordContent))
                 {
                     shpWriter.Write(
                         ShapeContentFactory
@@ -267,7 +266,7 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
             {
                 var offset = ShapeIndexRecord.InitialOffset;
                 var number = RecordNumber.Initial;
-                foreach (var data in integrationNodes.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
+                foreach (var data in integrationNodes.OrderBy(record => record.Id).Select(record => record.ShapeRecordContent))
                 {
                     var shpRecord = ShapeContentFactory
                         .FromBytes(data, _manager, _encoding)

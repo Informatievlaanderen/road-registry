@@ -28,10 +28,10 @@ public class MemoryEditorContext : EditorContext
                 into nodes
                 select new RoadNodeBoundingBox2D
                 {
-                    MinimumX = nodes.Min(n => n.BoundingBox.MinimumX),
-                    MaximumX = nodes.Max(n => n.BoundingBox.MaximumX),
-                    MinimumY = nodes.Min(n => n.BoundingBox.MinimumY),
-                    MaximumY = nodes.Max(n => n.BoundingBox.MaximumY)
+                    MinimumX = nodes.Min(n => n.BoundingBoxMinimumX ?? 0),
+                    MaximumX = nodes.Max(n => n.BoundingBoxMaximumX ?? 0),
+                    MinimumY = nodes.Min(n => n.BoundingBoxMinimumY ?? 0),
+                    MaximumY = nodes.Max(n => n.BoundingBoxMaximumY ?? 0)
                 }
             );
         builder
@@ -43,12 +43,12 @@ public class MemoryEditorContext : EditorContext
                 into segments
                 select new RoadSegmentBoundingBox3D
                 {
-                    MinimumX = segments.Min(n => n.BoundingBox.MinimumX),
-                    MaximumX = segments.Max(n => n.BoundingBox.MaximumX),
-                    MinimumY = segments.Min(n => n.BoundingBox.MinimumY),
-                    MaximumY = segments.Max(n => n.BoundingBox.MaximumY),
-                    MinimumM = segments.Min(n => n.BoundingBox.MinimumM),
-                    MaximumM = segments.Max(n => n.BoundingBox.MaximumM)
+                    MinimumX = segments.Min(n => n.BoundingBoxMinimumX ?? 0),
+                    MaximumX = segments.Max(n => n.BoundingBoxMaximumX ?? 0),
+                    MinimumY = segments.Min(n => n.BoundingBoxMinimumY ?? 0),
+                    MaximumY = segments.Max(n => n.BoundingBoxMaximumY ?? 0),
+                    MinimumM = segments.Min(n => n.BoundingBoxMinimumM ?? 0),
+                    MaximumM = segments.Max(n => n.BoundingBoxMaximumM ?? 0)
                 }
             );
     }

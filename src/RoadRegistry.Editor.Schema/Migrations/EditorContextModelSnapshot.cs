@@ -612,6 +612,22 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
+                    b.Property<double?>("BoundingBoxMaximumX")
+                        .HasColumnType("float")
+                        .HasColumnName("BoundingBox_MaximumX");
+
+                    b.Property<double?>("BoundingBoxMaximumY")
+                        .HasColumnType("float")
+                        .HasColumnName("BoundingBox_MaximumY");
+
+                    b.Property<double?>("BoundingBoxMinimumX")
+                        .HasColumnType("float")
+                        .HasColumnName("BoundingBox_MinimumX");
+
+                    b.Property<double?>("BoundingBoxMinimumY")
+                        .HasColumnType("float")
+                        .HasColumnName("BoundingBox_MinimumY");
+
                     b.Property<byte[]>("DbaseRecord")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
@@ -664,6 +680,30 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
+                    b.Property<double?>("BoundingBoxMaximumM")
+                        .HasColumnType("float")
+                        .HasColumnName("BoundingBox_MaximumM");
+
+                    b.Property<double?>("BoundingBoxMaximumX")
+                        .HasColumnType("float")
+                        .HasColumnName("BoundingBox_MaximumX");
+
+                    b.Property<double?>("BoundingBoxMaximumY")
+                        .HasColumnType("float")
+                        .HasColumnName("BoundingBox_MaximumY");
+
+                    b.Property<double?>("BoundingBoxMinimumM")
+                        .HasColumnType("float")
+                        .HasColumnName("BoundingBox_MinimumM");
+
+                    b.Property<double?>("BoundingBoxMinimumX")
+                        .HasColumnType("float")
+                        .HasColumnName("BoundingBox_MinimumX");
+
+                    b.Property<double?>("BoundingBoxMinimumY")
+                        .HasColumnType("float")
+                        .HasColumnName("BoundingBox_MinimumY");
+
                     b.Property<byte[]>("DbaseRecord")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
@@ -702,72 +742,6 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("IsRemoved"), false);
 
                     b.ToTable("RoadSegment", "RoadRegistryEditor");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadNodes.RoadNodeRecord", b =>
-                {
-                    b.OwnsOne("RoadRegistry.Editor.Schema.RoadNodes.RoadNodeBoundingBox", "BoundingBox", b1 =>
-                        {
-                            b1.Property<int>("RoadNodeRecordId")
-                                .HasColumnType("int");
-
-                            b1.Property<double>("MaximumX")
-                                .HasColumnType("float");
-
-                            b1.Property<double>("MaximumY")
-                                .HasColumnType("float");
-
-                            b1.Property<double>("MinimumX")
-                                .HasColumnType("float");
-
-                            b1.Property<double>("MinimumY")
-                                .HasColumnType("float");
-
-                            b1.HasKey("RoadNodeRecordId");
-
-                            b1.ToTable("RoadNode", "RoadRegistryEditor");
-
-                            b1.WithOwner()
-                                .HasForeignKey("RoadNodeRecordId");
-                        });
-
-                    b.Navigation("BoundingBox");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadSegments.RoadSegmentRecord", b =>
-                {
-                    b.OwnsOne("RoadRegistry.Editor.Schema.RoadSegments.RoadSegmentBoundingBox", "BoundingBox", b1 =>
-                        {
-                            b1.Property<int>("RoadSegmentRecordId")
-                                .HasColumnType("int");
-
-                            b1.Property<double>("MaximumM")
-                                .HasColumnType("float");
-
-                            b1.Property<double>("MaximumX")
-                                .HasColumnType("float");
-
-                            b1.Property<double>("MaximumY")
-                                .HasColumnType("float");
-
-                            b1.Property<double>("MinimumM")
-                                .HasColumnType("float");
-
-                            b1.Property<double>("MinimumX")
-                                .HasColumnType("float");
-
-                            b1.Property<double>("MinimumY")
-                                .HasColumnType("float");
-
-                            b1.HasKey("RoadSegmentRecordId");
-
-                            b1.ToTable("RoadSegment", "RoadRegistryEditor");
-
-                            b1.WithOwner()
-                                .HasForeignKey("RoadSegmentRecordId");
-                        });
-
-                    b.Navigation("BoundingBox");
                 });
 #pragma warning restore 612, 618
         }

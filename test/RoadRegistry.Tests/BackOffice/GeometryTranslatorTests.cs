@@ -4,9 +4,13 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;
+using System.Linq;
+using RoadRegistry.BackOffice.Extensions;
 using LineString = NetTopologySuite.Geometries.LineString;
+using MultiPolygon = GeoJSON.Net.Geometry.MultiPolygon;
 using Point = Be.Vlaanderen.Basisregisters.Shaperon.Point;
 
 public class GeometryTranslatorTests
@@ -149,5 +153,15 @@ public class GeometryTranslatorTests
         var actualMeasures = geometryWithMeasures.GetOrdinates(Ordinate.M);
 
         Assert.Equal(expectedMeasures, actualMeasures);
+    }
+
+    //[Fact]
+    [Fact(Skip = "For debugging purposes, convert roadsegment geometry from read endpoint to wkt")]
+    public void ConvertGeoJsonToWkt()
+    {
+        var path = "contour.geojson";
+        var json = File.ReadAllText(path);
+        var geojson = JsonConvert.DeserializeObject<MultiPolygon>(json);
+        var wkt = geojson.ToNetTopologySuiteGeometry().AsText();
     }
 }

@@ -74,9 +74,8 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
                 }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                 ShapeRecordContent = pointShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                 ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
-                BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape),
                 Geometry = point
-            };
+            }.WithBoundingBox(RoadNodeBoundingBox.From(pointShapeContent.Shape));
         });
 
         return new RoadNodeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
@@ -124,9 +123,8 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
                 }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                 ShapeRecordContent = pointShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                 ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
-                BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape),
                 Geometry = point
-            };
+            }.WithBoundingBox(RoadNodeBoundingBox.From(pointShapeContent.Shape));
         });
 
         return new RoadNodeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
@@ -185,9 +183,8 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
                     }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                     ShapeRecordContent = pointShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                     ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
-                    BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape),
                     Geometry = point
-                };
+                }.WithBoundingBox(RoadNodeBoundingBox.From(pointShapeContent.Shape));
 
                 return new
                 {
