@@ -33,9 +33,9 @@ public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         EditorContext context,
         CancellationToken cancellationToken)
     {
-        if (archive == null) throw new ArgumentNullException(nameof(archive));
-        if (request == null) throw new ArgumentNullException(nameof(request));
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(archive);
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(context);
 
         var segments = await context.RoadSegments
             .ToListWithPolygonials(request.Contour,
@@ -108,7 +108,7 @@ public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                    new BinaryWriter(shpEntryStream, _encoding, true)))
         {
             var number = RecordNumber.Initial;
-            foreach (var data in segments.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
+            foreach (var data in segments.OrderBy(record => record.Id).Select(record => record.ShapeRecordContent))
             {
                 shpWriter.Write(
                     ShapeContentFactory
@@ -132,7 +132,7 @@ public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         {
             var offset = ShapeIndexRecord.InitialOffset;
             var number = RecordNumber.Initial;
-            foreach (var data in segments.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
+            foreach (var data in segments.OrderBy(record => record.Id).Select(record => record.ShapeRecordContent))
             {
                 var shpRecord = ShapeContentFactory
                     .FromBytes(data, _manager, _encoding)

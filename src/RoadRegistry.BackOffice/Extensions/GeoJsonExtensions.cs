@@ -29,7 +29,7 @@ public static class GeoJsonExtensions
         return new LineString(geometry.Coordinates.Select(x => x.ToPosition()));
     }
     
-    public static NetTopologySuite.Geometries.MultiPolygon ToMultiPolygon(this MultiPolygon geometry)
+    public static NetTopologySuite.Geometries.MultiPolygon ToNetTopologySuiteGeometry(this MultiPolygon geometry)
     {
         return new NetTopologySuite.Geometries.MultiPolygon(
             geometry.Coordinates.Select(polygon =>

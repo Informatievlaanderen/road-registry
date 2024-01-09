@@ -162,6 +162,6 @@ public class GeometryTranslatorTests
         var path = "contour.geojson";
         var json = File.ReadAllText(path);
         var geojson = JsonConvert.DeserializeObject<MultiPolygon>(json);
-        var wkt = geojson.ToMultiPolygon().AsText();
+        var wkt = geojson.ToNetTopologySuiteGeometry().AsText();
     }
 }
