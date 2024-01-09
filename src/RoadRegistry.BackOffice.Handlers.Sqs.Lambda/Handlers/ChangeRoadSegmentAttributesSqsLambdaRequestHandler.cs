@@ -91,16 +91,8 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                 var maintenanceAuthority = change.MaintenanceAuthority;
                 if (maintenanceAuthority is not null)
                 {
-                    var organization = await _organizationRepository.FindByIdOrOvoCodeAsync(maintenanceAuthority.Value, cancellationToken);
-                    if (organization is not null)
-                    {
-                        maintenanceAuthority = organization.Code;
-                    }
-                    else if (OrganizationOvoCode.AcceptsValue(maintenanceAuthority.Value))
-                    {
-                        problems = problems.Add(new MaintenanceAuthorityNotKnown(maintenanceAuthority.Value));
-                        continue;
-                    }
+                    (maintenanceAuthority, var maintenanceAuthorityProblems) = await FindOrganizationId(maintenanceAuthority.Value, cancellationToken);
+                    problems += maintenanceAuthorityProblems;
                 }
 
                 translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegmentAttributes(recordNumber, roadSegmentId, geometryDrawMethod)
@@ -124,5 +116,23 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         }, cancellationToken);
 
         return new ChangeRoadSegmentAttributesResponse();
+    }
+
+    private async Task<(OrganizationId, Problems)> FindOrganizationId(OrganizationId organizationId, CancellationToken cancellationToken)
+    {
+        var problems = Problems.None;
+        
+        var maintenanceAuthorityOrganization = await _organizationRepository.FindByIdOrOvoCodeAsync(organizationId, cancellationToken);
+        if (maintenanceAuthorityOrganization is not null)
+        {
+            return (maintenanceAuthorityOrganization.Code, problems);
+        }
+
+        if (OrganizationOvoCode.AcceptsValue(organizationId))
+        {
+            problems = problems.Add(new MaintenanceAuthorityNotKnown(organizationId));
+        }
+
+        return (organizationId, problems);
     }
 }
