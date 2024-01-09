@@ -1,3 +1,10 @@
+## [3.66.3](https://github.com/informatievlaanderen/road-registry/compare/v3.66.2...v3.66.3) (2024-01-09)
+
+
+### Bug Fixes
+
+* WR-919 allow MaintenanceAuthority of "-7" or "-8" in edit endpoints ([#1351](https://github.com/informatievlaanderen/road-registry/issues/1351)) ([6f62910](https://github.com/informatievlaanderen/road-registry/commit/6f62910eaa0fdc8f361ffd202a832ab25288f0d3))
+
 ## [3.66.2](https://github.com/informatievlaanderen/road-registry/compare/v3.66.1...v3.66.2) (2024-01-05)
 
 
