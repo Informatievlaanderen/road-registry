@@ -59,6 +59,7 @@ public class Program
                             sp.GetService<IStreetNameCache>(),
                             sp.GetService<RecyclableMemoryStreamManager>(),
                             sp.GetRequiredService<FileEncoding>(),
+                            sp.GetRequiredService<ILogger<RoadNetworkExtractToZipArchiveWriter>>(),
                             sp.GetRequiredService<UseNetTopologySuiteShapeReaderWriterFeatureToggle>()
                         ))
                     .AddSingleton<IRoadNetworkExtractArchiveAssembler>(sp =>

@@ -1,27 +1,37 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 
+using System.Diagnostics;
 using System.IO.Compression;
 using Extracts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 public class CompositeZipArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext : DbContext
 {
+    private readonly ILogger _logger;
     private readonly IZipArchiveWriter<TContext>[] _writers;
 
-    public CompositeZipArchiveWriter(params IZipArchiveWriter<TContext>[] writers)
+    public CompositeZipArchiveWriter(ILogger logger, params IZipArchiveWriter<TContext>[] writers)
     {
-        _writers = writers ?? throw new ArgumentNullException(nameof(writers));
+        _logger = logger;
+        _writers = writers.ThrowIfNull();
     }
 
     public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request, TContext context,
         CancellationToken cancellationToken)
     {
-        if (archive == null) throw new ArgumentNullException(nameof(archive));
+        ArgumentNullException.ThrowIfNull(archive);
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(context);
 
-        if (request == null) throw new ArgumentNullException(nameof(request));
+        foreach (var writer in _writers)
+        {
+            var sw = Stopwatch.StartNew();
+            _logger.LogInformation("{Type} started...", writer.GetType().Name);
 
-        if (context == null) throw new ArgumentNullException(nameof(context));
+            await writer.WriteAsync(archive, request, context, cancellationToken);
 
-        foreach (var writer in _writers) await writer.WriteAsync(archive, request, context, cancellationToken);
+            _logger.LogInformation("{Type} completed in {Elapsed}", writer.GetType().Name, sw.Elapsed);
+        }
     }
 }

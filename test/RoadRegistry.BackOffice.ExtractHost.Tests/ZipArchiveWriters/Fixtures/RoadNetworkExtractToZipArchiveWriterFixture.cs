@@ -7,6 +7,7 @@ using BackOffice.ZipArchiveWriters.ExtractHost;
 using Editor.Schema;
 using Extracts;
 using FeatureToggles;
+using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
@@ -20,7 +21,8 @@ public class RoadNetworkExtractToZipArchiveWriterFixture : ZipArchiveWriterFixtu
         RecyclableMemoryStreamManager memoryStreamManager,
         Func<EditorContext> contextFactory,
         ZipArchiveWriterOptions zipArchiveWriterOptions,
-        IStreetNameCache streetNameCache)
+        IStreetNameCache streetNameCache,
+        ILoggerFactory loggerFactory)
         : base(wktReader)
     {
         var zipArchiveWriter = new RoadNetworkExtractToZipArchiveWriter(
@@ -28,6 +30,7 @@ public class RoadNetworkExtractToZipArchiveWriterFixture : ZipArchiveWriterFixtu
             streetNameCache,
             memoryStreamManager,
             Encoding.UTF8,
+            loggerFactory.CreateLogger<RoadNetworkExtractToZipArchiveWriter>(),
             new UseNetTopologySuiteShapeReaderWriterFeatureToggle(true));
 
         _assembler = new RoadNetworkExtractArchiveAssembler(
