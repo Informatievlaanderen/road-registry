@@ -17,25 +17,27 @@ using System;
 using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 public class StreetNameConsumer : RoadRegistryBackgroundService
 {
     private readonly ILifetimeScope _container;
     private readonly KafkaOptions _options;
-    private readonly UseStreetNameProcessedMessagesFeatureToggle _useStreetNameProcessedMessagesFeatureToggle;
+    private readonly IDbContextFactory<StreetNameConsumerContext> _dbContextFactory;
     private readonly ILoggerFactory _loggerFactory;
 
     public StreetNameConsumer(
         ILifetimeScope container,
         KafkaOptions options,
-        UseStreetNameProcessedMessagesFeatureToggle useStreetNameProcessedMessagesFeatureToggle,
+        IDbContextFactory<StreetNameConsumerContext> dbContextFactory,
         ILoggerFactory loggerFactory)
         : base(loggerFactory.CreateLogger<StreetNameConsumer>())
     {
-        _container = container;
-        _options = options;
-        _useStreetNameProcessedMessagesFeatureToggle = useStreetNameProcessedMessagesFeatureToggle.ThrowIfNull();
-        _loggerFactory = loggerFactory;
+        _container = container.ThrowIfNull();
+        _options = options.ThrowIfNull();
+        _dbContextFactory = dbContextFactory.ThrowIfNull();
+        _loggerFactory = loggerFactory.ThrowIfNull();
     }
 
     protected override async Task ExecutingAsync(CancellationToken cancellationToken)
@@ -67,30 +69,24 @@ public class StreetNameConsumer : RoadRegistryBackgroundService
                     consumerOptions.ConfigureSaslAuthentication(new SaslAuthentication(_options.SaslUserName, _options.SaslPassword));
                 }
 
-                await new Consumer(consumerOptions, _loggerFactory)
-                    .ConsumeContinuously(async message =>
+                await new IdempotentConsumer<StreetNameConsumerContext>(consumerOptions, _dbContextFactory, _loggerFactory)
+                    .ConsumeContinuously(async (message, dbContext) =>
                     {
                         var snapshotMessage = (SnapshotMessage)message;
                         var record = (StreetNameSnapshotOsloRecord)snapshotMessage.Value;
 
                         Logger.LogInformation("Processing streetname {Key}", snapshotMessage.Key);
-
-                        await using var scope = _container.BeginLifetimeScope();
-                        await using var context = scope.Resolve<StreetNameConsumerContext>();
-
-                        await projector.ProjectAsync(context, new StreetNameSnapshotOsloWasProduced
+                        
+                        await projector.ProjectAsync(dbContext, new StreetNameSnapshotOsloWasProduced
                         {
                             StreetNameId = snapshotMessage.Key,
                             Offset = snapshotMessage.Offset,
                             Record = record
                         }, cancellationToken);
 
-                        if (_useStreetNameProcessedMessagesFeatureToggle.FeatureEnabled)
-                        {
-                            await context.ProcessedMessages.AddAsync(new ProcessedMessage($"streetname-{snapshotMessage.Offset}".ToSha512(), DateTimeOffset.UtcNow), cancellationToken);
-                        }
+                        //TODO-rik produce internal streetname events (zoals OR sync)
 
-                        await context.SaveChangesAsync(cancellationToken);
+                        await dbContext.SaveChangesAsync(cancellationToken);
 
                         Logger.LogInformation("Processed streetname {Key}", snapshotMessage.Key);
                     }, cancellationToken);

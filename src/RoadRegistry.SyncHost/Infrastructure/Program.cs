@@ -1,9 +1,9 @@
 namespace RoadRegistry.SyncHost.Infrastructure;
 
 using Autofac;
+using BackOffice;
 using BackOffice.Extensions;
 using BackOffice.Framework;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Be.Vlaanderen.Basisregisters.Projector.Modules;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
@@ -29,9 +29,9 @@ public class Program
             .ConfigureServices((hostContext, services) =>
             {
                 services
-                    .AddSingleton(new IRunnerDbContextMigratorFactory[]
+                    .AddSingleton(new IDbContextMigratorFactory[]
                     {
-                        new OrganizationConsumerContextMigrationFactory(),
+                        new OrganizationConsumerContextMigratorFactory(),
                         new StreetNameConsumerContextMigrationFactory()
                     })
                     .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
@@ -65,7 +65,7 @@ public class Program
             .RunAsync(async (sp, host, configuration) =>
             {
                 var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
-                var migratorFactories = sp.GetRequiredService<IRunnerDbContextMigratorFactory[]>();
+                var migratorFactories = sp.GetRequiredService<IDbContextMigratorFactory[]>();
 
                 foreach (var migratorFactory in migratorFactories)
                 {

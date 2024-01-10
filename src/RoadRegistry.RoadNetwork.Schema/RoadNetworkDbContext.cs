@@ -26,7 +26,7 @@ namespace RoadRegistry.RoadNetwork.Schema
             }
 
             optionsBuilder
-                .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
+                .UseRoadRegistryInMemorySqlServer();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

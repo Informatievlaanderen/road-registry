@@ -20,10 +20,10 @@ public class StreetNameConsumerModule : Module
                 new StreetNameConsumerContext(dbContextOptionsBuilder.Options));
 
         builder
-            .RegisterProjectionMigrator<StreetNameConsumerContextMigrationFactory>()
-            .RegisterProjections<StreetNameConsumerProjection, StreetNameConsumerContext>(
-                context => new StreetNameConsumerProjection(),
-                ConnectedProjectionSettings.Default);
+            .RegisterProjectionMigrator<StreetNameConsumerContextMigrationFactory>();
+            //.RegisterProjections<StreetNameConsumerProjection, StreetNameConsumerContext>( //TODO-rik is dit nog nodig?
+            //    context => new StreetNameConsumerProjection(),
+            //    ConnectedProjectionSettings.Default);
 
     }
 }

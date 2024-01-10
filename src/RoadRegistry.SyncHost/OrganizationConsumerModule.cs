@@ -23,7 +23,7 @@ public class OrganizationConsumerModule : Module
         );
 
         builder
-            .RegisterProjectionMigrator<OrganizationConsumerContextMigrationFactory>()
+            .RegisterProjectionMigrator<OrganizationConsumerContextMigratorFactory>()
             ;
     }
 }

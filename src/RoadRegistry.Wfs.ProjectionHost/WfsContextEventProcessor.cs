@@ -52,7 +52,7 @@ public class WfsContextEventProcessor : DbContextEventProcessor<WfsContext>
                 .GetResult();
         };
     }
-
+    //TODO-rik SynchronizeWithCache is obsolete eens de roadsegment projectie naar de streetname sync event luisterd
     private async Task SynchronizeWithCache(
         IDbContextFactory<WfsContext> dbContextFactory,
         ConnectedProjectionHandlerResolver<WfsContext> resolver,

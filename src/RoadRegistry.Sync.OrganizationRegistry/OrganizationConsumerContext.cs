@@ -2,11 +2,13 @@ namespace RoadRegistry.Sync.OrganizationRegistry;
 
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
 using Microsoft.EntityFrameworkCore;
 
-public class OrganizationConsumerContext : RunnerDbContext<OrganizationConsumerContext>
+public class OrganizationConsumerContext : ConsumerDbContext<OrganizationConsumerContext>, IProjectionStatesDbContext
 {
+    public const string ConsumerSchema = WellknownSchemas.OrganizationConsumerSchema;
+
     public OrganizationConsumerContext()
     {
     }
@@ -17,20 +19,37 @@ public class OrganizationConsumerContext : RunnerDbContext<OrganizationConsumerC
     {
     }
 
-    public override string ProjectionStateSchema => WellknownSchemas.OrganizationConsumerSchema;
-
-    public DbSet<ProcessedMessage> ProcessedMessages { get; set; }
+    //TODO-rik add `Organizations` db set zoals bij streetname
+    public DbSet<ProjectionStateItem> ProjectionStates => Set<ProjectionStateItem>();
     
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
+        optionsBuilder.UseRoadRegistryInMemorySqlServer();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.ApplyConfiguration(new ProcessedMessageConfiguration(ConsumerSchema));
+        modelBuilder.ApplyConfiguration(new ProjectionStatesConfiguration(ConsumerSchema));
         modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
-        modelBuilder.ApplyConfiguration(new ProcessedMessageConfiguration(ProjectionStateSchema));
+    }
+}
+
+public class OrganizationConsumerContextMigratorFactory : DbContextMigratorFactory<OrganizationConsumerContext>
+{
+    public OrganizationConsumerContextMigratorFactory()
+        : base(WellknownConnectionNames.OrganizationConsumerProjectionsAdmin, new MigrationHistoryConfiguration
+        {
+            Schema = WellknownSchemas.OrganizationConsumerSchema,
+            Table = MigrationTables.OrganizationConsumer
+        })
+    {
+    }
+
+    protected override OrganizationConsumerContext CreateContext(DbContextOptions<OrganizationConsumerContext> migrationContextOptions)
+    {
+        return new OrganizationConsumerContext(migrationContextOptions);
     }
 }

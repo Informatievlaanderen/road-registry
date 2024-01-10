@@ -24,6 +24,6 @@ public class WmsContext : RunnerDbContext<WmsContext>
 
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
+        optionsBuilder.UseRoadRegistryInMemorySqlServer();
     }
 }

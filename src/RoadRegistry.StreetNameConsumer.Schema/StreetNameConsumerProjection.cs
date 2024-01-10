@@ -50,8 +50,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
 
             streetNameConsumerItem.StreetNameStatus = message.Record.StraatnaamStatus;
         }
-
-        streetNameConsumerItem.Offset = message.Offset;
     }
 
     private static string? GetSpelling(List<DeseriazableGeografischeNaam>? namen, Taal taal)

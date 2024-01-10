@@ -1,14 +1,14 @@
 namespace RoadRegistry.SyncHost.Extensions;
 
-using System;
 using Autofac;
+using BackOffice;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System;
 
 public static class AutofacExtensions
 {
@@ -46,13 +46,13 @@ public static class AutofacExtensions
     }
 
     public static ContainerBuilder RegisterProjectionMigrator<TContextMigrationFactory>(this ContainerBuilder builder)
-        where TContextMigrationFactory : IRunnerDbContextMigratorFactory, new()
+        where TContextMigrationFactory : IDbContextMigratorFactory, new()
     {
         builder
-            .Register<IComponentContext, IConfiguration, ILoggerFactory, IRunnerDbContextMigrator>(
+            .Register<IComponentContext, IConfiguration, ILoggerFactory, IDbContextMigrator>(
                 (context, configuration, loggerFactory) => new TContextMigrationFactory().CreateMigrator(configuration, loggerFactory)
             )
-            .As<IRunnerDbContextMigrator>();
+            .As<IDbContextMigrator>();
 
         return builder;
     }

@@ -1,5 +1,6 @@
 namespace RoadRegistry.StreetNameConsumer.Projections;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -25,12 +26,7 @@ public class StreetNameCache : IStreetNameCache
 
     public async Task<long> GetMaxPositionAsync(CancellationToken cancellationToken)
     {
-        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
-
-        if (!await context.StreetNames.AnyAsync(cancellationToken))
-            return -1;
-
-        return await context.StreetNames.MaxAsync(record => record.Offset, cancellationToken);
+        throw new NotSupportedException();
     }
     
     public async Task<Dictionary<int, string>> GetStreetNamesById(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
