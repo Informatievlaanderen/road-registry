@@ -46,7 +46,7 @@ public partial class OrganizationsController
         await validator.ValidateAndThrowAsync(command, cancellationToken);
 
         await RoadNetworkCommandQueue
-            .Write(new Command(command), HttpContext.RequestAborted);
+            .WriteAsync(new Command(command), HttpContext.RequestAborted);
 
         return Accepted();
     }

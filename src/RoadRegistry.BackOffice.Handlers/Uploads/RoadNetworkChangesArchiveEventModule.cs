@@ -84,8 +84,8 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                                 OrganizationId = translatedChanges.Organization
                             })
                             .WithMessageId(message.MessageId);
-
-                        await queue.Write(command, ct);
+                        
+                        await queue.WriteAsync(command, ct);
                     }
                 }
                 catch (ZipArchiveValidationException ex)

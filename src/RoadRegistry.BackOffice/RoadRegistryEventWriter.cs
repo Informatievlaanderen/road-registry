@@ -37,6 +37,8 @@ public abstract class RoadRegistryEventWriter
 
     protected async Task AppendToStoreStream(StreamName streamName, Guid messageId, int expectedVersion, object[] events, ClaimsPrincipal principal, ProvenanceData provenanceData, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(events);
+
         Array.ForEach(events, @event => _enricher(@event));
 
         var version = expectedVersion;

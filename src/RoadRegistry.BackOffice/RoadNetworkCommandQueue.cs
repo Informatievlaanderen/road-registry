@@ -10,7 +10,7 @@ using SqlStreamStore;
 
 public interface IRoadNetworkCommandQueue
 {
-    Task Write(Command command, CancellationToken cancellationToken);
+    Task WriteAsync(Command command, CancellationToken cancellationToken);
 }
 
 public class RoadNetworkCommandQueue : RoadRegistryCommandQueue, IRoadNetworkCommandQueue
@@ -25,7 +25,7 @@ public class RoadNetworkCommandQueue : RoadRegistryCommandQueue, IRoadNetworkCom
     {
     }
 
-    public Task Write(Command command, CancellationToken cancellationToken)
+    public Task WriteAsync(Command command, CancellationToken cancellationToken)
     {
         return AppendToStoreStream(command, Stream, cancellationToken);
     }

@@ -16,7 +16,7 @@ public abstract class EndpointRequestHandler<TRequest, TResponse> : RequestHandl
 
     protected EndpointRequestHandler(IRoadNetworkCommandQueue commandQueue, ILogger logger) : base(logger)
     {
-        _commandSender = async (command, cancellationToken) => await commandQueue.Write(command, cancellationToken);
+        _commandSender = async (command, cancellationToken) => await commandQueue.WriteAsync(command, cancellationToken);
     }
 
     protected EndpointRequestHandler(CommandHandlerDispatcher commandHandlerDispatcher, ILogger logger) : base(logger)

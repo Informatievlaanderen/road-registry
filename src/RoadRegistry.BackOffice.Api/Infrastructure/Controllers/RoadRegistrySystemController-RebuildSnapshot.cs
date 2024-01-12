@@ -49,7 +49,7 @@ public partial class RoadRegistrySystemController
         //TODO-rik test
         var command = new RebuildRoadNetworkSnapshot();
         await RoadNetworkCommandQueue
-            .Write(new Command(command), cancellationToken);
+            .WriteAsync(new Command(command), cancellationToken);
         return Accepted();
     }
 }
