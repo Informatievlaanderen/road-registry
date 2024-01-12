@@ -92,27 +92,19 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddRoadNetworkCommandQueue(this IServiceCollection services)
     {
         return services
-            .AddSingleton<IRoadNetworkCommandQueue, RoadNetworkCommandQueue>()
-            .AddSingleton<IRoadNetworkEventWriter>(sp =>
-            {
-                var store = sp.GetRequiredService<IStreamStore>();
-                var clock = sp.GetRequiredService<IClock>();
-                var enricher = EnrichEvent.WithTime(clock);
-                return RoadNetworkEventWriter.Create(store, enricher);
-            })
-            ;
+            .AddSingleton<IRoadNetworkCommandQueue, RoadNetworkCommandQueue>();
+    }
+
+    public static IServiceCollection AddRoadNetworkEventWriter(this IServiceCollection services)
+    {
+        return services
+            .AddSingleton<IRoadNetworkEventWriter, RoadNetworkEventWriter>();
     }
 
     public static IServiceCollection AddCommandHandlerDispatcher(this IServiceCollection services, Func<IServiceProvider, CommandHandlerResolver> commandHandlerResolverBuilder)
     {
         return services
             .AddSingleton(sp => Dispatch.Using(commandHandlerResolverBuilder(sp), sp.GetRequiredService<ApplicationMetadata>()));
-    }
-
-    public static IServiceCollection AddRoadNetworkEventWriter(this IServiceCollection services)
-    {
-        return services
-            .AddSingleton<IRoadNetworkEventWriter>(sp => new RoadNetworkEventWriter(sp.GetRequiredService<IStreamStore>(), EnrichEvent.WithTime(sp.GetRequiredService<IClock>())));
     }
 
     public static IServiceCollection AddDistributedS3Cache(this IServiceCollection services)

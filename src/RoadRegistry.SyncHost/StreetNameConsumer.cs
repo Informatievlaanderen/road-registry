@@ -9,6 +9,7 @@ using Hosts;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice;
 using RoadRegistry.StreetNameConsumer.Projections;
 using RoadRegistry.StreetNameConsumer.Schema;
 using StreetName;
@@ -19,21 +20,21 @@ using System.Threading.Tasks;
 
 public class StreetNameConsumer : RoadRegistryBackgroundService
 {
-    private readonly ILifetimeScope _container;
+    private readonly IStreetNameEventWriter _streetNameEventWriter;
     private readonly KafkaOptions _options;
     private readonly IDbContextFactory<StreetNameConsumerContext> _dbContextFactory;
     private readonly ILoggerFactory _loggerFactory;
 
     public StreetNameConsumer(
-        ILifetimeScope container,
         KafkaOptions options,
         IDbContextFactory<StreetNameConsumerContext> dbContextFactory,
+        IStreetNameEventWriter streetNameEventWriter,
         ILoggerFactory loggerFactory)
         : base(loggerFactory.CreateLogger<StreetNameConsumer>())
     {
-        _container = container.ThrowIfNull();
         _options = options.ThrowIfNull();
         _dbContextFactory = dbContextFactory.ThrowIfNull();
+        _streetNameEventWriter = streetNameEventWriter.ThrowIfNull();
         _loggerFactory = loggerFactory.ThrowIfNull();
     }
 
@@ -47,7 +48,7 @@ public class StreetNameConsumer : RoadRegistryBackgroundService
 
         while (!cancellationToken.IsCancellationRequested)
         {
-            var projector = new ConnectedProjector<StreetNameConsumerContext>(Resolve.WhenEqualToHandlerMessageType(new StreetNameConsumerProjection().Handlers));
+            //var projector = new ConnectedProjector<StreetNameConsumerContext>(Resolve.WhenEqualToHandlerMessageType(new StreetNameConsumerProjection().Handlers));
 
             var consumerGroupId = $"{nameof(RoadRegistry)}.{nameof(StreetNameConsumer)}.{_options.Consumers.StreetName.Topic}{_options.Consumers.StreetName.GroupSuffix}";
             try
@@ -81,6 +82,8 @@ public class StreetNameConsumer : RoadRegistryBackgroundService
                         //    Offset = snapshotMessage.Offset,
                         //    Record = record
                         //}, cancellationToken);
+
+                        //_streetNameEventWriter.WriteAsync()
 
                         //TODO-rik produce internal streetname events (zoals OR sync), of commands om er iets mee te kunnen doen
                         //StreetNameCreated (event)

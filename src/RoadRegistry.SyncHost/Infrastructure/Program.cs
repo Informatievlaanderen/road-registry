@@ -33,6 +33,8 @@ public class Program
                     .AddHttpClient()
                     .AddScoped(_ => new EventSourcedEntityMap())
                     .AddRoadNetworkCommandQueue()
+                    .AddRoadNetworkEventWriter()
+                    .AddSingleton<IStreetNameEventWriter, StreetNameEventWriter>()
                     .AddEditorContext()
                     .RegisterOptions<OrganizationConsumerOptions>()
                     .RegisterOptions<KafkaOptions>()

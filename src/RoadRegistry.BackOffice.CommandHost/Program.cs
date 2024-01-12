@@ -44,7 +44,6 @@ public class Program
                 .AddTicketing()
                 .AddEmailClient()
                 .AddRoadRegistrySnapshot()
-                .AddRoadNetworkEventWriter()
                 .AddScoped(_ => new EventSourcedEntityMap())
                 .AddSingleton<ICommandProcessorPositionStore>(sp =>
                     new SqlCommandProcessorPositionStore(
@@ -59,6 +58,7 @@ public class Program
                 .AddFeatureCompareTranslator()
                 .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
                 .AddRoadNetworkCommandQueue()
+                .AddRoadNetworkEventWriter()
             )
             .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddSqlServer()
@@ -112,6 +112,7 @@ public class Program
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotWriter>(),
                     sp.GetRequiredService<IClock>(),
+                    sp.GetRequiredService<IRoadNetworkEventWriter>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 )
             }))

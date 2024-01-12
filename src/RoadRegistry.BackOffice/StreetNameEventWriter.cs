@@ -6,6 +6,7 @@ using SqlStreamStore;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using SqlStreamStore.Streams;
 
 public interface IStreetNameEventWriter
 {
@@ -24,6 +25,6 @@ public class StreetNameEventWriter : RoadRegistryEventWriter, IStreetNameEventWr
     
     public Task WriteAsync(StreetNameId id, object @event, CancellationToken cancellationToken)
     {
-        return WriteAsync(StreetNameId.ToStreamName(id), Guid.NewGuid(), @event, cancellationToken);
+        return AppendToStoreStream(StreetNameId.ToStreamName(id), Guid.NewGuid(), ExpectedVersion.Any, new []{ @event }, null, null, cancellationToken);
     }
 }

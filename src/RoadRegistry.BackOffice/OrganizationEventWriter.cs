@@ -4,14 +4,13 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 using Framework;
 using Messages;
 using SqlStreamStore;
-using System;
+using SqlStreamStore.Streams;
 using System.Threading;
 using System.Threading.Tasks;
 
 public interface IOrganizationEventWriter
 {
-    Task WriteAsync(OrganizationId id, Guid messageId, object @event, CancellationToken cancellationToken);
-    //Task WriteAsync(StreamName streamName, IRoadRegistryMessage message, object @event, CancellationToken cancellationToken);
+    Task WriteAsync(OrganizationId id, IRoadRegistryMessage message, object @event, CancellationToken cancellationToken);
 }
 
 public class OrganizationEventWriter : RoadRegistryEventWriter, IOrganizationEventWriter
@@ -24,8 +23,8 @@ public class OrganizationEventWriter : RoadRegistryEventWriter, IOrganizationEve
     {
     }
 
-    public Task WriteAsync(OrganizationId id, Guid messageId, object @event, CancellationToken cancellationToken)
+    public Task WriteAsync(OrganizationId id, IRoadRegistryMessage message, object @event, CancellationToken cancellationToken)
     {
-        return WriteAsync(OrganizationId.ToStreamName(id), Guid.NewGuid(), @event, cancellationToken);
+        return AppendToStoreStream(OrganizationId.ToStreamName(id), message, ExpectedVersion.Any, new[] { @event }, cancellationToken);
     }
 }

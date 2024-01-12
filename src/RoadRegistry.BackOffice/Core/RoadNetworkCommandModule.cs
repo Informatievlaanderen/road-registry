@@ -178,7 +178,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 OvoCode = command.Body.OvoCode
             };
             //TODO-rik test
-            await _organizationEventWriter.WriteAsync(organizationId, command.MessageId, acceptedEvent, cancellationToken);
+            await _organizationEventWriter.WriteAsync(organizationId, command, acceptedEvent, cancellationToken);
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);

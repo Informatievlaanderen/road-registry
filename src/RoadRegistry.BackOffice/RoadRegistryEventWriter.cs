@@ -30,42 +30,12 @@ public abstract class RoadRegistryEventWriter
         _eventMapping = eventMapping.ThrowIfNull();
     }
 
-    public Task WriteAsync(StreamName streamName, Guid messageId, object @event, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(@event);
-        return AppendToStoreStream(streamName, messageId, ExpectedVersion.Any, new[] { @event }, null, null, cancellationToken);
-    }
-
-    public Task WriteAsync(StreamName streamName, Guid messageId, int expectedVersion, object[] events, CancellationToken cancellationToken)
-    {
-        return AppendToStoreStream(streamName, messageId, expectedVersion, events, null, null, cancellationToken);
-    }
-
-    public Task WriteAsync(StreamName streamName, IRoadRegistryMessage message, object @event, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(@event);
-        return AppendToStoreStream(streamName, message.MessageId, ExpectedVersion.Any, new[] { @event }, message.Principal, message.ProvenanceData, cancellationToken);
-    }
-
-    public Task WriteAsync(StreamName streamName, IRoadRegistryMessage message, int expectedVersion, object[] events, CancellationToken cancellationToken)
+    protected Task AppendToStoreStream(StreamName streamName, IRoadRegistryMessage message, int expectedVersion, object[] events, CancellationToken cancellationToken)
     {
         return AppendToStoreStream(streamName, message.MessageId, expectedVersion, events, message.Principal, message.ProvenanceData, cancellationToken);
     }
 
-    private static string SerializeJsonMetadata(ClaimsPrincipal principal, ProvenanceData provenanceData)
-    {
-        var jsonMetadata = JsonConvert.SerializeObject(new MessageMetadata
-        {
-            Principal = principal
-                .Claims
-                .Select(claim => new Claim { Type = claim.Type, Value = claim.Value })
-                .ToArray(),
-            ProvenanceData = provenanceData
-        }, SerializerSettings);
-        return jsonMetadata;
-    }
-
-    private async Task AppendToStoreStream(StreamName streamName, Guid messageId, int expectedVersion, object[] events, ClaimsPrincipal principal, ProvenanceData provenanceData, CancellationToken cancellationToken)
+    protected async Task AppendToStoreStream(StreamName streamName, Guid messageId, int expectedVersion, object[] events, ClaimsPrincipal principal, ProvenanceData provenanceData, CancellationToken cancellationToken)
     {
         Array.ForEach(events, @event => _enricher(@event));
 
@@ -83,5 +53,18 @@ public abstract class RoadRegistryEventWriter
                 ));
 
         await _store.AppendToStream(streamName, expectedVersion, messages, cancellationToken);
+    }
+
+    private static string SerializeJsonMetadata(ClaimsPrincipal principal, ProvenanceData provenanceData)
+    {
+        var jsonMetadata = JsonConvert.SerializeObject(new MessageMetadata
+        {
+            Principal = principal
+                .Claims
+                .Select(claim => new Claim { Type = claim.Type, Value = claim.Value })
+                .ToArray(),
+            ProvenanceData = provenanceData
+        }, SerializerSettings);
+        return jsonMetadata;
     }
 }

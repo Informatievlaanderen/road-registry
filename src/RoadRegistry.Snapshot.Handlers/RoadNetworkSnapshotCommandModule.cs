@@ -21,12 +21,14 @@ public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
         IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter,
         IClock clock,
+        IRoadNetworkEventWriter roadNetworkEventWriter,
         ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(clock);
         ArgumentNullException.ThrowIfNull(snapshotReader);
         ArgumentNullException.ThrowIfNull(snapshotWriter);
+        ArgumentNullException.ThrowIfNull(roadNetworkEventWriter);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
         var logger = loggerFactory.CreateLogger<RoadNetworkSnapshotEventModule>();
@@ -45,10 +47,8 @@ public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
                 {
                     CurrentVersion = version
                 };
-
                 //TODO-rik test
-                await RoadNetworkEventWriter.Create(store, enricher)
-                    .WriteAsync(RoadNetworkStreamNameProvider.Default, Guid.NewGuid(), ExpectedVersion.Any, new object[] { completedEvent }, ct);
+                await roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, command, completedEvent, ct);
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(RebuildRoadNetworkSnapshot));
             });
