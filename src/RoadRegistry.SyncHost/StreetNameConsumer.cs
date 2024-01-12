@@ -17,22 +17,39 @@ using System;
 using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Core;
+using BackOffice.Framework;
+using BackOffice.Messages;
+using Newtonsoft.Json;
+using SqlStreamStore;
 
 public class StreetNameConsumer : RoadRegistryBackgroundService
 {
+    private readonly IStreamStore _store;
+    private readonly ILifetimeScope _container;
     private readonly IStreetNameEventWriter _streetNameEventWriter;
     private readonly KafkaOptions _options;
     private readonly IDbContextFactory<StreetNameConsumerContext> _dbContextFactory;
     private readonly ILoggerFactory _loggerFactory;
 
+    private static readonly EventMapping EventMapping =
+        new(EventMapping.DiscoverEventNamesInAssembly(typeof(StreetNameEvents).Assembly));
+
+    private static readonly JsonSerializerSettings SerializerSettings =
+        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+
     public StreetNameConsumer(
+        ILifetimeScope container,
         KafkaOptions options,
+        IStreamStore store,
         IDbContextFactory<StreetNameConsumerContext> dbContextFactory,
         IStreetNameEventWriter streetNameEventWriter,
         ILoggerFactory loggerFactory)
         : base(loggerFactory.CreateLogger<StreetNameConsumer>())
     {
+        _container = container.ThrowIfNull();
         _options = options.ThrowIfNull();
+        _store = store.ThrowIfNull();
         _dbContextFactory = dbContextFactory.ThrowIfNull();
         _streetNameEventWriter = streetNameEventWriter.ThrowIfNull();
         _loggerFactory = loggerFactory.ThrowIfNull();
@@ -70,10 +87,15 @@ public class StreetNameConsumer : RoadRegistryBackgroundService
                 await new IdempotentConsumer<StreetNameConsumerContext>(consumerOptions, _dbContextFactory, _loggerFactory)
                     .ConsumeContinuously(async (message, dbContext) =>
                     {
+                        var map = _container.Resolve<EventSourcedEntityMap>();
+                        var streetNamesContext = new StreetNames(map, _store, SerializerSettings, EventMapping);
+
                         var snapshotMessage = (SnapshotMessage)message;
                         var record = (StreetNameSnapshotOsloRecord)snapshotMessage.Value;
 
                         Logger.LogInformation("Processing streetname {Key}", snapshotMessage.Key);
+
+                        //TODO-rik create StreetName eventsourcedentity, use to determine events
 
                         //TODO-rik split projection naar iets apart, hier enkel events registreren, NIET projecteren, aparte DbContext voorzien voor projectie
                         //await projector.ProjectAsync(dbContext, new StreetNameSnapshotOsloWasProduced

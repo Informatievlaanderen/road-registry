@@ -74,27 +74,33 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
             ILookup<OrganizationOvoCode, OrganizationId>? orgIdMapping = null;
 
             await using var scope = _container.BeginLifetimeScope();
-            await using var context = scope.Resolve<OrganizationConsumerContext>();
+            await using var dbContext = scope.Resolve<OrganizationConsumerContext>();
             
-            var projectionState = await context.InitializeProjectionState(ProjectionStateName, cancellationToken);
+            var projectionState = await dbContext.InitializeProjectionState(ProjectionStateName, cancellationToken);
             projectionState.ErrorMessage = null;
             
             try
             {
                 var map = _container.Resolve<EventSourcedEntityMap>();
                 var organizationsContext = new Organizations(map, _store, SerializerSettings, EventMapping);
-
-                var processedCount = 0;
-
+                
                 await _organizationReader.ReadAsync(projectionState.Position + 1, async organization =>
                 {
                     Logger.LogInformation("Processing organization {OvoNumber}", organization.OvoNumber);
-                    
-                    if (processedCount > 0 && organization.ChangeId != projectionState.Position)
-                    {
-                        await context.SaveChangesAsync(cancellationToken);
-                    }
 
+                    var idempotenceKey = $"organization-{projectionState.Position}-{organization.OvoNumber}".ToSha512();
+                    
+                    var messageAlreadyProcessed = await dbContext.ProcessedMessages
+                        .AsNoTracking()
+                        .AnyAsync(x => x.IdempotenceKey == idempotenceKey, cancellationToken)
+                        .ConfigureAwait(false);
+
+                    if (messageAlreadyProcessed)
+                    {
+                        Logger.LogWarning($"Skipping already processed message at offset '{projectionState.Position}' with idempotenceKey '{idempotenceKey}'.");
+                        return;
+                    }
+                    
                     if (orgIdMapping is null)
                     {
                         await using var editorContext = scope.Resolve<EditorContext>();
@@ -117,20 +123,16 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                     await UpdateOrganizationsWithOldOrganizationId(orgIdMapping, organization, cancellationToken);
 
                     projectionState.Position = organization.ChangeId;
-                    processedCount++;
 
                     if (_useOrganizationProcessedMessagesFeatureToggle.FeatureEnabled)
                     {
-                        await context.ProcessedMessages.AddAsync(new ProcessedMessage($"organization-{projectionState.Position}-{organization.OvoNumber}".ToSha512(), DateTimeOffset.UtcNow), cancellationToken);
+                        await dbContext.ProcessedMessages.AddAsync(new ProcessedMessage(idempotenceKey, DateTimeOffset.UtcNow), cancellationToken);
                     }
+
+                    await dbContext.SaveChangesAsync(cancellationToken);
 
                     Logger.LogInformation("Processed organization {OvoNumber}", organization.OvoNumber);
                 }, cancellationToken);
-
-                if (processedCount > 0)
-                {
-                    await context.SaveChangesAsync(cancellationToken);
-                }
 
                 consecutiveExceptionsCount = 0;
             }
@@ -149,7 +151,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                 }
 
                 projectionState.ErrorMessage = ex.Message;
-                await context.SaveChangesAsync(cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
             }
 
             if (_options.ConsumerDelaySeconds == -1)

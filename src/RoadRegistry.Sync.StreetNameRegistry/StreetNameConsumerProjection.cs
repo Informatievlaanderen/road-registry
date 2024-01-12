@@ -8,15 +8,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Messages;
 
 public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsumerContext>
 {
     public StreetNameConsumerProjection()
     {
-        When<StreetNameSnapshotOsloWasProduced>(StreetNameSnapshotOsloWasProduced);
+        When<StreetNameCreated>(StreetNameCreated);
+        When<StreetNameModified>(StreetNameModified);
+        When<StreetNameRemoved>(StreetNameRemoved);
     }
 
-    private async Task StreetNameSnapshotOsloWasProduced(StreetNameConsumerContext context, StreetNameSnapshotOsloWasProduced message, CancellationToken token)
+    private async Task StreetNameCreated(StreetNameConsumerContext context, StreetNameSnapshotOsloWasProduced message, CancellationToken token)
     {
         var streetNameConsumerItem = await context.StreetNames.FindAsync(new object[] { message.StreetNameId }, token).ConfigureAwait(false);
 
