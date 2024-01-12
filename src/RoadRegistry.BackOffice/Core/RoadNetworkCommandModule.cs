@@ -21,6 +21,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
     private readonly ILifetimeScope _lifetimeScope;
     private readonly UseOvoCodeInChangeRoadNetworkFeatureToggle _useOvoCodeInChangeRoadNetworkFeatureToggle;
     private readonly IExtractUploadFailedEmailClient _emailClient;
+    private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
     private readonly ILogger _logger;
     private readonly EventEnricher _enricher;
 
@@ -31,6 +32,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         IClock clock,
         UseOvoCodeInChangeRoadNetworkFeatureToggle useOvoCodeInChangeRoadNetworkFeatureToggle,
         IExtractUploadFailedEmailClient emailClient,
+        IRoadNetworkCommandQueue roadNetworkCommandQueue,
         ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(store);
@@ -38,12 +40,14 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         ArgumentNullException.ThrowIfNull(snapshotReader);
         ArgumentNullException.ThrowIfNull(clock);
         ArgumentNullException.ThrowIfNull(emailClient);
+        ArgumentNullException.ThrowIfNull(roadNetworkCommandQueue);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
         _store = store;
         _lifetimeScope = lifetimeScope;
         _useOvoCodeInChangeRoadNetworkFeatureToggle = useOvoCodeInChangeRoadNetworkFeatureToggle;
         _emailClient = emailClient;
+        _roadNetworkCommandQueue = roadNetworkCommandQueue;
         _logger = loggerFactory.CreateLogger<RoadNetworkCommandModule>();
         _enricher = EnrichEvent.WithTime(clock);
 
@@ -85,7 +89,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             .Handle(Ignore);
     }
 
-    private async Task ChangeRoadNetwork(IRoadRegistryContext context, Command<ChangeRoadNetwork> command, ApplicationMetadata commandMetadata, CancellationToken cancellationToken)
+    private async Task ChangeRoadNetwork(IRoadRegistryContext context, Command<ChangeRoadNetwork> command, ApplicationMetadata applicationMetadata, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Command handler started for {CommandName}", command.Body.GetType().Name);
 
@@ -159,7 +163,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
     }
 
-    private async Task CreateOrganization(IRoadRegistryContext context, Command<CreateOrganization> command, ApplicationMetadata commandMetadata, CancellationToken cancellationToken)
+    private async Task CreateOrganization(IRoadRegistryContext context, Command<CreateOrganization> command, ApplicationMetadata applicationMetadata, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Command handler started for {CommandName}", command.Body.GetType().Name);
 
@@ -176,8 +180,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             };
             _enricher(rejectedCommand);
 
-            await new RoadNetworkCommandQueue(_store, commandMetadata)
-                .Write(new Command(rejectedCommand), cancellationToken);
+            await _roadNetworkCommandQueue.Write(new Command(rejectedCommand), cancellationToken);
         }
         else
         {
@@ -188,15 +191,14 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 OvoCode = command.Body.OvoCode
             };
             _enricher(acceptedCommand);
-
-            await new OrganizationCommandQueue(_store)
-                .Write(organizationId, new Command(acceptedCommand), cancellationToken);
+            //TODO-rik bestaande `CreateOrganizationAccepted` events verplaatsen naar de roadnetworkcommandqueue? dit stond foutief op de organizationcommandqueue
+            await _roadNetworkCommandQueue.Write(new Command(acceptedCommand), cancellationToken);
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
     }
 
-    private async Task DeleteOrganization(IRoadRegistryContext context, Command<DeleteOrganization> command, ApplicationMetadata commandMetadata, CancellationToken cancellationToken)
+    private async Task DeleteOrganization(IRoadRegistryContext context, Command<DeleteOrganization> command, ApplicationMetadata applicationMetadata, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Command handler started for {CommandName}", command.Body.GetType().Name);
 
@@ -215,14 +217,13 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             };
             _enricher(rejectedCommand);
 
-            await new RoadNetworkCommandQueue(_store, commandMetadata)
-                .Write(new Command(rejectedCommand), cancellationToken);
+            await _roadNetworkCommandQueue.Write(new Command(rejectedCommand), cancellationToken);
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
     }
 
-    private async Task RenameOrganization(IRoadRegistryContext context, Command<RenameOrganization> command, ApplicationMetadata commandMetadata, CancellationToken cancellationToken)
+    private async Task RenameOrganization(IRoadRegistryContext context, Command<RenameOrganization> command, ApplicationMetadata applicationMetadata, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Command handler started for {CommandName}", command.Body.GetType().Name);
 
@@ -242,14 +243,13 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             };
             _enricher(rejectedCommand);
 
-            await new RoadNetworkCommandQueue(_store, commandMetadata)
-                .Write(new Command(rejectedCommand), cancellationToken);
+            await _roadNetworkCommandQueue.Write(new Command(rejectedCommand), cancellationToken);
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
     }
 
-    private async Task ChangeOrganization(IRoadRegistryContext context, Command<ChangeOrganization> command, ApplicationMetadata commandMetadata, CancellationToken cancellationToken)
+    private async Task ChangeOrganization(IRoadRegistryContext context, Command<ChangeOrganization> command, ApplicationMetadata applicationMetadata, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Command handler started for {CommandName}", command.Body.GetType().Name);
 
@@ -273,14 +273,13 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             };
             _enricher(rejectedCommand);
 
-            await new RoadNetworkCommandQueue(_store, commandMetadata)
-                .Write(new Command(rejectedCommand), cancellationToken);
+            await _roadNetworkCommandQueue.Write(new Command(rejectedCommand), cancellationToken);
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
     }
 
-    private Task Ignore<TCommand>(Command<TCommand> command, ApplicationMetadata commandMetadata, CancellationToken cancellationToken)
+    private Task Ignore<TCommand>(Command<TCommand> command, ApplicationMetadata applicationMetadata, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }

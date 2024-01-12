@@ -29,11 +29,6 @@ public class Program
             .ConfigureServices((hostContext, services) =>
             {
                 services
-                    .AddSingleton(new IDbContextMigratorFactory[]
-                    {
-                        new OrganizationConsumerContextMigratorFactory(),
-                        new StreetNameConsumerContextMigrationFactory()
-                    })
                     .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
                     .AddHttpClient()
                     .AddScoped(_ => new EventSourcedEntityMap())
@@ -41,6 +36,11 @@ public class Program
                     .AddEditorContext()
                     .RegisterOptions<OrganizationConsumerOptions>()
                     .RegisterOptions<KafkaOptions>()
+                    .AddSingleton(new IDbContextMigratorFactory[]
+                    {
+                        new OrganizationConsumerContextMigratorFactory(),
+                        new StreetNameConsumerContextMigrationFactory()
+                    })
                     .AddHostedService<OrganizationConsumer>()
                     .AddHostedService<StreetNameConsumer>()
                     ;

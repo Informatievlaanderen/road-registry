@@ -102,7 +102,9 @@ public abstract class TestStartup
                     .AddFeatureCompareTranslator()
                     .AddValidatorsFromAssemblies(availableModuleAssemblyCollection)
                     .AddFeatureToggles<ApplicationFeatureToggle>(context.Configuration)
-                    .AddLogging();
+                    .AddLogging()
+                    .AddRoadNetworkCommandQueue()
+                    ;
 
                 ConfigureServices(context, services);
             })

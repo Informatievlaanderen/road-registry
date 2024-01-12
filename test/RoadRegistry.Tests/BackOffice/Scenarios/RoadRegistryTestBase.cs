@@ -152,6 +152,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
                     Clock,
                     new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     new FakeExtractUploadFailedEmailClient(),
+                    new RoadNetworkCommandQueue(Store, new ApplicationMetadata(RoadRegistryApplication.BackOffice)),
                     LoggerFactory),
                 new RoadNetworkExtractCommandModule(
                     new RoadNetworkExtractUploadsBlobClient(Client),

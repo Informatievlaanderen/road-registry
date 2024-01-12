@@ -58,6 +58,7 @@ public class Program
                 .AddOrganizationRepository()
                 .AddFeatureCompareTranslator()
                 .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
+                .AddRoadNetworkCommandQueue()
             )
             .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddSqlServer()
@@ -90,6 +91,7 @@ public class Program
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<UseOvoCodeInChangeRoadNetworkFeatureToggle>(),
                     sp.GetService<IExtractUploadFailedEmailClient>(),
+                    sp.GetService<IRoadNetworkCommandQueue>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 ),
                 new RoadNetworkExtractCommandModule(

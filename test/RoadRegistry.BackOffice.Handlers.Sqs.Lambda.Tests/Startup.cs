@@ -53,6 +53,7 @@ public class Startup : TestStartup
                     c.Resolve<IClock>(),
                     new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     new FakeExtractUploadFailedEmailClient(),
+                    c.Resolve<IRoadNetworkCommandQueue>(),
                     c.Resolve<ILoggerFactory>()
                 )
             }), ApplicationMetadata));

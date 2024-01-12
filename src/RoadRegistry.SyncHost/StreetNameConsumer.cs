@@ -4,12 +4,11 @@ using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.Extensions;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Hosts;
 using Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.StreetNameConsumer.Projections;
 using RoadRegistry.StreetNameConsumer.Schema;
 using StreetName;
@@ -17,8 +16,6 @@ using System;
 using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 
 public class StreetNameConsumer : RoadRegistryBackgroundService
 {
@@ -84,7 +81,7 @@ public class StreetNameConsumer : RoadRegistryBackgroundService
                             Record = record
                         }, cancellationToken);
 
-                        //TODO-rik produce internal streetname events (zoals OR sync)
+                        //TODO-rik produce internal streetname events (zoals OR sync), of commands om er iets mee te kunnen doen
 
                         await dbContext.SaveChangesAsync(cancellationToken);
 

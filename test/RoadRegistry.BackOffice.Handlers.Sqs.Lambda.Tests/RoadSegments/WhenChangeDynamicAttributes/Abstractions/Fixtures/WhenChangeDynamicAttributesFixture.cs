@@ -78,6 +78,7 @@ public abstract class WhenChangeDynamicAttributesFixture : SqsLambdaHandlerFixtu
                     Clock,
                     new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     new FakeExtractUploadFailedEmailClient(),
+                    new RoadNetworkCommandQueue(Store, ApplicationMetadata),
                     LoggerFactory
                 )
             }), ApplicationMetadata);
