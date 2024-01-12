@@ -43,12 +43,12 @@ public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
                 var (network, version) = await context.RoadNetworks.GetWithVersion(false, null, ct);
                 await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
 
-                var completedEvent = new RebuildRoadNetworkSnapshotCompleted
+                var completedEvent = new Event(new RebuildRoadNetworkSnapshotCompleted
                 {
                     CurrentVersion = version
-                };
+                }).WithMessageId(command.MessageId);
                 //TODO-rik test
-                await roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, command, ExpectedVersion.Any, new object[] { completedEvent }, ct);
+                await roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, ExpectedVersion.Any, completedEvent, ct);
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(RebuildRoadNetworkSnapshot));
             });

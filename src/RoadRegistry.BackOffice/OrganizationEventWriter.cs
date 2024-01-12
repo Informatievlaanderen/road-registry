@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 public interface IOrganizationEventWriter
 {
-    Task WriteAsync(OrganizationId id, IRoadRegistryMessage message, object @event, CancellationToken cancellationToken);
+    Task WriteAsync(OrganizationId id, Event @event, CancellationToken cancellationToken);
 }
 
 public class OrganizationEventWriter : RoadRegistryEventWriter, IOrganizationEventWriter
@@ -23,8 +23,8 @@ public class OrganizationEventWriter : RoadRegistryEventWriter, IOrganizationEve
     {
     }
 
-    public Task WriteAsync(OrganizationId id, IRoadRegistryMessage message, object @event, CancellationToken cancellationToken)
+    public Task WriteAsync(OrganizationId id, Event @event, CancellationToken cancellationToken)
     {
-        return AppendToStoreStream(OrganizationId.ToStreamName(id), message, ExpectedVersion.Any, new[] { @event }, cancellationToken);
+        return AppendToStoreStream(OrganizationId.ToStreamName(id), @event, ExpectedVersion.Any, new[] { @event.Body }, cancellationToken);
     }
 }

@@ -1,16 +1,16 @@
 namespace RoadRegistry.BackOffice;
 
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using Framework;
 using Messages;
 using SqlStreamStore;
-using System;
+using SqlStreamStore.Streams;
 using System.Threading;
 using System.Threading.Tasks;
-using SqlStreamStore.Streams;
 
 public interface IStreetNameEventWriter
 {
-    Task WriteAsync(StreetNameId id, object @event, CancellationToken cancellationToken);
+    Task WriteAsync(StreetNameId id, Event @event, CancellationToken cancellationToken);
 }
 
 public class StreetNameEventWriter : RoadRegistryEventWriter, IStreetNameEventWriter
@@ -23,8 +23,8 @@ public class StreetNameEventWriter : RoadRegistryEventWriter, IStreetNameEventWr
     {
     }
     
-    public Task WriteAsync(StreetNameId id, object @event, CancellationToken cancellationToken)
+    public Task WriteAsync(StreetNameId id, Event @event, CancellationToken cancellationToken)
     {
-        return AppendToStoreStream(StreetNameId.ToStreamName(id), Guid.NewGuid(), ExpectedVersion.Any, new []{ @event }, null, null, cancellationToken);
+        return AppendToStoreStream(StreetNameId.ToStreamName(id), @event.MessageId, ExpectedVersion.Any, new [] { @event.Body }, null, null, cancellationToken);
     }
 }

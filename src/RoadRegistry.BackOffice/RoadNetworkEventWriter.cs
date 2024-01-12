@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 
 public interface IRoadNetworkEventWriter
 {
-    Task WriteAsync(StreamName streamName, Guid messageId, int expectedVersion, object[] events, CancellationToken cancellationToken);
-    Task WriteAsync(StreamName streamName, IRoadRegistryMessage message, int expectedVersion, object[] events, CancellationToken cancellationToken);
+    Task WriteAsync(StreamName streamName, int expectedVersion, Event @event, CancellationToken cancellationToken);
+    Task WriteAsync(StreamName streamName, int expectedVersion, IRoadRegistryMessage message, object[] events, CancellationToken cancellationToken);
 }
 
 public class RoadNetworkEventWriter : RoadRegistryEventWriter, IRoadNetworkEventWriter
@@ -24,12 +24,13 @@ public class RoadNetworkEventWriter : RoadRegistryEventWriter, IRoadNetworkEvent
     {
     }
     
-    public Task WriteAsync(StreamName streamName, Guid messageId, int expectedVersion, object[] events, CancellationToken cancellationToken)
+    public Task WriteAsync(StreamName streamName, int expectedVersion, Event @event, CancellationToken cancellationToken)
     {
-        return AppendToStoreStream(streamName, messageId, expectedVersion, events, null, null, cancellationToken);
+        ArgumentNullException.ThrowIfNull(@event);
+        return AppendToStoreStream(streamName, @event.MessageId, expectedVersion, new[] { @event.Body }, null, null, cancellationToken);
     }
     
-    public Task WriteAsync(StreamName streamName, IRoadRegistryMessage message, int expectedVersion, object[] events, CancellationToken cancellationToken)
+    public Task WriteAsync(StreamName streamName, int expectedVersion, IRoadRegistryMessage message, object[] events, CancellationToken cancellationToken)
     {
         return AppendToStoreStream(streamName, message.MessageId, expectedVersion, events, message.Principal, message.ProvenanceData, cancellationToken);
     }

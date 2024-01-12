@@ -168,21 +168,20 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 OvoCode = command.Body.OvoCode
             };
             //TODO-rik test
-            await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, command, ExpectedVersion.Any, new object[]
-            {
+            await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, ExpectedVersion.Any, new Event(
                 rejectedEvent
-            }, cancellationToken);
+            ).WithMessageId(command.MessageId), cancellationToken);
         }
         else
         {
-            var acceptedEvent = new CreateOrganizationAccepted
+            var acceptedEvent = new Event(new CreateOrganizationAccepted
             {
                 Code = command.Body.Code,
                 Name = command.Body.Name,
                 OvoCode = command.Body.OvoCode
-            };
+            }).WithMessageId(command.MessageId);
             //TODO-rik test
-            await _organizationEventWriter.WriteAsync(organizationId, command, acceptedEvent, cancellationToken);
+            await _organizationEventWriter.WriteAsync(organizationId, acceptedEvent, cancellationToken);
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
@@ -206,10 +205,9 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 Code = command.Body.Code
             };
             //TODO-rik test
-            await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, command, ExpectedVersion.Any, new object[]
-            {
+            await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, ExpectedVersion.Any, new Event(
                 rejectedEvent
-            }, cancellationToken);
+            ).WithMessageId(command.MessageId), cancellationToken);
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
@@ -234,10 +232,9 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 Name = command.Body.Name
             };
             //TODO-rik test
-            await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, command, ExpectedVersion.Any, new object[]
-            {
+            await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, ExpectedVersion.Any, new Event(
                 rejectedEvent
-            }, cancellationToken);
+            ).WithMessageId(command.MessageId), cancellationToken);
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
@@ -266,10 +263,9 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 OvoCode = command.Body.OvoCode
             };
             //TODO-rik test
-            await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, command, ExpectedVersion.Any, new object[]
-            {
+            await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, ExpectedVersion.Any, new Event(
                 rejectedEvent
-            }, cancellationToken);
+            ).WithMessageId(command.MessageId), cancellationToken);
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
