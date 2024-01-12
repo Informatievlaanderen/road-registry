@@ -21,4 +21,5 @@ public class RequestedChange
     public RemoveRoadSegmentFromEuropeanRoad RemoveRoadSegmentFromEuropeanRoad { get; set; }
     public RemoveRoadSegmentFromNationalRoad RemoveRoadSegmentFromNationalRoad { get; set; }
     public RemoveRoadSegmentFromNumberedRoad RemoveRoadSegmentFromNumberedRoad { get; set; }
+    //TODO-rik (koen) add RemoveStreetName (produce van StreetNameConsumer op RoadNetworkCommandQueue), dit result in lijst van ModifiedRoadSegments
 }

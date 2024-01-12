@@ -10,6 +10,7 @@ using RoadRegistry.BackOffice.Messages;
 using SqlStreamStore;
 using System;
 using Autofac;
+using SqlStreamStore.Streams;
 
 public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
 {
@@ -40,23 +41,16 @@ public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
                 var (network, version) = await context.RoadNetworks.GetWithVersion(false, null, ct);
                 await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
 
-                var completedCommand = new RebuildRoadNetworkSnapshotCompleted
+                var completedEvent = new RebuildRoadNetworkSnapshotCompleted
                 {
                     CurrentVersion = version
                 };
 
-                await new RoadNetworkCommandQueue(store, applicationMetadata)
-                    .Write(new Command(completedCommand), ct);
+                //TODO-rik test
+                await RoadNetworkEventWriter.Create(store, enricher)
+                    .WriteAsync(RoadNetworkStreamNameProvider.Default, Guid.NewGuid(), ExpectedVersion.Any, new object[] { completedEvent }, ct);
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(RebuildRoadNetworkSnapshot));
-            });
-
-        For<RebuildRoadNetworkSnapshotCompleted>()
-            .Handle((_, _, _) =>
-            {
-                logger.LogInformation("Command handler started for {CommandName}", nameof(RebuildRoadNetworkSnapshotCompleted));
-                logger.LogInformation("Command handler finished for {Command}", nameof(RebuildRoadNetworkSnapshotCompleted));
-                return Task.CompletedTask;
             });
     }
 }

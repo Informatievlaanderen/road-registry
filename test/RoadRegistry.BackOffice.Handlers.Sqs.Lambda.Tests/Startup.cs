@@ -42,6 +42,7 @@ public class Startup : TestStartup
 
         builder.Register<SqsLambdaHandlerOptions>(c => new FakeSqsLambdaHandlerOptions());
         builder.Register<IRoadNetworkCommandQueue>(c => new RoadNetworkCommandQueue(c.Resolve<IStreamStore>(), new ApplicationMetadata(RoadRegistryApplication.Lambda)));
+        builder.Register<IRoadNetworkEventWriter>(c => new RoadNetworkEventWriter(c.Resolve<IStreamStore>(), EnrichEvent.WithTime(c.Resolve<IClock>())));
         builder.Register<IIdempotentCommandHandler>(c => new RoadRegistryIdempotentCommandHandler(c.Resolve<CommandHandlerDispatcher>()));
         builder.Register(c => Dispatch.Using(Resolve.WhenEqualToMessage(
             new CommandHandlerModule[]
@@ -53,7 +54,7 @@ public class Startup : TestStartup
                     c.Resolve<IClock>(),
                     new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     new FakeExtractUploadFailedEmailClient(),
-                    c.Resolve<IRoadNetworkCommandQueue>(),
+                    c.Resolve<IRoadNetworkEventWriter>(),
                     c.Resolve<ILoggerFactory>()
                 )
             }), ApplicationMetadata));

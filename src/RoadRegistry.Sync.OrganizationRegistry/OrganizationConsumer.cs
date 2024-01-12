@@ -177,8 +177,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                 Name = organization.Name,
                 OvoCode = ovoCode
             };
-            await _roadNetworkCommandQueue
-                .Write(new Command(command), cancellationToken);
+            await _roadNetworkCommandQueue.Write(new Command(command), cancellationToken);
         }
         else
         {
@@ -189,8 +188,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                 Name = organization.Name,
                 OvoCode = ovoCode
             };
-            await _roadNetworkCommandQueue
-                .Write(new Command(command), cancellationToken);
+            await _roadNetworkCommandQueue.Write(new Command(command), cancellationToken);
         }
     }
 
@@ -209,8 +207,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                 Name = organization.Name,
                 OvoCode = ovoCode
             };
-            await _roadNetworkCommandQueue
-                .Write(new Command(command), cancellationToken);
+            await _roadNetworkCommandQueue.Write(new Command(command), cancellationToken);
         }
     }
 }

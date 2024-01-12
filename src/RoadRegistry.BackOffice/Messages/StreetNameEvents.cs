@@ -6,9 +6,8 @@ public static class StreetNameEvents
 {
     public static readonly Type[] All =
     {
-        //typeof(CreateOrganizationAccepted),
-        //typeof(DeleteOrganizationAccepted),
-        //typeof(RenameOrganizationAccepted),
-        //typeof(ChangeOrganizationAccepted)
+        typeof(StreetNameCreated),
+        typeof(StreetNameModified),
+        typeof(StreetNameRemoved)
     };
 }

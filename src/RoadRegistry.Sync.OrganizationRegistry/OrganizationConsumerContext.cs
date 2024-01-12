@@ -19,7 +19,6 @@ public class OrganizationConsumerContext : ConsumerDbContext<OrganizationConsume
     {
     }
 
-    //TODO-rik add `Organizations` db set zoals bij streetname
     public DbSet<ProjectionStateItem> ProjectionStates => Set<ProjectionStateItem>();
     
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)

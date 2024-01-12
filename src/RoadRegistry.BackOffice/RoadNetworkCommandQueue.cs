@@ -8,10 +8,15 @@ using Framework;
 using Messages;
 using SqlStreamStore;
 
+public interface IRoadNetworkCommandQueue
+{
+    Task Write(Command command, CancellationToken cancellationToken);
+}
+
 public class RoadNetworkCommandQueue : RoadRegistryCommandQueue, IRoadNetworkCommandQueue
 {
     private static readonly EventMapping CommandMapping =
-        new(RoadNetworkCommands.All.ToDictionary(command => command.Name));
+        new (RoadNetworkCommands.All.ToDictionary(command => command.Name));
 
     public static readonly StreamName Stream = new(WellknownQueues.CommandQueue);
 

@@ -22,8 +22,8 @@ public abstract class RoadRegistryCommandQueue
     protected RoadRegistryCommandQueue(IStreamStore store, EventMapping commandMapping, ApplicationMetadata applicationMetadata = null)
     {
         _store = store.ThrowIfNull();
-        _commandMapping = commandMapping;
-        _applicationMetadata = applicationMetadata;
+        _commandMapping = commandMapping.ThrowIfNull();
+        _applicationMetadata = applicationMetadata.ThrowIfNull();
     }
 
     protected async Task AppendToStoreStream(Command command, StreamName streamName, CancellationToken cancellationToken)

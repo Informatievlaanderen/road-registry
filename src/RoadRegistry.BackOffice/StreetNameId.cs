@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice;
 
 using System;
 using System.Globalization;
+using Framework;
 
 public readonly struct StreetNameId : IEquatable<StreetNameId>, IComparable<StreetNameId>
 {
@@ -85,5 +86,10 @@ public readonly struct StreetNameId : IEquatable<StreetNameId>, IComparable<Stre
     public static bool operator >=(StreetNameId left, StreetNameId right)
     {
         return left.CompareTo(right) >= 0;
+    }
+
+    public static StreamName ToStreamName(StreetNameId streetNameId)
+    {
+        return new StreamName(streetNameId.ToString()).WithPrefix("streetname-");
     }
 }

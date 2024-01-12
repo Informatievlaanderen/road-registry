@@ -317,7 +317,7 @@ public class Startup
                         sp.GetService<IClock>(),
                         sp.GetRequiredService<UseOvoCodeInChangeRoadNetworkFeatureToggle>(),
                         sp.GetService<IExtractUploadFailedEmailClient>(),
-                        sp.GetService<IRoadNetworkCommandQueue>(),
+                        sp.GetService<IRoadNetworkEventWriter>(),
                         sp.GetService<ILoggerFactory>()
                     ),
                     new RoadNetworkExtractCommandModule(

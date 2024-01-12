@@ -73,15 +73,21 @@ public class StreetNameConsumer : RoadRegistryBackgroundService
                         var record = (StreetNameSnapshotOsloRecord)snapshotMessage.Value;
 
                         Logger.LogInformation("Processing streetname {Key}", snapshotMessage.Key);
-                        
-                        await projector.ProjectAsync(dbContext, new StreetNameSnapshotOsloWasProduced
-                        {
-                            StreetNameId = snapshotMessage.Key,
-                            Offset = snapshotMessage.Offset,
-                            Record = record
-                        }, cancellationToken);
+
+                        //TODO-rik split projection naar iets apart, hier enkel events registreren, NIET projecteren, aparte DbContext voorzien voor projectie
+                        //await projector.ProjectAsync(dbContext, new StreetNameSnapshotOsloWasProduced
+                        //{
+                        //    StreetNameId = snapshotMessage.Key,
+                        //    Offset = snapshotMessage.Offset,
+                        //    Record = record
+                        //}, cancellationToken);
 
                         //TODO-rik produce internal streetname events (zoals OR sync), of commands om er iets mee te kunnen doen
+                        //StreetNameCreated (event)
+                        //StreetNameModified (event), enkel Name, HomoniemeToevoeging, of Status kan wijzigen
+                        //StreetNameRemoved (event)
+
+                        //TODO-rik (koen) + ChangeRoadNetwork (command) bij delete
 
                         await dbContext.SaveChangesAsync(cancellationToken);
 

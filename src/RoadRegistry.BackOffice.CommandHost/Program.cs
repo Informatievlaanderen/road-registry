@@ -91,7 +91,7 @@ public class Program
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<UseOvoCodeInChangeRoadNetworkFeatureToggle>(),
                     sp.GetService<IExtractUploadFailedEmailClient>(),
-                    sp.GetService<IRoadNetworkCommandQueue>(),
+                    sp.GetService<IRoadNetworkEventWriter>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 ),
                 new RoadNetworkExtractCommandModule(

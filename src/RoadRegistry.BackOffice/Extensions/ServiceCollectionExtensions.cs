@@ -92,7 +92,15 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddRoadNetworkCommandQueue(this IServiceCollection services)
     {
         return services
-            .AddSingleton<IRoadNetworkCommandQueue, RoadNetworkCommandQueue>();
+            .AddSingleton<IRoadNetworkCommandQueue, RoadNetworkCommandQueue>()
+            .AddSingleton<IRoadNetworkEventWriter>(sp =>
+            {
+                var store = sp.GetRequiredService<IStreamStore>();
+                var clock = sp.GetRequiredService<IClock>();
+                var enricher = EnrichEvent.WithTime(clock);
+                return RoadNetworkEventWriter.Create(store, enricher);
+            })
+            ;
     }
 
     public static IServiceCollection AddCommandHandlerDispatcher(this IServiceCollection services, Func<IServiceProvider, CommandHandlerResolver> commandHandlerResolverBuilder)

@@ -17,13 +17,12 @@ using System.Threading.Tasks;
 
 public class RoadNetworkCommandModule : CommandHandlerModule
 {
-    private readonly IStreamStore _store;
     private readonly ILifetimeScope _lifetimeScope;
     private readonly UseOvoCodeInChangeRoadNetworkFeatureToggle _useOvoCodeInChangeRoadNetworkFeatureToggle;
     private readonly IExtractUploadFailedEmailClient _emailClient;
-    private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
+    private readonly IRoadNetworkEventWriter _roadNetworkEventWriter;
+    private readonly IOrganizationEventWriter _organizationEventWriter;
     private readonly ILogger _logger;
-    private readonly EventEnricher _enricher;
 
     public RoadNetworkCommandModule(
         IStreamStore store,
@@ -32,7 +31,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         IClock clock,
         UseOvoCodeInChangeRoadNetworkFeatureToggle useOvoCodeInChangeRoadNetworkFeatureToggle,
         IExtractUploadFailedEmailClient emailClient,
-        IRoadNetworkCommandQueue roadNetworkCommandQueue,
+        IRoadNetworkEventWriter roadNetworkEventWriter,
         ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(store);
@@ -40,61 +39,50 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         ArgumentNullException.ThrowIfNull(snapshotReader);
         ArgumentNullException.ThrowIfNull(clock);
         ArgumentNullException.ThrowIfNull(emailClient);
-        ArgumentNullException.ThrowIfNull(roadNetworkCommandQueue);
+        ArgumentNullException.ThrowIfNull(roadNetworkEventWriter);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
-        _store = store;
         _lifetimeScope = lifetimeScope;
         _useOvoCodeInChangeRoadNetworkFeatureToggle = useOvoCodeInChangeRoadNetworkFeatureToggle;
         _emailClient = emailClient;
-        _roadNetworkCommandQueue = roadNetworkCommandQueue;
         _logger = loggerFactory.CreateLogger<RoadNetworkCommandModule>();
-        _enricher = EnrichEvent.WithTime(clock);
+        _roadNetworkEventWriter = roadNetworkEventWriter;
+
+        var enricher = EnrichEvent.WithTime(clock);
+        _organizationEventWriter = new OrganizationEventWriter(store, enricher);
 
         For<ChangeRoadNetwork>()
             .UseValidator(new ChangeRoadNetworkValidator())
-            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, _enricher)
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(ChangeRoadNetwork);
 
         For<CreateOrganization>()
             .UseValidator(new CreateOrganizationValidator())
-            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, _enricher)
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(CreateOrganization);
-
-        For<CreateOrganizationRejected>()
-            .Handle(Ignore);
-
+        
         For<DeleteOrganization>()
             .UseValidator(new DeleteOrganizationValidator())
-            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, _enricher)
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(DeleteOrganization);
-
-        For<DeleteOrganizationRejected>()
-            .Handle(Ignore);
-
+        
         For<RenameOrganization>()
             .UseValidator(new RenameOrganizationValidator())
-            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, _enricher)
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(RenameOrganization);
-
-        For<RenameOrganizationRejected>()
-            .Handle(Ignore);
 
         For<ChangeOrganization>()
             .UseValidator(new ChangeOrganizationValidator())
-            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, _enricher)
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(ChangeOrganization);
-
-        For<ChangeOrganizationRejected>()
-            .Handle(Ignore);
     }
 
     private async Task ChangeRoadNetwork(IRoadRegistryContext context, Command<ChangeRoadNetwork> command, ApplicationMetadata applicationMetadata, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Command handler started for {CommandName}", command.Body.GetType().Name);
-
+        
         var request = ChangeRequestId.FromString(command.Body.RequestId);
-        DownloadId? downloadId = command.Body.DownloadId is not null ? new DownloadId(command.Body.DownloadId.Value) : null;
+        var downloadId = DownloadId.FromValue(command.Body.DownloadId);
         var @operator = new OperatorName(command.Body.Operator);
         var reason = new Reason(command.Body.Reason);
 
@@ -172,27 +160,25 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         if (organization != null)
         {
-            var rejectedCommand = new CreateOrganizationRejected
+            var rejectedEvent = new CreateOrganizationRejected
             {
                 Code = command.Body.Code,
                 Name = command.Body.Name,
                 OvoCode = command.Body.OvoCode
             };
-            _enricher(rejectedCommand);
-
-            await _roadNetworkCommandQueue.Write(new Command(rejectedCommand), cancellationToken);
+            //TODO-rik test
+            await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, command, rejectedEvent, cancellationToken);
         }
         else
         {
-            var acceptedCommand = new CreateOrganizationAccepted
+            var acceptedEvent = new CreateOrganizationAccepted
             {
                 Code = command.Body.Code,
                 Name = command.Body.Name,
                 OvoCode = command.Body.OvoCode
             };
-            _enricher(acceptedCommand);
-            //TODO-rik bestaande `CreateOrganizationAccepted` events verplaatsen naar de roadnetworkcommandqueue? dit stond foutief op de organizationcommandqueue
-            await _roadNetworkCommandQueue.Write(new Command(acceptedCommand), cancellationToken);
+            //TODO-rik test
+            await _organizationEventWriter.WriteAsync(organizationId, command.MessageId, acceptedEvent, cancellationToken);
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
@@ -204,20 +190,19 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         var organizationId = new OrganizationId(command.Body.Code);
         var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
-
+        
         if (organization != null)
         {
             organization.Delete();
         }
         else
         {
-            var rejectedCommand = new DeleteOrganizationRejected
+            var rejectedEvent = new DeleteOrganizationRejected
             {
                 Code = command.Body.Code
             };
-            _enricher(rejectedCommand);
-
-            await _roadNetworkCommandQueue.Write(new Command(rejectedCommand), cancellationToken);
+            //TODO-rik test
+            await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, command, rejectedEvent, cancellationToken);
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
@@ -236,14 +221,13 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         }
         else
         {
-            var rejectedCommand = new RenameOrganizationRejected
+            var rejectedEvent = new RenameOrganizationRejected
             {
                 Code = command.Body.Code,
                 Name = command.Body.Name
             };
-            _enricher(rejectedCommand);
-
-            await _roadNetworkCommandQueue.Write(new Command(rejectedCommand), cancellationToken);
+            //TODO-rik test
+            await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, command, rejectedEvent, cancellationToken);
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
@@ -265,25 +249,19 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         }
         else
         {
-            var rejectedCommand = new ChangeOrganizationRejected
+            var rejectedEvent = new ChangeOrganizationRejected
             {
                 Code = command.Body.Code,
                 Name = command.Body.Name,
                 OvoCode = command.Body.OvoCode
             };
-            _enricher(rejectedCommand);
-
-            await _roadNetworkCommandQueue.Write(new Command(rejectedCommand), cancellationToken);
+            //TODO-rik test
+            await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, command, rejectedEvent, cancellationToken);
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
     }
-
-    private Task Ignore<TCommand>(Command<TCommand> command, ApplicationMetadata applicationMetadata, CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
-
+    
     private async Task FillMissingPermanentIdsForAddedOutlineRoadSegments(IRoadNetworkIdGenerator idGenerator, RequestedChange[] changes)
     {
         foreach (var change in changes
