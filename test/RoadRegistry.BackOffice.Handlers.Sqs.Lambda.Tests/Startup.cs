@@ -67,14 +67,8 @@ public class Startup : TestStartup
             .AddSingleton<EventSourcedEntityMap>(_ => new EventSourcedEntityMap())
             .AddTransient<ICustomRetryPolicy>(sp => new FakeRetryPolicy())
             .AddTransient<IdempotencyContext>(sp => new FakeIdempotencyContextFactory().CreateDbContext(Array.Empty<string>()))
-            .AddDbContext<EditorContext>((sp, options) => options
-                .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                .UseInMemoryDatabase(Guid.NewGuid().ToString("N")))
-            .AddDbContext<ProductContext>((sp, options) => options
-                .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                .UseInMemoryDatabase(Guid.NewGuid().ToString("N")))
+            .AddInMemoryDbContext<EditorContext>()
+            .AddInMemoryDbContext<ProductContext>()
             .AddStreetNameCache();
     }
 }

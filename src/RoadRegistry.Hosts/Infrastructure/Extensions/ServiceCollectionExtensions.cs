@@ -35,7 +35,7 @@ public static class ServiceCollectionExtensions
                     }));
     }
 
-    public static IServiceCollection AddTraceDbConnection<TDbContext>(this IServiceCollection services, string connectionStringName, ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
+    public static IServiceCollection AddTraceDbConnection<TDbContext>(this IServiceCollection services, string connectionStringName, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
         where TDbContext : DbContext
     {
         services
@@ -48,7 +48,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddEditorContext(this IServiceCollection services)
     {
         return services
-                .AddTraceDbConnection<EditorContext>(WellKnownConnectionNames.EditorProjections)
+                .AddTraceDbConnection<EditorContext>(WellKnownConnectionNames.EditorProjections, ServiceLifetime.Singleton)
                 .AddSingleton<Func<EditorContext>>(sp =>
                     {
                         var configuration = sp.GetRequiredService<IConfiguration>();
@@ -124,7 +124,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddRoadNetworkDbIdGenerator(this IServiceCollection services)
     {
         return services
-            .AddTraceDbConnection<RoadNetworkDbContext>(WellKnownConnectionNames.Events)
+            .AddTraceDbConnection<RoadNetworkDbContext>(WellKnownConnectionNames.Events, ServiceLifetime.Singleton)
             .AddDbContext<RoadNetworkDbContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)

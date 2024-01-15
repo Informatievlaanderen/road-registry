@@ -332,8 +332,8 @@ public class Startup
                         sp.GetService<ILoggerFactory>()
                     )
                 })))
-            .AddTraceDbConnection<EditorContext>(WellKnownConnectionNames.EditorProjections, ServiceLifetime.Scoped)
-            .AddTraceDbConnection<SyndicationContext>(WellKnownConnectionNames.SyndicationProjections, ServiceLifetime.Scoped)
+            .AddTraceDbConnection<EditorContext>(WellKnownConnectionNames.EditorProjections)
+            .AddTraceDbConnection<SyndicationContext>(WellKnownConnectionNames.SyndicationProjections)
             .AddStreetNameCache()
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
@@ -343,7 +343,7 @@ public class Startup
                     sqlOptions => sqlOptions
                         .UseNetTopologySuite())
             )
-            .AddTraceDbConnection<ProductContext>(WellKnownConnectionNames.ProductProjections, ServiceLifetime.Scoped)
+            .AddTraceDbConnection<ProductContext>(WellKnownConnectionNames.ProductProjections)
             .AddDbContext<ProductContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)

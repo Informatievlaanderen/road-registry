@@ -90,14 +90,8 @@ public class Startup : TestStartup
             .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
             .AddRoadNetworkCommandQueue()
             .AddRoadNetworkEventWriter()
-            .AddDbContext<EditorContext>((sp, options) => options
-                .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                .UseInMemoryDatabase(Guid.NewGuid().ToString("N")))
-            .AddDbContext<ProductContext>((sp, options) => options
-                .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                .UseInMemoryDatabase(Guid.NewGuid().ToString("N")))
+            .AddInMemoryDbContext<EditorContext>()
+            .AddInMemoryDbContext<ProductContext>()
             .AddSingleton<TicketingOptions>(new FakeTicketingOptions())
             .AddScoped<ChangeFeedController>()
             .AddScoped<DownloadController>()

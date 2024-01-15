@@ -13,7 +13,7 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
             return services
                 .RegisterOptions<OrganizationConsumerOptions>()
                 .AddSingleton<IOrganizationReader, OrganizationReader>()
-                .AddTraceDbConnection<OrganizationConsumerContext>(WellKnownConnectionNames.OrganizationConsumerProjections)
+                .AddTraceDbConnection<OrganizationConsumerContext>(WellKnownConnectionNames.OrganizationConsumerProjections, ServiceLifetime.Singleton)
                 .AddDbContext<OrganizationConsumerContext>(OrganizationConsumerContext.ConfigureOptions)
                 .AddDbContextFactory<OrganizationConsumerContext>(OrganizationConsumerContext.ConfigureOptions)
                 ;

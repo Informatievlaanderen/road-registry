@@ -2,8 +2,8 @@ namespace RoadRegistry.Sync.StreetNameRegistry;
 
 public class StreetNameRecord
 {
-    public int PersistentLocalId { get; set; }
     public string StreetNameId { get; set; }
+    public int PersistentLocalId { get; set; }
     public string NisCode { get; set; }
     public string DutchName { get; set; }
     public string FrenchName { get; set; }

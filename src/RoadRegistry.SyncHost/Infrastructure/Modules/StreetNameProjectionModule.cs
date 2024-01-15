@@ -11,9 +11,10 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
         public static IServiceCollection AddStreetNameProjectionServices(this IServiceCollection services)
         {
             return services
-                .AddTraceDbConnection<StreetNameProjectionContext>(WellKnownConnectionNames.StreetNameProjections, ServiceLifetime.Scoped)
-                .AddDbContext<StreetNameProjectionContext>(StreetNameProjectionContext.ConfigureOptions)
-                .AddDbContextFactory<StreetNameProjectionContext>(StreetNameProjectionContext.ConfigureOptions)
+                .AddTraceDbConnection<StreetNameProjectionContext>(WellKnownConnectionNames.StreetNameProjections)
+                .AddSingleton<ConfigureDbContextOptionsBuilder<StreetNameProjectionContext>>(StreetNameProjectionContext.ConfigureOptions)
+                .AddDbContext<StreetNameProjectionContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameProjectionContext>>()(sp, options))
+                .AddDbContextFactory<StreetNameProjectionContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameProjectionContext>>()(sp, options))
                 .AddDbContextEventProcessorServices<StreetNameProjectionContextEventProcessor, StreetNameProjectionContext>(sp => new ConnectedProjection<StreetNameProjectionContext>[]
                 {
                     new StreetNameProjection()

@@ -85,14 +85,8 @@ public class Startup : TestStartup
             .AddSingleton<SqsOptions>(_ => new FakeSqsOptions())
             .AddSingleton<ISqsQueuePublisher>(sp => new FakeSqsQueuePublisher())
             .AddSingleton<ISqsQueueConsumer>(sp => new FakeSqsQueueConsumer())
-            .AddDbContext<EditorContext>((sp, options) => options
-                .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                .UseInMemoryDatabase(Guid.NewGuid().ToString("N")))
-            .AddDbContext<ProductContext>((sp, options) => options
-                .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                .UseInMemoryDatabase(Guid.NewGuid().ToString("N")))
+            .AddInMemoryDbContext<EditorContext>()
+            .AddInMemoryDbContext<ProductContext>()
             .AddSingleton(sp => new SqsQueueOptions
             {
                 CreateQueueIfNotExists = true,

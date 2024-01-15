@@ -12,9 +12,10 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
             return services
                 .AddSingleton<IStreetNameEventWriter, StreetNameEventWriter>()
                 .AddSingleton<IStreetNameTopicConsumer, StreetNameTopicConsumer>()
-                .AddTraceDbConnection<StreetNameConsumerContext>(WellKnownConnectionNames.StreetNameConsumer, ServiceLifetime.Scoped)
-                .AddDbContext<StreetNameConsumerContext>(StreetNameConsumerContext.ConfigureOptions)
-                .AddDbContextFactory<StreetNameConsumerContext>(StreetNameConsumerContext.ConfigureOptions)
+                .AddTraceDbConnection<StreetNameConsumerContext>(WellKnownConnectionNames.StreetNameConsumer)
+                .AddSingleton<ConfigureDbContextOptionsBuilder<StreetNameConsumerContext>>(StreetNameConsumerContext.ConfigureOptions)
+                .AddDbContext<StreetNameConsumerContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameConsumerContext>>()(sp, options))
+                .AddDbContextFactory<StreetNameConsumerContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameConsumerContext>>()(sp, options))
                 ;
         }
     }
