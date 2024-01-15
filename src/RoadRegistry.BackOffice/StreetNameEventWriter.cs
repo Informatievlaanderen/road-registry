@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 public interface IStreetNameEventWriter
 {
-    Task WriteAsync(StreetNameId id, Event @event, CancellationToken cancellationToken);
+    Task WriteAsync(StreetNameLocalId id, Event @event, CancellationToken cancellationToken);
 }
 
 public class StreetNameEventWriter : RoadRegistryEventWriter, IStreetNameEventWriter
@@ -23,8 +23,8 @@ public class StreetNameEventWriter : RoadRegistryEventWriter, IStreetNameEventWr
     {
     }
     
-    public Task WriteAsync(StreetNameId id, Event @event, CancellationToken cancellationToken)
+    public Task WriteAsync(StreetNameLocalId id, Event @event, CancellationToken cancellationToken)
     {
-        return AppendToStoreStream(StreetNameId.ToStreamName(id), @event.MessageId, ExpectedVersion.Any, new [] { @event.Body }, null, null, cancellationToken);
+        return AppendToStoreStream(StreetNameLocalId.ToStreamName(id), @event.MessageId, ExpectedVersion.Any, new [] { @event.Body }, null, null, cancellationToken);
     }
 }

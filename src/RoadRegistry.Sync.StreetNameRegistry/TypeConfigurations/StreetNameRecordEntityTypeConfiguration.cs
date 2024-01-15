@@ -1,14 +1,14 @@
-namespace RoadRegistry.StreetNameConsumer.Schema.TypeConfigurations
+namespace RoadRegistry.Sync.StreetNameRegistry.TypeConfigurations
 {
-    using BackOffice;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
+    using RoadRegistry.BackOffice;
 
-    public class StreetNameConsumerItemConfiguration : IEntityTypeConfiguration<StreetNameConsumerItem>
+    public class StreetNameRecordEntityTypeConfiguration : IEntityTypeConfiguration<StreetNameRecord>
     {
         public const string TableName = "StreetName";
 
-        public void Configure(EntityTypeBuilder<StreetNameConsumerItem> b)
+        public void Configure(EntityTypeBuilder<StreetNameRecord> b)
         {
             b.ToTable(TableName, WellknownSchemas.StreetNameConsumerSchema)
                 .HasIndex(p => p.StreetNameId)

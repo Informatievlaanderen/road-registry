@@ -5,5 +5,5 @@ using System.Threading.Tasks;
 
 public interface IStreetNames
 {
-    Task<StreetName> FindAsync(StreetNameId id, CancellationToken ct = default);
+    Task<StreetName> FindAsync(StreetNameLocalId id, CancellationToken ct = default);
 }

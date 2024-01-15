@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using RoadRegistry.RoadNetwork.Schema;
 using SqlStreamStore;
 using StreetNameConsumer.Schema;
+using Sync.StreetNameRegistry;
 using Syndication.Schema;
 using IStreetNameCache = BackOffice.Abstractions.IStreetNameCache;
 
@@ -100,7 +101,7 @@ public static class ServiceCollectionExtensions
             var featureToggle = sp.GetRequiredService<UseKafkaStreetNameCacheFeatureToggle>();
             if (featureToggle.FeatureEnabled)
             {
-                return sp.GetRequiredService<StreetNameConsumer.Projections.StreetNameCache>();
+                return sp.GetRequiredService<StreetNameCache>();
             }
 
             return sp.GetRequiredService<Syndication.Projections.StreetNameCache>();
@@ -151,7 +152,7 @@ public static class ServiceCollectionExtensions
                             .EnableRetryOnFailure()
                     );
             })
-            .AddSingleton<StreetNameConsumer.Projections.StreetNameCache>()
+            .AddSingleton<StreetNameCache>()
             ;
 
         return services;

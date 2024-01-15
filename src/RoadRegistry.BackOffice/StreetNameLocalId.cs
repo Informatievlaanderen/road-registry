@@ -4,11 +4,11 @@ using System;
 using System.Globalization;
 using Framework;
 
-public readonly struct StreetNameId : IEquatable<StreetNameId>, IComparable<StreetNameId>
+public readonly struct StreetNameLocalId : IEquatable<StreetNameLocalId>, IComparable<StreetNameLocalId>
 {
     private readonly int _value;
 
-    public StreetNameId(int value)
+    public StreetNameLocalId(int value)
     {
         if (value <= 0)
         {
@@ -28,14 +28,14 @@ public readonly struct StreetNameId : IEquatable<StreetNameId>, IComparable<Stre
         return _value;
     }
 
-    public bool Equals(StreetNameId other)
+    public bool Equals(StreetNameLocalId other)
     {
         return _value == other._value;
     }
 
     public override bool Equals(object obj)
     {
-        return obj is StreetNameId id && Equals(id);
+        return obj is StreetNameLocalId id && Equals(id);
     }
 
     public override int GetHashCode()
@@ -48,47 +48,47 @@ public readonly struct StreetNameId : IEquatable<StreetNameId>, IComparable<Stre
         return _value.ToString(CultureInfo.InvariantCulture);
     }
 
-    public int CompareTo(StreetNameId other)
+    public int CompareTo(StreetNameLocalId other)
     {
         return _value.CompareTo(other._value);
     }
 
-    public static bool operator ==(StreetNameId left, StreetNameId right)
+    public static bool operator ==(StreetNameLocalId left, StreetNameLocalId right)
     {
         return left.Equals(right);
     }
 
-    public static bool operator !=(StreetNameId left, StreetNameId right)
+    public static bool operator !=(StreetNameLocalId left, StreetNameLocalId right)
     {
         return !left.Equals(right);
     }
 
-    public static implicit operator int(StreetNameId instance)
+    public static implicit operator int(StreetNameLocalId instance)
     {
         return instance._value;
     }
 
-    public static bool operator <(StreetNameId left, StreetNameId right)
+    public static bool operator <(StreetNameLocalId left, StreetNameLocalId right)
     {
         return left.CompareTo(right) < 0;
     }
 
-    public static bool operator <=(StreetNameId left, StreetNameId right)
+    public static bool operator <=(StreetNameLocalId left, StreetNameLocalId right)
     {
         return left.CompareTo(right) <= 0;
     }
 
-    public static bool operator >(StreetNameId left, StreetNameId right)
+    public static bool operator >(StreetNameLocalId left, StreetNameLocalId right)
     {
         return left.CompareTo(right) > 0;
     }
 
-    public static bool operator >=(StreetNameId left, StreetNameId right)
+    public static bool operator >=(StreetNameLocalId left, StreetNameLocalId right)
     {
         return left.CompareTo(right) >= 0;
     }
 
-    public static StreamName ToStreamName(StreetNameId streetNameId)
+    public static StreamName ToStreamName(StreetNameLocalId streetNameId)
     {
         return new StreamName(streetNameId.ToString()).WithPrefix("streetname-");
     }

@@ -14,6 +14,7 @@ using RoadRegistry.StreetNameConsumer.Schema;
 using Sync.OrganizationRegistry;
 using System.Threading;
 using System.Threading.Tasks;
+using Sync.StreetNameRegistry;
 
 public class Program
 {
@@ -38,6 +39,7 @@ public class Program
                     .AddEditorContext()
                     .RegisterOptions<OrganizationConsumerOptions>()
                     .RegisterOptions<KafkaOptions>()
+                    .AddSingleton<IStreetNameTopicConsumer, StreetNameTopicConsumer>()
                     .AddSingleton(new IDbContextMigratorFactory[]
                     {
                         new OrganizationConsumerContextMigratorFactory(),
@@ -45,6 +47,7 @@ public class Program
                     })
                     .AddHostedService<OrganizationConsumer>()
                     .AddHostedService<StreetNameConsumer>()
+                    //TODO-rik add projector for StreetNameConsumerProjection
                     ;
             })
             .ConfigureHealthChecks(HostingPort,builder => builder

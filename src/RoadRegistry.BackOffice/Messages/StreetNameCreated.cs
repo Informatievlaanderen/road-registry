@@ -6,7 +6,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 [EventDescription("Notifies the domain that a street name has been created.")]
 public class StreetNameCreated : IMessage
 {
-    //TODO-rik StreetNameCreated
+    public StreetNameRecord Record { get; set; }
 
     public string When { get; set; }
 }

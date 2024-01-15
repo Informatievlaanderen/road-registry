@@ -12,11 +12,12 @@ public class StreetName : EventSourcedEntity
     {
         On<StreetNameCreated>(e =>
         {
-            //TODO-rik
+            ReadFromRecord(e.Record);
         });
         On<StreetNameModified>(e =>
         {
-            //TODO-rik
+            ReadFromRecord(e.Record);
+            IsRemoved = false;
         });
         On<StreetNameRemoved>(e =>
         {
@@ -24,22 +25,41 @@ public class StreetName : EventSourcedEntity
         });
     }
 
-    public StreetNameId Id { get; private set; }
+    public StreetNamePuri StreetNameId { get; private set; }
+    public StreetNameLocalId PersistentLocalId { get; private set; }
+    public string NisCode { get; private set; }
+    public string DutchName { get; private set; }
+    public string FrenchName { get; private set; }
+    public string GermanName { get; private set; }
+    public string EnglishName { get; private set; }
+    public string DutchHomonymAddition { get; private set; }
+    public string FrenchHomonymAddition { get; private set; }
+    public string GermanHomonymAddition { get; private set; }
+    public string EnglishHomonymAddition { get; private set; }
+    public string DutchNameWithHomonymAddition { get; private set; }
+    public string FrenchNameWithHomonymAddition { get; private set; }
+    public string GermanNameWithHomonymAddition { get; private set; }
+    public string EnglishNameWithHomonymAddition { get; private set; }
+    public string StreetNameStatus { get; private set; }
     public bool IsRemoved { get; private set; }
-    
-    public void Modify()
-    {
-        Apply(new StreetNameModified
-        {
-            //Id = Id, //TODO-rik
-        });
-    }
 
-    public void Delete()
+    private void ReadFromRecord(StreetNameRecord record)
     {
-        Apply(new StreetNameRemoved
-        {
-            //Id = Id, //TODO-rik
-        });
+        StreetNameId = StreetNamePuri.FromValue(record.StreetNameId);
+        PersistentLocalId = new StreetNameLocalId(record.PersistentLocalId);
+        NisCode = record.NisCode;
+        DutchName = record.DutchName;
+        FrenchName = record.FrenchName;
+        GermanName = record.GermanName;
+        EnglishName = record.EnglishName;
+        DutchHomonymAddition = record.DutchHomonymAddition;
+        FrenchHomonymAddition = record.FrenchHomonymAddition;
+        GermanHomonymAddition = record.GermanHomonymAddition;
+        EnglishHomonymAddition = record.EnglishHomonymAddition;
+        DutchNameWithHomonymAddition = record.DutchNameWithHomonymAddition;
+        FrenchNameWithHomonymAddition = record.FrenchNameWithHomonymAddition;
+        GermanNameWithHomonymAddition = record.GermanNameWithHomonymAddition;
+        EnglishNameWithHomonymAddition = record.EnglishNameWithHomonymAddition;
+        StreetNameStatus = record.StreetNameStatus;
     }
 }

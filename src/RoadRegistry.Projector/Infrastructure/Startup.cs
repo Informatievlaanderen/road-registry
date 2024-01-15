@@ -33,6 +33,7 @@ using Hosts;
 using RoadRegistry.Syndication.Schema;
 using StreetNameConsumer.Schema;
 using Sync.OrganizationRegistry;
+using Sync.StreetNameRegistry;
 using Wfs.Schema;
 using Wms.Schema;
 

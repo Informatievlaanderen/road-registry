@@ -1,6 +1,6 @@
-namespace RoadRegistry.StreetNameConsumer.Schema;
+namespace RoadRegistry.BackOffice.Messages;
 
-public class StreetNameConsumerItem
+public class StreetNameRecord
 {
     public string StreetNameId { get; set; }
     public int PersistentLocalId { get; set; }
@@ -18,5 +18,4 @@ public class StreetNameConsumerItem
     public string GermanNameWithHomonymAddition { get; set; }
     public string EnglishNameWithHomonymAddition { get; set; }
     public string StreetNameStatus { get; set; }
-    public bool IsRemoved { get; set; }
 }

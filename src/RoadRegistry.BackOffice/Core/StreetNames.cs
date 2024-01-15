@@ -5,18 +5,13 @@ using Framework;
 using Newtonsoft.Json;
 using SqlStreamStore;
 
-public class StreetNames : EventSourcedEntityRepository<StreetName, StreetNameId>, IStreetNames
+public class StreetNames : EventSourcedEntityRepository<StreetName, StreetNameLocalId>, IStreetNames
 {
     public StreetNames(EventSourcedEntityMap map, IStreamStore store, JsonSerializerSettings settings, EventMapping mapping)
         : base(map, store, settings, mapping,
-            StreetNameId.ToStreamName,
+            StreetNameLocalId.ToStreamName,
             StreetName.Factory
         )
     {
-    }
-
-    protected override StreetName ConvertEntity(StreetName entity)
-    {
-        return entity.IsRemoved ? null : entity;
     }
 }

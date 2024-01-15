@@ -1,14 +1,9 @@
-namespace RoadRegistry.StreetNameConsumer.Projections;
+namespace RoadRegistry.Sync.StreetNameRegistry;
 
-using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
-using Schema;
-using StreetName;
-using System.Collections.Generic;
-using System.Linq;
+using RoadRegistry.BackOffice.Messages;
 using System.Threading;
 using System.Threading.Tasks;
-using BackOffice.Messages;
 
 public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsumerContext>
 {
@@ -19,44 +14,57 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         When<StreetNameRemoved>(StreetNameRemoved);
     }
 
-    private async Task StreetNameCreated(StreetNameConsumerContext context, StreetNameSnapshotOsloWasProduced message, CancellationToken token)
+    private async Task StreetNameCreated(StreetNameConsumerContext context, StreetNameCreated message, CancellationToken token)
     {
-        var streetNameConsumerItem = await context.StreetNames.FindAsync(new object[] { message.StreetNameId }, token).ConfigureAwait(false);
+        var dbRecord = new StreetNameRecord();
+        CopyTo(message.Record, dbRecord);
 
-        if (streetNameConsumerItem is null)
+        await context.StreetNames.AddAsync(dbRecord, token);
+    }
+
+    private async Task StreetNameModified(StreetNameConsumerContext context, StreetNameModified message, CancellationToken token)
+    {
+        var dbRecord = await context.StreetNames.FindAsync(new object[] { message.Record.StreetNameId }, token).ConfigureAwait(false);
+
+        if (dbRecord is null)
         {
-            streetNameConsumerItem = new StreetNameConsumerItem
+            dbRecord = new StreetNameRecord
             {
-                StreetNameId = message.Record.Identificator.Id
+                StreetNameId = message.Record.StreetNameId
             };
-            await context.StreetNames.AddAsync(streetNameConsumerItem, token);
+            await context.StreetNames.AddAsync(dbRecord, token);
         }
-        
-        if (message.Record.Identificator is null)
+
+        CopyTo(message.Record, dbRecord);
+    }
+
+    private async Task StreetNameRemoved(StreetNameConsumerContext context, StreetNameRemoved message, CancellationToken token)
+    {
+        var dbRecord = await context.StreetNames.FindAsync(new object[] { message.StreetNameId }, token).ConfigureAwait(false);
+
+        if (dbRecord is not null)
         {
-            streetNameConsumerItem.IsRemoved = true;
-        }
-        else
-        {
-            streetNameConsumerItem.PersistentLocalId = int.Parse(message.Record.Identificator.ObjectId);
-            streetNameConsumerItem.NisCode = message.Record.Gemeente.ObjectId;
-
-            streetNameConsumerItem.DutchName = GetSpelling(message.Record.Straatnamen, Taal.NL);
-            streetNameConsumerItem.FrenchName = GetSpelling(message.Record.Straatnamen, Taal.FR);
-            streetNameConsumerItem.GermanName = GetSpelling(message.Record.Straatnamen, Taal.DE);
-            streetNameConsumerItem.EnglishName = GetSpelling(message.Record.Straatnamen, Taal.EN);
-
-            streetNameConsumerItem.DutchHomonymAddition = GetSpelling(message.Record.HomoniemToevoegingen, Taal.NL);
-            streetNameConsumerItem.FrenchHomonymAddition = GetSpelling(message.Record.HomoniemToevoegingen, Taal.FR);
-            streetNameConsumerItem.GermanHomonymAddition = GetSpelling(message.Record.HomoniemToevoegingen, Taal.DE);
-            streetNameConsumerItem.EnglishHomonymAddition = GetSpelling(message.Record.HomoniemToevoegingen, Taal.EN);
-
-            streetNameConsumerItem.StreetNameStatus = message.Record.StraatnaamStatus;
+            dbRecord.IsRemoved = true;
         }
     }
 
-    private static string? GetSpelling(List<DeseriazableGeografischeNaam>? namen, Taal taal)
+    private void CopyTo(BackOffice.Messages.StreetNameRecord eventRecord, StreetNameRecord dbRecord)
     {
-        return namen?.SingleOrDefault(x => x.Taal == taal)?.Spelling;
+        dbRecord.StreetNameId = eventRecord.StreetNameId;
+        dbRecord.PersistentLocalId = eventRecord.PersistentLocalId;
+        dbRecord.NisCode = eventRecord.NisCode;
+        dbRecord.DutchName = eventRecord.DutchName;
+        dbRecord.FrenchName = eventRecord.FrenchName;
+        dbRecord.GermanName = eventRecord.GermanName;
+        dbRecord.EnglishName = eventRecord.EnglishName;
+        dbRecord.DutchHomonymAddition = eventRecord.DutchHomonymAddition;
+        dbRecord.FrenchHomonymAddition = eventRecord.FrenchHomonymAddition;
+        dbRecord.GermanHomonymAddition = eventRecord.GermanHomonymAddition;
+        dbRecord.EnglishHomonymAddition = eventRecord.EnglishHomonymAddition;
+        dbRecord.DutchNameWithHomonymAddition = eventRecord.DutchNameWithHomonymAddition;
+        dbRecord.FrenchNameWithHomonymAddition = eventRecord.FrenchNameWithHomonymAddition;
+        dbRecord.GermanNameWithHomonymAddition = eventRecord.GermanNameWithHomonymAddition;
+        dbRecord.EnglishNameWithHomonymAddition = eventRecord.EnglishNameWithHomonymAddition;
+        dbRecord.StreetNameStatus = eventRecord.StreetNameStatus;
     }
 }

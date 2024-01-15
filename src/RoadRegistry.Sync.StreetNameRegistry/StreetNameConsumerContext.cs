@@ -1,8 +1,8 @@
-namespace RoadRegistry.StreetNameConsumer.Schema;
+namespace RoadRegistry.Sync.StreetNameRegistry;
 
-using BackOffice;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
 using Microsoft.EntityFrameworkCore;
+using RoadRegistry.BackOffice;
 
 public class StreetNameConsumerContext : ConsumerDbContext<StreetNameConsumerContext>
 {
@@ -18,7 +18,7 @@ public class StreetNameConsumerContext : ConsumerDbContext<StreetNameConsumerCon
     {
     }
     
-    public DbSet<StreetNameConsumerItem> StreetNames { get; set; }
+    public DbSet<StreetNameRecord> StreetNames { get; set; }
 
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {

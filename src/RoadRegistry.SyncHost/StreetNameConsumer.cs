@@ -2,35 +2,34 @@ namespace RoadRegistry.SyncHost;
 
 using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Hosts;
 using Infrastructure;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice;
-using RoadRegistry.StreetNameConsumer.Projections;
 using RoadRegistry.StreetNameConsumer.Schema;
 using StreetName;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice.Core;
 using BackOffice.Framework;
 using BackOffice.Messages;
+using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
 using Newtonsoft.Json;
 using SqlStreamStore;
+using StreetNameRecord = BackOffice.Messages.StreetNameRecord;
 
 public class StreetNameConsumer : RoadRegistryBackgroundService
 {
+    private readonly IStreetNameTopicConsumer _consumer;
     private readonly IStreamStore _store;
     private readonly ILifetimeScope _container;
     private readonly IStreetNameEventWriter _streetNameEventWriter;
     private readonly KafkaOptions _options;
-    private readonly IDbContextFactory<StreetNameConsumerContext> _dbContextFactory;
-    private readonly ILoggerFactory _loggerFactory;
 
     private static readonly EventMapping EventMapping =
         new(EventMapping.DiscoverEventNamesInAssembly(typeof(StreetNameEvents).Assembly));
@@ -42,76 +41,60 @@ public class StreetNameConsumer : RoadRegistryBackgroundService
         ILifetimeScope container,
         KafkaOptions options,
         IStreamStore store,
-        IDbContextFactory<StreetNameConsumerContext> dbContextFactory,
         IStreetNameEventWriter streetNameEventWriter,
-        ILoggerFactory loggerFactory)
-        : base(loggerFactory.CreateLogger<StreetNameConsumer>())
+        IStreetNameTopicConsumer consumer,
+        ILogger<StreetNameConsumer> logger
+    ) : base(logger)
     {
         _container = container.ThrowIfNull();
         _options = options.ThrowIfNull();
         _store = store.ThrowIfNull();
-        _dbContextFactory = dbContextFactory.ThrowIfNull();
         _streetNameEventWriter = streetNameEventWriter.ThrowIfNull();
-        _loggerFactory = loggerFactory.ThrowIfNull();
+        _consumer = consumer.ThrowIfNull();
     }
 
     protected override async Task ExecutingAsync(CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(_options.Consumers?.StreetName?.Topic))
-        {
-            Logger.LogError("Configuration has no StreetName Consumer with a Topic.");
-            return;
-        }
-
         while (!cancellationToken.IsCancellationRequested)
         {
-            //var projector = new ConnectedProjector<StreetNameConsumerContext>(Resolve.WhenEqualToHandlerMessageType(new StreetNameConsumerProjection().Handlers));
-
-            var consumerGroupId = $"{nameof(RoadRegistry)}.{nameof(StreetNameConsumer)}.{_options.Consumers.StreetName.Topic}{_options.Consumers.StreetName.GroupSuffix}";
             try
             {
-                var jsonSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-
-                var consumerOptions = new ConsumerOptions(
-                        new BootstrapServers(_options.BootstrapServers),
-                        new Topic(_options.Consumers.StreetName.Topic),
-                        new ConsumerGroupId(consumerGroupId),
-                        jsonSerializerSettings,
-                        new SnapshotMessageSerializer<StreetNameSnapshotOsloRecord>(jsonSerializerSettings)
-                    );
-                if (!string.IsNullOrEmpty(_options.SaslUserName))
-                {
-                    consumerOptions.ConfigureSaslAuthentication(new SaslAuthentication(_options.SaslUserName, _options.SaslPassword));
-                }
-
-                await new IdempotentConsumer<StreetNameConsumerContext>(consumerOptions, _dbContextFactory, _loggerFactory)
-                    .ConsumeContinuously(async (message, dbContext) =>
+                await _consumer.ConsumeContinuously(async (message, dbContext) =>
                     {
+                        //TODO-rik test consumer
                         var map = _container.Resolve<EventSourcedEntityMap>();
                         var streetNamesContext = new StreetNames(map, _store, SerializerSettings, EventMapping);
 
                         var snapshotMessage = (SnapshotMessage)message;
-                        var record = (StreetNameSnapshotOsloRecord)snapshotMessage.Value;
+                        var snapshotRecord = (StreetNameSnapshotOsloRecord)snapshotMessage.Value;
 
                         Logger.LogInformation("Processing streetname {Key}", snapshotMessage.Key);
 
-                        //TODO-rik create StreetName eventsourcedentity, use to determine events
+                        var streetNameId = StreetNamePuri.FromValue(snapshotMessage.Key);
+                        var streetNameLocalId = streetNameId.ToStreetNameLocalId();
+                        var streetName = await streetNamesContext.FindAsync(streetNameLocalId, cancellationToken);
 
-                        //TODO-rik split projection naar iets apart, hier enkel events registreren, NIET projecteren, aparte DbContext voorzien voor projectie
-                        //await projector.ProjectAsync(dbContext, new StreetNameSnapshotOsloWasProduced
-                        //{
-                        //    StreetNameId = snapshotMessage.Key,
-                        //    Offset = snapshotMessage.Offset,
-                        //    Record = record
-                        //}, cancellationToken);
+                        var streetNameRecord = new StreetNameRecord
+                        {
+                            PersistentLocalId = streetNameLocalId,
+                            NisCode = snapshotRecord?.Gemeente.ObjectId,
 
-                        //_streetNameEventWriter.WriteAsync()
+                            DutchName = GetSpelling(snapshotRecord?.Straatnamen, Taal.NL),
+                            FrenchName = GetSpelling(snapshotRecord?.Straatnamen, Taal.FR),
+                            GermanName = GetSpelling(snapshotRecord?.Straatnamen, Taal.DE),
+                            EnglishName = GetSpelling(snapshotRecord?.Straatnamen, Taal.EN),
 
-                        //TODO-rik produce internal streetname events (zoals OR sync), of commands om er iets mee te kunnen doen
-                        //StreetNameCreated (event)
-                        //StreetNameModified (event), enkel Name, HomoniemeToevoeging, of Status kan wijzigen
-                        //StreetNameRemoved (event)
+                            DutchHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.NL),
+                            FrenchHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.FR),
+                            GermanHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.DE),
+                            EnglishHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.EN),
 
+                            StreetNameStatus = snapshotRecord?.StraatnaamStatus
+                        };
+
+                        var @event = DetermineEvent(streetName, streetNameRecord);
+                        await _streetNameEventWriter.WriteAsync(streetNameLocalId, new Event(@event), cancellationToken);
+                        
                         //TODO-rik (koen) + ChangeRoadNetwork (command) bij delete
 
                         await dbContext.SaveChangesAsync(cancellationToken);
@@ -131,5 +114,44 @@ public class StreetNameConsumer : RoadRegistryBackgroundService
                 await Task.Delay(TimeSpan.FromSeconds(waitSeconds), cancellationToken);
             }
         }
+    }
+
+    private static object DetermineEvent(StreetName streetNameEventSourced, StreetNameRecord streetNameRecord)
+    {
+        if (streetNameEventSourced is null)
+        {
+            return new StreetNameCreated
+            {
+                Record = streetNameRecord
+            };
+        }
+
+        if (streetNameRecord.StreetNameStatus is null)
+        {
+            return new StreetNameRemoved
+            {
+                StreetNameId = streetNameEventSourced.StreetNameId
+            };
+        }
+
+        return new StreetNameModified
+        {
+            Record = streetNameRecord,
+            NameChanged = streetNameEventSourced.DutchName != streetNameRecord.DutchName
+                          || streetNameEventSourced.EnglishName != streetNameRecord.EnglishName
+                          || streetNameEventSourced.FrenchName != streetNameRecord.FrenchName
+                          || streetNameEventSourced.GermanName != streetNameRecord.GermanName,
+            HomonymAdditionChanged = streetNameEventSourced.DutchHomonymAddition != streetNameRecord.DutchHomonymAddition
+                                     || streetNameEventSourced.EnglishHomonymAddition != streetNameRecord.EnglishHomonymAddition
+                                     || streetNameEventSourced.FrenchHomonymAddition != streetNameRecord.FrenchHomonymAddition
+                                     || streetNameEventSourced.GermanHomonymAddition != streetNameRecord.GermanHomonymAddition,
+            StatusChanged = streetNameEventSourced.StreetNameStatus != streetNameRecord.StreetNameStatus,
+            Restored = streetNameEventSourced.IsRemoved
+        };
+    }
+
+    private static string? GetSpelling(List<DeseriazableGeografischeNaam>? namen, Taal taal)
+    {
+        return namen?.SingleOrDefault(x => x.Taal == taal)?.Spelling;
     }
 }

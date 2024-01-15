@@ -4,9 +4,9 @@ using Autofac;
 using Be.Vlaanderen.Basisregisters.Projector;
 using Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections;
 using RoadRegistry.BackOffice;
-using RoadRegistry.StreetNameConsumer.Projections;
 using RoadRegistry.StreetNameConsumer.Schema;
 using RoadRegistry.SyncHost.Extensions;
+using Sync.StreetNameRegistry;
 
 public class StreetNameConsumerModule : Module
 {

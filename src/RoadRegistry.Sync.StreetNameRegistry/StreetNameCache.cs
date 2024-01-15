@@ -1,13 +1,12 @@
-namespace RoadRegistry.StreetNameConsumer.Projections;
+namespace RoadRegistry.Sync.StreetNameRegistry;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BackOffice.Abstractions;
 using Microsoft.EntityFrameworkCore;
-using Schema;
+using RoadRegistry.BackOffice.Abstractions;
 
 public class StreetNameCache : IStreetNameCache
 {

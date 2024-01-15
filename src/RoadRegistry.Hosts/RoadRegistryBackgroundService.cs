@@ -1,5 +1,6 @@
 namespace RoadRegistry.Hosts;
 
+using System;
 using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ public abstract class RoadRegistryBackgroundService : BackgroundService, IHosted
 
     protected RoadRegistryBackgroundService(ILogger logger)
     {
-        Logger = logger;
+        Logger = logger.ThrowIfNull();
     }
 
     public HostStatus Status { get; private set; } = HostStatus.Running;

@@ -10,6 +10,8 @@ using RoadRegistry.StreetNameConsumer.Schema;
 
 namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
 {
+    using Sync.StreetNameRegistry;
+
     [DbContext(typeof(StreetNameConsumerContext))]
     partial class StreetNameConsumerContextModelSnapshot : ModelSnapshot
     {

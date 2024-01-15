@@ -2,8 +2,8 @@ namespace RoadRegistry.SyncHost.Tests.StreetName.Projections;
 
 using Fixtures;
 using RoadRegistry.StreetName;
-using RoadRegistry.StreetNameConsumer.Projections;
 using RoadRegistry.StreetNameConsumer.Schema;
+using Sync.StreetNameRegistry;
 
 public class StreetNameConsumerProjectionTests : IClassFixture<StreetNameConsumerProjectionFixture>
 {
@@ -14,7 +14,7 @@ public class StreetNameConsumerProjectionTests : IClassFixture<StreetNameConsume
         _fixture = fixture;
     }
 
-    private StreetNameConsumerItem? Current => _fixture.GetConsumerItem(_fixture.StreetName1.Identificator.Id);
+    private StreetNameRecord? Current => _fixture.GetConsumerItem(_fixture.StreetName1.Identificator.Id);
 
     [Fact]
     public async Task SnapshotAddedNewStreetName()

@@ -5,8 +5,7 @@ using Be.Vlaanderen.Basisregisters.GrAr.Legacy.Gemeente;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy.Straatnaam;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using RoadRegistry.StreetName;
-using RoadRegistry.StreetNameConsumer.Projections;
-using RoadRegistry.StreetNameConsumer.Schema;
+using Sync.StreetNameRegistry;
 
 public class StreetNameConsumerProjectionFixture : ConnectedProjectionFixture<StreetNameConsumerProjection, StreetNameConsumerContext>
 {
@@ -46,7 +45,7 @@ public class StreetNameConsumerProjectionFixture : ConnectedProjectionFixture<St
 
     public StreetNameSnapshotOsloRecord StreetName1 { get; }
 
-    public StreetNameConsumerItem? GetConsumerItem(string streetNameId)
+    public StreetNameRecord? GetConsumerItem(string streetNameId)
     {
         return _dbContext.StreetNames.Find(streetNameId);
     }

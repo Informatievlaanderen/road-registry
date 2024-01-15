@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.StreetNameConsumer.Schema;
+using Sync.StreetNameRegistry;
 
 public class Startup : TestStartup
 {

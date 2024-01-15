@@ -2,7 +2,7 @@
 	<Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Library.props" />
 
 	<PropertyGroup>
-    <RootNamespace>RoadRegistry.StreetNameConsumer.Schema</RootNamespace>
+    <RootNamespace>RoadRegistry.Sync.StreetNameRegistry</RootNamespace>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <Nullable>disable</Nullable>
 	  <EnableDefaultContentItems>false</EnableDefaultContentItems>
