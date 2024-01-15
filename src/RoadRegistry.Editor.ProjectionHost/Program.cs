@@ -41,9 +41,9 @@ public class Program
         await roadRegistryHost
             .LogSqlServerConnectionStrings(new[]
             {
-                WellknownConnectionNames.Events,
-                WellknownConnectionNames.EditorProjections,
-                WellknownConnectionNames.EditorProjectionsAdmin
+                WellKnownConnectionNames.Events,
+                WellKnownConnectionNames.EditorProjections,
+                WellKnownConnectionNames.EditorProjectionsAdmin
             })
             .Log((sp, logger) =>
             {
@@ -76,7 +76,7 @@ public class Program
                     new EditorContext(
                         new DbContextOptionsBuilder<EditorContext>()
                             .UseSqlServer(
-                                hostContext.Configuration.GetConnectionString(WellknownConnectionNames.EditorProjections),
+                                hostContext.Configuration.GetConnectionString(WellKnownConnectionNames.EditorProjections),
                                 options => options
                                     .EnableRetryOnFailure()
                                     .UseNetTopologySuite()
@@ -135,7 +135,7 @@ public class Program
             .AddSqlServer()
             .AddHostedServicesStatus()
             .AddS3(x => x
-                .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read)
+                .CheckPermission(WellKnownBuckets.UploadsBucket, Permission.Read)
             )
         )
         .ConfigureContainer((context, builder) =>

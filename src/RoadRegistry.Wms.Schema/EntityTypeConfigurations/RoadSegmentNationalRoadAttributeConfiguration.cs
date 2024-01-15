@@ -10,7 +10,7 @@ public class RoadSegmentNationalRoadAttributeConfiguration : IEntityTypeConfigur
 
     public void Configure(EntityTypeBuilder<RoadSegmentNationalRoadAttributeRecord> b)
     {
-        b.ToTable(TableName, WellknownSchemas.WmsSchema)
+        b.ToTable(TableName, WellKnownSchemas.WmsSchema)
             .HasKey(p => p.NW_OIDN)
             .IsClustered(false);
 

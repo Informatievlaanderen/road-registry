@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using Polly;
 using Projections;
 using Projections.MunicipalityEvents;
-using Projections.StreetNameEvents;
 using Projections.Syndication;
 using Schema;
 using System;
@@ -33,7 +32,6 @@ public class Program
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
             .ConfigureServices((hostContext, services) => services
                 .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(MunicipalityFeedConfiguration.Section).Get<MunicipalityFeedConfiguration>())
-                .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(StreetNameFeedConfiguration.Section).Get<StreetNameFeedConfiguration>())
                 .AddHttpClient(RegistryAtomFeedReader.HttpClientName)
                 .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(new[]
                 {
@@ -54,31 +52,20 @@ public class Program
                     serviceProvider.GetRequiredService<Scheduler>(),
                     serviceProvider.GetRequiredService<MunicipalityFeedConfiguration>(),
                     serviceProvider.GetRequiredService<ILogger<AtomFeedProcessor<MunicipalityFeedConfiguration, Gemeente>>>()))
-                .AddHostedService(serviceProvider => new AtomFeedProcessor<StreetNameFeedConfiguration, StraatNaam>(
-                    serviceProvider.GetRequiredService<IRegistryAtomFeedReader>(),
-                    new AtomEnvelopeFactory(
-                        EventSerializerMapping.CreateForNamespaceOf(typeof(StreetNameWasRegistered)),
-                        new DataContractSerializer(typeof(SyndicationContent<StraatNaam>))),
-                    serviceProvider.GetRequiredService<ConnectedProjectionHandlerResolver<SyndicationContext>>(),
-                    serviceProvider.GetRequiredService<Func<SyndicationContext>>(),
-                    serviceProvider.GetRequiredService<Scheduler>(),
-                    serviceProvider.GetRequiredService<StreetNameFeedConfiguration>(),
-                    serviceProvider.GetRequiredService<ILogger<AtomFeedProcessor<StreetNameFeedConfiguration, StraatNaam>>>()))
                 .AddSingleton<AtomEnvelopeFactory>()
                 .AddSingleton(
                     () =>
                         new SyndicationContext(
                             new DbContextOptionsBuilder<SyndicationContext>()
                                 .UseSqlServer(
-                                    hostContext.Configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
+                                    hostContext.Configuration.GetConnectionString(WellKnownConnectionNames.SyndicationProjections),
                                     options => options
                                         .EnableRetryOnFailure()
                                 ).Options)
                 )
                 .AddSingleton(sp => new ConnectedProjection<SyndicationContext>[]
                 {
-                    new MunicipalityCacheProjection(),
-                    new StreetNameCacheProjection()
+                    new MunicipalityCacheProjection()
                 })
                 .AddSingleton(sp => Resolve.WhenEqualToHandlerMessageType(sp
                     .GetRequiredService<ConnectedProjection<SyndicationContext>[]>()
@@ -91,9 +78,9 @@ public class Program
         await roadRegistryHost
             .LogSqlServerConnectionStrings(new[]
             {
-                WellknownConnectionNames.Events,
-                WellknownConnectionNames.SyndicationProjections,
-                WellknownConnectionNames.SyndicationProjectionsAdmin
+                WellKnownConnectionNames.Events,
+                WellKnownConnectionNames.SyndicationProjections,
+                WellKnownConnectionNames.SyndicationProjectionsAdmin
             })
             .RunAsync(async (sp, host, configuration) =>
             {
@@ -105,12 +92,8 @@ public class Program
                 var municipalityToBecomeAvailable = WaitFor
                     .SyndicationApiToBecomeAvailable(httpClientFactory, sp.GetRequiredService<MunicipalityFeedConfiguration>(), logger)
                     .ConfigureAwait(false);
-                var streetNameToBecomeAvailable = WaitFor
-                    .SyndicationApiToBecomeAvailable(httpClientFactory, sp.GetRequiredService<StreetNameFeedConfiguration>(), logger)
-                    .ConfigureAwait(false);
 
                 await municipalityToBecomeAvailable;
-                await streetNameToBecomeAvailable;
 
                 await migratorFactory.CreateMigrator(configuration, loggerFactory)
                     .MigrateAsync(CancellationToken.None).ConfigureAwait(false);

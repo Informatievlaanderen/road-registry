@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 public class OrganizationConsumerContext : ConsumerDbContext<OrganizationConsumerContext>, IProjectionStatesDbContext
 {
-    public const string ConsumerSchema = WellknownSchemas.OrganizationConsumerSchema;
+    public const string ConsumerSchema = WellKnownSchemas.OrganizationConsumerSchema;
 
     public OrganizationConsumerContext()
     {
@@ -39,9 +39,9 @@ public class OrganizationConsumerContext : ConsumerDbContext<OrganizationConsume
 public class OrganizationConsumerContextMigratorFactory : DbContextMigratorFactory<OrganizationConsumerContext>
 {
     public OrganizationConsumerContextMigratorFactory()
-        : base(WellknownConnectionNames.OrganizationConsumerProjectionsAdmin, new MigrationHistoryConfiguration
+        : base(WellKnownConnectionNames.OrganizationConsumerProjectionsAdmin, new MigrationHistoryConfiguration
         {
-            Schema = WellknownSchemas.OrganizationConsumerSchema,
+            Schema = WellKnownSchemas.OrganizationConsumerSchema,
             Table = MigrationTables.OrganizationConsumer
         })
     {

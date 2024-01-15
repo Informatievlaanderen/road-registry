@@ -16,7 +16,6 @@ public static class SyndicationContextScenarioExtensions
     {
         var records = new List<object>();
         records.AddRange(await context.Municipalities.ToArrayAsync());
-        records.AddRange(await context.StreetNames.ToArrayAsync());
         return records.ToArray();
     }
 

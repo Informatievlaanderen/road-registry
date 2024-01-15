@@ -11,7 +11,7 @@ public class RoadSegmentNationalRoadAttributeConfiguration : IEntityTypeConfigur
 
     public void Configure(EntityTypeBuilder<RoadSegmentNationalRoadAttributeRecord> b)
     {
-        b.ToTable(TableName, WellknownSchemas.ProductSchema)
+        b.ToTable(TableName, WellKnownSchemas.ProductSchema)
             .HasKey(p => p.Id)
             .IsClustered(false);
 

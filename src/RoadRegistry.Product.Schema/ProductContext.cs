@@ -33,7 +33,7 @@ public class ProductContext : RunnerDbContext<ProductContext>
 
     public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
     public DbSet<OrganizationRecord> Organizations { get; set; }
-    public override string ProjectionStateSchema => WellknownSchemas.ProductMetaSchema;
+    public override string ProjectionStateSchema => WellKnownSchemas.ProductMetaSchema;
     public DbSet<RoadNetworkInfo> RoadNetworkInfo { get; set; }
     public DbSet<RoadNetworkInfoSegmentCache> RoadNetworkInfoSegmentCache { get; set; }
     public DbSet<RoadNodeBoundingBox2D> RoadNodeBoundingBox { get; set; }
@@ -72,11 +72,11 @@ public class ProductContext : RunnerDbContext<ProductContext>
         builder
             .Entity<RoadNodeBoundingBox2D>()
             .HasNoKey()
-            .ToSqlQuery($"SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [{WellknownSchemas.ProductSchema}].[RoadNode]");
+            .ToSqlQuery($"SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [{WellKnownSchemas.ProductSchema}].[RoadNode]");
 
         builder
             .Entity<RoadSegmentBoundingBox3D>()
             .HasNoKey()
-            .ToSqlQuery($"SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY, MIN([BoundingBox_MinimumM]) AS MinimumM, MAX([BoundingBox_MaximumM]) AS MaximumM FROM [{WellknownSchemas.ProductSchema}].[RoadSegment]");
+            .ToSqlQuery($"SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY, MIN([BoundingBox_MinimumM]) AS MinimumM, MAX([BoundingBox_MaximumM]) AS MaximumM FROM [{WellKnownSchemas.ProductSchema}].[RoadSegment]");
     }
 }

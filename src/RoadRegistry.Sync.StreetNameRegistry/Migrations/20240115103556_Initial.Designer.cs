@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RoadRegistry.Sync.StreetNameRegistry;
 
@@ -11,9 +12,10 @@ using RoadRegistry.Sync.StreetNameRegistry;
 namespace RoadRegistry.Sync.StreetNameRegistry.Migrations
 {
     [DbContext(typeof(StreetNameConsumerContext))]
-    partial class StreetNameConsumerContextModelSnapshot : ModelSnapshot
+    [Migration("20240115103556_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice;
 
-public static class WellknownSchemas
+public static class WellKnownSchemas
 {
     public const string CommandHostSchema = "RoadRegistryBackOfficeCommandHost";
     public const string EditorMetaSchema = "RoadRegistryEditorMeta";
@@ -19,6 +19,7 @@ public static class WellknownSchemas
     public const string WmsSchema = "RoadRegistryWms";
     public const string WfsMetaSchema = "RoadRegistryWfsMeta";
     public const string WfsSchema = "RoadRegistryWfs";
+    public const string StreetNameSchema = "RoadRegistryStreetName";
     public const string StreetNameConsumerSchema = "RoadRegistryStreetNameConsumer";
     public const string OrganizationConsumerSchema = "RoadRegistryOrganizationConsumer";
 
@@ -41,6 +42,7 @@ public static class MigrationTables
     public const string Editor = "__EFMigrationsHistoryEditor";
     public const string Wms = "__EFMigrationsHistoryWms";
     public const string Wfs = "__EFMigrationsHistoryWfs";
+    public const string StreetName = "__EFMigrationsHistoryStreetName";
     public const string StreetNameConsumer = "__EFMigrationsHistoryStreetNameConsumer";
     public const string OrganizationConsumer = "__EFMigrationsHistoryOrganizationConsumer";
 

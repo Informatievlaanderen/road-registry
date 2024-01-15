@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice;
 
-public static class WellknownConnectionNames
+public static class WellKnownConnectionNames
 {
     public const string CommandHost = "CommandHost";
     public const string CommandHostAdmin = "CommandHostAdmin";
@@ -24,6 +24,8 @@ public static class WellknownConnectionNames
     public const string WmsProjectionsAdmin = "WmsProjectionsAdmin";
     public const string WfsProjections = "WfsProjections";
     public const string WfsProjectionsAdmin = "WfsProjectionsAdmin";
+    public const string StreetNameProjections = "StreetNameProjections";
+    public const string StreetNameProjectionsAdmin = "StreetNameProjectionsAdmin";
     public const string StreetNameConsumerProjections = "StreetNameConsumerProjections";
     public const string StreetNameConsumerProjectionsAdmin = "StreetNameConsumerProjectionsAdmin";
     public const string OrganizationConsumerProjections = "OrganizationConsumerProjections";

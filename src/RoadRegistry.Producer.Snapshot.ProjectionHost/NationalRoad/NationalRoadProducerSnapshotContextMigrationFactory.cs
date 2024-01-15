@@ -8,14 +8,14 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
     public class NationalRoadProducerSnapshotContextMigrationFactory : RunnerDbContextMigrationFactory<NationalRoadProducerSnapshotContext>
     {
         public NationalRoadProducerSnapshotContextMigrationFactory() :
-            base(WellknownConnectionNames.ProducerSnapshotProjectionsAdmin, HistoryConfiguration)
+            base(WellKnownConnectionNames.ProducerSnapshotProjectionsAdmin, HistoryConfiguration)
         {
         }
 
         private static MigrationHistoryConfiguration HistoryConfiguration =>
             new()
             {
-                Schema = WellknownSchemas.NationalRoadProducerSnapshotSchema,
+                Schema = WellKnownSchemas.NationalRoadProducerSnapshotSchema,
                 Table = MigrationTables.NationalRoadProducerSnapshot
             };
 

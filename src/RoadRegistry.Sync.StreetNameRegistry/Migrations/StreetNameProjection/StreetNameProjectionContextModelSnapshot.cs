@@ -3,19 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using RoadRegistry.StreetNameConsumer.Schema;
+using RoadRegistry.Sync.StreetNameRegistry;
 
 #nullable disable
 
-namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
+namespace RoadRegistry.Sync.StreetNameRegistry.Migrations.StreetNameProjection
 {
-    [DbContext(typeof(StreetNameConsumerContext))]
-    [Migration("20240104144638_AddProcessedMessages")]
-    partial class AddProcessedMessages
+    [DbContext(typeof(StreetNameProjectionContext))]
+    partial class StreetNameProjectionContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,24 +21,6 @@ namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
-
-            modelBuilder.Entity("Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.ProcessedMessage", b =>
-                {
-                    b.Property<string>("IdempotenceKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTimeOffset>("DateProcessed")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("IdempotenceKey");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("IdempotenceKey"));
-
-                    b.HasIndex("DateProcessed");
-
-                    b.ToTable("ProcessedMessages", "RoadRegistryStreetNameConsumer");
-                });
 
             modelBuilder.Entity("Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates.ProjectionStateItem", b =>
                 {
@@ -63,10 +43,10 @@ namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Name"));
 
-                    b.ToTable("ProjectionStates", "RoadRegistryStreetNameConsumer");
+                    b.ToTable("ProjectionStates", "RoadRegistryStreetName");
                 });
 
-            modelBuilder.Entity("RoadRegistry.StreetNameConsumer.Schema.StreetNameConsumerItem", b =>
+            modelBuilder.Entity("RoadRegistry.Sync.StreetNameRegistry.StreetNameRecord", b =>
                 {
                     b.Property<string>("StreetNameId")
                         .HasColumnType("nvarchar(450)");
@@ -121,9 +101,6 @@ namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
                     b.Property<string>("NisCode")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("Offset")
-                        .HasColumnType("bigint");
-
                     b.Property<int>("PersistentLocalId")
                         .HasColumnType("int");
 
@@ -140,7 +117,7 @@ namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
 
                     b.HasIndex("StreetNameStatus");
 
-                    b.ToTable("StreetName", "RoadRegistryStreetNameConsumer");
+                    b.ToTable("StreetName", "RoadRegistryStreetName");
                 });
 #pragma warning restore 612, 618
         }

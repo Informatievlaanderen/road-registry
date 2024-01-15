@@ -12,7 +12,7 @@ using System;
 
 public static class AutofacExtensions
 {
-    public static void RegisterDbContext<TDbContext>(this ContainerBuilder builder,
+    public static ContainerBuilder RegisterDbContext<TDbContext>(this ContainerBuilder builder,
         string connectionStringName,
         Action<SqlServerDbContextOptionsBuilder> sqlServerOptionsAction,
         Func<DbContextOptionsBuilder<TDbContext>, TDbContext> dbContextBuilder)
@@ -43,6 +43,8 @@ public static class AutofacExtensions
 
                 return dbContextBuilder(optionsBuilder);
             }).InstancePerLifetimeScope();
+
+        return builder;
     }
 
     public static ContainerBuilder RegisterProjectionMigrator<TContextMigrationFactory>(this ContainerBuilder builder)

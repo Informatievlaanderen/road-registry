@@ -1,20 +1,20 @@
 namespace RoadRegistry.Sync.StreetNameRegistry;
 
+using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
-using RoadRegistry.BackOffice.Messages;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsumerContext>
+public class StreetNameProjection : ConnectedProjection<StreetNameProjectionContext>
 {
-    public StreetNameConsumerProjection()
+    public StreetNameProjection()
     {
         When<StreetNameCreated>(StreetNameCreated);
         When<StreetNameModified>(StreetNameModified);
         When<StreetNameRemoved>(StreetNameRemoved);
     }
 
-    private async Task StreetNameCreated(StreetNameConsumerContext context, StreetNameCreated message, CancellationToken token)
+    private async Task StreetNameCreated(StreetNameProjectionContext context, StreetNameCreated message, CancellationToken token)
     {
         var dbRecord = new StreetNameRecord();
         CopyTo(message.Record, dbRecord);
@@ -22,7 +22,7 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         await context.StreetNames.AddAsync(dbRecord, token);
     }
 
-    private async Task StreetNameModified(StreetNameConsumerContext context, StreetNameModified message, CancellationToken token)
+    private async Task StreetNameModified(StreetNameProjectionContext context, StreetNameModified message, CancellationToken token)
     {
         var dbRecord = await context.StreetNames.FindAsync(new object[] { message.Record.StreetNameId }, token).ConfigureAwait(false);
 
@@ -38,7 +38,7 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         CopyTo(message.Record, dbRecord);
     }
 
-    private async Task StreetNameRemoved(StreetNameConsumerContext context, StreetNameRemoved message, CancellationToken token)
+    private async Task StreetNameRemoved(StreetNameProjectionContext context, StreetNameRemoved message, CancellationToken token)
     {
         var dbRecord = await context.StreetNames.FindAsync(new object[] { message.StreetNameId }, token).ConfigureAwait(false);
 

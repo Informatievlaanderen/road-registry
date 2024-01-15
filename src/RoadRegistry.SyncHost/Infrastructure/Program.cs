@@ -10,7 +10,6 @@ using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Modules;
-using RoadRegistry.StreetNameConsumer.Schema;
 using Sync.OrganizationRegistry;
 using System.Threading;
 using System.Threading.Tasks;

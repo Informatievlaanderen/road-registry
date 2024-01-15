@@ -48,9 +48,9 @@ public class Program
                 .AddSingleton<ICommandProcessorPositionStore>(sp =>
                     new SqlCommandProcessorPositionStore(
                         new SqlConnectionStringBuilder(
-                            sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.CommandHost)
+                            sp.GetService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.CommandHost)
                         ),
-                        WellknownSchemas.CommandHostSchema))
+                        WellKnownSchemas.CommandHostSchema))
                 .AddDistributedStreamStoreLockOptions()
                 .AddRoadNetworkDbIdGenerator()
                 .AddEditorContext()
@@ -64,12 +64,12 @@ public class Program
                 .AddSqlServer()
                 .AddHostedServicesStatus()
                 .AddS3(x => x
-                    .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
-                    .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Read)
-                    .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read)
+                    .CheckPermission(WellKnownBuckets.SnapshotsBucket, Permission.Read)
+                    .CheckPermission(WellKnownBuckets.SqsMessagesBucket, Permission.Read)
+                    .CheckPermission(WellKnownBuckets.UploadsBucket, Permission.Read)
                 )
                 .AddSqs(x => x
-                    .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Read)
+                    .CheckPermission(WellKnownQueues.SnapshotQueue, Permission.Read)
                 )
                 .AddTicketing()
             )
@@ -128,18 +128,18 @@ public class Program
         await roadRegistryHost
             .LogSqlServerConnectionStrings(new[]
             {
-                WellknownConnectionNames.Events,
-                WellknownConnectionNames.CommandHost,
-                WellknownConnectionNames.CommandHostAdmin,
-                WellknownConnectionNames.Snapshots
+                WellKnownConnectionNames.Events,
+                WellKnownConnectionNames.CommandHost,
+                WellKnownConnectionNames.CommandHostAdmin,
+                WellKnownConnectionNames.Snapshots
             })
             .RunAsync(async (sp, host, configuration) =>
             {
                 await
                     new SqlCommandProcessorPositionStoreSchema(
                         new SqlConnectionStringBuilder(
-                            configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
-                    ).CreateSchemaIfNotExists(WellknownSchemas.CommandHostSchema).ConfigureAwait(false);
+                            configuration.GetConnectionString(WellKnownConnectionNames.CommandHostAdmin))
+                    ).CreateSchemaIfNotExists(WellKnownSchemas.CommandHostSchema).ConfigureAwait(false);
 
                 using (var dbContext = sp.GetRequiredService<RoadNetworkDbContext>())
                 {

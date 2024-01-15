@@ -27,7 +27,7 @@ internal static class ServiceCollectionExtensions
         return services
                 .AddDbContextFactory<TSnapshotContext>((sp, options) =>
                 {
-                    var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.ProducerSnapshotProjections);
+                    var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.ProducerSnapshotProjections);
                     options
                         .UseSqlServer(connectionString,
                         o => o

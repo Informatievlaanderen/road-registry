@@ -15,7 +15,7 @@ public static class ServiceCollectionExtensions
     {
         return services
             .AddSingleton(sp => new TraceDbConnection<ProductContext>(
-                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.EditorProjections)),
+                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.EditorProjections)),
                 sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
             .AddDbContext<ProductContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())

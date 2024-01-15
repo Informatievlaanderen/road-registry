@@ -25,7 +25,7 @@ public class Program
             .ConfigureServices((hostContext, services) => services
                 .AddSingleton(
                     new SqlConnection(
-                        hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Events)
+                        hostContext.Configuration.GetConnectionString(WellKnownConnectionNames.Events)
                     )
                 )
                 .AddSingleton(new LegacyStreamArchiveReader(
@@ -42,7 +42,7 @@ public class Program
             .ConfigureContainer((context, builder) =>
             {
                 builder
-                    .Register(c => new S3BlobClient(c.Resolve<AmazonS3Client>(), c.Resolve<S3BlobClientOptions>().Buckets[WellknownBuckets.ImportLegacyBucket]))
+                    .Register(c => new S3BlobClient(c.Resolve<AmazonS3Client>(), c.Resolve<S3BlobClientOptions>().Buckets[WellKnownBuckets.ImportLegacyBucket]))
                     .As<IBlobClient>().SingleInstance();
             })
             .Build();

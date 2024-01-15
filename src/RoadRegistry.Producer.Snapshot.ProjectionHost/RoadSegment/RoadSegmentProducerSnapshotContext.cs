@@ -17,7 +17,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
         {
         }
 
-        public override string ProjectionStateSchema => WellknownSchemas.RoadSegmentProducerSnapshotMetaSchema;
+        public override string ProjectionStateSchema => WellKnownSchemas.RoadSegmentProducerSnapshotMetaSchema;
         public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
 
         protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)

@@ -17,7 +17,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
         {
         }
 
-        public override string ProjectionStateSchema => WellknownSchemas.NationalRoadProducerSnapshotMetaSchema;
+        public override string ProjectionStateSchema => WellKnownSchemas.NationalRoadProducerSnapshotMetaSchema;
         public DbSet<NationalRoadRecord> NationalRoads { get; set; }
 
         protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)

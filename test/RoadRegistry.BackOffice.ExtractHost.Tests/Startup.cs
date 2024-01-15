@@ -34,7 +34,7 @@ public class Startup : TestStartup
                             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                             .UseSqlServer(
-                                hostBuilderContext.Configuration.GetConnectionString(WellknownConnectionNames.EditorProjections),
+                                hostBuilderContext.Configuration.GetConnectionString(WellKnownConnectionNames.EditorProjections),
                                 options => options
                                     .UseNetTopologySuite()
                             ).Options)

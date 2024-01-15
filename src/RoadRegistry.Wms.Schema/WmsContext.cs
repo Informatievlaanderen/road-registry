@@ -16,7 +16,7 @@ public class WmsContext : RunnerDbContext<WmsContext>
     {
     }
 
-    public override string ProjectionStateSchema => WellknownSchemas.WmsMetaSchema;
+    public override string ProjectionStateSchema => WellKnownSchemas.WmsMetaSchema;
 
     public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
     public DbSet<RoadSegmentEuropeanRoadAttributeRecord> RoadSegmentEuropeanRoadAttributes { get; set; }

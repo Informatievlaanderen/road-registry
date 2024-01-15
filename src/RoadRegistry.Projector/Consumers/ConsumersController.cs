@@ -24,10 +24,10 @@ namespace RoadRegistry.Projector.Consumers
             CancellationToken cancellationToken = default)
         {
             var organizationConsumerResult = projectionOptions.OrganizationSync.Enabled
-                ? GetLastProcessedMessageDateProcessed(configuration, WellknownConnectionNames.OrganizationConsumerProjections, WellknownSchemas.OrganizationConsumerSchema)
+                ? GetLastProcessedMessageDateProcessed(configuration, WellKnownConnectionNames.OrganizationConsumerProjections, WellKnownSchemas.OrganizationConsumerSchema)
                 : null;
             var streetNameConsumerResult = projectionOptions.StreetNameSync.Enabled
-                ? GetLastProcessedMessageDateProcessed(configuration, WellknownConnectionNames.StreetNameConsumerProjections, WellknownSchemas.StreetNameConsumerSchema)
+                ? GetLastProcessedMessageDateProcessed(configuration, WellKnownConnectionNames.StreetNameConsumerProjections, WellKnownSchemas.StreetNameConsumerSchema)
                 : null;
 
             await Task.WhenAll(organizationConsumerResult ?? Task.CompletedTask, streetNameConsumerResult ?? Task.CompletedTask);

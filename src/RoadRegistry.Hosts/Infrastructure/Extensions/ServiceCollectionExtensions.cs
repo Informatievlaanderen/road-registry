@@ -1,7 +1,5 @@
 namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 
-using System;
-using System.Configuration;
 using Amazon;
 using BackOffice;
 using BackOffice.Core;
@@ -13,11 +11,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.RoadNetwork.Schema;
+using RoadNetwork.Schema;
 using SqlStreamStore;
-using StreetNameConsumer.Schema;
 using Sync.StreetNameRegistry;
 using Syndication.Schema;
+using System;
 using IStreetNameCache = BackOffice.Abstractions.IStreetNameCache;
 
 public static class ServiceCollectionExtensions
@@ -28,9 +26,9 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IStreamStore>(sp =>
                 new MsSqlStreamStoreV3(
                     new MsSqlStreamStoreV3Settings(
-                        sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.Events))
+                        sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.Events))
                     {
-                        Schema = WellknownSchemas.EventSchema
+                        Schema = WellKnownSchemas.EventSchema
                     }));
     }
 
@@ -38,13 +36,13 @@ public static class ServiceCollectionExtensions
     {
         return services
                 .AddSingleton(sp => new TraceDbConnection<EditorContext>(
-                    new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.EditorProjections)),
+                    new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.EditorProjections)),
                     sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
                 .AddSingleton<Func<EditorContext>>(sp =>
                     {
                         var configuration = sp.GetRequiredService<IConfiguration>();
                         var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
-                        var connectionString = configuration.GetConnectionString(WellknownConnectionNames.EditorProjections);
+                        var connectionString = configuration.GetConnectionString(WellKnownConnectionNames.EditorProjections);
 
                         return () =>
                             new EditorContext(
@@ -96,22 +94,13 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddStreetNameCache(this IServiceCollection services)
     {
-        services.AddSingleton<IStreetNameCache>(sp =>
-        {
-            var featureToggle = sp.GetRequiredService<UseKafkaStreetNameCacheFeatureToggle>();
-            if (featureToggle.FeatureEnabled)
-            {
-                return sp.GetRequiredService<StreetNameCache>();
-            }
-
-            return sp.GetRequiredService<Syndication.Projections.StreetNameCache>();
-        });
+        services.AddSingleton<IStreetNameCache, StreetNameCache>();
 
         //syndication
         services
             .AddDbContextFactory<SyndicationContext>((sp, options) =>
             {
-                var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.SyndicationProjections);
+                var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.SyndicationProjections);
                 options
                     .UseSqlServer(connectionString,
                         o => o
@@ -125,7 +114,7 @@ public static class ServiceCollectionExtensions
                             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                             .UseSqlServer(
-                                sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.SyndicationProjections),
+                                sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.SyndicationProjections),
                                 options => options
                                     .EnableRetryOnFailure()
                             )
@@ -136,23 +125,21 @@ public static class ServiceCollectionExtensions
                 var configuration = sp.GetRequiredService<IConfiguration>();
 
                 return new TraceDbConnection<SyndicationContext>(
-                    new SqlConnection(configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections)), configuration["DataDog:ServiceName"]);
+                    new SqlConnection(configuration.GetConnectionString(WellKnownConnectionNames.SyndicationProjections)), configuration["DataDog:ServiceName"]);
             })
-            .AddSingleton<Syndication.Projections.StreetNameCache>()
             ;
 
         //kafka
         services
             .AddDbContextFactory<StreetNameConsumerContext>((sp, options) =>
             {
-                var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.StreetNameConsumerProjections);
+                var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.StreetNameConsumerProjections);
                 options
                     .UseSqlServer(connectionString,
                         o => o
                             .EnableRetryOnFailure()
                     );
             })
-            .AddSingleton<StreetNameCache>()
             ;
 
         return services;
@@ -162,7 +149,7 @@ public static class ServiceCollectionExtensions
     {
         return services
             .AddSingleton(sp => new TraceDbConnection<RoadNetworkDbContext>(
-                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.Events)),
+                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.Events)),
                 sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
             .AddDbContext<RoadNetworkDbContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())

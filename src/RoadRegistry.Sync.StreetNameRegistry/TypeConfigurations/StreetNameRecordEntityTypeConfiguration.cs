@@ -1,8 +1,8 @@
 namespace RoadRegistry.Sync.StreetNameRegistry.TypeConfigurations
 {
+    using BackOffice;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
-    using RoadRegistry.BackOffice;
 
     public class StreetNameRecordEntityTypeConfiguration : IEntityTypeConfiguration<StreetNameRecord>
     {
@@ -10,7 +10,7 @@ namespace RoadRegistry.Sync.StreetNameRegistry.TypeConfigurations
 
         public void Configure(EntityTypeBuilder<StreetNameRecord> b)
         {
-            b.ToTable(TableName, WellknownSchemas.StreetNameConsumerSchema)
+            b.ToTable(TableName, WellKnownSchemas.StreetNameSchema)
                 .HasIndex(p => p.StreetNameId)
                 .IsClustered(false);
 

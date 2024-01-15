@@ -1,22 +1,21 @@
 namespace RoadRegistry.SyncHost;
 
-using System;
-using System.Configuration;
-using System.Threading;
-using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.StreetNameConsumer.Schema;
-using StreetName;
 using Sync.StreetNameRegistry;
+using System;
+using System.Configuration;
+using System.Threading;
+using System.Threading.Tasks;
+using StreetName;
 
 public interface IStreetNameTopicConsumer
 {
-    Task ConsumeContinuously(Func<object, StreetNameConsumerContext, Task> messageHandler, CancellationToken cancellationToken);
+    Task ConsumeContinuously(Func<SnapshotMessage, StreetNameConsumerContext, Task> messageHandler, CancellationToken cancellationToken);
 }
 
 public class StreetNameTopicConsumer : IStreetNameTopicConsumer
@@ -36,7 +35,7 @@ public class StreetNameTopicConsumer : IStreetNameTopicConsumer
         _loggerFactory = loggerFactory;
     }
 
-    public Task ConsumeContinuously(Func<object, StreetNameConsumerContext, Task> messageHandler, CancellationToken cancellationToken)
+    public Task ConsumeContinuously(Func<SnapshotMessage, StreetNameConsumerContext, Task> messageHandler, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(_options.Consumers?.StreetName?.Topic))
         {
@@ -60,6 +59,6 @@ public class StreetNameTopicConsumer : IStreetNameTopicConsumer
         }
 
         return new IdempotentConsumer<StreetNameConsumerContext>(consumerOptions, _dbContextFactory, _loggerFactory)
-            .ConsumeContinuously(messageHandler, cancellationToken);
+            .ConsumeContinuously((message, dbContext) => messageHandler((SnapshotMessage)message, dbContext), cancellationToken);
     }
 }

@@ -3,12 +3,15 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
+namespace RoadRegistry.Sync.StreetNameRegistry.Migrations
 {
-    public partial class AddProcessedMessages : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "RoadRegistryStreetNameConsumer");
+
             migrationBuilder.CreateTable(
                 name: "ProcessedMessages",
                 schema: "RoadRegistryStreetNameConsumer",

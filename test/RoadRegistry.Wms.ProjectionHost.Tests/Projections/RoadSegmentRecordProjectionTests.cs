@@ -4,14 +4,13 @@ using AutoFixture;
 using BackOffice;
 using BackOffice.FeatureToggles;
 using BackOffice.Messages;
-using Be.Vlaanderen.Basisregisters.Shaperon;
 using Framework;
+using RoadRegistry.Sync.StreetNameRegistry;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 using Schema;
-using Syndication.Schema;
-using System.Text;
 using Wms.Projections;
+using StreetNameRecord = Sync.StreetNameRegistry.StreetNameRecord;
 
 public class RoadSegmentRecordProjectionTests
 {

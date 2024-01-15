@@ -135,8 +135,8 @@ public static class ServiceCollectionExtensions
                 var configuration = sp.GetRequiredService<IConfiguration>();
                 return new RoadNetworkSnapshotsBlobClient(
                     new SqlBlobClient(
-                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
-                        WellknownSchemas.SnapshotSchema));
+                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellKnownConnectionNames.Snapshots)),
+                        WellKnownSchemas.SnapshotSchema));
             })
             .AddSingleton<IRoadNetworkSnapshotReader>(sp =>
             {

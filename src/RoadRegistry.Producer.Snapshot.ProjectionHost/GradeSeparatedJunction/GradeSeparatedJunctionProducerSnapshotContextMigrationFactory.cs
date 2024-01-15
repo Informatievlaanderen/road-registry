@@ -8,14 +8,14 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
     public class GradeSeparatedJunctionProducerSnapshotContextMigrationFactory : RunnerDbContextMigrationFactory<GradeSeparatedJunctionProducerSnapshotContext>
     {
         public GradeSeparatedJunctionProducerSnapshotContextMigrationFactory() :
-            base(WellknownConnectionNames.ProducerSnapshotProjectionsAdmin, HistoryConfiguration)
+            base(WellKnownConnectionNames.ProducerSnapshotProjectionsAdmin, HistoryConfiguration)
         {
         }
 
         private static MigrationHistoryConfiguration HistoryConfiguration =>
             new()
             {
-                Schema = WellknownSchemas.GradeSeparatedJunctionProducerSnapshotSchema,
+                Schema = WellKnownSchemas.GradeSeparatedJunctionProducerSnapshotSchema,
                 Table = MigrationTables.GradeSeparatedJunctionProducerSnapshot
             };
 

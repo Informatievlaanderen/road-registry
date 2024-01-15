@@ -18,7 +18,7 @@ public class BackOfficeProcessorDbContext : RunnerDbContext<BackOfficeProcessorD
     {
     }
 
-    public override string ProjectionStateSchema => WellknownSchemas.EventSchema;
+    public override string ProjectionStateSchema => WellKnownSchemas.EventSchema;
 
     public DbSet<ProjectionStateItem> ProcessorPositions { get; set; }
 

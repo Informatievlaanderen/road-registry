@@ -10,9 +10,9 @@ using RoadRegistry.BackOffice.Abstractions;
 
 public class StreetNameCache : IStreetNameCache
 {
-    private readonly IDbContextFactory<StreetNameConsumerContext> _contextFactory;
+    private readonly IDbContextFactory<StreetNameProjectionContext> _contextFactory;
 
-    public StreetNameCache(IDbContextFactory<StreetNameConsumerContext> contextFactory)
+    public StreetNameCache(IDbContextFactory<StreetNameProjectionContext> contextFactory)
     {
         _contextFactory = contextFactory;
     }

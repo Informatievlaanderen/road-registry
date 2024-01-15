@@ -33,9 +33,9 @@ public class Program
         await roadRegistryHost
             .LogSqlServerConnectionStrings(new[]
             {
-                WellknownConnectionNames.Events,
-                WellknownConnectionNames.ProductProjections,
-                WellknownConnectionNames.ProductProjectionsAdmin
+                WellKnownConnectionNames.Events,
+                WellKnownConnectionNames.ProductProjections,
+                WellKnownConnectionNames.ProductProjectionsAdmin
             })
             .RunAsync(async (sp, host, configuration) =>
             {
@@ -60,7 +60,7 @@ public class Program
                     new ProductContext(
                         new DbContextOptionsBuilder<ProductContext>()
                             .UseSqlServer(
-                                hostContext.Configuration.GetConnectionString(WellknownConnectionNames.ProductProjections),
+                                hostContext.Configuration.GetConnectionString(WellKnownConnectionNames.ProductProjections),
                                 options => options.EnableRetryOnFailure()
                             ).Options)
             )

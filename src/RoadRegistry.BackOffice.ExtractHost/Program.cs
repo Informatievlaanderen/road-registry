@@ -49,9 +49,9 @@ public class Program
                     .AddSingleton<IEventProcessorPositionStore>(sp =>
                         new SqlEventProcessorPositionStore(
                             new SqlConnectionStringBuilder(
-                                sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.ExtractHost)
+                                sp.GetService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.ExtractHost)
                             ),
-                            WellknownSchemas.ExtractHostSchema))
+                            WellKnownSchemas.ExtractHostSchema))
                     .AddStreetNameCache()
                     .AddSingleton<IZipArchiveWriter<EditorContext>>(sp =>
                         new RoadNetworkExtractToZipArchiveWriter(
@@ -91,13 +91,13 @@ public class Program
                 .AddSqlServer()
                 .AddHostedServicesStatus()
                 .AddS3(x => x
-                    .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
-                    .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Read)
-                    .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read)
-                    .CheckPermission(WellknownBuckets.ExtractDownloadsBucket, Permission.Read, Permission.Delete)
+                    .CheckPermission(WellKnownBuckets.SnapshotsBucket, Permission.Read)
+                    .CheckPermission(WellKnownBuckets.SqsMessagesBucket, Permission.Read)
+                    .CheckPermission(WellKnownBuckets.UploadsBucket, Permission.Read)
+                    .CheckPermission(WellKnownBuckets.ExtractDownloadsBucket, Permission.Read, Permission.Delete)
                 )
                 .AddSqs(x => x
-                    .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Read)
+                    .CheckPermission(WellKnownQueues.SnapshotQueue, Permission.Read)
                 )
             )
             .ConfigureContainer((context, builder) =>
@@ -110,13 +110,13 @@ public class Program
         await roadRegistryHost
             .LogSqlServerConnectionStrings(new []
             {
-                WellknownConnectionNames.Events,
-                WellknownConnectionNames.ExtractHost,
-                WellknownConnectionNames.ExtractHostAdmin,
-                WellknownConnectionNames.Snapshots,
-                WellknownConnectionNames.SnapshotsAdmin,
-                WellknownConnectionNames.EditorProjections,
-                WellknownConnectionNames.SyndicationProjections
+                WellKnownConnectionNames.Events,
+                WellKnownConnectionNames.ExtractHost,
+                WellKnownConnectionNames.ExtractHostAdmin,
+                WellKnownConnectionNames.Snapshots,
+                WellKnownConnectionNames.SnapshotsAdmin,
+                WellKnownConnectionNames.EditorProjections,
+                WellKnownConnectionNames.SyndicationProjections
             })
             .Log((sp, logger) => {
                 var blobClientOptions = sp.GetService<BlobClientOptions>();
@@ -124,8 +124,8 @@ public class Program
             })
             .RunAsync(async (sp, host, configuration) =>
             {
-                await new SqlBlobSchema(new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.SnapshotsAdmin))).CreateSchemaIfNotExists(WellknownSchemas.SnapshotSchema).ConfigureAwait(false);
-                await new SqlEventProcessorPositionStoreSchema(new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.ExtractHostAdmin))).CreateSchemaIfNotExists(WellknownSchemas.ExtractHostSchema).ConfigureAwait(false);
+                await new SqlBlobSchema(new SqlConnectionStringBuilder(configuration.GetConnectionString(WellKnownConnectionNames.SnapshotsAdmin))).CreateSchemaIfNotExists(WellKnownSchemas.SnapshotSchema).ConfigureAwait(false);
+                await new SqlEventProcessorPositionStoreSchema(new SqlConnectionStringBuilder(configuration.GetConnectionString(WellKnownConnectionNames.ExtractHostAdmin))).CreateSchemaIfNotExists(WellKnownSchemas.ExtractHostSchema).ConfigureAwait(false);
             });
     }
 }

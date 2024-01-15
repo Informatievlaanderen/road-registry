@@ -7,14 +7,14 @@ using Microsoft.EntityFrameworkCore;
 public class SyndicationContextMigrationFactory : RunnerDbContextMigrationFactory<SyndicationContext>
 {
     public SyndicationContextMigrationFactory() :
-        base(WellknownConnectionNames.SyndicationProjectionsAdmin, HistoryConfiguration)
+        base(WellKnownConnectionNames.SyndicationProjectionsAdmin, HistoryConfiguration)
     {
     }
 
     private static MigrationHistoryConfiguration HistoryConfiguration =>
         new()
         {
-            Schema = WellknownSchemas.SyndicationSchema,
+            Schema = WellKnownSchemas.SyndicationSchema,
             Table = MigrationTables.Syndication
         };
 

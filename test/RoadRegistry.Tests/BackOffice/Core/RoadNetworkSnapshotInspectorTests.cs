@@ -45,7 +45,7 @@ public class RoadNetworkSnapshotInspectorTests
             new MsSqlStreamStoreV3Settings(
                 connectionString)
             {
-                Schema = WellknownSchemas.EventSchema
+                Schema = WellKnownSchemas.EventSchema
             });
     }
     private EditorContext GetEditorContext(DbEnvironment dbEnvironment)

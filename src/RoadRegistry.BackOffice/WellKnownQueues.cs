@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice;
 
-public static class WellknownQueues
+public static class WellKnownQueues
 {
     public const string AdminQueue = "Admin";
     public const string BackOfficeQueue = "BackOffice";

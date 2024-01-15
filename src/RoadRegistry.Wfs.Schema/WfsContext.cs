@@ -18,7 +18,7 @@ public class WfsContext : RunnerDbContext<WfsContext>
     {
     }
 
-    public override string ProjectionStateSchema => WellknownSchemas.WfsMetaSchema;
+    public override string ProjectionStateSchema => WellKnownSchemas.WfsMetaSchema;
     public DbSet<RoadNodeRecord> RoadNodes { get; set; }
     public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
 

@@ -14,10 +14,10 @@ public class OrganizationConsumerModule : Module
             new OrganizationReader(c.Resolve<IHttpClientFactory>(), c.Resolve<OrganizationConsumerOptions>())
         );
 
-        builder.RegisterDbContext<OrganizationConsumerContext>(WellknownConnectionNames.OrganizationConsumerProjections,
+        builder.RegisterDbContext<OrganizationConsumerContext>(WellKnownConnectionNames.OrganizationConsumerProjections,
             sqlServerOptions => sqlServerOptions
                 .EnableRetryOnFailure()
-                .MigrationsHistoryTable(MigrationTables.OrganizationConsumer, WellknownSchemas.OrganizationConsumerSchema)
+                .MigrationsHistoryTable(MigrationTables.OrganizationConsumer, WellKnownSchemas.OrganizationConsumerSchema)
             , dbContextOptionsBuilder =>
                 new OrganizationConsumerContext(dbContextOptionsBuilder.Options)
         );

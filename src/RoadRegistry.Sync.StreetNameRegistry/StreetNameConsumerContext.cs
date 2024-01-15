@@ -1,12 +1,12 @@
 namespace RoadRegistry.Sync.StreetNameRegistry;
 
+using BackOffice;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
 using Microsoft.EntityFrameworkCore;
-using RoadRegistry.BackOffice;
 
 public class StreetNameConsumerContext : ConsumerDbContext<StreetNameConsumerContext>
 {
-    private const string ConsumerSchema = WellknownSchemas.StreetNameConsumerSchema;
+    private const string ConsumerSchema = WellKnownSchemas.StreetNameConsumerSchema;
 
     public StreetNameConsumerContext()
     {
@@ -18,8 +18,6 @@ public class StreetNameConsumerContext : ConsumerDbContext<StreetNameConsumerCon
     {
     }
     
-    public DbSet<StreetNameRecord> StreetNames { get; set; }
-
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseRoadRegistryInMemorySqlServer();
@@ -29,7 +27,6 @@ public class StreetNameConsumerContext : ConsumerDbContext<StreetNameConsumerCon
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
         modelBuilder.ApplyConfiguration(new ProcessedMessageConfiguration(ConsumerSchema));
     }
 }
@@ -37,9 +34,9 @@ public class StreetNameConsumerContext : ConsumerDbContext<StreetNameConsumerCon
 public class StreetNameConsumerContextMigrationFactory : DbContextMigratorFactory<StreetNameConsumerContext>
 {
     public StreetNameConsumerContextMigrationFactory()
-        : base(WellknownConnectionNames.StreetNameConsumerProjectionsAdmin, new MigrationHistoryConfiguration
+        : base(WellKnownConnectionNames.StreetNameConsumerProjectionsAdmin, new MigrationHistoryConfiguration
         {
-            Schema = WellknownSchemas.StreetNameConsumerSchema,
+            Schema = WellKnownSchemas.StreetNameConsumerSchema,
             Table = MigrationTables.StreetNameConsumer
         })
     {

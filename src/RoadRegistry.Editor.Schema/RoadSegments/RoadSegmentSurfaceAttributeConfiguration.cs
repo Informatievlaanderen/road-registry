@@ -11,7 +11,7 @@ public class RoadSegmentSurfaceAttributeConfiguration : IEntityTypeConfiguration
 
     public void Configure(EntityTypeBuilder<RoadSegmentSurfaceAttributeRecord> b)
     {
-        b.ToTable(TableName, WellknownSchemas.EditorSchema)
+        b.ToTable(TableName, WellKnownSchemas.EditorSchema)
             .HasKey(p => p.Id)
             .IsClustered(false);
 

@@ -17,7 +17,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
         {
         }
 
-        public override string ProjectionStateSchema => WellknownSchemas.GradeSeparatedJunctionProducerSnapshotMetaSchema;
+        public override string ProjectionStateSchema => WellKnownSchemas.GradeSeparatedJunctionProducerSnapshotMetaSchema;
         public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
 
         protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)

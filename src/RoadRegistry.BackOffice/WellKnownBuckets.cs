@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice;
 
-public static class WellknownBuckets
+public static class WellKnownBuckets
 {
     public const string ExtractDownloadsBucket = "ExtractDownloads";
     public const string FeatureCompareBucket = "FeatureCompare";
