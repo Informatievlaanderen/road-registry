@@ -236,7 +236,7 @@ public class Startup
             .AddDbContext<RoadSegmentSurfaceProducerSnapshotContext>(WellKnownConnectionNames.ProducerSnapshotProjections)
             .AddDbContext<BackOfficeProcessorDbContext>(WellKnownConnectionNames.Events)
             .AddDbContext<OrganizationConsumerContext>(WellKnownConnectionNames.OrganizationConsumerProjections)
-            .AddDbContext<StreetNameConsumerContext>(WellKnownConnectionNames.StreetNameConsumerProjections)
+            .AddDbContext<StreetNameConsumerContext>(WellKnownConnectionNames.StreetNameConsumer)
             ;
 
         var containerBuilder = new ContainerBuilder();

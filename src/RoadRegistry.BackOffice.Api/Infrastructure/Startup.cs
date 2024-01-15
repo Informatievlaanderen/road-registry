@@ -332,12 +332,8 @@ public class Startup
                         sp.GetService<ILoggerFactory>()
                     )
                 })))
-            .AddScoped(sp => new TraceDbConnection<EditorContext>(
-                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.EditorProjections)),
-                sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
-            .AddScoped(sp => new TraceDbConnection<SyndicationContext>(
-                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.SyndicationProjections)),
-                sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
+            .AddTraceDbConnection<EditorContext>(WellKnownConnectionNames.EditorProjections, ServiceLifetime.Scoped)
+            .AddTraceDbConnection<SyndicationContext>(WellKnownConnectionNames.SyndicationProjections, ServiceLifetime.Scoped)
             .AddStreetNameCache()
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
@@ -347,9 +343,7 @@ public class Startup
                     sqlOptions => sqlOptions
                         .UseNetTopologySuite())
             )
-            .AddScoped(sp => new TraceDbConnection<ProductContext>(
-                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.ProductProjections)),
-                sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
+            .AddTraceDbConnection<ProductContext>(WellKnownConnectionNames.ProductProjections, ServiceLifetime.Scoped)
             .AddDbContext<ProductContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)

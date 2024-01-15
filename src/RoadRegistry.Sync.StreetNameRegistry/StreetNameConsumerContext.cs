@@ -1,8 +1,12 @@
 namespace RoadRegistry.Sync.StreetNameRegistry;
 
+using System;
 using BackOffice;
+using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 public class StreetNameConsumerContext : ConsumerDbContext<StreetNameConsumerContext>
 {
@@ -29,12 +33,24 @@ public class StreetNameConsumerContext : ConsumerDbContext<StreetNameConsumerCon
 
         modelBuilder.ApplyConfiguration(new ProcessedMessageConfiguration(ConsumerSchema));
     }
+
+    public static void ConfigureOptions(IServiceProvider sp, DbContextOptionsBuilder options)
+    {
+        options
+            .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+            .UseSqlServer(
+                sp.GetRequiredService<TraceDbConnection<StreetNameConsumerContext>>(),
+                sqlOptions => sqlOptions
+                    .EnableRetryOnFailure()
+                    .MigrationsHistoryTable(MigrationTables.StreetNameConsumer, WellKnownSchemas.StreetNameConsumerSchema));
+    }
 }
 
 public class StreetNameConsumerContextMigrationFactory : DbContextMigratorFactory<StreetNameConsumerContext>
 {
     public StreetNameConsumerContextMigrationFactory()
-        : base(WellKnownConnectionNames.StreetNameConsumerProjectionsAdmin, new MigrationHistoryConfiguration
+        : base(WellKnownConnectionNames.StreetNameConsumerAdmin, new MigrationHistoryConfiguration
         {
             Schema = WellKnownSchemas.StreetNameConsumerSchema,
             Table = MigrationTables.StreetNameConsumer

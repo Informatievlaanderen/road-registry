@@ -11,9 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Modules;
 using Sync.OrganizationRegistry;
+using Sync.StreetNameRegistry;
 using System.Threading;
 using System.Threading.Tasks;
-using Sync.StreetNameRegistry;
 
 public class Program
 {
@@ -34,19 +34,24 @@ public class Program
                     .AddScoped(_ => new EventSourcedEntityMap())
                     .AddRoadNetworkCommandQueue()
                     .AddRoadNetworkEventWriter()
-                    .AddSingleton<IStreetNameEventWriter, StreetNameEventWriter>()
                     .AddEditorContext()
-                    .RegisterOptions<OrganizationConsumerOptions>()
                     .RegisterOptions<KafkaOptions>()
-                    .AddSingleton<IStreetNameTopicConsumer, StreetNameTopicConsumer>()
+
+                    .AddOrganizationConsumerServices()
+                    .AddHostedService<OrganizationConsumer>()
+
+                    .AddStreetNameConsumerServices()
+                    .AddHostedService<StreetNameConsumer>()
+
+                    .AddStreetNameProjectionServices()
+                    .AddHostedService<StreetNameProjectionContextEventProcessor>()
+
                     .AddSingleton(new IDbContextMigratorFactory[]
                     {
                         new OrganizationConsumerContextMigratorFactory(),
-                        new StreetNameConsumerContextMigrationFactory()
+                        new StreetNameConsumerContextMigrationFactory(),
+                        new StreetNameProjectionContextMigrationFactory()
                     })
-                    .AddHostedService<OrganizationConsumer>()
-                    .AddHostedService<StreetNameConsumer>()
-                    //TODO-rik add projector for StreetNameConsumerProjection
                     ;
             })
             .ConfigureHealthChecks(HostingPort,builder => builder
@@ -57,8 +62,6 @@ public class Program
             .ConfigureContainer((hostContext, builder) =>
                 {
                     builder
-                        .RegisterModule<OrganizationConsumerModule>()
-                        .RegisterModule<StreetNameConsumerModule>()
                         .RegisterModule(new ApiModule(hostContext.Configuration))
                         .RegisterModule(new ProjectorModule(hostContext.Configuration));
                 }

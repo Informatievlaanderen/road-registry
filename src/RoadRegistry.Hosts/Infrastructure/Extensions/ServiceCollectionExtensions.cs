@@ -16,6 +16,9 @@ using SqlStreamStore;
 using Sync.StreetNameRegistry;
 using Syndication.Schema;
 using System;
+using System.Linq;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using IStreetNameCache = BackOffice.Abstractions.IStreetNameCache;
 
 public static class ServiceCollectionExtensions
@@ -32,12 +35,20 @@ public static class ServiceCollectionExtensions
                     }));
     }
 
+    public static IServiceCollection AddTraceDbConnection<TDbContext>(this IServiceCollection services, string connectionStringName, ServiceLifetime serviceLifetime = ServiceLifetime.Singleton)
+        where TDbContext : DbContext
+    {
+        services
+            .Add(new ServiceDescriptor(typeof(TraceDbConnection<TDbContext>), sp => new TraceDbConnection<TDbContext>(
+            new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(connectionStringName)),
+            sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]!), serviceLifetime));
+        return services;
+    }
+
     public static IServiceCollection AddEditorContext(this IServiceCollection services)
     {
         return services
-                .AddSingleton(sp => new TraceDbConnection<EditorContext>(
-                    new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.EditorProjections)),
-                    sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
+                .AddTraceDbConnection<EditorContext>(WellKnownConnectionNames.EditorProjections)
                 .AddSingleton<Func<EditorContext>>(sp =>
                     {
                         var configuration = sp.GetRequiredService<IConfiguration>();
@@ -94,46 +105,11 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddStreetNameCache(this IServiceCollection services)
     {
-        services.AddSingleton<IStreetNameCache, StreetNameCache>();
-
-        //syndication
         services
-            .AddDbContextFactory<SyndicationContext>((sp, options) =>
+            .AddSingleton<IStreetNameCache, StreetNameCache>()
+            .AddDbContextFactory<StreetNameProjectionContext>((sp, options) =>
             {
-                var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.SyndicationProjections);
-                options
-                    .UseSqlServer(connectionString,
-                        o => o
-                            .EnableRetryOnFailure()
-                    );
-            })
-            .AddSingleton<Func<SyndicationContext>>(sp =>
-                () =>
-                    new SyndicationContext(
-                        new DbContextOptionsBuilder<SyndicationContext>()
-                            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                            .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                            .UseSqlServer(
-                                sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.SyndicationProjections),
-                                options => options
-                                    .EnableRetryOnFailure()
-                            )
-                            .Options)
-            )
-            .AddSingleton(sp =>
-            {
-                var configuration = sp.GetRequiredService<IConfiguration>();
-
-                return new TraceDbConnection<SyndicationContext>(
-                    new SqlConnection(configuration.GetConnectionString(WellKnownConnectionNames.SyndicationProjections)), configuration["DataDog:ServiceName"]);
-            })
-            ;
-
-        //kafka
-        services
-            .AddDbContextFactory<StreetNameConsumerContext>((sp, options) =>
-            {
-                var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.StreetNameConsumerProjections);
+                var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.StreetNameProjections);
                 options
                     .UseSqlServer(connectionString,
                         o => o
@@ -148,9 +124,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddRoadNetworkDbIdGenerator(this IServiceCollection services)
     {
         return services
-            .AddSingleton(sp => new TraceDbConnection<RoadNetworkDbContext>(
-                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.Events)),
-                sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
+            .AddTraceDbConnection<RoadNetworkDbContext>(WellKnownConnectionNames.Events)
             .AddDbContext<RoadNetworkDbContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
@@ -168,6 +142,26 @@ public static class ServiceCollectionExtensions
     {
         return services
             .AddScoped<IOrganizationRepository, OrganizationRepository>();
+    }
+
+    public static IServiceCollection AddDbContextEventProcessorServices<TDbContextEventProcessor, TDbContext>(this IServiceCollection services,
+        Func<IServiceProvider, ConnectedProjection<TDbContext>[]> projections)
+        where TDbContextEventProcessor : DbContextEventProcessor<TDbContext>
+        where TDbContext: RunnerDbContext<TDbContext>
+    {
+        services
+            .AddSingleton(projections)
+            .AddSingleton(sp => Resolve.WhenEqualToHandlerMessageType(sp
+                .GetRequiredService<ConnectedProjection<TDbContext>[]>()
+                .SelectMany(projection => projection.Handlers)
+                .ToArray())
+            )
+            .AddSingleton(sp => new AcceptStreamMessage<TDbContext>(
+                sp.GetRequiredService<ConnectedProjection<TDbContext>[]>(), DbContextEventProcessor<TDbContext>.EventMapping
+            ))
+            ;
+
+        return services;
     }
 }
 

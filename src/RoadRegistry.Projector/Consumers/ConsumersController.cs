@@ -27,7 +27,7 @@ namespace RoadRegistry.Projector.Consumers
                 ? GetLastProcessedMessageDateProcessed(configuration, WellKnownConnectionNames.OrganizationConsumerProjections, WellKnownSchemas.OrganizationConsumerSchema)
                 : null;
             var streetNameConsumerResult = projectionOptions.StreetNameSync.Enabled
-                ? GetLastProcessedMessageDateProcessed(configuration, WellKnownConnectionNames.StreetNameConsumerProjections, WellKnownSchemas.StreetNameConsumerSchema)
+                ? GetLastProcessedMessageDateProcessed(configuration, WellKnownConnectionNames.StreetNameConsumer, WellKnownSchemas.StreetNameConsumerSchema)
                 : null;
 
             await Task.WhenAll(organizationConsumerResult ?? Task.CompletedTask, streetNameConsumerResult ?? Task.CompletedTask);

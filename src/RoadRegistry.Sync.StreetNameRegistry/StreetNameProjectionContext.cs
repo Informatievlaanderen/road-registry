@@ -1,8 +1,12 @@
 namespace RoadRegistry.Sync.StreetNameRegistry;
 
+using System;
 using BackOffice;
+using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using TypeConfigurations;
 
 public class StreetNameProjectionContext : RunnerDbContext<StreetNameProjectionContext>
@@ -31,6 +35,18 @@ public class StreetNameProjectionContext : RunnerDbContext<StreetNameProjectionC
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfiguration(new StreetNameRecordEntityTypeConfiguration());
+    }
+
+    public static void ConfigureOptions(IServiceProvider sp, DbContextOptionsBuilder options)
+    {
+        options
+            .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+            .UseSqlServer(
+                sp.GetRequiredService<TraceDbConnection<StreetNameProjectionContext>>(),
+                sqlOptions => sqlOptions
+                    .EnableRetryOnFailure()
+                    .MigrationsHistoryTable(MigrationTables.StreetName, WellKnownSchemas.StreetNameSchema));
     }
 }
 

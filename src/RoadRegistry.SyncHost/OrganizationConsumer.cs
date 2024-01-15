@@ -1,29 +1,30 @@
-namespace RoadRegistry.Sync.OrganizationRegistry;
+namespace RoadRegistry.SyncHost;
 
-using Autofac;
-using BackOffice;
-using BackOffice.Abstractions.Organizations;
-using BackOffice.Core;
-using BackOffice.FeatureToggles;
-using BackOffice.Framework;
-using BackOffice.Messages;
-using Be.Vlaanderen.Basisregisters.EventHandling;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.Extensions;
-using Editor.Schema;
-using Extensions;
-using Hosts;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.IO;
-using Newtonsoft.Json;
-using SqlStreamStore;
 using System;
 using System.Configuration;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Organization = Models.Organization;
+using Autofac;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.IO;
+using Newtonsoft.Json;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Abstractions.Organizations;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.FeatureToggles;
+using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Editor.Schema;
+using RoadRegistry.Hosts;
+using RoadRegistry.Sync.OrganizationRegistry.Extensions;
+using SqlStreamStore;
+using Sync.OrganizationRegistry;
+using Organization = Sync.OrganizationRegistry.Models.Organization;
 
 public class OrganizationConsumer : RoadRegistryBackgroundService
 {
@@ -71,7 +72,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
 
         while (!cancellationToken.IsCancellationRequested)
         {
-            ILookup<OrganizationOvoCode, OrganizationId>? orgIdMapping = null;
+            ILookup<OrganizationOvoCode, OrganizationId> orgIdMapping = null;
 
             await using var scope = _container.BeginLifetimeScope();
             await using var dbContext = scope.Resolve<OrganizationConsumerContext>();
@@ -101,23 +102,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                         return;
                     }
                     
-                    if (orgIdMapping is null)
-                    {
-                        await using var editorContext = scope.Resolve<EditorContext>();
-
-                        Logger.LogInformation("Fetching all organizations...");
-                        var organizationRecords = await editorContext.Organizations.ToListAsync(cancellationToken);
-                        if (!organizationRecords.Any())
-                        {
-                            organizationRecords = editorContext.Organizations.Local.ToList();
-                        }
-
-                        orgIdMapping = organizationRecords
-                            .Select(x => _organizationRecordReader.Read(x.DbaseRecord, x.DbaseSchemaVersion))
-                            .Where(x => x.OvoCode is not null)
-                            .ToLookup(x => x.OvoCode!.Value, x => x.Code);
-                        Logger.LogInformation("{Count} organizations have an OVO-code", orgIdMapping.Count);
-                    }
+                    orgIdMapping ??= await BuildOrgIdMapping(scope, cancellationToken);
                     
                     await CreateOrUpdateOrganizationWithOvoCode(organizationsContext, organization, cancellationToken);
                     await UpdateOrganizationsWithOldOrganizationId(orgIdMapping, organization, cancellationToken);
@@ -161,6 +146,26 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
 
             await Task.Delay(TimeSpan.FromSeconds(_options.ConsumerDelaySeconds), cancellationToken);
         }
+    }
+
+    private async Task<ILookup<OrganizationOvoCode, OrganizationId>> BuildOrgIdMapping(ILifetimeScope scope, CancellationToken cancellationToken)
+    {
+        await using var editorContext = scope.Resolve<EditorContext>();
+
+        Logger.LogInformation("Fetching all organizations...");
+        var organizationRecords = await editorContext.Organizations.ToListAsync(cancellationToken);
+        if (!organizationRecords.Any())
+        {
+            organizationRecords = editorContext.Organizations.Local.ToList();
+        }
+
+        var orgIdMapping = organizationRecords
+            .Select(x => _organizationRecordReader.Read(x.DbaseRecord, x.DbaseSchemaVersion))
+            .Where(x => x.OvoCode is not null)
+            .ToLookup(x => x.OvoCode!.Value, x => x.Code);
+        Logger.LogInformation("{Count} organizations have an OVO-code", orgIdMapping.Count);
+
+        return orgIdMapping;
     }
 
     private async Task CreateOrUpdateOrganizationWithOvoCode(Organizations organizationsContext, Organization organization, CancellationToken cancellationToken)

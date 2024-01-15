@@ -2,6 +2,7 @@ namespace RoadRegistry.AdminHost.Infrastructure;
 
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
+using Hosts.Infrastructure.Extensions;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,9 +15,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddProductContext(this IServiceCollection services)
     {
         return services
-            .AddSingleton(sp => new TraceDbConnection<ProductContext>(
-                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.EditorProjections)),
-                sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
+            .AddTraceDbConnection<ProductContext>(WellKnownConnectionNames.ProductProjections, ServiceLifetime.Scoped)
             .AddDbContext<ProductContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
