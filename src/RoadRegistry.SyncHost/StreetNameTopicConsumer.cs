@@ -23,6 +23,7 @@ public class StreetNameTopicConsumer : IStreetNameTopicConsumer
     private readonly KafkaOptions _options;
     private readonly IDbContextFactory<StreetNameConsumerContext> _dbContextFactory;
     private readonly ILoggerFactory _loggerFactory;
+    private readonly ILogger _logger;
 
     public StreetNameTopicConsumer(
         KafkaOptions options,
@@ -30,16 +31,18 @@ public class StreetNameTopicConsumer : IStreetNameTopicConsumer
         ILoggerFactory loggerFactory
     )
     {
-        _options = options;
-        _dbContextFactory = dbContextFactory;
-        _loggerFactory = loggerFactory;
+        _options = options.ThrowIfNull();
+        _dbContextFactory = dbContextFactory.ThrowIfNull();
+        _loggerFactory = loggerFactory.ThrowIfNull();
+        _logger = loggerFactory.CreateLogger<StreetNameTopicConsumer>();
     }
 
-    public Task ConsumeContinuously(Func<SnapshotMessage, StreetNameConsumerContext, Task> messageHandler, CancellationToken cancellationToken)
+    public async Task ConsumeContinuously(Func<SnapshotMessage, StreetNameConsumerContext, Task> messageHandler, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(_options.Consumers?.StreetName?.Topic))
         {
-            throw new ConfigurationErrorsException("Configuration has no StreetName Consumer with a Topic.");
+            _logger.LogError("Configuration has no StreetName Consumer with a Topic.");
+            return;
         }
 
         var consumerGroupId = $"{nameof(RoadRegistry)}.{nameof(StreetNameConsumer)}.{_options.Consumers.StreetName.Topic}{_options.Consumers.StreetName.GroupSuffix}";
@@ -58,7 +61,24 @@ public class StreetNameTopicConsumer : IStreetNameTopicConsumer
             consumerOptions.ConfigureSaslAuthentication(new SaslAuthentication(_options.SaslUserName, _options.SaslPassword));
         }
 
-        return new IdempotentConsumer<StreetNameConsumerContext>(consumerOptions, _dbContextFactory, _loggerFactory)
-            .ConsumeContinuously((message, dbContext) => messageHandler((SnapshotMessage)message, dbContext), cancellationToken);
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                await new IdempotentConsumer<StreetNameConsumerContext>(consumerOptions, _dbContextFactory, _loggerFactory)
+                    .ConsumeContinuously((message, dbContext) => messageHandler((SnapshotMessage)message, dbContext), cancellationToken);
+            }
+            catch (ConfigurationErrorsException ex)
+            {
+                _logger.LogError(ex.Message);
+                return;
+            }
+            catch (Exception ex)
+            {
+                const int waitSeconds = 30;
+                _logger.LogCritical(ex, "Error consuming kafka events, trying again in {seconds} seconds", waitSeconds);
+                await Task.Delay(TimeSpan.FromSeconds(waitSeconds), cancellationToken);
+            }
+        }
     }
 }

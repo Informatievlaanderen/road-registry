@@ -7,12 +7,11 @@ using Fixtures;
 using RoadRegistry.StreetName;
 using StreetNameRecord = Sync.StreetNameRegistry.StreetNameRecord;
 
-//TODO-rik fix tests
-public class StreetNameConsumerProjectionTests : IClassFixture<StreetNameConsumerProjectionFixture>
+public class StreetNameProjectionTests : IClassFixture<StreetNameProjectionFixture>
 {
-    private readonly StreetNameConsumerProjectionFixture _fixture;
+    private readonly StreetNameProjectionFixture _fixture;
 
-    public StreetNameConsumerProjectionTests(StreetNameConsumerProjectionFixture fixture)
+    public StreetNameProjectionTests(StreetNameProjectionFixture fixture)
     {
         _fixture = fixture;
     }
@@ -43,7 +42,7 @@ public class StreetNameConsumerProjectionTests : IClassFixture<StreetNameConsume
     }
 
     [Fact]
-    public async Task StreetNameUpdatedStatus()
+    public async Task StreetNameModified()
     {
         var record = _fixture.StreetName1;
         record.StraatnaamStatus = StreetNameStatus.Current;

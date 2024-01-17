@@ -49,64 +49,47 @@ public class StreetNameConsumer : RoadRegistryBackgroundService
 
     protected override async Task ExecutingAsync(CancellationToken cancellationToken)
     {
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            try
+        await _consumer.ConsumeContinuously(async (message, dbContext) =>
             {
-                await _consumer.ConsumeContinuously(async (message, dbContext) =>
-                    {
-                        //TODO-rik test consumer
-                        Logger.LogInformation("Processing streetname {Key}", message.Key);
+                Logger.LogInformation("Processing streetname {Key}", message.Key);
 
-                        var map = _container.Resolve<EventSourcedEntityMap>();
-                        var streetNamesContext = new StreetNames(map, _store, SerializerSettings, EventMapping);
+                var map = _container.Resolve<EventSourcedEntityMap>();
+                var streetNamesContext = new StreetNames(map, _store, SerializerSettings, EventMapping);
 
-                        var snapshotRecord = (StreetNameSnapshotOsloRecord)message.Value;
-                        var streetNameId = StreetNamePuri.FromValue(message.Key);
-                        var streetNameLocalId = streetNameId.ToStreetNameLocalId();
+                var snapshotRecord = (StreetNameSnapshotOsloRecord)message.Value;
+                var streetNameId = StreetNamePuri.FromValue(message.Key);
+                var streetNameLocalId = streetNameId.ToStreetNameLocalId();
 
-                        var streetNameEventSourced = await streetNamesContext.FindAsync(streetNameLocalId, cancellationToken);
+                var streetNameEventSourced = await streetNamesContext.FindAsync(streetNameLocalId, cancellationToken);
 
-                        var streetNameDbRecord = new StreetNameRecord
-                        {
-                            PersistentLocalId = streetNameLocalId,
-                            NisCode = snapshotRecord?.Gemeente.ObjectId,
+                var streetNameDbRecord = new StreetNameRecord
+                {
+                    StreetNameId = streetNameId,
+                    PersistentLocalId = streetNameLocalId,
+                    NisCode = snapshotRecord?.Gemeente?.ObjectId,
 
-                            DutchName = GetSpelling(snapshotRecord?.Straatnamen, Taal.NL),
-                            FrenchName = GetSpelling(snapshotRecord?.Straatnamen, Taal.FR),
-                            GermanName = GetSpelling(snapshotRecord?.Straatnamen, Taal.DE),
-                            EnglishName = GetSpelling(snapshotRecord?.Straatnamen, Taal.EN),
+                    DutchName = GetSpelling(snapshotRecord?.Straatnamen, Taal.NL),
+                    FrenchName = GetSpelling(snapshotRecord?.Straatnamen, Taal.FR),
+                    GermanName = GetSpelling(snapshotRecord?.Straatnamen, Taal.DE),
+                    EnglishName = GetSpelling(snapshotRecord?.Straatnamen, Taal.EN),
 
-                            DutchHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.NL),
-                            FrenchHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.FR),
-                            GermanHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.DE),
-                            EnglishHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.EN),
+                    DutchHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.NL),
+                    FrenchHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.FR),
+                    GermanHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.DE),
+                    EnglishHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.EN),
 
-                            StreetNameStatus = snapshotRecord?.StraatnaamStatus
-                        };
+                    StreetNameStatus = snapshotRecord?.StraatnaamStatus
+                };
 
-                        var @event = DetermineEvent(streetNameEventSourced, streetNameDbRecord);
-                        await _streetNameEventWriter.WriteAsync(streetNameLocalId, new Event(@event), cancellationToken);
-                        
-                        //TODO-rik (koen) + ChangeRoadNetwork (command) bij delete
+                var @event = DetermineEvent(streetNameEventSourced, streetNameDbRecord);
+                await _streetNameEventWriter.WriteAsync(streetNameLocalId, new Event(@event), cancellationToken);
 
-                        await dbContext.SaveChangesAsync(cancellationToken);
+                //TODO-rik (koen) + ChangeRoadNetwork (command) bij delete
 
-                        Logger.LogInformation("Processed streetname {Key}", message.Key);
-                    }, cancellationToken);
-            }
-            catch (ConfigurationErrorsException ex)
-            {
-                Logger.LogError(ex.Message);
-                return;
-            }
-            catch (Exception ex)
-            {
-                const int waitSeconds = 30;
-                Logger.LogCritical(ex, "Error consuming kafka events, trying again in {seconds} seconds", waitSeconds);
-                await Task.Delay(TimeSpan.FromSeconds(waitSeconds), cancellationToken);
-            }
-        }
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                Logger.LogInformation("Processed streetname {Key}", message.Key);
+            }, cancellationToken);
     }
 
     private static object DetermineEvent(StreetName streetNameEventSourced, StreetNameRecord streetNameDbRecord)

@@ -7,11 +7,11 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using RoadRegistry.StreetName;
 using Sync.StreetNameRegistry;
 
-public class StreetNameConsumerProjectionFixture : ConnectedProjectionFixture<StreetNameProjection, StreetNameProjectionContext>
+public class StreetNameProjectionFixture : ConnectedProjectionFixture<StreetNameProjection, StreetNameProjectionContext>
 {
     private readonly StreetNameProjectionContext _dbContext;
 
-    public StreetNameConsumerProjectionFixture(StreetNameProjectionContext context)
+    public StreetNameProjectionFixture(StreetNameProjectionContext context)
         : base(context, Resolve.WhenEqualToHandlerMessageType(new StreetNameProjection().Handlers))
     {
         _dbContext = context;
