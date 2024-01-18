@@ -24,6 +24,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
         {
             _kafkaProducer = kafkaProducer;
 
+            //TODO-rik luister naar StreetNameModified event voor labels te updaten
             When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
             {
                 var method = RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod);

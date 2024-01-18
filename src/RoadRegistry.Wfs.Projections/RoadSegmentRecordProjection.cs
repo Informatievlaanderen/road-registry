@@ -17,6 +17,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
 {
     public RoadSegmentRecordProjection(IStreetNameCache streetNameCache, UseRoadSegmentSoftDeleteFeatureToggle useRoadSegmentSoftDeleteFeatureToggle)
     {
+        //TODO-rik luister naar StreetNameModified event voor labels te updaten
         When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
         {
             var method = RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod);
