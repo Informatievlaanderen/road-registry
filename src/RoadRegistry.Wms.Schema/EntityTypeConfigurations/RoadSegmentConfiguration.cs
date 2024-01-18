@@ -57,9 +57,7 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
 
         b.Property(p => p.LeftSideMunicipalityNisCode).HasColumnName("linksGemeenteNisCode");
         b.Property(p => p.RightSideMunicipalityNisCode).HasColumnName("rechtsGemeenteNisCode");
-
-        b.Property(p => p.StreetNameCachePosition).HasColumnName("straatnaamCachePositie");
-
+        
         b.Property(p => p.IsRemoved)
             .HasColumnName("verwijderd")
             .HasDefaultValue(false)
@@ -70,7 +68,5 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
         b.HasIndex(p => p.MorphologyId)
             .IsClustered(false)
             .HasDatabaseName("wegsegmentmorfologie");
-
-        b.HasIndex(p => p.StreetNameCachePosition).IsClustered(false);
     }
 }

@@ -33,7 +33,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                 var category = RoadSegmentCategory.Parse(envelope.Message.Category);
                 var transactionId = new TransactionId(envelope.Message.Origin.TransactionId);
 
-                var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
                 var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, envelope.Message.LeftSide.StreetNameId, token);
                 var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, envelope.Message.RightSide.StreetNameId, token);
 
@@ -84,7 +83,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
                         BeginRoadNodeId = envelope.Message.StartNodeId,
                         EndRoadNodeId = envelope.Message.EndNodeId,
-                        StreetNameCachePosition = streetNameCachePosition,
 
                         Origin = envelope.Message.Origin.ToOrigin(),
                         LastChangedTimestamp = envelope.CreatedUtc
@@ -159,7 +157,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
             var category = RoadSegmentCategory.Parse(roadSegmentAdded.Category);
 
-            var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
             var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.LeftSide.StreetNameId, token);
             var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.RightSide.StreetNameId, token);
 
@@ -206,7 +203,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
                 BeginRoadNodeId = roadSegmentAdded.StartNodeId,
                 EndRoadNodeId = roadSegmentAdded.EndNodeId,
-                StreetNameCachePosition = streetNameCachePosition,
 
                 Origin = envelope.Message.ToOrigin(),
                 LastChangedTimestamp = envelope.CreatedUtc
@@ -236,7 +232,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
             var category = RoadSegmentCategory.Parse(roadSegmentModified.Category);
 
-            var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
             var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.LeftSide.StreetNameId, token);
             var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.RightSide.StreetNameId, token);
 
@@ -284,7 +279,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
             roadSegmentRecord.BeginRoadNodeId = roadSegmentModified.StartNodeId;
             roadSegmentRecord.EndRoadNodeId = roadSegmentModified.EndNodeId;
-            roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
 
             roadSegmentRecord.Origin = envelope.Message.ToOrigin();
             roadSegmentRecord.LastChangedTimestamp = envelope.CreatedUtc;
@@ -349,9 +343,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             roadSegmentRecord.Version = roadSegmentAttributesModified.Version;
             roadSegmentRecord.RoadSegmentVersion = roadSegmentAttributesModified.Version;
 
-            var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
-            roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
-
             roadSegmentRecord.Origin = envelope.Message.ToOrigin();
             roadSegmentRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
@@ -378,9 +369,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
             roadSegmentRecord.Version = segment.Version;
             roadSegmentRecord.RoadSegmentVersion = segment.Version;
-
-            var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
-            roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
 
             roadSegmentRecord.Origin = envelope.Message.ToOrigin();
             roadSegmentRecord.LastChangedTimestamp = envelope.CreatedUtc;

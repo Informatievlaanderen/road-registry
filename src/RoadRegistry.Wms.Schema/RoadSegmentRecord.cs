@@ -36,7 +36,6 @@ public class RoadSegmentRecord
     public int? RoadSegmentVersion { get; set; }
     public string StatusDutchName { get; set; }
     public int? StatusId { get; set; }
-    public long StreetNameCachePosition { get; set; }
     public int? TransactionId { get; set; }
     public bool IsRemoved { get; set; }
 }

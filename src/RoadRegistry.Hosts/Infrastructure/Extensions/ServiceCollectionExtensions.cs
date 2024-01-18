@@ -3,8 +3,9 @@ namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 using Amazon;
 using BackOffice;
 using BackOffice.Core;
-using BackOffice.FeatureToggles;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Editor.Schema;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +15,8 @@ using Microsoft.Extensions.Logging;
 using RoadNetwork.Schema;
 using SqlStreamStore;
 using Sync.StreetNameRegistry;
-using Syndication.Schema;
 using System;
 using System.Linq;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using IStreetNameCache = BackOffice.Abstractions.IStreetNameCache;
 
 public static class ServiceCollectionExtensions

@@ -2,12 +2,11 @@ namespace RoadRegistry.Wms.Projections;
 
 using BackOffice;
 using BackOffice.Abstractions;
+using BackOffice.Extensions;
 using BackOffice.FeatureToggles;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using Microsoft.EntityFrameworkCore;
-using RoadRegistry.BackOffice.Extensions;
 using Schema;
 using System;
 using System.Linq;
@@ -18,38 +17,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
 {
     public RoadSegmentRecordProjection(IStreetNameCache streetNameCache, UseRoadSegmentSoftDeleteFeatureToggle useRoadSegmentSoftDeleteFeatureToggle)
     {
-        When<Envelope<SynchronizeWithStreetNameCache>>(async (context, envelope, token) =>
-        {
-            var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
-
-            var outdatedRoadSegments = await context.RoadSegments
-                .Where(record => record.StreetNameCachePosition < streetNameCachePosition)
-                .OrderBy(record => record.StreetNameCachePosition)
-                .Take(envelope.Message.BatchSize)
-                .ToListAsync();
-
-            var outdatedStreetNameIds = outdatedRoadSegments
-                .Select(record => record.LeftSideStreetNameId)
-                .Union(outdatedRoadSegments.Select(record => record.RightSideStreetNameId))
-                .Where(i => i.HasValue)
-                .Select(i => i.Value);
-
-            var streetNamesById = await streetNameCache.GetStreetNamesById(outdatedStreetNameIds, token);
-
-            foreach (var roadSegment in outdatedRoadSegments)
-            {
-                if (roadSegment.LeftSideStreetNameId.HasValue &&
-                    streetNamesById.ContainsKey(roadSegment.LeftSideStreetNameId.Value))
-                    roadSegment.LeftSideStreetName = streetNamesById[roadSegment.LeftSideStreetNameId.Value];
-
-                if (roadSegment.RightSideStreetNameId.HasValue &&
-                    streetNamesById.ContainsKey(roadSegment.RightSideStreetNameId.Value))
-                    roadSegment.RightSideStreetName = streetNamesById[roadSegment.RightSideStreetNameId.Value];
-
-                roadSegment.StreetNameCachePosition = streetNameCachePosition;
-            }
-        });
-
         When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
         {
             var method = RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod);
@@ -59,7 +26,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
             var category = RoadSegmentCategory.Parse(envelope.Message.Category);
             var transactionId = new TransactionId(envelope.Message.Origin.TransactionId);
 
-            var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
             var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, envelope.Message.LeftSide.StreetNameId, token);
             var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, envelope.Message.RightSide.StreetNameId, token);
 
@@ -109,8 +75,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
                 RoadSegmentVersion = envelope.Message.Version,
 
                 BeginRoadNodeId = envelope.Message.StartNodeId,
-                EndRoadNodeId = envelope.Message.EndNodeId,
-                StreetNameCachePosition = streetNameCachePosition
+                EndRoadNodeId = envelope.Message.EndNodeId
             }, token);
         });
 
@@ -173,7 +138,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
 
         var category = RoadSegmentCategory.Parse(roadSegmentAdded.Category);
 
-        var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
         var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.LeftSide.StreetNameId, token);
         var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.RightSide.StreetNameId, token);
 
@@ -223,8 +187,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
             RoadSegmentVersion = roadSegmentAdded.Version,
 
             BeginRoadNodeId = roadSegmentAdded.StartNodeId,
-            EndRoadNodeId = roadSegmentAdded.EndNodeId,
-            StreetNameCachePosition = streetNameCachePosition
+            EndRoadNodeId = roadSegmentAdded.EndNodeId
         }, token);
     }
 
@@ -248,7 +211,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
 
         var category = RoadSegmentCategory.Parse(roadSegmentModified.Category);
 
-        var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
         var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.LeftSide.StreetNameId, token);
         var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.RightSide.StreetNameId, token);
 
@@ -300,7 +262,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
 
         roadSegmentRecord.BeginRoadNodeId = roadSegmentModified.StartNodeId;
         roadSegmentRecord.EndRoadNodeId = roadSegmentModified.EndNodeId;
-        roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
     }
 
     private static async Task ModifyRoadSegmentAttributes(IStreetNameCache streetNameCache,
@@ -359,9 +320,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
 
         var transactionId = new TransactionId(envelope.Message.TransactionId);
         roadSegmentRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
-
-        var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
-        roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
     }
 
     private static async Task ModifyRoadSegmentGeometry(IStreetNameCache streetNameCache,
@@ -384,9 +342,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
 
         var transactionId = new TransactionId(envelope.Message.TransactionId);
         roadSegmentRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
-
-        var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
-        roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
     }
 
     private static async Task RemoveRoadSegment(RoadSegmentRemoved roadSegmentRemoved,

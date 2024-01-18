@@ -127,7 +127,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 
                 BeginRoadNodeId = roadSegmentAdded.StartNodeId,
                 EndRoadNodeId = roadSegmentAdded.EndNodeId,
-                StreetNameCachePosition = 0L,
 
                 Origin = message.ToOrigin(),
                 LastChangedTimestamp = created
@@ -243,7 +242,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 
                 BeginRoadNodeId = segmentAdded.StartNodeId,
                 EndRoadNodeId = segmentAdded.EndNodeId,
-                StreetNameCachePosition = 0L,
 
                 Origin = acceptedRoadSegmentAttributesModified.ToOrigin(),
                 LastChangedTimestamp = created
@@ -332,7 +330,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 
                 BeginRoadNodeId = segmentAdded.StartNodeId,
                 EndRoadNodeId = segmentAdded.EndNodeId,
-                StreetNameCachePosition = 0L,
 
                 Origin = acceptedRoadSegmentGeometryModified.ToOrigin(),
                 LastChangedTimestamp = created
@@ -419,7 +416,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 
                 BeginRoadNodeId = roadSegmentModified.StartNodeId,
                 EndRoadNodeId = roadSegmentModified.EndNodeId,
-                StreetNameCachePosition = 0L,
 
                 Origin = acceptedRoadSegmentModified.ToOrigin(),
                 LastChangedTimestamp = created
@@ -506,7 +502,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 
                 BeginRoadNodeId = roadSegmentAdded.StartNodeId,
                 EndRoadNodeId = roadSegmentAdded.EndNodeId,
-                StreetNameCachePosition = 0L,
 
                 Origin = acceptedRoadSegmentAdded.ToOrigin(),
                 LastChangedTimestamp = created.AddDays(-1),
@@ -596,7 +591,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 
                     BeginRoadNodeId = @event.StartNodeId,
                     EndRoadNodeId = @event.EndNodeId,
-                    StreetNameCachePosition = 0L,
 
                     Origin = @event.Origin.ToOrigin(),
                     LastChangedTimestamp = created,

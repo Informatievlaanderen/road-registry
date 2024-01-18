@@ -108,9 +108,7 @@ public class RoadSegmentRecordProjectionTests
 
                 RoadSegmentVersion = segment.Version,
                 BeginRoadNodeId = segment.StartNodeId,
-                EndRoadNodeId = segment.EndNodeId,
-
-                StreetNameCachePosition = -1L
+                EndRoadNodeId = segment.EndNodeId
             };
         });
 
@@ -178,9 +176,7 @@ public class RoadSegmentRecordProjectionTests
 
                 RoadSegmentVersion = expectedRoadSegment.wegsegmentversie,
                 BeginRoadNodeId = expectedRoadSegment.beginWegknoopID,
-                EndRoadNodeId = expectedRoadSegment.eindWegknoopID,
-
-                StreetNameCachePosition = -1L
+                EndRoadNodeId = expectedRoadSegment.eindWegknoopID
             });
     }
 
@@ -198,8 +194,7 @@ public class RoadSegmentRecordProjectionTests
 
         var streetNameRecord = _fixture.Create<StreetNameRecord>();
 
-        var streetNameCachePosition = _fixture.Create<long>();
-        var streetNameCacheStub = new StreetNameCacheStub(streetNameRecord, streetNameCachePosition);
+        var streetNameCacheStub = new StreetNameCacheStub(streetNameRecord);
 
         await new RoadSegmentRecordProjection(streetNameCacheStub, new UseRoadSegmentSoftDeleteFeatureToggle(true))
             .Scenario()
@@ -249,9 +244,7 @@ public class RoadSegmentRecordProjectionTests
 
                 RoadSegmentVersion = expectedRoadSegment.wegsegmentversie,
                 BeginRoadNodeId = expectedRoadSegment.beginWegknoopID,
-                EndRoadNodeId = expectedRoadSegment.eindWegknoopID,
-
-                StreetNameCachePosition = streetNameCachePosition
+                EndRoadNodeId = expectedRoadSegment.eindWegknoopID
             });
     }
 
@@ -316,9 +309,7 @@ public class RoadSegmentRecordProjectionTests
 
                 RoadSegmentVersion = segment.Version,
                 BeginRoadNodeId = segmentAdded.StartNodeId,
-                EndRoadNodeId = segmentAdded.EndNodeId,
-
-                StreetNameCachePosition = -1L
+                EndRoadNodeId = segmentAdded.EndNodeId
             };
         });
 
@@ -389,9 +380,7 @@ public class RoadSegmentRecordProjectionTests
 
                 RoadSegmentVersion = segment.Version,
                 BeginRoadNodeId = segmentAdded.StartNodeId,
-                EndRoadNodeId = segmentAdded.EndNodeId,
-
-                StreetNameCachePosition = -1L
+                EndRoadNodeId = segmentAdded.EndNodeId
             };
         });
 
@@ -460,9 +449,7 @@ public class RoadSegmentRecordProjectionTests
 
                 RoadSegmentVersion = segment.Version,
                 BeginRoadNodeId = segment.StartNodeId,
-                EndRoadNodeId = segment.EndNodeId,
-
-                StreetNameCachePosition = -1L
+                EndRoadNodeId = segment.EndNodeId
             };
         });
 
@@ -564,8 +551,6 @@ public class RoadSegmentRecordProjectionTests
                 BeginRoadNodeId = segment.StartNodeId,
                 EndRoadNodeId = segment.EndNodeId,
 
-                StreetNameCachePosition = -1L,
-
                 IsRemoved = true
             };
         });
@@ -644,9 +629,7 @@ public class RoadSegmentRecordProjectionTests
 
                 RoadSegmentVersion = segment.Version,
                 BeginRoadNodeId = segment.StartNodeId,
-                EndRoadNodeId = segment.EndNodeId,
-
-                StreetNameCachePosition = -1L
+                EndRoadNodeId = segment.EndNodeId
             };
         });
 
