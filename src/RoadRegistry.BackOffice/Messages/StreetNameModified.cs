@@ -8,9 +8,9 @@ public class StreetNameModified : IMessage
 {
     public StreetNameRecord Record { get; set; }
 
-    public bool NameChanged { get; set; }
-    public bool HomonymAdditionChanged { get; set; }
-    public bool StatusChanged { get; set; }
+    public bool NameModified { get; set; }
+    public bool HomonymAdditionModified { get; set; }
+    public bool StatusModified { get; set; }
     public bool Restored { get; set; }
 
     public string When { get; set; }

@@ -59,7 +59,7 @@ public class StreetNameProjectionTests : IClassFixture<StreetNameProjectionFixtu
         await _fixture.ProjectAsync(new StreetNameModified
         {
             Record = ToStreetNameRecord(record),
-            StatusChanged = true
+            StatusModified = true
         });
 
         Assert.Equal(record.Identificator.Id, Current.StreetNameId);

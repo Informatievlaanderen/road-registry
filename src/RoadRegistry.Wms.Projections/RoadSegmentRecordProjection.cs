@@ -17,7 +17,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
 {
     public RoadSegmentRecordProjection(IStreetNameCache streetNameCache, UseRoadSegmentSoftDeleteFeatureToggle useRoadSegmentSoftDeleteFeatureToggle)
     {
-        //TODO-rik luister naar StreetNameModified event voor labels te updaten
         When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
         {
             var method = RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod);
@@ -117,6 +116,14 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
             if (envelope.Message.NameModified)
             {
                 await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+            }
+        });
+
+        When<Envelope<StreetNameModified>>(async (context, envelope, token) =>
+        {
+            if (envelope.Message.NameModified)
+            {
+                await UpdateStreetNameLabels(context, new StreetNameLocalId(envelope.Message.Record.PersistentLocalId), envelope.Message.Record.DutchName, token);
             }
         });
     }
@@ -382,6 +389,34 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
                 foreach (var dbRecord in dbRecords)
                 {
                     dbRecord.MaintainerName = organizationName;
+                }
+
+                return Task.CompletedTask;
+            }, cancellationToken);
+    }
+
+    private async Task UpdateStreetNameLabels(
+        WmsContext context,
+        StreetNameLocalId streetNameLocalId,
+        string dutchName,
+        CancellationToken cancellationToken)
+    {
+        await context.RoadSegments.ForEachBatchAsync(q =>
+                q.Where(x => x.LeftSideStreetNameId == streetNameLocalId || x.RightSideStreetNameId == streetNameLocalId),
+            5000,
+            dbRecords =>
+            {
+                foreach (var dbRecord in dbRecords)
+                {
+                    if (dbRecord.LeftSideStreetNameId == streetNameLocalId)
+                    {
+                        dbRecord.LeftSideStreetName = dutchName;
+                    }
+
+                    if (dbRecord.RightSideStreetNameId == streetNameLocalId)
+                    {
+                        dbRecord.RightSideStreetName = dutchName;
+                    }
                 }
 
                 return Task.CompletedTask;

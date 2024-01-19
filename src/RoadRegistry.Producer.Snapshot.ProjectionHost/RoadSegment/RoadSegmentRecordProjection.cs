@@ -24,7 +24,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
         {
             _kafkaProducer = kafkaProducer;
 
-            //TODO-rik luister naar StreetNameModified event voor labels te updaten
             When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
             {
                 var method = RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod);
@@ -129,6 +128,14 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                 if (envelope.Message.NameModified)
                 {
                     await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+                }
+            });
+
+            When<Envelope<StreetNameModified>>(async (context, envelope, token) =>
+            {
+                if (envelope.Message.NameModified)
+                {
+                    await UpdateStreetNameLabels(context, new StreetNameLocalId(envelope.Message.Record.PersistentLocalId), envelope.Message.Record.DutchName, token);
                 }
             });
         }
@@ -402,15 +409,44 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             OrganizationName organizationName,
             CancellationToken cancellationToken)
         {
-            await context.RoadSegments
-                .ForEachBatchAsync(q => q
-                    .Where(x => x.MaintainerId == organizationId), 5000, async dbRecords =>
+            await context.RoadSegments.ForEachBatchAsync(q =>
+                q.Where(x => x.MaintainerId == organizationId),
+                5000,
+                async dbRecords =>
                 {
                     foreach (var dbRecord in dbRecords)
                     {
                         if (dbRecord.MaintainerId == organizationId)
                         {
                             dbRecord.MaintainerName = organizationName;
+                        }
+
+                        await Produce(dbRecord.Id, dbRecord.ToContract(), cancellationToken);
+                    }
+                }, cancellationToken);
+        }
+
+        private async Task UpdateStreetNameLabels(
+            RoadSegmentProducerSnapshotContext context,
+            StreetNameLocalId streetNameLocalId,
+            string dutchName,
+            CancellationToken cancellationToken)
+        {
+            await context.RoadSegments.ForEachBatchAsync(q =>
+                q.Where(x => x.LeftSideStreetNameId == streetNameLocalId || x.RightSideStreetNameId == streetNameLocalId),
+                5000,
+                async dbRecords =>
+                {
+                    foreach (var dbRecord in dbRecords)
+                    {
+                        if (dbRecord.LeftSideStreetNameId == streetNameLocalId)
+                        {
+                            dbRecord.LeftSideStreetName = dutchName;
+                        }
+
+                        if (dbRecord.RightSideStreetNameId == streetNameLocalId)
+                        {
+                            dbRecord.RightSideStreetName = dutchName;
                         }
 
                         await Produce(dbRecord.Id, dbRecord.ToContract(), cancellationToken);

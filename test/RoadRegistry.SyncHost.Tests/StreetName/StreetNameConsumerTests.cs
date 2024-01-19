@@ -117,9 +117,9 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
             Assert.Equal(nameof(StreetNameModified), message.Type);
             var modifiedMessage = JsonConvert.DeserializeObject<StreetNameModified>(await message.GetJsonData());
 
-            Assert.True(modifiedMessage.NameChanged);
-            Assert.True(modifiedMessage.StatusChanged);
-            Assert.True(modifiedMessage.HomonymAdditionChanged);
+            Assert.True(modifiedMessage.NameModified);
+            Assert.True(modifiedMessage.StatusModified);
+            Assert.True(modifiedMessage.HomonymAdditionModified);
             Assert.Equal(streetName1Modification.Identificator.Id, modifiedMessage.Record.StreetNameId);
             Assert.Equal(streetName1Modification.Identificator.ObjectId, modifiedMessage.Record.PersistentLocalId.ToString());
             Assert.Equal(streetName1Modification.Gemeente.ObjectId, modifiedMessage.Record.NisCode);

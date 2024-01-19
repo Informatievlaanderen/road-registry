@@ -827,6 +827,13 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeStreetNameLocalId(this IFixture fixture)
+    {
+        fixture.Customize<StreetNameLocalId>(composer =>
+            composer.FromFactory<int>(value => new StreetNameLocalId(Math.Abs(value)))
+        );
+    }
+
     public static IPostprocessComposer<T> FromFactory<T>(this IFactoryComposer<T> composer, Func<Random, T> factory)
     {
         return composer.FromFactory<int>(value => factory(new Random(value)));

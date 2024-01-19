@@ -10,6 +10,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Moq;
 using ProjectionHost.Projections;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using RoadRegistry.Tests.Framework.Projections;
@@ -51,6 +52,8 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
         _fixture.CustomizeRoadSegmentAttributesModified();
         _fixture.CustomizeRoadSegmentGeometryModified();
         _fixture.CustomizeRoadSegmentRemoved();
+        _fixture.CustomizeStreetNameRecord();
+        _fixture.CustomizeStreetNameModified();
     }
 
     private static Mock<IKafkaProducer> BuildKafkaProducer()
@@ -676,6 +679,45 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
         var kafkaProducer = BuildKafkaProducer();
         var streetNameCache = BuildStreetNameCache();
         
+        await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
+            .Scenario()
+            .Given(messages)
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        KafkaVerify(kafkaProducer, expectedRecords);
+    }
+
+    [Fact]
+    public async Task When_streetname_is_modified()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+        _fixture.Freeze<StreetNameLocalId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.CreateUntil<RoadSegmentAdded>(x => x.LeftSide.StreetNameId is not null));
+
+        acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded.RightSide = acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded.LeftSide;
+
+        var streetNameModified = _fixture.Create<StreetNameModified>();
+
+        var messages = new object[]
+        {
+            acceptedRoadSegmentAdded,
+            streetNameModified
+        };
+
+        var created = DateTimeOffset.UtcNow;
+
+        var expectedRecords = ConvertToRoadSegmentRecords(acceptedRoadSegmentAdded, created, record =>
+        {
+            record.LeftSideStreetName = streetNameModified.Record.DutchName;
+            record.RightSideStreetName = streetNameModified.Record.DutchName;
+        });
+        
+        var kafkaProducer = BuildKafkaProducer();
+        var streetNameCache = BuildStreetNameCache();
+
         await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
             .Scenario()
             .Given(messages)

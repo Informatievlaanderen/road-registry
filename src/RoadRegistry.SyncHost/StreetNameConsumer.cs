@@ -113,15 +113,15 @@ public class StreetNameConsumer : RoadRegistryBackgroundService
         return new StreetNameModified
         {
             Record = streetNameDbRecord,
-            NameChanged = streetNameEventSourced.DutchName != streetNameDbRecord.DutchName
-                          || streetNameEventSourced.EnglishName != streetNameDbRecord.EnglishName
-                          || streetNameEventSourced.FrenchName != streetNameDbRecord.FrenchName
-                          || streetNameEventSourced.GermanName != streetNameDbRecord.GermanName,
-            HomonymAdditionChanged = streetNameEventSourced.DutchHomonymAddition != streetNameDbRecord.DutchHomonymAddition
+            NameModified = streetNameEventSourced.DutchName != streetNameDbRecord.DutchName
+                           || streetNameEventSourced.EnglishName != streetNameDbRecord.EnglishName
+                           || streetNameEventSourced.FrenchName != streetNameDbRecord.FrenchName
+                           || streetNameEventSourced.GermanName != streetNameDbRecord.GermanName,
+            HomonymAdditionModified = streetNameEventSourced.DutchHomonymAddition != streetNameDbRecord.DutchHomonymAddition
                                      || streetNameEventSourced.EnglishHomonymAddition != streetNameDbRecord.EnglishHomonymAddition
                                      || streetNameEventSourced.FrenchHomonymAddition != streetNameDbRecord.FrenchHomonymAddition
                                      || streetNameEventSourced.GermanHomonymAddition != streetNameDbRecord.GermanHomonymAddition,
-            StatusChanged = streetNameEventSourced.StreetNameStatus != streetNameDbRecord.StreetNameStatus,
+            StatusModified = streetNameEventSourced.StreetNameStatus != streetNameDbRecord.StreetNameStatus,
             Restored = streetNameEventSourced.IsRemoved
         };
     }
