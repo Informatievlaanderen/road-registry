@@ -8,16 +8,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-public class StreetNameConsumerContext : ConsumerDbContext<StreetNameConsumerContext>
+public class StreetNameSnapshotConsumerContext : ConsumerDbContext<StreetNameSnapshotConsumerContext>
 {
-    private const string ConsumerSchema = WellKnownSchemas.StreetNameConsumerSchema;
+    private const string ConsumerSchema = WellKnownSchemas.StreetNameSnapshotConsumerSchema;
 
-    public StreetNameConsumerContext()
+    public StreetNameSnapshotConsumerContext()
     {
     }
 
     // This needs to be DbContextOptions<T> for Autofac!
-    public StreetNameConsumerContext(DbContextOptions<StreetNameConsumerContext> options)
+    public StreetNameSnapshotConsumerContext(DbContextOptions<StreetNameSnapshotConsumerContext> options)
         : base(options)
     {
     }
@@ -40,26 +40,26 @@ public class StreetNameConsumerContext : ConsumerDbContext<StreetNameConsumerCon
             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
             .UseSqlServer(
-                sp.GetRequiredService<TraceDbConnection<StreetNameConsumerContext>>(),
+                sp.GetRequiredService<TraceDbConnection<StreetNameSnapshotConsumerContext>>(),
                 sqlOptions => sqlOptions
                     .EnableRetryOnFailure()
-                    .MigrationsHistoryTable(MigrationTables.StreetNameConsumer, WellKnownSchemas.StreetNameConsumerSchema));
+                    .MigrationsHistoryTable(MigrationTables.StreetNameSnapshotConsumer, WellKnownSchemas.StreetNameSnapshotConsumerSchema));
     }
 }
 
-public class StreetNameConsumerContextMigrationFactory : DbContextMigratorFactory<StreetNameConsumerContext>
+public class StreetNameSnapshotConsumerContextMigrationFactory : DbContextMigratorFactory<StreetNameSnapshotConsumerContext>
 {
-    public StreetNameConsumerContextMigrationFactory()
-        : base(WellKnownConnectionNames.StreetNameConsumerAdmin, new MigrationHistoryConfiguration
+    public StreetNameSnapshotConsumerContextMigrationFactory()
+        : base(WellKnownConnectionNames.StreetNameSnapshotConsumerAdmin, new MigrationHistoryConfiguration
         {
-            Schema = WellKnownSchemas.StreetNameConsumerSchema,
-            Table = MigrationTables.StreetNameConsumer
+            Schema = WellKnownSchemas.StreetNameSnapshotConsumerSchema,
+            Table = MigrationTables.StreetNameSnapshotConsumer
         })
     {
     }
     
-    protected override StreetNameConsumerContext CreateContext(DbContextOptions<StreetNameConsumerContext> migrationContextOptions)
+    protected override StreetNameSnapshotConsumerContext CreateContext(DbContextOptions<StreetNameSnapshotConsumerContext> migrationContextOptions)
     {
-        return new StreetNameConsumerContext(migrationContextOptions);
+        return new StreetNameSnapshotConsumerContext(migrationContextOptions);
     }
 }

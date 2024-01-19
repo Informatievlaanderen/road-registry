@@ -4,17 +4,17 @@ using Infrastructure;
 using RoadRegistry.StreetName;
 using Sync.StreetNameRegistry;
 
-public class InMemoryStreetNameTopicConsumer : IStreetNameTopicConsumer
+public class InMemoryStreetNameSnapshotTopicConsumer : IStreetNameSnapshotTopicConsumer
 {
-    private readonly Func<StreetNameConsumerContext> _dbContextFactory;
+    private readonly Func<StreetNameSnapshotConsumerContext> _dbContextFactory;
     private readonly Queue<SnapshotMessage> _messages = new();
 
-    public InMemoryStreetNameTopicConsumer(Func<StreetNameConsumerContext> dbContextFactory)
+    public InMemoryStreetNameSnapshotTopicConsumer(Func<StreetNameSnapshotConsumerContext> dbContextFactory)
     {
         _dbContextFactory = dbContextFactory;
     }
 
-    public InMemoryStreetNameTopicConsumer SeedMessage(string key, StreetNameSnapshotOsloRecord value)
+    public InMemoryStreetNameSnapshotTopicConsumer SeedMessage(string key, StreetNameSnapshotRecord value)
     {
         _messages.Enqueue(new SnapshotMessage
         {
@@ -25,7 +25,7 @@ public class InMemoryStreetNameTopicConsumer : IStreetNameTopicConsumer
         return this;
     }
 
-    public async Task ConsumeContinuously(Func<SnapshotMessage, StreetNameConsumerContext, Task> messageHandler, CancellationToken cancellationToken)
+    public async Task ConsumeContinuously(Func<SnapshotMessage, StreetNameSnapshotConsumerContext, Task> messageHandler, CancellationToken cancellationToken)
     {
         await using var dbContext = _dbContextFactory();
 

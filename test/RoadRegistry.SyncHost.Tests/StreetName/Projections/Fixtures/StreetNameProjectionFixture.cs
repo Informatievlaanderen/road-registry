@@ -16,7 +16,7 @@ public class StreetNameProjectionFixture : ConnectedProjectionFixture<StreetName
     {
         _dbContext = context;
 
-        StreetName1 = new StreetNameSnapshotOsloRecord
+        StreetName1 = new StreetNameSnapshotRecord
         {
             Identificator = new DeseriazableIdentificator("https://data.vlaanderen.be/id/straatnaam", "1", "a"),
             Gemeente = new StraatnaamDetailGemeente
@@ -43,7 +43,7 @@ public class StreetNameProjectionFixture : ConnectedProjectionFixture<StreetName
         };
     }
 
-    public StreetNameSnapshotOsloRecord StreetName1 { get; }
+    public StreetNameSnapshotRecord StreetName1 { get; }
 
     public StreetNameRecord? GetStreetNameRecord(string streetNameId)
     {

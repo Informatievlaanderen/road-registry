@@ -216,7 +216,7 @@ public class Startup
 
                         if (projectionOptions.StreetNameSync.Enabled)
                         {
-                            health.AddDbContextCheck<StreetNameConsumerContext>();
+                            health.AddDbContextCheck<StreetNameSnapshotConsumerContext>();
                         }
                     }
                 }
@@ -236,7 +236,7 @@ public class Startup
             .AddDbContext<RoadSegmentSurfaceProducerSnapshotContext>(WellKnownConnectionNames.ProducerSnapshotProjections)
             .AddDbContext<BackOfficeProcessorDbContext>(WellKnownConnectionNames.Events)
             .AddDbContext<OrganizationConsumerContext>(WellKnownConnectionNames.OrganizationConsumerProjections)
-            .AddDbContext<StreetNameConsumerContext>(WellKnownConnectionNames.StreetNameConsumer)
+            .AddDbContext<StreetNameSnapshotConsumerContext>(WellKnownConnectionNames.StreetNameSnapshotConsumer)
             ;
 
         var containerBuilder = new ContainerBuilder();

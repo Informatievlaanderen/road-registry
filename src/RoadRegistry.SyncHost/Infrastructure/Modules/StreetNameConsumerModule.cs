@@ -11,11 +11,11 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
         {
             return services
                 .AddSingleton<IStreetNameEventWriter, StreetNameEventWriter>()
-                .AddSingleton<IStreetNameTopicConsumer, StreetNameTopicConsumer>()
-                .AddTraceDbConnection<StreetNameConsumerContext>(WellKnownConnectionNames.StreetNameConsumer)
-                .AddSingleton<ConfigureDbContextOptionsBuilder<StreetNameConsumerContext>>(StreetNameConsumerContext.ConfigureOptions)
-                .AddDbContext<StreetNameConsumerContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameConsumerContext>>()(sp, options))
-                .AddDbContextFactory<StreetNameConsumerContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameConsumerContext>>()(sp, options))
+                .AddSingleton<IStreetNameSnapshotTopicConsumer, StreetNameSnapshotTopicConsumer>()
+                .AddTraceDbConnection<StreetNameSnapshotConsumerContext>(WellKnownConnectionNames.StreetNameSnapshotConsumer)
+                .AddSingleton<ConfigureDbContextOptionsBuilder<StreetNameSnapshotConsumerContext>>(StreetNameSnapshotConsumerContext.ConfigureOptions)
+                .AddDbContext<StreetNameSnapshotConsumerContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameSnapshotConsumerContext>>()(sp, options))
+                .AddDbContextFactory<StreetNameSnapshotConsumerContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameSnapshotConsumerContext>>()(sp, options))
                 ;
         }
     }

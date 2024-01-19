@@ -41,7 +41,7 @@ public class Program
                     .AddHostedService<OrganizationConsumer>()
 
                     .AddStreetNameConsumerServices()
-                    .AddHostedService<StreetNameConsumer>()
+                    .AddHostedService<StreetNameSnapshotConsumer>()
 
                     .AddStreetNameProjectionServices()
                     .AddHostedService<StreetNameProjectionContextEventProcessor>()
@@ -49,7 +49,7 @@ public class Program
                     .AddSingleton(new IDbContextMigratorFactory[]
                     {
                         new OrganizationConsumerContextMigratorFactory(),
-                        new StreetNameConsumerContextMigrationFactory(),
+                        new StreetNameSnapshotConsumerContextMigrationFactory(),
                         new StreetNameProjectionContextMigrationFactory()
                     })
                     ;

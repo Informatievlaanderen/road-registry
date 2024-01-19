@@ -89,7 +89,7 @@ public class StreetNameProjectionTests : IClassFixture<StreetNameProjectionFixtu
         Assert.True(Current.IsRemoved);
     }
 
-    private static BackOffice.Messages.StreetNameRecord ToStreetNameRecord(StreetNameSnapshotOsloRecord snapshotRecord)
+    private static BackOffice.Messages.StreetNameRecord ToStreetNameRecord(StreetNameSnapshotRecord snapshotRecord)
     {
         var streetNameId = StreetNamePuri.FromValue(snapshotRecord.Identificator.Id);
         var streetNameLocalId = streetNameId.ToStreetNameLocalId();

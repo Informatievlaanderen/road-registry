@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -10,11 +10,11 @@ namespace RoadRegistry.Sync.StreetNameRegistry.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
-                name: "RoadRegistryStreetNameConsumer");
+                name: "RoadRegistryStreetNameSnapshotConsumer");
 
             migrationBuilder.CreateTable(
                 name: "ProcessedMessages",
-                schema: "RoadRegistryStreetNameConsumer",
+                schema: "RoadRegistryStreetNameSnapshotConsumer",
                 columns: table => new
                 {
                     IdempotenceKey = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
@@ -28,7 +28,7 @@ namespace RoadRegistry.Sync.StreetNameRegistry.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProcessedMessages_DateProcessed",
-                schema: "RoadRegistryStreetNameConsumer",
+                schema: "RoadRegistryStreetNameSnapshotConsumer",
                 table: "ProcessedMessages",
                 column: "DateProcessed");
         }
@@ -37,7 +37,7 @@ namespace RoadRegistry.Sync.StreetNameRegistry.Migrations
         {
             migrationBuilder.DropTable(
                 name: "ProcessedMessages",
-                schema: "RoadRegistryStreetNameConsumer");
+                schema: "RoadRegistryStreetNameSnapshotConsumer");
         }
     }
 }

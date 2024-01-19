@@ -5,7 +5,7 @@ using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy.Straatnaam;
 using Newtonsoft.Json;
 
-public class StreetNameSnapshotOsloRecord
+public class StreetNameSnapshotRecord
 {
     [JsonProperty("@context")]
     public string Context { get; set; }

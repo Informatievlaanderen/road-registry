@@ -14,15 +14,14 @@ using SqlStreamStore;
 using StreetName;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using StreetNameRecord = BackOffice.Messages.StreetNameRecord;
 
-public class StreetNameConsumer : RoadRegistryBackgroundService
+public class StreetNameSnapshotConsumer : RoadRegistryBackgroundService
 {
-    private readonly IStreetNameTopicConsumer _consumer;
+    private readonly IStreetNameSnapshotTopicConsumer _consumer;
     private readonly IStreamStore _store;
     private readonly ILifetimeScope _container;
     private readonly IStreetNameEventWriter _streetNameEventWriter;
@@ -33,12 +32,12 @@ public class StreetNameConsumer : RoadRegistryBackgroundService
     private static readonly JsonSerializerSettings SerializerSettings =
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
-    public StreetNameConsumer(
+    public StreetNameSnapshotConsumer(
         ILifetimeScope container,
         IStreamStore store,
         IStreetNameEventWriter streetNameEventWriter,
-        IStreetNameTopicConsumer consumer,
-        ILogger<StreetNameConsumer> logger
+        IStreetNameSnapshotTopicConsumer consumer,
+        ILogger<StreetNameSnapshotConsumer> logger
     ) : base(logger)
     {
         _container = container.ThrowIfNull();
@@ -56,7 +55,7 @@ public class StreetNameConsumer : RoadRegistryBackgroundService
                 var map = _container.Resolve<EventSourcedEntityMap>();
                 var streetNamesContext = new StreetNames(map, _store, SerializerSettings, EventMapping);
 
-                var snapshotRecord = (StreetNameSnapshotOsloRecord)message.Value;
+                var snapshotRecord = (StreetNameSnapshotRecord)message.Value;
                 var streetNameId = StreetNamePuri.FromValue(message.Key);
                 var streetNameLocalId = streetNameId.ToStreetNameLocalId();
 

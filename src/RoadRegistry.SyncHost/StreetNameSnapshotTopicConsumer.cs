@@ -13,48 +13,48 @@ using System.Threading;
 using System.Threading.Tasks;
 using StreetName;
 
-public interface IStreetNameTopicConsumer
+public interface IStreetNameSnapshotTopicConsumer
 {
-    Task ConsumeContinuously(Func<SnapshotMessage, StreetNameConsumerContext, Task> messageHandler, CancellationToken cancellationToken);
+    Task ConsumeContinuously(Func<SnapshotMessage, StreetNameSnapshotConsumerContext, Task> messageHandler, CancellationToken cancellationToken);
 }
 
-public class StreetNameTopicConsumer : IStreetNameTopicConsumer
+public class StreetNameSnapshotTopicConsumer : IStreetNameSnapshotTopicConsumer
 {
     private readonly KafkaOptions _options;
-    private readonly IDbContextFactory<StreetNameConsumerContext> _dbContextFactory;
+    private readonly IDbContextFactory<StreetNameSnapshotConsumerContext> _dbContextFactory;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger _logger;
 
-    public StreetNameTopicConsumer(
+    public StreetNameSnapshotTopicConsumer(
         KafkaOptions options,
-        IDbContextFactory<StreetNameConsumerContext> dbContextFactory,
+        IDbContextFactory<StreetNameSnapshotConsumerContext> dbContextFactory,
         ILoggerFactory loggerFactory
     )
     {
         _options = options.ThrowIfNull();
         _dbContextFactory = dbContextFactory.ThrowIfNull();
         _loggerFactory = loggerFactory.ThrowIfNull();
-        _logger = loggerFactory.CreateLogger<StreetNameTopicConsumer>();
+        _logger = loggerFactory.CreateLogger<StreetNameSnapshotTopicConsumer>();
     }
 
-    public async Task ConsumeContinuously(Func<SnapshotMessage, StreetNameConsumerContext, Task> messageHandler, CancellationToken cancellationToken)
+    public async Task ConsumeContinuously(Func<SnapshotMessage, StreetNameSnapshotConsumerContext, Task> messageHandler, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(_options.Consumers?.StreetName?.Topic))
+        if (string.IsNullOrEmpty(_options.Consumers?.StreetNameSnapshot?.Topic))
         {
-            _logger.LogError("Configuration has no StreetName Consumer with a Topic.");
+            _logger.LogError($"Configuration has no {nameof(KafkaConsumers.StreetNameSnapshot)} Consumer with a Topic.");
             return;
         }
 
-        var consumerGroupId = $"{nameof(RoadRegistry)}.{nameof(StreetNameConsumer)}.{_options.Consumers.StreetName.Topic}{_options.Consumers.StreetName.GroupSuffix}";
+        var consumerGroupId = $"{nameof(RoadRegistry)}.{nameof(StreetNameSnapshotConsumer)}.{_options.Consumers.StreetNameSnapshot.Topic}{_options.Consumers.StreetNameSnapshot.GroupSuffix}";
 
         var jsonSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
         var consumerOptions = new ConsumerOptions(
             new BootstrapServers(_options.BootstrapServers),
-            new Topic(_options.Consumers.StreetName.Topic),
+            new Topic(_options.Consumers.StreetNameSnapshot.Topic),
             new ConsumerGroupId(consumerGroupId),
             jsonSerializerSettings,
-            new SnapshotMessageSerializer<StreetNameSnapshotOsloRecord>(jsonSerializerSettings)
+            new SnapshotMessageSerializer<StreetNameSnapshotRecord>(jsonSerializerSettings)
         );
         if (!string.IsNullOrEmpty(_options.SaslUserName))
         {
@@ -65,7 +65,7 @@ public class StreetNameTopicConsumer : IStreetNameTopicConsumer
         {
             try
             {
-                await new IdempotentConsumer<StreetNameConsumerContext>(consumerOptions, _dbContextFactory, _loggerFactory)
+                await new IdempotentConsumer<StreetNameSnapshotConsumerContext>(consumerOptions, _dbContextFactory, _loggerFactory)
                     .ConsumeContinuously((message, dbContext) => messageHandler((SnapshotMessage)message, dbContext), cancellationToken);
             }
             catch (ConfigurationErrorsException ex)

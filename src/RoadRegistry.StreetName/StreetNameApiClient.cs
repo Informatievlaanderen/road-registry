@@ -51,7 +51,7 @@ namespace RoadRegistry.StreetName
             }
 
             var streetNameJson = await response.Content.ReadAsStringAsync(cancellationToken);
-            var streetName = JsonConvert.DeserializeObject<StreetNameSnapshotOsloRecord>(streetNameJson, _jsonSerializerSettings);
+            var streetName = JsonConvert.DeserializeObject<StreetNameSnapshotRecord>(streetNameJson, _jsonSerializerSettings);
 
             return new StreetNameItem
             {

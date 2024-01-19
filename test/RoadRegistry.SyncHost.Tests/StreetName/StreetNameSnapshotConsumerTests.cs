@@ -18,11 +18,11 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
     using SqlStreamStore.Streams;
     using Sync.StreetNameRegistry;
 
-    public class StreetNameConsumerTests
+    public class StreetNameSnapshotConsumerTests
     {
         private readonly ILoggerFactory _loggerFactory;
 
-        public StreetNameConsumerTests(
+        public StreetNameSnapshotConsumerTests(
             ILoggerFactory loggerFactory)
         {
             _loggerFactory = loggerFactory;
@@ -31,7 +31,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
         [Fact]
         public async Task CanConsumeSuccessfully_Created()
         {
-            var streetName1 = new StreetNameSnapshotOsloRecord
+            var streetName1 = new StreetNameSnapshotRecord
             {
                 Identificator = new DeseriazableIdentificator("https://data.vlaanderen.be/id/straatnaam", "1", ""),
                 Gemeente = new StraatnaamDetailGemeente
@@ -69,7 +69,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
         {
             var streetNameObjectId = "1";
 
-            var streetName1 = new StreetNameSnapshotOsloRecord
+            var streetName1 = new StreetNameSnapshotRecord
             {
                 Identificator = new DeseriazableIdentificator("https://data.vlaanderen.be/id/straatnaam", streetNameObjectId, ""),
                 Gemeente = new StraatnaamDetailGemeente
@@ -84,7 +84,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                 }
             };
 
-            var streetName1Modification = new StreetNameSnapshotOsloRecord
+            var streetName1Modification = new StreetNameSnapshotRecord
             {
                 Identificator = new DeseriazableIdentificator("https://data.vlaanderen.be/id/straatnaam", streetNameObjectId, ""),
                 Gemeente = new StraatnaamDetailGemeente
@@ -134,7 +134,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
             var streetNameObjectId = "1";
             var streetNameId = "https://data.vlaanderen.be/id/straatnaam/1";
 
-            var streetName1 = new StreetNameSnapshotOsloRecord
+            var streetName1 = new StreetNameSnapshotRecord
             {
                 Identificator = new DeseriazableIdentificator("https://data.vlaanderen.be/id/straatnaam", streetNameObjectId, ""),
                 Gemeente = new StraatnaamDetailGemeente
@@ -149,7 +149,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                 }
             };
 
-            var streetName1Remove = new StreetNameSnapshotOsloRecord();
+            var streetName1Remove = new StreetNameSnapshotRecord();
 
             var (consumer, store, topicConsumer) = BuildSetup();
 
@@ -168,8 +168,8 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
             Assert.Equal(streetNameId, modifiedMessage.StreetNameId);
         }
         
-        private (StreetNameConsumer, IStreamStore, InMemoryStreetNameTopicConsumer) BuildSetup(
-            Action<StreetNameConsumerContext> configureStreetNameConsumerContext = null
+        private (StreetNameSnapshotConsumer, IStreamStore, InMemoryStreetNameSnapshotTopicConsumer) BuildSetup(
+            Action<StreetNameSnapshotConsumerContext> configureDbContext = null
         )
         {
             var containerBuilder = new ContainerBuilder();
@@ -178,12 +178,12 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
             containerBuilder.Register(_ => new LoggerFactory()).As<ILoggerFactory>();
 
             containerBuilder
-                .RegisterDbContext<StreetNameConsumerContext>(string.Empty,
+                .RegisterDbContext<StreetNameSnapshotConsumerContext>(string.Empty,
                     _ => { }
                     , dbContextOptionsBuilder =>
                     {
-                        var context = new StreetNameConsumerContext(dbContextOptionsBuilder.Options);
-                        configureStreetNameConsumerContext?.Invoke(context);
+                        var context = new StreetNameSnapshotConsumerContext(dbContextOptionsBuilder.Options);
+                        configureDbContext?.Invoke(context);
                         return context;
                     }
                 );
@@ -191,14 +191,14 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
             var lifetimeScope = containerBuilder.Build();
 
             var store = new InMemoryStreamStore();
-            var topicConsumer = new InMemoryStreetNameTopicConsumer(() => lifetimeScope.Resolve<StreetNameConsumerContext>());
+            var topicConsumer = new InMemoryStreetNameSnapshotTopicConsumer(() => lifetimeScope.Resolve<StreetNameSnapshotConsumerContext>());
 
-            return (new StreetNameConsumer(
+            return (new StreetNameSnapshotConsumer(
                 lifetimeScope,
                 store,
                 new StreetNameEventWriter(store, EnrichEvent.WithTime(new FakeClock(NodaConstants.UnixEpoch))),
                 topicConsumer,
-                _loggerFactory.CreateLogger<StreetNameConsumer>()
+                _loggerFactory.CreateLogger<StreetNameSnapshotConsumer>()
             ), store, topicConsumer);
         }
     }

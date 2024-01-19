@@ -22,7 +22,7 @@ public class Startup : TestStartup
             .AddRoadNetworkCommandQueue()
 
             .AddStreetNameConsumerServices()
-            .AddInMemoryDbContextOptionsBuilder<StreetNameConsumerContext>()
+            .AddInMemoryDbContextOptionsBuilder<StreetNameSnapshotConsumerContext>()
 
             .AddStreetNameProjectionServices()
             .AddInMemoryDbContextOptionsBuilder<StreetNameProjectionContext>()
