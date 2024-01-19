@@ -167,7 +167,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 Name = command.Body.Name,
                 OvoCode = command.Body.OvoCode
             };
-            //TODO-rik test
             await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, ExpectedVersion.Any, new Event(
                 rejectedEvent
             ).WithMessageId(command.MessageId), cancellationToken);
@@ -180,7 +179,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 Name = command.Body.Name,
                 OvoCode = command.Body.OvoCode
             }).WithMessageId(command.MessageId);
-            //TODO-rik test
             await _organizationEventWriter.WriteAsync(organizationId, acceptedEvent, cancellationToken);
         }
 
@@ -204,7 +202,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             {
                 Code = command.Body.Code
             };
-            //TODO-rik test
             await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, ExpectedVersion.Any, new Event(
                 rejectedEvent
             ).WithMessageId(command.MessageId), cancellationToken);
@@ -231,7 +228,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 Code = command.Body.Code,
                 Name = command.Body.Name
             };
-            //TODO-rik test
             await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, ExpectedVersion.Any, new Event(
                 rejectedEvent
             ).WithMessageId(command.MessageId), cancellationToken);
@@ -262,7 +258,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 Name = command.Body.Name,
                 OvoCode = command.Body.OvoCode
             };
-            //TODO-rik test
             await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, ExpectedVersion.Any, new Event(
                 rejectedEvent
             ).WithMessageId(command.MessageId), cancellationToken);

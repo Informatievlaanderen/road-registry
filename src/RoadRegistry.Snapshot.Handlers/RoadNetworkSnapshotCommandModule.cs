@@ -47,7 +47,6 @@ public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
                 {
                     CurrentVersion = version
                 }).WithMessageId(command.MessageId);
-                //TODO-rik test
                 await roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, ExpectedVersion.Any, completedEvent, ct);
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(RebuildRoadNetworkSnapshot));
