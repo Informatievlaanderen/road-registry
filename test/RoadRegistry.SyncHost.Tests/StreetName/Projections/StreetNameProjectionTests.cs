@@ -4,89 +4,105 @@ using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
 using Fixtures;
+using Microsoft.EntityFrameworkCore;
 using RoadRegistry.StreetName;
-using StreetNameRecord = Sync.StreetNameRegistry.StreetNameRecord;
+using Sync.StreetNameRegistry;
 
 public class StreetNameProjectionTests : IClassFixture<StreetNameProjectionFixture>
 {
-    private readonly StreetNameProjectionFixture _fixture;
+    private readonly IDbContextFactory<StreetNameProjectionContext> _dbContextFactory;
 
-    public StreetNameProjectionTests(StreetNameProjectionFixture fixture)
+    public StreetNameProjectionTests(IDbContextFactory<StreetNameProjectionContext> dbContextFactory)
     {
-        _fixture = fixture;
+        _dbContextFactory = dbContextFactory;
     }
 
-    private StreetNameRecord? Current => _fixture.GetStreetNameRecord(_fixture.StreetName1.Identificator.Id);
+    private async Task<StreetNameProjectionFixture> BuildFixture()
+    {
+        return new StreetNameProjectionFixture(await _dbContextFactory.CreateDbContextAsync());
+    }
 
     [Fact]
     public async Task StreetNameAdded()
     {
-        var record = _fixture.StreetName1;
+        var fixture = await BuildFixture();
+
+        var record = fixture.StreetName1;
         record.StraatnaamStatus = StreetNameStatus.Current;
 
-        await _fixture.ProjectAsync(new StreetNameCreated
+        await fixture.ProjectAsync(new StreetNameCreated
         {
             Record = ToStreetNameRecord(record)
         });
 
-        Assert.Equal(record.Identificator.Id, Current.StreetNameId);
-        Assert.Equal(record.StraatnaamStatus, Current.StreetNameStatus);
-        Assert.Equal("Straat", Current.DutchName);
-        Assert.Equal("Rue", Current.FrenchName);
-        Assert.Equal("Street", Current.EnglishName);
-        Assert.Equal("Strasse", Current.GermanName);
-        Assert.Equal("NL", Current.DutchHomonymAddition);
-        Assert.Equal("FR", Current.FrenchHomonymAddition);
-        Assert.Equal("EN", Current.EnglishHomonymAddition);
-        Assert.Equal("DE", Current.GermanHomonymAddition);
+        var actual = fixture.GetStreetNameRecord(fixture.StreetName1.Identificator.Id);
+
+        Assert.Equal(record.Identificator.Id, actual.StreetNameId);
+        Assert.Equal(record.StraatnaamStatus, actual.StreetNameStatus);
+        Assert.Equal("Straat", actual.DutchName);
+        Assert.Equal("Rue", actual.FrenchName);
+        Assert.Equal("Street", actual.EnglishName);
+        Assert.Equal("Strasse", actual.GermanName);
+        Assert.Equal("NL", actual.DutchHomonymAddition);
+        Assert.Equal("FR", actual.FrenchHomonymAddition);
+        Assert.Equal("EN", actual.EnglishHomonymAddition);
+        Assert.Equal("DE", actual.GermanHomonymAddition);
     }
 
     [Fact]
     public async Task StreetNameModified()
     {
-        var record = _fixture.StreetName1;
+        var fixture = await BuildFixture();
+
+        var record = fixture.StreetName1;
         record.StraatnaamStatus = StreetNameStatus.Current;
 
-        await _fixture.ProjectAsync(new StreetNameCreated
+        await fixture.ProjectAsync(new StreetNameCreated
         {
             Record = ToStreetNameRecord(record)
         });
 
-        Assert.Equal(record.StraatnaamStatus, Current.StreetNameStatus);
+        var actual = fixture.GetStreetNameRecord(fixture.StreetName1.Identificator.Id);
+        Assert.Equal(record.StraatnaamStatus, actual.StreetNameStatus);
 
         record.StraatnaamStatus = StreetNameStatus.Retired;
 
-        await _fixture.ProjectAsync(new StreetNameModified
+        await fixture.ProjectAsync(new StreetNameModified
         {
             Record = ToStreetNameRecord(record),
             StatusModified = true
         });
 
-        Assert.Equal(record.Identificator.Id, Current.StreetNameId);
-        Assert.Equal(record.StraatnaamStatus, Current.StreetNameStatus);
+        actual = fixture.GetStreetNameRecord(fixture.StreetName1.Identificator.Id);
+        Assert.Equal(record.Identificator.Id, actual.StreetNameId);
+        Assert.Equal(record.StraatnaamStatus, actual.StreetNameStatus);
     }
 
     [Fact]
     public async Task StreetNameRemoved()
     {
-        var record = _fixture.StreetName1;
+        var fixture = await BuildFixture();
+
+        var record = fixture.StreetName1;
         record.StraatnaamStatus = StreetNameStatus.Current;
 
-        await _fixture.ProjectAsync(new StreetNameCreated
+        await fixture.ProjectAsync(new StreetNameCreated
         {
             Record = ToStreetNameRecord(record)
         });
 
-        Assert.Equal(record.StraatnaamStatus, Current.StreetNameStatus);
+        var actual = fixture.GetStreetNameRecord(fixture.StreetName1.Identificator.Id);
+        Assert.Equal(record.StraatnaamStatus, actual.StreetNameStatus);
 
-        await _fixture.ProjectAsync(new StreetNameRemoved
+        await fixture.ProjectAsync(new StreetNameRemoved
         {
-            StreetNameId = _fixture.StreetName1.Identificator.Id
+            StreetNameId = fixture.StreetName1.Identificator.Id
         });
 
-        Assert.Equal(record.Identificator.Id, Current.StreetNameId);
-        Assert.Equal(record.StraatnaamStatus, Current.StreetNameStatus);
-        Assert.True(Current.IsRemoved);
+        actual = fixture.GetStreetNameRecord(fixture.StreetName1.Identificator.Id);
+        Assert.Equal(record.Identificator.Id, actual.StreetNameId);
+        Assert.Equal(record.StraatnaamStatus, actual.StreetNameStatus);
+        Assert.True(actual.IsRemoved);
     }
 
     private static BackOffice.Messages.StreetNameRecord ToStreetNameRecord(StreetNameSnapshotRecord snapshotRecord)

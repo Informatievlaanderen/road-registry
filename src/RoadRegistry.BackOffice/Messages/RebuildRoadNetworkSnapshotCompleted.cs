@@ -7,4 +7,5 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 public class RebuildRoadNetworkSnapshotCompleted : IMessage
 {
     public int CurrentVersion { get; set; }
+    public string When { get; set; }
 }

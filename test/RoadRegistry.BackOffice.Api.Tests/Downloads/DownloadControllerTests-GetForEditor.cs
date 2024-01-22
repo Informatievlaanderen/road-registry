@@ -19,7 +19,7 @@ public partial class DownloadControllerTests
         var result = await Controller.GetForEditor(_tokenSource.Token);
         var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
 
-        var filename = $"wegenregister-{DateTime.Today.ToString("yyyyMMdd")}.zip";
+        var filename = $"wegenregister-{DateTime.Today:yyyyMMdd}.zip";
         Assert.Equal(filename, fileCallbackResult.FileDownloadName);
     }
 

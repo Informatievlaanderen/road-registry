@@ -83,6 +83,7 @@ public abstract class TestStartup
                     .AddSingleton<IStreamStore>(sp => new InMemoryStreamStore())
                     .AddSingleton<IStreetNameCache>(_ => new FakeStreetNameCache())
                     .AddSingleton<IClock>(new FakeClock(NodaConstants.UnixEpoch))
+                    .AddEventEnricher()
                     .AddScoped(_ => new EventSourcedEntityMap())
                     .AddSingleton(ConfigureCommandHandlerDispatcher)
                     .AddSingleton(new RecyclableMemoryStreamManager())
