@@ -283,6 +283,7 @@ public class Startup
             .RegisterOptions<OpenIdConnectOptions>()
             .AddStreamStore()
             .AddSingleton<IClock>(SystemClock.Instance)
+            .AddEventEnricher()
             .AddSingleton(new WKTReader(
                 new NtsGeometryServices(
                     GeometryConfiguration.GeometryFactory.PrecisionModel,
