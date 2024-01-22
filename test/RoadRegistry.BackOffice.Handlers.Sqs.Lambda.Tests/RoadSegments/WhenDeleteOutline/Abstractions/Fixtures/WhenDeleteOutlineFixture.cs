@@ -68,6 +68,7 @@ public abstract class WhenDeleteOutlineFixture : SqsLambdaHandlerFixture<DeleteR
                     Clock,
                     new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     new FakeExtractUploadFailedEmailClient(),
+                    new RoadNetworkEventWriter(Store, EnrichEvent.WithTime(Clock)),
                     LoggerFactory
                 )
             }), ApplicationMetadata);

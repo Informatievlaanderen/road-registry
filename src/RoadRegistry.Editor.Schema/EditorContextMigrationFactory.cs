@@ -8,14 +8,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 public class EditorContextMigrationFactory : RunnerDbContextMigrationFactory<EditorContext>
 {
     public EditorContextMigrationFactory() :
-        base(WellknownConnectionNames.EditorProjectionsAdmin, HistoryConfiguration)
+        base(WellKnownConnectionNames.EditorProjectionsAdmin, HistoryConfiguration)
     {
     }
 
     private static MigrationHistoryConfiguration HistoryConfiguration =>
         new()
         {
-            Schema = WellknownSchemas.EditorSchema,
+            Schema = WellKnownSchemas.EditorSchema,
             Table = MigrationTables.Editor
         };
 

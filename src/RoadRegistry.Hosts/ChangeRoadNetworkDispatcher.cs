@@ -89,7 +89,7 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
         _logger.LogInformation("TIMETRACKING dispatcher: validating ChangeRoadNetwork took {Elapsed}", sw.Elapsed);
 
         var commandId = changeRoadNetwork.CreateCommandId();
-        await _commandQueue.Write(new Command(changeRoadNetwork).WithMessageId(commandId), cancellationToken);
+        await _commandQueue.WriteAsync(new Command(changeRoadNetwork).WithMessageId(commandId), cancellationToken);
 
         try
         {

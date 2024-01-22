@@ -245,10 +245,6 @@ namespace RoadRegistry.Wms.Schema.Migrations
                         .HasColumnType("int")
                         .HasColumnName("status");
 
-                    b.Property<long>("StreetNameCachePosition")
-                        .HasColumnType("bigint")
-                        .HasColumnName("straatnaamCachePositie");
-
                     b.Property<int?>("TransactionId")
                         .HasColumnType("int")
                         .HasColumnName("transactieID");
@@ -265,10 +261,6 @@ namespace RoadRegistry.Wms.Schema.Migrations
                         .HasDatabaseName("wegsegmentmorfologie");
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("MorphologyId"), false);
-
-                    b.HasIndex("StreetNameCachePosition");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("StreetNameCachePosition"), false);
 
                     b.ToTable("wegsegmentDenorm", "RoadRegistryWms");
                 });

@@ -202,6 +202,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
                 .AddSingleton<Scheduler>()
                 .AddStreamStore()
                 .AddSingleton<IClock>(SystemClock.Instance)
+                .AddEventEnricher()
                 .AddSingleton(new RecyclableMemoryStreamManager())
                 .AddFeatureToggles<ApplicationFeatureToggle>(hostContext.Configuration)
                 .AddSingleton(new WKTReader(

@@ -50,7 +50,7 @@ public sealed class SqsHandlersModule : Module
             .RegisterOptions<SqsQueueUrlOptions>();
 
         builder
-            .Register(c => new SqsMessagesBlobClient(c.Resolve<IBlobClientFactory>().Create(WellknownBuckets.SqsMessagesBucket), c.Resolve<SqsJsonMessageSerializer>()))
+            .Register(c => new SqsMessagesBlobClient(c.Resolve<IBlobClientFactory>().Create(WellKnownBuckets.SqsMessagesBucket), c.Resolve<SqsJsonMessageSerializer>()))
             .SingleInstance();
 
         builder

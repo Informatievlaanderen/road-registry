@@ -18,13 +18,13 @@ public class BackOfficeProcessorDbContext : RunnerDbContext<BackOfficeProcessorD
     {
     }
 
-    public override string ProjectionStateSchema => WellknownSchemas.EventSchema;
+    public override string ProjectionStateSchema => WellKnownSchemas.EventSchema;
 
     public DbSet<ProjectionStateItem> ProcessorPositions { get; set; }
 
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
+        optionsBuilder.UseRoadRegistryInMemorySqlServer();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

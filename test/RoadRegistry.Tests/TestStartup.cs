@@ -83,6 +83,7 @@ public abstract class TestStartup
                     .AddSingleton<IStreamStore>(sp => new InMemoryStreamStore())
                     .AddSingleton<IStreetNameCache>(_ => new FakeStreetNameCache())
                     .AddSingleton<IClock>(new FakeClock(NodaConstants.UnixEpoch))
+                    .AddEventEnricher()
                     .AddScoped(_ => new EventSourcedEntityMap())
                     .AddSingleton(ConfigureCommandHandlerDispatcher)
                     .AddSingleton(new RecyclableMemoryStreamManager())
@@ -102,7 +103,9 @@ public abstract class TestStartup
                     .AddFeatureCompareTranslator()
                     .AddValidatorsFromAssemblies(availableModuleAssemblyCollection)
                     .AddFeatureToggles<ApplicationFeatureToggle>(context.Configuration)
-                    .AddLogging();
+                    .AddLogging()
+                    .AddRoadNetworkCommandQueue()
+                    ;
 
                 ConfigureServices(context, services);
             })

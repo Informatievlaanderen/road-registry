@@ -46,7 +46,6 @@ public class RoadSegmentSnapshotEqualityComparer : IEqualityComparer<RoadSegment
                && left.RoadSegmentVersion.Equals(right.RoadSegmentVersion)
                && left.BeginRoadNodeId.Equals(right.BeginRoadNodeId)
                && left.EndRoadNodeId.Equals(right.EndRoadNodeId)
-               && left.StreetNameCachePosition.Equals(right.StreetNameCachePosition)
                && left.Origin.Equals(right.Origin)
                && left.LastChangedTimestamp.Equals(right.LastChangedTimestamp)
                && left.IsRemoved.Equals(right.IsRemoved);

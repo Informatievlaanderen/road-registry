@@ -19,5 +19,4 @@ public class StreetNameConsumerItem
     public string EnglishNameWithHomonymAddition { get; set; }
     public string StreetNameStatus { get; set; }
     public bool IsRemoved { get; set; }
-    public long Offset { get; set; }
 }

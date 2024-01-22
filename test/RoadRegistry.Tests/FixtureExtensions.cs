@@ -664,8 +664,26 @@ public static class Customizations
         );
     }
 
+    public static void CustomizeRoadSegmentSideAttributes(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentSideAttributes>(customization =>
+            customization
+                .FromFactory(generator =>
+                    new RoadSegmentSideAttributes
+                    {
+                        StreetNameId = fixture.Create<bool>() ?
+                            fixture.Create<StreetNameLocalId>()
+                            : null
+                    }
+                )
+                .OmitAutoProperties()
+        );
+    }
+
     public static void CustomizeRoadSegmentAdded(this IFixture fixture)
     {
+        fixture.CustomizeRoadSegmentSideAttributes();
+
         fixture.Customize<RoadSegmentAdded>(customization =>
             customization
                 .FromFactory(generator =>
@@ -1034,6 +1052,56 @@ public static class Customizations
                 instance.Width = fixture.Create<RoadSegmentWidth>();
             }).OmitAutoProperties());
     }
+
+    public static void CustomizeStreetNameModified(this IFixture fixture)
+    {
+        fixture.Customize<StreetNameModified>(customization =>
+            customization
+                .FromFactory(generator =>
+                    new StreetNameModified
+                    {
+                        NameModified = fixture.Create<bool>(),
+                        StatusModified = fixture.Create<bool>(),
+                        HomonymAdditionModified = fixture.Create<bool>(),
+                        Restored = fixture.Create<bool>(),
+                        Record = fixture.Create<StreetNameRecord>(),
+                        When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                    }
+                )
+                .OmitAutoProperties()
+        );
+    }
+
+    public static void CustomizeStreetNameRecord(this IFixture fixture)
+    {
+        var streetNameStatuses = new[] { "voorgesteld", "inGebruik", "gehistoreerd", "afgekeurd" };
+
+        fixture.Customize<StreetNameRecord>(customization =>
+            customization
+                .FromFactory(generator =>
+                    {
+                        var streetNameLocalId = fixture.Create<StreetNameLocalId>();
+                        var name = fixture.Create<string>();
+                        var homonymAddition = fixture.Create<string>();
+
+                        return new StreetNameRecord
+                        {
+                            NisCode = generator.Next(10000, 100000).ToString(),
+                            StreetNameId = new StreetNamePuri(streetNameLocalId),
+                            PersistentLocalId = streetNameLocalId,
+                            StreetNameStatus = streetNameStatuses[generator.Next(0, streetNameStatuses.Length)],
+                            DutchName = name,
+                            DutchHomonymAddition = homonymAddition,
+                            DutchNameWithHomonymAddition = !string.IsNullOrEmpty(homonymAddition)
+                                ? $"{name}_{homonymAddition}"
+                                : name
+                        };
+                    }
+                )
+                .OmitAutoProperties()
+        );
+    }
+
     public static RoadSegmentWidthAttributes CreateRoadSegmentWidthAttribute(this IFixture fixture, double roadSegmentGeometryLength)
     {
         var width = fixture.Create<RoadSegmentWidthAttributes>();

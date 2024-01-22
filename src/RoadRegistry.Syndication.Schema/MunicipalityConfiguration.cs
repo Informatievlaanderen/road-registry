@@ -10,7 +10,7 @@ public class MunicipalityConfiguration : IEntityTypeConfiguration<MunicipalityRe
 
     public void Configure(EntityTypeBuilder<MunicipalityRecord> b)
     {
-        b.ToTable(TableName, WellknownSchemas.SyndicationSchema)
+        b.ToTable(TableName, WellKnownSchemas.SyndicationSchema)
             .HasIndex(p => p.MunicipalityId)
             .IsClustered(false);
 

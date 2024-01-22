@@ -98,7 +98,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                             })
                             .WithMessageId(message.MessageId);
 
-                        await queue.Write(command, ct);
+                        await queue.WriteAsync(command, ct);
                     }
                 }
                 catch (ZipArchiveValidationException ex)
@@ -114,10 +114,9 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                         Problems = ex.Problems.Select(problem => problem.Translate()).ToArray()
                     };
 
-                    await roadNetworkEventWriter.WriteAsync(RoadNetworkExtracts.ToStreamName(extractRequestId), message, message.StreamVersion, new object[]
-                    {
+                    await roadNetworkEventWriter.WriteAsync(RoadNetworkExtracts.ToStreamName(extractRequestId), message.StreamVersion, new Event(
                         rejectedChangeEvent
-                    }, ct);
+                    ).WithMessageId(message.MessageId), ct);
 
                     await extractUploadFailedEmailClient.SendAsync(message.Body.Description, new ValidationException(JsonConvert.SerializeObject(rejectedChangeEvent, Formatting.Indented)), ct);
                 }

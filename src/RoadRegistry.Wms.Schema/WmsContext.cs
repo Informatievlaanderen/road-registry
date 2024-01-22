@@ -16,7 +16,7 @@ public class WmsContext : RunnerDbContext<WmsContext>
     {
     }
 
-    public override string ProjectionStateSchema => WellknownSchemas.WmsMetaSchema;
+    public override string ProjectionStateSchema => WellKnownSchemas.WmsMetaSchema;
 
     public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
     public DbSet<RoadSegmentEuropeanRoadAttributeRecord> RoadSegmentEuropeanRoadAttributes { get; set; }
@@ -24,6 +24,6 @@ public class WmsContext : RunnerDbContext<WmsContext>
 
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
+        optionsBuilder.UseRoadRegistryInMemorySqlServer();
     }
 }

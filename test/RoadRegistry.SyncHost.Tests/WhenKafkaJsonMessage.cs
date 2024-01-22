@@ -1,4 +1,4 @@
-namespace RoadRegistry.StreetNameConsumer.ProjectionHost.Tests;
+namespace RoadRegistry.SyncHost.Tests;
 
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.Common;

@@ -134,9 +134,8 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
 
     private async Task WriteRoadNetworkChangesArchiveUploadedToStore(RoadNetworkChangesArchive archive, CancellationToken cancellationToken)
     {
-        await _roadNetworkEventWriter.WriteAsync(new StreamName(archive.Id), Guid.NewGuid(), ExpectedVersion.NoStream, new object[]
-        {
+        await _roadNetworkEventWriter.WriteAsync(new StreamName(archive.Id), ExpectedVersion.NoStream, new Event(
             new RoadNetworkChangesArchiveUploaded { ArchiveId = archive.Id, Description = archive.Description }
-        }, cancellationToken);
+        ), cancellationToken);
     }
 }

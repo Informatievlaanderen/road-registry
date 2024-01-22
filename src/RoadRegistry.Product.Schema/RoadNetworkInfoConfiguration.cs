@@ -10,7 +10,7 @@ public class RoadNetworkInfoConfiguration : IEntityTypeConfiguration<RoadNetwork
 
     public void Configure(EntityTypeBuilder<RoadNetworkInfo> b)
     {
-        b.ToTable(TableName, WellknownSchemas.ProductSchema)
+        b.ToTable(TableName, WellKnownSchemas.ProductSchema)
             .HasIndex(p => p.Id)
             .IsClustered(false);
 

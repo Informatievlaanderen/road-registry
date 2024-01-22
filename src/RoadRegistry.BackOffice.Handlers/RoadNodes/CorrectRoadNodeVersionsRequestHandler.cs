@@ -94,7 +94,7 @@ public sealed class CorrectRoadNodeVersionsRequestHandler : IRequestHandler<Corr
         };
         await new ChangeRoadNetworkValidator().ValidateAndThrowAsync(changeRoadNetwork, cancellationToken);
 
-        await _roadNetworkCommandQueue.Write(new Command(changeRoadNetwork), cancellationToken);
+        await _roadNetworkCommandQueue.WriteAsync(new Command(changeRoadNetwork), cancellationToken);
         
         return new CorrectRoadNodeVersionsResponse(roadNodes.Count);
     }

@@ -1,10 +1,10 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 
-using System.IO.Compression;
-using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extracts;
 using Microsoft.EntityFrameworkCore;
+using System.IO.Compression;
+using System.Text;
 
 public class DbaseFileArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext : DbContext
 {
@@ -15,20 +15,18 @@ public class DbaseFileArchiveWriter<TContext> : IZipArchiveWriter<TContext> wher
 
     public DbaseFileArchiveWriter(string filename, DbaseSchema schema, IReadOnlyCollection<DbaseRecord> records, Encoding encoding)
     {
-        _filename = filename ?? throw new ArgumentNullException(nameof(filename));
-        _schema = schema ?? throw new ArgumentNullException(nameof(schema));
-        _records = records ?? throw new ArgumentNullException(nameof(records));
-        _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
+        _filename = filename.ThrowIfNull();
+        _schema = schema.ThrowIfNull();
+        _records = records.ThrowIfNull();
+        _encoding = encoding.ThrowIfNull();
     }
 
     public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request, TContext context,
         CancellationToken cancellationToken)
     {
-        if (archive == null) throw new ArgumentNullException(nameof(archive));
-
-        if (request == null) throw new ArgumentNullException(nameof(request));
-
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(archive);
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(context);
 
         var dbfEntry = archive.CreateEntry(_filename);
         var dbfHeader = new DbaseFileHeader(

@@ -10,7 +10,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
 
         public void Configure(EntityTypeBuilder<RoadNodeRecord> builder)
         {
-            builder.ToTable(TableName, WellknownSchemas.RoadNodeProducerSnapshotSchema)
+            builder.ToTable(TableName, WellKnownSchemas.RoadNodeProducerSnapshotSchema)
                 .HasKey(p => p.Id)
                 .IsClustered();
 

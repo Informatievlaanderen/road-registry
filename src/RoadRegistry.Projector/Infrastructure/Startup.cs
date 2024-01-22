@@ -31,8 +31,8 @@ using System.Linq;
 using System.Reflection;
 using Hosts;
 using RoadRegistry.Syndication.Schema;
-using StreetNameConsumer.Schema;
 using Sync.OrganizationRegistry;
+using Sync.StreetNameRegistry;
 using Wfs.Schema;
 using Wms.Schema;
 
@@ -216,7 +216,7 @@ public class Startup
 
                         if (projectionOptions.StreetNameSync.Enabled)
                         {
-                            health.AddDbContextCheck<StreetNameConsumerContext>();
+                            health.AddDbContextCheck<StreetNameSnapshotConsumerContext>();
                         }
                     }
                 }
@@ -224,19 +224,19 @@ public class Startup
             .AddValidatorsFromAssemblyContaining<Startup>()
             .AddSingleton(projectionOptions)
 
-            .AddDbContext<EditorContext>(WellknownConnectionNames.EditorProjections)
-            .AddDbContext<ProductContext>(WellknownConnectionNames.ProductProjections)
-            .AddDbContext<SyndicationContext>(WellknownConnectionNames.SyndicationProjections)
-            .AddDbContext<WfsContext>(WellknownConnectionNames.WfsProjections)
-            .AddDbContext<WmsContext>(WellknownConnectionNames.WmsProjections)
-            .AddDbContext<RoadNodeProducerSnapshotContext>(WellknownConnectionNames.ProducerSnapshotProjections)
-            .AddDbContext<RoadSegmentProducerSnapshotContext>(WellknownConnectionNames.ProducerSnapshotProjections)
-            .AddDbContext<NationalRoadProducerSnapshotContext>(WellknownConnectionNames.ProducerSnapshotProjections)
-            .AddDbContext<GradeSeparatedJunctionProducerSnapshotContext>(WellknownConnectionNames.ProducerSnapshotProjections)
-            .AddDbContext<RoadSegmentSurfaceProducerSnapshotContext>(WellknownConnectionNames.ProducerSnapshotProjections)
-            .AddDbContext<BackOfficeProcessorDbContext>(WellknownConnectionNames.Events)
-            .AddDbContext<OrganizationConsumerContext>(WellknownConnectionNames.OrganizationConsumerProjections)
-            .AddDbContext<StreetNameConsumerContext>(WellknownConnectionNames.StreetNameConsumerProjections)
+            .AddDbContext<EditorContext>(WellKnownConnectionNames.EditorProjections)
+            .AddDbContext<ProductContext>(WellKnownConnectionNames.ProductProjections)
+            .AddDbContext<SyndicationContext>(WellKnownConnectionNames.SyndicationProjections)
+            .AddDbContext<WfsContext>(WellKnownConnectionNames.WfsProjections)
+            .AddDbContext<WmsContext>(WellKnownConnectionNames.WmsProjections)
+            .AddDbContext<RoadNodeProducerSnapshotContext>(WellKnownConnectionNames.ProducerSnapshotProjections)
+            .AddDbContext<RoadSegmentProducerSnapshotContext>(WellKnownConnectionNames.ProducerSnapshotProjections)
+            .AddDbContext<NationalRoadProducerSnapshotContext>(WellKnownConnectionNames.ProducerSnapshotProjections)
+            .AddDbContext<GradeSeparatedJunctionProducerSnapshotContext>(WellKnownConnectionNames.ProducerSnapshotProjections)
+            .AddDbContext<RoadSegmentSurfaceProducerSnapshotContext>(WellKnownConnectionNames.ProducerSnapshotProjections)
+            .AddDbContext<BackOfficeProcessorDbContext>(WellKnownConnectionNames.Events)
+            .AddDbContext<OrganizationConsumerContext>(WellKnownConnectionNames.OrganizationConsumerProjections)
+            .AddDbContext<StreetNameSnapshotConsumerContext>(WellKnownConnectionNames.StreetNameSnapshotConsumer)
             ;
 
         var containerBuilder = new ContainerBuilder();

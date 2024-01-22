@@ -43,7 +43,7 @@ public class Program
                 )
                 .AddDbContextFactory<WmsContext>((sp, options) =>
                 {
-                    var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.WmsProjections);
+                    var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.WmsProjections);
                     options
                         .UseSqlServer(connectionString,
                             o => o
@@ -77,9 +77,9 @@ public class Program
         await roadRegistryHost
             .LogSqlServerConnectionStrings(new[]
             {
-                WellknownConnectionNames.Events,
-                WellknownConnectionNames.WmsProjections,
-                WellknownConnectionNames.WmsProjectionsAdmin
+                WellKnownConnectionNames.Events,
+                WellKnownConnectionNames.WmsProjections,
+                WellKnownConnectionNames.WmsProjectionsAdmin
             })
             .RunAsync(async (sp, host, configuration) =>
             {

@@ -1,7 +1,6 @@
 namespace RoadRegistry.StreetName
 {
     using BackOffice.Extensions;
-    using BackOffice.FeatureToggles;
     using Microsoft.Extensions.DependencyInjection;
 
     public static class ServiceCollectionExtensions
@@ -11,10 +10,7 @@ namespace RoadRegistry.StreetName
             return services
                 .RegisterOptions<StreetNameRegistryOptions>()
                 .AddSingleton<StreetNameApiClient>()
-                .AddSingleton<StreetNameCacheClient>()
-                .AddSingleton<IStreetNameClient>(sp => sp.GetRequiredService<UseKafkaStreetNameCacheFeatureToggle>().FeatureEnabled
-                    ? sp.GetRequiredService<StreetNameApiClient>()
-                    : sp.GetRequiredService<StreetNameCacheClient>())
+                .AddSingleton<IStreetNameClient, StreetNameApiClient>()
                 ;
         }
     }

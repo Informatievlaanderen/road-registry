@@ -23,6 +23,7 @@ public class Event : IRoadRegistryMessage
         Body = body;
         StreamId = streamId;
         StreamVersion = streamVersion;
+        ProvenanceData = provenanceData;
     }
 
     public Guid MessageId { get; }
@@ -51,6 +52,6 @@ public class Event : IRoadRegistryMessage
     public Event WithProvenanceData(ProvenanceData value)
     {
         ArgumentNullException.ThrowIfNull(value);
-        return new Event(MessageId, Principal, Body, StreamId, StreamVersion, ProvenanceData);
+        return new Event(MessageId, Principal, Body, StreamId, StreamVersion, value);
     }
 }

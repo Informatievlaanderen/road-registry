@@ -10,7 +10,7 @@ public class RoadNetworkInfoSegmentCacheConfiguration : IEntityTypeConfiguration
 
     public void Configure(EntityTypeBuilder<RoadNetworkInfoSegmentCache> b)
     {
-        b.ToTable(TableName, WellknownSchemas.ProductSchema)
+        b.ToTable(TableName, WellKnownSchemas.ProductSchema)
             .HasIndex(p => p.RoadSegmentId)
             .IsClustered(false);
 

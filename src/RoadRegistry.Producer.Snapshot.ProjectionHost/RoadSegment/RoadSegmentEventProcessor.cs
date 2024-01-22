@@ -9,7 +9,7 @@ using SqlStreamStore;
 
 public class RoadSegmentEventProcessor : DbContextEventProcessor<RoadSegmentProducerSnapshotContext>
 {
-    private const string QueueName = "roadregistry-producer-roadsegment-snapshot-projectionhost";
+    private const string ProjectionStateName = "roadregistry-producer-roadsegment-snapshot-projectionhost";
 
     public RoadSegmentEventProcessor(
         IStreamStore streamStore,
@@ -20,7 +20,7 @@ public class RoadSegmentEventProcessor : DbContextEventProcessor<RoadSegmentProd
         Scheduler scheduler,
         ILogger<DbContextEventProcessor<RoadSegmentProducerSnapshotContext>> logger)
         : base(
-            QueueName,
+            ProjectionStateName,
             streamStore,
             acceptStreamMessage,
             envelopeFactory,

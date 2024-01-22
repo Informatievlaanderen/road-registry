@@ -32,13 +32,13 @@ public class Program
                 .AddSingleton<LegacyStreamArchiveWriter>()
                 .AddSingleton(
                     new SqlConnection(
-                        hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Legacy)
+                        hostContext.Configuration.GetConnectionString(WellKnownConnectionNames.Legacy)
                     )
                 ))
             .ConfigureContainer((context, builder) =>
             {
                 builder
-                    .Register(c => new S3BlobClient(c.Resolve<AmazonS3Client>(), c.Resolve<S3BlobClientOptions>().Buckets[WellknownBuckets.ImportLegacyBucket]))
+                    .Register(c => new S3BlobClient(c.Resolve<AmazonS3Client>(), c.Resolve<S3BlobClientOptions>().Buckets[WellKnownBuckets.ImportLegacyBucket]))
                     .As<IBlobClient>().SingleInstance();
             })
             .Build();
@@ -46,7 +46,7 @@ public class Program
         await roadRegistryHost
             .LogSqlServerConnectionStrings(new[]
             {
-                WellknownConnectionNames.Legacy
+                WellKnownConnectionNames.Legacy
             })
             .Log((sp, logger) =>
             {
@@ -62,7 +62,7 @@ public class Program
 
                 await OptimizeDatabasePerformance(
                     new SqlConnectionStringBuilder(
-                        configuration.GetConnectionString(WellknownConnectionNames.Legacy)), logger);
+                        configuration.GetConnectionString(WellKnownConnectionNames.Legacy)), logger);
 
                 await blobClient.ProvisionResources(host);
 

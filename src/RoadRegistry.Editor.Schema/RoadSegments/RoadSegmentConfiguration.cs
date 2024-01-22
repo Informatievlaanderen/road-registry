@@ -10,7 +10,7 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
 
     public void Configure(EntityTypeBuilder<RoadSegmentRecord> b)
     {
-        b.ToTable(TableName, WellknownSchemas.EditorSchema)
+        b.ToTable(TableName, WellKnownSchemas.EditorSchema)
             .HasKey(p => p.Id)
             .IsClustered();
 

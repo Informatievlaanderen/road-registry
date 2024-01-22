@@ -48,6 +48,9 @@ files
   RoadRegistry.BackOffice.ZipArchiveWriters.dll => lib\net6.0
   RoadRegistry.BackOffice.ZipArchiveWriters.pdb => lib\net6.0
 
+  RoadRegistry.Editor.Projections.dll => lib\net6.0
+  RoadRegistry.Editor.Projections.pdb => lib\net6.0
+
   RoadRegistry.Editor.Schema.dll => lib\net6.0
   RoadRegistry.Editor.Schema.pdb => lib\net6.0
 
@@ -57,8 +60,23 @@ files
   RoadRegistry.Product.Schema.dll => lib\net6.0
   RoadRegistry.Product.Schema.pdb => lib\net6.0
 
-  RoadRegistry.StreetNameConsumer.Schema.dll => lib\net6.0
-  RoadRegistry.StreetNameConsumer.Schema.pdb => lib\net6.0
+  RoadRegistry.RoadNetwork.Schema.dll => lib\net6.0
+  RoadRegistry.RoadNetwork.Schema.pdb => lib\net6.0
+
+  RoadRegistry.Snapshot.Handlers.dll => lib\net6.0
+  RoadRegistry.Snapshot.Handlers.pdb => lib\net6.0
+
+  RoadRegistry.Snapshot.Handlers.Sqs.dll => lib\net6.0
+  RoadRegistry.Snapshot.Handlers.Sqs.pdb => lib\net6.0
+
+  RoadRegistry.StreetName.dll => lib\net6.0
+  RoadRegistry.StreetName.pdb => lib\net6.0
+
+  RoadRegistry.Sync.StreetNameRegistry.dll => lib\net6.0
+  RoadRegistry.Sync.StreetNameRegistry.pdb => lib\net6.0
+
+  RoadRegistry.Syndication.Projections.dll => lib\net6.0
+  RoadRegistry.Syndication.Projections.pdb => lib\net6.0
 
   RoadRegistry.Syndication.Schema.dll => lib\net6.0
   RoadRegistry.Syndication.Schema.pdb => lib\net6.0

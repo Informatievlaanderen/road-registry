@@ -7,14 +7,14 @@ using Microsoft.EntityFrameworkCore;
 public class ProductContextMigrationFactory : RunnerDbContextMigrationFactory<ProductContext>
 {
     public ProductContextMigrationFactory() :
-        base(WellknownConnectionNames.ProductProjectionsAdmin, HistoryConfiguration)
+        base(WellKnownConnectionNames.ProductProjectionsAdmin, HistoryConfiguration)
     {
     }
 
     private static MigrationHistoryConfiguration HistoryConfiguration =>
         new()
         {
-            Schema = WellknownSchemas.ProductSchema,
+            Schema = WellKnownSchemas.ProductSchema,
             Table = MigrationTables.Product
         };
     

@@ -22,7 +22,7 @@ public abstract class RoadRegistryCommandQueue
     protected RoadRegistryCommandQueue(IStreamStore store, EventMapping commandMapping, ApplicationMetadata applicationMetadata = null)
     {
         _store = store.ThrowIfNull();
-        _commandMapping = commandMapping;
+        _commandMapping = commandMapping.ThrowIfNull();
         _applicationMetadata = applicationMetadata;
     }
 

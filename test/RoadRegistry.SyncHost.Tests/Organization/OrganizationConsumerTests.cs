@@ -8,7 +8,6 @@ namespace RoadRegistry.SyncHost.Tests.Organization
     using BackOffice.Framework;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
-    using Editor.Projections;
     using Editor.Schema;
     using Editor.Schema.Extensions;
     using Extensions;

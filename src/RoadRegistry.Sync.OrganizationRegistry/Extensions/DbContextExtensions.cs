@@ -1,16 +1,15 @@
 namespace RoadRegistry.Sync.OrganizationRegistry.Extensions;
 
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
+using Microsoft.EntityFrameworkCore;
+using OrganizationRegistry;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
-using Microsoft.EntityFrameworkCore;
 
 public static class DbContextExtensions
 {
-    public static async Task<ProjectionStateItem> InitializeProjectionState<TDbContext>(this RunnerDbContext<TDbContext> context, string name, CancellationToken cancellationToken)
-        where TDbContext : DbContext
+    public static async Task<ProjectionStateItem> InitializeProjectionState(this IProjectionStatesDbContext context, string name, CancellationToken cancellationToken)
     {
         var projectionState = await context.ProjectionStates.SingleOrDefaultAsync(cancellationToken)
                               ?? context.ProjectionStates.Local.SingleOrDefault();

@@ -1,17 +1,15 @@
 namespace RoadRegistry.Wms.ProjectionHost.Tests.Projections;
 
 using BackOffice.Abstractions;
-using Syndication.Schema;
+using Sync.StreetNameRegistry;
 
 public class StreetNameCacheStub : IStreetNameCache
 {
-    private readonly long _position;
     private readonly StreetNameRecord _stubbedValue;
 
-    public StreetNameCacheStub(StreetNameRecord stubbedValue = null, long position = -1L)
+    public StreetNameCacheStub(StreetNameRecord stubbedValue = null)
     {
         _stubbedValue = stubbedValue;
-        _position = position;
     }
 
     public Task<Dictionary<int, string>> GetStreetNamesById(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
@@ -26,10 +24,5 @@ public class StreetNameCacheStub : IStreetNameCache
             NisCode = _stubbedValue?.NisCode,
             Name = _stubbedValue?.DutchName
         });
-    }
-    
-    public Task<long> GetMaxPositionAsync(CancellationToken cancellationToken)
-    {
-        return Task.FromResult(_position);
     }
 }
