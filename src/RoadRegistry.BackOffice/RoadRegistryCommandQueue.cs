@@ -23,7 +23,7 @@ public abstract class RoadRegistryCommandQueue
     {
         _store = store.ThrowIfNull();
         _commandMapping = commandMapping.ThrowIfNull();
-        _applicationMetadata = applicationMetadata.ThrowIfNull();
+        _applicationMetadata = applicationMetadata;
     }
 
     protected async Task AppendToStoreStream(Command command, StreamName streamName, CancellationToken cancellationToken)

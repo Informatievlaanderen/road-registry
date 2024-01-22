@@ -1,12 +1,12 @@
 namespace RoadRegistry.Sync.StreetNameRegistry;
 
+using Microsoft.EntityFrameworkCore;
+using RoadRegistry.BackOffice.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using RoadRegistry.BackOffice.Abstractions;
 
 public class StreetNameCache : IStreetNameCache
 {
@@ -21,11 +21,6 @@ public class StreetNameCache : IStreetNameCache
     {
         var items = await GetAsync(new[] { streetNameId }, cancellationToken);
         return items.SingleOrDefault();
-    }
-
-    public async Task<long> GetMaxPositionAsync(CancellationToken cancellationToken)
-    {
-        throw new NotSupportedException();
     }
     
     public async Task<Dictionary<int, string>> GetStreetNamesById(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
