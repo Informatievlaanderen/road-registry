@@ -64,15 +64,15 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
                         break;
 
                     case RoadSegmentAttributesModified roadSegmentAttributesModified:
-                        await ModifyRoadSegmentAttributes(streetNameCache, context, envelope, roadSegmentAttributesModified, token);
+                        await ModifyRoadSegmentAttributes(context, envelope, roadSegmentAttributesModified, token);
                         break;
 
                     case RoadSegmentGeometryModified roadSegmentGeometryModified:
-                        await ModifyRoadSegmentGeometry(streetNameCache, context, envelope, roadSegmentGeometryModified, token);
+                        await ModifyRoadSegmentGeometry(context, envelope, roadSegmentGeometryModified, token);
                         break;
 
                     case RoadSegmentRemoved roadSegmentRemoved:
-                        await RemoveRoadSegment(roadSegmentRemoved, context, envelope, useRoadSegmentSoftDeleteFeatureToggle.FeatureEnabled, token);
+                        await RemoveRoadSegment(context, envelope, roadSegmentRemoved, useRoadSegmentSoftDeleteFeatureToggle.FeatureEnabled, token);
                         break;
                 }
         });
@@ -184,7 +184,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         UpdateBeginTime(roadSegmentRecord, envelope);
     }
 
-    private static async Task ModifyRoadSegmentAttributes(IStreetNameCache streetNameCache,
+    private static async Task ModifyRoadSegmentAttributes(
         WfsContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
         RoadSegmentAttributesModified roadSegmentAttributesModified,
@@ -233,7 +233,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         UpdateBeginTime(roadSegmentRecord, envelope);
     }
 
-    private static async Task ModifyRoadSegmentGeometry(IStreetNameCache streetNameCache,
+    private static async Task ModifyRoadSegmentGeometry(
         WfsContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
         RoadSegmentGeometryModified segment,
@@ -250,9 +250,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         UpdateBeginTime(roadSegmentRecord, envelope);
     }
 
-    private static async Task RemoveRoadSegment(RoadSegmentRemoved roadSegmentRemoved,
+    private static async Task RemoveRoadSegment(
         WfsContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
+        RoadSegmentRemoved roadSegmentRemoved,
         bool softDelete,
         CancellationToken token)
     {

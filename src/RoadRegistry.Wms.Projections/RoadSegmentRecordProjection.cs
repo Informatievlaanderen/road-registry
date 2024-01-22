@@ -93,15 +93,15 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
                         break;
 
                     case RoadSegmentAttributesModified roadSegmentAttributesModified:
-                        await ModifyRoadSegmentAttributes(streetNameCache, context, envelope, roadSegmentAttributesModified, token);
+                        await ModifyRoadSegmentAttributes(context, envelope, roadSegmentAttributesModified, token);
                         break;
 
                     case RoadSegmentGeometryModified roadSegmentGeometryModified:
-                        await ModifyRoadSegmentGeometry(streetNameCache, context, envelope, roadSegmentGeometryModified, token);
+                        await ModifyRoadSegmentGeometry(context, envelope, roadSegmentGeometryModified, token);
                         break;
 
                     case RoadSegmentRemoved roadSegmentRemoved:
-                        await RemoveRoadSegment(roadSegmentRemoved, context, envelope, useRoadSegmentSoftDeleteFeatureToggle.FeatureEnabled, token);
+                        await RemoveRoadSegment(context, envelope, roadSegmentRemoved, useRoadSegmentSoftDeleteFeatureToggle.FeatureEnabled, token);
                         break;
                 }
         });
@@ -272,7 +272,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         roadSegmentRecord.EndRoadNodeId = roadSegmentModified.EndNodeId;
     }
 
-    private static async Task ModifyRoadSegmentAttributes(IStreetNameCache streetNameCache,
+    private static async Task ModifyRoadSegmentAttributes(
         WmsContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
         RoadSegmentAttributesModified roadSegmentAttributesModified,
@@ -330,7 +330,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         roadSegmentRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
     }
 
-    private static async Task ModifyRoadSegmentGeometry(IStreetNameCache streetNameCache,
+    private static async Task ModifyRoadSegmentGeometry(
         WmsContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
         RoadSegmentGeometryModified segment,
@@ -352,9 +352,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         roadSegmentRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
     }
 
-    private static async Task RemoveRoadSegment(RoadSegmentRemoved roadSegmentRemoved,
+    private static async Task RemoveRoadSegment(
         WmsContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
+        RoadSegmentRemoved roadSegmentRemoved,
         bool softDelete,
         CancellationToken token)
     {

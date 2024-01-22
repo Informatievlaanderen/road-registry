@@ -105,15 +105,15 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                             break;
 
                         case RoadSegmentAttributesModified roadSegmentAttributesModified:
-                            await ModifyRoadSegmentAttributes(streetNameCache, context, envelope, roadSegmentAttributesModified, token);
+                            await ModifyRoadSegmentAttributes(context, envelope, roadSegmentAttributesModified, token);
                             break;
 
                         case RoadSegmentGeometryModified roadSegmentGeometryModified:
-                            await ModifyRoadSegmentGeometry(streetNameCache, context, envelope, roadSegmentGeometryModified, token);
+                            await ModifyRoadSegmentGeometry(context, envelope, roadSegmentGeometryModified, token);
                             break;
 
                         case RoadSegmentRemoved roadSegmentRemoved:
-                            await RemoveRoadSegment(roadSegmentRemoved, context, envelope, token);
+                            await RemoveRoadSegment(context, envelope, roadSegmentRemoved, token);
                             break;
                     }
             });
@@ -294,7 +294,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             await Produce(roadSegmentRecord.Id, roadSegmentRecord.ToContract(), token);
         }
 
-        private async Task ModifyRoadSegmentAttributes(IStreetNameCache streetNameCache,
+        private async Task ModifyRoadSegmentAttributes(
             RoadSegmentProducerSnapshotContext context,
             Envelope<RoadNetworkChangesAccepted> envelope,
             RoadSegmentAttributesModified roadSegmentAttributesModified,
@@ -357,7 +357,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             await Produce(roadSegmentRecord.Id, roadSegmentRecord.ToContract(), token);
         }
 
-        private async Task ModifyRoadSegmentGeometry(IStreetNameCache streetNameCache,
+        private async Task ModifyRoadSegmentGeometry(
             RoadSegmentProducerSnapshotContext context,
             Envelope<RoadNetworkChangesAccepted> envelope,
             RoadSegmentGeometryModified segment,
@@ -384,7 +384,12 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             await Produce(roadSegmentRecord.Id, roadSegmentRecord.ToContract(), token);
         }
 
-        private async Task RemoveRoadSegment(RoadSegmentRemoved roadSegmentRemoved, RoadSegmentProducerSnapshotContext context, Envelope<RoadNetworkChangesAccepted> envelope, CancellationToken token)
+        private async Task RemoveRoadSegment(
+            RoadSegmentProducerSnapshotContext context,
+            Envelope<RoadNetworkChangesAccepted> envelope,
+            RoadSegmentRemoved roadSegmentRemoved,
+            CancellationToken token
+        )
         {
             var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id, cancellationToken: token).ConfigureAwait(false);
             if (roadSegmentRecord == null)
