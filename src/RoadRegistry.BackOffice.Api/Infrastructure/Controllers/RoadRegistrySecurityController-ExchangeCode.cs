@@ -8,7 +8,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Authentication;
-using Be.Vlaanderen.Basisregisters.AcmIdm;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -55,7 +55,7 @@ public partial class RoadRegistrySecurityController
 
         var tokenBuilder = new RoadRegistryTokenBuilder(_openIdConnectOptions);
         var jwtToken = tokenBuilder.BuildJwt(identity);
-        
+
         return Ok(jwtToken);
     }
 

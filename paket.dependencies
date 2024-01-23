@@ -94,7 +94,7 @@ nuget xunit.DependencyInjection.Logging 8.0.1
 nuget xunit.runner.visualstudio 2.4.5
 
 // VBR STUFF
-nuget Be.Vlaanderen.Basisregisters.AcmIdm 1.3.6
+nuget Be.Vlaanderen.Basisregisters.Auth.AcmIdm 1.5.0
 nuget Be.Vlaanderen.Basisregisters.AggregateSource 8.0.0
 nuget Be.Vlaanderen.Basisregisters.AggregateSource.ExplicitRouting 8.0.0
 nuget Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac 8.0.0

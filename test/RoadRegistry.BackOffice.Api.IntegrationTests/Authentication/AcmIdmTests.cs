@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
 {
-    using Be.Vlaanderen.Basisregisters.AcmIdm;
+    using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
     using Microsoft.AspNetCore.Mvc.ApiExplorer;
     using Microsoft.Extensions.DependencyInjection;
     using RoadRegistry.BackOffice.Api.IntegrationTests;

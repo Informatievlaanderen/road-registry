@@ -4,7 +4,7 @@ using System;
 using System.Threading.Tasks;
 using Abstractions.Exceptions;
 using BackOffice.Extracts;
-using Be.Vlaanderen.Basisregisters.AcmIdm;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BasicApiProblem;

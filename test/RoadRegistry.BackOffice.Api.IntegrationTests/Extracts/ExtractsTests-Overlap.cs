@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.IntegrationTests.Extracts
 {
-    using Be.Vlaanderen.Basisregisters.AcmIdm;
+    using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
     using Messages;
     using RoadRegistry.BackOffice.Api.Extracts;
     using System;
@@ -14,7 +14,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Extracts
     public partial class ExtractsTests
     {
         private const string ExtractDescriptionPrefix = "IntegrationTest_";
-        
+
         [Fact]
         public async Task WhenExtractGotRequestedWithOverlap()
         {
