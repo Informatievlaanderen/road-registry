@@ -70,6 +70,7 @@ public class RoadNetwork : EventSourcedEntity
             var @event = new NoRoadNetworkChanges
             {
                 RequestId = requestId,
+                DownloadId = downloadId,
                 Reason = reason,
                 Operator = @operator,
                 OrganizationId = organization.Identifier,

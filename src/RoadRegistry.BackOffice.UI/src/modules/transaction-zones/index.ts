@@ -3,7 +3,7 @@ import TransactionZones from "./views/TransactionZones.vue";
 
 export const TransactionZonesRoutes = [
     {
-        path: "/transaction-zones",
+        path: "/bijwerkingszones",
         component: Root,
         meta: {},
         children: [

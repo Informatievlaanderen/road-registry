@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Messages;
 
+using System;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("NoRoadNetworkChanges")]
@@ -11,6 +12,7 @@ public class NoRoadNetworkChanges : IMessage, IHaveTransactionId
     public string OrganizationId { get; set; }
     public string Reason { get; set; }
     public string RequestId { get; set; }
+    public Guid? DownloadId { get; set; }
     public int TransactionId { get; set; }
     public string When { get; set; }
 }
