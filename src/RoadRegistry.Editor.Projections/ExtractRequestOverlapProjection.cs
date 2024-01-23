@@ -45,6 +45,16 @@ public class ExtractRequestOverlapRecordProjection : ConnectedProjection<EditorC
             await DeleteLinkedRecords(context, downloadIds, ct);
         });
 
+        When<Envelope<NoRoadNetworkChanges>>(async (context, envelope, ct) =>
+        {
+            if (envelope.Message.DownloadId is null)
+            {
+                return;
+            }
+
+            await DeleteLinkedRecords(context, new[] { envelope.Message.DownloadId.Value }, ct);
+        });
+
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, ct) =>
         {
             if (envelope.Message.DownloadId is null)

@@ -43,7 +43,7 @@
                     <router-link v-if="userCanEdit" :to="`/uploads`" class="vl-tab" role="tab">Uploads</router-link>
                     <router-link
                       v-if="userCanEdit && featureToggles.useTransactionZonesTab"
-                      :to="`/transaction-zones`"
+                      :to="`/bijwerkingszones`"
                       class="vl-tab"
                       role="tab"
                     >
