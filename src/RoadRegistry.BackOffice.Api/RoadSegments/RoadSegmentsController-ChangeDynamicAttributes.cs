@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.RoadSegments;
-using Be.Vlaanderen.Basisregisters.AcmIdm;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using ChangeDynamicAttributes;
@@ -67,7 +67,7 @@ public partial class RoadSegmentsController
                 });
                 throw new ValidationException(validatorResult.Errors);
             }
-            
+
             var request = TranslateParametersIntoTypedBackOfficeRequest();
 
             var sqsRequest = new ChangeRoadSegmentsDynamicAttributesSqsRequest

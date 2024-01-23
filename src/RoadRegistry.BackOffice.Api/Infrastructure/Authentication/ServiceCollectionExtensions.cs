@@ -1,17 +1,13 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 
 using System;
-using System.Configuration;
 using System.Threading.Tasks;
 using Configuration;
 using Controllers.Attributes;
 using IdentityModel.AspNetCore.OAuth2Introspection;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NisCodeService.Abstractions;
-using NisCodeService.Proxy.HttpProxy;
 
 public static class ServiceCollectionExtensions
 {
@@ -21,7 +17,6 @@ public static class ServiceCollectionExtensions
         OpenIdConnectOptions openIdConnectOptions)
     {
         services
-            .AddHttpProxyNisCodeService()
             .AddAuthentication(options =>
             {
                 options.DefaultScheme = AuthenticationSchemes.Bearer;
@@ -74,21 +69,5 @@ public static class ServiceCollectionExtensions
                 })
                 .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(AuthenticationSchemes.ApiKey, options => { })
             ;
-    }
-
-    public static IServiceCollection AddHttpProxyNisCodeService(this IServiceCollection services)
-    {
-        services
-            .AddHttpClient<INisCodeService, HttpProxyNisCodeService>((sp, c) =>
-            {
-                var nisCodeServiceUrl = sp.GetRequiredService<IConfiguration>().GetValue<string>("NisCodeServiceUrl");
-                if (string.IsNullOrWhiteSpace(nisCodeServiceUrl))
-                {
-                    throw new ConfigurationErrorsException("Configuration should have a value for \"NisCodeServiceUrl\".");
-                }
-
-                c.BaseAddress = new Uri(nisCodeServiceUrl.TrimEnd('/'));
-            });
-        return services;
     }
 }

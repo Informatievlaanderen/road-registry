@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Uploads;
 
 using Abstractions.Exceptions;
 using BackOffice.Extracts;
-using Be.Vlaanderen.Basisregisters.AcmIdm;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
 using Core.ProblemCodes;
 using Exceptions;
