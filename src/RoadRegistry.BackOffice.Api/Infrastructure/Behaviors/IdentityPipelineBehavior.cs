@@ -8,7 +8,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Behaviors
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware;
     using Microsoft.AspNetCore.Http;
-    using Be.Vlaanderen.Basisregisters.AcmIdm;
+    using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
     using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
     using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 

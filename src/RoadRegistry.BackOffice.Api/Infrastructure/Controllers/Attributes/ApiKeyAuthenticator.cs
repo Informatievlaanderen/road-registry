@@ -6,7 +6,7 @@ using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using Authentication;
-using Be.Vlaanderen.Basisregisters.AcmIdm;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 
 internal class ApiKeyAuthenticator : IApiKeyAuthenticator
 {

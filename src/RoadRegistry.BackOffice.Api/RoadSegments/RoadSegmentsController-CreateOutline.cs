@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
 using Abstractions.RoadSegmentsOutline;
-using Be.Vlaanderen.Basisregisters.AcmIdm;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
@@ -217,7 +217,7 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
             .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotValid)
             .MustAsync(BeKnownOrganization)
             .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotKnown, value => new MaintenanceAuthorityNotKnown(new OrganizationId(value)));
-        
+
         RuleFor(x => x.Wegverharding)
             .Cascade(CascadeMode.Stop)
             .NotNull()

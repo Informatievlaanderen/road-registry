@@ -10,7 +10,7 @@ using Autofac;
 using BackOffice.Extensions;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
-using Be.Vlaanderen.Basisregisters.AcmIdm;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BlobStore;

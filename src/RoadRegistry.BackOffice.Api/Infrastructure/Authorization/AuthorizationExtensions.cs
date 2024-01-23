@@ -1,5 +1,5 @@
-using Be.Vlaanderen.Basisregisters.AcmIdm;
-using Be.Vlaanderen.Basisregisters.AcmIdm.AuthorizationHandlers;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm.AuthorizationHandlers;
 using Microsoft.AspNetCore.Authorization;
 
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Authorization

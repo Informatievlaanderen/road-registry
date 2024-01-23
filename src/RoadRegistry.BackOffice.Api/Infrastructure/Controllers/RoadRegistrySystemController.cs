@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
 using Authentication;
-using Be.Vlaanderen.Basisregisters.AcmIdm;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

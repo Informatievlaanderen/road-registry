@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 
 using System.Collections.Generic;
-using Be.Vlaanderen.Basisregisters.AcmIdm;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 
 public static class RoadRegistryRoles
 {
