@@ -126,7 +126,7 @@ public sealed class CorrectRoadSegmentStatusDutchTranslationsRequestHandler : IR
         };
         await new ChangeRoadNetworkValidator().ValidateAndThrowAsync(changeRoadNetwork, cancellationToken);
 
-        await _roadNetworkCommandQueue.Write(new Command(changeRoadNetwork), cancellationToken);
+        await _roadNetworkCommandQueue.WriteAsync(new Command(changeRoadNetwork), cancellationToken);
 
         return new CorrectRoadSegmentStatusDutchTranslationsResponse(roadSegments.Count);
     }

@@ -8,14 +8,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 public class WfsContextMigrationFactory : RunnerDbContextMigrationFactory<WfsContext>
 {
     public WfsContextMigrationFactory() :
-        base(WellknownConnectionNames.WfsProjectionsAdmin, HistoryConfiguration)
+        base(WellKnownConnectionNames.WfsProjectionsAdmin, HistoryConfiguration)
     {
     }
 
     private static MigrationHistoryConfiguration HistoryConfiguration =>
         new()
         {
-            Schema = WellknownSchemas.WfsSchema,
+            Schema = WellKnownSchemas.WfsSchema,
             Table = MigrationTables.Wfs
         };
 

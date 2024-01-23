@@ -7,7 +7,7 @@ using SqlStreamStore;
 
 public class EventProcessor : PositionStoreEventProcessor<SqlEventProcessorPositionStore>
 {
-    private const string QueueName = WellknownQueues.EventQueue;
+    private const string QueueName = WellKnownQueues.EventQueue;
 
     public EventProcessor(
         IStreamStore streamStore,

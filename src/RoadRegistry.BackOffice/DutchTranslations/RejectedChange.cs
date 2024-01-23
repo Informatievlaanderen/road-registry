@@ -23,6 +23,7 @@ public static class RejectedChange
         AddGradeSeparatedJunction m => $"Voeg ongelijkgrondse kruising {m.TemporaryId} toe.",
         ModifyGradeSeparatedJunction m => $"Wijzig ongelijkgrondse kruising {m.Id}.",
         RemoveGradeSeparatedJunction m => $"Verwijder ongelijkgrondse kruising {m.Id}.",
+        UnlinkRoadSegmentsFromStreetName m => $"Verwijder straatnaam {m.Id}.",
         _ => $"'{change.Flatten().GetType().Name}' has no translation. Please fix it."
     };
 }

@@ -10,7 +10,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
         public void Configure(EntityTypeBuilder<RoadSegmentRecord> builder)
         {
-            builder.ToTable(TableName, WellknownSchemas.RoadSegmentProducerSnapshotSchema)
+            builder.ToTable(TableName, WellKnownSchemas.RoadSegmentProducerSnapshotSchema)
                 .HasKey(p => p.Id)
                 .IsClustered();
 
@@ -53,13 +53,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
             builder.Property(p => p.LeftSideMunicipalityNisCode);
             builder.Property(p => p.RightSideMunicipalityNisCode);
-
-            builder.Property(p => p.StreetNameCachePosition);
-
+            
             builder.OwnsOne(p => p.Origin);
             builder.Property(p => p.LastChangedTimestamp);
-
-            builder.HasIndex(p => p.StreetNameCachePosition).IsClustered(false);
         }
     }
 }

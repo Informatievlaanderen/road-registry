@@ -137,8 +137,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
 
     private async Task WriteRoadNetworkChangesArchiveUploadedToStore(RoadNetworkExtract extract, ExtractDownloadRecord download, UploadId uploadId, CancellationToken cancellationToken)
     {
-        await _roadNetworkEventWriter.WriteAsync(new StreamName(download.ArchiveId), Guid.NewGuid(), ExpectedVersion.NoStream, new object[]
-        {
+        await _roadNetworkEventWriter.WriteAsync(new StreamName(download.ArchiveId), ExpectedVersion.NoStream, new Event(
             new RoadNetworkExtractChangesArchiveUploaded
             {
                 ArchiveId = download.ArchiveId,
@@ -148,6 +147,6 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
                 RequestId = download.RequestId,
                 UploadId = uploadId
             }
-        }, cancellationToken);
+        ), cancellationToken);
     }
 }

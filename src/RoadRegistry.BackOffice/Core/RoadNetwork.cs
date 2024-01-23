@@ -133,9 +133,14 @@ public class RoadNetwork : EventSourcedEntity
 
     public ICollection<RoadSegment> FindRoadSegments(IEnumerable<RoadSegmentId> ids)
     {
+        return FindRoadSegments(x => ids.Contains(x.Id));
+    }
+
+    public ICollection<RoadSegment> FindRoadSegments(Func<RoadSegment, bool> predicate)
+    {
         return _view.Segments
             .Select(x => x.Value)
-            .Where(x => ids.Contains(x.Id))
+            .Where(predicate)
             .ToList();
     }
 

@@ -10,7 +10,7 @@ public class GradeSeparatedJunctionConfiguration : IEntityTypeConfiguration<Grad
 
     public void Configure(EntityTypeBuilder<GradeSeparatedJunctionRecord> b)
     {
-        b.ToTable(TableName, WellknownSchemas.ProductSchema)
+        b.ToTable(TableName, WellKnownSchemas.ProductSchema)
             .HasKey(p => p.Id)
             .IsClustered(false);
 

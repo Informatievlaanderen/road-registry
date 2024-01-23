@@ -240,15 +240,15 @@ public class Startup
                         {
                             healthCheckInitializer
                                 .AddS3(x => x
-                                    .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read, Permission.Write)
-                                    .CheckPermission(WellknownBuckets.ExtractDownloadsBucket, Permission.Read)
-                                    .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Write)
-                                    .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
+                                    .CheckPermission(WellKnownBuckets.UploadsBucket, Permission.Read, Permission.Write)
+                                    .CheckPermission(WellKnownBuckets.ExtractDownloadsBucket, Permission.Read)
+                                    .CheckPermission(WellKnownBuckets.SqsMessagesBucket, Permission.Write)
+                                    .CheckPermission(WellKnownBuckets.SnapshotsBucket, Permission.Read)
                                 )
                                 .AddSqs(x => x
-                                    .CheckPermission(WellknownQueues.AdminQueue, Permission.Write)
-                                    .CheckPermission(WellknownQueues.BackOfficeQueue, Permission.Write)
-                                    .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Write)
+                                    .CheckPermission(WellKnownQueues.AdminQueue, Permission.Write)
+                                    .CheckPermission(WellKnownQueues.BackOfficeQueue, Permission.Write)
+                                    .CheckPermission(WellKnownQueues.SnapshotQueue, Permission.Write)
                                 )
                                 .AddTicketing()
                                 ;
@@ -283,6 +283,7 @@ public class Startup
             .RegisterOptions<OpenIdConnectOptions>()
             .AddStreamStore()
             .AddSingleton<IClock>(SystemClock.Instance)
+            .AddEventEnricher()
             .AddSingleton(new WKTReader(
                 new NtsGeometryServices(
                     GeometryConfiguration.GeometryFactory.PrecisionModel,
@@ -292,8 +293,8 @@ public class Startup
             .AddSingleton(new RecyclableMemoryStreamManager())
             .AddSingleton<IBlobClient>(new SqlBlobClient(
                 new SqlConnectionStringBuilder(
-                    _configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
-                WellknownSchemas.SnapshotSchema))
+                    _configuration.GetConnectionString(WellKnownConnectionNames.Snapshots)),
+                WellKnownSchemas.SnapshotSchema))
             .AddRoadRegistrySnapshot()
             .AddRoadNetworkEventWriter()
             .AddScoped(_ => new EventSourcedEntityMap())
@@ -317,6 +318,7 @@ public class Startup
                         sp.GetService<IClock>(),
                         sp.GetRequiredService<UseOvoCodeInChangeRoadNetworkFeatureToggle>(),
                         sp.GetService<IExtractUploadFailedEmailClient>(),
+                        sp.GetService<IRoadNetworkEventWriter>(),
                         sp.GetService<ILoggerFactory>()
                     ),
                     new RoadNetworkExtractCommandModule(
@@ -331,12 +333,8 @@ public class Startup
                         sp.GetService<ILoggerFactory>()
                     )
                 })))
-            .AddScoped(sp => new TraceDbConnection<EditorContext>(
-                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.EditorProjections)),
-                sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
-            .AddScoped(sp => new TraceDbConnection<SyndicationContext>(
-                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.SyndicationProjections)),
-                sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
+            .AddTraceDbConnection<EditorContext>(WellKnownConnectionNames.EditorProjections)
+            .AddTraceDbConnection<SyndicationContext>(WellKnownConnectionNames.SyndicationProjections)
             .AddStreetNameCache()
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
@@ -346,9 +344,7 @@ public class Startup
                     sqlOptions => sqlOptions
                         .UseNetTopologySuite())
             )
-            .AddScoped(sp => new TraceDbConnection<ProductContext>(
-                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.ProductProjections)),
-                sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
+            .AddTraceDbConnection<ProductContext>(WellKnownConnectionNames.ProductProjections)
             .AddDbContext<ProductContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)

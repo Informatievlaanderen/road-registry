@@ -144,9 +144,6 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                         .HasColumnType("varchar(64)")
                         .HasColumnName("wegsegmentstatus");
 
-                    b.Property<long>("StreetNameCachePosition")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));

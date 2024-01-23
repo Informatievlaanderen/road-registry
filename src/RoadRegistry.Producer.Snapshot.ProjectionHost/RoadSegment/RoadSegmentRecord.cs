@@ -35,7 +35,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
         public int? RoadSegmentVersion { get; set; }
         public string StatusDutchName { get; set; }
         public int? StatusId { get; set; }
-        public long StreetNameCachePosition { get; set; }
         public int? TransactionId { get; set; }
         public Origin Origin { get; set; }
         public DateTimeOffset LastChangedTimestamp { get; set; }
@@ -75,7 +74,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                 RoadSegmentVersion,
                 StatusDutchName,
                 StatusId,
-                StreetNameCachePosition,
                 TransactionId,
                 Origin,
                 LastChangedTimestamp,

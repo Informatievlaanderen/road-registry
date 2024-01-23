@@ -17,12 +17,12 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
         {
         }
 
-        public override string ProjectionStateSchema => WellknownSchemas.GradeSeparatedJunctionProducerSnapshotMetaSchema;
+        public override string ProjectionStateSchema => WellKnownSchemas.GradeSeparatedJunctionProducerSnapshotMetaSchema;
         public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
 
         protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
+            optionsBuilder.UseRoadRegistryInMemorySqlServer();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

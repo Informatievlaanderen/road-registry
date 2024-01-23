@@ -11,7 +11,7 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<OrganizationRe
 
     public void Configure(EntityTypeBuilder<OrganizationRecord> b)
     {
-        b.ToTable(TableName, WellknownSchemas.ProductSchema)
+        b.ToTable(TableName, WellKnownSchemas.ProductSchema)
             .HasIndex(p => p.Id)
             .IsClustered(false);
 

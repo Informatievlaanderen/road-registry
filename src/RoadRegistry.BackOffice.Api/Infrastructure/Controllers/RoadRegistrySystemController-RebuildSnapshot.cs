@@ -47,9 +47,9 @@ public partial class RoadRegistrySystemController
             return Accepted();
         }
 
-        var command = new RebuildRoadNetworkSnapshot();
+        var command = new Command(new RebuildRoadNetworkSnapshot());
         await RoadNetworkCommandQueue
-            .Write(new Command(command), cancellationToken);
+            .WriteAsync(command, cancellationToken);
         return Accepted();
     }
 }

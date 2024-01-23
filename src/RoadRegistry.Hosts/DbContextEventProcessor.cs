@@ -34,7 +34,7 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
     private readonly Scheduler _scheduler;
 
     protected DbContextEventProcessor(
-        string queueName,
+        string projectionStateName,
         IStreamStore streamStore,
         AcceptStreamMessage<TDbContext> acceptStreamMessage,
         EnvelopeFactory envelopeFactory,
@@ -44,13 +44,13 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
         ILogger<DbContextEventProcessor<TDbContext>> logger,
         int catchUpBatchSize = CatchUpBatchSize,
         int catchUpThreshold = CatchUpThreshold)
-        : this(queueName, streamStore, acceptStreamMessage.CreateFilter(), envelopeFactory, resolver, dbContextFactory.CreateDbContext, scheduler, logger,
+        : this(projectionStateName, streamStore, acceptStreamMessage.CreateFilter(), envelopeFactory, resolver, dbContextFactory.CreateDbContext, scheduler, logger,
             catchUpBatchSize, catchUpThreshold)
     {
     }
 
     protected DbContextEventProcessor(
-        string queueName,
+        string projectionStateName,
         IStreamStore streamStore,
         AcceptStreamMessageFilter filter,
         EnvelopeFactory envelopeFactory,
@@ -98,7 +98,7 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                 {
                                     var projection = await resumeContext.ProjectionStates
                                         .SingleOrDefaultAsync(
-                                            item => item.Name == queueName,
+                                            item => item.Name == projectionStateName,
                                             _messagePumpCancellation.Token)
                                         .ConfigureAwait(false);
                                     var after = projection?.Position;
@@ -171,7 +171,7 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                                 GetType().Name, catchUpPosition);
                                             await context
                                                 .UpdateProjectionState(
-                                                    queueName,
+                                                    projectionStateName,
                                                     catchUpPosition,
                                                     _messagePumpCancellation.Token)
                                                 .ConfigureAwait(false);
@@ -199,7 +199,7 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                         GetType().Name, catchUpPosition);
                                     await context
                                         .UpdateProjectionState(
-                                            queueName,
+                                            projectionStateName,
                                             catchUpPosition,
                                             _messagePumpCancellation.Token)
                                         .ConfigureAwait(false);
@@ -267,7 +267,7 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                     await using var recordContext = dbContextFactory();
                                     await recordContext
                                         .UpdateProjectionState(
-                                            queueName,
+                                            projectionStateName,
                                             record.Message.Position, _messagePumpCancellation.Token)
                                         .ConfigureAwait(false);
                                     await recordContext.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
@@ -300,7 +300,7 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                         }
 
                                         await processContext.UpdateProjectionState(
-                                            queueName,
+                                            projectionStateName,
                                             process.Message.Position,
                                             _messagePumpCancellation.Token).ConfigureAwait(false);
                                         await UpdateEventProcessorMetricsAsync(processContext, process.Message.Position, process.Message.Position, sw.ElapsedMilliseconds, _messagePumpCancellation.Token);

@@ -10,7 +10,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
 
         public void Configure(EntityTypeBuilder<GradeSeparatedJunctionRecord> builder)
         {
-            builder.ToTable(TableName, WellknownSchemas.GradeSeparatedJunctionProducerSnapshotSchema)
+            builder.ToTable(TableName, WellKnownSchemas.GradeSeparatedJunctionProducerSnapshotSchema)
                 .HasKey(p => p.Id)
                 .IsClustered();
 

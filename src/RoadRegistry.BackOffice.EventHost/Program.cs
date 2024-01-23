@@ -52,9 +52,9 @@ public class Program
                     .AddSingleton<IEventProcessorPositionStore>(sp =>
                         new SqlEventProcessorPositionStore(
                             new SqlConnectionStringBuilder(
-                                sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.EventHost)
+                                sp.GetService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.EventHost)
                             ),
-                            WellknownSchemas.EventHostSchema))
+                            WellKnownSchemas.EventHostSchema))
                     .AddEditorContext()
                     .AddOrganizationRepository()
                     .AddFeatureCompareTranslator()
@@ -95,12 +95,12 @@ public class Program
                 .AddSqlServer()
                 .AddHostedServicesStatus()
                 .AddS3(x => x
-                    .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
-                    .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Read)
-                    .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read)
+                    .CheckPermission(WellKnownBuckets.SnapshotsBucket, Permission.Read)
+                    .CheckPermission(WellKnownBuckets.SqsMessagesBucket, Permission.Read)
+                    .CheckPermission(WellKnownBuckets.UploadsBucket, Permission.Read)
                 )
                 .AddSqs(x => x
-                    .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Read)
+                    .CheckPermission(WellKnownQueues.SnapshotQueue, Permission.Read)
                 )
                 .AddTicketing()
             )
@@ -121,11 +121,11 @@ public class Program
         await roadRegistryHost
             .LogSqlServerConnectionStrings(new []
             {
-                WellknownConnectionNames.Events,
-                WellknownConnectionNames.EventHost,
-                WellknownConnectionNames.EventHostAdmin,
-                WellknownConnectionNames.Snapshots,
-                WellknownConnectionNames.SnapshotsAdmin
+                WellKnownConnectionNames.Events,
+                WellKnownConnectionNames.EventHost,
+                WellKnownConnectionNames.EventHostAdmin,
+                WellKnownConnectionNames.Snapshots,
+                WellKnownConnectionNames.SnapshotsAdmin
             })
             .Log((sp, logger) =>
             {
@@ -136,12 +136,12 @@ public class Program
             {
                 await
                     new SqlBlobSchema(
-                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.SnapshotsAdmin))
-                    ).CreateSchemaIfNotExists(WellknownSchemas.SnapshotSchema).ConfigureAwait(false);
+                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellKnownConnectionNames.SnapshotsAdmin))
+                    ).CreateSchemaIfNotExists(WellKnownSchemas.SnapshotSchema).ConfigureAwait(false);
                 await
                     new SqlEventProcessorPositionStoreSchema(
-                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.EventHostAdmin))
-                    ).CreateSchemaIfNotExists(WellknownSchemas.EventHostSchema).ConfigureAwait(false);
+                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellKnownConnectionNames.EventHostAdmin))
+                    ).CreateSchemaIfNotExists(WellKnownSchemas.EventHostSchema).ConfigureAwait(false);
             });
     }
 }

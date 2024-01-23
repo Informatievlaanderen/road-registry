@@ -38,7 +38,6 @@ namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
         public int? RoadSegmentVersion { get; }
         public string StatusDutchName { get; }
         public int? StatusId { get; }
-        public long StreetNameCachePosition { get; }
         public int? TransactionId { get; }
         
         public Origin Origin { get; }
@@ -74,7 +73,6 @@ namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
             int? roadSegmentVersion,
             string statusDutchName,
             int? statusId,
-            long streetNameCachePosition,
             int? transactionId,
             Origin origin,
             DateTimeOffset lastChangedTimestamp,
@@ -110,7 +108,6 @@ namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
             RoadSegmentVersion = roadSegmentVersion;
             StatusDutchName = statusDutchName;
             StatusId = statusId;
-            StreetNameCachePosition = streetNameCachePosition;
             TransactionId = transactionId;
 
             Origin = origin;

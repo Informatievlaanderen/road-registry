@@ -32,11 +32,6 @@ public class FakeStreetNameCache : IStreetNameCache
         return Task.FromResult(result);
     }
 
-    public Task<long> GetMaxPositionAsync(CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
     public FakeStreetNameCache AddStreetName(int id, string name, string status)
     {
         _cache.Add(id, new StreetNameItem(name, status));

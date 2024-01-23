@@ -42,6 +42,7 @@ public class Startup : TestStartup
 
         builder.Register<SqsLambdaHandlerOptions>(c => new FakeSqsLambdaHandlerOptions());
         builder.Register<IRoadNetworkCommandQueue>(c => new RoadNetworkCommandQueue(c.Resolve<IStreamStore>(), new ApplicationMetadata(RoadRegistryApplication.Lambda)));
+        builder.Register<IRoadNetworkEventWriter>(c => new RoadNetworkEventWriter(c.Resolve<IStreamStore>(), EnrichEvent.WithTime(c.Resolve<IClock>())));
         builder.Register<IIdempotentCommandHandler>(c => new RoadRegistryIdempotentCommandHandler(c.Resolve<CommandHandlerDispatcher>()));
         builder.Register(c => Dispatch.Using(Resolve.WhenEqualToMessage(
             new CommandHandlerModule[]
@@ -53,6 +54,7 @@ public class Startup : TestStartup
                     c.Resolve<IClock>(),
                     new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     new FakeExtractUploadFailedEmailClient(),
+                    c.Resolve<IRoadNetworkEventWriter>(),
                     c.Resolve<ILoggerFactory>()
                 )
             }), ApplicationMetadata));
@@ -65,14 +67,8 @@ public class Startup : TestStartup
             .AddSingleton<EventSourcedEntityMap>(_ => new EventSourcedEntityMap())
             .AddTransient<ICustomRetryPolicy>(sp => new FakeRetryPolicy())
             .AddTransient<IdempotencyContext>(sp => new FakeIdempotencyContextFactory().CreateDbContext(Array.Empty<string>()))
-            .AddDbContext<EditorContext>((sp, options) => options
-                .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                .UseInMemoryDatabase(Guid.NewGuid().ToString("N")))
-            .AddDbContext<ProductContext>((sp, options) => options
-                .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                .UseInMemoryDatabase(Guid.NewGuid().ToString("N")))
+            .AddInMemoryDbContext<EditorContext>()
+            .AddInMemoryDbContext<ProductContext>()
             .AddStreetNameCache();
     }
 }

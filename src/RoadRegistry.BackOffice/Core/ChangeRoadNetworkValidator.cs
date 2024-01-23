@@ -59,7 +59,8 @@ public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
             .Must(OnlyHaveUniqueTemporaryGradeSeparatedIdentifiers)
             .WithMessage("One or more temporary grade separated junction identifiers are not unique.")
             .Must(OnlyHaveUniquePermanentGradeSeparatedIdentifiers)
-            .WithMessage("One or more permanent grade separated junction identifiers are not unique.");
+            .WithMessage("One or more permanent grade separated junction identifiers are not unique.")
+            ;
         RuleForEach(c => c.Changes)
             .NotNull()
             .Must(HaveExactlyOneNonNullChange)

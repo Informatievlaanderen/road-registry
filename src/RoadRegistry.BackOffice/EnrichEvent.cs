@@ -112,6 +112,19 @@ public static class EnrichEvent
                 case RoadNetworkExtractChangesArchiveFeatureCompareCompleted m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
+                case RebuildRoadNetworkSnapshotCompleted m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
+                // Street Name
+                case StreetNameCreated m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
+                case StreetNameModified m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
+                case StreetNameRemoved m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
             }
         };
     }

@@ -37,7 +37,7 @@ public class Program
         await roadRegistryHost
             .LogSqlServerConnectionStrings(new[]
             {
-                WellknownConnectionNames.Events
+                WellKnownConnectionNames.Events
             })
             .Log((sp, logger) => {
                 var blobClientOptions = sp.GetRequiredService<BlobClientOptions>();

@@ -17,12 +17,12 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
         {
         }
 
-        public override string ProjectionStateSchema => WellknownSchemas.RoadSegmentProducerSnapshotMetaSchema;
+        public override string ProjectionStateSchema => WellKnownSchemas.RoadSegmentProducerSnapshotMetaSchema;
         public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
 
         protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
+            optionsBuilder.UseRoadRegistryInMemorySqlServer();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -3,11 +3,11 @@ namespace RoadRegistry.SyncHost.Tests;
 using Autofac;
 using BackOffice.Extensions;
 using BackOffice.Framework;
+using Infrastructure.Modules;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using RoadRegistry.StreetNameConsumer.Schema;
+using Sync.StreetNameRegistry;
 
 public class Startup : TestStartup
 {
@@ -20,9 +20,12 @@ public class Startup : TestStartup
         services
             .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
             .AddRoadNetworkCommandQueue()
-            .AddDbContext<StreetNameConsumerContext>((sp, options) => options
-                .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                .UseInMemoryDatabase(Guid.NewGuid().ToString("N")));
+
+            .AddStreetNameConsumerServices()
+            .AddInMemoryDbContextOptionsBuilder<StreetNameSnapshotConsumerContext>()
+
+            .AddStreetNameProjectionServices()
+            .AddInMemoryDbContextOptionsBuilder<StreetNameProjectionContext>()
+            ;
     }
 }

@@ -45,7 +45,7 @@ public class RoadNetworkSnapshotInspectorTests
             new MsSqlStreamStoreV3Settings(
                 connectionString)
             {
-                Schema = WellknownSchemas.EventSchema
+                Schema = WellKnownSchemas.EventSchema
             });
     }
     private EditorContext GetEditorContext(DbEnvironment dbEnvironment)
@@ -190,8 +190,8 @@ public class RoadNetworkSnapshotInspectorTests
                 RoadSegmentCategory.Parse(segment1.AttributeHash.Category),
                 RoadSegmentMorphology.Parse(segment1.AttributeHash.Morphology),
                 RoadSegmentStatus.Parse(segment1.AttributeHash.Status),
-                CrabStreetnameId.FromValue(segment1.AttributeHash.LeftSideStreetNameId),
-                CrabStreetnameId.FromValue(segment1.AttributeHash.RightSideStreetNameId),
+                CrabStreetNameId.FromValue(segment1.AttributeHash.LeftSideStreetNameId),
+                CrabStreetNameId.FromValue(segment1.AttributeHash.RightSideStreetNameId),
                 new OrganizationId(segment1.AttributeHash.OrganizationId),
                 RoadSegmentGeometryDrawMethod.Parse(segment1.AttributeHash.GeometryDrawMethod)
             );
@@ -200,8 +200,8 @@ public class RoadNetworkSnapshotInspectorTests
                 RoadSegmentCategory.Parse(segment2.AttributeHash.Category),
                 RoadSegmentMorphology.Parse(segment2.AttributeHash.Morphology),
                 RoadSegmentStatus.Parse(segment2.AttributeHash.Status),
-                CrabStreetnameId.FromValue(segment2.AttributeHash.LeftSideStreetNameId),
-                CrabStreetnameId.FromValue(segment2.AttributeHash.RightSideStreetNameId),
+                CrabStreetNameId.FromValue(segment2.AttributeHash.LeftSideStreetNameId),
+                CrabStreetNameId.FromValue(segment2.AttributeHash.RightSideStreetNameId),
                 new OrganizationId(segment2.AttributeHash.OrganizationId),
                 RoadSegmentGeometryDrawMethod.Parse(segment2.AttributeHash.GeometryDrawMethod)
             );

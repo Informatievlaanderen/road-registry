@@ -29,9 +29,8 @@ public static class SharedCustomizations
     {
         fixture.Customize<ArchiveId>(composer =>
             composer.FromFactory(generator =>
-                new ArchiveId(new string(
-                    (char)generator.Next(97, 123), // a-z
-                    generator.Next(1, ArchiveId.MaxLength + 1))))
+                new ArchiveId(Guid.NewGuid().ToString("N"))
+            )
         );
     }
 
@@ -46,8 +45,8 @@ public static class SharedCustomizations
                         fixture.Create<RoadSegmentCategory>(),
                         fixture.Create<RoadSegmentMorphology>(),
                         fixture.Create<RoadSegmentStatus>(),
-                        fixture.Create<CrabStreetnameId?>(),
-                        fixture.Create<CrabStreetnameId?>(),
+                        fixture.Create<CrabStreetNameId?>(),
+                        fixture.Create<CrabStreetNameId?>(),
                         fixture.Create<OrganizationId>(),
                         fixture.Create<RoadSegmentGeometryDrawMethod>()
                     );
@@ -69,10 +68,10 @@ public static class SharedCustomizations
                                 result = result.With(fixture.Create<RoadSegmentAccessRestriction>());
                                 break;
                             case 4:
-                                result = result.WithLeftSide(fixture.Create<CrabStreetnameId?>());
+                                result = result.WithLeftSide(fixture.Create<CrabStreetNameId?>());
                                 break;
                             case 5:
-                                result = result.WithRightSide(fixture.Create<CrabStreetnameId?>());
+                                result = result.WithRightSide(fixture.Create<CrabStreetNameId?>());
                                 break;
                             case 6:
                                 result = result.With(fixture.Create<OrganizationId>());
@@ -105,12 +104,12 @@ public static class SharedCustomizations
 
     public static void CustomizeCrabStreetnameId(this IFixture fixture)
     {
-        fixture.Customize<CrabStreetnameId>(composer =>
+        fixture.Customize<CrabStreetNameId>(composer =>
             composer.FromFactory(generator => (generator.Next() % 3) switch
             {
-                0 => new CrabStreetnameId(CrabStreetnameId.Unknown),
-                1 => new CrabStreetnameId(CrabStreetnameId.NotApplicable),
-                _ => new CrabStreetnameId(generator.Next(0, int.MaxValue))
+                0 => new CrabStreetNameId(CrabStreetNameId.Unknown),
+                1 => new CrabStreetNameId(CrabStreetNameId.NotApplicable),
+                _ => new CrabStreetNameId(generator.Next(0, int.MaxValue))
             })
         );
     }
@@ -824,6 +823,13 @@ public static class SharedCustomizations
     {
         fixture.Customize<TransactionId>(composer =>
             composer.FromFactory(generator => new TransactionId(generator.Next()))
+        );
+    }
+
+    public static void CustomizeStreetNameLocalId(this IFixture fixture)
+    {
+        fixture.Customize<StreetNameLocalId>(composer =>
+            composer.FromFactory<int>(value => new StreetNameLocalId(Math.Abs(value)))
         );
     }
 

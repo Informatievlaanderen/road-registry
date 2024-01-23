@@ -84,8 +84,8 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         Xunit.Assert.NotEmpty(roadSegmentModified.Lanes);
         Xunit.Assert.NotEmpty(roadSegmentModified.Surfaces);
         Xunit.Assert.NotEmpty(roadSegmentModified.Widths);
-        Xunit.Assert.Equal(CrabStreetnameId.NotApplicable, roadSegmentModified.LeftSide.StreetNameId);
-        Xunit.Assert.Equal(CrabStreetnameId.NotApplicable, roadSegmentModified.RightSide.StreetNameId);
+        Xunit.Assert.Equal(CrabStreetNameId.NotApplicable, roadSegmentModified.LeftSide.StreetNameId);
+        Xunit.Assert.Equal(CrabStreetNameId.NotApplicable, roadSegmentModified.RightSide.StreetNameId);
     }
 
     [Fact]
@@ -159,7 +159,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         VerifyThatTicketHasCompleted(ticketing, string.Format(Options.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
 
         var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
-        Xunit.Assert.Equal(CrabStreetnameId.NotApplicable, command!.Changes.Single().RoadSegmentModified.LeftSide.StreetNameId);
+        Xunit.Assert.Equal(CrabStreetNameId.NotApplicable, command!.Changes.Single().RoadSegmentModified.LeftSide.StreetNameId);
     }
 
     [Fact]
@@ -220,7 +220,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         VerifyThatTicketHasCompleted(ticketing, string.Format(Options.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
 
         var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
-        Xunit.Assert.Equal(CrabStreetnameId.NotApplicable, command!.Changes.Single().RoadSegmentModified.RightSide.StreetNameId);
+        Xunit.Assert.Equal(CrabStreetNameId.NotApplicable, command!.Changes.Single().RoadSegmentModified.RightSide.StreetNameId);
     }
 
     [Fact]

@@ -10,7 +10,7 @@ using SqlStreamStore;
 
 public class ProductContextEventProcessor : DbContextEventProcessor<ProductContext>
 {
-    private const string QueueName = "roadregistry-product-projectionhost";
+    private const string ProjectionStateName = "roadregistry-product-projectionhost";
 
     public ProductContextEventProcessor(
         IStreamStore streamStore,
@@ -20,7 +20,7 @@ public class ProductContextEventProcessor : DbContextEventProcessor<ProductConte
         Func<ProductContext> dbContextFactory,
         Scheduler scheduler,
         ILogger<ProductContextEventProcessor> logger)
-        : base(QueueName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, logger)
+        : base(ProjectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, logger)
     {
     }
 }

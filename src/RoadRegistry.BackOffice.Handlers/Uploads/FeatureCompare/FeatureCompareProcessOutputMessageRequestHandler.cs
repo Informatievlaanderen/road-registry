@@ -25,7 +25,7 @@ public class FeatureCompareProcessOutputMessageRequestHandler : SqsMessageReques
         };
 
         var command = new Command(message);
-        await _commandQueue.Write(command, cancellationToken);
+        await _commandQueue.WriteAsync(command, cancellationToken);
         
         Logger.LogInformation("Command queued {Command} for archive {ArchiveId}", message.GetType().Name, request.ArchiveId);
 

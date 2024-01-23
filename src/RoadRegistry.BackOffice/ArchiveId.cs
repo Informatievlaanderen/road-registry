@@ -24,6 +24,11 @@ public readonly struct ArchiveId : IEquatable<ArchiveId>
         return !string.IsNullOrEmpty(value) && value.Length <= MaxLength;
     }
 
+    public static ArchiveId FromGuid(Guid value)
+    {
+        return new ArchiveId(value.ToString("N"));
+    }
+
     public bool Equals(ArchiveId other)
     {
         return _value == other._value;

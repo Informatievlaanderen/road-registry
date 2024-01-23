@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RoadRegistry.Syndication.Schema;
 
+#nullable disable
+
 namespace RoadRegistry.Syndication.Schema.Migrations
 {
     [DbContext(typeof(SyndicationContext))]
@@ -15,9 +17,10 @@ namespace RoadRegistry.Syndication.Schema.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .UseIdentityColumns()
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.1");
+                .HasAnnotation("ProductVersion", "6.0.16")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
             modelBuilder.Entity("Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates.ProjectionStateItem", b =>
                 {
@@ -36,8 +39,9 @@ namespace RoadRegistry.Syndication.Schema.Migrations
                     b.Property<long>("Position")
                         .HasColumnType("bigint");
 
-                    b.HasKey("Name")
-                        .IsClustered();
+                    b.HasKey("Name");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Name"));
 
                     b.ToTable("ProjectionStates", "RoadRegistrySyndicationMeta");
                 });
@@ -67,97 +71,11 @@ namespace RoadRegistry.Syndication.Schema.Migrations
 
                     b.HasKey("MunicipalityId");
 
-                    b.HasIndex("MunicipalityId")
-                        .IsClustered(false);
+                    b.HasIndex("MunicipalityId");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("MunicipalityId"), false);
 
                     b.ToTable("Municipality", "RoadRegistrySyndication");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Syndication.Schema.StreetNameRecord", b =>
-                {
-                    b.Property<Guid>("StreetNameId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("DutchHomonymAddition")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DutchName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DutchNameWithHomonymAddition")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("nvarchar(max)")
-                        .HasComputedColumnSql("COALESCE(DutchName + COALESCE('_' + DutchHomonymAddition,''), DutchHomonymAddition) PERSISTED");
-
-                    b.Property<string>("EnglishHomonymAddition")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EnglishName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EnglishNameWithHomonymAddition")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("nvarchar(max)")
-                        .HasComputedColumnSql("COALESCE(EnglishName + COALESCE('_' + EnglishHomonymAddition,''), EnglishHomonymAddition) PERSISTED");
-
-                    b.Property<string>("FrenchHomonymAddition")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FrenchName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FrenchNameWithHomonymAddition")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("nvarchar(max)")
-                        .HasComputedColumnSql("COALESCE(FrenchName + COALESCE('_' + FrenchHomonymAddition,''), FrenchHomonymAddition) PERSISTED");
-
-                    b.Property<string>("GermanHomonymAddition")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("GermanName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("GermanNameWithHomonymAddition")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("nvarchar(max)")
-                        .HasComputedColumnSql("COALESCE(GermanName + COALESCE('_' + GermanHomonymAddition,''), GermanHomonymAddition) PERSISTED");
-
-                    b.Property<string>("HomonymAddition")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("MunicipalityId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NameWithHomonymAddition")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("nvarchar(max)")
-                        .HasComputedColumnSql("COALESCE(Name + COALESCE('_' + HomonymAddition,''), HomonymAddition) PERSISTED");
-
-                    b.Property<string>("NisCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("PersistentLocalId")
-                        .HasColumnType("int");
-
-                    b.Property<long>("Position")
-                        .HasColumnType("bigint");
-
-                    b.Property<int?>("StreetNameStatus")
-                        .HasColumnType("int");
-
-                    b.HasKey("StreetNameId");
-
-                    b.HasIndex("PersistentLocalId");
-
-                    b.HasIndex("Position");
-
-                    b.HasIndex("StreetNameId")
-                        .IsClustered(false);
-
-                    b.ToTable("StreetName", "RoadRegistrySyndication");
                 });
 #pragma warning restore 612, 618
         }

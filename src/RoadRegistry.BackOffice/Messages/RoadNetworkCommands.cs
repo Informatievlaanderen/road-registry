@@ -11,15 +11,11 @@ public static class RoadNetworkCommands
         typeof(ChangeRoadNetwork),
         typeof(RequestRoadNetworkExtract),
         typeof(RebuildRoadNetworkSnapshot),
-        typeof(RebuildRoadNetworkSnapshotCompleted),
         typeof(CreateOrganization),
-        typeof(CreateOrganizationRejected),
         typeof(DeleteOrganization),
-        typeof(DeleteOrganizationRejected),
         typeof(RenameOrganization),
-        typeof(RenameOrganizationRejected),
         typeof(ChangeOrganization),
-        typeof(ChangeOrganizationRejected),
+        typeof(UnlinkRoadSegmentsFromStreetName),
         typeof(UploadRoadNetworkChangesArchive),
         typeof(UploadRoadNetworkExtractChangesArchive)
     };

@@ -34,7 +34,7 @@ public static class ChangeExtensions
                 change.ModifyGradeSeparatedJunction,
                 change.RemoveGradeSeparatedJunction
             }
-            .Single(_ => !ReferenceEquals(_, null));
+            .Single(c => !ReferenceEquals(c, null));
     }
 
     public static IEnumerable<object> Flatten(this IEnumerable<AcceptedChange> changes)
@@ -66,7 +66,7 @@ public static class ChangeExtensions
                 change.GradeSeparatedJunctionModified,
                 change.GradeSeparatedJunctionRemoved
             }
-            .Single(_ => !ReferenceEquals(_, null));
+            .Single(c => !ReferenceEquals(c, null));
     }
 
     public static IEnumerable<object> Flatten(this IEnumerable<RejectedChange> changes)
@@ -98,6 +98,6 @@ public static class ChangeExtensions
                 change.ModifyGradeSeparatedJunction,
                 change.RemoveGradeSeparatedJunction
             }
-            .Single(_ => !ReferenceEquals(_, null));
+            .Single(c => !ReferenceEquals(c, null));
     }
 }

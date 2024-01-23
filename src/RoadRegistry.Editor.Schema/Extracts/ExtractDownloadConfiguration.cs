@@ -10,7 +10,7 @@ public class ExtractDownloadConfiguration : IEntityTypeConfiguration<ExtractDown
 
     public void Configure(EntityTypeBuilder<ExtractDownloadRecord> b)
     {
-        b.ToTable(TableName, WellknownSchemas.EditorSchema)
+        b.ToTable(TableName, WellKnownSchemas.EditorSchema)
             .HasKey(p => p.DownloadId)
             .IsClustered(false);
 

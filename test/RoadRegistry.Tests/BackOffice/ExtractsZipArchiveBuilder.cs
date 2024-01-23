@@ -258,8 +258,8 @@ namespace RoadRegistry.Tests.BackOffice
                         CATEGORIE = { Value = fixture.Create<RoadSegmentCategory>().Translation.Identifier },
                         B_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
                         E_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
-                        LSTRNMID = { Value = new CrabStreetnameId(random.Next(1, int.MaxValue)) },
-                        RSTRNMID = { Value = new CrabStreetnameId(random.Next(1, int.MaxValue)) },
+                        LSTRNMID = { Value = new CrabStreetNameId(random.Next(1, int.MaxValue)) },
+                        RSTRNMID = { Value = new CrabStreetNameId(random.Next(1, int.MaxValue)) },
                         TGBEP =
                         {
                             Value = (short)fixture.Create<RoadSegmentAccessRestriction>().Translation.Identifier

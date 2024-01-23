@@ -5,6 +5,8 @@ using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Configuration;
 using Core;
+using FeatureCompare;
+using FeatureCompare.Translators;
 using FeatureToggle;
 using FeatureToggles;
 using Framework;
@@ -13,14 +15,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
-using NodaTime;
-using RoadRegistry.BackOffice.FeatureCompare;
-using RoadRegistry.BackOffice.FeatureCompare.Translators;
-using SqlStreamStore;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using NodaTime;
 
 public static class ServiceCollectionExtensions
 {
@@ -95,16 +94,22 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IRoadNetworkCommandQueue, RoadNetworkCommandQueue>();
     }
 
-    public static IServiceCollection AddCommandHandlerDispatcher(this IServiceCollection services, Func<IServiceProvider, CommandHandlerResolver> commandHandlerResolverBuilder)
+    public static IServiceCollection AddEventEnricher(this IServiceCollection services)
     {
         return services
-            .AddSingleton(sp => Dispatch.Using(commandHandlerResolverBuilder(sp), sp.GetRequiredService<ApplicationMetadata>()));
+            .AddSingleton<EventEnricher>(sp => EnrichEvent.WithTime(sp.GetRequiredService<IClock>()));
     }
 
     public static IServiceCollection AddRoadNetworkEventWriter(this IServiceCollection services)
     {
         return services
-            .AddSingleton<IRoadNetworkEventWriter>(sp => new RoadNetworkEventWriter(sp.GetRequiredService<IStreamStore>(), EnrichEvent.WithTime(sp.GetRequiredService<IClock>())));
+            .AddSingleton<IRoadNetworkEventWriter, RoadNetworkEventWriter>();
+    }
+
+    public static IServiceCollection AddCommandHandlerDispatcher(this IServiceCollection services, Func<IServiceProvider, CommandHandlerResolver> commandHandlerResolverBuilder)
+    {
+        return services
+            .AddSingleton(sp => Dispatch.Using(commandHandlerResolverBuilder(sp), sp.GetRequiredService<ApplicationMetadata>()));
     }
 
     public static IServiceCollection AddDistributedS3Cache(this IServiceCollection services)
@@ -135,8 +140,8 @@ public static class ServiceCollectionExtensions
                 var configuration = sp.GetRequiredService<IConfiguration>();
                 return new RoadNetworkSnapshotsBlobClient(
                     new SqlBlobClient(
-                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
-                        WellknownSchemas.SnapshotSchema));
+                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellKnownConnectionNames.Snapshots)),
+                        WellKnownSchemas.SnapshotSchema));
             })
             .AddSingleton<IRoadNetworkSnapshotReader>(sp =>
             {

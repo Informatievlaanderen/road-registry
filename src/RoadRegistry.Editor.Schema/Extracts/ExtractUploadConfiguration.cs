@@ -10,7 +10,7 @@ public class ExtractUploadConfiguration : IEntityTypeConfiguration<ExtractUpload
 
     public void Configure(EntityTypeBuilder<ExtractUploadRecord> b)
     {
-        b.ToTable(TableName, WellknownSchemas.EditorSchema)
+        b.ToTable(TableName, WellKnownSchemas.EditorSchema)
             .HasKey(p => p.UploadId)
             .IsClustered(false);
 

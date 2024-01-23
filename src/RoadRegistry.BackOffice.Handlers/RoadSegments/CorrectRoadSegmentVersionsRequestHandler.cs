@@ -130,7 +130,7 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
         };
         await new ChangeRoadNetworkValidator().ValidateAndThrowAsync(changeRoadNetwork, cancellationToken);
 
-        await _roadNetworkCommandQueue.Write(new Command(changeRoadNetwork), cancellationToken);
+        await _roadNetworkCommandQueue.WriteAsync(new Command(changeRoadNetwork), cancellationToken);
 
         return new CorrectRoadSegmentVersionsResponse(roadSegments.Count);
     }

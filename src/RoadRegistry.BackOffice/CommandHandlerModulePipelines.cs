@@ -83,7 +83,7 @@ public static class CommandHandlerModulePipelines
                     .ToArray();
                 if (events.Any())
                 {
-                    await roadNetworkEventWriter.WriteAsync(entry.Stream, message, entry.ExpectedVersion, events, ct);
+                    await roadNetworkEventWriter.WriteAsync(entry.Stream, entry.ExpectedVersion, message, events, ct);
                 }
             }
         }

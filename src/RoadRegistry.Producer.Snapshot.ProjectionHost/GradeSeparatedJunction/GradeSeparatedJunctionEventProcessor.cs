@@ -9,7 +9,7 @@ using SqlStreamStore;
 
 public class GradeSeparatedJunctionEventProcessor : DbContextEventProcessor<GradeSeparatedJunctionProducerSnapshotContext>
 {
-    private const string QueueName = "roadregistry-producer-gradeseparatedjunction-snapshot-projectionhost";
+    private const string ProjectionStateName = "roadregistry-producer-gradeseparatedjunction-snapshot-projectionhost";
 
     public GradeSeparatedJunctionEventProcessor(
         IStreamStore streamStore,
@@ -20,7 +20,7 @@ public class GradeSeparatedJunctionEventProcessor : DbContextEventProcessor<Grad
         Scheduler scheduler,
         ILogger<DbContextEventProcessor<GradeSeparatedJunctionProducerSnapshotContext>> logger)
         : base(
-            QueueName,
+            ProjectionStateName,
             streamStore,
             acceptStreamMessage,
             envelopeFactory,

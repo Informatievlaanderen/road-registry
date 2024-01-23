@@ -57,9 +57,9 @@ public class BlobClientModule : Module
             .RegisterType<BlobClientFactory>()
             .As<IBlobClientFactory>().SingleInstance();
             
-        builder.Register(c => new RoadNetworkUploadsBlobClient(c.Resolve<IBlobClientFactory>().Create(WellknownBuckets.UploadsBucket))).SingleInstance();
-        builder.Register(c => new RoadNetworkExtractUploadsBlobClient(c.Resolve<IBlobClientFactory>().Create(WellknownBuckets.UploadsBucket))).SingleInstance();
-        builder.Register(c => new RoadNetworkExtractDownloadsBlobClient(c.Resolve<IBlobClientFactory>().Create(WellknownBuckets.ExtractDownloadsBucket))).SingleInstance();
-        builder.Register(c => new RoadNetworkFeatureCompareBlobClient(c.Resolve<IBlobClientFactory>().Create(WellknownBuckets.FeatureCompareBucket))).SingleInstance();
+        builder.Register(c => new RoadNetworkUploadsBlobClient(c.Resolve<IBlobClientFactory>().Create(WellKnownBuckets.UploadsBucket))).SingleInstance();
+        builder.Register(c => new RoadNetworkExtractUploadsBlobClient(c.Resolve<IBlobClientFactory>().Create(WellKnownBuckets.UploadsBucket))).SingleInstance();
+        builder.Register(c => new RoadNetworkExtractDownloadsBlobClient(c.Resolve<IBlobClientFactory>().Create(WellKnownBuckets.ExtractDownloadsBucket))).SingleInstance();
+        builder.Register(c => new RoadNetworkFeatureCompareBlobClient(c.Resolve<IBlobClientFactory>().Create(WellKnownBuckets.FeatureCompareBucket))).SingleInstance();
     }
 }

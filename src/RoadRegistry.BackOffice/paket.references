@@ -6,6 +6,7 @@ Be.Vlaanderen.Basisregisters.Generators.Guid.Deterministic
 Be.Vlaanderen.Basisregisters.GrAr.Provenance
 Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple
 Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer
+Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.Shaperon.Geometries
 
@@ -23,6 +24,7 @@ Microsoft.EntityFrameworkCore
 Microsoft.Extensions.Configuration
 Microsoft.Extensions.Configuration.Abstractions
 Microsoft.Extensions.Configuration.Binder
+Microsoft.Extensions.Configuration.FileExtensions
 Microsoft.Extensions.Logging.Abstractions
 Microsoft.Extensions.Logging.Console
 Microsoft.IdentityModel.Abstractions

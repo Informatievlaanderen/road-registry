@@ -10,7 +10,7 @@ public class ExtractRequestConfiguration : IEntityTypeConfiguration<ExtractReque
 
     public void Configure(EntityTypeBuilder<ExtractRequestRecord> b)
     {
-        b.ToTable(TableName, WellknownSchemas.EditorSchema)
+        b.ToTable(TableName, WellKnownSchemas.EditorSchema)
             .HasKey(p => p.DownloadId)
             .IsClustered();
 

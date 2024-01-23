@@ -8,10 +8,10 @@ public record RoadSegmentFeatureCompareAttributes
     public RoadNodeId StartNodeId { get; init; }
     public OrganizationId MaintenanceAuthority { get; init; }
     public RoadNodeId EndNodeId { get; init; }
-    public CrabStreetnameId? LeftStreetNameId { get; init; }
+    public CrabStreetNameId? LeftStreetNameId { get; init; }
     public RoadSegmentGeometryDrawMethod Method { get; init; }
     public RoadSegmentMorphology Morphology { get; init; }
-    public CrabStreetnameId? RightStreetNameId { get; init; }
+    public CrabStreetNameId? RightStreetNameId { get; init; }
     public RoadSegmentStatus Status { get; init; }
     public RoadSegmentAccessRestriction AccessRestriction { get; init; }
     public RoadSegmentCategory Category { get; init; }

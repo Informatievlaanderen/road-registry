@@ -27,8 +27,8 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         RoadSegmentStatus status,
         RoadSegmentCategory category,
         RoadSegmentAccessRestriction accessRestriction,
-        CrabStreetnameId? leftSideStreetNameId,
-        CrabStreetnameId? rightSideStreetNameId,
+        CrabStreetNameId? leftSideStreetNameId,
+        CrabStreetNameId? rightSideStreetNameId,
         IReadOnlyList<RoadSegmentLaneAttribute> lanes,
         IReadOnlyList<RoadSegmentWidthAttribute> widths,
         IReadOnlyList<RoadSegmentSurfaceAttribute> surfaces,
@@ -66,11 +66,11 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
     public RoadSegmentId Id { get; }
     public RoadSegmentVersion Version { get; }
     public IReadOnlyList<RoadSegmentLaneAttribute> Lanes { get; }
-    public CrabStreetnameId? LeftSideStreetNameId { get; }
+    public CrabStreetNameId? LeftSideStreetNameId { get; }
     public OrganizationId MaintenanceAuthorityId { get; }
     public OrganizationName? MaintenanceAuthorityName { get; }
     public RoadSegmentMorphology Morphology { get; }
-    public CrabStreetnameId? RightSideStreetNameId { get; }
+    public CrabStreetNameId? RightSideStreetNameId { get; }
     public RoadNodeId StartNodeId { get; }
     public RoadSegmentStatus Status { get; }
     public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }

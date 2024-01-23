@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
 public readonly struct AttributeHash : IEquatable<AttributeHash>
@@ -10,8 +9,8 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
     public RoadSegmentCategory Category { get; }
     public RoadSegmentMorphology Morphology { get; }
     public RoadSegmentStatus Status { get; }
-    public CrabStreetnameId? LeftStreetNameId { get; }
-    public CrabStreetnameId? RightStreetNameId { get; }
+    public CrabStreetNameId? LeftStreetNameId { get; }
+    public CrabStreetNameId? RightStreetNameId { get; }
     public OrganizationId OrganizationId { get; }
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
 
@@ -20,8 +19,8 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
         RoadSegmentCategory category,
         RoadSegmentMorphology morphology,
         RoadSegmentStatus status,
-        CrabStreetnameId? leftStreetNameId,
-        CrabStreetnameId? rightStreetNameId,
+        CrabStreetNameId? leftStreetNameId,
+        CrabStreetNameId? rightStreetNameId,
         OrganizationId organizationId,
         RoadSegmentGeometryDrawMethod geometryDrawMethod)
     {
@@ -72,15 +71,21 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
     }
 
     [Pure]
-    public AttributeHash WithLeftSide(CrabStreetnameId? value)
+    public AttributeHash WithLeftSide(CrabStreetNameId? value)
     {
         return new AttributeHash(AccessRestriction, Category, Morphology, Status, value, RightStreetNameId, OrganizationId, GeometryDrawMethod);
     }
 
     [Pure]
-    public AttributeHash WithRightSide(CrabStreetnameId? value)
+    public AttributeHash WithRightSide(CrabStreetNameId? value)
     {
         return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, value, OrganizationId, GeometryDrawMethod);
+    }
+
+    [Pure]
+    public AttributeHash Without(CrabStreetNameId value)
+    {
+        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId == value ? null : LeftStreetNameId, RightStreetNameId == value ? null : RightStreetNameId, OrganizationId, GeometryDrawMethod);
     }
 
     [Pure]

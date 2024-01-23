@@ -18,12 +18,12 @@ public class WfsContext : RunnerDbContext<WfsContext>
     {
     }
 
-    public override string ProjectionStateSchema => WellknownSchemas.WfsMetaSchema;
+    public override string ProjectionStateSchema => WellKnownSchemas.WfsMetaSchema;
     public DbSet<RoadNodeRecord> RoadNodes { get; set; }
     public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
 
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
+        optionsBuilder.UseRoadRegistryInMemorySqlServer();
     }
 }

@@ -43,7 +43,7 @@ public class Program
                 )
                 .AddDbContextFactory<WfsContext>((sp, options) =>
                 {
-                    var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.WfsProjections);
+                    var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.WfsProjections);
                     options
                         .UseSqlServer(connectionString,
                             o => o
@@ -77,9 +77,9 @@ public class Program
         await roadRegistryHost
             .LogSqlServerConnectionStrings(new[]
             {
-                WellknownConnectionNames.Events,
-                WellknownConnectionNames.WfsProjections,
-                WellknownConnectionNames.WfsProjectionsAdmin
+                WellKnownConnectionNames.Events,
+                WellKnownConnectionNames.WfsProjections,
+                WellKnownConnectionNames.WfsProjectionsAdmin
             })
             .RunAsync(async (sp, host, configuration) =>
             {

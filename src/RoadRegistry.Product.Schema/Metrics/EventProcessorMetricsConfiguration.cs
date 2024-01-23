@@ -11,7 +11,7 @@ public class EventProcessorMetricsConfiguration : IEntityTypeConfiguration<Event
 
     public void Configure(EntityTypeBuilder<EventProcessorMetricsRecord> b)
     {
-        b.ToTable(TableName, WellknownSchemas.ProductMetricsSchema)
+        b.ToTable(TableName, WellKnownSchemas.ProductMetricsSchema)
             .HasKey(p => p.Id)
             .IsClustered(false);
 

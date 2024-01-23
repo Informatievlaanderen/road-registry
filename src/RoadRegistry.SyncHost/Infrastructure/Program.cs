@@ -1,17 +1,17 @@
 namespace RoadRegistry.SyncHost.Infrastructure;
 
 using Autofac;
+using BackOffice;
 using BackOffice.Extensions;
 using BackOffice.Framework;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Be.Vlaanderen.Basisregisters.Projector.Modules;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Modules;
-using RoadRegistry.StreetNameConsumer.Schema;
 using Sync.OrganizationRegistry;
+using Sync.StreetNameRegistry;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,20 +29,29 @@ public class Program
             .ConfigureServices((hostContext, services) =>
             {
                 services
-                    .AddSingleton(new IRunnerDbContextMigratorFactory[]
-                    {
-                        new OrganizationConsumerContextMigrationFactory(),
-                        new StreetNameConsumerContextMigrationFactory()
-                    })
                     .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
                     .AddHttpClient()
                     .AddScoped(_ => new EventSourcedEntityMap())
                     .AddRoadNetworkCommandQueue()
+                    .AddRoadNetworkEventWriter()
                     .AddEditorContext()
-                    .RegisterOptions<OrganizationConsumerOptions>()
                     .RegisterOptions<KafkaOptions>()
+
+                    .AddOrganizationConsumerServices()
                     .AddHostedService<OrganizationConsumer>()
-                    .AddHostedService<StreetNameConsumer>()
+
+                    .AddStreetNameConsumerServices()
+                    .AddHostedService<StreetNameSnapshotConsumer>()
+
+                    .AddStreetNameProjectionServices()
+                    .AddHostedService<StreetNameProjectionContextEventProcessor>()
+
+                    .AddSingleton(new IDbContextMigratorFactory[]
+                    {
+                        new OrganizationConsumerContextMigratorFactory(),
+                        new StreetNameSnapshotConsumerContextMigrationFactory(),
+                        new StreetNameProjectionContextMigrationFactory()
+                    })
                     ;
             })
             .ConfigureHealthChecks(HostingPort,builder => builder
@@ -53,8 +62,6 @@ public class Program
             .ConfigureContainer((hostContext, builder) =>
                 {
                     builder
-                        .RegisterModule<OrganizationConsumerModule>()
-                        .RegisterModule<StreetNameConsumerModule>()
                         .RegisterModule(new ApiModule(hostContext.Configuration))
                         .RegisterModule(new ProjectorModule(hostContext.Configuration));
                 }
@@ -65,7 +72,7 @@ public class Program
             .RunAsync(async (sp, host, configuration) =>
             {
                 var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
-                var migratorFactories = sp.GetRequiredService<IRunnerDbContextMigratorFactory[]>();
+                var migratorFactories = sp.GetRequiredService<IDbContextMigratorFactory[]>();
 
                 foreach (var migratorFactory in migratorFactories)
                 {

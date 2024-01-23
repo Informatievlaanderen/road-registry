@@ -4,7 +4,6 @@ public interface IStreetNameCache
 {
     Task<Dictionary<int, string>> GetStreetNamesById(IEnumerable<int> streetNameIds, CancellationToken cancellationToken);
     Task<StreetNameCacheItem?> GetAsync(int streetNameId, CancellationToken cancellationToken);
-    Task<long> GetMaxPositionAsync(CancellationToken cancellationToken);
 }
 
 public record StreetNameCacheItem

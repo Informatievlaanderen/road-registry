@@ -11,7 +11,7 @@ public class RoadSegmentWidthAttributeConfiguration : IEntityTypeConfiguration<R
 
     public void Configure(EntityTypeBuilder<RoadSegmentWidthAttributeRecord> b)
     {
-        b.ToTable(TableName, WellknownSchemas.ProductSchema)
+        b.ToTable(TableName, WellKnownSchemas.ProductSchema)
             .HasKey(p => p.Id)
             .IsClustered(false);
 
