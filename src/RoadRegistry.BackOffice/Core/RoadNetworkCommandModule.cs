@@ -340,7 +340,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             
             var changeRoadNetwork = new ChangeRoadNetwork
             {
-                RequestId = ChangeRequestId.FromUploadId(new UploadId(command.MessageId)),
+                RequestId = ChangeRequestId.FromArchiveId(ArchiveId.FromGuid(command.MessageId)),
                 Changes = requestedChanges.ToArray(),
                 Reason = translatedChanges.Reason,
                 Operator = translatedChanges.Operator,

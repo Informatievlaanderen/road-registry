@@ -160,12 +160,23 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
 
             await consumer.StartAsync(CancellationToken.None);
 
-            var page = await store.ReadAllForwards(Position.Start, 2);
-            var message = page.Messages[1];
-            Assert.Equal(nameof(StreetNameRemoved), message.Type);
-            var modifiedMessage = JsonConvert.DeserializeObject<StreetNameRemoved>(await message.GetJsonData());
+            var page = await store.ReadAllForwards(Position.Start, 3);
+            {
+                var streamMessage = page.Messages[1];
+                Assert.Equal(nameof(StreetNameRemoved), streamMessage.Type);
+                Assert.Equal($"streetname-{streetNameObjectId}", streamMessage.StreamId);
 
-            Assert.Equal(streetNameId, modifiedMessage.StreetNameId);
+                var message = JsonConvert.DeserializeObject<StreetNameRemoved>(await streamMessage.GetJsonData());
+                Assert.Equal(streetNameId, message.StreetNameId);
+            }
+            {
+                var streamMessage = page.Messages[2];
+                Assert.Equal(nameof(UnlinkRoadSegmentsFromStreetName), streamMessage.Type);
+                Assert.Equal("roadnetwork-command-queue", streamMessage.StreamId);
+
+                var message = JsonConvert.DeserializeObject<UnlinkRoadSegmentsFromStreetName>(await streamMessage.GetJsonData());
+                Assert.Equal(streetNameObjectId, message.Id.ToString());
+            }
         }
         
         private (StreetNameSnapshotConsumer, IStreamStore, InMemoryStreetNameSnapshotTopicConsumer) BuildSetup(

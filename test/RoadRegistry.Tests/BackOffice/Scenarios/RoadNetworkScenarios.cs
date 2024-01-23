@@ -11,11 +11,13 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
 using AddGradeSeparatedJunction = RoadRegistry.BackOffice.Messages.AddGradeSeparatedJunction;
 using AddRoadSegmentToEuropeanRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToEuropeanRoad;
 using AddRoadSegmentToNationalRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToNationalRoad;
 using AddRoadSegmentToNumberedRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToNumberedRoad;
+using Command = RoadRegistry.BackOffice.Framework.Command;
 using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 using ModifyRoadSegmentGeometry = RoadRegistry.BackOffice.Messages.ModifyRoadSegmentGeometry;
@@ -5719,32 +5721,42 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
             }));
     }
 
-    //TODO-rik add test: when removing streetname
     [Fact]
     public Task when_unlinking_roadsegments_from_streetname()
     {
         var streetNameId = TestData.ObjectProvider.Create<CrabStreetNameId>();
 
+        // given
         TestData.Segment1Added.LeftSide = new RoadSegmentSideAttributes
         {
             StreetNameId = streetNameId
         };
 
+        // when
         var unlinkRoadSegmentsFromStreetName = new UnlinkRoadSegmentsFromStreetName
         {
             Id = streetNameId
         };
 
+        // then
         TestData.Segment1Modified.LeftSide = new RoadSegmentSideAttributes
         {
             StreetNameId = CrabStreetNameId.NotApplicable
         };
-        var reason = "Alle wegsegmenten ontkoppelen van straatnaam";
+        var reason = $"Wegsegmenten ontkoppelen van straatnaam {streetNameId}";
         var @operator = "AGIV";
         var organizationId = "-8";
         var organization = "niet gekend";
 
         return Run(scenario => scenario
+            .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
+                new ImportedOrganization
+                {
+                    Code = TestData.ChangedByOrganization,
+                    Name = TestData.ChangedByOrganizationName,
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                }
+            )
             .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
             {
                 RequestId = TestData.RequestId,

@@ -86,9 +86,8 @@ public class StreetNameSnapshotConsumer : RoadRegistryBackgroundService
                 var @event = DetermineEvent(streetNameEventSourced, streetNameDbRecord);
                 await _streetNameEventWriter.WriteAsync(streetNameLocalId, new Event(@event), cancellationToken);
 
-                if (@event is StreetNameRemoved streetNameRemoved)
+                if (@event is StreetNameRemoved)
                 {
-                    //TODO-rik add test: remove streetname produces this command as well
                     await _roadNetworkCommandQueue.WriteAsync(new Command(new UnlinkRoadSegmentsFromStreetName
                     {
                         Id = streetNameLocalId
