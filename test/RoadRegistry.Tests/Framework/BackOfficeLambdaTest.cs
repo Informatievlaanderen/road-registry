@@ -130,11 +130,11 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
                         },
                         LeftSide = new RoadSegmentSideAttributes
                         {
-                            StreetNameId = ObjectProvider.Create<CrabStreetnameId?>()
+                            StreetNameId = ObjectProvider.Create<CrabStreetNameId?>()
                         },
                         RightSide = new RoadSegmentSideAttributes
                         {
-                            StreetNameId = ObjectProvider.Create<CrabStreetnameId?>()
+                            StreetNameId = ObjectProvider.Create<CrabStreetNameId?>()
                         },
                         Lanes = ObjectProvider
                             .CreateMany<RoadSegmentLaneAttributes>(count)

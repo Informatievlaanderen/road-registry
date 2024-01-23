@@ -1,20 +1,27 @@
 namespace RoadRegistry.BackOffice;
-
 using System;
 using System.Linq;
+using Extensions;
 
 public readonly struct StreetNamePuri
 {
-    public StreetNamePuri(int id)
+    private const string Namespace = "https://data.vlaanderen.be/id/straatnaam/";
+
+    public StreetNamePuri(int objectId)
     {
-        ObjectId = id;
+        ObjectId = objectId;
+    }
+
+    public static bool AcceptsValue(string value)
+    {
+        return !string.IsNullOrEmpty(value) && !value.ContainsWhitespace() && value.StartsWith(Namespace);
     }
 
     public int ObjectId { get; }
 
     public override string ToString()
     {
-        return ObjectId > 0 ? $"https://data.vlaanderen.be/id/straatnaam/{ObjectId}" : ObjectId.ToString();
+        return ObjectId > 0 ? $"{Namespace}{ObjectId}" : ObjectId.ToString();
     }
 
     public StreetNameLocalId ToStreetNameLocalId()

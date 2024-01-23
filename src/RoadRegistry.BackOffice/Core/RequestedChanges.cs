@@ -4,26 +4,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using NetTopologySuite.Geometries;
 
 public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequestedChangeIdentityTranslator
 {
-    private static readonly HashSet<Type> GradeSeparatedJunctionChanges = new(new[]
-    {
-        typeof(AddGradeSeparatedJunction), typeof(ModifyGradeSeparatedJunction), typeof(RemoveGradeSeparatedJunction)
-    });
-
-    private static readonly HashSet<Type> RoadNodeChanges = new(new[]
-    {
-        typeof(AddRoadNode), typeof(ModifyRoadNode), typeof(RemoveRoadNode)
-    });
-
-    private static readonly HashSet<Type> RoadSegmentChanges = new(new[]
-    {
-        typeof(AddRoadSegment), typeof(ModifyRoadSegment), typeof(RemoveRoadSegment)
-    });
-
     private readonly ImmutableList<IRequestedChange> _changes;
     private readonly ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId> _mapToPermanentGradeSeparatedJunctionIdentifiers;
     private readonly ImmutableDictionary<RoadNodeId, RoadNodeId> _mapToPermanentNodeIdentifiers;
@@ -308,100 +292,7 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
 
         return envelope;
     }
-
-    public IReadOnlyDictionary<GradeSeparatedJunctionId, IRequestedChange[]> FindConflictingGradeSeparatedJunctionChanges()
-    {
-        return this
-            .Where(change => GradeSeparatedJunctionChanges.Contains(change.GetType()))
-            .GroupBy(change =>
-            {
-                GradeSeparatedJunctionId id;
-                switch (change)
-                {
-                    case AddGradeSeparatedJunction addGradeSeparatedJunction:
-                        id = addGradeSeparatedJunction.Id;
-                        break;
-                    case ModifyGradeSeparatedJunction modifyGradeSeparatedJunction:
-                        id = modifyGradeSeparatedJunction.Id;
-                        break;
-                    case RemoveGradeSeparatedJunction removeGradeSeparatedJunction:
-                        id = removeGradeSeparatedJunction.Id;
-                        break;
-                    default:
-                        throw new InvalidOperationException(
-                            $"The {change.GetType().Name} is not a grade separated junction change.");
-                }
-
-                return id;
-            })
-            .Where(changes => changes.Count() != 1)
-            .ToDictionary(
-                changes => changes.Key,
-                changes => changes.ToArray());
-    }
-
-    public IReadOnlyDictionary<RoadNodeId, IRequestedChange[]> FindConflictingRoadNodeChanges()
-    {
-        return this
-            .Where(change => RoadNodeChanges.Contains(change.GetType()))
-            .GroupBy(change =>
-            {
-                RoadNodeId id;
-                switch (change)
-                {
-                    case AddRoadNode addRoadNode:
-                        id = addRoadNode.Id;
-                        break;
-                    case ModifyRoadNode modifyRoadNode:
-                        id = modifyRoadNode.Id;
-                        break;
-                    case RemoveRoadNode removeRoadNode:
-                        id = removeRoadNode.Id;
-                        break;
-                    default:
-                        throw new InvalidOperationException(
-                            $"The {change.GetType().Name} is not a road node change.");
-                }
-
-                return id;
-            })
-            .Where(changes => changes.Count() != 1)
-            .ToDictionary(
-                changes => changes.Key,
-                changes => changes.ToArray());
-    }
-
-    public IReadOnlyDictionary<RoadSegmentId, IRequestedChange[]> FindConflictingRoadSegmentChanges()
-    {
-        return this
-            .Where(change => RoadSegmentChanges.Contains(change.GetType()))
-            .GroupBy(change =>
-            {
-                RoadSegmentId id;
-                switch (change)
-                {
-                    case AddRoadSegment addRoadSegment:
-                        id = addRoadSegment.Id;
-                        break;
-                    case ModifyRoadSegment modifyRoadSegment:
-                        id = modifyRoadSegment.Id;
-                        break;
-                    case RemoveRoadSegment removeRoadSegment:
-                        id = removeRoadSegment.Id;
-                        break;
-                    default:
-                        throw new InvalidOperationException(
-                            $"The {change.GetType().Name} is not a road segment change.");
-                }
-
-                return id;
-            })
-            .Where(changes => changes.Count() != 1)
-            .ToDictionary(
-                changes => changes.Key,
-                changes => changes.ToArray());
-    }
-
+    
     public static RequestedChanges Start(TransactionId transactionId)
     {
         return new RequestedChanges(

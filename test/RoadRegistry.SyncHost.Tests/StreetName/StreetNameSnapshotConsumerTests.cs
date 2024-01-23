@@ -197,6 +197,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                 lifetimeScope,
                 store,
                 new StreetNameEventWriter(store, EnrichEvent.WithTime(new FakeClock(NodaConstants.UnixEpoch))),
+                new RoadNetworkCommandQueue(store, new ApplicationMetadata(RoadRegistryApplication.BackOffice)),
                 topicConsumer,
                 _loggerFactory.CreateLogger<StreetNameSnapshotConsumer>()
             ), store, topicConsumer);

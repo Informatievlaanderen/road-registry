@@ -4,15 +4,15 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Globalization;
 
-public readonly struct CrabStreetnameId : IEquatable<CrabStreetnameId>
+public readonly struct CrabStreetNameId : IEquatable<CrabStreetNameId>
 {
     private const int UnknownValue = -8;
     private const int NotApplicableValue = -9;
-    public static readonly CrabStreetnameId Unknown = new(UnknownValue);
-    public static readonly CrabStreetnameId NotApplicable = new(NotApplicableValue);
+    public static readonly CrabStreetNameId Unknown = new(UnknownValue);
+    public static readonly CrabStreetNameId NotApplicable = new(NotApplicableValue);
     private readonly int _value;
 
-    public CrabStreetnameId(int value)
+    public CrabStreetNameId(int value)
     {
         if (value != UnknownValue
             && value != NotApplicableValue
@@ -22,7 +22,7 @@ public readonly struct CrabStreetnameId : IEquatable<CrabStreetnameId>
         _value = value;
     }
 
-    public static bool IsEmpty(CrabStreetnameId? value)
+    public static bool IsEmpty(CrabStreetNameId? value)
     {
         return value == null || value == UnknownValue || value == NotApplicableValue || value <= 0;
     }
@@ -32,11 +32,11 @@ public readonly struct CrabStreetnameId : IEquatable<CrabStreetnameId>
         return value == UnknownValue || value == NotApplicableValue || 0 <= value;
     }
 
-    public static CrabStreetnameId? FromValue(int? value)
+    public static CrabStreetNameId? FromValue(int? value)
     {
         return value.HasValue
-            ? new CrabStreetnameId(value.Value)
-            : new CrabStreetnameId?();
+            ? new CrabStreetNameId(value.Value)
+            : new CrabStreetNameId?();
     }
 
     [Pure]
@@ -45,14 +45,14 @@ public readonly struct CrabStreetnameId : IEquatable<CrabStreetnameId>
         return _value;
     }
 
-    public bool Equals(CrabStreetnameId other)
+    public bool Equals(CrabStreetNameId other)
     {
         return _value == other._value;
     }
 
     public override bool Equals(object obj)
     {
-        return obj is CrabStreetnameId id && Equals(id);
+        return obj is CrabStreetNameId id && Equals(id);
     }
 
     public override int GetHashCode()
@@ -65,17 +65,17 @@ public readonly struct CrabStreetnameId : IEquatable<CrabStreetnameId>
         return _value.ToString(CultureInfo.InvariantCulture);
     }
 
-    public static bool operator ==(CrabStreetnameId left, CrabStreetnameId right)
+    public static bool operator ==(CrabStreetNameId left, CrabStreetNameId right)
     {
         return left.Equals(right);
     }
 
-    public static bool operator !=(CrabStreetnameId left, CrabStreetnameId right)
+    public static bool operator !=(CrabStreetNameId left, CrabStreetNameId right)
     {
         return !left.Equals(right);
     }
 
-    public static implicit operator int(CrabStreetnameId instance)
+    public static implicit operator int(CrabStreetNameId instance)
     {
         return instance._value;
     }

@@ -9,6 +9,7 @@ using NetTopologySuite.Geometries.Implementation;
 using NodaTime.Text;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
 using AddGradeSeparatedJunction = RoadRegistry.BackOffice.Messages.AddGradeSeparatedJunction;
@@ -3374,12 +3375,12 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                 TestData.Segment2Added.AccessRestriction = TestData.AddSegment2.AccessRestriction;
                 break;
             case 5:
-                TestData.AddSegment2.LeftSideStreetNameId = new Generator<CrabStreetnameId?>(ObjectProvider)
+                TestData.AddSegment2.LeftSideStreetNameId = new Generator<CrabStreetNameId?>(ObjectProvider)
                     .First(candidate => candidate != TestData.AddSegment1.LeftSideStreetNameId);
                 TestData.Segment2Added.LeftSide.StreetNameId = TestData.AddSegment2.LeftSideStreetNameId;
                 break;
             case 6:
-                TestData.AddSegment2.RightSideStreetNameId = new Generator<CrabStreetnameId?>(ObjectProvider)
+                TestData.AddSegment2.RightSideStreetNameId = new Generator<CrabStreetNameId?>(ObjectProvider)
                     .First(candidate => candidate != TestData.AddSegment1.RightSideStreetNameId);
                 TestData.Segment2Added.RightSide.StreetNameId = TestData.AddSegment2.RightSideStreetNameId;
                 break;
@@ -5712,6 +5713,77 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                                 }
                             }
                         }
+                    }
+                },
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            }));
+    }
+
+    //TODO-rik add test: when removing streetname
+    [Fact]
+    public Task when_unlinking_roadsegments_from_streetname()
+    {
+        var streetNameId = TestData.ObjectProvider.Create<CrabStreetNameId>();
+
+        TestData.Segment1Added.LeftSide = new RoadSegmentSideAttributes
+        {
+            StreetNameId = streetNameId
+        };
+
+        var unlinkRoadSegmentsFromStreetName = new UnlinkRoadSegmentsFromStreetName
+        {
+            Id = streetNameId
+        };
+
+        TestData.Segment1Modified.LeftSide = new RoadSegmentSideAttributes
+        {
+            StreetNameId = CrabStreetNameId.NotApplicable
+        };
+        var reason = "Alle wegsegmenten ontkoppelen van straatnaam";
+        var @operator = "AGIV";
+        var organizationId = "-8";
+        var organization = "niet gekend";
+
+        return Run(scenario => scenario
+            .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+            {
+                RequestId = TestData.RequestId,
+                Reason = TestData.ReasonForChange,
+                Operator = TestData.ChangedByOperator,
+                OrganizationId = TestData.ChangedByOrganization,
+                Organization = TestData.ChangedByOrganizationName,
+                Changes = new[]
+                {
+                    new AcceptedChange
+                    {
+                        RoadNodeAdded = TestData.StartNode1Added
+                    },
+                    new AcceptedChange
+                    {
+                        RoadNodeAdded = TestData.EndNode1Added
+                    },
+                    new AcceptedChange
+                    {
+                        RoadSegmentAdded = TestData.Segment1Added
+                    }
+                },
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
+            .When(new Command(unlinkRoadSegmentsFromStreetName).WithMessageId(TestData.ArchiveId))
+            .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+            {
+                RequestId = TestData.RequestId,
+                Reason = reason,
+                Operator = @operator,
+                OrganizationId = organizationId,
+                Organization = organization,
+                TransactionId = new TransactionId(1),
+                Changes = new[]
+                {
+                    new AcceptedChange
+                    {
+                        RoadSegmentModified = TestData.Segment1Modified,
+                        Problems = Array.Empty<Problem>()
                     }
                 },
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())

@@ -38,12 +38,12 @@ namespace RoadRegistry.BackOffice
                 problems += recordContext.RoadSegmentAccessRestrictionMismatch(record.TGBEP.Value);
             }
 
-            if (record.LSTRNMID.Value.HasValue && !CrabStreetnameId.Accepts(record.LSTRNMID.Value.Value))
+            if (record.LSTRNMID.Value.HasValue && !CrabStreetNameId.Accepts(record.LSTRNMID.Value.Value))
             {
                 problems += recordContext.LeftStreetNameIdOutOfRange(record.LSTRNMID.Value.Value);
             }
 
-            if (record.RSTRNMID.Value.HasValue && !CrabStreetnameId.Accepts(record.RSTRNMID.Value.Value))
+            if (record.RSTRNMID.Value.HasValue && !CrabStreetNameId.Accepts(record.RSTRNMID.Value.Value))
             {
                 problems += recordContext.RightStreetNameIdOutOfRange(record.RSTRNMID.Value.Value);
             }

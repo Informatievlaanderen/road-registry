@@ -354,13 +354,13 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return default;
             }
 
-            CrabStreetnameId? ReadLeftStreetNameId()
+            CrabStreetNameId? ReadLeftStreetNameId()
             {
                 if (LSTRNMID is not null)
                 {
-                    if (CrabStreetnameId.Accepts(LSTRNMID.Value))
+                    if (CrabStreetNameId.Accepts(LSTRNMID.Value))
                     {
-                        return new CrabStreetnameId(LSTRNMID.Value);
+                        return new CrabStreetNameId(LSTRNMID.Value);
                     }
                     else
                     {
@@ -371,13 +371,13 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return default;
             }
 
-            CrabStreetnameId? ReadRightStreetNameId()
+            CrabStreetNameId? ReadRightStreetNameId()
             {
                 if (RSTRNMID is not null)
                 {
-                    if (CrabStreetnameId.Accepts(RSTRNMID.Value))
+                    if (CrabStreetNameId.Accepts(RSTRNMID.Value))
                     {
-                        return new CrabStreetnameId(RSTRNMID.Value);
+                        return new CrabStreetNameId(RSTRNMID.Value);
                     }
                     else
                     {

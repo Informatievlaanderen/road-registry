@@ -15,6 +15,7 @@ public static class RoadNetworkCommands
         typeof(DeleteOrganization),
         typeof(RenameOrganization),
         typeof(ChangeOrganization),
+        typeof(UnlinkRoadSegmentsFromStreetName),
         typeof(UploadRoadNetworkChangesArchive),
         typeof(UploadRoadNetworkExtractChangesArchive)
     };

@@ -25,6 +25,7 @@ public class StreetNameSnapshotConsumer : RoadRegistryBackgroundService
     private readonly IStreamStore _store;
     private readonly ILifetimeScope _container;
     private readonly IStreetNameEventWriter _streetNameEventWriter;
+    private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
 
     private static readonly EventMapping EventMapping =
         new(EventMapping.DiscoverEventNamesInAssembly(typeof(StreetNameEvents).Assembly));
@@ -36,6 +37,7 @@ public class StreetNameSnapshotConsumer : RoadRegistryBackgroundService
         ILifetimeScope container,
         IStreamStore store,
         IStreetNameEventWriter streetNameEventWriter,
+        IRoadNetworkCommandQueue roadNetworkCommandQueue,
         IStreetNameSnapshotTopicConsumer consumer,
         ILogger<StreetNameSnapshotConsumer> logger
     ) : base(logger)
@@ -43,6 +45,7 @@ public class StreetNameSnapshotConsumer : RoadRegistryBackgroundService
         _container = container.ThrowIfNull();
         _store = store.ThrowIfNull();
         _streetNameEventWriter = streetNameEventWriter.ThrowIfNull();
+        _roadNetworkCommandQueue = roadNetworkCommandQueue.ThrowIfNull();
         _consumer = consumer.ThrowIfNull();
     }
 
@@ -83,7 +86,14 @@ public class StreetNameSnapshotConsumer : RoadRegistryBackgroundService
                 var @event = DetermineEvent(streetNameEventSourced, streetNameDbRecord);
                 await _streetNameEventWriter.WriteAsync(streetNameLocalId, new Event(@event), cancellationToken);
 
-                //TODO-rik (koen) + ChangeRoadNetwork (command) bij delete
+                if (@event is StreetNameRemoved streetNameRemoved)
+                {
+                    //TODO-rik add test: remove streetname produces this command as well
+                    await _roadNetworkCommandQueue.WriteAsync(new Command(new UnlinkRoadSegmentsFromStreetName
+                    {
+                        Id = streetNameLocalId
+                    }), cancellationToken);
+                }
 
                 await dbContext.SaveChangesAsync(cancellationToken);
 

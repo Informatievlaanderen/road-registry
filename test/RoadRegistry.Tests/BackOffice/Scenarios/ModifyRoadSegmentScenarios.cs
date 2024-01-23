@@ -180,8 +180,8 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
             Morphology = ObjectProvider.Create<RoadSegmentMorphology>(),
             Status = ObjectProvider.Create<RoadSegmentStatus>(),
             GeometryDrawMethod = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>(),
-            LeftSideStreetNameId = ObjectProvider.Create<CrabStreetnameId?>(),
-            RightSideStreetNameId = ObjectProvider.Create<CrabStreetnameId?>(),
+            LeftSideStreetNameId = ObjectProvider.Create<CrabStreetNameId?>(),
+            RightSideStreetNameId = ObjectProvider.Create<CrabStreetNameId?>(),
             MaintenanceAuthority = ChangedByOrganization,
             Lanes = ObjectProvider
                 .CreateMany<RequestedRoadSegmentLaneAttribute>(count)
@@ -307,11 +307,11 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                 },
                                 LeftSide = new RoadSegmentSideAttributes
                                 {
-                                    StreetNameId = ObjectProvider.Create<CrabStreetnameId?>()
+                                    StreetNameId = ObjectProvider.Create<CrabStreetNameId?>()
                                 },
                                 RightSide = new RoadSegmentSideAttributes
                                 {
-                                    StreetNameId = ObjectProvider.Create<CrabStreetnameId?>()
+                                    StreetNameId = ObjectProvider.Create<CrabStreetNameId?>()
                                 },
                                 Lanes = ObjectProvider
                                     .CreateMany<RoadSegmentLaneAttributes>(count)
@@ -421,11 +421,11 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                 },
                                 LeftSide = new RoadSegmentSideAttributes
                                 {
-                                    StreetNameId = ObjectProvider.Create<CrabStreetnameId?>()
+                                    StreetNameId = ObjectProvider.Create<CrabStreetNameId?>()
                                 },
                                 RightSide = new RoadSegmentSideAttributes
                                 {
-                                    StreetNameId = ObjectProvider.Create<CrabStreetnameId?>()
+                                    StreetNameId = ObjectProvider.Create<CrabStreetNameId?>()
                                 },
                                 Lanes = ObjectProvider
                                     .CreateMany<RoadSegmentLaneAttributes>(count)
@@ -592,8 +592,8 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
             Morphology = ObjectProvider.Create<RoadSegmentMorphology>(),
             Status = ObjectProvider.Create<RoadSegmentStatus>(),
             GeometryDrawMethod = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>(),
-            LeftSideStreetNameId = ObjectProvider.Create<CrabStreetnameId?>(),
-            RightSideStreetNameId = ObjectProvider.Create<CrabStreetnameId?>(),
+            LeftSideStreetNameId = ObjectProvider.Create<CrabStreetNameId?>(),
+            RightSideStreetNameId = ObjectProvider.Create<CrabStreetNameId?>(),
             MaintenanceAuthority = ChangedByOrganization,
             Lanes = ObjectProvider
                 .CreateMany<RequestedRoadSegmentLaneAttribute>(count)
@@ -719,11 +719,11 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                 },
                                 LeftSide = new RoadSegmentSideAttributes
                                 {
-                                    StreetNameId = ObjectProvider.Create<CrabStreetnameId?>()
+                                    StreetNameId = ObjectProvider.Create<CrabStreetNameId?>()
                                 },
                                 RightSide = new RoadSegmentSideAttributes
                                 {
-                                    StreetNameId = ObjectProvider.Create<CrabStreetnameId?>()
+                                    StreetNameId = ObjectProvider.Create<CrabStreetNameId?>()
                                 },
                                 Lanes = ObjectProvider
                                     .CreateMany<RoadSegmentLaneAttributes>(count)

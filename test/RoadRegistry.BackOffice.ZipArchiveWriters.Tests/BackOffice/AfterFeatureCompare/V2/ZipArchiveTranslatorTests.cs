@@ -495,8 +495,8 @@ public class ZipArchiveTranslatorTests
                                 RoadSegmentStatus.ByIdentifier[roadSegmentChangeDbaseRecord1.STATUS.Value],
                                 RoadSegmentCategory.ByIdentifier[roadSegmentChangeDbaseRecord1.CATEGORIE.Value],
                                 RoadSegmentAccessRestriction.ByIdentifier[roadSegmentChangeDbaseRecord1.TGBEP.Value],
-                                roadSegmentChangeDbaseRecord1.LSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord1.LSTRNMID.Value.GetValueOrDefault()) : default,
-                                roadSegmentChangeDbaseRecord1.RSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord1.RSTRNMID.Value.GetValueOrDefault()) : default
+                                roadSegmentChangeDbaseRecord1.LSTRNMID.Value.HasValue ? new CrabStreetNameId(roadSegmentChangeDbaseRecord1.LSTRNMID.Value.GetValueOrDefault()) : default,
+                                roadSegmentChangeDbaseRecord1.RSTRNMID.Value.HasValue ? new CrabStreetNameId(roadSegmentChangeDbaseRecord1.RSTRNMID.Value.GetValueOrDefault()) : default
                             )
                             .WithGeometry(GeometryTranslator.ToMultiLineString(((PolyLineMShapeContent)roadSegmentShapeChangeRecord1.Content).Shape))
                             .WithLane(
@@ -538,8 +538,8 @@ public class ZipArchiveTranslatorTests
                             RoadSegmentStatus.ByIdentifier[roadSegmentChangeDbaseRecord2.STATUS.Value],
                             RoadSegmentCategory.ByIdentifier[roadSegmentChangeDbaseRecord2.CATEGORIE.Value],
                             RoadSegmentAccessRestriction.ByIdentifier[roadSegmentChangeDbaseRecord2.TGBEP.Value],
-                            roadSegmentChangeDbaseRecord2.LSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord2.LSTRNMID.Value.GetValueOrDefault()) : default,
-                            roadSegmentChangeDbaseRecord2.RSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord2.RSTRNMID.Value.GetValueOrDefault()) : default
+                            roadSegmentChangeDbaseRecord2.LSTRNMID.Value.HasValue ? new CrabStreetNameId(roadSegmentChangeDbaseRecord2.LSTRNMID.Value.GetValueOrDefault()) : default,
+                            roadSegmentChangeDbaseRecord2.RSTRNMID.Value.HasValue ? new CrabStreetNameId(roadSegmentChangeDbaseRecord2.RSTRNMID.Value.GetValueOrDefault()) : default
                         ).WithGeometry(GeometryTranslator.ToMultiLineString(((PolyLineMShapeContent)roadSegmentShapeChangeRecord2.Content).Shape))
                     )
                     .AppendChange(
@@ -743,8 +743,8 @@ public class ZipArchiveTranslatorTests
                     CATEGORIE = { Value = fixture.Create<RoadSegmentCategory>().Translation.Identifier },
                     B_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
                     E_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
-                    LSTRNMID = { Value = new CrabStreetnameId(random.Next(1, int.MaxValue)) },
-                    RSTRNMID = { Value = new CrabStreetnameId(random.Next(1, int.MaxValue)) },
+                    LSTRNMID = { Value = new CrabStreetNameId(random.Next(1, int.MaxValue)) },
+                    RSTRNMID = { Value = new CrabStreetNameId(random.Next(1, int.MaxValue)) },
                     TGBEP =
                     {
                         Value = (short)fixture.Create<RoadSegmentAccessRestriction>().Translation.Identifier

@@ -43,8 +43,8 @@ public class RoadSegmentChangeDbaseRecordsTranslatorTests : IDisposable
                     CATEGORIE = { Value = _fixture.Create<RoadSegmentCategory>().Translation.Identifier },
                     B_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
                     E_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
-                    LSTRNMID = { Value = new CrabStreetnameId(random.Next(1, int.MaxValue)) },
-                    RSTRNMID = { Value = new CrabStreetnameId(random.Next(1, int.MaxValue)) },
+                    LSTRNMID = { Value = new CrabStreetNameId(random.Next(1, int.MaxValue)) },
+                    RSTRNMID = { Value = new CrabStreetNameId(random.Next(1, int.MaxValue)) },
                     TGBEP = { Value = (short)_fixture.Create<RoadSegmentAccessRestriction>().Translation.Identifier },
                     EVENTIDN = { Value = new RoadSegmentId(random.Next(1, int.MaxValue)) }
                 })
@@ -121,10 +121,10 @@ public class RoadSegmentChangeDbaseRecordsTranslatorTests : IDisposable
                 RoadSegmentCategory.ByIdentifier[current.CATEGORIE.Value],
                 RoadSegmentAccessRestriction.ByIdentifier[current.TGBEP.Value],
                 current.LSTRNMID.Value.HasValue
-                    ? new CrabStreetnameId(current.LSTRNMID.Value.GetValueOrDefault())
+                    ? new CrabStreetNameId(current.LSTRNMID.Value.GetValueOrDefault())
                     : default,
                 current.RSTRNMID.Value.HasValue
-                    ? new CrabStreetnameId(current.RSTRNMID.Value.GetValueOrDefault())
+                    ? new CrabStreetNameId(current.RSTRNMID.Value.GetValueOrDefault())
                     : default
             );
 
@@ -194,10 +194,10 @@ public class RoadSegmentChangeDbaseRecordsTranslatorTests : IDisposable
                                 RoadSegmentCategory.ByIdentifier[current.CATEGORIE.Value],
                                 RoadSegmentAccessRestriction.ByIdentifier[current.TGBEP.Value],
                                 current.LSTRNMID.Value.HasValue
-                                    ? new CrabStreetnameId(current.LSTRNMID.Value.GetValueOrDefault())
+                                    ? new CrabStreetNameId(current.LSTRNMID.Value.GetValueOrDefault())
                                     : default,
                                 current.RSTRNMID.Value.HasValue
-                                    ? new CrabStreetnameId(current.RSTRNMID.Value.GetValueOrDefault())
+                                    ? new CrabStreetNameId(current.RSTRNMID.Value.GetValueOrDefault())
                                     : default
                             )
                         );
@@ -216,10 +216,10 @@ public class RoadSegmentChangeDbaseRecordsTranslatorTests : IDisposable
                                 RoadSegmentCategory.ByIdentifier[current.CATEGORIE.Value],
                                 RoadSegmentAccessRestriction.ByIdentifier[current.TGBEP.Value],
                                 current.LSTRNMID.Value.HasValue
-                                    ? new CrabStreetnameId(current.LSTRNMID.Value.GetValueOrDefault())
+                                    ? new CrabStreetNameId(current.LSTRNMID.Value.GetValueOrDefault())
                                     : default,
                                 current.RSTRNMID.Value.HasValue
-                                    ? new CrabStreetnameId(current.RSTRNMID.Value.GetValueOrDefault())
+                                    ? new CrabStreetNameId(current.RSTRNMID.Value.GetValueOrDefault())
                                     : default
                             )
                         );
