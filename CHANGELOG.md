@@ -1,3 +1,15 @@
+# [3.67.0](https://github.com/informatievlaanderen/road-registry/compare/v3.66.6...v3.67.0) (2024-01-23)
+
+
+### Bug Fixes
+
+* WR-258 remove WR layer from map + rename url ([#1358](https://github.com/informatievlaanderen/road-registry/issues/1358)) ([a5f0ef1](https://github.com/informatievlaanderen/road-registry/commit/a5f0ef1e169ae14f6423c1a847ae8e2de7ca41fb))
+
+
+### Features
+
+* WR-923 WR-924 StreetName consumer produce internal events + unlink roadsegments upon streetname removal ([#1356](https://github.com/informatievlaanderen/road-registry/issues/1356)) ([a88df74](https://github.com/informatievlaanderen/road-registry/commit/a88df74a36b88007b6f7fc318f288e1094552181))
+
 ## [3.66.6](https://github.com/informatievlaanderen/road-registry/compare/v3.66.5...v3.66.6) (2024-01-23)
 
 ## [3.66.5](https://github.com/informatievlaanderen/road-registry/compare/v3.66.4...v3.66.5) (2024-01-09)
