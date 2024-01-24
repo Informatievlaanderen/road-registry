@@ -57,6 +57,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             new(HttpMethod.Post, "v1/system/correct/roadsegmentorganizationnames", Scopes.DvWrUitzonderingenBeheer),
             new(HttpMethod.Post, "v1/system/correct/roadsegmentstatus/dutch-translations", Scopes.DvWrUitzonderingenBeheer),
             new(HttpMethod.Post, "v1/system/correct/roadsegmentversions", Scopes.DvWrUitzonderingenBeheer),
+            new(HttpMethod.Post, "v1/system/correct/outlinedroadsegmentsoutofroadnetwork", Scopes.DvWrUitzonderingenBeheer),
             new(HttpMethod.Post, "v1/system/snapshots/refresh", Scopes.DvWrUitzonderingenBeheer),
 
             new(HttpMethod.Get, "v1/organizations"),
