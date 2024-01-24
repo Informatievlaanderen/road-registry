@@ -1,3 +1,10 @@
+## [3.67.5](https://github.com/informatievlaanderen/road-registry/compare/v3.67.4...v3.67.5) (2024-01-24)
+
+
+### Bug Fixes
+
+* WR-929 add endpoint to migrate old outlined roadsegments to their own stream + LBLBEHEER fallback value for all situations ([#1365](https://github.com/informatievlaanderen/road-registry/issues/1365)) ([537201a](https://github.com/informatievlaanderen/road-registry/commit/537201aa40dba45fb797c3087bc23e375cf6d6c1))
+
 ## [3.67.4](https://github.com/informatievlaanderen/road-registry/compare/v3.67.3...v3.67.4) (2024-01-24)
 
 
