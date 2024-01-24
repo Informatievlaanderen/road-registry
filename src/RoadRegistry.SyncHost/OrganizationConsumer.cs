@@ -1,10 +1,5 @@
 namespace RoadRegistry.SyncHost;
 
-using System;
-using System.Configuration;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
@@ -16,7 +11,6 @@ using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Abstractions.Organizations;
 using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Editor.Schema;
@@ -24,12 +18,15 @@ using RoadRegistry.Hosts;
 using RoadRegistry.Sync.OrganizationRegistry.Extensions;
 using SqlStreamStore;
 using Sync.OrganizationRegistry;
+using System;
+using System.Configuration;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Organization = Sync.OrganizationRegistry.Models.Organization;
 
 public class OrganizationConsumer : RoadRegistryBackgroundService
 {
-    private readonly UseOrganizationProcessedMessagesFeatureToggle _useOrganizationProcessedMessagesFeatureToggle;
-
     private static readonly EventMapping EventMapping =
         new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
 
@@ -53,7 +50,6 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
         RecyclableMemoryStreamManager manager,
         FileEncoding fileEncoding,
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
-        UseOrganizationProcessedMessagesFeatureToggle useOrganizationProcessedMessagesFeatureToggle,
         ILoggerFactory loggerFactory)
         : base(loggerFactory.CreateLogger<OrganizationConsumer>())
     {
@@ -62,7 +58,6 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
         _organizationReader = organizationReader.ThrowIfNull();
         _store = store.ThrowIfNull();
         _roadNetworkCommandQueue = roadNetworkCommandQueue.ThrowIfNull();
-        _useOrganizationProcessedMessagesFeatureToggle = useOrganizationProcessedMessagesFeatureToggle.ThrowIfNull();
         _organizationRecordReader = new OrganizationDbaseRecordReader(manager, fileEncoding);
     }
 
@@ -87,9 +82,11 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                 
                 await _organizationReader.ReadAsync(projectionState.Position + 1, async organization =>
                 {
-                    Logger.LogInformation("Processing organization {OvoNumber}", organization.OvoNumber);
+                    projectionState.Position = organization.ChangeId;
 
-                    var idempotenceKey = $"organization-{projectionState.Position}-{organization.OvoNumber}".ToSha512();
+                    Logger.LogInformation("Processing organization {OvoNumber}", organization.OvoNumber);
+                    
+                    var idempotenceKey = $"organization-{organization.ChangeId}-{organization.OvoNumber}".ToSha512();
                     
                     var messageAlreadyProcessed = await dbContext.ProcessedMessages
                         .AsNoTracking()
@@ -107,12 +104,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                     await CreateOrUpdateOrganizationWithOvoCode(organizationsContext, organization, cancellationToken);
                     await UpdateOrganizationsWithOldOrganizationId(orgIdMapping, organization, cancellationToken);
 
-                    projectionState.Position = organization.ChangeId;
-
-                    if (_useOrganizationProcessedMessagesFeatureToggle.FeatureEnabled)
-                    {
-                        await dbContext.ProcessedMessages.AddAsync(new ProcessedMessage(idempotenceKey, DateTimeOffset.UtcNow), cancellationToken);
-                    }
+                    await dbContext.ProcessedMessages.AddAsync(new ProcessedMessage(idempotenceKey, DateTimeOffset.UtcNow), cancellationToken);
 
                     await dbContext.SaveChangesAsync(cancellationToken);
 
