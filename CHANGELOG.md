@@ -1,3 +1,10 @@
+## [3.67.4](https://github.com/informatievlaanderen/road-registry/compare/v3.67.3...v3.67.4) (2024-01-24)
+
+
+### Bug Fixes
+
+* remove obsolete featureflags ([#1364](https://github.com/informatievlaanderen/road-registry/issues/1364)) ([bb2cae1](https://github.com/informatievlaanderen/road-registry/commit/bb2cae15bb37d94ab12c4ff625102a6aec482f8c))
+
 ## [3.67.3](https://github.com/informatievlaanderen/road-registry/compare/v3.67.2...v3.67.3) (2024-01-24)
 
 
