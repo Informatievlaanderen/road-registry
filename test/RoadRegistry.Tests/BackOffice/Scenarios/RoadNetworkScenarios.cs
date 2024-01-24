@@ -5744,7 +5744,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
             StreetNameId = CrabStreetNameId.NotApplicable
         };
         var reason = $"Wegsegmenten ontkoppelen van straatnaam {streetNameId}";
-        var @operator = "AGIV";
+        var @operator = "DigitaalVlaanderen";
         var organizationId = "-8";
         var organization = "niet gekend";
 
