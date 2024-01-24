@@ -18,5 +18,11 @@
 	  <ProjectReference Include="..\RoadRegistry.StreetName\RoadRegistry.StreetName.csproj" />
 	</ItemGroup>
 
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>RoadRegistry.SyncHost</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
