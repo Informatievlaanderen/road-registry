@@ -65,7 +65,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                         RSTRNMID = { Value = envelope.Message.RightSide.StreetNameId },
                         RSTRNM = { Value = envelope.Message.RightSide.StreetName },
                         BEHEER = { Value = envelope.Message.MaintenanceAuthority.Code },
-                        LBLBEHEER = { Value = envelope.Message.MaintenanceAuthority.Name },
+                        LBLBEHEER = { Value = CleanOrganizationName(envelope.Message.MaintenanceAuthority.Name) },
                         METHODE = { Value = geometryDrawMethodTranslation.Identifier },
                         LBLMETHOD = { Value = geometryDrawMethodTranslation.Name },
                         OPNDATUM = { Value = envelope.Message.RecordingDate },
@@ -174,7 +174,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                     RSTRNMID = { Value = roadSegmentAdded.RightSide.StreetNameId },
                     RSTRNM = { Value = null }, // This value is fetched from cache when downloading (see RoadSegmentsToZipArchiveWriter)
                     BEHEER = { Value = roadSegmentAdded.MaintenanceAuthority.Code },
-                    LBLBEHEER = { Value = roadSegmentAdded.MaintenanceAuthority.Name },
+                    LBLBEHEER = { Value = CleanOrganizationName(roadSegmentAdded.MaintenanceAuthority.Name) },
                     METHODE = { Value = geometryDrawMethodTranslation.Identifier },
                     LBLMETHOD = { Value = geometryDrawMethodTranslation.Name },
                     OPNDATUM = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
@@ -232,7 +232,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         dbaseRecord.RSTRNMID.Value = roadSegmentModified.RightSide.StreetNameId;
         dbaseRecord.RSTRNM.Value = null; // This value is fetched from cache when downloading (see RoadSegmentsToZipArchiveWriter)
         dbaseRecord.BEHEER.Value = roadSegmentModified.MaintenanceAuthority.Code;
-        dbaseRecord.LBLBEHEER.Value = roadSegmentModified.MaintenanceAuthority.Name.NullIfEmpty() ?? Organization.PredefinedTranslations.Unknown.Name;
+        dbaseRecord.LBLBEHEER.Value = CleanOrganizationName(roadSegmentModified.MaintenanceAuthority.Name);
         dbaseRecord.METHODE.Value = geometryDrawMethodTranslation.Identifier;
         dbaseRecord.LBLMETHOD.Value = geometryDrawMethodTranslation.Name;
         dbaseRecord.TGBEP.Value = accessRestrictionTranslation.Identifier;
@@ -294,7 +294,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         if (roadSegmentAttributesModified.MaintenanceAuthority is not null)
         {
             dbaseRecord.BEHEER.Value = roadSegmentAttributesModified.MaintenanceAuthority.Code;
-            dbaseRecord.LBLBEHEER.Value = roadSegmentAttributesModified.MaintenanceAuthority.Name.NullIfEmpty() ?? Organization.PredefinedTranslations.Unknown.Name;
+            dbaseRecord.LBLBEHEER.Value = CleanOrganizationName(roadSegmentAttributesModified.MaintenanceAuthority.Name);
         }
 
         dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentAttributesModified.Id, roadSegmentAttributesModified.Version);
@@ -383,7 +383,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
 
                     if (dbaseRecord.BEHEER.Value == organizationId)
                     {
-                        dbaseRecord.LBLBEHEER.Value = organizationName;
+                        dbaseRecord.LBLBEHEER.Value = CleanOrganizationName(organizationName);
                         dataChanged = true;
                     }
 
@@ -395,5 +395,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
 
                 return Task.CompletedTask;
             }, cancellationToken);
+    }
+
+    private static string CleanOrganizationName(string name)
+    {
+        return name.NullIfEmpty() ?? Organization.PredefinedTranslations.Unknown.Name;
     }
 }

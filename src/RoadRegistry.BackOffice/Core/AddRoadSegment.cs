@@ -96,7 +96,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
             MaintenanceAuthority = new MaintenanceAuthority
             {
                 Code = MaintenanceAuthorityId,
-                Name = MaintenanceAuthorityName ?? string.Empty
+                Name = MaintenanceAuthorityName ?? Organization.PredefinedTranslations.Unknown.Name
             },
             GeometryDrawMethod = GeometryDrawMethod,
             Morphology = Morphology,
