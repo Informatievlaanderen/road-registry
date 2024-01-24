@@ -11,7 +11,7 @@ public class OrganizationEventProcessor : EditorContextEventProcessor
 {
     public OrganizationEventProcessor(
         IStreamStore streamStore,
-        EditorContextEventProcessorProjections<OrganizationEventProcessor> projections,
+        DbContextEventProcessorProjections<OrganizationEventProcessor, EditorContext> projections,
         EnvelopeFactory envelopeFactory,
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,

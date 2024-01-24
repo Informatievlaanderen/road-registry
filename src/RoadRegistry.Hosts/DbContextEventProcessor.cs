@@ -55,6 +55,22 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
         AcceptStreamMessageFilter filter,
         EnvelopeFactory envelopeFactory,
         ConnectedProjectionHandlerResolver<TDbContext> resolver,
+        IDbContextFactory<TDbContext> dbContextFactory,
+        Scheduler scheduler,
+        ILogger<DbContextEventProcessor<TDbContext>> logger,
+        int catchUpBatchSize = CatchUpBatchSize,
+        int catchUpThreshold = CatchUpThreshold)
+        : this(projectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory.CreateDbContext, scheduler, logger,
+            catchUpBatchSize, catchUpThreshold)
+    {
+    }
+
+    protected DbContextEventProcessor(
+        string projectionStateName,
+        IStreamStore streamStore,
+        AcceptStreamMessageFilter filter,
+        EnvelopeFactory envelopeFactory,
+        ConnectedProjectionHandlerResolver<TDbContext> resolver,
         Func<TDbContext> dbContextFactory,
         Scheduler scheduler,
         ILogger<DbContextEventProcessor<TDbContext>> logger,

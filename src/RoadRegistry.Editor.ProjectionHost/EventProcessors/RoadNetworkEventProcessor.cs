@@ -14,7 +14,7 @@ public class RoadNetworkEventProcessor : EditorContextEventProcessor
 
     public RoadNetworkEventProcessor(
         IStreamStore streamStore,
-        EditorContextEventProcessorProjections<RoadNetworkEventProcessor> projections,
+        DbContextEventProcessorProjections<RoadNetworkEventProcessor, EditorContext> projections,
         EnvelopeFactory envelopeFactory,
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,

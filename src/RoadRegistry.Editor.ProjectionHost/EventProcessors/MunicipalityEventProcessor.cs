@@ -11,7 +11,7 @@ public class MunicipalityEventProcessor : EditorContextEventProcessor
 {
     public MunicipalityEventProcessor(
         IStreamStore streamStore,
-        EditorContextEventProcessorProjections<MunicipalityEventProcessor> projections,
+        DbContextEventProcessorProjections<MunicipalityEventProcessor, EditorContext> projections,
         EnvelopeFactory envelopeFactory,
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,

@@ -1,6 +1,5 @@
 namespace RoadRegistry.SyncHost;
 
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
 using Microsoft.EntityFrameworkCore;
@@ -14,13 +13,12 @@ public class StreetNameProjectionContextEventProcessor : DbContextEventProcessor
 
     public StreetNameProjectionContextEventProcessor(
         IStreamStore streamStore,
-        AcceptStreamMessage<StreetNameProjectionContext> filter,
+        DbContextEventProcessorProjections<StreetNameProjectionContextEventProcessor, StreetNameProjectionContext> projections,
         EnvelopeFactory envelopeFactory,
-        ConnectedProjectionHandlerResolver<StreetNameProjectionContext> resolver,
         IDbContextFactory<StreetNameProjectionContext> dbContextFactory,
         Scheduler scheduler,
         ILogger<StreetNameProjectionContextEventProcessor> logger)
-        : base(ProjectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, logger)
+        : base(ProjectionStateName, streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, logger)
     {
     }
 }
