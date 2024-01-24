@@ -56,6 +56,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             
             builder.OwnsOne(p => p.Origin);
             builder.Property(p => p.LastChangedTimestamp);
+
+            builder.HasIndex(p => p.LeftSideStreetNameId)
+                .IsClustered(false);
+            builder.HasIndex(p => p.RightSideStreetNameId)
+                .IsClustered(false);
         }
     }
 }

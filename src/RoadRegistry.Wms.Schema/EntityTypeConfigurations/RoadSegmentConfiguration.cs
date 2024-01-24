@@ -62,11 +62,15 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
             .HasColumnName("verwijderd")
             .HasDefaultValue(false)
             .IsRequired();
+
         b.HasIndex(p => p.IsRemoved)
             .IsClustered(false);
-
         b.HasIndex(p => p.MorphologyId)
             .IsClustered(false)
             .HasDatabaseName("wegsegmentmorfologie");
+        b.HasIndex(p => p.LeftSideStreetNameId)
+            .IsClustered(false);
+        b.HasIndex(p => p.RightSideStreetNameId)
+            .IsClustered(false);
     }
 }

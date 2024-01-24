@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment;
@@ -12,9 +13,10 @@ using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment;
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadSegmentProducerSnapshot
 {
     [DbContext(typeof(RoadSegmentProducerSnapshotContext))]
-    partial class RoadSegmentProducerSnapshotContextModelSnapshot : ModelSnapshot
+    [Migration("20240124102650_AddStreetNameIdIndices")]
+    partial class AddStreetNameIdIndices
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
