@@ -1,3 +1,10 @@
+## [3.67.2](https://github.com/informatievlaanderen/road-registry/compare/v3.67.1...v3.67.2) (2024-01-24)
+
+
+### Bug Fixes
+
+* WR-923 add indexes ([#1362](https://github.com/informatievlaanderen/road-registry/issues/1362)) ([c571c9f](https://github.com/informatievlaanderen/road-registry/commit/c571c9f799c17a24d56e653a0fb1ad48fe4e6aef))
+
 ## [3.67.1](https://github.com/informatievlaanderen/road-registry/compare/v3.67.0...v3.67.1) (2024-01-24)
 
 
