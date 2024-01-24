@@ -4,43 +4,44 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 
 public class StreetNameProjection : ConnectedProjection<StreetNameProjectionContext>
 {
     public StreetNameProjection()
     {
-        When<StreetNameCreated>(StreetNameCreated);
-        When<StreetNameModified>(StreetNameModified);
-        When<StreetNameRemoved>(StreetNameRemoved);
+        When<Envelope<StreetNameCreated>>(StreetNameCreated);
+        When<Envelope<StreetNameModified>>(StreetNameModified);
+        When<Envelope<StreetNameRemoved>>(StreetNameRemoved);
     }
 
-    private async Task StreetNameCreated(StreetNameProjectionContext context, StreetNameCreated message, CancellationToken token)
+    private async Task StreetNameCreated(StreetNameProjectionContext context, Envelope<StreetNameCreated> envelope, CancellationToken token)
     {
         var dbRecord = new StreetNameRecord();
-        CopyTo(message.Record, dbRecord);
+        CopyTo(envelope.Message.Record, dbRecord);
 
         await context.StreetNames.AddAsync(dbRecord, token);
     }
 
-    private async Task StreetNameModified(StreetNameProjectionContext context, StreetNameModified message, CancellationToken token)
+    private async Task StreetNameModified(StreetNameProjectionContext context, Envelope<StreetNameModified> envelope, CancellationToken token)
     {
-        var dbRecord = await context.StreetNames.FindAsync(new object[] { message.Record.StreetNameId }, token).ConfigureAwait(false);
+        var dbRecord = await context.StreetNames.FindAsync(new object[] { envelope.Message.Record.StreetNameId }, token).ConfigureAwait(false);
 
         if (dbRecord is null)
         {
             dbRecord = new StreetNameRecord
             {
-                StreetNameId = message.Record.StreetNameId
+                StreetNameId = envelope.Message.Record.StreetNameId
             };
             await context.StreetNames.AddAsync(dbRecord, token);
         }
 
-        CopyTo(message.Record, dbRecord);
+        CopyTo(envelope.Message.Record, dbRecord);
     }
 
-    private async Task StreetNameRemoved(StreetNameProjectionContext context, StreetNameRemoved message, CancellationToken token)
+    private async Task StreetNameRemoved(StreetNameProjectionContext context, Envelope<StreetNameRemoved> envelope, CancellationToken token)
     {
-        var dbRecord = await context.StreetNames.FindAsync(new object[] { message.StreetNameId }, token).ConfigureAwait(false);
+        var dbRecord = await context.StreetNames.FindAsync(new object[] { envelope.Message.StreetNameId }, token).ConfigureAwait(false);
 
         if (dbRecord is not null)
         {
