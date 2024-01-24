@@ -37,6 +37,9 @@ public static class RoadNetworkEvents
         typeof(RoadNetworkExtractChangesArchiveUploaded),
         typeof(RoadNetworkExtractChangesArchiveFeatureCompareCompleted),
         typeof(RoadNetworkExtractClosed),
-        typeof(RebuildRoadNetworkSnapshotCompleted)
+        typeof(RebuildRoadNetworkSnapshotCompleted),
+        typeof(StreetNameCreated),
+        typeof(StreetNameModified),
+        typeof(StreetNameRemoved)
     };
 }
