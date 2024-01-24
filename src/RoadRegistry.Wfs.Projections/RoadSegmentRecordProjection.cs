@@ -105,14 +105,16 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         RoadSegmentAdded roadSegmentAdded,
         CancellationToken token)
     {
+        var removedRecord = await context.RoadSegments.SingleOrDefaultIncludingLocalAsync(x => x.Id == roadSegmentAdded.Id && x.IsRemoved, token).ConfigureAwait(false);
+        if (removedRecord is not null)
+        {
+            context.RoadSegments.Remove(removedRecord);
+        }
+
         var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod);
-
         var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction);
-
         var status = RoadSegmentStatus.Parse(roadSegmentAdded.Status);
-
         var morphology = RoadSegmentMorphology.Parse(roadSegmentAdded.Morphology);
-
         var category = RoadSegmentCategory.Parse(roadSegmentAdded.Category);
 
         var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.LeftSide.StreetNameId, token);
@@ -144,23 +146,17 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         RoadSegmentModified roadSegmentModified,
         CancellationToken token)
     {
-        var method =
-            RoadSegmentGeometryDrawMethod.Parse(roadSegmentModified.GeometryDrawMethod);
-
-        var accessRestriction =
-            RoadSegmentAccessRestriction.Parse(roadSegmentModified.AccessRestriction);
-
+        var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentModified.GeometryDrawMethod);
+        var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentModified.AccessRestriction);
         var status = RoadSegmentStatus.Parse(roadSegmentModified.Status);
-
         var morphology = RoadSegmentMorphology.Parse(roadSegmentModified.Morphology);
-
         var category = RoadSegmentCategory.Parse(roadSegmentModified.Category);
 
         var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.LeftSide.StreetNameId, token);
         var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.RightSide.StreetNameId, token);
 
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id, cancellationToken: token).ConfigureAwait(false);
-
+        
         if (roadSegmentRecord == null)
         {
             throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");

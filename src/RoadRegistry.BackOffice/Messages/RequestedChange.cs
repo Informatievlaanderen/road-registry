@@ -18,6 +18,7 @@ public class RequestedChange
     public RemoveRoadNode RemoveRoadNode { get; set; }
     public RemoveRoadSegment RemoveRoadSegment { get; set; }
     public RemoveOutlinedRoadSegment RemoveOutlinedRoadSegment { get; set; }
+    public RemoveOutlinedRoadSegmentFromRoadNetwork RemoveOutlinedRoadSegmentFromRoadNetwork { get; set; }
     public RemoveRoadSegmentFromEuropeanRoad RemoveRoadSegmentFromEuropeanRoad { get; set; }
     public RemoveRoadSegmentFromNationalRoad RemoveRoadSegmentFromNationalRoad { get; set; }
     public RemoveRoadSegmentFromNumberedRoad RemoveRoadSegmentFromNumberedRoad { get; set; }

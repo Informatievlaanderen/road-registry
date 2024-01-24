@@ -12,9 +12,9 @@ public static class ScopedRoadNetworkViewExtensions
         MultiLineString intersectsWithGeometry,
         params RoadNodeId[] roadNodeIdsNotInCommon)
     {
-        //TODO-rik WR-929 inschetste wegsegmenten hier niet in rekening houden
         return scopedRoadNetworkView
             .Segments
+            .Where(segment => segment.Value.AttributeHash.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined)
             .Where(segment => segment.Key != intersectsWithId)
             .Where(segment => segment.Value.Geometry.Intersects(intersectsWithGeometry))
             .Where(segment => !segment.Value.Nodes.Any(roadNodeIdsNotInCommon.Contains));

@@ -167,6 +167,11 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
         return AppendChange(change);
     }
 
+    public RequestedChanges Append(RemoveOutlinedRoadSegmentFromRoadNetwork change)
+    {
+        return AppendChange(change);
+    }
+
     public RequestedChanges Append(AddRoadSegmentToEuropeanRoad change)
     {
         return AppendChange(change);
