@@ -48,7 +48,7 @@ public sealed class CorrectRoadNodeVersionsRequestHandler : IRequestHandler<Corr
     public async Task<CorrectRoadNodeVersionsResponse> Handle(CorrectRoadNodeVersionsRequest request, CancellationToken cancellationToken)
     {
         var translatedChanges = TranslatedChanges.Empty
-            .WithOrganization(new OrganizationId(Organisation.DigitaalVlaanderen.ToString()))
+            .WithOrganization(OrganizationId.DigitaalVlaanderen)
             .WithOperatorName(OperatorName.Unknown)
             .WithReason(new Reason("Corrigeer wegknopen versies"));
 

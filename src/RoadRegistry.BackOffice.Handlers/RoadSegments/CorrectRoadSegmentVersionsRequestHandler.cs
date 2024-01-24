@@ -51,7 +51,7 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
     public async Task<CorrectRoadSegmentVersionsResponse> Handle(CorrectRoadSegmentVersionsRequest request, CancellationToken cancellationToken)
     {
         var translatedChanges = TranslatedChanges.Empty
-            .WithOrganization(new OrganizationId(Organisation.DigitaalVlaanderen.ToString()))
+            .WithOrganization(OrganizationId.DigitaalVlaanderen)
             .WithOperatorName(OperatorName.Unknown)
             .WithReason(new Reason("Corrigeer wegsegmenten versies"));
 

@@ -111,7 +111,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             var idGenerator = container.Resolve<IRoadNetworkIdGenerator>();
 
             var roadNetworkStreamChanges = await SplitChangesByRoadNetworkStream(idGenerator, command.Body.Changes);
-
+            
             foreach (var roadNetworkStreamChange in roadNetworkStreamChanges)
             {
                 var streamName = roadNetworkStreamChange.Key;
@@ -285,7 +285,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         if (segments.Any())
         {
             var reason = $"Wegsegmenten ontkoppelen van straatnaam {command.Body.Id}";
-            var organizationId = new OrganizationId("AGIV");
+            var organizationId = OrganizationId.DigitaalVlaanderen;
 
             var translatedChanges = TranslatedChanges.Empty
                 .WithOrganization(organizationId)
@@ -377,13 +377,15 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                                 ?? change.RemoveRoadSegment?.Id
                                 ?? change.ModifyRoadSegmentAttributes?.Id
                                 ?? change.ModifyRoadSegmentGeometry?.Id
-                                ?? change.RemoveOutlinedRoadSegment?.Id,
+                                ?? change.RemoveOutlinedRoadSegment?.Id
+                                ?? change.RemoveOutlinedRoadSegmentFromRoadNetwork?.Id,
                 GeometryDrawMethod = change.AddRoadSegment?.GeometryDrawMethod
                                      ?? change.ModifyRoadSegment?.GeometryDrawMethod
                                      ?? change.RemoveRoadSegment?.GeometryDrawMethod
                                      ?? change.ModifyRoadSegmentAttributes?.GeometryDrawMethod
                                      ?? change.ModifyRoadSegmentGeometry?.GeometryDrawMethod
-                                     ?? (change.RemoveOutlinedRoadSegment is not null ? RoadSegmentGeometryDrawMethod.Outlined : null),
+                                     ?? (change.RemoveOutlinedRoadSegment is not null ? RoadSegmentGeometryDrawMethod.Outlined : null)
+                                     ?? (change.RemoveOutlinedRoadSegmentFromRoadNetwork is not null ? RoadSegmentGeometryDrawMethod.Measured : null),
                 Change = change
             })
             .GroupBy(x =>

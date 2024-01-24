@@ -92,6 +92,11 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
         return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
     }
 
+    public TranslatedChanges AppendChange(RemoveOutlinedRoadSegmentFromRoadNetwork change)
+    {
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+    }
+
     public TranslatedChanges AppendChange(AddRoadSegmentToEuropeanRoad change)
     {
         return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);

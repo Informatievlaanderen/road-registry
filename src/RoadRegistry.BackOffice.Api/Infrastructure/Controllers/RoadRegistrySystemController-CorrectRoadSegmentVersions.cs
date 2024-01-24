@@ -15,7 +15,7 @@ public partial class RoadRegistrySystemController
     /// <summary>
     ///     Corrects the road segment versions.
     /// </summary>
-    /// <param name="parameters">
+    /// <param name="parameters" />
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
     ///     of cancellation.

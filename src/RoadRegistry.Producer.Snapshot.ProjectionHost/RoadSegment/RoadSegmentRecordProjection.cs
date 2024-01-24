@@ -146,23 +146,17 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             RoadSegmentAdded roadSegmentAdded,
             CancellationToken token)
         {
-            var removedRecord = context.RoadSegments.Local.SingleOrDefault(x => x.Id == roadSegmentAdded.Id && x.IsRemoved)
-                ?? await context.RoadSegments.SingleOrDefaultAsync(x => x.Id == roadSegmentAdded.Id && x.IsRemoved, token);
+            var removedRecord = await context.RoadSegments.SingleOrDefaultIncludingLocalAsync(x => x.Id == roadSegmentAdded.Id && x.IsRemoved, token).ConfigureAwait(false);
             if (removedRecord is not null)
             {
                 context.RoadSegments.Remove(removedRecord);
             }
 
             var transactionId = new TransactionId(envelope.Message.TransactionId);
-
             var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod);
-
             var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction);
-
             var status = RoadSegmentStatus.Parse(roadSegmentAdded.Status);
-
             var morphology = RoadSegmentMorphology.Parse(roadSegmentAdded.Morphology);
-
             var category = RoadSegmentCategory.Parse(roadSegmentAdded.Category);
 
             var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.LeftSide.StreetNameId, token);

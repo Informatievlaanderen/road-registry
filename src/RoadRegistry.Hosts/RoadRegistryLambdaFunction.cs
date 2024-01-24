@@ -26,6 +26,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NodaTime;
 using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
 
 public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
@@ -112,6 +113,8 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
             .AddSingleton(FileEncoding.WindowsAnsi)
             .AddEditorContext()
             .AddStreamStore()
+            .AddSingleton<IClock>(SystemClock.Instance)
+            .AddEventEnricher()
             .AddLogging(builder =>
             {
                 builder.AddRoadRegistryLambdaLogger();

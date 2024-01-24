@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice;
 
 using System;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Extensions;
 using Framework;
 
@@ -9,6 +10,7 @@ public readonly struct OrganizationId : IEquatable<OrganizationId>
     public const int MaxLength = 18;
     public static readonly OrganizationId Other = new("-7");
     public static readonly OrganizationId Unknown = new("-8");
+    public static readonly OrganizationId DigitaalVlaanderen = new(Organisation.DigitaalVlaanderen.ToString());
 
     private readonly string _value;
 

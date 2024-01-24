@@ -67,6 +67,9 @@ internal class RequestedChangeTranslator
                 case Messages.RemoveOutlinedRoadSegment command:
                     translated = translated.Append(Translate(command));
                     break;
+                case Messages.RemoveOutlinedRoadSegmentFromRoadNetwork command:
+                    translated = translated.Append(Translate(command));
+                    break;
                 case Messages.AddRoadSegmentToEuropeanRoad command:
                     translated = translated.Append(await Translate(command, translated));
                     break;
@@ -456,6 +459,15 @@ internal class RequestedChangeTranslator
     {
         var permanent = new RoadSegmentId(command.Id);
         return new RemoveOutlinedRoadSegment
+        (
+            permanent
+        );
+    }
+
+    private RemoveOutlinedRoadSegmentFromRoadNetwork Translate(Messages.RemoveOutlinedRoadSegmentFromRoadNetwork command)
+    {
+        var permanent = new RoadSegmentId(command.Id);
+        return new RemoveOutlinedRoadSegmentFromRoadNetwork
         (
             permanent
         );
