@@ -55,6 +55,22 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
         AcceptStreamMessageFilter filter,
         EnvelopeFactory envelopeFactory,
         ConnectedProjectionHandlerResolver<TDbContext> resolver,
+        IDbContextFactory<TDbContext> dbContextFactory,
+        Scheduler scheduler,
+        ILogger<DbContextEventProcessor<TDbContext>> logger,
+        int catchUpBatchSize = CatchUpBatchSize,
+        int catchUpThreshold = CatchUpThreshold)
+        : this(projectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory.CreateDbContext, scheduler, logger,
+            catchUpBatchSize, catchUpThreshold)
+    {
+    }
+
+    protected DbContextEventProcessor(
+        string projectionStateName,
+        IStreamStore streamStore,
+        AcceptStreamMessageFilter filter,
+        EnvelopeFactory envelopeFactory,
+        ConnectedProjectionHandlerResolver<TDbContext> resolver,
         Func<TDbContext> dbContextFactory,
         Scheduler scheduler,
         ILogger<DbContextEventProcessor<TDbContext>> logger,
@@ -175,8 +191,8 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                                     catchUpPosition,
                                                     _messagePumpCancellation.Token)
                                                 .ConfigureAwait(false);
-                                            await UpdateEventProcessorMetricsAsync(context, page.FromPosition, catchUpPosition, sw.ElapsedMilliseconds, _messagePumpCancellation.Token);
-                                            await OutputEstimatedTimeRemainingAsync(context, logger, page.FromPosition - 1, await streamStore.ReadHeadPosition(), _messagePumpCancellation.Token);
+                                            await UpdateEventProcessorMetricsAsync(context, page.FromPosition, catchUpPosition, sw.ElapsedMilliseconds, _messagePumpCancellation.Token).ConfigureAwait(false);
+                                            await OutputEstimatedTimeRemainingAsync(context, logger, page.FromPosition - 1, await streamStore.ReadHeadPosition(), _messagePumpCancellation.Token).ConfigureAwait(false);
                                             sw.Restart();
 
                                             context.ChangeTracker.DetectChanges();
@@ -203,8 +219,8 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                             catchUpPosition,
                                             _messagePumpCancellation.Token)
                                         .ConfigureAwait(false);
-                                    await UpdateEventProcessorMetricsAsync(context, page.FromPosition, catchUpPosition, sw.ElapsedMilliseconds, _messagePumpCancellation.Token);
-                                    await OutputEstimatedTimeRemainingAsync(context, logger, page.FromPosition - 1, await streamStore.ReadHeadPosition(), _messagePumpCancellation.Token);
+                                    await UpdateEventProcessorMetricsAsync(context, page.FromPosition, catchUpPosition, sw.ElapsedMilliseconds, _messagePumpCancellation.Token).ConfigureAwait(false);
+                                    await OutputEstimatedTimeRemainingAsync(context, logger, page.FromPosition - 1, await streamStore.ReadHeadPosition(), _messagePumpCancellation.Token).ConfigureAwait(false);
                                     sw.Restart();
 
                                     context.ChangeTracker.DetectChanges();
@@ -303,7 +319,7 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                             projectionStateName,
                                             process.Message.Position,
                                             _messagePumpCancellation.Token).ConfigureAwait(false);
-                                        await UpdateEventProcessorMetricsAsync(processContext, process.Message.Position, process.Message.Position, sw.ElapsedMilliseconds, _messagePumpCancellation.Token);
+                                        await UpdateEventProcessorMetricsAsync(processContext, process.Message.Position, process.Message.Position, sw.ElapsedMilliseconds, _messagePumpCancellation.Token).ConfigureAwait(false);
                                         
                                         processContext.ChangeTracker.DetectChanges();
                                         await processContext.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);

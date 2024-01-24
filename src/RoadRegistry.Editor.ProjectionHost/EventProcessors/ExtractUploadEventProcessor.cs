@@ -11,7 +11,7 @@ public class ExtractUploadEventProcessor : EditorContextEventProcessor
 {
     public ExtractUploadEventProcessor(
         IStreamStore streamStore,
-        EditorContextEventProcessorProjections<ExtractUploadEventProcessor> projections,
+        DbContextEventProcessorProjections<ExtractUploadEventProcessor, EditorContext> projections,
         EnvelopeFactory envelopeFactory,
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,

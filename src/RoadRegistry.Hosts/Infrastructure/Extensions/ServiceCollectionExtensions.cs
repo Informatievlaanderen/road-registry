@@ -148,15 +148,7 @@ public static class ServiceCollectionExtensions
         where TDbContext: RunnerDbContext<TDbContext>
     {
         services
-            .AddSingleton(projections)
-            .AddSingleton(sp => Resolve.WhenEqualToHandlerMessageType(sp
-                .GetRequiredService<ConnectedProjection<TDbContext>[]>()
-                .SelectMany(projection => projection.Handlers)
-                .ToArray())
-            )
-            .AddSingleton(sp => new AcceptStreamMessage<TDbContext>(
-                sp.GetRequiredService<ConnectedProjection<TDbContext>[]>(), DbContextEventProcessor<TDbContext>.EventMapping
-            ))
+            .AddSingleton(sp => new DbContextEventProcessorProjections<TDbContextEventProcessor, TDbContext>(projections(sp)))
             ;
 
         return services;

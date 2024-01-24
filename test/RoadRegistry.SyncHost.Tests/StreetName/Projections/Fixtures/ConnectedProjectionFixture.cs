@@ -1,6 +1,8 @@
 namespace RoadRegistry.SyncHost.Tests.StreetName.Projections.Fixtures;
 
+using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 
 public class ConnectedProjectionFixture<TProjection, TConnection>
     where TProjection : ConnectedProjection<TConnection>, new()
@@ -16,9 +18,10 @@ public class ConnectedProjectionFixture<TProjection, TConnection>
 
     public TProjection Projection { get; init; }
 
-    public Task ProjectAsync(object message)
+    public Task ProjectAsync<TMessage>(TMessage message)
+        where TMessage : IMessage
     {
-        return _projector.ProjectAsync(_connection, message);
+        return _projector.ProjectAsync(_connection, new Envelope<TMessage>(new Envelope(message, new Dictionary<string, object>())));
     }
 
     public Task ProjectAsync(object message, CancellationToken cancellationToken)

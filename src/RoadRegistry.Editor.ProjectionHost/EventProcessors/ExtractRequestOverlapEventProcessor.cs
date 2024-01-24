@@ -11,7 +11,7 @@ public class ExtractRequestOverlapEventProcessor : EditorContextEventProcessor
 {
     public ExtractRequestOverlapEventProcessor(
         IStreamStore streamStore,
-        EditorContextEventProcessorProjections<ExtractRequestOverlapEventProcessor> projections,
+        DbContextEventProcessorProjections<ExtractRequestOverlapEventProcessor, EditorContext> projections,
         EnvelopeFactory envelopeFactory,
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,

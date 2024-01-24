@@ -11,7 +11,7 @@ public class ChangeFeedEventProcessor : EditorContextEventProcessor
 {
     public ChangeFeedEventProcessor(
         IStreamStore streamStore,
-        EditorContextEventProcessorProjections<ChangeFeedEventProcessor> projections,
+        DbContextEventProcessorProjections<ChangeFeedEventProcessor, EditorContext> projections,
         EnvelopeFactory envelopeFactory,
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,
