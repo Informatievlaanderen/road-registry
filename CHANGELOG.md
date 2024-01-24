@@ -1,3 +1,11 @@
+## [3.67.1](https://github.com/informatievlaanderen/road-registry/compare/v3.67.0...v3.67.1) (2024-01-24)
+
+
+### Bug Fixes
+
+* version bump ([#1360](https://github.com/informatievlaanderen/road-registry/issues/1360)) ([313d2af](https://github.com/informatievlaanderen/road-registry/commit/313d2af70a813225992e438c172d6f1c20a120b4))
+* WR-923 StreetName projections ([#1361](https://github.com/informatievlaanderen/road-registry/issues/1361)) ([a4aca41](https://github.com/informatievlaanderen/road-registry/commit/a4aca41fa07e637fd8423063f77acaa781540a90))
+
 # [3.67.0](https://github.com/informatievlaanderen/road-registry/compare/v3.66.6...v3.67.0) (2024-01-23)
 
 
