@@ -28,7 +28,7 @@ public class StreetNameSnapshotConsumer : RoadRegistryBackgroundService
     private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
 
     private static readonly EventMapping EventMapping =
-        new(EventMapping.DiscoverEventNamesInAssembly(typeof(StreetNameEvents).Assembly));
+        new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
 
     private static readonly JsonSerializerSettings SerializerSettings =
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();

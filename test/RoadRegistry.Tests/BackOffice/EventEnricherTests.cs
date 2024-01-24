@@ -15,7 +15,7 @@ public class EnrichEventTests
         var expected = InstantPattern.ExtendedIso.Format(instant);
         var clock = new FakeClock(instant);
         var sut = EnrichEvent.WithTime(clock);
-        foreach (var eventType in RoadNetworkEvents.All.Union(StreetNameEvents.All))
+        foreach (var eventType in RoadNetworkEvents.All)
         {
             var @event = Activator.CreateInstance(eventType);
 

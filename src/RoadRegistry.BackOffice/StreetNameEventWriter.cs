@@ -16,7 +16,7 @@ public interface IStreetNameEventWriter
 public class StreetNameEventWriter : RoadRegistryEventWriter, IStreetNameEventWriter
 {
     private static readonly EventMapping EventMapping =
-        new(EventMapping.DiscoverEventNamesInAssembly(typeof(StreetNameEvents).Assembly));
+        new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
     
     public StreetNameEventWriter(IStreamStore store, EventEnricher enricher)
         : base(store, enricher, EventMapping)
