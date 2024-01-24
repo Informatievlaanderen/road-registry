@@ -1,3 +1,10 @@
+## [3.67.3](https://github.com/informatievlaanderen/road-registry/compare/v3.67.2...v3.67.3) (2024-01-24)
+
+
+### Bug Fixes
+
+* WR-909 StreetName sync in projector ([#1363](https://github.com/informatievlaanderen/road-registry/issues/1363)) ([2a419ae](https://github.com/informatievlaanderen/road-registry/commit/2a419ae23b42441cbf8a7bce7b1bee88c57bdfd9))
+
 ## [3.67.2](https://github.com/informatievlaanderen/road-registry/compare/v3.67.1...v3.67.2) (2024-01-24)
 
 
