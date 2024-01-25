@@ -1,3 +1,11 @@
+## [3.67.7](https://github.com/informatievlaanderen/road-registry/compare/v3.67.6...v3.67.7) (2024-01-25)
+
+
+### Bug Fixes
+
+* add logging for overlap projection ([#1367](https://github.com/informatievlaanderen/road-registry/issues/1367)) ([91c35b3](https://github.com/informatievlaanderen/road-registry/commit/91c35b30e9e70409d52099551356de840119ecde))
+* overlap logging ([#1368](https://github.com/informatievlaanderen/road-registry/issues/1368)) ([76b5842](https://github.com/informatievlaanderen/road-registry/commit/76b5842cd543acb6e686b3235a859bb0c7cdd0f5))
+
 ## [3.67.6](https://github.com/informatievlaanderen/road-registry/compare/v3.67.5...v3.67.6) (2024-01-25)
 
 
