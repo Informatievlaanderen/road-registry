@@ -55,7 +55,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Extracts
                         break;
                     }
 
-                    if (sw.Elapsed.TotalMinutes > 5)
+                    if (sw.Elapsed.TotalMinutes > 2)
                     {
                         Assert.Fail($"Timed out, waited {sw.Elapsed} for overlap to be created");
                     }
