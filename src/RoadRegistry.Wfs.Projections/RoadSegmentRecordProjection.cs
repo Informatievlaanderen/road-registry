@@ -108,6 +108,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         var removedRecord = await context.RoadSegments.SingleOrDefaultIncludingLocalAsync(x => x.Id == roadSegmentAdded.Id && x.IsRemoved, token).ConfigureAwait(false);
         if (removedRecord is not null)
         {
+            //TODO-rik convert to update instead of delete+insert
             context.RoadSegments.Remove(removedRecord);
         }
 

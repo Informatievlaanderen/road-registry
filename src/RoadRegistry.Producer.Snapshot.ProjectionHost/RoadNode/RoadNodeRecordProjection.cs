@@ -1,17 +1,16 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
 {
-    using System;
-    using System.Globalization;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
     using BackOffice;
+    using BackOffice.Extensions;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Extensions;
-    using Microsoft.EntityFrameworkCore;
     using Projections;
+    using System;
+    using System.Globalization;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     public class RoadNodeRecordProjection : ConnectedProjection<RoadNodeProducerSnapshotContext>
     {
@@ -22,19 +21,21 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             _kafkaProducer = kafkaProducer;
             When<Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<ImportedRoadNode>>(async (context, envelope, token) =>
             {
-                var geometry = GeometryTranslator.Translate(envelope.Message.Geometry);
-                var typeTranslation = RoadNodeType.Parse(envelope.Message.Type).Translation;
+                var roadNodeAdded = envelope.Message;
+
+                var typeTranslation = RoadNodeType.Parse(roadNodeAdded.Type).Translation;
 
                 var roadNode = await context.RoadNodes.AddAsync(
-                    new RoadNodeRecord(
-                        envelope.Message.Id,
-                        envelope.Message.Version,
-                        typeTranslation.Identifier,
-                        typeTranslation.Name,
-                        geometry,
-                        envelope.Message.Origin.ToOrigin(),
-                        envelope.CreatedUtc)
-                    , token);
+                    new RoadNodeRecord
+                    {
+                        Id = roadNodeAdded.Id,
+                        Version = roadNodeAdded.Version,
+                        TypeId = typeTranslation.Identifier,
+                        TypeDutchName = typeTranslation.Name,
+                        Geometry = GeometryTranslator.Translate(roadNodeAdded.Geometry),
+                        Origin = envelope.Message.Origin.ToOrigin(),
+                        LastChangedTimestamp = envelope.CreatedUtc
+                    }, token);
 
                 await Produce(envelope.Message.Id, roadNode.Entity.ToContract(), token);
             });
@@ -63,25 +64,28 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             RoadNodeAdded roadNodeAdded,
             CancellationToken token)
         {
-            var removedRecord = context.RoadNodes.Local.SingleOrDefault(x => x.Id == roadNodeAdded.Id && x.IsRemoved)
-                ?? await context.RoadNodes.SingleOrDefaultAsync(x => x.Id == roadNodeAdded.Id && x.IsRemoved, token);
-            if (removedRecord is not null)
+            var dbRecord = await context.RoadNodes.SingleOrDefaultIncludingLocalAsync(x => x.Id == roadNodeAdded.Id, token);
+            if (dbRecord is null)
             {
-                context.RoadNodes.Remove(removedRecord);
+                dbRecord = new RoadNodeRecord();
+                await context.RoadNodes.AddAsync(dbRecord, token);
+            }
+            else
+            {
+                dbRecord.IsRemoved = false;
             }
 
             var typeTranslation = RoadNodeType.Parse(roadNodeAdded.Type).Translation;
 
-            var roadNode = await context.RoadNodes.AddAsync(new RoadNodeRecord(
-                roadNodeAdded.Id,
-                roadNodeAdded.Version,
-                typeTranslation.Identifier,
-                typeTranslation.Name,
-                GeometryTranslator.Translate(roadNodeAdded.Geometry),
-                envelope.Message.ToOrigin(),
-                envelope.CreatedUtc), token);
+            dbRecord.Id = roadNodeAdded.Id;
+            dbRecord.Version = roadNodeAdded.Version;
+            dbRecord.TypeId = typeTranslation.Identifier;
+            dbRecord.TypeDutchName = typeTranslation.Name;
+            dbRecord.Geometry = GeometryTranslator.Translate(roadNodeAdded.Geometry);
+            dbRecord.Origin = envelope.Message.ToOrigin();
+            dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
-            await Produce(roadNodeAdded.Id, roadNode.Entity.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
 
         private async Task ModifyRoadNode(
