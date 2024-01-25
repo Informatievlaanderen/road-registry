@@ -1,3 +1,10 @@
+## [3.67.6](https://github.com/informatievlaanderen/road-registry/compare/v3.67.5...v3.67.6) (2024-01-25)
+
+
+### Bug Fixes
+
+* WR-929 migrate outlined from roadnetwork with no lanes/surfaces/widths ([#1366](https://github.com/informatievlaanderen/road-registry/issues/1366)) ([1228851](https://github.com/informatievlaanderen/road-registry/commit/1228851fb9a992ba276337e86649bc6c27a01f5b))
+
 ## [3.67.5](https://github.com/informatievlaanderen/road-registry/compare/v3.67.4...v3.67.5) (2024-01-24)
 
 
