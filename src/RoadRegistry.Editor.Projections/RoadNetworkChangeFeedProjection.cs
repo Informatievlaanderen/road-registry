@@ -307,11 +307,6 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkChangesRejected>>(async (context, envelope, ct) =>
         {
-            if (!MessageIsFromDefaultRoadNetwork(envelope))
-            {
-                return;
-            }
-
             var changeRequestId = ChangeRequestId.FromString(envelope.Message.RequestId);
             
             var request = context.RoadNetworkChangeRequestsBasedOnArchive.Local
