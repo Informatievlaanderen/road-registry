@@ -12,11 +12,16 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 public class ExtractRequestOverlapRecordProjection : ConnectedProjection<EditorContext>
 {
-    public ExtractRequestOverlapRecordProjection()
+    private readonly ILogger<ExtractRequestOverlapRecordProjection> _logger;
+
+    public ExtractRequestOverlapRecordProjection(ILogger<ExtractRequestOverlapRecordProjection> logger)
     {
+        _logger = logger.ThrowIfNull();
+
         When<Envelope<RoadNetworkExtractGotRequested>>(async (context, envelope, ct) =>
         {
             var message = envelope.Message;
@@ -99,6 +104,8 @@ WHERE o.Contour.STIsEmpty() = 0 AND o.Contour.STGeometryType() LIKE '%POLYGON'
             .DistinctBy(x => new { x.DownloadId1, x.DownloadId2 })
             .ToList();
 
+        _logger.LogInformation("Adding {OverlapCount} overlap records for extract [{DownloadId}: {Description}]", overlapRecords.Count, downloadId, description);
+
         await context.ExtractRequestOverlaps.AddRangeAsync(overlapRecords, cancellationToken);
     }
 
@@ -107,6 +114,8 @@ WHERE o.Contour.STIsEmpty() = 0 AND o.Contour.STGeometryType() LIKE '%POLYGON'
         var requestsToRemoved = await context.ExtractRequestOverlaps
             .Where(x => downloadIds.Contains(x.DownloadId1) || downloadIds.Contains(x.DownloadId2))
             .ToListAsync(cancellationToken);
+
+        _logger.LogInformation("Removing {OverlapCount} overlap records for extracts [{DownloadIds}]", requestsToRemoved.Count, string.Join(", ", downloadIds.Select(x => x.ToString("N"))));
 
         context.ExtractRequestOverlaps.RemoveRange(requestsToRemoved);
     }
