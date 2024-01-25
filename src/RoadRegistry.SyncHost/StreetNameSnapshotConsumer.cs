@@ -88,6 +88,10 @@ public class StreetNameSnapshotConsumer : RoadRegistryBackgroundService
 
                 if (@event is StreetNameRemoved)
                 {
+                    //TODO-rik WR-924 wait for new editor roadsegments projection (zie BeforeDispatchEvent in ExtractHost EventProcessor)
+
+                    //query for matching roadsegments, send with command UnlinkRoadSegmentsFromStreetName
+
                     await _roadNetworkCommandQueue.WriteAsync(new Command(new UnlinkRoadSegmentsFromStreetName
                     {
                         Id = streetNameLocalId

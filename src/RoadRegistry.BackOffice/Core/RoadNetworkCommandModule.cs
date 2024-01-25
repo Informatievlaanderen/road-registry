@@ -281,6 +281,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         var streetNameId = new CrabStreetNameId(command.Body.Id);
 
+        //TODO-rik WR-924 roadsegments id+methods uit command lezen en zo bepalen welke stream moet worden uitgelezen voor de details
         var segments = roadNetwork.FindRoadSegments(x => x.AttributeHash.LeftStreetNameId == streetNameId || x.AttributeHash.RightStreetNameId == streetNameId);
         if (segments.Any())
         {
