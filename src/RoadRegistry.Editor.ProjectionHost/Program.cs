@@ -115,7 +115,7 @@ public class Program
                 .AddEditorContextEventProcessor<ExtractRequestEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
                 {
                     new ExtractRequestRecordProjection(),
-                    !useExtractRequestOverlapEventProcessorFeatureToggle.FeatureEnabled ? new ExtractRequestOverlapRecordProjection() : null
+                    !useExtractRequestOverlapEventProcessorFeatureToggle.FeatureEnabled ? new ExtractRequestOverlapRecordProjection(sp.GetRequiredService<ILogger<ExtractRequestOverlapRecordProjection>>()) : null
                 }.Where(x => x is not null).ToArray())
                 .AddEditorContextEventProcessor<ExtractUploadEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
                 {
@@ -127,7 +127,7 @@ public class Program
                 services
                     .AddEditorContextEventProcessor<ExtractRequestOverlapEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
                     {
-                        new ExtractRequestOverlapRecordProjection()
+                        new ExtractRequestOverlapRecordProjection(sp.GetRequiredService<ILogger<ExtractRequestOverlapRecordProjection>>())
                     });
             }
         })
