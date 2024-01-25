@@ -78,19 +78,45 @@ public sealed class MigrateOutlinedRoadSegmentsOutOfRoadNetworkRequestHandler : 
                 PermanentId = roadSegment.Id
             }.WithGeometry(roadSegment.Geometry);
 
-            foreach (var lane in roadSegment.Lanes)
+            if (roadSegment.Lanes.Any())
             {
-                addRoadSegment = addRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeId, lane.Count, lane.Direction, lane.From, lane.To));
+                foreach (var lane in roadSegment.Lanes)
+                {
+                    addRoadSegment = addRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeId, lane.Count, lane.Direction, lane.From, lane.To));
+                    attributeId = attributeId.Next();
+                }
+            }
+            else
+            {
+                addRoadSegment = addRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeId, RoadSegmentLaneCount.Unknown, RoadSegmentLaneDirection.Unknown, new RoadSegmentPosition(0), RoadSegmentPosition.FromDouble(roadSegment.Geometry.Length)));
                 attributeId = attributeId.Next();
             }
-            foreach (var surface in roadSegment.Surfaces)
+
+            if (roadSegment.Surfaces.Any())
             {
-                addRoadSegment = addRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeId, surface.Type, surface.From, surface.To));
+                foreach (var surface in roadSegment.Surfaces)
+                {
+                    addRoadSegment = addRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeId, surface.Type, surface.From, surface.To));
+                    attributeId = attributeId.Next();
+                }
+            }
+            else
+            {
+                addRoadSegment = addRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeId, RoadSegmentSurfaceType.Unknown, new RoadSegmentPosition(0), RoadSegmentPosition.FromDouble(roadSegment.Geometry.Length)));
                 attributeId = attributeId.Next();
             }
-            foreach (var width in roadSegment.Widths)
+
+            if (roadSegment.Widths.Any())
             {
-                addRoadSegment = addRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeId, width.Width, width.From, width.To));
+                foreach (var width in roadSegment.Widths)
+                {
+                    addRoadSegment = addRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeId, width.Width, width.From, width.To));
+                    attributeId = attributeId.Next();
+                }
+            }
+            else
+            {
+                addRoadSegment = addRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeId, RoadSegmentWidth.Unknown, new RoadSegmentPosition(0), RoadSegmentPosition.FromDouble(roadSegment.Geometry.Length)));
                 attributeId = attributeId.Next();
             }
 
