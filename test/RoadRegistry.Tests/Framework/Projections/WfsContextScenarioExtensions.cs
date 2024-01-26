@@ -62,6 +62,7 @@ public static class WfsContextScenarioExtensions
                 CustomComparers = new List<BaseTypeComparer>
                 {
                     new GeometryPointComparer(RootComparerFactory.GetRootComparer()),
+                    new GeometryLineStringComparer(RootComparerFactory.GetRootComparer()),
                     new DateTimeComparer(RootComparerFactory.GetRootComparer())
                 }
             };
