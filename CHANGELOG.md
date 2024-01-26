@@ -1,3 +1,11 @@
+## [3.67.8](https://github.com/informatievlaanderen/road-registry/compare/v3.67.7...v3.67.8) (2024-01-26)
+
+
+### Bug Fixes
+
+* outlined segment rejections should show in feed ([#1369](https://github.com/informatievlaanderen/road-registry/issues/1369)) ([c9578eb](https://github.com/informatievlaanderen/road-registry/commit/c9578ebbc13b5724ef99d89046af4dadfb22d6d7))
+* WR-932 convert Delete+Create to Update with soft-deleted objects in projections ([#1370](https://github.com/informatievlaanderen/road-registry/issues/1370)) ([16645a5](https://github.com/informatievlaanderen/road-registry/commit/16645a549e7ba8e3c6ad948aee07513e7ad6c03a))
+
 ## [3.67.7](https://github.com/informatievlaanderen/road-registry/compare/v3.67.6...v3.67.7) (2024-01-25)
 
 
