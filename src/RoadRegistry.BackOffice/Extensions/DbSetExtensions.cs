@@ -17,11 +17,18 @@ public static class DbSetExtensions
         await queryBuilder(dbSet).ForEachBatchAsync(batchSize, action, cancellationToken);
     }
 
-    public static async Task<T> SingleOrDefaultIncludingLocalAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
+    public static async Task<T> FindAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
         where T : class
     {
         return dbSet.Local.SingleOrDefault(predicate.Compile())
                ?? await dbSet.SingleOrDefaultAsync(predicate, cancellationToken);
+    }
+
+    public static async Task<T> FindWithoutQueryFiltersAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
+        where T : class
+    {
+        return dbSet.Local.SingleOrDefault(predicate.Compile())
+               ?? await dbSet.IgnoreQueryFilters().SingleOrDefaultAsync(predicate, cancellationToken);
     }
 
     public static async Task<T> SingleIncludingLocalAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)

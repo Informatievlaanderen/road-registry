@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice;
 using System;
+using Core;
 using Extensions;
 
 public readonly struct OrganizationName : IEquatable<OrganizationName>
@@ -60,6 +61,11 @@ public readonly struct OrganizationName : IEquatable<OrganizationName>
         }
 
         return new OrganizationName(value.WithMaxLength(MaxLength));
+    }
+
+    public static OrganizationName FromValueWithFallback(string value)
+    {
+        return new OrganizationName(value.NullIfEmpty() ?? Organization.PredefinedTranslations.Unknown.Name);
     }
 
     public static implicit operator string(OrganizationName instance)

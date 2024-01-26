@@ -78,12 +78,14 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
         {
             var nationalRoadAdded = change.RoadSegmentAddedToNationalRoad;
 
-            var record = new NationalRoadRecord(
-                nationalRoadAdded.AttributeId,
-                nationalRoadAdded.SegmentId,
-                nationalRoadAdded.Number,
-                message.ToOrigin(),
-                created);
+            var record = new NationalRoadRecord
+            {
+                Id = nationalRoadAdded.AttributeId,
+                RoadSegmentId = nationalRoadAdded.SegmentId,
+                Number = nationalRoadAdded.Number,
+                Origin = message.ToOrigin(),
+                LastChangedTimestamp = created
+            };
 
             modifier?.Invoke(record);
             return (object)record;
@@ -133,12 +135,14 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
         importedRoadSegment.When = LocalDateTimeTranslator.TranslateToWhen(created);
         importedRoadSegment.PartOfNationalRoads = _fixture.CreateMany<ImportedRoadSegmentNationalRoadAttribute>(2).ToArray();
         var expectedRecords = importedRoadSegment.PartOfNationalRoads
-            .Select(nationalRoad => new NationalRoadRecord(
-                nationalRoad.AttributeId,
-                importedRoadSegment.Id,
-                nationalRoad.Number,
-                nationalRoad.Origin.ToOrigin(),
-                created))
+            .Select(nationalRoad => new NationalRoadRecord
+            {
+                Id = nationalRoad.AttributeId,
+                RoadSegmentId = importedRoadSegment.Id,
+                Number = nationalRoad.Number,
+                Origin = nationalRoad.Origin.ToOrigin(),
+                LastChangedTimestamp = created
+            })
             .ToList();
 
         var kafkaProducer = BuildKafkaProducer();

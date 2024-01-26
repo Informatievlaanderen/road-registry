@@ -56,14 +56,16 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
                 var gradeSeparatedJunctionAdded = change.GradeSeparatedJunctionAdded;
                 var typeTranslation = GradeSeparatedJunctionType.Parse(gradeSeparatedJunctionAdded.Type).Translation;
 
-                var record = new GradeSeparatedJunctionRecord(
-                    gradeSeparatedJunctionAdded.Id,
-                    gradeSeparatedJunctionAdded.LowerRoadSegmentId,
-                    gradeSeparatedJunctionAdded.UpperRoadSegmentId,
-                    typeTranslation.Identifier,
-                    typeTranslation.Name,
-                    message.ToOrigin(),
-                    created);
+                var record = new GradeSeparatedJunctionRecord
+                {
+                    Id = gradeSeparatedJunctionAdded.Id,
+                    LowerRoadSegmentId = gradeSeparatedJunctionAdded.LowerRoadSegmentId,
+                    UpperRoadSegmentId = gradeSeparatedJunctionAdded.UpperRoadSegmentId,
+                    TypeId = typeTranslation.Identifier,
+                    TypeDutchName = typeTranslation.Name,
+                    Origin = message.ToOrigin(),
+                    LastChangedTimestamp = created
+                };
                 modifier?.Invoke(record);
                 return (object)record;
             });
@@ -114,14 +116,16 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
                 @event.When = LocalDateTimeTranslator.TranslateToWhen(_fixture.Create<DateTime>());
                 var typeTranslation = GradeSeparatedJunctionType.Parse(@event.Type).Translation;
 
-                var expectedRecord = new GradeSeparatedJunctionRecord(
-                    @event.Id,
-                    @event.LowerRoadSegmentId,
-                    @event.UpperRoadSegmentId,
-                    typeTranslation.Identifier,
-                    typeTranslation.Name,
-                    @event.Origin.ToOrigin(),
-                    created);
+                var expectedRecord = new GradeSeparatedJunctionRecord
+                {
+                    Id = @event.Id,
+                    LowerRoadSegmentId = @event.LowerRoadSegmentId,
+                    UpperRoadSegmentId = @event.UpperRoadSegmentId,
+                    TypeId = typeTranslation.Identifier,
+                    TypeDutchName = typeTranslation.Name,
+                    Origin = @event.Origin.ToOrigin(),
+                    LastChangedTimestamp = created
+                };
 
                 return new
                 {
@@ -161,14 +165,16 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
             var gradeSeparatedJunctionModified = change.GradeSeparatedJunctionModified;
             var typeTranslation = GradeSeparatedJunctionType.Parse(gradeSeparatedJunctionModified.Type).Translation;
 
-            return (object)new GradeSeparatedJunctionRecord(
-                gradeSeparatedJunctionModified.Id,
-                gradeSeparatedJunctionModified.LowerRoadSegmentId,
-                gradeSeparatedJunctionModified.UpperRoadSegmentId,
-                typeTranslation.Identifier,
-                typeTranslation.Name,
-                acceptedGradeSeparatedJunctionModified.ToOrigin(),
-                created);
+            return (object)new GradeSeparatedJunctionRecord
+            {
+                Id = gradeSeparatedJunctionModified.Id,
+                LowerRoadSegmentId = gradeSeparatedJunctionModified.LowerRoadSegmentId,
+                UpperRoadSegmentId = gradeSeparatedJunctionModified.UpperRoadSegmentId,
+                TypeId = typeTranslation.Identifier,
+                TypeDutchName = typeTranslation.Name,
+                Origin = acceptedGradeSeparatedJunctionModified.ToOrigin(),
+                LastChangedTimestamp = created
+            };
         });
 
         var kafkaProducer = BuildKafkaProducer();

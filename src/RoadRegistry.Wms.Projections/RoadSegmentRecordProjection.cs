@@ -38,7 +38,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
                 BeginApplication = envelope.Message.Origin.Application,
 
                 MaintainerId = envelope.Message.MaintenanceAuthority.Code,
-                MaintainerName = envelope.Message.MaintenanceAuthority.Name,
+                MaintainerName = OrganizationName.FromValueWithFallback(envelope.Message.MaintenanceAuthority.Name),
 
                 MethodId = method.Translation.Identifier,
                 MethodDutchName = method.Translation.Name,
@@ -134,10 +134,17 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         RoadSegmentAdded roadSegmentAdded,
         CancellationToken token)
     {
-        var removedRecord = await context.RoadSegments.SingleOrDefaultIncludingLocalAsync(x => x.Id == roadSegmentAdded.Id && x.IsRemoved, token).ConfigureAwait(false);
-        if (removedRecord is not null)
+        var dbRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == roadSegmentAdded.Id, token)
+            .ConfigureAwait(false);
+        if (dbRecord is null)
         {
-            context.RoadSegments.Remove(removedRecord);
+            dbRecord = new RoadSegmentRecord();
+            await context.RoadSegments.AddAsync(dbRecord, token);
+        }
+        else
+        {
+            dbRecord.IsRemoved = false;
         }
 
         var transactionId = new TransactionId(envelope.Message.TransactionId);
@@ -150,54 +157,51 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.LeftSide.StreetNameId, token);
         var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.RightSide.StreetNameId, token);
 
-        await context.RoadSegments.AddAsync(new RoadSegmentRecord
-        {
-            BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
-            BeginOrganizationId = envelope.Message.OrganizationId,
-            BeginOrganizationName = envelope.Message.Organization,
+        dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        dbRecord.BeginOrganizationId = envelope.Message.OrganizationId;
+        dbRecord.BeginOrganizationName = envelope.Message.Organization;
 
-            Id = roadSegmentAdded.Id,
-            BeginApplication = null,
+        dbRecord.Id = roadSegmentAdded.Id;
+        dbRecord.BeginApplication = null;
 
-            MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code,
-            MaintainerName = roadSegmentAdded.MaintenanceAuthority.Name,
+        dbRecord.MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code;
+        dbRecord.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentAdded.MaintenanceAuthority.Name);
 
-            MethodId = method.Translation.Identifier,
-            MethodDutchName = method.Translation.Name,
+        dbRecord.MethodId = method.Translation.Identifier;
+        dbRecord.MethodDutchName = method.Translation.Name;
 
-            CategoryId = category.Translation.Identifier,
-            CategoryDutchName = category.Translation.Name,
+        dbRecord.CategoryId = category.Translation.Identifier;
+        dbRecord.CategoryDutchName = category.Translation.Name;
 
-            Geometry2D = WmsGeometryTranslator.Translate2D(roadSegmentAdded.Geometry),
-            GeometryVersion = roadSegmentAdded.GeometryVersion,
+        dbRecord.Geometry2D = WmsGeometryTranslator.Translate2D(roadSegmentAdded.Geometry);
+        dbRecord.GeometryVersion = roadSegmentAdded.GeometryVersion;
 
-            MorphologyId = morphology.Translation.Identifier,
-            MorphologyDutchName = morphology.Translation.Name,
+        dbRecord.MorphologyId = morphology.Translation.Identifier;
+        dbRecord.MorphologyDutchName = morphology.Translation.Name;
 
-            StatusId = status.Translation.Identifier,
-            StatusDutchName = status.Translation.Name,
+        dbRecord.StatusId = status.Translation.Identifier;
+        dbRecord.StatusDutchName = status.Translation.Name;
 
-            AccessRestrictionId = accessRestriction.Translation.Identifier,
-            AccessRestrictionDutchName = accessRestriction.Translation.Name,
+        dbRecord.AccessRestrictionId = accessRestriction.Translation.Identifier;
+        dbRecord.AccessRestrictionDutchName = accessRestriction.Translation.Name;
 
-            RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
-            TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32(),
+        dbRecord.RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        dbRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
 
-            LeftSideMunicipalityId = null,
-            LeftSideMunicipalityNisCode = leftSideStreetNameRecord?.NisCode,
-            LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId,
-            LeftSideStreetName = leftSideStreetNameRecord?.Name,
+        dbRecord.LeftSideMunicipalityId = null;
+        dbRecord.LeftSideMunicipalityNisCode = leftSideStreetNameRecord?.NisCode;
+        dbRecord.LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId;
+        dbRecord.LeftSideStreetName = leftSideStreetNameRecord?.Name;
 
-            RightSideMunicipalityId = null,
-            RightSideMunicipalityNisCode = rightSideStreetNameRecord?.NisCode,
-            RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId,
-            RightSideStreetName = rightSideStreetNameRecord?.Name,
+        dbRecord.RightSideMunicipalityId = null;
+        dbRecord.RightSideMunicipalityNisCode = rightSideStreetNameRecord?.NisCode;
+        dbRecord.RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId;
+        dbRecord.RightSideStreetName = rightSideStreetNameRecord?.Name;
 
-            RoadSegmentVersion = roadSegmentAdded.Version,
+        dbRecord.RoadSegmentVersion = roadSegmentAdded.Version;
 
-            BeginRoadNodeId = roadSegmentAdded.StartNodeId,
-            EndRoadNodeId = roadSegmentAdded.EndNodeId
-        }, token);
+        dbRecord.BeginRoadNodeId = roadSegmentAdded.StartNodeId;
+        dbRecord.EndRoadNodeId = roadSegmentAdded.EndNodeId;
     }
 
     private static async Task ModifyRoadSegment(IStreetNameCache streetNameCache,
@@ -206,6 +210,14 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         RoadSegmentModified roadSegmentModified,
         CancellationToken token)
     {
+        var dbRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == roadSegmentModified.Id, token)
+            .ConfigureAwait(false);
+        if (dbRecord is null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
+        }
+
         var transactionId = new TransactionId(envelope.Message.TransactionId);
         var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentModified.GeometryDrawMethod);
         var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentModified.AccessRestriction);
@@ -216,54 +228,48 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.LeftSide.StreetNameId, token);
         var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.RightSide.StreetNameId, token);
 
-        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id, cancellationToken: token).ConfigureAwait(false);
-        if (roadSegmentRecord == null)
-        {
-            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
-        }
+        dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
-        roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        dbRecord.Id = roadSegmentModified.Id;
+        dbRecord.BeginApplication = null;
 
-        roadSegmentRecord.Id = roadSegmentModified.Id;
-        roadSegmentRecord.BeginApplication = null;
+        dbRecord.MaintainerId = roadSegmentModified.MaintenanceAuthority.Code;
+        dbRecord.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentModified.MaintenanceAuthority.Name);
 
-        roadSegmentRecord.MaintainerId = roadSegmentModified.MaintenanceAuthority.Code;
-        roadSegmentRecord.MaintainerName = roadSegmentModified.MaintenanceAuthority.Name;
+        dbRecord.MethodId = method.Translation.Identifier;
+        dbRecord.MethodDutchName = method.Translation.Name;
 
-        roadSegmentRecord.MethodId = method.Translation.Identifier;
-        roadSegmentRecord.MethodDutchName = method.Translation.Name;
+        dbRecord.CategoryId = category.Translation.Identifier;
+        dbRecord.CategoryDutchName = category.Translation.Name;
 
-        roadSegmentRecord.CategoryId = category.Translation.Identifier;
-        roadSegmentRecord.CategoryDutchName = category.Translation.Name;
+        dbRecord.Geometry2D = WmsGeometryTranslator.Translate2D(roadSegmentModified.Geometry);
+        dbRecord.GeometryVersion = roadSegmentModified.GeometryVersion;
 
-        roadSegmentRecord.Geometry2D = WmsGeometryTranslator.Translate2D(roadSegmentModified.Geometry);
-        roadSegmentRecord.GeometryVersion = roadSegmentModified.GeometryVersion;
+        dbRecord.MorphologyId = morphology.Translation.Identifier;
+        dbRecord.MorphologyDutchName = morphology.Translation.Name;
 
-        roadSegmentRecord.MorphologyId = morphology.Translation.Identifier;
-        roadSegmentRecord.MorphologyDutchName = morphology.Translation.Name;
+        dbRecord.StatusId = status.Translation.Identifier;
+        dbRecord.StatusDutchName = status.Translation.Name;
 
-        roadSegmentRecord.StatusId = status.Translation.Identifier;
-        roadSegmentRecord.StatusDutchName = status.Translation.Name;
+        dbRecord.AccessRestrictionId = accessRestriction.Translation.Identifier;
+        dbRecord.AccessRestrictionDutchName = accessRestriction.Translation.Name;
 
-        roadSegmentRecord.AccessRestrictionId = accessRestriction.Translation.Identifier;
-        roadSegmentRecord.AccessRestrictionDutchName = accessRestriction.Translation.Name;
+        dbRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
 
-        roadSegmentRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
+        dbRecord.LeftSideMunicipalityId = null;
+        dbRecord.LeftSideMunicipalityNisCode = leftSideStreetNameRecord?.NisCode;
+        dbRecord.LeftSideStreetNameId = roadSegmentModified.LeftSide.StreetNameId;
+        dbRecord.LeftSideStreetName = leftSideStreetNameRecord?.Name;
 
-        roadSegmentRecord.LeftSideMunicipalityId = null;
-        roadSegmentRecord.LeftSideMunicipalityNisCode = leftSideStreetNameRecord?.NisCode;
-        roadSegmentRecord.LeftSideStreetNameId = roadSegmentModified.LeftSide.StreetNameId;
-        roadSegmentRecord.LeftSideStreetName = leftSideStreetNameRecord?.Name;
+        dbRecord.RightSideMunicipalityId = null;
+        dbRecord.RightSideMunicipalityNisCode = rightSideStreetNameRecord?.NisCode;
+        dbRecord.RightSideStreetNameId = roadSegmentModified.RightSide.StreetNameId;
+        dbRecord.RightSideStreetName = rightSideStreetNameRecord?.Name;
 
-        roadSegmentRecord.RightSideMunicipalityId = null;
-        roadSegmentRecord.RightSideMunicipalityNisCode = rightSideStreetNameRecord?.NisCode;
-        roadSegmentRecord.RightSideStreetNameId = roadSegmentModified.RightSide.StreetNameId;
-        roadSegmentRecord.RightSideStreetName = rightSideStreetNameRecord?.Name;
+        dbRecord.RoadSegmentVersion = roadSegmentModified.Version;
 
-        roadSegmentRecord.RoadSegmentVersion = roadSegmentModified.Version;
-
-        roadSegmentRecord.BeginRoadNodeId = roadSegmentModified.StartNodeId;
-        roadSegmentRecord.EndRoadNodeId = roadSegmentModified.EndNodeId;
+        dbRecord.BeginRoadNodeId = roadSegmentModified.StartNodeId;
+        dbRecord.EndRoadNodeId = roadSegmentModified.EndNodeId;
     }
 
     private static async Task ModifyRoadSegmentAttributes(
@@ -272,56 +278,58 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         RoadSegmentAttributesModified roadSegmentAttributesModified,
         CancellationToken token)
     {
-        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentAttributesModified.Id, cancellationToken: token).ConfigureAwait(false);
-        if (roadSegmentRecord == null)
+        var dbRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == roadSegmentAttributesModified.Id, token)
+            .ConfigureAwait(false);
+        if (dbRecord is null)
         {
             throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentAttributesModified.Id} is not found");
         }
 
-        roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
         if (roadSegmentAttributesModified.AccessRestriction is not null)
         {
             var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentAttributesModified.AccessRestriction);
 
-            roadSegmentRecord.AccessRestrictionId = accessRestriction.Translation.Identifier;
-            roadSegmentRecord.AccessRestrictionDutchName = accessRestriction.Translation.Name;
+            dbRecord.AccessRestrictionId = accessRestriction.Translation.Identifier;
+            dbRecord.AccessRestrictionDutchName = accessRestriction.Translation.Name;
         }
 
         if (roadSegmentAttributesModified.Status is not null)
         {
             var status = RoadSegmentStatus.Parse(roadSegmentAttributesModified.Status);
 
-            roadSegmentRecord.StatusId = status.Translation.Identifier;
-            roadSegmentRecord.StatusDutchName = status.Translation.Name;
+            dbRecord.StatusId = status.Translation.Identifier;
+            dbRecord.StatusDutchName = status.Translation.Name;
         }
 
         if (roadSegmentAttributesModified.Morphology is not null)
         {
             var morphology = RoadSegmentMorphology.Parse(roadSegmentAttributesModified.Morphology);
 
-            roadSegmentRecord.MorphologyId = morphology.Translation.Identifier;
-            roadSegmentRecord.MorphologyDutchName = morphology.Translation.Name;
+            dbRecord.MorphologyId = morphology.Translation.Identifier;
+            dbRecord.MorphologyDutchName = morphology.Translation.Name;
         }
 
         if (roadSegmentAttributesModified.Category is not null)
         {
             var category = RoadSegmentCategory.Parse(roadSegmentAttributesModified.Category);
 
-            roadSegmentRecord.CategoryId = category.Translation.Identifier;
-            roadSegmentRecord.CategoryDutchName = category.Translation.Name;
+            dbRecord.CategoryId = category.Translation.Identifier;
+            dbRecord.CategoryDutchName = category.Translation.Name;
         }
 
         if (roadSegmentAttributesModified.MaintenanceAuthority is not null)
         {
-            roadSegmentRecord.MaintainerId = roadSegmentAttributesModified.MaintenanceAuthority.Code;
-            roadSegmentRecord.MaintainerName = roadSegmentAttributesModified.MaintenanceAuthority.Name;
+            dbRecord.MaintainerId = roadSegmentAttributesModified.MaintenanceAuthority.Code;
+            dbRecord.MaintainerName = roadSegmentAttributesModified.MaintenanceAuthority.Name;
         }
 
-        roadSegmentRecord.RoadSegmentVersion = roadSegmentAttributesModified.Version;
+        dbRecord.RoadSegmentVersion = roadSegmentAttributesModified.Version;
 
         var transactionId = new TransactionId(envelope.Message.TransactionId);
-        roadSegmentRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
+        dbRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
     }
 
     private static async Task ModifyRoadSegmentGeometry(
@@ -330,20 +338,22 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         RoadSegmentGeometryModified segment,
         CancellationToken token)
     {
-        var roadSegmentRecord = await context.RoadSegments.FindAsync(segment.Id, cancellationToken: token).ConfigureAwait(false);
-        if (roadSegmentRecord == null)
+        var dbRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == segment.Id, token)
+            .ConfigureAwait(false);
+        if (dbRecord is null)
         {
             throw new InvalidOperationException($"RoadSegmentRecord with id {segment.Id} is not found");
         }
 
-        roadSegmentRecord.Geometry2D = WmsGeometryTranslator.Translate2D(segment.Geometry);
-        roadSegmentRecord.GeometryVersion = segment.GeometryVersion;
+        dbRecord.Geometry2D = WmsGeometryTranslator.Translate2D(segment.Geometry);
+        dbRecord.GeometryVersion = segment.GeometryVersion;
 
-        roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        roadSegmentRecord.RoadSegmentVersion = segment.Version;
+        dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        dbRecord.RoadSegmentVersion = segment.Version;
 
         var transactionId = new TransactionId(envelope.Message.TransactionId);
-        roadSegmentRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
+        dbRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
     }
 
     private static async Task RemoveRoadSegment(
@@ -353,7 +363,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         bool softDelete,
         CancellationToken token)
     {
-        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id, cancellationToken: token).ConfigureAwait(false);
+        var roadSegmentRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == roadSegmentRemoved.Id, token)
+            .ConfigureAwait(false);
         if (roadSegmentRecord is not null)
         {
             if (softDelete)

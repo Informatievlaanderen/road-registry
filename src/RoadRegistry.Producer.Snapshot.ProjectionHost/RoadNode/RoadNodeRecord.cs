@@ -16,29 +16,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
         public Origin Origin { get; set; }
         public DateTimeOffset LastChangedTimestamp { get; set; }
         public bool IsRemoved { get; set; }
-
-        // EF needs this
-        private RoadNodeRecord() { }
-
-        public RoadNodeRecord(
-            int id,
-            int version,
-            int typeId,
-            string typeDutchName,
-            Point point,
-            Origin origin,
-            DateTimeOffset lastChangedTimestamp)
-        {
-            Id = id;
-            Version = version;
-            Origin = origin;
-            TypeId = typeId;
-            TypeDutchName = typeDutchName;
-            Geometry = point;
-            LastChangedTimestamp = lastChangedTimestamp;
-            IsRemoved = false;
-        }
-
+        
         public RoadNodeSnapshot ToContract()
         {
             return new RoadNodeSnapshot(

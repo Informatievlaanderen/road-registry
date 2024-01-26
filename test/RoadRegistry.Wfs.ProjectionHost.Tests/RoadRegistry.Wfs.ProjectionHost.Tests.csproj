@@ -12,6 +12,36 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Projections\TestData\expected.4.json" />
+	  <None Remove="Projections\TestData\expected.458.json" />
+	  <None Remove="Projections\TestData\expected.904.json" />
+	  <None Remove="Projections\TestData\importedRoadSegment.4.json" />
+	  <None Remove="Projections\TestData\importedRoadSegment.458.json" />
+	  <None Remove="Projections\TestData\importedRoadSegment.904.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Projections\TestData\expected.4.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Projections\TestData\expected.458.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Projections\TestData\expected.904.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Projections\TestData\importedRoadSegment.4.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Projections\TestData\importedRoadSegment.458.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Projections\TestData\importedRoadSegment.904.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\..\src\RoadRegistry.Wfs.ProjectionHost\RoadRegistry.Wfs.ProjectionHost.csproj" />
 		<ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
 	</ItemGroup>

@@ -63,12 +63,12 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             .UseValidator(new CreateOrganizationValidator())
             .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(CreateOrganization);
-        
+
         For<DeleteOrganization>()
             .UseValidator(new DeleteOrganizationValidator())
             .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(DeleteOrganization);
-        
+
         For<RenameOrganization>()
             .UseValidator(new RenameOrganizationValidator())
             .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
@@ -88,7 +88,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
     private async Task ChangeRoadNetwork(IRoadRegistryContext context, Command<ChangeRoadNetwork> command, ApplicationMetadata applicationMetadata, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Command handler started for {CommandName}", command.Body.GetType().Name);
-        
+
         var request = ChangeRequestId.FromString(command.Body.RequestId);
         var downloadId = DownloadId.FromValue(command.Body.DownloadId);
         var @operator = new OperatorName(command.Body.Operator);
@@ -111,7 +111,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             var idGenerator = container.Resolve<IRoadNetworkIdGenerator>();
 
             var roadNetworkStreamChanges = await SplitChangesByRoadNetworkStream(idGenerator, command.Body.Changes);
-            
+
             foreach (var roadNetworkStreamChange in roadNetworkStreamChanges)
             {
                 var streamName = roadNetworkStreamChange.Key;
@@ -146,14 +146,14 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 }
             }
         }
-        
+
         if (failedChangedMessages.Any() && successChangedMessages.Any())
         {
             foreach (var item in successChangedMessages)
-            foreach (var @event in item.Value)
-            {
-                context.EventFilter.Exclude(item.Key, @event);
-            }
+                foreach (var @event in item.Value)
+                {
+                    context.EventFilter.Exclude(item.Key, @event);
+                }
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
@@ -198,7 +198,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         var organizationId = new OrganizationId(command.Body.Code);
         var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
-        
+
         if (organization != null)
         {
             organization.Delete();
@@ -330,14 +330,14 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
                 translatedChanges = translatedChanges.AppendChange(modifyRoadSegment);
             }
-            
+
             var requestedChanges = translatedChanges.Select(change =>
             {
                 var requestedChange = new RequestedChange();
                 change.TranslateTo(requestedChange);
                 return requestedChange;
             }).ToList();
-            
+
             var changeRoadNetwork = new ChangeRoadNetwork
             {
                 RequestId = ChangeRequestId.FromArchiveId(ArchiveId.FromGuid(command.MessageId)),
@@ -346,7 +346,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 Operator = translatedChanges.Operator,
                 OrganizationId = translatedChanges.Organization
             };
-            
+
             await ChangeRoadNetwork(context, new Command<ChangeRoadNetwork>(
                     new Command(changeRoadNetwork).WithMessageId(command.MessageId)
                 ), applicationMetadata, cancellationToken);
@@ -354,7 +354,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
     }
-    
+
     private async Task FillMissingPermanentIdsForAddedOutlineRoadSegments(IRoadNetworkIdGenerator idGenerator, RequestedChange[] changes)
     {
         foreach (var change in changes
@@ -368,7 +368,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
     private async Task<Dictionary<StreamName, RequestedChange[]>> SplitChangesByRoadNetworkStream(IRoadNetworkIdGenerator idGenerator, RequestedChange[] changes)
     {
         await FillMissingPermanentIdsForAddedOutlineRoadSegments(idGenerator, changes);
-        
+
         var roadNetworkStreamChanges = changes
             .Select(change => new
             {
@@ -401,7 +401,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         return roadNetworkStreamChanges;
     }
-    
+
     private Organization.DutchTranslation ToDutchTranslation(Organization organization, OrganizationId organizationId)
     {
         if (organization is null)

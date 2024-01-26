@@ -7,7 +7,6 @@ using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using Microsoft.EntityFrameworkCore;
 using Schema;
 
 public class RoadNodeRecordProjection : ConnectedProjection<WfsContext>
