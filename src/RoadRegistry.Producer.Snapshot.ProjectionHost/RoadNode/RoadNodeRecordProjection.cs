@@ -65,7 +65,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             RoadNodeAdded roadNodeAdded,
             CancellationToken token)
         {
-            var dbRecord = await context.RoadNodes.FindAsync(roadNodeAdded.Id, cancellationToken: token).ConfigureAwait(false);
+            var dbRecord = await context.RoadNodes
+                .FindAsync(x => x.Id == roadNodeAdded.Id, token)
+                .ConfigureAwait(false);
             if (dbRecord is null)
             {
                 dbRecord = new RoadNodeRecord();
@@ -95,7 +97,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             RoadNodeModified roadNodeModified,
             CancellationToken token)
         {
-            var dbRecord = await context.RoadNodes.FindAsync(roadNodeModified.Id, cancellationToken: token).ConfigureAwait(false);
+            var dbRecord = await context.RoadNodes
+                .FindAsync(x => x.Id == roadNodeModified.Id, token)
+                .ConfigureAwait(false);
             if (dbRecord is null)
             {
                 throw new InvalidOperationException($"{nameof(RoadNodeRecord)} with id {roadNodeModified.Id} is not found");
@@ -120,21 +124,23 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             RoadNodeRemoved roadNodeRemoved,
             CancellationToken token)
         {
-            var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeRemoved.Id, cancellationToken: token).ConfigureAwait(false);
-            if (roadNodeRecord == null)
+            var dbRecord = await context.RoadNodes
+                .FindAsync(x => x.Id == roadNodeRemoved.Id, token)
+                .ConfigureAwait(false);
+            if (dbRecord is null)
             {
                 throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeRemoved.Id} is not found");
             }
-            if (roadNodeRecord.IsRemoved)
+            if (dbRecord.IsRemoved)
             {
                 return;
             }
 
-            roadNodeRecord.Origin = envelope.Message.ToOrigin();
-            roadNodeRecord.LastChangedTimestamp = envelope.CreatedUtc;
-            roadNodeRecord.IsRemoved = true;
+            dbRecord.Origin = envelope.Message.ToOrigin();
+            dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
+            dbRecord.IsRemoved = true;
 
-            await Produce(roadNodeRecord.Id, roadNodeRecord.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
 
         private async Task Produce(int roadNodeId, RoadNodeSnapshot snapshot, CancellationToken cancellationToken)

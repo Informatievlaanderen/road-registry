@@ -134,7 +134,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         RoadSegmentAdded roadSegmentAdded,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(roadSegmentAdded.Id, cancellationToken: token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == roadSegmentAdded.Id, token)
+            .ConfigureAwait(false);
         if (dbRecord is null)
         {
             dbRecord = new RoadSegmentRecord();
@@ -208,7 +210,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         RoadSegmentModified roadSegmentModified,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id, cancellationToken: token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == roadSegmentModified.Id, token)
+            .ConfigureAwait(false);
         if (dbRecord is null)
         {
             throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
@@ -274,7 +278,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         RoadSegmentAttributesModified roadSegmentAttributesModified,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(roadSegmentAttributesModified.Id, cancellationToken: token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == roadSegmentAttributesModified.Id, token)
+            .ConfigureAwait(false);
         if (dbRecord is null)
         {
             throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentAttributesModified.Id} is not found");
@@ -332,7 +338,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         RoadSegmentGeometryModified segment,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(segment.Id, cancellationToken: token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == segment.Id, token)
+            .ConfigureAwait(false);
         if (dbRecord is null)
         {
             throw new InvalidOperationException($"RoadSegmentRecord with id {segment.Id} is not found");
@@ -355,7 +363,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         bool softDelete,
         CancellationToken token)
     {
-        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id, cancellationToken: token).ConfigureAwait(false);
+        var roadSegmentRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == roadSegmentRemoved.Id, token)
+            .ConfigureAwait(false);
         if (roadSegmentRecord is not null)
         {
             if (softDelete)

@@ -21,8 +21,8 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
     public RoadSegmentRecordProjection(RecyclableMemoryStreamManager manager,
         Encoding encoding)
     {
-        if (manager == null) throw new ArgumentNullException(nameof(manager));
-        if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(encoding);
 
         When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
         {
@@ -175,7 +175,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id, cancellationToken: token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == roadSegmentModified.Id, token)
+            .ConfigureAwait(false);
         if (dbRecord is null)
         {
             throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
@@ -230,7 +232,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(roadSegmentAttributesModified.Id, cancellationToken: token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == roadSegmentAttributesModified.Id, token)
+            .ConfigureAwait(false);
         if (dbRecord is null)
         {
             throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentAttributesModified.Id} is not found");
@@ -296,7 +300,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(segment.Id, cancellationToken: token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == segment.Id, token)
+            .ConfigureAwait(false);
         if (dbRecord is null)
         {
             throw new InvalidOperationException($"RoadSegmentRecord with id {segment.Id} is not found");
@@ -327,7 +333,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
 
     private static async Task RemoveRoadSegment(ProductContext context, RoadSegmentRemoved roadSegmentRemoved, CancellationToken token)
     {
-        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id, cancellationToken: token).ConfigureAwait(false);
+        var roadSegmentRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == roadSegmentRemoved.Id, token)
+            .ConfigureAwait(false);
         if (roadSegmentRecord is not null)
         {
             context.RoadSegments.Remove(roadSegmentRecord);

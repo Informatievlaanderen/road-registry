@@ -117,15 +117,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 var streamName = roadNetworkStreamChange.Key;
                 var changes = roadNetworkStreamChange.Value;
 
-                if (streamName != RoadNetworkStreamNameProvider.Default)
-                {
-                    var forceRoadNetworkStream = false;
-                    if (forceRoadNetworkStream) //TODO-rik temp om een ingeschetst wegsegment toe te voegen aan de default roadnetwork voor issue van WR-932
-                    {
-                        streamName = RoadNetworkStreamNameProvider.Default;
-                    }
-                }
-
                 var network = await context.RoadNetworks.Get(streamName, cancellationToken);
                 _logger.LogInformation("TIMETRACKING changeroadnetwork: loading RoadNetwork [{StreamName}] took {Elapsed}", streamName, sw.Elapsed);
 

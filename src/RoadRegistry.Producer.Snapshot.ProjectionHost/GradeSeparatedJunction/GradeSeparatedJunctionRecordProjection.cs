@@ -70,7 +70,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             CancellationToken token)
         {
             var dbRecord = await context.GradeSeparatedJunctions
-                .SingleOrDefaultIncludingLocalAsync(x => x.Id == gradeSeparatedJunctionAdded.Id, token)
+                .FindAsync(x => x.Id == gradeSeparatedJunctionAdded.Id, token)
                 .ConfigureAwait(false);
             if (dbRecord is null)
             {
@@ -101,20 +101,22 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             GradeSeparatedJunctionModified gradeSeparatedJunctionModified,
             CancellationToken token)
         {
-            var gradeSeparatedJunctionRecord = await context.GradeSeparatedJunctions.FindAsync(gradeSeparatedJunctionModified.Id, cancellationToken: token).ConfigureAwait(false);
+            var dbRecord = await context.GradeSeparatedJunctions
+                .FindAsync(x => x.Id == gradeSeparatedJunctionModified.Id, token)
+                .ConfigureAwait(false);
 
             var typeTranslation = GradeSeparatedJunctionType.Parse(gradeSeparatedJunctionModified.Type).Translation;
 
-            if (gradeSeparatedJunctionRecord != null)
+            if (dbRecord is not null)
             {
-                gradeSeparatedJunctionRecord.UpperRoadSegmentId = gradeSeparatedJunctionModified.UpperRoadSegmentId;
-                gradeSeparatedJunctionRecord.LowerRoadSegmentId = gradeSeparatedJunctionModified.LowerRoadSegmentId;
-                gradeSeparatedJunctionRecord.TypeId = typeTranslation.Identifier;
-                gradeSeparatedJunctionRecord.TypeDutchName = typeTranslation.Name;
-                gradeSeparatedJunctionRecord.Origin = envelope.Message.ToOrigin();
-                gradeSeparatedJunctionRecord.LastChangedTimestamp = envelope.CreatedUtc;
+                dbRecord.UpperRoadSegmentId = gradeSeparatedJunctionModified.UpperRoadSegmentId;
+                dbRecord.LowerRoadSegmentId = gradeSeparatedJunctionModified.LowerRoadSegmentId;
+                dbRecord.TypeId = typeTranslation.Identifier;
+                dbRecord.TypeDutchName = typeTranslation.Name;
+                dbRecord.Origin = envelope.Message.ToOrigin();
+                dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
-                await Produce(gradeSeparatedJunctionRecord.Id, gradeSeparatedJunctionRecord.ToContract(), token);
+                await Produce(dbRecord.Id, dbRecord.ToContract(), token);
             }
         }
 
@@ -124,23 +126,24 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             GradeSeparatedJunctionRemoved gradeSeparatedJunctionRemoved,
             CancellationToken token)
         {
-            var gradeSeparatedJunctionRecord =
-                await context.GradeSeparatedJunctions.FindAsync(gradeSeparatedJunctionRemoved.Id, cancellationToken: token).ConfigureAwait(false);
+            var dbRecord = await context.GradeSeparatedJunctions
+                .FindAsync(x => x.Id == gradeSeparatedJunctionRemoved.Id, token)
+                .ConfigureAwait(false);
 
-            if (gradeSeparatedJunctionRecord == null)
+            if (dbRecord is null)
             {
                 throw new InvalidOperationException($"{nameof(GradeSeparatedJunctionRecord)} with id {gradeSeparatedJunctionRemoved.Id} is not found");
             }
-            if (gradeSeparatedJunctionRecord.IsRemoved)
+            if (dbRecord.IsRemoved)
             {
                 return;
             }
 
-            gradeSeparatedJunctionRecord.Origin = envelope.Message.ToOrigin();
-            gradeSeparatedJunctionRecord.LastChangedTimestamp = envelope.CreatedUtc;
-            gradeSeparatedJunctionRecord.IsRemoved = true;
+            dbRecord.Origin = envelope.Message.ToOrigin();
+            dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
+            dbRecord.IsRemoved = true;
 
-            await Produce(gradeSeparatedJunctionRecord.Id, gradeSeparatedJunctionRecord.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
 
         private async Task Produce(int gradeSeparatedJunctionId, GradeSeparatedJunctionSnapshot snapshot, CancellationToken cancellationToken)

@@ -105,7 +105,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         RoadSegmentAdded roadSegmentAdded,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(roadSegmentAdded.Id, cancellationToken: token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == roadSegmentAdded.Id, token)
+            .ConfigureAwait(false);
         if (dbRecord is null)
         {
             dbRecord = new RoadSegmentRecord();
@@ -150,7 +152,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         RoadSegmentModified roadSegmentModified,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id, cancellationToken: token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == roadSegmentModified.Id, token)
+            .ConfigureAwait(false);
         if (dbRecord is null)
         {
             throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
@@ -190,8 +194,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         RoadSegmentAttributesModified roadSegmentAttributesModified,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(roadSegmentAttributesModified.Id, cancellationToken: token).ConfigureAwait(false);
-        if (dbRecord == null)
+        var dbRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == roadSegmentAttributesModified.Id, token)
+            .ConfigureAwait(false);
+        if (dbRecord is null)
         {
             throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentAttributesModified.Id} is not found");
         }
@@ -239,15 +245,17 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         RoadSegmentGeometryModified segment,
         CancellationToken token)
     {
-        var roadSegmentRecord = await context.RoadSegments.FindAsync(segment.Id, cancellationToken: token).ConfigureAwait(false);
-        if (roadSegmentRecord == null)
+        var dbRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == segment.Id, token)
+            .ConfigureAwait(false);
+        if (dbRecord is null)
         {
             throw new InvalidOperationException($"RoadSegmentRecord with id {segment.Id} is not found");
         }
 
-        roadSegmentRecord.Geometry2D = WfsGeometryTranslator.Translate2D(segment.Geometry);
+        dbRecord.Geometry2D = WfsGeometryTranslator.Translate2D(segment.Geometry);
 
-        UpdateBeginTime(roadSegmentRecord, envelope);
+        UpdateBeginTime(dbRecord, envelope);
     }
 
     private static async Task RemoveRoadSegment(
@@ -257,20 +265,22 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         bool softDelete,
         CancellationToken token)
     {
-        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id, cancellationToken: token).ConfigureAwait(false);
-        if (roadSegmentRecord is not null)
+        var dbRecord = await context.RoadSegments
+            .FindAsync(x => x.Id == roadSegmentRemoved.Id, token)
+            .ConfigureAwait(false);
+        if (dbRecord is not null)
         {
             if (softDelete)
             {
-                if (!roadSegmentRecord.IsRemoved)
+                if (!dbRecord.IsRemoved)
                 {
-                    UpdateBeginTime(roadSegmentRecord, envelope);
-                    roadSegmentRecord.IsRemoved = true;
+                    UpdateBeginTime(dbRecord, envelope);
+                    dbRecord.IsRemoved = true;
                 }
             }
             else
             {
-                context.RoadSegments.Remove(roadSegmentRecord);
+                context.RoadSegments.Remove(dbRecord);
             }
         }
     }

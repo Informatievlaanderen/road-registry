@@ -1,10 +1,5 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 {
-    using System;
-    using System.Globalization;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
     using BackOffice;
     using BackOffice.Abstractions;
     using BackOffice.Extensions;
@@ -13,8 +8,12 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Extensions;
-    using Microsoft.EntityFrameworkCore;
     using Projections;
+    using System;
+    using System.Globalization;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     public class RoadSegmentRecordProjection : ConnectedProjection<RoadSegmentProducerSnapshotContext>
     {
@@ -146,7 +145,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             RoadSegmentAdded roadSegmentAdded,
             CancellationToken token)
         {
-            var dbRecord = await context.RoadSegments.FindAsync(roadSegmentAdded.Id, cancellationToken: token).ConfigureAwait(false);
+            var dbRecord = await context.RoadSegments
+                .FindAsync(x => x.Id == roadSegmentAdded.Id, token)
+                .ConfigureAwait(false);
             if (dbRecord is null)
             {
                 dbRecord = new RoadSegmentRecord();
@@ -221,8 +222,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             RoadSegmentModified roadSegmentModified,
             CancellationToken token)
         {
-            var dbRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id, cancellationToken: token).ConfigureAwait(false);
-            if (dbRecord == null)
+            var dbRecord = await context.RoadSegments
+                .FindAsync(x => x.Id == roadSegmentModified.Id, token)
+                .ConfigureAwait(false);
+            if (dbRecord is null)
             {
                 throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
             }
@@ -288,8 +291,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             RoadSegmentAttributesModified roadSegmentAttributesModified,
             CancellationToken token)
         {
-            var dbRecord = await context.RoadSegments.FindAsync(roadSegmentAttributesModified.Id, cancellationToken: token).ConfigureAwait(false);
-            if (dbRecord == null)
+            var dbRecord = await context.RoadSegments
+                .FindAsync(x => x.Id == roadSegmentAttributesModified.Id, token)
+                .ConfigureAwait(false);
+            if (dbRecord is null)
             {
                 throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentAttributesModified.Id} is not found");
             }
@@ -351,8 +356,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             RoadSegmentGeometryModified segment,
             CancellationToken token)
         {
-            var dbRecord = await context.RoadSegments.FindAsync(segment.Id, cancellationToken: token).ConfigureAwait(false);
-            if (dbRecord == null)
+            var dbRecord = await context.RoadSegments
+                .FindAsync(x => x.Id == segment.Id, token)
+                .ConfigureAwait(false);
+            if (dbRecord is null)
             {
                 throw new InvalidOperationException($"RoadSegmentRecord with id {segment.Id} is not found");
             }
@@ -379,8 +386,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             CancellationToken token
         )
         {
-            var dbRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id, cancellationToken: token).ConfigureAwait(false);
-            if (dbRecord == null)
+            var dbRecord = await context.RoadSegments
+                .FindAsync(x => x.Id == roadSegmentRemoved.Id, token)
+                .ConfigureAwait(false);
+            if (dbRecord is null)
             {
                 throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentRemoved.Id} is not found");
             }

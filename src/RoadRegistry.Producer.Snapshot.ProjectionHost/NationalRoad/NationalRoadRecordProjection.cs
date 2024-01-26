@@ -6,6 +6,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Extensions;
     using Projections;
+    using RoadRegistry.BackOffice.Extensions;
     using System;
     using System.Globalization;
     using System.Linq;
@@ -73,7 +74,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             RoadSegmentAddedToNationalRoad nationalRoadAdded,
             CancellationToken token)
         {
-            var dbRecord = await context.NationalRoads.FindAsync(nationalRoadAdded.AttributeId, cancellationToken: token).ConfigureAwait(false);
+            var dbRecord = await context.NationalRoads
+                .FindAsync(x => x.Id == nationalRoadAdded.AttributeId, token)
+                .ConfigureAwait(false);
             if (dbRecord is null)
             {
                 dbRecord = new NationalRoadRecord();
@@ -127,7 +130,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             int nationalRoadId,
             CancellationToken token)
         {
-            var dbRecord = await context.NationalRoads.FindAsync(nationalRoadId, cancellationToken: token).ConfigureAwait(false);
+            var dbRecord = await context.NationalRoads
+                .FindAsync(x => x.Id == nationalRoadId, token)
+                .ConfigureAwait(false);
             if (dbRecord is null)
             {
                 throw new InvalidOperationException($"{nameof(NationalRoadRecord)} with id {nationalRoadId} is not found");
