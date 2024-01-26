@@ -59,14 +59,16 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
             var typeTranslation = RoadNodeType.Parse(roadNodeAdded.Type).Translation;
             var point = GeometryTranslator.Translate(roadNodeAdded.Geometry);
 
-            var record = new RoadNodeRecord(
-                roadNodeAdded.Id,
-                roadNodeAdded.Version,
-                typeTranslation.Identifier,
-                typeTranslation.Name,
-                point,
-                message.ToOrigin(),
-                created);
+            var record = new RoadNodeRecord
+            {
+                Id = roadNodeAdded.Id,
+                Version = roadNodeAdded.Version,
+                TypeId = typeTranslation.Identifier,
+                TypeDutchName = typeTranslation.Name,
+                Geometry = point,
+                Origin = message.ToOrigin(),
+                LastChangedTimestamp = created
+            };
 
             modifier?.Invoke(record);
             return (object)record;
@@ -127,14 +129,16 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
             var typeTranslation = RoadNodeType.Parse(roadNodeModified.Type).Translation;
             var point = GeometryTranslator.Translate(roadNodeModified.Geometry);
 
-            return (object)new RoadNodeRecord(
-                roadNodeModified.Id,
-                roadNodeModified.Version,
-                typeTranslation.Identifier,
-                typeTranslation.Name,
-                point,
-                acceptedRoadNodeModified.ToOrigin(),
-                created);
+            return (object)new RoadNodeRecord
+            {
+                Id = roadNodeModified.Id,
+                Version = roadNodeModified.Version,
+                TypeId = typeTranslation.Identifier,
+                TypeDutchName = typeTranslation.Name,
+                Geometry = point,
+                Origin = acceptedRoadNodeModified.ToOrigin(),
+                LastChangedTimestamp = created
+            };
         });
 
         var kafkaProducer = BuildKafkaProducer();
@@ -200,14 +204,16 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
                 var typeTranslation = RoadNodeType.Parse(@event.Type).Translation;
                 var point = GeometryTranslator.Translate(@event.Geometry);
 
-                var expectedRecord = new RoadNodeRecord(
-                    @event.Id,
-                    @event.Version,
-                    typeTranslation.Identifier,
-                    typeTranslation.Name,
-                    point,
-                    @event.Origin.ToOrigin(),
-                    created);
+                var expectedRecord = new RoadNodeRecord
+                {
+                    Id = @event.Id,
+                    Version = @event.Version,
+                    TypeId = typeTranslation.Identifier,
+                    TypeDutchName = typeTranslation.Name,
+                    Geometry = point,
+                    Origin = @event.Origin.ToOrigin(),
+                    LastChangedTimestamp = created
+                };
 
                 return new
                 {

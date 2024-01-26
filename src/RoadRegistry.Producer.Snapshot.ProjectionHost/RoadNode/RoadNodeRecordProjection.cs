@@ -60,11 +60,12 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             });
         }
 
-        private async Task AddRoadNode(RoadNodeProducerSnapshotContext context, Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<RoadNetworkChangesAccepted> envelope,
+        private async Task AddRoadNode(RoadNodeProducerSnapshotContext context,
+            Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<RoadNetworkChangesAccepted> envelope,
             RoadNodeAdded roadNodeAdded,
             CancellationToken token)
         {
-            var dbRecord = await context.RoadNodes.SingleOrDefaultIncludingLocalAsync(x => x.Id == roadNodeAdded.Id, token);
+            var dbRecord = await context.RoadNodes.FindAsync(roadNodeAdded.Id, cancellationToken: token).ConfigureAwait(false);
             if (dbRecord is null)
             {
                 dbRecord = new RoadNodeRecord();
@@ -94,24 +95,23 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             RoadNodeModified roadNodeModified,
             CancellationToken token)
         {
-            var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeModified.Id, cancellationToken: token).ConfigureAwait(false);
-
-            if (roadNodeRecord == null)
+            var dbRecord = await context.RoadNodes.FindAsync(roadNodeModified.Id, cancellationToken: token).ConfigureAwait(false);
+            if (dbRecord is null)
             {
                 throw new InvalidOperationException($"{nameof(RoadNodeRecord)} with id {roadNodeModified.Id} is not found");
             }
 
             var typeTranslation = RoadNodeType.Parse(roadNodeModified.Type).Translation;
 
-            roadNodeRecord.Id = roadNodeModified.Id;
-            roadNodeRecord.Version = roadNodeModified.Version;
-            roadNodeRecord.TypeId = typeTranslation.Identifier;
-            roadNodeRecord.TypeDutchName = typeTranslation.Name;
-            roadNodeRecord.Geometry = GeometryTranslator.Translate(roadNodeModified.Geometry);
-            roadNodeRecord.Origin = envelope.Message.ToOrigin();
-            roadNodeRecord.LastChangedTimestamp = envelope.CreatedUtc;
+            dbRecord.Id = roadNodeModified.Id;
+            dbRecord.Version = roadNodeModified.Version;
+            dbRecord.TypeId = typeTranslation.Identifier;
+            dbRecord.TypeDutchName = typeTranslation.Name;
+            dbRecord.Geometry = GeometryTranslator.Translate(roadNodeModified.Geometry);
+            dbRecord.Origin = envelope.Message.ToOrigin();
+            dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
-            await Produce(roadNodeRecord.Id, roadNodeRecord.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
 
         private async Task RemoveRoadNode(
