@@ -39,7 +39,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
                     Id = nationalRoadAdded.AttributeId,
                     RoadSegmentId = envelope.Message.Id,
                     Number = nationalRoadAdded.Number,
-                    Origin = envelope.Message.Origin.ToOrigin(),
+                    Origin = nationalRoadAdded.Origin.ToOrigin(),
                     LastChangedTimestamp = envelope.CreatedUtc
                 });
 
