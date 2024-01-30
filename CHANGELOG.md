@@ -1,3 +1,10 @@
+## [3.67.10](https://github.com/informatievlaanderen/road-registry/compare/v3.67.9...v3.67.10) (2024-01-30)
+
+
+### Bug Fixes
+
+* WR-925 validation check when upload has segment with multiple lines or zip file contains duplicate files but with different casing ([#1372](https://github.com/informatievlaanderen/road-registry/issues/1372)) ([17bf92e](https://github.com/informatievlaanderen/road-registry/commit/17bf92e404c24428936c84e2d2101daf6d4a146f))
+
 ## [3.67.9](https://github.com/informatievlaanderen/road-registry/compare/v3.67.8...v3.67.9) (2024-01-30)
 
 
