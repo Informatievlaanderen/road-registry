@@ -7,7 +7,9 @@ using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Dbase.AfterFeatureCompare.V2.Schema;
+using Extensions;
 using Extracts;
+using FeatureCompare;
 using Framework;
 using Messages;
 
@@ -101,13 +103,9 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
 
             using (var archive = new ZipArchive(sourceStream, ZipArchiveMode.Read, true))
             {
-                var transactionZoneFileEntries = archive.Entries
-                    .Where(e => string.Equals(e.Name, ExtractFileName.Transactiezones.ToDbaseFileName(), StringComparison.InvariantCultureIgnoreCase))
-                    .ToList();
-                
-                if (transactionZoneFileEntries.Count == 1)
+                var transactionZoneFileEntry = archive.FindEntry(FeatureType.Change.ToDbaseFileName(ExtractFileName.Transactiezones));
+                if (transactionZoneFileEntry is not null)
                 {
-                    var transactionZoneFileEntry = transactionZoneFileEntries.Single();
                     using var reader = new BinaryReader(transactionZoneFileEntry.Open(), Encoding.UTF8);
 
                     var header = DbaseFileHeader.Read(reader, new DbaseFileHeaderReadBehavior(true));
