@@ -65,17 +65,20 @@ public class RoadSegmentLaneFeatureCompareFeatureReader : VersionedZipArchiveFea
                     .OrderBy(x => x.From)
                     .ToList();
 
-                var roadSegmentLine = roadSegmentFeature.Attributes.Geometry.GetSingleLineString();
-                
-                var laneProblems = roadSegmentLine.GetProblemsForRoadSegmentLanes(lanes, context.Tolerances);
-
-                var recordContext = fileName.AtDbaseRecord(featureType, roadSegmentGroup.First().RecordNumber);
-                foreach (var problem in laneProblems)
+                if (roadSegmentFeature.Attributes.Geometry.HasExactlyOneLineString())
                 {
-                    problems += recordContext
-                        .Error(problem.Reason)
-                        .WithParameters(problem.Parameters.ToArray())
-                        .Build();
+                    var roadSegmentLine = roadSegmentFeature.Attributes.Geometry.GetSingleLineString();
+
+                    var laneProblems = roadSegmentLine.GetProblemsForRoadSegmentLanes(lanes, context.Tolerances);
+
+                    var recordContext = fileName.AtDbaseRecord(featureType, roadSegmentGroup.First().RecordNumber);
+                    foreach (var problem in laneProblems)
+                    {
+                        problems += recordContext
+                            .Error(problem.Reason)
+                            .WithParameters(problem.Parameters.ToArray())
+                            .Build();
+                    }
                 }
             }
         }
