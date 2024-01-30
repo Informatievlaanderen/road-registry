@@ -64,17 +64,20 @@ public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchive
                     .OrderBy(x => x.From)
                     .ToList();
 
-                var roadSegmentLine = roadSegmentFeature.Attributes.Geometry.GetSingleLineString();
-
-                var surfaceProblems = roadSegmentLine.GetProblemsForRoadSegmentSurfaces(surfaces, context.Tolerances);
-
-                var recordContext = fileName.AtDbaseRecord(featureType, roadSegmentGroup.First().RecordNumber);
-                foreach (var problem in surfaceProblems)
+                if (roadSegmentFeature.Attributes.Geometry.HasExactlyOneLineString())
                 {
-                    problems += recordContext
-                        .Error(problem.Reason)
-                        .WithParameters(problem.Parameters.ToArray())
-                        .Build();
+                    var roadSegmentLine = roadSegmentFeature.Attributes.Geometry.GetSingleLineString();
+
+                    var surfaceProblems = roadSegmentLine.GetProblemsForRoadSegmentSurfaces(surfaces, context.Tolerances);
+
+                    var recordContext = fileName.AtDbaseRecord(featureType, roadSegmentGroup.First().RecordNumber);
+                    foreach (var problem in surfaceProblems)
+                    {
+                        problems += recordContext
+                            .Error(problem.Reason)
+                            .WithParameters(problem.Parameters.ToArray())
+                            .Build();
+                    }
                 }
             }
         }
@@ -157,7 +160,7 @@ public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchive
                 .WithIdentifier(nameof(WV_OIDN), WV_OIDN);
 
             var problems = ZipArchiveProblems.None;
-            
+
             AttributeId ReadId()
             {
                 if (WV_OIDN is null)

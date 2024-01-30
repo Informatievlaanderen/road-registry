@@ -380,6 +380,12 @@ public static class NetTopologySuiteExtensions
         throw new InvalidCastException($"The geometry of type {geometry.GetType().Name} must be either a {nameof(Polygon)} or a {nameof(MultiPolygon)}.");
     }
 
+    public static bool HasExactlyOneLineString(this MultiLineString geometry)
+    {
+        return geometry.Geometries
+            .OfType<LineString>()
+            .Count() == 1;
+    }
     public static LineString GetSingleLineString(this MultiLineString geometry)
     {
         return geometry.Geometries

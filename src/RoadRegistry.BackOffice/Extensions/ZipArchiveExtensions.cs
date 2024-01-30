@@ -8,6 +8,14 @@ public static class ZipArchiveExtensions
 {
     public static ZipArchiveEntry FindEntry(this ZipArchive archive, string fileName)
     {
-        return archive.Entries.SingleOrDefault(x => x.Name.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
+        var entries = archive.Entries
+            .Where(x => x.Name.Equals(fileName, StringComparison.InvariantCultureIgnoreCase))
+            .ToList();
+        if (entries.Count == 1)
+        {
+            return entries.Single();
+        }
+
+        return null;
     }
 }
