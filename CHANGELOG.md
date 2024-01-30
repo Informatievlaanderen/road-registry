@@ -1,3 +1,10 @@
+## [3.67.9](https://github.com/informatievlaanderen/road-registry/compare/v3.67.8...v3.67.9) (2024-01-30)
+
+
+### Bug Fixes
+
+* WR-934 pass ID when adding new EF entity right away ([#1371](https://github.com/informatievlaanderen/road-registry/issues/1371)) ([7d9af6c](https://github.com/informatievlaanderen/road-registry/commit/7d9af6cac003f700bccdb65f818c3a861294c043))
+
 ## [3.67.8](https://github.com/informatievlaanderen/road-registry/compare/v3.67.7...v3.67.8) (2024-01-26)
 
 
