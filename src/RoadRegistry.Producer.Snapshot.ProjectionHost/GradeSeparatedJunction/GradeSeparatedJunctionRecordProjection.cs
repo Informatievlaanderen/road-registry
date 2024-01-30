@@ -74,7 +74,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
                 .ConfigureAwait(false);
             if (dbRecord is null)
             {
-                dbRecord = new GradeSeparatedJunctionRecord();
+                dbRecord = new GradeSeparatedJunctionRecord
+                {
+                    Id = gradeSeparatedJunctionAdded.Id
+                };
                 await context.GradeSeparatedJunctions.AddAsync(dbRecord, token);
             }
             else
@@ -84,7 +87,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
 
             var typeTranslation = GradeSeparatedJunctionType.Parse(gradeSeparatedJunctionAdded.Type).Translation;
 
-            dbRecord.Id = gradeSeparatedJunctionAdded.Id;
             dbRecord.LowerRoadSegmentId = gradeSeparatedJunctionAdded.LowerRoadSegmentId;
             dbRecord.UpperRoadSegmentId = gradeSeparatedJunctionAdded.UpperRoadSegmentId;
             dbRecord.TypeId = typeTranslation.Identifier;

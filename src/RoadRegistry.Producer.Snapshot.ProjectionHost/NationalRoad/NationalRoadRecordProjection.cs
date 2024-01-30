@@ -79,7 +79,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
                 .ConfigureAwait(false);
             if (dbRecord is null)
             {
-                dbRecord = new NationalRoadRecord();
+                dbRecord = new NationalRoadRecord
+                {
+                    Id = nationalRoadAdded.AttributeId
+                };
                 await context.NationalRoads.AddAsync(dbRecord, token);
             }
             else
@@ -87,7 +90,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
                 dbRecord.IsRemoved = false;
             }
 
-            dbRecord.Id = nationalRoadAdded.AttributeId;
             dbRecord.RoadSegmentId = nationalRoadAdded.SegmentId;
             dbRecord.Number = nationalRoadAdded.Number;
             dbRecord.Origin = envelope.Message.ToOrigin();

@@ -150,7 +150,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                 .ConfigureAwait(false);
             if (dbRecord is null)
             {
-                dbRecord = new RoadSegmentRecord();
+                dbRecord = new RoadSegmentRecord
+                {
+                    Id = roadSegmentAdded.Id
+                };
                 await context.RoadSegments.AddAsync(dbRecord, token);
             }
             else
@@ -168,7 +171,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.LeftSide.StreetNameId, token);
             var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.RightSide.StreetNameId, token);
 
-            dbRecord.Id = roadSegmentAdded.Id;
             dbRecord.Version = roadSegmentAdded.Version;
 
             dbRecord.MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code;
