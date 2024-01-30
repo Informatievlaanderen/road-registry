@@ -111,7 +111,7 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
                     var header = DbaseFileHeader.Read(reader, new DbaseFileHeaderReadBehavior(true));
 
                     using var records = header.CreateDbaseRecordEnumerator<TransactionZoneDbaseRecord>(reader);
-                    while (records.MoveNext())
+                    if (records.MoveNext())
                     {
                         return !string.IsNullOrEmpty(records.Current!.BESCHRIJV.Value)
                             ? new ExtractDescription(records.Current.BESCHRIJV.Value)
