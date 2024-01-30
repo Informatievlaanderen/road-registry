@@ -110,7 +110,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
             .ConfigureAwait(false);
         if (dbRecord is null)
         {
-            dbRecord = new RoadSegmentRecord();
+            dbRecord = new RoadSegmentRecord
+            {
+                Id = roadSegmentAdded.Id
+            };
             await context.RoadSegments.AddAsync(dbRecord, token);
         }
         else
@@ -127,7 +130,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.LeftSide.StreetNameId, token);
         var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.RightSide.StreetNameId, token);
         
-        dbRecord.Id = roadSegmentAdded.Id;
         dbRecord.MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code;
         dbRecord.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentAdded.MaintenanceAuthority.Name);
         dbRecord.MethodDutchName = method.Translation.Name;

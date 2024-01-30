@@ -130,7 +130,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
             .ConfigureAwait(false);
         if (dbRecord is null)
         {
-            dbRecord = new RoadSegmentRecord();
+            dbRecord = new RoadSegmentRecord
+            {
+                Id = roadSegmentAdded.Id
+            };
             await context.RoadSegments.AddAsync(dbRecord, token);
         }
         else
@@ -146,7 +149,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation;
         var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction).Translation;
 
-        dbRecord.Id = roadSegmentAdded.Id;
         dbRecord.StartNodeId = roadSegmentAdded.StartNodeId;
         dbRecord.EndNodeId = roadSegmentAdded.EndNodeId;
         dbRecord.ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding);

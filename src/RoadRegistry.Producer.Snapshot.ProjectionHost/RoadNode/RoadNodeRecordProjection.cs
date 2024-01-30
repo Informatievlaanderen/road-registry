@@ -70,7 +70,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
                 .ConfigureAwait(false);
             if (dbRecord is null)
             {
-                dbRecord = new RoadNodeRecord();
+                dbRecord = new RoadNodeRecord
+                {
+                    Id = roadNodeAdded.Id
+                };
                 await context.RoadNodes.AddAsync(dbRecord, token);
             }
             else
@@ -80,7 +83,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
 
             var typeTranslation = RoadNodeType.Parse(roadNodeAdded.Type).Translation;
 
-            dbRecord.Id = roadNodeAdded.Id;
             dbRecord.Version = roadNodeAdded.Version;
             dbRecord.TypeId = typeTranslation.Identifier;
             dbRecord.TypeDutchName = typeTranslation.Name;

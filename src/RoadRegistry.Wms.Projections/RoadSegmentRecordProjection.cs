@@ -139,7 +139,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
             .ConfigureAwait(false);
         if (dbRecord is null)
         {
-            dbRecord = new RoadSegmentRecord();
+            dbRecord = new RoadSegmentRecord
+            {
+                Id = roadSegmentAdded.Id
+            };
             await context.RoadSegments.AddAsync(dbRecord, token);
         }
         else
@@ -161,7 +164,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         dbRecord.BeginOrganizationId = envelope.Message.OrganizationId;
         dbRecord.BeginOrganizationName = envelope.Message.Organization;
 
-        dbRecord.Id = roadSegmentAdded.Id;
         dbRecord.BeginApplication = null;
 
         dbRecord.MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code;
