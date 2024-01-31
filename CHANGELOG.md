@@ -1,3 +1,10 @@
+## [3.67.11](https://github.com/informatievlaanderen/road-registry/compare/v3.67.10...v3.67.11) (2024-01-31)
+
+
+### Bug Fixes
+
+* close extracts older than 6 months ([#1373](https://github.com/informatievlaanderen/road-registry/issues/1373)) ([c7bf0ef](https://github.com/informatievlaanderen/road-registry/commit/c7bf0ef478555b6eb7ab4e42fe8dea36dfef17f2))
+
 ## [3.67.10](https://github.com/informatievlaanderen/road-registry/compare/v3.67.9...v3.67.10) (2024-01-30)
 
 
