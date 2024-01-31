@@ -28,7 +28,8 @@ public class GetOverlappingTransactionZonesGeoJsonRequestHandler : EndpointReque
             from overlap in _context.ExtractRequestOverlaps
             join download1 in _context.ExtractDownloads on overlap.DownloadId1 equals download1.DownloadId
             join download2 in _context.ExtractDownloads on overlap.DownloadId2 equals download2.DownloadId
-            where download1.Available && download2.Available
+            where !download1.IsInformative && !download2.IsInformative
+                && download1.Available && download2.Available
             select overlap
         ).ToListAsync(cancellationToken);
 
