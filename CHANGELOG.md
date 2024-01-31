@@ -1,3 +1,10 @@
+## [3.67.12](https://github.com/informatievlaanderen/road-registry/compare/v3.67.11...v3.67.12) (2024-01-31)
+
+
+### Bug Fixes
+
+* WR-935 check for missing GradeSeparatedJunctions should ignore intersections with outlined RoadSegments ([#1374](https://github.com/informatievlaanderen/road-registry/issues/1374)) ([4044cb5](https://github.com/informatievlaanderen/road-registry/commit/4044cb523478fd96428fbcde5af53855efe3d773))
+
 ## [3.67.11](https://github.com/informatievlaanderen/road-registry/compare/v3.67.10...v3.67.11) (2024-01-31)
 
 
