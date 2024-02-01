@@ -248,7 +248,13 @@ namespace RoadRegistry.BackOffice.Uploads
                                         && problem.Parameters.Count == 2
                                         && problem.Parameters.Any(x => x.Name == "RecordNumber" && x.Value == feature.RecordNumber.ToString())
                                         && problem.Parameters.Any(x => x.Name == "Field" && x.Value == "TOTPOS")
-                                );
+                                )
+                                .Remove(problem =>
+                                    string.Equals(problem.File, problemFile, StringComparison.InvariantCultureIgnoreCase)
+                                        && problem.Reason == nameof(DbaseFileProblems.FromPositionEqualToOrGreaterThanToPosition)
+                                        && problem.Parameters.Any(x => x.Name == "RecordNumber" && x.Value == feature.RecordNumber.ToString())
+                                )
+                                ;
                         }
                     }
                 }
