@@ -1,17 +1,16 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
 {
-    using System;
-    using System.Globalization;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
     using BackOffice;
+    using BackOffice.Extensions;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Extensions;
-    using Microsoft.EntityFrameworkCore;
     using Projections;
+    using System;
+    using System.Globalization;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     public class RoadNodeRecordProjection : ConnectedProjection<RoadNodeProducerSnapshotContext>
     {
@@ -22,19 +21,21 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             _kafkaProducer = kafkaProducer;
             When<Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<ImportedRoadNode>>(async (context, envelope, token) =>
             {
-                var geometry = GeometryTranslator.Translate(envelope.Message.Geometry);
-                var typeTranslation = RoadNodeType.Parse(envelope.Message.Type).Translation;
+                var roadNodeAdded = envelope.Message;
+
+                var typeTranslation = RoadNodeType.Parse(roadNodeAdded.Type).Translation;
 
                 var roadNode = await context.RoadNodes.AddAsync(
-                    new RoadNodeRecord(
-                        envelope.Message.Id,
-                        envelope.Message.Version,
-                        typeTranslation.Identifier,
-                        typeTranslation.Name,
-                        geometry,
-                        envelope.Message.Origin.ToOrigin(),
-                        envelope.CreatedUtc)
-                    , token);
+                    new RoadNodeRecord
+                    {
+                        Id = roadNodeAdded.Id,
+                        Version = roadNodeAdded.Version,
+                        TypeId = typeTranslation.Identifier,
+                        TypeDutchName = typeTranslation.Name,
+                        Geometry = GeometryTranslator.Translate(roadNodeAdded.Geometry),
+                        Origin = envelope.Message.Origin.ToOrigin(),
+                        LastChangedTimestamp = envelope.CreatedUtc
+                    }, token);
 
                 await Produce(envelope.Message.Id, roadNode.Entity.ToContract(), token);
             });
@@ -59,29 +60,37 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             });
         }
 
-        private async Task AddRoadNode(RoadNodeProducerSnapshotContext context, Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<RoadNetworkChangesAccepted> envelope,
+        private async Task AddRoadNode(RoadNodeProducerSnapshotContext context,
+            Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<RoadNetworkChangesAccepted> envelope,
             RoadNodeAdded roadNodeAdded,
             CancellationToken token)
         {
-            var removedRecord = context.RoadNodes.Local.SingleOrDefault(x => x.Id == roadNodeAdded.Id && x.IsRemoved)
-                ?? await context.RoadNodes.SingleOrDefaultAsync(x => x.Id == roadNodeAdded.Id && x.IsRemoved, token);
-            if (removedRecord is not null)
+            var dbRecord = await context.RoadNodes
+                .FindAsync(x => x.Id == roadNodeAdded.Id, token)
+                .ConfigureAwait(false);
+            if (dbRecord is null)
             {
-                context.RoadNodes.Remove(removedRecord);
+                dbRecord = new RoadNodeRecord
+                {
+                    Id = roadNodeAdded.Id
+                };
+                await context.RoadNodes.AddAsync(dbRecord, token);
+            }
+            else
+            {
+                dbRecord.IsRemoved = false;
             }
 
             var typeTranslation = RoadNodeType.Parse(roadNodeAdded.Type).Translation;
 
-            var roadNode = await context.RoadNodes.AddAsync(new RoadNodeRecord(
-                roadNodeAdded.Id,
-                roadNodeAdded.Version,
-                typeTranslation.Identifier,
-                typeTranslation.Name,
-                GeometryTranslator.Translate(roadNodeAdded.Geometry),
-                envelope.Message.ToOrigin(),
-                envelope.CreatedUtc), token);
+            dbRecord.Version = roadNodeAdded.Version;
+            dbRecord.TypeId = typeTranslation.Identifier;
+            dbRecord.TypeDutchName = typeTranslation.Name;
+            dbRecord.Geometry = GeometryTranslator.Translate(roadNodeAdded.Geometry);
+            dbRecord.Origin = envelope.Message.ToOrigin();
+            dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
-            await Produce(roadNodeAdded.Id, roadNode.Entity.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
 
         private async Task ModifyRoadNode(
@@ -90,24 +99,25 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             RoadNodeModified roadNodeModified,
             CancellationToken token)
         {
-            var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeModified.Id, cancellationToken: token).ConfigureAwait(false);
-
-            if (roadNodeRecord == null)
+            var dbRecord = await context.RoadNodes
+                .FindAsync(x => x.Id == roadNodeModified.Id, token)
+                .ConfigureAwait(false);
+            if (dbRecord is null)
             {
                 throw new InvalidOperationException($"{nameof(RoadNodeRecord)} with id {roadNodeModified.Id} is not found");
             }
 
             var typeTranslation = RoadNodeType.Parse(roadNodeModified.Type).Translation;
 
-            roadNodeRecord.Id = roadNodeModified.Id;
-            roadNodeRecord.Version = roadNodeModified.Version;
-            roadNodeRecord.TypeId = typeTranslation.Identifier;
-            roadNodeRecord.TypeDutchName = typeTranslation.Name;
-            roadNodeRecord.Geometry = GeometryTranslator.Translate(roadNodeModified.Geometry);
-            roadNodeRecord.Origin = envelope.Message.ToOrigin();
-            roadNodeRecord.LastChangedTimestamp = envelope.CreatedUtc;
+            dbRecord.Id = roadNodeModified.Id;
+            dbRecord.Version = roadNodeModified.Version;
+            dbRecord.TypeId = typeTranslation.Identifier;
+            dbRecord.TypeDutchName = typeTranslation.Name;
+            dbRecord.Geometry = GeometryTranslator.Translate(roadNodeModified.Geometry);
+            dbRecord.Origin = envelope.Message.ToOrigin();
+            dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
-            await Produce(roadNodeRecord.Id, roadNodeRecord.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
 
         private async Task RemoveRoadNode(
@@ -116,21 +126,23 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             RoadNodeRemoved roadNodeRemoved,
             CancellationToken token)
         {
-            var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeRemoved.Id, cancellationToken: token).ConfigureAwait(false);
-            if (roadNodeRecord == null)
+            var dbRecord = await context.RoadNodes
+                .FindAsync(x => x.Id == roadNodeRemoved.Id, token)
+                .ConfigureAwait(false);
+            if (dbRecord is null)
             {
                 throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeRemoved.Id} is not found");
             }
-            if (roadNodeRecord.IsRemoved)
+            if (dbRecord.IsRemoved)
             {
                 return;
             }
 
-            roadNodeRecord.Origin = envelope.Message.ToOrigin();
-            roadNodeRecord.LastChangedTimestamp = envelope.CreatedUtc;
-            roadNodeRecord.IsRemoved = true;
+            dbRecord.Origin = envelope.Message.ToOrigin();
+            dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
+            dbRecord.IsRemoved = true;
 
-            await Produce(roadNodeRecord.Id, roadNodeRecord.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
 
         private async Task Produce(int roadNodeId, RoadNodeSnapshot snapshot, CancellationToken cancellationToken)

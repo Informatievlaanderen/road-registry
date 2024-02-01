@@ -73,8 +73,8 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
 
         RoadSegmentFeatureCompareRecord FindRoadSegmentByOriginalId(RoadSegmentId originalId)
         {
-            var matchingFeatures = context
-                .GetNonRemovedRoadSegmentRecords()
+            var matchingFeatures = context.RoadSegmentRecords
+                .NotRemoved()
                 .Where(x => x.GetOriginalId() == originalId)
                 .ToList();
 
@@ -202,13 +202,14 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
         var problems = ZipArchiveProblems.None;
 
         var changedRoadSegments = context.RoadSegmentRecords
+            .NotOutlined()
             .Where(x => x.FeatureType == FeatureType.Change
                         && (x.RecordType == RecordType.Added || (x.RecordType == RecordType.Modified && x.GeometryChanged)))
             .ToList();
 
         var uniqueRoadSegmentCombinations = (
             from r1 in changedRoadSegments
-            from r2 in context.GetNonRemovedRoadSegmentRecords()
+            from r2 in context.RoadSegmentRecords.NotRemoved().NotOutlined()
             where r1.Id != r2.Id
             select new RoadSegmentCombination(r1, r2)
         ).DistinctBy(x => x.Key).ToList();

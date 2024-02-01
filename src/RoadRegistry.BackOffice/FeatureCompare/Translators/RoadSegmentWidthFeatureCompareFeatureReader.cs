@@ -63,17 +63,20 @@ public class RoadSegmentWidthFeatureCompareFeatureReader : VersionedZipArchiveFe
                     .OrderBy(x => x.From)
                     .ToList();
 
-                var roadSegmentLine = roadSegmentFeature.Attributes.Geometry.GetSingleLineString();
-
-                var widthProblems = roadSegmentLine.GetProblemsForRoadSegmentWidths(widths, context.Tolerances);
-
-                var recordContext = fileName.AtDbaseRecord(featureType, roadSegmentGroup.First().RecordNumber);
-                foreach (var problem in widthProblems)
+                if (roadSegmentFeature.Attributes.Geometry.HasExactlyOneLineString())
                 {
-                    problems += recordContext
-                        .Error(problem.Reason)
-                        .WithParameters(problem.Parameters.ToArray())
-                        .Build();
+                    var roadSegmentLine = roadSegmentFeature.Attributes.Geometry.GetSingleLineString();
+
+                    var widthProblems = roadSegmentLine.GetProblemsForRoadSegmentWidths(widths, context.Tolerances);
+
+                    var recordContext = fileName.AtDbaseRecord(featureType, roadSegmentGroup.First().RecordNumber);
+                    foreach (var problem in widthProblems)
+                    {
+                        problems += recordContext
+                            .Error(problem.Reason)
+                            .WithParameters(problem.Parameters.ToArray())
+                            .Build();
+                    }
                 }
             }
         }
@@ -156,7 +159,7 @@ public class RoadSegmentWidthFeatureCompareFeatureReader : VersionedZipArchiveFe
                 .WithIdentifier(nameof(WB_OIDN), WB_OIDN);
 
             var problems = ZipArchiveProblems.None;
-            
+
             AttributeId ReadId()
             {
                 if (WB_OIDN is null)
@@ -253,7 +256,7 @@ public class RoadSegmentWidthFeatureCompareFeatureReader : VersionedZipArchiveFe
 
                 return default;
             }
-            
+
             var feature = Feature.New(recordNumber, new RoadSegmentWidthFeatureCompareAttributes
             {
                 Id = ReadId(),

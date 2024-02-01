@@ -42,8 +42,12 @@ namespace RoadRegistry.AdminHost
                     var extractRequests = await _editorContext.ExtractRequests
                         .Where(extractRequest =>
                             !extractRequest.IsInformative &&
-                            extractRequest.RequestedOn.Date <= DateTimeOffset.Now.Date.AddDays(-7) &&
-                            extractRequest.DownloadedOn == null)
+                            (
+                                extractRequest.RequestedOn.Date <= DateTimeOffset.Now.Date.AddMonths(-6)
+                                ||
+                                (extractRequest.DownloadedOn == null && extractRequest.RequestedOn.Date <= DateTimeOffset.Now.Date.AddDays(-7))
+                            )
+                        )
                         .ToListAsync(cancellationToken);
 
                     foreach (var extractRequest in extractRequests)

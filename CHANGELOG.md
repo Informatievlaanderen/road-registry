@@ -1,3 +1,46 @@
+## [3.67.13](https://github.com/informatievlaanderen/road-registry/compare/v3.67.12...v3.67.13) (2024-02-01)
+
+
+### Bug Fixes
+
+* WR-936 singular record TOTPOS with value "0" should be filled in automatically ([#1375](https://github.com/informatievlaanderen/road-registry/issues/1375)) ([1037c24](https://github.com/informatievlaanderen/road-registry/commit/1037c24a2e33e6af9a33eb38508d92b4918be3d0))
+
+## [3.67.12](https://github.com/informatievlaanderen/road-registry/compare/v3.67.11...v3.67.12) (2024-01-31)
+
+
+### Bug Fixes
+
+* WR-935 check for missing GradeSeparatedJunctions should ignore intersections with outlined RoadSegments ([#1374](https://github.com/informatievlaanderen/road-registry/issues/1374)) ([4044cb5](https://github.com/informatievlaanderen/road-registry/commit/4044cb523478fd96428fbcde5af53855efe3d773))
+
+## [3.67.11](https://github.com/informatievlaanderen/road-registry/compare/v3.67.10...v3.67.11) (2024-01-31)
+
+
+### Bug Fixes
+
+* close extracts older than 6 months ([#1373](https://github.com/informatievlaanderen/road-registry/issues/1373)) ([c7bf0ef](https://github.com/informatievlaanderen/road-registry/commit/c7bf0ef478555b6eb7ab4e42fe8dea36dfef17f2))
+
+## [3.67.10](https://github.com/informatievlaanderen/road-registry/compare/v3.67.9...v3.67.10) (2024-01-30)
+
+
+### Bug Fixes
+
+* WR-925 validation check when upload has segment with multiple lines or zip file contains duplicate files but with different casing ([#1372](https://github.com/informatievlaanderen/road-registry/issues/1372)) ([17bf92e](https://github.com/informatievlaanderen/road-registry/commit/17bf92e404c24428936c84e2d2101daf6d4a146f))
+
+## [3.67.9](https://github.com/informatievlaanderen/road-registry/compare/v3.67.8...v3.67.9) (2024-01-30)
+
+
+### Bug Fixes
+
+* WR-934 pass ID when adding new EF entity right away ([#1371](https://github.com/informatievlaanderen/road-registry/issues/1371)) ([7d9af6c](https://github.com/informatievlaanderen/road-registry/commit/7d9af6cac003f700bccdb65f818c3a861294c043))
+
+## [3.67.8](https://github.com/informatievlaanderen/road-registry/compare/v3.67.7...v3.67.8) (2024-01-26)
+
+
+### Bug Fixes
+
+* outlined segment rejections should show in feed ([#1369](https://github.com/informatievlaanderen/road-registry/issues/1369)) ([c9578eb](https://github.com/informatievlaanderen/road-registry/commit/c9578ebbc13b5724ef99d89046af4dadfb22d6d7))
+* WR-932 convert Delete+Create to Update with soft-deleted objects in projections ([#1370](https://github.com/informatievlaanderen/road-registry/issues/1370)) ([16645a5](https://github.com/informatievlaanderen/road-registry/commit/16645a549e7ba8e3c6ad948aee07513e7ad6c03a))
+
 ## [3.67.7](https://github.com/informatievlaanderen/road-registry/compare/v3.67.6...v3.67.7) (2024-01-25)
 
 

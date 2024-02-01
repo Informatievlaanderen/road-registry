@@ -15,30 +15,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
         public Origin Origin { get; set; }
         public DateTimeOffset LastChangedTimestamp { get; set; }
         public bool IsRemoved { get; set; }
-
-        // EF needs this
-        private GradeSeparatedJunctionRecord() { }
-
-        public GradeSeparatedJunctionRecord(
-            int id,
-            int lowerRoadSegmentId,
-            int upperRoadSegmentId,
-            int typeId,
-            string typeDutchName,
-            Origin origin,
-            DateTimeOffset lastChangedTimestamp)
-        {
-            Id = id;
-            LowerRoadSegmentId = lowerRoadSegmentId;
-            UpperRoadSegmentId = upperRoadSegmentId;
-            TypeId = typeId;
-            TypeDutchName = typeDutchName;
-
-            Origin = origin;
-            LastChangedTimestamp = lastChangedTimestamp;
-            IsRemoved = false;
-        }
-
+        
         public GradeSeparatedJunctionSnapshot ToContract()
         {
             return new GradeSeparatedJunctionSnapshot(

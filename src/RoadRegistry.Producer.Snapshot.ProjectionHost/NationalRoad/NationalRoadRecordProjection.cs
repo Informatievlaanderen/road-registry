@@ -1,17 +1,17 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
 {
-    using System;
-    using System.Globalization;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Extensions;
-    using Microsoft.EntityFrameworkCore;
     using Projections;
+    using RoadRegistry.BackOffice.Extensions;
+    using System;
+    using System.Globalization;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     public class NationalRoadRecordProjection : ConnectedProjection<NationalRoadProducerSnapshotContext>
     {
@@ -34,13 +34,14 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
 
             var nationalRoads = envelope.Message
                 .PartOfNationalRoads
-                .Select(nationalRoad => new NationalRoadRecord(
-                    nationalRoad.AttributeId,
-                    envelope.Message.Id,
-                    nationalRoad.Number,
-                    nationalRoad.Origin.ToOrigin(),
-                    envelope.CreatedUtc)
-                );
+                .Select(nationalRoadAdded => new NationalRoadRecord
+                {
+                    Id = nationalRoadAdded.AttributeId,
+                    RoadSegmentId = envelope.Message.Id,
+                    Number = nationalRoadAdded.Number,
+                    Origin = nationalRoadAdded.Origin.ToOrigin(),
+                    LastChangedTimestamp = envelope.CreatedUtc
+                });
 
             foreach (var nationalRoad in nationalRoads)
             {
@@ -73,22 +74,28 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             RoadSegmentAddedToNationalRoad nationalRoadAdded,
             CancellationToken token)
         {
-            var removedRecord = context.NationalRoads.Local.SingleOrDefault(x => x.Id == nationalRoadAdded.AttributeId && x.IsRemoved)
-                ?? await context.NationalRoads.SingleOrDefaultAsync(x => x.Id == nationalRoadAdded.AttributeId && x.IsRemoved, token);
-            if (removedRecord is not null)
+            var dbRecord = await context.NationalRoads
+                .FindAsync(x => x.Id == nationalRoadAdded.AttributeId, token)
+                .ConfigureAwait(false);
+            if (dbRecord is null)
             {
-                context.NationalRoads.Remove(removedRecord);
+                dbRecord = new NationalRoadRecord
+                {
+                    Id = nationalRoadAdded.AttributeId
+                };
+                await context.NationalRoads.AddAsync(dbRecord, token);
+            }
+            else
+            {
+                dbRecord.IsRemoved = false;
             }
 
-            var nationalRoad = await context.NationalRoads.AddAsync(new NationalRoadRecord(
-                nationalRoadAdded.AttributeId,
-                nationalRoadAdded.SegmentId,
-                nationalRoadAdded.Number,
-                envelope.Message.ToOrigin(),
-                envelope.CreatedUtc
-            ), token);
-
-            await Produce(nationalRoad.Entity.Id, nationalRoad.Entity.ToContract(), token);
+            dbRecord.RoadSegmentId = nationalRoadAdded.SegmentId;
+            dbRecord.Number = nationalRoadAdded.Number;
+            dbRecord.Origin = envelope.Message.ToOrigin();
+            dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
+            
+            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
 
         private async Task RoadSegmentRemovedFromNationalRoad(
@@ -125,23 +132,23 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             int nationalRoadId,
             CancellationToken token)
         {
-            var nationalRoadRecord =
-                await context.NationalRoads.FindAsync(nationalRoadId, cancellationToken: token).ConfigureAwait(false);
-
-            if (nationalRoadRecord == null)
+            var dbRecord = await context.NationalRoads
+                .FindAsync(x => x.Id == nationalRoadId, token)
+                .ConfigureAwait(false);
+            if (dbRecord is null)
             {
                 throw new InvalidOperationException($"{nameof(NationalRoadRecord)} with id {nationalRoadId} is not found");
             }
-            if (nationalRoadRecord.IsRemoved)
+            if (dbRecord.IsRemoved)
             {
                 return;
             }
 
-            nationalRoadRecord.Origin = envelope.Message.ToOrigin();
-            nationalRoadRecord.LastChangedTimestamp = envelope.CreatedUtc;
-            nationalRoadRecord.IsRemoved = true;
+            dbRecord.Origin = envelope.Message.ToOrigin();
+            dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
+            dbRecord.IsRemoved = true;
 
-            await Produce(nationalRoadRecord.Id, nationalRoadRecord.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
         
         private async Task Produce(int nationalRoadId, NationalRoadSnapshot snapshot, CancellationToken cancellationToken)

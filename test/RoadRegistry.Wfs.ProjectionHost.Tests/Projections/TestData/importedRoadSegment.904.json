@@ -1,0 +1,131 @@
+{
+  "id": 904,
+  "version": 1,
+  "startNodeId": 800780,
+  "endNodeId": 125446,
+  "geometry": {
+    "spatialReferenceSystemIdentifier": 31370,
+    "multiLineString": [
+      {
+        "points": [
+          {
+            "x": 201299.1719999984,
+            "y": 205524.7039999999
+          },
+          {
+            "x": 201422.1560000032,
+            "y": 205551.8440000005
+          },
+          {
+            "x": 201438.3280000016,
+            "y": 205448.5009999983
+          },
+          {
+            "x": 201442.2189999968,
+            "y": 205434.5469999984
+          },
+          {
+            "x": 201464.1410000026,
+            "y": 205367.7659999989
+          }
+        ],
+        "measures": [
+          0.0,
+          125.9430182949,
+          230.5437316452,
+          245.030069932,
+          315.3171672201
+        ]
+      }
+    ]
+  },
+  "geometryVersion": 1,
+  "maintenanceAuthority": {
+    "code": "13003",
+    "name": "Gemeente Balen"
+  },
+  "geometryDrawMethod": "Measured",
+  "morphology": "Walking_or_cycling_path_not_accessible_to_other_vehicles",
+  "status": "InUse",
+  "category": "Unknown",
+  "accessRestriction": "PublicRoad",
+  "leftSide": {
+    "streetNameId": -9,
+    "streetName":
+      "                                                                                                                                ",
+    "municipalityNISCode": "13003",
+    "municipality": "Balen"
+  },
+  "rightSide": {
+    "streetNameId": -9,
+    "streetName":
+      "                                                                                                                                ",
+    "municipalityNISCode": "13003",
+    "municipality": "Balen"
+  },
+  "partOfEuropeanRoads": [],
+  "partOfNationalRoads": [],
+  "partOfNumberedRoads": [],
+  "lanes": [
+    {
+      "attributeId": 100868,
+      "count": -9,
+      "direction": "Independent",
+      "fromPosition": 0.0,
+      "toPosition": 315.317,
+      "asOfGeometryVersion": 1,
+      "origin": {
+        "organizationId": "AGIV",
+        "organization": "Agentschap voor Geografische Informatie Vlaanderen",
+        "operator": null,
+        "application": null,
+        "since": "2014-02-20T14:35:32Z",
+        "transactionId": -8
+      }
+    }
+  ],
+  "widths": [
+    {
+      "attributeId": 100868,
+      "width": -8,
+      "fromPosition": 0.0,
+      "toPosition": 315.317,
+      "asOfGeometryVersion": 1,
+      "origin": {
+        "organizationId": "AGIV",
+        "organization": "Agentschap voor Geografische Informatie Vlaanderen",
+        "operator": null,
+        "application": null,
+        "since": "2014-02-20T14:35:32Z",
+        "transactionId": -8
+      }
+    }
+  ],
+  "surfaces": [
+    {
+      "attributeId": 101733,
+      "type": "LooseSurface",
+      "fromPosition": 0.0,
+      "toPosition": 315.317,
+      "asOfGeometryVersion": 1,
+      "origin": {
+        "organizationId": "AGIV",
+        "organization": "Agentschap voor Geografische Informatie Vlaanderen",
+        "operator": null,
+        "application": null,
+        "since": "2014-02-20T14:35:32Z",
+        "transactionId": -8
+      }
+    }
+  ],
+  "recordingDate": "2014-02-20T14:35:32.237Z",
+  "origin": {
+    "organizationId": "AGIV",
+    "organization": "Agentschap voor Geografische Informatie Vlaanderen",
+    "operator": "-8",
+    "application": "-8",
+    "since": "2014-02-20T14:35:32Z",
+    "transactionId": 0
+  },
+  "when": "2020-06-05T07:08:15.4801051Z"
+}

@@ -53,8 +53,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         RoadNodeFeatureCompareRecord FindRoadNodeByOriginalId(RoadNodeId originalId)
         {
-            var matchingFeatures = context
-                .GetNonRemovedRoadNodeRecords()
+            var matchingFeatures = context.RoadNodeRecords
+                .NotRemoved()
                 .Where(x => x.GetOriginalId() == originalId)
                 .ToList();
 

@@ -94,7 +94,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
             MaintenanceAuthority = new MaintenanceAuthority
             {
                 Code = MaintenanceAuthorityId,
-                Name = MaintenanceAuthorityName ?? Organization.PredefinedTranslations.Unknown.Name
+                Name = OrganizationName.FromValueWithFallback(MaintenanceAuthorityName)
             },
             GeometryDrawMethod = GeometryDrawMethod,
             Morphology = Morphology,

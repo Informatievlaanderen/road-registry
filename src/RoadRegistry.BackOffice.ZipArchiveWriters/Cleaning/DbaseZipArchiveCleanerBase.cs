@@ -99,10 +99,10 @@ public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveClea
     private async Task Save(ZipArchive archive, IReadOnlyCollection<TDbaseRecord> dbfRecords, CancellationToken cancellationToken)
     {
         var fileName = FeatureType.Change.ToDbaseFileName(_fileName);
-        archive.Entries
-            .Single(x => string.Equals(x.Name, fileName, StringComparison.InvariantCultureIgnoreCase))
-            .Delete();
-        
+
+        var entry = archive.FindEntry(FeatureType.Change.ToDbaseFileName(_fileName));
+        entry?.Delete();
+
         await SaveDbaseRecords(archive, fileName, dbfRecords, cancellationToken);
     }
 

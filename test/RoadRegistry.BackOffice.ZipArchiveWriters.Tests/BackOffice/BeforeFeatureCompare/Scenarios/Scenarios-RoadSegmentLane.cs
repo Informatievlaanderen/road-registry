@@ -39,7 +39,7 @@ public class RoadSegmentLaneScenarios : FeatureCompareTranslatorScenariosBase
     }
 
     [Fact]
-    public async Task ZeroFromPositionShouldGiveProblem()
+    public async Task NonZeroFromPositionShouldGiveProblem()
     {
         var zipArchive = new ExtractsZipArchiveBuilder()
             .WithChange((builder, context) =>
@@ -96,6 +96,19 @@ public class RoadSegmentLaneScenarios : FeatureCompareTranslatorScenariosBase
         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
         var problem = Assert.Single(ex.Problems);
         Assert.Equal(ProblemCode.RoadSegment.Lane.ToPositionNotEqualToLength, problem.Reason);
+    }
+
+    [Fact]
+    public async Task SingleRecordWithZeroToPositionShouldSucceed()
+    {
+        var zipArchive = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                builder.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = 0;
+            })
+            .Build();
+
+        await TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty);
     }
 
     [Fact]

@@ -1,0 +1,260 @@
+{
+  "id": 4,
+  "version": 3,
+  "startNodeId": 7,
+  "endNodeId": 8,
+  "geometry": {
+    "spatialReferenceSystemIdentifier": 31370,
+    "multiLineString": [
+      {
+        "points": [
+          {
+            "x": 232327.0539999977,
+            "y": 165044.6810000017
+          },
+          {
+            "x": 232319.001000002,
+            "y": 165050.8590000048
+          },
+          {
+            "x": 232315.6100000069,
+            "y": 165055.1250000037
+          },
+          {
+            "x": 232306.7980000079,
+            "y": 165065.4690000042
+          },
+          {
+            "x": 232305.7040000036,
+            "y": 165066.7840000056
+          },
+          {
+            "x": 232299.626000002,
+            "y": 165074.0930000059
+          },
+          {
+            "x": 232292.4700000063,
+            "y": 165082.2500000037
+          },
+          {
+            "x": 232285.001000002,
+            "y": 165090.4840000048
+          },
+          {
+            "x": 232277.4850000069,
+            "y": 165099.1090000048
+          },
+          {
+            "x": 232271.8450000063,
+            "y": 165105.3900000043
+          },
+          {
+            "x": 232265.3920000046,
+            "y": 165112.2180000059
+          },
+          {
+            "x": 232258.0170000046,
+            "y": 165120.0000000037
+          },
+          {
+            "x": 232249.4070000052,
+            "y": 165128.7180000059
+          },
+          {
+            "x": 232240.8130000085,
+            "y": 165137.1400000043
+          },
+          {
+            "x": 232233.0950000063,
+            "y": 165144.3120000027
+          },
+          {
+            "x": 232224.2040000036,
+            "y": 165152.6400000043
+          },
+          {
+            "x": 232216.4540000036,
+            "y": 165159.6870000027
+          },
+          {
+            "x": 232207.9230000079,
+            "y": 165167.0000000037
+          },
+          {
+            "x": 232198.1570000052,
+            "y": 165175.0940000042
+          },
+          {
+            "x": 232186.4850000069,
+            "y": 165184.4220000058
+          },
+          {
+            "x": 232176.6570000052,
+            "y": 165192.3120000027
+          },
+          {
+            "x": 232165.7380000055,
+            "y": 165200.831000004
+          },
+          {
+            "x": 232161.6570000052,
+            "y": 165204.0150000043
+          },
+          {
+            "x": 232157.6740000024,
+            "y": 165206.9280000031
+          },
+          {
+            "x": 232152.4849999994,
+            "y": 165213.4629999995
+          }
+        ],
+        "measures": [
+          0.0,
+          10.1498026074,
+          15.5993564384,
+          29.1879428253,
+          30.8985161247,
+          40.4044913522,
+          51.2555274734,
+          62.3723938071,
+          73.812712025,
+          82.2543090895,
+          91.6491370839,
+          102.3706178102,
+          114.6236021009,
+          126.656345758,
+          137.1922419236,
+          149.374420098,
+          159.8492809074,
+          171.0857363068,
+          183.7698835805,
+          198.7113416081,
+          211.3145826192,
+          225.1636952989,
+          230.3398344976,
+          235.2743920274,
+          243.6189678695
+        ]
+      }
+    ]
+  },
+  "geometryVersion": 3,
+  "maintenanceAuthority": {
+    "code": "AWV720",
+    "name": "Agentschap Wegen en Verkeer - District Centraal-Limburg"
+  },
+  "geometryDrawMethod": "Measured",
+  "morphology": "ServiceRoad",
+  "status": "InUse",
+  "category": "NotApplicable",
+  "accessRestriction": "PublicRoad",
+  "leftSide": {
+    "streetNameId": -9,
+    "streetName":
+      "                                                                                                                                ",
+    "municipalityNISCode": "73066",
+    "municipality": "Riemst"
+  },
+  "rightSide": {
+    "streetNameId": -9,
+    "streetName":
+      "                                                                                                                                ",
+    "municipalityNISCode": "73066",
+    "municipality": "Riemst"
+  },
+  "partOfEuropeanRoads": [],
+  "partOfNationalRoads": [],
+  "partOfNumberedRoads": [
+    {
+      "attributeId": 594461,
+      "ident8": "A0135321",
+      "direction": "Forward",
+      "ordinal": 10,
+      "origin": {
+        "organizationId": "V0201             ",
+        "organization": "Agentschap Wegen en Verkeer",
+        "operator": null,
+        "application": null,
+        "since": "2018-05-31T14:14:07.563Z",
+        "transactionId": -8
+      }
+    },
+    {
+      "attributeId": 594462,
+      "ident8": "A0135322",
+      "direction": "Forward",
+      "ordinal": 10,
+      "origin": {
+        "organizationId": "V0201             ",
+        "organization": "Agentschap Wegen en Verkeer",
+        "operator": null,
+        "application": null,
+        "since": "2018-05-31T14:14:07.563Z",
+        "transactionId": -8
+      }
+    }
+  ],
+  "lanes": [
+    {
+      "attributeId": 4,
+      "count": 1,
+      "direction": "Independent",
+      "fromPosition": 0.0,
+      "toPosition": 243.619,
+      "asOfGeometryVersion": 1,
+      "origin": {
+        "organizationId": "AGIV",
+        "organization": "Agentschap voor Geografische Informatie Vlaanderen",
+        "operator": null,
+        "application": null,
+        "since": "2014-02-20T14:35:32Z",
+        "transactionId": -8
+      }
+    }
+  ],
+  "widths": [
+    {
+      "attributeId": 4,
+      "width": 4,
+      "fromPosition": 0.0,
+      "toPosition": 243.619,
+      "asOfGeometryVersion": 1,
+      "origin": {
+        "organizationId": "AGIV",
+        "organization": "Agentschap voor Geografische Informatie Vlaanderen",
+        "operator": null,
+        "application": null,
+        "since": "2014-02-20T14:35:32Z",
+        "transactionId": -8
+      }
+    }
+  ],
+  "surfaces": [
+    {
+      "attributeId": 4,
+      "type": "SolidSurface",
+      "fromPosition": 0.0,
+      "toPosition": 243.619,
+      "asOfGeometryVersion": 1,
+      "origin": {
+        "organizationId": "AGIV",
+        "organization": "Agentschap voor Geografische Informatie Vlaanderen",
+        "operator": null,
+        "application": null,
+        "since": "2014-02-20T14:35:32Z",
+        "transactionId": -8
+      }
+    }
+  ],
+  "recordingDate": "2017-03-15T15:44:11Z",
+  "origin": {
+    "organizationId": "AWV",
+    "organization": "Agentschap Wegen en Verkeer",
+    "operator": "",
+    "application": "Wegenregister-BLL",
+    "since": "2017-03-15T15:44:48Z",
+    "transactionId": 979
+  },
+  "when": "2020-06-05T07:08:15.4657302Z"
+}
