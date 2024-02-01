@@ -1,3 +1,10 @@
+## [3.67.13](https://github.com/informatievlaanderen/road-registry/compare/v3.67.12...v3.67.13) (2024-02-01)
+
+
+### Bug Fixes
+
+* WR-936 singular record TOTPOS with value "0" should be filled in automatically ([#1375](https://github.com/informatievlaanderen/road-registry/issues/1375)) ([1037c24](https://github.com/informatievlaanderen/road-registry/commit/1037c24a2e33e6af9a33eb38508d92b4918be3d0))
+
 ## [3.67.12](https://github.com/informatievlaanderen/road-registry/compare/v3.67.11...v3.67.12) (2024-01-31)
 
 
