@@ -89,6 +89,8 @@ public class StreetNameSnapshotConsumer : RoadRegistryBackgroundService
                 if (@event is StreetNameRemoved)
                 {
                     //TODO-rik WR-924 wait for new editor roadsegments projection (zie BeforeDispatchEvent in ExtractHost EventProcessor)
+                    //WellKnownProjectionStateNames.RoadRegistryEditorRoadSegmentV2ProjectionHost
+                    //depend on featuretoggle to decide which projection to wait for
 
                     //query for matching roadsegments, send with command UnlinkRoadSegmentsFromStreetName
                     //dan is apart command UnlinkRoadSegmentsFromStreetName niet meer nodig? kan direct een ChangeRoadNetwork registreren
