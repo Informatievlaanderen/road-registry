@@ -1,14 +1,20 @@
 namespace RoadRegistry.SyncHost.Tests.StreetName
 {
     using Autofac;
+    using AutoFixture;
     using BackOffice;
+    using BackOffice.Extracts.Dbase.RoadSegments;
     using BackOffice.FeatureToggles;
     using BackOffice.Framework;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
     using Be.Vlaanderen.Basisregisters.GrAr.Legacy.Gemeente;
     using Be.Vlaanderen.Basisregisters.GrAr.Legacy.Straatnaam;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Editor.Projections;
     using Editor.Schema;
+    using Editor.Schema.Extensions;
     using Editor.Schema.RoadSegments;
     using Extensions;
     using Microsoft.Extensions.Configuration;
@@ -18,6 +24,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
     using NodaTime;
     using NodaTime.Testing;
     using RoadRegistry.StreetName;
+    using RoadRegistry.Tests.BackOffice.Scenarios;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
     using Sync.StreetNameRegistry;
@@ -141,6 +148,8 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
         [Fact]
         public async Task CanConsumeSuccessfully_Removed()
         {
+            var testData = new RoadNetworkTestData();
+            
             var streetNameObjectId = "1";
             var streetNameId = "https://data.vlaanderen.be/id/straatnaam/1";
 
@@ -163,11 +172,37 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
 
             var (consumer, store, topicConsumer) = BuildSetup(configureEditorContext: editorContext =>
             {
-                //TODO-rik fix test: seed roadsegment with link to streetName1 for left and right side
-                //editorContext.RoadSegmentsV2.Add(new RoadSegmentV2Record());
-                //editorContext.RoadSegmentLaneAttributes
-                //editorContext.RoadSegmentSurfaceAttributes
-                //editorContext.RoadSegmentWidthAttributes
+                editorContext.ProjectionStates.Add(new ProjectionStateItem
+                {
+                    Name = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost,
+                    Position = 0
+                });
+
+                var statusTranslation = RoadSegmentStatus.Parse(testData.Segment1Added.Status).Translation;
+                var morphologyTranslation = RoadSegmentMorphology.Parse(testData.Segment1Added.Morphology).Translation;
+                var categoryTranslation = RoadSegmentCategory.Parse(testData.Segment1Added.Category).Translation;
+                var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(testData.Segment1Added.GeometryDrawMethod).Translation;
+                var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(testData.Segment1Added.AccessRestriction).Translation;
+
+                editorContext.RoadSegmentsV2.Add(
+                    new RoadSegmentV2Record
+                    {
+                        Id = testData.Segment1Added.Id,
+                        StartNodeId = testData.Segment1Added.StartNodeId,
+                        EndNodeId = testData.Segment1Added.EndNodeId,
+                        Geometry = GeometryTranslator.Translate(testData.Segment1Added.Geometry),
+                        Version = testData.Segment1Added.Version,
+                        GeometryVersion = testData.Segment1Added.GeometryVersion,
+                        StatusId = statusTranslation.Identifier,
+                        MorphologyId = morphologyTranslation.Identifier,
+                        CategoryId = categoryTranslation.Identifier,
+                        LeftSideStreetNameId = int.Parse(streetNameObjectId),
+                        RightSideStreetNameId = int.Parse(streetNameObjectId),
+                        MaintainerId = testData.Segment1Added.MaintenanceAuthority.Code,
+                        MaintainerName = testData.Segment1Added.MaintenanceAuthority.Name,
+                        MethodId = geometryDrawMethodTranslation.Identifier,
+                        AccessRestrictionId = accessRestrictionTranslation.Identifier
+                    });
             });
 
             topicConsumer
@@ -192,7 +227,8 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                 Assert.Equal("roadnetwork-command-queue", streamMessage.StreamId);
 
                 var message = JsonConvert.DeserializeObject<ChangeRoadNetwork>(await streamMessage.GetJsonData());
-                var modifyRoadSegment = message.Changes.Single().ModifyRoadSegment;
+                var modifyRoadSegment = Assert.Single(message.Changes).ModifyRoadSegment;
+                Assert.Equal(testData.Segment1Added.Id, modifyRoadSegment.Id);
                 Assert.Equal(-9, modifyRoadSegment.LeftSideStreetNameId);
                 Assert.Equal(-9, modifyRoadSegment.RightSideStreetNameId);
             }

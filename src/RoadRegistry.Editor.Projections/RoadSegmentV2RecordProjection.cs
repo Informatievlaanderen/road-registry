@@ -91,7 +91,7 @@ public class RoadSegmentV2RecordProjection : ConnectedProjection<EditorContext>
 
                     TransactionId = transactionId,
                     RecordingDate = envelope.Message.RecordingDate,
-                    BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
+                    BeginTime = envelope.Message.Origin.Since,
                     BeginOrganizationId = envelope.Message.Origin.OrganizationId,
                     BeginOrganizationName = envelope.Message.Origin.Organization,
 
@@ -321,10 +321,9 @@ public class RoadSegmentV2RecordProjection : ConnectedProjection<EditorContext>
         {
             throw new InvalidOperationException($"{nameof(RoadSegmentV2Record)} with id {roadSegmentAttributesModified.Id} is not found");
         }
-
-        dbRecord.TransactionId = new TransactionId(envelope.Message.TransactionId);
+        
         dbRecord.Version = roadSegmentAttributesModified.Version;
-
+        dbRecord.TransactionId = new TransactionId(envelope.Message.TransactionId);
         dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
         var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
@@ -407,10 +406,9 @@ public class RoadSegmentV2RecordProjection : ConnectedProjection<EditorContext>
         dbRecord.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentGeometryModified.Geometry);
         dbRecord.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
 
-        dbRecord.TransactionId = new TransactionId(envelope.Message.TransactionId);
         dbRecord.Version = roadSegmentGeometryModified.Version;
         dbRecord.GeometryVersion = roadSegmentGeometryModified.GeometryVersion;
-
+        dbRecord.TransactionId = new TransactionId(envelope.Message.TransactionId);
         dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         
         var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
@@ -434,6 +432,7 @@ public class RoadSegmentV2RecordProjection : ConnectedProjection<EditorContext>
 
         if (dbRecord is not null && !dbRecord.IsRemoved)
         {
+            dbRecord.TransactionId = new TransactionId(envelope.Message.TransactionId);
             dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
             var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);

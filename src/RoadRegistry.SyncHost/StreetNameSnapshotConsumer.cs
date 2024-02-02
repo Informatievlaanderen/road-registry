@@ -143,9 +143,13 @@ public class StreetNameSnapshotConsumer : RoadRegistryBackgroundService
 
     private async Task<ChangeRoadNetwork> BuildChangeRoadNetworkToUnlinkRoadSegmentsFromStreetName(int streetNameId, EditorContext editorContext, CancellationToken cancellationToken)
     {
-        var segments = await editorContext.RoadSegmentsV2
+        var segments = editorContext.RoadSegmentsV2.Local
             .Where(x => x.LeftSideStreetNameId == streetNameId || x.RightSideStreetNameId == streetNameId)
-            .ToListAsync(cancellationToken);
+            .Concat(
+                await editorContext.RoadSegmentsV2
+                .Where(x => x.LeftSideStreetNameId == streetNameId || x.RightSideStreetNameId == streetNameId)
+                .ToListAsync(cancellationToken)
+            ).ToList();
 
         if (!segments.Any())
         {

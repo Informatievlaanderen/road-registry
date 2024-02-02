@@ -17,7 +17,7 @@ public static class RunnerDbContextExtensions
         while (!cancellationToken.IsCancellationRequested)
         {
             var projection = await dbContext.ProjectionStates
-                .SingleOrDefaultAsync(item => item.Name == projectionStateName, cancellationToken)
+                .FindAsync(item => item.Name == projectionStateName, cancellationToken)
                 .ConfigureAwait(false);
             var projectionPosition = projection?.Position;
             var headPosition = await store.ReadHeadPosition(cancellationToken);
