@@ -23,5 +23,4 @@ public class RejectedChange
     public RemoveRoadSegmentFromEuropeanRoad RemoveRoadSegmentFromEuropeanRoad { get; set; }
     public RemoveRoadSegmentFromNationalRoad RemoveRoadSegmentFromNationalRoad { get; set; }
     public RemoveRoadSegmentFromNumberedRoad RemoveRoadSegmentFromNumberedRoad { get; set; }
-    public UnlinkRoadSegmentsFromStreetName RemoveStreetName { get; set; }
 }

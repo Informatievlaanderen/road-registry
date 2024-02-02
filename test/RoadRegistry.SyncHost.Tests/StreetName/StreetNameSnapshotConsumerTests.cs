@@ -2,14 +2,18 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
 {
     using Autofac;
     using BackOffice;
+    using BackOffice.FeatureToggles;
     using BackOffice.Framework;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
     using Be.Vlaanderen.Basisregisters.GrAr.Legacy.Gemeente;
     using Be.Vlaanderen.Basisregisters.GrAr.Legacy.Straatnaam;
+    using Editor.Schema;
+    using Editor.Schema.RoadSegments;
     using Extensions;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
+    using Microsoft.IO;
     using Newtonsoft.Json;
     using NodaTime;
     using NodaTime.Testing;
@@ -20,11 +24,17 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
 
     public class StreetNameSnapshotConsumerTests
     {
+        private readonly RecyclableMemoryStreamManager _memoryStreamManager;
+        private readonly FileEncoding _fileEncoding;
         private readonly ILoggerFactory _loggerFactory;
 
         public StreetNameSnapshotConsumerTests(
+            RecyclableMemoryStreamManager memoryStreamManager,
+            FileEncoding fileEncoding,
             ILoggerFactory loggerFactory)
         {
+            _memoryStreamManager = memoryStreamManager;
+            _fileEncoding = fileEncoding;
             _loggerFactory = loggerFactory;
         }
 
@@ -151,7 +161,14 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
 
             var streetName1Remove = new StreetNameSnapshotRecord();
 
-            var (consumer, store, topicConsumer) = BuildSetup();
+            var (consumer, store, topicConsumer) = BuildSetup(configureEditorContext: editorContext =>
+            {
+                //TODO-rik fix test: seed roadsegment with link to streetName1 for left and right side
+                //editorContext.RoadSegmentsV2.Add(new RoadSegmentV2Record());
+                //editorContext.RoadSegmentLaneAttributes
+                //editorContext.RoadSegmentSurfaceAttributes
+                //editorContext.RoadSegmentWidthAttributes
+            });
 
             topicConsumer
                 .SeedMessage(streetName1.Identificator.Id, streetName1)
@@ -171,16 +188,19 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
             }
             {
                 var streamMessage = page.Messages[2];
-                Assert.Equal(nameof(UnlinkRoadSegmentsFromStreetName), streamMessage.Type);
+                Assert.Equal(nameof(ChangeRoadNetwork), streamMessage.Type);
                 Assert.Equal("roadnetwork-command-queue", streamMessage.StreamId);
 
-                var message = JsonConvert.DeserializeObject<UnlinkRoadSegmentsFromStreetName>(await streamMessage.GetJsonData());
-                Assert.Equal(streetNameObjectId, message.Id.ToString());
+                var message = JsonConvert.DeserializeObject<ChangeRoadNetwork>(await streamMessage.GetJsonData());
+                var modifyRoadSegment = message.Changes.Single().ModifyRoadSegment;
+                Assert.Equal(-9, modifyRoadSegment.LeftSideStreetNameId);
+                Assert.Equal(-9, modifyRoadSegment.RightSideStreetNameId);
             }
         }
         
         private (StreetNameSnapshotConsumer, IStreamStore, InMemoryStreetNameSnapshotTopicConsumer) BuildSetup(
-            Action<StreetNameSnapshotConsumerContext> configureDbContext = null
+            Action<StreetNameSnapshotConsumerContext> configureDbContext = null,
+            Action<EditorContext> configureEditorContext = null
         )
         {
             var containerBuilder = new ContainerBuilder();
@@ -198,11 +218,21 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                         return context;
                     }
                 );
+            containerBuilder
+                .RegisterDbContext<EditorContext>(string.Empty,
+                    _ => { }
+                    , dbContextOptionsBuilder =>
+                    {
+                        var context = new EditorContext(dbContextOptionsBuilder.Options);
+                        configureEditorContext?.Invoke(context);
+                        return context;
+                    }
+                );
 
             var lifetimeScope = containerBuilder.Build();
 
             var store = new InMemoryStreamStore();
-            var topicConsumer = new InMemoryStreetNameSnapshotTopicConsumer(() => lifetimeScope.Resolve<StreetNameSnapshotConsumerContext>());
+            var topicConsumer = new InMemoryStreetNameSnapshotTopicConsumer(lifetimeScope.Resolve<StreetNameSnapshotConsumerContext>);
 
             return (new StreetNameSnapshotConsumer(
                 lifetimeScope,
@@ -210,6 +240,10 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                 new StreetNameEventWriter(store, EnrichEvent.WithTime(new FakeClock(NodaConstants.UnixEpoch))),
                 new RoadNetworkCommandQueue(store, new ApplicationMetadata(RoadRegistryApplication.BackOffice)),
                 topicConsumer,
+                lifetimeScope.Resolve<EditorContext>,
+                _memoryStreamManager,
+                _fileEncoding,
+                new UseRoadSegmentV2EventProcessorFeatureToggle(false),
                 _loggerFactory.CreateLogger<StreetNameSnapshotConsumer>()
             ), store, topicConsumer);
         }
