@@ -107,7 +107,13 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     [Fact]
     public async Task IntersectingOutlinedRoadSegmentsWithoutGradeSeparatedJunctionShouldNotGiveProblem()
     {
-        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder(fixture =>
+            {
+                fixture.CustomizeRoadSegmentOutlineLaneCount();
+                fixture.CustomizeRoadSegmentOutlineMorphology();
+                fixture.CustomizeRoadSegmentOutlineStatus();
+                fixture.CustomizeRoadSegmentOutlineWidth();
+            })
             .WithChange((builder, context) =>
             {
                 ConfigureIntersectingMeasuredRoadSegmentsWithoutGradeSeparatedJunction(builder, context);
