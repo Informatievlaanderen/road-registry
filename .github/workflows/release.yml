@@ -822,7 +822,7 @@ jobs:
       env:
         BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{matrix.services}}
         STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{matrix.services}}
-      uses: informatievlaanderen/awscurl-polling-action/polling-action@main
+      uses: informatievlaanderen/awscurl-polling-action/polling-action@1.0.10
       with:
           environment: test
           version: ${{ needs.release.outputs.version }}
