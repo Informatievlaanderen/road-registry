@@ -1,3 +1,10 @@
+## [3.67.14](https://github.com/informatievlaanderen/road-registry/compare/v3.67.13...v3.67.14) (2024-02-05)
+
+
+### Bug Fixes
+
+* WR-933 unlink outlined roadsegments when streetname gets removed ([#1376](https://github.com/informatievlaanderen/road-registry/issues/1376)) ([c63a610](https://github.com/informatievlaanderen/road-registry/commit/c63a610f2dae6275075d4f88ebb3d3831467e1fd))
+
 ## [3.67.13](https://github.com/informatievlaanderen/road-registry/compare/v3.67.12...v3.67.13) (2024-02-01)
 
 
