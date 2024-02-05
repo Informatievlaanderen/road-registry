@@ -78,11 +78,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             .UseValidator(new ChangeOrganizationValidator())
             .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(ChangeOrganization);
-
-        For<UnlinkRoadSegmentsFromStreetName>()
-            .UseValidator(new UnlinkRoadSegmentsFromStreetNameValidator())
-            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
-            .Handle(UnlinkRoadSegmentsFromStreetName);
     }
 
     private async Task ChangeRoadNetwork(IRoadRegistryContext context, Command<ChangeRoadNetwork> command, ApplicationMetadata applicationMetadata, CancellationToken cancellationToken)
@@ -268,88 +263,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, ExpectedVersion.Any, new Event(
                 rejectedEvent
             ).WithMessageId(command.MessageId), cancellationToken);
-        }
-
-        _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
-    }
-
-    private async Task UnlinkRoadSegmentsFromStreetName(IRoadRegistryContext context, Command<UnlinkRoadSegmentsFromStreetName> command, ApplicationMetadata applicationMetadata, CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("Command handler started for {CommandName}", command.Body.GetType().Name);
-
-        var roadNetwork = await context.RoadNetworks.Get(cancellationToken);
-
-        var streetNameId = new CrabStreetNameId(command.Body.Id);
-
-        var segments = roadNetwork.FindRoadSegments(x => x.AttributeHash.LeftStreetNameId == streetNameId || x.AttributeHash.RightStreetNameId == streetNameId);
-        if (segments.Any())
-        {
-            var reason = $"Wegsegmenten ontkoppelen van straatnaam {command.Body.Id}";
-            var organizationId = OrganizationId.DigitaalVlaanderen;
-
-            var translatedChanges = TranslatedChanges.Empty
-                .WithOrganization(organizationId)
-                .WithOperatorName(new OperatorName(organizationId))
-                .WithReason(new Reason(reason));
-
-            var recordNumber = RecordNumber.Initial;
-            var attributeId = AttributeId.Initial;
-
-            foreach (var roadSegment in segments)
-            {
-                var modifyRoadSegment = new Uploads.ModifyRoadSegment(
-                    recordNumber,
-                    roadSegment.Id,
-                    roadSegment.Start,
-                    roadSegment.End,
-                    roadSegment.AttributeHash.OrganizationId,
-                    roadSegment.AttributeHash.GeometryDrawMethod,
-                    roadSegment.AttributeHash.Morphology,
-                    roadSegment.AttributeHash.Status,
-                    roadSegment.AttributeHash.Category,
-                    roadSegment.AttributeHash.AccessRestriction,
-                    roadSegment.AttributeHash.LeftStreetNameId == streetNameId ? CrabStreetNameId.NotApplicable : roadSegment.AttributeHash.LeftStreetNameId,
-                    roadSegment.AttributeHash.RightStreetNameId == streetNameId ? CrabStreetNameId.NotApplicable : roadSegment.AttributeHash.RightStreetNameId
-                ).WithGeometry(roadSegment.Geometry);
-
-                foreach (var lane in roadSegment.Lanes)
-                {
-                    modifyRoadSegment = modifyRoadSegment.WithLane(new Uploads.RoadSegmentLaneAttribute(attributeId, lane.Count, lane.Direction, lane.From, lane.To));
-                    attributeId = attributeId.Next();
-                }
-                foreach (var surface in roadSegment.Surfaces)
-                {
-                    modifyRoadSegment = modifyRoadSegment.WithSurface(new Uploads.RoadSegmentSurfaceAttribute(attributeId, surface.Type, surface.From, surface.To));
-                    attributeId = attributeId.Next();
-                }
-                foreach (var width in roadSegment.Widths)
-                {
-                    modifyRoadSegment = modifyRoadSegment.WithWidth(new Uploads.RoadSegmentWidthAttribute(attributeId, width.Width, width.From, width.To));
-                    attributeId = attributeId.Next();
-                }
-
-                translatedChanges = translatedChanges.AppendChange(modifyRoadSegment);
-            }
-
-            var requestedChanges = translatedChanges.Select(change =>
-            {
-                var requestedChange = new RequestedChange();
-                change.TranslateTo(requestedChange);
-                return requestedChange;
-            }).ToList();
-
-            var changeRoadNetwork = new ChangeRoadNetwork
-            {
-                RequestId = ChangeRequestId.FromArchiveId(ArchiveId.FromGuid(command.MessageId)),
-                Changes = requestedChanges.ToArray(),
-                Reason = translatedChanges.Reason,
-                Operator = translatedChanges.Operator,
-                OrganizationId = translatedChanges.Organization
-            };
-
-            await ChangeRoadNetwork(context, new Command<ChangeRoadNetwork>(
-                    new Command(changeRoadNetwork).WithMessageId(command.MessageId)
-                ), applicationMetadata, cancellationToken);
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);

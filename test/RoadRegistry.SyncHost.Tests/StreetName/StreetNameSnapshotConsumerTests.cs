@@ -1,30 +1,47 @@
 namespace RoadRegistry.SyncHost.Tests.StreetName
 {
     using Autofac;
+    using AutoFixture;
     using BackOffice;
+    using BackOffice.Extracts.Dbase.RoadSegments;
+    using BackOffice.FeatureToggles;
     using BackOffice.Framework;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
     using Be.Vlaanderen.Basisregisters.GrAr.Legacy.Gemeente;
     using Be.Vlaanderen.Basisregisters.GrAr.Legacy.Straatnaam;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Editor.Projections;
+    using Editor.Schema;
+    using Editor.Schema.Extensions;
+    using Editor.Schema.RoadSegments;
     using Extensions;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
+    using Microsoft.IO;
     using Newtonsoft.Json;
     using NodaTime;
     using NodaTime.Testing;
     using RoadRegistry.StreetName;
+    using RoadRegistry.Tests.BackOffice.Scenarios;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
     using Sync.StreetNameRegistry;
 
     public class StreetNameSnapshotConsumerTests
     {
+        private readonly RecyclableMemoryStreamManager _memoryStreamManager;
+        private readonly FileEncoding _fileEncoding;
         private readonly ILoggerFactory _loggerFactory;
 
         public StreetNameSnapshotConsumerTests(
+            RecyclableMemoryStreamManager memoryStreamManager,
+            FileEncoding fileEncoding,
             ILoggerFactory loggerFactory)
         {
+            _memoryStreamManager = memoryStreamManager;
+            _fileEncoding = fileEncoding;
             _loggerFactory = loggerFactory;
         }
 
@@ -131,6 +148,8 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
         [Fact]
         public async Task CanConsumeSuccessfully_Removed()
         {
+            var testData = new RoadNetworkTestData();
+            
             var streetNameObjectId = "1";
             var streetNameId = "https://data.vlaanderen.be/id/straatnaam/1";
 
@@ -151,7 +170,40 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
 
             var streetName1Remove = new StreetNameSnapshotRecord();
 
-            var (consumer, store, topicConsumer) = BuildSetup();
+            var (consumer, store, topicConsumer) = BuildSetup(configureEditorContext: editorContext =>
+            {
+                editorContext.ProjectionStates.Add(new ProjectionStateItem
+                {
+                    Name = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost,
+                    Position = 0
+                });
+
+                var statusTranslation = RoadSegmentStatus.Parse(testData.Segment1Added.Status).Translation;
+                var morphologyTranslation = RoadSegmentMorphology.Parse(testData.Segment1Added.Morphology).Translation;
+                var categoryTranslation = RoadSegmentCategory.Parse(testData.Segment1Added.Category).Translation;
+                var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(testData.Segment1Added.GeometryDrawMethod).Translation;
+                var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(testData.Segment1Added.AccessRestriction).Translation;
+
+                editorContext.RoadSegmentsV2.Add(
+                    new RoadSegmentV2Record
+                    {
+                        Id = testData.Segment1Added.Id,
+                        StartNodeId = testData.Segment1Added.StartNodeId,
+                        EndNodeId = testData.Segment1Added.EndNodeId,
+                        Geometry = GeometryTranslator.Translate(testData.Segment1Added.Geometry),
+                        Version = testData.Segment1Added.Version,
+                        GeometryVersion = testData.Segment1Added.GeometryVersion,
+                        StatusId = statusTranslation.Identifier,
+                        MorphologyId = morphologyTranslation.Identifier,
+                        CategoryId = categoryTranslation.Identifier,
+                        LeftSideStreetNameId = int.Parse(streetNameObjectId),
+                        RightSideStreetNameId = int.Parse(streetNameObjectId),
+                        MaintainerId = testData.Segment1Added.MaintenanceAuthority.Code,
+                        MaintainerName = testData.Segment1Added.MaintenanceAuthority.Name,
+                        MethodId = geometryDrawMethodTranslation.Identifier,
+                        AccessRestrictionId = accessRestrictionTranslation.Identifier
+                    });
+            });
 
             topicConsumer
                 .SeedMessage(streetName1.Identificator.Id, streetName1)
@@ -171,16 +223,20 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
             }
             {
                 var streamMessage = page.Messages[2];
-                Assert.Equal(nameof(UnlinkRoadSegmentsFromStreetName), streamMessage.Type);
+                Assert.Equal(nameof(ChangeRoadNetwork), streamMessage.Type);
                 Assert.Equal("roadnetwork-command-queue", streamMessage.StreamId);
 
-                var message = JsonConvert.DeserializeObject<UnlinkRoadSegmentsFromStreetName>(await streamMessage.GetJsonData());
-                Assert.Equal(streetNameObjectId, message.Id.ToString());
+                var message = JsonConvert.DeserializeObject<ChangeRoadNetwork>(await streamMessage.GetJsonData());
+                var modifyRoadSegment = Assert.Single(message.Changes).ModifyRoadSegment;
+                Assert.Equal(testData.Segment1Added.Id, modifyRoadSegment.Id);
+                Assert.Equal(-9, modifyRoadSegment.LeftSideStreetNameId);
+                Assert.Equal(-9, modifyRoadSegment.RightSideStreetNameId);
             }
         }
         
         private (StreetNameSnapshotConsumer, IStreamStore, InMemoryStreetNameSnapshotTopicConsumer) BuildSetup(
-            Action<StreetNameSnapshotConsumerContext> configureDbContext = null
+            Action<StreetNameSnapshotConsumerContext> configureDbContext = null,
+            Action<EditorContext> configureEditorContext = null
         )
         {
             var containerBuilder = new ContainerBuilder();
@@ -198,11 +254,21 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                         return context;
                     }
                 );
+            containerBuilder
+                .RegisterDbContext<EditorContext>(string.Empty,
+                    _ => { }
+                    , dbContextOptionsBuilder =>
+                    {
+                        var context = new EditorContext(dbContextOptionsBuilder.Options);
+                        configureEditorContext?.Invoke(context);
+                        return context;
+                    }
+                );
 
             var lifetimeScope = containerBuilder.Build();
 
             var store = new InMemoryStreamStore();
-            var topicConsumer = new InMemoryStreetNameSnapshotTopicConsumer(() => lifetimeScope.Resolve<StreetNameSnapshotConsumerContext>());
+            var topicConsumer = new InMemoryStreetNameSnapshotTopicConsumer(lifetimeScope.Resolve<StreetNameSnapshotConsumerContext>);
 
             return (new StreetNameSnapshotConsumer(
                 lifetimeScope,
@@ -210,6 +276,10 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                 new StreetNameEventWriter(store, EnrichEvent.WithTime(new FakeClock(NodaConstants.UnixEpoch))),
                 new RoadNetworkCommandQueue(store, new ApplicationMetadata(RoadRegistryApplication.BackOffice)),
                 topicConsumer,
+                lifetimeScope.Resolve<EditorContext>,
+                _memoryStreamManager,
+                _fileEncoding,
+                new UseRoadSegmentV2EventProcessorFeatureToggle(false),
                 _loggerFactory.CreateLogger<StreetNameSnapshotConsumer>()
             ), store, topicConsumer);
         }

@@ -65,6 +65,7 @@ public class Program
         {
             var featureToggles = hostContext.Configuration.GetFeatureToggles<ApplicationFeatureToggle>();
             var useExtractRequestOverlapEventProcessorFeatureToggle = featureToggles.OfType<UseExtractRequestOverlapEventProcessorFeatureToggle>().Single();
+            var useRoadSegmentV2EventProcessorFeatureToggle = featureToggles.OfType<UseRoadSegmentV2EventProcessorFeatureToggle>().Single();
 
             services
                 .AddSingleton(new EnvelopeFactory(
@@ -86,16 +87,17 @@ public class Program
                 .AddEditorContextEventProcessor<RoadNetworkEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
                 {
                     new RoadNetworkInfoProjection(),
-                    new GradeSeparatedJunctionRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadNodeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
+                    new RoadSegmentRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentEuropeanRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentLaneAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentNationalRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentNumberedRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
-                    new RoadSegmentRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentSurfaceAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
-                    new RoadSegmentWidthAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>())
-                })
+                    new RoadSegmentWidthAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
+                    new GradeSeparatedJunctionRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
+                    !useRoadSegmentV2EventProcessorFeatureToggle.FeatureEnabled ? new RoadSegmentV2RecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()) : null
+                }.Where(x => x is not null).ToArray())
                 .AddEditorContextEventProcessor<OrganizationEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
                 {
                     new OrganizationRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>())
@@ -128,6 +130,15 @@ public class Program
                     .AddEditorContextEventProcessor<ExtractRequestOverlapEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
                     {
                         new ExtractRequestOverlapRecordProjection(sp.GetRequiredService<ILogger<ExtractRequestOverlapRecordProjection>>())
+                    });
+            }
+
+            if (useRoadSegmentV2EventProcessorFeatureToggle.FeatureEnabled)
+            {
+                services
+                    .AddEditorContextEventProcessor<RoadSegmentV2EventProcessor>(sp => new ConnectedProjection<EditorContext>[]
+                    {
+                        new RoadSegmentV2RecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>())
                     });
             }
         })
