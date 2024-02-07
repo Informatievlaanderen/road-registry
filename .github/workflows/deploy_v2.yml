@@ -1,9 +1,17 @@
-name: 3. Deploy
-run-name: 'Deploy road-registry to prd: ${{ github.event.inputs.version }}'
+name: 3. Deploy V2
+run-name: 'Deploy road-registry to ${{ github.event.inputs.environment }}: ${{ github.event.inputs.version }}'
 
 on:
   workflow_dispatch:
     inputs:
+      environment:
+        type: choice
+        description: Select the environment
+        options:
+        - tst
+        - stg
+        - prd
+        required: true
       version:
         description: Version
         required: true
@@ -23,7 +31,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ github.event.inputs.version }} to prd has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        slack-message: Deployment of road-registry ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -169,7 +177,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: ":white_check_mark: Deployment of road-registry ${{ github.event.inputs.version }} to prd has finished."
+        slack-message: ":white_check_mark: Deployment of road-registry ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has finished."
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -186,7 +194,7 @@ jobs:
         uses: slackapi/slack-github-action@v1.23.0
         with:
           channel-id: '#team-wegenregister-dev'
-          slack-message: ":x: Deployment of road-registry ${{ github.event.inputs.version }} to prd has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          slack-message: ":x: Deployment of road-registry ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
           SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
