@@ -204,7 +204,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
 
         if (GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
         {
-            problems.AddRange(line.GetProblemsForRoadSegmentOutlinedGeometry(context.Tolerances));
+            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(context.Tolerances);
 
             return problems;
         }
@@ -283,6 +283,13 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         }
         
         var line = Geometry.GetSingleLineString();
+
+        if (GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+        {
+            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(context.Tolerances);
+
+            return problems;
+        }
 
         problems += line.GetProblemsForRoadSegmentGeometry(context.Tolerances);
         problems += line.GetProblemsForRoadSegmentLanes(Lanes, context.Tolerances);

@@ -206,7 +206,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
 
         if (GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
         {
-            problems.AddRange(line.GetProblemsForRoadSegmentOutlinedGeometry(context.Tolerances));
+            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(context.Tolerances);
 
             return problems;
         }
@@ -262,10 +262,19 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
     public Problems VerifyBefore(BeforeVerificationContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
-        
+
+        var problems = Problems.None;
+
         var line = Geometry.GetSingleLineString();
         
-        var problems = line.GetProblemsForRoadSegmentGeometry(context.Tolerances);
+        if (GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+        {
+            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(context.Tolerances);
+
+            return problems;
+        }
+
+        problems += line.GetProblemsForRoadSegmentGeometry(context.Tolerances);
         problems += line.GetProblemsForRoadSegmentLanes(Lanes, context.Tolerances);
         problems += line.GetProblemsForRoadSegmentWidths(Widths, context.Tolerances);
         problems += line.GetProblemsForRoadSegmentSurfaces(Surfaces, context.Tolerances);
