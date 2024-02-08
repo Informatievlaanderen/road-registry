@@ -34,7 +34,7 @@ public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
 
         ObjectProvider.Customize<LineString>(customization =>
             customization.FromFactory(generator => new LineString(
-                new CoordinateArraySequence(new Coordinate[] { new CoordinateM(0, 0, 0), new CoordinateM(1, 0, 1) }),
+                new CoordinateArraySequence(new Coordinate[] { new CoordinateM(0, 0, 0), new CoordinateM(10, 0, 10) }),
                 GeometryConfiguration.GeometryFactory)
             ).OmitAutoProperties()
         );
