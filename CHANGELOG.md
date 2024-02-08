@@ -1,3 +1,15 @@
+## [3.67.15](https://github.com/informatievlaanderen/road-registry/compare/v3.67.14...v3.67.15) (2024-02-08)
+
+
+### Bug Fixes
+
+* add deploy v2 pipeline ([#1380](https://github.com/informatievlaanderen/road-registry/issues/1380)) ([a76b496](https://github.com/informatievlaanderen/road-registry/commit/a76b496d68f05953d721fb68903546c2e076f440))
+* deploy v2 pipeline ([#1381](https://github.com/informatievlaanderen/road-registry/issues/1381)) ([f00a252](https://github.com/informatievlaanderen/road-registry/commit/f00a252db4f3bbd178bb586a645032b8897098b3))
+* geometry validation for outlined roadsegments ([#1382](https://github.com/informatievlaanderen/road-registry/issues/1382)) ([5c58364](https://github.com/informatievlaanderen/road-registry/commit/5c583645a8694ef73920edf91381fc03b2a747a9))
+* polling-action version ([#1378](https://github.com/informatievlaanderen/road-registry/issues/1378)) ([c3855d2](https://github.com/informatievlaanderen/road-registry/commit/c3855d203374f470576d494490c33e3e3138ce02))
+* polling-action version ([#1379](https://github.com/informatievlaanderen/road-registry/issues/1379)) ([b9d9819](https://github.com/informatievlaanderen/road-registry/commit/b9d981921d5afce69e86a97e06706c909d114196))
+* random failing unit test due to outlined roadsegment rules ([#1377](https://github.com/informatievlaanderen/road-registry/issues/1377)) ([8116e01](https://github.com/informatievlaanderen/road-registry/commit/8116e01dac1b031e0ea322fd570f52edac7d23b5))
+
 ## [3.67.14](https://github.com/informatievlaanderen/road-registry/compare/v3.67.13...v3.67.14) (2024-02-05)
 
 
