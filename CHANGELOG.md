@@ -1,3 +1,10 @@
+## [3.67.16](https://github.com/informatievlaanderen/road-registry/compare/v3.67.15...v3.67.16) (2024-02-14)
+
+
+### Bug Fixes
+
+* **ci:** add push images to devops ([ec807f0](https://github.com/informatievlaanderen/road-registry/commit/ec807f0c758be270a4303c5331e69d6af9284c66))
+
 ## [3.67.15](https://github.com/informatievlaanderen/road-registry/compare/v3.67.14...v3.67.15) (2024-02-08)
 
 
