@@ -24,6 +24,9 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
+using StreetNameWasRemovedV2 = Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry.StreetNameWasRemovedV2;
+using StreetNameWasRenamed = Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry.StreetNameWasRenamed;
 
 public class StreetNameEventConsumer : RoadRegistryBackgroundService
 {
@@ -60,7 +63,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         await _consumer.ConsumeContinuously(async (message, dbContext) =>
             {
                 Logger.LogInformation("Processing {Type}", message.GetType().Name);
-
+                
                 Command roadNetworkCommand = null;
 
                 if (message is StreetNameWasRemovedV2 streetNameWasRemoved)
@@ -70,6 +73,8 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
                 else if (message is StreetNameWasRenamed streetNameWasRenamed)
                 {
                     roadNetworkCommand = await BuildRoadNetworkCommand(streetNameWasRenamed, cancellationToken);
+
+                    //TODO-rik manage projection for renamed streetnames
                 }
 
                 if (roadNetworkCommand is not null)

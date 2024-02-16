@@ -1,11 +1,12 @@
 namespace RoadRegistry.SyncHost.Tests.StreetName
 {
     using Autofac;
-    using AutoFixture;
     using BackOffice;
     using BackOffice.FeatureToggles;
     using BackOffice.Framework;
     using BackOffice.Messages;
+    using Be.Vlaanderen.Basisregisters.GrAr.Contracts.Common;
+    using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
     using Editor.Schema;
     using Editor.Schema.RoadSegments;
@@ -14,7 +15,6 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
     using Microsoft.Extensions.Logging;
     using Microsoft.IO;
     using Newtonsoft.Json;
-    using RoadRegistry.StreetName;
     using RoadRegistry.Tests.BackOffice.Scenarios;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
@@ -43,10 +43,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
 
             var streetName1ObjectId = 1;
 
-            var streetName1WasRemoved = new StreetNameWasRemovedV2
-            {
-                PersistentLocalId = streetName1ObjectId
-            };
+            var streetName1WasRemoved = new StreetNameWasRemovedV2(string.Empty, streetName1ObjectId, new Provenance(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty));
 
             var (consumer, store, topicConsumer) = BuildSetup(configureEditorContext: editorContext =>
             {
@@ -110,12 +107,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
 
             var streetName1ObjectId = 1;
             var streetName2ObjectId = 2;
-
-            var streetName1WasRemoved = new StreetNameWasRenamed
-            {
-                PersistentLocalId = streetName1ObjectId,
-                DestinationPersistentLocalId = streetName2ObjectId
-            };
+            var streetName1WasRemoved = new StreetNameWasRenamed(string.Empty, streetName1ObjectId, streetName2ObjectId, new Provenance(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty));
 
             var (consumer, store, topicConsumer) = BuildSetup(configureEditorContext: editorContext =>
             {

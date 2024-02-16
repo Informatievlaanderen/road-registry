@@ -53,7 +53,7 @@ public class StreetNameEventTopicConsumer : IStreetNameEventTopicConsumer
             new Topic(_options.Consumers.StreetNameEvent.Topic),
             new ConsumerGroupId(consumerGroupId),
             jsonSerializerSettings,
-            new JsonMessageSerializer(jsonSerializerSettings)
+            new GrarContractsMessageSerializer(jsonSerializerSettings)
         );
         if (!string.IsNullOrEmpty(_options.SaslUserName))
         {

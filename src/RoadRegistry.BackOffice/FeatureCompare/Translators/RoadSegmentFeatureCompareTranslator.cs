@@ -67,6 +67,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             return matchingFeatures.SingleOrDefault();
         }
 
+        //TODO-rik automatically fix usage of renamed/removed streetname ids + add warning when encountered
+
         foreach (var changeFeature in changeFeatures)
         {
             cancellationToken.ThrowIfCancellationRequested();

@@ -117,10 +117,10 @@ nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.SqlStreamStore 5.0.3
 nuget Be.Vlaanderen.Basisregisters.DockerUtilities 1.0.1
 nuget Be.Vlaanderen.Basisregisters.EventHandling 4.2.3
 nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac 4.2.3
-nuget Be.Vlaanderen.Basisregisters.GrAr.Contracts 19.1.0
-nuget Be.Vlaanderen.Basisregisters.GrAr.Import 19.1.0
-nuget Be.Vlaanderen.Basisregisters.GrAr.Legacy 19.1.0
-nuget Be.Vlaanderen.Basisregisters.GrAr.Provenance 19.1.0
+nuget Be.Vlaanderen.Basisregisters.GrAr.Contracts 20.6.1
+nuget Be.Vlaanderen.Basisregisters.GrAr.Import 20.6.1
+nuget Be.Vlaanderen.Basisregisters.GrAr.Legacy 20.6.1
+nuget Be.Vlaanderen.Basisregisters.GrAr.Provenance 20.6.1
 nuget Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple 4.9.1
 nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer 4.9.1
 nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer 4.9.1

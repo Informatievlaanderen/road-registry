@@ -1,7 +1,7 @@
 namespace RoadRegistry.SyncHost;
 
 using Be.Vlaanderen.Basisregisters.EventHandling;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
+using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Sync.StreetNameRegistry;
@@ -15,7 +15,7 @@ internal class StreetNameEventTopicConsumerByFile : KafkaTopicConsumerByFile<Str
         IDbContextFactory<StreetNameEventConsumerContext> dbContextFactory,
         string path,
         ILogger<StreetNameEventTopicConsumerByFile> logger
-    ) : base(dbContextFactory, path, new JsonMessageSerializer(EventsJsonSerializerSettingsProvider.CreateSerializerSettings()), logger)
+    ) : base(dbContextFactory, path, new GrarContractsMessageSerializer(EventsJsonSerializerSettingsProvider.CreateSerializerSettings()), logger)
     {
     }
 
