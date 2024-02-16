@@ -7,6 +7,7 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TypeConfigurations;
 
 public class StreetNameEventConsumerContext : ConsumerDbContext<StreetNameEventConsumerContext>
 {
@@ -21,7 +22,9 @@ public class StreetNameEventConsumerContext : ConsumerDbContext<StreetNameEventC
         : base(options)
     {
     }
-    
+
+    public DbSet<RenamedStreetNameRecord> RenamedStreetNames { get; set; }
+
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseRoadRegistryInMemorySqlServer();
@@ -32,6 +35,7 @@ public class StreetNameEventConsumerContext : ConsumerDbContext<StreetNameEventC
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfiguration(new ProcessedMessageConfiguration(ConsumerSchema));
+        modelBuilder.ApplyConfiguration(new RenamedStreetNameRecordEntityTypeConfiguration());
     }
 
     public static void ConfigureOptions(IServiceProvider sp, DbContextOptionsBuilder options)

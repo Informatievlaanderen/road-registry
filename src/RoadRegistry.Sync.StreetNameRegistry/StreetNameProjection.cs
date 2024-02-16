@@ -48,7 +48,7 @@ public class StreetNameProjection : ConnectedProjection<StreetNameProjectionCont
             dbRecord.IsRemoved = true;
         }
     }
-
+    
     private void CopyTo(BackOffice.Messages.StreetNameRecord eventRecord, StreetNameRecord dbRecord)
     {
         dbRecord.StreetNameId = eventRecord.StreetNameId;

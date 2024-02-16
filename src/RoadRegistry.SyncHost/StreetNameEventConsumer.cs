@@ -9,6 +9,7 @@ using BackOffice.FeatureToggles;
 using BackOffice.Framework;
 using BackOffice.Messages;
 using BackOffice.Uploads;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Editor.Schema.Extensions;
@@ -19,17 +20,18 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
 using SqlStreamStore;
-using StreetName;
+using Sync.StreetNameRegistry;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
+using Resolve = Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Resolve;
 using StreetNameWasRemovedV2 = Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry.StreetNameWasRemovedV2;
 using StreetNameWasRenamed = Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry.StreetNameWasRenamed;
 
 public class StreetNameEventConsumer : RoadRegistryBackgroundService
 {
+    private readonly ILifetimeScope _container;
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly FileEncoding _encoding;
     private readonly UseRoadSegmentV2EventProcessorFeatureToggle _useRoadSegmentV2EventProcessorFeatureToggle;
@@ -37,8 +39,10 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
     private readonly IStreetNameEventTopicConsumer _consumer;
     private readonly IStreamStore _store;
     private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
-    
+    private readonly ConnectedProjector<StreetNameEventConsumerContext> _projector;
+
     public StreetNameEventConsumer(
+        ILifetimeScope container,
         IStreamStore store,
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
         IStreetNameEventTopicConsumer consumer,
@@ -49,6 +53,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         ILogger<StreetNameEventConsumer> logger
     ) : base(logger)
     {
+        _container = container.ThrowIfNull();
         _store = store.ThrowIfNull();
         _roadNetworkCommandQueue = roadNetworkCommandQueue.ThrowIfNull();
         _consumer = consumer.ThrowIfNull();
@@ -56,6 +61,8 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         _manager = manager.ThrowIfNull();
         _encoding = encoding.ThrowIfNull();
         _useRoadSegmentV2EventProcessorFeatureToggle = useRoadSegmentV2EventProcessorFeatureToggle.ThrowIfNull();
+
+        _projector = new ConnectedProjector<StreetNameEventConsumerContext>(Resolve.WhenEqualToHandlerMessageType(new StreetNameEventConsumerProjection().Handlers));
     }
 
     protected override async Task ExecutingAsync(CancellationToken cancellationToken)
@@ -63,7 +70,10 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         await _consumer.ConsumeContinuously(async (message, dbContext) =>
             {
                 Logger.LogInformation("Processing {Type}", message.GetType().Name);
-                
+
+                // Event niet registreren op streetname streamstore; rechtstreeks projector uitvoeren om conflicten/volgorde te vermijden met de snapshot consumer
+                await _projector.ProjectAsync(dbContext, message, cancellationToken);
+
                 Command roadNetworkCommand = null;
 
                 if (message is StreetNameWasRemovedV2 streetNameWasRemoved)
@@ -74,7 +84,10 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
                 {
                     roadNetworkCommand = await BuildRoadNetworkCommand(streetNameWasRenamed, cancellationToken);
 
-                    //TODO-rik manage projection for renamed streetnames
+                    //TODO-rik Q te bespreken:
+                    // 1. is een removed streetname the final destination? kan die ooit terug actief worden? if yes, changes nodig in StreetNameProjection
+                    // 2. kan een hernoemde straatnaam terug actief worden? zo ja, hoe kan ik dat weten? relevant voor file uploads met (eerder) hernoemde straatnamen
+                    // ik zou verwachten dat na een hernoeming er een verwijdering gebeurd van de straatnaam
                 }
 
                 if (roadNetworkCommand is not null)
@@ -87,7 +100,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
                 Logger.LogInformation("Processed {Type}", message.GetType().Name);
             }, cancellationToken);
     }
-
+    
     private async Task<Command> BuildRoadNetworkCommand(StreetNameWasRemovedV2 message, CancellationToken cancellationToken)
     {
         var waitForProjectionStateName = _useRoadSegmentV2EventProcessorFeatureToggle.FeatureEnabled
