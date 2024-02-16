@@ -14,6 +14,7 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
         {
             return services
                 .AddSingleton<IStreetNameEventWriter, StreetNameEventWriter>()
+
                 .AddSingleton<StreetNameSnapshotTopicConsumer>()
                 .AddSingleton<IStreetNameSnapshotTopicConsumer>(sp =>
                 {
@@ -22,7 +23,7 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
                     if (!string.IsNullOrEmpty(jsonPath))
                     {
                         // for local testing purposes
-                        return new StreetNameTopicConsumerByFile(sp.GetRequiredService<IDbContextFactory<StreetNameSnapshotConsumerContext>>(), jsonPath, sp.GetRequiredService<ILogger<StreetNameTopicConsumerByFile>>());
+                        return new StreetNameSnapshotTopicConsumerByFile(sp.GetRequiredService<IDbContextFactory<StreetNameSnapshotConsumerContext>>(), jsonPath, sp.GetRequiredService<ILogger<StreetNameSnapshotTopicConsumerByFile>>());
                     }
 
                     return sp.GetRequiredService<StreetNameSnapshotTopicConsumer>();
@@ -31,6 +32,24 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
                 .AddSingleton<ConfigureDbContextOptionsBuilder<StreetNameSnapshotConsumerContext>>(StreetNameSnapshotConsumerContext.ConfigureOptions)
                 .AddDbContext<StreetNameSnapshotConsumerContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameSnapshotConsumerContext>>()(sp, options))
                 .AddDbContextFactory<StreetNameSnapshotConsumerContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameSnapshotConsumerContext>>()(sp, options))
+
+                .AddSingleton<StreetNameEventTopicConsumer>()
+                .AddSingleton<IStreetNameEventTopicConsumer>(sp =>
+                {
+                    var configuration = sp.GetRequiredService<IConfiguration>();
+                    var jsonPath = configuration.GetValue<string>($"Kafka:{nameof(KafkaOptions.Consumers)}:{nameof(KafkaOptions.Consumers.StreetNameEvent)}:JsonPath");
+                    if (!string.IsNullOrEmpty(jsonPath))
+                    {
+                        // for local testing purposes
+                        return new StreetNameEventTopicConsumerByFile(sp.GetRequiredService<IDbContextFactory<StreetNameEventConsumerContext>>(), jsonPath, sp.GetRequiredService<ILogger<StreetNameEventTopicConsumerByFile>>());
+                    }
+
+                    return sp.GetRequiredService<StreetNameEventTopicConsumer>();
+                })
+                .AddTraceDbConnection<StreetNameEventConsumerContext>(WellKnownConnectionNames.StreetNameEventConsumer)
+                .AddSingleton<ConfigureDbContextOptionsBuilder<StreetNameEventConsumerContext>>(StreetNameEventConsumerContext.ConfigureOptions)
+                .AddDbContext<StreetNameEventConsumerContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameEventConsumerContext>>()(sp, options))
+                .AddDbContextFactory<StreetNameEventConsumerContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameEventConsumerContext>>()(sp, options))
                 ;
         }
     }

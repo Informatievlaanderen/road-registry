@@ -17,6 +17,7 @@ public class KafkaOptions : IHasConfigurationKey
 
 public class KafkaConsumers
 {
+    public KafkaConsumer StreetNameEvent { get; private set; }
     public KafkaConsumer StreetNameSnapshot { get; private set; }
 }
 
