@@ -43,7 +43,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
 
             var streetName1ObjectId = 1;
 
-            var streetName1WasRemoved = new StreetNameWasRemovedV2(string.Empty, streetName1ObjectId, new Provenance(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty));
+            var streetName1WasRemoved = new StreetNameWasRemovedV2(string.Empty, streetName1ObjectId, new FakeProvenance());
 
             var (consumer, store, topicConsumer) = BuildSetup(configureEditorContext: editorContext =>
             {
@@ -107,7 +107,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
 
             var streetName1ObjectId = 1;
             var streetName2ObjectId = 2;
-            var streetName1WasRemoved = new StreetNameWasRenamed(string.Empty, streetName1ObjectId, streetName2ObjectId, new Provenance(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty));
+            var streetName1WasRemoved = new StreetNameWasRenamed(string.Empty, streetName1ObjectId, streetName2ObjectId, new FakeProvenance());
 
             var (consumer, store, topicConsumer) = BuildSetup(configureEditorContext: editorContext =>
             {
@@ -201,6 +201,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
             var topicConsumer = new InMemoryStreetNameEventTopicConsumer(lifetimeScope.Resolve<StreetNameEventConsumerContext>);
 
             return (new StreetNameEventConsumer(
+                lifetimeScope,
                 store,
                 new RoadNetworkCommandQueue(store, new ApplicationMetadata(RoadRegistryApplication.BackOffice)),
                 topicConsumer,

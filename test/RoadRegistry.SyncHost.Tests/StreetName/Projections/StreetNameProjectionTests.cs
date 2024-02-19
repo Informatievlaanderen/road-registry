@@ -30,7 +30,7 @@ public class StreetNameProjectionTests : IClassFixture<StreetNameProjectionFixtu
         var record = fixture.StreetName1;
         record.StraatnaamStatus = StreetNameStatus.Current;
 
-        await fixture.ProjectAsync(new StreetNameCreated
+        await fixture.ProjectEnvelopeAsync(new StreetNameCreated
         {
             Record = ToStreetNameRecord(record)
         });
@@ -57,7 +57,7 @@ public class StreetNameProjectionTests : IClassFixture<StreetNameProjectionFixtu
         var record = fixture.StreetName1;
         record.StraatnaamStatus = StreetNameStatus.Current;
 
-        await fixture.ProjectAsync(new StreetNameCreated
+        await fixture.ProjectEnvelopeAsync(new StreetNameCreated
         {
             Record = ToStreetNameRecord(record)
         });
@@ -67,7 +67,7 @@ public class StreetNameProjectionTests : IClassFixture<StreetNameProjectionFixtu
 
         record.StraatnaamStatus = StreetNameStatus.Retired;
 
-        await fixture.ProjectAsync(new StreetNameModified
+        await fixture.ProjectEnvelopeAsync(new StreetNameModified
         {
             Record = ToStreetNameRecord(record),
             StatusModified = true
@@ -86,7 +86,7 @@ public class StreetNameProjectionTests : IClassFixture<StreetNameProjectionFixtu
         var record = fixture.StreetName1;
         record.StraatnaamStatus = StreetNameStatus.Current;
 
-        await fixture.ProjectAsync(new StreetNameCreated
+        await fixture.ProjectEnvelopeAsync(new StreetNameCreated
         {
             Record = ToStreetNameRecord(record)
         });
@@ -94,7 +94,7 @@ public class StreetNameProjectionTests : IClassFixture<StreetNameProjectionFixtu
         var actual = fixture.GetStreetNameRecord(fixture.StreetName1.Identificator.Id);
         Assert.Equal(record.StraatnaamStatus, actual.StreetNameStatus);
 
-        await fixture.ProjectAsync(new StreetNameRemoved
+        await fixture.ProjectEnvelopeAsync(new StreetNameRemoved
         {
             StreetNameId = fixture.StreetName1.Identificator.Id
         });

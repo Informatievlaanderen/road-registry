@@ -83,11 +83,6 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
                 else if (message is StreetNameWasRenamed streetNameWasRenamed)
                 {
                     roadNetworkCommand = await BuildRoadNetworkCommand(streetNameWasRenamed, cancellationToken);
-
-                    //TODO-rik Q te bespreken:
-                    // 1. is een removed streetname the final destination? kan die ooit terug actief worden? if yes, changes nodig in StreetNameProjection
-                    // 2. kan een hernoemde straatnaam terug actief worden? zo ja, hoe kan ik dat weten? relevant voor file uploads met (eerder) hernoemde straatnamen
-                    // ik zou verwachten dat na een hernoeming er een verwijdering gebeurd van de straatnaam
                 }
 
                 if (roadNetworkCommand is not null)

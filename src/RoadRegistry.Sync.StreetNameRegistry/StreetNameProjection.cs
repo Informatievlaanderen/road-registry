@@ -35,6 +35,10 @@ public class StreetNameProjection : ConnectedProjection<StreetNameProjectionCont
             };
             await context.StreetNames.AddAsync(dbRecord, token);
         }
+        else
+        {
+            dbRecord.IsRemoved = false;
+        }
 
         CopyTo(envelope.Message.Record, dbRecord);
     }

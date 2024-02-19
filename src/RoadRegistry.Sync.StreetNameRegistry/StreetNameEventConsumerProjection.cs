@@ -12,8 +12,6 @@ public class StreetNameEventConsumerProjection : ConnectedProjection<StreetNameE
         When<StreetNameWasRenamed>(StreetNameWasRenamed);
     }
 
-    //TODO-rik kan een rename ongedaan worden?
-
     private async Task StreetNameWasRenamed(StreetNameEventConsumerContext context, StreetNameWasRenamed message, CancellationToken token)
     {
         var dbRecord = await context.RenamedStreetNames.FindAsync(new object[] { message.PersistentLocalId }, token).ConfigureAwait(false);
