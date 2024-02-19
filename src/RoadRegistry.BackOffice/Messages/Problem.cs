@@ -38,4 +38,9 @@ public class Problem
         }
         return parameter.Value;
     }
+
+    public bool HasParameter(string parameterName)
+    {
+        return Parameters.Any(x => x.Name == parameterName);
+    }
 }
