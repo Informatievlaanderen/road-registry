@@ -18,13 +18,13 @@ using RemoveOutlinedRoadSegment = Uploads.RemoveOutlinedRoadSegment;
 
 public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareAttributes>
 {
-    private readonly IOrganizationRepository _organizationRepository;
+    private readonly IOrganizationCache _organizationCache;
     private const ExtractFileName FileName = ExtractFileName.Wegsegment;
 
-    public RoadSegmentFeatureCompareTranslator(RoadSegmentFeatureCompareFeatureReader featureReader, IOrganizationRepository organizationRepository)
+    public RoadSegmentFeatureCompareTranslator(RoadSegmentFeatureCompareFeatureReader featureReader, IOrganizationCache organizationCache)
         : base(featureReader)
     {
-        _organizationRepository = organizationRepository;
+        _organizationCache = organizationCache;
     }
 
     private async Task<(List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems)> ProcessLeveringRecords(ICollection<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures, ICollection<Feature<RoadSegmentFeatureCompareAttributes>> extractFeatures, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
@@ -239,7 +239,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         {
             var maintenanceAuthorityCode = changeFeature.Attributes.MaintenanceAuthority;
 
-            var maintenanceAuthority = await _organizationRepository.FindByIdOrOvoCodeAsync(maintenanceAuthorityCode, cancellationToken);
+            var maintenanceAuthority = await _organizationCache.FindByIdOrOvoCodeAsync(maintenanceAuthorityCode, cancellationToken);
             if (maintenanceAuthority is null)
             {
                 var recordContext = FileName

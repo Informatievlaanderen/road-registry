@@ -56,7 +56,7 @@ public class Program
                             ),
                             WellKnownSchemas.EventHostSchema))
                     .AddEditorContext()
-                    .AddOrganizationRepository()
+                    .AddOrganizationCache()
                     .AddFeatureCompareTranslator()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {

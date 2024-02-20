@@ -43,7 +43,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
                 new RoadNetworkCommandQueue(Store, ApplicationMetadata),
                 idempotentCommandHandler,
                 EntityMapFactory.Resolve<EventSourcedEntityMap>(),
-                new FakeOrganizationRepository(),
+                new FakeOrganizationCache(),
                 LoggerFactory.CreateLogger<ChangeRoadNetworkDispatcher>()),
             new FakeDistributedStreamStoreLockOptions(),
             new UseDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle(false),

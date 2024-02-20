@@ -50,7 +50,7 @@ public class Program
                 .AddSingleton<AdminMessageConsumer>()
                 .AddSingleton<ExtractRequestCleanup>()
                 .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
-                .AddOrganizationRepository()
+                .AddOrganizationCache()
                 .AddFeatureCompareTranslator()
                 .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
                 .AddSingleton<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()

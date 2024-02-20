@@ -29,7 +29,7 @@ public class WhenChangeAttributesWithInvalidWegbeheerder : WhenChangeAttributesW
     {
         var wegbeheerder = new OrganizationId(Fixture.TestData.Segment1Added.MaintenanceAuthority.Code);
 
-        Fixture.CustomizeOrganizationRepository(new FakeOrganizationRepository().Seed(wegbeheerder, null));
+        Fixture.CustomizeOrganizationCache(new FakeOrganizationCache().Seed(wegbeheerder, null));
 
         await ItShouldHaveExpectedError(new ChangeRoadSegmentAttributesParameters
         {

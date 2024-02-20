@@ -5,9 +5,9 @@ using RoadRegistry.Editor.Schema;
 
 public class ChangeRoadSegmentAttributesParametersWrapperValidator : AbstractValidator<ChangeRoadSegmentAttributesParametersWrapper>
 {
-    public ChangeRoadSegmentAttributesParametersWrapperValidator(EditorContext editorContext, IOrganizationRepository organizationRepository)
+    public ChangeRoadSegmentAttributesParametersWrapperValidator(EditorContext editorContext, IOrganizationCache organizationCache)
     {
-        ChangeAttributeParametersValidator validator = new(editorContext, organizationRepository);
+        ChangeAttributeParametersValidator validator = new(editorContext, organizationCache);
 
         RuleForEach(x => x.Attributes).SetValidator(validator);
     }

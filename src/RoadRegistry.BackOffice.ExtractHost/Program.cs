@@ -68,7 +68,7 @@ public class Program
                             sp.GetService<Func<EditorContext>>(),
                             sp.GetService<IZipArchiveWriter<EditorContext>>()))
                     .AddEditorContext()
-                    .AddOrganizationRepository()
+                    .AddOrganizationCache()
                     .AddFeatureCompareTranslator()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {

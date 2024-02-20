@@ -350,7 +350,7 @@ public class Startup
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 .UseSqlServer(
                     sp.GetRequiredService<TraceDbConnection<ProductContext>>()))
-            .AddOrganizationRepository()
+            .AddOrganizationCache()
             .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
             .AddValidatorsAsScopedFromAssemblyContaining<Startup>()
             .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()

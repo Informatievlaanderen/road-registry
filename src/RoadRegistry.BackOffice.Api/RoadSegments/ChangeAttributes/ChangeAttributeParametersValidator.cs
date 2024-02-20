@@ -15,7 +15,7 @@ using RoadRegistry.Editor.Schema;
 
 public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttributeParameters>
 {
-    private readonly IOrganizationRepository _organizationRepository;
+    private readonly IOrganizationCache _organizationCache;
     private readonly EditorContext _editorContext;
 
     protected override bool PreValidate(ValidationContext<ChangeAttributeParameters> context, ValidationResult result)
@@ -40,10 +40,10 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
         return true;
     }
 
-    public ChangeAttributeParametersValidator(EditorContext editorContext, IOrganizationRepository organizationRepository)
+    public ChangeAttributeParametersValidator(EditorContext editorContext, IOrganizationCache organizationCache)
     {
         _editorContext = editorContext.ThrowIfNull();
-        _organizationRepository = organizationRepository.ThrowIfNull();
+        _organizationCache = organizationCache.ThrowIfNull();
 
         RuleFor(x => x.Wegsegmenten)
             .Cascade(CascadeMode.Stop)
@@ -109,7 +109,7 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
             return false;
         }
 
-        var organization = await _organizationRepository.FindByIdOrOvoCodeAsync(new OrganizationId(code), cancellationToken);
+        var organization = await _organizationCache.FindByIdOrOvoCodeAsync(new OrganizationId(code), cancellationToken);
         return organization is not null;
     }
 

@@ -21,7 +21,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     public async Task SegmentWithUnknownMaintenanceAuthorityShouldGiveProblem()
     {
         var orgId = new OrganizationId("OVO999999");
-        var organizationRepository = new FakeOrganizationRepository()
+        var organizationCache = new FakeOrganizationCache()
             .Seed(orgId, null);
 
         var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
@@ -31,7 +31,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
-        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(organizationRepository);
+        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(organizationCache);
         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateSucceeds(zipArchive, translator));
         Assert.NotEmpty(ex.Problems);
         Assert.True(ex.Problems.All(x => x.Reason == "RoadSegmentMaintenanceAuthorityNotKnown"));

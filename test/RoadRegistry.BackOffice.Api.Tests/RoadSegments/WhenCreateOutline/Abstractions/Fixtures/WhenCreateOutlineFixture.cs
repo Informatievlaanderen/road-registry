@@ -15,7 +15,7 @@ public abstract class WhenCreateOutlineFixture : ControllerActionFixture<PostRoa
     private readonly EditorContext _editorContext;
     private readonly IMediator _mediator;
     public readonly RoadNetworkTestData TestData = new();
-    private IOrganizationRepository _organizationRepository;
+    private IOrganizationCache _organizationCache;
 
     protected WhenCreateOutlineFixture(IMediator mediator, EditorContext editorContext)
     {
@@ -24,12 +24,12 @@ public abstract class WhenCreateOutlineFixture : ControllerActionFixture<PostRoa
 
         TestData.CopyCustomizationsTo(ObjectProvider);
 
-        _organizationRepository = new FakeOrganizationRepository();
+        _organizationCache = new FakeOrganizationCache();
     }
 
-    public void CustomizeOrganizationRepository(IOrganizationRepository organizationRepository)
+    public void CustomizeOrganizationCache(IOrganizationCache organizationCache)
     {
-        _organizationRepository = organizationRepository.ThrowIfNull();
+        _organizationCache = organizationCache.ThrowIfNull();
     }
 
     protected override async Task<IActionResult> GetResultAsync(PostRoadSegmentOutlineParameters request)
@@ -53,7 +53,7 @@ public abstract class WhenCreateOutlineFixture : ControllerActionFixture<PostRoa
             }
         };
 
-        var validator = new PostRoadSegmentOutlineParametersValidator(_organizationRepository);
+        var validator = new PostRoadSegmentOutlineParametersValidator(_organizationCache);
         return await controller.CreateOutline(new UseRoadSegmentOutlineFeatureToggle(true), validator, request, CancellationToken.None);
     }
 }

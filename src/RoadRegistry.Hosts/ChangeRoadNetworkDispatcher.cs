@@ -29,20 +29,20 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
     private readonly IRoadNetworkCommandQueue _commandQueue;
     private readonly IIdempotentCommandHandler _idempotentCommandHandler;
     private readonly EventSourcedEntityMap _eventSourcedEntityMap;
-    private readonly IOrganizationRepository _organizationRepository;
+    private readonly IOrganizationCache _organizationCache;
     private readonly ILogger<ChangeRoadNetworkDispatcher> _logger;
 
     public ChangeRoadNetworkDispatcher(
         IRoadNetworkCommandQueue commandQueue,
         IIdempotentCommandHandler idempotentCommandHandler,
         EventSourcedEntityMap eventSourcedEntityMap,
-        IOrganizationRepository organizationRepository,
+        IOrganizationCache organizationCache,
         ILogger<ChangeRoadNetworkDispatcher> logger)
     {
         _commandQueue = commandQueue;
         _idempotentCommandHandler = idempotentCommandHandler;
         _eventSourcedEntityMap = eventSourcedEntityMap;
-        _organizationRepository = organizationRepository;
+        _organizationCache = organizationCache;
         _logger = logger;
     }
 
@@ -50,7 +50,7 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
     {
         var sw = Stopwatch.StartNew();
         var organizationId = new OrganizationId(lambdaRequest.Provenance.Operator);
-        var organization = await _organizationRepository.FindByIdOrOvoCodeAsync(organizationId, cancellationToken)
+        var organization = await _organizationCache.FindByIdOrOvoCodeAsync(organizationId, cancellationToken)
                            ?? OrganizationDetail.FromCode(organizationId);
         _logger.LogInformation("TIMETRACKING dispatcher: finding organization by '{Operator}' took {Elapsed}", lambdaRequest.Provenance.Operator, sw.Elapsed);
         sw.Restart();

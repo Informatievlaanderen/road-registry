@@ -13,7 +13,7 @@ namespace RoadRegistry.Hosts
     using System.Threading.Tasks;
     using BackOffice.Core;
 
-    public class OrganizationRepository : IOrganizationRepository
+    public class OrganizationCache : IOrganizationCache
     {
         private readonly EditorContext _editorContext;
         private readonly OrganizationDbaseRecordReader _organizationRecordReader;
@@ -22,13 +22,13 @@ namespace RoadRegistry.Hosts
         private readonly ConcurrentDictionary<OrganizationId, OrganizationDetail> _cache = new();
         private readonly ILogger _logger;
 
-        public OrganizationRepository(
+        public OrganizationCache(
             EditorContext editorContext,
             RecyclableMemoryStreamManager manager,
             FileEncoding fileEncoding,
             UseOvoCodeInChangeRoadNetworkFeatureToggle useOvoCodeInChangeRoadNetworkFeatureToggle,
             IRoadRegistryContext roadRegistryContext,
-            ILogger<OrganizationRepository> logger)
+            ILogger<OrganizationCache> logger)
         {
             _editorContext = editorContext;
             _organizationRecordReader = new OrganizationDbaseRecordReader(manager, fileEncoding);

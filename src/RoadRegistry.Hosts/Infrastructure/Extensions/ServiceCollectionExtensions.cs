@@ -136,10 +136,10 @@ public static class ServiceCollectionExtensions
             .AddScoped<IRoadNetworkIdGenerator, RoadNetworkDbIdGenerator>();
     }
 
-    public static IServiceCollection AddOrganizationRepository(this IServiceCollection services)
+    public static IServiceCollection AddOrganizationCache(this IServiceCollection services)
     {
         return services
-            .AddScoped<IOrganizationRepository, OrganizationRepository>();
+            .AddScoped<IOrganizationCache, OrganizationCache>();
     }
 
     public static IServiceCollection AddDbContextEventProcessorServices<TDbContextEventProcessor, TDbContext>(this IServiceCollection services,

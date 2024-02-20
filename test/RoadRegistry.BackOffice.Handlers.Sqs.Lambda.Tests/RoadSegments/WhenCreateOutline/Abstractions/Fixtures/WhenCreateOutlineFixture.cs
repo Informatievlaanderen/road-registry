@@ -46,7 +46,7 @@ public abstract class WhenCreateOutlineFixture : SqsLambdaHandlerFixture<CreateR
         IdempotentCommandHandler,
         RoadRegistryContext,
         ChangeRoadNetworkDispatcher,
-        new FakeOrganizationRepository(),
+        new FakeOrganizationCache(),
         new NullLogger<CreateRoadSegmentOutlineSqsLambdaRequestHandler>()
     );
 

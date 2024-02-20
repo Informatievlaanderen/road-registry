@@ -54,7 +54,7 @@ public class Program
                 .AddDistributedStreamStoreLockOptions()
                 .AddRoadNetworkDbIdGenerator()
                 .AddEditorContext()
-                .AddOrganizationRepository()
+                .AddOrganizationCache()
                 .AddFeatureCompareTranslator()
                 .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
                 .AddRoadNetworkCommandQueue()

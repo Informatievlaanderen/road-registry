@@ -20,7 +20,7 @@ using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
 public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaHandler<CreateRoadSegmentOutlineSqsLambdaRequest>
 {
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
-    private readonly IOrganizationRepository _organizationRepository;
+    private readonly IOrganizationCache _organizationCache;
 
     public CreateRoadSegmentOutlineSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -29,7 +29,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
-        IOrganizationRepository organizationRepository,
+        IOrganizationCache organizationCache,
         ILogger<CreateRoadSegmentOutlineSqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -40,7 +40,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
             logger)
     {
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
-        _organizationRepository = organizationRepository;
+        _organizationCache = organizationCache;
     }
 
     protected override async Task<object> InnerHandle(CreateRoadSegmentOutlineSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
@@ -108,7 +108,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
     {
         var problems = Problems.None;
         
-        var maintenanceAuthorityOrganization = await _organizationRepository.FindByIdOrOvoCodeAsync(organizationId, cancellationToken);
+        var maintenanceAuthorityOrganization = await _organizationCache.FindByIdOrOvoCodeAsync(organizationId, cancellationToken);
         if (maintenanceAuthorityOrganization is not null)
         {
             return (maintenanceAuthorityOrganization.Code, problems);
