@@ -1063,47 +1063,47 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
     }
 
     [Fact(Skip = "Use me to validate a specific file")]
-    public void ValidateActualFile()
+    public async Task ValidateActualFile()
     {
         using (var fileStream = File.OpenRead(@""))
         using (var archive = new ZipArchive(fileStream))
         {
             var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
-            var result = sut.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
+            var result = await sut.ValidateAsync(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty), CancellationToken.None);
 
             result.Count.Should().Be(0);
         }
     }
 
     [Fact]
-    public void ValidateArchiveCanNotBeNull()
+    public async Task ValidateArchiveCanNotBeNull()
     {
         var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
-        Assert.Throws<ArgumentNullException>(() => sut.Validate(null, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty)));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => sut.ValidateAsync(null, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty), CancellationToken.None));
     }
 
     [Fact]
-    public void ValidateMetadataCanNotBeNull()
+    public async Task ValidateMetadataCanNotBeNull()
     {
         var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
         using (var ms = new MemoryStream())
         using (var archive = new ZipArchive(ms, ZipArchiveMode.Create))
         {
-            Assert.Throws<ArgumentNullException>(() => sut.Validate(archive, null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => sut.ValidateAsync(archive, null, CancellationToken.None));
         }
     }
 
     [Fact]
-    public void ValidateReturnsExpectedResultFromEntryValidators()
+    public async Task ValidateReturnsExpectedResultFromEntryValidators()
     {
         using (var archive = CreateArchiveWithEmptyFiles())
         {
             var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
-            var result = sut.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
+            var result = await sut.ValidateAsync(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty), CancellationToken.None);
 
             var expected = ZipArchiveProblems.Many(
                 archive.Entries.Select
@@ -1137,13 +1137,13 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
 
     [Theory]
     [MemberData(nameof(MissingRequiredFileCases))]
-    public void ValidateReturnsExpectedResultWhenRequiredFileMissing(ZipArchive archive, ZipArchiveProblems expected)
+    public async Task ValidateReturnsExpectedResultWhenRequiredFileMissing(ZipArchive archive, ZipArchiveProblems expected)
     {
         using (archive)
         {
             var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
-            var result = sut.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
+            var result = await sut.ValidateAsync(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty), CancellationToken.None);
 
             Assert.Equal(expected, result);
         }

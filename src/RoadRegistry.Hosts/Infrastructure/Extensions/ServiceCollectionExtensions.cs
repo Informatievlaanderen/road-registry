@@ -17,7 +17,7 @@ using SqlStreamStore;
 using Sync.StreetNameRegistry;
 using System;
 using System.Linq;
-using IStreetNameCache = BackOffice.Abstractions.IStreetNameCache;
+using IStreetNameCache = BackOffice.IStreetNameCache;
 
 public static class ServiceCollectionExtensions
 {
@@ -108,6 +108,15 @@ public static class ServiceCollectionExtensions
             .AddDbContextFactory<StreetNameProjectionContext>((sp, options) =>
             {
                 var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.StreetNameProjections);
+                options
+                    .UseSqlServer(connectionString,
+                        o => o
+                            .EnableRetryOnFailure()
+                    );
+            })
+            .AddDbContextFactory<StreetNameEventConsumerContext>((sp, options) =>
+            {
+                var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.StreetNameEventConsumer); //TODO-rik add to appsettings
                 options
                     .UseSqlServer(connectionString,
                         o => o

@@ -1,5 +1,6 @@
 namespace RoadRegistry.Wms.ProjectionHost.Tests.Framework.Containers;
 
+using BackOffice;
 using BackOffice.Abstractions;
 using Editor.Schema;
 using Microsoft.Data.SqlClient;

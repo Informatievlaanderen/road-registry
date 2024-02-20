@@ -44,7 +44,7 @@ public class FeatureCompareZipArchiveTranslatorTests
             using (var archive = new ZipArchive(archiveStream))
             {
                 var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create();
-                var archiveValidationProblems = validator.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
+                var archiveValidationProblems = await validator.ValidateAsync(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty), CancellationToken.None);
 
                 var sw = Stopwatch.StartNew();
                 _outputHelper.WriteLine("Started translate Before-FC");

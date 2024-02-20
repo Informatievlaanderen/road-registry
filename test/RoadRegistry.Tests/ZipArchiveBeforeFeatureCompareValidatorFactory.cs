@@ -9,7 +9,7 @@ namespace RoadRegistry.Tests
     {
         private static readonly FileEncoding Encoding = FileEncoding.UTF8;
 
-        public static IZipArchiveBeforeFeatureCompareValidator Create() => new ZipArchiveBeforeFeatureCompareValidator(
+        public static IZipArchiveBeforeFeatureCompareValidator Create(IStreetNameCache streetNameCache = null) => new ZipArchiveBeforeFeatureCompareValidator(
             new TransactionZoneFeatureCompareFeatureReader(Encoding),
             new RoadNodeFeatureCompareFeatureReader(Encoding),
             new RoadSegmentFeatureCompareFeatureReader(Encoding),
@@ -19,7 +19,8 @@ namespace RoadRegistry.Tests
             new EuropeanRoadFeatureCompareFeatureReader(Encoding),
             new NationalRoadFeatureCompareFeatureReader(Encoding),
             new NumberedRoadFeatureCompareFeatureReader(Encoding),
-            new GradeSeparatedJunctionFeatureCompareFeatureReader(Encoding)
+            new GradeSeparatedJunctionFeatureCompareFeatureReader(Encoding),
+            streetNameCache ?? new FakeStreetNameCache()
         );
     }
 }

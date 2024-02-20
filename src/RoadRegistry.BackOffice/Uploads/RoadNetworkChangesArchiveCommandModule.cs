@@ -54,7 +54,7 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
                     {
                         IZipArchiveValidator validator = message.Body.UseZipArchiveFeatureCompareTranslator ? beforeFeatureCompareValidator : afterFeatureCompareValidator;
                         logger.LogInformation("Validation started for archive with validator {Validator}", validator.GetType().Name);
-                        upload.ValidateArchiveUsing(archive, validator, message.Body.UseZipArchiveFeatureCompareTranslator);
+                        await upload.ValidateArchiveUsing(archive, validator, message.Body.UseZipArchiveFeatureCompareTranslator, ct);
                         logger.LogInformation("Validation completed for archive with validator {Validator}", validator.GetType().Name);
                     }
                     context.RoadNetworkChangesArchives.Add(upload);

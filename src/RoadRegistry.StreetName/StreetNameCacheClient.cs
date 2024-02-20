@@ -3,7 +3,7 @@ namespace RoadRegistry.StreetName;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using BackOffice.Abstractions;
+using BackOffice;
 
 public class StreetNameCacheClient : IStreetNameClient
 {

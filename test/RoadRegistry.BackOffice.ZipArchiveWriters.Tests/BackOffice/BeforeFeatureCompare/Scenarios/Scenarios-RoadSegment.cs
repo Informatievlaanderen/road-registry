@@ -38,6 +38,120 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     }
 
     [Fact]
+    public async Task SegmentWithRemovedLeftSideStreetNameShouldGiveWarningAndFixAutomatically()
+    {
+        var removedStreetNameId = 1;
+
+        var streetNameCache = new FakeStreetNameCache()
+            .AddStreetName(removedStreetNameId, string.Empty, string.Empty, isRemoved: true);
+
+        Assert.True((await streetNameCache.GetAsync(removedStreetNameId, CancellationToken.None)).IsRemoved);
+
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value = removedStreetNameId;
+            })
+            .BuildWithResult(context => TranslatedChanges.Empty);
+
+        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(streetNameCache: streetNameCache);
+        var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create(streetNameCache: streetNameCache);
+        var (result, problems) = await TranslateSucceeds(zipArchive, translator, validator);
+
+        var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
+        Assert.Equal(CrabStreetNameId.NotApplicable, modifyRoadSegment.LeftSideStreetNameId);
+
+        Assert.NotEmpty(problems);
+        Assert.True(problems.All(x => x.Reason == "LeftStreetNameIdIsRemoved"));
+    }
+
+    [Fact]
+    public async Task SegmentWithRemovedRightSideStreetNameShouldGiveWarningAndFixAutomatically()
+    {
+        var removedStreetNameId = 1;
+
+        var streetNameCache = new FakeStreetNameCache()
+            .AddStreetName(removedStreetNameId, string.Empty, string.Empty, isRemoved: true);
+
+        Assert.True((await streetNameCache.GetAsync(removedStreetNameId, CancellationToken.None)).IsRemoved);
+
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = removedStreetNameId;
+            })
+            .BuildWithResult(context => TranslatedChanges.Empty);
+
+        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(streetNameCache: streetNameCache);
+        var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create(streetNameCache: streetNameCache);
+        var (result, problems) = await TranslateSucceeds(zipArchive, translator, validator);
+
+        var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
+        Assert.Equal(CrabStreetNameId.NotApplicable, modifyRoadSegment.RightSideStreetNameId);
+
+        Assert.NotEmpty(problems);
+        Assert.True(problems.All(x => x.Reason == "RightStreetNameIdIsRemoved"));
+    }
+
+    [Fact]
+    public async Task SegmentWithRenamedLeftSideStreetNameShouldGiveWarningAndFixAutomatically()
+    {
+        var streetNameId = 1;
+        var renamedToStreetNameId = 2;
+
+        var streetNameCache = new FakeStreetNameCache()
+            .AddRenamedStreetName(streetNameId, renamedToStreetNameId);
+
+        Assert.Equal(renamedToStreetNameId, (await streetNameCache.GetRenamedIdsAsync(new[] { streetNameId }, CancellationToken.None))[streetNameId]);
+
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value = streetNameId;
+            })
+            .BuildWithResult(context => TranslatedChanges.Empty);
+
+        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(streetNameCache: streetNameCache);
+        var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create(streetNameCache: streetNameCache);
+        var (result, problems) = await TranslateSucceeds(zipArchive, translator, validator);
+
+        var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
+        Assert.Equal(renamedToStreetNameId, modifyRoadSegment.LeftSideStreetNameId!.Value.ToInt32());
+
+        Assert.NotEmpty(problems);
+        Assert.True(problems.All(x => x.Reason == "LeftStreetNameIdIsRenamed"));
+    }
+
+    [Fact]
+    public async Task SegmentWithRenamedRightSideStreetNameShouldGiveWarningAndFixAutomatically()
+    {
+        var streetNameId = 1;
+        var renamedToStreetNameId = 2;
+
+        var streetNameCache = new FakeStreetNameCache()
+            .AddRenamedStreetName(streetNameId, renamedToStreetNameId);
+
+        Assert.Equal(renamedToStreetNameId, (await streetNameCache.GetRenamedIdsAsync(new[] { streetNameId }, CancellationToken.None))[streetNameId]);
+
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = streetNameId;
+            })
+            .BuildWithResult(context => TranslatedChanges.Empty);
+
+        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(streetNameCache: streetNameCache);
+        var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create(streetNameCache: streetNameCache);
+        var (result, problems) = await TranslateSucceeds(zipArchive, translator, validator);
+
+        var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
+        Assert.Equal(renamedToStreetNameId, modifyRoadSegment.RightSideStreetNameId!.Value.ToInt32());
+
+        Assert.NotEmpty(problems);
+        Assert.True(problems.All(x => x.Reason == "RightStreetNameIdIsRenamed"));
+    }
+
+    [Fact]
     public async Task ModifiedGeometrySlightly()
     {
         var (zipArchive, expected) = new ExtractsZipArchiveBuilder()

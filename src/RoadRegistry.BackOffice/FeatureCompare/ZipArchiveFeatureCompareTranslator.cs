@@ -67,7 +67,7 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
             
             (changes, var problems) = await translator.TranslateAsync(context, changes, cancellationToken);
             problems.ThrowIfError();
-
+            
             _logger.LogInformation("{Type} completed in {Elapsed}", translator.GetType().Name, sw.Elapsed);
         }
         
