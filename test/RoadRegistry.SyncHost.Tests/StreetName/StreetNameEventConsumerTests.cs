@@ -5,7 +5,6 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
     using BackOffice.FeatureToggles;
     using BackOffice.Framework;
     using BackOffice.Messages;
-    using Be.Vlaanderen.Basisregisters.GrAr.Contracts.Common;
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
     using Editor.Schema;
@@ -15,6 +14,8 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
     using Microsoft.Extensions.Logging;
     using Microsoft.IO;
     using Newtonsoft.Json;
+    using NodaTime;
+    using NodaTime.Testing;
     using RoadRegistry.Tests.BackOffice.Scenarios;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
@@ -41,9 +42,9 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
         {
             var testData = new RoadNetworkTestData();
 
-            var streetName1ObjectId = 1;
+            var streetName1LocalId = 1;
 
-            var streetName1WasRemoved = new StreetNameWasRemovedV2(string.Empty, streetName1ObjectId, new FakeProvenance());
+            var streetName1WasRemoved = new StreetNameWasRemovedV2(string.Empty, streetName1LocalId, new FakeProvenance());
 
             var (consumer, store, topicConsumer) = BuildSetup(configureEditorContext: editorContext =>
             {
@@ -71,8 +72,8 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                         StatusId = statusTranslation.Identifier,
                         MorphologyId = morphologyTranslation.Identifier,
                         CategoryId = categoryTranslation.Identifier,
-                        LeftSideStreetNameId = streetName1ObjectId,
-                        RightSideStreetNameId = streetName1ObjectId,
+                        LeftSideStreetNameId = streetName1LocalId,
+                        RightSideStreetNameId = streetName1LocalId,
                         MaintainerId = testData.Segment1Added.MaintenanceAuthority.Code,
                         MaintainerName = testData.Segment1Added.MaintenanceAuthority.Name,
                         MethodId = geometryDrawMethodTranslation.Identifier,
@@ -105,9 +106,9 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
         {
             var testData = new RoadNetworkTestData();
 
-            var streetName1ObjectId = 1;
-            var streetName2ObjectId = 2;
-            var streetName1WasRemoved = new StreetNameWasRenamed(string.Empty, streetName1ObjectId, streetName2ObjectId, new FakeProvenance());
+            var streetName1LocalId = 1;
+            var streetName2LocalId = 2;
+            var streetName1WasRenamed = new StreetNameWasRenamed(string.Empty, streetName1LocalId, streetName2LocalId, new FakeProvenance());
 
             var (consumer, store, topicConsumer) = BuildSetup(configureEditorContext: editorContext =>
             {
@@ -135,8 +136,8 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                         StatusId = statusTranslation.Identifier,
                         MorphologyId = morphologyTranslation.Identifier,
                         CategoryId = categoryTranslation.Identifier,
-                        LeftSideStreetNameId = streetName1ObjectId,
-                        RightSideStreetNameId = streetName1ObjectId,
+                        LeftSideStreetNameId = streetName1LocalId,
+                        RightSideStreetNameId = streetName1LocalId,
                         MaintainerId = testData.Segment1Added.MaintenanceAuthority.Code,
                         MaintainerName = testData.Segment1Added.MaintenanceAuthority.Name,
                         MethodId = geometryDrawMethodTranslation.Identifier,
@@ -145,22 +146,31 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
             });
 
             topicConsumer
-                .SeedMessage(streetName1WasRemoved)
+                .SeedMessage(streetName1WasRenamed)
                 ;
 
             await consumer.StartAsync(CancellationToken.None);
 
-            var page = await store.ReadAllForwards(Position.Start, 1);
+            var page = await store.ReadAllForwards(Position.Start, 2);
             {
                 var streamMessage = page.Messages[0];
+                Assert.Equal(nameof(StreetNameRenamed), streamMessage.Type);
+                Assert.Equal("streetnames", streamMessage.StreamId);
+
+                var message = JsonConvert.DeserializeObject<StreetNameRenamed>(await streamMessage.GetJsonData());
+                Assert.Equal(streetName1LocalId, message.StreetNameLocalId);
+                Assert.Equal(streetName2LocalId, message.DestinationStreetNameLocalId);
+            }
+            {
+                var streamMessage = page.Messages[1];
                 Assert.Equal(nameof(ChangeRoadNetwork), streamMessage.Type);
                 Assert.Equal("roadnetwork-command-queue", streamMessage.StreamId);
 
                 var message = JsonConvert.DeserializeObject<ChangeRoadNetwork>(await streamMessage.GetJsonData());
                 var modifyRoadSegment = Assert.Single(message.Changes).ModifyRoadSegment;
                 Assert.Equal(testData.Segment1Added.Id, modifyRoadSegment.Id);
-                Assert.Equal(streetName2ObjectId, modifyRoadSegment.LeftSideStreetNameId);
-                Assert.Equal(streetName2ObjectId, modifyRoadSegment.RightSideStreetNameId);
+                Assert.Equal(streetName2LocalId, modifyRoadSegment.LeftSideStreetNameId);
+                Assert.Equal(streetName2LocalId, modifyRoadSegment.RightSideStreetNameId);
             }
         }
 
@@ -203,6 +213,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
             return (new StreetNameEventConsumer(
                 lifetimeScope,
                 store,
+                new StreetNameEventWriter(store, EnrichEvent.WithTime(new FakeClock(NodaConstants.UnixEpoch))),
                 new RoadNetworkCommandQueue(store, new ApplicationMetadata(RoadRegistryApplication.BackOffice)),
                 topicConsumer,
                 lifetimeScope.Resolve<EditorContext>,

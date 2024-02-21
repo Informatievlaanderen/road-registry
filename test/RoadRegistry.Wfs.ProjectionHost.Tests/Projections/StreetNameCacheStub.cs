@@ -2,6 +2,7 @@ namespace RoadRegistry.Wfs.ProjectionHost.Tests.Projections;
 
 using BackOffice;
 using BackOffice.Abstractions;
+using RoadRegistry.Sync.StreetNameRegistry.Models;
 using Sync.StreetNameRegistry;
 
 public class StreetNameCacheStub : IStreetNameCache

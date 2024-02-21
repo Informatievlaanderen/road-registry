@@ -25,8 +25,8 @@ public class Startup : TestStartup
             .AddInMemoryDbContextOptionsBuilder<StreetNameSnapshotConsumerContext>()
 
             .AddStreetNameProjectionServices()
-            .AddInMemoryDbContextOptionsBuilder<StreetNameProjectionContext>()
-            .AddInMemoryDbContextOptionsBuilder<StreetNameEventConsumerContext>()
+            .AddInMemoryDbContextOptionsBuilder<StreetNameSnapshotProjectionContext>()
+            .AddInMemoryDbContextOptionsBuilder<StreetNameEventProjectionContext>()
             ;
     }
 }

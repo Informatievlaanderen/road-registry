@@ -5,14 +5,15 @@ using Be.Vlaanderen.Basisregisters.GrAr.Legacy.Gemeente;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy.Straatnaam;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using RoadRegistry.StreetName;
+using RoadRegistry.Sync.StreetNameRegistry.Models;
 using Sync.StreetNameRegistry;
 
-public class StreetNameProjectionFixture : ConnectedProjectionFixture<StreetNameProjection, StreetNameProjectionContext>
+public class StreetNameSnapshotProjectionFixture : ConnectedProjectionFixture<StreetNameSnapshotProjection, StreetNameSnapshotProjectionContext>
 {
-    private readonly StreetNameProjectionContext _dbContext;
+    private readonly StreetNameSnapshotProjectionContext _dbContext;
 
-    public StreetNameProjectionFixture(StreetNameProjectionContext context)
-        : base(context, Resolve.WhenEqualToHandlerMessageType(new StreetNameProjection().Handlers))
+    public StreetNameSnapshotProjectionFixture(StreetNameSnapshotProjectionContext context)
+        : base(context, Resolve.WhenEqualToHandlerMessageType(new StreetNameSnapshotProjection().Handlers))
     {
         _dbContext = context;
 

@@ -2,20 +2,21 @@ namespace RoadRegistry.Sync.StreetNameRegistry;
 
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using System.Threading;
 using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using StreetNameRecord = Models.StreetNameRecord;
 
-public class StreetNameProjection : ConnectedProjection<StreetNameProjectionContext>
+public class StreetNameSnapshotProjection : ConnectedProjection<StreetNameSnapshotProjectionContext>
 {
-    public StreetNameProjection()
+    public StreetNameSnapshotProjection()
     {
         When<Envelope<StreetNameCreated>>(StreetNameCreated);
         When<Envelope<StreetNameModified>>(StreetNameModified);
         When<Envelope<StreetNameRemoved>>(StreetNameRemoved);
     }
 
-    private async Task StreetNameCreated(StreetNameProjectionContext context, Envelope<StreetNameCreated> envelope, CancellationToken token)
+    private async Task StreetNameCreated(StreetNameSnapshotProjectionContext context, Envelope<StreetNameCreated> envelope, CancellationToken token)
     {
         var dbRecord = new StreetNameRecord();
         CopyTo(envelope.Message.Record, dbRecord);
@@ -23,7 +24,7 @@ public class StreetNameProjection : ConnectedProjection<StreetNameProjectionCont
         await context.StreetNames.AddAsync(dbRecord, token);
     }
 
-    private async Task StreetNameModified(StreetNameProjectionContext context, Envelope<StreetNameModified> envelope, CancellationToken token)
+    private async Task StreetNameModified(StreetNameSnapshotProjectionContext context, Envelope<StreetNameModified> envelope, CancellationToken token)
     {
         var dbRecord = await context.StreetNames.FindAsync(new object[] { envelope.Message.Record.StreetNameId }, token).ConfigureAwait(false);
 
@@ -43,7 +44,7 @@ public class StreetNameProjection : ConnectedProjection<StreetNameProjectionCont
         CopyTo(envelope.Message.Record, dbRecord);
     }
 
-    private async Task StreetNameRemoved(StreetNameProjectionContext context, Envelope<StreetNameRemoved> envelope, CancellationToken token)
+    private async Task StreetNameRemoved(StreetNameSnapshotProjectionContext context, Envelope<StreetNameRemoved> envelope, CancellationToken token)
     {
         var dbRecord = await context.StreetNames.FindAsync(new object[] { envelope.Message.StreetNameId }, token).ConfigureAwait(false);
 

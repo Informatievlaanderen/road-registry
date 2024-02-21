@@ -1,4 +1,4 @@
-namespace RoadRegistry.Sync.StreetNameRegistry;
+namespace RoadRegistry.Sync.StreetNameRegistry.Models;
 
 public class RenamedStreetNameRecord
 {

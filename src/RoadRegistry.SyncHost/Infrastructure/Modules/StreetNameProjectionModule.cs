@@ -11,13 +11,22 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
         public static IServiceCollection AddStreetNameProjectionServices(this IServiceCollection services)
         {
             return services
-                .AddTraceDbConnection<StreetNameProjectionContext>(WellKnownConnectionNames.StreetNameProjections)
-                .AddSingleton<ConfigureDbContextOptionsBuilder<StreetNameProjectionContext>>(StreetNameProjectionContext.ConfigureOptions)
-                .AddDbContext<StreetNameProjectionContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameProjectionContext>>()(sp, options))
-                .AddDbContextFactory<StreetNameProjectionContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameProjectionContext>>()(sp, options))
-                .AddDbContextEventProcessorServices<StreetNameProjectionContextEventProcessor, StreetNameProjectionContext>(sp => new ConnectedProjection<StreetNameProjectionContext>[]
+                .AddTraceDbConnection<StreetNameSnapshotProjectionContext>(WellKnownConnectionNames.StreetNameProjections)
+                .AddSingleton<ConfigureDbContextOptionsBuilder<StreetNameSnapshotProjectionContext>>(StreetNameSnapshotProjectionContext.ConfigureOptions)
+                .AddDbContext<StreetNameSnapshotProjectionContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameSnapshotProjectionContext>>()(sp, options))
+                .AddDbContextFactory<StreetNameSnapshotProjectionContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameSnapshotProjectionContext>>()(sp, options))
+                .AddDbContextEventProcessorServices<StreetNameSnapshotProjectionContextEventProcessor, StreetNameSnapshotProjectionContext>(sp => new ConnectedProjection<StreetNameSnapshotProjectionContext>[]
                 {
-                    new StreetNameProjection()
+                    new StreetNameSnapshotProjection()
+                })
+
+                .AddTraceDbConnection<StreetNameEventProjectionContext>(WellKnownConnectionNames.StreetNameProjections)
+                .AddSingleton<ConfigureDbContextOptionsBuilder<StreetNameEventProjectionContext>>(StreetNameEventProjectionContext.ConfigureOptions)
+                .AddDbContext<StreetNameEventProjectionContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameEventProjectionContext>>()(sp, options))
+                .AddDbContextFactory<StreetNameEventProjectionContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameEventProjectionContext>>()(sp, options))
+                .AddDbContextEventProcessorServices<StreetNameEventProjectionContextEventProcessor, StreetNameEventProjectionContext>(sp => new ConnectedProjection<StreetNameEventProjectionContext>[]
+                {
+                    new StreetNameEventProjection()
                 })
                 ;
         }

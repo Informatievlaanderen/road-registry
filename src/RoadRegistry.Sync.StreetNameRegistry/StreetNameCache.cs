@@ -10,15 +10,15 @@ using BackOffice;
 
 public class StreetNameCache : IStreetNameCache
 {
-    private readonly IDbContextFactory<StreetNameProjectionContext> _streetNameProjectionContextFactory;
-    private readonly IDbContextFactory<StreetNameEventConsumerContext> _streetNameEventConsumerContextFactory;
+    private readonly IDbContextFactory<StreetNameSnapshotProjectionContext> _streetNameProjectionContextFactory;
+    private readonly IDbContextFactory<StreetNameEventProjectionContext> _streetNameEventProjectionContextFactory;
 
     public StreetNameCache(
-        IDbContextFactory<StreetNameProjectionContext> streetNameProjectionContextFactory,
-        IDbContextFactory<StreetNameEventConsumerContext> streetNameEventConsumerContextFactory)
+        IDbContextFactory<StreetNameSnapshotProjectionContext> streetNameProjectionContextFactory,
+        IDbContextFactory<StreetNameEventProjectionContext> streetNameEventProjectionContextFactory)
     {
         _streetNameProjectionContextFactory = streetNameProjectionContextFactory.ThrowIfNull();
-        _streetNameEventConsumerContextFactory = streetNameEventConsumerContextFactory.ThrowIfNull();
+        _streetNameEventProjectionContextFactory = streetNameEventProjectionContextFactory.ThrowIfNull();
     }
 
     public async Task<StreetNameCacheItem> GetAsync(int streetNameId, CancellationToken cancellationToken)
@@ -30,7 +30,7 @@ public class StreetNameCache : IStreetNameCache
     public async Task<Dictionary<int, int>> GetRenamedIdsAsync(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
     {
         //TODO-rik test
-        await using var context = await _streetNameEventConsumerContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var context = await _streetNameEventProjectionContextFactory.CreateDbContextAsync(cancellationToken);
 
         return (
                 await context.RenamedStreetNames

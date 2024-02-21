@@ -1,3 +1,5 @@
+using RoadRegistry.Sync.StreetNameRegistry.Models;
+
 namespace RoadRegistry.Wfs.ProjectionHost.Tests.Projections;
 
 using AutoFixture;
@@ -9,7 +11,7 @@ using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 using Schema;
 using Wfs.Projections;
-using StreetNameRecord = Sync.StreetNameRegistry.StreetNameRecord;
+using StreetNameRecord = StreetNameRecord;
 
 public class RoadSegmentRecordProjectionTests
 {

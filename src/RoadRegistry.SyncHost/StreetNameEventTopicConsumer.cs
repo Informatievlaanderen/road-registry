@@ -62,7 +62,7 @@ public class StreetNameEventTopicConsumer : IStreetNameEventTopicConsumer
         }
         if (kafkaConsumerOptions.Offset > 0)
         {
-            consumerOptions.ConfigureOffset(new Offset(kafkaConsumerOptions.Offset));
+            consumerOptions.ConfigureOffset(new Offset(kafkaConsumerOptions.Offset.Value));
         }
 
         while (!cancellationToken.IsCancellationRequested)

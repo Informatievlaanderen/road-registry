@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 public interface IStreetNameEventWriter
 {
+    Task WriteAsync(Event @event, CancellationToken cancellationToken);
     Task WriteAsync(StreetNameLocalId id, Event @event, CancellationToken cancellationToken);
 }
 
@@ -26,5 +27,10 @@ public class StreetNameEventWriter : RoadRegistryEventWriter, IStreetNameEventWr
     public Task WriteAsync(StreetNameLocalId id, Event @event, CancellationToken cancellationToken)
     {
         return AppendToStoreStream(StreetNameLocalId.ToStreamName(id), @event.MessageId, ExpectedVersion.Any, new [] { @event.Body }, null, null, cancellationToken);
+    }
+    
+    public Task WriteAsync(Event @event, CancellationToken cancellationToken)
+    {
+        return AppendToStoreStream(new StreamName("streetnames"), @event.MessageId, ExpectedVersion.Any, new [] { @event.Body }, null, null, cancellationToken);
     }
 }

@@ -45,14 +45,16 @@ public class Program
                     .AddHostedService<StreetNameSnapshotConsumer>()
 
                     .AddStreetNameProjectionServices()
-                    .AddHostedService<StreetNameProjectionContextEventProcessor>()
+                    .AddHostedService<StreetNameEventProjectionContextEventProcessor>()
+                    .AddHostedService<StreetNameSnapshotProjectionContextEventProcessor>()
 
                     .AddSingleton(new IDbContextMigratorFactory[]
                     {
                         new OrganizationConsumerContextMigratorFactory(),
                         new StreetNameEventConsumerContextMigrationFactory(),
+                        new StreetNameEventProjectionContextMigrationFactory(),
                         new StreetNameSnapshotConsumerContextMigrationFactory(),
-                        new StreetNameProjectionContextMigrationFactory()
+                        new StreetNameSnapshotProjectionContextMigrationFactory()
                     })
                     ;
             })

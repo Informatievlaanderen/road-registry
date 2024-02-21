@@ -9,7 +9,6 @@ using BackOffice.FeatureToggles;
 using BackOffice.Framework;
 using BackOffice.Messages;
 using BackOffice.Uploads;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Editor.Schema.Extensions;
@@ -20,30 +19,29 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
 using SqlStreamStore;
-using Sync.StreetNameRegistry;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Resolve = Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Resolve;
 using StreetNameWasRemovedV2 = Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry.StreetNameWasRemovedV2;
 using StreetNameWasRenamed = Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry.StreetNameWasRenamed;
 
 public class StreetNameEventConsumer : RoadRegistryBackgroundService
 {
     private readonly ILifetimeScope _container;
+    private readonly IStreamStore _store;
+    private readonly IStreetNameEventWriter _streetNameEventWriter;
+    private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
+    private readonly IStreetNameEventTopicConsumer _consumer;
     private readonly RecyclableMemoryStreamManager _manager;
+    private readonly Func<EditorContext> _editorContextFactory;
     private readonly FileEncoding _encoding;
     private readonly UseRoadSegmentV2EventProcessorFeatureToggle _useRoadSegmentV2EventProcessorFeatureToggle;
-    private readonly Func<EditorContext> _editorContextFactory;
-    private readonly IStreetNameEventTopicConsumer _consumer;
-    private readonly IStreamStore _store;
-    private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
-    private readonly ConnectedProjector<StreetNameEventConsumerContext> _projector;
 
     public StreetNameEventConsumer(
         ILifetimeScope container,
         IStreamStore store,
+        IStreetNameEventWriter streetNameEventWriter,
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
         IStreetNameEventTopicConsumer consumer,
         Func<EditorContext> editorContextFactory,
@@ -55,14 +53,13 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
     {
         _container = container.ThrowIfNull();
         _store = store.ThrowIfNull();
+        _streetNameEventWriter = streetNameEventWriter.ThrowIfNull();
         _roadNetworkCommandQueue = roadNetworkCommandQueue.ThrowIfNull();
         _consumer = consumer.ThrowIfNull();
         _editorContextFactory = editorContextFactory.ThrowIfNull();
         _manager = manager.ThrowIfNull();
         _encoding = encoding.ThrowIfNull();
         _useRoadSegmentV2EventProcessorFeatureToggle = useRoadSegmentV2EventProcessorFeatureToggle.ThrowIfNull();
-
-        _projector = new ConnectedProjector<StreetNameEventConsumerContext>(Resolve.WhenEqualToHandlerMessageType(new StreetNameEventConsumerProjection().Handlers));
     }
 
     protected override async Task ExecutingAsync(CancellationToken cancellationToken)
@@ -70,10 +67,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         await _consumer.ConsumeContinuously(async (message, dbContext) =>
             {
                 Logger.LogInformation("Processing {Type}", message.GetType().Name);
-
-                // Event niet registreren op streetname streamstore; rechtstreeks projector uitvoeren om conflicten/volgorde te vermijden met de snapshot consumer
-                await _projector.ProjectAsync(dbContext, message, cancellationToken);
-
+                
                 Command roadNetworkCommand = null;
 
                 if (message is StreetNameWasRemovedV2 streetNameWasRemoved)
@@ -83,6 +77,9 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
                 else if (message is StreetNameWasRenamed streetNameWasRenamed)
                 {
                     roadNetworkCommand = await BuildRoadNetworkCommand(streetNameWasRenamed, cancellationToken);
+
+                    var streetNameEvent = BuildStreetNameEvent(streetNameWasRenamed);
+                    await _streetNameEventWriter.WriteAsync(streetNameEvent, cancellationToken);
                 }
 
                 if (roadNetworkCommand is not null)
@@ -94,6 +91,15 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
 
                 Logger.LogInformation("Processed {Type}", message.GetType().Name);
             }, cancellationToken);
+    }
+
+    private Event BuildStreetNameEvent(StreetNameWasRenamed message)
+    {
+        return new Event(new StreetNameRenamed
+        {
+            StreetNameLocalId = message.PersistentLocalId,
+            DestinationStreetNameLocalId = message.DestinationPersistentLocalId
+        });
     }
     
     private async Task<Command> BuildRoadNetworkCommand(StreetNameWasRemovedV2 message, CancellationToken cancellationToken)

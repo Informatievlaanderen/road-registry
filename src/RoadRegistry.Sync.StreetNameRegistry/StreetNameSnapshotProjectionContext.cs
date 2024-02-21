@@ -6,18 +6,19 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Models;
 using System;
 
-public class StreetNameProjectionContext : RunnerDbContext<StreetNameProjectionContext>
+public class StreetNameSnapshotProjectionContext : RunnerDbContext<StreetNameSnapshotProjectionContext>
 {
     public override string ProjectionStateSchema => WellKnownSchemas.StreetNameSchema;
 
-    public StreetNameProjectionContext()
+    public StreetNameSnapshotProjectionContext()
     {
     }
 
     // This needs to be DbContextOptions<T> for Autofac!
-    public StreetNameProjectionContext(DbContextOptions<StreetNameProjectionContext> options)
+    public StreetNameSnapshotProjectionContext(DbContextOptions<StreetNameSnapshotProjectionContext> options)
         : base(options)
     {
     }
@@ -28,22 +29,22 @@ public class StreetNameProjectionContext : RunnerDbContext<StreetNameProjectionC
     {
         optionsBuilder.UseRoadRegistryInMemorySqlServer();
     }
-
+    
     internal static void ConfigureOptions(IServiceProvider sp, DbContextOptionsBuilder options)
     {
         options
             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
             .UseSqlServer(
-                sp.GetRequiredService<TraceDbConnection<StreetNameProjectionContext>>(),
+                sp.GetRequiredService<TraceDbConnection<StreetNameSnapshotProjectionContext>>(),
                 sqlOptions => sqlOptions
                     .EnableRetryOnFailure()
                     .MigrationsHistoryTable(MigrationTables.StreetName, WellKnownSchemas.StreetNameSchema));
     }
 }
 
-public class StreetNameProjectionContextMigrationFactory : DbContextMigratorFactory<StreetNameProjectionContext>
+public class StreetNameSnapshotProjectionContextMigrationFactory : DbContextMigratorFactory<StreetNameSnapshotProjectionContext>
 {
-    public StreetNameProjectionContextMigrationFactory()
+    public StreetNameSnapshotProjectionContextMigrationFactory()
         : base(WellKnownConnectionNames.StreetNameProjectionsAdmin, new MigrationHistoryConfiguration
         {
             Schema = WellKnownSchemas.StreetNameSchema,
@@ -52,8 +53,8 @@ public class StreetNameProjectionContextMigrationFactory : DbContextMigratorFact
     {
     }
     
-    protected override StreetNameProjectionContext CreateContext(DbContextOptions<StreetNameProjectionContext> migrationContextOptions)
+    protected override StreetNameSnapshotProjectionContext CreateContext(DbContextOptions<StreetNameSnapshotProjectionContext> migrationContextOptions)
     {
-        return new StreetNameProjectionContext(migrationContextOptions);
+        return new StreetNameSnapshotProjectionContext(migrationContextOptions);
     }
 }

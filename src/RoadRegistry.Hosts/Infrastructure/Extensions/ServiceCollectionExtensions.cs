@@ -105,7 +105,7 @@ public static class ServiceCollectionExtensions
     {
         services
             .AddSingleton<IStreetNameCache, StreetNameCache>()
-            .AddDbContextFactory<StreetNameProjectionContext>((sp, options) =>
+            .AddDbContextFactory<StreetNameSnapshotProjectionContext>((sp, options) =>
             {
                 var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.StreetNameProjections);
                 options
@@ -114,9 +114,9 @@ public static class ServiceCollectionExtensions
                             .EnableRetryOnFailure()
                     );
             })
-            .AddDbContextFactory<StreetNameEventConsumerContext>((sp, options) =>
+            .AddDbContextFactory<StreetNameEventProjectionContext>((sp, options) =>
             {
-                var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.StreetNameEventConsumer); //TODO-rik add to appsettings
+                var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.StreetNameProjections);
                 options
                     .UseSqlServer(connectionString,
                         o => o

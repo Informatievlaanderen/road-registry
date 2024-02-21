@@ -39,23 +39,6 @@ namespace RoadRegistry.Sync.StreetNameRegistry.Migrations.StreetNameEventConsume
 
                     b.ToTable("ProcessedMessages", "RoadRegistryStreetNameEventConsumer");
                 });
-
-            modelBuilder.Entity("RoadRegistry.Sync.StreetNameRegistry.RenamedStreetNameRecord", b =>
-                {
-                    b.Property<int>("StreetNameLocalId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DestinationStreetNameLocalId")
-                        .HasColumnType("int");
-
-                    b.HasKey("StreetNameLocalId");
-
-                    b.HasIndex("StreetNameLocalId");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("StreetNameLocalId"), false);
-
-                    b.ToTable("RenamedStreetName", "RoadRegistryStreetName");
-                });
 #pragma warning restore 612, 618
         }
     }

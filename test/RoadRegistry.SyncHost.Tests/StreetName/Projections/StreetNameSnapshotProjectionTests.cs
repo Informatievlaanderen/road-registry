@@ -8,18 +8,18 @@ using Microsoft.EntityFrameworkCore;
 using RoadRegistry.StreetName;
 using Sync.StreetNameRegistry;
 
-public class StreetNameProjectionTests : IClassFixture<StreetNameProjectionFixture>
+public class StreetNameSnapshotProjectionTests : IClassFixture<StreetNameSnapshotProjectionFixture>
 {
-    private readonly IDbContextFactory<StreetNameProjectionContext> _dbContextFactory;
+    private readonly IDbContextFactory<StreetNameSnapshotProjectionContext> _dbContextFactory;
 
-    public StreetNameProjectionTests(IDbContextFactory<StreetNameProjectionContext> dbContextFactory)
+    public StreetNameSnapshotProjectionTests(IDbContextFactory<StreetNameSnapshotProjectionContext> dbContextFactory)
     {
         _dbContextFactory = dbContextFactory;
     }
 
-    private async Task<StreetNameProjectionFixture> BuildFixture()
+    private async Task<StreetNameSnapshotProjectionFixture> BuildFixture()
     {
-        return new StreetNameProjectionFixture(await _dbContextFactory.CreateDbContextAsync());
+        return new StreetNameSnapshotProjectionFixture(await _dbContextFactory.CreateDbContextAsync());
     }
 
     [Fact]
