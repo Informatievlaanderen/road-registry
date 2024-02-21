@@ -55,6 +55,7 @@ public class Program
                 .AddRoadNetworkDbIdGenerator()
                 .AddEditorContext()
                 .AddOrganizationCache()
+                .AddStreetNameCache()
                 .AddFeatureCompareTranslator()
                 .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
                 .AddRoadNetworkCommandQueue()

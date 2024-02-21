@@ -51,6 +51,7 @@ public class Program
                 .AddSingleton<ExtractRequestCleanup>()
                 .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
                 .AddOrganizationCache()
+                .AddStreetNameCache()
                 .AddFeatureCompareTranslator()
                 .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
                 .AddSingleton<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
