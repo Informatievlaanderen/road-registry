@@ -45,13 +45,14 @@ public class StreetNameSnapshotTopicConsumer : IStreetNameSnapshotTopicConsumer
             return;
         }
 
-        var consumerGroupId = $"{nameof(RoadRegistry)}.{nameof(StreetNameSnapshotConsumer)}.{_options.Consumers.StreetNameSnapshot.Topic}{_options.Consumers.StreetNameSnapshot.GroupSuffix}";
+        var kafkaConsumerOptions = _options.Consumers.StreetNameSnapshot;
+        var consumerGroupId = $"{nameof(RoadRegistry)}.{nameof(StreetNameSnapshotConsumer)}.{kafkaConsumerOptions.Topic}{kafkaConsumerOptions.GroupSuffix}";
 
         var jsonSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
         var consumerOptions = new ConsumerOptions(
             new BootstrapServers(_options.BootstrapServers),
-            new Topic(_options.Consumers.StreetNameSnapshot.Topic),
+            new Topic(kafkaConsumerOptions.Topic),
             new ConsumerGroupId(consumerGroupId),
             jsonSerializerSettings,
             new SnapshotMessageSerializer<StreetNameSnapshotRecord>(jsonSerializerSettings)
@@ -59,6 +60,10 @@ public class StreetNameSnapshotTopicConsumer : IStreetNameSnapshotTopicConsumer
         if (!string.IsNullOrEmpty(_options.SaslUserName))
         {
             consumerOptions.ConfigureSaslAuthentication(new SaslAuthentication(_options.SaslUserName, _options.SaslPassword));
+        }
+        if (kafkaConsumerOptions.Offset > 0)
+        {
+            consumerOptions.ConfigureOffset(new Offset(kafkaConsumerOptions.Offset));
         }
 
         while (!cancellationToken.IsCancellationRequested)
