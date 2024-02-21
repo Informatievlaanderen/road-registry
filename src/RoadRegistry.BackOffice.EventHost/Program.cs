@@ -57,6 +57,7 @@ public class Program
                             WellKnownSchemas.EventHostSchema))
                     .AddEditorContext()
                     .AddOrganizationCache()
+                    .AddStreetNameCache()
                     .AddFeatureCompareTranslator()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {

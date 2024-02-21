@@ -271,6 +271,7 @@ public class Startup
             .AddAcmIdmAuthorizationHandlers()
             .AddSingleton(new AmazonDynamoDBClient(RegionEndpoint.EUWest1))
             .AddSingleton(FileEncoding.WindowsAnsi)
+            .AddStreetNameCache()
             .AddFeatureCompareTranslator()
             .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
             .AddSingleton<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
@@ -335,7 +336,6 @@ public class Startup
                 })))
             .AddTraceDbConnection<EditorContext>(WellKnownConnectionNames.EditorProjections)
             .AddTraceDbConnection<SyndicationContext>(WellKnownConnectionNames.SyndicationProjections)
-            .AddStreetNameCache()
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)

@@ -29,7 +29,6 @@ public class StreetNameCache : IStreetNameCache
 
     public async Task<Dictionary<int, int>> GetRenamedIdsAsync(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
     {
-        //TODO-rik test
         await using var context = await _streetNameEventProjectionContextFactory.CreateDbContextAsync(cancellationToken);
 
         return (

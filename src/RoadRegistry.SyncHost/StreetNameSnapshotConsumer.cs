@@ -91,19 +91,19 @@ public class StreetNameSnapshotConsumer : RoadRegistryBackgroundService
 
     private static object DetermineEvent(StreetName streetNameEventSourced, StreetNameRecord streetNameDbRecord)
     {
+        if (streetNameDbRecord.StreetNameStatus is null)
+        {
+            return new StreetNameRemoved
+            {
+                StreetNameId = streetNameDbRecord.StreetNameId
+            };
+        }
+        
         if (streetNameEventSourced is null)
         {
             return new StreetNameCreated
             {
                 Record = streetNameDbRecord
-            };
-        }
-
-        if (streetNameDbRecord.StreetNameStatus is null)
-        {
-            return new StreetNameRemoved
-            {
-                StreetNameId = streetNameEventSourced.StreetNameId
             };
         }
 
