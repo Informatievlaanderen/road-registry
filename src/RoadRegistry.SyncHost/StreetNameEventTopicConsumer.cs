@@ -60,7 +60,7 @@ public class StreetNameEventTopicConsumer : IStreetNameEventTopicConsumer
         {
             consumerOptions.ConfigureSaslAuthentication(new SaslAuthentication(_options.SaslUserName, _options.SaslPassword));
         }
-        if (kafkaConsumerOptions.Offset > 0)
+        if (kafkaConsumerOptions.Offset is not null)
         {
             consumerOptions.ConfigureOffset(new Offset(kafkaConsumerOptions.Offset.Value));
         }

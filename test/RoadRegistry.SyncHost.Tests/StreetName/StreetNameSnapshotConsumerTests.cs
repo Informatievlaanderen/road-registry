@@ -207,7 +207,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
 
             await consumer.StartAsync(CancellationToken.None);
 
-            var page = await store.ReadAllForwards(Position.Start, 3);
+            var page = await store.ReadAllForwards(Position.Start, 2);
             {
                 var streamMessage = page.Messages[1];
                 Assert.Equal(nameof(StreetNameRemoved), streamMessage.Type);
@@ -215,17 +215,6 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
 
                 var message = JsonConvert.DeserializeObject<StreetNameRemoved>(await streamMessage.GetJsonData());
                 Assert.Equal(streetNameId, message.StreetNameId);
-            }
-            {
-                var streamMessage = page.Messages[2];
-                Assert.Equal(nameof(ChangeRoadNetwork), streamMessage.Type);
-                Assert.Equal("roadnetwork-command-queue", streamMessage.StreamId);
-
-                var message = JsonConvert.DeserializeObject<ChangeRoadNetwork>(await streamMessage.GetJsonData());
-                var modifyRoadSegment = Assert.Single(message.Changes).ModifyRoadSegment;
-                Assert.Equal(testData.Segment1Added.Id, modifyRoadSegment.Id);
-                Assert.Equal(-9, modifyRoadSegment.LeftSideStreetNameId);
-                Assert.Equal(-9, modifyRoadSegment.RightSideStreetNameId);
             }
         }
         

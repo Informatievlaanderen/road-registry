@@ -3,7 +3,6 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
     using BackOffice;
     using Hosts.Infrastructure.Extensions;
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Sync.StreetNameRegistry;
@@ -18,8 +17,8 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
                 .AddSingleton<StreetNameSnapshotTopicConsumer>()
                 .AddSingleton<IStreetNameSnapshotTopicConsumer>(sp =>
                 {
-                    var configuration = sp.GetRequiredService<IConfiguration>();
-                    var jsonPath = configuration.GetValue<string>($"Kafka:{nameof(KafkaOptions.Consumers)}:{nameof(KafkaOptions.Consumers.StreetNameSnapshot)}:JsonPath");
+                    var options = sp.GetRequiredService<KafkaOptions>();
+                    var jsonPath = options.Consumers.StreetNameSnapshot.JsonPath;
                     if (!string.IsNullOrEmpty(jsonPath))
                     {
                         // for local testing purposes
@@ -36,8 +35,8 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
                 .AddSingleton<StreetNameEventTopicConsumer>()
                 .AddSingleton<IStreetNameEventTopicConsumer>(sp =>
                 {
-                    var configuration = sp.GetRequiredService<IConfiguration>();
-                    var jsonPath = configuration.GetValue<string>($"Kafka:{nameof(KafkaOptions.Consumers)}:{nameof(KafkaOptions.Consumers.StreetNameEvent)}:JsonPath");
+                    var options = sp.GetRequiredService<KafkaOptions>();
+                    var jsonPath = options.Consumers.StreetNameEvent.JsonPath;
                     if (!string.IsNullOrEmpty(jsonPath))
                     {
                         // for local testing purposes

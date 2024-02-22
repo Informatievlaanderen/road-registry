@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -41,7 +42,7 @@ internal abstract class KafkaTopicConsumerByFile<TDbContext>
             {
                 if (File.Exists(_path))
                 {
-                    var messages = JsonConvert.DeserializeObject<KafkaMessageInJson[]>(await File.ReadAllTextAsync(_path, cancellationToken), EventsJsonSerializerSettingsProvider.CreateSerializerSettings());
+                    var messages = JsonConvert.DeserializeObject<JsonKafkaMessage[]>(await File.ReadAllTextAsync(_path, cancellationToken), EventsJsonSerializerSettingsProvider.CreateSerializerSettings());
                     if (messages is not null)
                     {
                         foreach (var message in messages)
@@ -92,5 +93,13 @@ internal abstract class KafkaTopicConsumerByFile<TDbContext>
 
             Thread.Sleep(TimeSpan.FromSeconds(1));
         }
+    }
+
+    private class JsonKafkaMessage
+    {
+        public Dictionary<string, string> Headers { get; set; }
+        public string Value { get; set; }
+        public string Key { get; set; }
+        public long Offset { get; set; }
     }
 }

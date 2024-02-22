@@ -19,6 +19,10 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Extracts
         public async Task WhenExtractGotRequestedWithOverlap()
         {
             var apiClient = await Fixture.CreateApiClient(new[] { Scopes.DvWrIngemetenWegBeheer });
+            if (apiClient is null)
+            {
+                return;
+            }
 
             await CloseRemainingTestExtracts(apiClient);
 

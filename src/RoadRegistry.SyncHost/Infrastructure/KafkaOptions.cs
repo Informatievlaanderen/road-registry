@@ -26,4 +26,5 @@ public class KafkaConsumer
     public string Topic { get; private set; }
     public string GroupSuffix { get; private set; }
     public long? Offset { get; private set; }
+    public string JsonPath { get; private set; }
 }
