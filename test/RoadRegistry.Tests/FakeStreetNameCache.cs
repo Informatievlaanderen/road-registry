@@ -1,42 +1,60 @@
 namespace RoadRegistry.Tests;
 
-using RoadRegistry.BackOffice.Abstractions;
+using RoadRegistry.BackOffice;
 
 public class FakeStreetNameCache : IStreetNameCache
 {
     private readonly Dictionary<int, StreetNameItem> _cache = new();
+    private readonly Dictionary<int, int> _renamedIds = new();
 
-    public Task<Dictionary<int, string>> GetStreetNamesById(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
+    public async Task<Dictionary<int, string>> GetStreetNamesById(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
     {
-        return Task.FromResult(streetNameIds
-            .Distinct()
-            .Where(streetNameId => _cache.ContainsKey(streetNameId))
-            .ToDictionary(streetNameId => streetNameId, streetNameId => _cache[streetNameId].Name)
-        );
+        var result = await GetAsync(streetNameIds, cancellationToken);
+        return result.ToDictionary(x => x.Id, x => x.Name);
     }
     
-    public Task<StreetNameCacheItem> GetAsync(int streetNameId, CancellationToken cancellationToken)
+    public async Task<StreetNameCacheItem> GetAsync(int streetNameId, CancellationToken cancellationToken)
     {
-        StreetNameCacheItem result = null;
-
-        if (_cache.TryGetValue(streetNameId, out var streetName))
-        {
-            result = new StreetNameCacheItem
-            {
-                Id = streetNameId,
-                Name = streetName.Name,
-                Status = streetName.Status
-            };
-        }
-
-        return Task.FromResult(result);
+        var result = await GetAsync(new[] { streetNameId }, cancellationToken);
+        return result.SingleOrDefault();
     }
 
-    public FakeStreetNameCache AddStreetName(int id, string name, string status)
+    public async Task<ICollection<StreetNameCacheItem>> GetAsync(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
     {
-        _cache.Add(id, new StreetNameItem(name, status));
+        return streetNameIds
+            .Distinct()
+            .Where(_cache.ContainsKey)
+            .Select(streetNameId =>
+            {
+                var streetName = _cache[streetNameId];
+
+                return new StreetNameCacheItem
+                {
+                    Id = streetNameId,
+                    Name = streetName.Name,
+                    Status = streetName.Status,
+                    IsRemoved = streetName.IsRemoved
+                };
+            })
+            .ToList();
+    }
+
+    public Task<Dictionary<int, int>> GetRenamedIdsAsync(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(_renamedIds.Where(x => streetNameIds.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value));
+    }
+
+    public FakeStreetNameCache AddStreetName(int id, string name, string status, bool isRemoved = false)
+    {
+        _cache.Add(id, new StreetNameItem(name, status, isRemoved));
         return this;
     }
 
-    private sealed record StreetNameItem(string Name, string Status);
+    public FakeStreetNameCache AddRenamedStreetName(int id, int destinationId)
+    {
+        _renamedIds.Add(id, destinationId);
+        return this;
+    }
+
+    private sealed record StreetNameItem(string Name, string Status, bool IsRemoved);
 }

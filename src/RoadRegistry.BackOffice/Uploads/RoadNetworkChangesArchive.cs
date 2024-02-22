@@ -5,6 +5,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Dbase.AfterFeatureCompare.V2.Schema;
 using Extensions;
@@ -72,9 +74,9 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
         return instance;
     }
 
-    public ZipArchiveProblems ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator, bool useZipArchiveFeatureCompareTranslator = false)
+    public async Task<ZipArchiveProblems> ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator, bool useZipArchiveFeatureCompareTranslator, CancellationToken cancellationToken)
     {
-        var problems = validator.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
+        var problems = await validator.ValidateAsync(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty), cancellationToken);
         if (!problems.OfType<FileError>().Any())
             Apply(
                 new RoadNetworkChangesArchiveAccepted

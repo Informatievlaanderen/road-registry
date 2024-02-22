@@ -40,7 +40,7 @@ public class RoadNetworkExtractUpload
     {
         var zipArchiveMetadata = ZipArchiveMetadata.Empty.WithDownloadId(_downloadId);
 
-        var problems = validator.Validate(archive, new ZipArchiveValidatorContext(zipArchiveMetadata));
+        var problems = await validator.ValidateAsync(archive, new ZipArchiveValidatorContext(zipArchiveMetadata), cancellationToken);
         if (!problems.OfType<FileError>().Any())
         {
             Apply(

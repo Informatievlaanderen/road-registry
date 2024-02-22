@@ -10,12 +10,12 @@ namespace RoadRegistry.Tests
     {
         private static readonly FileEncoding Encoding = FileEncoding.UTF8;
 
-        public static IZipArchiveFeatureCompareTranslator Create(IOrganizationRepository organizationRepository = null)
+        public static IZipArchiveFeatureCompareTranslator Create(IOrganizationCache organizationCache = null, IStreetNameCache streetNameCache = null)
         {
             return new ZipArchiveFeatureCompareTranslator(
                 new TransactionZoneFeatureCompareTranslator(new TransactionZoneFeatureCompareFeatureReader(Encoding)),
                 new RoadNodeFeatureCompareTranslator(new RoadNodeFeatureCompareFeatureReader(Encoding)),
-                new RoadSegmentFeatureCompareTranslator(new RoadSegmentFeatureCompareFeatureReader(Encoding), organizationRepository ?? new FakeOrganizationRepository()),
+                new RoadSegmentFeatureCompareTranslator(new RoadSegmentFeatureCompareFeatureReader(Encoding), organizationCache ?? new FakeOrganizationCache(), streetNameCache ?? new FakeStreetNameCache()),
                 new RoadSegmentLaneFeatureCompareTranslator(new RoadSegmentLaneFeatureCompareFeatureReader(Encoding)),
                 new RoadSegmentWidthFeatureCompareTranslator(new RoadSegmentWidthFeatureCompareFeatureReader(Encoding)),
                 new RoadSegmentSurfaceFeatureCompareTranslator(new RoadSegmentSurfaceFeatureCompareFeatureReader(Encoding)),

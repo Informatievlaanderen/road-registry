@@ -8,18 +8,18 @@ using Microsoft.EntityFrameworkCore;
 using RoadRegistry.StreetName;
 using Sync.StreetNameRegistry;
 
-public class StreetNameProjectionTests : IClassFixture<StreetNameProjectionFixture>
+public class StreetNameSnapshotProjectionTests : IClassFixture<StreetNameSnapshotProjectionFixture>
 {
-    private readonly IDbContextFactory<StreetNameProjectionContext> _dbContextFactory;
+    private readonly IDbContextFactory<StreetNameSnapshotProjectionContext> _dbContextFactory;
 
-    public StreetNameProjectionTests(IDbContextFactory<StreetNameProjectionContext> dbContextFactory)
+    public StreetNameSnapshotProjectionTests(IDbContextFactory<StreetNameSnapshotProjectionContext> dbContextFactory)
     {
         _dbContextFactory = dbContextFactory;
     }
 
-    private async Task<StreetNameProjectionFixture> BuildFixture()
+    private async Task<StreetNameSnapshotProjectionFixture> BuildFixture()
     {
-        return new StreetNameProjectionFixture(await _dbContextFactory.CreateDbContextAsync());
+        return new StreetNameSnapshotProjectionFixture(await _dbContextFactory.CreateDbContextAsync());
     }
 
     [Fact]
@@ -30,7 +30,7 @@ public class StreetNameProjectionTests : IClassFixture<StreetNameProjectionFixtu
         var record = fixture.StreetName1;
         record.StraatnaamStatus = StreetNameStatus.Current;
 
-        await fixture.ProjectAsync(new StreetNameCreated
+        await fixture.ProjectEnvelopeAsync(new StreetNameCreated
         {
             Record = ToStreetNameRecord(record)
         });
@@ -57,7 +57,7 @@ public class StreetNameProjectionTests : IClassFixture<StreetNameProjectionFixtu
         var record = fixture.StreetName1;
         record.StraatnaamStatus = StreetNameStatus.Current;
 
-        await fixture.ProjectAsync(new StreetNameCreated
+        await fixture.ProjectEnvelopeAsync(new StreetNameCreated
         {
             Record = ToStreetNameRecord(record)
         });
@@ -67,7 +67,7 @@ public class StreetNameProjectionTests : IClassFixture<StreetNameProjectionFixtu
 
         record.StraatnaamStatus = StreetNameStatus.Retired;
 
-        await fixture.ProjectAsync(new StreetNameModified
+        await fixture.ProjectEnvelopeAsync(new StreetNameModified
         {
             Record = ToStreetNameRecord(record),
             StatusModified = true
@@ -86,7 +86,7 @@ public class StreetNameProjectionTests : IClassFixture<StreetNameProjectionFixtu
         var record = fixture.StreetName1;
         record.StraatnaamStatus = StreetNameStatus.Current;
 
-        await fixture.ProjectAsync(new StreetNameCreated
+        await fixture.ProjectEnvelopeAsync(new StreetNameCreated
         {
             Record = ToStreetNameRecord(record)
         });
@@ -94,7 +94,7 @@ public class StreetNameProjectionTests : IClassFixture<StreetNameProjectionFixtu
         var actual = fixture.GetStreetNameRecord(fixture.StreetName1.Identificator.Id);
         Assert.Equal(record.StraatnaamStatus, actual.StreetNameStatus);
 
-        await fixture.ProjectAsync(new StreetNameRemoved
+        await fixture.ProjectEnvelopeAsync(new StreetNameRemoved
         {
             StreetNameId = fixture.StreetName1.Identificator.Id
         });

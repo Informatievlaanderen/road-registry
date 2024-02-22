@@ -21,7 +21,7 @@ public abstract class WhenChangeAttributesFixture : ControllerActionFixture<Chan
     private readonly IMediator _mediator;
     public readonly RoadNetworkTestData TestData = new();
 
-    private IOrganizationRepository _organizationRepository;
+    private IOrganizationCache _organizationCache;
 
     protected WhenChangeAttributesFixture(IMediator mediator, EditorContext editorContext)
     {
@@ -32,7 +32,7 @@ public abstract class WhenChangeAttributesFixture : ControllerActionFixture<Chan
 
         ObjectProvider.CustomizeRoadSegmentOutlineMorphology();
         ObjectProvider.CustomizeRoadSegmentOutlineStatus();
-        _organizationRepository = new FakeOrganizationRepository();
+        _organizationCache = new FakeOrganizationCache();
     }
 
     protected override async Task<IActionResult> GetResultAsync(ChangeRoadSegmentAttributesParameters parameters)
@@ -49,14 +49,14 @@ public abstract class WhenChangeAttributesFixture : ControllerActionFixture<Chan
             new UseRoadSegmentChangeAttributesFeatureToggle(true),
             parameters,
             new ChangeRoadSegmentAttributesParametersValidator(),
-            new ChangeRoadSegmentAttributesParametersWrapperValidator(_editorContext, _organizationRepository),
+            new ChangeRoadSegmentAttributesParametersWrapperValidator(_editorContext, _organizationCache),
             CancellationToken.None
         );
     }
 
-    public void CustomizeOrganizationRepository(IOrganizationRepository organizationRepository)
+    public void CustomizeOrganizationCache(IOrganizationCache organizationCache)
     {
-        _organizationRepository = organizationRepository.ThrowIfNull();
+        _organizationCache = organizationCache.ThrowIfNull();
     }
 
     protected override async Task SetupAsync()

@@ -70,8 +70,13 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests
             return _accessTokens[requiredScopes].Token;
         }
 
-        public async Task<HttpClient> CreateApiClient(string[] requiredScopes)
+        public async Task<HttpClient?> CreateApiClient(string[] requiredScopes)
         {
+            if (string.IsNullOrEmpty(_backOfficeApiBaseUrl))
+            {
+                return null;
+            }
+
             var httpClient = new HttpClient
             {
                 BaseAddress = new Uri(_backOfficeApiBaseUrl)

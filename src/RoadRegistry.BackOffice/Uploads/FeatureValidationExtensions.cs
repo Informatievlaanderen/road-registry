@@ -133,7 +133,7 @@ namespace RoadRegistry.BackOffice.Uploads
             return problems;
         }
 
-        public static ZipArchiveProblems ValidateMissingRoadNodes(this ZipArchive archive, List<Feature<RoadSegmentFeatureCompareAttributes>> features, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+        public static ZipArchiveProblems ValidateMissingRoadNodes(this ZipArchive archive, List<Feature<RoadSegmentFeatureCompareAttributes>> features, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
         {
             var problems = ZipArchiveProblems.None;
 
@@ -141,9 +141,7 @@ namespace RoadRegistry.BackOffice.Uploads
             {
                 return problems;
             }
-
-            var featureType = FeatureType.Change;
-
+            
             foreach (var feature in features)
             {
                 if (feature.Attributes.StartNodeId > 0 && !context.ChangedRoadNodes.ContainsKey(feature.Attributes.StartNodeId))

@@ -37,8 +37,8 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         switch (featureType)
         {
             case FeatureType.Change:
-                problems += archive.ValidateMissingRoadNodes(features, fileName, context);
-
+                problems += archive.ValidateMissingRoadNodes(features, featureType, fileName, context);
+                
                 AddToContext(features, featureType, context);
                 break;
             case FeatureType.Integration:

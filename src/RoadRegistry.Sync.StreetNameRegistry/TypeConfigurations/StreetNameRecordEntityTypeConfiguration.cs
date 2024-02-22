@@ -3,6 +3,7 @@ namespace RoadRegistry.Sync.StreetNameRegistry.TypeConfigurations
     using BackOffice;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
+    using RoadRegistry.Sync.StreetNameRegistry.Models;
 
     public class StreetNameRecordEntityTypeConfiguration : IEntityTypeConfiguration<StreetNameRecord>
     {

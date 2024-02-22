@@ -17,7 +17,7 @@ using SqlStreamStore;
 using Sync.StreetNameRegistry;
 using System;
 using System.Linq;
-using IStreetNameCache = BackOffice.Abstractions.IStreetNameCache;
+using IStreetNameCache = BackOffice.IStreetNameCache;
 
 public static class ServiceCollectionExtensions
 {
@@ -105,7 +105,16 @@ public static class ServiceCollectionExtensions
     {
         services
             .AddSingleton<IStreetNameCache, StreetNameCache>()
-            .AddDbContextFactory<StreetNameProjectionContext>((sp, options) =>
+            .AddDbContextFactory<StreetNameSnapshotProjectionContext>((sp, options) =>
+            {
+                var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.StreetNameProjections);
+                options
+                    .UseSqlServer(connectionString,
+                        o => o
+                            .EnableRetryOnFailure()
+                    );
+            })
+            .AddDbContextFactory<StreetNameEventProjectionContext>((sp, options) =>
             {
                 var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.StreetNameProjections);
                 options
@@ -136,10 +145,10 @@ public static class ServiceCollectionExtensions
             .AddScoped<IRoadNetworkIdGenerator, RoadNetworkDbIdGenerator>();
     }
 
-    public static IServiceCollection AddOrganizationRepository(this IServiceCollection services)
+    public static IServiceCollection AddOrganizationCache(this IServiceCollection services)
     {
         return services
-            .AddScoped<IOrganizationRepository, OrganizationRepository>();
+            .AddScoped<IOrganizationCache, OrganizationCache>();
     }
 
     public static IServiceCollection AddDbContextEventProcessorServices<TDbContextEventProcessor, TDbContext>(this IServiceCollection services,

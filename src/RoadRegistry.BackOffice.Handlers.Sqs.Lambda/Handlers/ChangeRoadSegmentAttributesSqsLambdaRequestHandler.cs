@@ -28,7 +28,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
     private readonly EditorContext _editorContext;
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly FileEncoding _fileEncoding;
-    private readonly IOrganizationRepository _organizationRepository;
+    private readonly IOrganizationCache _organizationCache;
     private readonly UseDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle _useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle;
 
     public ChangeRoadSegmentAttributesSqsLambdaRequestHandler(
@@ -41,7 +41,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         EditorContext editorContext,
         RecyclableMemoryStreamManager manager,
         FileEncoding fileEncoding,
-        IOrganizationRepository organizationRepository,
+        IOrganizationCache organizationCache,
         UseDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle,
         ILogger<ChangeRoadSegmentAttributesSqsLambdaRequestHandler> logger)
         : base(
@@ -56,7 +56,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         _editorContext = editorContext;
         _manager = manager;
         _fileEncoding = fileEncoding;
-        _organizationRepository = organizationRepository;
+        _organizationCache = organizationCache;
         _useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle = useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle;
     }
 
@@ -124,7 +124,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
     {
         var problems = Problems.None;
         
-        var maintenanceAuthorityOrganization = await _organizationRepository.FindByIdOrOvoCodeAsync(organizationId, cancellationToken);
+        var maintenanceAuthorityOrganization = await _organizationCache.FindByIdOrOvoCodeAsync(organizationId, cancellationToken);
         if (maintenanceAuthorityOrganization is not null)
         {
             return (maintenanceAuthorityOrganization.Code, problems);

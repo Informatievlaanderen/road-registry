@@ -52,7 +52,6 @@ public class Program
                                 sp.GetService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.ExtractHost)
                             ),
                             WellKnownSchemas.ExtractHostSchema))
-                    .AddStreetNameCache()
                     .AddSingleton<IZipArchiveWriter<EditorContext>>(sp =>
                         new RoadNetworkExtractToZipArchiveWriter(
                             sp.GetService<ZipArchiveWriterOptions>(),
@@ -68,7 +67,8 @@ public class Program
                             sp.GetService<Func<EditorContext>>(),
                             sp.GetService<IZipArchiveWriter<EditorContext>>()))
                     .AddEditorContext()
-                    .AddOrganizationRepository()
+                    .AddOrganizationCache()
+                    .AddStreetNameCache()
                     .AddFeatureCompareTranslator()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {

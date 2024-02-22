@@ -287,41 +287,41 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
     }
 
     [Fact(Skip = "Use me to validate a specific file")]
-    public void ValidateActualFile()
+    public async Task ValidateActualFile()
     {
         using (var fileStream = File.OpenRead(@""))
         using (var archive = new ZipArchive(fileStream))
         {
             var sut = ZipArchiveBeforeFeatureCompareValidatorFactory.Create();
 
-            var result = sut.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
+            var result = await sut.ValidateAsync(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty), CancellationToken.None);
 
             result.Count.Should().Be(0);
         }
     }
 
     [Fact]
-    public void ValidateArchiveCanNotBeNull()
+    public async Task ValidateArchiveCanNotBeNull()
     {
         var sut = ZipArchiveBeforeFeatureCompareValidatorFactory.Create();
 
-        Assert.Throws<ArgumentNullException>(() => sut.Validate(null, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty)));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => sut.ValidateAsync(null, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty), CancellationToken.None));
     }
 
     [Fact]
-    public void ValidateMetadataCanNotBeNull()
+    public async Task ValidateMetadataCanNotBeNull()
     {
         var sut = ZipArchiveBeforeFeatureCompareValidatorFactory.Create();
 
         using (var ms = new MemoryStream())
         using (var archive = new ZipArchive(ms, ZipArchiveMode.Create))
         {
-            Assert.Throws<ArgumentNullException>(() => sut.Validate(archive, null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => sut.ValidateAsync(archive, null, CancellationToken.None));
         }
     }
 
     [Fact]
-    public void ValidateReturnsExpectedResultFromEntryValidators()
+    public async Task ValidateReturnsExpectedResultFromEntryValidators()
     {
         var integrationFiles = new[]
         {
@@ -339,7 +339,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
         {
             var sut = ZipArchiveBeforeFeatureCompareValidatorFactory.Create();
 
-            var result = sut.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
+            var result = await sut.ValidateAsync(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty), CancellationToken.None);
             var entries = archive.Entries
                 .Where(entry => !integrationFiles.Contains(entry.Name, StringComparer.InvariantCultureIgnoreCase))
                 .ToArray();

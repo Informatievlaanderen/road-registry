@@ -147,7 +147,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
         {
             IZipArchiveValidator validator = request.UseZipArchiveFeatureCompareTranslator ? _beforeFeatureCompareValidator : _afterFeatureCompareValidator;
-            var problems = entity.ValidateArchiveUsing(archive, validator);
+            var problems = await entity.ValidateArchiveUsing(archive, validator, false, cancellationToken);
 
             problems.ThrowIfError();
 

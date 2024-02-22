@@ -349,6 +349,23 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    public static FileWarning LeftStreetNameIdIsRemoved(this IDbaseFileRecordProblemBuilder builder, int value)
+    {
+        return builder
+            .Warning(nameof(LeftStreetNameIdIsRemoved))
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
+            .Build();
+    }
+
+    public static FileWarning LeftStreetNameIdIsRenamed(this IDbaseFileRecordProblemBuilder builder, int value, int destinationValue)
+    {
+        return builder
+            .Warning(nameof(LeftStreetNameIdIsRenamed))
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
+            .WithParameter(new ProblemParameter("DestinationValue", destinationValue.ToString()))
+            .Build();
+    }
+
     public static FileError LowerRoadSegmentIdOutOfRange(this IDbaseFileRecordProblemBuilder builder, int value)
     {
         return builder
@@ -516,6 +533,23 @@ public static class DbaseFileProblems
         return builder
             .Error(nameof(RightStreetNameIdOutOfRange))
             .WithParameter(new ProblemParameter("Actual", value.ToString()))
+            .Build();
+    }
+
+    public static FileWarning RightStreetNameIdIsRemoved(this IDbaseFileRecordProblemBuilder builder, int value)
+    {
+        return builder
+            .Warning(nameof(RightStreetNameIdIsRemoved))
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
+            .Build();
+    }
+
+    public static FileWarning RightStreetNameIdIsRenamed(this IDbaseFileRecordProblemBuilder builder, int value, int destinationValue)
+    {
+        return builder
+            .Warning(nameof(RightStreetNameIdIsRenamed))
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
+            .WithParameter(new ProblemParameter("DestinationValue", destinationValue.ToString()))
             .Build();
     }
 

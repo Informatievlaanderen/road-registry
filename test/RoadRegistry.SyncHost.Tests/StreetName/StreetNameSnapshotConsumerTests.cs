@@ -3,18 +3,13 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
     using Autofac;
     using AutoFixture;
     using BackOffice;
-    using BackOffice.Extracts.Dbase.RoadSegments;
-    using BackOffice.FeatureToggles;
     using BackOffice.Framework;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
     using Be.Vlaanderen.Basisregisters.GrAr.Legacy.Gemeente;
     using Be.Vlaanderen.Basisregisters.GrAr.Legacy.Straatnaam;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Editor.Projections;
     using Editor.Schema;
-    using Editor.Schema.Extensions;
     using Editor.Schema.RoadSegments;
     using Extensions;
     using Microsoft.Extensions.Configuration;
@@ -212,7 +207,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
 
             await consumer.StartAsync(CancellationToken.None);
 
-            var page = await store.ReadAllForwards(Position.Start, 3);
+            var page = await store.ReadAllForwards(Position.Start, 2);
             {
                 var streamMessage = page.Messages[1];
                 Assert.Equal(nameof(StreetNameRemoved), streamMessage.Type);
@@ -220,17 +215,6 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
 
                 var message = JsonConvert.DeserializeObject<StreetNameRemoved>(await streamMessage.GetJsonData());
                 Assert.Equal(streetNameId, message.StreetNameId);
-            }
-            {
-                var streamMessage = page.Messages[2];
-                Assert.Equal(nameof(ChangeRoadNetwork), streamMessage.Type);
-                Assert.Equal("roadnetwork-command-queue", streamMessage.StreamId);
-
-                var message = JsonConvert.DeserializeObject<ChangeRoadNetwork>(await streamMessage.GetJsonData());
-                var modifyRoadSegment = Assert.Single(message.Changes).ModifyRoadSegment;
-                Assert.Equal(testData.Segment1Added.Id, modifyRoadSegment.Id);
-                Assert.Equal(-9, modifyRoadSegment.LeftSideStreetNameId);
-                Assert.Equal(-9, modifyRoadSegment.RightSideStreetNameId);
             }
         }
         
@@ -274,12 +258,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                 lifetimeScope,
                 store,
                 new StreetNameEventWriter(store, EnrichEvent.WithTime(new FakeClock(NodaConstants.UnixEpoch))),
-                new RoadNetworkCommandQueue(store, new ApplicationMetadata(RoadRegistryApplication.BackOffice)),
                 topicConsumer,
-                lifetimeScope.Resolve<EditorContext>,
-                _memoryStreamManager,
-                _fileEncoding,
-                new UseRoadSegmentV2EventProcessorFeatureToggle(false),
                 _loggerFactory.CreateLogger<StreetNameSnapshotConsumer>()
             ), store, topicConsumer);
         }

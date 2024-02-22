@@ -1,6 +1,8 @@
 namespace RoadRegistry.Wfs.ProjectionHost.Tests.Projections;
 
+using BackOffice;
 using BackOffice.Abstractions;
+using RoadRegistry.Sync.StreetNameRegistry.Models;
 using Sync.StreetNameRegistry;
 
 public class StreetNameCacheStub : IStreetNameCache
@@ -24,5 +26,15 @@ public class StreetNameCacheStub : IStreetNameCache
             NisCode = _stubbedValue?.NisCode,
             Name = _stubbedValue?.DutchName
         });
+    }
+
+    public Task<ICollection<StreetNameCacheItem>> GetAsync(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Dictionary<int, int>> GetRenamedIdsAsync(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
     }
 }

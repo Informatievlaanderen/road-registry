@@ -621,10 +621,10 @@ public class ExtractsZipArchiveTestData : IDisposable
     }
 
     [Fact]
-    public void ExtractsZipArchiveTestDataIsValid()
+    public async Task ExtractsZipArchiveTestDataIsValid()
     {
         var sut = ZipArchiveBeforeFeatureCompareValidatorFactory.Create();
-        var result = sut.Validate(ZipArchive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
+        var result = await sut.ValidateAsync(ZipArchive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty), CancellationToken.None);
 
         Assert.Equal(ZipArchiveProblems.None, result);
     }

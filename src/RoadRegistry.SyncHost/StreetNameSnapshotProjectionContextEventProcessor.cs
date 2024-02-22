@@ -7,17 +7,17 @@ using Microsoft.Extensions.Logging;
 using SqlStreamStore;
 using Sync.StreetNameRegistry;
 
-public class StreetNameProjectionContextEventProcessor : DbContextEventProcessor<StreetNameProjectionContext>
+public class StreetNameSnapshotProjectionContextEventProcessor : DbContextEventProcessor<StreetNameSnapshotProjectionContext>
 {
     private const string ProjectionStateName = "roadregistry-sync-streetnameprojection";
 
-    public StreetNameProjectionContextEventProcessor(
+    public StreetNameSnapshotProjectionContextEventProcessor(
         IStreamStore streamStore,
-        DbContextEventProcessorProjections<StreetNameProjectionContextEventProcessor, StreetNameProjectionContext> projections,
+        DbContextEventProcessorProjections<StreetNameSnapshotProjectionContextEventProcessor, StreetNameSnapshotProjectionContext> projections,
         EnvelopeFactory envelopeFactory,
-        IDbContextFactory<StreetNameProjectionContext> dbContextFactory,
+        IDbContextFactory<StreetNameSnapshotProjectionContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<StreetNameProjectionContextEventProcessor> logger)
+        ILogger<StreetNameSnapshotProjectionContextEventProcessor> logger)
         : base(ProjectionStateName, streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, logger)
     {
     }

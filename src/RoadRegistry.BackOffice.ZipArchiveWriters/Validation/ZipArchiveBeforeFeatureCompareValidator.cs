@@ -18,14 +18,15 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
         EuropeanRoadFeatureCompareFeatureReader europeanRoadFeatureReader,
         NationalRoadFeatureCompareFeatureReader nationalRoadFeatureReader,
         NumberedRoadFeatureCompareFeatureReader numberedRoadFeatureReader,
-        GradeSeparatedJunctionFeatureCompareFeatureReader gradeSeparatedJunctionFeatureReader
+        GradeSeparatedJunctionFeatureCompareFeatureReader gradeSeparatedJunctionFeatureReader,
+        IStreetNameCache streetNameCache
     )
     {
         _validators = new IZipArchiveValidator[]
         {
             new TransactionZoneZipArchiveValidator(transactionZoneFeatureReader.ThrowIfNull()),
             new RoadNodeZipArchiveValidator(roadNodeFeatureReader.ThrowIfNull()),
-            new RoadSegmentZipArchiveValidator(roadSegmentFeatureReader.ThrowIfNull()),
+            new RoadSegmentZipArchiveValidator(roadSegmentFeatureReader.ThrowIfNull(), streetNameCache.ThrowIfNull()),
             new RoadSegmentLaneZipArchiveValidator(roadSegmentLaneFeatureReader.ThrowIfNull()),
             new RoadSegmentWidthZipArchiveValidator(roadSegmentWidthFeatureReader.ThrowIfNull()),
             new RoadSegmentSurfaceZipArchiveValidator(roadSegmentSurfaceFeatureReader.ThrowIfNull()),
@@ -36,7 +37,7 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
         };
     }
 
-    public ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveValidatorContext context)
+    public async Task<ZipArchiveProblems> ValidateAsync(ZipArchive archive, ZipArchiveValidatorContext context, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(context);
@@ -45,7 +46,9 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
         
         foreach (var validator in _validators)
         {
-            var validationProblems = validator.Validate(archive, context);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var validationProblems = await validator.ValidateAsync(archive, context, cancellationToken);
             problems += validationProblems;
         }
 

@@ -215,7 +215,7 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
             };
     }
 
-    public ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveValidatorContext context)
+    public async Task<ZipArchiveProblems> ValidateAsync(ZipArchive archive, ZipArchiveValidatorContext context, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(context);

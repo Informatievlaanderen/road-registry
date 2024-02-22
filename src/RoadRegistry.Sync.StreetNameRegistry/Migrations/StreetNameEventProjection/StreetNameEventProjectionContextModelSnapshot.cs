@@ -8,10 +8,10 @@ using RoadRegistry.Sync.StreetNameRegistry;
 
 #nullable disable
 
-namespace RoadRegistry.Sync.StreetNameRegistry.Migrations.StreetNameProjection
+namespace RoadRegistry.Sync.StreetNameRegistry.Migrations.StreetNameEventProjection
 {
-    [DbContext(typeof(StreetNameProjectionContext))]
-    partial class StreetNameProjectionContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(StreetNameEventProjectionContext))]
+    partial class StreetNameEventProjectionContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -43,10 +43,27 @@ namespace RoadRegistry.Sync.StreetNameRegistry.Migrations.StreetNameProjection
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Name"));
 
-                    b.ToTable("ProjectionStates", "RoadRegistryStreetName");
+                    b.ToTable("ProjectionStates", "RoadRegistryStreetNameEvent");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Sync.StreetNameRegistry.StreetNameRecord", b =>
+            modelBuilder.Entity("RoadRegistry.Sync.StreetNameRegistry.Models.RenamedStreetNameRecord", b =>
+                {
+                    b.Property<int>("StreetNameLocalId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DestinationStreetNameLocalId")
+                        .HasColumnType("int");
+
+                    b.HasKey("StreetNameLocalId");
+
+                    b.HasIndex("StreetNameLocalId");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("StreetNameLocalId"), false);
+
+                    b.ToTable("RenamedStreetName", "RoadRegistryStreetNameEvent");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Sync.StreetNameRegistry.Models.StreetNameRecord", b =>
                 {
                     b.Property<string>("StreetNameId")
                         .HasColumnType("nvarchar(450)");

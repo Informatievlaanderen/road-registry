@@ -91,7 +91,7 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
             new RoadNetworkCommandQueue(Store, new ApplicationMetadata(RoadRegistryApplication.Lambda)),
             IdempotentCommandHandler,
             LifetimeScope.Resolve<EventSourcedEntityMap>(),
-            new FakeOrganizationRepository(),
+            new FakeOrganizationCache(),
             LoggerFactory.CreateLogger<ChangeRoadNetworkDispatcher>());
 
         Exception = null;

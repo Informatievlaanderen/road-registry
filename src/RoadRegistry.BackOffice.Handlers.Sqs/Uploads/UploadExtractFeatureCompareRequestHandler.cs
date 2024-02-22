@@ -77,7 +77,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
 
         using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
         {
-            var problems = entity.ValidateArchiveUsing(archive, _validator);
+            var problems = await entity.ValidateArchiveUsing(archive, _validator, false, cancellationToken);
             problems.ThrowIfError();
 
             readStream.Position = 0;

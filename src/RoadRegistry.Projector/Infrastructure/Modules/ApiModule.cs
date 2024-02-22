@@ -252,11 +252,20 @@ public class ApiModule : Module
 
     private void RegisterStreetNameProjection()
     {
-        RegisterProjection<StreetNameProjectionContext>(new ProjectionDetail
+        RegisterProjection<StreetNameSnapshotProjectionContext>(new ProjectionDetail
         {
             Id = "roadregistry-sync-streetnameprojection",
             Description = "",
-            Name = "Sync - Street Name",
+            Name = "Sync - Street Name Snapshot",
+            WellKnownConnectionName = WellKnownConnectionNames.StreetNameProjections,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
+        });
+        RegisterProjection<StreetNameEventProjectionContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-sync-streetnameeventprojection",
+            Description = "",
+            Name = "Sync - Street Name Event",
             WellKnownConnectionName = WellKnownConnectionNames.StreetNameProjections,
             FallbackDesiredState = "subscribed",
             IsSyndication = false

@@ -125,6 +125,9 @@ public static class EnrichEvent
                 case StreetNameRemoved m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
+                case StreetNameRenamed m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
             }
         };
     }

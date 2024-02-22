@@ -18,10 +18,15 @@ public class ConnectedProjectionFixture<TProjection, TConnection>
 
     public TProjection Projection { get; init; }
 
-    public Task ProjectAsync<TMessage>(TMessage message)
+    public Task ProjectEnvelopeAsync<TMessage>(TMessage message)
         where TMessage : IMessage
     {
         return _projector.ProjectAsync(_connection, new Envelope<TMessage>(new Envelope(message, new Dictionary<string, object>())));
+    }
+
+    public Task ProjectAsync(object message)
+    {
+        return _projector.ProjectAsync(_connection, message, CancellationToken.None);
     }
 
     public Task ProjectAsync(object message, CancellationToken cancellationToken)

@@ -171,11 +171,11 @@ public class RoadSegmentLaneParameters
 
 public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostRoadSegmentOutlineParameters>
 {
-    private readonly IOrganizationRepository _organizationRepository;
+    private readonly IOrganizationCache _organizationCache;
 
-    public PostRoadSegmentOutlineParametersValidator(IOrganizationRepository organizationRepository)
+    public PostRoadSegmentOutlineParametersValidator(IOrganizationCache organizationCache)
     {
-        _organizationRepository = organizationRepository.ThrowIfNull();
+        _organizationCache = organizationCache.ThrowIfNull();
 
         RuleFor(x => x.MiddellijnGeometrie)
             .Cascade(CascadeMode.Stop)
@@ -246,7 +246,7 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
             return false;
         }
 
-        var organization = await _organizationRepository.FindByIdOrOvoCodeAsync(new OrganizationId(code), cancellationToken);
+        var organization = await _organizationCache.FindByIdOrOvoCodeAsync(new OrganizationId(code), cancellationToken);
         return organization is not null;
     }
 }

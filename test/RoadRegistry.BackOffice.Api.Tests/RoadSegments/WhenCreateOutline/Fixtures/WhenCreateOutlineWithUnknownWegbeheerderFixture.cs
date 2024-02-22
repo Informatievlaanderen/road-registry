@@ -14,7 +14,7 @@ public class WhenCreateOutlineWithUnknownWegbeheerderFixture : WhenCreateOutline
 
     protected override Task SetupAsync()
     {
-        CustomizeOrganizationRepository(new FakeOrganizationRepository()
+        CustomizeOrganizationCache(new FakeOrganizationCache()
             .Seed(_wegbeheerder, null));
 
         return base.SetupAsync();

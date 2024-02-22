@@ -17,7 +17,7 @@ namespace RoadRegistry.Tests.BackOffice
     using RoadRegistry.Tests.Framework.Projections;
     using SqlStreamStore;
 
-    public class OrganizationRepositoryTests
+    public class OrganizationCacheTests
     {
         private static readonly EventMapping Mapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
         private static readonly JsonSerializerSettings Settings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
@@ -32,7 +32,7 @@ namespace RoadRegistry.Tests.BackOffice
             var organizationId = new OrganizationId(organizationIdValue);
             var organizationName = new OrganizationName(organizationNameValue);
 
-            var sut = await BuildOrganizationRepository(
+            var sut = await BuildOrganizationCache(
                 configureStore: async store =>
                 {
                     await store.Given(Mapping, Settings, StreamNameConverter, Organizations.ToStreamName(organizationId), new ImportedOrganization
@@ -56,7 +56,7 @@ namespace RoadRegistry.Tests.BackOffice
             var ovoCode = new OrganizationOvoCode(1);
             var ovoCodeAsOrganizationId = new OrganizationId(ovoCode);
 
-            var sut = await BuildOrganizationRepository(
+            var sut = await BuildOrganizationCache(
                 configureStore: async store =>
                 {
                     await store.Given(Mapping, Settings, StreamNameConverter, Organizations.ToStreamName(ovoCodeAsOrganizationId), new ImportedOrganization
@@ -83,7 +83,7 @@ namespace RoadRegistry.Tests.BackOffice
             var ovoCode = new OrganizationOvoCode(1);
             var ovoCodeAsOrganizationId = new OrganizationId(ovoCode);
 
-            var sut = await BuildOrganizationRepository(
+            var sut = await BuildOrganizationCache(
                 configureStore: async store =>
                 {
                     await store.Given(Mapping, Settings, StreamNameConverter, Organizations.ToStreamName(ovoCodeAsOrganizationId), new ImportedOrganization
@@ -108,7 +108,7 @@ namespace RoadRegistry.Tests.BackOffice
             var organizationName = new OrganizationName("DV");
             var ovoCode = new OrganizationOvoCode(1);
 
-            var sut = await BuildOrganizationRepository(
+            var sut = await BuildOrganizationCache(
                 configureEditorContext: async editorContext =>
                 {
                     await editorContext.Organizations.AddRangeAsync(
@@ -143,13 +143,13 @@ namespace RoadRegistry.Tests.BackOffice
         {
             var organizationId = new OrganizationId("ABC");
 
-            var sut = await BuildOrganizationRepository();
+            var sut = await BuildOrganizationCache();
 
             var organization = await sut.FindByIdOrOvoCodeAsync(organizationId, CancellationToken.None);
             Assert.Null(organization);
         }
 
-        private async Task<IOrganizationRepository> BuildOrganizationRepository(
+        private async Task<IOrganizationCache> BuildOrganizationCache(
             Func<IStreamStore, Task> configureStore = null,
             Func<EditorContext, Task> configureEditorContext = null,
             bool useOvoCodeInChangeRoadNetworkFeatureToggle = false)
@@ -174,13 +174,13 @@ namespace RoadRegistry.Tests.BackOffice
                 Mapping,
                 new NullLoggerFactory());
 
-            return new OrganizationRepository(
+            return new OrganizationCache(
                 editorContext,
                 new RecyclableMemoryStreamManager(),
                 FileEncoding.UTF8,
                 new UseOvoCodeInChangeRoadNetworkFeatureToggle(useOvoCodeInChangeRoadNetworkFeatureToggle),
                 roadRegistryContext,
-                new NullLogger<OrganizationRepository>());
+                new NullLogger<OrganizationCache>());
         }
 
         private static EditorContext CreateEditorContext()

@@ -82,8 +82,30 @@ public static class FileProblemTranslator
             nameof(DbaseFileProblems.RoadSegmentMorphologyMismatch) => translation with { Message = $"De {DbaseRecordLabel()} bevat een ongeldige morfologie in veld {nameof(RoadSegmentDbaseRecord.Schema.MORF)} ({problem.GetParameterValue("Actual")}). Verwachte 1 van volgende waarden: {problem.GetParameterValue("ExpectedOneOf")}." },
             nameof(DbaseFileProblems.BeginRoadNodeIdOutOfRange) => translation with { Message = $"De {DbaseRecordLabel()} heeft een ongeldige begin wegknoop in veld {nameof(RoadSegmentDbaseRecord.Schema.B_WK_OIDN)} ({problem.GetParameterValue("Actual")})." },
             nameof(DbaseFileProblems.EndRoadNodeIdOutOfRange) => translation with { Message = $"De {DbaseRecordLabel()} heeft een ongeldige eind wegknoop in veld {nameof(RoadSegmentDbaseRecord.Schema.E_WK_OIDN)} ({problem.GetParameterValue("Actual")})." },
-            nameof(DbaseFileProblems.LeftStreetNameIdOutOfRange) => translation with { Message = $"De {DbaseRecordLabel()} heeft een ongeldige straat naam id in veld {nameof(RoadSegmentDbaseRecord.Schema.LSTRNMID)} ({problem.GetParameterValue("Actual")})." },
-            nameof(DbaseFileProblems.RightStreetNameIdOutOfRange) => translation with { Message = $"De {DbaseRecordLabel()} heeft een ongeldige straat naam id in veld {nameof(RoadSegmentDbaseRecord.Schema.RSTRNMID)} ({problem.GetParameterValue("Actual")})." },
+            nameof(DbaseFileProblems.LeftStreetNameIdOutOfRange) => translation with
+            {
+                Message = $"De {DbaseRecordLabel()} heeft een ongeldige straatnaam id in veld {nameof(RoadSegmentDbaseRecord.Schema.LSTRNMID)} ({problem.GetParameterValue("Actual")})."
+            },
+            nameof(DbaseFileProblems.LeftStreetNameIdIsRemoved) => translation with
+            {
+                Message = $"De {DbaseRecordLabel()} heeft een ongeldige straatnaam id in veld {nameof(RoadSegmentDbaseRecord.Schema.LSTRNMID)} ({problem.GetParameterValue("Actual")}). Deze verwijst naar een straatnaam dat niet meer bestaat."
+            },
+            nameof(DbaseFileProblems.LeftStreetNameIdIsRenamed) => translation with
+            {
+                Message = $"De {DbaseRecordLabel()} heeft een ongeldige straatnaam id in veld {nameof(RoadSegmentDbaseRecord.Schema.LSTRNMID)} ({problem.GetParameterValue("Actual")}). Deze is hernoemt naar {problem.GetParameterValue("DestinationValue")}."
+            },
+            nameof(DbaseFileProblems.RightStreetNameIdOutOfRange) => translation with
+            {
+                Message = $"De {DbaseRecordLabel()} heeft een ongeldige straatnaam id in veld {nameof(RoadSegmentDbaseRecord.Schema.RSTRNMID)} ({problem.GetParameterValue("Actual")})."
+            },
+            nameof(DbaseFileProblems.RightStreetNameIdIsRemoved) => translation with
+            {
+                Message = $"De {DbaseRecordLabel()} heeft een ongeldige straatnaam id in veld {nameof(RoadSegmentDbaseRecord.Schema.RSTRNMID)} ({problem.GetParameterValue("Actual")}). Deze verwijst naar een straatnaam dat niet meer bestaat."
+            },
+            nameof(DbaseFileProblems.RightStreetNameIdIsRenamed) => translation with
+            {
+                Message = $"De {DbaseRecordLabel()} heeft een ongeldige straatnaam id in veld {nameof(RoadSegmentDbaseRecord.Schema.RSTRNMID)} ({problem.GetParameterValue("Actual")}). Deze is hernoemt naar {problem.GetParameterValue("DestinationValue")}."
+            },
             nameof(DbaseFileProblems.BeginRoadNodeIdEqualsEndRoadNode) => translation with { Message = $"De {DbaseRecordLabel()} heeft een begin wegknoop in veld {nameof(RoadSegmentDbaseRecord.Schema.B_WK_OIDN)} ({problem.GetParameterValue("Begin")}) die gelijk is aan de eindwegknoop in veld {nameof(RoadSegmentDbaseRecord.Schema.E_WK_OIDN)} ({problem.GetParameterValue("End")})." },
             nameof(DbaseFileProblems.DownloadIdInvalidFormat) => translation with { Message = $"De {DbaseRecordLabel()} bevat een download id in veld {nameof(TransactionZoneDbaseRecord.Schema.DOWNLOADID)} ({problem.GetParameterValue("Actual")}) dat een ongeldig formaat heeft (verwacht formaat: {Guid.Empty:N})" },
             nameof(DbaseFileProblems.DownloadIdDiffersFromMetadata) => translation with { Message = $"De {DbaseRecordLabel()} bevat een download id in veld {nameof(TransactionZoneDbaseRecord.Schema.DOWNLOADID)} ({problem.GetParameterValue("Actual")}) die niet overeen komt met het download id aangeleverd in de metadata ({problem.GetParameterValue("Expected")})." },

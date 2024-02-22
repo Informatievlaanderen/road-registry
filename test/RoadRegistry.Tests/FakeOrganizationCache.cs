@@ -3,7 +3,7 @@ namespace RoadRegistry.Tests
     using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Core;
 
-    public class FakeOrganizationRepository: IOrganizationRepository
+    public class FakeOrganizationCache: IOrganizationCache
     {
         private readonly Dictionary<OrganizationId, OrganizationDetail> _organizations = new();
 
@@ -28,7 +28,7 @@ namespace RoadRegistry.Tests
             return Task.FromResult(OrganizationDetail.FromCode(organizationId));
         }
 
-        public FakeOrganizationRepository Seed(OrganizationId organizationId, OrganizationDetail organization)
+        public FakeOrganizationCache Seed(OrganizationId organizationId, OrganizationDetail organization)
         {
             _organizations[organizationId] = organization;
             return this;
