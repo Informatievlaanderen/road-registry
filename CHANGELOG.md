@@ -1,3 +1,15 @@
+# [3.68.0](https://github.com/informatievlaanderen/road-registry/compare/v3.67.17...v3.68.0) (2024-02-22)
+
+
+### Bug Fixes
+
+* deploy v2 pipeline for TST env ([#1383](https://github.com/informatievlaanderen/road-registry/issues/1383)) ([a8aec77](https://github.com/informatievlaanderen/road-registry/commit/a8aec77ff62220fc6a9e0dfe540e25f7e9475e6b))
+
+
+### Features
+
+* WR-928 handle StreetNameWasRenamed event ([#1384](https://github.com/informatievlaanderen/road-registry/issues/1384)) ([a692b5d](https://github.com/informatievlaanderen/road-registry/commit/a692b5d4ea45321948ff90c0aaa627eedc67464c))
+
 ## [3.67.17](https://github.com/informatievlaanderen/road-registry/compare/v3.67.16...v3.67.17) (2024-02-14)
 
 
