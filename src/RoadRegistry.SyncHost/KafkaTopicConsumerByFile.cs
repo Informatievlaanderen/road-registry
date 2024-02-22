@@ -95,7 +95,7 @@ internal abstract class KafkaTopicConsumerByFile<TDbContext>
         }
     }
 
-    private class JsonKafkaMessage
+    private sealed class JsonKafkaMessage
     {
         public Dictionary<string, string> Headers { get; set; }
         public string Value { get; set; }

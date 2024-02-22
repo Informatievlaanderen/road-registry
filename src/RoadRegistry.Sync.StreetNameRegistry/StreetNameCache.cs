@@ -27,25 +27,6 @@ public class StreetNameCache : IStreetNameCache
         return items.SingleOrDefault();
     }
 
-    public async Task<Dictionary<int, int>> GetRenamedIdsAsync(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
-    {
-        await using var context = await _streetNameEventProjectionContextFactory.CreateDbContextAsync(cancellationToken);
-
-        return (
-                await context.RenamedStreetNames
-                    .Where(record => streetNameIds.Contains(record.StreetNameLocalId))
-                    .ToListAsync(cancellationToken)
-            )
-            .ToDictionary(x => x.StreetNameLocalId, x => x.DestinationStreetNameLocalId);
-    }
-
-    public async Task<Dictionary<int, string>> GetStreetNamesById(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
-    {
-        var items = await GetAsync(streetNameIds, cancellationToken);
-        
-        return items.ToDictionary(x => x.Id, x => x.Name);
-    }
-
     public async Task<ICollection<StreetNameCacheItem>> GetAsync(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
     {
         await using var context = await _streetNameProjectionContextFactory.CreateDbContextAsync(cancellationToken);
@@ -65,5 +46,24 @@ public class StreetNameCache : IStreetNameCache
                 IsRemoved = record.IsRemoved
             })
             .ToList();
+    }
+
+    public async Task<Dictionary<int, int>> GetRenamedIdsAsync(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
+    {
+        await using var context = await _streetNameEventProjectionContextFactory.CreateDbContextAsync(cancellationToken);
+
+        return (
+                await context.RenamedStreetNames
+                    .Where(record => streetNameIds.Contains(record.StreetNameLocalId))
+                    .ToListAsync(cancellationToken)
+            )
+            .ToDictionary(x => x.StreetNameLocalId, x => x.DestinationStreetNameLocalId);
+    }
+
+    public async Task<Dictionary<int, string>> GetStreetNamesById(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
+    {
+        var items = await GetAsync(streetNameIds, cancellationToken);
+        
+        return items.ToDictionary(x => x.Id, x => x.Name);
     }
 }
