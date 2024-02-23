@@ -1,3 +1,17 @@
+# [3.69.0](https://github.com/informatievlaanderen/road-registry/compare/v3.68.0...v3.69.0) (2024-02-23)
+
+
+### Bug Fixes
+
+* release pipeline ([#1388](https://github.com/informatievlaanderen/road-registry/issues/1388)) ([740996d](https://github.com/informatievlaanderen/road-registry/commit/740996d70f3ca8999811411160e9bbbbc8a452b5))
+* use new TST for release pipeline ([#1387](https://github.com/informatievlaanderen/road-registry/issues/1387)) ([f3e84d3](https://github.com/informatievlaanderen/road-registry/commit/f3e84d3f158b8dcae7f804279ff23c797d2519ef))
+* WR-940 automatically redirect to activity page on successful upload ([#1386](https://github.com/informatievlaanderen/road-registry/issues/1386)) ([85094d5](https://github.com/informatievlaanderen/road-registry/commit/85094d5f128af48a020f93359c17e5b96abd2917))
+
+
+### Features
+
+* WR-940 add filter to ChangeFeed ([#1385](https://github.com/informatievlaanderen/road-registry/issues/1385)) ([b5cce77](https://github.com/informatievlaanderen/road-registry/commit/b5cce77f3b29001de1816be5fdd855cbd7c2c9ce))
+
 # [3.68.0](https://github.com/informatievlaanderen/road-registry/compare/v3.67.17...v3.68.0) (2024-02-22)
 
 
