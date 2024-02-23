@@ -19,7 +19,7 @@ public partial class ChangeFeedControllerTests
     public async Task When_downloading_head_changes_of_an_empty_registry()
     {
         await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
-        var result = await Controller.GetHead(new[] { "5" }, context);
+        var result = await Controller.GetHead(5, null, context);
 
         var jsonResult = Assert.IsType<JsonResult>(result);
         Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
@@ -45,7 +45,7 @@ public partial class ChangeFeedControllerTests
         });
 
         await using var editorContext = await _fixture.CreateEditorContextAsync(database);
-        var result = await Controller.GetHead(new[] { "5" }, editorContext);
+        var result = await Controller.GetHead(5, null, editorContext);
 
         var jsonResult = Assert.IsType<JsonResult>(result);
 
@@ -64,44 +64,14 @@ public partial class ChangeFeedControllerTests
         Assert.Equal("jan", item.Month.ToLowerInvariant());
         Assert.Equal("01:00", item.TimeOfDay);
     }
-
-    [Fact]
-    public async Task When_downloading_head_changes_with_a_max_entry_count_that_is_not_an_integer()
-    {
-        await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
-        try
-        {
-            await Controller.GetHead(new[] { "abc" }, context);
-            throw new XunitException("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException exception)
-        {
-            exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter value must be an integer.") });
-        }
-    }
-
-    [Fact]
-    public async Task When_downloading_head_changes_with_too_many_max_entry_counts_specified()
-    {
-        await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
-        try
-        {
-            await Controller.GetHead(new[] { "5", "10" }, context);
-            throw new XunitException("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException exception)
-        {
-            exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter requires exactly 1 value.") });
-        }
-    }
-
+    
     [Fact]
     public async Task When_downloading_head_changes_without_specifying_a_max_entry_count()
     {
         await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
         try
         {
-            await Controller.GetHead(new string[] { }, context);
+            await Controller.GetHead(null, null, context);
             throw new XunitException("Expected a validation exception but did not receive any");
         }
         catch (ValidationException exception)

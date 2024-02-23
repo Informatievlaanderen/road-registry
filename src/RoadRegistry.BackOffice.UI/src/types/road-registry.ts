@@ -35,7 +35,9 @@ export namespace RoadRegistry {
 
     export interface UploadExtractResponseBody
     {
+        status: number;
         uploadId: string;
+        changeRequestId: string;
     }
 
     export interface DownloadExtractRequest {

@@ -47,6 +47,10 @@
               @upload-file-added-manually="processing"
             />
 
+            <div v-if="uploadResult.changeRequestId">
+              <vl-button @click="redirectToActivityPage()">Klik hier voor je upload in de Activiteiten pagina te volgen</vl-button>
+            </div>
+
             <div v-if="alertInfo.fileProblems && alertInfo.fileProblems.length > 0">
               <div v-for="fileProblem in alertInfo.fileProblems" :key="fileProblem.file">
                 <br />
@@ -71,6 +75,7 @@ import { orderBy } from "lodash";
 import { BackOfficeApi } from "../../../services";
 import ActivityProblems from "../../activity/components/ActivityProblems.vue";
 import { featureToggles } from "@/environment";
+import RoadRegistry from "@/types/road-registry";
 
 export default Vue.extend({
   components: {
@@ -83,9 +88,11 @@ export default Vue.extend({
       uploadResult: {
         uploadResponseCode: undefined,
         fileProblems: [],
+        changeRequestId: undefined,
       } as {
         uploadResponseCode: number | undefined;
         fileProblems: Array<any> | undefined;
+        changeRequestId: string | undefined;
       },
     };
   },
@@ -185,26 +192,30 @@ export default Vue.extend({
       try {
         const allowedFileTypes = ["application/zip", "application/x-zip-compressed"];
         if (!allowedFileTypes.includes(file.type)) {
-          this.uploadResult = { uploadResponseCode: 2, fileProblems: undefined };
+          this.uploadResult = { uploadResponseCode: 2, fileProblems: undefined, changeRequestId: undefined };
           return;
         }
 
         if (file.size > this.options.maxFilesize) {
-          this.uploadResult = { uploadResponseCode: 1, fileProblems: undefined };
+          this.uploadResult = { uploadResponseCode: 1, fileProblems: undefined, changeRequestId: undefined };
           return;
         }
 
         try {
-          this.uploadResult = { uploadResponseCode: undefined, fileProblems: undefined };
+          this.uploadResult = { uploadResponseCode: undefined, fileProblems: undefined, changeRequestId: undefined };
 
-          let uploadResponseCode: number;
+          let uploadResponse: RoadRegistry.UploadExtractResponseBody;
           if (featureToggles.useFeatureCompare) {
-            uploadResponseCode = await BackOfficeApi.Uploads.uploadFeatureCompare(file, file.name);
+            uploadResponse = await BackOfficeApi.Uploads.uploadFeatureCompare(file, file.name);
           } else {
-            uploadResponseCode = await BackOfficeApi.Uploads.upload(file, file.name);
+            uploadResponse = await BackOfficeApi.Uploads.upload(file, file.name);
           }
-
-          this.uploadResult = { uploadResponseCode, fileProblems: undefined };
+          
+          this.uploadResult = {
+            uploadResponseCode: uploadResponse.status,
+            fileProblems: undefined,
+            changeRequestId: uploadResponse.changeRequestId,
+          };
         } catch (err: any) {
           if (err?.response?.status === 400) {
             let validationErrors = err?.response?.data?.validationErrors;
@@ -220,12 +231,12 @@ export default Vue.extend({
                 problems,
               };
             });
-            this.uploadResult = { uploadResponseCode: 400, fileProblems };
+            this.uploadResult = { uploadResponseCode: 400, fileProblems, changeRequestId: undefined };
           } else if (err?.response?.status === 404) {
-            this.uploadResult = { uploadResponseCode: 404, fileProblems: undefined };
+            this.uploadResult = { uploadResponseCode: 404, fileProblems: undefined, changeRequestId: undefined };
           } else {
             console.error("Upload failed", err);
-            this.uploadResult = { uploadResponseCode: 500, fileProblems: undefined };
+            this.uploadResult = { uploadResponseCode: 500, fileProblems: undefined, changeRequestId: undefined };
           }
         }
       } finally {
@@ -247,6 +258,9 @@ export default Vue.extend({
       this.emptyQueue();
       this.isUploading = false;
       this.isProcessing = false;
+    },
+    redirectToActivityPage() {
+      this.$router.push({ name: "activiteit", query: { filter: this.uploadResult.changeRequestId } });
     },
   },
 });

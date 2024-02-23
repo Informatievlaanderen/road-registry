@@ -44,7 +44,7 @@ public partial class ExtractsController
                         downloadId,
                         new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType))
                     ) { UseZipArchiveFeatureCompareTranslator = useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled }, cancellationToken);
-                return Accepted(new UploadExtractFeatureCompareResponseBody(response.UploadId.ToString()));
+                return Accepted(new UploadExtractFeatureCompareResponseBody(response.UploadId.ToString(), ChangeRequestId.FromUploadId(response.UploadId)));
             }
             else
             {
@@ -53,10 +53,10 @@ public partial class ExtractsController
                         downloadId,
                         new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType))
                     ), cancellationToken);
-                return Accepted(new UploadExtractFeatureCompareResponseBody(response.UploadId.ToString()));
+                return Accepted(new UploadExtractFeatureCompareResponseBody(response.UploadId.ToString(), ChangeRequestId.FromUploadId(response.UploadId)));
             }
         });
     }
 }
 
-public record UploadExtractFeatureCompareResponseBody(string UploadId);
+public record UploadExtractFeatureCompareResponseBody(string UploadId, string ChangeRequestId);

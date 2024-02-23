@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="activities.length === 0">
+    <div v-if="!firstLoadCompleted">
       <vl-region>
         <div v-vl-align:center>
           <vl-loader message="Uw pagina is aan het laden" />
@@ -8,7 +8,29 @@
       </vl-region>
     </div>
     <div v-else>
-      <div class="vl-steps vl-steps--timeline">
+      <vl-grid mod-stacked>
+        <vl-column>
+          <div class="vl-form-col--12-12">
+            <input
+              type="text"
+              class="vl-input-field vl-input-field--block"
+              v-model="filter"
+              placeholder="Filter"
+              @input="onFilterInput"
+              @keyup.esc="resetFilter()"
+            />
+          </div>
+        </vl-column>
+      </vl-grid>
+
+      <div v-if="isWaitingForFirstFilterResult">
+        <vl-region>
+          <div v-vl-align:center>
+            <vl-loader message="Even geduld a.u.b." />
+          </div>
+        </vl-region>
+      </div>
+      <div v-else class="vl-steps vl-steps--timeline">
         <ul class="vl-steps__list">
           <li class="vl-step vl-step" v-for="activity in activities" :key="activity.id">
             <div class="vl-step__container">
@@ -240,7 +262,7 @@
         <vl-column>
           <div v-vl-flex v-vl-flex:align-center>
             <vl-button mod-loading v-if="pagination.isLoading"></vl-button>
-            <vl-button v-else v-on:click="loadNextPage()">Meer ...</vl-button>
+            <vl-button v-else-if="activities.length >= pagination.pageSize" v-on:click="loadNextPage()">Meer ...</vl-button>
           </div>
         </vl-column>
       </vl-grid>
@@ -250,6 +272,7 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { debounce } from "lodash";
 import { BackOfficeApi, PublicApi } from "../../../services";
 import RoadRegistry from "../../../types/road-registry";
 import ActivityProblems from "../components/ActivityProblems.vue";
@@ -261,6 +284,9 @@ export default Vue.extend({
   data() {
     return {
       activities: [] as Activity[],
+      firstLoadCompleted: false,
+      filter: "",
+      isWaitingForFirstFilterResult: false,
       pagination: {
         pageSize: 25,
         isLoading: false,
@@ -268,27 +294,53 @@ export default Vue.extend({
       },
       isDownloading: false,
       autoRefreshInterval: null as any,
+      debouncedLoadToTop: () => {},
     };
   },
-  async mounted() {
-    await this.loadToTop();
-    this.autoRefreshInterval = setInterval(this.loadToTop, 10000);
+  created() {
+    this.debouncedLoadToTop = debounce(this.loadToTop, 500, { trailing: true });
+  },
+  mounted() {
+    this.filter = (this.$route.query.filter ?? '').toString();
+    this.loadToTop();
   },
   beforeDestroy() {
-    if (this.autoRefreshInterval) {
-      clearInterval(this.autoRefreshInterval);
-    }
+    this.stopAutoRefresh();
   },
   methods: {
+    startAutoRefresh() {
+      this.autoRefreshInterval = setInterval(this.loadToTop, 10000);
+    },
+    stopAutoRefresh() {
+      if (this.autoRefreshInterval) {
+        clearInterval(this.autoRefreshInterval);
+      }
+    },
+    resetFilter() {
+      this.filter = "";
+      this.onFilterInput();
+    },
+    onFilterInput() {
+      this.isWaitingForFirstFilterResult = true;
+      this.stopAutoRefresh();
+      this.setQueryParams({ filter: this.filter });
+      this.resetActivities();
+
+      this.debouncedLoadToTop();
+    },
+    resetActivities() {
+      this.activities = [];
+    },
     async loadToTop(): Promise<any> {
       if (this.pagination.isLoadingTop) {
         console.warn("Skipping load, loading is still in progress");
         return;
       }
 
+      this.stopAutoRefresh();
       this.pagination.isLoadingTop = true;
       try {
-        let response = await PublicApi.ChangeFeed.getHead(this.pagination.pageSize);
+        let response = await PublicApi.ChangeFeed.getHead(this.pagination.pageSize, this.filter);
         let activities = response.entries.map((entry) => new Activity(entry));
 
         if (this.activities.length) {
@@ -308,8 +360,11 @@ export default Vue.extend({
         }
 
         this.activities = [...activities, ...this.activities];
+        this.firstLoadCompleted = true;
       } finally {
         this.pagination.isLoadingTop = false;
+        this.isWaitingForFirstFilterResult = false;
+        this.startAutoRefresh();
       }
     },
     async loadNextPage(): Promise<any> {
@@ -322,7 +377,7 @@ export default Vue.extend({
       try {
         const currentEntry = Math.min(...this.activities.map((a) => a.id));
 
-        var response = await PublicApi.ChangeFeed.getPrevious(currentEntry, this.pagination.pageSize);
+        var response = await PublicApi.ChangeFeed.getPrevious(currentEntry, this.pagination.pageSize, this.filter);
         this.activities = this.activities.concat(response.entries.map((entry) => new Activity(entry)));
       } finally {
         this.pagination.isLoading = false;
@@ -343,6 +398,20 @@ export default Vue.extend({
       } finally {
         this.isDownloading = false;
       }
+    },
+    setQueryParams(params: any) {
+      history.pushState(
+        {},
+        "",
+        this.$route.path +
+          "?" +
+          Object.keys(params)
+            .filter((key) => params[key])
+            .map((key) => {
+              return encodeURIComponent(key) + "=" + encodeURIComponent(params[key]);
+            })
+            .join("&")
+      );
     },
   },
 });
@@ -423,6 +492,10 @@ class Activity {
   margin-bottom: 5px;
   margin-left: 0px;
   padding-bottom: 10px;
+}
+
+.vl-steps {
+  margin-top: 1rem;
 }
 
 .vl-steps--timeline {

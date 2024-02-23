@@ -12,28 +12,48 @@ const useBackOfficeApi = process.env.NODE_ENV !== "production";
 
 export const PublicApi = {
   ChangeFeed: {
-    getHead: async (maxEntryCount: number): Promise<RoadRegistry.GetHeadApiResponse> => {
+    getHead: async (maxEntryCount: number, filter?: string): Promise<RoadRegistry.GetHeadApiResponse> => {
       if (useBackOfficeApi) {
-        return BackOfficeApi.ChangeFeed.getHead(maxEntryCount);
+        return BackOfficeApi.ChangeFeed.getHead(maxEntryCount, filter);
       }
 
       const path = `${apiEndpoint}/v1/wegen/activiteit/begin`;
-      const response = await apiClient.get<RoadRegistry.GetHeadApiResponse>(path, { maxEntryCount });
+      const response = await apiClient.get<RoadRegistry.GetHeadApiResponse>(path, { maxEntryCount, filter });
       return response.data as RoadRegistry.GetHeadApiResponse;
     },
     getContent: async (id: number): Promise<RoadRegistry.ChangeFeedContent> => {
+      if (useBackOfficeApi) {
+        return BackOfficeApi.ChangeFeed.getContent(id);
+      }
+
       const path = `${apiEndpoint}/v1/wegen/activiteit/gebeurtenis/${id}/inhoud`;
       const response = await apiClient.get<RoadRegistry.ChangeFeedContent>(path);
       return response.data;
     },
-    getNext: async (afterEntry?: number, maxEntryCount?: number) => {
+    getNext: async (afterEntry?: number, maxEntryCount?: number, filter?: string) => {
+      if (useBackOfficeApi) {
+        return BackOfficeApi.ChangeFeed.getNext(afterEntry, maxEntryCount, filter);
+      }
+
       const path = `${apiEndpoint}/v1/wegen/activiteit/volgende`;
-      const response = await apiClient.get<RoadRegistry.GetHeadApiResponse>(path, { afterEntry, maxEntryCount });
+      const response = await apiClient.get<RoadRegistry.GetHeadApiResponse>(path, {
+        afterEntry,
+        maxEntryCount,
+        filter,
+      });
       return response.data;
     },
-    getPrevious: async (beforeEntry?: number, maxEntryCount?: number) => {
+    getPrevious: async (beforeEntry?: number, maxEntryCount?: number, filter?: string) => {
+      if (useBackOfficeApi) {
+        return BackOfficeApi.ChangeFeed.getPrevious(beforeEntry, maxEntryCount, filter);
+      }
+
       const path = `${apiEndpoint}/v1/wegen/activiteit/vorige`;
-      const response = await apiClient.get<RoadRegistry.GetHeadApiResponse>(path, { beforeEntry, maxEntryCount });
+      const response = await apiClient.get<RoadRegistry.GetHeadApiResponse>(path, {
+        beforeEntry,
+        maxEntryCount,
+        filter,
+      });
       return response.data;
     },
   },
@@ -87,6 +107,10 @@ export const PublicApi = {
     postDownloadRequestByContour: async (
       downloadRequest: RoadRegistry.DownloadExtractByContourRequest
     ): Promise<RoadRegistry.DownloadExtractResponse> => {
+      if (useBackOfficeApi) {
+        return BackOfficeApi.Extracts.postDownloadRequestByContour(downloadRequest);
+      }
+
       try {
         const path = `${apiEndpoint}/v1/wegen/extract/downloadaanvragen/percontour`;
         const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, downloadRequest);

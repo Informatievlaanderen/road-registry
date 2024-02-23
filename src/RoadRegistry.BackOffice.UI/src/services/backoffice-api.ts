@@ -1,17 +1,17 @@
-import apiClient, {AxiosHttpApiClient} from "./api-client";
+import apiClient, { AxiosHttpApiClient } from "./api-client";
 import RoadRegistry from "@/types/road-registry";
 import RoadRegistryExceptions from "@/types/road-registry-exceptions";
 import axios from "axios";
-import { trimEnd } from 'lodash';
+import { trimEnd } from "lodash";
 import { featureToggles, API_OLDENDPOINT } from "@/environment";
 
-const apiEndpoint = trimEnd(featureToggles.useDirectApiCalls ? API_OLDENDPOINT : '/roads', '/');
+const apiEndpoint = trimEnd(featureToggles.useDirectApiCalls ? API_OLDENDPOINT : "/roads", "/");
 
 export const BackOfficeApi = {
   ChangeFeed: {
-    getHead: async (maxEntryCount: number): Promise<RoadRegistry.GetHeadApiResponse> => {
+    getHead: async (maxEntryCount: number, filter?: string): Promise<RoadRegistry.GetHeadApiResponse> => {
       const path = `${apiEndpoint}/v1/changefeed/head`;
-      const response = await apiClient.get<RoadRegistry.GetHeadApiResponse>(path, { maxEntryCount });
+      const response = await apiClient.get<RoadRegistry.GetHeadApiResponse>(path, { maxEntryCount, filter });
       return response.data as RoadRegistry.GetHeadApiResponse;
     },
     getContent: async (id: number) => {
@@ -19,14 +19,22 @@ export const BackOfficeApi = {
       const response = await apiClient.get<RoadRegistry.ChangeFeedContent>(path);
       return response.data;
     },
-    getNext: async (afterEntry?: number, maxEntryCount?: number) => {
+    getNext: async (afterEntry?: number, maxEntryCount?: number, filter?: string) => {
       const path = `${apiEndpoint}/v1/changefeed/next`;
-      const response = await apiClient.get<RoadRegistry.GetHeadApiResponse>(path, { afterEntry, maxEntryCount });
+      const response = await apiClient.get<RoadRegistry.GetHeadApiResponse>(path, {
+        afterEntry,
+        maxEntryCount,
+        filter,
+      });
       return response.data;
     },
-    getPrevious: async (beforeEntry?: number, maxEntryCount?: number) => {
+    getPrevious: async (beforeEntry?: number, maxEntryCount?: number, filter?: string) => {
       const path = `${apiEndpoint}/v1/changefeed/previous`;
-      const response = await apiClient.get<RoadRegistry.GetHeadApiResponse>(path, { beforeEntry, maxEntryCount });
+      const response = await apiClient.get<RoadRegistry.GetHeadApiResponse>(path, {
+        beforeEntry,
+        maxEntryCount,
+        filter,
+      });
       return response.data;
     },
   },
@@ -41,19 +49,25 @@ export const BackOfficeApi = {
     },
   },
   Uploads: {
-    upload: async (file: string | Blob, filename: string): Promise<number> => {
+    upload: async (file: string | Blob, filename: string): Promise<RoadRegistry.UploadExtractResponseBody> => {
       const path = `${apiEndpoint}/v1/upload`;
       const data = new FormData();
       data.append("archive", file, filename);
-      const response = await apiClient.post(path, data);
-      return response.status;
+      const response = await apiClient.post<RoadRegistry.UploadExtractResponseBody>(path, data);
+      if (response.data) {
+        response.data.status = response.status;
+      }
+      return response.data;
     },
-    uploadFeatureCompare: async (file: string | Blob, filename: string): Promise<number> => {
+    uploadFeatureCompare: async (file: string | Blob, filename: string): Promise<RoadRegistry.UploadExtractResponseBody> => {
       const path = `${apiEndpoint}/v1/upload/fc`;
       const data = new FormData();
       data.append("archive", file, filename);
-      const response = await apiClient.post(path, data);
-      return response.status;
+      const response = await apiClient.post<RoadRegistry.UploadExtractResponseBody>(path, data);
+      if (response.data) {
+        response.data.status = response.status;
+      }
+      return response.data;
     },
     download: async (identifier: string): Promise<void> => {
       const path = `${apiEndpoint}/v1/upload/${identifier}`;
@@ -92,32 +106,33 @@ export const BackOfficeApi = {
       return response.data;
     },
     postDownloadRequestByFile: async (
-        downloadRequest: RoadRegistry.DownloadExtractByFileRequest
-      ): Promise<RoadRegistry.DownloadExtractResponse> => {
-        const path = `${apiEndpoint}/v1/extracts/downloadrequests/byfile`;
+      downloadRequest: RoadRegistry.DownloadExtractByFileRequest
+    ): Promise<RoadRegistry.DownloadExtractResponse> => {
+      const path = `${apiEndpoint}/v1/extracts/downloadrequests/byfile`;
 
-        const data = new FormData();
-        data.append("description", downloadRequest.description);
-        data.append("isInformative", downloadRequest.isInformative.toString());
-        downloadRequest.files.forEach(file => {
-            data.append("files", file, file.name);
-        })        
+      const data = new FormData();
+      data.append("description", downloadRequest.description);
+      data.append("isInformative", downloadRequest.isInformative.toString());
+      downloadRequest.files.forEach((file) => {
+        data.append("files", file, file.name);
+      });
 
-        try {
-          const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, data);
+      try {
+        const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, data);
         return response.data;
       } catch (exception) {
-          if (axios.isAxiosError(exception)) {
-              const response = exception?.response;
-              if (response && response.status === 400) { // HTTP Bad Request
-                  const error = response?.data as RoadRegistry.PerContourErrorResponse;
-                  throw new RoadRegistryExceptions.RequestExtractPerContourError(error);
-              }
+        if (axios.isAxiosError(exception)) {
+          const response = exception?.response;
+          if (response && response.status === 400) {
+            // HTTP Bad Request
+            const error = response?.data as RoadRegistry.PerContourErrorResponse;
+            throw new RoadRegistryExceptions.RequestExtractPerContourError(error);
           }
+        }
 
-          throw new Error('Unknown error');
+        throw new Error("Unknown error");
       }
-      },
+    },
     postDownloadRequestByNisCode: async (
       downloadRequest: RoadRegistry.DownloadExtractByNisCodeRequest
     ): Promise<RoadRegistry.DownloadExtractResponse> => {
@@ -157,6 +172,6 @@ export const BackOfficeApi = {
       const response = await apiClient.get<RoadRegistry.UserInfo>(path);
       return response.data;
     },
-  }
+  },
 };
 export default BackOfficeApi;

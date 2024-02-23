@@ -56,14 +56,14 @@ public partial class UploadController
                     UseZipArchiveFeatureCompareTranslator = true
                 };
                 var response = await _mediator.Send(request, cancellationToken);
-                return Accepted(new UploadExtractFeatureCompareResponseBody(response.ArchiveId.ToString()));
+                return Accepted(new UploadExtractFeatureCompareResponseBody(response.ArchiveId.ToString(), ChangeRequestId.FromArchiveId(response.ArchiveId)));
             }
             else
             {
                 UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
                 var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
                 var response = await _mediator.Send(request, cancellationToken);
-                return Accepted(new UploadExtractFeatureCompareResponseBody(response.ArchiveId.ToString()));
+                return Accepted(new UploadExtractFeatureCompareResponseBody(response.ArchiveId.ToString(), ChangeRequestId.FromArchiveId(response.ArchiveId)));
             }
         });
     }
