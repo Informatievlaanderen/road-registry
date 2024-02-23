@@ -1,10 +1,5 @@
-namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
+namespace RoadRegistry.BackOffice.FeatureCompare.Readers;
 
-using System;
-using System.Collections.Generic;
-using System.IO.Compression;
-using System.Linq;
-using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Extracts;
@@ -12,6 +7,12 @@ using Extracts.Dbase.RoadSegments;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using ShapeFile;
+using System;
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Linq;
+using System.Text;
+using Translators;
 using Uploads;
 
 public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentFeatureCompareAttributes>>
@@ -38,7 +39,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         {
             case FeatureType.Change:
                 problems += archive.ValidateMissingRoadNodes(features, featureType, fileName, context);
-                
+
                 AddToContext(features, featureType, context);
                 break;
             case FeatureType.Integration:

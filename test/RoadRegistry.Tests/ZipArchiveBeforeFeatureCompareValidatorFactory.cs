@@ -1,26 +1,25 @@
 namespace RoadRegistry.Tests
 {
     using RoadRegistry.BackOffice;
-    using RoadRegistry.BackOffice.FeatureCompare.Translators;
+    using RoadRegistry.BackOffice.FeatureCompare.Readers;
+    using RoadRegistry.BackOffice.FeatureCompare.Validation;
     using RoadRegistry.BackOffice.Uploads;
-    using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 
     public static class ZipArchiveBeforeFeatureCompareValidatorFactory
     {
         private static readonly FileEncoding Encoding = FileEncoding.UTF8;
 
         public static IZipArchiveBeforeFeatureCompareValidator Create(IStreetNameCache streetNameCache = null) => new ZipArchiveBeforeFeatureCompareValidator(
-            new TransactionZoneFeatureCompareFeatureReader(Encoding),
-            new RoadNodeFeatureCompareFeatureReader(Encoding),
-            new RoadSegmentFeatureCompareFeatureReader(Encoding),
-            new RoadSegmentLaneFeatureCompareFeatureReader(Encoding),
-            new RoadSegmentWidthFeatureCompareFeatureReader(Encoding),
-            new RoadSegmentSurfaceFeatureCompareFeatureReader(Encoding),
-            new EuropeanRoadFeatureCompareFeatureReader(Encoding),
-            new NationalRoadFeatureCompareFeatureReader(Encoding),
-            new NumberedRoadFeatureCompareFeatureReader(Encoding),
-            new GradeSeparatedJunctionFeatureCompareFeatureReader(Encoding),
-            streetNameCache ?? new FakeStreetNameCache()
+            new TransactionZoneZipArchiveValidator(new TransactionZoneFeatureCompareFeatureReader(Encoding)),
+            new RoadNodeZipArchiveValidator(new RoadNodeFeatureCompareFeatureReader(Encoding)),
+            new RoadSegmentZipArchiveValidator(new RoadSegmentFeatureCompareFeatureReader(Encoding), streetNameCache ?? new FakeStreetNameCache()),
+            new RoadSegmentLaneZipArchiveValidator(new RoadSegmentLaneFeatureCompareFeatureReader(Encoding)),
+            new RoadSegmentWidthZipArchiveValidator(new RoadSegmentWidthFeatureCompareFeatureReader(Encoding)),
+            new RoadSegmentSurfaceZipArchiveValidator(new RoadSegmentSurfaceFeatureCompareFeatureReader(Encoding)),
+            new EuropeanRoadZipArchiveValidator(new EuropeanRoadFeatureCompareFeatureReader(Encoding)),
+            new NationalRoadZipArchiveValidator(new NationalRoadFeatureCompareFeatureReader(Encoding)),
+            new NumberedRoadZipArchiveValidator(new NumberedRoadFeatureCompareFeatureReader(Encoding)),
+            new GradeSeparatedJunctionZipArchiveValidator(new GradeSeparatedJunctionFeatureCompareFeatureReader(Encoding))
         );
     }
 }

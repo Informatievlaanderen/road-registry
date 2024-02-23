@@ -15,6 +15,7 @@ using AddRoadSegment = Uploads.AddRoadSegment;
 using ModifyRoadSegment = Uploads.ModifyRoadSegment;
 using RemoveRoadSegment = Uploads.RemoveRoadSegment;
 using RemoveOutlinedRoadSegment = Uploads.RemoveOutlinedRoadSegment;
+using RoadRegistry.BackOffice.FeatureCompare.Readers;
 
 public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareAttributes>
 {

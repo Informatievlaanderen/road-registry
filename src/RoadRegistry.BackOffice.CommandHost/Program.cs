@@ -10,7 +10,6 @@ using FeatureToggles;
 using Framework;
 using Handlers.Sqs;
 using Hosts;
-using MediatR;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,13 +18,11 @@ using Microsoft.Extensions.Logging;
 using NodaTime;
 using RoadNetwork.Schema;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
-using RoadRegistry.Snapshot.Handlers;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
 using System.Threading;
 using System.Threading.Tasks;
 using Uploads;
-using ZipArchiveWriters.Validation;
 
 public class Program
 {
@@ -56,8 +53,7 @@ public class Program
                 .AddEditorContext()
                 .AddOrganizationCache()
                 .AddStreetNameCache()
-                .AddFeatureCompareTranslator()
-                .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
+                .AddFeatureCompare()
                 .AddRoadNetworkCommandQueue()
                 .AddRoadNetworkEventWriter()
             )
@@ -103,35 +99,24 @@ public class Program
                     sp.GetService<IExtractUploadFailedEmailClient>(),
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<ILoggerFactory>()
-                ),
-                new RoadNetworkSnapshotCommandModule(
-                    sp.GetRequiredService<IStreamStore>(),
-                    sp.GetRequiredService<IMediator>(),
-                    sp.GetRequiredService<ILifetimeScope>(),
-                    sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
-                    sp.GetRequiredService<IRoadNetworkSnapshotWriter>(),
-                    sp.GetRequiredService<IClock>(),
-                    sp.GetRequiredService<IRoadNetworkEventWriter>(),
-                    sp.GetRequiredService<ILoggerFactory>()
                 )
             }))
             .ConfigureContainer((context, builder) =>
             {
                 builder
-                    .RegisterModule<RoadRegistry.Snapshot.Handlers.Sqs.MediatorModule>()
+                    .RegisterModule<Snapshot.Handlers.Sqs.MediatorModule>()
                     .RegisterModule<SqsHandlersModule>()
                     .RegisterModule<SnapshotSqsHandlersModule>();
             })
             .Build();
 
         await roadRegistryHost
-            .LogSqlServerConnectionStrings(new[]
-            {
+            .LogSqlServerConnectionStrings([
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.CommandHost,
                 WellKnownConnectionNames.CommandHostAdmin,
                 WellKnownConnectionNames.Snapshots
-            })
+            ])
             .RunAsync(async (sp, host, configuration) =>
             {
                 await

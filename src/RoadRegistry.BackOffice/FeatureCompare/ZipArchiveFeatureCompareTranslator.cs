@@ -36,8 +36,8 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
     {
         _logger = logger.ThrowIfNull();
 
-        _translators = new IZipArchiveEntryFeatureCompareTranslator[]
-        {
+        _translators =
+        [
             transactionZoneTranslator.ThrowIfNull(),
             roadNodeTranslator.ThrowIfNull(),
             roadSegmentTranslator.ThrowIfNull(),
@@ -48,7 +48,7 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
             nationalRoadTranslator.ThrowIfNull(),
             numberedRoadTranslator.ThrowIfNull(),
             gradeSeparatedJunctionTranslator.ThrowIfNull()
-        };
+        ];
     }
 
     public async Task<TranslatedChanges> TranslateAsync(ZipArchive archive, CancellationToken cancellationToken)
@@ -56,7 +56,7 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
         ArgumentNullException.ThrowIfNull(archive);
 
         var changes = TranslatedChanges.Empty;
-        
+
         var context = new ZipArchiveEntryFeatureCompareTranslateContext(archive, ZipArchiveMetadata.Empty);
 
         foreach (var translator in _translators)
@@ -65,13 +65,13 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
 
             var sw = Stopwatch.StartNew();
             _logger.LogInformation("{Type} started...", translator.GetType().Name);
-            
+
             (changes, var problems) = await translator.TranslateAsync(context, changes, cancellationToken);
             problems.ThrowIfError();
-            
+
             _logger.LogInformation("{Type} completed in {Elapsed}", translator.GetType().Name, sw.Elapsed);
         }
-        
+
         return changes;
     }
 }

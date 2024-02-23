@@ -1,26 +1,27 @@
-namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
+namespace RoadRegistry.BackOffice.FeatureCompare.Readers;
 
-using System.Collections.Generic;
-using System.IO.Compression;
-using System.Linq;
-using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Extracts;
 using Extracts.Dbase.RoadSegments;
 using NetTopologySuite.Geometries;
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Linq;
+using System.Text;
+using Translators;
 using Uploads;
 
-public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentSurfaceFeatureCompareAttributes>>
+public class RoadSegmentLaneFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentLaneFeatureCompareAttributes>>
 {
-    public RoadSegmentSurfaceFeatureCompareFeatureReader(FileEncoding encoding)
+    public RoadSegmentLaneFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
             new UploadsV2FeatureReader(encoding),
             new UploadsV1FeatureReader(encoding))
     {
     }
 
-    public override (List<Feature<RoadSegmentSurfaceFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    public override (List<Feature<RoadSegmentLaneFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
     {
         var (features, problems) = base.Read(archive, featureType, fileName, context);
 
@@ -30,15 +31,15 @@ public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchive
         {
             problems = problems.TryToFillMissingFromAndToPositions(features, fileName, context);
 
-            problems += ValidateSurfacesPerRoadSegment(features, fileName, context);
-            problems += archive.ValidateRoadSegmentsWithoutAttributes(features, fileName, ZipArchiveEntryProblems.RoadSegmentsWithoutSurfaceAttributes, context);
+            problems += ValidateLanesPerRoadSegment(features, fileName, context);
+            problems += archive.ValidateRoadSegmentsWithoutAttributes(features, fileName, ZipArchiveEntryProblems.RoadSegmentsWithoutLaneAttributes, context);
             problems += archive.ValidateMissingRoadSegments(features, fileName, context);
         }
 
         return (features, problems);
     }
 
-    private ZipArchiveProblems ValidateSurfacesPerRoadSegment(List<Feature<RoadSegmentSurfaceFeatureCompareAttributes>> features, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    private ZipArchiveProblems ValidateLanesPerRoadSegment(List<Feature<RoadSegmentLaneFeatureCompareAttributes>> features, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
     {
         var problems = ZipArchiveProblems.None;
         var featureType = FeatureType.Change;
@@ -52,14 +53,15 @@ public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchive
             if (context.ChangedRoadSegments.TryGetValue(roadSegmentId, out var roadSegmentFeature)
                 && roadSegmentFeature.Attributes.Geometry is not null)
             {
-                var surfaces = roadSegmentGroup
+                var lanes = roadSegmentGroup
                     .Select(feature => feature.Attributes)
-                    .Select(surface => new Core.RoadSegmentSurfaceAttribute(
-                        surface.Id,
-                        surface.Id,
-                        surface.Type,
-                        surface.FromPosition,
-                        surface.ToPosition,
+                    .Select(lane => new Core.RoadSegmentLaneAttribute(
+                        lane.Id,
+                        lane.Id,
+                        lane.Count,
+                        lane.Direction,
+                        lane.FromPosition,
+                        lane.ToPosition,
                         GeometryVersion.Initial))
                     .OrderBy(x => x.From)
                     .ToList();
@@ -68,10 +70,10 @@ public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchive
                 {
                     var roadSegmentLine = roadSegmentFeature.Attributes.Geometry.GetSingleLineString();
 
-                    var surfaceProblems = roadSegmentLine.GetProblemsForRoadSegmentSurfaces(surfaces, context.Tolerances);
+                    var laneProblems = roadSegmentLine.GetProblemsForRoadSegmentLanes(lanes, context.Tolerances);
 
                     var recordContext = fileName.AtDbaseRecord(featureType, roadSegmentGroup.First().RecordNumber);
-                    foreach (var problem in surfaceProblems)
+                    foreach (var problem in laneProblems)
                     {
                         problems += recordContext
                             .Error(problem.Reason)
@@ -85,91 +87,95 @@ public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchive
         return problems;
     }
 
-    private sealed class ExtractsFeatureReader : ZipArchiveDbaseFeatureReader<RoadSegmentSurfaceAttributeDbaseRecord, Feature<RoadSegmentSurfaceFeatureCompareAttributes>>
+    public sealed class ExtractsFeatureReader : ZipArchiveDbaseFeatureReader<RoadSegmentLaneAttributeDbaseRecord, Feature<RoadSegmentLaneFeatureCompareAttributes>>
     {
         public ExtractsFeatureReader(Encoding encoding)
-            : base(encoding, RoadSegmentSurfaceAttributeDbaseRecord.Schema)
+            : base(encoding, RoadSegmentLaneAttributeDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<RoadSegmentSurfaceFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, RoadSegmentSurfaceAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<RoadSegmentLaneFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, RoadSegmentLaneAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {
-                WV_OIDN = dbaseRecord.WV_OIDN.GetValue(),
+                RS_OIDN = dbaseRecord.RS_OIDN.GetValue(),
                 WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
                 VANPOS = dbaseRecord.VANPOS.GetValue(),
                 TOTPOS = dbaseRecord.TOTPOS.GetValue(),
-                TYPE = dbaseRecord.TYPE.GetValue()
+                AANTAL = dbaseRecord.AANTAL.GetValue(),
+                RICHTING = dbaseRecord.RICHTING.GetValue()
             }.ToFeature(featureType, fileName, recordNumber);
         }
     }
 
-    private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentSurfaceAttributeDbaseRecord, Feature<RoadSegmentSurfaceFeatureCompareAttributes>>
+    public sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentLaneAttributeDbaseRecord, Feature<RoadSegmentLaneFeatureCompareAttributes>>
     {
         public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentSurfaceAttributeDbaseRecord.Schema)
+            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentLaneAttributeDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<RoadSegmentSurfaceFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentSurfaceAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<RoadSegmentLaneFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentLaneAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {
-                WV_OIDN = dbaseRecord.WV_OIDN.GetValue(),
+                RS_OIDN = dbaseRecord.RS_OIDN.GetValue(),
                 WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
                 VANPOS = dbaseRecord.VANPOS.GetValue(),
                 TOTPOS = dbaseRecord.TOTPOS.GetValue(),
-                TYPE = dbaseRecord.TYPE.GetValue()
+                AANTAL = dbaseRecord.AANTAL.GetValue(),
+                RICHTING = dbaseRecord.RICHTING.GetValue()
             }.ToFeature(featureType, fileName, recordNumber);
         }
     }
 
-    private sealed class UploadsV1FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentSurfaceAttributeDbaseRecord, Feature<RoadSegmentSurfaceFeatureCompareAttributes>>
+    public sealed class UploadsV1FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentLaneAttributeDbaseRecord, Feature<RoadSegmentLaneFeatureCompareAttributes>>
     {
         public UploadsV1FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentSurfaceAttributeDbaseRecord.Schema)
+            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentLaneAttributeDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<RoadSegmentSurfaceFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentSurfaceAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<RoadSegmentLaneFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentLaneAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {
-                WV_OIDN = dbaseRecord.WV_OIDN.GetValue(),
+                RS_OIDN = dbaseRecord.RS_OIDN.GetValue(),
                 WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
                 VANPOS = dbaseRecord.VANPOS.GetValue(),
                 TOTPOS = dbaseRecord.TOTPOS.GetValue(),
-                TYPE = dbaseRecord.TYPE.GetValue()
+                AANTAL = dbaseRecord.AANTAL.GetValue(),
+                RICHTING = dbaseRecord.RICHTING.GetValue()
             }.ToFeature(featureType, fileName, recordNumber);
         }
     }
 
     private sealed record DbaseRecordData
     {
-        public int? WV_OIDN { get; init; }
+        public int? RS_OIDN { get; init; }
         public int? WS_OIDN { get; init; }
         public double? VANPOS { get; init; }
         public double? TOTPOS { get; init; }
-        public int? TYPE { get; init; }
+        public int? AANTAL { get; init; }
+        public int? RICHTING { get; init; }
 
-        public (Feature<RoadSegmentSurfaceFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
+        public (Feature<RoadSegmentLaneFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
         {
             var problemBuilder = fileName
                 .AtDbaseRecord(featureType, recordNumber)
-                .WithIdentifier(nameof(WV_OIDN), WV_OIDN);
+                .WithIdentifier(nameof(RS_OIDN), RS_OIDN);
 
             var problems = ZipArchiveProblems.None;
 
             AttributeId ReadId()
             {
-                if (WV_OIDN is null)
+                if (RS_OIDN is null)
                 {
-                    problems += problemBuilder.RequiredFieldIsNull(nameof(WV_OIDN));
+                    problems += problemBuilder.RequiredFieldIsNull(nameof(RS_OIDN));
                 }
-                else if (AttributeId.Accepts(WV_OIDN.Value))
+                else if (AttributeId.Accepts(RS_OIDN.Value))
                 {
-                    return new AttributeId(WV_OIDN.Value);
+                    return new AttributeId(RS_OIDN.Value);
                 }
                 else
                 {
@@ -240,31 +246,50 @@ public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchive
                 return default;
             }
 
-            RoadSegmentSurfaceType ReadType()
+            RoadSegmentLaneCount ReadCount()
             {
-                if (TYPE is null)
+                if (AANTAL is null)
                 {
-                    problems += problemBuilder.RequiredFieldIsNull(nameof(TYPE));
+                    problems += problemBuilder.RequiredFieldIsNull(nameof(AANTAL));
                 }
-                else if (RoadSegmentSurfaceType.ByIdentifier.TryGetValue(TYPE.Value, out var value))
+                else if (RoadSegmentLaneCount.Accepts(AANTAL.Value))
                 {
-                    return value;
+                    return new RoadSegmentLaneCount(AANTAL.Value);
                 }
                 else
                 {
-                    problems += problemBuilder.SurfaceTypeMismatch(TYPE.Value);
+                    problems += problemBuilder.LaneCountOutOfRange(AANTAL.Value);
                 }
 
                 return default;
             }
 
-            var feature = Feature.New(recordNumber, new RoadSegmentSurfaceFeatureCompareAttributes
+            RoadSegmentLaneDirection ReadDirection()
+            {
+                if (RICHTING is null)
+                {
+                    problems += problemBuilder.RequiredFieldIsNull(nameof(RICHTING));
+                }
+                else if (RoadSegmentLaneDirection.ByIdentifier.TryGetValue(RICHTING.Value, out var value))
+                {
+                    return value;
+                }
+                else
+                {
+                    problems += problemBuilder.LaneDirectionMismatch(RICHTING.Value);
+                }
+
+                return default;
+            }
+
+            var feature = Feature.New(recordNumber, new RoadSegmentLaneFeatureCompareAttributes
             {
                 Id = ReadId(),
                 RoadSegmentId = ReadRoadSegmentId(),
                 FromPosition = ReadFromPosition(),
                 ToPosition = ReadToPosition(),
-                Type = ReadType()
+                Count = ReadCount(),
+                Direction = ReadDirection()
             });
             return (feature, problems);
         }

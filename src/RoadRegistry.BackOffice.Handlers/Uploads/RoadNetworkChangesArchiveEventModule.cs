@@ -16,6 +16,7 @@ using System.IO.Compression;
 using Autofac;
 using FluentValidation;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.FeatureCompare.Readers;
 
 public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
 {

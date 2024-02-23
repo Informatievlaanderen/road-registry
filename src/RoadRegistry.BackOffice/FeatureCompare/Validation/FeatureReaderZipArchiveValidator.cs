@@ -1,9 +1,11 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
+namespace RoadRegistry.BackOffice.FeatureCompare.Validation;
 
-using System.IO.Compression;
 using Extracts;
-using FeatureCompare;
-using FeatureCompare.Translators;
+using System.IO.Compression;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Translators;
 using Uploads;
 
 public abstract class FeatureReaderZipArchiveValidator<TAttributes> : IZipArchiveValidator

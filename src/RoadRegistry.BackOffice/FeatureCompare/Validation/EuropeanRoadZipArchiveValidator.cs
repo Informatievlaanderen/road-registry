@@ -1,8 +1,8 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
+namespace RoadRegistry.BackOffice.FeatureCompare.Validation;
 
+using Readers;
 using Extracts;
-using FeatureCompare;
-using FeatureCompare.Translators;
+using Translators;
 
 public class EuropeanRoadZipArchiveValidator : FeatureReaderZipArchiveValidator<EuropeanRoadFeatureCompareAttributes>
 {

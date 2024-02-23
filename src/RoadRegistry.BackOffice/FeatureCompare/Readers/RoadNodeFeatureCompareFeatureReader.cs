@@ -1,16 +1,17 @@
-namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
+namespace RoadRegistry.BackOffice.FeatureCompare.Readers;
 
-using System;
-using System.Collections.Generic;
-using System.IO.Compression;
-using System.Linq;
-using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Extracts;
 using Extracts.Dbase.RoadNodes;
 using NetTopologySuite.IO;
 using ShapeFile;
+using System;
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Linq;
+using System.Text;
+using Translators;
 using Uploads;
 using Point = NetTopologySuite.Geometries.Point;
 

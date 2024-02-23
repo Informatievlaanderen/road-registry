@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
+namespace RoadRegistry.BackOffice.FeatureCompare.Readers;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
@@ -7,6 +7,7 @@ using Extracts.Dbase.RoadSegments;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Text;
+using Translators;
 using Uploads;
 
 public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<EuropeanRoadFeatureCompareAttributes>>
@@ -155,7 +156,7 @@ public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
 
                 return default;
             }
-            
+
             var feature = Feature.New(recordNumber, new EuropeanRoadFeatureCompareAttributes
             {
                 Id = ReadId(),

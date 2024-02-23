@@ -46,7 +46,6 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
                 new FakeOrganizationCache(),
                 LoggerFactory.CreateLogger<ChangeRoadNetworkDispatcher>()),
             new FakeDistributedStreamStoreLockOptions(),
-            new UseDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle(false),
             LoggerFactory.CreateLogger<LinkStreetNameSqsLambdaRequestHandler>()
         );
 

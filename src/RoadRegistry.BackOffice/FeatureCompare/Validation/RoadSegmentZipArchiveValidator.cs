@@ -1,10 +1,14 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
+namespace RoadRegistry.BackOffice.FeatureCompare.Validation;
 
 using Extracts;
-using Extracts.Dbase.RoadSegments;
-using FeatureCompare;
-using FeatureCompare.Translators;
+using Readers;
+using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
+using System;
 using System.IO.Compression;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Translators;
 using Uploads;
 
 public class RoadSegmentZipArchiveValidator : FeatureReaderZipArchiveValidator<RoadSegmentFeatureCompareAttributes>

@@ -4,7 +4,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core.ProblemCodes;
 using Extracts;
 using FeatureCompare;
-using FeatureCompare.Translators;
+using FeatureCompare.Readers;
 using System.IO.Compression;
 using Uploads;
 

@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
+namespace RoadRegistry.BackOffice.FeatureCompare.Readers;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
@@ -7,6 +7,7 @@ using Extracts.Dbase.GradeSeparatedJuntions;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Text;
+using Translators;
 using Uploads;
 
 public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
@@ -170,7 +171,7 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
 
                 return default;
             }
-            
+
             var feature = Feature.New(recordNumber, new GradeSeparatedJunctionFeatureCompareAttributes
             {
                 Id = ReadId(),
