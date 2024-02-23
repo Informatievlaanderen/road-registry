@@ -798,109 +798,84 @@ jobs:
           SEMVER: ${{ needs.release.outputs.version }}
           WORKSPACE: ${{ github.workspace }}
 
-
-  push_images_to_test:
-    if: needs.release.outputs.version != 'none'
-    needs: [ release ]
-    name: Push images to Test
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        image: [
-          'adminhost', 
-          'backoffice-api', 
-          'backoffice-commandhost', 
-          'backoffice-eventhost', 
-          'backoffice-extracthost', 
-          'backoffice-ui', 
-          'editor-projectionhost', 
-          'extract-legacy',
-          'import-legacy', 
-          'producer-snapshot-projectionhost',
-          'product-projectionhost', 
-          'projector', 
-          'synchost',
-          'syndication-projectionhost', 
-          'wfs-projectionhost', 
-          'wms-projectionhost'
-        ]
-    steps:
-      - name: Configure AWS credentials (Test)
-        uses: aws-actions/configure-aws-credentials@v1-node16
-        with:
-          aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
-          aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
-          aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-
-      - name: Login to Amazon ECR (Test)
-        uses: aws-actions/amazon-ecr-login@v1.5.3
-
-      - name: Download artifact
-        uses: actions/download-artifact@v3
-        continue-on-error: false
-        with:
-          name: ${{ matrix.image }}-${{ needs.release.outputs.version }}
-          path: ~/
-
-      - name: Load artifact
-        shell: bash
-        run: |
-          echo rr-$IMAGE-image.tar
-          docker image load -i ~/rr-$IMAGE-image.tar
-        env:
-          IMAGE: ${{ matrix.image }}
-
-      - name: Push artifacts to ECR (Test)
-        shell: bash
-        run: |
-          echo $IMAGE:$SEMVER
-          docker push $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
-        env:
-          BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
-          IMAGE: ${{ matrix.image }}
-          SEMVER: ${{ needs.release.outputs.version }}
-          WORKSPACE: ${{ github.workspace }}
-
-  deploy_to_test:
+  deploy_services_to_test:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ push_images_to_test, release, upload-lambda ]
-    name: Deploy to test
+    needs: [ push_images, release, upload-lambda ]
+    name: Deploy services to test
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        services: [
-          'road-registry-adminhost',
-          'road-registry-backoffice-api',
-          'road-registry-backoffice-commandhost',
-          'road-registry-backoffice-eventhost',
-          'road-registry-backoffice-extracthost',
-          'road-registry-backoffice-ui',
-          'road-registry-editor-projectionhost',
-          'road-registry-producer-snapshot-projectionhost',
-          'road-registry-product-projectionhost',
-          'road-registry-projector',
-          'road-registry-synchost',
-          'road-registry-syndication-projectionhost',
-          'road-registry-wfs-projectionhost',
-          'road-registry-wms-projectionhost'
+       matrix: 
+         services: [
+          'road-backoffice-api',
+          'road-backoffice-commandhost',
+          'road-backoffice-eventhost',
+          'road-backoffice-extracthost',
+          'road-backoffice-ui',
+          'road-editor-projectionhost',
+          'road-producer-snapshot-projectionhost',
+          'road-product-projectionhost',
+          'road-projector',
+          'road-synchost',
+          'road-syndication-projectionhost',
+          'road-wfs-projectionhost',
+          'road-wms-projectionhost'
         ]
-    steps:
-    - name: Deploy services
-      env:
-        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{matrix.services}}
-        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{matrix.services}}
-      uses: informatievlaanderen/awscurl-polling-action/polling-action@v1.0.10
-      with:
-          environment: test
-          version: ${{ needs.release.outputs.version }}
-          status-url: $STATUS_URL
-          deploy-url: $BUILD_URL
-          access-key: ${{ secrets.VBR_AWS_BUILD_USER_ACCESS_KEY_ID }}
-          secret-key: ${{ secrets.VBR_AWS_BUILD_USER_SECRET_ACCESS_KEY }}
-          region: eu-west-1
-          interval: 2
 
-    - name: Deploy services output
+    steps:
+    - name: CD services
+      env:
+        BUILD_URL: ${{ vars.VBR_AWS_BUILD_API_DEVOPS }}/${{matrix.services}}
+        STATUS_URL: ${{ vars.VBR_AWS_BUILD_STATUS_API_DEVOPS }}/${{matrix.services}}
+      uses: informatievlaanderen/awscurl-polling-action/polling-action@main
+      with:
+        environment: tst
+        version: ${{ needs.release.outputs.version }}
+        status-url: $STATUS_URL
+        deploy-url: $BUILD_URL
+        access-key: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
+        secret-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
+        interval: 2
+        deploy-target: 'agb_ecs_service'
+        domain: 'basisregisters'
+        project: 'basisregisters'
+
+    - name: Output CD services
+      shell: bash
+      run: |
+        echo build-uuid: ${{ steps.awscurl-polling-action.outputs.build-uuid }}
+        echo Status: ${{ steps.awscurl-polling-action.outputs.status }}
+        echo ${{ steps.awscurl-polling-action.outputs.final-message }}
+
+  deploy_tasks_to_test:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [ push_images, release, upload-lambda ]
+    name: Deploy tasks to test
+    runs-on: ubuntu-latest
+    strategy:
+       matrix: 
+         services: [
+          'road-adminhost'
+        ]
+
+    steps:
+    - name: CD services
+      env:
+        BUILD_URL: ${{ vars.VBR_AWS_BUILD_API_DEVOPS }}/${{matrix.services}}
+        STATUS_URL: ${{ vars.VBR_AWS_BUILD_STATUS_API_DEVOPS }}/${{matrix.services}}
+      uses: informatievlaanderen/awscurl-polling-action/polling-action@main
+      with:
+        environment: tst
+        version: ${{ needs.release.outputs.version }}
+        status-url: $STATUS_URL
+        deploy-url: $BUILD_URL
+        access-key: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
+        secret-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
+        interval: 2
+        deploy-target: 'ecs_scheduled_task'
+        domain: 'basisregisters'
+        project: 'basisregisters'
+
+    - name: Output CD tasks
       shell: bash
       run: |
         echo build-uuid: ${{ steps.awscurl-polling-action.outputs.build-uuid }}
@@ -909,13 +884,13 @@ jobs:
 
   deploy_lambda_to_test:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ deploy_to_test, release ]
-    name: Deploy lambda to test
+    needs: [ deploy_services_to_test, deploy_tasks_to_test, release ]
+    name: Deploy lambda(s) to test
     runs-on: ubuntu-latest
 
     steps:
     - name: CD Lambda(s) Configure credentials
-      uses: aws-actions/configure-aws-credentials@v1-node16
+      uses: aws-actions/configure-aws-credentials@v1.7.0
       with:
         aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
         aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
@@ -924,26 +899,33 @@ jobs:
     - name: Prepare Lambda(s)
       shell: bash
       run: |
-        aws s3 cp s3://196194905350-vbr-test-lam-rr-sqsbackoffice/$VERSION/lambda.zip s3://196194905350-vbr-test-lam-rr-sqsbackoffice/lambda.zip --copy-props none
-        aws s3 cp s3://196194905350-vbr-test-lam-rr-sqssnapshot/$VERSION/lambda.zip s3://196194905350-vbr-test-lam-rr-sqssnapshot/lambda.zip --copy-props none
+        aws s3 cp $S3_BASEURL-$FUNCTION_BACKOFFICE/$VERSION/lambda.zip $S3_BASEURL-$FUNCTION_BACKOFFICE/lambda.zip --copy-props none
+        aws s3 cp $S3_BASEURL-$FUNCTION_SNAPSHOT/$VERSION/lambda.zip $S3_BASEURL-$FUNCTION_SNAPSHOT/lambda.zip --copy-props none
       env:
         VERSION: ${{ needs.release.outputs.version }}
-
+        S3_BASEURL: s3://196194905350-vbr-test-lam
+        FUNCTION_BACKOFFICE: rr-sqsbackoffice
+        FUNCTION_SNAPSHOT: rr-sqssnapshot
+        
     - name: Promote Lambda(s)
       shell: bash
       run: |
         docker pull ghcr.io/okigan/awscurl:latest
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "rr-sqsbackofficefunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "rr-sqssnapshotfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+        
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "'$FUNCTION_BACKOFFICE'", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "'$FUNCTION_SNAPSHOT'", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
       env:
         ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
         SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
+        ENVIRONMENT: tst
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
         PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
+        FUNCTION_BACKOFFICE: rr-sqsbackofficefunction
+        FUNCTION_SNAPSHOT: rr-sqssnapshotfunction
 
   deploy_to_test_start_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ release, push_images_to_test ]
+    needs: [ release, push_images ]
     name: Deploy to test started
     environment: test
     runs-on: ubuntu-latest
@@ -965,7 +947,7 @@ jobs:
 
   deploy_to_test_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ release, deploy_lambda_to_test, push_images_to_staging, push_images_to_newproduction ]
+    needs: [ release, deploy_lambda_to_test, push_images_to_staging ]
     name: Deploy to test finished
     runs-on: ubuntu-latest
 
@@ -1042,70 +1024,6 @@ jobs:
         env:
           BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY }}
-          IMAGE: ${{ matrix.image }}
-          SEMVER: ${{ needs.release.outputs.version }}
-          WORKSPACE: ${{ github.workspace }}
-
-  push_images_to_newproduction:
-    if: needs.release.outputs.version != 'none'
-    needs: [ release ]
-    name: Push images to Production
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        image: [
-          'adminhost', 
-          'backoffice-api', 
-          'backoffice-commandhost', 
-          'backoffice-eventhost', 
-          'backoffice-extracthost', 
-          'backoffice-ui', 
-          'editor-projectionhost', 
-          'extract-legacy',
-          'import-legacy', 
-          'producer-snapshot-projectionhost',
-          'product-projectionhost', 
-          'projector', 
-          'synchost',
-          'syndication-projectionhost', 
-          'wfs-projectionhost', 
-          'wms-projectionhost'
-        ]
-    steps:
-      - name: Configure AWS credentials (Production)
-        uses: aws-actions/configure-aws-credentials@v1-node16
-        with:
-          aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD }}
-          aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD }}
-          aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-
-      - name: Login to Amazon ECR (Production)
-        uses: aws-actions/amazon-ecr-login@v1.5.3
-
-      - name: Download artifact
-        uses: actions/download-artifact@v3
-        continue-on-error: false
-        with:
-          name: ${{ matrix.image }}-${{ needs.release.outputs.version }}
-          path: ~/
-
-      - name: Load artifact
-        shell: bash
-        run: |
-          echo rr-$IMAGE-image.tar
-          docker image load -i ~/rr-$IMAGE-image.tar
-        env:
-          IMAGE: ${{ matrix.image }}
-
-      - name: Push artifacts to ECR (Production)
-        shell: bash
-        run: |
-          echo $IMAGE:$SEMVER
-          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/$IMAGE:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
-          docker push $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
-        env:
-          BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
-          BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_NEWPRD }}
           IMAGE: ${{ matrix.image }}
           SEMVER: ${{ needs.release.outputs.version }}
           WORKSPACE: ${{ github.workspace }}
