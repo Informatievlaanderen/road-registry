@@ -24,5 +24,9 @@
     <Content Include="paket.template" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="FeatureCompare\Readers\" />
+  </ItemGroup>
+
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

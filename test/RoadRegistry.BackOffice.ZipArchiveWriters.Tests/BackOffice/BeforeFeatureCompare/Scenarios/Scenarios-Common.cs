@@ -24,6 +24,6 @@ public class CommonScenarios: FeatureCompareTranslatorScenariosBase
     {
         var sut = ZipArchiveFeatureCompareTranslatorFactory.Create();
 
-        await Assert.ThrowsAsync<ArgumentNullException>(() => sut.Translate(null, CancellationToken.None));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => sut.TranslateAsync(null, CancellationToken.None));
     }
 }

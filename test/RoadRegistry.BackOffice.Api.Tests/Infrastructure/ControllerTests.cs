@@ -9,17 +9,20 @@ using SqlStreamStore;
 public abstract class ControllerTests<TController> : ControllerMinimalTests<TController>
     where TController : ControllerBase
 {
-    protected ControllerTests(TController controller, IMediator mediator, IStreamStore streamStore, RoadNetworkUploadsBlobClient uploadClient, RoadNetworkExtractUploadsBlobClient extractUploadClient, RoadNetworkFeatureCompareBlobClient featureCompareBlobClient)
+    protected ControllerTests(
+        TController controller,
+        IMediator mediator,
+        IStreamStore streamStore,
+        RoadNetworkUploadsBlobClient uploadClient,
+        RoadNetworkExtractUploadsBlobClient extractUploadClient)
         : base(controller, mediator)
     {
-        StreamStore = streamStore;
-        UploadBlobClient = uploadClient;
-        ExtractUploadBlobClient = extractUploadClient;
-        FeatureCompareBlobClient = featureCompareBlobClient;
+        StreamStore = streamStore.ThrowIfNull();
+        UploadBlobClient = uploadClient.ThrowIfNull();
+        ExtractUploadBlobClient = extractUploadClient.ThrowIfNull();
     }
 
     protected IStreamStore StreamStore { get; }
     protected RoadNetworkExtractUploadsBlobClient ExtractUploadBlobClient { get; }
-    protected RoadNetworkFeatureCompareBlobClient FeatureCompareBlobClient { get; }
     protected RoadNetworkUploadsBlobClient UploadBlobClient { get; }
 }

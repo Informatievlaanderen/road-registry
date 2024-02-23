@@ -1,11 +1,11 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
+using Autofac;
 using BackOffice.Extracts;
-using BackOffice.FeatureCompare;
-using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Core;
 using Exceptions;
+using FeatureCompare;
 using FluentValidation;
 using Framework;
 using Messages;
@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
-using Autofac;
 
 public class RoadNetworkExtractEventModule : EventHandlerModule
 {
@@ -28,7 +27,6 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         RoadNetworkExtractDownloadsBlobClient downloadsBlobClient,
         RoadNetworkExtractUploadsBlobClient uploadsBlobClient,
         IRoadNetworkExtractArchiveAssembler assembler,
-        IZipArchiveTranslator translator,
         IStreamStore store,
         ApplicationMetadata applicationMetadata,
         IRoadNetworkEventWriter roadNetworkEventWriter,
@@ -39,7 +37,6 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         ArgumentNullException.ThrowIfNull(downloadsBlobClient);
         ArgumentNullException.ThrowIfNull(uploadsBlobClient);
         ArgumentNullException.ThrowIfNull(assembler);
-        ArgumentNullException.ThrowIfNull(translator);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(applicationMetadata);
         ArgumentNullException.ThrowIfNull(roadNetworkEventWriter);
@@ -77,9 +74,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
                         var requestedChanges = new List<RequestedChange>();
-                        var translatedChanges = message.Body.UseZipArchiveFeatureCompareTranslator
-                            ? await featureCompareTranslator.Translate(archive, ct)
-                            : translator.Translate(archive);
+                        var translatedChanges = await featureCompareTranslator.TranslateAsync(archive, ct);
                         foreach (var change in translatedChanges)
                         {
                             var requestedChange = new RequestedChange();

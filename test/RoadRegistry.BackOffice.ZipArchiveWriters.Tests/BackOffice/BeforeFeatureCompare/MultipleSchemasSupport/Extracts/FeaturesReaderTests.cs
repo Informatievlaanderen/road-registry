@@ -265,7 +265,7 @@ public class FeaturesReaderTests
 
             try
             {
-                var result = await sut.Translate(zipArchive, CancellationToken.None);
+                var result = await sut.TranslateAsync(zipArchive, CancellationToken.None);
 
                 Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
             }

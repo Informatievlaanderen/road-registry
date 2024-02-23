@@ -10,8 +10,9 @@ using System.Threading.Tasks;
 using Translators;
 using Uploads;
 
-public interface IZipArchiveFeatureCompareTranslator : IZipArchiveTranslatorAsync
+public interface IZipArchiveFeatureCompareTranslator
 {
+    Task<TranslatedChanges> TranslateAsync(ZipArchive archive, CancellationToken cancellationToken);
 }
 
 public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTranslator
@@ -50,7 +51,7 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
         };
     }
 
-    public async Task<TranslatedChanges> Translate(ZipArchive archive, CancellationToken cancellationToken)
+    public async Task<TranslatedChanges> TranslateAsync(ZipArchive archive, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
 

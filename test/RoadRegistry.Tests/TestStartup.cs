@@ -19,7 +19,6 @@ using NodaTime;
 using NodaTime.Testing;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Abstractions;
-using RoadRegistry.BackOffice.Abstractions.Configuration;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Framework;
@@ -90,15 +89,9 @@ public abstract class TestStartup
                     .AddSingleton(new ZipArchiveWriterOptions())
                     .AddSingleton(new ExtractDownloadsOptions())
                     .AddSingleton(new ExtractUploadsOptions())
-                    .AddSingleton(new FeatureCompareMessagingOptions
-                    {
-                        RequestQueueUrl = "request.fifo",
-                        ResponseQueueUrl = "response.fifo"
-                    })
                     .AddSingleton(FileEncoding.UTF8)
                     .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
                     .AddTransient<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
-                    .AddTransient<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
                     .AddSingleton<IBeforeFeatureCompareZipArchiveCleaner, BeforeFeatureCompareZipArchiveCleaner>()
                     .AddFeatureCompareTranslator()
                     .AddValidatorsFromAssemblies(availableModuleAssemblyCollection)

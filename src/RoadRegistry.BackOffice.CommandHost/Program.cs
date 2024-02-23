@@ -81,7 +81,6 @@ public class Program
                     sp.GetRequiredService<ILifetimeScope>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     sp.GetRequiredService<IZipArchiveBeforeFeatureCompareValidator>(),
-                    new ZipArchiveAfterFeatureCompareValidator(sp.GetRequiredService<FileEncoding>()),
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 ),
@@ -101,7 +100,6 @@ public class Program
                     sp.GetRequiredService<ILifetimeScope>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     sp.GetRequiredService<IZipArchiveBeforeFeatureCompareValidator>(),
-                    new ZipArchiveAfterFeatureCompareValidator(sp.GetRequiredService<FileEncoding>()),
                     sp.GetService<IExtractUploadFailedEmailClient>(),
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<ILoggerFactory>()

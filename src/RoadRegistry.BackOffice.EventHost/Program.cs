@@ -64,7 +64,6 @@ public class Program
                         new RoadNetworkChangesArchiveEventModule(
                             sp.GetService<ILifetimeScope>(),
                             sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
-                            new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveTranslator>>()),
                             sp.GetRequiredService<IStreamStore>(),
                             ApplicationMetadata,
                             sp.GetRequiredService<TransactionZoneFeatureCompareFeatureReader>(),

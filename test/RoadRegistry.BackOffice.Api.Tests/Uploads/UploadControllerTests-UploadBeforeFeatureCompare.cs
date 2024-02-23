@@ -1,10 +1,9 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Uploads;
-using Api.Extracts;
+
+using Api.Uploads;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Exceptions;
-using FeatureToggles;
-using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using RoadRegistry.Tests.BackOffice;
 
@@ -17,33 +16,17 @@ public partial class UploadControllerTests
     {
         var formFile = EmbeddedResourceReader.ReadFormFile(new MemoryStream(), "name", "application/octet-stream");
         var result = await Controller.UploadBeforeFeatureCompare(
-            new UseFeatureCompareFeatureToggle(true),
-            new UseZipArchiveFeatureCompareTranslatorFeatureToggle(true),
             formFile,
             CancellationToken.None);
         Assert.IsType<UnsupportedMediaTypeResult>(result);
     }
-
-    [Fact]
-    public async Task When_uploading_a_before_fc_file_with_featuretoggle_disabled()
-    {
-        var formFile = EmbeddedResourceReader.ReadFormFile(new MemoryStream(), "name", "application/octet-stream");
-        var result = await Controller.UploadBeforeFeatureCompare(
-            new UseFeatureCompareFeatureToggle(false),
-            new UseZipArchiveFeatureCompareTranslatorFeatureToggle(false),
-            formFile, CancellationToken.None);
-
-        Assert.IsType<NotFoundResult>(result);
-    }
-
+    
     [Fact]
     public async Task When_uploading_an_externally_created_before_fc_file_that_is_a_valid_zip()
     {
         await using var sourceStream = await EmbeddedResourceReader.ReadAsync("valid-before.zip");
         var formFile = EmbeddedResourceReader.ReadFormFile(sourceStream, "valid-before.zip", "application/zip");
         var result = await Controller.UploadBeforeFeatureCompare(
-            new UseFeatureCompareFeatureToggle(true),
-            new UseZipArchiveFeatureCompareTranslatorFeatureToggle(true),
             formFile, CancellationToken.None);
 
         var typedResult = Assert.IsType<AcceptedResult>(result);
@@ -67,8 +50,6 @@ public partial class UploadControllerTests
         try
         {
             await Controller.UploadBeforeFeatureCompare(
-                new UseFeatureCompareFeatureToggle(true),
-                new UseZipArchiveFeatureCompareTranslatorFeatureToggle(true),
                 await EmbeddedResourceReader.ReadFormFileAsync("empty.zip", "application/zip", CancellationToken.None),
                 CancellationToken.None);
             
@@ -195,10 +176,7 @@ public partial class UploadControllerTests
         IActionResult result;
         try
         {
-            result = await Controller.UploadBeforeFeatureCompare(
-                new UseFeatureCompareFeatureToggle(true),
-                new UseZipArchiveFeatureCompareTranslatorFeatureToggle(true),
-                formFile, CancellationToken.None);
+            result = await Controller.UploadBeforeFeatureCompare(formFile, CancellationToken.None);
         }
         catch (ZipArchiveValidationException ex)
         {

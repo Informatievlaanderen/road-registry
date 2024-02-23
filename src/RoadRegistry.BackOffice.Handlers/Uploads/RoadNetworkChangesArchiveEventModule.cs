@@ -22,7 +22,6 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
     public RoadNetworkChangesArchiveEventModule(
         ILifetimeScope lifetimeScope,
         RoadNetworkUploadsBlobClient client,
-        IZipArchiveTranslator translator,
         IStreamStore store,
         ApplicationMetadata applicationMetadata,
         TransactionZoneFeatureCompareFeatureReader transactionZoneFeatureReader,
@@ -32,7 +31,6 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
     {
         ArgumentNullException.ThrowIfNull(lifetimeScope);
         ArgumentNullException.ThrowIfNull(client);
-        ArgumentNullException.ThrowIfNull(translator);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(applicationMetadata);
         ArgumentNullException.ThrowIfNull(transactionZoneFeatureReader);
@@ -60,9 +58,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
                         var requestedChanges = new List<RequestedChange>();
-                        var translatedChanges = message.Body.UseZipArchiveFeatureCompareTranslator
-                            ? await featureCompareTranslator.Translate(archive, ct)
-                            : translator.Translate(archive);
+                        var translatedChanges = await featureCompareTranslator.TranslateAsync(archive, ct);
                         foreach (var change in translatedChanges)
                         {
                             var requestedChange = new RequestedChange();

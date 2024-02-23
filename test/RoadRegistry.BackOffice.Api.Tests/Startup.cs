@@ -43,7 +43,6 @@ public class Startup : TestStartup
                     sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
-                    sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                     sp.GetService<IClock>(),
                     sp.GetService<ILoggerFactory>()
                 ),
@@ -63,7 +62,6 @@ public class Startup : TestStartup
                     sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
-                    sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                     sp.GetService<IExtractUploadFailedEmailClient>(),
                     sp.GetService<IClock>(),
                     sp.GetService<ILoggerFactory>()

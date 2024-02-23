@@ -54,13 +54,7 @@ public class RoadNetworkExtract : EventSourcedEntity
         {
             _knownUploads.Add(new UploadId(e.UploadId));
 
-            FeatureCompareCompleted = false;
             IsInformative = true;
-        });
-        On<RoadNetworkExtractChangesArchiveFeatureCompareCompleted>(e =>
-        {
-            _knownUploads.Add(new UploadId(e.UploadId));
-            FeatureCompareCompleted = true;
         });
         On<RoadNetworkExtractClosed>(e =>
         {
@@ -71,7 +65,6 @@ public class RoadNetworkExtract : EventSourcedEntity
     public ExtractRequestId Id { get; private set; }
     public ExtractDescription Description { get; private set; }
     public DateTime DateRequested { get; private set; }
-    public bool FeatureCompareCompleted { get; private set; }
     public bool IsInformative { get; private set; }
 
     public void AnnounceAvailable(DownloadId downloadId, ArchiveId archiveId)
@@ -146,7 +139,7 @@ public class RoadNetworkExtract : EventSourcedEntity
             });
     }
 
-    public RoadNetworkExtractUpload Upload(DownloadId downloadId, UploadId uploadId, ArchiveId archiveId, bool featureCompareCompleted = false)
+    public RoadNetworkExtractUpload Upload(DownloadId downloadId, UploadId uploadId, ArchiveId archiveId)
     {
         if (!_requestedDownloads.Contains(downloadId))
             throw new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException(
@@ -160,30 +153,15 @@ public class RoadNetworkExtract : EventSourcedEntity
             throw new CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException(
                 _externalExtractRequestId, Id, downloadId, uploadId);
 
-        if (featureCompareCompleted)
+        Apply(new RoadNetworkExtractChangesArchiveUploaded
         {
-            Apply(new RoadNetworkExtractChangesArchiveFeatureCompareCompleted
-            {
-                Description = Description,
-                RequestId = Id,
-                ExternalRequestId = _externalExtractRequestId,
-                DownloadId = downloadId,
-                UploadId = uploadId,
-                ArchiveId = archiveId
-            });
-        }
-        else
-        {
-            Apply(new RoadNetworkExtractChangesArchiveUploaded
-            {
-                Description = Description,
-                RequestId = Id,
-                ExternalRequestId = _externalExtractRequestId,
-                DownloadId = downloadId,
-                UploadId = uploadId,
-                ArchiveId = archiveId
-            });
-        }
+            Description = Description,
+            RequestId = Id,
+            ExternalRequestId = _externalExtractRequestId,
+            DownloadId = downloadId,
+            UploadId = uploadId,
+            ArchiveId = archiveId
+        });
 
         return new RoadNetworkExtractUpload(
             _externalExtractRequestId,

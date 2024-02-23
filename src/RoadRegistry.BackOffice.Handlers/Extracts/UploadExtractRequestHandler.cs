@@ -94,8 +94,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                 RequestId = download.RequestId,
                 DownloadId = download.DownloadId,
                 UploadId = uploadId,
-                ArchiveId = archiveId,
-                UseZipArchiveFeatureCompareTranslator = request.UseZipArchiveFeatureCompareTranslator
+                ArchiveId = archiveId
             });
 
         await Dispatch(message, cancellationToken);

@@ -40,7 +40,6 @@ public class Program
                             sp.GetService<ILifetimeScope>(),
                             sp.GetService<IRoadNetworkSnapshotReader>(),
                             sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
-                            sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                             sp.GetService<IExtractUploadFailedEmailClient>(),
                             sp.GetService<IClock>(),
                             sp.GetService<ILoggerFactory>()
@@ -54,7 +53,6 @@ public class Program
                 .AddStreetNameCache()
                 .AddFeatureCompareTranslator()
                 .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
-                .AddSingleton<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
                 .AddScoped(_ => new EventSourcedEntityMap())
                 .AddStreamStore()
                 .AddSingleton<IClock>(SystemClock.Instance)

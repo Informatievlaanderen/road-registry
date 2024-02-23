@@ -52,7 +52,6 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
         Client = new MemoryBlobClient();
         Clock = new FakeClock(NodaConstants.UnixEpoch);
         ZipArchiveBeforeFeatureCompareValidator = new FakeZipArchiveBeforeFeatureCompareValidator();
-        ZipArchiveAfterFeatureCompareValidator = new FakeZipArchiveAfterFeatureCompareValidator();
         ExtractUploadFailedEmailClient = new FakeExtractUploadFailedEmailClient();
         LoggerFactory = new LoggerFactory();
 
@@ -64,7 +63,6 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     public FakeClock Clock { get; }
     public Fixture ObjectProvider { get; }
     public IStreamStore Store { get; private set; }
-    public IZipArchiveAfterFeatureCompareValidator ZipArchiveAfterFeatureCompareValidator { get; set; }
     public IZipArchiveBeforeFeatureCompareValidator ZipArchiveBeforeFeatureCompareValidator { get; set; }
     public IExtractUploadFailedEmailClient ExtractUploadFailedEmailClient { get; set; }
     protected IRoadRegistryContext RoadRegistryContext { get; }
@@ -160,7 +158,6 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
                     EntityMapFactory,
                     new FakeRoadNetworkSnapshotReader(),
                     ZipArchiveBeforeFeatureCompareValidator,
-                    ZipArchiveAfterFeatureCompareValidator,
                     ExtractUploadFailedEmailClient,
                     Clock,
                     LoggerFactory)

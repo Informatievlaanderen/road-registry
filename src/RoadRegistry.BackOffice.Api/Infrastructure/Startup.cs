@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure;
 
 using Abstractions;
-using Abstractions.Configuration;
 using Amazon;
 using Amazon.DynamoDBv2;
 using Authentication;
@@ -274,13 +273,11 @@ public class Startup
             .AddStreetNameCache()
             .AddFeatureCompareTranslator()
             .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
-            .AddSingleton<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
             .AddSingleton<IBeforeFeatureCompareZipArchiveCleaner, BeforeFeatureCompareZipArchiveCleaner>()
             .AddSingleton<ProblemDetailsHelper>()
             .RegisterOptions<ZipArchiveWriterOptions>()
             .RegisterOptions<ExtractDownloadsOptions>()
             .RegisterOptions<ExtractUploadsOptions>()
-            .RegisterOptions<FeatureCompareMessagingOptions>()
             .RegisterOptions<OpenIdConnectOptions>()
             .AddStreamStore()
             .AddSingleton<IClock>(SystemClock.Instance)
@@ -308,7 +305,6 @@ public class Startup
                         sp.GetService<ILifetimeScope>(),
                         sp.GetService<IRoadNetworkSnapshotReader>(),
                         sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
-                        sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                         sp.GetService<IClock>(),
                         sp.GetService<ILoggerFactory>()
                     ),
@@ -328,7 +324,6 @@ public class Startup
                         sp.GetService<ILifetimeScope>(),
                         sp.GetService<IRoadNetworkSnapshotReader>(),
                         sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
-                        sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                         sp.GetService<IExtractUploadFailedEmailClient>(),
                         sp.GetService<IClock>(),
                         sp.GetService<ILoggerFactory>()

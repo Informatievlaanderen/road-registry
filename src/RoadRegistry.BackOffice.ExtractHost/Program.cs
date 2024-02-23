@@ -77,7 +77,6 @@ public class Program
                             sp.GetService<RoadNetworkExtractDownloadsBlobClient>(),
                             sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                             sp.GetService<IRoadNetworkExtractArchiveAssembler>(),
-                            new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>()),
                             sp.GetService<IStreamStore>(),
                             ApplicationMetadata,
                             sp.GetService<IRoadNetworkEventWriter>(),

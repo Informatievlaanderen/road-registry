@@ -4,7 +4,6 @@ using Api.Organizations;
 using BackOffice.Extracts;
 using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Uploads;
-using Editor.Projections;
 using Editor.Schema;
 using Editor.Schema.Extensions;
 using Infrastructure;
@@ -28,15 +27,14 @@ public partial class OrganizationControllerTests : ControllerTests<Organizations
         EditorContext editorContext,
         RoadNetworkUploadsBlobClient uploadClient,
         RoadNetworkExtractUploadsBlobClient extractUploadClient,
-        RoadNetworkFeatureCompareBlobClient featureCompareBlobClient,
         RecyclableMemoryStreamManager manager,
         FileEncoding fileEncoding)
-        : base(controller, mediator, streamStore, uploadClient, extractUploadClient, featureCompareBlobClient)
+        : base(controller, mediator, streamStore, uploadClient, extractUploadClient)
     {
-        _testOutputHelper = testOutputHelper;
-        _editorContext = editorContext;
-        _manager = manager;
-        _encoding = fileEncoding;
+        _testOutputHelper = testOutputHelper.ThrowIfNull();
+        _editorContext = editorContext.ThrowIfNull();
+        _manager = manager.ThrowIfNull();
+        _encoding = fileEncoding.ThrowIfNull();
     }
 
     public async Task InitializeAsync()
