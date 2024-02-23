@@ -21,7 +21,7 @@ public partial class ChangeFeedControllerTests
     public async Task When_downloading_next_changes_of_an_empty_registry()
     {
         await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
-        var result = await Controller.GetNext(new[] { "0" }, new[] { "5" }, context);
+        var result = await Controller.GetNext(0, 5, null, context);
 
         var jsonResult = Assert.IsType<JsonResult>(result);
         Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
@@ -95,7 +95,7 @@ public partial class ChangeFeedControllerTests
         });
 
         await using var editorContext = await _fixture.CreateEditorContextAsync(database);
-        var result = await Controller.GetNext(new[] { "1" }, new[] { "3" }, editorContext);
+        var result = await Controller.GetNext(1, 3, null, editorContext);
 
         var jsonResult = Assert.IsType<JsonResult>(result);
         Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
@@ -135,72 +135,12 @@ public partial class ChangeFeedControllerTests
     }
 
     [Fact]
-    public async Task When_downloading_next_changes_with_a_max_entry_count_that_is_not_an_integer()
-    {
-        await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
-        try
-        {
-            await Controller.GetNext(new[] { "0" }, new[] { "abc" }, context);
-            throw new XunitException("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException exception)
-        {
-            exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter value must be an integer.") });
-        }
-    }
-
-    [Fact]
-    public async Task When_downloading_next_changes_with_an_after_entry_that_is_not_an_integer()
-    {
-        await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
-        try
-        {
-            await Controller.GetNext(new[] { "abc" }, new[] { "0" }, context);
-            throw new XunitException("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException exception)
-        {
-            exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("AfterEntry", "AfterEntry query string parameter value must be an integer.") });
-        }
-    }
-
-    [Fact]
-    public async Task When_downloading_next_changes_with_too_many_after_entries_specified()
-    {
-        await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
-        try
-        {
-            await Controller.GetNext(new[] { "1", "2" }, new[] { "0" }, context);
-            throw new XunitException("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException exception)
-        {
-            exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("AfterEntry", "AfterEntry query string parameter requires exactly 1 value.") });
-        }
-    }
-
-    [Fact]
-    public async Task When_downloading_next_changes_with_too_many_max_entry_counts_specified()
-    {
-        await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
-        try
-        {
-            await Controller.GetNext(new[] { "0" }, new[] { "5", "10" }, context);
-            throw new XunitException("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException exception)
-        {
-            exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter requires exactly 1 value.") });
-        }
-    }
-
-    [Fact]
     public async Task When_downloading_next_changes_without_specifying_a_max_entry_count()
     {
         await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
         try
         {
-            await Controller.GetNext(new[] { "0" }, new string[] { }, context);
+            await Controller.GetNext(0, null, null, context);
             throw new XunitException("Expected a validation exception but did not receive any");
         }
         catch (ValidationException exception)
@@ -215,7 +155,7 @@ public partial class ChangeFeedControllerTests
         await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
         try
         {
-            await Controller.GetNext(new string[] { }, new[] { "0" }, context);
+            await Controller.GetNext(null, 0, null, context);
             throw new XunitException("Expected a validation exception but did not receive any");
         }
         catch (ValidationException exception)

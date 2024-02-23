@@ -1,12 +1,19 @@
 namespace RoadRegistry.BackOffice.Api.Changes;
 
-using System.Globalization;
 using Be.Vlaanderen.Basisregisters.Api;
-using Infrastructure;
-using MediatR;
+using Editor.Schema;
+using Editor.Schema.RoadNetworkChanges;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using NodaTime.Text;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
+using Version = Infrastructure.Version;
 
 [ApiVersion(Version.Current)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
@@ -18,11 +25,36 @@ public partial class ChangeFeedController : ApiController
     private readonly LocalTimePattern _localTimeOfDayPattern;
     private readonly DateTimeZone _localTimeZone;
 
-    public ChangeFeedController(IMediator? mediator)
+    public ChangeFeedController()
     {
         _localTimeZone = DateTimeZoneProviders.Tzdb["Europe/Brussels"];
         _localMonthPattern = LocalDatePattern.Create("MMM", new CultureInfo("nl-BE"));
         _localTimeOfDayPattern = LocalTimePattern.CreateWithInvariantCulture("HH':'mm");
+    }
+
+    private async Task<ChangeFeedEntry[]> GetChangeFeedEntries(EditorContext context, Func<IQueryable<RoadNetworkChange>, IQueryable<RoadNetworkChange>> queryFilter)
+    {
+        return (await queryFilter(context
+                    .RoadNetworkChanges
+                    .AsQueryable()
+                )
+                .Select(change => new
+                {
+                    change.Id,
+                    change.Title,
+                    change.Type,
+                    change.When
+                })
+                .ToListAsync(HttpContext.RequestAborted)
+            )
+            .Select(change =>
+            {
+                var when = InstantPattern.ExtendedIso.Parse(change.When).GetValueOrThrow();
+                var localWhen = when.InZone(_localTimeZone).LocalDateTime;
+                return new ChangeFeedEntry(change.Id, change.Title, change.Type, localWhen.Day.ToString("00"), _localMonthPattern.Format(localWhen.Date), _localTimeOfDayPattern.Format(localWhen.TimeOfDay));
+            })
+            .OrderByDescending(entry => entry.Id)
+            .ToArray();
     }
 }
 

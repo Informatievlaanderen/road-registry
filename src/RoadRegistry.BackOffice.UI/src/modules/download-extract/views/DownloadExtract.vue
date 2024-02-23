@@ -103,9 +103,7 @@
               <vl-button
                 @click="submitMunicipalityRequest"
                 :mod-disabled="
-                  isSubmitting ||
-                  !isDescriptionValid(municipalityFlow.description) ||
-                  !municipalityFlowHasIsInformative
+                  isSubmitting || !isDescriptionValid(municipalityFlow.description) || !municipalityFlowHasIsInformative
                 "
               >
                 Extract aanvragen
@@ -509,7 +507,7 @@ export default Vue.extend({
           buffer: this.municipalityFlow.buffer ? 100 : 0,
           nisCode: this.municipalityFlow.nisCode,
           description: this.municipalityFlow.description,
-          isInformative: this.municipalityFlow.isInformative as Boolean
+          isInformative: this.municipalityFlow.isInformative as Boolean,
         };
 
         const response = await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
@@ -519,7 +517,10 @@ export default Vue.extend({
           setTimeout(resolve, 2000);
         });
 
-        this.$router.push({ name: "activiteit", params: { downloadId: response.downloadId } });
+        this.$router.push({
+          name: "activiteit",
+          query: { filter: this.municipalityFlow.description },
+        });
       } catch (error) {
         console.error("Submit municipality failed", error);
         this.municipalityFlow.hasGenericError = true;
@@ -546,7 +547,7 @@ export default Vue.extend({
               const requestData: RoadRegistry.DownloadExtractByFileRequest = {
                 files: this.contourFlow.files,
                 description: this.contourFlow.description,
-                isInformative: this.contourFlow.isInformative as Boolean
+                isInformative: this.contourFlow.isInformative as Boolean,
               };
               response = await BackOfficeApi.Extracts.postDownloadRequestByFile(requestData);
             }
@@ -556,7 +557,7 @@ export default Vue.extend({
               const requestData: RoadRegistry.DownloadExtractByContourRequest = {
                 contour: this.contourFlow.wkt,
                 description: this.contourFlow.description,
-                isInformative: this.contourFlow.isInformative as Boolean
+                isInformative: this.contourFlow.isInformative as Boolean,
               };
 
               response = await PublicApi.Extracts.postDownloadRequestByContour(requestData);
@@ -566,7 +567,7 @@ export default Vue.extend({
             throw new Error(`Not implemented contour type: ${this.contourFlow.contourType}`);
         }
 
-        this.$router.push({ name: "activiteit", params: { downloadId: response.downloadId } });
+        this.$router.push({ name: "activiteit", query: { filter: this.contourFlow.description } });
       } catch (exception) {
         if (exception instanceof RoadRegistryExceptions.RequestExtractPerContourError) {
           this.contourFlow.hasValidationErrors = true;
