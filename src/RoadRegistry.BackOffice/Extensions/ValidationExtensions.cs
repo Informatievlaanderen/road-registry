@@ -81,7 +81,11 @@ public static class ValidationExtensions
 
     public static ProblemTranslation TranslateToDutch(this Problem problem)
     {
-        return ProblemTranslator.Dutch(problem.Translate());
+        return problem.Translate().TranslateToDutch();
+    }
+    public static ProblemTranslation TranslateToDutch(this Messages.Problem problem)
+    {
+        return ProblemTranslator.Dutch(problem);
     }
 
     public static async Task ValidateAndThrowAsync<T>(this IValidator<T> validator, T instance, Func<ValidationResult, Exception> exceptionBuilder, CancellationToken cancellationToken)
