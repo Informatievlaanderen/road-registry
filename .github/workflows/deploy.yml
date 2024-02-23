@@ -8,9 +8,7 @@ on:
         type: choice
         description: Select the environment
         options:
-        - tst
         - stg
-        - prd
         required: true
       version:
         description: Version
