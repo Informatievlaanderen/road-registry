@@ -1,5 +1,13 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
+using Authentication;
+using BackOffice.Extensions;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
+using FluentValidation;
+using IdentityModel.Client;
+using Microsoft.AspNetCore.Mvc;
+using RoadRegistry.BackOffice.Core.ProblemCodes;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -7,11 +15,6 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Authentication;
-using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
-using IdentityModel.Client;
-using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 public partial class RoadRegistrySecurityController
 {
@@ -26,6 +29,13 @@ public partial class RoadRegistrySecurityController
         string? redirectUri,
         CancellationToken cancellationToken)
     {
+        var parameters = new ExchangeCodeParameters
+        {
+            Code = code,
+            Verifier = verifier
+        };
+        await new ExchangeCodeParametersValidator().ValidateAndThrowAsync(parameters, cancellationToken);
+        
         using var httpClient = httpClientFactory.CreateClient();
         var tokenEndpointAddress =
             $"{_openIdConnectOptions.Authority}{_openIdConnectOptions.TokenEndPoint}";
@@ -70,6 +80,25 @@ public partial class RoadRegistrySecurityController
         foreach (var scope in scopes)
         {
             identity.AddClaim(new Claim(AcmIdmClaimTypes.Scope, scope));
+        }
+    }
+
+    private sealed class ExchangeCodeParameters
+    {
+        public string Code { get; set; }
+        public string Verifier { get; set; }
+    }
+
+    private sealed class ExchangeCodeParametersValidator : AbstractValidator<ExchangeCodeParameters>
+    {
+        public ExchangeCodeParametersValidator()
+        {
+            RuleFor(x => x.Code)
+                .NotEmpty()
+                .WithProblemCode(ProblemCode.Common.IsRequired);
+            RuleFor(x => x.Verifier)
+                .NotEmpty()
+                .WithProblemCode(ProblemCode.Common.IsRequired);
         }
     }
 }
