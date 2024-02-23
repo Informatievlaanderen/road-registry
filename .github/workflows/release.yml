@@ -1084,7 +1084,7 @@ jobs:
     if: ${{ github.repository_owner == 'Informatievlaanderen' && failure() && needs.release.outputs.version && needs.release.outputs.version != 'none' }}
     name: Notify deployment failed
     runs-on: ubuntu-latest
-    needs: [ deploy_to_test, release ]
+    needs: [ deploy_services_to_test, deploy_tasks_to_test, release ]
     steps:
       - name: Notify deployment failed
         id: slack
