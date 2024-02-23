@@ -11,6 +11,10 @@
               :mod-error="alertInfo.error"
             >
               <p>{{ alertInfo.text }}</p>
+              <p v-if="uploadResult.changeRequestId">
+                U kan de vooruitgang volgen via <a :href="redirectToActivityPageUrl">Activiteit</a>. U wordt binnen 5
+                seconden doorverwezen.
+              </p>
             </vl-alert>
           </vl-column>
 
@@ -46,10 +50,6 @@
               @upload-file-added="processing"
               @upload-file-added-manually="processing"
             />
-
-            <div v-if="uploadResult.changeRequestId">
-              <vl-button @click="redirectToActivityPage()">Klik hier voor je upload in de Activiteiten pagina te volgen</vl-button>
-            </div>
 
             <div v-if="alertInfo.fileProblems && alertInfo.fileProblems.length > 0">
               <div v-for="fileProblem in alertInfo.fileProblems" :key="fileProblem.file">
@@ -94,6 +94,7 @@ export default Vue.extend({
         fileProblems: Array<any> | undefined;
         changeRequestId: string | undefined;
       },
+      redirectToActivityPageTimeout: null as any,
     };
   },
   computed: {
@@ -148,7 +149,7 @@ export default Vue.extend({
           status.success = true;
           status.title = "Gelukt!";
           status.text =
-            "Oplading is gelukt. We gaan nu het bestand inhoudelijk controleren en daarna de wijzigingen toepassen. U kan de vooruitgang volgen via Activiteit.";
+            "Oplading is gelukt. We gaan nu het bestand inhoudelijk controleren en daarna de wijzigingen toepassen.";
           break;
         case 400:
           status.warning = true;
@@ -185,6 +186,14 @@ export default Vue.extend({
 
       return status;
     },
+    redirectToActivityPageUrl() {
+      return this.$router.resolve({ name: "activiteit", query: { filter: this.uploadResult.changeRequestId } }).href;
+    },
+  },
+  beforeDestroy() {
+    if (this.redirectToActivityPageTimeout) {
+      clearTimeout(this.redirectToActivityPageTimeout);
+    }
   },
   methods: {
     async processing(file: File) {
@@ -210,12 +219,16 @@ export default Vue.extend({
           } else {
             uploadResponse = await BackOfficeApi.Uploads.upload(file, file.name);
           }
-          
+
           this.uploadResult = {
             uploadResponseCode: uploadResponse.status,
             fileProblems: undefined,
             changeRequestId: uploadResponse.changeRequestId,
           };
+
+          if (this.uploadResult.changeRequestId) {
+            this.redirectToActivityPageTimeout = setTimeout(this.redirectToActivityPage, 5000);
+          }
         } catch (err: any) {
           if (err?.response?.status === 400) {
             let validationErrors = err?.response?.data?.validationErrors;
