@@ -108,13 +108,13 @@ public class Program
             .Build();
 
         await roadRegistryHost
-            .LogSqlServerConnectionStrings([
+            .LogSqlServerConnectionStrings(new[] {
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.EventHost,
                 WellKnownConnectionNames.EventHostAdmin,
                 WellKnownConnectionNames.Snapshots,
                 WellKnownConnectionNames.SnapshotsAdmin
-            ])
+            })
             .Log((sp, logger) =>
             {
                 var blobClientOptions = sp.GetService<BlobClientOptions>();

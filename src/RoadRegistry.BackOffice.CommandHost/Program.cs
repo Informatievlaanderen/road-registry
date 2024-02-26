@@ -111,12 +111,12 @@ public class Program
             .Build();
 
         await roadRegistryHost
-            .LogSqlServerConnectionStrings([
+            .LogSqlServerConnectionStrings(new [] {
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.CommandHost,
                 WellKnownConnectionNames.CommandHostAdmin,
                 WellKnownConnectionNames.Snapshots
-            ])
+            })
             .RunAsync(async (sp, host, configuration) =>
             {
                 await
