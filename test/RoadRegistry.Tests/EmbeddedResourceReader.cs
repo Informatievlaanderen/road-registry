@@ -56,25 +56,40 @@ public sealed class EmbeddedResourceReader
 
     public static bool TryFindEmbeddedResourceName(string fileName, out Type resourceType, out string resourceName)
     {
-        resourceType = new StackTrace()
-            .GetFrames()
-            .Where(frame =>
+        var resourceTypes = new[]
+        {
+            new StackTrace()
+                .GetFrames()
+                .Where(frame =>
+                {
+                    var declaringType = frame.GetMethod()?.DeclaringType;
+                    var fullName = declaringType?.FullName ?? string.Empty;
+                    return fullName.StartsWith("RoadRegistry") && !fullName.Contains(nameof(EmbeddedResourceReader)) && !(declaringType?.IsNested ?? false);
+                })
+                .Select(frame => frame.GetMethod()!.DeclaringType)
+                .LastOrDefault(),
+            typeof(TestStartup)
+        }.Where(x => x != null).Distinct().ToArray();
+
+        foreach (var resourceTypeItem in resourceTypes)
+        {
+            resourceType = resourceTypeItem;
+
+            var resourceNames = resourceType
+                .Assembly
+                .GetManifestResourceNames();
+
+            resourceName = resourceNames
+                .SingleOrDefault(embeddedResource => embeddedResource.EndsWith($".{fileName}", StringComparison.InvariantCultureIgnoreCase));
+
+            if (resourceName is not null)
             {
-                var declaringType = frame.GetMethod().DeclaringType;
-                var fullName = declaringType.FullName;
-                return fullName.StartsWith("RoadRegistry") && !fullName.Contains(nameof(EmbeddedResourceReader)) && !declaringType.IsNested;
-            })
-            .Select(frame => frame.GetMethod().DeclaringType)
-            .LastOrDefault();
+                return true;
+            }
+        }
 
-        var resourceNames = resourceType
-            .Assembly
-            .GetManifestResourceNames();
-
-        resourceName = resourceNames
-            .Where(embeddedResource => embeddedResource.EndsWith($".{fileName}", StringComparison.InvariantCultureIgnoreCase))
-            .SingleOrDefault();
-
-        return resourceName is not null;
+        resourceType = null;
+        resourceName = null;
+        return false;
     }
 }

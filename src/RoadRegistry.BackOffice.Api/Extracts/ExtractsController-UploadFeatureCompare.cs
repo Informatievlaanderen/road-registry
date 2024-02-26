@@ -24,10 +24,10 @@ public partial class ExtractsController
     ///     of cancellation.
     /// </param>
     /// <returns>Task&lt;IActionResult&gt;.</returns>
-    [HttpPost(PostFeatureCompareUploadRoute, Name = nameof(UploadBeforeFeatureCompare))]
-    [SwaggerOperation(OperationId = nameof(UploadBeforeFeatureCompare), Description = "")]
+    [HttpPost(PostFeatureCompareUploadRoute, Name = nameof(UploadFeatureCompare))]
+    [SwaggerOperation(OperationId = nameof(UploadFeatureCompare), Description = "")]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public Task<IActionResult> UploadBeforeFeatureCompare(
+    public Task<IActionResult> UploadFeatureCompare(
         [FromRoute] string downloadId,
         IFormFile archive,
         CancellationToken cancellationToken)
