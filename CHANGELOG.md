@@ -1,3 +1,11 @@
+## [3.69.1](https://github.com/informatievlaanderen/road-registry/compare/v3.69.0...v3.69.1) (2024-02-26)
+
+
+### Bug Fixes
+
+* extra logging when multiple organizations are found in cache with identical OVO-code ([#1391](https://github.com/informatievlaanderen/road-registry/issues/1391)) ([e8bed7b](https://github.com/informatievlaanderen/road-registry/commit/e8bed7b692160f1097266d25b99d63fc607eeb0e))
+* validate input for code exchange endpoint ([#1389](https://github.com/informatievlaanderen/road-registry/issues/1389)) ([908acc9](https://github.com/informatievlaanderen/road-registry/commit/908acc96dbf2e1216646e09f358b3f1639ac544b))
+
 # [3.69.0](https://github.com/informatievlaanderen/road-registry/compare/v3.68.0...v3.69.0) (2024-02-23)
 
 
