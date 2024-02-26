@@ -903,9 +903,9 @@ jobs:
         aws s3 cp $S3_BASEURL-$FUNCTION_SNAPSHOT/$VERSION/lambda.zip $S3_BASEURL-$FUNCTION_SNAPSHOT/lambda.zip --copy-props none
       env:
         VERSION: ${{ needs.release.outputs.version }}
-        S3_BASEURL: s3://196194905350-vbr-test-lam
-        FUNCTION_BACKOFFICE: rr-sqsbackoffice
-        FUNCTION_SNAPSHOT: rr-sqssnapshot
+        S3_BASEURL: s3://s3-vbr-tst-basisregisters-lam
+        FUNCTION_BACKOFFICE: rr-sqsbackofficefunction
+        FUNCTION_SNAPSHOT: rr-sqssnapshotfunction
         
     - name: Promote Lambda(s)
       shell: bash
