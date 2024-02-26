@@ -98,7 +98,6 @@ public class Startup : TestStartup
             .AddScoped<OrganizationsController>()
             .AddScoped<UploadController>()
             .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
-            .AddSingleton(new UseCleanZipArchiveFeatureToggle(true))
             ;
     }
 

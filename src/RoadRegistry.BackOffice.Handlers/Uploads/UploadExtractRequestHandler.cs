@@ -33,7 +33,6 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     private readonly RoadNetworkUploadsBlobClient _client;
     private readonly EditorContext _editorContext;
     private readonly IZipArchiveBeforeFeatureCompareValidator _beforeFeatureCompareValidator;
-    private readonly UseCleanZipArchiveFeatureToggle _useCleanZipArchiveFeatureToggle;
     private readonly IBeforeFeatureCompareZipArchiveCleaner _beforeFeatureCompareZipArchiveCleaner;
     private readonly TransactionZoneFeatureCompareFeatureReader _transactionZoneFeatureReader;
 
@@ -43,14 +42,12 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         EditorContext editorContext,
         IZipArchiveBeforeFeatureCompareValidator beforeFeatureCompareValidator,
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
-        UseCleanZipArchiveFeatureToggle useCleanZipArchiveFeatureToggle,
         IBeforeFeatureCompareZipArchiveCleaner beforeFeatureCompareZipArchiveCleaner,
         ILogger<UploadExtractRequestHandler> logger) : base(roadNetworkCommandQueue, logger)
     {
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
         _editorContext = editorContext ?? throw new EditorContextNotFoundException(nameof(editorContext));
         _beforeFeatureCompareValidator = beforeFeatureCompareValidator ?? throw new ValidatorNotFoundException(nameof(beforeFeatureCompareValidator));
-        _useCleanZipArchiveFeatureToggle = useCleanZipArchiveFeatureToggle;
         _beforeFeatureCompareZipArchiveCleaner = beforeFeatureCompareZipArchiveCleaner.ThrowIfNull();
         _transactionZoneFeatureReader = transactionZoneFeatureReader.ThrowIfNull();
     }
@@ -62,11 +59,9 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             throw new UnsupportedMediaTypeException();
         }
         
-        await using var readStream = _useCleanZipArchiveFeatureToggle.FeatureEnabled
-            ? await CleanArchive(request.Archive.ReadStream, cancellationToken)
-            : request.Archive.ReadStream;
+        await using var readStream = await CleanArchive(request.Archive.ReadStream, cancellationToken);
 
-        ArchiveId archiveId = new(Guid.NewGuid().ToString("N"));
+        var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
         
         var metadata = Metadata.None.Add(
             new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"),

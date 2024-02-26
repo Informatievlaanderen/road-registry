@@ -6,7 +6,6 @@ using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
-using FeatureToggles;
 using FluentValidation;
 using Handlers.Sqs.RoadSegments;
 using Infrastructure;
@@ -29,7 +28,6 @@ public partial class RoadSegmentsController
     /// <summary>
     ///     Ontkoppel een straatnaam van een wegsegment
     /// </summary>
-    /// <param name="featureToggle"></param>
     /// <param name="ifMatchHeaderValidator"></param>
     /// <param name="idValidator"></param>
     /// <param name="validator"></param>
@@ -58,7 +56,6 @@ public partial class RoadSegmentsController
     [SwaggerRequestExample(typeof(PostUnlinkStreetNameParameters), typeof(PostUnlinkStreetNameParametersExamples))]
     [SwaggerOperation(OperationId = nameof(UnlinkStreetName), Description = "Ontkoppel een linker- en/of rechterstraatnaam van een wegsegment waaraan momenteel een linker- en/of rechterstraatnaam gekoppeld is.")]
     public async Task<IActionResult> UnlinkStreetName(
-        [FromServices] UseRoadSegmentUnlinkStreetNameFeatureToggle featureToggle,
         [FromServices] IIfMatchHeaderValidator ifMatchHeaderValidator,
         [FromServices] RoadSegmentIdValidator idValidator,
         [FromServices] IValidator<UnlinkStreetNameRequest> validator,
@@ -68,11 +65,6 @@ public partial class RoadSegmentsController
         [FromHeader(Name = "If-Match")] string? ifMatchHeaderValue,
         CancellationToken cancellationToken)
     {
-        if (!featureToggle.FeatureEnabled)
-        {
-            return NotFound();
-        }
-
         try
         {
             await idValidator.ValidateRoadSegmentIdAndThrowAsync(id, cancellationToken);

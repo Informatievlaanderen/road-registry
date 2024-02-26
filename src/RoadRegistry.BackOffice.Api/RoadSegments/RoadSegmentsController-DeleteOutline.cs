@@ -2,12 +2,11 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
 using Abstractions.Extensions;
 using Abstractions.RoadSegmentsOutline;
-using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Core;
 using Extensions;
-using FeatureToggles;
 using FluentValidation;
 using FluentValidation.Results;
 using Handlers.Sqs.RoadSegments;
@@ -28,7 +27,6 @@ public partial class RoadSegmentsController
     /// <summary>
     ///     Verwijder een ingeschetst wegsegment.
     /// </summary>
-    /// <param name="featureToggle"></param>
     /// <param name="idValidator"></param>
     /// <param name="roadSegmentRepository"></param>
     /// <param name="id">Identificator van het ingeschetst wegsegment.</param>
@@ -50,17 +48,11 @@ public partial class RoadSegmentsController
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerOperation(OperationId = nameof(DeleteOutline), Description = "Verwijder een wegsegment met geometriemethode <ingeschetst>.")]
     public async Task<IActionResult> DeleteOutline(
-        [FromServices] UseRoadSegmentOutlineDeleteFeatureToggle featureToggle,
         [FromServices] RoadSegmentIdValidator idValidator,
         [FromServices] IRoadSegmentRepository roadSegmentRepository,
         [FromRoute] int id,
         CancellationToken cancellationToken)
     {
-        if (!featureToggle.FeatureEnabled)
-        {
-            return NotFound();
-        }
-
         try
         {
             await idValidator.ValidateRoadSegmentIdAndThrowAsync(id, cancellationToken);

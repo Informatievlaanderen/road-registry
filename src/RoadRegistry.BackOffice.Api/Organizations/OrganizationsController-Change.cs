@@ -25,7 +25,8 @@ public partial class OrganizationsController
     /// <returns>IActionResult.</returns>
     [HttpPatch(ChangeRoute, Name = nameof(Change))]
     [SwaggerOperation(OperationId = nameof(Change), Description = "")]
-    public async Task<IActionResult> Change([FromBody] OrganizationChangeParameters parameters,
+    public async Task<IActionResult> Change(
+        [FromBody] OrganizationChangeParameters parameters,
         [FromRoute] string id,
         [FromServices] IValidator<ChangeOrganization> validator,
         CancellationToken cancellationToken)
