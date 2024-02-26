@@ -1,3 +1,10 @@
+## [3.69.3](https://github.com/informatievlaanderen/road-registry/compare/v3.69.2...v3.69.3) (2024-02-26)
+
+
+### Bug Fixes
+
+* TST lambda upload ([#1393](https://github.com/informatievlaanderen/road-registry/issues/1393)) ([3e1303e](https://github.com/informatievlaanderen/road-registry/commit/3e1303e41e6c617385827fdd7424eaa14e32b683))
+
 ## [3.69.2](https://github.com/informatievlaanderen/road-registry/compare/v3.69.1...v3.69.2) (2024-02-26)
 
 
