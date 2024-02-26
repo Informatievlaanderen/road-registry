@@ -36,8 +36,7 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
     {
         _logger = logger.ThrowIfNull();
 
-        _translators =
-        [
+        _translators = new IZipArchiveEntryFeatureCompareTranslator[] {
             transactionZoneTranslator.ThrowIfNull(),
             roadNodeTranslator.ThrowIfNull(),
             roadSegmentTranslator.ThrowIfNull(),
@@ -48,7 +47,7 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
             nationalRoadTranslator.ThrowIfNull(),
             numberedRoadTranslator.ThrowIfNull(),
             gradeSeparatedJunctionTranslator.ThrowIfNull()
-        ];
+        };
     }
 
     public async Task<TranslatedChanges> TranslateAsync(ZipArchive archive, CancellationToken cancellationToken)

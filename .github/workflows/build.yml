@@ -104,18 +104,6 @@ jobs:
       run: |
         dotnet build --nologo --no-restore --configuration Debug RoadRegistry.sln
 
-    # - name: Build BackOffice UI
-    #   uses: ./.github/workflows/build-image-nodejs.yml
-    #   if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
-    #   with:
-    #     registry: road-registry
-    #     build-target: Containerize_BackOfficeUi
-    #     image-file: rr-backoffice-ui-image.tar
-    #     image-name: backoffice-ui
-    #     build-project: RoadRegistry.BackOffice.UI
-    #     semver: 0.0.0-dev
-    #     npm-token: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
-      
     - name: Test
       shell: bash
       run: dotnet dotcover test --dcReportType=HTML --nologo --no-build --filter 'FullyQualifiedName!~IntegrationTests' RoadRegistry.sln
