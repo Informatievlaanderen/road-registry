@@ -1,5 +1,6 @@
 namespace RoadRegistry.Hosts
 {
+    using System;
     using System.Collections.Concurrent;
     using BackOffice;
     using BackOffice.Abstractions.Organizations;
@@ -93,9 +94,17 @@ namespace RoadRegistry.Hosts
         private async Task<OrganizationDetail> FindByMappedOvoCode(OrganizationOvoCode ovoCode, CancellationToken cancellationToken)
         {
             var organizationRecords = await _editorContext.Organizations.ToListAsync(cancellationToken);
-            var organizationDetail = organizationRecords
+            var organizationDetails = organizationRecords
                 .Select(organizationRecord => _organizationRecordReader.Read(organizationRecord.DbaseRecord, organizationRecord.DbaseSchemaVersion))
-                .SingleOrDefault(sod => sod.OvoCode == ovoCode);
+                .Where(sod => sod.OvoCode == ovoCode)
+                .ToList();
+
+            if (organizationDetails.Count > 1)
+            {
+                throw new Exception($"Multiple organizations found in cache for OVO-code '{ovoCode}' (Ids: {string.Join(", ", organizationDetails.Select(x => x.Code))})");
+            }
+
+            var organizationDetail = organizationDetails.SingleOrDefault();
 
             if (organizationDetail is not null)
             {
