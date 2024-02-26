@@ -23,8 +23,7 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
         GradeSeparatedJunctionZipArchiveValidator gradeSeparatedJunctionValidator
     )
     {
-        _validators =
-        [
+        _validators = new IZipArchiveValidator[] {
             transactionZoneValidator.ThrowIfNull(),
             roadNodeValidator.ThrowIfNull(),
             roadSegmentValidator.ThrowIfNull(),
@@ -35,7 +34,7 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
             nationalRoadValidator.ThrowIfNull(),
             numberedRoadValidator.ThrowIfNull(),
             gradeSeparatedJunctionValidator.ThrowIfNull()
-        ];
+        };
     }
 
     public async Task<ZipArchiveProblems> ValidateAsync(ZipArchive archive, ZipArchiveValidatorContext context, CancellationToken cancellationToken)
