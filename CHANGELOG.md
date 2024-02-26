@@ -1,3 +1,10 @@
+## [3.69.5](https://github.com/informatievlaanderen/road-registry/compare/v3.69.4...v3.69.5) (2024-02-26)
+
+
+### Bug Fixes
+
+* TST lambda deploy pipeline ([#1395](https://github.com/informatievlaanderen/road-registry/issues/1395)) ([5218c1a](https://github.com/informatievlaanderen/road-registry/commit/5218c1a25922f69baa86323a790b1212a3138e56))
+
 ## [3.69.4](https://github.com/informatievlaanderen/road-registry/compare/v3.69.3...v3.69.4) (2024-02-26)
 
 
