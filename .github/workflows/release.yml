@@ -557,8 +557,8 @@ jobs:
     - name: Configure AWS credentials (Test)
       uses: aws-actions/configure-aws-credentials@v1-node16
       with:
-        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
-        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
+        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
+        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
         aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
 
     - name: Login to Amazon ECR (Test)
@@ -567,8 +567,8 @@ jobs:
     - name: Push Lambda functions to S3 (Test)
       shell: bash
       run: |
-        aws s3 cp ~/backoffice/lambda.zip s3://196194905350-vbr-test-lam-rr-sqsbackoffice/$SEMVER/lambda.zip
-        aws s3 cp ~/snapshot/lambda.zip s3://196194905350-vbr-test-lam-rr-sqssnapshot/$SEMVER/lambda.zip
+        aws s3 cp ~/backoffice/lambda.zip s3://s3-vbr-tst-basisregisters-lam-rr-sqsbackofficefunction/$SEMVER/lambda.zip
+        aws s3 cp ~/snapshot/lambda.zip s3://s3-vbr-tst-basisregisters-lam-rr-sqssnapshotfunction/$SEMVER/lambda.zip
       env:
         SEMVER: ${{ needs.release.outputs.version }}
 
