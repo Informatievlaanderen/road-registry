@@ -919,7 +919,7 @@ jobs:
         SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
         ENVIRONMENT: tst
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
-        PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_DEVOPS_BASEURL }}
+        PROMOTEURL: ${{ vars.VBR_AWS_PROMOTE_LAMBDA_DEVOPS_BASEURL }}
         FUNCTION_BACKOFFICE: rr-sqsbackofficefunction
         FUNCTION_SNAPSHOT: rr-sqssnapshotfunction
 
