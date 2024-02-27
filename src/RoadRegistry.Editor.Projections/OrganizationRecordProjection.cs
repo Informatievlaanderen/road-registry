@@ -14,12 +14,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using Schema.Extensions;
 
 public class OrganizationRecordProjection : ConnectedProjection<EditorContext>
 {
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly Encoding _encoding;
+    private readonly ILogger<OrganizationRecordProjection> _logger;
 
     private static readonly IDictionary<string, string> SortableCodeAnomalies =
         new Dictionary<string, string>
@@ -28,10 +30,14 @@ public class OrganizationRecordProjection : ConnectedProjection<EditorContext>
             { OrganizationId.Unknown, "00008" }
         };
 
-    public OrganizationRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
+    public OrganizationRecordProjection(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        ILogger<OrganizationRecordProjection> logger)
     {
         _manager = manager.ThrowIfNull();
         _encoding = encoding.ThrowIfNull();
+        _logger = logger.ThrowIfNull();
         
         When<Envelope<ImportedOrganization>>(async (context, envelope, token) =>
         {
@@ -78,10 +84,12 @@ public class OrganizationRecordProjection : ConnectedProjection<EditorContext>
 
         When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
         {
+            _logger.LogInformation("{Message} started", envelope.Message.GetType().Name);
             var organization = context.Organizations.Local.SingleOrDefault(o => o.Code == envelope.Message.Code)
                                ?? await context.Organizations.SingleAsync(o => o.Code == envelope.Message.Code, token);
 
             Update(organization, envelope.Message.Code, envelope.Message.Name, envelope.Message.OvoCode);
+            _logger.LogInformation("{Message} finished", envelope.Message.GetType().Name);
         });
 
         When<Envelope<DeleteOrganizationAccepted>>(async (context, envelope, token) =>

@@ -88,7 +88,7 @@ public class Program
                 {
                     new RoadNetworkInfoProjection(),
                     new RoadNodeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
-                    new RoadSegmentRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
+                    new RoadSegmentRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<RoadSegmentRecordProjection>>()),
                     new RoadSegmentEuropeanRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentLaneAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentNationalRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
@@ -96,11 +96,14 @@ public class Program
                     new RoadSegmentSurfaceAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentWidthAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new GradeSeparatedJunctionRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
-                    !useRoadSegmentV2EventProcessorFeatureToggle.FeatureEnabled ? new RoadSegmentV2RecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()) : null
+                    !useRoadSegmentV2EventProcessorFeatureToggle.FeatureEnabled ? new RoadSegmentV2RecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<RoadSegmentV2RecordProjection>>()) : null
                 }.Where(x => x is not null).ToArray())
                 .AddEditorContextEventProcessor<OrganizationEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
                 {
-                    new OrganizationRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>())
+                    new OrganizationRecordProjection(
+                        sp.GetRequiredService<RecyclableMemoryStreamManager>(),
+                        sp.GetRequiredService<FileEncoding>(),
+                        sp.GetRequiredService<ILogger<OrganizationRecordProjection>>())
                 })
                 .AddEditorContextEventProcessor<MunicipalityEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
                 {
@@ -138,7 +141,7 @@ public class Program
                 services
                     .AddEditorContextEventProcessor<RoadSegmentV2EventProcessor>(sp => new ConnectedProjection<EditorContext>[]
                     {
-                        new RoadSegmentV2RecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>())
+                        new RoadSegmentV2RecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<RoadSegmentV2RecordProjection>>())
                     });
             }
         })
