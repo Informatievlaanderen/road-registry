@@ -8,6 +8,7 @@ using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Schema;
 using Schema.Extensions;
@@ -20,11 +21,16 @@ using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.Geom
 
 public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
 {
-    public RoadSegmentRecordProjection(RecyclableMemoryStreamManager manager,
-        Encoding encoding)
+    private readonly ILogger<RoadSegmentRecordProjection> _logger;
+
+    public RoadSegmentRecordProjection(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        ILogger<RoadSegmentRecordProjection> logger)
     {
         ArgumentNullException.ThrowIfNull(manager);
         ArgumentNullException.ThrowIfNull(encoding);
+        _logger = logger.ThrowIfNull();
 
         When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
         {
@@ -111,10 +117,12 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
 
         When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
         {
+            _logger.LogInformation("{Message} started", envelope.Message.GetType().Name);
             if (envelope.Message.NameModified)
             {
                 await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
             }
+            _logger.LogInformation("{Message} finished", envelope.Message.GetType().Name);
         });
     }
 
@@ -380,9 +388,13 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         OrganizationName organizationName,
         CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Renaming organizations started");
+        var batchIndex = 0;
+
         await context.RoadSegments
             .ForEachBatchAsync(q => q, 5000, dbRecords =>
             {
+                _logger.LogInformation("Processing batch {Batch}", batchIndex);
                 foreach (var dbRecord in dbRecords)
                 {
                     var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
@@ -400,7 +412,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                     }
                 }
 
+                batchIndex++;
                 return Task.CompletedTask;
             }, cancellationToken);
+
+        _logger.LogInformation("Renaming organizations finished");
     }
 }

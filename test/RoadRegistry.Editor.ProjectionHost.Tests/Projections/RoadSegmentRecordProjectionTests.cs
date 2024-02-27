@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Projections;
 using Editor.Schema.Extensions;
 using Editor.Schema.RoadSegments;
+using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 
@@ -116,7 +117,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         });
 
-        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8, new NullLogger<RoadSegmentRecordProjection>())
             .Scenario()
             .Given(message)
             .Expect(expectedRecords);
@@ -183,7 +184,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         });
 
-        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8, new NullLogger<RoadSegmentRecordProjection>())
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentAttributesModified)
             .Expect(expectedRecords);
@@ -250,7 +251,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         });
 
-        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8, new NullLogger<RoadSegmentRecordProjection>())
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentGeometryModified)
             .Expect(expectedRecords);
@@ -315,7 +316,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         });
 
-        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8, new NullLogger<RoadSegmentRecordProjection>())
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .Expect(expectedRecords);
@@ -387,7 +388,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         });
 
-        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8, new NullLogger<RoadSegmentRecordProjection>())
             .Scenario()
             .Given(messages)
             .ExpectWhileIgnoringQueryFilters(expectedRecords);
@@ -445,7 +446,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 return new { importedRoadSegment, expected };
             }).ToList();
 
-        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8, new NullLogger<RoadSegmentRecordProjection>())
             .Scenario()
             .Given(data.Select(d => d.importedRoadSegment))
             .Expect(data.Select(d => d.expected));
@@ -470,7 +471,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             acceptedRoadSegmentRemoved
         };
         
-        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8, new NullLogger<RoadSegmentRecordProjection>())
             .Scenario()
             .Given(messages)
             .ExpectNone();
@@ -544,7 +545,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         });
 
-        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8, new NullLogger<RoadSegmentRecordProjection>())
             .Scenario()
             .Given(messages)
             .Expect(expectedRecords);
