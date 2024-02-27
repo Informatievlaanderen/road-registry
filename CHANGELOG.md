@@ -1,3 +1,10 @@
+## [3.69.7](https://github.com/informatievlaanderen/road-registry/compare/v3.69.6...v3.69.7) (2024-02-27)
+
+
+### Bug Fixes
+
+* add logging in editor projection ([#1397](https://github.com/informatievlaanderen/road-registry/issues/1397)) ([0f29737](https://github.com/informatievlaanderen/road-registry/commit/0f297375245fde3916319b5a6dd0188fca64a3e8))
+
 ## [3.69.6](https://github.com/informatievlaanderen/road-registry/compare/v3.69.5...v3.69.6) (2024-02-26)
 
 
