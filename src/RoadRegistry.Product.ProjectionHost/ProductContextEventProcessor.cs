@@ -1,26 +1,25 @@
 namespace RoadRegistry.Product.ProjectionHost;
 
-using System;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
 using Microsoft.Extensions.Logging;
 using Schema;
 using SqlStreamStore;
+using System;
 
-public class ProductContextEventProcessor : DbContextEventProcessor<ProductContext>
+public abstract class ProductContextEventProcessor : DbContextEventProcessor<ProductContext>
 {
-    private const string ProjectionStateName = "roadregistry-product-projectionhost";
-
-    public ProductContextEventProcessor(
+    protected ProductContextEventProcessor(
+        string projectionStateName,
         IStreamStore streamStore,
         AcceptStreamMessageFilter filter,
         EnvelopeFactory envelopeFactory,
         ConnectedProjectionHandlerResolver<ProductContext> resolver,
         Func<ProductContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<ProductContextEventProcessor> logger)
-        : base(ProjectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, logger)
+        ILogger<DbContextEventProcessor<ProductContext>> logger)
+        : base(projectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, logger)
     {
     }
 }

@@ -157,7 +157,7 @@ public static class ServiceCollectionExtensions
         where TDbContext: RunnerDbContext<TDbContext>
     {
         services
-            .AddSingleton(sp => new DbContextEventProcessorProjections<TDbContextEventProcessor, TDbContext>(projections(sp)))
+            .AddSingleton(sp => new DbContextEventProcessorProjections<TDbContextEventProcessor, TDbContext>(projections(sp).Where(x => x is not null).ToArray()))
             ;
 
         return services;

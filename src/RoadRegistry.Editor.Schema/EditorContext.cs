@@ -29,6 +29,8 @@ public class EditorContext : RunnerDbContext<EditorContext>
     {
     }
 
+    public override string ProjectionStateSchema => WellKnownSchemas.EditorMetaSchema;
+
     #region Metrics
     public DbSet<EventProcessorMetricsRecord> EventProcessorMetrics { get; set; }
     #endregion
@@ -40,7 +42,6 @@ public class EditorContext : RunnerDbContext<EditorContext>
     public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
     public DbSet<MunicipalityGeometry> MunicipalityGeometries { get; set; }
     public DbSet<OrganizationRecord> Organizations { get; set; }
-    public override string ProjectionStateSchema => WellKnownSchemas.EditorMetaSchema;
     public DbSet<RoadNetworkChangeRequestBasedOnArchive> RoadNetworkChangeRequestsBasedOnArchive { get; set; }
     public DbSet<RoadNetworkChange> RoadNetworkChanges { get; set; }
     public DbSet<RoadNetworkInfo> RoadNetworkInfo { get; set; }
@@ -66,8 +67,7 @@ public class EditorContext : RunnerDbContext<EditorContext>
 
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder
-            .UseRoadRegistryInMemorySqlServer();
+        optionsBuilder.UseRoadRegistryInMemorySqlServer();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

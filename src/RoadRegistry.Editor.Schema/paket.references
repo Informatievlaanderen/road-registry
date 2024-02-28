@@ -13,3 +13,4 @@ Microsoft.IdentityModel.Logging
 Microsoft.IdentityModel.Tokens
 Microsoft.EntityFrameworkCore.Design
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
+NetTopologySuite

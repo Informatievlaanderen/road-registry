@@ -96,7 +96,8 @@ public class SqlServer : ISqlServerDatabase
     public async Task<ProductContext> CreateProductContextAsync(SqlConnectionStringBuilder builder)
     {
         var options = new DbContextOptionsBuilder<ProductContext>()
-            .UseSqlServer(builder.ConnectionString)
+            .UseSqlServer(builder.ConnectionString,
+                dbContextOptionsBuilder => dbContextOptionsBuilder.UseNetTopologySuite())
             .EnableSensitiveDataLogging()
             .Options;
 

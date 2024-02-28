@@ -7,8 +7,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class EditorContextMigrationFactory : RunnerDbContextMigrationFactory<EditorContext>
 {
-    public EditorContextMigrationFactory() :
-        base(WellKnownConnectionNames.EditorProjectionsAdmin, HistoryConfiguration)
+    public EditorContextMigrationFactory()
+        : base(WellKnownConnectionNames.EditorProjectionsAdmin, HistoryConfiguration)
     {
     }
 
