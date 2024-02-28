@@ -283,7 +283,11 @@ public class RoadSegmentV2RecordProjection : ConnectedProjection<ProductContext>
         dbRecord.TransactionId = transactionId;
         dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
-        var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
+        var dbaseRecord = new RoadSegmentDbaseRecord();
+        if (dbRecord.DbaseRecord is not null)
+        {
+            dbaseRecord.FromBytes(dbRecord.DbaseRecord, manager, encoding);
+        }
         dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentModified.Id, roadSegmentModified.Version);
         dbaseRecord.WS_GIDN.Value = new UIDN(roadSegmentModified.Id, roadSegmentModified.GeometryVersion);
         dbaseRecord.B_WK_OIDN.Value = roadSegmentModified.StartNodeId;
