@@ -19,6 +19,7 @@ on:
         type: choice
         description: Select the service to deploy
         options:
+        - ''
         - road-backoffice-api
         - road-backoffice-commandhost
         - road-backoffice-eventhost
@@ -37,6 +38,7 @@ on:
         type: choice
         description: Select the task to deploy
         options:
+        - ''
         - road-adminhost
         required: false
       lambda:
