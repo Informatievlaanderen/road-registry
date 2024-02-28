@@ -245,7 +245,11 @@ public class RoadSegmentV2RecordProjection : ConnectedProjection<ProductContext>
         var dbRecord = await context.RoadSegmentsV2.FindAsync(x => x.Id == roadSegmentModified.Id, token).ConfigureAwait(false);
         if (dbRecord is null)
         {
-            throw new InvalidOperationException($"{nameof(RoadSegmentV2Record)} with id {roadSegmentModified.Id} is not found");
+            dbRecord = new RoadSegmentV2Record
+            {
+                Id = roadSegmentModified.Id
+            };
+            await context.RoadSegmentsV2.AddAsync(dbRecord, token);
         }
 
         var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentModified.Geometry));
