@@ -96,6 +96,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                     if (messageAlreadyProcessed)
                     {
                         Logger.LogWarning($"Skipping already processed message at offset '{projectionState.Position}' with idempotenceKey '{idempotenceKey}'.");
+                        await dbContext.SaveChangesAsync(cancellationToken);
                         return;
                     }
                     
