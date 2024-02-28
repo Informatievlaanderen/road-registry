@@ -1,5 +1,5 @@
-name: 4. Deploy Single Service TST/PRD
-run-name: Deploy ${{ inputs.service || inputs.task || inputs.lambda }} to ${{ inputs.environment }}: ${{ inputs.version }}
+name: 4. Single Deploy TST/PRD
+run-name: 'Deploy ${{ inputs.service || inputs.task || inputs.lambda }} to ${{ inputs.environment }}: ${{ inputs.version }}'
 
 on:
   workflow_dispatch:
