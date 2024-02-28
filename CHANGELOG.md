@@ -1,3 +1,10 @@
+## [3.69.9](https://github.com/informatievlaanderen/road-registry/compare/v3.69.8...v3.69.9) (2024-02-28)
+
+
+### Bug Fixes
+
+* save context when skipping messages in OrganizationConsumer ([#1399](https://github.com/informatievlaanderen/road-registry/issues/1399)) ([1ae2f6f](https://github.com/informatievlaanderen/road-registry/commit/1ae2f6ffa5ff24585657810b0a9da52160384ad8))
+
 ## [3.69.8](https://github.com/informatievlaanderen/road-registry/compare/v3.69.7...v3.69.8) (2024-02-28)
 
 
