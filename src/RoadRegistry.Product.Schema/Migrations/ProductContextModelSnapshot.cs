@@ -523,19 +523,10 @@ namespace RoadRegistry.Product.Schema.Migrations
 
                 b.Property<int>("EndNodeId")
                     .HasColumnType("int");
-
-                b.Property<Geometry>("Geometry")
-                    .IsRequired()
-                    .HasColumnType("Geometry");
-
+                
                 b.Property<int>("GeometryVersion")
                     .HasColumnType("int");
-
-                b.Property<bool>("IsRemoved")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("bit")
-                    .HasDefaultValue(false);
-
+                
                 b.Property<string>("LastEventHash")
                     .HasColumnType("nvarchar(max)");
 
@@ -582,11 +573,7 @@ namespace RoadRegistry.Product.Schema.Migrations
                 b.HasKey("Id");
 
                 SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
-
-                b.HasIndex("IsRemoved");
-
-                SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("IsRemoved"), false);
-
+                
                 b.HasIndex("LeftSideStreetNameId");
 
                 SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("LeftSideStreetNameId"), false);

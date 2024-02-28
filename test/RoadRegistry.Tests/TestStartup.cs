@@ -1,7 +1,6 @@
 namespace RoadRegistry.Tests;
 
 using System.Reflection;
-using System.Text;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;

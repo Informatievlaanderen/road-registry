@@ -15,12 +15,10 @@ public class RoadSegmentV2Record
     public double? BoundingBoxMinimumY { get; set; }
     public byte[] DbaseRecord { get; set; }
     public int EndNodeId { get; set; }
-    public Geometry Geometry { get; set; }
     public byte[] ShapeRecordContent { get; set; }
     public int ShapeRecordContentLength { get; set; }
     public int StartNodeId { get; set; }
     public string LastEventHash { get; set; }
-    public bool IsRemoved { get; set; }
 
     public int Version { get; set; }
     public int GeometryVersion { get; set; }

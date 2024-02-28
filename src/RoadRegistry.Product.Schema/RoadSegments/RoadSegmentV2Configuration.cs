@@ -20,12 +20,7 @@ public class RoadSegmentV2Configuration : IEntityTypeConfiguration<RoadSegmentV2
         b.Property(p => p.ShapeRecordContent).IsRequired();
         b.Property(p => p.ShapeRecordContentLength).IsRequired();
         b.Property(p => p.DbaseRecord).IsRequired();
-        b.Property(p => p.Geometry).HasColumnType("Geometry").IsRequired();
         b.Property(p => p.LastEventHash);
-        b.Property(p => p.IsRemoved).HasDefaultValue(false).IsRequired();
-
-        b.HasIndex(p => p.IsRemoved)
-            .IsClustered(false);
 
         //b.OwnsOne(p => p.BoundingBox); // WR-913 Flattened due to performance issues with OwnsOne
         b.Property(p => p.BoundingBoxMaximumX).HasColumnName("BoundingBox_MaximumX");
@@ -61,7 +56,5 @@ public class RoadSegmentV2Configuration : IEntityTypeConfiguration<RoadSegmentV2
             .IsClustered(false);
         b.HasIndex(p => p.MaintainerId)
             .IsClustered(false);
-        
-        b.HasQueryFilter(p => p.IsRemoved == false);
     }
 }

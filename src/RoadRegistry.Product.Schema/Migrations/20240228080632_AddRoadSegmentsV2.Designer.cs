@@ -796,11 +796,7 @@ namespace RoadRegistry.Product.Schema.Migrations
 
                     b.Property<int>("EndNodeId")
                         .HasColumnType("int");
-
-                    b.Property<Geometry>("Geometry")
-                        .IsRequired()
-                        .HasColumnType("Geometry");
-
+                    
                     b.Property<int>("GeometryVersion")
                         .HasColumnType("int");
 

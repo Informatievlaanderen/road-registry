@@ -680,7 +680,7 @@ public class RoadSegmentV2RecordProjectionTests : IClassFixture<ProjectionTestSe
                 LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId,
                 RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId,
                 MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code,
-                MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentAdded.MaintenanceAuthority.Name),
+                MaintainerName = renameOrganizationAccepted.Name,
                 MethodId = geometryDrawMethodTranslation.Identifier,
                 AccessRestrictionId = accessRestrictionTranslation.Identifier,
 

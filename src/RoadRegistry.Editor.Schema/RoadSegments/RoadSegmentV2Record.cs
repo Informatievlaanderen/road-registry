@@ -39,17 +39,6 @@ public class RoadSegmentV2Record
     public string BeginOrganizationId { get; set; }
     public string BeginOrganizationName { get; set; }
 
-    public RoadSegmentBoundingBox GetBoundingBox() => BoundingBoxMaximumX is not null
-        ? new()
-        {
-            MaximumX = BoundingBoxMaximumX!.Value,
-            MaximumY = BoundingBoxMaximumY!.Value,
-            MaximumM = BoundingBoxMaximumM!.Value,
-            MinimumX = BoundingBoxMinimumX!.Value,
-            MinimumY = BoundingBoxMinimumY!.Value,
-            MinimumM = BoundingBoxMinimumM!.Value
-        }
-        : null;
     public RoadSegmentV2Record WithBoundingBox(RoadSegmentBoundingBox value)
     {
         BoundingBoxMaximumX = value.MaximumX;

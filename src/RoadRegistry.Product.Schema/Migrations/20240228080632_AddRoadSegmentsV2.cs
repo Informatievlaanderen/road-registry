@@ -24,12 +24,10 @@ namespace RoadRegistry.Product.Schema.Migrations
                     BoundingBox_MinimumY = table.Column<double>(type: "float", nullable: true),
                     DbaseRecord = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     EndNodeId = table.Column<int>(type: "int", nullable: false),
-                    Geometry = table.Column<Geometry>(type: "Geometry", nullable: false),
                     ShapeRecordContent = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     ShapeRecordContentLength = table.Column<int>(type: "int", nullable: false),
                     StartNodeId = table.Column<int>(type: "int", nullable: false),
                     LastEventHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsRemoved = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     Version = table.Column<int>(type: "int", nullable: false),
                     GeometryVersion = table.Column<int>(type: "int", nullable: false),
                     AccessRestrictionId = table.Column<int>(type: "int", nullable: false),
@@ -52,13 +50,6 @@ namespace RoadRegistry.Product.Schema.Migrations
                     table.PrimaryKey("PK_RoadSegmentV2", x => x.Id)
                         .Annotation("SqlServer:Clustered", true);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RoadSegmentV2_IsRemoved",
-                schema: "RoadRegistryProduct",
-                table: "RoadSegmentV2",
-                column: "IsRemoved")
-                .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoadSegmentV2_LeftSideStreetNameId",
