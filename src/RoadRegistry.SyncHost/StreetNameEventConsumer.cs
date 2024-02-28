@@ -36,7 +36,6 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly Func<EditorContext> _editorContextFactory;
     private readonly FileEncoding _encoding;
-    private readonly UseRoadSegmentV2EventProcessorFeatureToggle _useRoadSegmentV2EventProcessorFeatureToggle;
 
     public StreetNameEventConsumer(
         ILifetimeScope container,
@@ -47,7 +46,6 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         Func<EditorContext> editorContextFactory,
         RecyclableMemoryStreamManager manager,
         FileEncoding encoding,
-        UseRoadSegmentV2EventProcessorFeatureToggle useRoadSegmentV2EventProcessorFeatureToggle,
         ILogger<StreetNameEventConsumer> logger
     ) : base(logger)
     {
@@ -59,7 +57,6 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         _editorContextFactory = editorContextFactory.ThrowIfNull();
         _manager = manager.ThrowIfNull();
         _encoding = encoding.ThrowIfNull();
-        _useRoadSegmentV2EventProcessorFeatureToggle = useRoadSegmentV2EventProcessorFeatureToggle.ThrowIfNull();
     }
 
     protected override async Task ExecutingAsync(CancellationToken cancellationToken)
@@ -104,9 +101,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
     
     private async Task<Command> BuildRoadNetworkCommand(StreetNameWasRemovedV2 message, CancellationToken cancellationToken)
     {
-        var waitForProjectionStateName = _useRoadSegmentV2EventProcessorFeatureToggle.FeatureEnabled
-            ? WellKnownProjectionStateNames.RoadRegistryEditorRoadSegmentV2ProjectionHost
-            : WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
+        var waitForProjectionStateName = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
 
         using (var editorContext = _editorContextFactory())
         {
@@ -129,9 +124,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
 
     private async Task<Command> BuildRoadNetworkCommand(StreetNameWasRenamed message, CancellationToken cancellationToken)
     {
-        var waitForProjectionStateName = _useRoadSegmentV2EventProcessorFeatureToggle.FeatureEnabled
-            ? WellKnownProjectionStateNames.RoadRegistryEditorRoadSegmentV2ProjectionHost
-            : WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
+        var waitForProjectionStateName = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
 
         using (var editorContext = _editorContextFactory())
         {
@@ -154,7 +147,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
 
     private async Task<ChangeRoadNetwork> BuildChangeRoadNetworkToConnectRoadSegmentsToDifferentStreetName(int sourceStreetNameId, int destinationStreetNameId, string reason, EditorContext editorContext, CancellationToken cancellationToken)
     {
-        var segments = await editorContext.RoadSegmentsV2
+        var segments = await editorContext.RoadSegments
             .ToListIncludingLocalAsync(x => x.LeftSideStreetNameId == sourceStreetNameId || x.RightSideStreetNameId == sourceStreetNameId, cancellationToken);
         if (!segments.Any())
         {
