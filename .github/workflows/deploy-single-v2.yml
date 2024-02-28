@@ -1,4 +1,4 @@
-name: 4. Deploy Single Service TST/PRD
+name: 4. Single Deploy TST/PRD
 run-name: 'Deploy ${{ inputs.service || inputs.task || inputs.lambda }} to ${{ inputs.environment }}: ${{ inputs.version }}'
 
 on:

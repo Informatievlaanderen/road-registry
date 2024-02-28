@@ -1,4 +1,4 @@
-name: 4. Deploy Single Service STG
+name: 4. Single Deploy STG
 run-name: 'Deploy ${{ github.event.inputs.service }} to ${{ github.event.inputs.environment }}: ${{ github.event.inputs.version }}'
 
 on:
