@@ -1,3 +1,30 @@
+## [3.69.12](https://github.com/informatievlaanderen/road-registry/compare/v3.69.11...v3.69.12) (2024-02-28)
+
+
+### Bug Fixes
+
+* roadsegmentv2 product projection ([#1409](https://github.com/informatievlaanderen/road-registry/issues/1409)) ([92819dd](https://github.com/informatievlaanderen/road-registry/commit/92819dd524263fe284d54ea86ad1ce06bc0c9463))
+* single deploy pipeline ([#1403](https://github.com/informatievlaanderen/road-registry/issues/1403)) ([05f6b23](https://github.com/informatievlaanderen/road-registry/commit/05f6b230f681db7ea2b4c4679acca38fcc14fe7c))
+* single deploy pipeline ([#1404](https://github.com/informatievlaanderen/road-registry/issues/1404)) ([5550156](https://github.com/informatievlaanderen/road-registry/commit/5550156e4fbebd115fc115e8ca6252105ad1a406))
+* single deploy pipeline ([#1405](https://github.com/informatievlaanderen/road-registry/issues/1405)) ([902131c](https://github.com/informatievlaanderen/road-registry/commit/902131ce03e559e28242389cae88b511f063ec59))
+* single deploy pipeline ([#1406](https://github.com/informatievlaanderen/road-registry/issues/1406)) ([3c3b8bf](https://github.com/informatievlaanderen/road-registry/commit/3c3b8bf622e6c050624cabb1c0ae40ee5997e9e2))
+* single deploy pipeline ([#1408](https://github.com/informatievlaanderen/road-registry/issues/1408)) ([7809e40](https://github.com/informatievlaanderen/road-registry/commit/7809e40dbb20ece74142471e41e4f2e734194981))
+* single deploy pipeline default option as empty ([#1402](https://github.com/informatievlaanderen/road-registry/issues/1402)) ([aa55cba](https://github.com/informatievlaanderen/road-registry/commit/aa55cba12033e65d86f56512c56bc58cdf124496))
+
+## [3.69.11](https://github.com/informatievlaanderen/road-registry/compare/v3.69.10...v3.69.11) (2024-02-28)
+
+
+### Bug Fixes
+
+* projection with null dbaserecord ([#1401](https://github.com/informatievlaanderen/road-registry/issues/1401)) ([32031e0](https://github.com/informatievlaanderen/road-registry/commit/32031e0bb1a0bc4058ea63e7e543340de0c3e271))
+
+## [3.69.10](https://github.com/informatievlaanderen/road-registry/compare/v3.69.9...v3.69.10) (2024-02-28)
+
+
+### Bug Fixes
+
+* projection more flexible when RoadSegmentModified record doesn't exist ([#1400](https://github.com/informatievlaanderen/road-registry/issues/1400)) ([619f37d](https://github.com/informatievlaanderen/road-registry/commit/619f37da9b22c0fc0213b50f30247f3e307ce33f))
+
 ## [3.69.9](https://github.com/informatievlaanderen/road-registry/compare/v3.69.8...v3.69.9) (2024-02-28)
 
 

@@ -283,7 +283,11 @@ public class RoadSegmentV2RecordProjection : ConnectedProjection<ProductContext>
         dbRecord.TransactionId = transactionId;
         dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
-        var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
+        var dbaseRecord = new RoadSegmentDbaseRecord();
+        if (dbRecord.DbaseRecord is not null)
+        {
+            dbaseRecord.FromBytes(dbRecord.DbaseRecord, manager, encoding);
+        }
         dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentModified.Id, roadSegmentModified.Version);
         dbaseRecord.WS_GIDN.Value = new UIDN(roadSegmentModified.Id, roadSegmentModified.GeometryVersion);
         dbaseRecord.B_WK_OIDN.Value = roadSegmentModified.StartNodeId;
@@ -321,7 +325,8 @@ public class RoadSegmentV2RecordProjection : ConnectedProjection<ProductContext>
         var dbRecord = await context.RoadSegmentsV2.FindAsync(x => x.Id == roadSegmentAttributesModified.Id, token).ConfigureAwait(false);
         if (dbRecord is null)
         {
-            throw new InvalidOperationException($"{nameof(RoadSegmentV2Record)} with id {roadSegmentAttributesModified.Id} is not found");
+            //throw new InvalidOperationException($"{nameof(RoadSegmentV2Record)} with id {roadSegmentAttributesModified.Id} is not found");
+            return;
         }
 
         dbRecord.Version = roadSegmentAttributesModified.Version;
@@ -397,7 +402,8 @@ public class RoadSegmentV2RecordProjection : ConnectedProjection<ProductContext>
         var dbRecord = await context.RoadSegmentsV2.FindAsync(x => x.Id == roadSegmentGeometryModified.Id, token).ConfigureAwait(false);
         if (dbRecord is null)
         {
-            throw new InvalidOperationException($"{nameof(RoadSegmentV2Record)} with id {roadSegmentGeometryModified.Id} is not found");
+            //throw new InvalidOperationException($"{nameof(RoadSegmentV2Record)} with id {roadSegmentGeometryModified.Id} is not found");
+            return;
         }
 
         var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentGeometryModified.Geometry));
