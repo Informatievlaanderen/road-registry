@@ -9,7 +9,7 @@ on:
         description: Select the environment
         options:
         - tst
-        #- stg
+        # - stg
         - prd
         required: true
       version:
