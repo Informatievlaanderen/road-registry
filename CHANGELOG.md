@@ -1,3 +1,16 @@
+## [3.69.12](https://github.com/informatievlaanderen/road-registry/compare/v3.69.11...v3.69.12) (2024-02-28)
+
+
+### Bug Fixes
+
+* roadsegmentv2 product projection ([#1409](https://github.com/informatievlaanderen/road-registry/issues/1409)) ([92819dd](https://github.com/informatievlaanderen/road-registry/commit/92819dd524263fe284d54ea86ad1ce06bc0c9463))
+* single deploy pipeline ([#1403](https://github.com/informatievlaanderen/road-registry/issues/1403)) ([05f6b23](https://github.com/informatievlaanderen/road-registry/commit/05f6b230f681db7ea2b4c4679acca38fcc14fe7c))
+* single deploy pipeline ([#1404](https://github.com/informatievlaanderen/road-registry/issues/1404)) ([5550156](https://github.com/informatievlaanderen/road-registry/commit/5550156e4fbebd115fc115e8ca6252105ad1a406))
+* single deploy pipeline ([#1405](https://github.com/informatievlaanderen/road-registry/issues/1405)) ([902131c](https://github.com/informatievlaanderen/road-registry/commit/902131ce03e559e28242389cae88b511f063ec59))
+* single deploy pipeline ([#1406](https://github.com/informatievlaanderen/road-registry/issues/1406)) ([3c3b8bf](https://github.com/informatievlaanderen/road-registry/commit/3c3b8bf622e6c050624cabb1c0ae40ee5997e9e2))
+* single deploy pipeline ([#1408](https://github.com/informatievlaanderen/road-registry/issues/1408)) ([7809e40](https://github.com/informatievlaanderen/road-registry/commit/7809e40dbb20ece74142471e41e4f2e734194981))
+* single deploy pipeline default option as empty ([#1402](https://github.com/informatievlaanderen/road-registry/issues/1402)) ([aa55cba](https://github.com/informatievlaanderen/road-registry/commit/aa55cba12033e65d86f56512c56bc58cdf124496))
+
 ## [3.69.11](https://github.com/informatievlaanderen/road-registry/compare/v3.69.10...v3.69.11) (2024-02-28)
 
 
