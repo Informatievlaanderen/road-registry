@@ -1,3 +1,10 @@
+## [3.69.10](https://github.com/informatievlaanderen/road-registry/compare/v3.69.9...v3.69.10) (2024-02-28)
+
+
+### Bug Fixes
+
+* projection more flexible when RoadSegmentModified record doesn't exist ([#1400](https://github.com/informatievlaanderen/road-registry/issues/1400)) ([619f37d](https://github.com/informatievlaanderen/road-registry/commit/619f37da9b22c0fc0213b50f30247f3e307ce33f))
+
 ## [3.69.9](https://github.com/informatievlaanderen/road-registry/compare/v3.69.8...v3.69.9) (2024-02-28)
 
 
