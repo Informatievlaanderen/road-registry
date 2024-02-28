@@ -251,10 +251,16 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(x => x.Id == roadSegmentModified.Id, token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments
+            .FindWithoutQueryFiltersAsync(x => x.Id == roadSegmentModified.Id, token)
+            .ConfigureAwait(false);
         if (dbRecord is null)
         {
-            throw new InvalidOperationException($"{nameof(RoadSegmentRecord)} with id {roadSegmentModified.Id} is not found");
+            dbRecord = new RoadSegmentRecord
+            {
+                Id = roadSegmentModified.Id
+            };
+            await context.RoadSegments.AddAsync(dbRecord, token);
         }
 
         var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentModified.Geometry));
