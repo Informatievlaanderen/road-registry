@@ -1,5 +1,5 @@
 name: 4. Deploy Single Service TST/PRD
-run-name: Deploy ${{ github.event.inputs.service || github.event.inputs.task || github.event.inputs.lambda || '<none>'' }} to ${{ github.event.inputs.environment }}: ${{ github.event.inputs.version }}
+run-name: Deploy ${{ inputs.service || inputs.task || inputs.lambda }} to ${{ inputs.environment }}: ${{ inputs.version }}
 
 on:
   workflow_dispatch:
