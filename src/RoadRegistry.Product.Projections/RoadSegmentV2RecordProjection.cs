@@ -325,7 +325,8 @@ public class RoadSegmentV2RecordProjection : ConnectedProjection<ProductContext>
         var dbRecord = await context.RoadSegmentsV2.FindAsync(x => x.Id == roadSegmentAttributesModified.Id, token).ConfigureAwait(false);
         if (dbRecord is null)
         {
-            throw new InvalidOperationException($"{nameof(RoadSegmentV2Record)} with id {roadSegmentAttributesModified.Id} is not found");
+            //throw new InvalidOperationException($"{nameof(RoadSegmentV2Record)} with id {roadSegmentAttributesModified.Id} is not found");
+            return;
         }
 
         dbRecord.Version = roadSegmentAttributesModified.Version;
@@ -401,7 +402,8 @@ public class RoadSegmentV2RecordProjection : ConnectedProjection<ProductContext>
         var dbRecord = await context.RoadSegmentsV2.FindAsync(x => x.Id == roadSegmentGeometryModified.Id, token).ConfigureAwait(false);
         if (dbRecord is null)
         {
-            throw new InvalidOperationException($"{nameof(RoadSegmentV2Record)} with id {roadSegmentGeometryModified.Id} is not found");
+            //throw new InvalidOperationException($"{nameof(RoadSegmentV2Record)} with id {roadSegmentGeometryModified.Id} is not found");
+            return;
         }
 
         var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentGeometryModified.Geometry));
