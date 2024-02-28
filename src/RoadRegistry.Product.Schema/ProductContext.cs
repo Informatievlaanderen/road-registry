@@ -3,7 +3,6 @@ namespace RoadRegistry.Product.Schema;
 using BackOffice;
 using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Extracts.Dbase.RoadSegments;
-using BackOffice.Metrics;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using GradeSeparatedJunctions;
 using Microsoft.EntityFrameworkCore;
@@ -27,13 +26,10 @@ public class ProductContext : RunnerDbContext<ProductContext>
     {
     }
 
-    #region Metrics
-    public DbSet<EventProcessorMetricsRecord> EventProcessorMetrics { get; set; }
-    #endregion
+    public override string ProjectionStateSchema => WellKnownSchemas.ProductMetaSchema;
 
     public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
     public DbSet<OrganizationRecord> Organizations { get; set; }
-    public override string ProjectionStateSchema => WellKnownSchemas.ProductMetaSchema;
     public DbSet<RoadNetworkInfo> RoadNetworkInfo { get; set; }
     public DbSet<RoadNetworkInfoSegmentCache> RoadNetworkInfoSegmentCache { get; set; }
     public DbSet<RoadNodeBoundingBox2D> RoadNodeBoundingBox { get; set; }
@@ -44,6 +40,7 @@ public class ProductContext : RunnerDbContext<ProductContext>
     public DbSet<RoadSegmentNationalRoadAttributeRecord> RoadSegmentNationalRoadAttributes { get; set; }
     public DbSet<RoadSegmentNumberedRoadAttributeRecord> RoadSegmentNumberedRoadAttributes { get; set; }
     public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
+    public DbSet<RoadSegmentV2Record> RoadSegmentsV2 { get; set; }
     public DbSet<RoadSegmentSurfaceAttributeRecord> RoadSegmentSurfaceAttributes { get; set; }
     public DbSet<RoadSegmentWidthAttributeRecord> RoadSegmentWidthAttributes { get; set; }
 

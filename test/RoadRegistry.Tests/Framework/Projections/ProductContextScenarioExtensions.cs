@@ -99,6 +99,13 @@ public static class ProductContextScenarioExtensions
         return scenario.Expect(records.ToArray());
     }
 
+    public static Task ExpectWhileIgnoringQueryFilters(
+        this ConnectedProjectionScenario<ProductContext> scenario,
+        params object[] records)
+    {
+        return Expect(scenario, true, records);
+    }
+
     public static async Task Expect(
         this ConnectedProjectionScenario<ProductContext> scenario,
         params object[] records)

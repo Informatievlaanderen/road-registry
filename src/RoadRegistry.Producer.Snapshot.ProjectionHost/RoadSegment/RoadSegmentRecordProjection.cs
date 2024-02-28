@@ -420,10 +420,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                 {
                     foreach (var dbRecord in dbRecords)
                     {
-                        if (dbRecord.MaintainerId == organizationId)
-                        {
-                            dbRecord.MaintainerName = organizationName;
-                        }
+                        dbRecord.MaintainerName = organizationName;
 
                         await Produce(dbRecord.Id, dbRecord.ToContract(), cancellationToken);
                     }

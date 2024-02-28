@@ -109,21 +109,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                         break;
                 }
         });
-
-        When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
-        {
-            await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
-        });
-
-        When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
-        {
-            _logger.LogInformation("{Message} started", envelope.Message.GetType().Name);
-            if (envelope.Message.NameModified)
-            {
-                await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
-            }
-            _logger.LogInformation("{Message} finished", envelope.Message.GetType().Name);
-        });
     }
 
     private static async Task AddRoadSegment(RecyclableMemoryStreamManager manager,
@@ -378,44 +363,5 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
     {
         entity.LastEventHash = message.GetHash();
         return entity;
-    }
-
-    private async Task RenameOrganization(
-        RecyclableMemoryStreamManager manager,
-        Encoding encoding,
-        EditorContext context,
-        OrganizationId organizationId,
-        OrganizationName organizationName,
-        CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("Renaming organizations started");
-        var batchIndex = 0;
-
-        await context.RoadSegments
-            .ForEachBatchAsync(q => q, 5000, dbRecords =>
-            {
-                _logger.LogInformation("Processing batch {Batch}", batchIndex);
-                foreach (var dbRecord in dbRecords)
-                {
-                    var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
-                    var dataChanged = false;
-
-                    if (dbaseRecord.BEHEER.Value == organizationId)
-                    {
-                        dbaseRecord.LBLBEHEER.Value = OrganizationName.FromValueWithFallback(organizationName);
-                        dataChanged = true;
-                    }
-
-                    if (dataChanged)
-                    {
-                        dbRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
-                    }
-                }
-
-                batchIndex++;
-                return Task.CompletedTask;
-            }, cancellationToken);
-
-        _logger.LogInformation("Renaming organizations finished");
     }
 }

@@ -10,8 +10,6 @@ using SqlStreamStore;
 
 public class RoadNetworkEventProcessor : EditorContextEventProcessor
 {
-    private const string QueueName = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
-
     public RoadNetworkEventProcessor(
         IStreamStore streamStore,
         DbContextEventProcessorProjections<RoadNetworkEventProcessor, EditorContext> projections,
@@ -19,7 +17,7 @@ public class RoadNetworkEventProcessor : EditorContextEventProcessor
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,
         ILogger<RoadNetworkEventProcessor> logger)
-        : base(QueueName, streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, logger)
+        : base(WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost, streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, logger)
     {
     }
 }
