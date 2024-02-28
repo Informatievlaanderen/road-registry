@@ -50,7 +50,7 @@ public class ProductContext : RunnerDbContext<ProductContext>
             RoadNetworkInfo.Local.SingleOrDefault() ??
             await RoadNetworkInfo.SingleAsync(candidate => candidate.Id == BackOffice.RoadNetworkInfo.Identifier, token);
     }
-
+    
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseRoadRegistryInMemorySqlServer();

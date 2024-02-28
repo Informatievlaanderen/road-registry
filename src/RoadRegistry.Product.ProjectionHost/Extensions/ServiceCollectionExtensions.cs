@@ -3,7 +3,6 @@ namespace RoadRegistry.Product.ProjectionHost.Extensions;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using RoadRegistry.Product.ProjectionHost.EventProcessors;
 using Schema;
 using System;
 
