@@ -1,5 +1,5 @@
 name: 4. Deploy Single Service TST/PRD
-run-name: 'Deploy ${{ github.event.inputs.service || github.event.inputs.task || (github.event.inputs.lambda && "Lambdas") || "<none>" }} to ${{ github.event.inputs.environment }}: ${{ github.event.inputs.version }}'
+run-name: Deploy ${{ github.event.inputs.service || github.event.inputs.task || github.event.inputs.lambda || '<none>'' }} to ${{ github.event.inputs.environment }}: ${{ github.event.inputs.version }}
 
 on:
   workflow_dispatch:
@@ -42,13 +42,16 @@ on:
         - road-adminhost
         required: false
       lambda:
-        type: boolean
-        description: Deploy Lambda's
+        type: choice
+        description: Select the lambda to deploy
+        options:
+        - ''
+        - lambdas
         required: false
 
 jobs:
   deploy_start_slack:
-    if: github.repository_owner == 'Informatievlaanderen' && (github.event.inputs.service != '' || github.event.inputs.task != '' || github.event.inputs.lambda)
+    if: github.repository_owner == 'Informatievlaanderen' && (github.event.inputs.service != '' || github.event.inputs.task != '' || github.event.inputs.lambda != '')
     name: Deploy started
     runs-on: ubuntu-latest
 
@@ -80,7 +83,7 @@ jobs:
     strategy:
        matrix: 
          services: [
-          '${{github.event.inputs.service}}',
+          '${{github.event.inputs.service}}'
         ]
 
     steps:
@@ -116,7 +119,7 @@ jobs:
     strategy:
        matrix: 
          services: [
-          '${{github.event.inputs.task}}',
+          '${{github.event.inputs.task}}'
         ]
 
     steps:
@@ -145,7 +148,7 @@ jobs:
         echo ${{ steps.awscurl-polling-action.outputs.final-message }}
 
   deploy_lambda:
-    if: github.repository_owner == 'Informatievlaanderen' && github.event.inputs.lambda
+    if: github.repository_owner == 'Informatievlaanderen' && github.event.inputs.lambda != ''
     needs: [deploy_services, deploy_tasks]
     name: Deploy lambda(s)
     runs-on: ubuntu-latest
@@ -200,14 +203,14 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: ":white_check_mark: Deployment of ${{ github.event.inputs.service || github.event.inputs.task || (github.event.inputs.lambda && 'Lambdas') }} ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has finished."
+        slack-message: ":white_check_mark: Deployment of ${{ github.event.inputs.service || github.event.inputs.task || github.event.inputs.lambda }} ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has finished."
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
         REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
 
   deploy_nothing_slack:
-    if: github.repository_owner == 'Informatievlaanderen' && (github.event.inputs.service == '' || github.event.inputs.task == '' || !github.event.inputs.lambda)
+    if: github.repository_owner == 'Informatievlaanderen' && (github.event.inputs.service == '' || github.event.inputs.task == '' || github.event.inputs.lambda == '')
     needs: [deploy_services, deploy_tasks, deploy_lambda]
     name: Deploy cancelled
     runs-on: ubuntu-latest
