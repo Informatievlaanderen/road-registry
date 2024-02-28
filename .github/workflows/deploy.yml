@@ -1,4 +1,4 @@
-name: 3. Deploy
+name: 3. Deploy STG
 run-name: 'Deploy road-registry to ${{ github.event.inputs.environment }}: ${{ github.event.inputs.version }}'
 
 on:
