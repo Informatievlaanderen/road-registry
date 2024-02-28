@@ -1,3 +1,10 @@
+## [3.69.11](https://github.com/informatievlaanderen/road-registry/compare/v3.69.10...v3.69.11) (2024-02-28)
+
+
+### Bug Fixes
+
+* projection with null dbaserecord ([#1401](https://github.com/informatievlaanderen/road-registry/issues/1401)) ([32031e0](https://github.com/informatievlaanderen/road-registry/commit/32031e0bb1a0bc4058ea63e7e543340de0c3e271))
+
 ## [3.69.10](https://github.com/informatievlaanderen/road-registry/compare/v3.69.9...v3.69.10) (2024-02-28)
 
 
