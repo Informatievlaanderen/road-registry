@@ -1,3 +1,10 @@
+## [3.69.8](https://github.com/informatievlaanderen/road-registry/compare/v3.69.7...v3.69.8) (2024-02-28)
+
+
+### Bug Fixes
+
+* WR-956 add RoadSegmentV2 for product; remove OrganizationRename handlers for editor/product RoadSegmentV1 projections ([#1398](https://github.com/informatievlaanderen/road-registry/issues/1398)) ([498b74e](https://github.com/informatievlaanderen/road-registry/commit/498b74ebd9830732f850e368b7a6fc5e92ecac44))
+
 ## [3.69.7](https://github.com/informatievlaanderen/road-registry/compare/v3.69.6...v3.69.7) (2024-02-27)
 
 
