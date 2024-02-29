@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ForProduct;
 using System.IO.Compression;
 using System.Text;
 using Abstractions;
+using Amazon.Runtime.Internal.Transform;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Extracts.Dbase.RoadSegments;
@@ -45,12 +46,14 @@ public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
             new DbaseRecordCount(count),
             RoadSegmentDbaseRecord.Schema
         );
+
+        var cachedStreetNames = new Dictionary<int, string>();
         await using (var dbfEntryStream = dbfEntry.Open())
         using (var dbfWriter = new DbaseBinaryWriter(dbfHeader, new BinaryWriter(dbfEntryStream, _encoding, true)))
         {
             foreach (var batch in context.RoadSegments
-                         .OrderBy(_ => _.Id)
-                         .Select(_ => _.DbaseRecord)
+                         .OrderBy(x => x.Id)
+                         .Select(x => x.DbaseRecord)
                          .AsEnumerable()
                          .Batch(_zipArchiveWriterOptions.RoadSegmentBatchSize))
             {
@@ -67,17 +70,26 @@ public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
                     .Select(record => record.LSTRNMID.Value)
                     .Union(dbfRecords.Select(record => record.RSTRNMID.Value))
                     .Where(streetNameId => streetNameId.HasValue)
-                    .Select(streetNameId => streetNameId.Value);
+                    .Select(streetNameId => streetNameId.Value)
+                    .Where(streetNameId => !cachedStreetNames.ContainsKey(streetNameId));
 
-                var cachedStreetNames = await _streetNameCache.GetStreetNamesById(cachedStreetNameIds, cancellationToken);
+                var missingCachedStreetNames = await _streetNameCache.GetStreetNamesById(cachedStreetNameIds, cancellationToken);
+                foreach (var item in missingCachedStreetNames)
+                {
+                    cachedStreetNames.Add(item.Key, item.Value);
+                }
 
                 foreach (var dbfRecord in dbfRecords)
                 {
-                    if (dbfRecord.LSTRNMID.Value.HasValue && cachedStreetNames.ContainsKey(dbfRecord.LSTRNMID.Value.Value))
-                        dbfRecord.LSTRNM.Value = cachedStreetNames[dbfRecord.LSTRNMID.Value.Value];
+                    if (dbfRecord.LSTRNMID.Value.HasValue && cachedStreetNames.TryGetValue(dbfRecord.LSTRNMID.Value.Value, out var leftStreetName))
+                    {
+                        dbfRecord.LSTRNM.Value = leftStreetName;
+                    }
 
-                    if (dbfRecord.RSTRNMID.Value.HasValue && cachedStreetNames.ContainsKey(dbfRecord.RSTRNMID.Value.Value))
-                        dbfRecord.RSTRNM.Value = cachedStreetNames[dbfRecord.RSTRNMID.Value.Value];
+                    if (dbfRecord.RSTRNMID.Value.HasValue && cachedStreetNames.TryGetValue(dbfRecord.RSTRNMID.Value.Value, out var rightStreetName))
+                    {
+                        dbfRecord.RSTRNM.Value = rightStreetName;
+                    }
 
                     dbfWriter.Write(dbfRecord);
                 }
@@ -105,7 +117,7 @@ public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
                    new BinaryWriter(shpEntryStream, _encoding, true)))
         {
             var number = RecordNumber.Initial;
-            foreach (var data in context.RoadSegments.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
+            foreach (var data in context.RoadSegments.OrderBy(x => x.Id).Select(x => x.ShapeRecordContent))
             {
                 shpWriter.Write(
                     ShapeContentFactory
@@ -129,7 +141,7 @@ public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
         {
             var offset = ShapeIndexRecord.InitialOffset;
             var number = RecordNumber.Initial;
-            foreach (var data in context.RoadSegments.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
+            foreach (var data in context.RoadSegments.OrderBy(x => x.Id).Select(x => x.ShapeRecordContent))
             {
                 var shpRecord = ShapeContentFactory
                     .FromBytes(data, _manager, _encoding)
