@@ -43,7 +43,6 @@ public class OrganizationConsumerContext : ConsumerDbContext<OrganizationConsume
     {
         options
             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
             .UseSqlServer(
                 sp.GetRequiredService<TraceDbConnection<OrganizationConsumerContext>>(),
                 sqlOptions => sqlOptions
