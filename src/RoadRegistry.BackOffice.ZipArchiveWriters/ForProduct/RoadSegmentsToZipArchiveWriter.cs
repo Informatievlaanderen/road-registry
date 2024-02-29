@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ForProduct;
 using System.IO.Compression;
 using System.Text;
 using Abstractions;
-using Amazon.Runtime.Internal.Transform;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Extracts.Dbase.RoadSegments;
