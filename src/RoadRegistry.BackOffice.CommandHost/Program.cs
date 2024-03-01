@@ -45,7 +45,7 @@ public class Program
                 .AddSingleton<ICommandProcessorPositionStore>(sp =>
                     new SqlCommandProcessorPositionStore(
                         new SqlConnectionStringBuilder(
-                            sp.GetService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.CommandHost)
+                            sp.GetService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.CommandHost)
                         ),
                         WellKnownSchemas.CommandHostSchema))
                 .AddDistributedStreamStoreLockOptions()
@@ -122,7 +122,7 @@ public class Program
                 await
                     new SqlCommandProcessorPositionStoreSchema(
                         new SqlConnectionStringBuilder(
-                            configuration.GetConnectionString(WellKnownConnectionNames.CommandHostAdmin))
+                            configuration.GetRequiredConnectionString(WellKnownConnectionNames.CommandHostAdmin))
                     ).CreateSchemaIfNotExists(WellKnownSchemas.CommandHostSchema).ConfigureAwait(false);
 
                 using (var dbContext = sp.GetRequiredService<RoadNetworkDbContext>())

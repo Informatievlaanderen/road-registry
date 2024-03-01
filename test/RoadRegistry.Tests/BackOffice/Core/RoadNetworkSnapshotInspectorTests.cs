@@ -31,11 +31,11 @@ public class RoadNetworkSnapshotInspectorTests
 
     private string GetEventsConnectionString(DbEnvironment environment)
     {
-        return Configuration.GetConnectionString($"Events-{environment}") ?? Configuration.GetConnectionString("Events");
+        return Configuration.GetConnectionString($"Events-{environment}") ?? Configuration.GetRequiredConnectionString("Events");
     }
     private string GetEditorProjectionsConnectionString(DbEnvironment environment)
     {
-        return Configuration.GetConnectionString($"EditorProjections-{environment}") ?? Configuration.GetConnectionString("EditorProjections");
+        return Configuration.GetConnectionString($"EditorProjections-{environment}") ?? Configuration.GetRequiredConnectionString("EditorProjections");
     }
 
     private IStreamStore GetStreamStore(DbEnvironment dbEnvironment)

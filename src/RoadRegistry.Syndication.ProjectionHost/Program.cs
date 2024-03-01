@@ -58,7 +58,7 @@ public class Program
                         new SyndicationContext(
                             new DbContextOptionsBuilder<SyndicationContext>()
                                 .UseSqlServer(
-                                    hostContext.Configuration.GetConnectionString(WellKnownConnectionNames.SyndicationProjections),
+                                    hostContext.Configuration.GetRequiredConnectionString(WellKnownConnectionNames.SyndicationProjections),
                                     options => options
                                         .EnableRetryOnFailure()
                                 ).Options)

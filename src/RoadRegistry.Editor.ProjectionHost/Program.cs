@@ -76,7 +76,7 @@ public class Program
                     new EditorContext(
                         new DbContextOptionsBuilder<EditorContext>()
                             .UseSqlServer(
-                                hostContext.Configuration.GetConnectionString(WellKnownConnectionNames.EditorProjections),
+                                hostContext.Configuration.GetRequiredConnectionString(WellKnownConnectionNames.EditorProjections),
                                 options => options
                                     .EnableRetryOnFailure()
                                     .UseNetTopologySuite()

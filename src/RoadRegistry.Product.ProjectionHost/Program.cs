@@ -64,7 +64,7 @@ public class Program
                     new ProductContext(
                         new DbContextOptionsBuilder<ProductContext>()
                             .UseSqlServer(
-                                hostContext.Configuration.GetConnectionString(WellKnownConnectionNames.ProductProjections),
+                                hostContext.Configuration.GetRequiredConnectionString(WellKnownConnectionNames.ProductProjections),
                                 options => options
                                     .EnableRetryOnFailure()
                                     .UseNetTopologySuite()

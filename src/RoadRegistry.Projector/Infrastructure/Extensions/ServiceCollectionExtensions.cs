@@ -13,7 +13,7 @@ internal static class ServiceCollectionExtensions
         return services.AddDbContext<TDbContext>((sp, options) => options
             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-            .UseSqlServer(sp.GetRequiredService<IConfiguration>().GetConnectionString(connectionStringName),
+            .UseSqlServer(sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(connectionStringName),
                 sqlOptions => sqlOptions
                     .EnableRetryOnFailure()
                     .UseNetTopologySuite()));
