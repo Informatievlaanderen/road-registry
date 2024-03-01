@@ -1,8 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeDynamicAttributes;
 
+using Swashbuckle.AspNetCore.Filters;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Swashbuckle.AspNetCore.Filters;
 
 [DataContract(Name = "WegsegmentenDynamischeAttributenWijzigen", Namespace = "")]
 public class ChangeRoadSegmentsDynamicAttributesParameters : List<ChangeRoadSegmentDynamicAttributesParameters>

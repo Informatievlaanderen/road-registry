@@ -7,7 +7,6 @@ using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy.SpatialTools;
 using Extensions;
-using Infrastructure.Attributes;
 using Infrastructure.Controllers.Attributes;
 using Infrastructure.Options;
 using Microsoft.AspNetCore.Authorization;
@@ -124,7 +123,7 @@ public partial class RoadSegmentsController
 /// <summary>
 ///     Bevat informatie waarmee het wegsegment kan geïdentificeerd worden.
 /// </summary>
-[DataContract(Name = "Identificator", Namespace = "")]
+[DataContract(Name = "WegsegmentIdentificator", Namespace = "")]
 public class WegsegmentIdentificator : Identificator
 {
     /// <summary>
@@ -164,7 +163,7 @@ public class StraatnaamObject
     public string Straatnaam { get; set; }
 }
 
-[DataContract(Name = "Wegverharding", Namespace = "")]
+[DataContract(Name = "WegsegmentWegverharding", Namespace = "")]
 public class WegverhardingObject
 {
     /// <summary>
@@ -190,7 +189,7 @@ public class WegverhardingObject
     public string Verharding { get; set; }
 }
 
-[DataContract(Name = "Wegbreedte", Namespace = "")]
+[DataContract(Name = "WegsegmentWegbreedte", Namespace = "")]
 public class WegbreedteObject
 {
     /// <summary>
@@ -215,7 +214,7 @@ public class WegbreedteObject
     public int Breedte { get; set; }
 }
 
-[DataContract(Name = "AantalRijstroken", Namespace = "")]
+[DataContract(Name = "WegsegmentAantalRijstroken", Namespace = "")]
 public class AantalRijstrokenObject
 {
     /// <summary>
@@ -251,8 +250,7 @@ public class AantalRijstrokenObject
 /// <summary>
 ///     Bevat informatie over de straatnaam van het wegsegment.
 /// </summary>
-[DataContract(Name = "StraatnaamObject", Namespace = "")]
-[CustomSwaggerSchemaId("StraatnaamObject")]
+[DataContract(Name = "WegsegmentStraatnaamObject", Namespace = "")]
 public class WegsegmentStraatnaamObject : StraatnaamObject
 {
 }

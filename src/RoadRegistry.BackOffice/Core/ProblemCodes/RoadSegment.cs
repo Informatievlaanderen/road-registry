@@ -26,6 +26,39 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode IsRequired = new("RoadSegmentCategoryIsRequired");
         }
 
+        public static class EuropeanRoad
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentEuropeanRoadNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentEuropeanRoadIsRequired");
+            public static readonly ProblemCode IdentifierNotUnique = new("RoadSegmentEuropeanRoadIdentifierNotUnique");
+        }
+
+        public static class NationalRoad
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentNationalRoadNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentNationalRoadIsRequired");
+            public static readonly ProblemCode IdentifierNotUnique = new("RoadSegmentNationalRoadIdentifierNotUnique");
+        }
+
+        public static class NumberedRoad
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentNumberedRoadNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentNumberedRoadIsRequired");
+            public static readonly ProblemCode IdentifierNotUnique = new("RoadSegmentNumberedRoadIdentifierNotUnique");
+        }
+
+        public static class NumberedRoadDirection
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentNumberedRoadDirectionNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentNumberedRoadDirectionIsRequired");
+        }
+
+        public static class NumberedRoadOrdinal
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentNumberedRoadOrdinalNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentNumberedRoadOrdinalIsRequired");
+        }
+
         public static class Geometry
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentGeometryNotValid");

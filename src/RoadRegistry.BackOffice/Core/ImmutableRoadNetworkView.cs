@@ -6,6 +6,9 @@ using System.Collections.Immutable;
 using System.Linq;
 using Messages;
 using NetTopologySuite.Geometries;
+using RoadSegmentEuropeanRoadAttribute = BackOffice.RoadSegmentEuropeanRoadAttribute;
+using RoadSegmentNationalRoadAttribute = BackOffice.RoadSegmentNationalRoadAttribute;
+using RoadSegmentNumberedRoadAttribute = BackOffice.RoadSegmentNumberedRoadAttribute;
 
 public class ImmutableRoadNetworkView : IRoadNetworkView
 {

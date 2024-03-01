@@ -1,8 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeAttributes;
 
+using Swashbuckle.AspNetCore.Filters;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Swashbuckle.AspNetCore.Filters;
 
 [DataContract(Name = "WegsegmentAttribuutWijzigen", Namespace = "")]
 public class ChangeRoadSegmentAttributesParameters : List<ChangeAttributeParameters>
@@ -25,7 +25,18 @@ public class ChangeRoadSegmentAttributesParametersExamples : IExamplesProvider<C
                 Wegsegmenten = new[] { 481111 },
                 Wegsegmentstatus = "buiten gebruik",
                 MorfologischeWegklasse = "aardeweg",
-                Wegbeheerder = "AWV114"
+                Wegbeheerder = "AWV114",
+                EuropeseWegen = new[]{ "E40" },
+                NationaleWegen = new[] { "N180" },
+                GenummerdeWegen = new[]
+                {
+                    new ChangeAttributeNumberedRoad
+                    {
+                        Ident8 = "N0080001",
+                        Richting = "gelijklopend met de digitalisatiezin",
+                        Volgnummer = "2686"
+                    }
+                }
             }
         };
     }

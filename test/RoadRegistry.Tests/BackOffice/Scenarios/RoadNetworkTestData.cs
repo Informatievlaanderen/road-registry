@@ -10,6 +10,9 @@ using RoadRegistry.BackOffice.Messages;
 using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
+using RoadSegmentEuropeanRoadAttribute = RoadRegistry.BackOffice.Messages.RoadSegmentEuropeanRoadAttribute;
+using RoadSegmentNationalRoadAttribute = RoadRegistry.BackOffice.Messages.RoadSegmentNationalRoadAttribute;
+using RoadSegmentNumberedRoadAttribute = RoadRegistry.BackOffice.Messages.RoadSegmentNumberedRoadAttribute;
 
 public class RoadNetworkTestData
 {
@@ -61,21 +64,21 @@ public class RoadNetworkTestData
 
         ObjectProvider.CustomizeRoadNetworkChangesAccepted();
 
-        ObjectProvider.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
+        ObjectProvider.Customize<RoadSegmentEuropeanRoadAttribute>(composer =>
             composer.Do(instance =>
                 {
                     instance.AttributeId = ObjectProvider.Create<AttributeId>();
                     instance.Number = ObjectProvider.Create<EuropeanRoadNumber>();
                 })
                 .OmitAutoProperties());
-        ObjectProvider.Customize<RoadSegmentNationalRoadAttributes>(composer =>
+        ObjectProvider.Customize<RoadSegmentNationalRoadAttribute>(composer =>
             composer.Do(instance =>
                 {
                     instance.AttributeId = ObjectProvider.Create<AttributeId>();
                     instance.Number = ObjectProvider.Create<NationalRoadNumber>();
                 })
                 .OmitAutoProperties());
-        ObjectProvider.Customize<RoadSegmentNumberedRoadAttributes>(composer =>
+        ObjectProvider.Customize<RoadSegmentNumberedRoadAttribute>(composer =>
             composer.Do(instance =>
             {
                 instance.AttributeId = ObjectProvider.Create<AttributeId>();

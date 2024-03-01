@@ -21,7 +21,10 @@ using Problem = RoadRegistry.BackOffice.Messages.Problem;
 using ProblemParameter = RoadRegistry.BackOffice.Messages.ProblemParameter;
 using ProblemSeverity = RoadRegistry.BackOffice.Messages.ProblemSeverity;
 using RejectedChange = RoadRegistry.BackOffice.Messages.RejectedChange;
+using RoadSegmentEuropeanRoadAttribute = RoadRegistry.BackOffice.Messages.RoadSegmentEuropeanRoadAttribute;
 using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLaneAttributes;
+using RoadSegmentNationalRoadAttribute = RoadRegistry.BackOffice.Messages.RoadSegmentNationalRoadAttribute;
+using RoadSegmentNumberedRoadAttribute = RoadRegistry.BackOffice.Messages.RoadSegmentNumberedRoadAttribute;
 using RoadSegmentSurfaceAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes;
 using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes;
 
@@ -63,21 +66,21 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
         ObjectProvider.CustomizeOperatorName();
         ObjectProvider.CustomizeTransactionId();
 
-        ObjectProvider.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
+        ObjectProvider.Customize<RoadSegmentEuropeanRoadAttribute>(composer =>
             composer.Do(instance =>
                 {
                     instance.AttributeId = ObjectProvider.Create<AttributeId>();
                     instance.Number = ObjectProvider.Create<EuropeanRoadNumber>();
                 })
                 .OmitAutoProperties());
-        ObjectProvider.Customize<RoadSegmentNationalRoadAttributes>(composer =>
+        ObjectProvider.Customize<RoadSegmentNationalRoadAttribute>(composer =>
             composer.Do(instance =>
                 {
                     instance.AttributeId = ObjectProvider.Create<AttributeId>();
                     instance.Number = ObjectProvider.Create<NationalRoadNumber>();
                 })
                 .OmitAutoProperties());
-        ObjectProvider.Customize<RoadSegmentNumberedRoadAttributes>(composer =>
+        ObjectProvider.Customize<RoadSegmentNumberedRoadAttribute>(composer =>
             composer.Do(instance =>
             {
                 instance.AttributeId = ObjectProvider.Create<AttributeId>();

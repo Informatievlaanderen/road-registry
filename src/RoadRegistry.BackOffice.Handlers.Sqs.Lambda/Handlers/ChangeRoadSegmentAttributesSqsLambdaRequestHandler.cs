@@ -6,18 +6,16 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
-using Editor.Projections;
 using Editor.Schema;
 using Editor.Schema.Extensions;
 using Exceptions;
+using FeatureToggles;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Requests;
-using RoadRegistry.BackOffice.Abstractions.Organizations;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
-using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
 using TicketingService.Abstractions;
 using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
@@ -68,6 +66,12 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         {
             var recordNumber = RecordNumber.Initial;
             var problems = Problems.None;
+            var attributeId = AttributeId.Initial;
+            AttributeId GetNextAttributeId()
+            {
+                attributeId = attributeId.Next();
+                return attributeId;
+            }
 
             foreach (var change in request.Request.ChangeRequests)
             {
@@ -103,7 +107,16 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                     Morphology = change.Morphology,
                     Status = change.Status,
                     Category = change.Category,
-                    AccessRestriction = change.AccessRestriction
+                    AccessRestriction = change.AccessRestriction,
+                    EuropeanRoads = change.EuropeanRoads?
+                        .Select(x => new RoadSegmentEuropeanRoadAttribute(GetNextAttributeId(), x))
+                        .ToArray(),
+                    NationalRoads = change.NationalRoads?
+                        .Select(x => new RoadSegmentNationalRoadAttribute(GetNextAttributeId(), x))
+                        .ToArray(),
+                    NumberedRoads = change.NumberedRoads?
+                        .Select(x => new RoadSegmentNumberedRoadAttribute(GetNextAttributeId(), x.Direction, x.Number, x.Ordinal))
+                        .ToArray()
                 });
 
                 recordNumber = recordNumber.Next();

@@ -47,7 +47,7 @@ public partial class RoadSegmentsController
     [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(RoadSegmentNotFoundResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerRequestExample(typeof(ChangeRoadSegmentAttributesParameters), typeof(ChangeRoadSegmentAttributesParametersExamples))]
-    [SwaggerOperation(OperationId = nameof(ChangeAttributes), Description = "Attributen wijzigen van een wegsegment: status, toegangsbeperking, wegklasse, wegbeheerder en wegcategorie.")]
+    [SwaggerOperation(OperationId = nameof(ChangeAttributes), Description = "Attributen wijzigen van een wegsegment: status, toegangsbeperking, wegklasse, wegbeheerder, wegcategorie, Europese wegen, nationale wegen en genummerde wegen.")]
     public async Task<IActionResult> ChangeAttributes(
         [FromServices] UseRoadSegmentChangeAttributesFeatureToggle featureToggle,
         [FromBody] ChangeRoadSegmentAttributesParameters parameters,
@@ -119,6 +119,26 @@ public partial class RoadSegmentsController
                     if (attributesChange.Wegcategorie is not null)
                     {
                         roadSegment.Category = RoadSegmentCategory.ParseUsingDutchName(attributesChange.Wegcategorie);
+                    }
+
+                    if (attributesChange.EuropeseWegen is not null)
+                    {
+                        roadSegment.EuropeanRoads = attributesChange.EuropeseWegen.Select(EuropeanRoadNumber.Parse).ToArray();
+                    }
+
+                    if (attributesChange.NationaleWegen is not null)
+                    {
+                        roadSegment.NationalRoads = attributesChange.NationaleWegen.Select(NationalRoadNumber.Parse).ToArray();
+                    }
+
+                    if (attributesChange.GenummerdeWegen is not null)
+                    {
+                        roadSegment.NumberedRoads = attributesChange.GenummerdeWegen.Select(numberedRoad => new ChangeRoadSegmentNumberedRoadAttribute
+                        {
+                            Number = NumberedRoadNumber.Parse(numberedRoad.Ident8),
+                            Direction = RoadSegmentNumberedRoadDirection.ParseUsingDutchName(numberedRoad.Richting),
+                            Ordinal = new RoadSegmentNumberedRoadOrdinal(int.Parse(numberedRoad.Volgnummer!))
+                        }).ToArray();
                     }
                 });
             }

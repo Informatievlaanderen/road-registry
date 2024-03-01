@@ -400,6 +400,8 @@ internal class RequestedChangeTranslator
         var widthAttributes = await Translate(command.Widths, permanent);
         var surfaceAttributes = await Translate(command.Surfaces, permanent);
 
+        //TODO-rik add new road props
+
         return new ModifyRoadSegmentAttributes
         (
             permanent,

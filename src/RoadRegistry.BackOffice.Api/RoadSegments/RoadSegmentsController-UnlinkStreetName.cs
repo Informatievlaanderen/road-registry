@@ -2,9 +2,9 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
 using Abstractions.Extensions;
 using Abstractions.RoadSegments;
-using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using FeatureToggles;
 using FluentValidation;
@@ -102,7 +102,7 @@ public partial class RoadSegmentsController
     }
 }
 
-[DataContract(Name = "StraatnaamOntkoppelen", Namespace = "")]
+[DataContract(Name = "WegsegmentStraatnaamOntkoppelen", Namespace = "")]
 public class PostUnlinkStreetNameParameters
 {
     /// <summary>

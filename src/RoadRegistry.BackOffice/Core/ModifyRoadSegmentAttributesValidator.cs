@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using System.Linq;
 using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -36,6 +37,39 @@ public abstract class ModifyRoadSegmentAttributesValidatorBase : AbstractValidat
             .Must(RoadSegmentAccessRestriction.CanParse)
             .When(c => c.AccessRestriction != null, ApplyConditionTo.CurrentValidator)
             .WithProblemCode(ProblemCode.RoadSegment.AccessRestriction.NotValid);
+
+        //TODO-rik add test
+        When(x => x.EuropeanRoads is not null, () =>
+        {
+            RuleFor(x => x.EuropeanRoads)
+                .Must(x => x.Length == x.Select(item => item.Number).Distinct().Count())
+                .WithProblemCode(ProblemCode.RoadSegment.EuropeanRoad.IdentifierNotUnique);
+            
+            RuleForEach(x => x.EuropeanRoads)
+                .SetValidator(new RoadSegmentEuropeanRoadAttributeValidator());
+        });
+
+        //TODO-rik add test
+        When(x => x.NationalRoads is not null, () =>
+        {
+            RuleFor(x => x.NationalRoads)
+                .Must(x => x.Length == x.Select(item => item.Number).Distinct().Count())
+                .WithProblemCode(ProblemCode.RoadSegment.NationalRoad.IdentifierNotUnique);
+            
+            RuleForEach(x => x.NationalRoads)
+                .SetValidator(new RoadSegmentNationalRoadAttributeValidator());
+        });
+
+        //TODO-rik add test
+        When(x => x.NumberedRoads is not null, () =>
+        {
+            RuleFor(x => x.NumberedRoads)
+                .Must(x => x.Length == x.Select(item => item.Number).Distinct().Count())
+                .WithProblemCode(ProblemCode.RoadSegment.NumberedRoad.IdentifierNotUnique);
+
+            RuleForEach(x => x.NumberedRoads)
+                .SetValidator(new RoadSegmentNumberedRoadAttributeValidator());
+        });
     }
 }
 

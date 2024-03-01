@@ -1,8 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeAttributes;
 
-using System.Runtime.Serialization;
 using Infrastructure.Controllers.Attributes;
 using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 public record ChangeAttributeParameters
 {
@@ -51,4 +51,51 @@ public record ChangeAttributeParameters
     [JsonProperty("wegcategorie")]
     [RoadRegistryEnumDataType(typeof(RoadSegmentCategory))]
     public string Wegcategorie { get; set; }
+
+    /// <summary>
+    ///     De gekoppelde Europese wegen.
+    /// </summary>
+    [DataMember(Name = "EuropeseWegen", Order = 7)]
+    [JsonProperty("europeseWegen")]
+    public string[] EuropeseWegen { get; set; }
+
+    /// <summary>
+    ///     De gekoppelde nationale wegen.
+    /// </summary>
+    [DataMember(Name = "NationaleWegen", Order = 8)]
+    [JsonProperty("nationaleWegen")]
+    public string[] NationaleWegen { get; set; }
+
+    /// <summary>
+    ///     De gekoppelde genummerde wegen.
+    /// </summary>
+    [DataMember(Name = "GenummerdeWegen", Order = 9)]
+    [JsonProperty("genummerdeWegen")]
+    public ChangeAttributeNumberedRoad[] GenummerdeWegen { get; set; }
+}
+
+[DataContract(Name = "GenummerdeWeg", Namespace = "")]
+public class ChangeAttributeNumberedRoad
+{
+    /// <summary>
+    ///     Ident8 van de genummerde weg.
+    /// </summary>
+    [DataMember(Name = "Ident8", Order = 1)]
+    [JsonProperty("ident8", Required = Required.Always)]
+    public string? Ident8 { get; set; }
+
+    /// <summary>
+    ///     Richting van de genummerde weg.
+    /// </summary>
+    [DataMember(Name = "Richting", Order = 2)]
+    [JsonProperty("richting", Required = Required.Always)]
+    [RoadRegistryEnumDataType(typeof(RoadSegmentNumberedRoadDirection))]
+    public string? Richting { get; set; }
+
+    /// <summary>
+    ///     Volgnummer van de genummerde weg (geheel positief getal of "niet gekend").
+    /// </summary>
+    [DataMember(Name = "Volgnummer", Order = 3)]
+    [JsonProperty("volgnummer", Required = Required.Always)]
+    public string? Volgnummer { get; set; }
 }

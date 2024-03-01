@@ -13,7 +13,10 @@ using AddRoadSegmentToEuropeanRoad = RoadRegistry.BackOffice.Messages.AddRoadSeg
 using AddRoadSegmentToNationalRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToNationalRoad;
 using AddRoadSegmentToNumberedRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToNumberedRoad;
 using ModifyRoadNode = RoadRegistry.BackOffice.Messages.ModifyRoadNode;
+using RoadSegmentEuropeanRoadAttribute = RoadRegistry.BackOffice.Messages.RoadSegmentEuropeanRoadAttribute;
 using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLaneAttributes;
+using RoadSegmentNationalRoadAttribute = RoadRegistry.BackOffice.Messages.RoadSegmentNationalRoadAttribute;
+using RoadSegmentNumberedRoadAttribute = RoadRegistry.BackOffice.Messages.RoadSegmentNumberedRoadAttribute;
 using RoadSegmentSurfaceAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes;
 using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes;
 
@@ -43,19 +46,19 @@ public class ChangeRoadNetworkValidatorTests : ValidatorTest<ChangeRoadNetwork, 
         Fixture.CustomizeGradeSeparatedJunctionId();
         Fixture.CustomizeGradeSeparatedJunctionType();
 
-        Fixture.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
+        Fixture.Customize<RoadSegmentEuropeanRoadAttribute>(composer =>
             composer.Do(instance =>
             {
                 instance.AttributeId = Fixture.Create<AttributeId>();
                 instance.Number = Fixture.Create<EuropeanRoadNumber>();
             }).OmitAutoProperties());
-        Fixture.Customize<RoadSegmentNationalRoadAttributes>(composer =>
+        Fixture.Customize<RoadSegmentNationalRoadAttribute>(composer =>
             composer.Do(instance =>
             {
                 instance.AttributeId = Fixture.Create<AttributeId>();
                 instance.Number = Fixture.Create<NationalRoadNumber>();
             }).OmitAutoProperties());
-        Fixture.Customize<RoadSegmentNumberedRoadAttributes>(composer =>
+        Fixture.Customize<RoadSegmentNumberedRoadAttribute>(composer =>
             composer.Do(instance =>
             {
                 instance.AttributeId = Fixture.Create<AttributeId>();
