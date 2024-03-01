@@ -36,7 +36,7 @@ public class RoadNetworkExtractUpload
         _applier(@event);
     }
 
-    public async Task<ZipArchiveProblems> ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator, IExtractUploadFailedEmailClient emailClient, CancellationToken cancellationToken, bool useZipArchiveFeatureCompareTranslator = false)
+    public async Task<ZipArchiveProblems> ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator, IExtractUploadFailedEmailClient emailClient, CancellationToken cancellationToken)
     {
         var zipArchiveMetadata = ZipArchiveMetadata.Empty.WithDownloadId(_downloadId);
 
@@ -52,8 +52,7 @@ public class RoadNetworkExtractUpload
                     DownloadId = _downloadId,
                     UploadId = _uploadId,
                     ArchiveId = _archiveId,
-                    Problems = problems.Select(problem => problem.Translate()).ToArray(),
-                    UseZipArchiveFeatureCompareTranslator = useZipArchiveFeatureCompareTranslator
+                    Problems = problems.Select(problem => problem.Translate()).ToArray()
                 });
         }
         else

@@ -62,7 +62,6 @@ public abstract class WhenChangeDynamicAttributesFixture : SqsLambdaHandlerFixtu
         new RecyclableMemoryStreamManager(),
         FileEncoding.UTF8,
         new FakeDistributedStreamStoreLockOptions(),
-        new UseDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle(false),
         new NullLogger<ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler>()
     );
 

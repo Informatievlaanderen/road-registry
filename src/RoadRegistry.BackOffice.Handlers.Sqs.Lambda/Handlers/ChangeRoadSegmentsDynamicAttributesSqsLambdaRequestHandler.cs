@@ -27,7 +27,6 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
     private readonly EditorContext _editorContext;
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly FileEncoding _fileEncoding;
-    private readonly UseDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle _useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle;
     private readonly VerificationContextTolerances _tolerances = VerificationContextTolerances.Default;
 
     public ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler(
@@ -41,7 +40,6 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
         RecyclableMemoryStreamManager manager,
         FileEncoding fileEncoding,
         DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
-        UseDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle,
         ILogger<ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -55,7 +53,6 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
         _editorContext = editorContext;
         _manager = manager;
         _fileEncoding = fileEncoding;
-        _useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle = useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle;
         _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
     }
 
@@ -89,7 +86,7 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
                     var roadSegmentDbaseRecord = new RoadSegmentDbaseRecord().FromBytes(editorRoadSegment.DbaseRecord, _manager, _fileEncoding);
                     var geometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord.METHODE.Value];
                     
-                    var networkRoadSegment = await RoadRegistryContext.RoadNetworks.FindRoadSegment(roadSegmentId, geometryDrawMethod, _useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle, cancellationToken);
+                    var networkRoadSegment = await RoadRegistryContext.RoadNetworks.FindRoadSegment(roadSegmentId, geometryDrawMethod, cancellationToken);
                     if (networkRoadSegment is null)
                     {
                         problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));

@@ -24,11 +24,10 @@ public partial class ExtractsControllerTests : ControllerTests<ExtractsControlle
         IMediator mediator,
         IStreamStore streamStore,
         RoadNetworkUploadsBlobClient uploadClient,
-        RoadNetworkExtractUploadsBlobClient extractUploadClient,
-        RoadNetworkFeatureCompareBlobClient featureCompareBlobClient)
-        : base(controller, mediator, streamStore, uploadClient, extractUploadClient, featureCompareBlobClient)
+        RoadNetworkExtractUploadsBlobClient extractUploadClient)
+        : base(controller, mediator, streamStore, uploadClient, extractUploadClient)
     {
-        _sqlServerFixture = sqlServerFixture;
+        _sqlServerFixture = sqlServerFixture.ThrowIfNull();
         _fixture = new Fixture();
         _fixture.CustomizeExternalExtractRequestId();
         _fixture.CustomizeRoadNetworkExtractGeometry();

@@ -23,12 +23,11 @@ public partial class UploadControllerTests : ControllerTests<UploadController>, 
         IStreamStore streamStore,
         EditorContext editorContext,
         RoadNetworkUploadsBlobClient uploadClient,
-        RoadNetworkExtractUploadsBlobClient extractUploadClient,
-        RoadNetworkFeatureCompareBlobClient featureCompareBlobClient)
-        : base(controller, mediator, streamStore, uploadClient, extractUploadClient, featureCompareBlobClient)
+        RoadNetworkExtractUploadsBlobClient extractUploadClient)
+        : base(controller, mediator, streamStore, uploadClient, extractUploadClient)
     {
-        _testOutputHelper = testOutputHelper;
-        _editorContext = editorContext;
+        _testOutputHelper = testOutputHelper.ThrowIfNull();
+        _editorContext = editorContext.ThrowIfNull();
     }
 
     public async Task InitializeAsync()

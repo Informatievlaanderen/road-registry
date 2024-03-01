@@ -29,8 +29,7 @@ public class RoadNetworkChangesArchives : IRoadNetworkChangesArchives
     {
         ArgumentNullException.ThrowIfNull(archive);
         
-        var expectedVersion = archive.FeatureCompareCompleted ? 0 : ExpectedVersion.NoStream;
-        _map.Attach(new EventSourcedEntityMapEntry(archive, new StreamName(archive.Id), expectedVersion));
+        _map.Attach(new EventSourcedEntityMapEntry(archive, new StreamName(archive.Id), ExpectedVersion.NoStream));
     }
 
     public static StreamName GetStreamName(ArchiveId id)

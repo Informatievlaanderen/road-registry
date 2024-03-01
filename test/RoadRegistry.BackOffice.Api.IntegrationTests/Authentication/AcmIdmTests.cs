@@ -40,7 +40,6 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             new(HttpMethod.Post, "v1/extracts/downloadrequests/byfile", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Post, "v1/extracts/downloadrequests/byniscode", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/extracts/download/{downloadId}", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Post, "v1/extracts/download/{downloadId}/uploads", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Post, "v1/extracts/download/{downloadId}/uploads/fc", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/extracts/upload/{uploadId}/status", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/extracts/overlappingtransactionzones.geojson"),
@@ -75,7 +74,6 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             new(HttpMethod.Post, "v1/wegsegmenten/{id}/acties/verwijderen/schets", Scopes.DvWrGeschetsteWegBeheer),
             new(HttpMethod.Post, "v1/wegsegmenten/{id}/acties/wijzigen/schetsgeometrie", Scopes.DvWrGeschetsteWegBeheer),
 
-            new(HttpMethod.Post, "v1/upload", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Post, "v1/upload/fc", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/upload/{identifier}", Scopes.DvWrIngemetenWegBeheer),
         };

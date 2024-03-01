@@ -1,8 +1,7 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
 using Extracts;
-using System.Collections.Generic;
-using System.IO.Compression;
+using RoadRegistry.BackOffice.FeatureCompare.Readers;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;

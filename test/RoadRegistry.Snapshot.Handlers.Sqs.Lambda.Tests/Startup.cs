@@ -13,6 +13,7 @@ using Hosts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RoadRegistry.BackOffice.Core;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using SqlStreamStore;
@@ -75,6 +76,7 @@ public class Startup : TestStartup
             .AddSingleton<EventSourcedEntityMap>(_ => new EventSourcedEntityMap())
             .AddTransient<ICustomRetryPolicy>(sp => new FakeRetryPolicy())
             .AddRoadRegistrySnapshot()
+            .AddSingleton<IRoadNetworkSnapshotReader, FakeRoadNetworkSnapshotReader>()
             ;
     }
 }

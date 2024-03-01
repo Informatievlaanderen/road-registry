@@ -9,7 +9,6 @@ using NetTopologySuite.Geometries.Implementation;
 using RoadRegistry.BackOffice.Extracts.Dbase;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.BeforeFeatureCompare.V2.Schema;
-using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 using RoadRegistry.Tests.BackOffice;
 using System.IO.Compression;
 using Point = NetTopologySuite.Geometries.Point;

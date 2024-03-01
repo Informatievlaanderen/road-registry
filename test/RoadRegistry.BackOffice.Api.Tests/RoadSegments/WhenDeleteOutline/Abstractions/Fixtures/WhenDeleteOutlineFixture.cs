@@ -4,7 +4,6 @@ using Api.RoadSegments;
 using AutoFixture;
 using BackOffice.Extracts.Dbase.Organizations;
 using Editor.Schema;
-using FeatureToggles;
 using Infrastructure;
 using MediatR;
 using Messages;
@@ -47,7 +46,6 @@ public abstract class WhenDeleteOutlineFixture : ControllerActionFixture<int>
         };
 
         return await controller.DeleteOutline(
-            new UseRoadSegmentOutlineDeleteFeatureToggle(true),
             new RoadSegmentIdValidator(),
             _roadSegmentRepository,
             roadSegmentId,

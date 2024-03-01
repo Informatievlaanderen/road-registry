@@ -20,7 +20,6 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
         ILifetimeScope lifetimeScope,
         IRoadNetworkSnapshotReader snapshotReader,
         IZipArchiveBeforeFeatureCompareValidator beforeFeatureCompareValidator,
-        IZipArchiveAfterFeatureCompareValidator afterFeatureCompareValidator,
         IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
         IClock clock,
         ILoggerFactory loggerFactory)
@@ -29,7 +28,6 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
         ArgumentNullException.ThrowIfNull(beforeFeatureCompareValidator);
-        ArgumentNullException.ThrowIfNull(afterFeatureCompareValidator);
         ArgumentNullException.ThrowIfNull(clock);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
@@ -138,14 +136,13 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
 
                 try
                 {
-                    var upload = extract.Upload(downloadId, uploadId, archiveId, command.Body.FeatureCompareCompleted);
+                    var upload = extract.Upload(downloadId, uploadId, archiveId);
 
                     var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
                     await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
-                        IZipArchiveValidator validator = command.Body.UseZipArchiveFeatureCompareTranslator ? beforeFeatureCompareValidator : afterFeatureCompareValidator;
-                        await upload.ValidateArchiveUsing(archive, validator, extractUploadFailedEmailClient, ct, command.Body.UseZipArchiveFeatureCompareTranslator);
+                        await upload.ValidateArchiveUsing(archive, beforeFeatureCompareValidator, extractUploadFailedEmailClient, ct);
                     }
                 }
                 catch (Exception ex)

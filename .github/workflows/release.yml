@@ -272,36 +272,6 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
 
-  build-legacy-import:
-    name: Build Legacy Import
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
-    needs: [ set-release-version ]
-    if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
-    with:
-      registry: road-registry
-      build-target: Containerize_ImportLegacy
-      image-file: rr-import-legacy-image.tar
-      image-name: import-legacy
-      test-project: RoadRegistry.Legacy.Import.Tests
-      build-project: RoadRegistry.Legacy.Import
-      semver: ${{ needs.set-release-version.outputs.version }}
-    secrets: inherit
-
-  build-legacy-extract:
-    name: Build Legacy Extract
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
-    needs: [ set-release-version ]
-    if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
-    with:
-      registry: road-registry
-      build-target: Containerize_ExtractLegacy
-      image-file: rr-extract-legacy-image.tar
-      image-name: extract-legacy
-      test-project: RoadRegistry.Legacy.Extract.Tests
-      build-project: RoadRegistry.Legacy.Extract
-      semver: ${{ needs.set-release-version.outputs.version }}
-    secrets: inherit
-
   pack-backoffice:
     name: Pack BackOffice
     uses: Informatievlaanderen/build-pipeline/.github/workflows/pack.yml@main
@@ -397,22 +367,20 @@ jobs:
       pack-backoffice-api,
       pack-backoffice-ziparchivewriters,
       pack-projector,
+      build-adminhost,
       build-backoffice-api,
-      build-backoffice-ui,
+      build-backoffice-commandhost,
       build-backoffice-eventhost,
       build-backoffice-extracthost,
-      build-backoffice-commandhost,
-      build-adminhost,
+      build-backoffice-ui,
       build-projector,
       build-projectionhost-editor,
       build-projectionhost-product,
       build-projectionhost-producersnapshot,
       build-synchost,
       build-projectionhost-syndication,
-      build-projectionhost-wms,
       build-projectionhost-wfs,
-      build-legacy-import,
-      build-legacy-extract,
+      build-projectionhost-wms,
       build-lambda-backoffice,
       build-lambda-snapshot 
     ]

@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Infrastructure;
 
 using System.Text;
-using BackOffice.Uploads.Dbase.AfterFeatureCompare.V1.Schema;
+using BackOffice.Extracts.Dbase;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class DbaseFileTests

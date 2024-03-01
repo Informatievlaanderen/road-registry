@@ -1,19 +1,17 @@
 namespace RoadRegistry.Snapshot.Handlers;
 
-using System;
 using Autofac;
-using BackOffice.FeatureToggles;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using BackOffice;
+using BackOffice.Abstractions.RoadNetworks;
+using BackOffice.Core;
+using BackOffice.Framework;
+using BackOffice.Messages;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using NodaTime;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Abstractions.RoadNetworks;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Framework;
-using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Snapshot.Handlers.Sqs.RoadNetworks;
 using SqlStreamStore;
+using Sqs.RoadNetworks;
+using System;
 
 public class RoadNetworkSnapshotEventModule : EventHandlerModule
 {
@@ -24,9 +22,8 @@ public class RoadNetworkSnapshotEventModule : EventHandlerModule
         IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter,
         IClock clock,
-        ILoggerFactory loggerFactory,
-        UseSnapshotSqsRequestFeatureToggle snapshotFeatureToggle
-        )
+        ILoggerFactory loggerFactory
+    )
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(clock);
@@ -43,23 +40,15 @@ public class RoadNetworkSnapshotEventModule : EventHandlerModule
             {
                 logger.LogInformation("Event handler started for {EventName}", nameof(RoadNetworkChangesAccepted));
 
-                if (snapshotFeatureToggle.FeatureEnabled)
+                await mediator.Send(new CreateRoadNetworkSnapshotSqsRequest
                 {
-                    await mediator.Send(new CreateRoadNetworkSnapshotSqsRequest
+                    ProvenanceData = new RoadRegistryProvenanceData(),
+                    Metadata = new Dictionary<string, object?>
                     {
-                        ProvenanceData = new RoadRegistryProvenanceData(),
-                        Metadata = new Dictionary<string, object?>
-                        {
-                            { "CorrelationId", message.MessageId }
-                        },
-                        Request = new CreateRoadNetworkSnapshotRequest { StreamVersion = message.StreamVersion }
-                    }, ct);
-                }
-                else
-                {
-                    var (network, version) = await context.RoadNetworks.GetWithVersion(ct);
-                    await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
-                }
+                        { "CorrelationId", message.MessageId }
+                    },
+                    Request = new CreateRoadNetworkSnapshotRequest { StreamVersion = message.StreamVersion }
+                }, ct);
 
                 logger.LogInformation("Event handler finished for {EventName}", nameof(RoadNetworkChangesAccepted));
             });
