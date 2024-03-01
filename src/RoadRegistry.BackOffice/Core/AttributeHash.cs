@@ -9,8 +9,8 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
     public RoadSegmentCategory Category { get; }
     public RoadSegmentMorphology Morphology { get; }
     public RoadSegmentStatus Status { get; }
-    public CrabStreetNameId? LeftStreetNameId { get; }
-    public CrabStreetNameId? RightStreetNameId { get; }
+    public StreetNameLocalId? LeftStreetNameId { get; }
+    public StreetNameLocalId? RightStreetNameId { get; }
     public OrganizationId OrganizationId { get; }
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
 
@@ -19,8 +19,8 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
         RoadSegmentCategory category,
         RoadSegmentMorphology morphology,
         RoadSegmentStatus status,
-        CrabStreetNameId? leftStreetNameId,
-        CrabStreetNameId? rightStreetNameId,
+        StreetNameLocalId? leftStreetNameId,
+        StreetNameLocalId? rightStreetNameId,
         OrganizationId organizationId,
         RoadSegmentGeometryDrawMethod geometryDrawMethod)
     {
@@ -71,19 +71,19 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
     }
 
     [Pure]
-    public AttributeHash WithLeftSide(CrabStreetNameId? value)
+    public AttributeHash WithLeftSide(StreetNameLocalId? value)
     {
         return new AttributeHash(AccessRestriction, Category, Morphology, Status, value, RightStreetNameId, OrganizationId, GeometryDrawMethod);
     }
 
     [Pure]
-    public AttributeHash WithRightSide(CrabStreetNameId? value)
+    public AttributeHash WithRightSide(StreetNameLocalId? value)
     {
         return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, value, OrganizationId, GeometryDrawMethod);
     }
 
     [Pure]
-    public AttributeHash Without(CrabStreetNameId value)
+    public AttributeHash Without(StreetNameLocalId value)
     {
         return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId == value ? null : LeftStreetNameId, RightStreetNameId == value ? null : RightStreetNameId, OrganizationId, GeometryDrawMethod);
     }

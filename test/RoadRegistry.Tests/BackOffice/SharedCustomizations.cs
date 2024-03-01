@@ -45,8 +45,8 @@ public static class SharedCustomizations
                         fixture.Create<RoadSegmentCategory>(),
                         fixture.Create<RoadSegmentMorphology>(),
                         fixture.Create<RoadSegmentStatus>(),
-                        fixture.Create<CrabStreetNameId?>(),
-                        fixture.Create<CrabStreetNameId?>(),
+                        fixture.Create<StreetNameLocalId?>(),
+                        fixture.Create<StreetNameLocalId?>(),
                         fixture.Create<OrganizationId>(),
                         fixture.Create<RoadSegmentGeometryDrawMethod>()
                     );
@@ -68,10 +68,10 @@ public static class SharedCustomizations
                                 result = result.With(fixture.Create<RoadSegmentAccessRestriction>());
                                 break;
                             case 4:
-                                result = result.WithLeftSide(fixture.Create<CrabStreetNameId?>());
+                                result = result.WithLeftSide(fixture.Create<StreetNameLocalId?>());
                                 break;
                             case 5:
-                                result = result.WithRightSide(fixture.Create<CrabStreetNameId?>());
+                                result = result.WithRightSide(fixture.Create<StreetNameLocalId?>());
                                 break;
                             case 6:
                                 result = result.With(fixture.Create<OrganizationId>());
@@ -104,12 +104,12 @@ public static class SharedCustomizations
 
     public static void CustomizeCrabStreetnameId(this IFixture fixture)
     {
-        fixture.Customize<CrabStreetNameId>(composer =>
+        fixture.Customize<StreetNameLocalId>(composer =>
             composer.FromFactory(generator => (generator.Next() % 3) switch
             {
-                0 => new CrabStreetNameId(CrabStreetNameId.Unknown),
-                1 => new CrabStreetNameId(CrabStreetNameId.NotApplicable),
-                _ => new CrabStreetNameId(generator.Next(0, int.MaxValue))
+                0 => new StreetNameLocalId(StreetNameLocalId.Unknown),
+                1 => new StreetNameLocalId(StreetNameLocalId.NotApplicable),
+                _ => new StreetNameLocalId(generator.Next(0, int.MaxValue))
             })
         );
     }

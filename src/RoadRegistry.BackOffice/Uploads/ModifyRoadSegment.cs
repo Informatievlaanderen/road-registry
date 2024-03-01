@@ -20,8 +20,8 @@ public class ModifyRoadSegment : ITranslatedChange
         RoadSegmentStatus status,
         RoadSegmentCategory category,
         RoadSegmentAccessRestriction accessRestriction,
-        CrabStreetNameId? leftSideStreetNameId,
-        CrabStreetNameId? rightSideStreetNameId)
+        StreetNameLocalId? leftSideStreetNameId,
+        StreetNameLocalId? rightSideStreetNameId)
         : this(
             recordNumber,
             id,
@@ -56,8 +56,8 @@ public class ModifyRoadSegment : ITranslatedChange
         RoadSegmentStatus status,
         RoadSegmentCategory category,
         RoadSegmentAccessRestriction accessRestriction,
-        CrabStreetNameId? leftSideStreetNameId,
-        CrabStreetNameId? rightSideStreetNameId,
+        StreetNameLocalId? leftSideStreetNameId,
+        StreetNameLocalId? rightSideStreetNameId,
         IReadOnlyList<RoadSegmentLaneAttribute> lanes,
         IReadOnlyList<RoadSegmentWidthAttribute> widths,
         IReadOnlyList<RoadSegmentSurfaceAttribute> surfaces,
@@ -89,11 +89,11 @@ public class ModifyRoadSegment : ITranslatedChange
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
     public RoadSegmentId Id { get; }
     public IReadOnlyList<RoadSegmentLaneAttribute> Lanes { get; }
-    public CrabStreetNameId? LeftSideStreetNameId { get; }
+    public StreetNameLocalId? LeftSideStreetNameId { get; }
     public OrganizationId MaintenanceAuthority { get; }
     public RoadSegmentMorphology Morphology { get; }
     public RecordNumber RecordNumber { get; }
-    public CrabStreetNameId? RightSideStreetNameId { get; }
+    public StreetNameLocalId? RightSideStreetNameId { get; }
     public RoadNodeId StartNodeId { get; }
     public RoadSegmentStatus Status { get; }
     public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }

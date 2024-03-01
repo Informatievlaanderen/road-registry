@@ -41,7 +41,7 @@ public class RoadSegmentZipArchiveValidator : FeatureReaderZipArchiveValidator<R
         return problems;
     }
 
-    private static ZipArchiveProblems GetProblemsForStreetNameId(IDbaseFileRecordProblemBuilder recordContext, CrabStreetNameId? id, bool leftSide, RoadSegmentFeatureCompareStreetNameContext streetNameContext)
+    private static ZipArchiveProblems GetProblemsForStreetNameId(IDbaseFileRecordProblemBuilder recordContext, StreetNameLocalId? id, bool leftSide, RoadSegmentFeatureCompareStreetNameContext streetNameContext)
     {
         var problems = ZipArchiveProblems.None;
 

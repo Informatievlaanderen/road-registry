@@ -109,7 +109,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
 
             var changeRoadNetwork = await BuildChangeRoadNetworkToConnectRoadSegmentsToDifferentStreetName(
                 message.PersistentLocalId,
-                CrabStreetNameId.NotApplicable,
+                StreetNameLocalId.NotApplicable,
                 $"Wegsegmenten ontkoppelen van straatnaam {message.PersistentLocalId}",
                 editorContext,
                 cancellationToken);
@@ -189,8 +189,8 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
                 RoadSegmentStatus.ByIdentifier[roadSegment.StatusId],
                 RoadSegmentCategory.ByIdentifier[roadSegment.CategoryId],
                 RoadSegmentAccessRestriction.ByIdentifier[roadSegment.AccessRestrictionId],
-                roadSegment.LeftSideStreetNameId == sourceStreetNameId ? CrabStreetNameId.FromValue(destinationStreetNameId) : CrabStreetNameId.FromValue(roadSegment.LeftSideStreetNameId),
-                roadSegment.RightSideStreetNameId == sourceStreetNameId ? CrabStreetNameId.FromValue(destinationStreetNameId) : CrabStreetNameId.FromValue(roadSegment.RightSideStreetNameId)
+                roadSegment.LeftSideStreetNameId == sourceStreetNameId ? StreetNameLocalId.FromValue(destinationStreetNameId) : StreetNameLocalId.FromValue(roadSegment.LeftSideStreetNameId),
+                roadSegment.RightSideStreetNameId == sourceStreetNameId ? StreetNameLocalId.FromValue(destinationStreetNameId) : StreetNameLocalId.FromValue(roadSegment.RightSideStreetNameId)
             ).WithGeometry(roadSegment.Geometry.ToMultiLineString());
 
             var roadSegmentLanes = lanes

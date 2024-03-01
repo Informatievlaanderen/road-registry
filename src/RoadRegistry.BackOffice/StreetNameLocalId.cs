@@ -1,28 +1,46 @@
 namespace RoadRegistry.BackOffice;
 
 using System;
+using System.Diagnostics.Contracts;
 using System.Globalization;
 using Framework;
 
-public readonly struct StreetNameLocalId : IEquatable<StreetNameLocalId>, IComparable<StreetNameLocalId>
+public readonly struct StreetNameLocalId : IEquatable<StreetNameLocalId>
 {
+    private const int UnknownValue = -8;
+    private const int NotApplicableValue = -9;
+    public static readonly StreetNameLocalId Unknown = new(UnknownValue);
+    public static readonly StreetNameLocalId NotApplicable = new(NotApplicableValue);
     private readonly int _value;
 
     public StreetNameLocalId(int value)
     {
-        if (value <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(value), value, "The street name identifier must be greater than zero.");
-        }
+        if (value != UnknownValue
+            && value != NotApplicableValue
+            && value < 0)
+            throw new ArgumentOutOfRangeException(nameof(value), value, "The street name local identifier must be greater than or equal to zero.");
 
         _value = value;
     }
 
-    public static bool Accepts(int value)
+    public static bool IsEmpty(StreetNameLocalId? value)
     {
-        return value > 0;
+        return value == null || value == UnknownValue || value == NotApplicableValue || value <= 0;
     }
 
+    public static bool Accepts(int value)
+    {
+        return value == UnknownValue || value == NotApplicableValue || 0 <= value;
+    }
+
+    public static StreetNameLocalId? FromValue(int? value)
+    {
+        return value.HasValue
+            ? new StreetNameLocalId(value.Value)
+            : new StreetNameLocalId?();
+    }
+
+    [Pure]
     public int ToInt32()
     {
         return _value;
@@ -48,11 +66,6 @@ public readonly struct StreetNameLocalId : IEquatable<StreetNameLocalId>, ICompa
         return _value.ToString(CultureInfo.InvariantCulture);
     }
 
-    public int CompareTo(StreetNameLocalId other)
-    {
-        return _value.CompareTo(other._value);
-    }
-
     public static bool operator ==(StreetNameLocalId left, StreetNameLocalId right)
     {
         return left.Equals(right);
@@ -66,26 +79,6 @@ public readonly struct StreetNameLocalId : IEquatable<StreetNameLocalId>, ICompa
     public static implicit operator int(StreetNameLocalId instance)
     {
         return instance._value;
-    }
-
-    public static bool operator <(StreetNameLocalId left, StreetNameLocalId right)
-    {
-        return left.CompareTo(right) < 0;
-    }
-
-    public static bool operator <=(StreetNameLocalId left, StreetNameLocalId right)
-    {
-        return left.CompareTo(right) <= 0;
-    }
-
-    public static bool operator >(StreetNameLocalId left, StreetNameLocalId right)
-    {
-        return left.CompareTo(right) > 0;
-    }
-
-    public static bool operator >=(StreetNameLocalId left, StreetNameLocalId right)
-    {
-        return left.CompareTo(right) >= 0;
     }
 
     public static StreamName ToStreamName(StreetNameLocalId streetNameId)

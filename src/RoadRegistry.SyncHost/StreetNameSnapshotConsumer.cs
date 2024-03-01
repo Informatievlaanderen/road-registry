@@ -56,7 +56,7 @@ public class StreetNameSnapshotConsumer : RoadRegistryBackgroundService
                 var streetNamesContext = new StreetNames(map, _store, SerializerSettings, EventMapping);
 
                 var snapshotRecord = (StreetNameSnapshotRecord)message.Value;
-                var streetNameId = StreetNamePuri.FromValue(message.Key);
+                var streetNameId = new StreetNameId(message.Key);
                 var streetNameLocalId = streetNameId.ToStreetNameLocalId();
 
                 var streetNameEventSourced = await streetNamesContext.FindAsync(streetNameLocalId, cancellationToken);

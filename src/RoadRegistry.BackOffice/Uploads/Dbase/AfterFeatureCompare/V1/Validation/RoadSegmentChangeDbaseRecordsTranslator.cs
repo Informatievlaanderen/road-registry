@@ -40,11 +40,11 @@ public class
                                 RoadSegmentCategory.ByIdentifier[record.CATEGORIE.Value],
                                 RoadSegmentAccessRestriction.ByIdentifier[record.TGBEP.Value],
                                 record.LSTRNMID.Value.HasValue
-                                    ? new CrabStreetNameId(record.LSTRNMID.Value.Value)
-                                    : new CrabStreetNameId?(),
+                                    ? new StreetNameLocalId(record.LSTRNMID.Value.Value)
+                                    : new StreetNameLocalId?(),
                                 record.RSTRNMID.Value.HasValue
-                                    ? new CrabStreetNameId(record.RSTRNMID.Value.Value)
-                                    : new CrabStreetNameId?()
+                                    ? new StreetNameLocalId(record.RSTRNMID.Value.Value)
+                                    : new StreetNameLocalId?()
                             )
                         );
                         break;
@@ -61,8 +61,8 @@ public class
                                 RoadSegmentStatus.ByIdentifier[record.STATUS.Value],
                                 RoadSegmentCategory.ByIdentifier[record.CATEGORIE.Value],
                                 RoadSegmentAccessRestriction.ByIdentifier[record.TGBEP.Value],
-                                record.LSTRNMID.Value.HasValue ? new CrabStreetNameId(record.LSTRNMID.Value.Value) : new CrabStreetNameId?(),
-                                record.RSTRNMID.Value.HasValue ? new CrabStreetNameId(record.RSTRNMID.Value.Value) : new CrabStreetNameId?()
+                                record.LSTRNMID.Value.HasValue ? new StreetNameLocalId(record.LSTRNMID.Value.Value) : new StreetNameLocalId?(),
+                                record.RSTRNMID.Value.HasValue ? new StreetNameLocalId(record.RSTRNMID.Value.Value) : new StreetNameLocalId?()
                             )
                         );
                         break;
@@ -80,11 +80,11 @@ public class
                                 RoadSegmentCategory.ByIdentifier[record.CATEGORIE.Value],
                                 RoadSegmentAccessRestriction.ByIdentifier[record.TGBEP.Value],
                                 record.LSTRNMID.Value.HasValue
-                                    ? new CrabStreetNameId(record.LSTRNMID.Value.Value)
-                                    : new CrabStreetNameId?(),
+                                    ? new StreetNameLocalId(record.LSTRNMID.Value.Value)
+                                    : new StreetNameLocalId?(),
                                 record.RSTRNMID.Value.HasValue
-                                    ? new CrabStreetNameId(record.RSTRNMID.Value.Value)
-                                    : new CrabStreetNameId?()
+                                    ? new StreetNameLocalId(record.RSTRNMID.Value.Value)
+                                    : new StreetNameLocalId?()
                             )
                         );
                         break;

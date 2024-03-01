@@ -170,8 +170,8 @@ public class FeaturesReaderTests
                     RoadSegmentStatus.ByIdentifier[roadSegmentDbaseRecord2.STATUS.Value],
                     RoadSegmentCategory.ByIdentifier[roadSegmentDbaseRecord2.CATEGORIE.Value],
                     RoadSegmentAccessRestriction.ByIdentifier[roadSegmentDbaseRecord2.TGBEP.Value],
-                    CrabStreetNameId.FromValue(roadSegmentDbaseRecord2.LSTRNMID.Value),
-                    CrabStreetNameId.FromValue(roadSegmentDbaseRecord2.RSTRNMID.Value)
+                    StreetNameLocalId.FromValue(roadSegmentDbaseRecord2.LSTRNMID.Value),
+                    StreetNameLocalId.FromValue(roadSegmentDbaseRecord2.RSTRNMID.Value)
                 ).WithGeometry(GeometryTranslator.ToMultiLineString(roadSegmentShapeContent2.Shape))
                         .WithLane(
                             new RoadSegmentLaneAttribute(
@@ -325,8 +325,8 @@ public class FeaturesReaderTests
                     CATEGORIE = { Value = fixture.Create<RoadSegmentCategory>().Translation.Identifier },
                     B_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
                     E_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
-                    LSTRNMID = { Value = new CrabStreetNameId(random.Next(1, int.MaxValue)) },
-                    RSTRNMID = { Value = new CrabStreetNameId(random.Next(1, int.MaxValue)) },
+                    LSTRNMID = { Value = new StreetNameLocalId(random.Next(1, int.MaxValue)) },
+                    RSTRNMID = { Value = new StreetNameLocalId(random.Next(1, int.MaxValue)) },
                     TGBEP =
                     {
                         Value = (short)fixture.Create<RoadSegmentAccessRestriction>().Translation.Identifier

@@ -78,7 +78,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                 {
                     if (leftStreetNameId > 0)
                     {
-                        if (CrabStreetNameId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId) || (roadSegment.AttributeHash.LeftStreetNameId ?? 0) != leftStreetNameId)
+                        if (StreetNameLocalId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId) || (roadSegment.AttributeHash.LeftStreetNameId ?? 0) != leftStreetNameId)
                         {
                             problems += new RoadSegmentStreetNameLeftNotLinked(request.Request.WegsegmentId, request.Request.LinkerstraatnaamId);
                         }
@@ -86,7 +86,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
 
                     if (rightStreetNameId > 0)
                     {
-                        if (CrabStreetNameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId) || (roadSegment.AttributeHash.RightStreetNameId ?? 0) != rightStreetNameId)
+                        if (StreetNameLocalId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId) || (roadSegment.AttributeHash.RightStreetNameId ?? 0) != rightStreetNameId)
                         {
                             problems += new RoadSegmentStreetNameRightNotLinked(request.Request.WegsegmentId, request.Request.RechterstraatnaamId);
                         }
@@ -103,8 +103,8 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                         roadSegment.AttributeHash.Status,
                         roadSegment.AttributeHash.Category,
                         roadSegment.AttributeHash.AccessRestriction,
-                        leftStreetNameId > 0 ? CrabStreetNameId.NotApplicable : roadSegment.AttributeHash.LeftStreetNameId,
-                        rightStreetNameId > 0 ? CrabStreetNameId.NotApplicable : roadSegment.AttributeHash.RightStreetNameId
+                        leftStreetNameId > 0 ? StreetNameLocalId.NotApplicable : roadSegment.AttributeHash.LeftStreetNameId,
+                        rightStreetNameId > 0 ? StreetNameLocalId.NotApplicable : roadSegment.AttributeHash.RightStreetNameId
                     ).WithGeometry(roadSegment.Geometry);
 
                     foreach (var lane in roadSegment.Lanes)

@@ -95,7 +95,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
                 {
                     if (leftStreetNameId > 0)
                     {
-                        if (!CrabStreetNameId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId))
+                        if (!StreetNameLocalId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId))
                         {
                             problems += new RoadSegmentStreetNameLeftNotUnlinked(request.Request.WegsegmentId);
                         }
@@ -107,7 +107,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
 
                     if (rightStreetNameId > 0)
                     {
-                        if (!CrabStreetNameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId))
+                        if (!StreetNameLocalId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId))
                         {
                             problems = problems.Add(new RoadSegmentStreetNameRightNotUnlinked(request.Request.WegsegmentId));
                         }
@@ -128,8 +128,8 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
                         roadSegment.AttributeHash.Status,
                         roadSegment.AttributeHash.Category,
                         roadSegment.AttributeHash.AccessRestriction,
-                        leftStreetNameId > 0 ? new CrabStreetNameId(leftStreetNameId) : roadSegment.AttributeHash.LeftStreetNameId,
-                        rightStreetNameId > 0 ? new CrabStreetNameId(rightStreetNameId) : roadSegment.AttributeHash.RightStreetNameId
+                        leftStreetNameId > 0 ? new StreetNameLocalId(leftStreetNameId) : roadSegment.AttributeHash.LeftStreetNameId,
+                        rightStreetNameId > 0 ? new StreetNameLocalId(rightStreetNameId) : roadSegment.AttributeHash.RightStreetNameId
                     ).WithGeometry(roadSegment.Geometry);
 
                     foreach (var lane in roadSegment.Lanes)

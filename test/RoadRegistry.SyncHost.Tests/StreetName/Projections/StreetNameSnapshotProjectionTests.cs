@@ -107,7 +107,7 @@ public class StreetNameSnapshotProjectionTests : IClassFixture<StreetNameSnapsho
 
     private static BackOffice.Messages.StreetNameRecord ToStreetNameRecord(StreetNameSnapshotRecord snapshotRecord)
     {
-        var streetNameId = StreetNamePuri.FromValue(snapshotRecord.Identificator.Id);
+        var streetNameId = new StreetNameId(snapshotRecord.Identificator.Id);
         var streetNameLocalId = streetNameId.ToStreetNameLocalId();
 
         return new BackOffice.Messages.StreetNameRecord
