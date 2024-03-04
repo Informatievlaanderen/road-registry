@@ -13,7 +13,4 @@ public class ModifyRoadSegmentAttributes
     public RequestedRoadSegmentLaneAttribute[] Lanes { get; set; }
     public RequestedRoadSegmentWidthAttribute[] Widths { get; set; }
     public RequestedRoadSegmentSurfaceAttribute[] Surfaces { get; set; }
-    public RoadSegmentEuropeanRoadAttribute[] EuropeanRoads { get; set; }
-    public RoadSegmentNationalRoadAttribute[] NationalRoads { get; set; }
-    public RoadSegmentNumberedRoadAttribute[] NumberedRoads { get; set; }
 }

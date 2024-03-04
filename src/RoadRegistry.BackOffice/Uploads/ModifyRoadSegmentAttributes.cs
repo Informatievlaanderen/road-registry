@@ -4,9 +4,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Messages;
 using System;
 using System.Linq;
-using RoadSegmentEuropeanRoadAttribute = BackOffice.RoadSegmentEuropeanRoadAttribute;
-using RoadSegmentNationalRoadAttribute = BackOffice.RoadSegmentNationalRoadAttribute;
-using RoadSegmentNumberedRoadAttribute = BackOffice.RoadSegmentNumberedRoadAttribute;
 
 public class ModifyRoadSegmentAttributes : ITranslatedChange
 {
@@ -32,9 +29,6 @@ public class ModifyRoadSegmentAttributes : ITranslatedChange
     public RoadSegmentLaneAttribute[] Lanes { get; init; }
     public RoadSegmentSurfaceAttribute[] Surfaces { get; init; }
     public RoadSegmentWidthAttribute[] Widths { get; init; }
-    public RoadSegmentEuropeanRoadAttribute[] EuropeanRoads { get; init; }
-    public RoadSegmentNationalRoadAttribute[] NationalRoads { get; init; }
-    public RoadSegmentNumberedRoadAttribute[] NumberedRoads { get; init; }
 
     public void TranslateTo(RequestedChange message)
     {
@@ -75,29 +69,6 @@ public class ModifyRoadSegmentAttributes : ITranslatedChange
                     Type = item.Type,
                     FromPosition = item.From,
                     ToPosition = item.To
-                })
-                .ToArray(),
-            EuropeanRoads = EuropeanRoads?
-                .Select(item => new Messages.RoadSegmentEuropeanRoadAttribute
-                {
-                    AttributeId = item.AttributeId,
-                    Number = item.Number
-                })
-                .ToArray(),
-            NationalRoads = NationalRoads?
-                .Select(item => new Messages.RoadSegmentNationalRoadAttribute
-                {
-                    AttributeId = item.AttributeId,
-                    Number = item.Number
-                })
-                .ToArray(),
-            NumberedRoads = NumberedRoads?
-                .Select(item => new Messages.RoadSegmentNumberedRoadAttribute
-                {
-                    AttributeId = item.AttributeId,
-                    Number = item.Number,
-                    Direction = item.Direction,
-                    Ordinal = item.Ordinal
                 })
                 .ToArray()
         };
