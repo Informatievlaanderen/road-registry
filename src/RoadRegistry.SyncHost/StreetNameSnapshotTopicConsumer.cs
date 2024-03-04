@@ -66,6 +66,8 @@ public class StreetNameSnapshotTopicConsumer : IStreetNameSnapshotTopicConsumer
             consumerOptions.ConfigureOffset(new Offset(kafkaConsumerOptions.Offset.Value));
         }
 
+        _logger.LogInformation("Starting to consume Topic '{Topic}' with ConsumerGroupId '{ConsumerGroupId}'", consumerOptions.Topic, consumerOptions.ConsumerGroupId);
+
         while (!cancellationToken.IsCancellationRequested)
         {
             try
