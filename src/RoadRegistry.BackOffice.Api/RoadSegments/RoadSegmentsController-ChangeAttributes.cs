@@ -123,12 +123,18 @@ public partial class RoadSegmentsController
 
                     if (attributesChange.EuropeseWegen is not null)
                     {
-                        roadSegment.EuropeanRoads = attributesChange.EuropeseWegen.Select(EuropeanRoadNumber.Parse).ToArray();
+                        roadSegment.EuropeanRoads = attributesChange.EuropeseWegen
+                            .Select(x => x.EuNummer)
+                            .Select(EuropeanRoadNumber.Parse)
+                            .ToArray();
                     }
 
                     if (attributesChange.NationaleWegen is not null)
                     {
-                        roadSegment.NationalRoads = attributesChange.NationaleWegen.Select(NationalRoadNumber.Parse).ToArray();
+                        roadSegment.NationalRoads = attributesChange.NationaleWegen
+                            .Select(x => x.Ident2)
+                            .Select(NationalRoadNumber.Parse)
+                            .ToArray();
                     }
 
                     if (attributesChange.GenummerdeWegen is not null)

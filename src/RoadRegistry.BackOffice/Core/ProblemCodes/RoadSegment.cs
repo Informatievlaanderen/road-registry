@@ -26,25 +26,37 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode IsRequired = new("RoadSegmentCategoryIsRequired");
         }
 
-        public static class EuropeanRoad
+        public static class EuropeanRoads
         {
-            public static readonly ProblemCode NotValid = new("RoadSegmentEuropeanRoadNotValid");
-            public static readonly ProblemCode IsRequired = new("RoadSegmentEuropeanRoadIsRequired");
-            public static readonly ProblemCode IdentifierNotUnique = new("RoadSegmentEuropeanRoadIdentifierNotUnique");
+            public static readonly ProblemCode NotUnique = new("RoadSegmentEuropeanRoadsNotUnique");
         }
 
-        public static class NationalRoad
+        public static class EuropeanRoadNumber
         {
-            public static readonly ProblemCode NotValid = new("RoadSegmentNationalRoadNotValid");
-            public static readonly ProblemCode IsRequired = new("RoadSegmentNationalRoadIsRequired");
-            public static readonly ProblemCode IdentifierNotUnique = new("RoadSegmentNationalRoadIdentifierNotUnique");
+            public static readonly ProblemCode NotValid = new("RoadSegmentEuropeanRoadNumberNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentEuropeanRoadNumberIsRequired");
         }
 
-        public static class NumberedRoad
+        public static class NationalRoads
         {
-            public static readonly ProblemCode NotValid = new("RoadSegmentNumberedRoadNotValid");
-            public static readonly ProblemCode IsRequired = new("RoadSegmentNumberedRoadIsRequired");
-            public static readonly ProblemCode IdentifierNotUnique = new("RoadSegmentNumberedRoadIdentifierNotUnique");
+            public static readonly ProblemCode NotUnique = new("RoadSegmentNationalRoadsNotUnique");
+        }
+
+        public static class NationalRoadNumber
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentNationalRoadNumberNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentNationalRoadNumberIsRequired");
+        }
+
+        public static class NumberedRoads
+        {
+            public static readonly ProblemCode NotUnique = new("RoadSegmentNumberedRoadsNotUnique");
+        }
+
+        public static class NumberedRoadNumber
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentNumberedRoadNumberNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentNumberedRoadNumberIsRequired");
         }
 
         public static class NumberedRoadDirection

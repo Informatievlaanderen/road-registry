@@ -57,14 +57,14 @@ public record ChangeAttributeParameters
     /// </summary>
     [DataMember(Name = "EuropeseWegen", Order = 7)]
     [JsonProperty("europeseWegen")]
-    public string[] EuropeseWegen { get; set; }
+    public ChangeAttributeEuropeanRoad[] EuropeseWegen { get; set; }
 
     /// <summary>
     ///     De gekoppelde nationale wegen.
     /// </summary>
     [DataMember(Name = "NationaleWegen", Order = 8)]
     [JsonProperty("nationaleWegen")]
-    public string[] NationaleWegen { get; set; }
+    public ChangeAttributeNationalRoad[] NationaleWegen { get; set; }
 
     /// <summary>
     ///     De gekoppelde genummerde wegen.
@@ -72,6 +72,28 @@ public record ChangeAttributeParameters
     [DataMember(Name = "GenummerdeWegen", Order = 9)]
     [JsonProperty("genummerdeWegen")]
     public ChangeAttributeNumberedRoad[] GenummerdeWegen { get; set; }
+}
+
+[DataContract(Name = "EuropeseWeg", Namespace = "")]
+public class ChangeAttributeEuropeanRoad
+{
+    /// <summary>
+    ///     Nummer van de Europese weg.
+    /// </summary>
+    [DataMember(Name = "Nummer", Order = 1)]
+    [JsonProperty("Nummer", Required = Required.Always)]
+    public string? EuNummer { get; set; }
+}
+
+[DataContract(Name = "NationaleWeg", Namespace = "")]
+public class ChangeAttributeNationalRoad
+{
+    /// <summary>
+    ///     Ident2 van de nationale weg.
+    /// </summary>
+    [DataMember(Name = "Ident2", Order = 1)]
+    [JsonProperty("Ident2", Required = Required.Always)]
+    public string? Ident2 { get; set; }
 }
 
 [DataContract(Name = "GenummerdeWeg", Namespace = "")]

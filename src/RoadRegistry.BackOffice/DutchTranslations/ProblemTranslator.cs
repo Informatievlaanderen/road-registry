@@ -92,6 +92,38 @@ public static class ProblemTranslator
             "De positie van het eind punt van het wegsegment stemt niet overeen met de geometrie van de eind wegknoop.") },
         {ProblemCode.RoadSegment.EndPoint.MeasureValueNotEqualToLength, problem => new(problem.Severity, problem.Reason,
             $"De meting ({problem.Parameters[2].Value}) op het eind punt [X={problem.Parameters[0].Value},Y={problem.Parameters[1].Value}] is niet gelijk aan de lengte ({problem.Parameters[3].Value}).") },
+
+        {ProblemCode.RoadSegment.EuropeanRoads.NotUnique, problem => new(problem.Severity, "EuropeseWegenNietUniek",
+            "De Europese wegen moeten uniek zijn o.b.v. hun EU-nummer.") },
+        {ProblemCode.RoadSegment.EuropeanRoadNumber.IsRequired, problem => new(problem.Severity, "EuropeseWegEuNummerVerplicht",
+            "EU-nummer is verplicht.") },
+        {ProblemCode.RoadSegment.EuropeanRoadNumber.NotValid, problem => new(problem.Severity, "EuropeseWegEuNummerNietCorrect",
+            $"EU-nummer is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.") },
+
+        {ProblemCode.RoadSegment.NationalRoads.NotUnique, problem => new(problem.Severity, "NationaleWegenNietUniek",
+            "De nationale wegen moeten uniek zijn o.b.v. hun ident2.") },
+        {ProblemCode.RoadSegment.NationalRoadNumber.IsRequired, problem => new(problem.Severity, "NationaleWegIdent2Verplicht",
+            "Ident2 is verplicht.") },
+        {ProblemCode.RoadSegment.NationalRoadNumber.NotValid, problem => new(problem.Severity, "NationaleWegIdent2NietCorrect",
+            $"Ident2 is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.") },
+
+        {ProblemCode.RoadSegment.NumberedRoads.NotUnique, problem => new(problem.Severity, "GenummerdeWegenNietUniek",
+            "De genummerde wegen moeten uniek zijn o.b.v. hun ident8.") },
+        {ProblemCode.RoadSegment.NumberedRoadNumber.IsRequired, problem => new(problem.Severity, "GenummerdeWegIdent8Verplicht",
+            "Ident8 is verplicht.") },
+        {ProblemCode.RoadSegment.NumberedRoadNumber.NotValid, problem => new(problem.Severity, "GenummerdeWegIdent8NietCorrect",
+            $"Ident8 is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.") },
+
+        {ProblemCode.RoadSegment.NumberedRoadDirection.IsRequired, problem => new(problem.Severity, "GenummerdeWegRichtingVerplicht",
+            "Richting is verplicht.") },
+        {ProblemCode.RoadSegment.NumberedRoadDirection.NotValid, problem => new(problem.Severity, "GenummerdeWegRichtingNietCorrect",
+            $"Richting is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.") },
+
+        {ProblemCode.RoadSegment.NumberedRoadOrdinal.IsRequired, problem => new(problem.Severity, "GenummerdeWegVolgnummerVerplicht",
+            "Volgnummer is verplicht.") },
+        {ProblemCode.RoadSegment.NumberedRoadOrdinal.NotValid, problem => new(problem.Severity, "GenummerdeWegVolgnummerNietCorrect",
+            $"Volgnummer is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.") },
+
         {ProblemCode.RoadSegment.Geometry.IsRequired, problem => new(problem.Severity, "MiddellijnGeometrieVerplicht",
             "Middellijngeometrie is verplicht.") },
         {ProblemCode.RoadSegment.Geometry.NotValid, problem => new(problem.Severity, "MiddellijnGeometrieNietCorrect",

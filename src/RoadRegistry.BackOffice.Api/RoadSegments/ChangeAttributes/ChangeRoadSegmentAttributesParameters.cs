@@ -26,8 +26,20 @@ public class ChangeRoadSegmentAttributesParametersExamples : IExamplesProvider<C
                 Wegsegmentstatus = "buiten gebruik",
                 MorfologischeWegklasse = "aardeweg",
                 Wegbeheerder = "AWV114",
-                EuropeseWegen = new[]{ "E40" },
-                NationaleWegen = new[] { "N180" },
+                EuropeseWegen = new[]
+                {
+                    new ChangeAttributeEuropeanRoad
+                    {
+                        EuNummer = "E40"
+                    }
+                },
+                NationaleWegen = new[]
+                {
+                    new ChangeAttributeNationalRoad
+                    {
+                        Ident2 = "N180"
+                    }
+                },
                 GenummerdeWegen = new[]
                 {
                     new ChangeAttributeNumberedRoad

@@ -98,38 +98,31 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
                 .WithProblemCode(ProblemCode.RoadSegment.Category.NotValid);
         });
 
-        //TODO-rik add test
         When(x => x.EuropeseWegen is not null, () =>
         {
             RuleFor(x => x.EuropeseWegen)
-                .Must(x => x.Length == x.Distinct().Count())
-                .WithProblemCode(ProblemCode.RoadSegment.EuropeanRoad.IdentifierNotUnique);
+                .Must(x => x.Length == x.Select(numberedRoad => numberedRoad?.EuNummer).Distinct().Count())
+                .WithProblemCode(ProblemCode.RoadSegment.EuropeanRoads.NotUnique);
 
             RuleForEach(x => x.EuropeseWegen)
-                .Cascade(CascadeMode.Stop)
-                .Must(EuropeanRoadNumber.CanParse)
-                .WithProblemCode(ProblemCode.RoadSegment.EuropeanRoad.NotValid);
+                .SetValidator(new ChangeAttributeEuropeanRoadValidator());
         });
 
-        //TODO-rik add test
         When(x => x.NationaleWegen is not null, () =>
         {
             RuleFor(x => x.NationaleWegen)
-                .Must(x => x.Length == x.Distinct().Count())
-                .WithProblemCode(ProblemCode.RoadSegment.NationalRoad.IdentifierNotUnique);
+                .Must(x => x.Length == x.Select(numberedRoad => numberedRoad?.Ident2).Distinct().Count())
+                .WithProblemCode(ProblemCode.RoadSegment.NationalRoads.NotUnique);
 
             RuleForEach(x => x.NationaleWegen)
-                .Cascade(CascadeMode.Stop)
-                .Must(NationalRoadNumber.CanParse)
-                .WithProblemCode(ProblemCode.RoadSegment.NationalRoad.NotValid);
+                .SetValidator(new ChangeAttributeNationalRoadValidator());
         });
 
-        //TODO-rik add test
         When(x => x.GenummerdeWegen is not null, () =>
         {
             RuleFor(x => x.GenummerdeWegen)
-                .Must(x => x.Length == x.Select(numberedRoad => numberedRoad.Ident8).Distinct().Count())
-                .WithProblemCode(ProblemCode.RoadSegment.NumberedRoad.IdentifierNotUnique);
+                .Must(x => x.Length == x.Select(numberedRoad => numberedRoad?.Ident8).Distinct().Count())
+                .WithProblemCode(ProblemCode.RoadSegment.NumberedRoads.NotUnique);
 
             RuleForEach(x => x.GenummerdeWegen)
                 .SetValidator(new ChangeAttributeNumberedRoadValidator());
@@ -163,6 +156,32 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
     }
 }
 
+public class ChangeAttributeEuropeanRoadValidator : AbstractValidator<ChangeAttributeEuropeanRoad>
+{
+    public ChangeAttributeEuropeanRoadValidator()
+    {
+        RuleFor(x => x.EuNummer)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
+            .WithProblemCode(ProblemCode.RoadSegment.EuropeanRoadNumber.IsRequired)
+            .Must(EuropeanRoadNumber.CanParse)
+            .WithProblemCode(ProblemCode.RoadSegment.EuropeanRoadNumber.NotValid);
+    }
+}
+
+public class ChangeAttributeNationalRoadValidator : AbstractValidator<ChangeAttributeNationalRoad>
+{
+    public ChangeAttributeNationalRoadValidator()
+    {
+        RuleFor(x => x.Ident2)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
+            .WithProblemCode(ProblemCode.RoadSegment.NationalRoadNumber.IsRequired)
+            .Must(NationalRoadNumber.CanParse)
+            .WithProblemCode(ProblemCode.RoadSegment.NationalRoadNumber.NotValid);
+    }
+}
+
 public class ChangeAttributeNumberedRoadValidator : AbstractValidator<ChangeAttributeNumberedRoad>
 {
     public ChangeAttributeNumberedRoadValidator()
@@ -170,9 +189,9 @@ public class ChangeAttributeNumberedRoadValidator : AbstractValidator<ChangeAttr
         RuleFor(x => x.Ident8)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
-            .WithProblemCode(ProblemCode.RoadSegment.NumberedRoad.IsRequired)
+            .WithProblemCode(ProblemCode.RoadSegment.NumberedRoadNumber.IsRequired)
             .Must(NumberedRoadNumber.CanParse)
-            .WithProblemCode(ProblemCode.RoadSegment.NumberedRoad.NotValid);
+            .WithProblemCode(ProblemCode.RoadSegment.NumberedRoadNumber.NotValid);
 
         RuleFor(x => x.Richting)
             .Cascade(CascadeMode.Stop)
