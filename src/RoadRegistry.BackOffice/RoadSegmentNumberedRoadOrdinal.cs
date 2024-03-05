@@ -1,26 +1,30 @@
 namespace RoadRegistry.BackOffice;
 
 using System;
+using System.Collections.Generic;
 
-public readonly struct RoadSegmentNumberedRoadOrdinal : IEquatable<RoadSegmentNumberedRoadOrdinal>
+public readonly struct RoadSegmentNumberedRoadOrdinal : IEquatable<RoadSegmentNumberedRoadOrdinal>, IDutchToString
 {
-    public struct WellKnownValues
-    {
-        public const int NotKnown = -8;
-    }
-
+    private const int UnknownValue = -8;
+    public static readonly RoadSegmentNumberedRoadOrdinal Unknown = new(UnknownValue);
+    
     private readonly int _value;
+
+    private static readonly IDictionary<string, RoadSegmentNumberedRoadOrdinal> DutchNameMapping = new Dictionary<string, RoadSegmentNumberedRoadOrdinal>()
+    {
+        { "niet gekend", Unknown }
+    };
 
     public RoadSegmentNumberedRoadOrdinal(int value)
     {
-        if (value < 0 && value != WellKnownValues.NotKnown) throw new ArgumentOutOfRangeException(nameof(value), value, $"The road segment numbered road ordinal must be greater than or equal to zero, or the value '{WellKnownValues.NotKnown}' (Not Known)");
+        if (value < 0 && value != UnknownValue) throw new ArgumentOutOfRangeException(nameof(value), value, $"The road segment numbered road ordinal must be greater than or equal to zero, or the value '{UnknownValue}' (Not Known)");
 
         _value = value;
     }
 
     public static bool Accepts(int value)
     {
-        return value >= 0 || value == WellKnownValues.NotKnown;
+        return value >= 0 || value == UnknownValue;
     }
 
     public int ToInt32()
@@ -48,6 +52,19 @@ public readonly struct RoadSegmentNumberedRoadOrdinal : IEquatable<RoadSegmentNu
         return _value.ToString();
     }
 
+    public string ToDutchString()
+    {
+        foreach (var item in DutchNameMapping)
+        {
+            if (item.Value == this)
+            {
+                return item.Key;
+            }
+        }
+
+        return ToString();
+    }
+
     public static bool operator ==(RoadSegmentNumberedRoadOrdinal left, RoadSegmentNumberedRoadOrdinal right)
     {
         return left.Equals(right);
@@ -61,5 +78,29 @@ public readonly struct RoadSegmentNumberedRoadOrdinal : IEquatable<RoadSegmentNu
     public static implicit operator int(RoadSegmentNumberedRoadOrdinal instance)
     {
         return instance._value;
+    }
+
+    public static bool CanParseUsingDutchName(string value) => TryParseUsingDutchName(value, out _);
+
+    public static RoadSegmentNumberedRoadOrdinal ParseUsingDutchName(string value)
+    {
+        if (!TryParseUsingDutchName(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment numbered road ordinal.");
+        return parsed;
+    }
+
+    public static bool TryParseUsingDutchName(string value, out RoadSegmentNumberedRoadOrdinal parsed)
+    {
+        if (DutchNameMapping.TryGetValue(value, out parsed))
+        {
+            return true;
+        }
+
+        if (int.TryParse(value, out var intValue) && Accepts(intValue))
+        {
+            parsed = new RoadSegmentNumberedRoadOrdinal(intValue);
+            return true;
+        }
+
+        return false;
     }
 }

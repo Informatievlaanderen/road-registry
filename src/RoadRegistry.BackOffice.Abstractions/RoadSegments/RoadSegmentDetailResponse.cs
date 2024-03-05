@@ -25,27 +25,47 @@ public sealed record RoadSegmentDetailResponse(
     public IReadOnlyCollection<RoadSegmentSurfaceTypeDetailResponse> SurfaceTypes { get; set; }
     public IReadOnlyCollection<RoadSegmentWidthDetailResponse> Widths { get; set; }
     public IReadOnlyCollection<RoadSegmentLaneCountDetailResponse> LaneCounts { get; set; }
+    public IReadOnlyCollection<RoadSegmentEuropeanRoadDetailResponse> EuropeanRoads { get; set; }
+    public IReadOnlyCollection<RoadSegmentNationalRoadDetailResponse> NationalRoads { get; set; }
+    public IReadOnlyCollection<RoadSegmentNumberedRoadDetailResponse> NumberedRoads { get; set; }
     public bool IsRemoved { get; set; }
 }
 
-public class RoadSegmentLaneCountDetailResponse
+public sealed record RoadSegmentLaneCountDetailResponse
 {
-    public double FromPosition { get; set; }
-    public double ToPosition { get; set; }
-    public RoadSegmentLaneCount Count { get; set; }
-    public RoadSegmentLaneDirection Direction { get; set; }
+    public double FromPosition { get; init; }
+    public double ToPosition { get; init; }
+    public RoadSegmentLaneCount Count { get; init; }
+    public RoadSegmentLaneDirection Direction { get; init; }
 }
 
-public class RoadSegmentWidthDetailResponse
+public sealed record RoadSegmentWidthDetailResponse
 {
-    public double FromPosition { get; set; }
-    public double ToPosition { get; set; }
-    public RoadSegmentWidth Width { get; set; }
+    public double FromPosition { get; init; }
+    public double ToPosition { get; init; }
+    public RoadSegmentWidth Width { get; init; }
 }
 
-public class RoadSegmentSurfaceTypeDetailResponse
+public sealed record RoadSegmentSurfaceTypeDetailResponse
 {
-    public double FromPosition { get; set; }
-    public double ToPosition { get; set; }
-    public RoadSegmentSurfaceType SurfaceType { get; set; }
+    public double FromPosition { get; init; }
+    public double ToPosition { get; init; }
+    public RoadSegmentSurfaceType SurfaceType { get; init; }
+}
+
+public sealed record RoadSegmentEuropeanRoadDetailResponse
+{
+    public EuropeanRoadNumber Number { get; init; }
+}
+
+public sealed record RoadSegmentNationalRoadDetailResponse
+{
+    public NationalRoadNumber Number { get; init; }
+}
+
+public sealed record RoadSegmentNumberedRoadDetailResponse
+{
+    public NumberedRoadNumber Number { get; init; }
+    public RoadSegmentNumberedRoadDirection Direction { get; init; }
+    public RoadSegmentNumberedRoadOrdinal Ordinal { get; init; }
 }

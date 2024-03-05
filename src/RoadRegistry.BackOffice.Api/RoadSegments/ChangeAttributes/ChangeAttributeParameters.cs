@@ -80,8 +80,9 @@ public class ChangeAttributeEuropeanRoad
     /// <summary>
     ///     Nummer van de Europese weg.
     /// </summary>
-    [DataMember(Name = "Nummer", Order = 1)]
-    [JsonProperty("Nummer", Required = Required.Always)]
+    [DataMember(Name = "EuNummer", Order = 1)]
+    [JsonProperty("euNummer", Required = Required.Always)]
+    [RoadRegistryEnumDataType(typeof(EuropeanRoadNumber))]
     public string? EuNummer { get; set; }
 }
 

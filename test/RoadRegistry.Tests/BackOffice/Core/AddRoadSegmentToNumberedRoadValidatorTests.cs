@@ -46,7 +46,7 @@ public class AddRoadSegmentToNumberedRoadValidatorTests : ValidatorTest<AddRoadS
     [Theory]
     [InlineData(0)]
     [InlineData(int.MaxValue)]
-    [InlineData(RoadSegmentNumberedRoadOrdinal.WellKnownValues.NotKnown)]
+    [InlineData(-8)]
     public void OrdinalMustBeGreaterThanOrEqualToZeroOrAcceptedValue(int value)
     {
         ShouldNotHaveValidationErrorFor(c => c.Ordinal, value);

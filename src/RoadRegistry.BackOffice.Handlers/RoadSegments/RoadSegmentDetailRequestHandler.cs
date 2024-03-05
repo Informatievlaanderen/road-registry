@@ -81,6 +81,24 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
             .Select(x => new RoadSegmentLaneAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .ToList();
 
+        var europeanRoads = (await _editorContext.RoadSegmentEuropeanRoadAttributes
+            .Where(x => x.RoadSegmentId == roadSegment.Id)
+            .ToListAsync(cancellationToken: cancellationToken))
+            .Select(x => new RoadSegmentEuropeanRoadAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
+            .ToList();
+
+        var nationalRoads = (await _editorContext.RoadSegmentNationalRoadAttributes
+            .Where(x => x.RoadSegmentId == roadSegment.Id)
+            .ToListAsync(cancellationToken: cancellationToken))
+            .Select(x => new RoadSegmentNationalRoadAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
+            .ToList();
+
+        var numberedRoads = (await _editorContext.RoadSegmentNumberedRoadAttributes
+            .Where(x => x.RoadSegmentId == roadSegment.Id)
+            .ToListAsync(cancellationToken: cancellationToken))
+            .Select(x => new RoadSegmentNumberedRoadAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
+            .ToList();
+
         return new RoadSegmentDetailResponse(
             roadSegment.Id,
             dbfRecord.BEGINTIJD.Value,
@@ -123,6 +141,20 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
                 Count = new RoadSegmentLaneCount(x.AANTAL.Value),
                 Direction = RoadSegmentLaneDirection.ByIdentifier[x.RICHTING.Value]
             }).OrderBy(x => x.FromPosition).ToList(),
+            EuropeanRoads = europeanRoads.Select(x => new RoadSegmentEuropeanRoadDetailResponse
+            {
+                Number = EuropeanRoadNumber.Parse(x.EUNUMMER.Value)
+            }).ToList(),
+            NationalRoads = nationalRoads.Select(x => new RoadSegmentNationalRoadDetailResponse
+            {
+                Number = NationalRoadNumber.Parse(x.IDENT2.Value)
+            }).ToList(),
+            NumberedRoads = numberedRoads.Select(x => new RoadSegmentNumberedRoadDetailResponse
+            {
+                Number = NumberedRoadNumber.Parse(x.IDENT8.Value),
+                Direction = RoadSegmentNumberedRoadDirection.ByIdentifier[x.RICHTING.Value],
+                Ordinal = new RoadSegmentNumberedRoadOrdinal(x.VOLGNUMMER.Value)
+            }).ToList(),
             IsRemoved = roadSegment.IsRemoved
         };
     }

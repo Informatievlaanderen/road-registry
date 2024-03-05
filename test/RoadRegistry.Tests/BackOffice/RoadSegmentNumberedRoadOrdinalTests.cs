@@ -20,7 +20,7 @@ public class RoadSegmentNumberedRoadOrdinalTests
     [InlineData(-1, false)]
     [InlineData(0, true)]
     [InlineData(1, true)]
-    [InlineData(RoadSegmentNumberedRoadOrdinal.WellKnownValues.NotKnown, true)]
+    [InlineData(-8, true)]
     [InlineData(int.MaxValue, true)]
     public void AcceptsReturnsExpectedResult(int value, bool expected)
     {
@@ -36,6 +36,17 @@ public class RoadSegmentNumberedRoadOrdinalTests
         var sut = new RoadSegmentNumberedRoadOrdinal(value);
 
         Assert.Equal(value.ToString(), sut.ToString());
+    }
+
+    [Theory]
+    [InlineData("0", 0)]
+    [InlineData("12345", 12345)]
+    [InlineData("niet gekend", -8)]
+    public void ToDutchStringReturnsExpectedResult(string expected, int value)
+    {
+        var sut = new RoadSegmentNumberedRoadOrdinal(value);
+
+        Assert.Equal(expected, sut.ToDutchString());
     }
 
     [Fact]

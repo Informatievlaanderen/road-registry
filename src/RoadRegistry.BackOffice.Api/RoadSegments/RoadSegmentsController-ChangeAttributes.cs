@@ -143,7 +143,7 @@ public partial class RoadSegmentsController
                         {
                             Number = NumberedRoadNumber.Parse(numberedRoad.Ident8),
                             Direction = RoadSegmentNumberedRoadDirection.ParseUsingDutchName(numberedRoad.Richting),
-                            Ordinal = new RoadSegmentNumberedRoadOrdinal(int.Parse(numberedRoad.Volgnummer!))
+                            Ordinal = RoadSegmentNumberedRoadOrdinal.ParseUsingDutchName(numberedRoad.Volgnummer)
                         }).ToArray();
                     }
                 });

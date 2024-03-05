@@ -204,7 +204,7 @@ public class ChangeAttributeNumberedRoadValidator : AbstractValidator<ChangeAttr
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
             .WithProblemCode(ProblemCode.RoadSegment.NumberedRoadOrdinal.IsRequired)
-            .Must(x => int.TryParse(x, out var intValue) && RoadSegmentNumberedRoadOrdinal.Accepts(intValue))
+            .Must(RoadSegmentNumberedRoadOrdinal.CanParseUsingDutchName)
             .WithProblemCode(ProblemCode.RoadSegment.NumberedRoadOrdinal.NotValid);
     }
 }
