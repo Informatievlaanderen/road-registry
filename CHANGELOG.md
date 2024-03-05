@@ -1,3 +1,17 @@
+# [3.70.0](https://github.com/informatievlaanderen/road-registry/compare/v3.69.13...v3.70.0) (2024-03-05)
+
+
+### Bug Fixes
+
+* restore build script ([#1416](https://github.com/informatievlaanderen/road-registry/issues/1416)) ([73dc69a](https://github.com/informatievlaanderen/road-registry/commit/73dc69a91bef52576f491583a33d83b83bacc3a5))
+* WR-954 OrganizationConsumer only change Organization when needed + deal with orgs with the same linked OVO-code ([#1413](https://github.com/informatievlaanderen/road-registry/issues/1413)) ([5746f0f](https://github.com/informatievlaanderen/road-registry/commit/5746f0f93cb8ba1dfe63ed7ff2f7a2db7a34bac6))
+
+
+### Features
+
+* WR-941 add European/national/numbered roads to roadsegment edit attributes and read endpoints ([#1415](https://github.com/informatievlaanderen/road-registry/issues/1415)) ([4d176a1](https://github.com/informatievlaanderen/road-registry/commit/4d176a16a9766a8fe17846613406bd5082842e97))
+* WR-959 WR-922 convert RoadSegment V2 to V1 + remove after-FC logic and obsolete feature toggles ([#1411](https://github.com/informatievlaanderen/road-registry/issues/1411)) ([4cc478d](https://github.com/informatievlaanderen/road-registry/commit/4cc478d4277c756c8e86dae3fa91548d0cec99b0))
+
 ## [3.69.13](https://github.com/informatievlaanderen/road-registry/compare/v3.69.12...v3.69.13) (2024-03-04)
 
 
