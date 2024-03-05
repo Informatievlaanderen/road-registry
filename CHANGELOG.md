@@ -1,3 +1,10 @@
+## [3.70.2](https://github.com/informatievlaanderen/road-registry/compare/v3.70.1...v3.70.2) (2024-03-05)
+
+
+### Bug Fixes
+
+* restore use of CustomSwaggerSchemaId instead of DataContract ([#1418](https://github.com/informatievlaanderen/road-registry/issues/1418)) ([933f6a8](https://github.com/informatievlaanderen/road-registry/commit/933f6a81cf51637e8146b742f8a56b57dee31e8b))
+
 ## [3.70.1](https://github.com/informatievlaanderen/road-registry/compare/v3.70.0...v3.70.1) (2024-03-05)
 
 
