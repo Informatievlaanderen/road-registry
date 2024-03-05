@@ -474,7 +474,7 @@ public class GetRoadSegmentResponseResponseExamples : IExamplesProvider<GetRoadS
                     }
                 }
             },
-            MethodeWegsegmentgeometrie = RoadSegmentGeometryDrawMethod.Outlined.Translation.Name,
+            MethodeWegsegmentgeometrie = RoadSegmentGeometryDrawMethod.Outlined.ToDutchString(),
             BeginknoopObjectId = 287335,
             EindknoopObjectId = 287336,
             Linkerstraatnaam = new WegsegmentStraatnaamObject
@@ -487,18 +487,18 @@ public class GetRoadSegmentResponseResponseExamples : IExamplesProvider<GetRoadS
                 ObjectId = new StreetNameId(71671).ToString(),
                 Straatnaam = "Smidsestraat"
             },
-            Wegsegmentstatus = RoadSegmentStatus.InUse.Translation.Name,
-            MorfologischeWegklasse = RoadSegmentMorphology.Road_consisting_of_one_roadway.Translation.Name,
-            Toegangsbeperking = RoadSegmentAccessRestriction.PublicRoad.Translation.Name,
+            Wegsegmentstatus = RoadSegmentStatus.InUse.ToDutchString(),
+            MorfologischeWegklasse = RoadSegmentMorphology.Road_consisting_of_one_roadway.ToDutchString(),
+            Toegangsbeperking = RoadSegmentAccessRestriction.PublicRoad.ToDutchString(),
             Wegbeheerder = "1304",
-            Wegcategorie = RoadSegmentCategory.LocalRoadType3.Translation.Name,
+            Wegcategorie = RoadSegmentCategory.LocalRoadType3.ToDutchString(),
             Wegverharding = new[]
             {
                 new WegverhardingObject
                 {
                     VanPositie = 0.000,
                     TotPositie = 44.877,
-                    Verharding = RoadSegmentSurfaceType.LooseSurface.Translation.Name
+                    Verharding = RoadSegmentSurfaceType.LooseSurface.ToDutchString()
                 }
             },
             Wegbreedte = new[]
@@ -513,7 +513,30 @@ public class GetRoadSegmentResponseResponseExamples : IExamplesProvider<GetRoadS
                     VanPositie = 0.000,
                     TotPositie = 44.877,
                     Aantal = 2,
-                    Richting = RoadSegmentLaneDirection.Independent.Translation.Name
+                    Richting = RoadSegmentLaneDirection.Independent.ToDutchString()
+                }
+            },
+            EuropeseWegen = new[]
+            {
+                new EuropeseWegObject
+                {
+                    EuNummer = "E40"
+                }
+            },
+            NationaleWegen = new[]
+            {
+                new NationaleWegObject
+                {
+                    Ident2 = "N180"
+                }
+            },
+            GenummerdeWegen = new[]
+            {
+                new GenummerdeWegObject
+                {
+                    Ident8 = "N0080001",
+                    Richting = RoadSegmentNumberedRoadDirection.Forward.ToDutchString(),
+                    Volgnummer = new RoadSegmentNumberedRoadOrdinal(2686).ToDutchString()
                 }
             }
         };

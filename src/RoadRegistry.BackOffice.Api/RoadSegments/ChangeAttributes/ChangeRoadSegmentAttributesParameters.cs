@@ -23,8 +23,8 @@ public class ChangeRoadSegmentAttributesParametersExamples : IExamplesProvider<C
             new()
             {
                 Wegsegmenten = new[] { 481111 },
-                Wegsegmentstatus = "buiten gebruik",
-                MorfologischeWegklasse = "aardeweg",
+                Wegsegmentstatus = RoadSegmentStatus.OutOfUse.ToDutchString(),
+                MorfologischeWegklasse = RoadSegmentMorphology.PrimitiveRoad.ToDutchString(),
                 Wegbeheerder = "AWV114",
                 EuropeseWegen = new[]
                 {
@@ -45,8 +45,8 @@ public class ChangeRoadSegmentAttributesParametersExamples : IExamplesProvider<C
                     new ChangeAttributeNumberedRoad
                     {
                         Ident8 = "N0080001",
-                        Richting = "gelijklopend met de digitalisatiezin",
-                        Volgnummer = "2686"
+                        Richting = RoadSegmentNumberedRoadDirection.Forward.ToDutchString(),
+                        Volgnummer = new RoadSegmentNumberedRoadOrdinal(2686).ToDutchString()
                     }
                 }
             }
