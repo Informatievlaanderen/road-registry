@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Api.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using System;
@@ -82,6 +83,7 @@ public partial class RoadSegmentsController
 }
 
 [DataContract(Name = "WegsegmentSchetsen", Namespace = "")]
+[CustomSwaggerSchemaId("WegsegmentSchetsen")]
 public record PostRoadSegmentOutlineParameters
 {
     /// <summary>

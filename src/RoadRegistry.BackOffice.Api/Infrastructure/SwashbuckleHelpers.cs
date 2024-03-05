@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure
     using System;
     using System.Linq;
     using System.Reflection;
-    using System.Runtime.Serialization;
 
     public static class SwashbuckleHelpers
     {
@@ -14,7 +13,8 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure
 
         public static string GetCustomSchemaId(Type modelType)
         {
-            return modelType.GetCustomAttributes<DataContractAttribute>().SingleOrDefault()?.Name;
+            // Do NOT use DataContract here, it will give conflict in PublicApi
+            return modelType.GetCustomAttributes<CustomSwaggerSchemaIdAttribute>().SingleOrDefault()?.SchemaId;
         }
     }
 }

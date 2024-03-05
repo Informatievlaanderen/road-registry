@@ -95,6 +95,7 @@ public partial class RoadSegmentsController
 }
 
 [DataContract(Name = "WegsegmentStraatnaamOntkoppelen", Namespace = "")]
+[CustomSwaggerSchemaId("WegsegmentStraatnaamOntkoppelen")]
 public class PostUnlinkStreetNameParameters
 {
     /// <summary>

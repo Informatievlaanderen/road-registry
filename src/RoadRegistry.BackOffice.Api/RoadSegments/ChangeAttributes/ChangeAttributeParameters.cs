@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeAttributes;
 
 using Infrastructure.Controllers.Attributes;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Api.Infrastructure;
 using System.Runtime.Serialization;
 
 public record ChangeAttributeParameters
@@ -75,6 +76,7 @@ public record ChangeAttributeParameters
 }
 
 [DataContract(Name = "EuropeseWeg", Namespace = "")]
+[CustomSwaggerSchemaId("EuropeseWeg")]
 public class ChangeAttributeEuropeanRoad
 {
     /// <summary>
@@ -87,6 +89,7 @@ public class ChangeAttributeEuropeanRoad
 }
 
 [DataContract(Name = "NationaleWeg", Namespace = "")]
+[CustomSwaggerSchemaId("NationaleWeg")]
 public class ChangeAttributeNationalRoad
 {
     /// <summary>
@@ -98,6 +101,7 @@ public class ChangeAttributeNationalRoad
 }
 
 [DataContract(Name = "GenummerdeWeg", Namespace = "")]
+[CustomSwaggerSchemaId("GenummerdeWeg")]
 public class ChangeAttributeNumberedRoad
 {
     /// <summary>

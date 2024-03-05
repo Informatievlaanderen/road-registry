@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Abstractions.Exceptions;
+using RoadRegistry.BackOffice.Api.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using System.Runtime.Serialization;
@@ -106,6 +107,7 @@ public partial class RoadSegmentsController
 }
 
 [DataContract(Name = "WegsegmentSchetsGeometrieWijzigen", Namespace = "")]
+[CustomSwaggerSchemaId("WegsegmentSchetsGeometrieWijzigen")]
 public record PostChangeOutlineGeometryParameters
 {
     /// <summary>
