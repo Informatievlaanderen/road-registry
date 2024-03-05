@@ -171,7 +171,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         {
             changes = changes.AppendChange(new RemoveRoadSegmentFromEuropeanRoad(
                 recordNumberProvider.Next(),
-                attributeIdProvider.Next(),
+                europeanRoad.AttributeId,
                 roadSegment.Id,
                 europeanRoad.Number
             ));
@@ -219,7 +219,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         {
             changes = changes.AppendChange(new RemoveRoadSegmentFromNationalRoad(
                 recordNumberProvider.Next(),
-                attributeIdProvider.Next(),
+                nationalRoad.AttributeId,
                 roadSegment.Id,
                 nationalRoad.Number
             ));
@@ -269,7 +269,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         {
             changes = changes.AppendChange(new RemoveRoadSegmentFromNumberedRoad(
                 recordNumberProvider.Next(),
-                attributeIdProvider.Next(),
+                numberedRoad.AttributeId,
                 roadSegment.Id,
                 numberedRoad.Number
             ));
