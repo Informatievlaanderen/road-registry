@@ -25,7 +25,6 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
     private readonly IStreetNameClient _streetNameClient;
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
     private readonly DistributedStreamStoreLockOptions _distributedStreamStoreLockOptions;
-    private readonly UseDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle _useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle;
 
     private static readonly string[] ProposedOrCurrentStreetNameStatuses = new[]
     {
@@ -44,7 +43,6 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
         IStreetNameClient streetNameClient,
         IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
         DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
-        UseDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle,
         ILogger<LinkStreetNameSqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -57,7 +55,6 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
         _streetNameClient = streetNameClient;
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
         _distributedStreamStoreLockOptions = distributedStreamStoreLockOptions;
-        _useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle = useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle;
     }
 
     protected override async Task<object> InnerHandle(LinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
@@ -73,7 +70,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
             {
                 var problems = Problems.None;
                 
-                var roadSegment = await RoadRegistryContext.RoadNetworks.FindRoadSegment(roadSegmentId, geometryDrawMethod, _useDefaultRoadNetworkFallbackForOutlinedRoadSegmentsFeatureToggle, cancellationToken);
+                var roadSegment = await RoadRegistryContext.RoadNetworks.FindRoadSegment(roadSegmentId, geometryDrawMethod, cancellationToken);
                 if (roadSegment == null)
                 {
                     problems += new RoadSegmentNotFound(roadSegmentId);
@@ -95,7 +92,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
                 {
                     if (leftStreetNameId > 0)
                     {
-                        if (!CrabStreetNameId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId))
+                        if (!StreetNameLocalId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId))
                         {
                             problems += new RoadSegmentStreetNameLeftNotUnlinked(request.Request.WegsegmentId);
                         }
@@ -107,7 +104,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
 
                     if (rightStreetNameId > 0)
                     {
-                        if (!CrabStreetNameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId))
+                        if (!StreetNameLocalId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId))
                         {
                             problems = problems.Add(new RoadSegmentStreetNameRightNotUnlinked(request.Request.WegsegmentId));
                         }
@@ -128,8 +125,8 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
                         roadSegment.AttributeHash.Status,
                         roadSegment.AttributeHash.Category,
                         roadSegment.AttributeHash.AccessRestriction,
-                        leftStreetNameId > 0 ? new CrabStreetNameId(leftStreetNameId) : roadSegment.AttributeHash.LeftStreetNameId,
-                        rightStreetNameId > 0 ? new CrabStreetNameId(rightStreetNameId) : roadSegment.AttributeHash.RightStreetNameId
+                        leftStreetNameId > 0 ? new StreetNameLocalId(leftStreetNameId) : roadSegment.AttributeHash.LeftStreetNameId,
+                        rightStreetNameId > 0 ? new StreetNameLocalId(rightStreetNameId) : roadSegment.AttributeHash.RightStreetNameId
                     ).WithGeometry(roadSegment.Geometry);
 
                     foreach (var lane in roadSegment.Lanes)

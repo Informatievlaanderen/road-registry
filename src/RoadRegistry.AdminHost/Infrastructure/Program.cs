@@ -9,7 +9,6 @@ using BackOffice.Extracts;
 using BackOffice.Framework;
 using BackOffice.Handlers.Sqs;
 using BackOffice.Uploads;
-using BackOffice.ZipArchiveWriters.Validation;
 using Consumers;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
@@ -18,6 +17,7 @@ using Microsoft.Extensions.Logging;
 using NodaTime;
 using SqlStreamStore;
 using System.Threading.Tasks;
+using BackOffice.FeatureCompare.Validation;
 using Options;
 
 public class Program
@@ -40,7 +40,6 @@ public class Program
                             sp.GetService<ILifetimeScope>(),
                             sp.GetService<IRoadNetworkSnapshotReader>(),
                             sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
-                            sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                             sp.GetService<IExtractUploadFailedEmailClient>(),
                             sp.GetService<IClock>(),
                             sp.GetService<ILoggerFactory>()
@@ -52,9 +51,7 @@ public class Program
                 .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
                 .AddOrganizationCache()
                 .AddStreetNameCache()
-                .AddFeatureCompareTranslator()
-                .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
-                .AddSingleton<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
+                .AddFeatureCompare()
                 .AddScoped(_ => new EventSourcedEntityMap())
                 .AddStreamStore()
                 .AddSingleton<IClock>(SystemClock.Instance)

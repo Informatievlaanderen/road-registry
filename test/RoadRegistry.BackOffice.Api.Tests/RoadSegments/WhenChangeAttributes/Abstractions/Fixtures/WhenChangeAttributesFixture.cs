@@ -5,7 +5,6 @@ using Api.RoadSegments.ChangeAttributes;
 using AutoFixture;
 using BackOffice.Extracts.Dbase.Organizations;
 using Editor.Schema;
-using FeatureToggles;
 using Infrastructure;
 using MediatR;
 using Messages;
@@ -46,7 +45,6 @@ public abstract class WhenChangeAttributesFixture : ControllerActionFixture<Chan
         };
 
         return await controller.ChangeAttributes(
-            new UseRoadSegmentChangeAttributesFeatureToggle(true),
             parameters,
             new ChangeRoadSegmentAttributesParametersValidator(),
             new ChangeRoadSegmentAttributesParametersWrapperValidator(_editorContext, _organizationCache),

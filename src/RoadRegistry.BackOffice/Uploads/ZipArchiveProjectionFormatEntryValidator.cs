@@ -11,22 +11,25 @@ public class ZipArchiveProjectionFormatEntryValidator : IZipArchiveEntryValidato
 
     public ZipArchiveProjectionFormatEntryValidator(Encoding encoding)
     {
-        _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
+        _encoding = encoding.ThrowIfNull();
     }
 
-    public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, ZipArchiveValidationContext context)
+    public ZipArchiveProblems Validate(ZipArchiveEntry entry)
     {
         ArgumentNullException.ThrowIfNull(entry);
-        ArgumentNullException.ThrowIfNull(context);
 
         var problems = ZipArchiveProblems.None;
+
         using (var stream = entry.Open())
         using (var reader = new StreamReader(stream, _encoding))
         {
             var projectionFormat = ProjectionFormat.Read(reader);
-            if (!projectionFormat.IsBelgeLambert1972()) problems += entry.ProjectionFormatInvalid();
+            if (!projectionFormat.IsBelgeLambert1972())
+            {
+                problems += entry.ProjectionFormatInvalid();
+            }
         }
 
-        return (problems, context);
+        return problems;
     }
 }

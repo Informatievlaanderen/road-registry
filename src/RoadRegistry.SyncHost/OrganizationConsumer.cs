@@ -23,6 +23,7 @@ using System.Configuration;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Extensions;
 using Organization = Sync.OrganizationRegistry.Models.Organization;
 
 public class OrganizationConsumer : RoadRegistryBackgroundService
@@ -67,27 +68,24 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
 
         while (!cancellationToken.IsCancellationRequested)
         {
-            ILookup<OrganizationOvoCode, OrganizationId> orgIdMapping = null;
+            ILookup<OrganizationOvoCode, OrganizationId> ovoCodeToClassicIdMapping = null;
 
             await using var scope = _container.BeginLifetimeScope();
             await using var dbContext = scope.Resolve<OrganizationConsumerContext>();
-            
+
             var projectionState = await dbContext.InitializeProjectionState(ProjectionStateName, cancellationToken);
             projectionState.ErrorMessage = null;
-            
+
             try
             {
                 var map = _container.Resolve<EventSourcedEntityMap>();
                 var organizationsContext = new Organizations(map, _store, SerializerSettings, EventMapping);
-                
+
                 await _organizationReader.ReadAsync(projectionState.Position + 1, async organization =>
                 {
                     projectionState.Position = organization.ChangeId;
-
-                    Logger.LogInformation("Processing organization {OvoNumber}", organization.OvoNumber);
-                    
                     var idempotenceKey = $"organization-{organization.ChangeId}-{organization.OvoNumber}".ToSha512();
-                    
+
                     var messageAlreadyProcessed = await dbContext.ProcessedMessages
                         .AsNoTracking()
                         .AnyAsync(x => x.IdempotenceKey == idempotenceKey, cancellationToken)
@@ -95,21 +93,21 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
 
                     if (messageAlreadyProcessed)
                     {
-                        Logger.LogWarning($"Skipping already processed message at offset '{projectionState.Position}' with idempotenceKey '{idempotenceKey}'.");
+                        Logger.LogWarning($"Skipping already processed message at position '{projectionState.Position}' with idempotenceKey '{idempotenceKey}'.");
                         await dbContext.SaveChangesAsync(cancellationToken);
                         return;
                     }
-                    
-                    orgIdMapping ??= await BuildOrgIdMapping(scope, cancellationToken);
-                    
-                    await CreateOrUpdateOrganizationWithOvoCode(organizationsContext, organization, cancellationToken);
-                    await UpdateOrganizationsWithOldOrganizationId(orgIdMapping, organization, cancellationToken);
+
+                    Logger.LogInformation("Organization {OvoNumber}: processing...", organization.OvoNumber);
+
+                    ovoCodeToClassicIdMapping ??= await BuildOvoCodeToClassicIdMapping(scope, cancellationToken);
+
+                    await CreateOrUpdateOrganization(ovoCodeToClassicIdMapping, organizationsContext, organization, cancellationToken);
 
                     await dbContext.ProcessedMessages.AddAsync(new ProcessedMessage(idempotenceKey, DateTimeOffset.UtcNow), cancellationToken);
-
                     await dbContext.SaveChangesAsync(cancellationToken);
 
-                    Logger.LogInformation("Processed organization {OvoNumber}", organization.OvoNumber);
+                    Logger.LogInformation("Organization {OvoNumber}: processed", organization.OvoNumber);
                 }, cancellationToken);
 
                 consecutiveExceptionsCount = 0;
@@ -141,37 +139,54 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
         }
     }
 
-    private async Task<ILookup<OrganizationOvoCode, OrganizationId>> BuildOrgIdMapping(ILifetimeScope scope, CancellationToken cancellationToken)
+    private async Task<ILookup<OrganizationOvoCode, OrganizationId>> BuildOvoCodeToClassicIdMapping(ILifetimeScope scope, CancellationToken cancellationToken)
     {
         await using var editorContext = scope.Resolve<EditorContext>();
 
         Logger.LogInformation("Fetching all organizations...");
-        var organizationRecords = await editorContext.Organizations.ToListAsync(cancellationToken);
-        if (!organizationRecords.Any())
-        {
-            organizationRecords = editorContext.Organizations.Local.ToList();
-        }
+        var organizationRecords = await editorContext.Organizations
+            .ToListIncludingLocalAsync(x => !x.Code.StartsWith(OrganizationOvoCode.Prefix), cancellationToken);
 
         var orgIdMapping = organizationRecords
             .Select(x => _organizationRecordReader.Read(x.DbaseRecord, x.DbaseSchemaVersion))
             .Where(x => x.OvoCode is not null)
             .ToLookup(x => x.OvoCode!.Value, x => x.Code);
-        Logger.LogInformation("{Count} organizations have an OVO-code", orgIdMapping.Count);
+        Logger.LogInformation("{Count} organizations have a link to another OVO-code", orgIdMapping.Count);
 
         return orgIdMapping;
     }
 
-    private async Task CreateOrUpdateOrganizationWithOvoCode(Organizations organizationsContext, Organization organization, CancellationToken cancellationToken)
+    private async Task CreateOrUpdateOrganization(ILookup<OrganizationOvoCode, OrganizationId> ovoCodeToClassicIdMapping, Organizations organizationsContext, Organization organization, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         var ovoCode = new OrganizationOvoCode(organization.OvoNumber);
 
-        var existingOrganization = await organizationsContext.FindAsync(new OrganizationId(ovoCode), cancellationToken);
+        var classicOrganizationIds = ovoCodeToClassicIdMapping[ovoCode].ToList();
+        if (classicOrganizationIds.Count > 1)
+        {
+            Logger.LogError($"Multiple Organizations found with a link to {ovoCode}, not proceeding with automatic rename to '{organization.Name}' (Ids: {string.Join(", ", classicOrganizationIds)}");
+            return;
+        }
+
+        var organizationId = classicOrganizationIds.Any() ? classicOrganizationIds.Single() : new OrganizationId(ovoCode);
+
+        var existingOrganization = await organizationsContext.FindAsync(organizationId, cancellationToken);
         if (existingOrganization is null)
         {
-            Logger.LogInformation("Creating new organization {OvoNumber}", organization.OvoNumber);
+            Logger.LogInformation("Organization {OvoNumber}: creating new", organization.OvoNumber);
             var command = new CreateOrganization
+            {
+                Code = ovoCode,
+                Name = organization.Name,
+                OvoCode = ovoCode
+            };
+            await _roadNetworkCommandQueue.WriteAsync(new Command(command), cancellationToken);
+        }
+        else if (existingOrganization.Translation.Name != organization.Name)
+        {
+            Logger.LogInformation("Organization {OvoNumber}: renaming to '{Name}'", organization.OvoNumber, organization.Name);
+            var command = new ChangeOrganization
             {
                 Code = ovoCode,
                 Name = organization.Name,
@@ -181,33 +196,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
         }
         else
         {
-            Logger.LogInformation("Changing organization {OvoNumber}", organization.OvoNumber);
-            var command = new ChangeOrganization
-            {
-                Code = ovoCode,
-                Name = organization.Name,
-                OvoCode = ovoCode
-            };
-            await _roadNetworkCommandQueue.WriteAsync(new Command(command), cancellationToken);
-        }
-    }
-
-    private async Task UpdateOrganizationsWithOldOrganizationId(ILookup<OrganizationOvoCode, OrganizationId> orgIdMapping, Organization organization, CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        var ovoCode = new OrganizationOvoCode(organization.OvoNumber);
-
-        foreach (var organizationId in orgIdMapping[ovoCode])
-        {
-            Logger.LogInformation("Changing organization {OrganizationId} to map to {OvoCode}", organizationId, ovoCode);
-            var command = new ChangeOrganization
-            {
-                Code = organizationId,
-                Name = organization.Name,
-                OvoCode = ovoCode
-            };
-            await _roadNetworkCommandQueue.WriteAsync(new Command(command), cancellationToken);
+            Logger.LogInformation("Organization {OvoNumber}: no changes", organization.OvoNumber);
         }
     }
 }

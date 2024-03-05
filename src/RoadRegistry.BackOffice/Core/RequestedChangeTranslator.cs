@@ -263,8 +263,8 @@ internal class RequestedChangeTranslator
         var status = RoadSegmentStatus.Parse(command.Status);
         var category = RoadSegmentCategory.Parse(command.Category);
         var accessRestriction = RoadSegmentAccessRestriction.Parse(command.AccessRestriction);
-        var leftSideStreetNameId = CrabStreetNameId.FromValue(command.LeftSideStreetNameId);
-        var rightSideStreetNameId = CrabStreetNameId.FromValue(command.RightSideStreetNameId);
+        var leftSideStreetNameId = StreetNameLocalId.FromValue(command.LeftSideStreetNameId);
+        var rightSideStreetNameId = StreetNameLocalId.FromValue(command.RightSideStreetNameId);
         
         var laneAttributes = await Translate(command.Lanes, permanent);
         var widthAttributes = await Translate(command.Widths, permanent);
@@ -339,8 +339,8 @@ internal class RequestedChangeTranslator
         var status = RoadSegmentStatus.Parse(command.Status);
         var category = RoadSegmentCategory.Parse(command.Category);
         var accessRestriction = RoadSegmentAccessRestriction.Parse(command.AccessRestriction);
-        var leftSideStreetNameId = CrabStreetNameId.FromValue(command.LeftSideStreetNameId);
-        var rightSideStreetNameId = CrabStreetNameId.FromValue(command.RightSideStreetNameId);
+        var leftSideStreetNameId = StreetNameLocalId.FromValue(command.LeftSideStreetNameId);
+        var rightSideStreetNameId = StreetNameLocalId.FromValue(command.RightSideStreetNameId);
         
         var laneAttributes = await Translate(command.Lanes, permanent);
         var widthAttributes = await Translate(command.Widths, permanent);

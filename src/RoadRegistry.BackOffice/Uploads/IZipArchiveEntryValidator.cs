@@ -4,5 +4,5 @@ using System.IO.Compression;
 
 public interface IZipArchiveEntryValidator
 {
-    (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, ZipArchiveValidationContext context);
+    ZipArchiveProblems Validate(ZipArchiveEntry entry);
 }

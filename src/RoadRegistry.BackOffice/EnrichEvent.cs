@@ -37,9 +37,6 @@ public static class EnrichEvent
                 case RoadNetworkChangesArchiveUploaded m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
-                case RoadNetworkChangesArchiveFeatureCompareCompleted m:
-                    m.When = pattern.Format(clock.GetCurrentInstant());
-                    break;
                 case RoadNetworkChangesArchiveAccepted m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
@@ -107,9 +104,6 @@ public static class EnrichEvent
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
                 case RoadNetworkExtractChangesArchiveRejected m:
-                    m.When = pattern.Format(clock.GetCurrentInstant());
-                    break;
-                case RoadNetworkExtractChangesArchiveFeatureCompareCompleted m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
                 case RebuildRoadNetworkSnapshotCompleted m:

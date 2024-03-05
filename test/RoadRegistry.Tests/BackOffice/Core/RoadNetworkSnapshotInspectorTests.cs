@@ -31,11 +31,11 @@ public class RoadNetworkSnapshotInspectorTests
 
     private string GetEventsConnectionString(DbEnvironment environment)
     {
-        return Configuration.GetConnectionString($"Events-{environment}") ?? Configuration.GetConnectionString("Events");
+        return Configuration.GetConnectionString($"Events-{environment}") ?? Configuration.GetRequiredConnectionString("Events");
     }
     private string GetEditorProjectionsConnectionString(DbEnvironment environment)
     {
-        return Configuration.GetConnectionString($"EditorProjections-{environment}") ?? Configuration.GetConnectionString("EditorProjections");
+        return Configuration.GetConnectionString($"EditorProjections-{environment}") ?? Configuration.GetRequiredConnectionString("EditorProjections");
     }
 
     private IStreamStore GetStreamStore(DbEnvironment dbEnvironment)
@@ -190,8 +190,8 @@ public class RoadNetworkSnapshotInspectorTests
                 RoadSegmentCategory.Parse(segment1.AttributeHash.Category),
                 RoadSegmentMorphology.Parse(segment1.AttributeHash.Morphology),
                 RoadSegmentStatus.Parse(segment1.AttributeHash.Status),
-                CrabStreetNameId.FromValue(segment1.AttributeHash.LeftSideStreetNameId),
-                CrabStreetNameId.FromValue(segment1.AttributeHash.RightSideStreetNameId),
+                StreetNameLocalId.FromValue(segment1.AttributeHash.LeftSideStreetNameId),
+                StreetNameLocalId.FromValue(segment1.AttributeHash.RightSideStreetNameId),
                 new OrganizationId(segment1.AttributeHash.OrganizationId),
                 RoadSegmentGeometryDrawMethod.Parse(segment1.AttributeHash.GeometryDrawMethod)
             );
@@ -200,8 +200,8 @@ public class RoadNetworkSnapshotInspectorTests
                 RoadSegmentCategory.Parse(segment2.AttributeHash.Category),
                 RoadSegmentMorphology.Parse(segment2.AttributeHash.Morphology),
                 RoadSegmentStatus.Parse(segment2.AttributeHash.Status),
-                CrabStreetNameId.FromValue(segment2.AttributeHash.LeftSideStreetNameId),
-                CrabStreetNameId.FromValue(segment2.AttributeHash.RightSideStreetNameId),
+                StreetNameLocalId.FromValue(segment2.AttributeHash.LeftSideStreetNameId),
+                StreetNameLocalId.FromValue(segment2.AttributeHash.RightSideStreetNameId),
                 new OrganizationId(segment2.AttributeHash.OrganizationId),
                 RoadSegmentGeometryDrawMethod.Parse(segment2.AttributeHash.GeometryDrawMethod)
             );

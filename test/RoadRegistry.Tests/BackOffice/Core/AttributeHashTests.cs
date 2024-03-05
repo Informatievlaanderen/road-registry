@@ -70,8 +70,8 @@ public class AttributeHashTests
     [Fact]
     public void DiffersWhenLeftSideDiffers()
     {
-        var value1 = _fixture.Create<CrabStreetNameId?>();
-        var value2 = new Generator<CrabStreetNameId?>(_fixture)
+        var value1 = _fixture.Create<StreetNameLocalId?>();
+        var value2 = new Generator<StreetNameLocalId?>(_fixture)
             .First(candidate => candidate != value1);
         var sut = _fixture.Create<AttributeHash>();
         var left = sut.WithLeftSide(value1);
@@ -105,7 +105,7 @@ public class AttributeHashTests
     [Fact]
     public void DiffersWhenRightSideDiffers()
     {
-        var value1 = _fixture.Create<CrabStreetNameId?>();
+        var value1 = _fixture.Create<StreetNameLocalId?>();
         var value2 = _fixture.CreateWhichIsDifferentThan(value1);
         var sut = _fixture.Create<AttributeHash>();
         var left = sut.WithRightSide(value1);

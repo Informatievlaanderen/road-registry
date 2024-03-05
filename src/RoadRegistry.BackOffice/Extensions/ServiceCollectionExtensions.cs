@@ -6,20 +6,22 @@ using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Configuration;
 using Core;
 using FeatureCompare;
+using FeatureCompare.Readers;
 using FeatureCompare.Translators;
+using FeatureCompare.Validation;
 using FeatureToggle;
-using FeatureToggles;
 using Framework;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using NodaTime;
+using Uploads;
 
 public static class ServiceCollectionExtensions
 {
@@ -140,23 +142,11 @@ public static class ServiceCollectionExtensions
                 var configuration = sp.GetRequiredService<IConfiguration>();
                 return new RoadNetworkSnapshotsBlobClient(
                     new SqlBlobClient(
-                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellKnownConnectionNames.Snapshots)),
+                        new SqlConnectionStringBuilder(configuration.GetRequiredConnectionString(WellKnownConnectionNames.Snapshots)),
                         WellKnownSchemas.SnapshotSchema));
             })
-            .AddSingleton<IRoadNetworkSnapshotReader>(sp =>
-            {
-                var featureToggle = sp.GetRequiredService<UseSnapshotSqsRequestFeatureToggle>();
-                return featureToggle.FeatureEnabled
-                    ? new RoadNetworkSnapshotReader(sp.GetRequiredService<S3CacheService>())
-                    : new RoadNetworkSnapshotReaderWriter(sp.GetRequiredService<RoadNetworkSnapshotsBlobClient>(), sp.GetRequiredService<RecyclableMemoryStreamManager>());
-            })
-            .AddSingleton<IRoadNetworkSnapshotWriter>(sp =>
-            {
-                var featureToggle = sp.GetRequiredService<UseSnapshotSqsRequestFeatureToggle>();
-                return featureToggle.FeatureEnabled
-                    ? new RoadNetworkSnapshotWriter(sp.GetRequiredService<S3CacheService>())
-                    : new RoadNetworkSnapshotReaderWriter(sp.GetRequiredService<RoadNetworkSnapshotsBlobClient>(), sp.GetRequiredService<RecyclableMemoryStreamManager>());
-            });
+            .AddSingleton<IRoadNetworkSnapshotReader, RoadNetworkSnapshotReader>()
+            .AddSingleton<IRoadNetworkSnapshotWriter, RoadNetworkSnapshotWriter>();
     }
 
     public static IServiceCollection RegisterOptions<TOptions>(this IServiceCollection services, Action<TOptions> validateOptions = null)
@@ -193,7 +183,7 @@ public static class ServiceCollectionExtensions
             });
     }
 
-    public static IServiceCollection AddFeatureCompareTranslator(this IServiceCollection services)
+    public static IServiceCollection AddFeatureCompare(this IServiceCollection services)
     {
         return services
             .AddSingleton<TransactionZoneFeatureCompareFeatureReader>()
@@ -207,18 +197,29 @@ public static class ServiceCollectionExtensions
             .AddSingleton<NumberedRoadFeatureCompareFeatureReader>()
             .AddSingleton<GradeSeparatedJunctionFeatureCompareFeatureReader>()
 
-            .AddScoped<TransactionZoneFeatureCompareTranslator>()
-            .AddScoped<RoadNodeFeatureCompareTranslator>()
-            .AddScoped<RoadSegmentFeatureCompareTranslator>()
-            .AddScoped<RoadSegmentLaneFeatureCompareTranslator>()
-            .AddScoped<RoadSegmentWidthFeatureCompareTranslator>()
-            .AddScoped<RoadSegmentSurfaceFeatureCompareTranslator>()
-            .AddScoped<EuropeanRoadFeatureCompareTranslator>()
-            .AddScoped<NationalRoadFeatureCompareTranslator>()
-            .AddScoped<NumberedRoadFeatureCompareTranslator>()
-            .AddScoped<GradeSeparatedJunctionFeatureCompareTranslator>()
+            .AddSingleton<TransactionZoneFeatureCompareTranslator>()
+            .AddSingleton<RoadNodeFeatureCompareTranslator>()
+            .AddSingleton<RoadSegmentFeatureCompareTranslator>()
+            .AddSingleton<RoadSegmentLaneFeatureCompareTranslator>()
+            .AddSingleton<RoadSegmentWidthFeatureCompareTranslator>()
+            .AddSingleton<RoadSegmentSurfaceFeatureCompareTranslator>()
+            .AddSingleton<EuropeanRoadFeatureCompareTranslator>()
+            .AddSingleton<NationalRoadFeatureCompareTranslator>()
+            .AddSingleton<NumberedRoadFeatureCompareTranslator>()
+            .AddSingleton<GradeSeparatedJunctionFeatureCompareTranslator>()
+            .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
 
-            .AddScoped<IZipArchiveFeatureCompareTranslator, ZipArchiveFeatureCompareTranslator>()
+            .AddSingleton<TransactionZoneZipArchiveValidator>()
+            .AddSingleton<RoadNodeZipArchiveValidator>()
+            .AddSingleton<RoadSegmentZipArchiveValidator>()
+            .AddSingleton<RoadSegmentLaneZipArchiveValidator>()
+            .AddSingleton<RoadSegmentWidthZipArchiveValidator>()
+            .AddSingleton<RoadSegmentSurfaceZipArchiveValidator>()
+            .AddSingleton<EuropeanRoadZipArchiveValidator>()
+            .AddSingleton<NationalRoadZipArchiveValidator>()
+            .AddSingleton<NumberedRoadZipArchiveValidator>()
+            .AddSingleton<GradeSeparatedJunctionZipArchiveValidator>()
+            .AddSingleton<IZipArchiveFeatureCompareTranslator, ZipArchiveFeatureCompareTranslator>()
             ;
     }
 }

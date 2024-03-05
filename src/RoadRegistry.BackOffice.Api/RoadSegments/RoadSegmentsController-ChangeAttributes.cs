@@ -8,7 +8,6 @@ using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using ChangeAttributes;
-using FeatureToggles;
 using FluentValidation;
 using Handlers.Sqs.RoadSegments;
 using Infrastructure.Authentication;
@@ -26,7 +25,6 @@ public partial class RoadSegmentsController
     /// <summary>
     ///     Wijzig een attribuutwaarde voor één of meerdere wegsegmenten.
     /// </summary>
-    /// <param name="featureToggle">Ingeschakelde functionaliteit of niet</param>
     /// <param name="parameters">Bevat de attributen die gewijzigd moeten worden</param>
     /// <param name="validator"></param>
     /// <param name="wrappedValidator"></param>
@@ -49,17 +47,11 @@ public partial class RoadSegmentsController
     [SwaggerRequestExample(typeof(ChangeRoadSegmentAttributesParameters), typeof(ChangeRoadSegmentAttributesParametersExamples))]
     [SwaggerOperation(OperationId = nameof(ChangeAttributes), Description = "Attributen wijzigen van een wegsegment: status, toegangsbeperking, wegklasse, wegbeheerder, wegcategorie, Europese wegen, nationale wegen en genummerde wegen.")]
     public async Task<IActionResult> ChangeAttributes(
-        [FromServices] UseRoadSegmentChangeAttributesFeatureToggle featureToggle,
         [FromBody] ChangeRoadSegmentAttributesParameters parameters,
         [FromServices] ChangeRoadSegmentAttributesParametersValidator validator,
         [FromServices] ChangeRoadSegmentAttributesParametersWrapperValidator wrappedValidator,
         CancellationToken cancellationToken)
     {
-        if (!featureToggle.FeatureEnabled)
-        {
-            return NotFound();
-        }
-
         try
         {
             await validator.ValidateAndThrowAsync(parameters, cancellationToken);

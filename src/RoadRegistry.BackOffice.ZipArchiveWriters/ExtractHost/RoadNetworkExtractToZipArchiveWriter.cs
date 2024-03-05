@@ -6,7 +6,6 @@ using Abstractions;
 using Editor.Schema;
 using Extracts;
 using Extracts.Dbase.Lists;
-using FeatureToggles;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 
@@ -19,22 +18,18 @@ public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter<EditorCont
         IStreetNameCache streetNameCache,
         RecyclableMemoryStreamManager manager,
         Encoding encoding,
-        ILogger<RoadNetworkExtractToZipArchiveWriter> logger,
-        UseNetTopologySuiteShapeReaderWriterFeatureToggle useNetTopologySuiteShapeReaderWriterFeatureToggle)
+        ILogger<RoadNetworkExtractToZipArchiveWriter> logger)
     {
         ArgumentNullException.ThrowIfNull(zipArchiveWriterOptions);
         ArgumentNullException.ThrowIfNull(streetNameCache);
         ArgumentNullException.ThrowIfNull(manager);
         ArgumentNullException.ThrowIfNull(encoding);
         ArgumentNullException.ThrowIfNull(logger);
-        ArgumentNullException.ThrowIfNull(useNetTopologySuiteShapeReaderWriterFeatureToggle);
 
         _writer = new CompositeZipArchiveWriter<EditorContext>(logger,
             new ReadCommittedZipArchiveWriter<EditorContext>(
                 new CompositeZipArchiveWriter<EditorContext>(logger, 
-                    useNetTopologySuiteShapeReaderWriterFeatureToggle.FeatureEnabled
-                        ? new TransactionZoneToZipArchiveWriterNetTopologySuite(encoding)
-                        : new TransactionZoneToZipArchiveWriter(encoding),
+                     new TransactionZoneToZipArchiveWriter(encoding),
                     new OrganizationsToZipArchiveWriter(manager, encoding),
                     new RoadNodesToZipArchiveWriter(manager, encoding),
                     new RoadSegmentsToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, manager, encoding),

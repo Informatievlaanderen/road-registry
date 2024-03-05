@@ -40,7 +40,6 @@ public class ProductContext : RunnerDbContext<ProductContext>
     public DbSet<RoadSegmentNationalRoadAttributeRecord> RoadSegmentNationalRoadAttributes { get; set; }
     public DbSet<RoadSegmentNumberedRoadAttributeRecord> RoadSegmentNumberedRoadAttributes { get; set; }
     public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
-    public DbSet<RoadSegmentV2Record> RoadSegmentsV2 { get; set; }
     public DbSet<RoadSegmentSurfaceAttributeRecord> RoadSegmentSurfaceAttributes { get; set; }
     public DbSet<RoadSegmentWidthAttributeRecord> RoadSegmentWidthAttributes { get; set; }
 

@@ -274,7 +274,7 @@ public class ApiModule : Module
 
     private void RegisterProjection<TContext>(ProjectionDetail projectionDetail) where TContext : DbContext
     {
-        var connection = _configuration.GetConnectionString(projectionDetail.WellKnownConnectionName);
+        var connection = _configuration.GetRequiredConnectionString(projectionDetail.WellKnownConnectionName);
         var dbContextOptions = new DbContextOptionsBuilder<TContext>()
             .UseSqlServer(connection, o => o
                 .EnableRetryOnFailure()

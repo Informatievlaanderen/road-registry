@@ -60,8 +60,8 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                 var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(testData.Segment1Added.GeometryDrawMethod).Translation;
                 var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(testData.Segment1Added.AccessRestriction).Translation;
 
-                editorContext.RoadSegmentsV2.Add(
-                    new RoadSegmentV2Record
+                editorContext.RoadSegments.Add(
+                    new RoadSegmentRecord
                     {
                         Id = testData.Segment1Added.Id,
                         StartNodeId = testData.Segment1Added.StartNodeId,
@@ -124,8 +124,8 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                 var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(testData.Segment1Added.GeometryDrawMethod).Translation;
                 var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(testData.Segment1Added.AccessRestriction).Translation;
 
-                editorContext.RoadSegmentsV2.Add(
-                    new RoadSegmentV2Record
+                editorContext.RoadSegments.Add(
+                    new RoadSegmentRecord
                     {
                         Id = testData.Segment1Added.Id,
                         StartNodeId = testData.Segment1Added.StartNodeId,
@@ -219,7 +219,6 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                 lifetimeScope.Resolve<EditorContext>,
                 _memoryStreamManager,
                 _fileEncoding,
-                new UseRoadSegmentV2EventProcessorFeatureToggle(false),
                 _loggerFactory.CreateLogger<StreetNameEventConsumer>()
             ), store, topicConsumer);
         }

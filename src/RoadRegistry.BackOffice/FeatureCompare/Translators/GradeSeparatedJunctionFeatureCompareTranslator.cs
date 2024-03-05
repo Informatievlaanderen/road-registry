@@ -4,6 +4,7 @@ using Extracts;
 using Extracts.Dbase.GradeSeparatedJuntions;
 using FeatureToggles;
 using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice.FeatureCompare.Readers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,15 +15,12 @@ using Uploads;
 
 public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTranslatorBase<GradeSeparatedJunctionFeatureCompareAttributes>
 {
-    private readonly UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle _useGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle;
     private const ExtractFileName FileName = ExtractFileName.RltOgkruising;
 
     public GradeSeparatedJunctionFeatureCompareTranslator(
-        GradeSeparatedJunctionFeatureCompareFeatureReader featureReader,
-        UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle useGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle)
+        GradeSeparatedJunctionFeatureCompareFeatureReader featureReader)
         : base(featureReader)
     {
-        _useGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle = useGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle;
     }
     
     public override async Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
@@ -95,13 +93,10 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
                 .AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber)
                 .WithIdentifier(nameof(GradeSeparatedJunctionDbaseRecord.OK_OIDN), changeFeature.Attributes.Id);
 
-            if (_useGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle.FeatureEnabled)
+            if (changeFeature.Attributes.LowerRoadSegmentId == changeFeature.Attributes.UpperRoadSegmentId)
             {
-                if (changeFeature.Attributes.LowerRoadSegmentId == changeFeature.Attributes.UpperRoadSegmentId)
-                {
-                    problems += recordContext.GradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegment(changeFeature.Attributes.LowerRoadSegmentId);
-                    continue;
-                }
+                problems += recordContext.GradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegment(changeFeature.Attributes.LowerRoadSegmentId);
+                continue;
             }
 
             var boWegsegmentFeature = FindRoadSegmentByOriginalId(changeFeature.Attributes.UpperRoadSegmentId);

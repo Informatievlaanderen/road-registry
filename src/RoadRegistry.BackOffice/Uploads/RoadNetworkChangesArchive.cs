@@ -8,9 +8,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.AfterFeatureCompare.V2.Schema;
 using Extensions;
 using Extracts;
+using Extracts.Dbase;
 using FeatureCompare;
 using Framework;
 using Messages;
@@ -27,54 +27,33 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
             Description = !string.IsNullOrEmpty(e.Description)
                 ? new ExtractDescription(e.Description)
                 : new ExtractDescription();
-            FeatureCompareCompleted = false;
-        });
-        On<RoadNetworkChangesArchiveFeatureCompareCompleted>(e =>
-        {
-            Id = new ArchiveId(e.ArchiveId);
-            Description = !string.IsNullOrEmpty(e.Description)
-                ? new ExtractDescription(e.Description)
-                : new ExtractDescription();
-            FeatureCompareCompleted = true;
         });
     }
 
     public ArchiveId Id { get; private set; }
     public ExtractDescription Description { get; private set; }
-    public bool FeatureCompareCompleted { get; private set; }
 
-    public static RoadNetworkChangesArchive Upload(ArchiveId id, Stream readStream, bool featureCompareCompleted = false)
+    public static RoadNetworkChangesArchive Upload(ArchiveId id, Stream readStream)
     {
         var extractDescription = ReadExtractDescriptionFromArchive(readStream);
 
-        return Upload(id, extractDescription, featureCompareCompleted);
+        return Upload(id, extractDescription);
     }
 
-    public static RoadNetworkChangesArchive Upload(ArchiveId id, ExtractDescription extractDescription, bool featureCompareCompleted = false)
+    public static RoadNetworkChangesArchive Upload(ArchiveId id, ExtractDescription extractDescription)
     {
         var instance = new RoadNetworkChangesArchive();
 
-        if (featureCompareCompleted)
+        instance.Apply(new RoadNetworkChangesArchiveUploaded
         {
-            instance.Apply(new RoadNetworkChangesArchiveFeatureCompareCompleted
-            {
-                ArchiveId = id,
-                Description = extractDescription
-            });
-        }
-        else
-        {
-            instance.Apply(new RoadNetworkChangesArchiveUploaded
-            {
-                ArchiveId = id,
-                Description = extractDescription
-            });
-        }
+            ArchiveId = id,
+            Description = extractDescription
+        });
 
         return instance;
     }
 
-    public async Task<ZipArchiveProblems> ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator, bool useZipArchiveFeatureCompareTranslator, CancellationToken cancellationToken)
+    public async Task<ZipArchiveProblems> ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator, CancellationToken cancellationToken)
     {
         var problems = await validator.ValidateAsync(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty), cancellationToken);
         if (!problems.OfType<FileError>().Any())
@@ -83,8 +62,7 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
                 {
                     ArchiveId = Id,
                     Description = Description,
-                    Problems = problems.Select(problem => problem.Translate()).ToArray(),
-                    UseZipArchiveFeatureCompareTranslator = useZipArchiveFeatureCompareTranslator
+                    Problems = problems.Select(problem => problem.Translate()).ToArray()
                 });
         else
             Apply(

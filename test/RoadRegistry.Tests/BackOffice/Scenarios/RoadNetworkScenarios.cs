@@ -3377,12 +3377,12 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                 TestData.Segment2Added.AccessRestriction = TestData.AddSegment2.AccessRestriction;
                 break;
             case 5:
-                TestData.AddSegment2.LeftSideStreetNameId = new Generator<CrabStreetNameId?>(ObjectProvider)
+                TestData.AddSegment2.LeftSideStreetNameId = new Generator<StreetNameLocalId?>(ObjectProvider)
                     .First(candidate => candidate != TestData.AddSegment1.LeftSideStreetNameId);
                 TestData.Segment2Added.LeftSide.StreetNameId = TestData.AddSegment2.LeftSideStreetNameId;
                 break;
             case 6:
-                TestData.AddSegment2.RightSideStreetNameId = new Generator<CrabStreetNameId?>(ObjectProvider)
+                TestData.AddSegment2.RightSideStreetNameId = new Generator<StreetNameLocalId?>(ObjectProvider)
                     .First(candidate => candidate != TestData.AddSegment1.RightSideStreetNameId);
                 TestData.Segment2Added.RightSide.StreetNameId = TestData.AddSegment2.RightSideStreetNameId;
                 break;

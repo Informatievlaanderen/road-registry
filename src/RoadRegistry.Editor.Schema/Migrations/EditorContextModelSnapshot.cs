@@ -680,75 +680,6 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
-                    b.Property<double?>("BoundingBoxMaximumM")
-                        .HasColumnType("float")
-                        .HasColumnName("BoundingBox_MaximumM");
-
-                    b.Property<double?>("BoundingBoxMaximumX")
-                        .HasColumnType("float")
-                        .HasColumnName("BoundingBox_MaximumX");
-
-                    b.Property<double?>("BoundingBoxMaximumY")
-                        .HasColumnType("float")
-                        .HasColumnName("BoundingBox_MaximumY");
-
-                    b.Property<double?>("BoundingBoxMinimumM")
-                        .HasColumnType("float")
-                        .HasColumnName("BoundingBox_MinimumM");
-
-                    b.Property<double?>("BoundingBoxMinimumX")
-                        .HasColumnType("float")
-                        .HasColumnName("BoundingBox_MinimumX");
-
-                    b.Property<double?>("BoundingBoxMinimumY")
-                        .HasColumnType("float")
-                        .HasColumnName("BoundingBox_MinimumY");
-
-                    b.Property<byte[]>("DbaseRecord")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<int>("EndNodeId")
-                        .HasColumnType("int");
-
-                    b.Property<Geometry>("Geometry")
-                        .IsRequired()
-                        .HasColumnType("Geometry");
-
-                    b.Property<bool>("IsRemoved")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("LastEventHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<byte[]>("ShapeRecordContent")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<int>("ShapeRecordContentLength")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StartNodeId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
-
-                    b.HasIndex("IsRemoved");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("IsRemoved"), false);
-
-                    b.ToTable("RoadSegment", "RoadRegistryEditor");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadSegments.RoadSegmentV2Record", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
                     b.Property<int>("AccessRestrictionId")
                         .HasColumnType("int");
 
@@ -874,7 +805,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("RightSideStreetNameId"), false);
 
-                    b.ToTable("RoadSegmentV2", "RoadRegistryEditor");
+                    b.ToTable("RoadSegment", "RoadRegistryEditor");
                 });
 #pragma warning restore 612, 618
         }

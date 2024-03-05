@@ -36,7 +36,6 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly Func<EditorContext> _editorContextFactory;
     private readonly FileEncoding _encoding;
-    private readonly UseRoadSegmentV2EventProcessorFeatureToggle _useRoadSegmentV2EventProcessorFeatureToggle;
 
     public StreetNameEventConsumer(
         ILifetimeScope container,
@@ -47,7 +46,6 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         Func<EditorContext> editorContextFactory,
         RecyclableMemoryStreamManager manager,
         FileEncoding encoding,
-        UseRoadSegmentV2EventProcessorFeatureToggle useRoadSegmentV2EventProcessorFeatureToggle,
         ILogger<StreetNameEventConsumer> logger
     ) : base(logger)
     {
@@ -59,7 +57,6 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         _editorContextFactory = editorContextFactory.ThrowIfNull();
         _manager = manager.ThrowIfNull();
         _encoding = encoding.ThrowIfNull();
-        _useRoadSegmentV2EventProcessorFeatureToggle = useRoadSegmentV2EventProcessorFeatureToggle.ThrowIfNull();
     }
 
     protected override async Task ExecutingAsync(CancellationToken cancellationToken)
@@ -104,9 +101,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
     
     private async Task<Command> BuildRoadNetworkCommand(StreetNameWasRemovedV2 message, CancellationToken cancellationToken)
     {
-        var waitForProjectionStateName = _useRoadSegmentV2EventProcessorFeatureToggle.FeatureEnabled
-            ? WellKnownProjectionStateNames.RoadRegistryEditorRoadSegmentV2ProjectionHost
-            : WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
+        var waitForProjectionStateName = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
 
         using (var editorContext = _editorContextFactory())
         {
@@ -114,7 +109,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
 
             var changeRoadNetwork = await BuildChangeRoadNetworkToConnectRoadSegmentsToDifferentStreetName(
                 message.PersistentLocalId,
-                CrabStreetNameId.NotApplicable,
+                StreetNameLocalId.NotApplicable,
                 $"Wegsegmenten ontkoppelen van straatnaam {message.PersistentLocalId}",
                 editorContext,
                 cancellationToken);
@@ -129,9 +124,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
 
     private async Task<Command> BuildRoadNetworkCommand(StreetNameWasRenamed message, CancellationToken cancellationToken)
     {
-        var waitForProjectionStateName = _useRoadSegmentV2EventProcessorFeatureToggle.FeatureEnabled
-            ? WellKnownProjectionStateNames.RoadRegistryEditorRoadSegmentV2ProjectionHost
-            : WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
+        var waitForProjectionStateName = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
 
         using (var editorContext = _editorContextFactory())
         {
@@ -154,7 +147,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
 
     private async Task<ChangeRoadNetwork> BuildChangeRoadNetworkToConnectRoadSegmentsToDifferentStreetName(int sourceStreetNameId, int destinationStreetNameId, string reason, EditorContext editorContext, CancellationToken cancellationToken)
     {
-        var segments = await editorContext.RoadSegmentsV2
+        var segments = await editorContext.RoadSegments
             .ToListIncludingLocalAsync(x => x.LeftSideStreetNameId == sourceStreetNameId || x.RightSideStreetNameId == sourceStreetNameId, cancellationToken);
         if (!segments.Any())
         {
@@ -185,6 +178,8 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
 
         foreach (var roadSegment in segments)
         {
+            Logger.LogInformation("Linking RoadSegment {Id} to StreetName {StreetNameId}", roadSegment.Id, destinationStreetNameId);
+
             var modifyRoadSegment = new BackOffice.Uploads.ModifyRoadSegment(
                 recordNumber,
                 new RoadSegmentId(roadSegment.Id),
@@ -196,18 +191,22 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
                 RoadSegmentStatus.ByIdentifier[roadSegment.StatusId],
                 RoadSegmentCategory.ByIdentifier[roadSegment.CategoryId],
                 RoadSegmentAccessRestriction.ByIdentifier[roadSegment.AccessRestrictionId],
-                roadSegment.LeftSideStreetNameId == sourceStreetNameId ? CrabStreetNameId.FromValue(destinationStreetNameId) : CrabStreetNameId.FromValue(roadSegment.LeftSideStreetNameId),
-                roadSegment.RightSideStreetNameId == sourceStreetNameId ? CrabStreetNameId.FromValue(destinationStreetNameId) : CrabStreetNameId.FromValue(roadSegment.RightSideStreetNameId)
+                roadSegment.LeftSideStreetNameId == sourceStreetNameId ? StreetNameLocalId.FromValue(destinationStreetNameId) : StreetNameLocalId.FromValue(roadSegment.LeftSideStreetNameId),
+                roadSegment.RightSideStreetNameId == sourceStreetNameId ? StreetNameLocalId.FromValue(destinationStreetNameId) : StreetNameLocalId.FromValue(roadSegment.RightSideStreetNameId)
             ).WithGeometry(roadSegment.Geometry.ToMultiLineString());
-
+            
             var roadSegmentLanes = lanes
                 .Where(x => x.RoadSegmentId == roadSegment.Id)
                 .Select(x => new RoadSegmentLaneAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _encoding))
+                .ToList();
+            var validRoadSegmentLanes = roadSegmentLanes
                 .Where(x => x.VANPOS.Value.HasValue && x.TOTPOS.Value.HasValue)
                 .ToList();
-            if (roadSegmentLanes.Any())
+            Logger.LogInformation("{Lanes} lanes found, {InvalidLanes} lanes without VANPOS/TOTPOS value", roadSegmentLanes.Count, roadSegmentLanes.Count - validRoadSegmentLanes.Count);
+
+            if (validRoadSegmentLanes.Any())
             {
-                foreach (var lane in roadSegmentLanes)
+                foreach (var lane in validRoadSegmentLanes)
                 {
                     modifyRoadSegment = modifyRoadSegment.WithLane(new BackOffice.Uploads.RoadSegmentLaneAttribute(
                         attributeId,
@@ -236,9 +235,14 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
                 .Select(x => new RoadSegmentSurfaceAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _encoding))
                 .Where(x => x.VANPOS.Value.HasValue && x.TOTPOS.Value.HasValue)
                 .ToList();
-            if (roadSegmentSurfaces.Any())
+            var validRoadSegmentSurfaces = roadSegmentSurfaces
+                .Where(x => x.VANPOS.Value.HasValue && x.TOTPOS.Value.HasValue)
+                .ToList();
+            Logger.LogInformation("{Lanes} surfaces found, {InvalidLanes} surfaces without VANPOS/TOTPOS value", roadSegmentSurfaces.Count, roadSegmentSurfaces.Count - validRoadSegmentSurfaces.Count);
+
+            if (validRoadSegmentSurfaces.Any())
             {
-                foreach (var surface in roadSegmentSurfaces)
+                foreach (var surface in validRoadSegmentSurfaces)
                 {
                     modifyRoadSegment = modifyRoadSegment.WithSurface(new BackOffice.Uploads.RoadSegmentSurfaceAttribute(
                         attributeId,
@@ -265,9 +269,14 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
                 .Select(x => new RoadSegmentWidthAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _encoding))
                 .Where(x => x.VANPOS.Value.HasValue && x.TOTPOS.Value.HasValue)
                 .ToList();
-            if (roadSegmentWidths.Any())
+            var validRoadSegmentWidths = roadSegmentWidths
+                .Where(x => x.VANPOS.Value.HasValue && x.TOTPOS.Value.HasValue)
+                .ToList();
+            Logger.LogInformation("{Lanes} widths found, {InvalidLanes} widths without VANPOS/TOTPOS value", roadSegmentWidths.Count, roadSegmentWidths.Count - validRoadSegmentWidths.Count);
+
+            if (validRoadSegmentWidths.Any())
             {
-                foreach (var width in roadSegmentWidths)
+                foreach (var width in validRoadSegmentWidths)
                 {
                     modifyRoadSegment = modifyRoadSegment.WithWidth(new BackOffice.Uploads.RoadSegmentWidthAttribute(
                         attributeId,

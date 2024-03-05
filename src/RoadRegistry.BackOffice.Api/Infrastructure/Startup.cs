@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure;
 
 using Abstractions;
-using Abstractions.Configuration;
 using Amazon;
 using Amazon.DynamoDBv2;
 using Authentication;
@@ -62,7 +61,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using ZipArchiveWriters.Validation;
+using FeatureCompare.Validation;
 using DomainAssemblyMarker = Handlers.Sqs.DomainAssemblyMarker;
 using MediatorModule = Snapshot.Handlers.MediatorModule;
 using SystemClock = NodaTime.SystemClock;
@@ -272,15 +271,12 @@ public class Startup
             .AddSingleton(new AmazonDynamoDBClient(RegionEndpoint.EUWest1))
             .AddSingleton(FileEncoding.WindowsAnsi)
             .AddStreetNameCache()
-            .AddFeatureCompareTranslator()
-            .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
-            .AddSingleton<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
+            .AddFeatureCompare()
             .AddSingleton<IBeforeFeatureCompareZipArchiveCleaner, BeforeFeatureCompareZipArchiveCleaner>()
             .AddSingleton<ProblemDetailsHelper>()
             .RegisterOptions<ZipArchiveWriterOptions>()
             .RegisterOptions<ExtractDownloadsOptions>()
             .RegisterOptions<ExtractUploadsOptions>()
-            .RegisterOptions<FeatureCompareMessagingOptions>()
             .RegisterOptions<OpenIdConnectOptions>()
             .AddStreamStore()
             .AddSingleton<IClock>(SystemClock.Instance)
@@ -294,7 +290,7 @@ public class Startup
             .AddSingleton(new RecyclableMemoryStreamManager())
             .AddSingleton<IBlobClient>(new SqlBlobClient(
                 new SqlConnectionStringBuilder(
-                    _configuration.GetConnectionString(WellKnownConnectionNames.Snapshots)),
+                    _configuration.GetRequiredConnectionString(WellKnownConnectionNames.Snapshots)),
                 WellKnownSchemas.SnapshotSchema))
             .AddRoadRegistrySnapshot()
             .AddRoadNetworkEventWriter()
@@ -308,7 +304,6 @@ public class Startup
                         sp.GetService<ILifetimeScope>(),
                         sp.GetService<IRoadNetworkSnapshotReader>(),
                         sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
-                        sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                         sp.GetService<IClock>(),
                         sp.GetService<ILoggerFactory>()
                     ),
@@ -328,7 +323,6 @@ public class Startup
                         sp.GetService<ILifetimeScope>(),
                         sp.GetService<IRoadNetworkSnapshotReader>(),
                         sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
-                        sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                         sp.GetService<IExtractUploadFailedEmailClient>(),
                         sp.GetService<IClock>(),
                         sp.GetService<ILoggerFactory>()

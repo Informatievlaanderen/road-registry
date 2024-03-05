@@ -14,6 +14,7 @@ using Schema;
 using Schema.Extensions;
 using Schema.RoadSegments;
 using System;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -41,6 +42,36 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
             var categoryTranslation = RoadSegmentCategory.Parse(envelope.Message.Category).Translation;
             var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod).Translation;
             var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(envelope.Message.AccessRestriction).Translation;
+            var transactionId = new TransactionId(envelope.Message.Origin.TransactionId);
+
+            var dbaseRecord = new RoadSegmentDbaseRecord
+            {
+                WS_OIDN = { Value = envelope.Message.Id },
+                WS_UIDN = { Value = new UIDN(envelope.Message.Id, envelope.Message.Version) },
+                WS_GIDN = { Value = new UIDN(envelope.Message.Id, envelope.Message.GeometryVersion) },
+                B_WK_OIDN = { Value = envelope.Message.StartNodeId },
+                E_WK_OIDN = { Value = envelope.Message.EndNodeId },
+                STATUS = { Value = statusTranslation.Identifier },
+                LBLSTATUS = { Value = statusTranslation.Name },
+                MORF = { Value = morphologyTranslation.Identifier },
+                LBLMORF = { Value = morphologyTranslation.Name },
+                WEGCAT = { Value = categoryTranslation.Identifier },
+                LBLWEGCAT = { Value = categoryTranslation.Name },
+                LSTRNMID = { Value = envelope.Message.LeftSide.StreetNameId },
+                LSTRNM = { Value = envelope.Message.LeftSide.StreetName },
+                RSTRNMID = { Value = envelope.Message.RightSide.StreetNameId },
+                RSTRNM = { Value = envelope.Message.RightSide.StreetName },
+                BEHEER = { Value = envelope.Message.MaintenanceAuthority.Code },
+                LBLBEHEER = { Value = OrganizationName.FromValueWithFallback(envelope.Message.MaintenanceAuthority.Name) },
+                METHODE = { Value = geometryDrawMethodTranslation.Identifier },
+                LBLMETHOD = { Value = geometryDrawMethodTranslation.Name },
+                OPNDATUM = { Value = envelope.Message.RecordingDate },
+                BEGINTIJD = { Value = envelope.Message.Origin.Since },
+                BEGINORG = { Value = envelope.Message.Origin.OrganizationId },
+                LBLBGNORG = { Value = envelope.Message.Origin.Organization },
+                TGBEP = { Value = accessRestrictionTranslation.Identifier },
+                LBLTGBEP = { Value = accessRestrictionTranslation.Name }
+            };
 
             await context.RoadSegments.AddAsync(
                 UpdateHash(new RoadSegmentRecord
@@ -51,34 +82,26 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                     ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding),
                     ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
                     Geometry = BackOffice.GeometryTranslator.Translate(envelope.Message.Geometry),
-                    DbaseRecord = new RoadSegmentDbaseRecord
-                    {
-                        WS_OIDN = { Value = envelope.Message.Id },
-                        WS_UIDN = { Value = new UIDN(envelope.Message.Id, envelope.Message.Version) },
-                        WS_GIDN = { Value = new UIDN(envelope.Message.Id, envelope.Message.GeometryVersion) },
-                        B_WK_OIDN = { Value = envelope.Message.StartNodeId },
-                        E_WK_OIDN = { Value = envelope.Message.EndNodeId },
-                        STATUS = { Value = statusTranslation.Identifier },
-                        LBLSTATUS = { Value = statusTranslation.Name },
-                        MORF = { Value = morphologyTranslation.Identifier },
-                        LBLMORF = { Value = morphologyTranslation.Name },
-                        WEGCAT = { Value = categoryTranslation.Identifier },
-                        LBLWEGCAT = { Value = categoryTranslation.Name },
-                        LSTRNMID = { Value = envelope.Message.LeftSide.StreetNameId },
-                        LSTRNM = { Value = envelope.Message.LeftSide.StreetName },
-                        RSTRNMID = { Value = envelope.Message.RightSide.StreetNameId },
-                        RSTRNM = { Value = envelope.Message.RightSide.StreetName },
-                        BEHEER = { Value = envelope.Message.MaintenanceAuthority.Code },
-                        LBLBEHEER = { Value = OrganizationName.FromValueWithFallback(envelope.Message.MaintenanceAuthority.Name) },
-                        METHODE = { Value = geometryDrawMethodTranslation.Identifier },
-                        LBLMETHOD = { Value = geometryDrawMethodTranslation.Name },
-                        OPNDATUM = { Value = envelope.Message.RecordingDate },
-                        BEGINTIJD = { Value = envelope.Message.Origin.Since },
-                        BEGINORG = { Value = envelope.Message.Origin.OrganizationId },
-                        LBLBGNORG = { Value = envelope.Message.Origin.Organization },
-                        TGBEP = { Value = accessRestrictionTranslation.Identifier },
-                        LBLTGBEP = { Value = accessRestrictionTranslation.Name }
-                    }.ToBytes(manager, encoding)
+                    
+                    Version = envelope.Message.Version,
+                    GeometryVersion = envelope.Message.GeometryVersion,
+                    StatusId = statusTranslation.Identifier,
+                    MorphologyId = morphologyTranslation.Identifier,
+                    CategoryId = categoryTranslation.Identifier,
+                    LeftSideStreetNameId = envelope.Message.LeftSide.StreetNameId,
+                    RightSideStreetNameId = envelope.Message.RightSide.StreetNameId,
+                    MaintainerId = envelope.Message.MaintenanceAuthority.Code,
+                    MaintainerName = OrganizationName.FromValueWithFallback(envelope.Message.MaintenanceAuthority.Name),
+                    MethodId = geometryDrawMethodTranslation.Identifier,
+                    AccessRestrictionId = accessRestrictionTranslation.Identifier,
+
+                    TransactionId = transactionId,
+                    RecordingDate = envelope.Message.RecordingDate,
+                    BeginTime = envelope.Message.Origin.Since,
+                    BeginOrganizationId = envelope.Message.Origin.OrganizationId,
+                    BeginOrganizationName = envelope.Message.Origin.Organization,
+
+                    DbaseRecord = dbaseRecord.ToBytes(manager, encoding)
                 }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape)), envelope.Message),
                 token);
         });
@@ -108,6 +131,21 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                         await RemoveRoadSegment(manager, encoding, context, roadSegmentRemoved, envelope, token);
                         break;
                 }
+        });
+
+        When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+        });
+
+        When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            _logger.LogInformation("{Message} started", envelope.Message.GetType().Name);
+            if (envelope.Message.NameModified)
+            {
+                await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+            }
+            _logger.LogInformation("{Message} finished", envelope.Message.GetType().Name);
         });
     }
 
@@ -141,13 +179,32 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         var categoryTranslation = RoadSegmentCategory.Parse(roadSegmentAdded.Category).Translation;
         var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation;
         var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction).Translation;
+        var transactionId = new TransactionId(envelope.Message.TransactionId);
 
         dbRecord.StartNodeId = roadSegmentAdded.StartNodeId;
         dbRecord.EndNodeId = roadSegmentAdded.EndNodeId;
         dbRecord.ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding);
         dbRecord.ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32();
-        dbRecord.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         dbRecord.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentAdded.Geometry);
+        dbRecord.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
+
+        dbRecord.Version = roadSegmentAdded.Version;
+        dbRecord.GeometryVersion = roadSegmentAdded.GeometryVersion;
+        dbRecord.StatusId = statusTranslation.Identifier;
+        dbRecord.MorphologyId = morphologyTranslation.Identifier;
+        dbRecord.CategoryId = categoryTranslation.Identifier;
+        dbRecord.LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId;
+        dbRecord.RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId;
+        dbRecord.MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code;
+        dbRecord.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentAdded.MaintenanceAuthority.Name);
+        dbRecord.MethodId = geometryDrawMethodTranslation.Identifier;
+        dbRecord.AccessRestrictionId = accessRestrictionTranslation.Identifier;
+
+        dbRecord.TransactionId = transactionId;
+        dbRecord.RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        dbRecord.BeginOrganizationId = envelope.Message.OrganizationId;
+        dbRecord.BeginOrganizationName = envelope.Message.Organization;
 
         var dbaseRecord = new RoadSegmentDbaseRecord();
         if (dbRecord.DbaseRecord is not null)
@@ -194,10 +251,16 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(x => x.Id == roadSegmentModified.Id, token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments
+            .FindWithoutQueryFiltersAsync(x => x.Id == roadSegmentModified.Id, token)
+            .ConfigureAwait(false);
         if (dbRecord is null)
         {
-            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
+            dbRecord = new RoadSegmentRecord
+            {
+                Id = roadSegmentModified.Id
+            };
+            await context.RoadSegments.AddAsync(dbRecord, token);
         }
 
         var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentModified.Geometry));
@@ -207,15 +270,31 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         var categoryTranslation = RoadSegmentCategory.Parse(roadSegmentModified.Category).Translation;
         var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(roadSegmentModified.GeometryDrawMethod).Translation;
         var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(roadSegmentModified.AccessRestriction).Translation;
-        
+        var transactionId = new TransactionId(envelope.Message.TransactionId);
+
         dbRecord.Id = roadSegmentModified.Id;
         dbRecord.StartNodeId = roadSegmentModified.StartNodeId;
         dbRecord.EndNodeId = roadSegmentModified.EndNodeId;
         dbRecord.ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding);
         dbRecord.ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32();
-        dbRecord.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         dbRecord.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentModified.Geometry);
+        dbRecord.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
+        
+        dbRecord.Version = roadSegmentModified.Version;
+        dbRecord.GeometryVersion = roadSegmentModified.GeometryVersion;
+        dbRecord.StatusId = statusTranslation.Identifier;
+        dbRecord.MorphologyId = morphologyTranslation.Identifier;
+        dbRecord.CategoryId = categoryTranslation.Identifier;
+        dbRecord.LeftSideStreetNameId = roadSegmentModified.LeftSide.StreetNameId;
+        dbRecord.RightSideStreetNameId = roadSegmentModified.RightSide.StreetNameId;
+        dbRecord.MaintainerId = roadSegmentModified.MaintenanceAuthority.Code;
+        dbRecord.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentModified.MaintenanceAuthority.Name);
+        dbRecord.MethodId = geometryDrawMethodTranslation.Identifier;
+        dbRecord.AccessRestrictionId = accessRestrictionTranslation.Identifier;
 
+        dbRecord.TransactionId = transactionId;
+        dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        
         var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
         dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentModified.Id, roadSegmentModified.Version);
         dbaseRecord.WS_GIDN.Value = new UIDN(roadSegmentModified.Id, roadSegmentModified.GeometryVersion);
@@ -254,14 +333,20 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         var dbRecord = await context.RoadSegments.FindAsync(x => x.Id == roadSegmentAttributesModified.Id, token).ConfigureAwait(false);
         if (dbRecord is null)
         {
-            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentAttributesModified.Id} is not found");
+            throw new InvalidOperationException($"{nameof(RoadSegmentRecord)} with id {roadSegmentAttributesModified.Id} is not found");
         }
+        
+        dbRecord.Version = roadSegmentAttributesModified.Version;
+        dbRecord.TransactionId = new TransactionId(envelope.Message.TransactionId);
+        dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
         var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
 
         if (roadSegmentAttributesModified.Status is not null)
         {
             var statusTranslation = RoadSegmentStatus.Parse(roadSegmentAttributesModified.Status).Translation;
+
+            dbRecord.StatusId = statusTranslation.Identifier;
 
             dbaseRecord.STATUS.Value = statusTranslation.Identifier;
             dbaseRecord.LBLSTATUS.Value = statusTranslation.Name;
@@ -271,6 +356,8 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         {
             var morphologyTranslation = RoadSegmentMorphology.Parse(roadSegmentAttributesModified.Morphology).Translation;
 
+            dbRecord.MorphologyId = morphologyTranslation.Identifier;
+
             dbaseRecord.MORF.Value = morphologyTranslation.Identifier;
             dbaseRecord.LBLMORF.Value = morphologyTranslation.Name;
         }
@@ -278,6 +365,8 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         if (roadSegmentAttributesModified.Category is not null)
         {
             var categoryTranslation = RoadSegmentCategory.Parse(roadSegmentAttributesModified.Category).Translation;
+
+            dbRecord.CategoryId = categoryTranslation.Identifier;
 
             dbaseRecord.WEGCAT.Value = categoryTranslation.Identifier;
             dbaseRecord.LBLWEGCAT.Value = categoryTranslation.Name;
@@ -287,12 +376,17 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         {
             var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(roadSegmentAttributesModified.AccessRestriction).Translation;
 
+            dbRecord.AccessRestrictionId = accessRestrictionTranslation.Identifier;
+
             dbaseRecord.TGBEP.Value = accessRestrictionTranslation.Identifier;
             dbaseRecord.LBLTGBEP.Value = accessRestrictionTranslation.Name;
         }
 
         if (roadSegmentAttributesModified.MaintenanceAuthority is not null)
         {
+            dbRecord.MaintainerId = roadSegmentAttributesModified.MaintenanceAuthority.Code;
+            dbRecord.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentAttributesModified.MaintenanceAuthority.Name);
+
             dbaseRecord.BEHEER.Value = roadSegmentAttributesModified.MaintenanceAuthority.Code;
             dbaseRecord.LBLBEHEER.Value = OrganizationName.FromValueWithFallback(roadSegmentAttributesModified.MaintenanceAuthority.Name);
         }
@@ -315,22 +409,25 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         var dbRecord = await context.RoadSegments.FindAsync(x => x.Id == roadSegmentGeometryModified.Id, token).ConfigureAwait(false);
         if (dbRecord is null)
         {
-            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentGeometryModified.Id} is not found");
+            throw new InvalidOperationException($"{nameof(RoadSegmentRecord)} with id {roadSegmentGeometryModified.Id} is not found");
         }
-
-        var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
-
+        
         var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentGeometryModified.Geometry));
         var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
 
         dbRecord.ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding);
         dbRecord.ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32();
-        dbRecord.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         dbRecord.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentGeometryModified.Geometry);
+        dbRecord.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
 
-        dbaseRecord.WS_GIDN.Value = new UIDN(roadSegmentGeometryModified.Id, roadSegmentGeometryModified.GeometryVersion);
-
+        dbRecord.Version = roadSegmentGeometryModified.Version;
+        dbRecord.GeometryVersion = roadSegmentGeometryModified.GeometryVersion;
+        dbRecord.TransactionId = new TransactionId(envelope.Message.TransactionId);
+        dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        
+        var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
         dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentGeometryModified.Id, roadSegmentGeometryModified.Version);
+        dbaseRecord.WS_GIDN.Value = new UIDN(roadSegmentGeometryModified.Id, roadSegmentGeometryModified.GeometryVersion);
         dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
         dbRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
@@ -349,6 +446,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
 
         if (dbRecord is not null && !dbRecord.IsRemoved)
         {
+            dbRecord.TransactionId = new TransactionId(envelope.Message.TransactionId);
+            dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+
             var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
             dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
@@ -357,6 +457,40 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
 
             UpdateHash(dbRecord, roadSegmentRemoved);
         }
+    }
+
+    private async Task RenameOrganization(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        EditorContext context,
+        OrganizationId organizationId,
+        OrganizationName organizationName,
+        CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Renaming organizations started");
+        var batchIndex = 0;
+
+        var organizationIdValue = organizationId.ToString();
+
+        await context.RoadSegments
+            .ForEachBatchAsync(q => q.Where(x => x.MaintainerId == organizationIdValue), 5000, dbRecords =>
+            {
+                _logger.LogInformation("Processing batch {Batch}", batchIndex);
+
+                foreach (var dbRecord in dbRecords)
+                {
+                    dbRecord.MaintainerName = OrganizationName.FromValueWithFallback(organizationName);
+
+                    var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
+                    dbaseRecord.LBLBEHEER.Value = dbRecord.MaintainerName;
+                    dbRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
+                }
+
+                batchIndex++;
+                return Task.CompletedTask;
+            }, cancellationToken);
+
+        _logger.LogInformation("Renaming organizations finished");
     }
 
     private static RoadSegmentRecord UpdateHash<T>(RoadSegmentRecord entity, T message) where T : IHaveHash

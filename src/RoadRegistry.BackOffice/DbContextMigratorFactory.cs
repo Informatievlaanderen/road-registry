@@ -61,9 +61,7 @@ public abstract class DbContextMigratorFactory<TContext> : IDesignTimeDbContextF
 
     private DbContextOptionsBuilder<TContext> CreateOptionsBuilder(IConfiguration configuration)
     {
-        var connectionString = configuration?.GetConnectionString(_connectionStringName);
-        if (string.IsNullOrWhiteSpace(connectionString))
-            throw new InvalidOperationException($"Could not find a connection string with name '{connectionString}'");
+        var connectionString = configuration.GetRequiredConnectionString(_connectionStringName);
 
         var optionsBuilder = new DbContextOptionsBuilder<TContext>()
             .UseSqlServer(

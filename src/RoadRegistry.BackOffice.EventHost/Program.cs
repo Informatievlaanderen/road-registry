@@ -6,11 +6,8 @@ using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Configuration;
 using Core;
 using Extensions;
-using FeatureCompare;
-using FeatureCompare.Translators;
-using FeatureToggles;
+using FeatureCompare.Readers;
 using Framework;
-using Handlers;
 using Handlers.Sqs;
 using Handlers.Uploads;
 using Hosts;
@@ -52,19 +49,18 @@ public class Program
                     .AddSingleton<IEventProcessorPositionStore>(sp =>
                         new SqlEventProcessorPositionStore(
                             new SqlConnectionStringBuilder(
-                                sp.GetService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.EventHost)
+                                sp.GetService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.EventHost)
                             ),
                             WellKnownSchemas.EventHostSchema))
                     .AddEditorContext()
                     .AddOrganizationCache()
                     .AddStreetNameCache()
-                    .AddFeatureCompareTranslator()
+                    .AddFeatureCompare()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {
                         new RoadNetworkChangesArchiveEventModule(
                             sp.GetService<ILifetimeScope>(),
                             sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
-                            new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveTranslator>>()),
                             sp.GetRequiredService<IStreamStore>(),
                             ApplicationMetadata,
                             sp.GetRequiredService<TransactionZoneFeatureCompareFeatureReader>(),
@@ -72,13 +68,6 @@ public class Program
                             sp.GetService<IExtractUploadFailedEmailClient>(),
                             sp.GetRequiredService<ILogger<RoadNetworkChangesArchiveEventModule>>()
                         ),
-                        new RoadNetworkBackOfficeEventModule(
-                            sp.GetRequiredService<IStreamStore>(),
-                            sp.GetRequiredService<ILifetimeScope>(),
-                            sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
-                            sp.GetRequiredService<IRoadNetworkSnapshotWriter>(),
-                            sp.GetRequiredService<IClock>(),
-                            sp.GetRequiredService<ILoggerFactory>()),
                         new RoadNetworkSnapshotEventModule(
                             sp.GetRequiredService<IStreamStore>(),
                             sp.GetRequiredService<ILifetimeScope>(),
@@ -86,8 +75,7 @@ public class Program
                             sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                             sp.GetRequiredService<IRoadNetworkSnapshotWriter>(),
                             sp.GetRequiredService<IClock>(),
-                            sp.GetRequiredService<ILoggerFactory>(),
-                            sp.GetRequiredService<UseSnapshotSqsRequestFeatureToggle>())
+                            sp.GetRequiredService<ILoggerFactory>())
                     })
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));
@@ -109,7 +97,7 @@ public class Program
             {
                 builder
                     .RegisterModule<ContextModule>()
-                    .RegisterModule<RoadRegistry.Snapshot.Handlers.Sqs.MediatorModule>()
+                    .RegisterModule<Snapshot.Handlers.Sqs.MediatorModule>()
                     .RegisterModule<SqsHandlersModule>()
                     .RegisterModule<SnapshotSqsHandlersModule>();
 
@@ -120,8 +108,7 @@ public class Program
             .Build();
 
         await roadRegistryHost
-            .LogSqlServerConnectionStrings(new []
-            {
+            .LogSqlServerConnectionStrings(new[] {
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.EventHost,
                 WellKnownConnectionNames.EventHostAdmin,
@@ -137,11 +124,11 @@ public class Program
             {
                 await
                     new SqlBlobSchema(
-                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellKnownConnectionNames.SnapshotsAdmin))
+                        new SqlConnectionStringBuilder(configuration.GetRequiredConnectionString(WellKnownConnectionNames.SnapshotsAdmin))
                     ).CreateSchemaIfNotExists(WellKnownSchemas.SnapshotSchema).ConfigureAwait(false);
                 await
                     new SqlEventProcessorPositionStoreSchema(
-                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellKnownConnectionNames.EventHostAdmin))
+                        new SqlConnectionStringBuilder(configuration.GetRequiredConnectionString(WellKnownConnectionNames.EventHostAdmin))
                     ).CreateSchemaIfNotExists(WellKnownSchemas.EventHostSchema).ConfigureAwait(false);
             });
     }

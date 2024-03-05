@@ -59,7 +59,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var (result, problems) = await TranslateSucceeds(zipArchive, translator, validator);
 
         var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
-        Assert.Equal(CrabStreetNameId.NotApplicable, modifyRoadSegment.LeftSideStreetNameId);
+        Assert.Equal(StreetNameLocalId.NotApplicable, modifyRoadSegment.LeftSideStreetNameId);
 
         Assert.NotEmpty(problems);
         Assert.True(problems.All(x => x.Reason == "LeftStreetNameIdIsRemoved"));
@@ -87,7 +87,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var (result, problems) = await TranslateSucceeds(zipArchive, translator, validator);
 
         var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
-        Assert.Equal(CrabStreetNameId.NotApplicable, modifyRoadSegment.RightSideStreetNameId);
+        Assert.Equal(StreetNameLocalId.NotApplicable, modifyRoadSegment.RightSideStreetNameId);
 
         Assert.NotEmpty(problems);
         Assert.True(problems.All(x => x.Reason == "RightStreetNameIdIsRemoved"));
@@ -181,8 +181,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                     RoadSegmentStatus.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.STATUS.Value],
                     RoadSegmentCategory.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.WEGCAT.Value],
                     RoadSegmentAccessRestriction.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.TGBEP.Value],
-                    CrabStreetNameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
-                    CrabStreetNameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
+                    StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
+                    StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
                 )
                 .WithGeometry(context.Change.TestData.RoadSegment1ShapeRecord.Geometry)
                 .WithLane(
@@ -259,8 +259,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                             RoadSegmentStatus.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.STATUS.Value],
                             RoadSegmentCategory.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.WEGCAT.Value],
                             RoadSegmentAccessRestriction.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.TGBEP.Value],
-                            CrabStreetNameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
-                            CrabStreetNameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
+                            StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
+                            StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
                         )
                         .WithGeometry(context.Change.TestData.RoadSegment1ShapeRecord.Geometry)
                         .WithLane(
@@ -410,8 +410,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                         RoadSegmentStatus.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.STATUS.Value],
                         RoadSegmentCategory.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.WEGCAT.Value],
                         RoadSegmentAccessRestriction.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.TGBEP.Value],
-                        CrabStreetNameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
-                        CrabStreetNameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
+                        StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
+                        StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
                     )
                     .WithGeometry(context.Change.TestData.RoadSegment1ShapeRecord.Geometry)
                     .WithLane(
@@ -548,8 +548,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                             RoadSegmentStatus.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.STATUS.Value],
                             RoadSegmentCategory.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.CATEGORIE.Value],
                             RoadSegmentAccessRestriction.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.TGBEP.Value],
-                            CrabStreetNameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
-                            CrabStreetNameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
+                            StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
+                            StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
                         )
                         .WithGeometry(context.Change.TestData.RoadSegment1ShapeRecord.Geometry)
                         .WithLane(
@@ -685,8 +685,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                             RoadSegmentStatus.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.STATUS.Value],
                             RoadSegmentCategory.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.CATEGORIE.Value],
                             RoadSegmentAccessRestriction.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.TGBEP.Value],
-                            CrabStreetNameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
-                            CrabStreetNameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
+                            StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
+                            StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
                         )
                         .WithGeometry(context.Change.TestData.RoadSegment1ShapeRecord.Geometry)
                 )

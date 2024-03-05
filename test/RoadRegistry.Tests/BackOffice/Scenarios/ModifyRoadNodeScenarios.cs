@@ -975,16 +975,16 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
                     .First(candidate => candidate != RoadSegmentAccessRestriction.Parse(Segment1Added.AccessRestriction));
                 break;
             case 5:
-                Segment2Added.LeftSide.StreetNameId = new Generator<CrabStreetNameId?>(ObjectProvider)
+                Segment2Added.LeftSide.StreetNameId = new Generator<StreetNameLocalId?>(ObjectProvider)
                     .First(candidate => candidate != (Segment1Added.LeftSide.StreetNameId.HasValue
-                        ? new CrabStreetNameId(Segment1Added.LeftSide.StreetNameId.Value)
-                        : new CrabStreetNameId?()));
+                        ? new StreetNameLocalId(Segment1Added.LeftSide.StreetNameId.Value)
+                        : new StreetNameLocalId?()));
                 break;
             case 6:
-                Segment2Added.RightSide.StreetNameId = new Generator<CrabStreetNameId?>(ObjectProvider)
+                Segment2Added.RightSide.StreetNameId = new Generator<StreetNameLocalId?>(ObjectProvider)
                     .First(candidate => candidate != (Segment1Added.RightSide.StreetNameId.HasValue
-                        ? new CrabStreetNameId(Segment1Added.RightSide.StreetNameId.Value)
-                        : new CrabStreetNameId?()));
+                        ? new StreetNameLocalId(Segment1Added.RightSide.StreetNameId.Value)
+                        : new StreetNameLocalId?()));
                 break;
         }
 
@@ -1592,12 +1592,12 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
                     .First(candidate => candidate != RoadSegmentAccessRestriction.Parse(Segment1Added.AccessRestriction));
                 break;
             case 5:
-                Segment2Added.LeftSide.StreetNameId = new Generator<CrabStreetNameId?>(ObjectProvider)
-                    .First(candidate => candidate != (Segment1Added.LeftSide.StreetNameId.HasValue ? new CrabStreetNameId(Segment1Added.LeftSide.StreetNameId.Value) : new CrabStreetNameId?()));
+                Segment2Added.LeftSide.StreetNameId = new Generator<StreetNameLocalId?>(ObjectProvider)
+                    .First(candidate => candidate != (Segment1Added.LeftSide.StreetNameId.HasValue ? new StreetNameLocalId(Segment1Added.LeftSide.StreetNameId.Value) : new StreetNameLocalId?()));
                 break;
             case 6:
-                Segment2Added.RightSide.StreetNameId = new Generator<CrabStreetNameId?>(ObjectProvider)
-                    .First(candidate => candidate != (Segment1Added.RightSide.StreetNameId.HasValue ? new CrabStreetNameId(Segment1Added.RightSide.StreetNameId.Value) : new CrabStreetNameId?()));
+                Segment2Added.RightSide.StreetNameId = new Generator<StreetNameLocalId?>(ObjectProvider)
+                    .First(candidate => candidate != (Segment1Added.RightSide.StreetNameId.HasValue ? new StreetNameLocalId(Segment1Added.RightSide.StreetNameId.Value) : new StreetNameLocalId?()));
                 break;
         }
 

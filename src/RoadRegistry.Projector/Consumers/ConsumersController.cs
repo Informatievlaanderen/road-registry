@@ -55,7 +55,7 @@ namespace RoadRegistry.Projector.Consumers
 
         private async Task<DateTimeOffset?> GetLastProcessedMessageDateProcessed(IConfiguration configuration, string connectionStringName, string schemaName)
         {
-            await using var sqlConnection = new SqlConnection(configuration.GetConnectionString(connectionStringName));
+            await using var sqlConnection = new SqlConnection(configuration.GetRequiredConnectionString(connectionStringName));
 
             var result = await sqlConnection.QueryFirstOrDefaultAsync<DateTimeOffset?>(
                 $"SELECT TOP(1) [{nameof(ProcessedMessage.DateProcessed)}] FROM [{schemaName}].[{ProcessedMessageConfiguration.TableName}] ORDER BY [{nameof(ProcessedMessage.DateProcessed)}] DESC"

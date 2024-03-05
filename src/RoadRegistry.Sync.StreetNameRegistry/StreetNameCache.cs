@@ -29,12 +29,20 @@ public class StreetNameCache : IStreetNameCache
 
     public async Task<ICollection<StreetNameCacheItem>> GetAsync(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(streetNameIds);
+
+        var streetNameIdsArray = streetNameIds.Distinct().ToArray();
+        if (!streetNameIdsArray.Any())
+        {
+            return new List<StreetNameCacheItem>();
+        }
+
         await using var context = await _streetNameProjectionContextFactory.CreateDbContextAsync(cancellationToken);
 
         return (
                 await context.StreetNames
                     .Where(record => record.PersistentLocalId > 0)
-                    .Where(record => streetNameIds.Contains(record.PersistentLocalId))
+                    .Where(record => streetNameIdsArray.Contains(record.PersistentLocalId))
                     .ToListAsync(cancellationToken)
             )
             .Select(record => new StreetNameCacheItem
@@ -63,7 +71,7 @@ public class StreetNameCache : IStreetNameCache
     public async Task<Dictionary<int, string>> GetStreetNamesById(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
     {
         var items = await GetAsync(streetNameIds, cancellationToken);
-        
+
         return items.ToDictionary(x => x.Id, x => x.Name);
     }
 }

@@ -10,7 +10,6 @@ using FeatureToggles;
 using Framework;
 using Handlers.Sqs;
 using Hosts;
-using MediatR;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,13 +18,11 @@ using Microsoft.Extensions.Logging;
 using NodaTime;
 using RoadNetwork.Schema;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
-using RoadRegistry.Snapshot.Handlers;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
 using System.Threading;
 using System.Threading.Tasks;
 using Uploads;
-using ZipArchiveWriters.Validation;
 
 public class Program
 {
@@ -48,7 +45,7 @@ public class Program
                 .AddSingleton<ICommandProcessorPositionStore>(sp =>
                     new SqlCommandProcessorPositionStore(
                         new SqlConnectionStringBuilder(
-                            sp.GetService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.CommandHost)
+                            sp.GetService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.CommandHost)
                         ),
                         WellKnownSchemas.CommandHostSchema))
                 .AddDistributedStreamStoreLockOptions()
@@ -56,8 +53,7 @@ public class Program
                 .AddEditorContext()
                 .AddOrganizationCache()
                 .AddStreetNameCache()
-                .AddFeatureCompareTranslator()
-                .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
+                .AddFeatureCompare()
                 .AddRoadNetworkCommandQueue()
                 .AddRoadNetworkEventWriter()
             )
@@ -81,7 +77,6 @@ public class Program
                     sp.GetRequiredService<ILifetimeScope>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     sp.GetRequiredService<IZipArchiveBeforeFeatureCompareValidator>(),
-                    new ZipArchiveAfterFeatureCompareValidator(sp.GetRequiredService<FileEncoding>()),
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 ),
@@ -101,34 +96,22 @@ public class Program
                     sp.GetRequiredService<ILifetimeScope>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     sp.GetRequiredService<IZipArchiveBeforeFeatureCompareValidator>(),
-                    new ZipArchiveAfterFeatureCompareValidator(sp.GetRequiredService<FileEncoding>()),
                     sp.GetService<IExtractUploadFailedEmailClient>(),
                     sp.GetRequiredService<IClock>(),
-                    sp.GetRequiredService<ILoggerFactory>()
-                ),
-                new RoadNetworkSnapshotCommandModule(
-                    sp.GetRequiredService<IStreamStore>(),
-                    sp.GetRequiredService<IMediator>(),
-                    sp.GetRequiredService<ILifetimeScope>(),
-                    sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
-                    sp.GetRequiredService<IRoadNetworkSnapshotWriter>(),
-                    sp.GetRequiredService<IClock>(),
-                    sp.GetRequiredService<IRoadNetworkEventWriter>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 )
             }))
             .ConfigureContainer((context, builder) =>
             {
                 builder
-                    .RegisterModule<RoadRegistry.Snapshot.Handlers.Sqs.MediatorModule>()
+                    .RegisterModule<Snapshot.Handlers.Sqs.MediatorModule>()
                     .RegisterModule<SqsHandlersModule>()
                     .RegisterModule<SnapshotSqsHandlersModule>();
             })
             .Build();
 
         await roadRegistryHost
-            .LogSqlServerConnectionStrings(new[]
-            {
+            .LogSqlServerConnectionStrings(new [] {
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.CommandHost,
                 WellKnownConnectionNames.CommandHostAdmin,
@@ -139,7 +122,7 @@ public class Program
                 await
                     new SqlCommandProcessorPositionStoreSchema(
                         new SqlConnectionStringBuilder(
-                            configuration.GetConnectionString(WellKnownConnectionNames.CommandHostAdmin))
+                            configuration.GetRequiredConnectionString(WellKnownConnectionNames.CommandHostAdmin))
                     ).CreateSchemaIfNotExists(WellKnownSchemas.CommandHostSchema).ConfigureAwait(false);
 
                 using (var dbContext = sp.GetRequiredService<RoadNetworkDbContext>())

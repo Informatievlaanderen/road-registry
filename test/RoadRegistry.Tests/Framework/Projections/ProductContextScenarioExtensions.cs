@@ -41,12 +41,12 @@ internal class MemoryProductContext : ProductContext
                 into segments
                 select new RoadSegmentBoundingBox3D
                 {
-                    MinimumX = segments.Min(n => n.BoundingBox.MinimumX),
-                    MaximumX = segments.Max(n => n.BoundingBox.MaximumX),
-                    MinimumY = segments.Min(n => n.BoundingBox.MinimumY),
-                    MaximumY = segments.Max(n => n.BoundingBox.MaximumY),
-                    MinimumM = segments.Min(n => n.BoundingBox.MinimumM),
-                    MaximumM = segments.Max(n => n.BoundingBox.MaximumM)
+                    MinimumX = segments.Min(n => n.BoundingBoxMinimumX ?? 0),
+                    MaximumX = segments.Max(n => n.BoundingBoxMaximumX ?? 0),
+                    MinimumY = segments.Min(n => n.BoundingBoxMinimumY ?? 0),
+                    MaximumY = segments.Max(n => n.BoundingBoxMaximumY ?? 0),
+                    MinimumM = segments.Min(n => n.BoundingBoxMinimumM ?? 0),
+                    MaximumM = segments.Max(n => n.BoundingBoxMaximumM ?? 0)
                 }
             );
     }
@@ -59,7 +59,6 @@ public static class ProductContextScenarioExtensions
         var records = new List<object>();
         records.AddRange(await context.RoadNodes.ToArrayAsync());
         records.AddRange(await context.RoadSegments.ToArrayAsync());
-        records.AddRange(await context.RoadSegmentsV2.ToArrayAsync());
         records.AddRange(await context.RoadSegmentLaneAttributes.ToArrayAsync());
         records.AddRange(await context.RoadSegmentWidthAttributes.ToArrayAsync());
         records.AddRange(await context.RoadSegmentSurfaceAttributes.ToArrayAsync());

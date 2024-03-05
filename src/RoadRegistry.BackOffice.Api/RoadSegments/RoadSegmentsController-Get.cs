@@ -68,14 +68,14 @@ public partial class RoadSegmentsController
                 Linkerstraatnaam = detailResponse.LeftStreetNameId != null
                     ? new WegsegmentStraatnaamObject
                     {
-                        ObjectId = new StreetNamePuri(detailResponse.LeftStreetNameId.Value).ToString(),
+                        ObjectId = new StreetNameId(detailResponse.LeftStreetNameId.Value).ToString(),
                         Straatnaam = detailResponse.LeftStreetName
                     }
                     : null,
                 Rechterstraatnaam = detailResponse.RightStreetNameId != null
                     ? new WegsegmentStraatnaamObject
                     {
-                        ObjectId = new StreetNamePuri(detailResponse.RightStreetNameId.Value).ToString(),
+                        ObjectId = new StreetNameId(detailResponse.RightStreetNameId.Value).ToString(),
                         Straatnaam = detailResponse.RightStreetName
                     }
                     : null,
@@ -479,12 +479,12 @@ public class GetRoadSegmentResponseResponseExamples : IExamplesProvider<GetRoadS
             EindknoopObjectId = 287336,
             Linkerstraatnaam = new WegsegmentStraatnaamObject
             {
-                ObjectId = new StreetNamePuri(71671).ToString(),
+                ObjectId = new StreetNameId(71671).ToString(),
                 Straatnaam = "Smidsestraat"
             },
             Rechterstraatnaam = new WegsegmentStraatnaamObject
             {
-                ObjectId = new StreetNamePuri(71671).ToString(),
+                ObjectId = new StreetNameId(71671).ToString(),
                 Straatnaam = "Smidsestraat"
             },
             Wegsegmentstatus = RoadSegmentStatus.InUse.Translation.Name,

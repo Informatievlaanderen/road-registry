@@ -54,9 +54,6 @@ public class Program
     public static RoadRegistryHostBuilder<Program> CreateHostBuilder(string[] args) => new RoadRegistryHostBuilder<Program>(args)
         .ConfigureServices((hostContext, services) =>
         {
-            var featureToggles = hostContext.Configuration.GetFeatureToggles<ApplicationFeatureToggle>();
-            var useRoadSegmentV2EventProcessorFeatureToggle = featureToggles.OfType<UseRoadSegmentV2EventProcessorFeatureToggle>().Single();
-
             services
                 .AddSingleton(new EnvelopeFactory(
                     ProductContextEventProcessor.EventMapping,
@@ -67,7 +64,7 @@ public class Program
                     new ProductContext(
                         new DbContextOptionsBuilder<ProductContext>()
                             .UseSqlServer(
-                                hostContext.Configuration.GetConnectionString(WellKnownConnectionNames.ProductProjections),
+                                hostContext.Configuration.GetRequiredConnectionString(WellKnownConnectionNames.ProductProjections),
                                 options => options
                                     .EnableRetryOnFailure()
                                     .UseNetTopologySuite()
@@ -79,8 +76,7 @@ public class Program
                     new OrganizationRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadNetworkInfoProjection(),
                     new RoadNodeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
-                    new RoadSegmentRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
-                    !useRoadSegmentV2EventProcessorFeatureToggle.FeatureEnabled ? new RoadSegmentV2RecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<RoadSegmentV2RecordProjection>>()) : null,
+                    new RoadSegmentRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<RoadSegmentRecordProjection>>()),
                     new RoadSegmentEuropeanRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentLaneAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentNationalRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
@@ -89,15 +85,6 @@ public class Program
                     new RoadSegmentWidthAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new GradeSeparatedJunctionRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>())
                 });
-            
-            if (useRoadSegmentV2EventProcessorFeatureToggle.FeatureEnabled)
-            {
-                services
-                    .AddProductContextEventProcessor<RoadSegmentV2EventProcessor>(sp => new ConnectedProjection<ProductContext>[]
-                    {
-                        new RoadSegmentV2RecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<RoadSegmentV2RecordProjection>>())
-                    });
-            }
         })
         .ConfigureHealthChecks(HostingPort, builder => builder
             .AddSqlServer()

@@ -14,7 +14,6 @@ using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.FeatureCompare.Translators;
 using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
@@ -241,8 +240,8 @@ public class ExtractsZipArchiveTestData : IDisposable
                     WEGCAT = { Value = fixture.Create<RoadSegmentCategory>().Translation.Identifier },
                     B_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
                     E_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
-                    LSTRNMID = { Value = new CrabStreetNameId(random.Next(1, int.MaxValue)) },
-                    RSTRNMID = { Value = new CrabStreetNameId(random.Next(1, int.MaxValue)) },
+                    LSTRNMID = { Value = new StreetNameLocalId(random.Next(1, int.MaxValue)) },
+                    RSTRNMID = { Value = new StreetNameLocalId(random.Next(1, int.MaxValue)) },
                     TGBEP =
                     {
                         Value = (short)fixture.Create<RoadSegmentAccessRestriction>().Translation.Identifier

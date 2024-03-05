@@ -27,7 +27,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IStreamStore>(sp =>
                 new MsSqlStreamStoreV3(
                     new MsSqlStreamStoreV3Settings(
-                        sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.Events))
+                        sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.Events))
                     {
                         Schema = WellKnownSchemas.EventSchema
                     }));
@@ -37,9 +37,12 @@ public static class ServiceCollectionExtensions
         where TDbContext : DbContext
     {
         services
-            .Add(new ServiceDescriptor(typeof(TraceDbConnection<TDbContext>), sp => new TraceDbConnection<TDbContext>(
-            new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(connectionStringName)),
-            sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]!), serviceLifetime));
+            .Add(new ServiceDescriptor(typeof(TraceDbConnection<TDbContext>), sp =>
+                new TraceDbConnection<TDbContext>(
+                    new SqlConnection(sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(connectionStringName)),
+                    sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]!)
+                , serviceLifetime)
+            );
         return services;
     }
 
@@ -51,7 +54,7 @@ public static class ServiceCollectionExtensions
                     {
                         var configuration = sp.GetRequiredService<IConfiguration>();
                         var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
-                        var connectionString = configuration.GetConnectionString(WellKnownConnectionNames.EditorProjections);
+                        var connectionString = configuration.GetRequiredConnectionString(WellKnownConnectionNames.EditorProjections);
 
                         return () =>
                             new EditorContext(
@@ -107,7 +110,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IStreetNameCache, StreetNameCache>()
             .AddDbContextFactory<StreetNameSnapshotProjectionContext>((sp, options) =>
             {
-                var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.StreetNameProjections);
+                var connectionString = sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.StreetNameProjections);
                 options
                     .UseSqlServer(connectionString,
                         o => o
@@ -116,7 +119,7 @@ public static class ServiceCollectionExtensions
             })
             .AddDbContextFactory<StreetNameEventProjectionContext>((sp, options) =>
             {
-                var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.StreetNameProjections);
+                var connectionString = sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.StreetNameProjections);
                 options
                     .UseSqlServer(connectionString,
                         o => o
