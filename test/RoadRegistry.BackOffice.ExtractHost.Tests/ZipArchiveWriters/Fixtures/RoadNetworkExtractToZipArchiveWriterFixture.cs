@@ -30,8 +30,7 @@ public class RoadNetworkExtractToZipArchiveWriterFixture : ZipArchiveWriterFixtu
             streetNameCache,
             memoryStreamManager,
             Encoding.UTF8,
-            loggerFactory.CreateLogger<RoadNetworkExtractToZipArchiveWriter>(),
-            new UseNetTopologySuiteShapeReaderWriterFeatureToggle(true));
+            loggerFactory.CreateLogger<RoadNetworkExtractToZipArchiveWriter>());
 
         _assembler = new RoadNetworkExtractArchiveAssembler(
             memoryStreamManager,

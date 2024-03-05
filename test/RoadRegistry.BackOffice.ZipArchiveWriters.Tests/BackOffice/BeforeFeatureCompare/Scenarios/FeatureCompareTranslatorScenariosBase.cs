@@ -36,7 +36,7 @@ public abstract class FeatureCompareTranslatorScenariosBase
                 var problems = await validator.ValidateAsync(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty), CancellationToken.None);
                 problems.ThrowIfError();
 
-                return (await sut.Translate(archive, CancellationToken.None), problems);
+                return (await sut.TranslateAsync(archive, CancellationToken.None), problems);
             }
             catch (ZipArchiveValidationException ex)
             {

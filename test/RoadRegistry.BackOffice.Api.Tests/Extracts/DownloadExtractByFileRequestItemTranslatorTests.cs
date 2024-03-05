@@ -10,7 +10,7 @@ public class DownloadExtractByFileRequestItemTranslatorTests : IAsyncLifetime
 {
     private const int ValidBuffer = 50;
     
-    private readonly IDownloadExtractByFileRequestItemTranslator _translator = new DownloadExtractByFileRequestItemTranslatorNetTopologySuite();
+    private readonly IDownloadExtractByFileRequestItemTranslator _translator = new DownloadExtractByFileRequestItemTranslator();
     private DownloadExtractByFileRequestItem _prjFilePoint;
     private DownloadExtractByFileRequestItem _prjFilePolygon;
     private DownloadExtractByFileRequestItem _shpFilePoint;

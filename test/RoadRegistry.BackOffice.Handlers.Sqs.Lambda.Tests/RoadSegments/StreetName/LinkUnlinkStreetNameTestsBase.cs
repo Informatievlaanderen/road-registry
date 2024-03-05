@@ -83,9 +83,9 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
         });
     }
 
-    protected string StreetNamePuri(int identifier)
+    protected string GetStreetNameIdAsString(int identifier)
     {
-        return new StreetNamePuri(identifier).ToString();
+        return new StreetNameId(identifier).ToString();
     }
 
     protected static class WellKnownStreetNameIds

@@ -15,5 +15,4 @@ public class RoadNetworkExtractChangesArchiveAccepted : IMessage
     public Guid UploadId { get; set; }
     public string Description { get; set; }
     public string When { get; set; }
-    public bool UseZipArchiveFeatureCompareTranslator { get; set; }
 }

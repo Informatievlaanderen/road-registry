@@ -38,7 +38,6 @@ public class StreetNameEventConsumerContext : ConsumerDbContext<StreetNameEventC
     {
         options
             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
             .UseSqlServer(
                 sp.GetRequiredService<TraceDbConnection<StreetNameEventConsumerContext>>(),
                 sqlOptions => sqlOptions

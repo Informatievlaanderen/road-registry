@@ -17,11 +17,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
-using RoadRegistry.BackOffice.FeatureToggles;
 using SqlStreamStore;
 using System;
 using System.Threading.Tasks;
-using Uploads;
 using ZipArchiveWriters.ExtractHost;
 
 public class Program
@@ -58,8 +56,7 @@ public class Program
                             sp.GetService<IStreetNameCache>(),
                             sp.GetService<RecyclableMemoryStreamManager>(),
                             sp.GetRequiredService<FileEncoding>(),
-                            sp.GetRequiredService<ILogger<RoadNetworkExtractToZipArchiveWriter>>(),
-                            sp.GetRequiredService<UseNetTopologySuiteShapeReaderWriterFeatureToggle>()
+                            sp.GetRequiredService<ILogger<RoadNetworkExtractToZipArchiveWriter>>()
                         ))
                     .AddSingleton<IRoadNetworkExtractArchiveAssembler>(sp =>
                         new RoadNetworkExtractArchiveAssembler(
@@ -69,7 +66,7 @@ public class Program
                     .AddEditorContext()
                     .AddOrganizationCache()
                     .AddStreetNameCache()
-                    .AddFeatureCompareTranslator()
+                    .AddFeatureCompare()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {
                         new RoadNetworkExtractEventModule(
@@ -77,7 +74,6 @@ public class Program
                             sp.GetService<RoadNetworkExtractDownloadsBlobClient>(),
                             sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                             sp.GetService<IRoadNetworkExtractArchiveAssembler>(),
-                            new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>()),
                             sp.GetService<IStreamStore>(),
                             ApplicationMetadata,
                             sp.GetService<IRoadNetworkEventWriter>(),

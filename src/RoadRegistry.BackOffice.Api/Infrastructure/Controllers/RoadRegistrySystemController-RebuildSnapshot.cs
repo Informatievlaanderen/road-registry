@@ -1,15 +1,12 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.RoadNetworks;
-using FeatureToggles;
 using FluentValidation;
-using Framework;
-using Messages;
 using Microsoft.AspNetCore.Mvc;
 using Snapshot.Handlers.Sqs.RoadNetworks;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class RoadRegistrySystemController
 {
@@ -20,7 +17,6 @@ public partial class RoadRegistrySystemController
     /// </summary>
     /// <param name="parameters">The parameters.</param>
     /// <param name="validator">The validator.</param>
-    /// <param name="snapshotFeatureToggle">The snapshot feature toggle.</param>
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
     ///     of cancellation.
@@ -30,26 +26,17 @@ public partial class RoadRegistrySystemController
     [SwaggerOperation(OperationId = nameof(RebuildSnapshot), Description = "")]
     public async Task<IActionResult> RebuildSnapshot([FromBody] RebuildSnapshotParameters parameters,
         [FromServices] RebuildSnapshotParametersValidator validator,
-        [FromServices] UseSnapshotSqsRequestFeatureToggle snapshotFeatureToggle,
         CancellationToken cancellationToken)
     {
         await validator.ValidateAndThrowAsync(parameters, cancellationToken);
 
-        if (snapshotFeatureToggle.FeatureEnabled)
+        await Mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest
         {
-            await Mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest
+            Request = new RebuildRoadNetworkSnapshotRequest
             {
-                Request = new RebuildRoadNetworkSnapshotRequest
-                {
-                    MaxStreamVersion = parameters.MaxStreamVersion
-                }
-            }, cancellationToken);
-            return Accepted();
-        }
-
-        var command = new Command(new RebuildRoadNetworkSnapshot());
-        await RoadNetworkCommandQueue
-            .WriteAsync(command, cancellationToken);
+                MaxStreamVersion = parameters.MaxStreamVersion
+            }
+        }, cancellationToken);
         return Accepted();
     }
 }

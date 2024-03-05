@@ -179,8 +179,8 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                 var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(testData.Segment1Added.GeometryDrawMethod).Translation;
                 var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(testData.Segment1Added.AccessRestriction).Translation;
 
-                editorContext.RoadSegmentsV2.Add(
-                    new RoadSegmentV2Record
+                editorContext.RoadSegments.Add(
+                    new RoadSegmentRecord
                     {
                         Id = testData.Segment1Added.Id,
                         StartNodeId = testData.Segment1Added.StartNodeId,

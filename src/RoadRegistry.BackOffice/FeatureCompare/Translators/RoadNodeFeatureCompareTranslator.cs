@@ -12,6 +12,7 @@ using Uploads;
 using AddRoadNode = Uploads.AddRoadNode;
 using ModifyRoadNode = Uploads.ModifyRoadNode;
 using RemoveRoadNode = Uploads.RemoveRoadNode;
+using RoadRegistry.BackOffice.FeatureCompare.Readers;
 
 public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadNodeFeatureCompareAttributes>
 {

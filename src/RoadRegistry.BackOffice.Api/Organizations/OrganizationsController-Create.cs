@@ -1,13 +1,12 @@
 namespace RoadRegistry.BackOffice.Api.Organizations;
 
-using System.Threading;
-using System.Threading.Tasks;
-using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Messages;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class OrganizationsController
 {
@@ -17,7 +16,6 @@ public partial class OrganizationsController
     ///     Creates the organization.
     /// </summary>
     /// <param name="parameters">The parameters.</param>
-    /// <param name="featureToggle">The feature toggle.</param>
     /// <param name="validator">The validator.</param>
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
@@ -26,16 +24,11 @@ public partial class OrganizationsController
     /// <returns>IActionResult.</returns>
     [HttpPost(CreateRoute, Name = nameof(Create))]
     [SwaggerOperation(OperationId = nameof(Create), Description = "")]
-    public async Task<IActionResult> Create([FromBody] OrganizationCreateParameters parameters,
-        [FromServices] UseOrganizationCreateFeatureToggle featureToggle,
+    public async Task<IActionResult> Create(
+        [FromBody] OrganizationCreateParameters parameters,
         [FromServices] IValidator<CreateOrganization> validator,
         CancellationToken cancellationToken)
     {
-        if (!featureToggle.FeatureEnabled)
-        {
-            return NotFound();
-        }
-
         var command = new CreateOrganization
         {
             Code = parameters?.Code,

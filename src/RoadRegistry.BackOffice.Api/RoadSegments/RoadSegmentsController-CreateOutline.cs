@@ -1,14 +1,13 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
 using Abstractions.RoadSegmentsOutline;
-using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Core;
 using Core.ProblemCodes;
 using Extensions;
-using FeatureToggles;
 using FluentValidation;
 using Handlers.Sqs.RoadSegments;
 using Infrastructure.Authentication;
@@ -31,7 +30,6 @@ public partial class RoadSegmentsController
     /// <summary>
     ///     Schets een wegsegment.
     /// </summary>
-    /// <param name="featureToggle"></param>
     /// <param name="validator"></param>
     /// <param name="parameters"></param>
     /// <param name="cancellationToken"></param>
@@ -50,16 +48,10 @@ public partial class RoadSegmentsController
     [SwaggerRequestExample(typeof(PostRoadSegmentOutlineParameters), typeof(PostRoadSegmentOutlineParametersExamples))]
     [SwaggerOperation(OperationId = nameof(CreateOutline), Description = "Voeg een nieuw wegsegment toe aan het Wegenregister met geometriemethode <ingeschetst>.")]
     public async Task<IActionResult> CreateOutline(
-        [FromServices] UseRoadSegmentOutlineFeatureToggle featureToggle,
         [FromServices] PostRoadSegmentOutlineParametersValidator validator,
         [FromBody] PostRoadSegmentOutlineParameters parameters,
         CancellationToken cancellationToken = default)
     {
-        if (!featureToggle.FeatureEnabled)
-        {
-            return NotFound();
-        }
-
         try
         {
             await validator.ValidateAndThrowAsync(parameters, cancellationToken);

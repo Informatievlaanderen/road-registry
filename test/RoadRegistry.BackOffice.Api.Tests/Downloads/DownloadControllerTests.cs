@@ -29,14 +29,13 @@ public partial class DownloadControllerTests : ControllerTests<DownloadControlle
         IMediator mediator,
         IStreamStore streamStore,
         RoadNetworkUploadsBlobClient uploadClient,
-        RoadNetworkExtractUploadsBlobClient extractUploadClient,
-        RoadNetworkFeatureCompareBlobClient featureCompareBlobClient)
-        : base(controller, mediator, streamStore, uploadClient, extractUploadClient, featureCompareBlobClient)
+        RoadNetworkExtractUploadsBlobClient extractUploadClient)
+        : base(controller, mediator, streamStore, uploadClient, extractUploadClient)
     {
-        _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
+        _fixture = fixture.ThrowIfNull();
         _tokenSource = new CancellationTokenSource();
-        _editorContext = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
-        _productContext = productContext ?? throw new ArgumentNullException(nameof(productContext));
+        _editorContext = editorContext.ThrowIfNull();
+        _productContext = productContext.ThrowIfNull();
     }
 
     [Fact]

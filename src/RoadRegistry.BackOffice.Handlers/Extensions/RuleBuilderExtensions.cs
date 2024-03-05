@@ -4,9 +4,9 @@ using FluentValidation;
 
 internal static class RuleBuilderExtensions
 {
-    private const string StreetNamePuriPrefix = "https://data.vlaanderen.be/id/straatnaam/";
+    private const string StreetNameIdPrefix = "https://data.vlaanderen.be/id/straatnaam/";
 
-    public static IRuleBuilderOptions<T, string> MustBeValidStreetNamePuri<T>(this IRuleBuilder<T, string> ruleBuilder)
+    public static IRuleBuilderOptions<T, string> MustBeValidStreetNameId<T>(this IRuleBuilder<T, string> ruleBuilder)
     {
         return ruleBuilder.Must(value =>
         {
@@ -15,12 +15,12 @@ internal static class RuleBuilderExtensions
                 return true;
             }
 
-            if (!value.StartsWith(StreetNamePuriPrefix))
+            if (!value.StartsWith(StreetNameIdPrefix))
             {
                 return false;
             }
 
-            var identifier = value.Substring(StreetNamePuriPrefix.Length);
+            var identifier = value.Substring(StreetNameIdPrefix.Length);
             return int.TryParse(identifier, out _);
         });
     }

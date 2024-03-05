@@ -18,13 +18,12 @@ using NodaTime;
 using NodaTime.Testing;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Abstractions;
-using RoadRegistry.BackOffice.Abstractions.Configuration;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extensions;
+using RoadRegistry.BackOffice.FeatureCompare.Validation;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
-using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 using SqlStreamStore;
 using Xunit.DependencyInjection;
 using Xunit.DependencyInjection.Logging;
@@ -89,17 +88,11 @@ public abstract class TestStartup
                     .AddSingleton(new ZipArchiveWriterOptions())
                     .AddSingleton(new ExtractDownloadsOptions())
                     .AddSingleton(new ExtractUploadsOptions())
-                    .AddSingleton(new FeatureCompareMessagingOptions
-                    {
-                        RequestQueueUrl = "request.fifo",
-                        ResponseQueueUrl = "response.fifo"
-                    })
                     .AddSingleton(FileEncoding.UTF8)
                     .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
                     .AddTransient<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
-                    .AddTransient<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
                     .AddSingleton<IBeforeFeatureCompareZipArchiveCleaner, BeforeFeatureCompareZipArchiveCleaner>()
-                    .AddFeatureCompareTranslator()
+                    .AddFeatureCompare()
                     .AddValidatorsFromAssemblies(availableModuleAssemblyCollection)
                     .AddFeatureToggles<ApplicationFeatureToggle>(context.Configuration)
                     .AddLogging()

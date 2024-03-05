@@ -65,7 +65,6 @@ public class Program
         {
             var featureToggles = hostContext.Configuration.GetFeatureToggles<ApplicationFeatureToggle>();
             var useExtractRequestOverlapEventProcessorFeatureToggle = featureToggles.OfType<UseExtractRequestOverlapEventProcessorFeatureToggle>().Single();
-            var useRoadSegmentV2EventProcessorFeatureToggle = featureToggles.OfType<UseRoadSegmentV2EventProcessorFeatureToggle>().Single();
 
             services
                 .AddSingleton(new EnvelopeFactory(
@@ -89,7 +88,6 @@ public class Program
                     new RoadNetworkInfoProjection(),
                     new RoadNodeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<RoadSegmentRecordProjection>>()),
-                    !useRoadSegmentV2EventProcessorFeatureToggle.FeatureEnabled ? new RoadSegmentV2RecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<RoadSegmentV2RecordProjection>>()) : null,
                     new RoadSegmentEuropeanRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentLaneAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentNationalRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
@@ -133,15 +131,6 @@ public class Program
                     .AddEditorContextEventProcessor<ExtractRequestOverlapEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
                     {
                         new ExtractRequestOverlapRecordProjection(sp.GetRequiredService<ILogger<ExtractRequestOverlapRecordProjection>>())
-                    });
-            }
-
-            if (useRoadSegmentV2EventProcessorFeatureToggle.FeatureEnabled)
-            {
-                services
-                    .AddEditorContextEventProcessor<RoadSegmentV2EventProcessor>(sp => new ConnectedProjection<EditorContext>[]
-                    {
-                        new RoadSegmentV2RecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<RoadSegmentV2RecordProjection>>())
                     });
             }
         })

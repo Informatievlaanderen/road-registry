@@ -1,13 +1,12 @@
 namespace RoadRegistry.BackOffice.Api.Organizations;
 
-using System.Threading;
-using System.Threading.Tasks;
-using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Messages;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class OrganizationsController
 {
@@ -17,7 +16,6 @@ public partial class OrganizationsController
     ///     Deletes the organization.
     /// </summary>
     /// <param name="id">The identifier.</param>
-    /// <param name="featureToggle">The feature toggle.</param>
     /// <param name="validator">The validator.</param>
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
@@ -26,16 +24,11 @@ public partial class OrganizationsController
     /// <returns>IActionResult.</returns>
     [HttpDelete(DeleteRoute, Name = nameof(Delete))]
     [SwaggerOperation(OperationId = nameof(Delete), Description = "")]
-    public async Task<IActionResult> Delete([FromRoute] string id,
-        [FromServices] UseOrganizationDeleteFeatureToggle featureToggle,
+    public async Task<IActionResult> Delete(
+        [FromRoute] string id,
         [FromServices] IValidator<DeleteOrganization> validator,
         CancellationToken cancellationToken)
     {
-        if (!featureToggle.FeatureEnabled)
-        {
-            return NotFound();
-        }
-
         var command = new DeleteOrganization
         {
             Code = id

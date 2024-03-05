@@ -15,6 +15,7 @@ using AddRoadSegment = Uploads.AddRoadSegment;
 using ModifyRoadSegment = Uploads.ModifyRoadSegment;
 using RemoveRoadSegment = Uploads.RemoveRoadSegment;
 using RemoveOutlinedRoadSegment = Uploads.RemoveOutlinedRoadSegment;
+using RoadRegistry.BackOffice.FeatureCompare.Readers;
 
 public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareAttributes>
 {
@@ -77,18 +78,18 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             return matchingFeatures.SingleOrDefault();
         }
 
-        CrabStreetNameId? CorrectStreetNameId(CrabStreetNameId? id)
+        StreetNameLocalId? CorrectStreetNameId(StreetNameLocalId? id)
         {
             if (id > 0)
             {
                 if (streetNameContext.RemovedIds.Contains(id.Value))
                 {
-                    return CrabStreetNameId.NotApplicable;
+                    return StreetNameLocalId.NotApplicable;
                 }
 
                 if (streetNameContext.RenamedIds.TryGetValue(id.Value, out var renamedToId))
                 {
-                    return CrabStreetNameId.FromValue(renamedToId);
+                    return StreetNameLocalId.FromValue(renamedToId);
                 }
             }
 

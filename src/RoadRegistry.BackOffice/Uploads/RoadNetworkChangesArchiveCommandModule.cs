@@ -19,14 +19,12 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
         ILifetimeScope lifetimeScope,
         IRoadNetworkSnapshotReader snapshotReader,
         IZipArchiveBeforeFeatureCompareValidator beforeFeatureCompareValidator,
-        IZipArchiveAfterFeatureCompareValidator afterFeatureCompareValidator,
         IClock clock,
         ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(blobClient);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
-        ArgumentNullException.ThrowIfNull(afterFeatureCompareValidator);
         ArgumentNullException.ThrowIfNull(clock);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
@@ -45,17 +43,16 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
                 RoadNetworkChangesArchive upload;
                 await using (var uploadBlobStream = await archiveBlob.OpenAsync(ct))
                 {
-                    upload = RoadNetworkChangesArchive.Upload(archiveId, uploadBlobStream, message.Body.FeatureCompareCompleted);
+                    upload = RoadNetworkChangesArchive.Upload(archiveId, uploadBlobStream);
                 }
                 
                 await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
                 {
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
-                        IZipArchiveValidator validator = message.Body.UseZipArchiveFeatureCompareTranslator ? beforeFeatureCompareValidator : afterFeatureCompareValidator;
-                        logger.LogInformation("Validation started for archive with validator {Validator}", validator.GetType().Name);
-                        await upload.ValidateArchiveUsing(archive, validator, message.Body.UseZipArchiveFeatureCompareTranslator, ct);
-                        logger.LogInformation("Validation completed for archive with validator {Validator}", validator.GetType().Name);
+                        logger.LogInformation("Validation started for archive");
+                        await upload.ValidateArchiveUsing(archive, beforeFeatureCompareValidator, ct);
+                        logger.LogInformation("Validation completed for archive");
                     }
                     context.RoadNetworkChangesArchives.Add(upload);
                 }

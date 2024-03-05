@@ -1,13 +1,12 @@
 namespace RoadRegistry.BackOffice.Api.Organizations;
 
-using System.Threading;
-using System.Threading.Tasks;
-using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Messages;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class OrganizationsController
 {
@@ -18,7 +17,6 @@ public partial class OrganizationsController
     /// </summary>
     /// <param name="parameters">The parameters.</param>
     /// <param name="id">The identifier.</param>
-    /// <param name="featureToggle">The feature toggle.</param>
     /// <param name="validator">The validator.</param>
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
@@ -27,17 +25,12 @@ public partial class OrganizationsController
     /// <returns>IActionResult.</returns>
     [HttpPatch(RenameRoute, Name = nameof(Rename))]
     [SwaggerOperation(OperationId = nameof(Rename), Description = "")]
-    public async Task<IActionResult> Rename([FromBody] OrganizationRenameParameters parameters,
+    public async Task<IActionResult> Rename(
+        [FromBody] OrganizationRenameParameters parameters,
         [FromRoute] string id,
-        [FromServices] UseOrganizationRenameFeatureToggle featureToggle,
         [FromServices] IValidator<RenameOrganization> validator,
         CancellationToken cancellationToken)
     {
-        if (!featureToggle.FeatureEnabled)
-        {
-            return NotFound();
-        }
-
         var command = new RenameOrganization
         {
             Code = id,

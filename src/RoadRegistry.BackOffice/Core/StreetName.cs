@@ -25,7 +25,7 @@ public class StreetName : EventSourcedEntity
         });
     }
 
-    public StreetNamePuri StreetNameId { get; private set; }
+    public StreetNameId StreetNameId { get; private set; }
     public StreetNameLocalId PersistentLocalId { get; private set; }
     public string NisCode { get; private set; }
     public string DutchName { get; private set; }
@@ -45,7 +45,7 @@ public class StreetName : EventSourcedEntity
 
     private void ReadFromRecord(StreetNameRecord record)
     {
-        StreetNameId = StreetNamePuri.FromValue(record.StreetNameId);
+        StreetNameId = new StreetNameId(record.StreetNameId);
         PersistentLocalId = new StreetNameLocalId(record.PersistentLocalId);
         NisCode = record.NisCode;
         DutchName = record.DutchName;

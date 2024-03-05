@@ -145,8 +145,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                             RoadSegmentCategory.Parse(segment.AttributeHash.Category),
                             RoadSegmentMorphology.Parse(segment.AttributeHash.Morphology),
                             RoadSegmentStatus.Parse(segment.AttributeHash.Status),
-                            CrabStreetNameId.FromValue(segment.AttributeHash.LeftSideStreetNameId),
-                            CrabStreetNameId.FromValue(segment.AttributeHash.RightSideStreetNameId),
+                            StreetNameLocalId.FromValue(segment.AttributeHash.LeftSideStreetNameId),
+                            StreetNameLocalId.FromValue(segment.AttributeHash.RightSideStreetNameId),
                             new OrganizationId(segment.AttributeHash.OrganizationId),
                             RoadSegmentGeometryDrawMethod.Parse(segment.AttributeHash.GeometryDrawMethod)
                         ),
@@ -426,8 +426,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             RoadSegmentCategory.Parse(@event.Category),
             RoadSegmentMorphology.Parse(@event.Morphology),
             RoadSegmentStatus.Parse(@event.Status),
-            CrabStreetNameId.FromValue(@event.LeftSide.StreetNameId),
-            CrabStreetNameId.FromValue(@event.RightSide.StreetNameId),
+            StreetNameLocalId.FromValue(@event.LeftSide.StreetNameId),
+            StreetNameLocalId.FromValue(@event.RightSide.StreetNameId),
             new OrganizationId(@event.MaintenanceAuthority.Code),
             RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod)
         );
@@ -644,8 +644,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             RoadSegmentCategory.Parse(@event.Category),
             RoadSegmentMorphology.Parse(@event.Morphology),
             RoadSegmentStatus.Parse(@event.Status),
-            CrabStreetNameId.FromValue(@event.LeftSide.StreetNameId),
-            CrabStreetNameId.FromValue(@event.RightSide.StreetNameId),
+            StreetNameLocalId.FromValue(@event.LeftSide.StreetNameId),
+            StreetNameLocalId.FromValue(@event.RightSide.StreetNameId),
             new OrganizationId(@event.MaintenanceAuthority.Code),
             RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod)
         );
@@ -733,8 +733,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             RoadSegmentCategory.Parse(@event.Category),
             RoadSegmentMorphology.Parse(@event.Morphology),
             RoadSegmentStatus.Parse(@event.Status),
-            CrabStreetNameId.FromValue(@event.LeftSide.StreetNameId),
-            CrabStreetNameId.FromValue(@event.RightSide.StreetNameId),
+            StreetNameLocalId.FromValue(@event.LeftSide.StreetNameId),
+            StreetNameLocalId.FromValue(@event.RightSide.StreetNameId),
             new OrganizationId(@event.MaintenanceAuthority.Code),
             RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod)
         );
@@ -1680,8 +1680,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                                 RoadSegmentCategory.Parse(segment.AttributeHash.Category),
                                 RoadSegmentMorphology.Parse(segment.AttributeHash.Morphology),
                                 RoadSegmentStatus.Parse(segment.AttributeHash.Status),
-                                CrabStreetNameId.FromValue(segment.AttributeHash.LeftSideStreetNameId),
-                                CrabStreetNameId.FromValue(segment.AttributeHash.RightSideStreetNameId),
+                                StreetNameLocalId.FromValue(segment.AttributeHash.LeftSideStreetNameId),
+                                StreetNameLocalId.FromValue(segment.AttributeHash.RightSideStreetNameId),
                                 new OrganizationId(segment.AttributeHash.OrganizationId),
                                 RoadSegmentGeometryDrawMethod.Parse(segment.AttributeHash.GeometryDrawMethod)
                             ),
@@ -1953,8 +1953,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 RoadSegmentCategory.Parse(@event.Category),
                 RoadSegmentMorphology.Parse(@event.Morphology),
                 RoadSegmentStatus.Parse(@event.Status),
-                CrabStreetNameId.FromValue(@event.LeftSide.StreetNameId),
-                CrabStreetNameId.FromValue(@event.RightSide.StreetNameId),
+                StreetNameLocalId.FromValue(@event.LeftSide.StreetNameId),
+                StreetNameLocalId.FromValue(@event.RightSide.StreetNameId),
                 new OrganizationId(@event.MaintenanceAuthority.Code),
                 RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod)
             );
@@ -2137,8 +2137,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 RoadSegmentCategory.Parse(@event.Category),
                 RoadSegmentMorphology.Parse(@event.Morphology),
                 RoadSegmentStatus.Parse(@event.Status),
-                CrabStreetNameId.FromValue(@event.LeftSide.StreetNameId),
-                CrabStreetNameId.FromValue(@event.RightSide.StreetNameId),
+                StreetNameLocalId.FromValue(@event.LeftSide.StreetNameId),
+                StreetNameLocalId.FromValue(@event.RightSide.StreetNameId),
                 new OrganizationId(@event.MaintenanceAuthority.Code),
                 RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod)
             );
@@ -2221,8 +2221,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 RoadSegmentCategory.Parse(@event.Category),
                 RoadSegmentMorphology.Parse(@event.Morphology),
                 RoadSegmentStatus.Parse(@event.Status),
-                CrabStreetNameId.FromValue(@event.LeftSide.StreetNameId),
-                CrabStreetNameId.FromValue(@event.RightSide.StreetNameId),
+                StreetNameLocalId.FromValue(@event.LeftSide.StreetNameId),
+                StreetNameLocalId.FromValue(@event.RightSide.StreetNameId),
                 new OrganizationId(@event.MaintenanceAuthority.Code),
                 RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod)
             );

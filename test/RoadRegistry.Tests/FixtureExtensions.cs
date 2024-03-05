@@ -1087,7 +1087,7 @@ public static class Customizations
                         return new StreetNameRecord
                         {
                             NisCode = generator.Next(10000, 100000).ToString(),
-                            StreetNameId = new StreetNamePuri(streetNameLocalId),
+                            StreetNameId = new StreetNameId(streetNameLocalId),
                             PersistentLocalId = streetNameLocalId,
                             StreetNameStatus = streetNameStatuses[generator.Next(0, streetNameStatuses.Length)],
                             DutchName = name,

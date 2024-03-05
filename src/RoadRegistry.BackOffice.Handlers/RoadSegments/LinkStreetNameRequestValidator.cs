@@ -34,11 +34,11 @@ public class LinkStreetNameRequestValidator : AbstractValidator<LinkStreetNameRe
             .WithProblemCode(ProblemCode.Common.IncorrectObjectId);
 
         RuleFor(x => x.LinkerstraatnaamId)
-            .MustBeValidStreetNamePuri()
+            .MustBeValidStreetNameId()
             .WithProblemCode(ProblemCode.Common.IncorrectObjectId);
 
         RuleFor(x => x.RechterstraatnaamId)
-            .MustBeValidStreetNamePuri()
+            .MustBeValidStreetNameId()
             .WithProblemCode(ProblemCode.Common.IncorrectObjectId);
     }
 }
