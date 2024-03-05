@@ -1,3 +1,11 @@
+## [3.69.13](https://github.com/informatievlaanderen/road-registry/compare/v3.69.12...v3.69.13) (2024-03-04)
+
+
+### Bug Fixes
+
+* add logging ([#1412](https://github.com/informatievlaanderen/road-registry/issues/1412)) ([8ab3bdd](https://github.com/informatievlaanderen/road-registry/commit/8ab3bdd955ba591562e10f03c05d7b22f5022b2c))
+* single deploy pipeline ([#1410](https://github.com/informatievlaanderen/road-registry/issues/1410)) ([f4b8874](https://github.com/informatievlaanderen/road-registry/commit/f4b8874d2d27000d74ade7776b9c1a73f0c3b4a7))
+
 ## [3.69.12](https://github.com/informatievlaanderen/road-registry/compare/v3.69.11...v3.69.12) (2024-02-28)
 
 
