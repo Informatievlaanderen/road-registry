@@ -35,4 +35,14 @@ public class ChangeRoadSegmentAttributeRequest
     public RoadSegmentMorphology? Morphology { get; set; }
     public RoadSegmentAccessRestriction? AccessRestriction { get; set; }
     public RoadSegmentCategory? Category { get; set; }
+    public ICollection<EuropeanRoadNumber>? EuropeanRoads { get; set; }
+    public ICollection<NationalRoadNumber>? NationalRoads { get; set; }
+    public ICollection<ChangeRoadSegmentNumberedRoadAttribute>? NumberedRoads { get; set; }
+}
+
+public class ChangeRoadSegmentNumberedRoadAttribute
+{
+    public NumberedRoadNumber Number { get; set; }
+    public RoadSegmentNumberedRoadDirection Direction { get; set; }
+    public RoadSegmentNumberedRoadOrdinal Ordinal { get; set; }
 }

@@ -16,6 +16,9 @@ using Problem = RoadRegistry.BackOffice.Messages.Problem;
 using ProblemParameter = RoadRegistry.BackOffice.Messages.ProblemParameter;
 using ProblemSeverity = RoadRegistry.BackOffice.Messages.ProblemSeverity;
 using RejectedChange = RoadRegistry.BackOffice.Messages.RejectedChange;
+using RequestedRoadSegmentEuropeanRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentEuropeanRoadAttribute;
+using RequestedRoadSegmentNationalRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentNationalRoadAttribute;
+using RequestedRoadSegmentNumberedRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentNumberedRoadAttribute;
 
 public class ModifyTheNonExisting : RoadRegistryTestBase
 {
@@ -60,21 +63,21 @@ public class ModifyTheNonExisting : RoadRegistryTestBase
         ObjectProvider.CustomizeOperatorName();
         ObjectProvider.CustomizeTransactionId();
 
-        ObjectProvider.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
+        ObjectProvider.Customize<RequestedRoadSegmentEuropeanRoadAttribute>(composer =>
             composer.Do(instance =>
                 {
                     instance.AttributeId = ObjectProvider.Create<AttributeId>();
                     instance.Number = ObjectProvider.Create<EuropeanRoadNumber>();
                 })
                 .OmitAutoProperties());
-        ObjectProvider.Customize<RoadSegmentNationalRoadAttributes>(composer =>
+        ObjectProvider.Customize<RequestedRoadSegmentNationalRoadAttribute>(composer =>
             composer.Do(instance =>
                 {
                     instance.AttributeId = ObjectProvider.Create<AttributeId>();
                     instance.Number = ObjectProvider.Create<NationalRoadNumber>();
                 })
                 .OmitAutoProperties());
-        ObjectProvider.Customize<RoadSegmentNumberedRoadAttributes>(composer =>
+        ObjectProvider.Customize<RequestedRoadSegmentNumberedRoadAttribute>(composer =>
             composer.Do(instance =>
             {
                 instance.AttributeId = ObjectProvider.Create<AttributeId>();

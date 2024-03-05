@@ -416,6 +416,7 @@ internal class RequestedChangeTranslator
             widthAttributes
         );
     }
+
     private async Task<ModifyRoadSegmentGeometry> Translate(Messages.ModifyRoadSegmentGeometry command)
     {
         var permanent = new RoadSegmentId(command.Id);

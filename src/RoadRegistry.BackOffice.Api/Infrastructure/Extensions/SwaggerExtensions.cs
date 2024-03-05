@@ -17,5 +17,7 @@ public static class SwaggerExtensions
         options.SchemaFilter<RoadSegmentMorphologySchemaFilter>();
         options.SchemaFilter<RoadSegmentStatusSchemaFilter>();
         options.SchemaFilter<RoadSegmentSurfaceTypeSchemaFilter>();
+        options.SchemaFilter<RoadSegmentEuropeanRoadNumberSchemaFilter>();
+        options.SchemaFilter<RoadSegmentNumberedRoadDirectionSchemaFilter>();
     }
 }

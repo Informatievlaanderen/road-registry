@@ -1,8 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeDynamicAttributes;
 
-using System.Runtime.Serialization;
+using Infrastructure.Controllers.Attributes;
 using Newtonsoft.Json;
-using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
+using System.Runtime.Serialization;
 
 [DataContract(Name = "WegsegmentWegverhardingWijzigen", Namespace = "")]
 public class ChangeSurfaceAttributeParameters : ChangePositionAttributeParameters

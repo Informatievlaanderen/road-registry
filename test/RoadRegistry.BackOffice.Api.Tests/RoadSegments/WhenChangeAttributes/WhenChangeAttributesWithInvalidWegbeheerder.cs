@@ -7,7 +7,8 @@ using Xunit.Abstractions;
 
 public class WhenChangeAttributesWithInvalidWegbeheerder : WhenChangeAttributesWithInvalidRequest<WhenChangeAttributesWithInvalidRequestFixture>
 {
-    public WhenChangeAttributesWithInvalidWegbeheerder(WhenChangeAttributesWithInvalidRequestFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public WhenChangeAttributesWithInvalidWegbeheerder(WhenChangeAttributesWithInvalidRequestFixture fixture, ITestOutputHelper outputHelper)
+        : base(fixture, outputHelper)
     {
     }
 

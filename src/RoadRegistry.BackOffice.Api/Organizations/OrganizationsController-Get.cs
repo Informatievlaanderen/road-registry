@@ -1,10 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Organizations;
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.Organizations;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class OrganizationsController
 {

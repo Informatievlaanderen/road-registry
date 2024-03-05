@@ -1,14 +1,14 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes;
 
 using Abstractions;
-using Api.RoadSegments;
 using Api.RoadSegments.ChangeAttributes;
 using Fixtures;
 using Xunit.Abstractions;
 
 public class WhenChangeAttributesWithInvalidWegsegmentStatus : WhenChangeAttributesWithInvalidRequest<WhenChangeAttributesWithInvalidRequestFixture>
 {
-    public WhenChangeAttributesWithInvalidWegsegmentStatus(WhenChangeAttributesWithInvalidRequestFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public WhenChangeAttributesWithInvalidWegsegmentStatus(WhenChangeAttributesWithInvalidRequestFixture fixture, ITestOutputHelper outputHelper)
+        : base(fixture, outputHelper)
     {
     }
 

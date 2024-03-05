@@ -1,4 +1,5 @@
 namespace RoadRegistry.BackOffice.Messages;
+
 public class ModifyRoadSegmentAttributes
 {
     public int Id { get; set; }

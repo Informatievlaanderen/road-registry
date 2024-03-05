@@ -26,6 +26,51 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode IsRequired = new("RoadSegmentCategoryIsRequired");
         }
 
+        public static class EuropeanRoads
+        {
+            public static readonly ProblemCode NotUnique = new("RoadSegmentEuropeanRoadsNotUnique");
+        }
+
+        public static class EuropeanRoadNumber
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentEuropeanRoadNumberNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentEuropeanRoadNumberIsRequired");
+        }
+
+        public static class NationalRoads
+        {
+            public static readonly ProblemCode NotUnique = new("RoadSegmentNationalRoadsNotUnique");
+        }
+
+        public static class NationalRoadNumber
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentNationalRoadNumberNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentNationalRoadNumberIsRequired");
+        }
+
+        public static class NumberedRoads
+        {
+            public static readonly ProblemCode NotUnique = new("RoadSegmentNumberedRoadsNotUnique");
+        }
+
+        public static class NumberedRoadNumber
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentNumberedRoadNumberNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentNumberedRoadNumberIsRequired");
+        }
+
+        public static class NumberedRoadDirection
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentNumberedRoadDirectionNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentNumberedRoadDirectionIsRequired");
+        }
+
+        public static class NumberedRoadOrdinal
+        {
+            public static readonly ProblemCode NotValid = new("RoadSegmentNumberedRoadOrdinalNotValid");
+            public static readonly ProblemCode IsRequired = new("RoadSegmentNumberedRoadOrdinalIsRequired");
+        }
+
         public static class Geometry
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentGeometryNotValid");

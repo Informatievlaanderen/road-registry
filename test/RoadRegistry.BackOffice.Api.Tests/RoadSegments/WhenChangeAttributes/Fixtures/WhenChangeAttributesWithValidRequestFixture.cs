@@ -41,6 +41,32 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
             {
                 Toegangsbeperking = ObjectProvider.Create<RoadSegmentAccessRestriction>().ToDutchString(),
                 Wegsegmenten = new[] { TestData.Segment1Added.Id }
+            },
+            new()
+            {
+                EuropeseWegen = new [] { new ChangeAttributeEuropeanRoad
+                {
+                    EuNummer = ObjectProvider.Create<EuropeanRoadNumber>().ToString()
+                } },
+                Wegsegmenten = new[] { TestData.Segment1Added.Id }
+            },
+            new()
+            {
+                NationaleWegen = new [] { new ChangeAttributeNationalRoad
+                {
+                    Ident2 = ObjectProvider.Create<NationalRoadNumber>().ToString()
+                } },
+                Wegsegmenten = new[] { TestData.Segment1Added.Id }
+            },
+            new()
+            {
+                GenummerdeWegen = new [] { new ChangeAttributeNumberedRoad
+                {
+                    Ident8 = ObjectProvider.Create<NumberedRoadNumber>().ToString(),
+                    Richting = ObjectProvider.Create<RoadSegmentNumberedRoadDirection>().ToDutchString(),
+                    Volgnummer = ObjectProvider.Create<RoadSegmentNumberedRoadOrdinal>().ToString()
+                } },
+                Wegsegmenten = new[] { TestData.Segment1Added.Id }
             }
         };
     }

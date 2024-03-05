@@ -7,6 +7,9 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using AddRoadSegment = RoadRegistry.BackOffice.Messages.AddRoadSegment;
+using RequestedRoadSegmentEuropeanRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentEuropeanRoadAttribute;
+using RequestedRoadSegmentNationalRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentNationalRoadAttribute;
+using RequestedRoadSegmentNumberedRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentNumberedRoadAttribute;
 
 public class AddRoadSegmentValidatorTests : ValidatorTest<AddRoadSegment, AddRoadSegmentValidator>
 {
@@ -31,19 +34,19 @@ public class AddRoadSegmentValidatorTests : ValidatorTest<AddRoadSegment, AddRoa
         Fixture.CustomizeOrganizationId();
         Fixture.CustomizeOrganizationName();
 
-        Fixture.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
+        Fixture.Customize<RequestedRoadSegmentEuropeanRoadAttribute>(composer =>
             composer.Do(instance =>
             {
                 instance.AttributeId = Fixture.Create<AttributeId>();
                 instance.Number = Fixture.Create<EuropeanRoadNumber>();
             }).OmitAutoProperties());
-        Fixture.Customize<RoadSegmentNationalRoadAttributes>(composer =>
+        Fixture.Customize<RequestedRoadSegmentNationalRoadAttribute>(composer =>
             composer.Do(instance =>
             {
                 instance.AttributeId = Fixture.Create<AttributeId>();
                 instance.Number = Fixture.Create<NationalRoadNumber>();
             }).OmitAutoProperties());
-        Fixture.Customize<RoadSegmentNumberedRoadAttributes>(composer =>
+        Fixture.Customize<RequestedRoadSegmentNumberedRoadAttribute>(composer =>
             composer.Do(instance =>
             {
                 instance.AttributeId = Fixture.Create<AttributeId>();

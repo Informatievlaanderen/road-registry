@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenChangeAttributes.Fixtures;
 
 using Abstractions.Fixtures;
+using AutoFixture;
 using BackOffice.Abstractions.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
@@ -29,6 +30,17 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
                 change.MaintenanceAuthority = TestData.ChangedByOrganization;
                 change.Morphology = ObjectProvider.CreateWhichIsDifferentThan(RoadSegmentMorphology.Parse(TestData.Segment1Added.Morphology));
                 change.Status = ObjectProvider.CreateWhichIsDifferentThan(RoadSegmentStatus.Parse(TestData.Segment1Added.Status));
+
+                change.EuropeanRoads = ObjectProvider.CreateMany<EuropeanRoadNumber>(1).ToArray();
+                change.NationalRoads = ObjectProvider.CreateMany<NationalRoadNumber>(1).ToArray();
+                change.NumberedRoads = ObjectProvider.CreateMany<NumberedRoadNumber>(1)
+                    .Select(number => new ChangeRoadSegmentNumberedRoadAttribute
+                    {
+                        Number = number,
+                        Direction = ObjectProvider.Create<RoadSegmentNumberedRoadDirection>(),
+                        Ordinal = ObjectProvider.Create<RoadSegmentNumberedRoadOrdinal>()
+                    })
+                    .ToArray();
             });
     }
 
@@ -55,6 +67,38 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
                 new AcceptedChange
                 {
                     RoadSegmentAdded = TestData.Segment1Added
+                },
+                new AcceptedChange
+                {
+                    RoadSegmentAddedToEuropeanRoad = new RoadSegmentAddedToEuropeanRoad
+                    {
+                        AttributeId = 1,
+                        TemporaryAttributeId = 1,
+                        SegmentId = TestData.Segment1Added.Id,
+                        Number = ObjectProvider.CreateWhichIsDifferentThan(Request.ChangeRequests.Single().EuropeanRoads!.Single())
+                    }
+                },
+                new AcceptedChange
+                {
+                    RoadSegmentAddedToNationalRoad = new RoadSegmentAddedToNationalRoad
+                    {
+                        AttributeId = 1,
+                        TemporaryAttributeId = 1,
+                        SegmentId = TestData.Segment1Added.Id,
+                        Number = ObjectProvider.CreateWhichIsDifferentThan(Request.ChangeRequests.Single().NationalRoads!.Single())
+                    }
+                },
+                new AcceptedChange
+                {
+                    RoadSegmentAddedToNumberedRoad = new RoadSegmentAddedToNumberedRoad
+                    {
+                        AttributeId = 1,
+                        TemporaryAttributeId = 1,
+                        SegmentId = TestData.Segment1Added.Id,
+                        Number = ObjectProvider.CreateWhichIsDifferentThan(Request.ChangeRequests.Single().NumberedRoads!.Single().Number),
+                        Direction = ObjectProvider.Create<RoadSegmentNumberedRoadDirection>(),
+                        Ordinal = ObjectProvider.Create<RoadSegmentNumberedRoadOrdinal>()
+                    }
                 }
             },
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -80,15 +124,29 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
 
         VerifyThatTicketHasCompleted(new ChangeRoadSegmentAttributesResponse());
 
-        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
-        var @event = command.Changes.Single().RoadSegmentAttributesModified;
         var change = Request.ChangeRequests.Single();
-        return @event.Id == roadSegmentId
-               && @event.AccessRestriction == change.AccessRestriction
-               && @event.Category == change.Category
-               && @event.MaintenanceAuthority.Code == change.MaintenanceAuthority
-               && @event.Morphology == change.Morphology
-               && @event.Status == change.Status
-            ;
+
+        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
+        Assert.Equal(7, command.Changes.Length);
+
+        var attributesModified = command.Changes[0].RoadSegmentAttributesModified;
+        var attributesModifiedIsCorrect = attributesModified.Id == roadSegmentId
+                                          && attributesModified.AccessRestriction == change.AccessRestriction
+                                          && attributesModified.Category == change.Category
+                                          && attributesModified.MaintenanceAuthority.Code == change.MaintenanceAuthority
+                                          && attributesModified.Morphology == change.Morphology
+                                          && attributesModified.Status == change.Status;
+
+        var europeanRoadsIsCorrect = command.Changes[1].RoadSegmentAddedToEuropeanRoad.Number == change.EuropeanRoads!.Single()
+                                     && command.Changes[4].RoadSegmentRemovedFromEuropeanRoad.SegmentId == change.Id;
+        var nationalRoadsIsCorrect = command.Changes[2].RoadSegmentAddedToNationalRoad.Number == change.NationalRoads!.Single()
+                                     && command.Changes[5].RoadSegmentRemovedFromNationalRoad.SegmentId == change.Id;
+        var numberedRoadsIsCorrect = command.Changes[3].RoadSegmentAddedToNumberedRoad.Number == change.NumberedRoads!.Single().Number
+                                     && command.Changes[6].RoadSegmentRemovedFromNumberedRoad.SegmentId == change.Id;
+
+        return attributesModifiedIsCorrect
+            && europeanRoadsIsCorrect
+            && nationalRoadsIsCorrect
+            && numberedRoadsIsCorrect;
     }
 }

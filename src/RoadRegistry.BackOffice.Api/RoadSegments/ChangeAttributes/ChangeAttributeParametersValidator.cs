@@ -1,17 +1,16 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeAttributes;
 
+using Core;
+using Core.ProblemCodes;
+using Editor.Schema;
+using Extensions;
+using FluentValidation;
+using FluentValidation.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentValidation;
-using FluentValidation.Results;
-using Microsoft.EntityFrameworkCore;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Core.ProblemCodes;
-using RoadRegistry.BackOffice.Extensions;
-using RoadRegistry.Editor.Schema;
 
 public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttributeParameters>
 {
@@ -26,6 +25,9 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
             && context.InstanceToValidate.Wegbeheerder is null
             && context.InstanceToValidate.Wegcategorie is null
             && context.InstanceToValidate.Wegsegmentstatus is null
+            && context.InstanceToValidate.EuropeseWegen is null
+            && context.InstanceToValidate.NationaleWegen is null
+            && context.InstanceToValidate.GenummerdeWegen is null
            )
         {
             context.AddFailure(new ValidationFailure
@@ -95,6 +97,36 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
                 .Must(RoadSegmentCategory.CanParseUsingDutchName)
                 .WithProblemCode(ProblemCode.RoadSegment.Category.NotValid);
         });
+
+        When(x => x.EuropeseWegen is not null, () =>
+        {
+            RuleFor(x => x.EuropeseWegen)
+                .Must(x => x.Length == x.Select(numberedRoad => numberedRoad?.EuNummer).Distinct().Count())
+                .WithProblemCode(ProblemCode.RoadSegment.EuropeanRoads.NotUnique);
+
+            RuleForEach(x => x.EuropeseWegen)
+                .SetValidator(new ChangeAttributeEuropeanRoadValidator());
+        });
+
+        When(x => x.NationaleWegen is not null, () =>
+        {
+            RuleFor(x => x.NationaleWegen)
+                .Must(x => x.Length == x.Select(numberedRoad => numberedRoad?.Ident2).Distinct().Count())
+                .WithProblemCode(ProblemCode.RoadSegment.NationalRoads.NotUnique);
+
+            RuleForEach(x => x.NationaleWegen)
+                .SetValidator(new ChangeAttributeNationalRoadValidator());
+        });
+
+        When(x => x.GenummerdeWegen is not null, () =>
+        {
+            RuleFor(x => x.GenummerdeWegen)
+                .Must(x => x.Length == x.Select(numberedRoad => numberedRoad?.Ident8).Distinct().Count())
+                .WithProblemCode(ProblemCode.RoadSegment.NumberedRoads.NotUnique);
+
+            RuleForEach(x => x.GenummerdeWegen)
+                .SetValidator(new ChangeAttributeNumberedRoadValidator());
+        });
     }
 
     private Task<bool> BeExistingNonRemovedRoadSegment(int[] ids, CancellationToken cancellationToken)
@@ -121,5 +153,58 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
     private IEnumerable<int> FindNonExistingOrRemovedRoadSegmentIds(ICollection<int> ids)
     {
         return ids.Except(FindExistingAndNonRemovedRoadSegmentIds(ids));
+    }
+}
+
+public class ChangeAttributeEuropeanRoadValidator : AbstractValidator<ChangeAttributeEuropeanRoad>
+{
+    public ChangeAttributeEuropeanRoadValidator()
+    {
+        RuleFor(x => x.EuNummer)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
+            .WithProblemCode(ProblemCode.RoadSegment.EuropeanRoadNumber.IsRequired)
+            .Must(EuropeanRoadNumber.CanParse)
+            .WithProblemCode(ProblemCode.RoadSegment.EuropeanRoadNumber.NotValid);
+    }
+}
+
+public class ChangeAttributeNationalRoadValidator : AbstractValidator<ChangeAttributeNationalRoad>
+{
+    public ChangeAttributeNationalRoadValidator()
+    {
+        RuleFor(x => x.Ident2)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
+            .WithProblemCode(ProblemCode.RoadSegment.NationalRoadNumber.IsRequired)
+            .Must(NationalRoadNumber.CanParse)
+            .WithProblemCode(ProblemCode.RoadSegment.NationalRoadNumber.NotValid);
+    }
+}
+
+public class ChangeAttributeNumberedRoadValidator : AbstractValidator<ChangeAttributeNumberedRoad>
+{
+    public ChangeAttributeNumberedRoadValidator()
+    {
+        RuleFor(x => x.Ident8)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
+            .WithProblemCode(ProblemCode.RoadSegment.NumberedRoadNumber.IsRequired)
+            .Must(NumberedRoadNumber.CanParse)
+            .WithProblemCode(ProblemCode.RoadSegment.NumberedRoadNumber.NotValid);
+
+        RuleFor(x => x.Richting)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
+            .WithProblemCode(ProblemCode.RoadSegment.NumberedRoadDirection.IsRequired)
+            .Must(RoadSegmentNumberedRoadDirection.CanParseUsingDutchName)
+            .WithProblemCode(ProblemCode.RoadSegment.NumberedRoadDirection.NotValid);
+
+        RuleFor(x => x.Volgnummer)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
+            .WithProblemCode(ProblemCode.RoadSegment.NumberedRoadOrdinal.IsRequired)
+            .Must(RoadSegmentNumberedRoadOrdinal.CanParseUsingDutchName)
+            .WithProblemCode(ProblemCode.RoadSegment.NumberedRoadOrdinal.NotValid);
     }
 }

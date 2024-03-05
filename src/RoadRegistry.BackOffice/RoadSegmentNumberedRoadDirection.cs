@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNumberedRoadDirection>
+public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNumberedRoadDirection>, IDutchToString
 {
     public static readonly RoadSegmentNumberedRoadDirection Backward =
         new(
@@ -61,10 +61,14 @@ public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNum
 
     public static bool CanParse(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
-
-        return Array.Find(All, candidate => candidate._value == value) != null;
+        return TryParse(value.ThrowIfNull(), out _);
     }
+
+    public static bool CanParseUsingDutchName(string value)
+    {
+        return TryParseUsingDutchName(value, out _);
+    }
+
 
     public override bool Equals(object obj)
     {
@@ -93,9 +97,13 @@ public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNum
 
     public static RoadSegmentNumberedRoadDirection Parse(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        if (!TryParse(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known numbered road segment direction.");
+        return parsed;
+    }
 
-        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known numbered road segment direction.");
+    public static RoadSegmentNumberedRoadDirection ParseUsingDutchName(string value)
+    {
+        if (!TryParseUsingDutchName(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known numbered road segment direction.");
         return parsed;
     }
 
@@ -104,11 +112,22 @@ public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNum
         return _value;
     }
 
+    public string ToDutchString()
+    {
+        return Translation.Name;
+    }
+
     public static bool TryParse(string value, out RoadSegmentNumberedRoadDirection parsed)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
 
         parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
+    }
+
+    public static bool TryParseUsingDutchName(string value, out RoadSegmentNumberedRoadDirection parsed)
+    {
+        parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
         return parsed != null;
     }
 

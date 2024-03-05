@@ -45,7 +45,7 @@ public partial class RoadSegmentsController
     [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(RoadSegmentNotFoundResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerRequestExample(typeof(ChangeRoadSegmentAttributesParameters), typeof(ChangeRoadSegmentAttributesParametersExamples))]
-    [SwaggerOperation(OperationId = nameof(ChangeAttributes), Description = "Attributen wijzigen van een wegsegment: status, toegangsbeperking, wegklasse, wegbeheerder en wegcategorie.")]
+    [SwaggerOperation(OperationId = nameof(ChangeAttributes), Description = "Attributen wijzigen van een wegsegment: status, toegangsbeperking, wegklasse, wegbeheerder, wegcategorie, Europese wegen, nationale wegen en genummerde wegen.")]
     public async Task<IActionResult> ChangeAttributes(
         [FromBody] ChangeRoadSegmentAttributesParameters parameters,
         [FromServices] ChangeRoadSegmentAttributesParametersValidator validator,
@@ -111,6 +111,32 @@ public partial class RoadSegmentsController
                     if (attributesChange.Wegcategorie is not null)
                     {
                         roadSegment.Category = RoadSegmentCategory.ParseUsingDutchName(attributesChange.Wegcategorie);
+                    }
+
+                    if (attributesChange.EuropeseWegen is not null)
+                    {
+                        roadSegment.EuropeanRoads = attributesChange.EuropeseWegen
+                            .Select(x => x.EuNummer)
+                            .Select(EuropeanRoadNumber.Parse)
+                            .ToArray();
+                    }
+
+                    if (attributesChange.NationaleWegen is not null)
+                    {
+                        roadSegment.NationalRoads = attributesChange.NationaleWegen
+                            .Select(x => x.Ident2)
+                            .Select(NationalRoadNumber.Parse)
+                            .ToArray();
+                    }
+
+                    if (attributesChange.GenummerdeWegen is not null)
+                    {
+                        roadSegment.NumberedRoads = attributesChange.GenummerdeWegen.Select(numberedRoad => new ChangeRoadSegmentNumberedRoadAttribute
+                        {
+                            Number = NumberedRoadNumber.Parse(numberedRoad.Ident8),
+                            Direction = RoadSegmentNumberedRoadDirection.ParseUsingDutchName(numberedRoad.Richting),
+                            Ordinal = RoadSegmentNumberedRoadOrdinal.ParseUsingDutchName(numberedRoad.Volgnummer)
+                        }).ToArray();
                     }
                 });
             }

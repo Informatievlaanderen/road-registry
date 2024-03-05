@@ -2,8 +2,8 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
 using Abstractions.Extensions;
 using Abstractions.RoadSegmentsOutline;
-using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Core;

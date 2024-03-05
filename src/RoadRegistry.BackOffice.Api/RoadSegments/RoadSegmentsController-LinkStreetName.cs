@@ -94,7 +94,7 @@ public partial class RoadSegmentsController
     }
 }
 
-[DataContract(Name = "StraatnaamKoppelen", Namespace = "")]
+[DataContract(Name = "WegsegmentStraatnaamKoppelen", Namespace = "")]
 public class PostLinkStreetNameParameters
 {
     /// <summary>

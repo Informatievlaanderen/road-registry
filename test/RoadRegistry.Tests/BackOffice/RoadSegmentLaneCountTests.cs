@@ -44,6 +44,18 @@ public class RoadSegmentLaneCountTests
         Assert.Equal(value.ToString(), sut.ToString());
     }
 
+    [Theory]
+    [InlineData("0", 0)]
+    [InlineData("10", 10)]
+    [InlineData("niet gekend", -8)]
+    [InlineData("niet van toepassing", -9)]
+    public void ToDutchStringReturnsExpectedResult(string expected, int value)
+    {
+        var sut = new RoadSegmentLaneCount(value);
+
+        Assert.Equal(expected, sut.ToDutchString());
+    }
+
     [Fact]
     public void VerifyBehavior()
     {
