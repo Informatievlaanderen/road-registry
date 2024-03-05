@@ -21,7 +21,7 @@ public static class AutofacExtensions
         builder.Register<IComponentContext, IConfiguration, TraceDbConnection<TDbContext>>(
             (context, configuration) =>
             {
-                var connectionString = configuration.GetConnectionString(connectionStringName);
+                var connectionString = configuration.GetRequiredConnectionString(connectionStringName);
 
                 return new TraceDbConnection<TDbContext>(
                     new SqlConnection(connectionString),

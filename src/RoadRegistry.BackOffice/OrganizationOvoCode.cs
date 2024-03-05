@@ -9,7 +9,7 @@ public readonly struct OrganizationOvoCode : IEquatable<OrganizationOvoCode>
     public const int MaxDigitsValue = 999999;
     public const int MinDigitsValue = 1;
     private readonly string _value;
-    private const string Prefix = "OVO";
+    public const string Prefix = "OVO";
 
     public OrganizationOvoCode(string value)
     {

@@ -290,7 +290,7 @@ public class Startup
             .AddSingleton(new RecyclableMemoryStreamManager())
             .AddSingleton<IBlobClient>(new SqlBlobClient(
                 new SqlConnectionStringBuilder(
-                    _configuration.GetConnectionString(WellKnownConnectionNames.Snapshots)),
+                    _configuration.GetRequiredConnectionString(WellKnownConnectionNames.Snapshots)),
                 WellKnownSchemas.SnapshotSchema))
             .AddRoadRegistrySnapshot()
             .AddRoadNetworkEventWriter()

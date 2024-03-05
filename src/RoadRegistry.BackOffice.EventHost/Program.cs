@@ -49,7 +49,7 @@ public class Program
                     .AddSingleton<IEventProcessorPositionStore>(sp =>
                         new SqlEventProcessorPositionStore(
                             new SqlConnectionStringBuilder(
-                                sp.GetService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.EventHost)
+                                sp.GetService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.EventHost)
                             ),
                             WellKnownSchemas.EventHostSchema))
                     .AddEditorContext()
@@ -124,11 +124,11 @@ public class Program
             {
                 await
                     new SqlBlobSchema(
-                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellKnownConnectionNames.SnapshotsAdmin))
+                        new SqlConnectionStringBuilder(configuration.GetRequiredConnectionString(WellKnownConnectionNames.SnapshotsAdmin))
                     ).CreateSchemaIfNotExists(WellKnownSchemas.SnapshotSchema).ConfigureAwait(false);
                 await
                     new SqlEventProcessorPositionStoreSchema(
-                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellKnownConnectionNames.EventHostAdmin))
+                        new SqlConnectionStringBuilder(configuration.GetRequiredConnectionString(WellKnownConnectionNames.EventHostAdmin))
                     ).CreateSchemaIfNotExists(WellKnownSchemas.EventHostSchema).ConfigureAwait(false);
             });
     }

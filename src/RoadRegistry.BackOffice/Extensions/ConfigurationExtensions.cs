@@ -10,6 +10,17 @@ public static class ConfigurationExtensions
         return configuration.GetValue<T>(key) ?? throw new ConfigurationErrorsException($"The '{key}' configuration variable was not set.");
     }
 
+    /// <summary>
+    /// Shorthand for GetSection("ConnectionStrings")[name].
+    /// </summary>
+    /// <param name="configuration">The configuration to enumerate.</param>
+    /// <param name="name">The connection string key.</param>
+    /// <returns>The connection string.</returns>
+    public static string GetRequiredConnectionString(this IConfiguration configuration, string name)
+    {
+        return configuration.GetConnectionString(name) ?? throw new ConfigurationErrorsException($"The ConnectionString '{name}' was not set.");
+    }
+
     public static TOptions GetOptions<TOptions>(this IConfiguration configuration)
         where TOptions : class, new()
     {

@@ -43,7 +43,7 @@ public class Program
                 )
                 .AddDbContextFactory<WfsContext>((sp, options) =>
                 {
-                    var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellKnownConnectionNames.WfsProjections);
+                    var connectionString = sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.WfsProjections);
                     options
                         .UseSqlServer(connectionString,
                             o => o
