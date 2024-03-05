@@ -715,8 +715,6 @@ jobs:
           'backoffice-extracthost', 
           'backoffice-ui', 
           'editor-projectionhost', 
-          'extract-legacy',
-          'import-legacy', 
           'producer-snapshot-projectionhost',
           'product-projectionhost', 
           'projector', 
