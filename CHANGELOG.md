@@ -1,3 +1,10 @@
+## [3.70.1](https://github.com/informatievlaanderen/road-registry/compare/v3.70.0...v3.70.1) (2024-03-05)
+
+
+### Bug Fixes
+
+* remove unused projects from release pipeline ([#1417](https://github.com/informatievlaanderen/road-registry/issues/1417)) ([8ed8e6e](https://github.com/informatievlaanderen/road-registry/commit/8ed8e6ee191bbd3063f422aa36628e226d38261c))
+
 # [3.70.0](https://github.com/informatievlaanderen/road-registry/compare/v3.69.13...v3.70.0) (2024-03-05)
 
 
