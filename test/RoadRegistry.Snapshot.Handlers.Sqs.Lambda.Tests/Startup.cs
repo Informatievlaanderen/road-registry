@@ -77,6 +77,7 @@ public class Startup : TestStartup
             .AddTransient<ICustomRetryPolicy>(sp => new FakeRetryPolicy())
             .AddRoadRegistrySnapshot()
             .AddSingleton<IRoadNetworkSnapshotReader, FakeRoadNetworkSnapshotReader>()
+            .AddSingleton<IRoadNetworkSnapshotWriter, FakeRoadNetworkSnapshotWriter>()
             ;
     }
 }
