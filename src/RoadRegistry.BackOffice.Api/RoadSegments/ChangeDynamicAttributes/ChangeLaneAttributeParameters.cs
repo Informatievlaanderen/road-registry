@@ -2,9 +2,11 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeDynamicAttributes;
 
 using Infrastructure.Controllers.Attributes;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Api.Infrastructure;
 using System.Runtime.Serialization;
 
 [DataContract(Name = "WegsegmentAantalRijstrokenWijzigen", Namespace = "")]
+[CustomSwaggerSchemaId("WegsegmentAantalRijstrokenWijzigen")]
 public class ChangeLaneAttributeParameters : ChangePositionAttributeParameters
 {
     /// <summary>

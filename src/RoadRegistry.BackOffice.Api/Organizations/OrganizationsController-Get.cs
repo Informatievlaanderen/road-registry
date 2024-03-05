@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Api.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using System.Collections.Generic;
@@ -51,11 +52,13 @@ public partial class OrganizationsController
 }
 
 [DataContract(Name = "Organisaties", Namespace = "")]
+[CustomSwaggerSchemaId("Organisaties")]
 public class GetOrganizationsResponse: List<OrganisatieObject>
 {
 }
 
 [DataContract(Name = "Organisatie", Namespace = "")]
+[CustomSwaggerSchemaId("Organisatie")]
 public class OrganisatieObject
 {
     [DataMember(Name = "Code", Order = 1)]

@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Api.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using System;
@@ -138,6 +139,7 @@ public partial class RoadSegmentsController
 }
 
 [DataContract(Name = "WegsegmentDetail", Namespace = "")]
+[CustomSwaggerSchemaId("WegsegmentDetail")]
 public class GetRoadSegmentResponse
 {
     [DataMember(Name = "Identificator", Order = 1)]
@@ -274,6 +276,7 @@ public class GetRoadSegmentResponse
 ///     Bevat informatie waarmee het wegsegment kan geïdentificeerd worden.
 /// </summary>
 [DataContract(Name = "WegsegmentIdentificator", Namespace = "")]
+[CustomSwaggerSchemaId("WegsegmentIdentificator")]
 public class WegsegmentIdentificator : Identificator
 {
     /// <summary>
@@ -296,6 +299,7 @@ public class WegsegmentIdentificator : Identificator
 }
 
 [DataContract(Name = "Straatnaam", Namespace = "")]
+[CustomSwaggerSchemaId("Straatnaam")]
 public class StraatnaamObject
 {
     /// <summary>
@@ -317,11 +321,13 @@ public class StraatnaamObject
 ///     Bevat informatie over de straatnaam van het wegsegment.
 /// </summary>
 [DataContract(Name = "WegsegmentStraatnaamObject", Namespace = "")]
+[CustomSwaggerSchemaId("WegsegmentStraatnaamObject")]
 public class WegsegmentStraatnaamObject : StraatnaamObject
 {
 }
 
 [DataContract(Name = "WegsegmentWegverharding", Namespace = "")]
+[CustomSwaggerSchemaId("WegsegmentWegverharding")]
 public class WegverhardingObject
 {
     /// <summary>
@@ -348,6 +354,7 @@ public class WegverhardingObject
 }
 
 [DataContract(Name = "WegsegmentWegbreedte", Namespace = "")]
+[CustomSwaggerSchemaId("WegsegmentWegbreedte")]
 public class WegbreedteObject
 {
     /// <summary>
@@ -373,6 +380,7 @@ public class WegbreedteObject
 }
 
 [DataContract(Name = "WegsegmentAantalRijstroken", Namespace = "")]
+[CustomSwaggerSchemaId("WegsegmentAantalRijstroken")]
 public class AantalRijstrokenObject
 {
     /// <summary>
@@ -406,6 +414,7 @@ public class AantalRijstrokenObject
 }
 
 [DataContract(Name = "WegsegmentEuropeseWeg", Namespace = "")]
+[CustomSwaggerSchemaId("WegsegmentEuropeseWeg")]
 public class EuropeseWegObject
 {
     /// <summary>
@@ -418,6 +427,7 @@ public class EuropeseWegObject
 }
 
 [DataContract(Name = "WegsegmentNationaleWeg", Namespace = "")]
+[CustomSwaggerSchemaId("WegsegmentNationaleWeg")]
 public class NationaleWegObject
 {
     /// <summary>
@@ -429,6 +439,7 @@ public class NationaleWegObject
 }
 
 [DataContract(Name = "WegsegmentGenummerdeWeg", Namespace = "")]
+[CustomSwaggerSchemaId("WegsegmentGenummerdeWeg")]
 public class GenummerdeWegObject
 {
     /// <summary>
