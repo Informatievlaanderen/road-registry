@@ -1,11 +1,11 @@
 namespace RoadRegistry.BackOffice.Api.Handlers
 {
     using Hosts.Infrastructure.Modules;
+    using Infrastructure.Options;
     using Jobs;
+    using Jobs.Abstractions;
     using MediatR;
     using NodaTime;
-    using RoadRegistry.BackOffice.Abstractions.Uploads;
-    using RoadRegistry.BackOffice.Api.Infrastructure.Options;
     using System;
     using System.Collections.Generic;
     using System.Threading;
@@ -55,7 +55,9 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                     new Dictionary<string, string>
                     {
                         { "Registry", "RoadRegistry" },
-                        { "Action", "Upload" }, //TODO-rik or "ExtractUpload"
+                        { "Action", "Upload" },
+                        { "Type", request.Type.ToString() },
+                        { "DownloadId", request.DownloadId ?? string.Empty },
                         { "UploadId", job.Id.ToString("D") }
                     },
                     cancellationToken);
@@ -78,7 +80,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
         {
             var job = new Job(
                 SystemClock.Instance.GetCurrentInstant().ToDateTimeOffset(),
-                Jobs.JobStatus.Created);
+                JobStatus.Created);
 
             await _jobsContext.Jobs.AddAsync(job, cancellationToken);
             await _jobsContext.SaveChangesAsync(cancellationToken);

@@ -22,6 +22,7 @@ using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
 using System.Threading;
 using System.Threading.Tasks;
+using Jobs;
 using Uploads;
 
 public class Program
@@ -36,8 +37,6 @@ public class Program
     {
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
             .ConfigureServices((hostContext, services) => services
-                .AddHostedService<RoadNetworkCommandProcessor>()
-                .AddHostedService<RoadNetworkExtractCommandProcessor>()
                 .AddTicketing()
                 .AddEmailClient()
                 .AddRoadRegistrySnapshot()
@@ -56,6 +55,16 @@ public class Program
                 .AddFeatureCompare()
                 .AddRoadNetworkCommandQueue()
                 .AddRoadNetworkEventWriter()
+                .AddJobsContext()
+
+                .AddHostedService<RoadNetworkCommandProcessor>()
+                .AddHostedService<RoadNetworkExtractCommandProcessor>()
+
+                .AddSingleton(new IDbContextMigratorFactory[]
+                {
+                    new RoadNetworkDbContextMigrationFactory(),
+                    new JobsContextMigratorFactory()
+                })
             )
             .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddSqlServer()
@@ -115,19 +124,31 @@ public class Program
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.CommandHost,
                 WellKnownConnectionNames.CommandHostAdmin,
+                WellKnownConnectionNames.Jobs,
+                WellKnownConnectionNames.JobsAdmin,
                 WellKnownConnectionNames.Snapshots
             })
             .RunAsync(async (sp, host, configuration) =>
             {
-                await
-                    new SqlCommandProcessorPositionStoreSchema(
-                        new SqlConnectionStringBuilder(
-                            configuration.GetRequiredConnectionString(WellKnownConnectionNames.CommandHostAdmin))
-                    ).CreateSchemaIfNotExists(WellKnownSchemas.CommandHostSchema).ConfigureAwait(false);
+                //TODO-rik obsolete?
+                //await
+                //    new SqlCommandProcessorPositionStoreSchema(
+                //        new SqlConnectionStringBuilder(
+                //            configuration.GetRequiredConnectionString(WellKnownConnectionNames.CommandHostAdmin))
+                //    ).CreateSchemaIfNotExists(WellKnownSchemas.CommandHostSchema).ConfigureAwait(false);
 
-                using (var dbContext = sp.GetRequiredService<RoadNetworkDbContext>())
+                //using (var dbContext = sp.GetRequiredService<RoadNetworkDbContext>())
+                //{
+                //    await dbContext.MigrateAsync(CancellationToken.None);
+                //}
+
+                var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
+                var migratorFactories = sp.GetRequiredService<IDbContextMigratorFactory[]>();
+
+                foreach (var migratorFactory in migratorFactories)
                 {
-                    await dbContext.MigrateAsync(CancellationToken.None);
+                    await migratorFactory.CreateMigrator(configuration, loggerFactory)
+                        .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
                 }
             });
     }

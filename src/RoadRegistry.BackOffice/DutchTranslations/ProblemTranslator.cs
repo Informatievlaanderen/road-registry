@@ -21,6 +21,7 @@ public static class ProblemTranslator
             "Ongeldig JSON formaat.")},
         {ProblemCode.Common.NotFound, problem => new(problem.Severity, "NotFound",
             "De waarde ontbreekt.")},
+
         {ProblemCode.Count.IsRequired, problem => new(problem.Severity, "AantalVerplicht",
             "Aantal is verplicht.")},
         {ProblemCode.Count.NotValid, problem => new(problem.Severity, "AantalNietCorrect",
@@ -29,8 +30,13 @@ public static class ProblemTranslator
             "Richting is verplicht.")},
         {ProblemCode.Direction.NotValid, problem => new(problem.Severity, "RichtingNietCorrect",
             $"Richting is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
+
         {ProblemCode.EuropeanRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason,
             $"Het wegsegment is reeds geen onderdeel meer van deze europese weg met nummer {problem.Parameters[0].Value}.") },
+
+        {ProblemCode.Extract.NotFound, problem => new(problem.Severity, "ExtractNietGekend",
+            "Het extract werd niet gevonden.")},
+
         {ProblemCode.FromPosition.IsRequired, problem => new(problem.Severity, "VanPositieVerplicht",
             "VanPositie is verplicht.")},
         {ProblemCode.FromPosition.NotEqualToZero, problem => new(problem.Severity, "VanPositieNulOntbreekt",
@@ -43,8 +49,10 @@ public static class ProblemTranslator
             $"Het wegsegment is reeds geen onderdeel meer van deze nationale weg met nummer {problem.Parameters[0].Value}.") },
         {ProblemCode.NumberedRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason,
             $"Het wegsegment is reeds geen onderdeel meer van deze genummerde weg met nummer {problem.Parameters[0].Value}.") },
+
         {ProblemCode.RoadNetwork.NotFound, problem => new(problem.Severity, "NotFound",
             "Onbestaand wegen netwerk.")},
+
         {ProblemCode.RoadNode.NotConnectedToAnySegment, problem => new(problem.Severity, problem.Reason,
             $"De wegknoop {problem.Parameters[0].Value} is met geen enkel wegsegment verbonden.") },
         {ProblemCode.RoadNode.NotFound, problem => new(problem.Severity, problem.Reason,
@@ -57,6 +65,7 @@ public static class ProblemTranslator
             $"De attributen van de verbonden wegsegmenten ({problem.Parameters[1].Value} en {problem.Parameters[2].Value}) verschillen onvoldoende voor deze schijnknoop.") },
         {ProblemCode.RoadNode.Geometry.Taken, problem => new(problem.Severity, problem.Reason,
             $"De geometrie werd reeds ingenomen door een andere wegknoop met id {problem.Parameters[0].Value}.") },
+
         {ProblemCode.RoadSegment.ChangeAttributesAttributeNotValid, problem => new(problem.Severity, "AttribuutNietGekend",
             $"De waarde '{problem.Parameters[0].Value}' komt niet overeen met een attribuut uit het Wegenregister dat via dit endpoint gewijzigd kan worden.") },
         {ProblemCode.RoadSegment.ChangeAttributesRequestNull, problem => new(problem.Severity, "NotFound",
@@ -245,6 +254,7 @@ public static class ProblemTranslator
             "Wegsegment heeft geen enkele wegbreedte.")},
         {ProblemCode.RoadSegments.NotFound, problem => new(problem.Severity, "NotFound",
             $"Onbestaande of verwijderde wegsegmenten gevonden '{problem.Parameters[0].Value}'.") },
+
         {ProblemCode.ShapeFile.GeometrySridMustBeEqual, problem => new(problem.Severity, problem.Reason,
             "SRID van alle geometrieën moeten dezelfde zijn.")},
         {ProblemCode.ShapeFile.GeometryTypeMustBePolygon, problem => new(problem.Severity, problem.Reason,
@@ -255,10 +265,12 @@ public static class ProblemTranslator
             $"Kan header van de shape file niet lezen: '{problem.Parameters[0].Value}'")},
         {ProblemCode.ShapeFile.InvalidPolygonShellOrientation, problem => new(problem.Severity, problem.Reason,
             "De orientatie van de polygoon moet in wijzerzin zijn.")},
+
         {ProblemCode.StreetName.NotFound, problem => new(problem.Severity, "StraatnaamNietGekend",
             "De straatnaam is niet gekend in het Straatnamenregister.")},
         {ProblemCode.StreetName.RegistryUnexpectedError, problem => new(problem.Severity, "StraatnamenregisterOnverwachteFout",
             $"Het Straatnamenregister gaf een onverwachte fout {problem.GetParameterValue("StatusCode")}.")},
+
         {ProblemCode.ToPosition.IsRequired, problem => new(problem.Severity, "TotPositieVerplicht",
             "TotPositie is verplicht.")},
         {ProblemCode.ToPosition.NotEqualToNextFromPosition, problem => new(problem.Severity, "TotPositieNietGelijkAanVolgendeVanPositie",
@@ -267,16 +279,23 @@ public static class ProblemTranslator
             $"De totPositie moet groter zijn dan de vanPositie.")},
         {ProblemCode.ToPosition.NotValid, problem => new(problem.Severity, "TotPositieNietCorrect",
             $"TotPositie is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
+
         {ProblemCode.Type.IsRequired, problem => new(problem.Severity, "TypeVerplicht",
             "Type is verplicht.")},
         {ProblemCode.Type.NotValid, problem => new(problem.Severity, "TypeNietCorrect",
             $"Type is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
+
         {ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce, problem => new(problem.Severity, "CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce",
             "Kan geen meerdere uploads uitvoeren voor hetzelfde extractaanvraag.")},
         {ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload, problem => new(problem.Severity, "CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload",
             "Upload is enkel toegelaten voor de laatste download van het extractaanvraag.")},
         {ProblemCode.Upload.UploadNotAllowedForInformativeExtract, problem => new(problem.Severity, "ExtractRequestMarkedInformative",
             "Upload is niet toegelaten voor een informatieve extractaanvraag.")},
+        {ProblemCode.Upload.UnexpectedError, problem => new(problem.Severity, "OnverwachteFout",
+            "Onverwachte fout bij de verwerking van het zip-bestand.")},
+        {ProblemCode.Upload.UnsupportedMediaType, problem => new(problem.Severity, "UnsupportedMediaType",
+            "Ongeldig bestandstype.")},
+
         {ProblemCode.Width.IsRequired, problem => new(problem.Severity, "BreedteVerplicht",
             "Breedte is verplicht.")},
         {ProblemCode.Width.NotValid, problem => new(problem.Severity, "BreedteNietCorrect",

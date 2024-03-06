@@ -39,6 +39,8 @@ public static class WellKnownSchemas
 
 public static class MigrationTables
 {
+    public const string Default = "__EFMigrationsHistory";
+
     public const string Syndication = "__EFMigrationsHistorySyndication";
     public const string Product = "__EFMigrationsHistoryProduct";
     public const string Editor = "__EFMigrationsHistoryEditor";

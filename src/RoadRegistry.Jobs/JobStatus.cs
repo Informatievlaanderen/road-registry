@@ -4,8 +4,6 @@ namespace RoadRegistry.Jobs
     {
         Created = 1,
         Preparing,
-        Prepared,
-        Processing,
         Completed,
         Cancelled,
         Error

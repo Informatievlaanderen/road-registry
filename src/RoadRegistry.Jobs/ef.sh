@@ -1,1 +1,1 @@
-dotnet ef --startup-project ../RoadRegistry.BackOffice.Api "$@" --context JobsContext
+dotnet ef --startup-project ../RoadRegistry.BackOffice.CommandHost "$@" --context JobsContext

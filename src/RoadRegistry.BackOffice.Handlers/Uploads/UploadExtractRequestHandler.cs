@@ -1,21 +1,19 @@
 namespace RoadRegistry.BackOffice.Handlers.Uploads;
 
-using System.IO.Compression;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
 using BackOffice.Extracts;
 using BackOffice.FeatureCompare;
-using BackOffice.FeatureCompare.Translators;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Editor.Schema;
 using Exceptions;
-using FeatureToggles;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.FeatureCompare.Readers;
+using System.IO.Compression;
 using ZipArchiveWriters;
 using ZipArchiveWriters.Cleaning;
 
