@@ -6,6 +6,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Messages;
 using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
@@ -297,6 +298,9 @@ public class RoadNetworkTestData
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString1.Length) / laneCount1);
                     }
 
+                    part.FromPosition = part.FromPosition.ToRoundedMeasurement();
+                    part.ToPosition = part.ToPosition.ToRoundedMeasurement();
+
                     return part;
                 })
                 .ToArray(),
@@ -314,6 +318,9 @@ public class RoadNetworkTestData
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString1.Length) / widthCount1);
                     }
 
+                    part.FromPosition = part.FromPosition.ToRoundedMeasurement();
+                    part.ToPosition = part.ToPosition.ToRoundedMeasurement();
+
                     return part;
                 })
                 .ToArray(),
@@ -330,6 +337,9 @@ public class RoadNetworkTestData
                     {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString1.Length) / surfaceCount1);
                     }
+
+                    part.FromPosition = part.FromPosition.ToRoundedMeasurement();
+                    part.ToPosition = part.ToPosition.ToRoundedMeasurement();
 
                     return part;
                 })
@@ -487,6 +497,9 @@ public class RoadNetworkTestData
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString2.Length) / laneCount2);
                     }
 
+                    part.FromPosition = part.FromPosition.ToRoundedMeasurement();
+                    part.ToPosition = part.ToPosition.ToRoundedMeasurement();
+
                     return part;
                 })
                 .ToArray(),
@@ -504,6 +517,9 @@ public class RoadNetworkTestData
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString2.Length) / widthCount2);
                     }
 
+                    part.FromPosition = part.FromPosition.ToRoundedMeasurement();
+                    part.ToPosition = part.ToPosition.ToRoundedMeasurement();
+
                     return part;
                 })
                 .ToArray(),
@@ -520,6 +536,9 @@ public class RoadNetworkTestData
                     {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString2.Length) / surfaceCount2);
                     }
+
+                    part.FromPosition = part.FromPosition.ToRoundedMeasurement();
+                    part.ToPosition = part.ToPosition.ToRoundedMeasurement();
 
                     return part;
                 })
