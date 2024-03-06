@@ -102,4 +102,9 @@ public readonly struct RoadSegmentPosition : IEquatable<RoadSegmentPosition>, IC
     {
         return instance._value;
     }
+
+    public static implicit operator double(RoadSegmentPosition instance)
+    {
+        return instance.ToDouble();
+    }
 }

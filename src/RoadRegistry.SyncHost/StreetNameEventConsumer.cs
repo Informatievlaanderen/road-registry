@@ -157,14 +157,11 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         var roadSegmentIds = segments.Select(x => x.Id).ToList();
 
         var lanes = await editorContext.RoadSegmentLaneAttributes
-            .Where(x => roadSegmentIds.Contains(x.RoadSegmentId))
-            .ToListAsync(cancellationToken);
+            .ToListIncludingLocalAsync(x => roadSegmentIds.Contains(x.RoadSegmentId), cancellationToken);
         var surfaces = await editorContext.RoadSegmentSurfaceAttributes
-            .Where(x => roadSegmentIds.Contains(x.RoadSegmentId))
-            .ToListAsync(cancellationToken);
+            .ToListIncludingLocalAsync(x => roadSegmentIds.Contains(x.RoadSegmentId), cancellationToken);
         var widths = await editorContext.RoadSegmentWidthAttributes
-            .Where(x => roadSegmentIds.Contains(x.RoadSegmentId))
-            .ToListAsync(cancellationToken);
+            .ToListIncludingLocalAsync(x => roadSegmentIds.Contains(x.RoadSegmentId), cancellationToken);
 
         var organizationId = OrganizationId.DigitaalVlaanderen;
 
@@ -209,7 +206,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
                 .Where(x => x.VANPOS.Value.HasValue && x.TOTPOS.Value.HasValue)
                 .ToList();
 
-            Logger.LogInformation("Linking RoadSegment {Id} to StreetName {StreetNameId} - {Lanes} lanes, {Surfaces} surfaces, {Widths} widths", roadSegment.Id, destinationStreetNameId, roadSegmentLanes.Count, roadSegmentSurfaces.Count, roadSegmentWidths.Count);
+            Logger.LogInformation("Linking RoadSegment {Id} to StreetName {StreetNameId}, {Lanes} lanes, {Surfaces} surfaces, {Widths} widths", roadSegment.Id, destinationStreetNameId, roadSegmentLanes.Count, roadSegmentSurfaces.Count, roadSegmentWidths.Count);
 
             if (roadSegmentLanes.Any())
             {

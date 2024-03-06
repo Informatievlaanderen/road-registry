@@ -2,12 +2,13 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
 {
     using Autofac;
     using BackOffice;
-    using BackOffice.FeatureToggles;
+    using BackOffice.Extracts.Dbase.RoadSegments;
     using BackOffice.Framework;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
     using Editor.Schema;
+    using Editor.Schema.Extensions;
     using Editor.Schema.RoadSegments;
     using Extensions;
     using Microsoft.Extensions.Configuration;
@@ -54,31 +55,84 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                     Position = -1
                 });
 
-                var statusTranslation = RoadSegmentStatus.Parse(testData.Segment1Added.Status).Translation;
-                var morphologyTranslation = RoadSegmentMorphology.Parse(testData.Segment1Added.Morphology).Translation;
-                var categoryTranslation = RoadSegmentCategory.Parse(testData.Segment1Added.Category).Translation;
-                var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(testData.Segment1Added.GeometryDrawMethod).Translation;
-                var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(testData.Segment1Added.AccessRestriction).Translation;
+                var segment = testData.Segment1Added;
+
+                var statusTranslation = RoadSegmentStatus.Parse(segment.Status).Translation;
+                var morphologyTranslation = RoadSegmentMorphology.Parse(segment.Morphology).Translation;
+                var categoryTranslation = RoadSegmentCategory.Parse(segment.Category).Translation;
+                var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation;
+                var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation;
 
                 editorContext.RoadSegments.Add(
                     new RoadSegmentRecord
                     {
-                        Id = testData.Segment1Added.Id,
-                        StartNodeId = testData.Segment1Added.StartNodeId,
-                        EndNodeId = testData.Segment1Added.EndNodeId,
-                        Geometry = GeometryTranslator.Translate(testData.Segment1Added.Geometry),
-                        Version = testData.Segment1Added.Version,
-                        GeometryVersion = testData.Segment1Added.GeometryVersion,
+                        Id = segment.Id,
+                        StartNodeId = segment.StartNodeId,
+                        EndNodeId = segment.EndNodeId,
+                        Geometry = GeometryTranslator.Translate(segment.Geometry),
+                        Version = segment.Version,
+                        GeometryVersion = segment.GeometryVersion,
                         StatusId = statusTranslation.Identifier,
                         MorphologyId = morphologyTranslation.Identifier,
                         CategoryId = categoryTranslation.Identifier,
                         LeftSideStreetNameId = streetName1LocalId,
                         RightSideStreetNameId = streetName1LocalId,
-                        MaintainerId = testData.Segment1Added.MaintenanceAuthority.Code,
-                        MaintainerName = testData.Segment1Added.MaintenanceAuthority.Name,
+                        MaintainerId = segment.MaintenanceAuthority.Code,
+                        MaintainerName = segment.MaintenanceAuthority.Name,
                         MethodId = geometryDrawMethodTranslation.Identifier,
                         AccessRestrictionId = accessRestrictionTranslation.Identifier
                     });
+
+                editorContext.RoadSegmentLaneAttributes.AddRange(segment.Lanes
+                    .Select(lane => new RoadSegmentLaneAttributeRecord
+                    {
+                        Id = lane.AttributeId,
+                        RoadSegmentId = segment.Id,
+                        DbaseRecord = new RoadSegmentLaneAttributeDbaseRecord
+                        {
+                            RS_OIDN = { Value = lane.AttributeId },
+                            WS_OIDN = { Value = segment.Id },
+                            WS_GIDN = { Value = segment.Id + "_" + lane.AsOfGeometryVersion },
+                            AANTAL = { Value = lane.Count },
+                            RICHTING = { Value = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier },
+                            LBLRICHT = { Value = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name },
+                            VANPOS = { Value = new RoadSegmentPosition(lane.FromPosition) },
+                            TOTPOS = { Value = new RoadSegmentPosition(lane.ToPosition) }
+                        }.ToBytes(_memoryStreamManager, _fileEncoding)
+                    }));
+
+                editorContext.RoadSegmentSurfaceAttributes.AddRange(segment.Surfaces
+                    .Select(surface => new RoadSegmentSurfaceAttributeRecord
+                    {
+                        Id = surface.AttributeId,
+                        RoadSegmentId = segment.Id,
+                        DbaseRecord = new RoadSegmentSurfaceAttributeDbaseRecord
+                        {
+                            WV_OIDN = { Value = surface.AttributeId },
+                            WS_OIDN = { Value = segment.Id },
+                            WS_GIDN = { Value = segment.Id + "_" + surface.AsOfGeometryVersion },
+                            TYPE = { Value = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier },
+                            LBLTYPE = { Value = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name },
+                            VANPOS = { Value = new RoadSegmentPosition(surface.FromPosition) },
+                            TOTPOS = { Value = new RoadSegmentPosition(surface.ToPosition) }
+                        }.ToBytes(_memoryStreamManager, _fileEncoding)
+                    }));
+
+                editorContext.RoadSegmentWidthAttributes.AddRange(segment.Widths
+                    .Select(width => new RoadSegmentWidthAttributeRecord
+                    {
+                        Id = width.AttributeId,
+                        RoadSegmentId = segment.Id,
+                        DbaseRecord = new RoadSegmentWidthAttributeDbaseRecord
+                        {
+                            WB_OIDN = { Value = width.AttributeId },
+                            WS_OIDN = { Value = segment.Id },
+                            WS_GIDN = { Value = $"{segment.Id}_{width.AsOfGeometryVersion}" },
+                            BREEDTE = { Value = width.Width },
+                            VANPOS = { Value = new RoadSegmentPosition(width.FromPosition) },
+                            TOTPOS = { Value = new RoadSegmentPosition(width.ToPosition) }
+                        }.ToBytes(_memoryStreamManager, _fileEncoding)
+                    }));
             });
 
             topicConsumer
@@ -98,6 +152,31 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                 Assert.Equal(testData.Segment1Added.Id, modifyRoadSegment.Id);
                 Assert.Equal(-9, modifyRoadSegment.LeftSideStreetNameId);
                 Assert.Equal(-9, modifyRoadSegment.RightSideStreetNameId);
+
+                Assert.Equal(testData.Segment1Added.Lanes.Length, modifyRoadSegment.Lanes.Length);
+                for (var i = 0; i < testData.Segment1Added.Lanes.Length; i++)
+                {
+                    Assert.Equal(testData.Segment1Added.Lanes[i].FromPosition, modifyRoadSegment.Lanes[i].FromPosition);
+                    Assert.Equal(testData.Segment1Added.Lanes[i].ToPosition, modifyRoadSegment.Lanes[i].ToPosition);
+                    Assert.Equal(testData.Segment1Added.Lanes[i].Count, modifyRoadSegment.Lanes[i].Count);
+                    Assert.Equal(testData.Segment1Added.Lanes[i].Direction, modifyRoadSegment.Lanes[i].Direction);
+                }
+
+                Assert.Equal(testData.Segment1Added.Surfaces.Length, modifyRoadSegment.Surfaces.Length);
+                for (var i = 0; i < testData.Segment1Added.Surfaces.Length; i++)
+                {
+                    Assert.Equal(testData.Segment1Added.Surfaces[i].FromPosition, modifyRoadSegment.Surfaces[i].FromPosition);
+                    Assert.Equal(testData.Segment1Added.Surfaces[i].ToPosition, modifyRoadSegment.Surfaces[i].ToPosition);
+                    Assert.Equal(testData.Segment1Added.Surfaces[i].Type, modifyRoadSegment.Surfaces[i].Type);
+                }
+
+                Assert.Equal(testData.Segment1Added.Widths.Length, modifyRoadSegment.Widths.Length);
+                for (var i = 0; i < testData.Segment1Added.Widths.Length; i++)
+                {
+                    Assert.Equal(testData.Segment1Added.Widths[i].FromPosition, modifyRoadSegment.Widths[i].FromPosition);
+                    Assert.Equal(testData.Segment1Added.Widths[i].ToPosition, modifyRoadSegment.Widths[i].ToPosition);
+                    Assert.Equal(testData.Segment1Added.Widths[i].Width, modifyRoadSegment.Widths[i].Width);
+                }
             }
         }
         

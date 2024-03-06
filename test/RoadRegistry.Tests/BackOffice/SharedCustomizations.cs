@@ -12,6 +12,7 @@ using NodaTime;
 using NodaTime.Testing;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
 using System.Linq;
@@ -696,7 +697,7 @@ public static class SharedCustomizations
     {
         fixture.Customize<RoadSegmentPosition>(customization =>
             customization.FromFactory<decimal>(
-                value => new RoadSegmentPosition(Math.Abs(value))
+                value => new RoadSegmentPosition(Math.Abs(value).ToRoundedMeasurement())
             )
         );
     }
