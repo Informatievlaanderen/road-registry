@@ -1,3 +1,11 @@
+## [3.70.3](https://github.com/informatievlaanderen/road-registry/compare/v3.70.2...v3.70.3) (2024-03-06)
+
+
+### Bug Fixes
+
+* pipeline upgrade download/upload-artifact to v4 ([#1420](https://github.com/informatievlaanderen/road-registry/issues/1420)) ([eb37001](https://github.com/informatievlaanderen/road-registry/commit/eb370015684804f7070424ad5f0a9bd6d465833d))
+* StreetNameEventConsumer query correct attribute tables ([#1419](https://github.com/informatievlaanderen/road-registry/issues/1419)) ([f034826](https://github.com/informatievlaanderen/road-registry/commit/f034826d201bf4cfc8a5e280c4b63ab563bb6c3b))
+
 ## [3.70.2](https://github.com/informatievlaanderen/road-registry/compare/v3.70.1...v3.70.2) (2024-03-05)
 
 
