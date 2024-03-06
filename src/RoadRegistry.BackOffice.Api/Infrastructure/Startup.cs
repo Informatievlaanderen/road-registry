@@ -26,7 +26,7 @@ using Extensions;
 using FeatureToggles;
 using FluentValidation;
 using Framework;
-using Handlers.Extensions;
+using BackOffice.Handlers.Extensions;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.HealthChecks;
 using Hosts.Infrastructure.Modules;
@@ -62,7 +62,8 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FeatureCompare.Validation;
-using DomainAssemblyMarker = Handlers.Sqs.DomainAssemblyMarker;
+using Jobs;
+using DomainAssemblyMarker = BackOffice.Handlers.Sqs.DomainAssemblyMarker;
 using MediatorModule = Snapshot.Handlers.MediatorModule;
 using SystemClock = NodaTime.SystemClock;
 
@@ -163,7 +164,8 @@ public class Startup
             .RegisterModule(new DataDogModule(_configuration))
             .RegisterModule<BlobClientModule>()
             .RegisterModule<MediatorModule>()
-            .RegisterModule<SnapshotSqsHandlersModule>();
+            .RegisterModule<SnapshotSqsHandlersModule>()
+            ;
 
         builder
             .RegisterGeneric(typeof(IdentityPipelineBehavior<,>)).As(typeof(IPipelineBehavior<,>));
@@ -171,7 +173,7 @@ public class Startup
         builder
             .RegisterModulesFromAssemblyContaining<Startup>()
             .RegisterModulesFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
-            .RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>()
+            .RegisterModulesFromAssemblyContaining<BackOffice.Handlers.DomainAssemblyMarker>()
             .RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>();
     }
 
@@ -348,7 +350,7 @@ public class Startup
             .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
             .AddValidatorsAsScopedFromAssemblyContaining<Startup>()
             .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
-            .AddValidatorsFromAssemblyContaining<Handlers.DomainAssemblyMarker>()
+            .AddValidatorsFromAssemblyContaining<BackOffice.Handlers.DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<DomainAssemblyMarker>()
             .AddFeatureToggles(featureToggles)
             .AddTicketing()
@@ -357,6 +359,8 @@ public class Startup
             .AddRoadNetworkCommandQueue()
             .AddRoadNetworkSnapshotStrategyOptions()
             .Configure<ResponseOptions>(_configuration)
+            .Configure<JobsBucketOptions>(_configuration.GetSection(JobsBucketOptions.ConfigKey))
+            .AddJobsContext()
             .AddAcmIdmAuthentication(oAuth2IntrospectionOptions, openIdConnectOptions)
             .AddApiKeyAuth()
             ;
@@ -396,6 +400,5 @@ public class SqlServerHealthCheck : IHealthCheck
         {
             return new HealthCheckResult(HealthStatus.Unhealthy, "dfd", ex);
         }
-        throw new NotImplementedException();
     }
 }

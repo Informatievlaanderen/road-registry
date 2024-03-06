@@ -1,9 +1,7 @@
 namespace RoadRegistry.BackOffice.Configuration;
 
-using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
-using Amazon.S3.Internal;
 using Newtonsoft.Json;
 
 public class DevelopmentS3Options : S3Options
@@ -23,7 +21,7 @@ public class DevelopmentS3Options : S3Options
     public string AccessKey { get; set; }
     public string SecretKey { get; set; }
 
-    public override AmazonS3Client CreateS3Client()
+    public override IAmazonS3 CreateS3Client()
     {
         return new AmazonS3Client(new BasicAWSCredentials(AccessKey ?? "dummy", SecretKey ?? "dummy"), new AmazonS3Config
         {

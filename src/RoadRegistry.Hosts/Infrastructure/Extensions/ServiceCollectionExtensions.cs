@@ -17,6 +17,7 @@ using SqlStreamStore;
 using Sync.StreetNameRegistry;
 using System;
 using System.Linq;
+using BackOffice.Extensions;
 using IStreetNameCache = BackOffice.IStreetNameCache;
 
 public static class ServiceCollectionExtensions
@@ -31,19 +32,6 @@ public static class ServiceCollectionExtensions
                     {
                         Schema = WellKnownSchemas.EventSchema
                     }));
-    }
-
-    public static IServiceCollection AddTraceDbConnection<TDbContext>(this IServiceCollection services, string connectionStringName, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
-        where TDbContext : DbContext
-    {
-        services
-            .Add(new ServiceDescriptor(typeof(TraceDbConnection<TDbContext>), sp =>
-                new TraceDbConnection<TDbContext>(
-                    new SqlConnection(sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(connectionStringName)),
-                    sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]!)
-                , serviceLifetime)
-            );
-        return services;
     }
 
     public static IServiceCollection AddEditorContext(this IServiceCollection services)

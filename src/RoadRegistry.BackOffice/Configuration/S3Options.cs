@@ -40,7 +40,7 @@ public class S3Options : IHasConfigurationKey
         : this(new SessionAWSCredentials(accessKey, secretKey, sessionToken), regionEndpoint)
     { }
 
-    public virtual AmazonS3Client CreateS3Client()
+    public virtual IAmazonS3 CreateS3Client()
     {
         var config = new AmazonS3Config { RegionEndpoint = RegionEndpoint };
         return Credentials != null ? new AmazonS3Client(Credentials, config) : new AmazonS3Client(config);

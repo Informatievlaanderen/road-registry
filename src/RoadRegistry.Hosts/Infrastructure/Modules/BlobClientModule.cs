@@ -50,7 +50,10 @@ public class BlobClientModule : Module
         builder.Register(c => c.Resolve<S3Options>().CreateS3Client()).AsSelf().SingleInstance();
 
         builder
-            .Register(c => c.Resolve<AmazonS3Client>())
+            .Register(c => c.Resolve<AmazonS3ExtendedClient>())
+            .As<IAmazonS3Extended>().SingleInstance();
+        builder
+            .Register(c => c.Resolve<IAmazonS3Extended>())
             .As<IAmazonS3>().SingleInstance();
 
         builder
