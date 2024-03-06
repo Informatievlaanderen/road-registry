@@ -1,26 +1,26 @@
 namespace RoadRegistry.Hosts.Infrastructure.HealthChecks;
 
+using Amazon.S3;
+using Amazon.S3.Model;
+using BackOffice;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Amazon.S3.Model;
-using BackOffice;
-using BackOffice.Configuration;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 internal class S3HealthCheck : IHealthCheck
 {
     public const string DummyFilePath = "./healthcheck.bin";
 
     private readonly string _bucketName;
-    private readonly S3Options _options;
+    private readonly IAmazonS3 _s3Client;
     private readonly Permission _permission;
     private readonly string _applicationName;
 
-    public S3HealthCheck(S3Options options, string bucketName, Permission permission, string applicationName)
+    public S3HealthCheck(IAmazonS3 s3Client, string bucketName, Permission permission, string applicationName)
     {
-        _options = options;
+        _s3Client = s3Client;
         _bucketName = bucketName;
         _permission = permission;
         _applicationName = applicationName;
@@ -30,7 +30,7 @@ internal class S3HealthCheck : IHealthCheck
     {
         try
         {
-            var client = _options.CreateS3Client();
+            var client = _s3Client;
             
             using (client)
             {

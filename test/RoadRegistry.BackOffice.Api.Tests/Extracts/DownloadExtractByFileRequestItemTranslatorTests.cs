@@ -1,9 +1,9 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
 using Abstractions.Extracts;
+using BackOffice.Handlers.Extracts;
 using FluentAssertions;
 using FluentValidation;
-using Handlers.Extracts;
 using ContentType = Be.Vlaanderen.Basisregisters.BlobStore.ContentType;
 
 public class DownloadExtractByFileRequestItemTranslatorTests : IAsyncLifetime

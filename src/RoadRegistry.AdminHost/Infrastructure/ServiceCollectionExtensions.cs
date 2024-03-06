@@ -1,8 +1,8 @@
 namespace RoadRegistry.AdminHost.Infrastructure;
 
 using BackOffice;
+using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
-using Hosts.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

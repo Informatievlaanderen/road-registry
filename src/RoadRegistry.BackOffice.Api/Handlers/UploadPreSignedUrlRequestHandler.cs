@@ -10,6 +10,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Options;
     using TicketingService.Abstractions;
 
     public sealed class UploadPreSignedUrlRequestHandler : IRequestHandler<UploadPreSignedUrlRequest, UploadPreSignedUrlResponse>
@@ -25,13 +26,13 @@ namespace RoadRegistry.BackOffice.Api.Handlers
             ITicketing ticketing,
             ITicketingUrl ticketingUrl,
             IAmazonS3Extended s3Extended,
-            JobsBucketOptions bucketOptions)
+            IOptions<JobsBucketOptions> bucketOptions)
         {
             _jobsContext = jobsContext;
             _ticketing = ticketing;
             _ticketingUrl = ticketingUrl;
             _s3Extended = s3Extended;
-            _bucketOptions = bucketOptions;
+            _bucketOptions = bucketOptions.Value;
         }
 
         public async Task<UploadPreSignedUrlResponse> Handle(

@@ -1,6 +1,5 @@
 namespace RoadRegistry.Hosts.Infrastructure.Modules;
 
-using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 using Autofac;
@@ -13,6 +12,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore.IO;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using Microsoft.Extensions.Logging;
 
 public class BlobClientModule : Module
 {
@@ -47,13 +47,33 @@ public class BlobClientModule : Module
             .As<S3Options>()
             .SingleInstance();
 
-        builder.Register(c => c.Resolve<S3Options>().CreateS3Client()).AsSelf().SingleInstance();
+        builder.Register(c =>
+        {
+            var loggerFactory = c.Resolve<ILoggerFactory>();
+            var s3Options = c.Resolve<S3Options>();
+
+            if (s3Options is DevelopmentS3Options developmentS3Options)
+            {
+                return new AmazonS3ExtendedClient(loggerFactory, new BasicAWSCredentials(developmentS3Options.AccessKey ?? "dummy", developmentS3Options.SecretKey ?? "dummy"), new AmazonS3Config
+                {
+                    ServiceURL = s3Options.ServiceUrl,
+                    DisableHostPrefixInjection = true,
+                    ForcePathStyle = true,
+                    LogResponse = true
+                });
+            }
+
+            var config = new AmazonS3Config { RegionEndpoint = s3Options.RegionEndpoint };
+            return s3Options.Credentials != null
+                ? new AmazonS3ExtendedClient(loggerFactory, s3Options.Credentials, config)
+                : new AmazonS3ExtendedClient(loggerFactory, config);
+        }).AsSelf().SingleInstance();
 
         builder
             .Register(c => c.Resolve<AmazonS3ExtendedClient>())
             .As<IAmazonS3Extended>().SingleInstance();
         builder
-            .Register(c => c.Resolve<IAmazonS3Extended>())
+            .Register(c => c.Resolve<AmazonS3ExtendedClient>())
             .As<IAmazonS3>().SingleInstance();
 
         builder

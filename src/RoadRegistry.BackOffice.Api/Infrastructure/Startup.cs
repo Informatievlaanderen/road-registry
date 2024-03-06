@@ -174,7 +174,7 @@ public class Startup
             .RegisterModulesFromAssemblyContaining<Startup>()
             .RegisterModulesFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
             .RegisterModulesFromAssemblyContaining<BackOffice.Handlers.DomainAssemblyMarker>()
-            .RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>();
+            .RegisterModulesFromAssemblyContaining<BackOffice.Handlers.Sqs.DomainAssemblyMarker>();
     }
 
     public void ConfigureServices(IServiceCollection services)

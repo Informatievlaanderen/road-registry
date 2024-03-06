@@ -1,12 +1,12 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
+using Abstractions.RoadSegments;
+using BackOffice.Handlers.Sqs.RoadSegments;
+using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions.RoadSegments;
-using Handlers.Sqs.RoadSegments;
-using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 public partial class RoadRegistrySystemController
 {

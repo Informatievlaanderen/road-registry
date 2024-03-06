@@ -30,6 +30,15 @@ namespace RoadRegistry.Hosts.Infrastructure.Modules
             _logger = loggerFactory.CreateLogger<AmazonS3ExtendedClient>();
         }
 
+        public AmazonS3ExtendedClient(
+            ILoggerFactory loggerFactory,
+            AWSCredentials credentials,
+            AmazonS3Config config
+        ) : base(credentials, config)
+        {
+            _logger = loggerFactory.CreateLogger<AmazonS3ExtendedClient>();
+        }
+
         public CreatePresignedPostResponse CreatePresignedPost(CreatePresignedPostRequest request)
         {
             var regionName = Config.RegionEndpoint.SystemName;

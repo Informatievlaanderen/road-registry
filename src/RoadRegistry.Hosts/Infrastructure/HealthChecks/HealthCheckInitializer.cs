@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Amazon.Runtime;
+using Amazon.S3;
 using BackOffice.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,9 +42,6 @@ public class HealthCheckInitializer
 
             var s3BlobClientOptions = _configuration.GetOptions<S3BlobClientOptions>()
                                       ?? new S3BlobClientOptions();
-            var s3Options = _hostEnvironment.IsDevelopment()
-                ? _configuration.GetOptions<DevelopmentS3Options>()
-                : _configuration.GetOptions<S3Options>();
 
             foreach (var bucketPermissions in optionsBuilder.GetPermissions())
             {
@@ -56,7 +54,7 @@ public class HealthCheckInitializer
                 {
                     _builder.Add(new HealthCheckRegistration(
                         $"s3-{bucketKey}-{permission}".ToLowerInvariant(),
-                        sp => new S3HealthCheck(s3Options, bucketName, permission, _hostEnvironment.ApplicationName),
+                        sp => new S3HealthCheck(sp.GetRequiredService<IAmazonS3>(), bucketName, permission, _hostEnvironment.ApplicationName),
                         default,
                         new[] { "aws", "s3" },
                         default));

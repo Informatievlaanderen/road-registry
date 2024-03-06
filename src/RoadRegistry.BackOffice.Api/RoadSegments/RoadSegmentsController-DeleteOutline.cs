@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
 using Abstractions.Extensions;
 using Abstractions.RoadSegmentsOutline;
+using BackOffice.Handlers.Sqs.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
@@ -9,7 +10,6 @@ using Core;
 using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
-using Handlers.Sqs.RoadSegments;
 using Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

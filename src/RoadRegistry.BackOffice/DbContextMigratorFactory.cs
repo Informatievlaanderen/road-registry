@@ -21,14 +21,8 @@ public abstract class DbContextMigratorFactory<TContext> : IDesignTimeDbContextF
         string connectionStringName,
         MigrationHistoryConfiguration migrationHistoryConfiguration)
     {
-        if (string.IsNullOrWhiteSpace(connectionStringName))
-        {
-            throw new ArgumentNullException(nameof(connectionStringName));
-        }
-
-        _connectionStringName = connectionStringName;
-
-        _migrationHistoryConfiguration = migrationHistoryConfiguration ?? throw new ArgumentNullException(nameof(migrationHistoryConfiguration));
+        _connectionStringName = connectionStringName.ThrowIfNull();
+        _migrationHistoryConfiguration = migrationHistoryConfiguration.ThrowIfNull();
     }
 
     private readonly string _connectionStringName;
