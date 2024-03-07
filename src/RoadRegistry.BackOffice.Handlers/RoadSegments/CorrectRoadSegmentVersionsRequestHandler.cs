@@ -66,6 +66,14 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
             return new CorrectRoadSegmentVersionsResponse(0);
         }
 
+        //TODO-rik voeg editor projectie toe om te weten wat de huidige versie/geometrieversie is van de wegsegmenten (uniek obv id+methode+streamid)
+        //met ook de timestamp erbij bij elke nieuwe record, zodat we weten wat de volgorde is van de verhuizen
+
+        //TODO-rik CorrectRoadSegmentVersions actie uitbreiden zodat je een lijst van wegsegmentids kunt meegeven, die enkel verwerkt worden
+        //optioneel per wegsegment een version/geometrieVersion laten meegeven zodat die expliciet wordt gebruikt, en dus via de ModifyRoadSegment wordt meegegeven
+        //situatie 1: ingeschetste wegsegmenten hun versie/geometrieVersie is GROTER OF GELIJK dan de ingemeten variant -> update triggeren
+        //situatie 2: ingeschetste wegsegmenten die vroeger in roadnetwork stream zaten, en nu in een aparte stream
+
         var network = await _roadRegistryContext.RoadNetworks.Get(cancellationToken);
 
         var roadSegments = network.FindRoadSegments(roadSegmentIdsWithGeometryVersionZero.Select(x => new RoadSegmentId(x)));

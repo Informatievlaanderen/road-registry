@@ -188,7 +188,7 @@ public class RoadNetwork : EventSourcedEntity
             return new NextRoadSegmentGeometryVersionProvider().Next();
         };
     }
-    
+
     public Func<RoadSegmentId, RoadSegmentVersion> ProvidesNextRoadSegmentVersion()
     {
         return id =>
@@ -282,3 +282,5 @@ public class RoadNetwork : EventSourcedEntity
         }
     }
 }
+
+public sealed record NextRoadSegmentVersionArgs(RoadSegmentId Id, RoadSegmentGeometryDrawMethod GeometryDrawMethod, bool ConvertedFromOutlined);
