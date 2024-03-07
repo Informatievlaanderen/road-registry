@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Jobs
+namespace RoadRegistry.Jobs
 {
     using System;
     using Microsoft.EntityFrameworkCore;
@@ -14,9 +14,7 @@
 
         public string UploadBlobName => $"upload_{Id:D}";
         public string ReceivedBlobName => $"received/{Id:D}";
-
-        public static string JobResultsBlobName(Guid id) => $"jobresults/{id:D}";
-
+        
         private Job() { }
 
         public Job(DateTimeOffset created, JobStatus status, Guid? ticketId = null)

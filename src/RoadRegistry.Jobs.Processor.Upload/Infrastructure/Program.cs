@@ -4,8 +4,13 @@ using BackOffice.Framework;
 using Hosts;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
+using BackOffice;
 using BackOffice.Extensions;
 using Hosts.Infrastructure.Extensions;
+using Autofac;
+using BackOffice.ZipArchiveWriters.Cleaning;
+using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
+using Hosts.Infrastructure.Modules;
 
 public class Program
 {
@@ -22,21 +27,37 @@ public class Program
                     .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
                     .AddHttpClient()
                     .AddTicketing()
+                    //.AddScoped(_ => new EventSourcedEntityMap())
+                    .AddDistributedStreamStoreLockOptions()
+                    .AddRoadNetworkDbIdGenerator()
+                    .AddEditorContext()
+                    //.AddOrganizationCache()
+                    .AddStreetNameCache()
                     .AddJobsContext()
                     .AddFeatureCompare()
+                    .AddSingleton<IBeforeFeatureCompareZipArchiveCleaner, BeforeFeatureCompareZipArchiveCleaner>()
                     //TODO-rik cleanup
-                    //.AddScoped(_ => new EventSourcedEntityMap())
-                    //.AddRoadNetworkCommandQueue()
+                    .AddRoadNetworkCommandQueue()
                     //.AddRoadNetworkEventWriter()
-                    //.AddEditorContext()
 
                     .AddHostedService<UploadProcessor>()
                     ;
             })
-            .ConfigureContainer((hostContext, builder) => { })
+            .ConfigureContainer((hostContext, builder) =>
+            {
+                builder
+                    .RegisterModule(new DataDogModule(hostContext.Configuration))
+                    .RegisterModule<BlobClientModule>()
+                    .RegisterModule<BackOffice.Handlers.MediatorModule>();
+            })
             .Build();
 
         await roadRegistryHost
+            .LogSqlServerConnectionStrings(new[] {
+                WellKnownConnectionNames.Events,
+                WellKnownConnectionNames.Jobs,
+                WellKnownConnectionNames.JobsAdmin
+            })
             .RunAsync();
     }
 }

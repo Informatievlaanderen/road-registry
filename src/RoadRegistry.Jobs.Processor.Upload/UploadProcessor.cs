@@ -133,7 +133,7 @@ namespace RoadRegistry.Jobs.Processor.Upload
         private async Task<object> BuildRequest(Job job, BlobObject blob, CancellationToken stoppingToken)
         {
             var ticket = await _ticketing.Get(job.TicketId!.Value, stoppingToken);
-            var uploadType = Enum.Parse(typeof(UploadType), ticket!.Metadata["Type"]);
+            var uploadType = Enum.Parse(typeof(UploadType), ticket!.Metadata["type"]);
 
             await using var stream = await blob.OpenAsync(stoppingToken);
 
@@ -142,7 +142,7 @@ namespace RoadRegistry.Jobs.Processor.Upload
                 case UploadType.Uploads:
                     return new BackOffice.Abstractions.Uploads.UploadExtractRequest(new UploadExtractArchiveRequest(blob.Name, stream, blob.ContentType));
                 case UploadType.Extracts:
-                    return new BackOffice.Abstractions.Extracts.UploadExtractRequest(ticket.Metadata["DownloadId"], new UploadExtractArchiveRequest(blob.Name, stream, blob.ContentType));
+                    return new BackOffice.Abstractions.Extracts.UploadExtractRequest(ticket.Metadata["downloadId"], new UploadExtractArchiveRequest(blob.Name, stream, blob.ContentType));
                 default:
                     throw new NotSupportedException($"{nameof(UploadType)} {uploadType} is not supported.");
             }

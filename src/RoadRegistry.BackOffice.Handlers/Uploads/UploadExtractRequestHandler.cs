@@ -56,7 +56,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         {
             throw new UnsupportedMediaTypeException();
         }
-        
+        //TODO-rik continue test full flow
         await using var readStream = await CleanArchive(request.Archive.ReadStream, cancellationToken);
 
         var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));

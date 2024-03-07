@@ -35,46 +35,49 @@ namespace RoadRegistry.BackOffice.Api.Handlers
             _bucketOptions = bucketOptions.Value;
         }
 
-        public async Task<UploadPreSignedUrlResponse> Handle(
+        public Task<UploadPreSignedUrlResponse> Handle(
             UploadPreSignedUrlRequest request,
             CancellationToken cancellationToken)
         {
-            await using var transaction = await _jobsContext.Database.BeginTransactionAsync(cancellationToken);
-
-            try
+            return _jobsContext.Database.CreateExecutionStrategy().ExecuteAsync(request, async (_, _, _) =>
             {
-                var job = await CreateJob(cancellationToken);
+                await using var transaction = await _jobsContext.Database.BeginTransactionAsync(cancellationToken);
 
-                var preSignedUrl = _s3Extended.CreatePresignedPost(
-                    new CreatePresignedPostRequest(
-                        _bucketOptions.BucketName,
-                        job.UploadBlobName,
-                        new List<ExactMatchCondition>(),
-                        TimeSpan.FromMinutes(_bucketOptions.UrlExpirationInMinutes)));
+                try
+                {
+                    var job = await CreateJob(cancellationToken);
 
-                var ticketId = await _ticketing.CreateTicket(
-                    new Dictionary<string, string>
-                    {
-                        { "Registry", "RoadRegistry" },
-                        { "Action", "Upload" },
-                        { "Type", request.Type.ToString() },
-                        { "DownloadId", request.DownloadId ?? string.Empty },
-                        { "UploadId", job.Id.ToString("D") }
-                    },
-                    cancellationToken);
+                    var preSignedUrl = _s3Extended.CreatePresignedPost(
+                        new CreatePresignedPostRequest(
+                            _bucketOptions.BucketName,
+                            job.UploadBlobName,
+                            new List<ExactMatchCondition>(),
+                            TimeSpan.FromMinutes(_bucketOptions.UrlExpirationInMinutes)));
 
-                var ticketUrl = _ticketingUrl.For(ticketId).ToString();
+                    var ticketId = await _ticketing.CreateTicket(
+                        new Dictionary<string, string>
+                        {
+                            { "Registry", "RoadRegistry" },
+                            { "Action", "Upload" },
+                            { "Type", request.Type.ToString() },
+                            { "DownloadId", request.DownloadId ?? string.Empty },
+                            { "UploadId", job.Id.ToString("D") }
+                        },
+                        cancellationToken);
 
-                await UpdateJobWithTicketUrl(job, ticketId, cancellationToken);
-                await transaction.CommitAsync(cancellationToken);
+                    var ticketUrl = _ticketingUrl.For(ticketId).ToString();
 
-                return new UploadPreSignedUrlResponse(job.Id, preSignedUrl.Url.ToString(), preSignedUrl.Fields, ticketUrl);
-            }
-            catch (Exception)
-            {
-                await transaction.RollbackAsync(cancellationToken);
-                throw;
-            }
+                    await UpdateJobWithTicketUrl(job, ticketId, cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+
+                    return new UploadPreSignedUrlResponse(job.Id, preSignedUrl.Url.ToString(), preSignedUrl.Fields, ticketUrl);
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    throw;
+                }
+            }, null, cancellationToken);
         }
 
         private async Task<Job> CreateJob(CancellationToken cancellationToken)

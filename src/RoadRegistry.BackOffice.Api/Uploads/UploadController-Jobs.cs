@@ -23,7 +23,7 @@ public partial class UploadController
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als de url is aangemaakt.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
-    [ProducesResponseType(typeof(FileCallbackResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UploadPreSignedUrlResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(FileCallbackResultExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]

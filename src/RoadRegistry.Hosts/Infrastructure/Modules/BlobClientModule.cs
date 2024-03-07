@@ -9,10 +9,10 @@ using BackOffice.Extensions;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
-using Microsoft.Extensions.Configuration;
-using System.IO;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.IO;
 
 public class BlobClientModule : Module
 {
@@ -52,20 +52,24 @@ public class BlobClientModule : Module
             var loggerFactory = c.Resolve<ILoggerFactory>();
             var s3Options = c.Resolve<S3Options>();
 
+            var credentials = s3Options.Credentials;
+            var config = new AmazonS3Config { RegionEndpoint = s3Options.RegionEndpoint };
+
             if (s3Options is DevelopmentS3Options developmentS3Options)
             {
-                return new AmazonS3ExtendedClient(loggerFactory, new BasicAWSCredentials(developmentS3Options.AccessKey ?? "dummy", developmentS3Options.SecretKey ?? "dummy"), new AmazonS3Config
+                credentials = new BasicAWSCredentials(developmentS3Options.AccessKey ?? "dummy", developmentS3Options.SecretKey ?? "dummy");
+                config = new AmazonS3Config
                 {
                     ServiceURL = s3Options.ServiceUrl,
                     DisableHostPrefixInjection = true,
                     ForcePathStyle = true,
-                    LogResponse = true
-                });
+                    LogResponse = true,
+                    //RegionEndpoint = s3Options.RegionEndpoint // RegionEndpoint must be null for dev
+                };
             }
 
-            var config = new AmazonS3Config { RegionEndpoint = s3Options.RegionEndpoint };
-            return s3Options.Credentials != null
-                ? new AmazonS3ExtendedClient(loggerFactory, s3Options.Credentials, config)
+            return credentials is not null
+                ? new AmazonS3ExtendedClient(loggerFactory, credentials, config)
                 : new AmazonS3ExtendedClient(loggerFactory, config);
         }).AsSelf().SingleInstance();
 

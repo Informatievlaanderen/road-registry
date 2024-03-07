@@ -130,18 +130,12 @@ public class Program
             })
             .RunAsync(async (sp, host, configuration) =>
             {
-                //TODO-rik obsolete?
-                //await
-                //    new SqlCommandProcessorPositionStoreSchema(
-                //        new SqlConnectionStringBuilder(
-                //            configuration.GetRequiredConnectionString(WellKnownConnectionNames.CommandHostAdmin))
-                //    ).CreateSchemaIfNotExists(WellKnownSchemas.CommandHostSchema).ConfigureAwait(false);
-
-                //using (var dbContext = sp.GetRequiredService<RoadNetworkDbContext>())
-                //{
-                //    await dbContext.MigrateAsync(CancellationToken.None);
-                //}
-
+                await new SqlCommandProcessorPositionStoreSchema(
+                    new SqlConnectionStringBuilder(
+                        configuration.GetRequiredConnectionString(WellKnownConnectionNames.CommandHostAdmin))
+                    )
+                    .CreateSchemaIfNotExists(WellKnownSchemas.CommandHostSchema).ConfigureAwait(false);
+                
                 var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
                 var migratorFactories = sp.GetRequiredService<IDbContextMigratorFactory[]>();
 

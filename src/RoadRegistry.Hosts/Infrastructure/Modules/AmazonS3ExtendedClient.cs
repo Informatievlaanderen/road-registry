@@ -7,6 +7,7 @@ namespace RoadRegistry.Hosts.Infrastructure.Modules
     using System.Text;
     using System.Text.Json;
     using System.Text.Json.Serialization;
+    using Amazon;
     using Amazon.Runtime;
     using Amazon.Runtime.Internal.Auth;
     using Amazon.S3;
@@ -41,13 +42,12 @@ namespace RoadRegistry.Hosts.Infrastructure.Modules
 
         public CreatePresignedPostResponse CreatePresignedPost(CreatePresignedPostRequest request)
         {
-            var regionName = Config.RegionEndpoint.SystemName;
+            var regionName = GetRegionName();
+            _logger.LogInformation($"Region: {regionName}");
 
-            _logger.LogInformation($"region: {regionName}");
+            var url = new Uri($"{GetS3BaseUrl()}/{request.BucketName}");
 
-            var url = new Uri($"https://s3.{regionName}.amazonaws.com/{request.BucketName}");
-
-            _logger.LogInformation($"bucketurl: {url}");
+            _logger.LogInformation($"BucketUrl: {url}");
 
             var signingDate = Config.CorrectedUtcNow
                 .ToString("yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture);
@@ -105,6 +105,22 @@ namespace RoadRegistry.Hosts.Infrastructure.Modules
             fields.Add("X-Amz-Signature", Convert.ToHexString(signature).ToLowerInvariant());
 
             return new CreatePresignedPostResponse(url, fields);
+        }
+
+        private string GetS3BaseUrl()
+        {
+            if (Config.ServiceURL is not null)
+            {
+                return Config.ServiceURL;
+            }
+
+            var regionName = GetRegionName();
+            return $"https://s3.{regionName}.amazonaws.com";
+        }
+
+        private string GetRegionName()
+        {
+            return Config.RegionEndpoint?.SystemName ?? RegionEndpoint.EUWest1.SystemName;
         }
     }
 
