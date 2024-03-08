@@ -55,34 +55,31 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
             .WithOperatorName(OperatorName.Unknown)
             .WithReason(new Reason("Corrigeer wegsegmenten versies"));
 
-        var roadSegmentIdsWithGeometryVersionZero = request.RoadSegmentIds?.ToList();
+        var roadSegmentIdsWithGeometryVersionZero = request.RoadSegments?.ToList();
         if (roadSegmentIdsWithGeometryVersionZero is null)
         {
-            roadSegmentIdsWithGeometryVersionZero = await GetRoadSegmentIdsWithInvalidVersions(cancellationToken);
+            var invalidRoadSegmentIds = await GetRoadSegmentIdsWithInvalidVersions(cancellationToken);
+            roadSegmentIdsWithGeometryVersionZero = invalidRoadSegmentIds
+                .Select(id => new CorrectRoadSegmentVersion(id, null, null))
+                .ToList();
         }
         
         if (!roadSegmentIdsWithGeometryVersionZero.Any())
         {
             return new CorrectRoadSegmentVersionsResponse(0);
         }
-
-        //TODO-rik voeg editor projectie toe om te weten wat de huidige versie/geometrieversie is van de wegsegmenten (uniek obv id+methode+streamid)
-        //met ook de timestamp erbij bij elke nieuwe record, zodat we weten wat de volgorde is van de verhuizen
-
-        //TODO-rik CorrectRoadSegmentVersions actie uitbreiden zodat je een lijst van wegsegmentids kunt meegeven, die enkel verwerkt worden
-        //optioneel per wegsegment een version/geometrieVersion laten meegeven zodat die expliciet wordt gebruikt, en dus via de ModifyRoadSegment wordt meegegeven
-        //situatie 1: ingeschetste wegsegmenten hun versie/geometrieVersie is GROTER OF GELIJK dan de ingemeten variant -> update triggeren
-        //situatie 2: ingeschetste wegsegmenten die vroeger in roadnetwork stream zaten, en nu in een aparte stream
-
+        
         var network = await _roadRegistryContext.RoadNetworks.Get(cancellationToken);
 
-        var roadSegments = network.FindRoadSegments(roadSegmentIdsWithGeometryVersionZero.Select(x => new RoadSegmentId(x)));
+        var roadSegments = network.FindRoadSegments(roadSegmentIdsWithGeometryVersionZero.Select(x => new RoadSegmentId(x.Id)));
 
         var recordNumber = RecordNumber.Initial;
         var attributeId = AttributeId.Initial;
 
         foreach (var roadSegment in roadSegments)
         {
+            var correction = roadSegmentIdsWithGeometryVersionZero.Single(x => x.Id == roadSegment.Id);
+
             cancellationToken.ThrowIfCancellationRequested();
 
             var modifyRoadSegment = new ModifyRoadSegment(
@@ -99,6 +96,15 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
                     roadSegment.AttributeHash.LeftStreetNameId,
                     roadSegment.AttributeHash.RightStreetNameId
                 ).WithGeometry(roadSegment.Geometry);
+
+            if (correction.Version is not null)
+            {
+                modifyRoadSegment = modifyRoadSegment.WithVersion(new RoadSegmentVersion(correction.Version.Value));
+            }
+            if (correction.GeometryVersion is not null)
+            {
+                modifyRoadSegment = modifyRoadSegment.WithGeometryVersion(new GeometryVersion(correction.GeometryVersion.Value));
+            }
             
             foreach (var lane in roadSegment.Lanes)
             {
@@ -165,6 +171,7 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
 
         _logger.LogInformation("Read started for {EntityName} from EditorContext (Page {PageIndex}, Size {PageSize})", nameof(context.RoadSegments), pageIndex, pageSize);
         var roadSegments = await context.RoadSegments
+            .Where(x => x.Version == 0 || x.GeometryVersion == 0)
             .OrderBy(x => x.Id)
             .Skip(pageIndex * pageSize)
             .Take(pageSize)
@@ -175,10 +182,7 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
 
         _logger.LogInformation("Add DbaseRecord temp collection started for {EntityName} from EditorContext (Page {PageIndex}, Size {PageSize})", nameof(context.RoadSegments), pageIndex, pageSize);
 
-        roadSegmentIds.AddRange(roadSegments
-            .Select(x => new RoadSegmentDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
-            .Where(x => UIDN.Parse(x.WS_GIDN.Value).Version == 0 || UIDN.Parse(x.WS_UIDN.Value).Version == 0)
-            .Select(x => x.WS_OIDN.Value));
+        roadSegmentIds.AddRange(roadSegments.Select(x => x.Id));
         _logger.LogInformation("Add DbaseRecord temp collection finished for {EntityName} from EditorContext in {StopwatchElapsedMilliseconds}ms", nameof(context.RoadSegments), sw.ElapsedMilliseconds);
 
         return roadSegments.Any();

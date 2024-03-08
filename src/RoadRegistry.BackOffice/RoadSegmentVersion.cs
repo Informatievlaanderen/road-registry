@@ -25,6 +25,16 @@ public readonly struct RoadSegmentVersion : IEquatable<RoadSegmentVersion>, ICom
         return value >= 0;
     }
 
+    public static RoadSegmentVersion? FromValue(int? value)
+    {
+        if (value is null)
+        {
+            return null;
+        }
+
+        return new RoadSegmentVersion(value.Value);
+    }
+
     public RoadSegmentVersion Next()
     {
         if (_value == int.MaxValue)

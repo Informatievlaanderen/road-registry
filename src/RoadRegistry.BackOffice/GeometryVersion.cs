@@ -23,6 +23,16 @@ public readonly struct GeometryVersion : IEquatable<GeometryVersion>, IComparabl
         return _value;
     }
 
+    public static GeometryVersion? FromValue(int? value)
+    {
+        if (value is null)
+        {
+            return null;
+        }
+
+        return new GeometryVersion(value.Value);
+    }
+
     public GeometryVersion Next()
     {
         if (_value == int.MaxValue)

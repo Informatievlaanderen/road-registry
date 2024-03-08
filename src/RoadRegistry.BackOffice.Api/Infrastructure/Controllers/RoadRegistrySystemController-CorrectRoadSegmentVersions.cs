@@ -1,9 +1,11 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.RoadSegments;
+using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Handlers.Sqs.RoadSegments;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -26,15 +28,34 @@ public partial class RoadRegistrySystemController
     [RequestSizeLimit(long.MaxValue)]
     public async Task<IActionResult> CorrectRoadSegmentVersions([FromBody] CorrectRoadSegmentVersionsParameters parameters, CancellationToken cancellationToken)
     {
+        if (parameters?.RoadSegments?.Any() == true)
+        {
+            var uniqueIdsCount = parameters.RoadSegments.Select(x => x.Id).Distinct().Count();
+            if (uniqueIdsCount != parameters.RoadSegments.Count)
+            {
+                throw new ApiException("Roadsegment IDs must be unique.", 400);
+            }
+        }
+
         await Mediator.Send(new CorrectRoadSegmentVersionsSqsRequest
         {
-            Request = new CorrectRoadSegmentVersionsRequest(parameters?.RoadSegmentIds)
+            Request = new CorrectRoadSegmentVersionsRequest(parameters
+                ?.RoadSegments
+                ?.Select(x => new CorrectRoadSegmentVersion(x.Id, x.Version, x.GeometryVersion))
+                .ToList())
         }, cancellationToken);
         return Accepted();
     }
 
     public class CorrectRoadSegmentVersionsParameters
     {
-        public List<int> RoadSegmentIds { get; set; }
+        public List<RoadSegmentVersion> RoadSegments { get; set; }
+    }
+
+    public class RoadSegmentVersion
+    {
+        public int Id { get; set; }
+        public int? Version { get; set; }
+        public int? GeometryVersion { get; set; }
     }
 }

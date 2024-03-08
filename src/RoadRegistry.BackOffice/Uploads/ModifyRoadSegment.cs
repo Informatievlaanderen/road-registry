@@ -39,7 +39,9 @@ public class ModifyRoadSegment : ITranslatedChange
             Array.Empty<RoadSegmentLaneAttribute>(),
             Array.Empty<RoadSegmentWidthAttribute>(),
             Array.Empty<RoadSegmentSurfaceAttribute>(),
-            false
+            false,
+            null,
+            null
         )
     {
     }
@@ -61,7 +63,9 @@ public class ModifyRoadSegment : ITranslatedChange
         IReadOnlyList<RoadSegmentLaneAttribute> lanes,
         IReadOnlyList<RoadSegmentWidthAttribute> widths,
         IReadOnlyList<RoadSegmentSurfaceAttribute> surfaces,
-        bool convertedFromOutlined)
+        bool convertedFromOutlined,
+        RoadSegmentVersion? version,
+        GeometryVersion? geometryVersion)
     {
         RecordNumber = recordNumber;
         Id = id;
@@ -80,6 +84,8 @@ public class ModifyRoadSegment : ITranslatedChange
         Widths = widths;
         Surfaces = surfaces;
         ConvertedFromOutlined = convertedFromOutlined;
+        Version = version;
+        GeometryVersion = geometryVersion;
     }
 
     public RoadSegmentAccessRestriction AccessRestriction { get; }
@@ -99,6 +105,8 @@ public class ModifyRoadSegment : ITranslatedChange
     public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }
     public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
     public bool ConvertedFromOutlined { get; }
+    public RoadSegmentVersion? Version { get; }
+    public GeometryVersion? GeometryVersion { get; }
 
     public void TranslateTo(RequestedChange message)
     {
@@ -146,7 +154,9 @@ public class ModifyRoadSegment : ITranslatedChange
                     ToPosition = item.To
                 })
                 .ToArray(),
-            ConvertedFromOutlined = ConvertedFromOutlined
+            ConvertedFromOutlined = ConvertedFromOutlined,
+            Version = Version,
+            GeometryVersion = GeometryVersion
         };
     }
 
@@ -156,7 +166,7 @@ public class ModifyRoadSegment : ITranslatedChange
         return new ModifyRoadSegment(
             RecordNumber, Id, StartNodeId, EndNodeId, geometry,
             MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
-            LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces, ConvertedFromOutlined);
+            LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces, ConvertedFromOutlined, Version, GeometryVersion);
     }
 
     public ModifyRoadSegment WithConvertedFromOutlined(bool convertedFromOutlined)
@@ -164,7 +174,7 @@ public class ModifyRoadSegment : ITranslatedChange
         return new ModifyRoadSegment(
             RecordNumber, Id, StartNodeId, EndNodeId, Geometry,
             MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
-            LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces, convertedFromOutlined);
+            LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces, convertedFromOutlined, Version, GeometryVersion);
     }
     
     public ModifyRoadSegment WithLane(RoadSegmentLaneAttribute lane)
@@ -175,7 +185,7 @@ public class ModifyRoadSegment : ITranslatedChange
             RecordNumber, Id, StartNodeId, EndNodeId, Geometry,
             MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
             LeftSideStreetNameId, RightSideStreetNameId,
-            lanes, Widths, Surfaces, ConvertedFromOutlined);
+            lanes, Widths, Surfaces, ConvertedFromOutlined, Version, GeometryVersion);
     }
 
     public ModifyRoadSegment WithSurface(RoadSegmentSurfaceAttribute surface)
@@ -186,7 +196,7 @@ public class ModifyRoadSegment : ITranslatedChange
             RecordNumber, Id, StartNodeId, EndNodeId, Geometry,
             MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
             LeftSideStreetNameId, RightSideStreetNameId,
-            Lanes, Widths, surfaces, ConvertedFromOutlined);
+            Lanes, Widths, surfaces, ConvertedFromOutlined, Version, GeometryVersion);
     }
 
     public ModifyRoadSegment WithWidth(RoadSegmentWidthAttribute width)
@@ -197,6 +207,22 @@ public class ModifyRoadSegment : ITranslatedChange
             RecordNumber, Id, StartNodeId, EndNodeId, Geometry,
             MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
             LeftSideStreetNameId, RightSideStreetNameId,
-            Lanes, widths, Surfaces, ConvertedFromOutlined);
+            Lanes, widths, Surfaces, ConvertedFromOutlined, Version, GeometryVersion);
+    }
+
+    public ModifyRoadSegment WithVersion(RoadSegmentVersion version)
+    {
+        return new ModifyRoadSegment(
+            RecordNumber, Id, StartNodeId, EndNodeId, Geometry,
+            MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
+            LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces, ConvertedFromOutlined, version, GeometryVersion);
+    }
+
+    public ModifyRoadSegment WithGeometryVersion(GeometryVersion geometryVersion)
+    {
+        return new ModifyRoadSegment(
+            RecordNumber, Id, StartNodeId, EndNodeId, Geometry,
+            MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
+            LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces, ConvertedFromOutlined, Version, geometryVersion);
     }
 }

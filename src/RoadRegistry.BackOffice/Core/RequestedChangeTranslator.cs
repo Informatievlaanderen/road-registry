@@ -323,12 +323,14 @@ internal class RequestedChangeTranslator
         {
             temporaryEndNodeId = null;
         }
-
+        
         var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
         var nextRoadSegmentVersionArgs = new NextRoadSegmentVersionArgs(permanent, geometryDrawMethod, command.ConvertedFromOutlined);
-        var version = await _nextRoadSegmentVersion(nextRoadSegmentVersionArgs, ct);
+        var version = RoadSegmentVersion.FromValue(command.Version)
+                      ?? await _nextRoadSegmentVersion(nextRoadSegmentVersionArgs, ct);
         var geometry = GeometryTranslator.Translate(command.Geometry);
-        var geometryVersion = await _nextRoadSegmentGeometryVersion(nextRoadSegmentVersionArgs, geometry, ct);
+        var geometryVersion = GeometryVersion.FromValue(command.GeometryVersion)
+                              ?? await _nextRoadSegmentGeometryVersion(nextRoadSegmentVersionArgs, geometry, ct);
         
         var maintainerId = new OrganizationId(command.MaintenanceAuthority);
         var maintainer = await organizations.FindAsync(maintainerId, ct);
