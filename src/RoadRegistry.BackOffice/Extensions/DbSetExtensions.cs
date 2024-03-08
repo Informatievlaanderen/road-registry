@@ -37,19 +37,8 @@ public static class DbSetExtensions
         return dbSet.Local.SingleOrDefault(predicate.Compile())
                ?? await dbSet.SingleAsync(predicate, cancellationToken);
     }
-
-    public static async Task<List<T>> ToListIncludingLocalAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
-        where T : class
-    {
-        return dbSet.Local.AsQueryable()
-            .Where(predicate)
-            .Concat(await dbSet
-                .Where(predicate)
-                .ToListAsync(cancellationToken))
-        .ToList();
-    }
-
-    public static async Task<List<T>> ToListIncludingLocalAsync<T>(this DbSet<T> dbSet, Func<IQueryable<T>, IQueryable<T>> query, CancellationToken cancellationToken)
+    
+    public static async Task<List<T>> IncludeLocalToListAsync<T>(this DbSet<T> dbSet, Func<IQueryable<T>, IQueryable<T>> query, CancellationToken cancellationToken)
         where T : class
     {
         return query(dbSet.Local.AsQueryable())

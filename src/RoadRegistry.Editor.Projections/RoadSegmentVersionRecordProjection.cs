@@ -127,7 +127,7 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = (await context.RoadSegmentVersions.ToListIncludingLocalAsync(roadSegmentVersions =>
+        var dbRecord = (await context.RoadSegmentVersions.IncludeLocalToListAsync(roadSegmentVersions =>
             roadSegmentVersions
                 .Where(x => x.Id == roadSegmentAttributesModified.Id)
                 .OrderByDescending(x => x.RecordingDate)
@@ -155,7 +155,7 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = (await context.RoadSegmentVersions.ToListIncludingLocalAsync(roadSegmentVersions =>
+        var dbRecord = (await context.RoadSegmentVersions.IncludeLocalToListAsync(roadSegmentVersions =>
                 roadSegmentVersions
                     .Where(x => x.Id == roadSegmentGeometryModified.Id)
                     .OrderByDescending(x => x.RecordingDate)
@@ -190,7 +190,7 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         {
             var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentRemoved.GeometryDrawMethod).Translation.Identifier;
             
-            dbRecord = (await context.RoadSegmentVersions.ToListIncludingLocalAsync(roadSegmentVersions =>
+            dbRecord = (await context.RoadSegmentVersions.IncludeLocalToListAsync(roadSegmentVersions =>
                     roadSegmentVersions
                         .Where(x => x.Id == roadSegmentRemoved.Id && x.Method == method && !x.IsRemoved)
                         .OrderBy(x => x.RecordingDate)
@@ -199,7 +199,7 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         }
         else
         {
-            dbRecord = (await context.RoadSegmentVersions.ToListIncludingLocalAsync(roadSegmentVersions =>
+            dbRecord = (await context.RoadSegmentVersions.IncludeLocalToListAsync(roadSegmentVersions =>
                     roadSegmentVersions
                         .Where(x => x.Id == roadSegmentRemoved.Id && !x.IsRemoved)
                         .OrderBy(x => x.RecordingDate)
