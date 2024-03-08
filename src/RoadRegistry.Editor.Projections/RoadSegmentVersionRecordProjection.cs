@@ -5,19 +5,14 @@ using BackOffice.Extensions;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using Be.Vlaanderen.Basisregisters.Shaperon;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.IO;
 using Schema;
-using Schema.Extensions;
 using Schema.RoadSegments;
 using System;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 
 public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorContext>
 {
@@ -132,11 +127,24 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegmentVersions
-            .Where(x => x.Id == roadSegmentAttributesModified.Id)
-            .OrderByDescending(x => x.RecordingDate)
-            .FirstAsync(token)
-            .ConfigureAwait(false);
+        var dbRecord = (await context.RoadSegmentVersions.ToListIncludingLocalAsync(roadSegmentVersions =>
+            roadSegmentVersions
+                .Where(x => x.Id == roadSegmentAttributesModified.Id)
+                .OrderByDescending(x => x.RecordingDate)
+                .Take(1)
+            , token).ConfigureAwait(false)).FirstOrDefault();
+
+        if (dbRecord is null)
+        {
+            dbRecord = new RoadSegmentVersionRecord
+            {
+                StreamId = envelope.StreamId,
+                Id = roadSegmentAttributesModified.Id,
+                Method = 0,
+                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
+            };
+            await context.RoadSegmentVersions.AddAsync(dbRecord, token);
+        }
 
         dbRecord.Version = roadSegmentAttributesModified.Version;
     }
@@ -147,11 +155,24 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegmentVersions
-            .Where(x => x.Id == roadSegmentGeometryModified.Id)
-            .OrderByDescending(x => x.RecordingDate)
-            .FirstAsync(token)
-            .ConfigureAwait(false);
+        var dbRecord = (await context.RoadSegmentVersions.ToListIncludingLocalAsync(roadSegmentVersions =>
+                roadSegmentVersions
+                    .Where(x => x.Id == roadSegmentGeometryModified.Id)
+                    .OrderByDescending(x => x.RecordingDate)
+                    .Take(1)
+            , token).ConfigureAwait(false)).FirstOrDefault();
+
+        if (dbRecord is null)
+        {
+            dbRecord = new RoadSegmentVersionRecord
+            {
+                StreamId = envelope.StreamId,
+                Id = roadSegmentGeometryModified.Id,
+                Method = 0,
+                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
+            };
+            await context.RoadSegmentVersions.AddAsync(dbRecord, token);
+        }
 
         dbRecord.Version = roadSegmentGeometryModified.Version;
         dbRecord.GeometryVersion = roadSegmentGeometryModified.GeometryVersion;
@@ -168,20 +189,22 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         if (!string.IsNullOrEmpty(roadSegmentRemoved.GeometryDrawMethod))
         {
             var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentRemoved.GeometryDrawMethod).Translation.Identifier;
-
-            dbRecord = await context.RoadSegmentVersions
-                .Where(x => x.Id == roadSegmentRemoved.Id && x.Method == method && !x.IsRemoved)
-                .OrderBy(x => x.RecordingDate)
-                .FirstOrDefaultAsync(token)
-                .ConfigureAwait(false);
+            
+            dbRecord = (await context.RoadSegmentVersions.ToListIncludingLocalAsync(roadSegmentVersions =>
+                    roadSegmentVersions
+                        .Where(x => x.Id == roadSegmentRemoved.Id && x.Method == method && !x.IsRemoved)
+                        .OrderBy(x => x.RecordingDate)
+                        .Take(1)
+                , token).ConfigureAwait(false)).FirstOrDefault();
         }
         else
         {
-            dbRecord = await context.RoadSegmentVersions
-                .Where(x => x.Id == roadSegmentRemoved.Id && !x.IsRemoved)
-                .OrderBy(x => x.RecordingDate)
-                .FirstOrDefaultAsync(token)
-                .ConfigureAwait(false);
+            dbRecord = (await context.RoadSegmentVersions.ToListIncludingLocalAsync(roadSegmentVersions =>
+                    roadSegmentVersions
+                        .Where(x => x.Id == roadSegmentRemoved.Id && !x.IsRemoved)
+                        .OrderBy(x => x.RecordingDate)
+                        .Take(1)
+                , token).ConfigureAwait(false)).FirstOrDefault();
         }
 
         if (dbRecord is not null)
