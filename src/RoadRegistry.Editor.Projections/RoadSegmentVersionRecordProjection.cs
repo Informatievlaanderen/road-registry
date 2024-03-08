@@ -93,9 +93,6 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
             await context.RoadSegmentVersions.AddAsync(dbRecord, token);
         }
 
-        //dbRecord.StreamId = envelope.StreamId;
-        //dbRecord.Id = roadSegmentAdded.Id;
-        //dbRecord.Method = method;
         dbRecord.Version = roadSegmentAdded.Version;
         dbRecord.GeometryVersion = roadSegmentAdded.GeometryVersion;
         dbRecord.IsRemoved = false;
