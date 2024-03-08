@@ -1,3 +1,10 @@
+## [3.70.6](https://github.com/informatievlaanderen/road-registry/compare/v3.70.5...v3.70.6) (2024-03-08)
+
+
+### Bug Fixes
+
+* WR-961 correct roadsegment versions load network from correct stream ([#1424](https://github.com/informatievlaanderen/road-registry/issues/1424)) ([95f1940](https://github.com/informatievlaanderen/road-registry/commit/95f1940a17544e229350d2315db4a7b41bc058d6))
+
 ## [3.70.5](https://github.com/informatievlaanderen/road-registry/compare/v3.70.4...v3.70.5) (2024-03-08)
 
 
