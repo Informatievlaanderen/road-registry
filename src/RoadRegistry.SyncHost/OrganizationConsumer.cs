@@ -145,7 +145,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
 
         Logger.LogInformation("Fetching all organizations...");
         var organizationRecords = await editorContext.Organizations
-            .ToListIncludingLocalAsync(x => !x.Code.StartsWith(OrganizationOvoCode.Prefix), cancellationToken);
+            .IncludeLocalToListAsync(q => q.Where(org => !org.Code.StartsWith(OrganizationOvoCode.Prefix)), cancellationToken);
 
         var orgIdMapping = organizationRecords
             .Select(x => _organizationRecordReader.Read(x.DbaseRecord, x.DbaseSchemaVersion))

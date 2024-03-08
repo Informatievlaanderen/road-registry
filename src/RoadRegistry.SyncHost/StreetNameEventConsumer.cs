@@ -148,7 +148,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
     private async Task<ChangeRoadNetwork> BuildChangeRoadNetworkToConnectRoadSegmentsToDifferentStreetName(int sourceStreetNameId, int destinationStreetNameId, string reason, EditorContext editorContext, CancellationToken cancellationToken)
     {
         var segments = await editorContext.RoadSegments
-            .ToListIncludingLocalAsync(x => x.LeftSideStreetNameId == sourceStreetNameId || x.RightSideStreetNameId == sourceStreetNameId, cancellationToken);
+            .IncludeLocalToListAsync(q => q.Where(x => x.LeftSideStreetNameId == sourceStreetNameId || x.RightSideStreetNameId == sourceStreetNameId), cancellationToken);
         if (!segments.Any())
         {
             return null;
@@ -157,11 +157,11 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         var roadSegmentIds = segments.Select(x => x.Id).ToList();
 
         var lanes = await editorContext.RoadSegmentLaneAttributes
-            .ToListIncludingLocalAsync(x => roadSegmentIds.Contains(x.RoadSegmentId), cancellationToken);
+            .IncludeLocalToListAsync(q => q.Where(x => roadSegmentIds.Contains(x.RoadSegmentId)), cancellationToken);
         var surfaces = await editorContext.RoadSegmentSurfaceAttributes
-            .ToListIncludingLocalAsync(x => roadSegmentIds.Contains(x.RoadSegmentId), cancellationToken);
+            .IncludeLocalToListAsync(q => q.Where(x => roadSegmentIds.Contains(x.RoadSegmentId)), cancellationToken);
         var widths = await editorContext.RoadSegmentWidthAttributes
-            .ToListIncludingLocalAsync(x => roadSegmentIds.Contains(x.RoadSegmentId), cancellationToken);
+            .IncludeLocalToListAsync(q => q.Where(x => roadSegmentIds.Contains(x.RoadSegmentId)), cancellationToken);
 
         var organizationId = OrganizationId.DigitaalVlaanderen;
 

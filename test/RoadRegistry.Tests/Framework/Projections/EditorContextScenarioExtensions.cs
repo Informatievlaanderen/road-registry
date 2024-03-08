@@ -63,6 +63,7 @@ public static class EditorContextScenarioExtensions
         var records = new List<object>();
         records.AddRange(await context.RoadNodes.ToArrayAsync());
         records.AddRange(await context.RoadSegments.IgnoreQueryFilters(ignoreQueryFilters).ToArrayAsync());
+        records.AddRange(await context.RoadSegmentVersions.ToArrayAsync());
         records.AddRange(await context.RoadSegmentLaneAttributes.ToArrayAsync());
         records.AddRange(await context.RoadSegmentWidthAttributes.ToArrayAsync());
         records.AddRange(await context.RoadSegmentSurfaceAttributes.ToArrayAsync());
