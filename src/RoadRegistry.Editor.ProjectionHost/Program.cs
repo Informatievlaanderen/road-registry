@@ -123,7 +123,12 @@ public class Program
                 .AddEditorContextEventProcessor<ExtractUploadEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
                 {
                     new ExtractUploadRecordProjection()
-                });
+                })
+                .AddEditorContextEventProcessor<RoadSegmentVersionEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
+                {
+                    new RoadSegmentVersionRecordProjection(sp.GetRequiredService<ILogger<RoadSegmentVersionRecordProjection>>())
+                })
+                ;
 
             if (useExtractRequestOverlapEventProcessorFeatureToggle.FeatureEnabled)
             {

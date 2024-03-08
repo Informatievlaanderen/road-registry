@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Editor.Schema;
@@ -12,9 +13,10 @@ using RoadRegistry.Editor.Schema;
 namespace RoadRegistry.Editor.Schema.Migrations
 {
     [DbContext(typeof(EditorContext))]
-    partial class EditorContextModelSnapshot : ModelSnapshot
+    [Migration("20240308081519_AddRoadSegmentVersion")]
+    partial class AddRoadSegmentVersion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -810,30 +812,26 @@ namespace RoadRegistry.Editor.Schema.Migrations
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.RoadSegments.RoadSegmentVersionRecord", b =>
                 {
-                    b.Property<string>("StreamId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("GeometryVersion")
+                        .HasColumnType("int");
 
                     b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Method")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GeometryVersion")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsRemoved")
                         .HasColumnType("bit");
 
+                    b.Property<int>("Method")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("RecordingDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("StreamId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int>("Version")
                         .HasColumnType("int");
-
-                    b.HasKey("StreamId", "Id", "Method");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("StreamId", "Id", "Method"));
 
                     b.HasIndex("Id");
 

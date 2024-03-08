@@ -15,6 +15,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using NetTopologySuite.Geometries;
 using SqlStreamStore.Streams;
 using Uploads;
 
@@ -118,8 +119,8 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 var translator = new RequestedChangeTranslator(
                     network.CreateIdProvider(idGenerator),
                     network.ProvidesNextRoadNodeVersion(),
-                    network.ProvidesNextRoadSegmentVersion(),
-                    network.ProvidesNextRoadSegmentGeometryVersion()
+                    (args, ct) => GetNextVersion(context, args, ct),
+                    (args, geometry, ct) => GetNextGeometryVersion(context, args, geometry, ct)
                 );
                 sw.Restart();
                 var requestedChanges = await translator.Translate(changes, context.Organizations, cancellationToken);
@@ -152,6 +153,26 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
+    }
+
+    private async Task<RoadSegmentVersion> GetNextVersion(IRoadRegistryContext context, NextRoadSegmentVersionArgs args, CancellationToken cancellationToken)
+    {
+        var streamName = args.ConvertedFromOutlined
+            ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(args.Id)
+            : RoadNetworkStreamNameProvider.Get(args.Id, args.GeometryDrawMethod);
+
+        var network = await context.RoadNetworks.Get(streamName, cancellationToken);
+        return network.ProvidesNextRoadSegmentVersion()(args.Id);
+    }
+
+    private async Task<GeometryVersion> GetNextGeometryVersion(IRoadRegistryContext context, NextRoadSegmentVersionArgs args, MultiLineString geometry, CancellationToken cancellationToken)
+    {
+        var streamName = args.ConvertedFromOutlined
+            ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(args.Id)
+            : RoadNetworkStreamNameProvider.Get(args.Id, args.GeometryDrawMethod);
+
+        var network = await context.RoadNetworks.Get(streamName, cancellationToken);
+        return network.ProvidesNextRoadSegmentGeometryVersion()(args.Id, geometry);
     }
 
     private async Task CreateOrganization(IRoadRegistryContext context, Command<CreateOrganization> command, ApplicationMetadata applicationMetadata, CancellationToken cancellationToken)
