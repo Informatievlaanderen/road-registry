@@ -55,26 +55,31 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
             .WithOperatorName(OperatorName.Unknown)
             .WithReason(new Reason("Corrigeer wegsegmenten versies"));
 
-        var roadSegmentIdsWithGeometryVersionZero = request.RoadSegmentIds?.ToList();
+        var roadSegmentIdsWithGeometryVersionZero = request.RoadSegments?.ToList();
         if (roadSegmentIdsWithGeometryVersionZero is null)
         {
-            roadSegmentIdsWithGeometryVersionZero = await GetRoadSegmentIdsWithInvalidVersions(cancellationToken);
+            var invalidRoadSegmentIds = await GetRoadSegmentIdsWithInvalidVersions(cancellationToken);
+            roadSegmentIdsWithGeometryVersionZero = invalidRoadSegmentIds
+                .Select(id => new CorrectRoadSegmentVersion(id, null, null))
+                .ToList();
         }
         
         if (!roadSegmentIdsWithGeometryVersionZero.Any())
         {
             return new CorrectRoadSegmentVersionsResponse(0);
         }
-
+        
         var network = await _roadRegistryContext.RoadNetworks.Get(cancellationToken);
 
-        var roadSegments = network.FindRoadSegments(roadSegmentIdsWithGeometryVersionZero.Select(x => new RoadSegmentId(x)));
+        var roadSegments = network.FindRoadSegments(roadSegmentIdsWithGeometryVersionZero.Select(x => new RoadSegmentId(x.Id)));
 
         var recordNumber = RecordNumber.Initial;
         var attributeId = AttributeId.Initial;
 
         foreach (var roadSegment in roadSegments)
         {
+            var correction = roadSegmentIdsWithGeometryVersionZero.Single(x => x.Id == roadSegment.Id);
+
             cancellationToken.ThrowIfCancellationRequested();
 
             var modifyRoadSegment = new ModifyRoadSegment(
@@ -91,6 +96,15 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
                     roadSegment.AttributeHash.LeftStreetNameId,
                     roadSegment.AttributeHash.RightStreetNameId
                 ).WithGeometry(roadSegment.Geometry);
+
+            if (correction.Version is not null)
+            {
+                modifyRoadSegment = modifyRoadSegment.WithVersion(new RoadSegmentVersion(correction.Version.Value));
+            }
+            if (correction.GeometryVersion is not null)
+            {
+                modifyRoadSegment = modifyRoadSegment.WithGeometryVersion(new GeometryVersion(correction.GeometryVersion.Value));
+            }
             
             foreach (var lane in roadSegment.Lanes)
             {
@@ -157,6 +171,7 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
 
         _logger.LogInformation("Read started for {EntityName} from EditorContext (Page {PageIndex}, Size {PageSize})", nameof(context.RoadSegments), pageIndex, pageSize);
         var roadSegments = await context.RoadSegments
+            .Where(x => x.Version == 0 || x.GeometryVersion == 0)
             .OrderBy(x => x.Id)
             .Skip(pageIndex * pageSize)
             .Take(pageSize)
@@ -167,10 +182,7 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
 
         _logger.LogInformation("Add DbaseRecord temp collection started for {EntityName} from EditorContext (Page {PageIndex}, Size {PageSize})", nameof(context.RoadSegments), pageIndex, pageSize);
 
-        roadSegmentIds.AddRange(roadSegments
-            .Select(x => new RoadSegmentDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
-            .Where(x => UIDN.Parse(x.WS_GIDN.Value).Version == 0 || UIDN.Parse(x.WS_UIDN.Value).Version == 0)
-            .Select(x => x.WS_OIDN.Value));
+        roadSegmentIds.AddRange(roadSegments.Select(x => x.Id));
         _logger.LogInformation("Add DbaseRecord temp collection finished for {EntityName} from EditorContext in {StopwatchElapsedMilliseconds}ms", nameof(context.RoadSegments), sw.ElapsedMilliseconds);
 
         return roadSegments.Any();

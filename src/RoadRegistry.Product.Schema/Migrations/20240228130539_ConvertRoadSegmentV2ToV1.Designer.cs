@@ -813,4 +813,3 @@ namespace RoadRegistry.Product.Schema.Migrations
         }
     }
 }
-//TODO-rik add conversion v2 to v1
