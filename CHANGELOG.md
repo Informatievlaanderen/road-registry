@@ -1,3 +1,10 @@
+## [3.70.5](https://github.com/informatievlaanderen/road-registry/compare/v3.70.4...v3.70.5) (2024-03-08)
+
+
+### Bug Fixes
+
+* WR-961 RoadSegmentVersion projection to be more flexible with test data ([#1423](https://github.com/informatievlaanderen/road-registry/issues/1423)) ([34ca5c7](https://github.com/informatievlaanderen/road-registry/commit/34ca5c78773a04fbfdc94ea722de8a74e9b0df89))
+
 ## [3.70.4](https://github.com/informatievlaanderen/road-registry/compare/v3.70.3...v3.70.4) (2024-03-08)
 
 
