@@ -55,76 +55,87 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
             .WithOperatorName(OperatorName.Unknown)
             .WithReason(new Reason("Corrigeer wegsegmenten versies"));
 
-        var roadSegmentIdsWithGeometryVersionZero = request.RoadSegments?.ToList();
-        if (roadSegmentIdsWithGeometryVersionZero is null)
+        var roadSegmentsToCorrect = request.RoadSegments?.ToList();
+        if (roadSegmentsToCorrect is null)
         {
             var invalidRoadSegmentIds = await GetRoadSegmentIdsWithInvalidVersions(cancellationToken);
-            roadSegmentIdsWithGeometryVersionZero = invalidRoadSegmentIds
+            roadSegmentsToCorrect = invalidRoadSegmentIds
                 .Select(id => new CorrectRoadSegmentVersion(id, null, null))
                 .ToList();
         }
-        
-        if (!roadSegmentIdsWithGeometryVersionZero.Any())
+
+        if (!roadSegmentsToCorrect.Any())
         {
             return new CorrectRoadSegmentVersionsResponse(0);
         }
-        
-        var network = await _roadRegistryContext.RoadNetworks.Get(cancellationToken);
-
-        var roadSegments = network.FindRoadSegments(roadSegmentIdsWithGeometryVersionZero.Select(x => new RoadSegmentId(x.Id)));
 
         var recordNumber = RecordNumber.Initial;
         var attributeId = AttributeId.Initial;
 
-        foreach (var roadSegment in roadSegments)
+        using (var editorContext = _editorContextFactory())
         {
-            var correction = roadSegmentIdsWithGeometryVersionZero.Single(x => x.Id == roadSegment.Id);
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var modifyRoadSegment = new ModifyRoadSegment(
-                    recordNumber,
-                    roadSegment.Id,
-                    roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.Start,
-                    roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.End,
-                    roadSegment.AttributeHash.OrganizationId,
-                    roadSegment.AttributeHash.GeometryDrawMethod,
-                    roadSegment.AttributeHash.Morphology,
-                    roadSegment.AttributeHash.Status,
-                    roadSegment.AttributeHash.Category,
-                    roadSegment.AttributeHash.AccessRestriction,
-                    roadSegment.AttributeHash.LeftStreetNameId,
-                    roadSegment.AttributeHash.RightStreetNameId
-                ).WithGeometry(roadSegment.Geometry);
-
-            if (correction.Version is not null)
+            foreach (var correction in roadSegmentsToCorrect)
             {
-                modifyRoadSegment = modifyRoadSegment.WithVersion(new RoadSegmentVersion(correction.Version.Value));
-            }
-            if (correction.GeometryVersion is not null)
-            {
-                modifyRoadSegment = modifyRoadSegment.WithGeometryVersion(new GeometryVersion(correction.GeometryVersion.Value));
-            }
-            
-            foreach (var lane in roadSegment.Lanes)
-            {
-                modifyRoadSegment = modifyRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeId, lane.Count, lane.Direction, lane.From, lane.To));
-                attributeId = attributeId.Next();
-            }
-            foreach (var surface in roadSegment.Surfaces)
-            {
-                modifyRoadSegment = modifyRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeId, surface.Type, surface.From, surface.To));
-                attributeId = attributeId.Next();
-            }
-            foreach (var width in roadSegment.Widths)
-            {
-                modifyRoadSegment = modifyRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeId, width.Width, width.From, width.To));
-                attributeId = attributeId.Next();
-            }
+                cancellationToken.ThrowIfCancellationRequested();
 
-            translatedChanges = translatedChanges.AppendChange(modifyRoadSegment);
+                var editorRoadSegment = await editorContext.RoadSegments.FindAsync(new object[] { correction.Id }, cancellationToken);
+                if (editorRoadSegment is null)
+                {
+                    _logger.LogError($"No roadsegment found in editor table for ID {correction.Id}");
+                    continue;
+                }
 
-            recordNumber = recordNumber.Next();
+                var roadSegmentGeometryDrawMethod = editorRoadSegment.MethodId;
+
+                var roadSegmentId = new RoadSegmentId(correction.Id);
+                var stream = RoadNetworkStreamNameProvider.Get(roadSegmentId, RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentGeometryDrawMethod]);
+                var network = await _roadRegistryContext.RoadNetworks.Get(stream, cancellationToken);
+                var roadSegment = network.FindRoadSegment(roadSegmentId);
+                
+                var modifyRoadSegment = new ModifyRoadSegment(
+                        recordNumber,
+                        roadSegment.Id,
+                        roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.Start,
+                        roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.End,
+                        roadSegment.AttributeHash.OrganizationId,
+                        roadSegment.AttributeHash.GeometryDrawMethod,
+                        roadSegment.AttributeHash.Morphology,
+                        roadSegment.AttributeHash.Status,
+                        roadSegment.AttributeHash.Category,
+                        roadSegment.AttributeHash.AccessRestriction,
+                        roadSegment.AttributeHash.LeftStreetNameId,
+                        roadSegment.AttributeHash.RightStreetNameId
+                    ).WithGeometry(roadSegment.Geometry);
+
+                if (correction.Version is not null)
+                {
+                    modifyRoadSegment = modifyRoadSegment.WithVersion(new RoadSegmentVersion(correction.Version.Value));
+                }
+                if (correction.GeometryVersion is not null)
+                {
+                    modifyRoadSegment = modifyRoadSegment.WithGeometryVersion(new GeometryVersion(correction.GeometryVersion.Value));
+                }
+
+                foreach (var lane in roadSegment.Lanes)
+                {
+                    modifyRoadSegment = modifyRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeId, lane.Count, lane.Direction, lane.From, lane.To));
+                    attributeId = attributeId.Next();
+                }
+                foreach (var surface in roadSegment.Surfaces)
+                {
+                    modifyRoadSegment = modifyRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeId, surface.Type, surface.From, surface.To));
+                    attributeId = attributeId.Next();
+                }
+                foreach (var width in roadSegment.Widths)
+                {
+                    modifyRoadSegment = modifyRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeId, width.Width, width.From, width.To));
+                    attributeId = attributeId.Next();
+                }
+
+                translatedChanges = translatedChanges.AppendChange(modifyRoadSegment);
+
+                recordNumber = recordNumber.Next();
+            }
         }
 
         var requestedChanges = translatedChanges.Select(change =>
@@ -146,7 +157,7 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
 
         await _roadNetworkCommandQueue.WriteAsync(new Command(changeRoadNetwork), cancellationToken);
 
-        return new CorrectRoadSegmentVersionsResponse(roadSegments.Count);
+        return new CorrectRoadSegmentVersionsResponse(translatedChanges.Count);
     }
 
     private async Task<List<int>> GetRoadSegmentIdsWithInvalidVersions(CancellationToken cancellationToken)
