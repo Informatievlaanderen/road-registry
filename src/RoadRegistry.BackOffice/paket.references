@@ -10,6 +10,7 @@ Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.Shaperon.Geometries
+Be.Vlaanderen.Basisregisters.TicketingService.Abstractions
 
 Amazon.Lambda.Core
 AWSSDK.Core

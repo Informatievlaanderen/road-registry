@@ -103,34 +103,13 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         return writeStream;
     }
 
-    private async Task UploadAndQueueCommand(UploadExtractRequest request, Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
-    {
-        readStream.Position = 0;
-
-        await _client.CreateBlobAsync(
-            new BlobName(archiveId.ToString()),
-            metadata,
-            ContentType.Parse("application/zip"),
-            readStream,
-            cancellationToken
-        );
-
-        var command = new Command(new UploadRoadNetworkChangesArchive
-        {
-            ArchiveId = archiveId
-        });
-        await Queue(command, cancellationToken);
-
-        Logger.LogInformation("Command queued {Command} for archive {ArchiveId}", nameof(UploadRoadNetworkChangesArchive), archiveId);
-    }
-
     private async Task ValidateAndUploadAndQueueCommand(UploadExtractRequest request, Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
     {
         var entity = RoadNetworkChangesArchive.Upload(archiveId, readStream);
 
         using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
         {
-            var problems = await entity.ValidateArchiveUsing(archive, _beforeFeatureCompareValidator, cancellationToken);
+            var problems = await entity.ValidateArchiveUsing(archive, request.TicketId, _beforeFeatureCompareValidator, cancellationToken);
 
             problems.ThrowIfError();
 
@@ -150,5 +129,27 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
             await UploadAndQueueCommand(request, readStream, archiveId, metadata, cancellationToken);
         }
+    }
+
+    private async Task UploadAndQueueCommand(UploadExtractRequest request, Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
+    {
+        readStream.Position = 0;
+
+        await _client.CreateBlobAsync(
+            new BlobName(archiveId.ToString()),
+            metadata,
+            ContentType.Parse("application/zip"),
+            readStream,
+            cancellationToken
+        );
+
+        var command = new Command(new UploadRoadNetworkChangesArchive
+        {
+            ArchiveId = archiveId,
+            TicketId = request.TicketId
+        });
+        await Queue(command, cancellationToken);
+
+        Logger.LogInformation("Command queued {Command} for archive {ArchiveId}", nameof(UploadRoadNetworkChangesArchive), archiveId);
     }
 }

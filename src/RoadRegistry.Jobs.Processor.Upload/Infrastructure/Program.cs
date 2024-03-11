@@ -36,7 +36,7 @@ public class Program
                     .AddJobsContext()
                     .AddFeatureCompare()
                     .AddSingleton<IBeforeFeatureCompareZipArchiveCleaner, BeforeFeatureCompareZipArchiveCleaner>()
-                    //TODO-rik cleanup
+                    //TODO-rik removed commented code after full flow test
                     .AddRoadNetworkCommandQueue()
                     //.AddRoadNetworkEventWriter()
 

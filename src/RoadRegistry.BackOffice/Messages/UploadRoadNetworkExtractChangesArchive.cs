@@ -8,4 +8,5 @@ public class UploadRoadNetworkExtractChangesArchive
     public Guid DownloadId { get; set; }
     public string RequestId { get; set; }
     public Guid UploadId { get; set; }
+    public Guid? TicketId { get; set; }
 }

@@ -22,7 +22,7 @@ public static class TicketingExtensions
             .AddHttpProxyTicketing()
         ;
     }
-
+    
     private static IServiceCollection AddHttpProxyTicketing(this IServiceCollection services)
     {
         services.AddHttpClient<ITicketing, HttpProxyTicketing>((sp, c) =>

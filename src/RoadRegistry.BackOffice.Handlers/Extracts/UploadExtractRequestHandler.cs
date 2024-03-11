@@ -94,7 +94,8 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                 RequestId = download.RequestId,
                 DownloadId = download.DownloadId,
                 UploadId = uploadId,
-                ArchiveId = archiveId
+                ArchiveId = archiveId,
+                TicketId = request.TicketId
             });
 
         await Dispatch(message, cancellationToken);

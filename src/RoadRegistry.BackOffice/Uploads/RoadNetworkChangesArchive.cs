@@ -14,6 +14,7 @@ using Extracts.Dbase;
 using FeatureCompare;
 using Framework;
 using Messages;
+using TicketingService.Abstractions;
 
 public class RoadNetworkChangesArchive : EventSourcedEntity
 {
@@ -53,18 +54,22 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
         return instance;
     }
 
-    public async Task<ZipArchiveProblems> ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator, CancellationToken cancellationToken)
+    public async Task<ZipArchiveProblems> ValidateArchiveUsing(ZipArchive archive, Guid? ticketId, IZipArchiveValidator validator, ITicketing ticketing, CancellationToken cancellationToken)
     {
         var problems = await validator.ValidateAsync(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty), cancellationToken);
         if (!problems.OfType<FileError>().Any())
+        {
             Apply(
                 new RoadNetworkChangesArchiveAccepted
                 {
                     ArchiveId = Id,
                     Description = Description,
-                    Problems = problems.Select(problem => problem.Translate()).ToArray()
+                    Problems = problems.Select(problem => problem.Translate()).ToArray(),
+                    TicketId = ticketId
                 });
+        }
         else
+        {
             Apply(
                 new RoadNetworkChangesArchiveRejected
                 {
@@ -72,6 +77,14 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
                     Description = Description,
                     Problems = problems.Select(problem => problem.Translate()).ToArray()
                 });
+
+            if (ticketId is not null)
+            {
+                //TODO-rik test
+                var errors = problems.Select(x => x.Translate().ToTicketError()).ToArray();
+                await ticketing.Error(ticketId.Value, new TicketError(errors), cancellationToken);
+            }
+        }
         return problems;
     }
 

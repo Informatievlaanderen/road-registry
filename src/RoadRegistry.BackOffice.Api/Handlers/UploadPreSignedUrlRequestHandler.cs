@@ -10,6 +10,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Hosts.Infrastructure.Options;
     using Microsoft.Extensions.Options;
     using TicketingService.Abstractions;
 
@@ -17,6 +18,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
     {
         private readonly JobsContext _jobsContext;
         private readonly ITicketing _ticketing;
+        private readonly TicketingOptions _ticketingOptions;
         private readonly ITicketingUrl _ticketingUrl;
         private readonly IAmazonS3Extended _s3Extended;
         private readonly JobsBucketOptions _bucketOptions;
@@ -24,12 +26,14 @@ namespace RoadRegistry.BackOffice.Api.Handlers
         public UploadPreSignedUrlRequestHandler(
             JobsContext jobsContext,
             ITicketing ticketing,
+            TicketingOptions ticketingOptions,
             ITicketingUrl ticketingUrl,
             IAmazonS3Extended s3Extended,
             IOptions<JobsBucketOptions> bucketOptions)
         {
             _jobsContext = jobsContext;
             _ticketing = ticketing;
+            _ticketingOptions = ticketingOptions;
             _ticketingUrl = ticketingUrl;
             _s3Extended = s3Extended;
             _bucketOptions = bucketOptions.Value;
@@ -53,7 +57,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                             job.UploadBlobName,
                             new List<ExactMatchCondition>(),
                             TimeSpan.FromMinutes(_bucketOptions.UrlExpirationInMinutes)));
-
+                    
                     var ticketId = await _ticketing.CreateTicket(
                         new Dictionary<string, string>
                         {
@@ -65,8 +69,8 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                         },
                         cancellationToken);
 
-                    var ticketUrl = _ticketingUrl.For(ticketId).ToString();
-
+                    var ticketUrl = _ticketingUrl.For(ticketId).ToString().Replace(_ticketingOptions.InternalBaseUrl, _ticketingOptions.PublicBaseUrl);
+                    
                     await UpdateJobWithTicketUrl(job, ticketId, cancellationToken);
                     await transaction.CommitAsync(cancellationToken);
 

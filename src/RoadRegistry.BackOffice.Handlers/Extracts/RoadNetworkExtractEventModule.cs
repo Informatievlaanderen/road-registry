@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
+using TicketingService.Abstractions;
 
 public class RoadNetworkExtractEventModule : EventHandlerModule
 {
@@ -89,7 +90,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                                 Changes = requestedChanges.ToArray(),
                                 Reason = translatedChanges.Reason,
                                 Operator = translatedChanges.Operator,
-                                OrganizationId = translatedChanges.Organization
+                                OrganizationId = translatedChanges.Organization,
+                                TicketId = message.Body.TicketId
                             })
                             .WithMessageId(message.MessageId);
 
@@ -112,6 +114,14 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                     await roadNetworkEventWriter.WriteAsync(RoadNetworkExtracts.ToStreamName(extractRequestId), message.StreamVersion, new Event(
                         rejectedChangeEvent
                     ).WithMessageId(message.MessageId), ct);
+
+                    if (message.Body.TicketId is not null)
+                    {
+                        //TODO-rik test
+                        var ticketing = container.Resolve<ITicketing>();
+                        var errors = ex.Problems.Select(x => x.Translate().ToTicketError()).ToArray();
+                        await ticketing.Error(message.Body.TicketId.Value, new TicketError(errors), ct);
+                    }
 
                     await extractUploadFailedEmailClient.SendAsync(message.Body.Description, new ValidationException(JsonConvert.SerializeObject(rejectedChangeEvent, Formatting.Indented)), ct);
                 }

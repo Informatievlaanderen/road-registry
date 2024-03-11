@@ -6,18 +6,18 @@ using FeatureToggles;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 using NodaTime;
 using SqlStreamStore;
+using SqlStreamStore.Streams;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.Shaperon;
-using NetTopologySuite.Geometries;
-using SqlStreamStore.Streams;
-using Uploads;
+using Extensions;
+using TicketingService.Abstractions;
 
 public class RoadNetworkCommandModule : CommandHandlerModule
 {
@@ -100,7 +100,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         sw.Restart();
 
         var successChangedMessages = new Dictionary<IEventSourcedEntity, List<IMessage>>();
-        var failedChangedMessages = new Dictionary<IEventSourcedEntity, List<IMessage>>();
+        var failedChangedMessages = new Dictionary<IEventSourcedEntity, List<RoadNetworkChangesRejected>>();
 
         using (var container = _lifetimeScope.BeginLifetimeScope())
         {
@@ -130,10 +130,10 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 var changedMessage = await network.Change(request, downloadId, reason, @operator, organizationTranslation, requestedChanges, _emailClient, cancellationToken);
                 _logger.LogInformation("TIMETRACKING changeroadnetwork: applying RequestedChanges to RoadNetwork took {Elapsed}", sw.Elapsed);
 
-                if (changedMessage is RoadNetworkChangesRejected)
+                if (changedMessage is RoadNetworkChangesRejected rejectedChangedMessage)
                 {
-                    failedChangedMessages.TryAdd(network, new List<IMessage>());
-                    failedChangedMessages[network].Add(changedMessage);
+                    failedChangedMessages.TryAdd(network, new List<RoadNetworkChangesRejected>());
+                    failedChangedMessages[network].Add(rejectedChangedMessage);
                 }
                 else
                 {
@@ -141,15 +141,36 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     successChangedMessages[network].Add(changedMessage);
                 }
             }
-        }
 
-        if (failedChangedMessages.Any() && successChangedMessages.Any())
-        {
-            foreach (var item in successChangedMessages)
-                foreach (var @event in item.Value)
+
+            if (failedChangedMessages.Any() && successChangedMessages.Any())
+            {
+                foreach (var item in successChangedMessages)
+                    foreach (var @event in item.Value)
+                    {
+                        context.EventFilter.Exclude(item.Key, @event);
+                    }
+            }
+
+            if (command.Body.TicketId is not null)
+            {
+                //TODO-rik test
+                var ticketing = container.Resolve<ITicketing>();
+                if (failedChangedMessages.Any())
                 {
-                    context.EventFilter.Exclude(item.Key, @event);
+                    var errors = failedChangedMessages
+                        .SelectMany(x => x.Value)
+                        .SelectMany(x => x.Changes)
+                        .SelectMany(x => x.Problems)
+                        .Select(problem => problem.ToTicketError())
+                        .ToArray();
+                    await ticketing.Error(command.Body.TicketId.Value, new TicketError(errors), cancellationToken);
                 }
+                else
+                {
+                    await ticketing.Complete(command.Body.TicketId.Value, new TicketResult(), cancellationToken);
+                }
+            }
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);

@@ -221,7 +221,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
             problems += problemsForMissingGradeSeparatedJunctions;
         }
 
-        //TODO-rik #WR-470 once it's refined
+        //#WR-470 once it's refined
         //var roadSegmentIntersectionsWithNotEnoughGradeSeparatedJunctions = roadSegmentIntersections
         //    .Where(x => x.Intersections.Count != x.GradeSeparatedJunctionsCount)
         //    .ToArray();

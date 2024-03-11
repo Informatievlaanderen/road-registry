@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Options;
 
     public interface IPagedUriGenerator
     {
@@ -16,9 +17,9 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure
     {
         private readonly Uri _baseUri;
 
-        public PagedUriGenerator(IConfiguration configuration)
+        public PagedUriGenerator(ApiOptions apiOptions)
         {
-            _baseUri = new Uri(configuration.GetValue<string>("BaseUrl")); //TODO-rik create custom type, ook al gebruikt in startup
+            _baseUri = new Uri(apiOptions.BaseUrl);
         }
 
         public Uri? NextPage<T>(IEnumerable<T> query, Pagination pagination, string path)

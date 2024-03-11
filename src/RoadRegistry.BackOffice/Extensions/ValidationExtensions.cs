@@ -87,6 +87,28 @@ public static class ValidationExtensions
     {
         return ProblemTranslator.Dutch(problem);
     }
+    public static ProblemTranslation TranslateToDutch(this Messages.FileProblem problem)
+    {
+        return FileProblemTranslator.Dutch(problem);
+    }
+
+    public static DutchValidationException ToDutchValidationException(this ZipArchiveValidationException ex)
+    {
+        var validationFailures = ex.Problems
+            .Select(problem => problem.Translate())
+            .Select(problem =>
+                {
+                    var translatedProblem = problem.TranslateToDutch();
+
+                    return new ValidationFailure(problem.File, translatedProblem.Message)
+                    {
+                        ErrorCode = $"{translatedProblem.Severity}{translatedProblem.Code}"
+                    };
+                }
+            )
+            .ToList();
+        return new DutchValidationException(validationFailures);
+    }
 
     public static async Task ValidateAndThrowAsync<T>(this IValidator<T> validator, T instance, Func<ValidationResult, Exception> exceptionBuilder, CancellationToken cancellationToken)
     {

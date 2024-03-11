@@ -16,9 +16,11 @@ namespace RoadRegistry.Jobs.Processor.Upload
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using System;
+    using System.IO;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using BackOffice.Core;
     using TicketingService.Abstractions;
     using Task = System.Threading.Tasks.Task;
 
@@ -86,39 +88,58 @@ namespace RoadRegistry.Jobs.Processor.Upload
                         continue;
                     }
 
-                    // If so, update ticket status and job status => Preparing
-                    await _ticketing.Pending(job.TicketId!.Value, stoppingToken);
-                    await UpdateJobStatus(job, JobStatus.Preparing, stoppingToken);
+                    try
+                    {
+                        // If so, update ticket status and job status => Preparing
+                        await _ticketing.Pending(job.TicketId!.Value, stoppingToken);
+                        await UpdateJobStatus(job, JobStatus.Preparing, stoppingToken);
 
-                    // Send archive to be further processed
-                    var request = await BuildRequest(job, blob, stoppingToken);
-                    await _mediator.Send(request, stoppingToken);
+                        // Send archive to be further processed
+                        await using var blobStream = await blob.OpenAsync(stoppingToken);
+                        var readStream = new MemoryStream();
+                        await blobStream.CopyToAsync(readStream, stoppingToken);
+                        readStream.Position = 0;
 
-                    await UpdateJobStatus(job, JobStatus.Completed, stoppingToken);
-                }
-                catch (UnsupportedMediaTypeException)
-                {
-                    await UpdateJobWithError(ProblemCode.Upload.UnsupportedMediaType);
-                }
-                catch (DownloadExtractNotFoundException)
-                {
-                    await UpdateJobWithError(ProblemCode.Extract.NotFound);
-                }
-                catch (ExtractDownloadNotFoundException)
-                {
-                    await UpdateJobWithError(ProblemCode.Extract.NotFound);
-                }
-                catch (ExtractRequestMarkedInformativeException)
-                {
-                    await UpdateJobWithError(ProblemCode.Upload.UploadNotAllowedForInformativeExtract);
-                }
-                catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException)
-                {
-                    await UpdateJobWithError(ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload);
-                }
-                catch (CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException)
-                {
-                    await UpdateJobWithError(ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce);
+                        var request = await BuildRequest(job, blob, readStream, stoppingToken);
+                        await _mediator.Send(request, stoppingToken);
+                        
+                        await UpdateJobStatus(job, JobStatus.Completed, stoppingToken);
+                    }
+                    catch (UnsupportedMediaTypeException)
+                    {
+                        await UpdateJobWithError(ProblemCode.Upload.UnsupportedMediaType);
+                    }
+                    catch (DownloadExtractNotFoundException)
+                    {
+                        await UpdateJobWithError(ProblemCode.Extract.NotFound);
+                    }
+                    catch (ExtractDownloadNotFoundException)
+                    {
+                        await UpdateJobWithError(ProblemCode.Extract.NotFound);
+                    }
+                    catch (ExtractRequestMarkedInformativeException)
+                    {
+                        await UpdateJobWithError(ProblemCode.Upload.UploadNotAllowedForInformativeExtract);
+                    }
+                    catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException)
+                    {
+                        await UpdateJobWithError(ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload);
+                    }
+                    catch (CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException)
+                    {
+                        await UpdateJobWithError(ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce);
+                    }
+                    catch (ZipArchiveValidationException ex)
+                    {
+                        var validationException = ex.ToDutchValidationException();
+                        await _ticketing.Error(job.TicketId!.Value, new TicketError(validationException.Errors.Select(x => new TicketError(x.ErrorMessage, x.ErrorCode)).ToArray()), stoppingToken);
+                        await UpdateJobStatus(job, JobStatus.Error, stoppingToken);
+                    }
+
+                    if (job.Status != JobStatus.Completed)
+                    {
+                        //TODO-rik remove blob from jobs bucket?
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -130,19 +151,17 @@ namespace RoadRegistry.Jobs.Processor.Upload
             _hostApplicationLifetime.StopApplication();
         }
 
-        private async Task<object> BuildRequest(Job job, BlobObject blob, CancellationToken stoppingToken)
+        private async Task<object> BuildRequest(Job job, BlobObject blob, Stream blobStream, CancellationToken stoppingToken)
         {
             var ticket = await _ticketing.Get(job.TicketId!.Value, stoppingToken);
             var uploadType = Enum.Parse(typeof(UploadType), ticket!.Metadata["type"]);
-
-            await using var stream = await blob.OpenAsync(stoppingToken);
-
+            
             switch (uploadType)
             {
                 case UploadType.Uploads:
-                    return new BackOffice.Abstractions.Uploads.UploadExtractRequest(new UploadExtractArchiveRequest(blob.Name, stream, blob.ContentType));
+                    return new BackOffice.Abstractions.Uploads.UploadExtractRequest(new UploadExtractArchiveRequest(blob.Name, blobStream, blob.ContentType), ticket.TicketId);
                 case UploadType.Extracts:
-                    return new BackOffice.Abstractions.Extracts.UploadExtractRequest(ticket.Metadata["downloadId"], new UploadExtractArchiveRequest(blob.Name, stream, blob.ContentType));
+                    return new BackOffice.Abstractions.Extracts.UploadExtractRequest(ticket.Metadata["downloadId"], new UploadExtractArchiveRequest(blob.Name, blobStream, blob.ContentType), ticket.TicketId);
                 default:
                     throw new NotSupportedException($"{nameof(UploadType)} {uploadType} is not supported.");
             }
@@ -157,19 +176,17 @@ namespace RoadRegistry.Jobs.Processor.Upload
         private async Task<BlobObject> GetBlobObject(Job job, CancellationToken stoppingToken)
         {
             var blobName = new BlobName(job.ReceivedBlobName);
-
             if (!await _blobClient.BlobExistsAsync(blobName, stoppingToken))
             {
-                return null;
+                blobName = new BlobName(job.ReceivedBlobName + ".zip"); //TODO-rik temp for dev
+                if (!await _blobClient.BlobExistsAsync(blobName, stoppingToken))
+                {
+                    _logger.LogError($"No blob found with name: {job.ReceivedBlobName}");
+                    return null;
+                }
             }
 
             var blobObject = await _blobClient.GetBlobAsync(blobName, stoppingToken);
-            if (blobObject is null)
-            {
-                _logger.LogError($"No blob found with name: {job.ReceivedBlobName}");
-                return null;
-            }
-            
             try
             {
                 return blobObject;

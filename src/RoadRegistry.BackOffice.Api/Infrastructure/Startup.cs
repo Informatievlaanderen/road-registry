@@ -181,7 +181,8 @@ public class Startup
         var oAuth2IntrospectionOptions = _configuration.GetOptions<OAuth2IntrospectionOptions>(nameof(OAuth2IntrospectionOptions));
         var openIdConnectOptions = _configuration.GetOptions<OpenIdConnectOptions>();
 
-        var baseUrl = _configuration.GetValue<string>("BaseUrl")?.TrimEnd('/') ?? string.Empty;
+        var apiOptions = _configuration.GetOptions<ApiOptions>();
+        apiOptions.BaseUrl = apiOptions.BaseUrl?.TrimEnd('/') ?? string.Empty;
 
         var featureToggles = _configuration.GetFeatureToggles<ApplicationFeatureToggle>();
         var useHealthChecksFeatureToggle = featureToggles.OfType<UseHealthChecksFeatureToggle>().Single();
@@ -201,7 +202,7 @@ public class Startup
                 },
                 Server =
                 {
-                    BaseUrl = baseUrl
+                    BaseUrl = apiOptions.BaseUrl
                 },
                 Swagger =
                 {
@@ -357,6 +358,7 @@ public class Startup
             .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
             .AddRoadNetworkCommandQueue()
             .AddRoadNetworkSnapshotStrategyOptions()
+            .AddSingleton(apiOptions)
             .Configure<ResponseOptions>(_configuration)
             .Configure<JobsBucketOptions>(_configuration.GetSection(JobsBucketOptions.ConfigKey))
             .AddJobsContext()
