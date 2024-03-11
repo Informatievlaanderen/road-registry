@@ -1,3 +1,25 @@
+## [3.70.6](https://github.com/informatievlaanderen/road-registry/compare/v3.70.5...v3.70.6) (2024-03-08)
+
+
+### Bug Fixes
+
+* WR-961 correct roadsegment versions load network from correct stream ([#1424](https://github.com/informatievlaanderen/road-registry/issues/1424)) ([95f1940](https://github.com/informatievlaanderen/road-registry/commit/95f1940a17544e229350d2315db4a7b41bc058d6))
+
+## [3.70.5](https://github.com/informatievlaanderen/road-registry/compare/v3.70.4...v3.70.5) (2024-03-08)
+
+
+### Bug Fixes
+
+* WR-961 RoadSegmentVersion projection to be more flexible with test data ([#1423](https://github.com/informatievlaanderen/road-registry/issues/1423)) ([34ca5c7](https://github.com/informatievlaanderen/road-registry/commit/34ca5c78773a04fbfdc94ea722de8a74e9b0df89))
+
+## [3.70.4](https://github.com/informatievlaanderen/road-registry/compare/v3.70.3...v3.70.4) (2024-03-08)
+
+
+### Bug Fixes
+
+* restore RoadNetworkExtractChangesArchiveFeatureCompareCompleted event ([#1421](https://github.com/informatievlaanderen/road-registry/issues/1421)) ([c3db9e6](https://github.com/informatievlaanderen/road-registry/commit/c3db9e67c7f392051eca37d05d76937cc25e2add))
+* WR-961 keep version/geometryVersion when converting to measured ([#1422](https://github.com/informatievlaanderen/road-registry/issues/1422)) ([f074c07](https://github.com/informatievlaanderen/road-registry/commit/f074c07d7ee8d689a69b388571c82fccadaed886))
+
 ## [3.70.3](https://github.com/informatievlaanderen/road-registry/compare/v3.70.2...v3.70.3) (2024-03-06)
 
 

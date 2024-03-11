@@ -57,7 +57,7 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
             var downloadIds = envelope.Message.DownloadIds.Select(x => DownloadId.Parse(x).ToGuid()).ToArray();
 
             var records = await context.ExtractDownloads
-                .ToListIncludingLocalAsync(record => downloadIds.Contains(record.DownloadId), ct);
+                .IncludeLocalToListAsync(q => q.Where(record => downloadIds.Contains(record.DownloadId)), ct);
 
             records.ForEach(record => record.IsInformative = true);
         });
