@@ -166,8 +166,23 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 }
                 else
                 {
-                    //TODO-rik iets nuttig in de result plaatsen?
-                    await ticketing.Complete(command.Body.TicketId.Value, new TicketResult(), cancellationToken);
+                    var changes = successChangedMessages
+                        .SelectMany(x => x.Value)
+                        .OfType<RoadNetworkChangesAccepted>()
+                        .SelectMany(x => x.Changes)
+                        .Select(change => new
+                        {
+                            Change = DutchTranslations.AcceptedChange.Translator(change),
+                            Problems = change.Problems?
+                                .Select(problem => new
+                                {
+                                    Severity = problem.Severity.ToString(),
+                                    Text = DutchTranslations.ProblemTranslator.Dutch(problem).Message
+                                })
+                                .ToArray()
+                        })
+                        .ToArray();
+                    await ticketing.Complete(command.Body.TicketId.Value, new TicketResult(new { Changes = changes }), cancellationToken);
                 }
             }
         }
