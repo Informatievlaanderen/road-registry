@@ -8,7 +8,7 @@ namespace RoadRegistry.BackOffice.Messages
         public static TicketError ToTicketError(this FileProblem problem)
         {
             var translation = problem.TranslateToDutch();
-            return new TicketError(translation.Message, $"{problem.Severity}{translation.Code}");
+            return new TicketError(translation.Message, $"{problem.File}_{problem.Severity}{translation.Code}");
         }
 
         public static TicketError ToTicketError(this Problem problem)

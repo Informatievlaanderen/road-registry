@@ -12,7 +12,6 @@ using Handlers.Extracts;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -40,6 +39,7 @@ public class Program
                 services
                     .AddHostedService<EventProcessor>()
                     .RegisterOptions<ZipArchiveWriterOptions>()
+                    .AddTicketing()
                     .AddEmailClient()
                     .AddRoadRegistrySnapshot()
                     .AddRoadNetworkEventWriter()

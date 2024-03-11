@@ -1,15 +1,13 @@
 namespace RoadRegistry.BackOffice.Extracts;
 
+using Amazon.SimpleNotificationService.Model;
+using Messages;
+using Newtonsoft.Json;
 using System;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Amazon.SimpleNotificationService.Model;
-using Extensions;
-using Messages;
-using Newtonsoft.Json;
-using RoadRegistry.BackOffice.Core;
 using TicketingService.Abstractions;
 using Uploads;
 
@@ -48,7 +46,7 @@ public class RoadNetworkExtractUpload
         var zipArchiveMetadata = ZipArchiveMetadata.Empty.WithDownloadId(_downloadId);
 
         var problems = await validator.ValidateAsync(archive, new ZipArchiveValidatorContext(zipArchiveMetadata), cancellationToken);
-        if (!problems.OfType<FileError>().Any())
+        if (!problems.HasError())
         {
             Apply(
                 new RoadNetworkExtractChangesArchiveAccepted
@@ -59,8 +57,8 @@ public class RoadNetworkExtractUpload
                     DownloadId = _downloadId,
                     UploadId = _uploadId,
                     ArchiveId = _archiveId,
-                    TicketId = ticketId,
-                    Problems = problems.Select(problem => problem.Translate()).ToArray()
+                    Problems = problems.Select(problem => problem.Translate()).ToArray(),
+                    TicketId = ticketId
                 });
         }
         else
@@ -74,14 +72,14 @@ public class RoadNetworkExtractUpload
                     DownloadId = _downloadId,
                     UploadId = _uploadId,
                     ArchiveId = _archiveId,
-                    Problems = problems.Select(problem => problem.Translate()).ToArray()
+                    Problems = problems.Select(problem => problem.Translate()).ToArray(),
+                    TicketId = ticketId
                 };
 
             Apply(@event);
 
             if (ticketId is not null)
             {
-                //TODO-rik test
                 var errors = problems.Select(x => x.Translate().ToTicketError()).ToArray();
                 await ticketing.Error(ticketId.Value, new TicketError(errors), cancellationToken);
             }

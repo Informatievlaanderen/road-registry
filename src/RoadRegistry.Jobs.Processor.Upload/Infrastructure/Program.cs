@@ -8,9 +8,16 @@ using BackOffice;
 using BackOffice.Extensions;
 using Hosts.Infrastructure.Extensions;
 using Autofac;
+using BackOffice.Core;
+using BackOffice.Extracts;
+using BackOffice.Uploads;
 using BackOffice.ZipArchiveWriters.Cleaning;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Hosts.Infrastructure.Modules;
+using Microsoft.Extensions.Logging;
+using NodaTime;
+using Options;
+using SqlStreamStore;
 
 public class Program
 {
@@ -27,18 +34,31 @@ public class Program
                     .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
                     .AddHttpClient()
                     .AddTicketing()
-                    //.AddScoped(_ => new EventSourcedEntityMap())
                     .AddDistributedStreamStoreLockOptions()
                     .AddRoadNetworkDbIdGenerator()
                     .AddEditorContext()
-                    //.AddOrganizationCache()
                     .AddStreetNameCache()
                     .AddJobsContext()
                     .AddFeatureCompare()
                     .AddSingleton<IBeforeFeatureCompareZipArchiveCleaner, BeforeFeatureCompareZipArchiveCleaner>()
-                    //TODO-rik removed commented code after full flow test
                     .AddRoadNetworkCommandQueue()
-                    //.AddRoadNetworkEventWriter()
+                    .RegisterOptions<UploadProcessorOptions>()
+                    .AddRoadRegistrySnapshot()
+                    .AddScoped(_ => new EventSourcedEntityMap())
+                    .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
+                        new CommandHandlerModule[]
+                        {
+                            new RoadNetworkExtractCommandModule(
+                                sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
+                                sp.GetService<IStreamStore>(),
+                                sp.GetService<ILifetimeScope>(),
+                                sp.GetService<IRoadNetworkSnapshotReader>(),
+                                sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
+                                sp.GetService<IExtractUploadFailedEmailClient>(),
+                                sp.GetService<IClock>(),
+                                sp.GetService<ILoggerFactory>()
+                            )
+                        })))
 
                     .AddHostedService<UploadProcessor>()
                     ;
@@ -56,7 +76,8 @@ public class Program
             .LogSqlServerConnectionStrings(new[] {
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.Jobs,
-                WellKnownConnectionNames.JobsAdmin
+                WellKnownConnectionNames.EditorProjections,
+                WellKnownConnectionNames.StreetNameProjections
             })
             .RunAsync();
     }

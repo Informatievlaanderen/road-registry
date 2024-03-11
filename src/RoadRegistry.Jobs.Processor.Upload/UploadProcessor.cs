@@ -13,19 +13,20 @@ namespace RoadRegistry.Jobs.Processor.Upload
     using FluentValidation.Results;
     using MediatR;
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using System;
     using System.IO;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using BackOffice.Core;
+    using Microsoft.Extensions.Hosting;
     using TicketingService.Abstractions;
+    using UploadProcessorOptions = Infrastructure.Options.UploadProcessorOptions;
     using Task = System.Threading.Tasks.Task;
 
     public sealed class UploadProcessor : BackgroundService
     {
+        private readonly UploadProcessorOptions _uploadProcessorOptions;
         private readonly JobsContext _jobsContext;
         private readonly ITicketing _ticketing;
         private readonly IBlobClient _blobClient;
@@ -34,6 +35,7 @@ namespace RoadRegistry.Jobs.Processor.Upload
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
 
         public UploadProcessor(
+            UploadProcessorOptions hostOptions,
             JobsContext jobsContext,
             ITicketing ticketing,
             RoadNetworkJobsBlobClient blobClient,
@@ -41,6 +43,7 @@ namespace RoadRegistry.Jobs.Processor.Upload
             ILoggerFactory loggerFactory,
             IHostApplicationLifetime hostApplicationLifetime)
         {
+            _uploadProcessorOptions = hostOptions.ThrowIfNull();
             _jobsContext = jobsContext.ThrowIfNull();
             _ticketing = ticketing.ThrowIfNull();
             _blobClient = blobClient.ThrowIfNull();
@@ -51,18 +54,28 @@ namespace RoadRegistry.Jobs.Processor.Upload
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                await ProcessJobs(stoppingToken);
+
+                if (!_uploadProcessorOptions.AlwaysRunning)
+                {
+                    _hostApplicationLifetime.StopApplication();
+                    return;
+                }
+
+                Thread.Sleep(TimeSpan.FromSeconds(_uploadProcessorOptions.ConsumerDelaySeconds));
+            }
+        }
+
+        private async Task ProcessJobs(CancellationToken stoppingToken)
+        {
             // Check created jobs
             var jobs = await _jobsContext.Jobs
                 .Where(x => x.Status == JobStatus.Created || x.Status == JobStatus.Preparing)
                 .OrderBy(x => x.Created)
                 .ToListAsync(stoppingToken);
-
-            if (!jobs.Any())
-            {
-                _hostApplicationLifetime.StopApplication();
-                return;
-            }
-
+            
             foreach (var job in jobs)
             {
                 async Task UpdateJobWithError(ProblemCode problemCode)
@@ -102,7 +115,7 @@ namespace RoadRegistry.Jobs.Processor.Upload
 
                         var request = await BuildRequest(job, blob, readStream, stoppingToken);
                         await _mediator.Send(request, stoppingToken);
-                        
+
                         await UpdateJobStatus(job, JobStatus.Completed, stoppingToken);
                     }
                     catch (UnsupportedMediaTypeException)
@@ -135,10 +148,9 @@ namespace RoadRegistry.Jobs.Processor.Upload
                         await _ticketing.Error(job.TicketId!.Value, new TicketError(validationException.Errors.Select(x => new TicketError(x.ErrorMessage, x.ErrorCode)).ToArray()), stoppingToken);
                         await UpdateJobStatus(job, JobStatus.Error, stoppingToken);
                     }
-
-                    if (job.Status != JobStatus.Completed)
+                    finally
                     {
-                        //TODO-rik remove blob from jobs bucket?
+                        await _blobClient.DeleteBlobAsync(blob.Name, stoppingToken);
                     }
                 }
                 catch (Exception ex)
@@ -147,8 +159,6 @@ namespace RoadRegistry.Jobs.Processor.Upload
                     await UpdateJobWithError(ProblemCode.Upload.UnexpectedError);
                 }
             }
-
-            _hostApplicationLifetime.StopApplication();
         }
 
         private async Task<object> BuildRequest(Job job, BlobObject blob, Stream blobStream, CancellationToken stoppingToken)

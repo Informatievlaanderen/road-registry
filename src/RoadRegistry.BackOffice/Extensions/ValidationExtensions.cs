@@ -102,7 +102,7 @@ public static class ValidationExtensions
 
                     return new ValidationFailure(problem.File, translatedProblem.Message)
                     {
-                        ErrorCode = $"{translatedProblem.Severity}{translatedProblem.Code}"
+                        ErrorCode = $"{problem.Severity}{translatedProblem.Code}"
                     };
                 }
             )

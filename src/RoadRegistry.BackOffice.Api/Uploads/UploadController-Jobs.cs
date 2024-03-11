@@ -31,7 +31,6 @@ public partial class UploadController
     [HttpPost("jobs", Name = nameof(GetUploadPreSignedUrl))]
     public async Task<IActionResult> GetUploadPreSignedUrl(CancellationToken cancellationToken)
     {
-        //TODO-rik add endpoint voor Extract variant in ExtractsController
         return Ok(await _mediator.Send(new UploadPreSignedUrlRequest(UploadType.Uploads), cancellationToken));
     }
 

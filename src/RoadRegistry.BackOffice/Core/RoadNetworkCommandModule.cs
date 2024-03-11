@@ -141,8 +141,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     successChangedMessages[network].Add(changedMessage);
                 }
             }
-
-
+            
             if (failedChangedMessages.Any() && successChangedMessages.Any())
             {
                 foreach (var item in successChangedMessages)
@@ -154,7 +153,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
             if (command.Body.TicketId is not null)
             {
-                //TODO-rik test
                 var ticketing = container.Resolve<ITicketing>();
                 if (failedChangedMessages.Any())
                 {
@@ -168,6 +166,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 }
                 else
                 {
+                    //TODO-rik iets nuttig in de result plaatsen?
                     await ticketing.Complete(command.Body.TicketId.Value, new TicketResult(), cancellationToken);
                 }
             }

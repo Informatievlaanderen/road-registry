@@ -14,6 +14,7 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.FeatureCompare.Readers;
 using System.IO.Compression;
+using TicketingService.Abstractions;
 using ZipArchiveWriters;
 using ZipArchiveWriters.Cleaning;
 
@@ -44,10 +45,10 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         ILogger<UploadExtractRequestHandler> logger) : base(roadNetworkCommandQueue, logger)
     {
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
+        _transactionZoneFeatureReader = transactionZoneFeatureReader.ThrowIfNull();
         _editorContext = editorContext ?? throw new EditorContextNotFoundException(nameof(editorContext));
         _beforeFeatureCompareValidator = beforeFeatureCompareValidator ?? throw new ValidatorNotFoundException(nameof(beforeFeatureCompareValidator));
         _beforeFeatureCompareZipArchiveCleaner = beforeFeatureCompareZipArchiveCleaner.ThrowIfNull();
-        _transactionZoneFeatureReader = transactionZoneFeatureReader.ThrowIfNull();
     }
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
@@ -56,7 +57,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         {
             throw new UnsupportedMediaTypeException();
         }
-        //TODO-rik continue test full flow
+        
         await using var readStream = await CleanArchive(request.Archive.ReadStream, cancellationToken);
 
         var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
@@ -110,7 +111,6 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
         {
             var problems = await entity.ValidateArchiveUsing(archive, request.TicketId, _beforeFeatureCompareValidator, cancellationToken);
-
             problems.ThrowIfError();
 
             var readerContext = new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);

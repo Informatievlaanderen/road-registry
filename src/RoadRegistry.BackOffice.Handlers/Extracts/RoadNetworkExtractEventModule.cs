@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Uploads;
 using TicketingService.Abstractions;
 
 public class RoadNetworkExtractEventModule : EventHandlerModule
@@ -108,7 +109,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                         DownloadId = downloadId,
                         UploadId = uploadId,
                         ArchiveId = archiveId,
-                        Problems = ex.Problems.Select(problem => problem.Translate()).ToArray()
+                        Problems = ex.Problems.Select(problem => problem.Translate()).ToArray(),
+                        TicketId = message.Body.TicketId
                     };
 
                     await roadNetworkEventWriter.WriteAsync(RoadNetworkExtracts.ToStreamName(extractRequestId), message.StreamVersion, new Event(
@@ -117,7 +119,6 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
 
                     if (message.Body.TicketId is not null)
                     {
-                        //TODO-rik test
                         var ticketing = container.Resolve<ITicketing>();
                         var errors = ex.Problems.Select(x => x.Translate().ToTicketError()).ToArray();
                         await ticketing.Error(message.Body.TicketId.Value, new TicketError(errors), ct);

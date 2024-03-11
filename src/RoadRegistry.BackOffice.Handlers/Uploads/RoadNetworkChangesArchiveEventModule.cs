@@ -1,22 +1,21 @@
 namespace RoadRegistry.BackOffice.Handlers.Uploads;
 
+using Autofac;
 using BackOffice.Extracts;
 using BackOffice.FeatureCompare;
-using BackOffice.FeatureCompare.Translators;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Exceptions;
+using FluentValidation;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using RoadRegistry.BackOffice.FeatureCompare.Readers;
 using SqlStreamStore;
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
-using Autofac;
-using FluentValidation;
-using Newtonsoft.Json;
-using RoadRegistry.BackOffice.FeatureCompare.Readers;
 using TicketingService.Abstractions;
 
 public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
@@ -71,7 +70,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                         var readerContext = new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);
                         var transactionZoneFeatures = transactionZoneFeatureReader.Read(archive, FeatureType.Change, ExtractFileName.Transactiezones, readerContext).Item1;
                         var downloadId = transactionZoneFeatures.Single().Attributes.DownloadId;
-
+                        
                         var command = new Command(new ChangeRoadNetwork
                             {
                                 RequestId = requestId,
@@ -93,7 +92,8 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                     {
                         ArchiveId = archiveId,
                         Description = message.Body.Description,
-                        Problems = ex.Problems.Select(problem => problem.Translate()).ToArray()
+                        Problems = ex.Problems.Select(problem => problem.Translate()).ToArray(),
+                        TicketId = message.Body.TicketId
                     };
 
                     await roadNetworkEventWriter.WriteAsync(RoadNetworkChangesArchives.GetStreamName(archiveId), message.StreamVersion, new Event(
@@ -102,7 +102,6 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
 
                     if (message.Body.TicketId is not null)
                     {
-                        //TODO-rik test
                         var ticketing = container.Resolve<ITicketing>();
                         var errors = ex.Problems.Select(x => x.Translate().ToTicketError()).ToArray();
                         await ticketing.Error(message.Body.TicketId.Value, new TicketError(errors), ct);

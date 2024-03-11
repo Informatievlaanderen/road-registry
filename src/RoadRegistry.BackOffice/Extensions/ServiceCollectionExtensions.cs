@@ -123,11 +123,11 @@ public static class ServiceCollectionExtensions
             {
                 if (string.IsNullOrEmpty(options.Bucket))
                 {
-                    throw new ConfigurationErrorsException($"'{nameof(options.Bucket)}' is required");
+                    throw new ConfigurationErrorsException($"'{nameof(options.Bucket)}' is required for '{options.GetType().Name}'");
                 }
                 if (string.IsNullOrEmpty(options.RootDir))
                 {
-                    throw new ConfigurationErrorsException($"'{nameof(options.RootDir)}' is required");
+                    throw new ConfigurationErrorsException($"'{nameof(options.RootDir)}' is required for '{options.GetType().Name}'");
                 }
             })
             .AddSingleton<DistributedS3Cache>()
