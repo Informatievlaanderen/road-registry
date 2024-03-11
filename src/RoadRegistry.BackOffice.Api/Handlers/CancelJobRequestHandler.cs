@@ -11,7 +11,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
     using System.Threading.Tasks;
     using TicketingService.Abstractions;
 
-    public sealed class CancelJobRequestHandler : IRequestHandler<CancelJobRequest>
+    public sealed class CancelJobRequestHandler : IRequestHandler<CancelJobRequest, CancelJobResponse>
     {
         private readonly JobsContext _jobsContext;
         private readonly ITicketing _ticketing;
@@ -24,7 +24,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
             _ticketing = ticketing;
         }
 
-        public async Task Handle(CancelJobRequest request, CancellationToken cancellationToken)
+        public async Task<CancelJobResponse> Handle(CancelJobRequest request, CancellationToken cancellationToken)
         {
             var job = await _jobsContext.FindJob(request.JobId, cancellationToken);
             if (job is null)
@@ -57,6 +57,8 @@ namespace RoadRegistry.BackOffice.Api.Handlers
 
             job.UpdateStatus(JobStatus.Cancelled);
             await _jobsContext.SaveChangesAsync(cancellationToken);
+
+            return new CancelJobResponse();
         }
     }
 }

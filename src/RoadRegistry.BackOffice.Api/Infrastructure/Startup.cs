@@ -113,7 +113,7 @@ public class Startup
                 },
                 Tracing =
                 {
-                    ServiceName = _configuration["DataDog:ServiceName"]
+                    ServiceName = _configuration.GetRequiredValue<string>("DataDog:ServiceName")
                 }
             })
             .UseDefaultForApi(new StartupUseOptions
@@ -362,20 +362,9 @@ public class Startup
             .Configure<ResponseOptions>(_configuration)
             .Configure<JobsBucketOptions>(_configuration.GetSection(JobsBucketOptions.ConfigKey))
             .AddJobsContext()
+            .AddSingleton<IPagedUriGenerator, PagedUriGenerator>()
             .AddAcmIdmAuthentication(oAuth2IntrospectionOptions, openIdConnectOptions)
             .AddApiKeyAuth()
-            ;
-
-        if (_webHostEnvironment.IsDevelopment())
-        {
-            services.AddSingleton<IApiTokenReader>(new ConfigurationApiTokenReader(_configuration, "RoadRegistry Development ApiKey Client"));
-        }
-        else
-        {
-            services.AddSingleton<IApiTokenReader, DynamoDbApiTokenReader>();
-        }
-
-        services
             .AddMvc(options =>
             {
                 options.Filters.Add<ValidationFilterAttribute>();

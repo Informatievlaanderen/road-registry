@@ -76,9 +76,11 @@ public class Program
             await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
 
             logger.LogSqlServerConnectionString(configuration, WellKnownConnectionNames.Events);
+            logger.LogSqlServerConnectionString(configuration, WellKnownConnectionNames.Jobs);
             logger.LogSqlServerConnectionString(configuration, WellKnownConnectionNames.Snapshots);
             logger.LogSqlServerConnectionString(configuration, WellKnownConnectionNames.EditorProjections);
             logger.LogSqlServerConnectionString(configuration, WellKnownConnectionNames.ProductProjections);
+            logger.LogSqlServerConnectionString(configuration, WellKnownConnectionNames.StreetNameProjections);
             logger.LogSqlServerConnectionString(configuration, WellKnownConnectionNames.SyndicationProjections);
 
             await host.RunAsync().ConfigureAwait(false);

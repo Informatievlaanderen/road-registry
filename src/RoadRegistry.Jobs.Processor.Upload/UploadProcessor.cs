@@ -188,7 +188,7 @@ namespace RoadRegistry.Jobs.Processor.Upload
             var blobName = new BlobName(job.ReceivedBlobName);
             if (!await _blobClient.BlobExistsAsync(blobName, stoppingToken))
             {
-                blobName = new BlobName(job.ReceivedBlobName + ".zip"); //TODO-rik temp for dev
+                blobName = new BlobName(job.ReceivedBlobName + ".zip"); // For dev
                 if (!await _blobClient.BlobExistsAsync(blobName, stoppingToken))
                 {
                     _logger.LogError($"No blob found with name: {job.ReceivedBlobName}");

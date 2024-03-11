@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Handlers
 {
-    using Infrastructure;
     using Jobs;
     using Jobs.Abstractions;
     using MediatR;
@@ -14,16 +13,13 @@ namespace RoadRegistry.BackOffice.Api.Handlers
     {
         private readonly JobsContext _jobsContext;
         private readonly ITicketingUrl _ticketingUrl;
-        private readonly IPagedUriGenerator _pagedUriGenerator;
 
         public GetActiveJobsRequestHandler(
             JobsContext jobsContext,
-            ITicketingUrl ticketingUrl,
-            IPagedUriGenerator pagedUriGenerator)
+            ITicketingUrl ticketingUrl)
         {
             _jobsContext = jobsContext;
             _ticketingUrl = ticketingUrl;
-            _pagedUriGenerator = pagedUriGenerator;
         }
 
         public async Task<GetActiveJobsResponse> Handle(
@@ -32,7 +28,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
         {
             var result = await _jobsContext
                 .Jobs
-                .Where(x => x.Status != JobStatus.Cancelled && x.Status != JobStatus.Completed)
+                .Where(x => x.Status == JobStatus.Created || x.Status == JobStatus.Preparing)
                 .ToListAsync(cancellationToken);
 
             return new GetActiveJobsResponse(
