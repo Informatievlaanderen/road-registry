@@ -20,6 +20,7 @@ public class RoadNetworkChangesAccepted : IMessage, IHaveHash, IHaveTransactionI
     public string RequestId { get; set; }
     public Guid? DownloadId { get; set; }
     public int TransactionId { get; set; }
+    public Guid? TicketId { get; set; }
     public string When { get; set; }
 
     public IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);

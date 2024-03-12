@@ -89,6 +89,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         var downloadId = DownloadId.FromValue(command.Body.DownloadId);
         var @operator = new OperatorName(command.Body.Operator);
         var reason = new Reason(command.Body.Reason);
+        var ticketId = TicketId.FromValue(command.Body.TicketId);
 
         var sw = Stopwatch.StartNew();
         var organizationId = new OrganizationId(command.Body.OrganizationId);
@@ -127,7 +128,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 _logger.LogInformation("TIMETRACKING changeroadnetwork: translating command changes to RequestedChanges took {Elapsed}", sw.Elapsed);
 
                 sw.Restart();
-                var changedMessage = await network.Change(request, downloadId, reason, @operator, organizationTranslation, requestedChanges, _emailClient, cancellationToken);
+                var changedMessage = await network.Change(request, downloadId, reason, @operator, organizationTranslation, requestedChanges, ticketId, _emailClient, cancellationToken);
                 _logger.LogInformation("TIMETRACKING changeroadnetwork: applying RequestedChanges to RoadNetwork took {Elapsed}", sw.Elapsed);
 
                 if (changedMessage is RoadNetworkChangesRejected rejectedChangedMessage)
@@ -151,7 +152,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     }
             }
 
-            if (command.Body.TicketId is not null)
+            if (ticketId is not null)
             {
                 var ticketing = container.Resolve<ITicketing>();
                 if (failedChangedMessages.Any())
@@ -162,7 +163,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                         .SelectMany(x => x.Problems)
                         .Select(problem => problem.ToTicketError())
                         .ToArray();
-                    await ticketing.Error(command.Body.TicketId.Value, new TicketError(errors), cancellationToken);
+                    await ticketing.Error(ticketId.Value, new TicketError(errors), cancellationToken);
                 }
                 else
                 {
@@ -182,7 +183,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                                 .ToArray()
                         })
                         .ToArray();
-                    await ticketing.Complete(command.Body.TicketId.Value, new TicketResult(new { Changes = changes }), cancellationToken);
+                    await ticketing.Complete(ticketId.Value, new TicketResult(new { Changes = changes }), cancellationToken);
                 }
             }
         }

@@ -1,12 +1,9 @@
 namespace RoadRegistry.Jobs.Processor.Upload.Tests
 {
-    using System;
-    using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Threading;
     using Abstractions;
     using BackOffice.Abstractions.Uploads;
+    using BackOffice.Core.ProblemCodes;
+    using BackOffice.Exceptions;
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using FluentAssertions;
@@ -14,20 +11,16 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
     using MediatR;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging.Abstractions;
-    using Microsoft.Extensions.Options;
     using Moq;
+    using System;
+    using System.IO;
+    using System.Linq;
+    using System.Threading;
     using TicketingService.Abstractions;
     using Xunit;
-    //TODO-rik unit test for uploadprocessor
+
     public class UploadProcessorTests
     {
-        private readonly FakeJobsContext _jobsContext;
-
-        public UploadProcessorTests()
-        {
-            _jobsContext = new FakeJobsContextFactory().CreateDbContext();
-        }
-
         [Fact]
         public async Task FlowTest_Uploads()
         {
@@ -35,12 +28,13 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
             var mockIBlobClient = new Mock<IBlobClient>();
             var mockMediator = new Mock<IMediator>();
             var mockIHostApplicationLifeTime = new Mock<IHostApplicationLifetime>();
+            var jobsContext = new FakeJobsContextFactory().CreateDbContext();
 
             var ticketId = Guid.NewGuid();
 
             var job = new Job(DateTimeOffset.Now, JobStatus.Created, UploadType.Uploads, ticketId);
-            _jobsContext.Jobs.Add(job);
-            await _jobsContext.SaveChangesAsync(CancellationToken.None);
+            jobsContext.Jobs.Add(job);
+            await jobsContext.SaveChangesAsync(CancellationToken.None);
 
             var blobName = new BlobName(job.ReceivedBlobName);
 
@@ -54,16 +48,14 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
                     blobName,
                     null,
                     ContentType.Parse("X-multipart/abc"),
-                    _ => Task.FromResult((Stream)new FileStream(
-                        $"{AppContext.BaseDirectory}/UploadProcessor/valid.zip", FileMode.Open,
-                        FileAccess.Read))));
+                    _ => Task.FromResult((Stream)EmbeddedResourceReader.Read("valid.zip"))));
             
             var sut = new UploadProcessor(
                 new UploadProcessorOptions
                 {
                     MaxJobLifeTimeInMinutes = 65
                 },
-                _jobsContext,
+                jobsContext,
                 mockTicketing.Object,
                 new RoadNetworkJobsBlobClient(mockIBlobClient.Object),
                 mockMediator.Object,
@@ -74,12 +66,12 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
             await sut.StartAsync(CancellationToken.None);
 
             // Assert
+            jobsContext.Jobs.First().Status.Should().Be(JobStatus.Completed);
+
             mockTicketing.Verify(x =>
                 x.Pending(ticketId, It.IsAny<CancellationToken>()),
                 Times.Once);
-
-            _jobsContext.Jobs.First().Status.Should().Be(JobStatus.Completed);
-
+            
             var executedRequest = Assert.IsType<UploadExtractRequest>(mockMediator.Invocations.Single().Arguments.First());
             Assert.Equal(ticketId, executedRequest.TicketId);
             Assert.Equal(blobName, executedRequest.Archive.FileName);
@@ -94,6 +86,7 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
             var mockIBlobClient = new Mock<IBlobClient>();
             var mockMediator = new Mock<IMediator>();
             var mockIHostApplicationLifeTime = new Mock<IHostApplicationLifetime>();
+            var jobsContext = new FakeJobsContextFactory().CreateDbContext();
 
             var ticketId = Guid.NewGuid();
             var downloadId = Guid.NewGuid();
@@ -102,8 +95,8 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
             {
                 DownloadId = downloadId
             };
-            _jobsContext.Jobs.Add(job);
-            await _jobsContext.SaveChangesAsync(CancellationToken.None);
+            jobsContext.Jobs.Add(job);
+            await jobsContext.SaveChangesAsync(CancellationToken.None);
 
             var blobName = new BlobName(job.ReceivedBlobName);
 
@@ -117,16 +110,14 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
                     blobName,
                     null,
                     ContentType.Parse("X-multipart/abc"),
-                    _ => Task.FromResult((Stream)new FileStream(
-                        $"{AppContext.BaseDirectory}/UploadProcessor/valid.zip", FileMode.Open,
-                        FileAccess.Read))));
-            
+                    _ => Task.FromResult((Stream)EmbeddedResourceReader.Read("valid.zip"))));
+
             var sut = new UploadProcessor(
                 new UploadProcessorOptions
                 {
                     MaxJobLifeTimeInMinutes = 65
                 },
-                _jobsContext,
+                jobsContext,
                 mockTicketing.Object,
                 new RoadNetworkJobsBlobClient(mockIBlobClient.Object),
                 mockMediator.Object,
@@ -137,12 +128,12 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
             await sut.StartAsync(CancellationToken.None);
 
             // Assert
+            jobsContext.Jobs.First().Status.Should().Be(JobStatus.Completed);
+
             mockTicketing.Verify(x =>
                 x.Pending(ticketId, It.IsAny<CancellationToken>()),
                 Times.Once);
-
-            _jobsContext.Jobs.First().Status.Should().Be(JobStatus.Completed);
-
+            
             var executedRequest = Assert.IsType<BackOffice.Abstractions.Extracts.UploadExtractRequest>(mockMediator.Invocations.Single().Arguments.First());
             Assert.Equal(ticketId, executedRequest.TicketId);
             Assert.Equal(blobName, executedRequest.Archive.FileName);
@@ -158,6 +149,7 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
             var mockIBlobClient = new Mock<IBlobClient>();
             var mockMediator = new Mock<IMediator>();
             var mockIHostApplicationLifeTime = new Mock<IHostApplicationLifetime>();
+            var jobsContext = new FakeJobsContextFactory().CreateDbContext();
 
             var ticketId = Guid.NewGuid();
 
@@ -165,8 +157,8 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
             {
                 DownloadId = null
             };
-            _jobsContext.Jobs.Add(job);
-            await _jobsContext.SaveChangesAsync(CancellationToken.None);
+            jobsContext.Jobs.Add(job);
+            await jobsContext.SaveChangesAsync(CancellationToken.None);
 
             var blobName = new BlobName(job.ReceivedBlobName);
 
@@ -180,16 +172,14 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
                     blobName,
                     null,
                     ContentType.Parse("X-multipart/abc"),
-                    _ => Task.FromResult((Stream)new FileStream(
-                        $"{AppContext.BaseDirectory}/UploadProcessor/valid.zip", FileMode.Open,
-                        FileAccess.Read))));
-            
+                    _ => Task.FromResult((Stream)EmbeddedResourceReader.Read("valid.zip"))));
+
             var sut = new UploadProcessor(
                 new UploadProcessorOptions
                 {
                     MaxJobLifeTimeInMinutes = 65
                 },
-                _jobsContext,
+                jobsContext,
                 mockTicketing.Object,
                 new RoadNetworkJobsBlobClient(mockIBlobClient.Object),
                 mockMediator.Object,
@@ -200,24 +190,15 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
             await sut.StartAsync(CancellationToken.None);
 
             // Assert
-            mockTicketing.Verify(x =>
-                x.Error(ticketId, It.IsAny<TicketError>(), It.IsAny<CancellationToken>()),
-                Times.Once);
+            jobsContext.Jobs.First().Status.Should().Be(JobStatus.Error);
 
-            _jobsContext.Jobs.First().Status.Should().Be(JobStatus.Error);
-
-            //TODO-rik analyze TicketError from invocation
             mockTicketing.Verify(x => x.Error(
                 ticketId,
                 It.Is<TicketError>(ticketError =>
-                    ticketError.Errors.First().ErrorCode == "RequiredFileMissing"
-                    && ticketError.Errors.First().ErrorMessage == $"Er ontbreekt een verplichte file in de zip: GEBOUW_ALL.DBF."),
+                    ticketError.Errors.First().ErrorCode == "DownloadIdIsRequired"
+                    && ticketError.Errors.First().ErrorMessage == "Download id is verplicht."),
                 It.IsAny<CancellationToken>()), Times.Once);
-            //var executedRequest = Assert.IsType<BackOffice.Abstractions.Extracts.UploadExtractRequest>(mockMediator.Invocations.Single().Arguments.First());
-            //Assert.Equal(ticketId, executedRequest.TicketId);
-            //Assert.Equal(blobName, executedRequest.Archive.FileName);
-            //Assert.Equal(downloadId.ToString("N"), executedRequest.DownloadId);
-
+            
             mockIHostApplicationLifeTime.Verify(x => x.StopApplication(), Times.Once);
         }
 
@@ -228,12 +209,13 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
             var mockIBlobClient = new Mock<IBlobClient>();
             var mockMediator = new Mock<IMediator>();
             var mockIHostApplicationLifeTime = new Mock<IHostApplicationLifetime>();
+            var jobsContext = new FakeJobsContextFactory().CreateDbContext();
 
             var ticketId = Guid.NewGuid();
             var job = new Job(DateTimeOffset.Now, JobStatus.Created, UploadType.Uploads, ticketId);
 
-            _jobsContext.Jobs.Add(job);
-            await _jobsContext.SaveChangesAsync(CancellationToken.None);
+            jobsContext.Jobs.Add(job);
+            await jobsContext.SaveChangesAsync(CancellationToken.None);
 
             var blobName = new BlobName(job.ReceivedBlobName);
 
@@ -246,7 +228,7 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
                 {
                     MaxJobLifeTimeInMinutes = 65
                 },
-                _jobsContext,
+                jobsContext,
                 mockTicketing.Object,
                 new RoadNetworkJobsBlobClient(mockIBlobClient.Object),
                 mockMediator.Object,
@@ -268,12 +250,13 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
             var mockIBlobClient = new Mock<IBlobClient>();
             var mockMediator = new Mock<IMediator>();
             var mockIHostApplicationLifeTime = new Mock<IHostApplicationLifetime>();
+            var jobsContext = new FakeJobsContextFactory().CreateDbContext();
 
             var ticketId = Guid.NewGuid();
             var job = new Job(DateTimeOffset.Now, JobStatus.Created, UploadType.Uploads, ticketId);
 
-            _jobsContext.Jobs.Add(job);
-            await _jobsContext.SaveChangesAsync(ct);
+            jobsContext.Jobs.Add(job);
+            await jobsContext.SaveChangesAsync(ct);
 
             var blobName = new BlobName(job.ReceivedBlobName);
 
@@ -290,7 +273,7 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
                 {
                     MaxJobLifeTimeInMinutes = 65
                 },
-                _jobsContext,
+                jobsContext,
                 mockTicketing.Object,
                 new RoadNetworkJobsBlobClient(mockIBlobClient.Object),
                 mockMediator.Object,
@@ -301,8 +284,7 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
             await sut.StartAsync(ct);
 
             // Assert
-            //var jobRecords = _jobsContext.JobRecords.Where(x => x.JobId == job.Id);
-            //jobRecords.Should().BeEmpty();
+            jobsContext.Jobs.First().Status.Should().Be(JobStatus.Created);
         }
 
         [Fact]
@@ -313,33 +295,35 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
             var mockIBlobClient = new Mock<IBlobClient>();
             var mockMediator = new Mock<IMediator>();
             var mockIHostApplicationLifeTime = new Mock<IHostApplicationLifetime>();
+            var jobsContext = new FakeJobsContextFactory().CreateDbContext();
 
             var ticketId = Guid.NewGuid();
             var job = new Job(DateTimeOffset.Now, JobStatus.Created, UploadType.Uploads, ticketId);
 
-            _jobsContext.Jobs.Add(job);
-            await _jobsContext.SaveChangesAsync(ct);
+            jobsContext.Jobs.Add(job);
+            await jobsContext.SaveChangesAsync(ct);
 
             var blobName = new BlobName(job.ReceivedBlobName);
 
             mockIBlobClient
                 .Setup(x => x.BlobExistsAsync(blobName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
-
-            var zipFileStream = new FileStream($"{AppContext.BaseDirectory}/UploadProcessor/empty.zip",
-                FileMode.Open, FileAccess.Read);
-
+            
             mockIBlobClient
                 .Setup(x => x.GetBlobAsync(blobName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new BlobObject(blobName, null, ContentType.Parse("X-multipart/abc"),
-                    _ => Task.FromResult((Stream)zipFileStream)));
+                    _ => Task.FromResult((Stream)EmbeddedResourceReader.Read("empty.zip"))));
 
+            mockMediator
+                .Setup(x => x.Send(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => throw new ZipArchiveValidationException(ZipArchiveProblems.Single(new FileError("file.dbf", ProblemCode.Common.NotFound))));
+            
             var sut = new UploadProcessor(
                 new UploadProcessorOptions
                 {
                     MaxJobLifeTimeInMinutes = 65
                 },
-                _jobsContext,
+                jobsContext,
                 mockTicketing.Object,
                 new RoadNetworkJobsBlobClient(mockIBlobClient.Object),
                 mockMediator.Object,
@@ -350,14 +334,14 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
             await sut.StartAsync(ct);
 
             // Assert
+            jobsContext.Jobs.First().Status.Should().Be(JobStatus.Error);
+
             mockTicketing.Verify(x => x.Error(
                 ticketId,
-                It.Is<TicketError>(x =>
-                    x.Errors.First().ErrorCode == "RequiredFileMissing"
-                    && x.Errors.First().ErrorMessage == $"Er ontbreekt een verplichte file in de zip: GEBOUW_ALL.DBF."),
+                It.Is<TicketError>(ticketError =>
+                    ticketError.Errors.First().ErrorCode == "file.dbf_ErrorNotFound"
+                    && ticketError.Errors.First().ErrorMessage == "De waarde ontbreekt."),
                 It.IsAny<CancellationToken>()), Times.Once);
-            
-            _jobsContext.Jobs.First().Status.Should().Be(JobStatus.Error);
         }
     }
 }

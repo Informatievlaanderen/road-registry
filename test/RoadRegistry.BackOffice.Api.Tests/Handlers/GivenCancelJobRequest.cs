@@ -43,7 +43,6 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
         }
 
         [Theory]
-        [InlineData(JobStatus.Preparing)]
         [InlineData(JobStatus.Processing)]
         [InlineData(JobStatus.Completed)]
         [InlineData(JobStatus.Error)]

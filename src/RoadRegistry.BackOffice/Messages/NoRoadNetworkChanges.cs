@@ -14,5 +14,6 @@ public class NoRoadNetworkChanges : IMessage, IHaveTransactionId
     public string RequestId { get; set; }
     public Guid? DownloadId { get; set; }
     public int TransactionId { get; set; }
+    public Guid? TicketId { get; set; }
     public string When { get; set; }
 }

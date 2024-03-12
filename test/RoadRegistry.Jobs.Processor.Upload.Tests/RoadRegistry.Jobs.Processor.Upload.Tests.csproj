@@ -21,6 +21,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="UploadProcessor\empty.zip" />
+    <None Remove="UploadProcessor\valid.zip" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="UploadProcessor\empty.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UploadProcessor\valid.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.Jobs.Processor.Upload\RoadRegistry.Jobs.Processor.Upload.csproj" />
     <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
   </ItemGroup>
@@ -28,19 +42,6 @@
   <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="RoadRegistry.Tests" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="UploadProcessor\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="UploadProcessor\empty.zip">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="UploadProcessor\valid.zip">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

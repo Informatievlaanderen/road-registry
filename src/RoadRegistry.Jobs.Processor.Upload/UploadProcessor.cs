@@ -93,10 +93,7 @@ namespace RoadRegistry.Jobs.Processor.Upload
                             await CancelJob(job, stoppingToken);
                             continue;
                         }
-
-                        await UpdateJobStatus(job, JobStatus.Preparing, stoppingToken);
-                        await _ticketing.Pending(job.TicketId, stoppingToken);
-
+                        
                         var blob = await GetBlobObject(job, stoppingToken);
                         if (blob is null)
                         {
@@ -105,6 +102,7 @@ namespace RoadRegistry.Jobs.Processor.Upload
 
                         try
                         {
+                            await _ticketing.Pending(job.TicketId, stoppingToken);
                             await UpdateJobStatus(job, JobStatus.Processing, stoppingToken);
 
                             // Send archive to be further processed
@@ -161,7 +159,7 @@ namespace RoadRegistry.Jobs.Processor.Upload
                 }
                 catch (ValidationException ex)
                 {
-                    await _ticketing.Error(job.TicketId, new TicketError(ex.Errors.Select(x => new TicketError(x.ErrorMessage, x.ErrorCode)).ToArray()), stoppingToken);
+                    await _ticketing.Error(job.TicketId, new TicketError(ex.Errors.Select(x => new TicketError(x.ErrorMessage, $"{x.PropertyName}_{x.ErrorCode}".Trim().Trim('_'))).ToArray()), stoppingToken);
                     await UpdateJobStatus(job, JobStatus.Error, stoppingToken);
                 }
             }

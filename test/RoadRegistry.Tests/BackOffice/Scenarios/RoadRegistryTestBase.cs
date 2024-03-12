@@ -13,6 +13,7 @@ using KellermanSoftware.CompareNetObjects;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Testing;
@@ -25,6 +26,7 @@ using RoadRegistry.BackOffice.Infrastructure.Modules;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
 using SqlStreamStore;
+using TicketingService.Abstractions;
 
 public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
 {
@@ -34,7 +36,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     private static readonly JsonSerializerSettings Settings =
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
-    protected readonly ILifetimeScope EntityMapFactory;
+    protected readonly ILifetimeScope ScopedContainer;
     private ScenarioRunner _runner;
 
     protected RoadRegistryTestBase(ITestOutputHelper testOutputHelper, ComparisonConfig comparisonConfig = null)
@@ -43,8 +45,9 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
         var containerBuilder = new ContainerBuilder();
         containerBuilder.RegisterInstance(new EventSourcedEntityMap());
         containerBuilder.RegisterInstance(new FakeRoadNetworkIdGenerator()).As<IRoadNetworkIdGenerator>();
+        containerBuilder.RegisterInstance(TicketingMock.Object);
         var container = containerBuilder.Build();
-        EntityMapFactory = container.BeginLifetimeScope();
+        ScopedContainer = container.BeginLifetimeScope();
 
         ObjectProvider = new Fixture();
         ObjectProvider.Register(() => (ISnapshotStrategy)NoSnapshotStrategy.Instance);
@@ -56,7 +59,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
         LoggerFactory = new LoggerFactory();
 
         WithStore(new InMemoryStreamStore(), comparisonConfig);
-        RoadRegistryContext = new RoadRegistryContext(EntityMapFactory.Resolve<EventSourcedEntityMap>(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping, new NullLoggerFactory());
+        RoadRegistryContext = new RoadRegistryContext(ScopedContainer.Resolve<EventSourcedEntityMap>(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping, new NullLoggerFactory());
     }
 
     public MemoryBlobClient Client { get; }
@@ -67,6 +70,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     public IExtractUploadFailedEmailClient ExtractUploadFailedEmailClient { get; set; }
     protected IRoadRegistryContext RoadRegistryContext { get; }
     protected LoggerFactory LoggerFactory { get; }
+    protected Mock<ITicketing> TicketingMock { get; } = new();
 
     public void Dispose()
     {
@@ -127,7 +131,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
 
         var scenarioBuilder = builder(new Scenario());
         
-        var idGenerator = (FakeRoadNetworkIdGenerator)EntityMapFactory.Resolve<IRoadNetworkIdGenerator>();
+        var idGenerator = (FakeRoadNetworkIdGenerator)ScopedContainer.Resolve<IRoadNetworkIdGenerator>();
         idGenerator.SeedEvents(scenarioBuilder.Build()
             .Givens
             .Select(x => x.Event)
@@ -145,7 +149,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
             {
                 new RoadNetworkCommandModule(
                     Store,
-                    EntityMapFactory,
+                    ScopedContainer,
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
                     new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
@@ -155,7 +159,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
                 new RoadNetworkExtractCommandModule(
                     new RoadNetworkExtractUploadsBlobClient(Client),
                     Store,
-                    EntityMapFactory,
+                    ScopedContainer,
                     new FakeRoadNetworkSnapshotReader(),
                     ZipArchiveBeforeFeatureCompareValidator,
                     ExtractUploadFailedEmailClient,

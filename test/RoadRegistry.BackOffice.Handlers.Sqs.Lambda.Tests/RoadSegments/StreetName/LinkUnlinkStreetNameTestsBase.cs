@@ -38,7 +38,7 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
             {
                 new RoadNetworkCommandModule(
                     Store,
-                    EntityMapFactory,
+                    ScopedContainer,
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
                     new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
