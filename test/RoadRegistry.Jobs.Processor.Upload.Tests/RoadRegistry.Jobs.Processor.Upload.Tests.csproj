@@ -35,8 +35,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="UploadProcessor\empty.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="UploadProcessor\valid.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

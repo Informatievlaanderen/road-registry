@@ -149,6 +149,10 @@ namespace RoadRegistry.Jobs.Processor.Upload
                             await _blobClient.DeleteBlobAsync(blob.Name, stoppingToken);
                         }
                     }
+                    catch (ValidationException)
+                    {
+                        throw;
+                    }
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, $"Unexpected exception for job '{job.Id}'");
