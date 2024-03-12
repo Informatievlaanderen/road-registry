@@ -15,8 +15,6 @@ using System.Threading.Tasks;
 
 public partial class UploadController
 {
-    //TODO-rik docs en responsetype
-
     /// <summary>
     ///     Vraag een pre-signed url aan voor een zip te uploaden.
     /// </summary>
@@ -33,7 +31,7 @@ public partial class UploadController
     {
         return Ok(await _mediator.Send(UploadPreSignedUrlRequest.ForUploads(), cancellationToken));
     }
-
+    
     [HttpGet("jobs")]
     public async Task<IActionResult> GetJobs([FromQuery] string statuses, CancellationToken cancellationToken)
     {
