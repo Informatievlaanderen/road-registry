@@ -78,10 +78,17 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var editorRoadSegment = await editorContext.RoadSegments.FindAsync(new object[] { correction.Id }, cancellationToken);
+                var editorRoadSegment = await editorContext.RoadSegments
+                    .IgnoreQueryFilters()
+                    .SingleOrDefaultAsync(x => x.Id == correction.Id, cancellationToken);
                 if (editorRoadSegment is null)
                 {
                     _logger.LogError($"No roadsegment found in editor table for ID {correction.Id}");
+                    continue;
+                }
+
+                if (editorRoadSegment.IsRemoved)
+                {
                     continue;
                 }
 
@@ -91,7 +98,7 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
                 var stream = RoadNetworkStreamNameProvider.Get(roadSegmentId, RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentGeometryDrawMethod]);
                 var network = await _roadRegistryContext.RoadNetworks.Get(stream, cancellationToken);
                 var roadSegment = network.FindRoadSegment(roadSegmentId);
-                
+
                 var modifyRoadSegment = new ModifyRoadSegment(
                         recordNumber,
                         roadSegment.Id,
