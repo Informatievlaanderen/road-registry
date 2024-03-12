@@ -14,6 +14,7 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.FeatureCompare.Readers;
 using System.IO.Compression;
+using BackOffice.Extensions;
 using TicketingService.Abstractions;
 using ZipArchiveWriters;
 using ZipArchiveWriters.Cleaning;
@@ -76,9 +77,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
     private async Task<Stream> CleanArchive(Stream readStream, CancellationToken cancellationToken)
     {
-        var writeStream = new MemoryStream();
-        await readStream.CopyToAsync(writeStream, cancellationToken);
-        writeStream.Position = 0;
+        var writeStream = await readStream.CopyToNewMemoryStream(cancellationToken);
 
         using (var archive = new ZipArchive(writeStream, ZipArchiveMode.Update, true))
         {

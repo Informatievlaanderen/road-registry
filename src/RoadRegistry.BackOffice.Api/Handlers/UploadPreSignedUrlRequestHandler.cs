@@ -1,17 +1,17 @@
 namespace RoadRegistry.BackOffice.Api.Handlers
 {
     using Hosts.Infrastructure.Modules;
+    using Hosts.Infrastructure.Options;
     using Infrastructure.Options;
     using Jobs;
     using Jobs.Abstractions;
     using MediatR;
+    using Microsoft.Extensions.Options;
     using NodaTime;
     using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
-    using Hosts.Infrastructure.Options;
-    using Microsoft.Extensions.Options;
     using TicketingService.Abstractions;
 
     public sealed class UploadPreSignedUrlRequestHandler : IRequestHandler<UploadPreSignedUrlRequest, UploadPreSignedUrlResponse>
@@ -49,7 +49,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
 
                 try
                 {
-                    var job = await CreateJob(cancellationToken);
+                    var job = await CreateJob(request.UploadType, request.DownloadId, cancellationToken);
 
                     var preSignedUrl = _s3Extended.CreatePresignedPost(
                         new CreatePresignedPostRequest(
@@ -63,15 +63,15 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                         {
                             { "Registry", "RoadRegistry" },
                             { "Action", "Upload" },
-                            { "Type", request.Type.ToString() },
-                            { "DownloadId", request.DownloadId ?? string.Empty },
-                            { "UploadId", job.Id.ToString("D") }
+                            { "UploadType", request.UploadType.ToString() },
+                            { "DownloadId", request.DownloadId?.ToString() },
+                            { "JobId", job.Id.ToString("D") }
                         },
                         cancellationToken);
 
                     var ticketUrl = _ticketingUrl.For(ticketId).ToString().Replace(_ticketingOptions.InternalBaseUrl, _ticketingOptions.PublicBaseUrl);
                     
-                    await UpdateJobWithTicketUrl(job, ticketId, cancellationToken);
+                    await UpdateJobWithTicketId(job, ticketId, cancellationToken);
                     await transaction.CommitAsync(cancellationToken);
 
                     return new UploadPreSignedUrlResponse(job.Id, preSignedUrl.Url.ToString(), preSignedUrl.Fields, ticketUrl);
@@ -84,11 +84,16 @@ namespace RoadRegistry.BackOffice.Api.Handlers
             }, null, cancellationToken);
         }
 
-        private async Task<Job> CreateJob(CancellationToken cancellationToken)
+        private async Task<Job> CreateJob(UploadType uploadType, DownloadId? downloadId, CancellationToken cancellationToken)
         {
             var job = new Job(
                 SystemClock.Instance.GetCurrentInstant().ToDateTimeOffset(),
-                JobStatus.Created);
+                JobStatus.Created,
+                uploadType,
+                Guid.Empty)
+            {
+                DownloadId = downloadId
+            };
 
             await _jobsContext.Jobs.AddAsync(job, cancellationToken);
             await _jobsContext.SaveChangesAsync(cancellationToken);
@@ -96,7 +101,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
             return job;
         }
 
-        private async Task UpdateJobWithTicketUrl(Job job, Guid ticketId, CancellationToken cancellationToken)
+        private async Task UpdateJobWithTicketId(Job job, Guid ticketId, CancellationToken cancellationToken)
         {
             job.TicketId = ticketId;
             await _jobsContext.SaveChangesAsync(cancellationToken);

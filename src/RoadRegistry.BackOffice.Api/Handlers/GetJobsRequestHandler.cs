@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Handlers
 {
+    using System;
     using Abstractions;
     using Infrastructure;
     using Jobs;
@@ -46,7 +47,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                     new JobResponse
                     (
                         Id : x.Id,
-                        TicketUrl : x.TicketId.HasValue ? _ticketingUrl.For(x.TicketId.Value) : null,
+                        TicketUrl : x.TicketId != Guid.Empty ? _ticketingUrl.For(x.TicketId) : null,
                         Status : x.Status,
                         Created : x.Created,
                         LastChanged : x.LastChanged

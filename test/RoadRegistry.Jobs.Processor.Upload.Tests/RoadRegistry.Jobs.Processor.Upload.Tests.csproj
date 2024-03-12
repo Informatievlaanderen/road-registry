@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+	  <EnableDefaultContentItems>false</EnableDefaultContentItems>
+	  <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Framework\**" />
+    <EmbeddedResource Remove="Framework\**" />
+    <None Remove="Framework\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="SqlCommandProcessorPositionStoreTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\RoadRegistry.Jobs.Processor.Upload\RoadRegistry.Jobs.Processor.Upload.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="RoadRegistry.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="UploadProcessor\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="UploadProcessor\valid.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+
+</Project>

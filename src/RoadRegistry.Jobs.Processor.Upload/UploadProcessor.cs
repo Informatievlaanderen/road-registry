@@ -15,10 +15,12 @@ namespace RoadRegistry.Jobs.Processor.Upload
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using BackOffice;
     using Microsoft.Extensions.Hosting;
     using TicketingService.Abstractions;
     using UploadProcessorOptions = Infrastructure.Options.UploadProcessorOptions;
@@ -68,142 +70,171 @@ namespace RoadRegistry.Jobs.Processor.Upload
             }
         }
 
+        private async Task<ICollection<Job>> GetJobsReadyToBeProcessed(CancellationToken cancellationToken)
+        {
+            return await _jobsContext.Jobs
+                .Where(x => x.Status == JobStatus.Created && x.TicketId != Guid.Empty)
+                .OrderBy(x => x.Created)
+                .ToListAsync(cancellationToken);
+        }
+
         private async Task ProcessJobs(CancellationToken stoppingToken)
         {
-            // Check created jobs
-            var jobs = await _jobsContext.Jobs
-                .Where(x => x.Status == JobStatus.Created || x.Status == JobStatus.Preparing)
-                .OrderBy(x => x.Created)
-                .ToListAsync(stoppingToken);
-            
+            var jobs = await GetJobsReadyToBeProcessed(stoppingToken);
+
             foreach (var job in jobs)
             {
-                async Task UpdateJobWithError(ProblemCode problemCode)
-                {
-                    var ex = new ValidationException(new[]
-                    {
-                        new ValidationFailure
-                        {
-                            PropertyName = string.Empty,
-                            ErrorCode = problemCode
-                        }
-                    }).TranslateToDutch();
-
-                    await _ticketing.Error(job.TicketId!.Value, new TicketError(ex.Errors.Select(x => new TicketError(x.ErrorMessage, x.ErrorCode)).ToArray()), stoppingToken);
-                    await UpdateJobStatus(job, JobStatus.Error, stoppingToken);
-                }
-
                 try
                 {
-                    var blob = await GetBlobObject(job, stoppingToken);
-                    if (blob is null)
-                    {
-                        continue;
-                    }
-
                     try
                     {
-                        // If so, update ticket status and job status => Preparing
-                        await _ticketing.Pending(job.TicketId!.Value, stoppingToken);
+                        if (job.IsExpired(TimeSpan.FromMinutes(_uploadProcessorOptions.MaxJobLifeTimeInMinutes)))
+                        {
+                            await CancelJob(job, stoppingToken);
+                            continue;
+                        }
+
                         await UpdateJobStatus(job, JobStatus.Preparing, stoppingToken);
+                        await _ticketing.Pending(job.TicketId, stoppingToken);
 
-                        // Send archive to be further processed
-                        await using var blobStream = await blob.OpenAsync(stoppingToken);
-                        var readStream = new MemoryStream();
-                        await blobStream.CopyToAsync(readStream, stoppingToken);
-                        readStream.Position = 0;
+                        var blob = await GetBlobObject(job, stoppingToken);
+                        if (blob is null)
+                        {
+                            continue;
+                        }
 
-                        var request = await BuildRequest(job, blob, readStream, stoppingToken);
-                        await _mediator.Send(request, stoppingToken);
+                        try
+                        {
+                            await UpdateJobStatus(job, JobStatus.Processing, stoppingToken);
 
-                        await UpdateJobStatus(job, JobStatus.Completed, stoppingToken);
+                            // Send archive to be further processed
+                            await using var blobStream = await blob.OpenAsync(stoppingToken);
+                            var readStream = await blobStream.CopyToNewMemoryStream(stoppingToken);
+
+                            var request = BuildRequest(job, blob, readStream);
+                            await _mediator.Send(request, stoppingToken);
+
+                            await UpdateJobStatus(job, JobStatus.Completed, stoppingToken);
+                        }
+                        catch (UnsupportedMediaTypeException)
+                        {
+                            throw ToValidationException(ProblemCode.Upload.UnsupportedMediaType);
+                        }
+                        catch (DownloadExtractNotFoundException)
+                        {
+                            throw ToValidationException(ProblemCode.Extract.NotFound);
+                        }
+                        catch (ExtractDownloadNotFoundException)
+                        {
+                            throw ToValidationException(ProblemCode.Extract.NotFound);
+                        }
+                        catch (ExtractRequestMarkedInformativeException)
+                        {
+                            throw ToValidationException(ProblemCode.Upload.UploadNotAllowedForInformativeExtract);
+                        }
+                        catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException)
+                        {
+                            throw ToValidationException(ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload);
+                        }
+                        catch (CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException)
+                        {
+                            throw ToValidationException(ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce);
+                        }
+                        catch (ZipArchiveValidationException ex)
+                        {
+                            throw ex.ToDutchValidationException();
+                        }
+                        finally
+                        {
+                            await _blobClient.DeleteBlobAsync(blob.Name, stoppingToken);
+                        }
                     }
-                    catch (UnsupportedMediaTypeException)
+                    catch (Exception ex)
                     {
-                        await UpdateJobWithError(ProblemCode.Upload.UnsupportedMediaType);
-                    }
-                    catch (DownloadExtractNotFoundException)
-                    {
-                        await UpdateJobWithError(ProblemCode.Extract.NotFound);
-                    }
-                    catch (ExtractDownloadNotFoundException)
-                    {
-                        await UpdateJobWithError(ProblemCode.Extract.NotFound);
-                    }
-                    catch (ExtractRequestMarkedInformativeException)
-                    {
-                        await UpdateJobWithError(ProblemCode.Upload.UploadNotAllowedForInformativeExtract);
-                    }
-                    catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException)
-                    {
-                        await UpdateJobWithError(ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload);
-                    }
-                    catch (CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException)
-                    {
-                        await UpdateJobWithError(ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce);
-                    }
-                    catch (ZipArchiveValidationException ex)
-                    {
-                        var validationException = ex.ToDutchValidationException();
-                        await _ticketing.Error(job.TicketId!.Value, new TicketError(validationException.Errors.Select(x => new TicketError(x.ErrorMessage, x.ErrorCode)).ToArray()), stoppingToken);
-                        await UpdateJobStatus(job, JobStatus.Error, stoppingToken);
-                    }
-                    finally
-                    {
-                        await _blobClient.DeleteBlobAsync(blob.Name, stoppingToken);
+                        _logger.LogError(ex, $"Unexpected exception for job '{job.Id}'");
+                        throw ToValidationException(ProblemCode.Upload.UnexpectedError);
                     }
                 }
-                catch (Exception ex)
+                catch (ValidationException ex)
                 {
-                    _logger.LogError(ex, $"Unexpected exception for job '{job.Id}'");
-                    await UpdateJobWithError(ProblemCode.Upload.UnexpectedError);
+                    await _ticketing.Error(job.TicketId, new TicketError(ex.Errors.Select(x => new TicketError(x.ErrorMessage, x.ErrorCode)).ToArray()), stoppingToken);
+                    await UpdateJobStatus(job, JobStatus.Error, stoppingToken);
                 }
             }
         }
 
-        private async Task<object> BuildRequest(Job job, BlobObject blob, Stream blobStream, CancellationToken stoppingToken)
+        private ValidationException ToValidationException(ProblemCode problemCode)
         {
-            var ticket = await _ticketing.Get(job.TicketId!.Value, stoppingToken);
-            var uploadType = Enum.Parse(typeof(UploadType), ticket!.Metadata["type"]);
-            
-            switch (uploadType)
+            return new ValidationException(new[]
+            {
+                new ValidationFailure
+                {
+                    PropertyName = string.Empty,
+                    ErrorCode = problemCode
+                }
+            }).TranslateToDutch();
+        }
+
+        private async Task CancelJob(Job job, CancellationToken stoppingToken)
+        {
+            await _ticketing.Complete(
+                job.TicketId,
+                new TicketResult(new { JobStatus = "Cancelled" }),
+                stoppingToken);
+
+            await UpdateJobStatus(job, JobStatus.Cancelled, stoppingToken);
+
+            _logger.LogWarning("Cancelled expired job '{jobId}'.", job.Id);
+        }
+
+        private object BuildRequest(Job job, BlobObject blob, Stream blobStream)
+        {
+            switch (job.UploadType)
             {
                 case UploadType.Uploads:
-                    return new BackOffice.Abstractions.Uploads.UploadExtractRequest(new UploadExtractArchiveRequest(blob.Name, blobStream, blob.ContentType), ticket.TicketId);
+                    {
+                        return new BackOffice.Abstractions.Uploads.UploadExtractRequest(new UploadExtractArchiveRequest(blob.Name, blobStream, blob.ContentType), job.TicketId);
+                    }
                 case UploadType.Extracts:
-                    return new BackOffice.Abstractions.Extracts.UploadExtractRequest(ticket.Metadata["downloadId"], new UploadExtractArchiveRequest(blob.Name, blobStream, blob.ContentType), ticket.TicketId);
+                    {
+                        if (job.DownloadId is null)
+                        {
+                            throw ToValidationException(ProblemCode.Upload.DownloadIdIsRequired);
+                        }
+
+                        return new BackOffice.Abstractions.Extracts.UploadExtractRequest(new DownloadId(job.DownloadId.Value), new UploadExtractArchiveRequest(blob.Name, blobStream, blob.ContentType), job.TicketId);
+                    }
                 default:
-                    throw new NotSupportedException($"{nameof(UploadType)} {uploadType} is not supported.");
+                    throw new NotSupportedException($"{nameof(UploadType)} {job.UploadType} is not supported.");
             }
         }
 
-        private async Task UpdateJobStatus(Job job, JobStatus status, CancellationToken stoppingToken)
+        private async Task UpdateJobStatus(Job job, JobStatus status, CancellationToken cancellationToken)
         {
             job.UpdateStatus(status);
-            await _jobsContext.SaveChangesAsync(stoppingToken);
+            await _jobsContext.SaveChangesAsync(cancellationToken);
         }
-        
-        private async Task<BlobObject> GetBlobObject(Job job, CancellationToken stoppingToken)
-        {
-            var blobName = new BlobName(job.ReceivedBlobName);
-            if (!await _blobClient.BlobExistsAsync(blobName, stoppingToken))
-            {
-                blobName = new BlobName(job.ReceivedBlobName + ".zip"); // For dev
-                if (!await _blobClient.BlobExistsAsync(blobName, stoppingToken))
-                {
-                    _logger.LogError($"No blob found with name: {job.ReceivedBlobName}");
-                    return null;
-                }
-            }
 
-            var blobObject = await _blobClient.GetBlobAsync(blobName, stoppingToken);
+        private async Task<BlobObject> GetBlobObject(Job job, CancellationToken cancellationToken)
+        {
             try
             {
+                var blobName = new BlobName(job.ReceivedBlobName);
+                if (!await _blobClient.BlobExistsAsync(blobName, cancellationToken))
+                {
+                    blobName = new BlobName(job.ReceivedBlobName + ".zip"); // For dev
+                    if (!await _blobClient.BlobExistsAsync(blobName, cancellationToken))
+                    {
+                        throw new BlobNotFoundException(blobName);
+                    }
+                }
+
+                var blobObject = await _blobClient.GetBlobAsync(blobName, cancellationToken);
                 return blobObject;
             }
             catch (BlobNotFoundException)
             {
-                _logger.LogError($"No blob found with name: {job.ReceivedBlobName}");
+                _logger.LogError($"No blob found with name '{job.ReceivedBlobName}' for job {job.Id}");
                 return null;
             }
         }

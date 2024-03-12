@@ -32,24 +32,19 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                 throw new ApiException("Onbestaande upload job.", StatusCodes.Status404NotFound);
             }
 
-            void ThrowCancelException() => throw new ApiException(
+            Exception NewCancelException() => new ApiException(
                 $"De status van de upload job '{request.JobId}' is {job.Status.ToString().ToLower()}, hierdoor kan deze job niet geannuleerd worden.",
                 StatusCodes.Status400BadRequest);
 
-            if (job.Status == JobStatus.Error)
+            if (job.Status != JobStatus.Created)
             {
-                ThrowCancelException();
+                throw NewCancelException();
             }
-
-            if (!new[] {JobStatus.Created, JobStatus.Cancelled, JobStatus.Error}.Contains(job.Status))
-            {
-                ThrowCancelException();
-            }
-
-            var ticket = await _ticketing.Get(job.TicketId!.Value, cancellationToken);
+            
+            var ticket = await _ticketing.Get(job.TicketId, cancellationToken);
 
             await _ticketing.Complete(
-                job.TicketId!.Value,
+                job.TicketId,
                 ticket!.Result is not null && ticket.Status == TicketStatus.Error
                     ? new TicketResult(new {JobStatus = "Cancelled", Error = System.Text.Json.JsonSerializer.Deserialize<TicketError>(ticket.Result.ResultAsJson ?? "{}")})
                     : new TicketResult(new {JobStatus = "Cancelled"}),

@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Handlers
 {
+    using System;
     using Be.Vlaanderen.Basisregisters.Api.Exceptions;
     using Infrastructure;
     using Jobs;
@@ -39,7 +40,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
 
             return new JobResponse(
                 job.Id,
-                TicketUrl: job.TicketId.HasValue ? _ticketingUrl.For(job.TicketId.Value) : null,
+                TicketUrl: job.TicketId != Guid.Empty ? _ticketingUrl.For(job.TicketId) : null,
                 job.Status,
                 job.Created,
                 job.LastChanged);

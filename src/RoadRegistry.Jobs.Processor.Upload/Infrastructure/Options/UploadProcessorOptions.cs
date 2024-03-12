@@ -4,6 +4,7 @@ using BackOffice;
 
 public class UploadProcessorOptions : IHasConfigurationKey
 {
+    public int MaxJobLifeTimeInMinutes { get; set; }
     public bool AlwaysRunning { get; set; }
     public int ConsumerDelaySeconds { get; set; } = 10;
 

@@ -1,6 +1,7 @@
 namespace RoadRegistry.Jobs
 {
     using System;
+    using Abstractions;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,18 +11,21 @@ namespace RoadRegistry.Jobs
         public DateTimeOffset Created { get; private set; }
         public DateTimeOffset LastChanged { get; private set; }
         public JobStatus Status { get; private set; }
-        public Guid? TicketId { get; set; }
+        public Guid TicketId { get; set; }
+        public UploadType UploadType { get; set; }
+        public Guid? DownloadId { get; set; }
 
         public string UploadBlobName => $"upload_{Id:D}";
         public string ReceivedBlobName => $"received/{Id:D}";
         
         private Job() { }
 
-        public Job(DateTimeOffset created, JobStatus status, Guid? ticketId = null)
+        public Job(DateTimeOffset created, JobStatus status, UploadType uploadType, Guid ticketId)
         {
             Created = created;
             LastChanged = created;
             Status = status;
+            UploadType = uploadType;
             TicketId = ticketId;
         }
 
@@ -32,8 +36,6 @@ namespace RoadRegistry.Jobs
         }
 
         public bool IsExpired(TimeSpan expiration) => Created.Add(expiration) < DateTimeOffset.Now;
-
-        public bool IsInError() => Status == JobStatus.Error;
     }
 
     public sealed class JobConfiguration : IEntityTypeConfiguration<Job>

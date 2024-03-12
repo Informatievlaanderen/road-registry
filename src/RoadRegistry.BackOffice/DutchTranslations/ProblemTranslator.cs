@@ -295,6 +295,8 @@ public static class ProblemTranslator
             "Onverwachte fout bij de verwerking van het zip-bestand.")},
         {ProblemCode.Upload.UnsupportedMediaType, problem => new(problem.Severity, "UnsupportedMediaType",
             "Ongeldig bestandstype.")},
+        {ProblemCode.Upload.DownloadIdIsRequired, problem => new(problem.Severity, "DownloadIdIsRequired",
+            "Download id is verplicht.")},
 
         {ProblemCode.Width.IsRequired, problem => new(problem.Severity, "BreedteVerplicht",
             "Breedte is verplicht.")},

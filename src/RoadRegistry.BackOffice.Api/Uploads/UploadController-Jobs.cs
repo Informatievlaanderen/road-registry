@@ -31,7 +31,7 @@ public partial class UploadController
     [HttpPost("jobs", Name = nameof(GetUploadPreSignedUrl))]
     public async Task<IActionResult> GetUploadPreSignedUrl(CancellationToken cancellationToken)
     {
-        return Ok(await _mediator.Send(new UploadPreSignedUrlRequest(UploadType.Uploads), cancellationToken));
+        return Ok(await _mediator.Send(UploadPreSignedUrlRequest.ForUploads(), cancellationToken));
     }
 
     [HttpGet("jobs")]

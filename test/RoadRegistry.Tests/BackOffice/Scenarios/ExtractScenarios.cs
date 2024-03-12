@@ -405,7 +405,7 @@ public class ExtractScenarios : RoadRegistryTestBase
             .Throws(new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException(externalExtractRequestId, extractRequestId, unknownDownloadId, uploadId))
         );
     }
-
+    //TODO-rik unit test dat tickets worden afgesloten bij successvolle upload verwerkingen (zie scenarios)
     [Fact]
     public async Task when_uploading_an_archive_of_changes_which_are_accepted_after_validation()
     {
