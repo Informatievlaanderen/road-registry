@@ -6,5 +6,6 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Options
 
         public string BucketName { get; set; }
         public int UrlExpirationInMinutes { get; set; }
+        public bool UseBackOfficeApiUrlPresigner { get; set; }
     }
 }

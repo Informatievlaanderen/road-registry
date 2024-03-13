@@ -38,8 +38,8 @@ public class BlobClientModule : Module
 
                 if (s3Configuration?.ServiceUrl is not null)
                 {
-                    var developments3Configuration = configuration.GetOptions<DevelopmentS3Options>();
-                    return new DevelopmentS3Options(s3OptionsJsonSerializer, developments3Configuration);
+                    var developments3Configuration = configuration.GetOptions<MinioS3Options>();
+                    return new MinioS3Options(s3OptionsJsonSerializer, developments3Configuration);
                 }
 
                 return new S3Options(s3OptionsJsonSerializer);
@@ -55,7 +55,7 @@ public class BlobClientModule : Module
             var credentials = s3Options.Credentials;
             var config = new AmazonS3Config { RegionEndpoint = s3Options.RegionEndpoint };
 
-            if (s3Options is DevelopmentS3Options developmentS3Options)
+            if (s3Options is MinioS3Options developmentS3Options)
             {
                 credentials = new BasicAWSCredentials(developmentS3Options.AccessKey ?? "dummy", developmentS3Options.SecretKey ?? "dummy");
                 config = new AmazonS3Config

@@ -10,7 +10,6 @@ echo "window.featureToggles = {}" >> /usr/share/nginx/html/env.js
 
 echo "window.featureToggles.useAcmIdm = \"${FeatureToggles__UseAcmIdm}\"" >> /usr/share/nginx/html/env.js
 echo "window.featureToggles.useDirectApiCalls = \"${FeatureToggles__UseDirectApiCalls}\"" >> /usr/share/nginx/html/env.js
-echo "window.featureToggles.useFeatureCompare = \"${FeatureToggles__UseFeatureCompare}\"" >> /usr/share/nginx/html/env.js
 echo "window.featureToggles.useTransactionZonesTab = \"${FeatureToggles__UseTransactionZonesTab}\"" >> /usr/share/nginx/html/env.js
 
 export DOLLAR=$

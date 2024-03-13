@@ -7,8 +7,6 @@ export const featureToggles = {
     `${window.featureToggles?.useAcmIdm ?? process.env.VUE_APP_FEATURETOGGLES_USEACMIDM}` === "true",
   useDirectApiCalls:
     `${window.featureToggles?.useDirectApiCalls ?? process.env.VUE_APP_FEATURETOGGLES_USEDIRECTAPICALLS}` === "true",
-  useFeatureCompare:
-    `${window.featureToggles?.useFeatureCompare ?? process.env.VUE_APP_FEATURETOGGLES_USEFEATURECOMPARE}` === "true",
   useTransactionZonesTab:
     `${window.featureToggles?.useTransactionZonesTab ?? process.env.VUE_APP_FEATURETOGGLES_USETRANSACTIONZONESTAB}` ===
     "true",

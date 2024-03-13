@@ -3,26 +3,26 @@ namespace RoadRegistry.Jobs.Abstractions
     using BackOffice;
     using MediatR;
 
-    public sealed record UploadPreSignedUrlRequest : IRequest<UploadPreSignedUrlResponse>
+    public sealed record GetPresignedUploadUrlRequest : IRequest<GetPresignedUploadUrlResponse>
     {
-        private UploadPreSignedUrlRequest()
+        private GetPresignedUploadUrlRequest()
         {
         }
 
         public UploadType UploadType { get; init; }
         public DownloadId? DownloadId { get; init; }
 
-        public static UploadPreSignedUrlRequest ForUploads()
+        public static GetPresignedUploadUrlRequest ForUploads()
         {
-            return new UploadPreSignedUrlRequest
+            return new GetPresignedUploadUrlRequest
             {
                 UploadType = UploadType.Uploads
             };
         }
 
-        public static UploadPreSignedUrlRequest ForExtracts(DownloadId downloadId)
+        public static GetPresignedUploadUrlRequest ForExtracts(DownloadId downloadId)
         {
-            return new UploadPreSignedUrlRequest
+            return new GetPresignedUploadUrlRequest
             {
                 UploadType = UploadType.Extracts,
                 DownloadId = downloadId

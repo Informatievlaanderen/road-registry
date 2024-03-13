@@ -40,6 +40,12 @@ export namespace RoadRegistry {
         changeRequestId: string;
     }
 
+    export interface UploadPresignedUrlResponse
+    {
+        uploadUrl: string;
+        ticketUrl: string;
+    }
+
     export interface DownloadExtractRequest {
         requestId: string;
         contour: string;

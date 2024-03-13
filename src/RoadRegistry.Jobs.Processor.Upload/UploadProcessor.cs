@@ -224,11 +224,7 @@ namespace RoadRegistry.Jobs.Processor.Upload
                 var blobName = new BlobName(job.ReceivedBlobName);
                 if (!await _blobClient.BlobExistsAsync(blobName, cancellationToken))
                 {
-                    blobName = new BlobName(job.ReceivedBlobName + ".zip"); // For dev
-                    if (!await _blobClient.BlobExistsAsync(blobName, cancellationToken))
-                    {
-                        throw new BlobNotFoundException(blobName);
-                    }
+                    throw new BlobNotFoundException(blobName);
                 }
 
                 var blobObject = await _blobClient.GetBlobAsync(blobName, cancellationToken);

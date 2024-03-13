@@ -212,14 +212,11 @@ export default Vue.extend({
 
         try {
           this.uploadResult = { uploadResponseCode: undefined, fileProblems: undefined, changeRequestId: undefined };
-
-          let uploadResponse: RoadRegistry.UploadExtractResponseBody;
-          if (featureToggles.useFeatureCompare) {
-            uploadResponse = await BackOfficeApi.Uploads.uploadFeatureCompare(file, file.name);
-          } else {
-            uploadResponse = await BackOfficeApi.Uploads.upload(file, file.name);
-          }
-
+          //TODO-rik add featureflag voor upload via presignedurl
+          let uploadResponse = await BackOfficeApi.Uploads.uploadFeatureCompare(file, file.name);
+          //TODO-rik
+          let presignedUploadResponse = await BackOfficeApi.Uploads.uploadUsingPresignedUrl(file, file.name);
+          
           this.uploadResult = {
             uploadResponseCode: uploadResponse.status,
             fileProblems: undefined,

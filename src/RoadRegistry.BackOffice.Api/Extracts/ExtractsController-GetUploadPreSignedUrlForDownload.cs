@@ -24,7 +24,7 @@ public partial class ExtractsController
     /// <response code="200">Als de url is aangemaakt.</response>
     /// <response code="400">Als de url is aangemaakt.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
-    [ProducesResponseType(typeof(UploadPreSignedUrlResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(GetPresignedUploadUrlResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(FileCallbackResultExamples))]
     [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
@@ -47,6 +47,6 @@ public partial class ExtractsController
             throw new ExtractRequestNotFoundException(parsedDownloadId);
         }
 
-        return Ok(await _mediator.Send(UploadPreSignedUrlRequest.ForExtracts(parsedDownloadId), cancellationToken));
+        return Ok(await _mediator.Send(GetPresignedUploadUrlRequest.ForExtracts(parsedDownloadId), cancellationToken));
     }
 }

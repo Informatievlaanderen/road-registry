@@ -37,12 +37,12 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
         public async Task ThenReturnActiveJobs()
         {
             var jobInStatusCreated = new Job(DateTimeOffset.Now, JobStatus.Created, UploadType.Uploads, _fixture.Create<Guid>());
-            var jobInStatusPreparing = new Job(DateTimeOffset.Now, JobStatus.Preparing, UploadType.Uploads, _fixture.Create<Guid>());
+            var jobInStatusProcessing = new Job(DateTimeOffset.Now, JobStatus.Processing, UploadType.Uploads, _fixture.Create<Guid>());
             var jobInStatusError = new Job(DateTimeOffset.Now, JobStatus.Error, UploadType.Uploads, _fixture.Create<Guid>());
             var jobInStatusCancelled = new Job(DateTimeOffset.Now, JobStatus.Cancelled, UploadType.Uploads, _fixture.Create<Guid>());
             var jobInStatusCompleted = new Job(DateTimeOffset.Now, JobStatus.Completed, UploadType.Uploads, _fixture.Create<Guid>());
             _jobsContext.Jobs.Add(jobInStatusCreated);
-            _jobsContext.Jobs.Add(jobInStatusPreparing);
+            _jobsContext.Jobs.Add(jobInStatusProcessing);
             _jobsContext.Jobs.Add(jobInStatusError);
             _jobsContext.Jobs.Add(jobInStatusCancelled);
             _jobsContext.Jobs.Add(jobInStatusCompleted);
@@ -58,10 +58,10 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
                 && x.Status == jobInStatusCreated.Status
                 && x.TicketUrl == GetTicketUrl(jobInStatusCreated.TicketId));
             response.Jobs.Should().ContainSingle(x =>
-                x.Id == jobInStatusPreparing.Id
-                && x.Created == jobInStatusPreparing.Created
-                && x.Status == jobInStatusPreparing.Status
-                && x.TicketUrl == GetTicketUrl(jobInStatusPreparing.TicketId));
+                x.Id == jobInStatusProcessing.Id
+                && x.Created == jobInStatusProcessing.Created
+                && x.Status == jobInStatusProcessing.Status
+                && x.TicketUrl == GetTicketUrl(jobInStatusProcessing.TicketId));
         }
     }
 }

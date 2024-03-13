@@ -1,12 +1,10 @@
 namespace RoadRegistry.BackOffice.Api.Handlers
 {
-    using Hosts.Infrastructure.Modules;
     using Hosts.Infrastructure.Options;
-    using Infrastructure.Options;
+    using Infrastructure;
     using Jobs;
     using Jobs.Abstractions;
     using MediatR;
-    using Microsoft.Extensions.Options;
     using NodaTime;
     using System;
     using System.Collections.Generic;
@@ -14,33 +12,30 @@ namespace RoadRegistry.BackOffice.Api.Handlers
     using System.Threading.Tasks;
     using TicketingService.Abstractions;
 
-    public sealed class UploadPreSignedUrlRequestHandler : IRequestHandler<UploadPreSignedUrlRequest, UploadPreSignedUrlResponse>
+    public sealed class GetPresignedUploadUrlRequestHandler : IRequestHandler<GetPresignedUploadUrlRequest, GetPresignedUploadUrlResponse>
     {
         private readonly JobsContext _jobsContext;
         private readonly ITicketing _ticketing;
         private readonly TicketingOptions _ticketingOptions;
         private readonly ITicketingUrl _ticketingUrl;
-        private readonly IAmazonS3Extended _s3Extended;
-        private readonly JobsBucketOptions _bucketOptions;
+        private readonly IJobUploadUrlPresigner _urlPresigner;
 
-        public UploadPreSignedUrlRequestHandler(
+        public GetPresignedUploadUrlRequestHandler(
             JobsContext jobsContext,
             ITicketing ticketing,
             TicketingOptions ticketingOptions,
             ITicketingUrl ticketingUrl,
-            IAmazonS3Extended s3Extended,
-            IOptions<JobsBucketOptions> bucketOptions)
+            IJobUploadUrlPresigner urlPresigner)
         {
             _jobsContext = jobsContext;
             _ticketing = ticketing;
             _ticketingOptions = ticketingOptions;
             _ticketingUrl = ticketingUrl;
-            _s3Extended = s3Extended;
-            _bucketOptions = bucketOptions.Value;
+            _urlPresigner = urlPresigner;
         }
 
-        public Task<UploadPreSignedUrlResponse> Handle(
-            UploadPreSignedUrlRequest request,
+        public Task<GetPresignedUploadUrlResponse> Handle(
+            GetPresignedUploadUrlRequest request,
             CancellationToken cancellationToken)
         {
             return _jobsContext.Database.CreateExecutionStrategy().ExecuteAsync(request, async (_, _, _) =>
@@ -51,12 +46,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                 {
                     var job = await CreateJob(request.UploadType, request.DownloadId, cancellationToken);
 
-                    var preSignedUrl = _s3Extended.CreatePresignedPost(
-                        new CreatePresignedPostRequest(
-                            _bucketOptions.BucketName,
-                            job.UploadBlobName,
-                            new List<ExactMatchCondition>(),
-                            TimeSpan.FromMinutes(_bucketOptions.UrlExpirationInMinutes)));
+                    var preSignedUrl = _urlPresigner.CreatePresignedUploadUrl(job);
                     
                     var ticketId = await _ticketing.CreateTicket(
                         new Dictionary<string, string>
@@ -74,7 +64,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                     await UpdateJobWithTicketId(job, ticketId, cancellationToken);
                     await transaction.CommitAsync(cancellationToken);
 
-                    return new UploadPreSignedUrlResponse(job.Id, preSignedUrl.Url.ToString(), preSignedUrl.Fields, ticketUrl);
+                    return new GetPresignedUploadUrlResponse(job.Id, preSignedUrl.Url.ToString(), preSignedUrl.Fields, ticketUrl);
                 }
                 catch (Exception)
                 {
@@ -83,7 +73,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                 }
             }, null, cancellationToken);
         }
-
+        
         private async Task<Job> CreateJob(UploadType uploadType, DownloadId? downloadId, CancellationToken cancellationToken)
         {
             var job = new Job(

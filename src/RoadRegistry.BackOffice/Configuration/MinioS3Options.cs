@@ -1,13 +1,13 @@
 namespace RoadRegistry.BackOffice.Configuration;
 using Newtonsoft.Json;
 
-public class DevelopmentS3Options : S3Options
+public class MinioS3Options : S3Options
 {
-    public DevelopmentS3Options()
+    public MinioS3Options()
     {
     }
 
-    public DevelopmentS3Options(JsonSerializerSettings jsonSerializerSettings, DevelopmentS3Options options)
+    public MinioS3Options(JsonSerializerSettings jsonSerializerSettings, MinioS3Options options)
         : base(jsonSerializerSettings)
     {
         ServiceUrl = options.ServiceUrl;

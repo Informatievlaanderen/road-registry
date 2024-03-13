@@ -34,9 +34,9 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
             _s3Extended = new Mock<IAmazonS3Extended>();
         }
 
-        private UploadPreSignedUrlRequestHandler CreatePreSignedUrlRequestHandler(JobsContext jobsContext)
+        private GetPresignedUploadUrlRequestHandler CreatePreSignedUrlRequestHandler(JobsContext jobsContext)
         {
-            return new UploadPreSignedUrlRequestHandler(
+            return new GetPresignedUploadUrlRequestHandler(
                 jobsContext,
                 _ticketing.Object,
                 new FakeTicketingOptions(),
@@ -68,7 +68,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
 
             var jobsContext = new FakeJobsContextFactory().CreateDbContext();
             var handler = CreatePreSignedUrlRequestHandler(jobsContext);
-            var response = await handler.Handle(UploadPreSignedUrlRequest.ForUploads(), CancellationToken.None);
+            var response = await handler.Handle(GetPresignedUploadUrlRequest.ForUploads(), CancellationToken.None);
 
             var job = await jobsContext.Jobs.SingleOrDefaultAsync();
 
@@ -105,7 +105,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
 
             var jobsContext = new FakeJobsContextFactory().CreateDbContext();
             var handler = CreatePreSignedUrlRequestHandler(jobsContext);
-            var response = await handler.Handle(UploadPreSignedUrlRequest.ForExtracts(new DownloadId(downloadId)), CancellationToken.None);
+            var response = await handler.Handle(GetPresignedUploadUrlRequest.ForExtracts(new DownloadId(downloadId)), CancellationToken.None);
 
             var job = await jobsContext.Jobs.SingleOrDefaultAsync();
 
@@ -135,7 +135,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
 
             try
             {
-                await handler.Handle(UploadPreSignedUrlRequest.ForUploads(), CancellationToken.None);
+                await handler.Handle(GetPresignedUploadUrlRequest.ForUploads(), CancellationToken.None);
             }
             catch
             {

@@ -111,7 +111,7 @@ namespace RoadRegistry.Hosts.Infrastructure.Modules
         {
             if (Config.ServiceURL is not null)
             {
-                return Config.ServiceURL;
+                return $"{Config.ServiceURL.TrimEnd('/')}/api/v1/buckets";
             }
 
             var regionName = GetRegionName();

@@ -44,6 +44,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IO;
 using Microsoft.OpenApi.Models;
 using NetTopologySuite;
@@ -363,6 +364,19 @@ public class Startup
             .Configure<JobsBucketOptions>(_configuration.GetSection(JobsBucketOptions.ConfigKey))
             .AddJobsContext()
             .AddSingleton<IPagedUriGenerator, PagedUriGenerator>()
+
+            .AddSingleton<AmazonS3JobUploadUrlPresigner>()
+            .AddScoped<AnonymousBackOfficeApiJobUploadUrlPresigner>()
+            .AddScoped<IJobUploadUrlPresigner>(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<JobsBucketOptions>>();
+                if (options.Value.UseBackOfficeApiUrlPresigner)
+                {
+                    return sp.GetRequiredService<AnonymousBackOfficeApiJobUploadUrlPresigner>();
+                }
+                return sp.GetRequiredService<AmazonS3JobUploadUrlPresigner>();
+            })
+
             .AddAcmIdmAuthentication(oAuth2IntrospectionOptions, openIdConnectOptions)
             .AddApiKeyAuth()
             .AddMvc(options =>
