@@ -13,6 +13,7 @@ declare global {
     useAcmIdm: boolean;
     useDirectApiCalls: boolean;
     useTransactionZonesTab: boolean;
+    usePresignedUpload: boolean;
   }
 
   interface Window { 

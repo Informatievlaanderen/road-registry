@@ -75,6 +75,34 @@ export const PublicApi = {
       const response = await apiClient.post(path, data);
       return response.status == 200 || response.status == 202;
     },
+    uploadUsingPresignedUrl: async (
+      file: string | Blob,
+      filename: string
+    ): Promise<RoadRegistry.UploadPresignedUrlResponse | null> => {
+      if (useBackOfficeApi) {
+        return BackOfficeApi.Uploads.uploadUsingPresignedUrl(file, filename);
+      }
+
+      const path = `${apiEndpoint}/v1/wegen/upload/jobs`;
+      const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
+      
+      const data = new FormData();
+      data.append("archive", file, filename);
+      if (response.data.uploadUrlFormData) {
+        for (let key in response.data.uploadUrlFormData) {
+          data.append(key, response.data.uploadUrlFormData[key]);
+        }
+      }
+      
+      var uploadFileResponse = await apiClient.post(response.data.uploadUrl, data);
+      
+      let status = uploadFileResponse.status as any;
+      if (status !== 200 && status !== 202) {
+        return null;
+      }
+
+      return response.data;
+    },
     download: async (identifier: string): Promise<void> => {
       const path = `${apiEndpoint}/v1/wegen/upload/${identifier}`;
       await apiClient.download("application/zip", `${identifier}.zip`, path, "GET");
@@ -144,6 +172,15 @@ export const PublicApi = {
 
       const path = `${apiEndpoint}/v1/wegen/informatie`;
       const response = await apiClient.get<RoadRegistry.RoadNetworkInformationResponse>(path);
+      return response.data;
+    },
+    postValidateWkt: async (wkt: String): Promise<RoadRegistry.ValidateWktResponse> => {
+      if (useBackOfficeApi) {
+        return BackOfficeApi.Information.postValidateWkt(wkt);
+      }
+
+      const path = `${apiEndpoint}/v1/wegen/informatie/valideer-wkt`;
+      const response = await apiClient.post(path, { contour: wkt });
       return response.data;
     },
   },

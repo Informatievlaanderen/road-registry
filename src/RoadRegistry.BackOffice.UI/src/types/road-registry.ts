@@ -43,7 +43,19 @@ export namespace RoadRegistry {
     export interface UploadPresignedUrlResponse
     {
         uploadUrl: string;
+        uploadUrlFormData: any;
         ticketUrl: string;
+    }
+
+    export interface GetTicketResponse
+    {
+        status: string;
+        ticketId: string;
+        result: TicketResult;
+    }
+    export interface TicketResult
+    {
+        json: string;
     }
 
     export interface DownloadExtractRequest {

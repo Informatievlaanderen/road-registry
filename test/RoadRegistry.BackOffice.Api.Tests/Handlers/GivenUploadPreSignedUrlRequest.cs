@@ -1,14 +1,13 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Handlers
 {
     using Api.Handlers;
-    using Api.Infrastructure.Options;
+    using Api.Infrastructure;
     using AutoFixture;
     using FluentAssertions;
     using Hosts.Infrastructure.Modules;
     using Jobs;
     using Jobs.Abstractions;
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Options;
     using Moq;
     using System;
     using System.Collections.Generic;
@@ -23,7 +22,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
 
         private readonly Mock<ITicketingUrl> _ticketingUrl;
         private readonly Mock<ITicketing> _ticketing;
-        private readonly Mock<IAmazonS3Extended> _s3Extended;
+        private readonly Mock<IJobUploadUrlPresigner> _uploadUrlPresigner;
 
         public GivenUploadPreSignedUrlRequest()
         {
@@ -31,7 +30,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
 
             _ticketingUrl = new Mock<ITicketingUrl>();
             _ticketing = new Mock<ITicketing>();
-            _s3Extended = new Mock<IAmazonS3Extended>();
+            _uploadUrlPresigner = new Mock<IJobUploadUrlPresigner>();
         }
 
         private GetPresignedUploadUrlRequestHandler CreatePreSignedUrlRequestHandler(JobsContext jobsContext)
@@ -41,12 +40,8 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
                 _ticketing.Object,
                 new FakeTicketingOptions(),
                 _ticketingUrl.Object,
-                _s3Extended.Object,
-                Options.Create(new JobsBucketOptions
-                {
-                    BucketName = "Test",
-                    UrlExpirationInMinutes = 60
-                }));
+                _uploadUrlPresigner.Object
+            );
         }
 
         [Fact]
@@ -62,8 +57,8 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
             _ticketingUrl
                 .Setup(x => x.For(ticketId))
                 .Returns(new Uri(ticketUrl));
-            _s3Extended
-                .Setup(x => x.CreatePresignedPost(It.IsAny<CreatePresignedPostRequest>()))
+            _uploadUrlPresigner
+                .Setup(x => x.CreatePresignedUploadUrl(It.IsAny<Job>()))
                 .Returns(new CreatePresignedPostResponse(preSignedUrl, _fixture.Create<Dictionary<string, string>>()));
 
             var jobsContext = new FakeJobsContextFactory().CreateDbContext();
@@ -99,8 +94,8 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
             _ticketingUrl
                 .Setup(x => x.For(ticketId))
                 .Returns(new Uri(ticketUrl));
-            _s3Extended
-                .Setup(x => x.CreatePresignedPost(It.IsAny<CreatePresignedPostRequest>()))
+            _uploadUrlPresigner
+                .Setup(x => x.CreatePresignedUploadUrl(It.IsAny<Job>()))
                 .Returns(new CreatePresignedPostResponse(preSignedUrl, _fixture.Create<Dictionary<string, string>>()));
 
             var jobsContext = new FakeJobsContextFactory().CreateDbContext();

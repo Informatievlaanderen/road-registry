@@ -12,7 +12,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure
         CreatePresignedPostResponse CreatePresignedUploadUrl(Job job);
     }
 
-    public class AmazonS3JobUploadUrlPresigner: IJobUploadUrlPresigner
+    public class AmazonS3JobUploadUrlPresigner : IJobUploadUrlPresigner
     {
         private readonly IAmazonS3Extended _s3Extended;
         private readonly JobsBucketOptions _bucketOptions;
@@ -37,7 +37,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure
         }
     }
 
-    public class AnonymousBackOfficeApiJobUploadUrlPresigner: IJobUploadUrlPresigner
+    public class AnonymousBackOfficeApiJobUploadUrlPresigner : IJobUploadUrlPresigner
     {
         private readonly ApiOptions _apiOptions;
 
@@ -49,7 +49,10 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure
         public CreatePresignedPostResponse CreatePresignedUploadUrl(Job job)
         {
             var uri = new Uri($"{_apiOptions.BaseUrl}/v1/upload/jobs/{job.Id}/upload");
-            return new CreatePresignedPostResponse(uri, new Dictionary<string, string>());
+            return new CreatePresignedPostResponse(uri, new Dictionary<string, string>
+            {
+                {"X-JobId", job.Id.ToString()}
+            });
         }
     }
 }

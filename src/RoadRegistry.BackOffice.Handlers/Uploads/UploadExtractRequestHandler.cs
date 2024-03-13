@@ -114,8 +114,9 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
             var readerContext = new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);
             var features = _transactionZoneFeatureReader.Read(archive, FeatureType.Change, ExtractFileName.Transactiezones, readerContext).Item1;
-            var downloadId = features.Single().Attributes.DownloadId;
-
+            var transactionZone = features.Single().Attributes;
+            var downloadId = transactionZone.DownloadId;
+            
             var extractRequest = await _editorContext.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
             if (extractRequest is null)
             {

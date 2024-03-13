@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Hosts.Infrastructure;
 using Infrastructure.Options;
 
@@ -52,6 +53,9 @@ public class AdminMessageConsumer
                     var sqsMessageType = message.GetType();
                     _logger.LogInformation("SQS message '{Type}' received", sqsMessageType.FullName);
 
+                    //TODO-rik check if message is SqsRequest to update ticket
+                    var sqsMessage = message as SqsRequest;
+
                     var backOfficeRequest = GetBackOfficeRequestFromSqsRequest(message);
                     if (backOfficeRequest is not null)
                     {
@@ -68,8 +72,14 @@ public class AdminMessageConsumer
                     await using var lifetimeScope = _container.BeginLifetimeScope();
                     var mediator = lifetimeScope.Resolve<IMediator>();
 
+                    //TODO-rik set ticket to pending
+                    //sqsMessage.TicketId
+
                     var result = await mediator.Send(request, cancellationToken);
                     _logger.LogInformation("SQS message result: {Result}", JsonConvert.SerializeObject(result, _sqsOptions.JsonSerializerSettings));
+
+                    //TODO-rik close ticket
+                    //sqsMessage.TicketId
                 }, cancellationToken);
 
                 if (lastMessage?.Error is not null)

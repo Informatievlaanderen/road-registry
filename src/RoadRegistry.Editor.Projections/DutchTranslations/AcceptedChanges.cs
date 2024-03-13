@@ -1,54 +1,35 @@
 namespace RoadRegistry.Editor.Projections.DutchTranslations;
 
-using BackOffice.Messages;
-using Schema.RoadNetworkChanges;
 using System;
+using RoadNetworkChangeCounters = Schema.RoadNetworkChanges.RoadNetworkChangeCounters;
+using RoadNetworkChangesSummary = Schema.RoadNetworkChanges.RoadNetworkChangesSummary;
 
 public static class AcceptedChanges
 {
     public static readonly Converter<BackOffice.Messages.AcceptedChange[], RoadNetworkChangesSummary> Summarize = changes =>
     {
-        var summary = new RoadNetworkChangesSummary
+        var summary = BackOffice.Messages.RoadNetworkChangesSummary.FromAcceptedChanges(changes);
+
+        return new RoadNetworkChangesSummary
         {
-            RoadNodes = new RoadNetworkChangeCounters(),
-            RoadSegments = new RoadNetworkChangeCounters(),
-            GradeSeparatedJunctions = new RoadNetworkChangeCounters()
-        };
-
-        foreach (var change in changes)
-            switch (change.Flatten())
+            RoadNodes = new RoadNetworkChangeCounters
             {
-                case RoadNodeAdded _:
-                    summary.RoadNodes.Added += 1;
-                    break;
-                case RoadNodeModified _:
-                    summary.RoadNodes.Modified += 1;
-                    break;
-                case RoadNodeRemoved _:
-                    summary.RoadNodes.Removed += 1;
-                    break;
-                case RoadSegmentAdded _:
-                    summary.RoadSegments.Added += 1;
-                    break;
-                case RoadSegmentModified _:
-                case RoadSegmentAttributesModified _:
-                case RoadSegmentGeometryModified _:
-                    summary.RoadSegments.Modified += 1;
-                    break;
-                case RoadSegmentRemoved _:
-                    summary.RoadSegments.Removed += 1;
-                    break;
-                case GradeSeparatedJunctionAdded _:
-                    summary.GradeSeparatedJunctions.Added += 1;
-                    break;
-                case GradeSeparatedJunctionModified _:
-                    summary.GradeSeparatedJunctions.Modified += 1;
-                    break;
-                case GradeSeparatedJunctionRemoved _:
-                    summary.GradeSeparatedJunctions.Removed += 1;
-                    break;
-            }
-
-        return summary;
+                Added = summary.RoadNodes.Added,
+                Modified = summary.RoadNodes.Modified,
+                Removed = summary.RoadNodes.Removed
+            },
+            RoadSegments = new RoadNetworkChangeCounters
+            {
+                Added = summary.RoadSegments.Added,
+                Modified = summary.RoadSegments.Modified,
+                Removed = summary.RoadSegments.Removed
+            },
+            GradeSeparatedJunctions = new RoadNetworkChangeCounters
+            {
+                Added = summary.GradeSeparatedJunctions.Added,
+                Modified = summary.GradeSeparatedJunctions.Modified,
+                Removed = summary.GradeSeparatedJunctions.Removed
+            },
+        };
     };
 }

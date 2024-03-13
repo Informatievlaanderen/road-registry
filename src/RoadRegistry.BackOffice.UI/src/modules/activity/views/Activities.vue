@@ -119,98 +119,8 @@
                       <div
                         v-else-if="['RoadNetworkChangesAccepted:v2'].some((x) => x === activity.changeFeedEntry.type)"
                       >
-                        <div class="vl-grid vl-grid--align-center grid-summary">
-                          <div class="vl-col--4-12 vl-u-align-center">
-                            <div class="vl-infotext-wrapper">
-                              <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>
-                                  {{ activity.changeFeedContent.content.summary.roadNodes.added }}
-                                </div>
-                                <div class="vl-infotext__text">Toegevoegde wegknopen</div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="vl-col--4-12 vl-u-align-center">
-                            <div class="vl-infotext-wrapper">
-                              <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>
-                                  {{ activity.changeFeedContent.content.summary.roadNodes.modified }}
-                                </div>
-                                <div class="vl-infotext__text">Gewijzigde wegknopen</div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="vl-col--4-12 vl-u-align-center">
-                            <div class="vl-infotext-wrapper">
-                              <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>
-                                  {{ activity.changeFeedContent.content.summary.roadNodes.removed }}
-                                </div>
-                                <div class="vl-infotext__text">Verwijderde wegknopen</div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="vl-col--4-12 vl-u-align-center">
-                            <div class="vl-infotext-wrapper">
-                              <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>
-                                  {{ activity.changeFeedContent.content.summary.roadSegments.added }}
-                                </div>
-                                <div class="vl-infotext__text">Toegevoegde wegsegmenten</div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="vl-col--4-12 vl-u-align-center">
-                            <div class="vl-infotext-wrapper">
-                              <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>
-                                  {{ activity.changeFeedContent.content.summary.roadSegments.modified }}
-                                </div>
-                                <div class="vl-infotext__text">Gewijzigde wegsegmenten</div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="vl-col--4-12 vl-u-align-center">
-                            <div class="vl-infotext-wrapper">
-                              <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>
-                                  {{ activity.changeFeedContent.content.summary.roadSegments.removed }}
-                                </div>
-                                <div class="vl-infotext__text">Verwijderde wegsegmenten</div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="vl-col--4-12 vl-u-align-center">
-                            <div class="vl-infotext-wrapper">
-                              <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>
-                                  {{ activity.changeFeedContent.content.summary.gradeSeparatedJunctions.added }}
-                                </div>
-                                <div class="vl-infotext__text">Toegevoegde ongelijkgrondse kruisingen</div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="vl-col--4-12 vl-u-align-center">
-                            <div class="vl-infotext-wrapper">
-                              <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>
-                                  {{ activity.changeFeedContent.content.summary.gradeSeparatedJunctions.modified }}
-                                </div>
-                                <div class="vl-infotext__text">Gewijzigde ongelijkgrondse kruisingen</div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="vl-col--4-12 vl-u-align-center">
-                            <div class="vl-infotext-wrapper">
-                              <div class="vl-infotext">
-                                <div class="vl-infotext__value" data-vl-infotext-value>
-                                  {{ activity.changeFeedContent.content.summary.gradeSeparatedJunctions.removed }}
-                                </div>
-                                <div class="vl-infotext__text">Verwijderde ongelijkgrondse kruisingen</div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                        <ActivitySummary :summary="activity.changeFeedContent.content.summary" />
+
                         <div v-for="change in activity.changeFeedContent.content.changes" :key="change.change">
                           <h3>
                             <strong>{{ change.change }}</strong>
@@ -276,10 +186,12 @@ import { debounce } from "lodash";
 import { BackOfficeApi, PublicApi } from "../../../services";
 import RoadRegistry from "../../../types/road-registry";
 import ActivityProblems from "../components/ActivityProblems.vue";
+import ActivitySummary from "../components/ActivitySummary.vue";
 
 export default Vue.extend({
   components: {
     ActivityProblems,
+    ActivitySummary
   },
   data() {
     return {

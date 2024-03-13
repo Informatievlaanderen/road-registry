@@ -65,14 +65,22 @@ export const BackOfficeApi = {
     uploadUsingPresignedUrl: async (
       file: string | Blob,
       filename: string
-    ): Promise<RoadRegistry.UploadPresignedUrlResponse> => {
+    ): Promise<RoadRegistry.UploadPresignedUrlResponse | null> => {
       const path = `${apiEndpoint}/v1/upload/jobs`;
+      const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
+      
       const data = new FormData();
       data.append("archive", file, filename);
-      const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
-
-      var result = await apiClient.post(response.data.uploadUrl, data);
-      if (result.status !== 200 || result.status !== 202) {
+      if (response.data.uploadUrlFormData) {
+        for (let key in response.data.uploadUrlFormData) {
+          data.append(key, response.data.uploadUrlFormData[key]);
+        }
+      }
+      
+      var uploadFileResponse = await apiClient.post(response.data.uploadUrl, data);
+      
+      let status = uploadFileResponse.status as any;
+      if (status !== 200 && status !== 202) {
         return null;
       }
 

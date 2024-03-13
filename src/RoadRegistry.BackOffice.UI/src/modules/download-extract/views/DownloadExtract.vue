@@ -620,7 +620,7 @@ export default Vue.extend({
       this.isCheckingWkt = true;
 
       try {
-        let response = await BackOfficeApi.Information.postValidateWkt(this.contourFlow.wkt);
+        let response = await PublicApi.Information.postValidateWkt(this.contourFlow.wkt);
         this.contourFlow.wktIsValid = response.isValid;
         this.contourFlow.wktIsLargerThanMaximumArea = response.isLargerThanMaximumArea;
         this.contourFlow.area = response.area;

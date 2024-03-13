@@ -361,20 +361,20 @@ public class Startup
             .AddRoadNetworkSnapshotStrategyOptions()
             .AddSingleton(apiOptions)
             .Configure<ResponseOptions>(_configuration)
+
+            // Jobs
             .Configure<JobsBucketOptions>(_configuration.GetSection(JobsBucketOptions.ConfigKey))
             .AddJobsContext()
             .AddSingleton<IPagedUriGenerator, PagedUriGenerator>()
-
-            .AddSingleton<AmazonS3JobUploadUrlPresigner>()
-            .AddScoped<AnonymousBackOfficeApiJobUploadUrlPresigner>()
             .AddScoped<IJobUploadUrlPresigner>(sp =>
             {
                 var options = sp.GetRequiredService<IOptions<JobsBucketOptions>>();
                 if (options.Value.UseBackOfficeApiUrlPresigner)
                 {
-                    return sp.GetRequiredService<AnonymousBackOfficeApiJobUploadUrlPresigner>();
+                    return new AnonymousBackOfficeApiJobUploadUrlPresigner(sp.GetRequiredService<ApiOptions>());
                 }
-                return sp.GetRequiredService<AmazonS3JobUploadUrlPresigner>();
+
+                return new AmazonS3JobUploadUrlPresigner(sp.GetRequiredService<IAmazonS3Extended>(), sp.GetRequiredService<IOptions<JobsBucketOptions>>());
             })
 
             .AddAcmIdmAuthentication(oAuth2IntrospectionOptions, openIdConnectOptions)

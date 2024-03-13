@@ -163,27 +163,36 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                         .SelectMany(x => x.Problems)
                         .Select(problem => problem.ToTicketError())
                         .ToArray();
+
                     await ticketing.Error(ticketId.Value, new TicketError(errors), cancellationToken);
                 }
                 else
                 {
-                    var changes = successChangedMessages
+                    var acceptedChanges = successChangedMessages
                         .SelectMany(x => x.Value)
                         .OfType<RoadNetworkChangesAccepted>()
                         .SelectMany(x => x.Changes)
+                        .ToArray();
+
+                    var changes = acceptedChanges
                         .Select(change => new
                         {
+                            ChangeType = change.Flatten().GetType().Name,
                             Change = DutchTranslations.AcceptedChange.Translator(change),
                             Problems = change.Problems?
                                 .Select(problem => new
                                 {
                                     Severity = problem.Severity.ToString(),
+                                    problem.Reason,
                                     Text = DutchTranslations.ProblemTranslator.Dutch(problem).Message
                                 })
                                 .ToArray()
                         })
                         .ToArray();
-                    await ticketing.Complete(ticketId.Value, new TicketResult(new { Changes = changes }), cancellationToken);
+
+                    var summary = RoadNetworkChangesSummary.FromAcceptedChanges(acceptedChanges);
+
+                    await ticketing.Complete(ticketId.Value, new TicketResult(new { Changes = changes, Summary = summary }), cancellationToken);
                 }
             }
         }
