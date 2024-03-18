@@ -112,8 +112,8 @@ services:
     environment:
       BASEURL: http://localhost:9100
       CONNECTIONSTRINGS__MARTEN: Server=postgresql;Port=5432;Database=ticketing;Userid=sa;Password=E@syP@ssw0rd;Trust Server Certificate=true;Timeout=120
-      CORS__0: http://localhost:3000
-      CORS__1: http://localhost:5000
+      #CORS__0: http://localhost:3000
+      #CORS__1: http://localhost:5000
     ports:
       - 9100:9000
 

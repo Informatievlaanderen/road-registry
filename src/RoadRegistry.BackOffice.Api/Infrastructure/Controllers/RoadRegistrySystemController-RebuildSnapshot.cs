@@ -30,14 +30,14 @@ public partial class RoadRegistrySystemController
     {
         await validator.ValidateAndThrowAsync(parameters, cancellationToken);
 
-        await Mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest
+        var result = await Mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest
         {
             Request = new RebuildRoadNetworkSnapshotRequest
             {
                 MaxStreamVersion = parameters.MaxStreamVersion
             }
         }, cancellationToken);
-        return Accepted();
+        return Accepted(result);
     }
 }
 

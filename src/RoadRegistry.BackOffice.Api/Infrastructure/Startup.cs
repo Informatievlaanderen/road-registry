@@ -8,10 +8,11 @@ using Authorization;
 using Autofac;
 using BackOffice.Extensions;
 using BackOffice.Extracts;
+using BackOffice.Handlers.Extensions;
 using BackOffice.Uploads;
-using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
@@ -26,11 +27,11 @@ using Extensions;
 using FeatureToggles;
 using FluentValidation;
 using Framework;
-using Handlers.Extensions;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.HealthChecks;
 using Hosts.Infrastructure.Modules;
 using IdentityModel.AspNetCore.OAuth2Introspection;
+using Jobs;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -43,6 +44,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IO;
 using Microsoft.OpenApi.Models;
 using NetTopologySuite;
@@ -61,8 +63,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using FeatureCompare.Validation;
-using DomainAssemblyMarker = Handlers.Sqs.DomainAssemblyMarker;
+using DomainAssemblyMarker = BackOffice.Handlers.Sqs.DomainAssemblyMarker;
 using MediatorModule = Snapshot.Handlers.MediatorModule;
 using SystemClock = NodaTime.SystemClock;
 
@@ -113,7 +114,7 @@ public class Startup
                 },
                 Tracing =
                 {
-                    ServiceName = _configuration["DataDog:ServiceName"]
+                    ServiceName = _configuration.GetRequiredValue<string>("DataDog:ServiceName")
                 }
             })
             .UseDefaultForApi(new StartupUseOptions
@@ -163,7 +164,8 @@ public class Startup
             .RegisterModule(new DataDogModule(_configuration))
             .RegisterModule<BlobClientModule>()
             .RegisterModule<MediatorModule>()
-            .RegisterModule<SnapshotSqsHandlersModule>();
+            .RegisterModule<SnapshotSqsHandlersModule>()
+            ;
 
         builder
             .RegisterGeneric(typeof(IdentityPipelineBehavior<,>)).As(typeof(IPipelineBehavior<,>));
@@ -171,8 +173,8 @@ public class Startup
         builder
             .RegisterModulesFromAssemblyContaining<Startup>()
             .RegisterModulesFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
-            .RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>()
-            .RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>();
+            .RegisterModulesFromAssemblyContaining<BackOffice.Handlers.DomainAssemblyMarker>()
+            .RegisterModulesFromAssemblyContaining<BackOffice.Handlers.Sqs.DomainAssemblyMarker>();
     }
 
     public void ConfigureServices(IServiceCollection services)
@@ -180,7 +182,8 @@ public class Startup
         var oAuth2IntrospectionOptions = _configuration.GetOptions<OAuth2IntrospectionOptions>(nameof(OAuth2IntrospectionOptions));
         var openIdConnectOptions = _configuration.GetOptions<OpenIdConnectOptions>();
 
-        var baseUrl = _configuration.GetValue<string>("BaseUrl")?.TrimEnd('/') ?? string.Empty;
+        var apiOptions = _configuration.GetOptions<ApiOptions>();
+        apiOptions.BaseUrl = apiOptions.BaseUrl?.TrimEnd('/') ?? string.Empty;
 
         var featureToggles = _configuration.GetFeatureToggles<ApplicationFeatureToggle>();
         var useHealthChecksFeatureToggle = featureToggles.OfType<UseHealthChecksFeatureToggle>().Single();
@@ -200,7 +203,7 @@ public class Startup
                 },
                 Server =
                 {
-                    BaseUrl = baseUrl
+                    BaseUrl = apiOptions.BaseUrl
                 },
                 Swagger =
                 {
@@ -348,7 +351,7 @@ public class Startup
             .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
             .AddValidatorsAsScopedFromAssemblyContaining<Startup>()
             .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
-            .AddValidatorsFromAssemblyContaining<Handlers.DomainAssemblyMarker>()
+            .AddValidatorsFromAssemblyContaining<BackOffice.Handlers.DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<DomainAssemblyMarker>()
             .AddFeatureToggles(featureToggles)
             .AddTicketing()
@@ -356,21 +359,26 @@ public class Startup
             .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
             .AddRoadNetworkCommandQueue()
             .AddRoadNetworkSnapshotStrategyOptions()
+            .AddSingleton(apiOptions)
             .Configure<ResponseOptions>(_configuration)
+
+            // Jobs
+            .Configure<JobsBucketOptions>(_configuration.GetSection(JobsBucketOptions.ConfigKey))
+            .AddJobsContext()
+            .AddSingleton<IPagedUriGenerator, PagedUriGenerator>()
+            .AddScoped<IJobUploadUrlPresigner>(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<JobsBucketOptions>>();
+                if (options.Value.UseBackOfficeApiUrlPresigner)
+                {
+                    return new AnonymousBackOfficeApiJobUploadUrlPresigner(sp.GetRequiredService<ApiOptions>());
+                }
+
+                return new AmazonS3JobUploadUrlPresigner(sp.GetRequiredService<IAmazonS3Extended>(), sp.GetRequiredService<IOptions<JobsBucketOptions>>());
+            })
+
             .AddAcmIdmAuthentication(oAuth2IntrospectionOptions, openIdConnectOptions)
             .AddApiKeyAuth()
-            ;
-
-        if (_webHostEnvironment.IsDevelopment())
-        {
-            services.AddSingleton<IApiTokenReader>(new ConfigurationApiTokenReader(_configuration, "RoadRegistry Development ApiKey Client"));
-        }
-        else
-        {
-            services.AddSingleton<IApiTokenReader, DynamoDbApiTokenReader>();
-        }
-
-        services
             .AddMvc(options =>
             {
                 options.Filters.Add<ValidationFilterAttribute>();
@@ -396,6 +404,5 @@ public class SqlServerHealthCheck : IHealthCheck
         {
             return new HealthCheckResult(HealthStatus.Unhealthy, "dfd", ex);
         }
-        throw new NotImplementedException();
     }
 }

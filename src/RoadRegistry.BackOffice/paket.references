@@ -1,6 +1,7 @@
 Be.Vlaanderen.Basisregisters.AggregateSource
 Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache
 Be.Vlaanderen.Basisregisters.BlobStore
+Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql
 Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 Be.Vlaanderen.Basisregisters.Generators.Guid.Deterministic
 Be.Vlaanderen.Basisregisters.GrAr.Provenance
@@ -9,6 +10,7 @@ Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.Shaperon.Geometries
+Be.Vlaanderen.Basisregisters.TicketingService.Abstractions
 
 Amazon.Lambda.Core
 AWSSDK.Core

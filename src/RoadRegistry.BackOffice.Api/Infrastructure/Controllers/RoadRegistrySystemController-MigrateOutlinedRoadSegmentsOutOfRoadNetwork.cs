@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
 using Abstractions.RoadSegments;
-using Handlers.Sqs.RoadSegments;
+using BackOffice.Handlers.Sqs.RoadSegments;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Threading;
@@ -25,11 +25,11 @@ public partial class RoadRegistrySystemController
     [RequestSizeLimit(long.MaxValue)]
     public async Task<IActionResult> MigrateOutlinedRoadSegmentsOutOfRoadNetwork([FromBody] MigrateOutlinedRoadSegmentsOutOfRoadNetworkParameters parameters, CancellationToken cancellationToken)
     {
-        await Mediator.Send(new MigrateOutlinedRoadSegmentsOutOfRoadNetworkSqsRequest
+        var result = await Mediator.Send(new MigrateOutlinedRoadSegmentsOutOfRoadNetworkSqsRequest
         {
             Request = new MigrateOutlinedRoadSegmentsOutOfRoadNetworkRequest()
         }, cancellationToken);
-        return Accepted();
+        return Accepted(result);
     }
 
     public class MigrateOutlinedRoadSegmentsOutOfRoadNetworkParameters

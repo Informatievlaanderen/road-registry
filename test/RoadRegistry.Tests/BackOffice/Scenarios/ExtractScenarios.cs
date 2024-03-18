@@ -10,6 +10,9 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Messages;
 using System.IO.Compression;
+using Autofac;
+using Moq;
+using TicketingService.Abstractions;
 using FileProblem = RoadRegistry.BackOffice.Messages.FileProblem;
 
 public class ExtractScenarios : RoadRegistryTestBase
@@ -405,7 +408,7 @@ public class ExtractScenarios : RoadRegistryTestBase
             .Throws(new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException(externalExtractRequestId, extractRequestId, unknownDownloadId, uploadId))
         );
     }
-
+    
     [Fact]
     public async Task when_uploading_an_archive_of_changes_which_are_accepted_after_validation()
     {
@@ -416,6 +419,7 @@ public class ExtractScenarios : RoadRegistryTestBase
         var uploadId = ObjectProvider.Create<UploadId>();
         var archiveId = ObjectProvider.Create<ArchiveId>();
         var contour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
+        var ticketId = ObjectProvider.Create<TicketId>();
 
         await CreateEmptyArchive(archiveId);
 
@@ -437,7 +441,7 @@ public class ExtractScenarios : RoadRegistryTestBase
                 ArchiveId = archiveId,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             })
-            .When(TheExternalSystem.UploadsRoadNetworkExtractChangesArchive(extractRequestId, downloadId, uploadId, archiveId))
+            .When(TheExternalSystem.UploadsRoadNetworkExtractChangesArchive(extractRequestId, downloadId, uploadId, archiveId, ticketId))
             .Then(RoadNetworkExtracts.ToStreamName(extractRequestId),
                 new RoadNetworkExtractChangesArchiveUploaded
                 {
@@ -458,9 +462,15 @@ public class ExtractScenarios : RoadRegistryTestBase
                     UploadId = uploadId,
                     ArchiveId = archiveId,
                     Problems = Array.Empty<FileProblem>(),
+                    TicketId = ticketId,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
         );
+
+        TicketingMock
+            .Verify(x => x.Error(ticketId, It.IsAny<TicketError>(), It.IsAny<CancellationToken>()), Times.Never);
+        TicketingMock
+            .Verify(x => x.Complete(ticketId, It.IsAny<TicketResult>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -473,6 +483,7 @@ public class ExtractScenarios : RoadRegistryTestBase
         var uploadId = ObjectProvider.Create<UploadId>();
         var archiveId = ObjectProvider.Create<ArchiveId>();
         var contour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
+        var ticketId = ObjectProvider.Create<TicketId>();
 
         await CreateErrorArchive(archiveId);
 
@@ -494,7 +505,7 @@ public class ExtractScenarios : RoadRegistryTestBase
                 ArchiveId = archiveId,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             })
-            .When(TheExternalSystem.UploadsRoadNetworkExtractChangesArchive(extractRequestId, downloadId, uploadId, archiveId))
+            .When(TheExternalSystem.UploadsRoadNetworkExtractChangesArchive(extractRequestId, downloadId, uploadId, archiveId, ticketId))
             .Then(RoadNetworkExtracts.ToStreamName(extractRequestId),
                 new RoadNetworkExtractChangesArchiveUploaded
                 {
@@ -514,6 +525,7 @@ public class ExtractScenarios : RoadRegistryTestBase
                     DownloadId = downloadId,
                     UploadId = uploadId,
                     ArchiveId = archiveId,
+                    TicketId = ticketId,
                     Problems = new[]
                     {
                         new FileProblem
@@ -527,5 +539,8 @@ public class ExtractScenarios : RoadRegistryTestBase
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
         );
+
+        TicketingMock
+            .Verify(x => x.Error(ticketId, It.IsAny<TicketError>(), It.IsAny<CancellationToken>()));
     }
 }

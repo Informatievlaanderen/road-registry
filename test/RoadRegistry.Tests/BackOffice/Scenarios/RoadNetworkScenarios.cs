@@ -4,6 +4,8 @@ using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Framework.Testing;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection;
+using Moq;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using Newtonsoft.Json;
@@ -12,6 +14,7 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
+using TicketingService.Abstractions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
 using AddGradeSeparatedJunction = RoadRegistry.BackOffice.Messages.AddGradeSeparatedJunction;
@@ -41,9 +44,211 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
     }
 
     [Fact]
-    public Task when_adding_a_disconnected_node()
+    public async Task Ticket_is_completed_when_change_accepted()
     {
-        return Run(scenario => scenario
+        var ticketId = ObjectProvider.Create<TicketId>();
+
+        await Run(scenario => scenario
+            .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
+                new ImportedOrganization
+                {
+                    Code = TestData.ChangedByOrganization,
+                    Name = TestData.ChangedByOrganizationName,
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                }
+            )
+            .When(TheOperator.ChangesTheRoadNetwork(
+                TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization, ticketId,
+                new RequestedChange
+                {
+                    AddRoadNode = TestData.AddStartNode1
+                },
+                new RequestedChange
+                {
+                    AddRoadNode = TestData.AddEndNode1
+                },
+                new RequestedChange
+                {
+                    AddRoadSegment = TestData.AddSegment1
+                }
+            ))
+            .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+            {
+                RequestId = TestData.RequestId,
+                Reason = TestData.ReasonForChange,
+                Operator = TestData.ChangedByOperator,
+                OrganizationId = TestData.ChangedByOrganization,
+                Organization = TestData.ChangedByOrganizationName,
+                TransactionId = new TransactionId(1),
+                Changes = new[]
+                {
+                    new AcceptedChange
+                    {
+                        RoadNodeAdded = TestData.StartNode1Added,
+                        Problems = Array.Empty<Problem>()
+                    },
+                    new AcceptedChange
+                    {
+                        RoadNodeAdded = TestData.EndNode1Added,
+                        Problems = Array.Empty<Problem>()
+                    },
+                    new AcceptedChange
+                    {
+                        RoadSegmentAdded = TestData.Segment1Added,
+                        Problems = Array.Empty<Problem>()
+                    }
+                },
+                TicketId = ticketId,
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            }));
+
+        TicketingMock
+            .Verify(x => x.Complete(ticketId, It.IsAny<TicketResult>(), It.IsAny<CancellationToken>()));
+    }
+
+    [Fact]
+    public async Task Ticket_is_completed_when_no_changes()
+    {
+        var ticketId = ObjectProvider.Create<TicketId>();
+
+        TestData.ModifyStartNode1.Type = new Generator<RoadNodeType>(ObjectProvider)
+            .First(type => type != RoadNodeType.EndNode)
+            .ToString();
+
+        await Run(scenario => scenario
+            .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
+                new ImportedOrganization
+                {
+                    Code = TestData.ChangedByOrganization,
+                    Name = TestData.ChangedByOrganizationName,
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                }
+            )
+            .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+            {
+                RequestId = TestData.RequestId,
+                Reason = TestData.ReasonForChange,
+                Operator = TestData.ChangedByOperator,
+                OrganizationId = TestData.ChangedByOrganization,
+                Organization = TestData.ChangedByOrganizationName,
+                TransactionId = new TransactionId(1),
+                Changes = new[]
+                {
+                    new AcceptedChange
+                    {
+                        RoadNodeAdded = TestData.StartNode1Added,
+                        Problems = Array.Empty<Problem>()
+                    },
+                    new AcceptedChange
+                    {
+                        RoadNodeAdded = TestData.EndNode1Added,
+                        Problems = Array.Empty<Problem>()
+                    },
+                    new AcceptedChange
+                    {
+                        RoadSegmentAdded = TestData.Segment1Added,
+                        Problems = Array.Empty<Problem>()
+                    }
+                },
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            }, new RoadNetworkChangesAccepted
+            {
+                RequestId = "test",
+                Reason = TestData.ReasonForChange,
+                Operator = TestData.ChangedByOperator,
+                OrganizationId = TestData.ChangedByOrganization,
+                Organization = TestData.ChangedByOrganizationName,
+                TransactionId = new TransactionId(1),
+                Changes = new[]
+                {
+                    new AcceptedChange
+                    {
+                        RoadNodeModified = TestData.StartNode1Modified,
+                        Problems = Array.Empty<Problem>()
+                    }
+                },
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
+            .When(TheOperator.ChangesTheRoadNetwork(TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization, ticketId))
+            .Then(RoadNetworks.Stream, new NoRoadNetworkChanges
+            {
+                RequestId = TestData.RequestId,
+                Reason = TestData.ReasonForChange,
+                Operator = TestData.ChangedByOperator,
+                OrganizationId = TestData.ChangedByOrganization,
+                Organization = TestData.ChangedByOrganizationName,
+                TransactionId = new TransactionId(2),
+                TicketId = ticketId,
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            }));
+
+        TicketingMock
+            .Verify(x => x.Complete(ticketId, It.IsAny<TicketResult>(), It.IsAny<CancellationToken>()));
+    }
+
+    [Fact]
+    public async Task Ticket_is_error_when_change_rejected()
+    {
+        var ticketId = ObjectProvider.Create<TicketId>();
+
+        await Run(scenario => scenario
+            .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
+                new ImportedOrganization
+                {
+                    Code = TestData.ChangedByOrganization,
+                    Name = TestData.ChangedByOrganizationName,
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                }
+            )
+            .When(TheOperator.ChangesTheRoadNetwork(
+                TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization, ticketId,
+                new RequestedChange
+                {
+                    AddRoadNode = TestData.AddStartNode1
+                }
+            ))
+            .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
+            {
+                RequestId = TestData.RequestId,
+                Reason = TestData.ReasonForChange,
+                Operator = TestData.ChangedByOperator,
+                OrganizationId = TestData.ChangedByOrganization,
+                Organization = TestData.ChangedByOrganizationName,
+                TransactionId = new TransactionId(1),
+                Changes = new[]
+                {
+                    new RejectedChange
+                    {
+                        AddRoadNode = TestData.AddStartNode1,
+                        Problems = new[]
+                        {
+                            new Problem
+                            {
+                                Reason = "RoadNodeNotConnectedToAnySegment",
+                                Parameters = new[]
+                                {
+                                    new ProblemParameter
+                                    {
+                                        Name = "RoadNodeId",
+                                        Value = TestData.AddStartNode1.TemporaryId.ToString()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                TicketId = ticketId,
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
+        );
+
+        TicketingMock.Verify(x => x.Error(ticketId, It.IsAny<TicketError>(), It.IsAny<CancellationToken>()));
+    }
+
+    [Fact]
+    public async Task when_adding_a_disconnected_node()
+    {
+        await Run(scenario => scenario
             .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
                 new ImportedOrganization
                 {

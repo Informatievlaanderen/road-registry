@@ -1,6 +1,7 @@
 namespace RoadRegistry.SyncHost.Infrastructure.Modules
 {
     using BackOffice;
+    using BackOffice.Extensions;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Hosts.Infrastructure.Extensions;
     using Microsoft.Extensions.DependencyInjection;

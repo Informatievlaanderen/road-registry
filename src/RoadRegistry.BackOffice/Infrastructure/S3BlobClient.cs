@@ -13,10 +13,10 @@ namespace RoadRegistry.BackOffice.Infrastructure
 
     public class S3BlobClient : IBlobClient
     {
-        private readonly AmazonS3Client _client;
+        private readonly IAmazonS3 _client;
         private readonly string _bucket;
 
-        public S3BlobClient(AmazonS3Client client, string bucket)
+        public S3BlobClient(IAmazonS3 client, string bucket)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _bucket = bucket ?? throw new ArgumentNullException(nameof(bucket));

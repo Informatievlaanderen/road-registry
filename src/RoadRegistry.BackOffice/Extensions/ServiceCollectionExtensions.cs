@@ -21,6 +21,8 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Uploads;
 
 public static class ServiceCollectionExtensions
@@ -121,11 +123,11 @@ public static class ServiceCollectionExtensions
             {
                 if (string.IsNullOrEmpty(options.Bucket))
                 {
-                    throw new ConfigurationErrorsException($"'{nameof(options.Bucket)}' is required");
+                    throw new ConfigurationErrorsException($"'{nameof(options.Bucket)}' is required for '{options.GetType().Name}'");
                 }
                 if (string.IsNullOrEmpty(options.RootDir))
                 {
-                    throw new ConfigurationErrorsException($"'{nameof(options.RootDir)}' is required");
+                    throw new ConfigurationErrorsException($"'{nameof(options.RootDir)}' is required for '{options.GetType().Name}'");
                 }
             })
             .AddSingleton<DistributedS3Cache>()
@@ -221,5 +223,18 @@ public static class ServiceCollectionExtensions
             .AddSingleton<GradeSeparatedJunctionZipArchiveValidator>()
             .AddSingleton<IZipArchiveFeatureCompareTranslator, ZipArchiveFeatureCompareTranslator>()
             ;
+    }
+
+    public static IServiceCollection AddTraceDbConnection<TDbContext>(this IServiceCollection services, string connectionStringName, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+        where TDbContext : DbContext
+    {
+        services
+            .Add(new ServiceDescriptor(typeof(TraceDbConnection<TDbContext>), sp =>
+                    new TraceDbConnection<TDbContext>(
+                        new SqlConnection(sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(connectionStringName)),
+                        sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]!)
+                , serviceLifetime)
+            );
+        return services;
     }
 }

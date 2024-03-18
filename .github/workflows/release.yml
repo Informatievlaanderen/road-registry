@@ -151,6 +151,21 @@ jobs:
         build-project: RoadRegistry.AdminHost
         semver: ${{ needs.set-release-version.outputs.version }}
       secrets: inherit
+  
+  build-jobs-processor:
+      name: Build Jobs Processor
+      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+      needs: [ set-release-version ]
+      if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
+      with:
+        registry: road-registry
+        build-target: Containerize_JobsProcessor
+        image-file: rr-jobs-processor-image.tar
+        image-name: jobs-processor
+        test-project: RoadRegistry.Jobs.Processor.Tests
+        build-project: RoadRegistry.Jobs.Processor
+        semver: ${{ needs.set-release-version.outputs.version }}
+      secrets: inherit
 
   build-projector:
     name: Build Projector
@@ -368,6 +383,7 @@ jobs:
       pack-backoffice-ziparchivewriters,
       pack-projector,
       build-adminhost,
+      build-jobs-processor,
       build-backoffice-api,
       build-backoffice-commandhost,
       build-backoffice-eventhost,
@@ -709,6 +725,7 @@ jobs:
       matrix:
         image: [
           'adminhost', 
+          #'jobs-processor', 
           'backoffice-api', 
           'backoffice-commandhost', 
           'backoffice-eventhost', 
@@ -821,6 +838,7 @@ jobs:
        matrix: 
          services: [
           'road-adminhost'
+          #'road-jobs-processor'
         ]
 
     steps:
@@ -946,6 +964,7 @@ jobs:
           'backoffice-extracthost',
           'backoffice-commandhost',
           'adminhost',
+          #'jobs-processor',
           'projector',
           'editor-projectionhost',
           'product-projectionhost',

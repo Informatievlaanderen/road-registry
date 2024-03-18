@@ -12,8 +12,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using BackOffice.Core.ProblemCodes;
+using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Hosts.Infrastructure;
 using Infrastructure.Options;
+using TicketingService.Abstractions;
 
 public class AdminMessageConsumer
 {
@@ -21,24 +24,27 @@ public class AdminMessageConsumer
     private readonly ISqsQueueConsumer _sqsConsumer;
     private readonly SqsOptions _sqsOptions;
     private readonly AdminHostOptions _adminHostOptions;
+    private readonly ITicketing _ticketing;
     private readonly ILogger _logger;
     private readonly ILifetimeScope _container;
 
     public AdminMessageConsumer(
         ILifetimeScope container,
-        ILogger<AdminMessageConsumer> logger,
         SqsQueueUrlOptions sqsQueueUrlOptions,
         ISqsQueueConsumer sqsQueueConsumer,
         SqsOptions sqsOptions,
-        AdminHostOptions adminHostOptions
+        AdminHostOptions adminHostOptions,
+        ITicketing ticketing,
+        ILogger<AdminMessageConsumer> logger
      )
     {
-        _container = container;
-        _sqsQueueUrlOptions = sqsQueueUrlOptions;
-        _sqsConsumer = sqsQueueConsumer;
-        _sqsOptions = sqsOptions;
-        _adminHostOptions = adminHostOptions;
-        _logger = logger;
+        _container = container.ThrowIfNull();
+        _sqsQueueUrlOptions = sqsQueueUrlOptions.ThrowIfNull();
+        _sqsConsumer = sqsQueueConsumer.ThrowIfNull();
+        _sqsOptions = sqsOptions.ThrowIfNull();
+        _adminHostOptions = adminHostOptions.ThrowIfNull();
+        _ticketing = ticketing.ThrowIfNull();
+        _logger = logger.ThrowIfNull();
     }
 
     public async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -51,7 +57,7 @@ public class AdminMessageConsumer
                 {
                     var sqsMessageType = message.GetType();
                     _logger.LogInformation("SQS message '{Type}' received", sqsMessageType.FullName);
-
+                    
                     var backOfficeRequest = GetBackOfficeRequestFromSqsRequest(message);
                     if (backOfficeRequest is not null)
                     {
@@ -65,11 +71,33 @@ public class AdminMessageConsumer
                         return;
                     }
 
-                    await using var lifetimeScope = _container.BeginLifetimeScope();
-                    var mediator = lifetimeScope.Resolve<IMediator>();
+                    var ticketId = (message as SqsRequest)?.TicketId;
+                    if (ticketId is not null)
+                    {
+                        await _ticketing.Pending(ticketId.Value, cancellationToken);
+                    }
 
-                    var result = await mediator.Send(request, cancellationToken);
-                    _logger.LogInformation("SQS message result: {Result}", JsonConvert.SerializeObject(result, _sqsOptions.JsonSerializerSettings));
+                    try
+                    {
+                        await using var lifetimeScope = _container.BeginLifetimeScope();
+                        var mediator = lifetimeScope.Resolve<IMediator>();
+
+                        var result = await mediator.Send(request, cancellationToken);
+                        _logger.LogInformation("SQS message result: {Result}", JsonConvert.SerializeObject(result, _sqsOptions.JsonSerializerSettings));
+
+                        if (ticketId is not null)
+                        {
+                            await _ticketing.Complete(ticketId.Value, new TicketResult(), cancellationToken);
+                        }
+                    }
+                    catch
+                    {
+                        if (ticketId is not null)
+                        {
+                            await _ticketing.Error(ticketId.Value, new TicketError(), cancellationToken);
+                        }
+                        throw;
+                    }
                 }, cancellationToken);
 
                 if (lastMessage?.Error is not null)

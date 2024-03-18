@@ -1,14 +1,20 @@
 namespace RoadRegistry.BackOffice.Api.Tests;
 
+using Api.Changes;
+using Api.Downloads;
+using Api.Extracts;
+using Api.Information;
+using Api.RoadSegments;
+using Api.Uploads;
 using Autofac;
 using BackOffice.Extracts;
+using BackOffice.Handlers.Sqs;
 using BackOffice.Uploads;
 using Core;
 using Editor.Schema;
 using Extensions;
-using FeatureCompare.Translators;
+using FeatureToggles;
 using Framework;
-using Handlers.Sqs;
 using Hosts.Infrastructure.Extensions;
 using Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -21,13 +27,6 @@ using RoadRegistry.BackOffice.Api.Organizations;
 using RoadRegistry.Hosts.Infrastructure.Options;
 using SqlStreamStore;
 using System.Reflection;
-using Api.Changes;
-using Api.Downloads;
-using Api.Extracts;
-using Api.Information;
-using Api.RoadSegments;
-using Api.Uploads;
-using FeatureToggles;
 using MediatorModule = BackOffice.MediatorModule;
 
 public class Startup : TestStartup
@@ -72,8 +71,8 @@ public class Startup : TestStartup
     protected override void ConfigureContainer(ContainerBuilder builder)
     {
         builder.RegisterModule<MediatorModule>();
-        builder.RegisterModule<Handlers.MediatorModule>();
-        builder.RegisterModule<Handlers.Sqs.MediatorModule>();
+        builder.RegisterModule<BackOffice.Handlers.MediatorModule>();
+        builder.RegisterModule<BackOffice.Handlers.Sqs.MediatorModule>();
 
         builder
             .RegisterInstance(new FakeBackOfficeS3SqsQueue())

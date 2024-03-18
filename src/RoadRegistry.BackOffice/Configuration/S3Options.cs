@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Configuration;
 
 using Amazon;
 using Amazon.Runtime;
-using Amazon.S3;
 using Newtonsoft.Json;
 
 public class S3Options : IHasConfigurationKey
@@ -39,13 +38,7 @@ public class S3Options : IHasConfigurationKey
     public S3Options(string accessKey, string secretKey, string sessionToken, RegionEndpoint regionEndpoint)
         : this(new SessionAWSCredentials(accessKey, secretKey, sessionToken), regionEndpoint)
     { }
-
-    public virtual AmazonS3Client CreateS3Client()
-    {
-        var config = new AmazonS3Config { RegionEndpoint = RegionEndpoint };
-        return Credentials != null ? new AmazonS3Client(Credentials, config) : new AmazonS3Client(config);
-    }
-
+    
     public string GetConfigurationKey()
     {
         return "S3";

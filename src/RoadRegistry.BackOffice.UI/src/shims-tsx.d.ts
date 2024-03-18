@@ -12,8 +12,8 @@ declare global {
   class FeatureToggles {
     useAcmIdm: boolean;
     useDirectApiCalls: boolean;
-    useFeatureCompare: boolean;
     useTransactionZonesTab: boolean;
+    usePresignedUpload: boolean;
   }
 
   interface Window { 

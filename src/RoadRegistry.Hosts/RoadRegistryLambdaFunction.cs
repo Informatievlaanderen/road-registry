@@ -6,7 +6,6 @@ using BackOffice;
 using BackOffice.Extensions;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
 using Infrastructure.Extensions;
@@ -18,6 +17,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,7 +26,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NodaTime;
+using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
 
 public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase

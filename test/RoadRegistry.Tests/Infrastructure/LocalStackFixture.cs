@@ -1,11 +1,11 @@
-﻿namespace RoadRegistry.Tests.Infrastructure;
+namespace RoadRegistry.Tests.Infrastructure;
 
 using Amazon.Runtime;
 using Amazon.S3;
 
 public class LocalStackFixture : IAsyncLifetime
 {
-    public AmazonS3Client AmazonS3Client { get; private set; }
+    public IAmazonS3 AmazonS3Client { get; private set; }
     public AmazonS3Config AmazonS3Config { get; private set; }
 
     public async Task InitializeAsync()

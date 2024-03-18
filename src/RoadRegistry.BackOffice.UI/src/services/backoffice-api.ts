@@ -49,8 +49,11 @@ export const BackOfficeApi = {
     },
   },
   Uploads: {
-    upload: async (file: string | Blob, filename: string): Promise<RoadRegistry.UploadExtractResponseBody> => {
-      const path = `${apiEndpoint}/v1/upload`;
+    uploadFeatureCompare: async (
+      file: string | Blob,
+      filename: string
+    ): Promise<RoadRegistry.UploadExtractResponseBody> => {
+      const path = `${apiEndpoint}/v1/upload/fc`;
       const data = new FormData();
       data.append("archive", file, filename);
       const response = await apiClient.post<RoadRegistry.UploadExtractResponseBody>(path, data);
@@ -59,14 +62,28 @@ export const BackOfficeApi = {
       }
       return response.data;
     },
-    uploadFeatureCompare: async (file: string | Blob, filename: string): Promise<RoadRegistry.UploadExtractResponseBody> => {
-      const path = `${apiEndpoint}/v1/upload/fc`;
+    uploadUsingPresignedUrl: async (
+      file: string | Blob,
+      filename: string
+    ): Promise<RoadRegistry.UploadPresignedUrlResponse | null> => {
+      const path = `${apiEndpoint}/v1/upload/jobs`;
+      const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
+      
       const data = new FormData();
       data.append("archive", file, filename);
-      const response = await apiClient.post<RoadRegistry.UploadExtractResponseBody>(path, data);
-      if (response.data) {
-        response.data.status = response.status;
+      if (response.data.uploadUrlFormData) {
+        for (let key in response.data.uploadUrlFormData) {
+          data.append(key, response.data.uploadUrlFormData[key]);
+        }
       }
+      
+      var uploadFileResponse = await apiClient.post(response.data.uploadUrl, data);
+      
+      let status = uploadFileResponse.status as any;
+      if (status !== 200 && status !== 202) {
+        return null;
+      }
+
       return response.data;
     },
     download: async (identifier: string): Promise<void> => {

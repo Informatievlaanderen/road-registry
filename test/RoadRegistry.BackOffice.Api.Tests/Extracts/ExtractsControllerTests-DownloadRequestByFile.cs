@@ -5,7 +5,7 @@ using Abstractions.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using FluentAssertions;
 using FluentValidation;
-using Handlers.Extracts;
+using BackOffice.Handlers.Extracts;
 
 public class DownloadExtractByFileRequestValidatorTests : IAsyncLifetime
 {

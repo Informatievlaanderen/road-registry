@@ -11,7 +11,8 @@ public static class WellKnownConnectionNames
     public const string Events = "Events";
     public const string ExtractHost = "ExtractHost";
     public const string ExtractHostAdmin = "ExtractHostAdmin";
-    public const string Legacy = "Legacy";
+    public const string Jobs = "Jobs";
+    public const string JobsAdmin = "JobsAdmin";
     public const string ProducerSnapshotProjections = "ProducerSnapshotProjections";
     public const string ProducerSnapshotProjectionsAdmin = "ProducerSnapshotProjectionsAdmin";
     public const string ProductProjections = "ProductProjections";

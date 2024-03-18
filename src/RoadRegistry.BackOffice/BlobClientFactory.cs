@@ -14,12 +14,12 @@ public interface IBlobClientFactory
 
 public class BlobClientFactory: IBlobClientFactory
 {
-    private readonly Lazy<AmazonS3Client> _amazonS3Client;
+    private readonly Lazy<IAmazonS3> _amazonS3Client;
     private readonly BlobClientOptions _blobClientOptions;
     private readonly Lazy<FileBlobClient> _fileBlobClient;
     private readonly Lazy<S3BlobClientOptions> _s3BlobClientOptions;
 
-    public BlobClientFactory(BlobClientOptions blobClientOptions, Lazy<AmazonS3Client> amazonS3Client, Lazy<S3BlobClientOptions> s3BlobClientOptions, Lazy<FileBlobClient> fileBlobClient)
+    public BlobClientFactory(BlobClientOptions blobClientOptions, Lazy<IAmazonS3> amazonS3Client, Lazy<S3BlobClientOptions> s3BlobClientOptions, Lazy<FileBlobClient> fileBlobClient)
     {
         _blobClientOptions = blobClientOptions;
         _amazonS3Client = amazonS3Client;

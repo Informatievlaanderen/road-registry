@@ -115,6 +115,7 @@ Target.create "Build_Solution" (fun _ ->
 Target.create "Test_Solution" (fun _ ->
   [
     "test" @@ "RoadRegistry.AdminHost.Tests"
+    "test" @@ "RoadRegistry.Jobs.Processor.Tests"
     "test" @@ "RoadRegistry.BackOffice.Api.Tests"
     "test" @@ "RoadRegistry.BackOffice.CommandHost.Tests"
     "test" @@ "RoadRegistry.BackOffice.EventHost.Tests"
@@ -142,6 +143,7 @@ Target.create "Test_Solution" (fun _ ->
 Target.create "Publish_Solution" (fun _ ->
   [
     "RoadRegistry.AdminHost"
+    "RoadRegistry.Jobs.Processor"
     "RoadRegistry.BackOffice"
     "RoadRegistry.BackOffice.Abstractions"
     "RoadRegistry.BackOffice.Api"
@@ -204,26 +206,6 @@ Target.create "Pack_Solution" (fun _ ->
 
 type ContainerObject = { Project: string; Container: string }
 
-// Target.create "Containerize" (fun _ ->
-//   [|{ Project = "RoadRegistry.AdminHost"; Container = "backoffice-adminhost" }
-//     { Project = "RoadRegistry.BackOffice.Api"; Container = "backoffice-api" }
-//     { Project = "RoadRegistry.BackOffice.EventHost"; Container = "backoffice-eventhost" }
-//     { Project = "RoadRegistry.BackOffice.ExtractHost"; Container = "backoffice-extracthost" }
-//     { Project = "RoadRegistry.BackOffice.CommandHost"; Container = "backoffice-commandhost" }
-//     { Project = "RoadRegistry.BackOffice.MessagingHost.Sqs"; Container = "backoffice-messaginghost-sqs" }
-//     { Project = "RoadRegistry.BackOffice.UI"; Container = "backoffice-ui" }
-//     { Project = "RoadRegistry.Projector"; Container = "projector" }
-//     { Project = "RoadRegistry.Editor.ProjectionHost"; Container = "editor-projectionhost" }
-//     { Project = "RoadRegistry.Product.ProjectionHost"; Container = "product-projectionhost" }
-//     { Project = "RoadRegistry.Producer.Snapshot.ProjectionHost"; Container = "producer-snapshot-projectionhost" }
-//     { Project = "RoadRegistry.StreetNameConsumer.ProjectionHost"; Container = "streetnameconsumer-projectionhost" }
-//     { Project = "RoadRegistry.Syndication.ProjectionHost"; Container = "syndication-projectionhost" }
-//     { Project = "RoadRegistry.Wfs.ProjectionHost"; Container = "wfs-projectionhost" }
-//     { Project = "RoadRegistry.Wms.ProjectionHost"; Container = "wms-projectionhost" }
-//     { Project = "RoadRegistry.Legacy.Import"; Container = "import-legacy" }
-//     { Project = "RoadRegistry.Legacy.Extract"; Container = "extract-legacy" }
-//   |] |> Array.Parallel.iter (fun o -> containerize o.Project o.Container))
-
 Target.create "SetAssemblyVersions" (fun _ -> setVersions "SolutionInfo.cs")
 
 Target.create "Containerize_BackOfficeApi" (fun _ -> containerize "RoadRegistry.BackOffice.Api" "backoffice-api")
@@ -246,6 +228,9 @@ Target.create "PushContainer_BackOfficeMessagingHostSqs" (fun _ -> push "backoff
 
 Target.create "Containerize_AdminHost" (fun _ -> containerize "RoadRegistry.AdminHost" "adminhost")
 Target.create "PushContainer_AdminHost" (fun _ -> push "adminhost")
+
+Target.create "Containerize_JobsProcessor" (fun _ -> containerize "RoadRegistry.Jobs.Processor" "jobs-processor")
+Target.create "PushContainer_JobsProcessor" (fun _ -> push "jobs-processor")
 
 Target.create "Containerize_Projector" (fun _ -> containerize "RoadRegistry.Projector" "projector")
 Target.create "PushContainer_Projector" (fun _ -> push "projector")
@@ -306,29 +291,13 @@ Target.create "Containerize" ignore
   ==> "Pack"
 
 "Pack"
-  // ==> "Containerize_AdminHost"
-  // ==> "Containerize_Projector"
-  // ==> "Containerize_BackOfficeApi"
-  // ==> "Containerize_EditorProjectionHost"
-  // ==> "Containerize_ProductProjectionHost"
-  // ==> "Containerize_ProducerSnapshotProjectionHost"
-  // ==> "Containerize_WmsProjectionHost"
-  // ==> "Containerize_WfsProjectionHost"
-  // ==> "Containerize_SyndicationProjectionHost"
-  // ==> "Containerize_BackOfficeEventHost"
-  // ==> "Containerize_BackOfficeExtractHost"
-  // ==> "Containerize_BackOfficeCommandHost"
-  // ==> "Containerize_BackOfficeMessagingHostSqs"
-  // ==> "Containerize_ImportLegacy"
-  // ==> "Containerize_ExtractLegacy"
-  // ==> "Containerize_BackOfficeUI"
-  // ==> "Containerize_StreetNameConsumerProjectionHost"
   ==> "Containerize"
 // Possibly add more projects to containerize here
 
 "Containerize"
   ==> "DockerLogin"
   ==> "PushContainer_AdminHost"
+  ==> "PushContainer_JobsProcessor"
   ==> "PushContainer_Projector"
   ==> "PushContainer_BackOfficeApi"
   ==> "PushContainer_BackOfficeUI"

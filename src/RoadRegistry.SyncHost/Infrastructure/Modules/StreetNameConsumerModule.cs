@@ -1,7 +1,7 @@
 namespace RoadRegistry.SyncHost.Infrastructure.Modules
 {
     using BackOffice;
-    using Hosts.Infrastructure.Extensions;
+    using BackOffice.Extensions;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;

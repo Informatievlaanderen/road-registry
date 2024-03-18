@@ -37,14 +37,14 @@ public partial class RoadRegistrySystemController
             }
         }
 
-        await Mediator.Send(new CorrectRoadSegmentVersionsSqsRequest
+        var result = await Mediator.Send(new CorrectRoadSegmentVersionsSqsRequest
         {
             Request = new CorrectRoadSegmentVersionsRequest(parameters
                 ?.RoadSegments
                 ?.Select(x => new CorrectRoadSegmentVersion(x.Id, x.Version, x.GeometryVersion))
                 .ToList())
         }, cancellationToken);
-        return Accepted();
+        return Accepted(result);
     }
 
     public class CorrectRoadSegmentVersionsParameters

@@ -24,14 +24,16 @@ public static class TheExternalSystem
         ExtractRequestId requestId,
         DownloadId downloadId,
         UploadId uploadId,
-        ArchiveId archiveId)
+        ArchiveId archiveId,
+        TicketId? ticketId = null)
     {
         return new Command(new UploadRoadNetworkExtractChangesArchive
         {
             RequestId = requestId,
             DownloadId = downloadId,
             UploadId = uploadId,
-            ArchiveId = archiveId
+            ArchiveId = archiveId,
+            TicketId = ticketId
         });
     }
 }

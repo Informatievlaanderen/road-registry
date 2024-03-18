@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 public static class AmazonS3Extensions
 {
-    public static async Task CreateMissingBucketsAsync(this AmazonS3Client amazonS3Client, string[] bucketNames, CancellationToken cancellationToken)
+    public static async Task CreateMissingBucketsAsync(this IAmazonS3 amazonS3Client, string[] bucketNames, CancellationToken cancellationToken)
     {
         var buckets = await amazonS3Client.ListBucketsAsync(cancellationToken);
         var existingBucketNames = buckets.Buckets.Select(x => x.BucketName).ToArray();
@@ -39,7 +39,7 @@ public static class AmazonS3Extensions
         var bucketNames = GetRequiredBucketNames(sp).ToArray();
         if (bucketNames.Any())
         {
-            var amazonS3Client = sp.GetRequiredService<AmazonS3Client>();
+            var amazonS3Client = sp.GetRequiredService<IAmazonS3>();
             await amazonS3Client.CreateMissingBucketsAsync(bucketNames, cancellationToken);
         }
     }

@@ -10,6 +10,7 @@ using NodaTime;
 using SqlStreamStore;
 using System;
 using System.IO.Compression;
+using TicketingService.Abstractions;
 using Uploads;
 
 public class RoadNetworkExtractCommandModule : CommandHandlerModule
@@ -134,24 +135,28 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 var extractRequestId = ExtractRequestId.FromString(command.Body.RequestId);
                 var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
 
-                try
+                using (var container = lifetimeScope.BeginLifetimeScope())
                 {
-                    var upload = extract.Upload(downloadId, uploadId, archiveId);
+                    try
+                    {
+                        var upload = extract.Upload(downloadId, uploadId, archiveId);
 
-                    var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
-                    await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
-                    using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
-                    {
-                        await upload.ValidateArchiveUsing(archive, beforeFeatureCompareValidator, extractUploadFailedEmailClient, ct);
+                        var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
+                        await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
+                        using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
+                        {
+                            var ticketing = container.Resolve<ITicketing>();
+                            await upload.ValidateArchiveUsing(archive, command.Body.TicketId, beforeFeatureCompareValidator, extractUploadFailedEmailClient, ticketing, ct);
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    if (extractUploadFailedEmailClient is not null)
+                    catch (Exception ex)
                     {
-                        await extractUploadFailedEmailClient.SendAsync(extract.Description, ex, ct);
+                        if (extractUploadFailedEmailClient is not null)
+                        {
+                            await extractUploadFailedEmailClient.SendAsync(extract.Description, ex, ct);
+                        }
+                        throw;
                     }
-                    throw;
                 }
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(UploadRoadNetworkExtractChangesArchive));

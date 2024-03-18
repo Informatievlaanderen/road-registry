@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Messages;
 
+using System;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("RoadNetworkChangesArchiveRejected")]
@@ -9,5 +10,6 @@ public class RoadNetworkChangesArchiveRejected : IMessage
     public string ArchiveId { get; set; }
     public FileProblem[] Problems { get; set; }
     public string Description { get; set; }
+    public Guid? TicketId { get; set; }
     public string When { get; set; }
 }

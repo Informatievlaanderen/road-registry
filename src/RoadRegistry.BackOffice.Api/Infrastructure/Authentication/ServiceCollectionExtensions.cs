@@ -2,12 +2,16 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 
 using System;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2;
 using Configuration;
 using Controllers.Attributes;
 using IdentityModel.AspNetCore.OAuth2Introspection;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 public static class ServiceCollectionExtensions
 {
@@ -56,18 +60,28 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static AuthenticationBuilder AddApiKeyAuth(
-        this IServiceCollection services)
+    public static IServiceCollection AddApiKeyAuth(this IServiceCollection services)
     {
-        return services
-                .AddSingleton<IApiKeyAuthenticator, ApiKeyAuthenticator>()
-                .AddAuthentication(options =>
+        services
+            .AddSingleton<IApiTokenReader>(sp =>
+            {
+                var hostEnvironment = sp.GetRequiredService<IHostEnvironment>();
+                if (hostEnvironment.IsDevelopment())
                 {
-                    options.DefaultScheme = AuthenticationSchemes.ApiKey;
-                    options.DefaultAuthenticateScheme = AuthenticationSchemes.ApiKey;
-                    options.DefaultChallengeScheme = AuthenticationSchemes.ApiKey;
-                })
-                .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(AuthenticationSchemes.ApiKey, options => { })
+                    return new ConfigurationApiTokenReader(sp.GetRequiredService<IConfiguration>(), "RoadRegistry Development ApiKey Client");
+                }
+
+                return new DynamoDbApiTokenReader(sp.GetRequiredService<AmazonDynamoDBClient>());
+            })
+            .AddSingleton<IApiKeyAuthenticator, ApiKeyAuthenticator>()
+            .AddAuthentication(options =>
+            {
+                options.DefaultScheme = AuthenticationSchemes.ApiKey;
+                options.DefaultAuthenticateScheme = AuthenticationSchemes.ApiKey;
+                options.DefaultChallengeScheme = AuthenticationSchemes.ApiKey;
+            })
+            .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(AuthenticationSchemes.ApiKey, options => { })
             ;
+        return services;
     }
 }

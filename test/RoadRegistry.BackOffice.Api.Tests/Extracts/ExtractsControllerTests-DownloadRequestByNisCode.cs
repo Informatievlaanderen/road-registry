@@ -1,10 +1,10 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
 using Abstractions.Extracts;
+using BackOffice.Handlers.Extracts;
 using Editor.Schema;
 using FluentAssertions;
 using FluentValidation;
-using Handlers.Extracts;
 using Infrastructure.Containers;
 using NetTopologySuite.Geometries;
 

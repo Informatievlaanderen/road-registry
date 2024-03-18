@@ -567,6 +567,8 @@ export default Vue.extend({
             throw new Error(`Not implemented contour type: ${this.contourFlow.contourType}`);
         }
 
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
         this.$router.push({ name: "activiteit", query: { filter: this.contourFlow.description } });
       } catch (exception) {
         if (exception instanceof RoadRegistryExceptions.RequestExtractPerContourError) {
@@ -620,7 +622,7 @@ export default Vue.extend({
       this.isCheckingWkt = true;
 
       try {
-        let response = await BackOfficeApi.Information.postValidateWkt(this.contourFlow.wkt);
+        let response = await PublicApi.Information.postValidateWkt(this.contourFlow.wkt);
         this.contourFlow.wktIsValid = response.isValid;
         this.contourFlow.wktIsLargerThanMaximumArea = response.isLargerThanMaximumArea;
         this.contourFlow.area = response.area;

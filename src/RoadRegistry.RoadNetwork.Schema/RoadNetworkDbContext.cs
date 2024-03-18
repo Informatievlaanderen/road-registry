@@ -3,7 +3,7 @@ namespace RoadRegistry.RoadNetwork.Schema
     using BackOffice;
     using Microsoft.EntityFrameworkCore;
 
-    public class RoadNetworkDbContext: DbContext
+    public class RoadNetworkDbContext : DbContext
     {
         public const string Schema = "RoadNetwork";
 
@@ -52,6 +52,23 @@ namespace RoadRegistry.RoadNetwork.Schema
             cmd.CommandText = $"SELECT NEXT VALUE FOR {Schema}.{name};";
             var result = await cmd.ExecuteScalarAsync();
             return Convert.ToInt32(result);
+        }
+    }
+
+    public class RoadNetworkDbContextMigrationFactory : DbContextMigratorFactory<RoadNetworkDbContext>
+    {
+        public RoadNetworkDbContextMigrationFactory()
+            : base(WellKnownConnectionNames.CommandHostAdmin, new MigrationHistoryConfiguration
+            {
+                Schema = RoadNetworkDbContext.Schema,
+                Table = MigrationTables.Default
+            })
+        {
+        }
+
+        protected override RoadNetworkDbContext CreateContext(DbContextOptions<RoadNetworkDbContext> migrationContextOptions)
+        {
+            return new RoadNetworkDbContext(migrationContextOptions);
         }
     }
 }

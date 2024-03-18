@@ -6,18 +6,18 @@ using FeatureToggles;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 using NodaTime;
 using SqlStreamStore;
+using SqlStreamStore.Streams;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.Shaperon;
-using NetTopologySuite.Geometries;
-using SqlStreamStore.Streams;
-using Uploads;
+using Extensions;
+using TicketingService.Abstractions;
 
 public class RoadNetworkCommandModule : CommandHandlerModule
 {
@@ -89,6 +89,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         var downloadId = DownloadId.FromValue(command.Body.DownloadId);
         var @operator = new OperatorName(command.Body.Operator);
         var reason = new Reason(command.Body.Reason);
+        var ticketId = TicketId.FromValue(command.Body.TicketId);
 
         var sw = Stopwatch.StartNew();
         var organizationId = new OrganizationId(command.Body.OrganizationId);
@@ -100,7 +101,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         sw.Restart();
 
         var successChangedMessages = new Dictionary<IEventSourcedEntity, List<IMessage>>();
-        var failedChangedMessages = new Dictionary<IEventSourcedEntity, List<IMessage>>();
+        var failedChangedMessages = new Dictionary<IEventSourcedEntity, List<RoadNetworkChangesRejected>>();
 
         using (var container = _lifetimeScope.BeginLifetimeScope())
         {
@@ -127,13 +128,13 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 _logger.LogInformation("TIMETRACKING changeroadnetwork: translating command changes to RequestedChanges took {Elapsed}", sw.Elapsed);
 
                 sw.Restart();
-                var changedMessage = await network.Change(request, downloadId, reason, @operator, organizationTranslation, requestedChanges, _emailClient, cancellationToken);
+                var changedMessage = await network.Change(request, downloadId, reason, @operator, organizationTranslation, requestedChanges, ticketId, _emailClient, cancellationToken);
                 _logger.LogInformation("TIMETRACKING changeroadnetwork: applying RequestedChanges to RoadNetwork took {Elapsed}", sw.Elapsed);
 
-                if (changedMessage is RoadNetworkChangesRejected)
+                if (changedMessage is RoadNetworkChangesRejected rejectedChangedMessage)
                 {
-                    failedChangedMessages.TryAdd(network, new List<IMessage>());
-                    failedChangedMessages[network].Add(changedMessage);
+                    failedChangedMessages.TryAdd(network, new List<RoadNetworkChangesRejected>());
+                    failedChangedMessages[network].Add(rejectedChangedMessage);
                 }
                 else
                 {
@@ -141,15 +142,59 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     successChangedMessages[network].Add(changedMessage);
                 }
             }
-        }
+            
+            if (failedChangedMessages.Any() && successChangedMessages.Any())
+            {
+                foreach (var item in successChangedMessages)
+                    foreach (var @event in item.Value)
+                    {
+                        context.EventFilter.Exclude(item.Key, @event);
+                    }
+            }
 
-        if (failedChangedMessages.Any() && successChangedMessages.Any())
-        {
-            foreach (var item in successChangedMessages)
-                foreach (var @event in item.Value)
+            if (ticketId is not null)
+            {
+                var ticketing = container.Resolve<ITicketing>();
+                if (failedChangedMessages.Any())
                 {
-                    context.EventFilter.Exclude(item.Key, @event);
+                    var errors = failedChangedMessages
+                        .SelectMany(x => x.Value)
+                        .SelectMany(x => x.Changes)
+                        .SelectMany(x => x.Problems)
+                        .Select(problem => problem.ToTicketError())
+                        .ToArray();
+
+                    await ticketing.Error(ticketId.Value, new TicketError(errors), cancellationToken);
                 }
+                else
+                {
+                    var acceptedChanges = successChangedMessages
+                        .SelectMany(x => x.Value)
+                        .OfType<RoadNetworkChangesAccepted>()
+                        .SelectMany(x => x.Changes)
+                        .ToArray();
+
+                    var changes = acceptedChanges
+                        .Select(change => new
+                        {
+                            ChangeType = change.Flatten().GetType().Name,
+                            Change = DutchTranslations.AcceptedChange.Translator(change),
+                            Problems = change.Problems?
+                                .Select(problem => new
+                                {
+                                    Severity = problem.Severity.ToString(),
+                                    problem.Reason,
+                                    Text = DutchTranslations.ProblemTranslator.Dutch(problem).Message
+                                })
+                                .ToArray()
+                        })
+                        .ToArray();
+
+                    var summary = RoadNetworkChangesSummary.FromAcceptedChanges(acceptedChanges);
+
+                    await ticketing.Complete(ticketId.Value, new TicketResult(new { Changes = changes, Summary = summary }), cancellationToken);
+                }
+            }
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);

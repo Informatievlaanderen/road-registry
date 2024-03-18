@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.DutchTranslations;
 
+using Messages;
 using System;
-using RoadRegistry.BackOffice.Messages;
 
 public static class AcceptedChange
 {

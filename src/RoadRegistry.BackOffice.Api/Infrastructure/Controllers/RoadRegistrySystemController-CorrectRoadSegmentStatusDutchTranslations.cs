@@ -24,7 +24,7 @@ public partial class RoadRegistrySystemController
     public async Task<IActionResult> CorrectRoadSegmentStatusDutchTranslations(CancellationToken cancellationToken)
     {
         // For now I will leave this hardcoded
-        await Mediator.Send(new CorrectRoadSegmentStatusDutchTranslationsSqsRequest
+        var result = await Mediator.Send(new CorrectRoadSegmentStatusDutchTranslationsSqsRequest
         {
             Request = new CorrectRoadSegmentStatusDutchTranslationsRequest
             {
@@ -32,6 +32,6 @@ public partial class RoadRegistrySystemController
                 Name = RoadSegmentStatus.PermitGranted.Translation.Name
             }
         }, cancellationToken);
-        return Accepted();
+        return Accepted(result);
     }
 }

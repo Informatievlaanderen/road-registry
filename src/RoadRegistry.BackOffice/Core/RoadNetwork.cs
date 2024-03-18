@@ -39,6 +39,7 @@ public class RoadNetwork : EventSourcedEntity
         OperatorName @operator,
         Organization.DutchTranslation organization,
         RequestedChanges requestedChanges,
+        TicketId? ticketId,
         IExtractUploadFailedEmailClient emailClient,
         CancellationToken cancellationToken)
     {
@@ -75,7 +76,8 @@ public class RoadNetwork : EventSourcedEntity
                 Operator = @operator,
                 OrganizationId = organization.Identifier,
                 Organization = organization.Name,
-                TransactionId = requestedChanges.TransactionId
+                TransactionId = requestedChanges.TransactionId,
+                TicketId = ticketId
             };
             Apply(@event);
             return @event;
@@ -94,7 +96,8 @@ public class RoadNetwork : EventSourcedEntity
                 Changes = verifiedChanges
                     .OfType<RejectedChange>()
                     .Select(change => change.Translate())
-                    .ToArray()
+                    .ToArray(),
+                TicketId = ticketId
             };
             Apply(@event);
 
@@ -115,7 +118,8 @@ public class RoadNetwork : EventSourcedEntity
                 Changes = verifiedChanges
                     .OfType<AcceptedChange>()
                     .Select(change => change.Translate())
-                    .ToArray()
+                    .ToArray(),
+                TicketId = ticketId
             };
             Apply(@event);
             return @event;

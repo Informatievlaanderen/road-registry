@@ -9,7 +9,9 @@ using NodaTime;
 using SqlStreamStore;
 using System;
 using System.IO.Compression;
+using System.Linq;
 using Autofac;
+using TicketingService.Abstractions;
 
 public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
 {
@@ -34,6 +36,10 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
             .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
             .Handle(async (context, message, _, ct) =>
             {
+                await using var container = lifetimeScope.BeginLifetimeScope();
+
+                logger.LogInformation("Command handler started for {Command}", nameof(UploadRoadNetworkChangesArchive));
+
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
 
                 logger.LogInformation("Download started for S3 blob {BlobName}", archiveId);
@@ -51,11 +57,18 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
                         logger.LogInformation("Validation started for archive");
-                        await upload.ValidateArchiveUsing(archive, beforeFeatureCompareValidator, ct);
+                        var problems = await upload.ValidateArchiveUsing(archive, message.Body.TicketId, beforeFeatureCompareValidator, ct);
+                        if (problems.HasError() && message.Body.TicketId is not null)
+                        {
+                            var ticketing = container.Resolve<ITicketing>();
+                            var errors = problems.Select(x => x.Translate().ToTicketError()).ToArray();
+                            await ticketing.Error(message.Body.TicketId.Value, new TicketError(errors), ct);
+                        }
                         logger.LogInformation("Validation completed for archive");
                     }
                     context.RoadNetworkChangesArchives.Add(upload);
                 }
+
                 logger.LogInformation("Command handler finished for {Command}", nameof(UploadRoadNetworkChangesArchive));
             });
     }

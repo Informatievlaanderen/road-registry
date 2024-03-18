@@ -1,11 +1,11 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.RoadNodes;
-using Handlers.Sqs.RoadNodes;
+using BackOffice.Handlers.Sqs.RoadNodes;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class RoadRegistrySystemController
 {
@@ -23,10 +23,10 @@ public partial class RoadRegistrySystemController
     [SwaggerOperation(OperationId = nameof(CorrectRoadNodeVersions), Description = "")]
     public async Task<IActionResult> CorrectRoadNodeVersions(CancellationToken cancellationToken)
     {
-        await Mediator.Send(new CorrectRoadNodeVersionsSqsRequest
+        var result = await Mediator.Send(new CorrectRoadNodeVersionsSqsRequest
         {
             Request = new CorrectRoadNodeVersionsRequest()
         }, cancellationToken);
-        return Accepted();
+        return Accepted(result);
     }
 }

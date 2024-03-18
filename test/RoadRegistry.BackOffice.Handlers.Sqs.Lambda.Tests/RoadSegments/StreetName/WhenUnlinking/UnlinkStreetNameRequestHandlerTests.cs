@@ -41,7 +41,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
             new ChangeRoadNetworkDispatcher(
                 new RoadNetworkCommandQueue(Store, ApplicationMetadata),
                 idempotentCommandHandler,
-                EntityMapFactory.Resolve<EventSourcedEntityMap>(),
+                ScopedContainer.Resolve<EventSourcedEntityMap>(),
                 new FakeOrganizationCache(),
                 LoggerFactory.CreateLogger<ChangeRoadNetworkDispatcher>()),
             new FakeDistributedStreamStoreLockOptions(),
