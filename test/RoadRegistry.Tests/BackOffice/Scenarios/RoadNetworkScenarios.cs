@@ -98,6 +98,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                         Problems = Array.Empty<Problem>()
                     }
                 },
+                TicketId = ticketId,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             }));
 

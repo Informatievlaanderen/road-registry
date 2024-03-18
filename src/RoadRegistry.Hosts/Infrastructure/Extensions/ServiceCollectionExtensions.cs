@@ -130,7 +130,7 @@ public static class ServiceCollectionExtensions
                     sp.GetRequiredService<TraceDbConnection<RoadNetworkDbContext>>(),
                     sqlOptions => sqlOptions
                         .UseNetTopologySuite()
-                        .MigrationsHistoryTable("__EFMigrationsHistory", RoadNetworkDbContext.Schema)
+                        .MigrationsHistoryTable(MigrationTables.Default, RoadNetworkDbContext.Schema)
                 )
             )
             .AddScoped<IRoadNetworkIdGenerator, RoadNetworkDbIdGenerator>();

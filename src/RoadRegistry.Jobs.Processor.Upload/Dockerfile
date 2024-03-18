@@ -8,7 +8,7 @@ RUN mkdir /app && chown -R app:app /app
 WORKDIR /app
 
 LABEL maintainer "Digitaal Vlaanderen <digitaal.vlaanderen@vlaanderen.be>"
-LABEL registry="building-registry"
+LABEL registry="road-registry"
 
 COPY / /app
 WORKDIR /app
