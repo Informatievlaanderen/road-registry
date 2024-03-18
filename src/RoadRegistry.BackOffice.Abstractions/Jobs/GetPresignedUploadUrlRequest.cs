@@ -1,7 +1,7 @@
-namespace RoadRegistry.Jobs.Abstractions
+namespace RoadRegistry.BackOffice.Abstractions.Jobs
 {
-    using BackOffice;
     using MediatR;
+    using RoadRegistry.BackOffice;
 
     public sealed record GetPresignedUploadUrlRequest : IRequest<GetPresignedUploadUrlResponse>
     {

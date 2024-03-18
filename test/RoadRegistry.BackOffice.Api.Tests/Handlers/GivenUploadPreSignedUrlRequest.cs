@@ -6,13 +6,13 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
     using FluentAssertions;
     using Hosts.Infrastructure.Modules;
     using Jobs;
-    using Jobs.Abstractions;
     using Microsoft.EntityFrameworkCore;
     using Moq;
     using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Abstractions.Jobs;
     using TicketingService.Abstractions;
     using Xunit;
 

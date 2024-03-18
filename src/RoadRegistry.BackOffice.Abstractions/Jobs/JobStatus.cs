@@ -1,4 +1,4 @@
-namespace RoadRegistry.Jobs
+namespace RoadRegistry.BackOffice.Abstractions.Jobs
 {
     public enum JobStatus
     {

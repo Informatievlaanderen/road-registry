@@ -3,13 +3,13 @@ namespace RoadRegistry.BackOffice.Api.Handlers
     using Hosts.Infrastructure.Options;
     using Infrastructure;
     using Jobs;
-    using Jobs.Abstractions;
     using MediatR;
     using NodaTime;
     using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Abstractions.Jobs;
     using TicketingService.Abstractions;
 
     public sealed class GetPresignedUploadUrlRequestHandler : IRequestHandler<GetPresignedUploadUrlRequest, GetPresignedUploadUrlResponse>

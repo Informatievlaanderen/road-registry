@@ -1,6 +1,5 @@
 namespace RoadRegistry.Jobs.Processor
 {
-    using Abstractions;
     using BackOffice.Abstractions.Exceptions;
     using BackOffice.Abstractions.Uploads;
     using BackOffice.Core.ProblemCodes;
@@ -21,6 +20,7 @@ namespace RoadRegistry.Jobs.Processor
     using System.Threading;
     using System.Threading.Tasks;
     using BackOffice;
+    using BackOffice.Abstractions.Jobs;
     using Microsoft.Extensions.Hosting;
     using TicketingService.Abstractions;
     using JobsProcessorOptions = Infrastructure.Options.JobsProcessorOptions;

@@ -1,7 +1,6 @@
-namespace RoadRegistry.Jobs.Abstractions
+namespace RoadRegistry.BackOffice.Abstractions.Jobs
 {
-    using BackOffice.Abstractions;
-    using Jobs;
+    using Abstractions;
     using MediatR;
     using System.Collections.Generic;
 

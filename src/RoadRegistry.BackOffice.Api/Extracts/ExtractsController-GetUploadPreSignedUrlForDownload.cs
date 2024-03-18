@@ -4,12 +4,12 @@ using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RoadRegistry.Jobs.Abstractions;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Exceptions;
+using Abstractions.Jobs;
 using Editor.Schema;
 using Exceptions;
 

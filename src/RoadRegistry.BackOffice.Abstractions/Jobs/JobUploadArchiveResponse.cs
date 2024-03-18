@@ -1,4 +1,4 @@
-namespace RoadRegistry.Jobs.Abstractions
+namespace RoadRegistry.BackOffice.Abstractions.Jobs
 {
     public sealed record JobUploadArchiveResponse();
 }
