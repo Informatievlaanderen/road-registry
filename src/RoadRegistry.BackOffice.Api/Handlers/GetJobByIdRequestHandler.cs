@@ -4,11 +4,11 @@ namespace RoadRegistry.BackOffice.Api.Handlers
     using Be.Vlaanderen.Basisregisters.Api.Exceptions;
     using Infrastructure;
     using Jobs;
-    using Jobs.Abstractions;
     using MediatR;
     using Microsoft.AspNetCore.Http;
     using System.Threading;
     using System.Threading.Tasks;
+    using Abstractions.Jobs;
     using TicketingService.Abstractions;
 
     public sealed class GetJobByIdRequestHandler : IRequestHandler<GetJobByIdRequest, JobResponse>

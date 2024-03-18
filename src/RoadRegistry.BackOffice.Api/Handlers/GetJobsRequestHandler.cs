@@ -4,12 +4,12 @@ namespace RoadRegistry.BackOffice.Api.Handlers
     using Abstractions;
     using Infrastructure;
     using Jobs;
-    using Jobs.Abstractions;
     using MediatR;
     using Microsoft.EntityFrameworkCore;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Abstractions.Jobs;
     using TicketingService.Abstractions;
 
     public class GetJobsRequestHandler : IRequestHandler<GetJobsRequest, GetJobsResponse>

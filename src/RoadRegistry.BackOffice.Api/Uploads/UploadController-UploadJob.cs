@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Uploads;
 using Abstractions.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Jobs.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Abstractions.Jobs;
 
 public partial class UploadController
 {
@@ -22,6 +22,7 @@ public partial class UploadController
         CancellationToken cancellationToken,
         [FromServices] IHostEnvironment hostEnvironment)
     {
+        // Only exists for local dev testing the entire upload flow (in UI)
         if (!hostEnvironment.IsDevelopment())
         {
             return NotFound();

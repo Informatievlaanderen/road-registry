@@ -1,7 +1,7 @@
 namespace RoadRegistry.Jobs
 {
     using System;
-    using Abstractions;
+    using BackOffice.Abstractions.Jobs;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

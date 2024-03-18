@@ -2,13 +2,13 @@ namespace RoadRegistry.BackOffice.Api.Handlers
 {
     using Be.Vlaanderen.Basisregisters.Api.Exceptions;
     using Jobs;
-    using Jobs.Abstractions;
     using MediatR;
     using Microsoft.AspNetCore.Http;
     using System;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Abstractions.Jobs;
     using TicketingService.Abstractions;
 
     public sealed class CancelJobRequestHandler : IRequestHandler<CancelJobRequest, CancelJobResponse>

@@ -1,6 +1,5 @@
 namespace RoadRegistry.Jobs.Processor.Tests
 {
-    using Abstractions;
     using BackOffice.Abstractions.Uploads;
     using BackOffice.Core.ProblemCodes;
     using BackOffice.Exceptions;
@@ -16,6 +15,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
     using System.IO;
     using System.Linq;
     using System.Threading;
+    using BackOffice.Abstractions.Jobs;
     using TicketingService.Abstractions;
     using Xunit;
 

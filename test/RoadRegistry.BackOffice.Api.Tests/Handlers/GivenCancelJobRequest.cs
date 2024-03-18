@@ -5,13 +5,13 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
     using Be.Vlaanderen.Basisregisters.Api.Exceptions;
     using FluentAssertions;
     using Jobs;
-    using Jobs.Abstractions;
     using Microsoft.AspNetCore.Http;
     using Moq;
     using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Abstractions.Jobs;
     using TicketingService.Abstractions;
     using Xunit;
 

@@ -4,13 +4,13 @@ namespace RoadRegistry.BackOffice.Api.Handlers
     using Be.Vlaanderen.Basisregisters.Api.Exceptions;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Jobs;
-    using Jobs.Abstractions;
     using MediatR;
     using Microsoft.AspNetCore.Http;
     using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Abstractions.Jobs;
 
     public sealed class JobUploadArchiveRequestHandler : IRequestHandler<JobUploadArchiveRequest, JobUploadArchiveResponse>
     {
