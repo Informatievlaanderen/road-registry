@@ -18,7 +18,7 @@ on:
         description: Select the service
         options:
         - road-registry-adminhost
-        #- road-registry-jobs-processor-upload
+        #- road-registry-jobs-processor
         - road-registry-backoffice-api
         - road-registry-backoffice-commandhost
         - road-registry-backoffice-eventhost

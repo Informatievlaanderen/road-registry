@@ -229,8 +229,8 @@ Target.create "PushContainer_BackOfficeMessagingHostSqs" (fun _ -> push "backoff
 Target.create "Containerize_AdminHost" (fun _ -> containerize "RoadRegistry.AdminHost" "adminhost")
 Target.create "PushContainer_AdminHost" (fun _ -> push "adminhost")
 
-Target.create "Containerize_JobsProcessorUpload" (fun _ -> containerize "RoadRegistry.Jobs.Processor.Upload" "jobs-processor-upload")
-Target.create "PushContainer_JobsProcessorUpload" (fun _ -> push "jobs-processor-upload")
+Target.create "Containerize_JobsProcessorUpload" (fun _ -> containerize "RoadRegistry.Jobs.Processor.Upload" "jobs-processor")
+Target.create "PushContainer_JobsProcessorUpload" (fun _ -> push "jobs-processor")
 
 Target.create "Containerize_Projector" (fun _ -> containerize "RoadRegistry.Projector" "projector")
 Target.create "PushContainer_Projector" (fun _ -> push "projector")

@@ -94,7 +94,7 @@ jobs:
        matrix: 
          services: [
           'road-adminhost'
-          #'road-jobs-processor-upload'
+          #'road-jobs-processor'
         ]
 
     steps:

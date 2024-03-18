@@ -40,7 +40,7 @@ on:
         options:
         - ''
         - road-adminhost
-        #- road-jobs-processor-upload
+        #- road-jobs-processor
         required: false
       lambda:
         type: choice
