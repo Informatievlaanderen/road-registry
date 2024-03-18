@@ -1,3 +1,17 @@
+# [3.71.0](https://github.com/informatievlaanderen/road-registry/compare/v3.70.7...v3.71.0) (2024-03-18)
+
+
+### Bug Fixes
+
+* pin workflow version in release pipeline ([#1428](https://github.com/informatievlaanderen/road-registry/issues/1428)) ([29d6d84](https://github.com/informatievlaanderen/road-registry/commit/29d6d8455e7ca51739ae1de134711669d1e420c9))
+* service name job processor ([#1427](https://github.com/informatievlaanderen/road-registry/issues/1427)) ([79c4faa](https://github.com/informatievlaanderen/road-registry/commit/79c4faa21e8653b0c950915f4f59de0fedc6ad38))
+* upload/download artifact to v3 ([#1429](https://github.com/informatievlaanderen/road-registry/issues/1429)) ([0e5d7a9](https://github.com/informatievlaanderen/road-registry/commit/0e5d7a9e4a8e957fc27c10197334b46fbf09e3d9))
+
+
+### Features
+
+* WR-900 add JobsProcessor to upload via public-api ([#1426](https://github.com/informatievlaanderen/road-registry/issues/1426)) ([db799b1](https://github.com/informatievlaanderen/road-registry/commit/db799b1dd1156e9fd0769be77bfbd5fbde29c5da))
+
 ## [3.70.7](https://github.com/informatievlaanderen/road-registry/compare/v3.70.6...v3.70.7) (2024-03-12)
 
 
