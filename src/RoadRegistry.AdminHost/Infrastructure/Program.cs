@@ -15,10 +15,9 @@ using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using Options;
 using SqlStreamStore;
 using System.Threading.Tasks;
-using BackOffice.FeatureCompare.Validation;
-using Options;
 
 public class Program
 {
@@ -30,6 +29,7 @@ public class Program
     {
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
             .ConfigureServices((hostContext, services) => services
+                .AddTicketing()
                 .AddEmailClient()
                 .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                     new CommandHandlerModule[]

@@ -25,11 +25,11 @@ public partial class RoadRegistrySystemController
     [RequestSizeLimit(long.MaxValue)]
     public async Task<IActionResult> MigrateOutlinedRoadSegmentsOutOfRoadNetwork([FromBody] MigrateOutlinedRoadSegmentsOutOfRoadNetworkParameters parameters, CancellationToken cancellationToken)
     {
-        await Mediator.Send(new MigrateOutlinedRoadSegmentsOutOfRoadNetworkSqsRequest
+        var result = await Mediator.Send(new MigrateOutlinedRoadSegmentsOutOfRoadNetworkSqsRequest
         {
             Request = new MigrateOutlinedRoadSegmentsOutOfRoadNetworkRequest()
         }, cancellationToken);
-        return Accepted();
+        return Accepted(result);
     }
 
     public class MigrateOutlinedRoadSegmentsOutOfRoadNetworkParameters

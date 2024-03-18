@@ -23,10 +23,10 @@ public partial class RoadRegistrySystemController
     [SwaggerOperation(OperationId = nameof(CorrectRoadNodeVersions), Description = "")]
     public async Task<IActionResult> CorrectRoadNodeVersions(CancellationToken cancellationToken)
     {
-        await Mediator.Send(new CorrectRoadNodeVersionsSqsRequest
+        var result = await Mediator.Send(new CorrectRoadNodeVersionsSqsRequest
         {
             Request = new CorrectRoadNodeVersionsRequest()
         }, cancellationToken);
-        return Accepted();
+        return Accepted(result);
     }
 }
