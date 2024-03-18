@@ -148,9 +148,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Sync.StreetNam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Jobs", "src\RoadRegistry.Jobs\RoadRegistry.Jobs.csproj", "{C9B8EDA9-4D83-41C0-ACF4-5A2F2A262C6D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Jobs.Processor.Upload", "src\RoadRegistry.Jobs.Processor.Upload\RoadRegistry.Jobs.Processor.Upload.csproj", "{750C9232-6329-46E6-8225-90FEC7A402D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Jobs.Processor", "src\RoadRegistry.Jobs.Processor\RoadRegistry.Jobs.Processor.csproj", "{750C9232-6329-46E6-8225-90FEC7A402D7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Jobs.Processor.Upload.Tests", "test\RoadRegistry.Jobs.Processor.Upload.Tests\RoadRegistry.Jobs.Processor.Upload.Tests.csproj", "{15D663D4-50B9-41B0-AAA7-C6F76DCB2BB7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Jobs.Processor.Tests", "test\RoadRegistry.Jobs.Processor.Tests\RoadRegistry.Jobs.Processor.Tests.csproj", "{15D663D4-50B9-41B0-AAA7-C6F76DCB2BB7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

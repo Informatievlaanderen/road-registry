@@ -10,7 +10,7 @@ public enum RoadRegistryAssembly
     BackOfficeHandlersSqs,
     BackOfficeHandlers,
     BackOfficeZipArchiveWriters,
-    JobsProcessorUpload,
+    JobsProcessor,
     EditorProjectionHost,
     ProducerSnapshotProjectionHost,
     ProductProjectionHost,

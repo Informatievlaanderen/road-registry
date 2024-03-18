@@ -1,4 +1,4 @@
-namespace RoadRegistry.Jobs.Processor.Upload
+namespace RoadRegistry.Jobs.Processor
 {
     using Abstractions;
     using BackOffice.Abstractions.Exceptions;
@@ -23,21 +23,21 @@ namespace RoadRegistry.Jobs.Processor.Upload
     using BackOffice;
     using Microsoft.Extensions.Hosting;
     using TicketingService.Abstractions;
-    using UploadProcessorOptions = Infrastructure.Options.UploadProcessorOptions;
+    using JobsProcessorOptions = Infrastructure.Options.JobsProcessorOptions;
     using Task = System.Threading.Tasks.Task;
 
-    public sealed class UploadProcessor : BackgroundService
+    public sealed class JobsProcessor : BackgroundService
     {
-        private readonly UploadProcessorOptions _uploadProcessorOptions;
+        private readonly JobsProcessorOptions _uploadProcessorOptions;
         private readonly JobsContext _jobsContext;
         private readonly ITicketing _ticketing;
         private readonly IBlobClient _blobClient;
         private readonly IMediator _mediator;
-        private readonly ILogger<UploadProcessor> _logger;
+        private readonly ILogger<JobsProcessor> _logger;
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
 
-        public UploadProcessor(
-            UploadProcessorOptions hostOptions,
+        public JobsProcessor(
+            JobsProcessorOptions hostOptions,
             JobsContext jobsContext,
             ITicketing ticketing,
             RoadNetworkJobsBlobClient blobClient,
@@ -50,7 +50,7 @@ namespace RoadRegistry.Jobs.Processor.Upload
             _ticketing = ticketing.ThrowIfNull();
             _blobClient = blobClient.ThrowIfNull();
             _mediator = mediator.ThrowIfNull();
-            _logger = loggerFactory.ThrowIfNull().CreateLogger<UploadProcessor>();
+            _logger = loggerFactory.ThrowIfNull().CreateLogger<JobsProcessor>();
             _hostApplicationLifetime = hostApplicationLifetime.ThrowIfNull();
         }
 

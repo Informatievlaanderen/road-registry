@@ -1,4 +1,4 @@
-namespace RoadRegistry.Jobs.Processor.Upload.Tests.Framework.Containers;
+namespace RoadRegistry.Jobs.Processor.Tests.Framework.Containers;
 
 using BackOffice;
 using Microsoft.Data.SqlClient;
@@ -11,7 +11,7 @@ public class SqlServer : ISqlServerDatabase
 
     public SqlServer()
     {
-        _inner = SqlServerDatabaseFactory.Create(RoadRegistryAssembly.JobsProcessorUpload);
+        _inner = SqlServerDatabaseFactory.Create(RoadRegistryAssembly.JobsProcessor);
 
         MemoryStreamManager = new RecyclableMemoryStreamManager();
         StreetNameCache = new FakeStreetNameCache();

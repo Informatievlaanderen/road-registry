@@ -1,4 +1,4 @@
-namespace RoadRegistry.Jobs.Processor.Upload.Tests;
+namespace RoadRegistry.Jobs.Processor.Tests;
 
 using Autofac;
 using Microsoft.Extensions.DependencyInjection;

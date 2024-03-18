@@ -1,4 +1,4 @@
-namespace RoadRegistry.Jobs.Processor.Upload.Tests
+namespace RoadRegistry.Jobs.Processor.Tests
 {
     using Abstractions;
     using BackOffice.Abstractions.Uploads;
@@ -50,8 +50,8 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
                     ContentType.Parse("X-multipart/abc"),
                     _ => Task.FromResult((Stream)EmbeddedResourceReader.Read("valid.zip"))));
             
-            var sut = new UploadProcessor(
-                new UploadProcessorOptions
+            var sut = new JobsProcessor(
+                new JobsProcessorOptions
                 {
                     MaxJobLifeTimeInMinutes = 65
                 },
@@ -112,8 +112,8 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
                     ContentType.Parse("X-multipart/abc"),
                     _ => Task.FromResult((Stream)EmbeddedResourceReader.Read("valid.zip"))));
 
-            var sut = new UploadProcessor(
-                new UploadProcessorOptions
+            var sut = new JobsProcessor(
+                new JobsProcessorOptions
                 {
                     MaxJobLifeTimeInMinutes = 65
                 },
@@ -174,8 +174,8 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
                     ContentType.Parse("X-multipart/abc"),
                     _ => Task.FromResult((Stream)EmbeddedResourceReader.Read("valid.zip"))));
 
-            var sut = new UploadProcessor(
-                new UploadProcessorOptions
+            var sut = new JobsProcessor(
+                new JobsProcessorOptions
                 {
                     MaxJobLifeTimeInMinutes = 65
                 },
@@ -223,8 +223,8 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
                 .Setup(x => x.BlobExistsAsync(blobName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
 
-            var sut = new UploadProcessor(
-                new UploadProcessorOptions
+            var sut = new JobsProcessor(
+                new JobsProcessorOptions
                 {
                     MaxJobLifeTimeInMinutes = 65
                 },
@@ -268,8 +268,8 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
                 .Setup(x => x.GetBlobAsync(blobName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((BlobObject?)null);
 
-            var sut = new UploadProcessor(
-                new UploadProcessorOptions
+            var sut = new JobsProcessor(
+                new JobsProcessorOptions
                 {
                     MaxJobLifeTimeInMinutes = 65
                 },
@@ -318,8 +318,8 @@ namespace RoadRegistry.Jobs.Processor.Upload.Tests
                 .Setup(x => x.Send(It.IsAny<object>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => throw new ZipArchiveValidationException(ZipArchiveProblems.Single(new FileError("file.dbf", ProblemCode.Common.NotFound))));
             
-            var sut = new UploadProcessor(
-                new UploadProcessorOptions
+            var sut = new JobsProcessor(
+                new JobsProcessorOptions
                 {
                     MaxJobLifeTimeInMinutes = 65
                 },

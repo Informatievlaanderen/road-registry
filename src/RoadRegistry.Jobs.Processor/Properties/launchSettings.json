@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "RoadRegistry.Jobs.Processor.Upload": {
+    "RoadRegistry.Jobs.Processor": {
       "commandName": "Project",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"

@@ -1,4 +1,4 @@
-namespace RoadRegistry.Jobs.Processor.Upload.Tests;
+namespace RoadRegistry.Jobs.Processor.Tests;
 
 using AutoFixture;
 using BackOffice.Abstractions;

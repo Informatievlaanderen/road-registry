@@ -115,7 +115,7 @@ Target.create "Build_Solution" (fun _ ->
 Target.create "Test_Solution" (fun _ ->
   [
     "test" @@ "RoadRegistry.AdminHost.Tests"
-    "test" @@ "RoadRegistry.Jobs.Processor.Upload.Tests"
+    "test" @@ "RoadRegistry.Jobs.Processor.Tests"
     "test" @@ "RoadRegistry.BackOffice.Api.Tests"
     "test" @@ "RoadRegistry.BackOffice.CommandHost.Tests"
     "test" @@ "RoadRegistry.BackOffice.EventHost.Tests"
@@ -143,7 +143,7 @@ Target.create "Test_Solution" (fun _ ->
 Target.create "Publish_Solution" (fun _ ->
   [
     "RoadRegistry.AdminHost"
-    "RoadRegistry.Jobs.Processor.Upload"
+    "RoadRegistry.Jobs.Processor"
     "RoadRegistry.BackOffice"
     "RoadRegistry.BackOffice.Abstractions"
     "RoadRegistry.BackOffice.Api"
@@ -229,8 +229,8 @@ Target.create "PushContainer_BackOfficeMessagingHostSqs" (fun _ -> push "backoff
 Target.create "Containerize_AdminHost" (fun _ -> containerize "RoadRegistry.AdminHost" "adminhost")
 Target.create "PushContainer_AdminHost" (fun _ -> push "adminhost")
 
-Target.create "Containerize_JobsProcessorUpload" (fun _ -> containerize "RoadRegistry.Jobs.Processor.Upload" "jobs-processor")
-Target.create "PushContainer_JobsProcessorUpload" (fun _ -> push "jobs-processor")
+Target.create "Containerize_JobsProcessor" (fun _ -> containerize "RoadRegistry.Jobs.Processor" "jobs-processor")
+Target.create "PushContainer_JobsProcessor" (fun _ -> push "jobs-processor")
 
 Target.create "Containerize_Projector" (fun _ -> containerize "RoadRegistry.Projector" "projector")
 Target.create "PushContainer_Projector" (fun _ -> push "projector")
@@ -297,7 +297,7 @@ Target.create "Containerize" ignore
 "Containerize"
   ==> "DockerLogin"
   ==> "PushContainer_AdminHost"
-  ==> "PushContainer_JobsProcessorUpload"
+  ==> "PushContainer_JobsProcessor"
   ==> "PushContainer_Projector"
   ==> "PushContainer_BackOfficeApi"
   ==> "PushContainer_BackOfficeUI"

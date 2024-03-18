@@ -1,8 +1,8 @@
-namespace RoadRegistry.Jobs.Processor.Upload.Infrastructure.Options;
+namespace RoadRegistry.Jobs.Processor.Infrastructure.Options;
 
 using BackOffice;
 
-public class UploadProcessorOptions : IHasConfigurationKey
+public class JobsProcessorOptions : IHasConfigurationKey
 {
     public int MaxJobLifeTimeInMinutes { get; set; }
     public bool AlwaysRunning { get; set; }

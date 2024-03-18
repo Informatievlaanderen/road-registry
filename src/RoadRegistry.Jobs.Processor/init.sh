@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CT=jobs-processor-upload
+CT=jobs-processor
 
 curl -s http://169.254.170.2/v2/metadata > metadata
 cat metadata
@@ -10,4 +10,4 @@ echo CONTAINERID = $CONTAINERID
 
 sed -i "s/REPLACE_CONTAINERID/$CONTAINERID/g" appsettings.json
 
-./RoadRegistry.Jobs.Processor.Upload
+./RoadRegistry.Jobs.Processor

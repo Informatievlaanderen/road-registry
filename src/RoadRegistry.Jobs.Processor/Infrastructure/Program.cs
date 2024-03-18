@@ -1,4 +1,4 @@
-namespace RoadRegistry.Jobs.Processor.Upload.Infrastructure;
+namespace RoadRegistry.Jobs.Processor.Infrastructure;
 
 using BackOffice.Framework;
 using Hosts;
@@ -42,7 +42,7 @@ public class Program
                     .AddFeatureCompare()
                     .AddSingleton<IBeforeFeatureCompareZipArchiveCleaner, BeforeFeatureCompareZipArchiveCleaner>()
                     .AddRoadNetworkCommandQueue()
-                    .RegisterOptions<UploadProcessorOptions>()
+                    .RegisterOptions<JobsProcessorOptions>()
                     .AddRoadRegistrySnapshot()
                     .AddScoped(_ => new EventSourcedEntityMap())
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
@@ -60,7 +60,7 @@ public class Program
                             )
                         })))
 
-                    .AddHostedService<UploadProcessor>()
+                    .AddHostedService<JobsProcessor>()
                     ;
             })
             .ConfigureContainer((hostContext, builder) =>
