@@ -461,35 +461,35 @@ jobs:
         pip install requests markdown argparse
 
     - name: Download NuGet BackOffice
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v3
       continue-on-error: false
       with:
         name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice-${{ needs.set-release-version.outputs.version }}
         path: dist/nuget/
 
     - name: Download NuGet BackOffice Abstractions
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v3
       continue-on-error: false
       with:
         name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Abstractions-${{ needs.set-release-version.outputs.version }}
         path: dist/nuget/
 
     - name: Download NuGet BackOffice Api
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v3
       continue-on-error: false
       with:
         name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api-${{ needs.set-release-version.outputs.version }}
         path: dist/nuget/
 
     - name: Download NuGet BackOffice ZipArchiveWriters
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v3
       continue-on-error: false
       with:
         name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.ZipArchiveWriters-${{ needs.set-release-version.outputs.version }}
         path: dist/nuget/
 
     - name: Download NuGet Projector
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v3
       continue-on-error: false
       with:
         name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.Projector-${{ needs.set-release-version.outputs.version }}
@@ -525,14 +525,14 @@ jobs:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.release.outputs.version != 'none') }}
     steps:
     - name: Download Lambda Backoffice
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v3
       continue-on-error: false
       with:
         name: lambda-backoffice-${{ needs.release.outputs.version }}
         path: ~/backoffice/
 
     - name: Download Lambda Snapshot
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v3
       continue-on-error: false
       with:
         name: lambda-snapshot-${{ needs.release.outputs.version }}
@@ -613,31 +613,31 @@ jobs:
       run: dotnet --info
 
     - name: Download NuGet package 'backoffice'
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v3
       with:
         name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice-${{ needs.release.outputs.version }}
         path: ~/
 
     - name: Download NuGet package 'backoffice-abstractions'
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v3
       with:
         name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Abstractions-${{ needs.release.outputs.version }}
         path: ~/
 
     - name: Download NuGet package 'backoffice-api'
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v3
       with:
         name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api-${{ needs.release.outputs.version }}
         path: ~/
 
     - name: Download NuGet package 'backoffice-ziparchivewriters'
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v3
       with:
         name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.ZipArchiveWriters-${{ needs.release.outputs.version }}
         path: ~/
 
     - name: Download NuGet package 'projector'
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v3
       with:
         name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.Projector-${{ needs.release.outputs.version }}
         path: ~/
@@ -753,7 +753,7 @@ jobs:
 
       # Download artifact
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         continue-on-error: false
         with:
           name: ${{ matrix.image }}-${{ needs.release.outputs.version }}
@@ -986,7 +986,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1.5.3
 
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         continue-on-error: false
         with:
           name: ${{ matrix.image }}-${{ needs.release.outputs.version }}
