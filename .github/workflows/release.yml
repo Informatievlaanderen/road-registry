@@ -109,7 +109,7 @@ jobs:
 
   build-backoffice-extracthost:
     name: Build BackOffice Extract Host
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@v6.2.9
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -139,7 +139,7 @@ jobs:
   
   build-adminhost:
       name: Build Admin Host
-      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@v6.2.9
       needs: [ set-release-version ]
       if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
       with:
@@ -154,7 +154,7 @@ jobs:
   
   build-jobs-processor:
       name: Build Jobs Processor
-      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@v6.2.9
       needs: [ set-release-version ]
       if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
       with:
@@ -169,7 +169,7 @@ jobs:
 
   build-projector:
     name: Build Projector
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@v6.2.9
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -184,7 +184,7 @@ jobs:
 
   build-projectionhost-editor:
     name: Build Editor Projection Host
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@v6.2.9
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -199,7 +199,7 @@ jobs:
 
   build-projectionhost-product:
     name: Build Product Projection Host
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@v6.2.9
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -214,7 +214,7 @@ jobs:
 
   build-projectionhost-producersnapshot:
     name: Build Producer Snapshot Projection Host
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@v6.2.9
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -229,7 +229,7 @@ jobs:
 
   build-synchost:
     name: Build Sync Host
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@v6.2.9
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -244,7 +244,7 @@ jobs:
 
   build-projectionhost-syndication:
       name: Build Syndication Projection Host
-      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@v6.2.9
       needs: [ set-release-version ]
       if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
       with:
@@ -259,7 +259,7 @@ jobs:
   
   build-projectionhost-wms:
     name: Build WMS Projection Host
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@v6.2.9
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -274,7 +274,7 @@ jobs:
 
   build-projectionhost-wfs:
     name: Build WFS Projection Host
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@v6.2.9
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -289,7 +289,7 @@ jobs:
 
   pack-backoffice:
     name: Pack BackOffice
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/pack.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/pack.yml@v6.2.9
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -301,7 +301,7 @@ jobs:
 
   pack-backoffice-abstractions:
     name: Pack BackOffice Abstractions
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/pack.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/pack.yml@v6.2.9
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -313,7 +313,7 @@ jobs:
 
   pack-backoffice-api:
     name: Pack BackOffice Api
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/pack.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/pack.yml@v6.2.9
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -325,7 +325,7 @@ jobs:
 
   pack-backoffice-ziparchivewriters:
     name: Pack BackOffice ZipArchive Writers
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/pack.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/pack.yml@v6.2.9
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -337,7 +337,7 @@ jobs:
 
   pack-projector:
     name: Pack Projector
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/pack.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/pack.yml@v6.2.9
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -349,7 +349,7 @@ jobs:
   
   build-lambda-backoffice:
     name: Build Lambda BackOffice
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-lambda.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-lambda.yml@v6.2.9
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -361,7 +361,7 @@ jobs:
 
   build-lambda-snapshot:
     name: Build Lambda Snapshot
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-lambda.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-lambda.yml@v6.2.9
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
