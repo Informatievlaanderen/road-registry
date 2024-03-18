@@ -1,3 +1,11 @@
+## [3.71.1](https://github.com/informatievlaanderen/road-registry/compare/v3.71.0...v3.71.1) (2024-03-18)
+
+
+### Bug Fixes
+
+* move job Abstractions to BackOffice.Abstractions ([#1431](https://github.com/informatievlaanderen/road-registry/issues/1431)) ([c4d661a](https://github.com/informatievlaanderen/road-registry/commit/c4d661afad9a219d9af361f1cf5b51795b5e7a36))
+* S3 healthchecks using disposed client ([#1430](https://github.com/informatievlaanderen/road-registry/issues/1430)) ([5630604](https://github.com/informatievlaanderen/road-registry/commit/56306040a0d2f88660ec03ce93b5803eef19d9c1))
+
 # [3.71.0](https://github.com/informatievlaanderen/road-registry/compare/v3.70.7...v3.71.0) (2024-03-18)
 
 
