@@ -1,3 +1,10 @@
+## [3.70.7](https://github.com/informatievlaanderen/road-registry/compare/v3.70.6...v3.70.7) (2024-03-12)
+
+
+### Bug Fixes
+
+* WR-961 silently ignore removed roadsegments when correcting version ([#1425](https://github.com/informatievlaanderen/road-registry/issues/1425)) ([d9769d8](https://github.com/informatievlaanderen/road-registry/commit/d9769d81a8b4bd04e0cfd8e012849e2843642945))
+
 ## [3.70.6](https://github.com/informatievlaanderen/road-registry/compare/v3.70.5...v3.70.6) (2024-03-08)
 
 
