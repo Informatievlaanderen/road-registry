@@ -12,6 +12,11 @@ namespace RoadRegistry.Hosts.Infrastructure.Modules
     using Amazon.Runtime.Internal.Auth;
     using Amazon.S3;
     using Microsoft.Extensions.Logging;
+    
+    public interface IAmazonS3Extended : IAmazonS3
+    {
+        public CreatePresignedPostResponse CreatePresignedPost(CreatePresignedPostRequest request);
+    }
 
     /// <summary>
     /// An extended Amazon S3 client, with added support for creating presigned posts.
@@ -123,16 +128,7 @@ namespace RoadRegistry.Hosts.Infrastructure.Modules
             return Config.RegionEndpoint?.SystemName ?? RegionEndpoint.EUWest1.SystemName;
         }
     }
-
-    public interface IAmazonS3Extended : IAmazonS3
-    {
-        public CreatePresignedPostResponse CreatePresignedPost(CreatePresignedPostRequest request);
-    }
-
-    public sealed class AmazonS3ExtendedConfig : AmazonS3Config
-    {
-    }
-
+    
     public sealed record CreatePresignedPostRequest(
         string BucketName,
         string Key,
@@ -149,18 +145,8 @@ namespace RoadRegistry.Hosts.Infrastructure.Modules
     {
     }
 
-    // public abstract record Condition
-    // {
-    // }
-
     [JsonConverter(typeof(ExactMatchConditionConverter))]
     public sealed record ExactMatchCondition(string Key, string Value); //: Condition;
-
-    // [JsonConverter(typeof(StartsWithMatchConditionConverter))]
-    // public sealed record StartsWithMatchCondition(string Key, string Value) : Condition;
-    //
-    // [JsonConverter(typeof(RangeMatchConditionConverter))]
-    // public sealed record RangeMatchCondition(string Key, int ValueStart, int ValueEnd) : Condition;
 
     public sealed class ExactMatchConditionConverter : JsonConverter<ExactMatchCondition>
     {
@@ -182,50 +168,4 @@ namespace RoadRegistry.Hosts.Infrastructure.Modules
             writer.WriteEndObject();
         }
     }
-    //
-    // public sealed class StartsWithMatchConditionConverter : JsonConverter<StartsWithMatchCondition>
-    // {
-    //     public override StartsWithMatchCondition? Read(
-    //         ref Utf8JsonReader reader,
-    //         Type typeToConvert,
-    //         JsonSerializerOptions options)
-    //     {
-    //         throw new NotImplementedException();
-    //     }
-    //
-    //     public override void Write(
-    //         Utf8JsonWriter writer,
-    //         StartsWithMatchCondition value,
-    //         JsonSerializerOptions options)
-    //     {
-    //         writer.WriteStartArray();
-    //         writer.WriteStringValue("starts-with");
-    //         writer.WriteStringValue(value.Key);
-    //         writer.WriteStringValue(value.Value);
-    //         writer.WriteEndArray();
-    //     }
-    // }
-    //
-    // public sealed class RangeMatchConditionConverter : JsonConverter<RangeMatchCondition>
-    // {
-    //     public override RangeMatchCondition? Read(
-    //         ref Utf8JsonReader reader,
-    //         Type typeToConvert,
-    //         JsonSerializerOptions options)
-    //     {
-    //         throw new NotImplementedException();
-    //     }
-    //
-    //     public override void Write(
-    //         Utf8JsonWriter writer,
-    //         RangeMatchCondition value,
-    //         JsonSerializerOptions options)
-    //     {
-    //         writer.WriteStartArray();
-    //         writer.WriteStringValue(value.Key);
-    //         writer.WriteNumberValue(value.ValueStart);
-    //         writer.WriteNumberValue(value.ValueEnd);
-    //         writer.WriteEndArray();
-    //     }
-    // }
 }
