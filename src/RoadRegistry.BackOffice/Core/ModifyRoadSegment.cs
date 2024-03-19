@@ -13,6 +13,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
 
     public ModifyRoadSegment(
         RoadSegmentId id,
+        RoadSegmentId? originalId,
         RoadSegmentVersion version,
         RoadNodeId startNodeId,
         RoadNodeId? temporaryStartNodeId,
@@ -35,6 +36,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         bool convertedFromOutlined)
     {
         Id = id;
+        OriginalId = originalId;
         Version = version;
         StartNodeId = startNodeId;
         TemporaryStartNodeId = temporaryStartNodeId;
@@ -64,6 +66,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
     public GeometryVersion GeometryVersion { get; }
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
     public RoadSegmentId Id { get; }
+    public RoadSegmentId? OriginalId { get; }
     public RoadSegmentVersion Version { get; }
     public IReadOnlyList<RoadSegmentLaneAttribute> Lanes { get; }
     public StreetNameLocalId? LeftSideStreetNameId { get; }
@@ -86,6 +89,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         message.RoadSegmentModified = new RoadSegmentModified
         {
             Id = Id,
+            OriginalId = OriginalId,
             Version = Version,
             StartNodeId = StartNodeId,
             EndNodeId = EndNodeId,
@@ -151,6 +155,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         message.ModifyRoadSegment = new Messages.ModifyRoadSegment
         {
             Id = Id,
+            OriginalId = OriginalId,
             StartNodeId = TemporaryStartNodeId ?? StartNodeId,
             EndNodeId = TemporaryEndNodeId ?? EndNodeId,
             Geometry = GeometryTranslator.Translate(Geometry),

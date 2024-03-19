@@ -10,6 +10,10 @@ public abstract class ModifyRoadSegmentValidatorBase : AbstractValidator<Message
     protected ModifyRoadSegmentValidatorBase()
     {
         RuleFor(c => c.Id).GreaterThanOrEqualTo(0);
+        When(x => x.OriginalId is not null, () =>
+        {
+            RuleFor(c => c.OriginalId).GreaterThan(0);
+        });
         RuleFor(c => c.Geometry).NotNull().SetValidator(new RoadSegmentGeometryValidator());
         RuleFor(c => c.MaintenanceAuthority).NotEmpty();
         RuleFor(c => c.GeometryDrawMethod)

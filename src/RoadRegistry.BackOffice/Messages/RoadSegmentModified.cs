@@ -13,6 +13,7 @@ public class RoadSegmentModified: IHaveHash
     public string GeometryDrawMethod { get; set; }
     public int GeometryVersion { get; set; }
     public int Id { get; set; }
+    public int? OriginalId { get; set; }
     public RoadSegmentLaneAttributes[] Lanes { get; set; }
     public RoadSegmentSideAttributes LeftSide { get; set; }
     public MaintenanceAuthority MaintenanceAuthority { get; set; }
