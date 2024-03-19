@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.DutchTranslations;
 
 using System;
-using RoadRegistry.BackOffice.Messages;
+using Messages;
 
 public static class RejectedChange
 {
@@ -11,7 +11,7 @@ public static class RejectedChange
         ModifyRoadNode m => $"Wijzig wegknoop {m.Id}.",
         RemoveRoadNode m => $"Verwijder wegknoop {m.Id}.",
         AddRoadSegment m => $"Voeg wegsegment {m.OriginalId ?? m.TemporaryId} toe.",
-        ModifyRoadSegment m => $"Wijzig wegsegment {m.Id}.",
+        ModifyRoadSegment m => $"Wijzig wegsegment {m.Id}{(m.OriginalId is not null && m.OriginalId.Value != m.Id ? $" met aangeleverde identificator {m.OriginalId}" : "")}.",
         RemoveRoadSegment m => $"Verwijder wegsegment {m.Id}.",
         AddRoadSegmentToEuropeanRoad m => $"Voeg wegsegment {m.SegmentId} toe aan europese weg {m.Number}.",
         RemoveRoadSegmentFromEuropeanRoad m => $"Verwijder wegsegment {m.SegmentId} van europese weg {m.Number}.",

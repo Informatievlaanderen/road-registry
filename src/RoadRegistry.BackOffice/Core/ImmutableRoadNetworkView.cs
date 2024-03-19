@@ -1181,7 +1181,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             view = With(new AddRoadSegment(
                 command.Id,
                 command.Id,
-                command.Id,
+                command.OriginalId ?? command.Id,
                 command.Id,
                 command.StartNodeId,
                 command.EndNodeId,
@@ -2566,7 +2566,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 With(new AddRoadSegment(
                     command.Id,
                     command.Id,
-                    command.Id,
+                     command.OriginalId ?? command.Id,
                     command.Id,
                     command.StartNodeId,
                     command.EndNodeId,

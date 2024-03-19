@@ -8,6 +8,7 @@ public class ModifyRoadSegment
     public RoadSegmentGeometry Geometry { get; set; }
     public string GeometryDrawMethod { get; set; }
     public int Id { get; set; }
+    public int? OriginalId { get; set; }
     public RequestedRoadSegmentLaneAttribute[] Lanes { get; set; }
     public int? LeftSideStreetNameId { get; set; }
     public string MaintenanceAuthority { get; set; }

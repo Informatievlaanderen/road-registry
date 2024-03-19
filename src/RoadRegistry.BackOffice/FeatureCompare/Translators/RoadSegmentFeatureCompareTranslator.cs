@@ -1,21 +1,21 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
+using Core;
 using Extracts;
+using Extracts.Dbase.RoadSegments;
 using NetTopologySuite.Geometries;
+using Readers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Core;
-using Extracts.Dbase.RoadSegments;
 using Uploads;
 using AddRoadSegment = Uploads.AddRoadSegment;
 using ModifyRoadSegment = Uploads.ModifyRoadSegment;
-using RemoveRoadSegment = Uploads.RemoveRoadSegment;
 using RemoveOutlinedRoadSegment = Uploads.RemoveOutlinedRoadSegment;
-using RoadRegistry.BackOffice.FeatureCompare.Readers;
+using RemoveRoadSegment = Uploads.RemoveRoadSegment;
 
 public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareAttributes>
 {
@@ -376,8 +376,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     );
                     break;
                 case RecordType.ModifiedIdentifier:
-                    changes = changes.AppendChange(
-                        new ModifyRoadSegment(
+                    var modifyRoadSegment = new ModifyRoadSegment(
                             record.RecordNumber,
                             record.Id,
                             record.Attributes.StartNodeId,
@@ -392,8 +391,12 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             record.Attributes.RightStreetNameId
                         )
                         .WithGeometry(record.Attributes.Geometry)
-                        .WithConvertedFromOutlined(record.ConvertedFromOutlined)
-                    );
+                        .WithConvertedFromOutlined(record.ConvertedFromOutlined);
+                    if (record.Id != record.Attributes.Id)
+                    {
+                        modifyRoadSegment = modifyRoadSegment.WithOriginalId(record.Attributes.Id);
+                    }
+                    changes = changes.AppendChange(modifyRoadSegment);
 
                     if (record.ConvertedFromOutlined)
                     {
