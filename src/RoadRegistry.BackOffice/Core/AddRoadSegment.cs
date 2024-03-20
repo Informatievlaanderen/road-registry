@@ -201,12 +201,13 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
         ArgumentNullException.ThrowIfNull(context);
 
         var problems = Problems.None;
+        var originalIdOrId = context.Translator.TranslateToOriginalOrId(Id);
 
         var line = Geometry.GetSingleLineString();
 
         if (GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
         {
-            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(context.Tolerances);
+            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId, context.Tolerances);
 
             return problems;
         }
@@ -216,43 +217,52 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
                 segment.Id != Id &&
                 segment.Geometry.IsReasonablyEqualTo(Geometry, context.Tolerances));
         if (byOtherSegment != null)
+        {
             problems = problems.Add(new RoadSegmentGeometryTaken(
-                context.Translator.TranslateToTemporaryOrId(byOtherSegment.Id)
+                context.Translator.TranslateToOriginalOrId(byOtherSegment.Id)
             ));
+        }
 
         if (!context.AfterView.View.Nodes.TryGetValue(StartNodeId, out var startNode))
         {
-            problems = problems.Add(new RoadSegmentStartNodeMissing());
+            problems = problems.Add(new RoadSegmentStartNodeMissing(originalIdOrId));
         }
         else
         {
             problems = problems.AddRange(startNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
-            if (line.StartPoint != null && !line.StartPoint.IsReasonablyEqualTo(startNode.Geometry, context.Tolerances)) problems = problems.Add(new RoadSegmentStartPointDoesNotMatchNodeGeometry());
+            if (line.StartPoint != null && !line.StartPoint.IsReasonablyEqualTo(startNode.Geometry, context.Tolerances))
+            {
+                problems = problems.Add(new RoadSegmentStartPointDoesNotMatchNodeGeometry(originalIdOrId));
+            }
         }
 
         if (!context.AfterView.View.Nodes.TryGetValue(EndNodeId, out var endNode))
         {
-            problems = problems.Add(new RoadSegmentEndNodeMissing());
+            problems = problems.Add(new RoadSegmentEndNodeMissing(originalIdOrId));
         }
         else
         {
             problems = problems.AddRange(endNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
-            if (line.EndPoint != null && !line.EndPoint.IsReasonablyEqualTo(endNode.Geometry, context.Tolerances)) problems = problems.Add(new RoadSegmentEndPointDoesNotMatchNodeGeometry());
+            if (line.EndPoint != null && !line.EndPoint.IsReasonablyEqualTo(endNode.Geometry, context.Tolerances))
+            {
+                problems = problems.Add(new RoadSegmentEndPointDoesNotMatchNodeGeometry(originalIdOrId));
+            }
         }
 
         if (!problems.Any())
         {
-            var intersectingSegments = context.AfterView.View.CreateScopedView(Geometry.EnvelopeInternal).FindIntersectingRoadSegments(this);
-            var intersectingSegmentsWithoutJunction = intersectingSegments.Where(intersectingSegment =>
-                !context.AfterView.GradeSeparatedJunctions.Any(junction =>
-                    (junction.Value.LowerSegment == Id && junction.Value.UpperSegment == intersectingSegment.Key) ||
-                    (junction.Value.LowerSegment == intersectingSegment.Key && junction.Value.UpperSegment == Id)));
-
-            var intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions =
-                intersectingSegmentsWithoutJunction.Select(i =>
+            var intersectingSegments = context.AfterView.View.CreateScopedView(Geometry.EnvelopeInternal)
+                .FindIntersectingRoadSegments(this);
+            var intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions = intersectingSegments
+                .Where(intersectingSegment =>
+                    !context.AfterView.GradeSeparatedJunctions.Any(junction =>
+                        (junction.Value.LowerSegment == Id && junction.Value.UpperSegment == intersectingSegment.Key) ||
+                        (junction.Value.LowerSegment == intersectingSegment.Key && junction.Value.UpperSegment == Id)))
+                .Select(i =>
                     new IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction(
-                        context.Translator.TranslateToTemporaryOrId(Id),
-                        context.Translator.TranslateToTemporaryOrId(i.Key)));
+                        originalIdOrId,
+                        context.Translator.TranslateToOriginalOrId(i.Key)));
+
             problems = problems.AddRange(intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions);
         }
 
@@ -264,17 +274,18 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
         ArgumentNullException.ThrowIfNull(context);
 
         var problems = Problems.None;
+        var originalIdOrId = context.Translator.TranslateToOriginalOrId(Id);
 
         var line = Geometry.GetSingleLineString();
-        
+
         if (GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
         {
-            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(context.Tolerances);
+            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId, context.Tolerances);
 
             return problems;
         }
 
-        problems += line.GetProblemsForRoadSegmentGeometry(context.Tolerances);
+        problems += line.GetProblemsForRoadSegmentGeometry(originalIdOrId, context.Tolerances);
         problems += line.GetProblemsForRoadSegmentLanes(Lanes, context.Tolerances);
         problems += line.GetProblemsForRoadSegmentWidths(Widths, context.Tolerances);
         problems += line.GetProblemsForRoadSegmentSurfaces(Surfaces, context.Tolerances);

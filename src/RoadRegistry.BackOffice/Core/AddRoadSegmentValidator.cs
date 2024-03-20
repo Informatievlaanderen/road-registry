@@ -51,7 +51,7 @@ public abstract class AddRoadSegmentValidatorBase : AbstractValidator<Messages.A
 
         RuleFor(c => c.Lanes)
             .NotEmpty()
-            .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero);
+            .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero, (segment, lanes) => new RoadSegmentLanesHasCountOfZero(segment.OriginalId ?? segment.TemporaryId) );
         RuleFor(c => c.Widths)
             .NotEmpty()
             .WithProblemCode(ProblemCode.RoadSegment.Widths.HasCountOfZero);

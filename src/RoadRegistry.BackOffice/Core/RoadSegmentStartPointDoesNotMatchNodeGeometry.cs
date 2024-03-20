@@ -4,8 +4,9 @@ using ProblemCodes;
 
 public class RoadSegmentStartPointDoesNotMatchNodeGeometry : Error
 {
-    public RoadSegmentStartPointDoesNotMatchNodeGeometry()
-        : base(ProblemCode.RoadSegment.StartPoint.DoesNotMatchNodeGeometry)
+    public RoadSegmentStartPointDoesNotMatchNodeGeometry(RoadSegmentId identifier)
+        : base(ProblemCode.RoadSegment.StartPoint.DoesNotMatchNodeGeometry,
+            new ProblemParameter("Identifier", identifier.ToString()))
     {
     }
 }
