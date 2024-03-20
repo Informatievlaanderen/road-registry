@@ -1,3 +1,11 @@
+## [3.71.2](https://github.com/informatievlaanderen/road-registry/compare/v3.71.1...v3.71.2) (2024-03-20)
+
+
+### Bug Fixes
+
+* WR-784 report original roadsegment id on upload when ID is reused for a modification ([#1432](https://github.com/informatievlaanderen/road-registry/issues/1432)) ([6a53f94](https://github.com/informatievlaanderen/road-registry/commit/6a53f94c19d2c8803a00d1a396aeab2b55a95a32))
+* WR-941 change numberedroads detection when only ordinal/direction changes ([#1433](https://github.com/informatievlaanderen/road-registry/issues/1433)) ([6c68385](https://github.com/informatievlaanderen/road-registry/commit/6c68385ccfee685af7209a1c91c3e3914b9d498e))
+
 ## [3.71.1](https://github.com/informatievlaanderen/road-registry/compare/v3.71.0...v3.71.1) (2024-03-18)
 
 
