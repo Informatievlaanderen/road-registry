@@ -95,6 +95,18 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
                         AttributeId = 1,
                         TemporaryAttributeId = 1,
                         SegmentId = TestData.Segment1Added.Id,
+                        Number = Request.ChangeRequests.Single().NumberedRoads!.Single().Number,
+                        Direction = ObjectProvider.CreateWhichIsDifferentThan(Request.ChangeRequests.Single().NumberedRoads!.Single().Direction),
+                        Ordinal = ObjectProvider.Create<RoadSegmentNumberedRoadOrdinal>()
+                    }
+                },
+                new AcceptedChange
+                {
+                    RoadSegmentAddedToNumberedRoad = new RoadSegmentAddedToNumberedRoad
+                    {
+                        AttributeId = 2,
+                        TemporaryAttributeId = 2,
+                        SegmentId = TestData.Segment1Added.Id,
                         Number = ObjectProvider.CreateWhichIsDifferentThan(Request.ChangeRequests.Single().NumberedRoads!.Single().Number),
                         Direction = ObjectProvider.Create<RoadSegmentNumberedRoadDirection>(),
                         Ordinal = ObjectProvider.Create<RoadSegmentNumberedRoadOrdinal>()
@@ -127,7 +139,7 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
         var change = Request.ChangeRequests.Single();
 
         var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
-        Assert.Equal(7, command.Changes.Length);
+        Assert.Equal(8, command.Changes.Length);
 
         var attributesModified = command.Changes[0].RoadSegmentAttributesModified;
         var attributesModifiedIsCorrect = attributesModified.Id == roadSegmentId
@@ -142,7 +154,8 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
         var nationalRoadsIsCorrect = command.Changes[2].RoadSegmentAddedToNationalRoad.Number == change.NationalRoads!.Single()
                                      && command.Changes[5].RoadSegmentRemovedFromNationalRoad.SegmentId == change.Id;
         var numberedRoadsIsCorrect = command.Changes[3].RoadSegmentAddedToNumberedRoad.Number == change.NumberedRoads!.Single().Number
-                                     && command.Changes[6].RoadSegmentRemovedFromNumberedRoad.SegmentId == change.Id;
+                                     && command.Changes[6].RoadSegmentRemovedFromNumberedRoad.SegmentId == change.Id
+                                     && command.Changes[7].RoadSegmentRemovedFromNumberedRoad.SegmentId == change.Id;
 
         return attributesModifiedIsCorrect
             && europeanRoadsIsCorrect

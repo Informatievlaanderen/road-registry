@@ -241,30 +241,45 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         var existingRoads = roadSegment.NumberedRoadAttributes.Values.ToList();
         foreach (var numberedRoad in numberedRoads)
         {
+            var recordNumber = recordNumberProvider.Next();
+
             var matches = existingRoads
                 .Where(x => x.Number == numberedRoad.Number)
                 .ToList();
-
             if (matches.Any())
             {
-                foreach (var match in matches)
+                if (matches.Count > 1)
                 {
-                    existingRoads.Remove(match);
+                    throw new Exception($"Multiple numbered road records found ({string.Join(", ", matches.Select(x => x.AttributeId))}) for roadsegment {roadSegment.Id} and number {numberedRoad.Number}");
                 }
-            }
-            else
-            {
-                changes = changes.AppendChange(new AddRoadSegmentToNumberedRoad(
-                    recordNumberProvider.Next(),
-                    attributeIdProvider.Next(),
+
+                var match = matches.Single();
+
+                existingRoads.Remove(match);
+
+                if (numberedRoad.Ordinal == match.Ordinal && numberedRoad.Direction == match.Direction)
+                {
+                    continue;
+                }
+
+                changes = changes.AppendChange(new RemoveRoadSegmentFromNumberedRoad(
+                    recordNumber,
+                    match.AttributeId,
                     roadSegment.Id,
-                    numberedRoad.Number,
-                    numberedRoad.Direction,
-                    numberedRoad.Ordinal
+                    match.Number
                 ));
             }
-        }
 
+            changes = changes.AppendChange(new AddRoadSegmentToNumberedRoad(
+                recordNumber,
+                attributeIdProvider.Next(),
+                roadSegment.Id,
+                numberedRoad.Number,
+                numberedRoad.Direction,
+                numberedRoad.Ordinal
+            ));
+        }
+        
         foreach (var numberedRoad in existingRoads)
         {
             changes = changes.AppendChange(new RemoveRoadSegmentFromNumberedRoad(
