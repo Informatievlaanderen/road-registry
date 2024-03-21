@@ -156,11 +156,21 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = new RoadSegmentRecord
+        var dbRecord = await context.RoadSegments
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentAdded.Id, token)
+            .ConfigureAwait(false);
+        if (dbRecord is null)
         {
-            Id = roadSegmentAdded.Id
-        };
-        await context.RoadSegments.AddAsync(dbRecord, token);
+            dbRecord = new RoadSegmentRecord
+            {
+                Id = roadSegmentAdded.Id
+            };
+            await context.RoadSegments.AddAsync(dbRecord, token);
+        }
+        else
+        {
+            dbRecord.IsRemoved = false;
+        }
 
         var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentAdded.Geometry));
         var polyLineMShapeContent = new PolyLineMShapeContent(geometry);

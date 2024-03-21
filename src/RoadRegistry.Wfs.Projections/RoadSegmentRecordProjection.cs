@@ -105,11 +105,21 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         RoadSegmentAdded roadSegmentAdded,
         CancellationToken token)
     {
-        var dbRecord = new RoadSegmentRecord
+        var dbRecord = await context.RoadSegments
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentAdded.Id, token)
+            .ConfigureAwait(false);
+        if (dbRecord is null)
         {
-            Id = roadSegmentAdded.Id
-        };
-        await context.RoadSegments.AddAsync(dbRecord, token);
+            dbRecord = new RoadSegmentRecord
+            {
+                Id = roadSegmentAdded.Id
+            };
+            await context.RoadSegments.AddAsync(dbRecord, token);
+        }
+        else
+        {
+            dbRecord.IsRemoved = false;
+        }
 
         var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod);
         var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction);
