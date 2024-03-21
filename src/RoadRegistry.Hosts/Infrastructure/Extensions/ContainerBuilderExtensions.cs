@@ -1,10 +1,9 @@
 namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 
-using Amazon.S3;
 using Autofac;
 using Autofac.Builder;
 using BackOffice.Extensions;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
+using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Configuration;
 using MediatR;
@@ -43,7 +42,7 @@ public static class ContainerBuilderExtensions
     public static ContainerBuilder RegisterRetryPolicy(this ContainerBuilder builder)
     {
         builder.RegisterOptions<RetryPolicyOptions>();
-        
+
         builder.Register(c =>
             {
                 var retryPolicyOptions = c.Resolve<RetryPolicyOptions>();

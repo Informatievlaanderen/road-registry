@@ -1,3 +1,6 @@
+using Amazon.Lambda.Core;
+using Amazon.Lambda.Serialization.Json;
+
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda;
 
@@ -23,7 +26,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .AddRoadNetworkSnapshotStrategyOptions()
             ;
     }
-    
+
     protected override void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
     {
         builder

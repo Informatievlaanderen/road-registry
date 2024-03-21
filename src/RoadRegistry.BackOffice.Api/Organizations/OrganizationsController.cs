@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Organizations;
 
+using Asp.Versioning;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
 using Infrastructure;

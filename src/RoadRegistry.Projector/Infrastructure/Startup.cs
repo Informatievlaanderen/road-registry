@@ -1,5 +1,9 @@
 namespace RoadRegistry.Projector.Infrastructure;
 
+using System;
+using System.Linq;
+using System.Reflection;
+using Asp.Versioning.ApiExplorer;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using BackOffice;
@@ -7,10 +11,11 @@ using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Configuration;
 using Editor.Schema;
+using Extensions;
 using FluentValidation;
+using Hosts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -19,17 +24,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Modules;
 using Options;
+using Producer.Snapshot.ProjectionHost.GradeSeparatedJunction;
+using Producer.Snapshot.ProjectionHost.NationalRoad;
+using Producer.Snapshot.ProjectionHost.RoadNode;
+using Producer.Snapshot.ProjectionHost.RoadSegment;
+using Producer.Snapshot.ProjectionHost.RoadSegmentSurface;
 using Product.Schema;
-using RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction;
-using RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad;
-using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode;
-using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment;
-using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface;
-using RoadRegistry.Projector.Infrastructure.Extensions;
-using System;
-using System.Linq;
-using System.Reflection;
-using Hosts;
 using RoadRegistry.Syndication.Schema;
 using Sync.OrganizationRegistry;
 using Sync.StreetNameRegistry;
@@ -71,8 +71,8 @@ public class Startup
                 },
                 Toggles =
                 {
-                    Enable = new Be.Vlaanderen.Basisregisters.DataDog.Tracing.Microsoft.ApiDataDogToggle(datadogToggle.FeatureEnabled),
-                    Debug = new Be.Vlaanderen.Basisregisters.DataDog.Tracing.Microsoft.ApiDebugDataDogToggle(debugDataDogToggle.FeatureEnabled)
+                    Enable = new ApiDataDogToggle(datadogToggle.FeatureEnabled),
+                    Debug = new ApiDebugDataDogToggle(debugDataDogToggle.FeatureEnabled)
                 },
                 Tracing =
                 {
@@ -161,7 +161,7 @@ public class Startup
                         var connectionStrings = _configuration
                             .GetSection("ConnectionStrings")
                             .GetChildren();
-                        
+
                         foreach (var connectionString in connectionStrings)
                         {
                             health.AddSqlServer(

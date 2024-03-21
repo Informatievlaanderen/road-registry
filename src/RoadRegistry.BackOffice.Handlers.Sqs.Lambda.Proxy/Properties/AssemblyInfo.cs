@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyDescription("RoadRegistry BackOffice Handlers Sqs Lambda Proxy")]
 
-[assembly: AssemblyProduct("Basisregisters Vlaanderen")]
-[assembly: AssemblyCopyright("Copyright (c) Vlaamse overheid")]
-[assembly: AssemblyCompany("Vlaamse overheid")]
+// [assembly: AssemblyProduct("Basisregisters Vlaanderen")]
+// [assembly: AssemblyCopyright("Copyright (c) Vlaamse overheid")]
+// [assembly: AssemblyCompany("Vlaamse overheid")]
 [assembly: ComVisible(false)]

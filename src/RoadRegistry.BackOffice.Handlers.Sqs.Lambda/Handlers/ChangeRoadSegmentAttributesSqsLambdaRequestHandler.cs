@@ -1,10 +1,11 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
+using Abstractions.RoadSegments;
 using BackOffice.Extensions;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Uploads;
+using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
 using Editor.Schema;
@@ -12,11 +13,10 @@ using Editor.Schema.Extensions;
 using Exceptions;
 using Hosts;
 using Infrastructure;
+using Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Requests;
-using RoadRegistry.BackOffice.Abstractions.RoadSegments;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
 using TicketingService.Abstractions;
 using AddRoadSegmentToEuropeanRoad = BackOffice.Uploads.AddRoadSegmentToEuropeanRoad;
 using AddRoadSegmentToNationalRoad = BackOffice.Uploads.AddRoadSegmentToNationalRoad;

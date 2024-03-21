@@ -7,6 +7,7 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using FluentValidation;
 using Infrastructure.Modules;
+using MartinCostello.Logging.XUnit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,14 +26,12 @@ using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
 using SqlStreamStore;
-using Xunit.DependencyInjection;
-using Xunit.DependencyInjection.Logging;
 
 public abstract class TestStartup
 {
     public void Configure(ILoggerFactory loggerFactory, ITestOutputHelperAccessor accessor)
     {
-        loggerFactory.AddProvider(new XunitTestOutputLoggerProvider(accessor));
+        loggerFactory.AddProvider(new XUnitLoggerProvider(accessor, new XUnitLoggerOptions()));
     }
 
     protected virtual void ConfigureAppConfiguration(HostBuilderContext hostContext, IConfigurationBuilder builder)

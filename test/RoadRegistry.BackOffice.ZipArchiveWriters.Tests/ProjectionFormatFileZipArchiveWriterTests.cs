@@ -8,17 +8,17 @@ using Microsoft.IO;
 public class ProjectionFormatFileZipArchiveWriterTests
 {
     [Fact]
-    public void ArchiveCanNotBeNull()
+    public async Task ArchiveCanNotBeNull()
     {
         var sut = new ProjectionFormatFileZipArchiveWriter<FakeDbContext>("file.prj", Encoding.Default);
-        Assert.ThrowsAsync<ArgumentNullException>(() => sut.WriteAsync(null, new FakeDbContext(), CancellationToken.None));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => sut.WriteAsync(null, new FakeDbContext(), CancellationToken.None));
     }
 
     [Fact]
-    public void ContextCanNotBeNull()
+    public async Task ContextCanNotBeNull()
     {
         var sut = new ProjectionFormatFileZipArchiveWriter<FakeDbContext>("file.prj", Encoding.Default);
-        Assert.ThrowsAsync<ArgumentNullException>(() => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null, CancellationToken.None));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null, CancellationToken.None));
     }
 
     [Fact]

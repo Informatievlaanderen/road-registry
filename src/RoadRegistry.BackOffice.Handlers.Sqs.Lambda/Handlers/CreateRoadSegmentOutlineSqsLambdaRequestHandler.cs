@@ -1,16 +1,16 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
+using System.Diagnostics;
+using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
+using Core;
+using Exceptions;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
-using System.Diagnostics;
-using Core;
-using Exceptions;
 using TicketingService.Abstractions;
 using AddRoadSegment = BackOffice.Uploads.AddRoadSegment;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
@@ -83,7 +83,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
                     .WithWidth(new RoadSegmentWidthAttribute(AttributeId.Initial, request.Width, fromPosition, toPosition))
                     .WithLane(new RoadSegmentLaneAttribute(AttributeId.Initial, request.LaneCount, request.LaneDirection, fromPosition, toPosition))
             );
-            
+
             if (problems.Any())
             {
                 throw new RoadRegistryProblemsException(problems);
@@ -107,7 +107,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
     private async Task<(OrganizationId, Problems)> FindOrganizationId(OrganizationId organizationId, CancellationToken cancellationToken)
     {
         var problems = Problems.None;
-        
+
         var maintenanceAuthorityOrganization = await _organizationCache.FindByIdOrOvoCodeAsync(organizationId, cancellationToken);
         if (maintenanceAuthorityOrganization is not null)
         {

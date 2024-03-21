@@ -1,16 +1,15 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Handlers;
 
+using System.Diagnostics;
 using BackOffice;
+using BackOffice.Abstractions.RoadNetworks;
+using BackOffice.Configuration;
 using BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
-using System.Diagnostics;
-using BackOffice.Abstractions.RoadNetworks;
-using BackOffice.Configuration;
 using TicketingService.Abstractions;
 
 public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambdaHandler<CreateRoadNetworkSnapshotSqsLambdaRequest>
@@ -36,7 +35,7 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
         _snapshotWriter = snapshotWriter;
         _snapshotStrategyOptions = snapshotStrategyOptions;
     }
-    
+
     protected override async Task<object> InnerHandle(CreateRoadNetworkSnapshotSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         _stopwatch.Restart();

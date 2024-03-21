@@ -1,10 +1,10 @@
 namespace RoadRegistry.Syndication.Schema;
 
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer;
 using Microsoft.EntityFrameworkCore;
 
-public class SyndicationContextMigrationFactory : RunnerDbContextMigrationFactory<SyndicationContext>
+public class SyndicationContextMigrationFactory : SqlServerRunnerDbContextMigrationFactory<SyndicationContext>
 {
     public SyndicationContextMigrationFactory() :
         base(WellKnownConnectionNames.SyndicationProjectionsAdmin, HistoryConfiguration)

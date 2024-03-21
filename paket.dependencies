@@ -128,6 +128,7 @@ nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Producer 5.0.1
 nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple 5.0.1
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.LastChangedList 13.0.0
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner 13.0.0
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer 13.0.0
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore 13.0.0
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac 13.0.0
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication 13.0.0

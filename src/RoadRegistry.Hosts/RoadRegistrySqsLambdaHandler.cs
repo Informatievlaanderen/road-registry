@@ -1,20 +1,21 @@
 namespace RoadRegistry.Hosts;
 
+using System;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Core;
 using BackOffice.Exceptions;
 using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.AggregateSource;
+using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using FluentValidation;
 using Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using TicketingService.Abstractions;
 
 public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambdaHandlerBase<TSqsLambdaRequest>

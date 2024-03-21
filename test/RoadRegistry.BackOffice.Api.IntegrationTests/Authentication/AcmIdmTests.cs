@@ -1,9 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
 {
-    using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
-    using Microsoft.AspNetCore.Mvc.ApiExplorer;
-    using Microsoft.Extensions.DependencyInjection;
-    using RoadRegistry.BackOffice.Api.IntegrationTests;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -13,6 +9,9 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
+    using Microsoft.AspNetCore.Mvc.ApiExplorer;
+    using Microsoft.Extensions.DependencyInjection;
     using Xunit;
     using Xunit.Abstractions;
     using Xunit.Sdk;

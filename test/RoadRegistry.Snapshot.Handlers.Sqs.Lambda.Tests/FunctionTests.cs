@@ -1,9 +1,9 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests;
 
-using Amazon.Lambda.SQSEvents;
 using Amazon.Lambda.TestUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json.Linq;
 
 public class FunctionTests
 {
@@ -11,10 +11,7 @@ public class FunctionTests
     public async Task CanCreateFunction()
     {
         var function = new TestFunction();
-        await function.Handler(new SQSEvent
-        {
-            Records = new List<SQSEvent.SQSMessage>()
-        }, new TestLambdaContext());
+        await function.Handler(new JObject(), new TestLambdaContext());
 
         Assert.True(true);
     }

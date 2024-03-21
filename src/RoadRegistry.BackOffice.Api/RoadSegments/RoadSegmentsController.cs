@@ -1,10 +1,10 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
+using Asp.Versioning;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Core;
 using Core.ProblemCodes;
-using Editor.Schema;
 using Extensions;
 using FluentValidation;
 using Hosts.Infrastructure.Options;
@@ -13,7 +13,6 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Filters;
-using System;
 using ProblemDetails = Be.Vlaanderen.Basisregisters.BasicApiProblem.ProblemDetails;
 using Version = Infrastructure.Version;
 
