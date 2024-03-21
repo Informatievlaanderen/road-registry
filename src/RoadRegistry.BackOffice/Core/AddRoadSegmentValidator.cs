@@ -51,6 +51,7 @@ public abstract class AddRoadSegmentValidatorBase : AbstractValidator<Messages.A
 
         RuleFor(c => c.Lanes)
             .NotEmpty()
+            //TODO-rik deze error overal gebruiken bij de validators, ook voor surfaces/widths doen, en translations updaten
             .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero, (segment, lanes) => new RoadSegmentLanesHasCountOfZero(segment.OriginalId ?? segment.TemporaryId) );
         RuleFor(c => c.Widths)
             .NotEmpty()

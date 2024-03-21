@@ -113,7 +113,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                             {
                                 var line = lines[0];
 
-                                var lineProblems = line.GetProblemsForRoadSegmentGeometry(context.Tolerances);
+                                var lineProblems = line.GetProblemsForRoadSegmentGeometry(features[index].Attributes.Id, context.Tolerances);
 
                                 problems += lineProblems.Select(problem => recordContext
                                     .Error(problem.Reason)
