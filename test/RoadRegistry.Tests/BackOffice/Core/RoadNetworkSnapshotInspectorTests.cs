@@ -11,12 +11,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Polly;
+using Product.Schema;
+using Product.Schema.RoadSegments;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using Serilog.Enrichers;
 using SqlStreamStore;
+using RoadRegistry.BackOffice.Extensions;
 
 public class RoadNetworkSnapshotInspectorTests
 {
@@ -52,6 +55,14 @@ public class RoadNetworkSnapshotInspectorTests
     {
         return new EditorContext(new DbContextOptionsBuilder<EditorContext>()
                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                   .UseSqlServer(GetEditorProjectionsConnectionString(dbEnvironment), options =>
+                       options.UseNetTopologySuite()
+                   ).Options);
+    }
+    private ProductContext GetProductContext(DbEnvironment dbEnvironment)
+    {
+        return new ProductContext(new DbContextOptionsBuilder<ProductContext>()
+                   //.UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll)
                    .UseSqlServer(GetEditorProjectionsConnectionString(dbEnvironment), options =>
                        options.UseNetTopologySuite()
                    ).Options);
@@ -112,6 +123,35 @@ public class RoadNetworkSnapshotInspectorTests
             //    .ToArray();
 
             //var numberedRoads = records.Select(x => x.IDENT8.Value).ToArray();
+        }
+    }
+
+    [Fact(Skip = "Reads data from ProductContext. Useful for debugging purposes")]
+    //[Fact]
+    public async Task ReadProductContext()
+    {
+        const DbEnvironment dbEnvironment = DbEnvironment.DEV;
+
+        using (var dbContext = GetProductContext(dbEnvironment))
+        {
+            //dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
+
+            //var dbRecord = await dbContext.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == 9999999, CancellationToken.None).ConfigureAwait(false);
+            //if (dbRecord is not null)
+            //{
+            //    dbContext.RoadSegments.Remove(dbRecord);
+            //}
+
+            //var dbRecord2 = await dbContext.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == 9999999, CancellationToken.None).ConfigureAwait(false);
+
+            //dbContext.RoadSegments.Add(new RoadSegmentRecord
+            //{
+            //    Id = 9999999,
+            //    DbaseRecord = Array.Empty<byte>(),
+            //    ShapeRecordContent = Array.Empty<byte>()
+            //});
+
+            //dbContext.SaveChanges();
         }
     }
 
