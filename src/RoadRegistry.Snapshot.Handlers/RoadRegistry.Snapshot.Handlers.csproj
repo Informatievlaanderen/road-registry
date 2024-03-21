@@ -15,9 +15,5 @@
     <ProjectReference Include="..\RoadRegistry.Snapshot.Handlers.Sqs\RoadRegistry.Snapshot.Handlers.Sqs.csproj" />
   </ItemGroup>
 
-	<ItemGroup>
-		<Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
-	</ItemGroup>
-
 	<Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
