@@ -94,9 +94,8 @@ public abstract class TestStartup
                     .AddFeatureCompare()
                     .AddValidatorsFromAssemblies(availableModuleAssemblyCollection)
                     .AddFeatureToggles<ApplicationFeatureToggle>(context.Configuration)
-                    .AddLogging()
-                    .AddRoadNetworkCommandQueue()
-                    ;
+                    .AddLogging(c => c.AddXUnit())
+                    .AddRoadNetworkCommandQueue();
 
                 ConfigureServices(context, services);
             })

@@ -1,8 +1,10 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests;
 
+using Amazon.Lambda.SQSEvents;
 using Amazon.Lambda.TestUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 public class FunctionTests
@@ -11,7 +13,13 @@ public class FunctionTests
     public async Task CanCreateFunction()
     {
         var function = new TestFunction();
-        await function.Handler(new JObject(), new TestLambdaContext());
+        var json = JsonConvert.SerializeObject(new SQSEvent
+        {
+            Records = new List<SQSEvent.SQSMessage>()
+        });
+        var jObject = JObject.Parse(json);
+
+        await function.Handler(jObject, new TestLambdaContext());
 
         Assert.True(true);
     }
