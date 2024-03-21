@@ -61,12 +61,6 @@ nuget SqlStreamStore 1.2.0
 nuget SqlStreamStore.MsSql 1.2.0
 nuget Structurizr.Client 0.9.7
 nuget Structurizr.Core 0.9.7
-//nuget Swashbuckle.AspNetCore 6.2.3
-//nuget Swashbuckle.AspNetCore.Annotations 6.2.3
-//nuget Swashbuckle.AspNetCore.Filters 8.0.1
-//nuget Swashbuckle.AspNetCore.Swagger 6.2.3
-//nuget Swashbuckle.AspNetCore.SwaggerGen 6.2.3
-//nuget Swashbuckle.AspNetCore.SwaggerUI 6.2.3
 nuget System.Collections.Immutable 8.0.0
 nuget System.Configuration.ConfigurationManager 8.0.0
 nuget System.Diagnostics.DiagnosticSource 8.0.0
@@ -199,6 +193,5 @@ nuget Microsoft.NET.StringTools 17.9.5
 nuget Microsoft.TestPlatform.TestHost 17.9.0
 nuget Microsoft.NET.Test.Sdk 17.9.0
 nuget Microsoft.NETCore.Platforms 7.0.4
-//nuget Microsoft.OpenApi 1.6.14
 nuget Microsoft.Win32.SystemEvents 8.0.0
 nuget NETStandard.Library 2.0.3
