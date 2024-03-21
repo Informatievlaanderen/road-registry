@@ -51,14 +51,16 @@ public abstract class AddRoadSegmentValidatorBase : AbstractValidator<Messages.A
 
         RuleFor(c => c.Lanes)
             .NotEmpty()
-            //TODO-rik deze error overal gebruiken bij de validators, ook voor surfaces/widths doen, en translations updaten
-            .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero, (segment, lanes) => new RoadSegmentLanesHasCountOfZero(segment.OriginalId ?? segment.TemporaryId) );
+            .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero,
+                (segment, _) => new RoadSegmentLanesHasCountOfZero(segment.OriginalId ?? segment.TemporaryId) );
         RuleFor(c => c.Widths)
             .NotEmpty()
-            .WithProblemCode(ProblemCode.RoadSegment.Widths.HasCountOfZero);
+            .WithProblemCode(ProblemCode.RoadSegment.Widths.HasCountOfZero,
+                (segment, _) => new RoadSegmentWidthsHasCountOfZero(segment.OriginalId ?? segment.TemporaryId));
         RuleFor(c => c.Surfaces)
             .NotEmpty()
-            .WithProblemCode(ProblemCode.RoadSegment.Surfaces.HasCountOfZero);
+            .WithProblemCode(ProblemCode.RoadSegment.Surfaces.HasCountOfZero,
+                (segment, _) => new RoadSegmentSurfacesHasCountOfZero(segment.OriginalId ?? segment.TemporaryId));
     }
 }
 

@@ -47,21 +47,27 @@ public class ModifyRoadSegmentGeometryValidator : ModifyRoadSegmentGeometryValid
         {
             RuleFor(x => x.Lanes)
                 .NotEmpty()
-                .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero)
+                .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero,
+                    (segment, _) => new RoadSegmentLanesHasCountOfZero(segment.Id))
                 .MaximumLength(1)
-                .WithProblemCode(ProblemCode.RoadSegment.Lanes.CountGreaterThanOne);
+                .WithProblemCode(ProblemCode.RoadSegment.Lanes.CountGreaterThanOne,
+                    (segment, _) => new RoadSegmentLanesCountGreaterThanOne(segment.Id));
 
             RuleFor(x => x.Surfaces)
                 .NotEmpty()
-                .WithProblemCode(ProblemCode.RoadSegment.Surfaces.HasCountOfZero)
+                .WithProblemCode(ProblemCode.RoadSegment.Surfaces.HasCountOfZero,
+                    (segment, _) => new RoadSegmentSurfacesHasCountOfZero(segment.Id))
                 .MaximumLength(1)
-                .WithProblemCode(ProblemCode.RoadSegment.Surfaces.CountGreaterThanOne);
+                .WithProblemCode(ProblemCode.RoadSegment.Surfaces.CountGreaterThanOne,
+                    (segment, _) => new RoadSegmentSurfacesCountGreaterThanOne(segment.Id));
 
             RuleFor(x => x.Widths)
                 .NotEmpty()
-                .WithProblemCode(ProblemCode.RoadSegment.Widths.HasCountOfZero)
+                .WithProblemCode(ProblemCode.RoadSegment.Widths.HasCountOfZero,
+                    (segment, _) => new RoadSegmentWidthsHasCountOfZero(segment.Id))
                 .MaximumLength(1)
-                .WithProblemCode(ProblemCode.RoadSegment.Widths.CountGreaterThanOne);
+                .WithProblemCode(ProblemCode.RoadSegment.Widths.CountGreaterThanOne,
+                    (segment, _) => new RoadSegmentWidthsCountGreaterThanOne(segment.Id));
         }
     }
 }

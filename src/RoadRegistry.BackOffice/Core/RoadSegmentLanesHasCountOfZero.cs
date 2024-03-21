@@ -8,6 +8,5 @@ public class RoadSegmentLanesHasCountOfZero : Error
         : base(ProblemCode.RoadSegment.Lanes.HasCountOfZero,
         new ProblemParameter("Identifier", identifier.ToString()))
     {
-        //TODO-rik translation
     }
 }

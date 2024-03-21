@@ -71,13 +71,13 @@ public class RoadNode
         }
         else if (Segments.Count == 1 && Type != RoadNodeType.EndNode)
         {
-            problems = problems.Add(RoadNodeTypeMismatch.New(translator.TranslateToTemporaryOrId(Id), Segments.Select(translator.TranslateToTemporaryOrId).ToArray(), Type, new[] { RoadNodeType.EndNode }));
+            problems = problems.Add(RoadNodeTypeMismatch.New(translator.TranslateToTemporaryOrId(Id), Segments.Select(translator.TranslateToOriginalOrId).ToArray(), Type, new[] { RoadNodeType.EndNode }));
         }
         else if (Segments.Count == 2)
         {
             if (!Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
             {
-                problems = problems.Add(RoadNodeTypeMismatch.New(translator.TranslateToTemporaryOrId(Id), Segments.Select(translator.TranslateToTemporaryOrId).ToArray(), Type, new[] { RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode }));
+                problems = problems.Add(RoadNodeTypeMismatch.New(translator.TranslateToTemporaryOrId(Id), Segments.Select(translator.TranslateToOriginalOrId).ToArray(), Type, new[] { RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode }));
             }
             else if (Type == RoadNodeType.FakeNode)
             {
@@ -89,15 +89,15 @@ public class RoadNode
                 {
                     problems = problems.Add(new FakeRoadNodeConnectedSegmentsDoNotDiffer(
                         translator.TranslateToTemporaryOrId(Id),
-                        translator.TranslateToTemporaryOrId(segment1.Id),
-                        translator.TranslateToTemporaryOrId(segment2.Id)
+                        translator.TranslateToOriginalOrId(segment1.Id),
+                        translator.TranslateToOriginalOrId(segment2.Id)
                     ));
                 }
             }
         }
         else if (Segments.Count > 2 && !Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
         {
-            problems = problems.Add(RoadNodeTypeMismatch.New(translator.TranslateToTemporaryOrId(Id), Segments.Select(translator.TranslateToTemporaryOrId).ToArray(), Type, new[] { RoadNodeType.RealNode, RoadNodeType.MiniRoundabout }));
+            problems = problems.Add(RoadNodeTypeMismatch.New(translator.TranslateToTemporaryOrId(Id), Segments.Select(translator.TranslateToOriginalOrId).ToArray(), Type, new[] { RoadNodeType.RealNode, RoadNodeType.MiniRoundabout }));
         }
 
         return problems;

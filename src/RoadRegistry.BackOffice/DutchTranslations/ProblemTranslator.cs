@@ -180,11 +180,12 @@ public static class ProblemTranslator
             "Aantal rijstroken moet groter dan nul zijn.")},
         {ProblemCode.RoadSegment.Lane.LessThanOrEqualToMaximum, problem => new(problem.Severity, "AantalRijstrokenKleinerOfGelijkAanMaximum",
             $"Aantal rijstroken mag niet groter dan {RoadSegmentLaneCount.Maximum} zijn.")},
-        {ProblemCode.RoadSegment.Lanes.CountGreaterThanOne, problem => new(problem.Severity, problem.Reason,
-            "Wegsegment heeft meer dan 1 rijstrook.")},
-        //TODO-rik
-        {ProblemCode.RoadSegment.Lanes.HasCountOfZero, problem => new(problem.Severity, problem.Reason,
-            "Wegsegment heeft geen enkel rijstrook.")},
+        {ProblemCode.RoadSegment.Lanes.CountGreaterThanOne, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"Wegsegment met id {problem.GetParameterValue("Identifier")} heeft meer dan 1 rijstrook."
+            : "Wegsegment heeft meer dan 1 rijstrook.")},
+        {ProblemCode.RoadSegment.Lanes.HasCountOfZero, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"Wegsegment met id {problem.GetParameterValue("Identifier")} heeft geen enkel rijstrook."
+            : "Wegsegment heeft geen enkel rijstrook.")},
         {ProblemCode.RoadSegment.LaneCount.IsRequired, problem => new(problem.Severity, "AantalRijstrokenVerplicht",
             "Aantal rijstroken is verplicht.")},
         {ProblemCode.RoadSegment.LaneCount.NotValid, problem => new(problem.Severity, "AantalRijstrokenNietCorrect",
@@ -242,10 +243,12 @@ public static class ProblemTranslator
             $"De tot positie ({problem.Parameters[1].Value}) van het wegverharding attribuut met id {problem.Parameters[0].Value} sluit niet aan op de van positie ({problem.Parameters[3].Value}) van het wegverharding attribuut met id {problem.Parameters[2].Value}.") },
         {ProblemCode.RoadSegment.Surface.ToPositionNotEqualToLength, problem => new(problem.Severity, problem.Reason,
             $"De tot positie ({problem.Parameters[1].Value}) van het laatste wegverharding attribuut met id {problem.Parameters[0].Value} is niet de lengte van het wegsegment ({problem.Parameters[2].Value}).") },
-        {ProblemCode.RoadSegment.Surfaces.CountGreaterThanOne, problem => new(problem.Severity, problem.Reason,
-            "Wegsegment heeft meer dan 1 wegverharding.")},
-        {ProblemCode.RoadSegment.Surfaces.HasCountOfZero, problem => new(problem.Severity, problem.Reason,
-            "Wegsegment heeft geen enkele wegverharding.")},
+        {ProblemCode.RoadSegment.Surfaces.CountGreaterThanOne, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"Wegsegment met id {problem.GetParameterValue("Identifier")} heeft meer dan 1 wegverharding."
+            : "Wegsegment heeft meer dan 1 wegverharding.")},
+        {ProblemCode.RoadSegment.Surfaces.HasCountOfZero, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"Wegsegment met id {problem.GetParameterValue("Identifier")} heeft geen enkele wegverharding."
+            : "Wegsegment heeft geen enkele wegverharding.")},
         {ProblemCode.RoadSegment.SurfaceType.IsRequired, problem => new(problem.Severity, "WegverhardingVerplicht",
             "Wegverharding is verplicht.")},
         {ProblemCode.RoadSegment.SurfaceType.NotValid, problem => new(problem.Severity, "WegverhardingNietCorrect",
@@ -264,10 +267,12 @@ public static class ProblemTranslator
             $"De tot positie ({problem.Parameters[1].Value}) van het laatste wegbreedte attribuut met id {problem.Parameters[0].Value} is niet de lengte van het wegsegment ({problem.Parameters[2].Value}).") },
         {ProblemCode.RoadSegment.Width.LessThanOrEqualToMaximum, problem => new(problem.Severity, "WegbreedteKleinerOfGelijkAanMaximum",
             $"Wegbreedte mag niet groter dan {RoadSegmentWidth.Maximum} meter zijn.")},
-        {ProblemCode.RoadSegment.Widths.CountGreaterThanOne, problem => new(problem.Severity, problem.Reason,
-            "Wegsegment heeft meer dan 1 wegbreedte.")},
-        {ProblemCode.RoadSegment.Widths.HasCountOfZero, problem => new(problem.Severity, problem.Reason,
-            "Wegsegment heeft geen enkele wegbreedte.")},
+        {ProblemCode.RoadSegment.Widths.CountGreaterThanOne, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"Wegsegment met id {problem.GetParameterValue("Identifier")} heeft meer dan 1 wegbreedte."
+            : "Wegsegment heeft meer dan 1 wegbreedte.")},
+        {ProblemCode.RoadSegment.Widths.HasCountOfZero, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"Wegsegment met id {problem.GetParameterValue("Identifier")} heeft geen enkele wegbreedte."
+            : "Wegsegment heeft geen enkele wegbreedte.")},
         {ProblemCode.RoadSegments.NotFound, problem => new(problem.Severity, "NotFound",
             $"Onbestaande of verwijderde wegsegmenten gevonden '{problem.Parameters[0].Value}'.") },
 
