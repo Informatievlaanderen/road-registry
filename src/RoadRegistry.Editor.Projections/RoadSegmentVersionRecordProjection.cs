@@ -5,7 +5,6 @@ using BackOffice.Extensions;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Schema;
 using Schema.RoadSegments;
@@ -73,18 +72,27 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
     {
         var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation.Identifier;
 
-        var dbRecord = new RoadSegmentVersionRecord
+        var dbRecord = await context.RoadSegmentVersions
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentAdded.Id && x.StreamId == envelope.StreamId && x.Method == method, token)
+            .ConfigureAwait(false);
+        if (dbRecord is null)
         {
-            StreamId = envelope.StreamId,
-            Id = roadSegmentAdded.Id,
-            Method = method,
-            RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
-        };
-        await context.RoadSegmentVersions.AddAsync(dbRecord, token);
+            dbRecord = new RoadSegmentVersionRecord
+            {
+                StreamId = envelope.StreamId,
+                Id = roadSegmentAdded.Id,
+                Method = method,
+                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
+            };
+            await context.RoadSegmentVersions.AddAsync(dbRecord, token);
+        }
+        else
+        {
+            dbRecord.IsRemoved = false;
+        }
 
         dbRecord.Version = roadSegmentAdded.Version;
         dbRecord.GeometryVersion = roadSegmentAdded.GeometryVersion;
-        dbRecord.IsRemoved = false;
     }
 
     private static async Task ModifyRoadSegment(
