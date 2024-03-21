@@ -26,7 +26,7 @@ jobs:
           persist-credentials: false
 
     - name: Setup Node.js
-      uses: actions/setup-node@v3.5.1
+      uses: actions/setup-node@v4
 
     - name: Node version
       shell: bash
@@ -68,7 +68,7 @@ jobs:
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
       build-target: Containerize_BackOfficeApi
       image-file: rr-backoffice-api-image.tar
       image-name: backoffice-api
@@ -83,7 +83,7 @@ jobs:
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
       build-target: Publish_BackOfficeUI
       containerize-target: Containerize_BackOfficeUI
       image-file: rr-backoffice-ui-image.tar
@@ -98,7 +98,7 @@ jobs:
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
       build-target: Containerize_BackOfficeEventHost
       image-file: rr-backoffice-eventhost-image.tar
       image-name: backoffice-eventhost
@@ -113,7 +113,7 @@ jobs:
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
       build-target: Containerize_BackOfficeExtractHost
       image-file: rr-backoffice-extracthost-image.tar
       image-name: backoffice-extracthost
@@ -128,7 +128,7 @@ jobs:
       needs: [ set-release-version ]
       if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
       with:
-        registry: road-registry
+        registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
         build-target: Containerize_BackOfficeCommandHost
         image-file: rr-backoffice-commandhost-image.tar
         image-name: backoffice-commandhost
@@ -143,7 +143,7 @@ jobs:
       needs: [ set-release-version ]
       if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
       with:
-        registry: road-registry
+        registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
         build-target: Containerize_AdminHost
         image-file: rr-adminhost-image.tar
         image-name: adminhost
@@ -158,7 +158,7 @@ jobs:
       needs: [ set-release-version ]
       if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
       with:
-        registry: road-registry
+        registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
         build-target: Containerize_JobsProcessor
         image-file: rr-jobs-processor-image.tar
         image-name: jobs-processor
@@ -173,7 +173,7 @@ jobs:
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
       build-target: Containerize_Projector
       image-file: rr-projector-image.tar
       image-name: projector
@@ -188,7 +188,7 @@ jobs:
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
       build-target: Containerize_EditorProjectionHost
       image-file: rr-editor-projectionhost-image.tar
       image-name: editor-projectionhost
@@ -203,7 +203,7 @@ jobs:
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
       build-target: Containerize_ProductProjectionHost
       image-file: rr-product-projectionhost-image.tar
       image-name: product-projectionhost
@@ -218,7 +218,7 @@ jobs:
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
       build-target: Containerize_ProducerSnapshotProjectionHost
       image-file: rr-producer-snapshot-projectionhost-image.tar
       image-name: producer-snapshot-projectionhost
@@ -233,7 +233,7 @@ jobs:
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
       build-target: Containerize_SyncHost
       image-file: rr-synchost-image.tar
       image-name: synchost
@@ -248,7 +248,7 @@ jobs:
       needs: [ set-release-version ]
       if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
       with:
-        registry: road-registry
+        registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
         build-target: Containerize_SyndicationProjectionHost
         image-file: rr-syndication-projectionhost-image.tar
         image-name: syndication-projectionhost
@@ -263,7 +263,7 @@ jobs:
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
       build-target: Containerize_WmsProjectionHost
       image-file: rr-wms-projectionhost-image.tar
       image-name: wms-projectionhost
@@ -278,7 +278,7 @@ jobs:
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      registry: road-registry
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
       build-target: Containerize_WfsProjectionHost
       image-file: rr-wfs-projectionhost-image.tar
       image-name: wfs-projectionhost

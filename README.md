@@ -1,4 +1,4 @@
-# Road Registry [![Build Status](https://github.com/Informatievlaanderen/road-registry/workflows/CI/badge.svg)](https://github.com/Informatievlaanderen/road-registry/actions)
+# Road Registry [![Build Status](https://github.com/Informatievlaanderen/road-registry/workflows/Build/badge.svg)](https://github.com/Informatievlaanderen/road-registry/actions)
 
 The road registry is a mid-scale reference database of all Flemish roads. This code base supports
 
