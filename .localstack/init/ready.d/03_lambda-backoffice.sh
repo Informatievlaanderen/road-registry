@@ -9,7 +9,7 @@ awslocal lambda create-function \
     --zip-file fileb:///etc/localstack/lambda/backoffice.zip \
     --handler RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Proxy::RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Proxy.Function::FunctionHandler \
     --role arn:aws:iam:eu-west-1:000000000000:role/rl-vbr-basisregisters-lam-wr-sqsbackofficehandlerfunction \
-    --runtime dotnet6 \
+    --runtime dotnet8 \
     --package-type zip \
     --timeout 10 \
     --memory-size 128 \

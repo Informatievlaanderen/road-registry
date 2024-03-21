@@ -9,15 +9,6 @@
 	  <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <DocumentationFile>bin\Debug\net6.0\RoadRegistry.Projector.xml</DocumentationFile>
-    <DefineConstants>TRACE;DEBUG;NETCOREAPP;NET6_0</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <DocumentationFile>bin\Release\net6.0\RoadRegistry.Projector.xml</DocumentationFile>
-  </PropertyGroup>
-
   <ItemGroup>
     <Content Include="Dockerfile" CopyToOutputDirectory="Always" />
     <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
