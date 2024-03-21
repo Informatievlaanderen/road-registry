@@ -73,20 +73,14 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
     {
         var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation.Identifier;
 
-        var dbRecord = await context.RoadSegmentVersions
-            .FindAsync(x => x.Id == roadSegmentAdded.Id && x.StreamId == envelope.StreamId && x.Method == method, token)
-            .ConfigureAwait(false);
-        if (dbRecord is null)
+        var dbRecord = new RoadSegmentVersionRecord
         {
-            dbRecord = new RoadSegmentVersionRecord
-            {
-                StreamId = envelope.StreamId,
-                Id = roadSegmentAdded.Id,
-                Method = method,
-                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
-            };
-            await context.RoadSegmentVersions.AddAsync(dbRecord, token);
-        }
+            StreamId = envelope.StreamId,
+            Id = roadSegmentAdded.Id,
+            Method = method,
+            RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
+        };
+        await context.RoadSegmentVersions.AddAsync(dbRecord, token);
 
         dbRecord.Version = roadSegmentAdded.Version;
         dbRecord.GeometryVersion = roadSegmentAdded.GeometryVersion;
@@ -102,7 +96,7 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentModified.GeometryDrawMethod).Translation.Identifier;
 
         var dbRecord = await context.RoadSegmentVersions
-            .FindAsync(x => x.Id == roadSegmentModified.Id && x.StreamId == envelope.StreamId && x.Method == method, token)
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentModified.Id && x.StreamId == envelope.StreamId && x.Method == method, token)
             .ConfigureAwait(false);
         if (dbRecord is null)
         {

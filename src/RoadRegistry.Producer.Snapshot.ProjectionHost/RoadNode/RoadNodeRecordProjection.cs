@@ -66,7 +66,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             CancellationToken token)
         {
             var dbRecord = await context.RoadNodes
-                .FindAsync(x => x.Id == roadNodeAdded.Id, token)
+                .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadNodeAdded.Id, token)
                 .ConfigureAwait(false);
             if (dbRecord is null)
             {
@@ -100,7 +100,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             CancellationToken token)
         {
             var dbRecord = await context.RoadNodes
-                .FindAsync(x => x.Id == roadNodeModified.Id, token)
+                .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadNodeModified.Id, token)
                 .ConfigureAwait(false);
             if (dbRecord is null)
             {
@@ -127,7 +127,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             CancellationToken token)
         {
             var dbRecord = await context.RoadNodes
-                .FindAsync(x => x.Id == roadNodeRemoved.Id, token)
+                .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadNodeRemoved.Id, token)
                 .ConfigureAwait(false);
             if (dbRecord is null)
             {

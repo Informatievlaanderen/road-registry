@@ -134,21 +134,11 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         RoadSegmentAdded roadSegmentAdded,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments
-            .FindAsync(x => x.Id == roadSegmentAdded.Id, token)
-            .ConfigureAwait(false);
-        if (dbRecord is null)
+        var dbRecord = new RoadSegmentRecord
         {
-            dbRecord = new RoadSegmentRecord
-            {
-                Id = roadSegmentAdded.Id
-            };
-            await context.RoadSegments.AddAsync(dbRecord, token);
-        }
-        else
-        {
-            dbRecord.IsRemoved = false;
-        }
+            Id = roadSegmentAdded.Id
+        };
+        await context.RoadSegments.AddAsync(dbRecord, token);
 
         var transactionId = new TransactionId(envelope.Message.TransactionId);
         var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod);
@@ -213,7 +203,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         CancellationToken token)
     {
         var dbRecord = await context.RoadSegments
-            .FindAsync(x => x.Id == roadSegmentModified.Id, token)
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentModified.Id, token)
             .ConfigureAwait(false);
         if (dbRecord is null)
         {
@@ -281,7 +271,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         CancellationToken token)
     {
         var dbRecord = await context.RoadSegments
-            .FindAsync(x => x.Id == roadSegmentAttributesModified.Id, token)
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentAttributesModified.Id, token)
             .ConfigureAwait(false);
         if (dbRecord is null)
         {
@@ -341,7 +331,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         CancellationToken token)
     {
         var dbRecord = await context.RoadSegments
-            .FindAsync(x => x.Id == segment.Id, token)
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == segment.Id, token)
             .ConfigureAwait(false);
         if (dbRecord is null)
         {
@@ -366,7 +356,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         CancellationToken token)
     {
         var roadSegmentRecord = await context.RoadSegments
-            .FindAsync(x => x.Id == roadSegmentRemoved.Id, token)
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentRemoved.Id, token)
             .ConfigureAwait(false);
         if (roadSegmentRecord is not null)
         {

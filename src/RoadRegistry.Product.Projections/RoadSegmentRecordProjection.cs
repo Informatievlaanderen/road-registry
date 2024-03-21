@@ -152,17 +152,11 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments
-            .FindAsync(x => x.Id == roadSegmentAdded.Id, token)
-            .ConfigureAwait(false);
-        if (dbRecord is null)
+        var dbRecord = new RoadSegmentRecord
         {
-            dbRecord = new RoadSegmentRecord
-            {
-                Id = roadSegmentAdded.Id
-            };
-            await context.RoadSegments.AddAsync(dbRecord, token);
-        }
+            Id = roadSegmentAdded.Id
+        };
+        await context.RoadSegments.AddAsync(dbRecord, token);
 
         var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentAdded.Geometry));
         var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
@@ -242,7 +236,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(x => x.Id == roadSegmentModified.Id, token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentModified.Id, token).ConfigureAwait(false);
         if (dbRecord is null)
         {
             dbRecord = new RoadSegmentRecord
@@ -322,7 +316,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(x => x.Id == roadSegmentAttributesModified.Id, token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentAttributesModified.Id, token).ConfigureAwait(false);
         if (dbRecord is null)
         {
             throw new InvalidOperationException($"{nameof(RoadSegmentRecord)} with id {roadSegmentAttributesModified.Id} is not found");
@@ -398,7 +392,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(x => x.Id == roadSegmentGeometryModified.Id, token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentGeometryModified.Id, token).ConfigureAwait(false);
         if (dbRecord is null)
         {
             throw new InvalidOperationException($"{nameof(RoadSegmentRecord)} with id {roadSegmentGeometryModified.Id} is not found");
@@ -434,7 +428,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(x => x.Id == roadSegmentRemoved.Id, token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentRemoved.Id, token).ConfigureAwait(false);
         if (dbRecord is not null)
         {
             context.RoadSegments.Remove(dbRecord);

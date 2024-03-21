@@ -70,7 +70,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             CancellationToken token)
         {
             var dbRecord = await context.GradeSeparatedJunctions
-                .FindAsync(x => x.Id == gradeSeparatedJunctionAdded.Id, token)
+                .IncludeLocalSingleOrDefaultAsync(x => x.Id == gradeSeparatedJunctionAdded.Id, token)
                 .ConfigureAwait(false);
             if (dbRecord is null)
             {
@@ -104,7 +104,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             CancellationToken token)
         {
             var dbRecord = await context.GradeSeparatedJunctions
-                .FindAsync(x => x.Id == gradeSeparatedJunctionModified.Id, token)
+                .IncludeLocalSingleOrDefaultAsync(x => x.Id == gradeSeparatedJunctionModified.Id, token)
                 .ConfigureAwait(false);
 
             var typeTranslation = GradeSeparatedJunctionType.Parse(gradeSeparatedJunctionModified.Type).Translation;
@@ -129,7 +129,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             CancellationToken token)
         {
             var dbRecord = await context.GradeSeparatedJunctions
-                .FindAsync(x => x.Id == gradeSeparatedJunctionRemoved.Id, token)
+                .IncludeLocalSingleOrDefaultAsync(x => x.Id == gradeSeparatedJunctionRemoved.Id, token)
                 .ConfigureAwait(false);
 
             if (dbRecord is null)
