@@ -5,7 +5,6 @@ using BackOffice.Extensions;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Schema;
 using Schema.RoadSegments;
@@ -74,7 +73,7 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation.Identifier;
 
         var dbRecord = await context.RoadSegmentVersions
-            .FindAsync(x => x.Id == roadSegmentAdded.Id && x.StreamId == envelope.StreamId && x.Method == method, token)
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentAdded.Id && x.StreamId == envelope.StreamId && x.Method == method, token)
             .ConfigureAwait(false);
         if (dbRecord is null)
         {
@@ -87,10 +86,13 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
             };
             await context.RoadSegmentVersions.AddAsync(dbRecord, token);
         }
+        else
+        {
+            dbRecord.IsRemoved = false;
+        }
 
         dbRecord.Version = roadSegmentAdded.Version;
         dbRecord.GeometryVersion = roadSegmentAdded.GeometryVersion;
-        dbRecord.IsRemoved = false;
     }
 
     private static async Task ModifyRoadSegment(
@@ -102,7 +104,7 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentModified.GeometryDrawMethod).Translation.Identifier;
 
         var dbRecord = await context.RoadSegmentVersions
-            .FindAsync(x => x.Id == roadSegmentModified.Id && x.StreamId == envelope.StreamId && x.Method == method, token)
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentModified.Id && x.StreamId == envelope.StreamId && x.Method == method, token)
             .ConfigureAwait(false);
         if (dbRecord is null)
         {

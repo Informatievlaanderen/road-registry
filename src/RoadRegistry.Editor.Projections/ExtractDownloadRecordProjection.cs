@@ -48,7 +48,7 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkExtractDownloaded>>(async (context, envelope, ct) =>
         {
-            var record = await context.ExtractDownloads.SingleIncludingLocalAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
+            var record = await context.ExtractDownloads.IncludeLocalSingleAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
             record.DownloadedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToDateTimeOffset();
         });
 
@@ -64,7 +64,7 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkExtractDownloadBecameAvailable>>(async (context, envelope, ct) =>
         {
-            var record = await context.ExtractDownloads.SingleIncludingLocalAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
+            var record = await context.ExtractDownloads.IncludeLocalSingleAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
             record.ArchiveId = envelope.Message.ArchiveId;
             record.Available = true;
             record.AvailableOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds();
@@ -77,11 +77,11 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
 
             if (envelope.Message.DownloadId is not null)
             {
-                record = await context.ExtractDownloads.SingleIncludingLocalAsync(download => download.DownloadId == envelope.Message.DownloadId.Value, ct);
+                record = await context.ExtractDownloads.IncludeLocalSingleAsync(download => download.DownloadId == envelope.Message.DownloadId.Value, ct);
             }
             else
             {
-                record = await context.ExtractDownloads.SingleIncludingLocalAsync(download => download.RequestId == envelope.Message.RequestId && download.Available == false, ct);
+                record = await context.ExtractDownloads.IncludeLocalSingleAsync(download => download.RequestId == envelope.Message.RequestId && download.Available == false, ct);
             }
 
             record.Available = true;

@@ -106,7 +106,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         CancellationToken token)
     {
         var dbRecord = await context.RoadSegments
-            .FindAsync(x => x.Id == roadSegmentAdded.Id, token)
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentAdded.Id, token)
             .ConfigureAwait(false);
         if (dbRecord is null)
         {
@@ -155,7 +155,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         CancellationToken token)
     {
         var dbRecord = await context.RoadSegments
-            .FindAsync(x => x.Id == roadSegmentModified.Id, token)
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentModified.Id, token)
             .ConfigureAwait(false);
         if (dbRecord is null)
         {
@@ -197,7 +197,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         CancellationToken token)
     {
         var dbRecord = await context.RoadSegments
-            .FindAsync(x => x.Id == roadSegmentAttributesModified.Id, token)
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentAttributesModified.Id, token)
             .ConfigureAwait(false);
         if (dbRecord is null)
         {
@@ -248,7 +248,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         CancellationToken token)
     {
         var dbRecord = await context.RoadSegments
-            .FindAsync(x => x.Id == segment.Id, token)
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == segment.Id, token)
             .ConfigureAwait(false);
         if (dbRecord is null)
         {
@@ -268,7 +268,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         CancellationToken token)
     {
         var dbRecord = await context.RoadSegments
-            .FindAsync(x => x.Id == roadSegmentRemoved.Id, token)
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentRemoved.Id, token)
             .ConfigureAwait(false);
         if (dbRecord is not null)
         {

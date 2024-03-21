@@ -75,7 +75,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             CancellationToken token)
         {
             var dbRecord = await context.NationalRoads
-                .FindAsync(x => x.Id == nationalRoadAdded.AttributeId, token)
+                .IncludeLocalSingleOrDefaultAsync(x => x.Id == nationalRoadAdded.AttributeId, token)
                 .ConfigureAwait(false);
             if (dbRecord is null)
             {
@@ -133,7 +133,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             CancellationToken token)
         {
             var dbRecord = await context.NationalRoads
-                .FindAsync(x => x.Id == nationalRoadId, token)
+                .IncludeLocalSingleOrDefaultAsync(x => x.Id == nationalRoadId, token)
                 .ConfigureAwait(false);
             if (dbRecord is null)
             {

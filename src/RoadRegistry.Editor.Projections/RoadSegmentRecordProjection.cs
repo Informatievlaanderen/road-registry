@@ -157,7 +157,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         CancellationToken token)
     {
         var dbRecord = await context.RoadSegments
-            .FindWithoutQueryFiltersAsync(x => x.Id == roadSegmentAdded.Id, token)
+            .IncludeLocalWithoutQueryFiltersSingleOrDefaultAsync(x => x.Id == roadSegmentAdded.Id, token)
             .ConfigureAwait(false);
         if (dbRecord is null)
         {
@@ -252,7 +252,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         CancellationToken token)
     {
         var dbRecord = await context.RoadSegments
-            .FindWithoutQueryFiltersAsync(x => x.Id == roadSegmentModified.Id, token)
+            .IncludeLocalWithoutQueryFiltersSingleOrDefaultAsync(x => x.Id == roadSegmentModified.Id, token)
             .ConfigureAwait(false);
         if (dbRecord is null)
         {
@@ -330,7 +330,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(x => x.Id == roadSegmentAttributesModified.Id, token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentAttributesModified.Id, token).ConfigureAwait(false);
         if (dbRecord is null)
         {
             throw new InvalidOperationException($"{nameof(RoadSegmentRecord)} with id {roadSegmentAttributesModified.Id} is not found");
@@ -406,7 +406,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(x => x.Id == roadSegmentGeometryModified.Id, token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentGeometryModified.Id, token).ConfigureAwait(false);
         if (dbRecord is null)
         {
             throw new InvalidOperationException($"{nameof(RoadSegmentRecord)} with id {roadSegmentGeometryModified.Id} is not found");
@@ -442,7 +442,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.FindAsync(x => x.Id == roadSegmentRemoved.Id, token).ConfigureAwait(false);
+        var dbRecord = await context.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentRemoved.Id, token).ConfigureAwait(false);
 
         if (dbRecord is not null && !dbRecord.IsRemoved)
         {

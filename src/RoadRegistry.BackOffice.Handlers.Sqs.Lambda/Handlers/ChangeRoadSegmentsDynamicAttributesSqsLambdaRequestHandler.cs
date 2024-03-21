@@ -76,7 +76,7 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
                 {
                     var roadSegmentId = new RoadSegmentId(change.Id);
 
-                    var editorRoadSegment = await _editorContext.RoadSegments.FindAsync(x => x.Id == change.Id, cancellationToken);
+                    var editorRoadSegment = await _editorContext.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == change.Id, cancellationToken);
                     if (editorRoadSegment is null)
                     {
                         problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));
