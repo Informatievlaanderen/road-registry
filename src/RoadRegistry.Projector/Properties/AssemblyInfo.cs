@@ -7,4 +7,3 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright (c) Vlaamse overheid")]
 [assembly: AssemblyCompany("Vlaamse overheid")]
 [assembly: ComVisible(false)]
-
