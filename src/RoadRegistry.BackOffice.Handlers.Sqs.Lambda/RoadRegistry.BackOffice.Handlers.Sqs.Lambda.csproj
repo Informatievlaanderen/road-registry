@@ -16,10 +16,10 @@
     <StripSymbols>true</StripSymbols>
   </PropertyGroup>
 
-	<!-- <ItemGroup>
+	<ItemGroup>
 		<Using Include="Amazon.Lambda.Core"></Using>
 		<Using Include="Amazon.Lambda.Serialization.Json"></Using>
-	</ItemGroup> -->
+	</ItemGroup>
 
   <ItemGroup>
     <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
