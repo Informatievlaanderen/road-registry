@@ -1,8 +1,8 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["src/Be.Vlaanderen.Basisregisters.IdentityServer/Be.Vlaanderen.Basisregisters.IdentityServer.csproj", "src/Be.Vlaanderen.Basisregisters.IdentityServer/"]
 RUN dotnet restore "src/Be.Vlaanderen.Basisregisters.IdentityServer/Be.Vlaanderen.Basisregisters.IdentityServer.csproj"
