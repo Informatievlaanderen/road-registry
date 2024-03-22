@@ -79,8 +79,8 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             new(HttpMethod.Post, "v1/upload/jobs", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/upload/jobs", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/upload/jobs/active", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Get, "v1/upload/jobs/{jobId}", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Delete, "v1/upload/jobs/{jobId}", Scopes.DvWrIngemetenWegBeheer)
+            new(HttpMethod.Get, "v1/upload/jobs/1e052f20-ec8b-4243-aa6e-c99a3bb7439c", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Delete, "v1/upload/jobs/1e052f20-ec8b-4243-aa6e-c99a3bb7439c", Scopes.DvWrIngemetenWegBeheer)
         };
         public static IEnumerable<object[]> EndpointsMemberData() => Endpoints.Select(x => new object[] { x.Method, x.Uri, x.RequiredScopes });
 
