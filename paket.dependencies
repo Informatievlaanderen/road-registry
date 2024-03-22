@@ -31,6 +31,7 @@ nuget Confluent.Kafka 2.3.0
 nuget CompareNETObjects 4.83.0
 nuget Docker.DotNet 3.125.15
 nuget DotSpatial.Projections 4.0.656
+nuget Duende.IdentityServer 7.0.3
 nuget FeatureToggle.Common 4.0.2
 nuget FluentAssertions 6.12.0
 nuget FluentValidation 11.9.0
