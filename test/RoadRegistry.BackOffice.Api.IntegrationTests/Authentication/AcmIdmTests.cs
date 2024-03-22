@@ -79,8 +79,8 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             new(HttpMethod.Post, "v1/upload/jobs", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/upload/jobs", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/upload/jobs/active", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Get, "v1/upload/jobs/1e052f20-ec8b-4243-aa6e-c99a3bb7439c", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Delete, "v1/upload/jobs/1e052f20-ec8b-4243-aa6e-c99a3bb7439c", Scopes.DvWrIngemetenWegBeheer)
+            new(HttpMethod.Get, "v1/upload/jobs/{jobId}", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Delete, "v1/upload/jobs/{jobId}", Scopes.DvWrIngemetenWegBeheer)
         };
         public static IEnumerable<object[]> EndpointsMemberData() => Endpoints.Select(x => new object[] { x.Method, x.Uri, x.RequiredScopes });
 
@@ -100,8 +100,9 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
 
             foreach (var apiDescription in apiDescriptions)
             {
-                var testEndpoint = Endpoints.SingleOrDefault(x => x.Method.ToString().Equals(apiDescription.HttpMethod, StringComparison.InvariantCultureIgnoreCase)
-                                                                  && x.Uri.Equals(apiDescription.RelativePath, StringComparison.InvariantCultureIgnoreCase));
+                var testEndpoint = Endpoints.SingleOrDefault(x =>
+                    x.Method.ToString().Equals(apiDescription.HttpMethod, StringComparison.InvariantCultureIgnoreCase)
+                    && x.Uri.Equals(apiDescription.RelativePath, StringComparison.InvariantCultureIgnoreCase));
                 if (testEndpoint is null)
                 {
                     Assert.Fail($"Endpoint '{apiDescription.HttpMethod} {apiDescription.RelativePath}' has no matching test");
@@ -121,7 +122,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _fixture.GetAcmIdmAccessToken(string.Join(" ", requiredScopes)));
                 }
 
-                var response = await SendAsync(client, CreateRequestMessage(method, endpoint));
+                var response = await SendAsync(client, CreateRequestMessage(method, endpoint.Replace("{jobId}", $"{Guid.NewGuid():D}")));
 
                 Assert.NotEqual(HttpStatusCode.Unauthorized, response.StatusCode);
                 Assert.NotEqual(HttpStatusCode.Forbidden, response.StatusCode);
@@ -136,7 +137,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             {
                 var client = _fixture.TestServer.CreateClient();
 
-                var response = await SendAsync(client, CreateRequestMessage(method, endpoint));
+                var response = await SendAsync(client, CreateRequestMessage(method, endpoint.Replace("{jobId}", $"{Guid.NewGuid():D}")));
 
                 if (requiredScopes.Any())
                 {
@@ -158,7 +159,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
                 var client = _fixture.TestServer.CreateClient();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _fixture.GetAcmIdmAccessToken());
 
-                var response = await SendAsync(client, CreateRequestMessage(method, endpoint));
+                var response = await SendAsync(client, CreateRequestMessage(method, endpoint.Replace("{jobId}", $"{Guid.NewGuid():D}")));
 
                 if (requiredScopes.Any(x => x != Scopes.VoInfo))
                 {
