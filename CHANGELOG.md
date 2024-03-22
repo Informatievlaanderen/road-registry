@@ -1,3 +1,10 @@
+## [3.71.4](https://github.com/informatievlaanderen/road-registry/compare/v3.71.3...v3.71.4) (2024-03-22)
+
+
+### Bug Fixes
+
+* load TicketingOptions for system endpoints ([#1436](https://github.com/informatievlaanderen/road-registry/issues/1436)) ([fa63baa](https://github.com/informatievlaanderen/road-registry/commit/fa63baad01a52d1ba1708e1b7788e3b589434fb1))
+
 ## [3.71.3](https://github.com/informatievlaanderen/road-registry/compare/v3.71.2...v3.71.3) (2024-03-21)
 
 
