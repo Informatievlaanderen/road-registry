@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 using Authentication;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
+using Hosts.Infrastructure.Options;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,9 @@ public partial class RoadRegistrySystemController : BackofficeApiController
     public RoadRegistrySystemController(
         IStreamStore store,
         IMediator mediator,
-        IRoadNetworkCommandQueue roadNetworkCommandQueue)
+        IRoadNetworkCommandQueue roadNetworkCommandQueue,
+        TicketingOptions ticketingOptions)
+        : base(ticketingOptions)
     {
         Store = store;
         Mediator = mediator;

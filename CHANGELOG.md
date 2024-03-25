@@ -1,3 +1,17 @@
+## [3.71.4](https://github.com/informatievlaanderen/road-registry/compare/v3.71.3...v3.71.4) (2024-03-22)
+
+
+### Bug Fixes
+
+* load TicketingOptions for system endpoints ([#1436](https://github.com/informatievlaanderen/road-registry/issues/1436)) ([fa63baa](https://github.com/informatievlaanderen/road-registry/commit/fa63baad01a52d1ba1708e1b7788e3b589434fb1))
+
+## [3.71.3](https://github.com/informatievlaanderen/road-registry/compare/v3.71.2...v3.71.3) (2024-03-21)
+
+
+### Bug Fixes
+
+* always add record for RoadSegmentAdded with hard-delete roadsegmentprojections ([#1434](https://github.com/informatievlaanderen/road-registry/issues/1434)) ([03e3fdf](https://github.com/informatievlaanderen/road-registry/commit/03e3fdfff3385fa08a0bf6c5b08e418772141171))
+
 ## [3.71.2](https://github.com/informatievlaanderen/road-registry/compare/v3.71.1...v3.71.2) (2024-03-20)
 
 
