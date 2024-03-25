@@ -11,6 +11,8 @@ using Microsoft.Extensions.Logging.Configuration;
 using Serilog;
 using Serilog.Debugging;
 using Serilog.Filters;
+using Serilog.Settings.Configuration;
+using Serilog.Sinks.Slack.Models;
 
 /// <summary>
 ///     Extension methods for the <see cref="ILoggerFactory" /> class.
@@ -34,8 +36,9 @@ public static class EventSourceLoggerFactoryExtensions
     {
         SelfLog.Enable(Console.WriteLine);
 
+        var options = new ConfigurationReaderOptions(typeof(ConsoleLoggerConfigurationExtensions).Assembly, typeof(SlackSinkOptions).Assembly);
         var loggerConfiguration = new LoggerConfiguration()
-            .ReadFrom.Configuration(configuration)
+            .ReadFrom.Configuration(configuration, options)
             .Enrich.FromLogContext()
             .Enrich.WithMachineName()
             .Enrich.WithThreadId()
