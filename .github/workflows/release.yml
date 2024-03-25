@@ -725,7 +725,7 @@ jobs:
       matrix:
         image: [
           'adminhost', 
-          #'jobs-processor', 
+          'jobs-processor', 
           'backoffice-api', 
           'backoffice-commandhost', 
           'backoffice-eventhost', 
@@ -838,7 +838,7 @@ jobs:
        matrix: 
          services: [
           'road-adminhost'
-          #'road-jobs-processor'
+          'road-jobs-processor'
         ]
 
     steps:
