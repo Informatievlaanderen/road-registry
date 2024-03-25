@@ -118,7 +118,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, GetStreetNameIdAsString(WellKnownStreetNameIds.Proposed), null));
 
         //Assert
-        VerifyThatTicketHasError(ticketing, "LinkerstraatnaamNietOntkoppeld", $"Het wegsegment '{roadSegmentId}' heeft reeds een linkerstraatnaam. Gelieve deze eerst te ontkoppelen.");
+        VerifyThatTicketHasError(ticketing, "LinkerstraatnaamNietOntkoppeld", $"Het wegsegment met id {roadSegmentId} heeft reeds een linkerstraatnaam. Gelieve deze eerst te ontkoppelen.");
     }
 
     [Fact]
@@ -215,7 +215,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, null, GetStreetNameIdAsString(WellKnownStreetNameIds.Proposed)));
 
         //Assert
-        VerifyThatTicketHasError(ticketing, "RechterstraatnaamNietOntkoppeld", $"Het wegsegment '{roadSegmentId}' heeft reeds een rechterstraatnaam. Gelieve deze eerst te ontkoppelen.");
+        VerifyThatTicketHasError(ticketing, "RechterstraatnaamNietOntkoppeld", $"Het wegsegment met id {roadSegmentId} heeft reeds een rechterstraatnaam. Gelieve deze eerst te ontkoppelen.");
     }
 
     [Fact]

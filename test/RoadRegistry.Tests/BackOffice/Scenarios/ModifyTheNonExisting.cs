@@ -777,7 +777,10 @@ public class ModifyTheNonExisting : RoadRegistryTestBase
                                 {
                                     Reason = "RoadSegmentNotFound",
                                     Severity = ProblemSeverity.Error,
-                                    Parameters = Array.Empty<ProblemParameter>()
+                                    Parameters = new ProblemParameter[]
+                                    {
+                                        new() { Name = "SegmentId", Value = "1" }
+                                    }
                                 }
                             }
                         }

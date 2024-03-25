@@ -116,7 +116,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, linkerstraatnaamPuri, null));
 
         //Assert
-        VerifyThatTicketHasError(ticketing, "LinkerstraatnaamNietGekoppeld", $"Het wegsegment '{roadSegmentId}' is niet gekoppeld aan de linkerstraatnaam '{linkerstraatnaamPuri}'");
+        VerifyThatTicketHasError(ticketing, "LinkerstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de linkerstraatnaam '{linkerstraatnaamPuri}'");
     }
 
     [Fact]
@@ -135,7 +135,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, linkerstraatnaamPuri, null));
 
         //Assert
-        VerifyThatTicketHasError(ticketing, "LinkerstraatnaamNietGekoppeld", $"Het wegsegment '{roadSegmentId}' is niet gekoppeld aan de linkerstraatnaam '{linkerstraatnaamPuri}'");
+        VerifyThatTicketHasError(ticketing, "LinkerstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de linkerstraatnaam '{linkerstraatnaamPuri}'");
     }
 
     [Fact]
@@ -177,7 +177,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, null, rechterstraatnaamPuri));
 
         //Assert
-        VerifyThatTicketHasError(ticketing, "RechterstraatnaamNietGekoppeld", $"Het wegsegment '{roadSegmentId}' is niet gekoppeld aan de rechterstraatnaam '{rechterstraatnaamPuri}'");
+        VerifyThatTicketHasError(ticketing, "RechterstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de rechterstraatnaam '{rechterstraatnaamPuri}'");
     }
 
     [Fact]
@@ -196,7 +196,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, null, rechterstraatnaamPuri));
 
         //Assert
-        VerifyThatTicketHasError(ticketing, "RechterstraatnaamNietGekoppeld", $"Het wegsegment '{roadSegmentId}' is niet gekoppeld aan de rechterstraatnaam '{rechterstraatnaamPuri}'");
+        VerifyThatTicketHasError(ticketing, "RechterstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de rechterstraatnaam '{rechterstraatnaamPuri}'");
     }
 
     [Fact]

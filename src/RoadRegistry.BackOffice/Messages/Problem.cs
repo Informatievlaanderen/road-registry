@@ -31,7 +31,7 @@ public class Problem
 
     public string GetParameterValue(string parameterName)
     {
-        var parameter = Parameters.SingleOrDefault(x => x.Name == parameterName);
+        var parameter = Parameters.SingleOrDefault(x => string.Equals(x.Name, parameterName, StringComparison.InvariantCultureIgnoreCase));
         if (parameter is null)
         {
             throw new ArgumentException($"No parameter found with name '{parameterName}'");
@@ -41,6 +41,6 @@ public class Problem
 
     public bool HasParameter(string parameterName)
     {
-        return Parameters.Any(x => x.Name == parameterName);
+        return Parameters.Any(x => string.Equals(x.Name, parameterName, StringComparison.InvariantCultureIgnoreCase));
     }
 }

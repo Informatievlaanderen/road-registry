@@ -12,7 +12,7 @@ public class FileProblem
 
     public string GetParameterValue(string parameterName, bool required = true)
     {
-        var parameter = Parameters.SingleOrDefault(x => x.Name == parameterName);
+        var parameter = Parameters.SingleOrDefault(x => string.Equals(x.Name, parameterName, StringComparison.InvariantCultureIgnoreCase));
         if (parameter is null)
         {
             if (required)

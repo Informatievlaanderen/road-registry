@@ -535,12 +535,12 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                     {
                                         new ProblemParameter
                                         {
-                                            Name = "modifiedRoadSegmentId",
+                                            Name = "ModifiedRoadSegmentId",
                                             Value = modifyRoadSegment.Id.ToString()
                                         },
                                         new ProblemParameter
                                         {
-                                            Name = "intersectingRoadSegmentId",
+                                            Name = "IntersectingRoadSegmentId",
                                             Value = segment1.ToInt32().ToString()
                                         }
                                     }

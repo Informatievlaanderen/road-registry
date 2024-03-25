@@ -72,7 +72,7 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
     {
         return _mapToOriginalSegmentIdentifiers.TryGetValue(id, out var originalId)
             ? originalId
-            : id;
+            : id;//TODO-rik hier de temporary gebruiken indien aanwezig
     }
 
     public GradeSeparatedJunctionId TranslateToTemporaryOrId(GradeSeparatedJunctionId id)

@@ -295,7 +295,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
 
         var problems = Problems.None;
         var originalIdOrId = context.Translator.TranslateToOriginalOrId(Id);
-        //TODO-rik test of de originalid er goed door komt
+        
         if (!context.BeforeView.Segments.ContainsKey(Id) && !ConvertedFromOutlined)
         {
             problems = problems.Add(new RoadSegmentNotFound(originalIdOrId));
