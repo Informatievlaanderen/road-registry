@@ -837,7 +837,7 @@ jobs:
     strategy:
        matrix: 
          services: [
-          'road-adminhost'
+          'road-adminhost',
           'road-jobs-processor'
         ]
 
