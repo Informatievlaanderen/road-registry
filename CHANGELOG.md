@@ -1,3 +1,22 @@
+# [4.0.0](https://github.com/informatievlaanderen/road-registry/compare/v3.71.5...v4.0.0) (2024-03-26)
+
+
+### Bug Fixes
+
+* WR-900 pipeline disable jobs-process-upload ([#1439](https://github.com/informatievlaanderen/road-registry/issues/1439)) ([7cd3fa0](https://github.com/informatievlaanderen/road-registry/commit/7cd3fa0ef735cbdcc8036bdf3e21a4c20c6512d0))
+* WR-966 add roadsegment identifiers to error messages ([#1440](https://github.com/informatievlaanderen/road-registry/issues/1440)) ([ee702c4](https://github.com/informatievlaanderen/road-registry/commit/ee702c4e2aa76e13db6b73500a043e26bb1ced4e))
+
+
+### Features
+
+* add v2 example ([ede55e9](https://github.com/informatievlaanderen/road-registry/commit/ede55e9e4d6e3e2698f5bc33a8971acd611387e5))
+* move to dotnet 8.0.2 ([0fcb7a2](https://github.com/informatievlaanderen/road-registry/commit/0fcb7a25fb92e8b68bfeba449d28c98b4690f0dc))
+
+
+### BREAKING CHANGES
+
+* move to dotnet 8.0.2
+
 ## [3.71.5](https://github.com/informatievlaanderen/road-registry/compare/v3.71.4...v3.71.5) (2024-03-25)
 
 
