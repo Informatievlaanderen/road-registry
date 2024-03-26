@@ -2,7 +2,7 @@ namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Infrastructure;
 
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.AggregateSource;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
+using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Hosts;

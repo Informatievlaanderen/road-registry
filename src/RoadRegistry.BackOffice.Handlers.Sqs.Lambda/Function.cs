@@ -1,3 +1,6 @@
+using Amazon.Lambda.Core;
+using Amazon.Lambda.Serialization.Json;
+
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
 
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
@@ -29,7 +32,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             })
     {
     }
-    
+
     protected override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
         services
@@ -49,7 +52,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .AddStreetNameClient()
             ;
     }
-    
+
     protected override void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
     {
         builder

@@ -1,5 +1,10 @@
 namespace RoadRegistry.Projector.Projections;
 
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Asp.Versioning;
 using Be.Vlaanderen.Basisregisters.Api;
 using Infrastructure;
 using Infrastructure.Controllers;
@@ -7,10 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SqlStreamStore;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 [ApiVersion("1.0")]
 [ApiRoute("projections")]

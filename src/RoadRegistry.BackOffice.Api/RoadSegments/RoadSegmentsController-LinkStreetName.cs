@@ -20,6 +20,7 @@ using Swashbuckle.AspNetCore.Filters;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 
 public partial class RoadSegmentsController
 {

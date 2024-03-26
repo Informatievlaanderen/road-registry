@@ -1,22 +1,21 @@
 namespace RoadRegistry.Hosts;
 
-using BackOffice;
-using BackOffice.Core;
-using BackOffice.Framework;
-using BackOffice.Messages;
-using BackOffice.Uploads;
-using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
-using FluentValidation;
-using FluentValidation.Results;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice;
+using BackOffice.Core;
+using BackOffice.Framework;
+using BackOffice.Messages;
+using BackOffice.Uploads;
+using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
+using FluentValidation;
+using FluentValidation.Results;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Reason = BackOffice.Reason;
 
 public interface IChangeRoadNetworkDispatcher

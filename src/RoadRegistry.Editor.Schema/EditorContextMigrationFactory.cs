@@ -1,11 +1,11 @@
 namespace RoadRegistry.Editor.Schema;
 
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-public class EditorContextMigrationFactory : RunnerDbContextMigrationFactory<EditorContext>
+public class EditorContextMigrationFactory : SqlServerRunnerDbContextMigrationFactory<EditorContext>
 {
     public EditorContextMigrationFactory()
         : base(WellKnownConnectionNames.EditorProjectionsAdmin, HistoryConfiguration)

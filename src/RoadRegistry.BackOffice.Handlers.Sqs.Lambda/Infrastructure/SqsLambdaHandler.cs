@@ -4,8 +4,8 @@ using Abstractions;
 using Abstractions.Exceptions;
 using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.Api.ETag;
+using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Core;
@@ -43,7 +43,7 @@ public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambd
 
         return roadSegment.LastEventHash;
     }
-    
+
     protected override TicketError? InnerMapDomainException(DomainException exception, TSqsLambdaRequest request)
     {
         return exception switch

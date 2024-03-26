@@ -1,10 +1,13 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Abstractions.RoadSegments;
 using BackOffice.Handlers.Sqs.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
-using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
+using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using ChangeDynamicAttributes;
 using Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -12,9 +15,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using ValidationException = FluentValidation.ValidationException;
 
 public partial class RoadSegmentsController

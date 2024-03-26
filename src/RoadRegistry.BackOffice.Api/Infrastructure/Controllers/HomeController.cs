@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
 using System.Reflection;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 

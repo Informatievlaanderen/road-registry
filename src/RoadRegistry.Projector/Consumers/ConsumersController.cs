@@ -1,5 +1,10 @@
 namespace RoadRegistry.Projector.Consumers
 {
+    using System;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Asp.Versioning;
     using BackOffice;
     using Be.Vlaanderen.Basisregisters.Api;
     using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
@@ -8,10 +13,6 @@ namespace RoadRegistry.Projector.Consumers
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.Configuration;
-    using System;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
 
     [ApiVersion("1.0")]
     [ApiRoute("consumers")]

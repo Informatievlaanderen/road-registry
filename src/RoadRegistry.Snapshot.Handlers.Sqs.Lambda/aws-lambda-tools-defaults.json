@@ -8,7 +8,7 @@
   "profile": "vbr-test",
   "region": "eu-west-1",
   "configuration": "Release",
-  "function-runtime": "dotnet6",
+  "function-runtime": "dotnet8",
   "function-memory-size": 256,
   "function-timeout": 900,
   "function-handler": "RoadRegistry.Snapshot.Handlers.Sqs.Lambda::RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Function::Handler"

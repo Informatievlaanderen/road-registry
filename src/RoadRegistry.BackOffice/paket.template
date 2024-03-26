@@ -15,7 +15,7 @@ licenseUrl https://opensource.org/licenses/EUPL-1.2
 description Road Registry.
 
 dependencies
-  framework: net6.0
+  framework: net8.0
     Be.Vlaanderen.Basisregisters.AggregateSource >= LOCKEDVERSION
     Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache >= LOCKEDVERSION
     Be.Vlaanderen.Basisregisters.BlobStore >= LOCKEDVERSION
@@ -48,5 +48,5 @@ dependencies
     System.IdentityModel.Tokens.Jwt >= LOCKEDVERSION
 
 files
-  RoadRegistry.BackOffice.dll => lib\net6.0
-  RoadRegistry.BackOffice.pdb => lib\net6.0
+  RoadRegistry.BackOffice.dll => lib\net8.0
+  RoadRegistry.BackOffice.pdb => lib\net8.0

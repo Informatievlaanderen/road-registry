@@ -1,15 +1,16 @@
 namespace RoadRegistry.Projector.Syndication;
 
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Asp.Versioning;
 using Be.Vlaanderen.Basisregisters.Api;
 using Infrastructure;
 using Infrastructure.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SqlStreamStore;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 [ApiVersion("1.0")]
 [ApiRoute("syndication")]

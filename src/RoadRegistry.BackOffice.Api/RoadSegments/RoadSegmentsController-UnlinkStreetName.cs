@@ -1,12 +1,16 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
+using Abstractions.Exceptions;
 using Abstractions.Extensions;
 using Abstractions.RoadSegments;
 using BackOffice.Handlers.Sqs.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
-using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
+using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using FluentValidation;
 using Infrastructure;
 using Infrastructure.Authentication;
@@ -14,12 +18,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
-using System.Runtime.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 
 public partial class RoadSegmentsController
 {

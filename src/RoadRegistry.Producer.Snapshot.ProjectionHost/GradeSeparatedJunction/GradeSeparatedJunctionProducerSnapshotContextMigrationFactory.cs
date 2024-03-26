@@ -1,11 +1,11 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
 {
     using BackOffice;
-    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Infrastructure;
 
-    public class GradeSeparatedJunctionProducerSnapshotContextMigrationFactory : RunnerDbContextMigrationFactory<GradeSeparatedJunctionProducerSnapshotContext>
+    public class GradeSeparatedJunctionProducerSnapshotContextMigrationFactory : SqlServerRunnerDbContextMigrationFactory<GradeSeparatedJunctionProducerSnapshotContext>
     {
         public GradeSeparatedJunctionProducerSnapshotContextMigrationFactory() :
             base(WellKnownConnectionNames.ProducerSnapshotProjectionsAdmin, HistoryConfiguration)

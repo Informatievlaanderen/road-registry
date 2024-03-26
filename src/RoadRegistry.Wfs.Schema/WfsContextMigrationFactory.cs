@@ -1,11 +1,11 @@
 namespace RoadRegistry.Wfs.Schema;
 
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-public class WfsContextMigrationFactory : RunnerDbContextMigrationFactory<WfsContext>
+public class WfsContextMigrationFactory : SqlServerRunnerDbContextMigrationFactory<WfsContext>
 {
     public WfsContextMigrationFactory() :
         base(WellKnownConnectionNames.WfsProjectionsAdmin, HistoryConfiguration)

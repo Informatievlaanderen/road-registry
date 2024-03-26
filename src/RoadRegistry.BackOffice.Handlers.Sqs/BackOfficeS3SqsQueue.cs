@@ -1,17 +1,13 @@
-using System.Reflection;
+namespace RoadRegistry.BackOffice.Handlers.Sqs;
+
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Sqs;
+using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Configuration;
 using RoadRegistry.BackOffice.Uploads;
-using SqsQueue = Be.Vlaanderen.Basisregisters.Sqs.SqsQueue;
-
-namespace RoadRegistry.BackOffice.Handlers.Sqs;
-
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple.Extensions;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using System.Reflection;
 
 public interface IBackOfficeS3SqsQueue : ISqsQueue
 {
@@ -19,17 +15,17 @@ public interface IBackOfficeS3SqsQueue : ISqsQueue
 
 internal class BackOfficeS3SqsQueue : IBackOfficeS3SqsQueue
 {
-    private readonly SqsQueue _sqsQueue;
-    private readonly SqsOptions _sqsOptions;
+    private readonly ISqsQueue _sqsQueue;
+    private readonly SqsJsonMessageSerializer _sqsJsonMessageSerializer;
     private readonly SqsMessagesBlobClient _blobClient;
     private readonly ILogger<BackOfficeS3SqsQueue> _logger;
 
-    public BackOfficeS3SqsQueue(SqsOptions sqsOptions, SqsQueueUrlOptions sqsQueueUrlOptions, SqsMessagesBlobClient blobClient, ILogger<BackOfficeS3SqsQueue> logger)
+    public BackOfficeS3SqsQueue(ISqsQueueFactory sqsQueueFactory, SqsJsonMessageSerializer sqsJsonMessageSerializer, SqsQueueUrlOptions sqsQueueUrlOptions, SqsMessagesBlobClient blobClient, ILogger<BackOfficeS3SqsQueue> logger)
     {
-        _sqsQueue = new SqsQueue(sqsOptions, sqsQueueUrlOptions.BackOffice);
-        _sqsOptions = sqsOptions;
-        _blobClient = blobClient;
-        _logger = logger;
+        _sqsQueue = sqsQueueFactory.ThrowIfNull().Create(sqsQueueUrlOptions.BackOffice);
+        _sqsJsonMessageSerializer = sqsJsonMessageSerializer.ThrowIfNull();
+        _blobClient = blobClient.ThrowIfNull(); ;
+        _logger = logger.ThrowIfNull(); ;
     }
 
     public async Task<bool> Copy<T>(T message, SqsQueueOptions queueOptions, CancellationToken cancellationToken) where T : class
@@ -64,11 +60,7 @@ internal class BackOfficeS3SqsQueue : IBackOfficeS3SqsQueue
         {
             return;
         }
-
-        var serializer = JsonSerializer.CreateDefault(_sqsOptions.JsonSerializerSettings);
-        var sqsJsonMessage = SqsJsonMessage.Create(message, serializer);
-        var json = serializer.Serialize(sqsJsonMessage);
         
-        _logger.LogInformation("Sqs message:\n{Message}", json);
+        _logger.LogInformation("Sqs message:\n{Message}", _sqsJsonMessageSerializer.Serialize(message));
     }
 }

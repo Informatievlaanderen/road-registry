@@ -2,7 +2,7 @@
 	<Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Library.props" />
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
@@ -13,12 +13,13 @@
 		<Platforms>AnyCPU;x64;x86</Platforms>
 		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+		<StripSymbols>true</StripSymbols>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!-- <ItemGroup>
 	  <Using Include="Amazon.Lambda.Core"></Using>
 	  <Using Include="Amazon.Lambda.Serialization.Json"></Using>
-  </ItemGroup>
+  </ItemGroup> -->
 
 	<ItemGroup>
 		<Content Include="appsettings.json" CopyToOutputDirectory="Always" />

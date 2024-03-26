@@ -2,5 +2,8 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyDescription("RoadRegistry Projector")]
+
+[assembly: AssemblyProduct("Basisregisters Vlaanderen")]
+[assembly: AssemblyCopyright("Copyright (c) Vlaamse overheid")]
+[assembly: AssemblyCompany("Vlaamse overheid")]
 [assembly: ComVisible(false)]
-[assembly: Guid("9145c506-10b7-422e-894e-95d6f3855808")]

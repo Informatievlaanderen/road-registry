@@ -1,9 +1,8 @@
 namespace RoadRegistry.Tests;
 
 using KellermanSoftware.CompareNetObjects;
-using KellermanSoftware.CompareNetObjects.TypeComparers;
 
-public class DateTimeComparer : DateComparer
+public class DateTimeComparer : KellermanSoftware.CompareNetObjects.TypeComparers.DateTimeComparer
 {
     public DateTimeComparer(RootComparer rootComparer) : base(rootComparer)
     {
