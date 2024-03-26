@@ -76,8 +76,8 @@ public static class ProblemTranslator
             "Het onderste wegsegment ontbreekt.") },
         {ProblemCode.RoadSegment.Missing, problem => new(problem.Severity, problem.Reason,
             $"Het wegsegment met id {problem.Parameters[0].Value} ontbreekt.") },
-        {ProblemCode.RoadSegment.NotFound, problem => new(problem.Severity, "NotFound", problem.Parameters.Any()
-            ? $"Het wegsegment met id {problem.Parameters[0].Value} bestaat niet."
+        {ProblemCode.RoadSegment.NotFound, problem => new(problem.Severity, "NotFound", problem.HasParameter("SegmentId")
+            ? $"Het wegsegment met id {problem.GetParameterValue("SegmentId")} bestaat niet."
             : "Dit wegsegment bestaat niet.") },
         {ProblemCode.RoadSegment.OutlinedNotFound, problem => new(problem.Severity, "NotFound",
             "Dit wegsegment bestaat niet of heeft niet de geometriemethode 'ingeschetst'.") },
@@ -93,14 +93,17 @@ public static class ProblemTranslator
             "Wegcategorie is verplicht.") },
         {ProblemCode.RoadSegment.Category.NotValid, problem => new(problem.Severity, "WegcategorieNietCorrect",
             $"Wegcategorie is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.") },
-        {ProblemCode.RoadSegment.EndNode.Missing, problem => new(problem.Severity, problem.Reason,
-            "De eind wegknoop van het wegsegment ontbreekt.") },
+        {ProblemCode.RoadSegment.EndNode.Missing, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"De eind wegknoop van het wegsegment met id {problem.GetParameterValue("Identifier")} ontbreekt."
+            : "De eind wegknoop van het wegsegment ontbreekt.") },
         {ProblemCode.RoadSegment.EndNode.RefersToRemovedNode, problem => new(problem.Severity, problem.Reason,
             $"De eind knoop van wegsegment {problem.Parameters[0].Value} verwijst naar een verwijderde knoop {problem.Parameters[1].Value}.") },
-        {ProblemCode.RoadSegment.EndPoint.DoesNotMatchNodeGeometry, problem => new(problem.Severity, problem.Reason,
-            "De positie van het eind punt van het wegsegment stemt niet overeen met de geometrie van de eind wegknoop.") },
-        {ProblemCode.RoadSegment.EndPoint.MeasureValueNotEqualToLength, problem => new(problem.Severity, problem.Reason,
-            $"De meting ({problem.Parameters[2].Value}) op het eind punt [X={problem.Parameters[0].Value},Y={problem.Parameters[1].Value}] is niet gelijk aan de lengte ({problem.Parameters[3].Value}).") },
+        {ProblemCode.RoadSegment.EndPoint.DoesNotMatchNodeGeometry, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"De positie van het eind punt van het wegsegment met id {problem.GetParameterValue("Identifier")} stemt niet overeen met de geometrie van de eind wegknoop."
+            : "De positie van het eind punt van het wegsegment stemt niet overeen met de geometrie van de eind wegknoop.") },
+        {ProblemCode.RoadSegment.EndPoint.MeasureValueNotEqualToLength, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"De meting ({problem.GetParameterValue("Measure")}) op het eind punt [X={problem.GetParameterValue("PointX")},Y={problem.GetParameterValue("PointY")}] van wegsegment met id {problem.GetParameterValue("Identifier")} is niet gelijk aan de lengte ({problem.GetParameterValue("Length")})."
+            : $"De meting ({problem.GetParameterValue("Measure")}) op het eind punt [X={problem.GetParameterValue("PointX")},Y={problem.GetParameterValue("PointY")}] is niet gelijk aan de lengte ({problem.GetParameterValue("Length")}).") },
 
         {ProblemCode.RoadSegment.EuropeanRoads.NotUnique, problem => new(problem.Severity, "EuropeseWegenNietUniek",
             "De Europese wegen moeten uniek zijn o.b.v. hun EU-nummer.") },
@@ -139,15 +142,22 @@ public static class ProblemTranslator
             "De opgegeven geometrie is geen geldige LineString in gml 3.2.") },
         {ProblemCode.RoadSegment.Geometry.LengthIsZero, problem => new(problem.Severity, problem.Reason, problem.HasParameter("RecordNumber")
             ? $"De shape record {problem.GetParameterValue("RecordNumber")} geometrie lengte is 0."
-            : "De lengte van het wegsegment is 0.") },
+            : problem.HasParameter("Identifier")
+                ? $"De lengte van het wegsegment met id {problem.GetParameterValue("Identifier")} is 0."
+                : "De lengte van het wegsegment is 0.") },
         {ProblemCode.RoadSegment.Geometry.SelfIntersects, problem => new(problem.Severity, problem.Reason, problem.HasParameter("RecordNumber")
             ? $"De shape record {problem.GetParameterValue("RecordNumber")} geometrie kruist zichzelf."
-            : "De geometrie van het wegsegment kruist zichzelf.") },
+            : problem.HasParameter("Identifier")
+                ? $"De geometrie van het wegsegment met id {problem.GetParameterValue("Identifier")} kruist zichzelf."
+                : "De geometrie van het wegsegment kruist zichzelf.") },
         {ProblemCode.RoadSegment.Geometry.SelfOverlaps, problem => new(problem.Severity, problem.Reason, problem.HasParameter("RecordNumber")
             ? $"De shape record {problem.GetParameterValue("RecordNumber")} geometrie overlapt zichzelf."
-            : "De geometrie van het wegsegment overlapt zichzelf.") },
-        {ProblemCode.RoadSegment.Geometry.LengthLessThanMinimum, problem => new(problem.Severity, "MiddellijnGeometrieKorterDanMinimum",
-            $"De opgegeven geometrie heeft niet de minimale lengte van {problem.Parameters[0].Value} meter.") },
+            : problem.HasParameter("Identifier")
+                ? $"De geometrie van het wegsegment met id {problem.GetParameterValue("Identifier")} overlapt zichzelf."
+                : "De geometrie van het wegsegment overlapt zichzelf.") },
+        {ProblemCode.RoadSegment.Geometry.LengthLessThanMinimum, problem => new(problem.Severity, "MiddellijnGeometrieKorterDanMinimum", problem.HasParameter("Identifier")
+            ? $"De opgegeven geometrie van wegsegment met id {problem.GetParameterValue("Identifier")} heeft niet de minimale lengte van {problem.GetParameterValue("Minimum")} meter."
+            : $"De opgegeven geometrie heeft niet de minimale lengte van {problem.GetParameterValue("Minimum")} meter.") },
         {ProblemCode.RoadSegment.Geometry.SridNotValid, problem => new(problem.Severity, "MiddellijnGeometrieCRSNietCorrect",
             "De opgegeven geometrie heeft niet het coördinatenstelsel Lambert 72.") },
         {ProblemCode.RoadSegment.Geometry.Taken, problem => new(problem.Severity, problem.Reason,
@@ -170,10 +180,12 @@ public static class ProblemTranslator
             "Aantal rijstroken moet groter dan nul zijn.")},
         {ProblemCode.RoadSegment.Lane.LessThanOrEqualToMaximum, problem => new(problem.Severity, "AantalRijstrokenKleinerOfGelijkAanMaximum",
             $"Aantal rijstroken mag niet groter dan {RoadSegmentLaneCount.Maximum} zijn.")},
-        {ProblemCode.RoadSegment.Lanes.CountGreaterThanOne, problem => new(problem.Severity, problem.Reason,
-            "Wegsegment heeft meer dan 1 rijstrook.")},
-        {ProblemCode.RoadSegment.Lanes.HasCountOfZero, problem => new(problem.Severity, problem.Reason,
-            "Wegsegment heeft geen enkel rijstrook.")},
+        {ProblemCode.RoadSegment.Lanes.CountGreaterThanOne, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"Wegsegment met id {problem.GetParameterValue("Identifier")} heeft meer dan 1 rijstrook."
+            : "Wegsegment heeft meer dan 1 rijstrook.")},
+        {ProblemCode.RoadSegment.Lanes.HasCountOfZero, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"Wegsegment met id {problem.GetParameterValue("Identifier")} heeft geen enkel rijstrook."
+            : "Wegsegment heeft geen enkel rijstrook.")},
         {ProblemCode.RoadSegment.LaneCount.IsRequired, problem => new(problem.Severity, "AantalRijstrokenVerplicht",
             "Aantal rijstroken is verplicht.")},
         {ProblemCode.RoadSegment.LaneCount.NotValid, problem => new(problem.Severity, "AantalRijstrokenNietCorrect",
@@ -192,18 +204,23 @@ public static class ProblemTranslator
             $"Morfologische wegklasse is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.") },
         {ProblemCode.RoadSegment.Morphology.IsRequired, problem => new(problem.Severity, "MorfologischeWegklasseVerplicht",
             "Morfologische wegklasse is verplicht.") },
-        {ProblemCode.RoadSegment.Point.MeasureValueDoesNotIncrease, problem => new(problem.Severity, problem.Reason,
-            $"De meting ({problem.Parameters[2].Value}) op het punt [X={problem.Parameters[0].Value},Y={problem.Parameters[1].Value}] is niet groter dan de meting ({problem.Parameters[3].Value}) op het vorige punt.") },
-        {ProblemCode.RoadSegment.Point.MeasureValueOutOfRange, problem => new(problem.Severity, problem.Reason,
-            $"De meting ({problem.Parameters[2].Value}) op het punt [X={problem.Parameters[0].Value},Y={problem.Parameters[1].Value}] ligt niet binnen de verwachte grenzen [{problem.Parameters[3].Value}-{problem.Parameters[4].Value}].") },
-        {ProblemCode.RoadSegment.StartNode.Missing, problem => new(problem.Severity, problem.Reason,
-            "De start wegknoop van het wegsegment ontbreekt.") },
+        {ProblemCode.RoadSegment.Point.MeasureValueDoesNotIncrease, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"De meting ({problem.GetParameterValue("Measure")}) van het wegsegment met id {problem.GetParameterValue("Identifier")} op het punt [X={problem.GetParameterValue("PointX")},Y={problem.GetParameterValue("PointY")}] is niet groter dan de meting ({problem.GetParameterValue("PreviousMeasure")}) op het vorige punt."
+            : $"De meting ({problem.GetParameterValue("Measure")}) op het punt [X={problem.GetParameterValue("PointX")},Y={problem.GetParameterValue("PointY")}] is niet groter dan de meting ({problem.GetParameterValue("PreviousMeasure")}) op het vorige punt.") },
+        {ProblemCode.RoadSegment.Point.MeasureValueOutOfRange, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"De meting ({problem.GetParameterValue("Measure")}) van het wegsegment met id {problem.GetParameterValue("Identifier")} op het punt [X={problem.GetParameterValue("PointX")},Y={problem.GetParameterValue("PointY")}] ligt niet binnen de verwachte grenzen [{problem.GetParameterValue("MeasureLowerBoundary")}-{problem.GetParameterValue("MeasureUpperBoundary")}]."
+            : $"De meting ({problem.GetParameterValue("Measure")}) op het punt [X={problem.GetParameterValue("PointX")},Y={problem.GetParameterValue("PointY")}] ligt niet binnen de verwachte grenzen [{problem.GetParameterValue("MeasureLowerBoundary")}-{problem.GetParameterValue("MeasureUpperBoundary")}].") },
+        {ProblemCode.RoadSegment.StartNode.Missing, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"De start wegknoop van het wegsegment met id {problem.GetParameterValue("Identifier")} ontbreekt."
+            : "De start wegknoop van het wegsegment ontbreekt.") },
         {ProblemCode.RoadSegment.StartNode.RefersToRemovedNode, problem => new(problem.Severity, problem.Reason,
-            $"De begin knoop van wegsegment {problem.Parameters[0].Value} verwijst naar een verwijderde knoop {problem.Parameters[1].Value}.") },
-        {ProblemCode.RoadSegment.StartPoint.DoesNotMatchNodeGeometry, problem => new(problem.Severity, problem.Reason,
-            "De positie van het start punt van het wegsegment stemt niet overeen met de geometrie van de start wegknoop.") },
-        {ProblemCode.RoadSegment.StartPoint.MeasureValueNotEqualToZero, problem => new(problem.Severity, problem.Reason,
-            $"De meting ({problem.Parameters[2].Value}) op het start punt [X={problem.Parameters[0].Value},Y={problem.Parameters[1].Value}] is niet 0.0.") },
+            $"De begin knoop van wegsegment met id {problem.Parameters[0].Value} verwijst naar een verwijderde knoop {problem.Parameters[1].Value}.") },
+        {ProblemCode.RoadSegment.StartPoint.DoesNotMatchNodeGeometry, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"De positie van het start punt van het wegsegment met id {problem.GetParameterValue("Identifier")} stemt niet overeen met de geometrie van de start wegknoop."
+            : "De positie van het start punt van het wegsegment stemt niet overeen met de geometrie van de start wegknoop.") },
+        {ProblemCode.RoadSegment.StartPoint.MeasureValueNotEqualToZero, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"De meting ({problem.GetParameterValue("Measure")}) van het wegsegment met id {problem.GetParameterValue("Identifier")} op het start punt [X={problem.GetParameterValue("PointX")},Y={problem.GetParameterValue("PointY")}] is niet 0.0."
+            : $"De meting ({problem.GetParameterValue("Measure")}) op het start punt [X={problem.GetParameterValue("PointX")},Y={problem.GetParameterValue("PointY")}] is niet 0.0.") },
         {ProblemCode.RoadSegment.Status.NotValid, problem => new(problem.Severity, "WegsegmentStatusNietCorrect",
             $"Wegsegment status is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.") },
         {ProblemCode.RoadSegment.Status.IsRequired, problem => new(problem.Severity, "WegsegmentStatusVerplicht",
@@ -211,13 +228,13 @@ public static class ProblemTranslator
         {ProblemCode.RoadSegment.StreetName.NotProposedOrCurrent, problem => new(problem.Severity, "WegsegmentStraatnaamNietVoorgesteldOfInGebruik",
             "Deze actie is enkel toegelaten voor straatnamen met status 'voorgesteld' of 'in gebruik'.") },
         {ProblemCode.RoadSegment.StreetName.Left.NotLinked, problem => new(problem.Severity, "LinkerstraatnaamNietGekoppeld",
-            $"Het wegsegment '{problem.Parameters[0].Value}' is niet gekoppeld aan de linkerstraatnaam '{problem.Parameters[1].Value}'") },
+            $"Het wegsegment met id {problem.Parameters[0].Value} is niet gekoppeld aan de linkerstraatnaam '{problem.Parameters[1].Value}'") },
         {ProblemCode.RoadSegment.StreetName.Left.NotUnlinked, problem => new(problem.Severity, "LinkerstraatnaamNietOntkoppeld",
-            $"Het wegsegment '{problem.Parameters[0].Value}' heeft reeds een linkerstraatnaam. Gelieve deze eerst te ontkoppelen.") },
+            $"Het wegsegment met id {problem.Parameters[0].Value} heeft reeds een linkerstraatnaam. Gelieve deze eerst te ontkoppelen.") },
         {ProblemCode.RoadSegment.StreetName.Right.NotLinked, problem => new(problem.Severity, "RechterstraatnaamNietGekoppeld",
-            $"Het wegsegment '{problem.Parameters[0].Value}' is niet gekoppeld aan de rechterstraatnaam '{problem.Parameters[1].Value}'") },
+            $"Het wegsegment met id {problem.Parameters[0].Value} is niet gekoppeld aan de rechterstraatnaam '{problem.Parameters[1].Value}'") },
         {ProblemCode.RoadSegment.StreetName.Right.NotUnlinked, problem => new(problem.Severity, "RechterstraatnaamNietOntkoppeld",
-            $"Het wegsegment '{problem.Parameters[0].Value}' heeft reeds een rechterstraatnaam. Gelieve deze eerst te ontkoppelen.") },
+            $"Het wegsegment met id {problem.Parameters[0].Value} heeft reeds een rechterstraatnaam. Gelieve deze eerst te ontkoppelen.") },
         {ProblemCode.RoadSegment.Surface.FromPositionNotEqualToZero, problem => new(problem.Severity, problem.Reason,
             $"De van positie ({problem.Parameters[1].Value}) van het eerste wegverharding attribuut met id {problem.Parameters[0].Value} is niet 0.0.") },
         {ProblemCode.RoadSegment.Surface.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
@@ -226,10 +243,12 @@ public static class ProblemTranslator
             $"De tot positie ({problem.Parameters[1].Value}) van het wegverharding attribuut met id {problem.Parameters[0].Value} sluit niet aan op de van positie ({problem.Parameters[3].Value}) van het wegverharding attribuut met id {problem.Parameters[2].Value}.") },
         {ProblemCode.RoadSegment.Surface.ToPositionNotEqualToLength, problem => new(problem.Severity, problem.Reason,
             $"De tot positie ({problem.Parameters[1].Value}) van het laatste wegverharding attribuut met id {problem.Parameters[0].Value} is niet de lengte van het wegsegment ({problem.Parameters[2].Value}).") },
-        {ProblemCode.RoadSegment.Surfaces.CountGreaterThanOne, problem => new(problem.Severity, problem.Reason,
-            "Wegsegment heeft meer dan 1 wegverharding.")},
-        {ProblemCode.RoadSegment.Surfaces.HasCountOfZero, problem => new(problem.Severity, problem.Reason,
-            "Wegsegment heeft geen enkele wegverharding.")},
+        {ProblemCode.RoadSegment.Surfaces.CountGreaterThanOne, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"Wegsegment met id {problem.GetParameterValue("Identifier")} heeft meer dan 1 wegverharding."
+            : "Wegsegment heeft meer dan 1 wegverharding.")},
+        {ProblemCode.RoadSegment.Surfaces.HasCountOfZero, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"Wegsegment met id {problem.GetParameterValue("Identifier")} heeft geen enkele wegverharding."
+            : "Wegsegment heeft geen enkele wegverharding.")},
         {ProblemCode.RoadSegment.SurfaceType.IsRequired, problem => new(problem.Severity, "WegverhardingVerplicht",
             "Wegverharding is verplicht.")},
         {ProblemCode.RoadSegment.SurfaceType.NotValid, problem => new(problem.Severity, "WegverhardingNietCorrect",
@@ -248,10 +267,12 @@ public static class ProblemTranslator
             $"De tot positie ({problem.Parameters[1].Value}) van het laatste wegbreedte attribuut met id {problem.Parameters[0].Value} is niet de lengte van het wegsegment ({problem.Parameters[2].Value}).") },
         {ProblemCode.RoadSegment.Width.LessThanOrEqualToMaximum, problem => new(problem.Severity, "WegbreedteKleinerOfGelijkAanMaximum",
             $"Wegbreedte mag niet groter dan {RoadSegmentWidth.Maximum} meter zijn.")},
-        {ProblemCode.RoadSegment.Widths.CountGreaterThanOne, problem => new(problem.Severity, problem.Reason,
-            "Wegsegment heeft meer dan 1 wegbreedte.")},
-        {ProblemCode.RoadSegment.Widths.HasCountOfZero, problem => new(problem.Severity, problem.Reason,
-            "Wegsegment heeft geen enkele wegbreedte.")},
+        {ProblemCode.RoadSegment.Widths.CountGreaterThanOne, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"Wegsegment met id {problem.GetParameterValue("Identifier")} heeft meer dan 1 wegbreedte."
+            : "Wegsegment heeft meer dan 1 wegbreedte.")},
+        {ProblemCode.RoadSegment.Widths.HasCountOfZero, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+            ? $"Wegsegment met id {problem.GetParameterValue("Identifier")} heeft geen enkele wegbreedte."
+            : "Wegsegment heeft geen enkele wegbreedte.")},
         {ProblemCode.RoadSegments.NotFound, problem => new(problem.Severity, "NotFound",
             $"Onbestaande of verwijderde wegsegmenten gevonden '{problem.Parameters[0].Value}'.") },
 

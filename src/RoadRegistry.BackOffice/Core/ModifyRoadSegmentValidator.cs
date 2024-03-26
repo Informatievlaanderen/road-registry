@@ -44,13 +44,16 @@ public abstract class ModifyRoadSegmentValidatorBase : AbstractValidator<Message
 
         RuleFor(c => c.Lanes)
             .NotEmpty()
-            .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero);
+            .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero,
+                (segment, _) => new RoadSegmentLanesHasCountOfZero(segment.OriginalId ?? segment.Id));
         RuleFor(c => c.Widths)
             .NotEmpty()
-            .WithProblemCode(ProblemCode.RoadSegment.Widths.HasCountOfZero);
+            .WithProblemCode(ProblemCode.RoadSegment.Widths.HasCountOfZero,
+                (segment, _) => new RoadSegmentWidthsHasCountOfZero(segment.OriginalId ?? segment.Id));
         RuleFor(c => c.Surfaces)
             .NotEmpty()
-            .WithProblemCode(ProblemCode.RoadSegment.Surfaces.HasCountOfZero);
+            .WithProblemCode(ProblemCode.RoadSegment.Surfaces.HasCountOfZero,
+                (segment, _) => new RoadSegmentSurfacesHasCountOfZero(segment.OriginalId ?? segment.Id));
     }
 }
 

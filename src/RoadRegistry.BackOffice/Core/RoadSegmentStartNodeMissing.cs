@@ -4,8 +4,9 @@ using ProblemCodes;
 
 public class RoadSegmentStartNodeMissing : Error
 {
-    public RoadSegmentStartNodeMissing()
-        : base(ProblemCode.RoadSegment.StartNode.Missing)
+    public RoadSegmentStartNodeMissing(RoadSegmentId identifier)
+        : base(ProblemCode.RoadSegment.StartNode.Missing,
+            new ProblemParameter("Identifier", identifier.ToString()))
     {
     }
 }

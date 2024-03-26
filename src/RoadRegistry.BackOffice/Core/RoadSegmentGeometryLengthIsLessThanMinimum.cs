@@ -13,4 +13,12 @@ public class RoadSegmentGeometryLengthIsLessThanMinimum : Error
         )
     {
     }
+
+    public RoadSegmentGeometryLengthIsLessThanMinimum(RoadSegmentId identifier, double minimum)
+        : base(ProblemCode,
+            new ProblemParameter("Identifier", identifier.ToString()),
+            new ProblemParameter("Minimum", minimum.ToString(CultureInfo.InvariantCulture))
+        )
+    {
+    }
 }

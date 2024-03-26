@@ -4,8 +4,9 @@ using ProblemCodes;
 
 public class RoadSegmentGeometryLengthIsZero : Error
 {
-    public RoadSegmentGeometryLengthIsZero()
-        : base(ProblemCode.RoadSegment.Geometry.LengthIsZero)
+    public RoadSegmentGeometryLengthIsZero(RoadSegmentId identifier)
+        : base(ProblemCode.RoadSegment.Geometry.LengthIsZero,
+            new ProblemParameter("Identifier", identifier.ToString()))
     {
     }
 }

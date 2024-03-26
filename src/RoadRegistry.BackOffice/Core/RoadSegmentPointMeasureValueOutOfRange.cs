@@ -5,8 +5,9 @@ using ProblemCodes;
 
 public class RoadSegmentPointMeasureValueOutOfRange : Error
 {
-    public RoadSegmentPointMeasureValueOutOfRange(double pointX, double pointY, double measure, double measureLowerBoundary, double measureUpperBoundary)
+    public RoadSegmentPointMeasureValueOutOfRange(RoadSegmentId identifier, double pointX, double pointY, double measure, double measureLowerBoundary, double measureUpperBoundary)
         : base(ProblemCode.RoadSegment.Point.MeasureValueOutOfRange,
+            new ProblemParameter("Identifier", identifier.ToString()),
             new ProblemParameter("PointX", pointX.ToString(CultureInfo.InvariantCulture)),
             new ProblemParameter("PointY", pointY.ToString(CultureInfo.InvariantCulture)),
             new ProblemParameter("Measure", measure.ToString(CultureInfo.InvariantCulture)),

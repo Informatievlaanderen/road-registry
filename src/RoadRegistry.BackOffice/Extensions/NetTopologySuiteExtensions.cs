@@ -28,34 +28,34 @@ public static class NetTopologySuiteExtensions
         throw new NotSupportedException($"Type '{polygonal.GetType().FullName}' is not supported. Only 'Polygon' or 'MultiPolygon' are allowed.");
     }
 
-    public static Problems GetProblemsForRoadSegmentOutlinedGeometry(this LineString line, VerificationContextTolerances contextTolerances)
+    public static Problems GetProblemsForRoadSegmentOutlinedGeometry(this LineString line, RoadSegmentId id, VerificationContextTolerances contextTolerances)
     {
         var problems = Problems.None;
 
         if (Math.Abs(line.Length) <= Distances.TooClose)
         {
-            problems = problems.Add(new RoadSegmentGeometryLengthIsLessThanMinimum(Distances.TooClose));
+            problems = problems.Add(new RoadSegmentGeometryLengthIsLessThanMinimum(id, Distances.TooClose));
         }
 
         return problems;
     }
     
-    public static Problems GetProblemsForRoadSegmentGeometry(this LineString line, VerificationContextTolerances contextTolerances)
+    public static Problems GetProblemsForRoadSegmentGeometry(this LineString line, RoadSegmentId id, VerificationContextTolerances contextTolerances)
     {
         var problems = Problems.None;
         
         if (line.Length.IsReasonablyEqualTo(0, contextTolerances))
         {
-            problems = problems.Add(new RoadSegmentGeometryLengthIsZero());
+            problems = problems.Add(new RoadSegmentGeometryLengthIsZero(id));
         }
         
         if (line.SelfOverlaps())
         {
-            problems = problems.Add(new RoadSegmentGeometrySelfOverlaps());
+            problems = problems.Add(new RoadSegmentGeometrySelfOverlaps(id));
         }
         else if (line.SelfIntersects())
         {
-            problems = problems.Add(new RoadSegmentGeometrySelfIntersects());
+            problems = problems.Add(new RoadSegmentGeometrySelfIntersects(id));
         }
 
         if (line.NumPoints > 0)
@@ -69,25 +69,25 @@ public static class NetTopologySuiteExtensions
                 if (index == 0 && !measure.IsReasonablyEqualTo(0, contextTolerances))
                 {
                     problems =
-                        problems.Add(new RoadSegmentStartPointMeasureValueNotEqualToZero(x, y, measure));
+                        problems.Add(new RoadSegmentStartPointMeasureValueNotEqualToZero(id, x, y, measure));
                 }
                 else if (index == line.CoordinateSequence.Count - 1 &&
                          !measure.IsReasonablyEqualTo(line.Length, contextTolerances))
                 {
                     problems =
-                        problems.Add(new RoadSegmentEndPointMeasureValueNotEqualToLength(x, y, measure, line.Length));
+                        problems.Add(new RoadSegmentEndPointMeasureValueNotEqualToLength(id, x, y, measure, line.Length));
                 }
                 else if (measure < 0.0 || measure.IsReasonablyGreaterThan(line.Length, contextTolerances))
                 {
                     problems =
-                        problems.Add(new RoadSegmentPointMeasureValueOutOfRange(x, y, measure, 0.0, line.Length));
+                        problems.Add(new RoadSegmentPointMeasureValueOutOfRange(id, x, y, measure, 0.0, line.Length));
                 }
                 else
                 {
                     if (index != 0 && measure <= previousPointMeasure)
                     {
                         problems =
-                            problems.Add(new RoadSegmentPointMeasureValueDoesNotIncrease(x, y, measure,
+                            problems.Add(new RoadSegmentPointMeasureValueDoesNotIncrease(id, x, y, measure,
                                 previousPointMeasure));
                     }
                     else

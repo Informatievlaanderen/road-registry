@@ -25,7 +25,7 @@ public static class ValidationExtensions
         {
             propertyName = r.PropertyName;
         });
-        rule.WithState((_, value) =>
+        rule.WithState((parent, value) =>
         {
             return new[] { new ProblemParameter(propertyName ?? "request", valueConverter is not null
                 ? valueConverter(value)
@@ -39,7 +39,15 @@ public static class ValidationExtensions
     public static IRuleBuilderOptions<T, TProperty> WithProblemCode<T, TProperty>(this IRuleBuilderOptions<T, TProperty> rule, ProblemCode problemCode, Func<TProperty, Problem> problemBuilder)
     {
         rule.WithErrorCode(problemCode);
-        rule.WithState((_, value) => problemBuilder(value).Parameters.ToArray());
+        rule.WithState((parent, value) => problemBuilder(value).Parameters.ToArray());
+
+        return rule;
+    }
+
+    public static IRuleBuilderOptions<T, TProperty> WithProblemCode<T, TProperty>(this IRuleBuilderOptions<T, TProperty> rule, ProblemCode problemCode, Func<T, TProperty, Problem> problemBuilder)
+    {
+        rule.WithErrorCode(problemCode);
+        rule.WithState((parent, value) => problemBuilder(parent, value).Parameters.ToArray());
 
         return rule;
     }

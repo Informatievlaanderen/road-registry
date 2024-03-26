@@ -7,6 +7,13 @@ using RoadRegistry.BackOffice.Messages;
 
 public class ProblemTranslatorTests
 {
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public ProblemTranslatorTests(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
+
     [Fact]
     public void EnsureAllProblemCodeHaveADutchTranslation()
     {
@@ -34,12 +41,60 @@ public class ProblemTranslatorTests
                     new ProblemParameter { Name = "OrganizationId", Value = "ABC" }
                 }
             },
+            {
+                ProblemCode.RoadSegment.StartPoint.MeasureValueNotEqualToZero, new[]
+                {
+                    new ProblemParameter("Identifier", "1"),
+                    new ProblemParameter("PointX", "1.0"),
+                    new ProblemParameter("PointY", "1.0"),
+                    new ProblemParameter("Measure", "34"),
+                    new ProblemParameter("Length", "234.4")
+                }
+            },
+            {
+                ProblemCode.RoadSegment.EndPoint.MeasureValueNotEqualToLength, new[]
+                {
+                    new ProblemParameter("Identifier", "1"),
+                    new ProblemParameter("PointX", "1.0"),
+                    new ProblemParameter("PointY", "1.0"),
+                    new ProblemParameter("Measure", "34"),
+                    new ProblemParameter("Length", "234.4")
+                }
+            },
+            {
+                ProblemCode.RoadSegment.Point.MeasureValueDoesNotIncrease, new[]
+                {
+                    new ProblemParameter("Identifier", "1"),
+                    new ProblemParameter("PointX", "1.0"),
+                    new ProblemParameter("PointY", "1.0"),
+                    new ProblemParameter("Measure", "34"),
+                    new ProblemParameter("PreviousMeasure", "34")
+                }
+            },
+            {
+                ProblemCode.RoadSegment.Point.MeasureValueOutOfRange, new[]
+                {
+                    new ProblemParameter("Identifier", "1"),
+                    new ProblemParameter("PointX", "1.0"),
+                    new ProblemParameter("PointY", "1.0"),
+                    new ProblemParameter("Measure", "34"),
+                    new ProblemParameter("MeasureLowerBoundary", "34"),
+                    new ProblemParameter("MeasureUpperBoundary", "34")
+                }
+            },
+            {
+                ProblemCode.RoadSegment.Geometry.LengthLessThanMinimum, new[]
+                {
+                    new ProblemParameter("Identifier", "1"),
+                    new ProblemParameter("Minimum", "1.0")
+                }
+            },
         };
 
         var allValues = ProblemCode.GetValues();
         Assert.NotEmpty(allValues);
 
-        var problemCodesWithoutTranslation = new List<ProblemCode>();
+        var invalidProblemCodes = new List<ProblemCode>();
 
         foreach (var problemCode in allValues)
         {
@@ -53,14 +108,22 @@ public class ProblemTranslatorTests
                 Reason = problemCode,
                 Parameters = parameters
             };
-            var problemTranslation = ProblemTranslator.Dutch(problem);
-            if (problemTranslation.Message == ProblemTranslator.CreateMissingTranslationMessage(problemCode))
+            try
             {
-                problemCodesWithoutTranslation.Add(problemCode);
+                var problemTranslation = ProblemTranslator.Dutch(problem);
+                if (problemTranslation.Message == ProblemTranslator.CreateMissingTranslationMessage(problemCode))
+                {
+                    invalidProblemCodes.Add(problemCode);
+                }
+            }
+            catch(Exception ex)
+            {
+                _testOutputHelper.WriteLine($"Failed trying to translate problem {problemCode}: {ex.Message}");
+                invalidProblemCodes.Add(problemCode);
             }
         }
 
-        Assert.Empty(problemCodesWithoutTranslation);
+        Assert.Empty(invalidProblemCodes);
     }
 
     private void LoadAllProblemCodes()
