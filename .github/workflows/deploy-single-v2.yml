@@ -156,7 +156,7 @@ jobs:
 
     steps:
     - name: CD Lambda(s) Configure credentials
-      uses: aws-actions/configure-aws-credentials@v1.7.0
+      uses: aws-actions/configure-aws-credentials@v4.0.2
       with:
         aws-access-key-id: ${{ github.event.inputs.environment == 'tst' && secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS || github.event.inputs.environment == 'stg' && secrets.VBR_AWS_ACCESS_KEY_ID || github.event.inputs.environment == 'prd' && secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD || ''}}
         aws-secret-access-key: ${{ github.event.inputs.environment == 'tst' && secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS || github.event.inputs.environment == 'stg' && secrets.VBR_AWS_SECRET_ACCESS_KEY || github.event.inputs.environment == 'prd' && secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD || ''}}
