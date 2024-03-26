@@ -948,7 +948,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                                     new ProblemParameter
                                     {
                                         Name = "ModifiedRoadSegmentId",
-                                        Value = TestData.Segment2Added.Id.ToString()
+                                        Value = TestData.AddSegment2.TemporaryId.ToString()
                                     },
                                     new ProblemParameter
                                     {
@@ -1335,7 +1335,10 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             new Problem
                             {
                                 Reason = "RoadSegmentEndPointDoesNotMatchNodeGeometry",
-                                Parameters = Array.Empty<ProblemParameter>()
+                                Parameters = new ProblemParameter[]
+                                {
+                                    new("Identifier", TestData.AddSegment2.TemporaryId.ToString())
+                                }
                             }
                         }
                     }
@@ -1417,7 +1420,10 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             new Problem
                             {
                                 Reason = "RoadSegmentStartPointDoesNotMatchNodeGeometry",
-                                Parameters = Array.Empty<ProblemParameter>()
+                                Parameters = new ProblemParameter[]
+                                {
+                                    new("Identifier", TestData.AddSegment2.TemporaryId.ToString())
+                                }
                             }
                         }
                     }
@@ -1473,7 +1479,10 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             new Problem
                             {
                                 Reason = "RoadSegmentStartPointDoesNotMatchNodeGeometry",
-                                Parameters = Array.Empty<ProblemParameter>()
+                                Parameters = new ProblemParameter[]
+                                {
+                                    new("Identifier", TestData.AddSegment1.TemporaryId.ToString())
+                                }
                             }
                         }
                     }
@@ -1722,7 +1731,10 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             new Problem
                             {
                                 Reason = "RoadSegmentGeometrySelfIntersects",
-                                Parameters = Array.Empty<ProblemParameter>()
+                                Parameters = new ProblemParameter[]
+                                {
+                                    new("Identifier", TestData.AddSegment1.TemporaryId.ToString())
+                                }
                             }
                         }
                     }
@@ -1859,7 +1871,10 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             new Problem
                             {
                                 Reason = "RoadSegmentGeometrySelfOverlaps",
-                                Parameters = Array.Empty<ProblemParameter>()
+                                Parameters = new ProblemParameter[]
+                                {
+                                    new("Identifier", TestData.AddSegment1.TemporaryId.ToString())
+                                }
                             }
                         }
                     }
@@ -1925,7 +1940,10 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             new Problem
                             {
                                 Reason = "RoadSegmentGeometryLengthIsZero",
-                                Parameters = Array.Empty<ProblemParameter>()
+                                Parameters = new ProblemParameter[]
+                                {
+                                    new("Identifier", TestData.AddSegment1.TemporaryId.ToString())
+                                }
                             },
                             new Problem
                             {
@@ -2058,7 +2076,10 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             new Problem
                             {
                                 Reason = "RoadSegmentStartNodeMissing",
-                                Parameters = Array.Empty<ProblemParameter>()
+                                Parameters = new ProblemParameter[]
+                                {
+                                    new("Identifier", TestData.AddSegment1.TemporaryId.ToString())
+                                }
                             }
                         }
                     }
@@ -2475,7 +2496,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                                 Reason = "RoadSegmentEndNodeMissing",
                                 Parameters = new ProblemParameter[]
                                 {
-                                    new("Identifier", TestData.AddSegment1.PermanentId.ToString())
+                                    new("Identifier", TestData.AddSegment1.TemporaryId.ToString())
                                 }
                             }
                         }

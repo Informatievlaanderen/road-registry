@@ -60,19 +60,14 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
             ? temporary
             : id;
     }
-
-    public RoadSegmentId TranslateToTemporaryOrId(RoadSegmentId id)
-    {
-        return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out var temporary)
-            ? temporary
-            : id;
-    }
-
-    public RoadSegmentId TranslateToOriginalOrId(RoadSegmentId id)
+    
+    public RoadSegmentId TranslateToOriginalOrTemporaryOrId(RoadSegmentId id)
     {
         return _mapToOriginalSegmentIdentifiers.TryGetValue(id, out var originalId)
             ? originalId
-            : id;//TODO-rik hier de temporary gebruiken indien aanwezig
+            : _mapToTemporarySegmentIdentifiers.TryGetValue(id, out var temporary)
+                ? temporary
+                : id;
     }
 
     public GradeSeparatedJunctionId TranslateToTemporaryOrId(GradeSeparatedJunctionId id)
@@ -101,17 +96,7 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
     {
         return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out temporary);
     }
-
-    public bool TryTranslateToTemporary(RoadSegmentId id, out RoadSegmentId temporary)
-    {
-        return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out temporary);
-    }
-
-    public bool TryTranslateToOriginal(RoadSegmentId id, out RoadSegmentId originalId)
-    {
-        return _mapToOriginalSegmentIdentifiers.TryGetValue(id, out originalId);
-    }
-
+    
     public bool TryTranslateToTemporary(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary)
     {
         return _mapToTemporaryGradeSeparatedJunctionIdentifiers.TryGetValue(id, out temporary);
@@ -153,7 +138,7 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
             _mapToTemporaryNodeIdentifiers,
             _mapToPermanentSegmentIdentifiers.Add(change.TemporaryId, change.Id),
             _mapToTemporarySegmentIdentifiers.Add(change.Id, change.TemporaryId),
-            _mapToOriginalSegmentIdentifiers.Add(change.Id, change.OriginalId ?? change.Id),
+            change.OriginalId is not null ? _mapToOriginalSegmentIdentifiers.Add(change.Id, change.OriginalId.Value) : _mapToOriginalSegmentIdentifiers,
             _mapToPermanentGradeSeparatedJunctionIdentifiers,
             _mapToTemporaryGradeSeparatedJunctionIdentifiers);
     }
@@ -168,7 +153,7 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
             _mapToTemporaryNodeIdentifiers,
             _mapToPermanentSegmentIdentifiers,
             _mapToTemporarySegmentIdentifiers,
-            _mapToOriginalSegmentIdentifiers.Add(change.Id, change.OriginalId ?? change.Id),
+            change.OriginalId is not null ? _mapToOriginalSegmentIdentifiers.Add(change.Id, change.OriginalId.Value) : _mapToOriginalSegmentIdentifiers,
             _mapToPermanentGradeSeparatedJunctionIdentifiers,
             _mapToTemporaryGradeSeparatedJunctionIdentifiers);
     }

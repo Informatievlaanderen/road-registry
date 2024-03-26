@@ -77,7 +77,7 @@ public class ModifyRoadNode : IRequestedChange
             .Aggregate(
                 problems,
                 (current, segment) =>
-                    current.Add(new RoadNodeTooClose(context.Translator.TranslateToOriginalOrId(segment.Id))));
+                    current.Add(new RoadNodeTooClose(context.Translator.TranslateToOriginalOrTemporaryOrId(segment.Id))));
 
         problems = problems.AddRange(node.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
 

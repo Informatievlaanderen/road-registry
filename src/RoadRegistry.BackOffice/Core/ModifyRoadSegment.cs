@@ -204,7 +204,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         ArgumentNullException.ThrowIfNull(context);
 
         var problems = Problems.None;
-        var originalIdOrId = context.Translator.TranslateToOriginalOrId(Id);
+        var originalIdOrId = context.Translator.TranslateToOriginalOrTemporaryOrId(Id);
 
         var line = Geometry.GetSingleLineString();
 
@@ -222,7 +222,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         if (byOtherSegment != null)
         {
             problems = problems.Add(new RoadSegmentGeometryTaken(
-                context.Translator.TranslateToOriginalOrId(byOtherSegment.Id)
+                context.Translator.TranslateToOriginalOrTemporaryOrId(byOtherSegment.Id)
             ));
         }
 
@@ -283,7 +283,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
             .Select(i =>
                 new IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction(
                     originalIdOrId,
-                    context.Translator.TranslateToOriginalOrId(i.Key)));
+                    context.Translator.TranslateToOriginalOrTemporaryOrId(i.Key)));
 
         problems = problems.AddRange(intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions);
         return problems;
@@ -294,7 +294,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         ArgumentNullException.ThrowIfNull(context);
 
         var problems = Problems.None;
-        var originalIdOrId = context.Translator.TranslateToOriginalOrId(Id);
+        var originalIdOrId = context.Translator.TranslateToOriginalOrTemporaryOrId(Id);
         
         if (!context.BeforeView.Segments.ContainsKey(Id) && !ConvertedFromOutlined)
         {
