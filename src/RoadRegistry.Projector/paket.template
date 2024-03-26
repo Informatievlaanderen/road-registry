@@ -24,5 +24,3 @@ dependencies
 files
   RoadRegistry.Projector.dll => lib\net8.0
   RoadRegistry.Projector.pdb => lib\net8.0
-  RoadRegistry.Projector.xml => lib\net8.0
-  RoadRegistry.Projector.xml => content
