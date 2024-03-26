@@ -1,15 +1,15 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs;
 
 using Autofac;
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
-using RoadRegistry.BackOffice.Configuration;
+using BackOffice.Configuration;
+using BackOffice.Handlers.Sqs;
 
 public sealed class SnapshotSqsHandlersModule : Module
 {
     protected override void Load(ContainerBuilder builder)
     {
         builder
-            .Register(c => new SnapshotSqsQueue(c.Resolve<SqsOptions>(), c.Resolve<SqsQueueUrlOptions>()))
+            .Register(c => new SnapshotSqsQueue(c.Resolve<ISqsQueueFactory>(), c.Resolve<SqsQueueUrlOptions>()))
             .SingleInstance();
     }
 }

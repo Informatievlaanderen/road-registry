@@ -15,30 +15,32 @@ public static class AmazonSqsExtensions
 {
     public static async Task CreateMissingQueuesAsync(this AmazonSQSClient amazonSqsClient, Dictionary<string, Dictionary<string, string>> queueUrlAttributes, CancellationToken cancellationToken)
     {
-        var queues = await amazonSqsClient.ListQueuesAsync(new ListQueuesRequest(), cancellationToken);
+        // 2024-03-26: disabled because Localstack no longer works with the current SQS version
         
-        var existingQueueUrls = queues.QueueUrls.ToArray();
-        var missingQueueUrls = queueUrlAttributes
-            .Select(x => x.Key)
-            .Where(x => !existingQueueUrls.Contains(x))
-            .ToArray();
+        //var queues = await amazonSqsClient.ListQueuesAsync(new ListQueuesRequest(), cancellationToken);
+        
+        //var existingQueueUrls = queues.QueueUrls.ToArray();
+        //var missingQueueUrls = queueUrlAttributes
+        //    .Select(x => x.Key)
+        //    .Where(x => !existingQueueUrls.Contains(x))
+        //    .ToArray();
 
-        foreach (var queueUrl in missingQueueUrls)
-        {
-            try
-            {
-                var queueName = SqsQueue.ParseQueueNameFromQueueUrl(queueUrl);
-                await amazonSqsClient.CreateQueueAsync(new CreateQueueRequest
-                {
-                    QueueName = queueName,
-                    Attributes = queueUrlAttributes[queueUrl],
-                }, cancellationToken);
-            }
-            catch (AmazonSQSException)
-            {
-                // ignore if queue already was created by a different host
-            }
-        }
+        //foreach (var queueUrl in missingQueueUrls)
+        //{
+        //    try
+        //    {
+        //        var queueName = SqsQueue.ParseQueueNameFromQueueUrl(queueUrl);
+        //        await amazonSqsClient.CreateQueueAsync(new CreateQueueRequest
+        //        {
+        //            QueueName = queueName,
+        //            Attributes = queueUrlAttributes[queueUrl],
+        //        }, cancellationToken);
+        //    }
+        //    catch (AmazonSQSException)
+        //    {
+        //        // ignore if queue already was created by a different host
+        //    }
+        //}
     }
 
     public static async Task CreateMissingQueuesAsync(this IServiceProvider sp, CancellationToken cancellationToken)
