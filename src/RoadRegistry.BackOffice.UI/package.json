@@ -116,7 +116,7 @@
     "@govflanders/vl-ui-video-player": "^21.0.2",
     "@govflanders/vl-ui-vue-components": "^22.0.2",
     "@govflanders/vl-ui-wizard": "^21.0.2",
-    "axios": "^1.2.1",
+    "axios": "^1.6.0",
     "core-js": "^3.26.1",
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.21",
