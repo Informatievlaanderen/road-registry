@@ -79,6 +79,7 @@ jobs:
           dist="$buildDir/$BUILD_PROJECT/linux"
           source="src/$BUILD_PROJECT"
 
+          mkdir "$dist/dist" -p
           cp -r "$source/dist" "$dist/dist"
           cp "$source/default.conf.template" $dist
           cp "$source/Dockerfile" $dist
