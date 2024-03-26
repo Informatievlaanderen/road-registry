@@ -35,13 +35,16 @@ public class RoadSegmentNotFoundResponseExamples : IExamplesProvider<ProblemDeta
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ProblemDetailsHelper _problemDetailsHelper;
+    private readonly string _apiVersion;
 
     public RoadSegmentNotFoundResponseExamples(
         IHttpContextAccessor httpContextAccessor,
-        ProblemDetailsHelper problemDetailsHelper)
+        ProblemDetailsHelper problemDetailsHelper,
+        string? apiVersion = null)
     {
         _httpContextAccessor = httpContextAccessor;
         _problemDetailsHelper = problemDetailsHelper;
+        _apiVersion = apiVersion;
     }
 
     public ProblemDetails GetExamples()
@@ -52,9 +55,18 @@ public class RoadSegmentNotFoundResponseExamples : IExamplesProvider<ProblemDeta
             HttpStatus = StatusCodes.Status404NotFound,
             Title = ProblemDetails.DefaultTitle,
             Detail = new RoadSegmentNotFound().TranslateToDutch().Message,
-            ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext)
+            ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext, _apiVersion)
         };
     }
+}
+
+public class RoadSegmentNotFoundResponseExamplesV2 : RoadSegmentNotFoundResponseExamples
+{
+    public RoadSegmentNotFoundResponseExamplesV2(
+        IHttpContextAccessor httpContextAccessor,
+        ProblemDetailsHelper problemDetailsHelper)
+        : base(httpContextAccessor, problemDetailsHelper, "v2")
+    { }
 }
 
 public class RoadSegmentIdValidator : AbstractValidator<int>
