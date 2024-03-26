@@ -1,3 +1,11 @@
+## [3.71.5](https://github.com/informatievlaanderen/road-registry/compare/v3.71.4...v3.71.5) (2024-03-25)
+
+
+### Bug Fixes
+
+* release pipeline syntax ([#1438](https://github.com/informatievlaanderen/road-registry/issues/1438)) ([402defa](https://github.com/informatievlaanderen/road-registry/commit/402defac0c46c7901a90e9313633fe9c9b980ef7))
+* WR-900 pipeline enable jobs-process-upload ([#1437](https://github.com/informatievlaanderen/road-registry/issues/1437)) ([f9c0bf7](https://github.com/informatievlaanderen/road-registry/commit/f9c0bf7181f80301fd772f1b8974fe68b0388b4c))
+
 ## [3.71.4](https://github.com/informatievlaanderen/road-registry/compare/v3.71.3...v3.71.4) (2024-03-22)
 
 
