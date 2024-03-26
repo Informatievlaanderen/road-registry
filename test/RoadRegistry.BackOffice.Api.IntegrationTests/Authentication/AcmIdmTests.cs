@@ -1,9 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
 {
-    using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
-    using Microsoft.AspNetCore.Mvc.ApiExplorer;
-    using Microsoft.Extensions.DependencyInjection;
-    using RoadRegistry.BackOffice.Api.IntegrationTests;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -13,6 +9,9 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
+    using Microsoft.AspNetCore.Mvc.ApiExplorer;
+    using Microsoft.Extensions.DependencyInjection;
     using Xunit;
     using Xunit.Abstractions;
     using Xunit.Sdk;
@@ -101,8 +100,9 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
 
             foreach (var apiDescription in apiDescriptions)
             {
-                var testEndpoint = Endpoints.SingleOrDefault(x => x.Method.ToString().Equals(apiDescription.HttpMethod, StringComparison.InvariantCultureIgnoreCase)
-                                                                  && x.Uri.Equals(apiDescription.RelativePath, StringComparison.InvariantCultureIgnoreCase));
+                var testEndpoint = Endpoints.SingleOrDefault(x =>
+                    x.Method.ToString().Equals(apiDescription.HttpMethod, StringComparison.InvariantCultureIgnoreCase)
+                    && x.Uri.Equals(apiDescription.RelativePath, StringComparison.InvariantCultureIgnoreCase));
                 if (testEndpoint is null)
                 {
                     Assert.Fail($"Endpoint '{apiDescription.HttpMethod} {apiDescription.RelativePath}' has no matching test");
@@ -122,7 +122,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _fixture.GetAcmIdmAccessToken(string.Join(" ", requiredScopes)));
                 }
 
-                var response = await SendAsync(client, CreateRequestMessage(method, endpoint));
+                var response = await SendAsync(client, CreateRequestMessage(method, endpoint.Replace("{jobId}", $"{Guid.NewGuid():D}")));
 
                 Assert.NotEqual(HttpStatusCode.Unauthorized, response.StatusCode);
                 Assert.NotEqual(HttpStatusCode.Forbidden, response.StatusCode);
@@ -137,7 +137,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             {
                 var client = _fixture.TestServer.CreateClient();
 
-                var response = await SendAsync(client, CreateRequestMessage(method, endpoint));
+                var response = await SendAsync(client, CreateRequestMessage(method, endpoint.Replace("{jobId}", $"{Guid.NewGuid():D}")));
 
                 if (requiredScopes.Any())
                 {
@@ -159,7 +159,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
                 var client = _fixture.TestServer.CreateClient();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _fixture.GetAcmIdmAccessToken());
 
-                var response = await SendAsync(client, CreateRequestMessage(method, endpoint));
+                var response = await SendAsync(client, CreateRequestMessage(method, endpoint.Replace("{jobId}", $"{Guid.NewGuid():D}")));
 
                 if (requiredScopes.Any(x => x != Scopes.VoInfo))
                 {

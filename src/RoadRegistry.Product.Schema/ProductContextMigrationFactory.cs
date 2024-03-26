@@ -1,11 +1,11 @@
 namespace RoadRegistry.Product.Schema;
 
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-public class ProductContextMigrationFactory : RunnerDbContextMigrationFactory<ProductContext>
+public class ProductContextMigrationFactory : SqlServerRunnerDbContextMigrationFactory<ProductContext>
 {
     public ProductContextMigrationFactory()
         : base(WellKnownConnectionNames.ProductProjectionsAdmin, HistoryConfiguration)

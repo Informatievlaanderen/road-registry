@@ -24,6 +24,7 @@ Moq
 NetTopologySuite.IO.GeoJSON
 NodaTime.Testing
 SqlStreamStore.MsSql
+xunit
 xunit.categories
 Xunit.DependencyInjection.Logging
 xunit.runner.visualstudio

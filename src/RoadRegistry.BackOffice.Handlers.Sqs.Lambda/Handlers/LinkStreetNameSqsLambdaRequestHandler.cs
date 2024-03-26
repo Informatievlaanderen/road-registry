@@ -1,24 +1,24 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
+using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Core;
 using Exceptions;
 using Extensions;
-using FeatureToggles;
 using Hosts;
 using Infrastructure;
+using Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 using Requests;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
 using StreetName;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
 using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
+using StreetNameStatus = Syndication.Schema.StreetNameStatus;
 
 public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<LinkStreetNameSqsLambdaRequest>
 {
@@ -28,10 +28,10 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
 
     private static readonly string[] ProposedOrCurrentStreetNameStatuses = new[]
     {
-        Syndication.Schema.StreetNameStatus.Current.ToString(),
-        Syndication.Schema.StreetNameStatus.Proposed.ToString(),
-        StreetNameStatus.Current,
-        StreetNameStatus.Proposed
+        StreetNameStatus.Current.ToString(),
+        StreetNameStatus.Proposed.ToString(),
+        RoadRegistry.StreetName.StreetNameStatus.Current,
+        RoadRegistry.StreetName.StreetNameStatus.Proposed
     };
 
     public LinkStreetNameSqsLambdaRequestHandler(
@@ -69,7 +69,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
             await _changeRoadNetworkDispatcher.DispatchAsync(request, "Straatnaam koppelen", async translatedChanges =>
             {
                 var problems = Problems.None;
-                
+
                 var roadSegment = await RoadRegistryContext.RoadNetworks.FindRoadSegment(roadSegmentId, geometryDrawMethod, cancellationToken);
                 if (roadSegment == null)
                 {

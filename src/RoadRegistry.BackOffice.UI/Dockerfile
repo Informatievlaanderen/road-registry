@@ -1,5 +1,4 @@
 FROM nginx:stable-alpine as production-stage
-
 LABEL maintainer "Digitaal Vlaanderen <digitaal.vlaanderen@vlaanderen.be>"
 
 ARG build_number

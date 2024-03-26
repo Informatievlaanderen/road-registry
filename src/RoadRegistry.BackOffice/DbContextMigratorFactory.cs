@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice;
 
 using System;
 using System.IO;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.MigrationExtensions;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer.MigrationExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;

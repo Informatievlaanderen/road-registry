@@ -6,13 +6,7 @@ on:
       registry:
         required: true
         type: string
-      build-target:
-        required: true
-        type: string
       build-project:
-        required: true
-        type: string
-      containerize-target:
         required: true
         type: string
       image-file:
@@ -38,10 +32,10 @@ jobs:
           SEMVER: ${{ inputs.semver }}
 
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         
       - name: Cache Paket
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         env:
           cache-name: cache-paket
         with:
@@ -55,7 +49,9 @@ jobs:
         shell: bash
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3.5.1
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
 
       - name: Node version
         shell: bash
@@ -67,33 +63,36 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
 
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v2
-        with:
-          dotnet-version: ${{ secrets.VBR_DOTNET_VERSION }}
-
-      - name: .NET version
-        shell: bash
-        run: dotnet --info
-
-      - name: Restore dotnet tools
+      - name: Build Project
         shell: bash
         run: |
-          dotnet tool restore
+          # Clean dist directory
+          rm -rf "src/$BUILD_PROJECT/dist"
 
-      - name: Build
-        shell: bash
-        run: ./build.sh ${{ inputs.build-target }}
+          cd "src/$BUILD_PROJECT"
+          npm install
+          npm run build
+          cd ../..
+
+          # Copy files
+          buildDir="dist"
+          dist="$buildDir/$BUILD_PROJECT/linux"
+          source="src/$BUILD_PROJECT"
+
+          cp -r "$source/dist" "$dist/dist"
+          cp "$source/default.conf.template" $dist
+          cp "$source/Dockerfile" $dist
+          cp "$source/init.sh" $dist
         env:
-          BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
-          SEMVER: ${{ inputs.semver }}
+          BUILD_PROJECT: ${{ inputs.build-project }}
 
       - name: Containerize
         shell: bash
-        run: CI_BUILD_NUMBER=$SEMVER ./build.sh ${{ inputs.containerize-target }}
+        run: docker build . --no-cache --tag $TAG --build-arg BUILD_NUMBER=$SEMVER
+        working-directory: dist/${{ inputs.build-project }}/linux
         env:
-          BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
+          TAG: ${{ inputs.registry }}/${{ inputs.image-name }}:${{ inputs.semver }}
           SEMVER: ${{ inputs.semver }}
     
       - name: Show images
@@ -103,14 +102,13 @@ jobs:
       - name: Save Image
         if: inputs.semver != 'none'
         shell: bash
-        run: docker image save $BUILD_DOCKER_REGISTRY/${{ inputs.registry }}/${{ inputs.image-name }}:$SEMVER -o ~/${{ inputs.image-file}}
+        run: docker image save ${{ inputs.registry }}/${{ inputs.image-name }}:$SEMVER -o ~/${{ inputs.image-file}}
         env:
-          BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           SEMVER: ${{ inputs.semver }}
     
       - name: Upload image
         if: inputs.semver != 'none'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.image-name }}-${{ inputs.semver }}
           path: ~/${{ inputs.image-file }}

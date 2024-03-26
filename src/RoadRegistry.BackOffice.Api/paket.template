@@ -15,7 +15,7 @@ licenseUrl https://opensource.org/licenses/EUPL-1.2
 description Road Registry.
 
 dependencies
-  framework: net6.0
+  framework: net8.0
     Be.Vlaanderen.Basisregisters.Api >= LOCKEDVERSION
     Be.Vlaanderen.Basisregisters.Aws.DistributedMutex >= LOCKEDVERSION
     Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac >= LOCKEDVERSION
@@ -28,55 +28,55 @@ dependencies
     Serilog.Sinks.Seq >= LOCKEDVERSION
 
 files
-  RoadRegistry.BackOffice.Api.dll => lib\net6.0
-  RoadRegistry.BackOffice.Api.pdb => lib\net6.0
-  RoadRegistry.BackOffice.Api.xml => lib\net6.0
+  RoadRegistry.BackOffice.Api.dll => lib\net8.0
+  RoadRegistry.BackOffice.Api.pdb => lib\net8.0
+  RoadRegistry.BackOffice.Api.xml => lib\net8.0
   RoadRegistry.BackOffice.Api.xml => content
 
-  RoadRegistry.BackOffice.dll => lib\net6.0
-  RoadRegistry.BackOffice.pdb => lib\net6.0
+  RoadRegistry.BackOffice.dll => lib\net8.0
+  RoadRegistry.BackOffice.pdb => lib\net8.0
 
-  RoadRegistry.BackOffice.Abstractions.dll => lib\net6.0
-  RoadRegistry.BackOffice.Abstractions.pdb => lib\net6.0
+  RoadRegistry.BackOffice.Abstractions.dll => lib\net8.0
+  RoadRegistry.BackOffice.Abstractions.pdb => lib\net8.0
 
-  RoadRegistry.BackOffice.Handlers.dll => lib\net6.0
-  RoadRegistry.BackOffice.Handlers.pdb => lib\net6.0
+  RoadRegistry.BackOffice.Handlers.dll => lib\net8.0
+  RoadRegistry.BackOffice.Handlers.pdb => lib\net8.0
 
-  RoadRegistry.BackOffice.Handlers.Sqs.dll => lib\net6.0
-  RoadRegistry.BackOffice.Handlers.Sqs.pdb => lib\net6.0
+  RoadRegistry.BackOffice.Handlers.Sqs.dll => lib\net8.0
+  RoadRegistry.BackOffice.Handlers.Sqs.pdb => lib\net8.0
 
-  RoadRegistry.BackOffice.ZipArchiveWriters.dll => lib\net6.0
-  RoadRegistry.BackOffice.ZipArchiveWriters.pdb => lib\net6.0
+  RoadRegistry.BackOffice.ZipArchiveWriters.dll => lib\net8.0
+  RoadRegistry.BackOffice.ZipArchiveWriters.pdb => lib\net8.0
 
-  RoadRegistry.Editor.Projections.dll => lib\net6.0
-  RoadRegistry.Editor.Projections.pdb => lib\net6.0
+  RoadRegistry.Editor.Projections.dll => lib\net8.0
+  RoadRegistry.Editor.Projections.pdb => lib\net8.0
 
-  RoadRegistry.Editor.Schema.dll => lib\net6.0
-  RoadRegistry.Editor.Schema.pdb => lib\net6.0
+  RoadRegistry.Editor.Schema.dll => lib\net8.0
+  RoadRegistry.Editor.Schema.pdb => lib\net8.0
 
-  RoadRegistry.Hosts.dll => lib\net6.0
-  RoadRegistry.Hosts.pdb => lib\net6.0
+  RoadRegistry.Hosts.dll => lib\net8.0
+  RoadRegistry.Hosts.pdb => lib\net8.0
 
-  RoadRegistry.Product.Schema.dll => lib\net6.0
-  RoadRegistry.Product.Schema.pdb => lib\net6.0
+  RoadRegistry.Product.Schema.dll => lib\net8.0
+  RoadRegistry.Product.Schema.pdb => lib\net8.0
 
-  RoadRegistry.RoadNetwork.Schema.dll => lib\net6.0
-  RoadRegistry.RoadNetwork.Schema.pdb => lib\net6.0
+  RoadRegistry.RoadNetwork.Schema.dll => lib\net8.0
+  RoadRegistry.RoadNetwork.Schema.pdb => lib\net8.0
 
-  RoadRegistry.Snapshot.Handlers.dll => lib\net6.0
-  RoadRegistry.Snapshot.Handlers.pdb => lib\net6.0
+  RoadRegistry.Snapshot.Handlers.dll => lib\net8.0
+  RoadRegistry.Snapshot.Handlers.pdb => lib\net8.0
 
-  RoadRegistry.Snapshot.Handlers.Sqs.dll => lib\net6.0
-  RoadRegistry.Snapshot.Handlers.Sqs.pdb => lib\net6.0
+  RoadRegistry.Snapshot.Handlers.Sqs.dll => lib\net8.0
+  RoadRegistry.Snapshot.Handlers.Sqs.pdb => lib\net8.0
 
-  RoadRegistry.StreetName.dll => lib\net6.0
-  RoadRegistry.StreetName.pdb => lib\net6.0
+  RoadRegistry.StreetName.dll => lib\net8.0
+  RoadRegistry.StreetName.pdb => lib\net8.0
 
-  RoadRegistry.Sync.StreetNameRegistry.dll => lib\net6.0
-  RoadRegistry.Sync.StreetNameRegistry.pdb => lib\net6.0
+  RoadRegistry.Sync.StreetNameRegistry.dll => lib\net8.0
+  RoadRegistry.Sync.StreetNameRegistry.pdb => lib\net8.0
 
-  RoadRegistry.Syndication.Projections.dll => lib\net6.0
-  RoadRegistry.Syndication.Projections.pdb => lib\net6.0
+  RoadRegistry.Syndication.Projections.dll => lib\net8.0
+  RoadRegistry.Syndication.Projections.pdb => lib\net8.0
 
-  RoadRegistry.Syndication.Schema.dll => lib\net6.0
-  RoadRegistry.Syndication.Schema.pdb => lib\net6.0
+  RoadRegistry.Syndication.Schema.dll => lib\net8.0
+  RoadRegistry.Syndication.Schema.pdb => lib\net8.0

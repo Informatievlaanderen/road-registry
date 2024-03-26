@@ -1,24 +1,26 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
+using Abstractions.RoadSegments;
+using BackOffice.Extensions;
 using BackOffice.Extracts.Dbase.RoadSegments;
+using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
 using Editor.Schema;
 using Editor.Schema.Extensions;
 using Exceptions;
-using FeatureToggles;
 using Hosts;
 using Infrastructure;
+using Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Requests;
-using RoadRegistry.BackOffice.Abstractions.RoadSegments;
-using RoadRegistry.BackOffice.Extensions;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
 using TicketingService.Abstractions;
 using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
+using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
+using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
+using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
 
 public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler : SqsLambdaHandler<ChangeRoadSegmentsDynamicAttributesSqsLambdaRequest>
 {
@@ -85,7 +87,7 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
 
                     var roadSegmentDbaseRecord = new RoadSegmentDbaseRecord().FromBytes(editorRoadSegment.DbaseRecord, _manager, _fileEncoding);
                     var geometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord.METHODE.Value];
-                    
+
                     var networkRoadSegment = await RoadRegistryContext.RoadNetworks.FindRoadSegment(roadSegmentId, geometryDrawMethod, cancellationToken);
                     if (networkRoadSegment is null)
                     {
@@ -96,20 +98,20 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
                     var modifyChange = new ModifyRoadSegmentAttributes(recordNumber, roadSegmentId, geometryDrawMethod)
                     {
                         Lanes = change.Lanes?
-                            .Select(lane => new BackOffice.Uploads.RoadSegmentLaneAttribute(GetNextAttributeId(), lane.Count, lane.Direction, lane.FromPosition, lane.ToPosition))
+                            .Select(lane => new RoadSegmentLaneAttribute(GetNextAttributeId(), lane.Count, lane.Direction, lane.FromPosition, lane.ToPosition))
                             .ToArray(),
                         Surfaces = change.Surfaces?
-                            .Select(surface => new BackOffice.Uploads.RoadSegmentSurfaceAttribute(GetNextAttributeId(), surface.Type, surface.FromPosition, surface.ToPosition))
+                            .Select(surface => new RoadSegmentSurfaceAttribute(GetNextAttributeId(), surface.Type, surface.FromPosition, surface.ToPosition))
                             .ToArray(),
                         Widths = change.Widths?
-                            .Select(width => new BackOffice.Uploads.RoadSegmentWidthAttribute(GetNextAttributeId(), width.Width, width.FromPosition, width.ToPosition))
+                            .Select(width => new RoadSegmentWidthAttribute(GetNextAttributeId(), width.Width, width.FromPosition, width.ToPosition))
                             .ToArray()
                     };
 
                     problems += GetProblemsForLanes(networkRoadSegment, modifyChange.Lanes);
                     problems += GetProblemsForSurfaces(networkRoadSegment, modifyChange.Surfaces);
                     problems += GetProblemsForWidths(networkRoadSegment, modifyChange.Widths);
-                    
+
                     translatedChanges = translatedChanges.AppendChange(modifyChange);
 
                     recordNumber = recordNumber.Next();
@@ -127,7 +129,7 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
         return new ChangeRoadSegmentsDynamicAttributesResponse();
     }
 
-    private Problems GetProblemsForLanes(RoadSegment roadSegment, BackOffice.Uploads.RoadSegmentLaneAttribute[]? lanes)
+    private Problems GetProblemsForLanes(RoadSegment roadSegment, RoadSegmentLaneAttribute[]? lanes)
     {
         var problems = Problems.None;
 
@@ -156,7 +158,7 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
         return problems;
     }
 
-    private Problems GetProblemsForSurfaces(RoadSegment roadSegment, BackOffice.Uploads.RoadSegmentSurfaceAttribute[]? surfaces)
+    private Problems GetProblemsForSurfaces(RoadSegment roadSegment, RoadSegmentSurfaceAttribute[]? surfaces)
     {
         var problems = Problems.None;
 
@@ -174,7 +176,7 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
         return problems;
     }
 
-    private Problems GetProblemsForWidths(RoadSegment roadSegment, BackOffice.Uploads.RoadSegmentWidthAttribute[]? widths)
+    private Problems GetProblemsForWidths(RoadSegment roadSegment, RoadSegmentWidthAttribute[]? widths)
     {
         var problems = Problems.None;
 

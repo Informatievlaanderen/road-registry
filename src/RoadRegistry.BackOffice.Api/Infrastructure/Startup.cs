@@ -1,8 +1,14 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure;
 
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Abstractions;
 using Amazon;
 using Amazon.DynamoDBv2;
+using Asp.Versioning.ApiExplorer;
 using Authentication;
 using Authorization;
 using Autofac;
@@ -35,7 +41,6 @@ using Jobs;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -52,17 +57,12 @@ using NetTopologySuite.IO;
 using NodaTime;
 using Options;
 using Product.Schema;
-using RoadRegistry.BackOffice.Api.RoadSegments;
-using RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
+using RoadSegments;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
 using Syndication.Schema;
-using System;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
+using ZipArchiveWriters.Cleaning;
 using DomainAssemblyMarker = BackOffice.Handlers.Sqs.DomainAssemblyMarker;
 using MediatorModule = Snapshot.Handlers.MediatorModule;
 using SystemClock = NodaTime.SystemClock;
@@ -109,8 +109,8 @@ public class Startup
                 },
                 Toggles =
                 {
-                    Enable = new Be.Vlaanderen.Basisregisters.DataDog.Tracing.Microsoft.ApiDataDogToggle(datadogToggle.FeatureEnabled),
-                    Debug = new Be.Vlaanderen.Basisregisters.DataDog.Tracing.Microsoft.ApiDebugDataDogToggle(debugDataDogToggle.FeatureEnabled)
+                    Enable = new ApiDataDogToggle(datadogToggle.FeatureEnabled),
+                    Debug = new ApiDebugDataDogToggle(debugDataDogToggle.FeatureEnabled)
                 },
                 Tracing =
                 {
@@ -174,7 +174,7 @@ public class Startup
             .RegisterModulesFromAssemblyContaining<Startup>()
             .RegisterModulesFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
             .RegisterModulesFromAssemblyContaining<BackOffice.Handlers.DomainAssemblyMarker>()
-            .RegisterModulesFromAssemblyContaining<BackOffice.Handlers.Sqs.DomainAssemblyMarker>();
+            .RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>();
     }
 
     public void ConfigureServices(IServiceCollection services)

@@ -1,11 +1,11 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
 {
     using BackOffice;
-    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Infrastructure;
 
-    public class RoadSegmentSurfaceProducerSnapshotContextMigrationFactory : RunnerDbContextMigrationFactory<RoadSegmentSurfaceProducerSnapshotContext>
+    public class RoadSegmentSurfaceProducerSnapshotContextMigrationFactory : SqlServerRunnerDbContextMigrationFactory<RoadSegmentSurfaceProducerSnapshotContext>
     {
         public RoadSegmentSurfaceProducerSnapshotContextMigrationFactory() :
             base(WellKnownConnectionNames.ProducerSnapshotProjectionsAdmin, HistoryConfiguration)

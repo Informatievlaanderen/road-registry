@@ -39,9 +39,6 @@
     </AssemblyAttribute>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <None Update="RoadRegistry.BackOffice.Api.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

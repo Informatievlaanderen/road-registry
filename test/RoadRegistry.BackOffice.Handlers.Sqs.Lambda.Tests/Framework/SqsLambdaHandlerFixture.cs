@@ -4,6 +4,7 @@ using Autofac;
 using AutoFixture;
 using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Framework;
+using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;

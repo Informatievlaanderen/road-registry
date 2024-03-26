@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
+using Asp.Versioning;
 using Be.Vlaanderen.Basisregisters.Api;
 using Configuration;
 using Microsoft.AspNetCore.Mvc;

@@ -2,7 +2,6 @@
   <Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Library.props" />
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>RoadRegistry.BackOffice</RootNamespace>
     <AssemblyName>RoadRegistry.BackOffice</AssemblyName>
     <Nullable>disable</Nullable>
@@ -15,10 +14,6 @@
 	<EnableDefaultContentItems>false</EnableDefaultContentItems>
 	<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <Content Include="paket.template" CopyToOutputDirectory="Always" />
