@@ -6,9 +6,6 @@ on:
       registry:
         required: true
         type: string
-      build-target:
-        required: true
-        type: string
       build-project: #StreetNameRegistry.Api.BackOffice
         required: true
         type: string
@@ -23,6 +20,9 @@ on:
         type: string
       semver:
         required: true
+        type: string
+      dotnet-version:
+        required: false
         type: string
 
 jobs:
@@ -47,10 +47,10 @@ jobs:
           SEMVER: ${{ inputs.semver }}
 
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         
       - name: Cache Paket
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         env:
           cache-name: cache-paket
         with:
@@ -64,9 +64,9 @@ jobs:
         shell: bash
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ secrets.VBR_DOTNET_VERSION }}
+          dotnet-version: ${{ inputs.dotnet-version || secrets.VBR_DOTNET_VERSION }}
 
       - name: .NET version
         shell: bash
@@ -76,10 +76,6 @@ jobs:
         shell: bash
         run: |
           dotnet tool restore
-
-      - name: Paket install
-        shell: bash
-        run: dotnet paket install
 
       - name: Paket restore
         shell: bash
@@ -99,16 +95,16 @@ jobs:
       - name: Dotnet restore
         shell: bash
         run: dotnet restore src/${{ inputs.build-project }} --runtime linux-x64
-      
-      - name: Set Assembly Versions
-        shell: bash
-        run: CI_BUILD_NUMBER=$SEMVER ./build.sh SetAssemblyVersions
-        env:          
-          SEMVER: ${{ inputs.semver }}
 
       - name: Dotnet build
         shell: bash
-        run: dotnet build --no-restore --runtime 'linux-x64' --self-contained src/${{ inputs.build-project }}
+        run: dotnet build --no-restore --runtime 'linux-x64' --self-contained src/${{ inputs.build-project }} -p:Version=$VERSION -p:FileVersion=$VERSION -p:Copyright="$COPYRIGHT" -p:Company="$COMPANY" -p:Product="$PRODUCT" -p:InformationalVersion=$GIT_HASH
+        env:
+          VERSION: ${{ inputs.semver }}
+          COPYRIGHT: "Copyright \\(c\\) Vlaamse overheid"
+          PRODUCT: "Basisregisters Vlaanderen"
+          COMPANY: "Vlaamse overheid"
+          GIT_HASH: ${{ github.sha }}
 
       - name: Dotnet publish
         shell: bash
@@ -116,9 +112,10 @@ jobs:
 
       - name: Containerize
         shell: bash
-        run: CI_BUILD_NUMBER=$SEMVER ./build.sh ${{ inputs.build-target }}
+        run: docker build . --no-cache --tag $TAG --build-arg BUILD_NUMBER=$SEMVER
+        working-directory: dist/${{ inputs.build-project }}/linux
         env:
-          BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
+          TAG: ${{ inputs.registry }}/${{ inputs.image-name }}:${{ inputs.semver }}
           SEMVER: ${{ inputs.semver }}
 
       - name: Show images
@@ -128,14 +125,14 @@ jobs:
       - name: Save Image
         if: inputs.semver != 'none'
         shell: bash
-        run: docker image save $BUILD_DOCKER_REGISTRY/${{ inputs.registry }}/${{ inputs.image-name }}:$SEMVER -o ~/${{ inputs.image-file}}
+        run: docker image save ${{ inputs.registry }}/${{ inputs.image-name }}:$SEMVER -o ~/${{ inputs.image-file}}
         env:
           BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           SEMVER: ${{ inputs.semver }}
 
       - name: Upload image
         if: inputs.semver != 'none'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.image-name }}-${{ inputs.semver }}
           path: ~/${{ inputs.image-file }}
