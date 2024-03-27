@@ -1,3 +1,10 @@
+## [4.0.3](https://github.com/informatievlaanderen/road-registry/compare/v4.0.2...v4.0.3) (2024-03-27)
+
+
+### Bug Fixes
+
+* version in backoffice-ui docker ([#1452](https://github.com/informatievlaanderen/road-registry/issues/1452)) ([3acba8d](https://github.com/informatievlaanderen/road-registry/commit/3acba8d636a0e027d4aa14db58bdef3235edcbef))
+
 ## [4.0.2](https://github.com/informatievlaanderen/road-registry/compare/v4.0.1...v4.0.2) (2024-03-27)
 
 
