@@ -84,6 +84,10 @@ jobs:
           cp "$source/default.conf.template" $dist
           cp "$source/Dockerfile" $dist
           cp "$source/init.sh" $dist
+
+          echo "Print contents: $dist"
+          cd "$dist"
+          ls -als
         env:
           NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
           BUILD_PROJECT: ${{ inputs.build-project }}
