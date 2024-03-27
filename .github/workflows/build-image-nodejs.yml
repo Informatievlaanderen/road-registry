@@ -90,8 +90,8 @@ jobs:
           ls -als
           cd ../../..
 
-          echo "Print contents: $dist"
-          cd "$dist"
+          echo "Print contents: $dist/dist"
+          cd "$dist/dist"
           ls -als
           cd ../../..
         env:
