@@ -1,3 +1,10 @@
+## [4.0.1](https://github.com/informatievlaanderen/road-registry/compare/v4.0.0...v4.0.1) (2024-03-27)
+
+
+### Bug Fixes
+
+* add pipeline logging ([#1449](https://github.com/informatievlaanderen/road-registry/issues/1449)) ([d7f0f46](https://github.com/informatievlaanderen/road-registry/commit/d7f0f46fb5ab35c86ae18cf191b6238cca896e4a))
+
 # [4.0.0](https://github.com/informatievlaanderen/road-registry/compare/v3.71.5...v4.0.0) (2024-03-26)
 
 
