@@ -79,15 +79,21 @@ jobs:
           dist="$buildDir/$BUILD_PROJECT/linux"
           source="src/$BUILD_PROJECT"
 
-          mkdir "$dist/dist" -p
+          mkdir "$dist" -p
           cp -r "$source/dist" "$dist/dist"
           cp "$source/default.conf.template" $dist
           cp "$source/Dockerfile" $dist
           cp "$source/init.sh" $dist
 
+          echo "Print contents: $source/dist"
+          cd "$source/dist"
+          ls -als
+          cd ../../..
+
           echo "Print contents: $dist"
           cd "$dist"
           ls -als
+          cd ../../..
         env:
           NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
           BUILD_PROJECT: ${{ inputs.build-project }}
