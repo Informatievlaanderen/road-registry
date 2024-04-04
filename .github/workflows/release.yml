@@ -20,6 +20,9 @@ jobs:
       version: ${{ steps.set-version.outputs.version }}
 
     steps:
+    - name: Delete huge unnecessary tools folder
+      run: rm -rf /opt/hostedtoolcache
+
     - name: Checkout Code
       uses: actions/checkout@v4
       with:
