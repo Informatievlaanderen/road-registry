@@ -1,3 +1,12 @@
+## [4.0.4](https://github.com/informatievlaanderen/road-registry/compare/v4.0.3...v4.0.4) (2024-04-04)
+
+
+### Bug Fixes
+
+* enable jobs-processor in pipeline ([#1458](https://github.com/informatievlaanderen/road-registry/issues/1458)) ([4430cb5](https://github.com/informatievlaanderen/road-registry/commit/4430cb5ad1db154762744cceb9c55ae3e71fb98a))
+* schedule cron to only run when TST env is active ([#1460](https://github.com/informatievlaanderen/road-registry/issues/1460)) ([bc5ade7](https://github.com/informatievlaanderen/road-registry/commit/bc5ade705cb6d10012477e8f859bec5edea5c3ca))
+* use dotnet8 for schedule pipeline ([#1459](https://github.com/informatievlaanderen/road-registry/issues/1459)) ([0a0fbd3](https://github.com/informatievlaanderen/road-registry/commit/0a0fbd37fe3df06436ea1f78d39142185acaf417))
+
 ## [4.0.3](https://github.com/informatievlaanderen/road-registry/compare/v4.0.2...v4.0.3) (2024-03-27)
 
 
