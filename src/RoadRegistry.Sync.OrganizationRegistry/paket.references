@@ -7,10 +7,10 @@ Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 
-MediatR
 Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.EntityFrameworkCore.Design
 Microsoft.Extensions.Http
 Microsoft.Extensions.Hosting
 Microsoft.Extensions.Logging.Abstractions
+
 Newtonsoft.Json
