@@ -1,6 +1,8 @@
 Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
 
 AWSSDK.Core
+DataDog.Trace.Bundle
+
 Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.Extensions.Hosting
 Serilog.Enrichers.Environment

@@ -3,6 +3,8 @@ Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
 Be.Vlaanderen.Basisregisters.EventHandling
 Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 
+DataDog.Trace.Bundle
+
 AspNetCore.HealthChecks.SqlServer
 AWSSDK.Core
 Dapper

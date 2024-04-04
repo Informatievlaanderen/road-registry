@@ -5,6 +5,8 @@ Be.Vlaanderen.Basisregisters.GrAr.Legacy
 Be.Vlaanderen.Basisregisters.GrAr.Provenance
 Be.Vlaanderen.Basisregisters.Shaperon
 
+DataDog.Trace.Bundle
+
 AWSSDK.Core
 MediatR
 

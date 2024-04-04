@@ -1,3 +1,5 @@
+DataDog.Trace.Bundle
+
 MediatR
 Microsoft.Extensions.Hosting
 Microsoft.IdentityModel.Abstractions

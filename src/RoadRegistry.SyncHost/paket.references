@@ -8,6 +8,8 @@ Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac
 Be.Vlaanderen.Basisregisters.Projector
 
+DataDog.Trace.Bundle
+
 Serilog
 Serilog.Enrichers.Environment
 Serilog.Enrichers.Thread
