@@ -1,10 +1,7 @@
-Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
 Be.Vlaanderen.Basisregisters.BlobStore
 Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
-Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql
 Be.Vlaanderen.Basisregisters.DataDog.Tracing.SqlStreamStore
 Be.Vlaanderen.Basisregisters.TicketingService.Abstractions
-Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy
 
 Serilog
 Serilog.Settings.Configuration
@@ -24,5 +21,3 @@ Microsoft.Extensions.Configuration.EnvironmentVariables
 Microsoft.Extensions.Configuration.Json
 Microsoft.Extensions.Hosting
 
-SourceLink.Embed.AllSourceFiles
-SourceLink.Copy.PdbFiles
