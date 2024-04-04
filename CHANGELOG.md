@@ -1,3 +1,10 @@
+## [4.0.5](https://github.com/informatievlaanderen/road-registry/compare/v4.0.4...v4.0.5) (2024-04-04)
+
+
+### Bug Fixes
+
+* disable jobs-processor in stg ([#1461](https://github.com/informatievlaanderen/road-registry/issues/1461)) ([2a0892b](https://github.com/informatievlaanderen/road-registry/commit/2a0892bb2e04adf135459e683960696d2c0fedc1))
+
 ## [4.0.4](https://github.com/informatievlaanderen/road-registry/compare/v4.0.3...v4.0.4) (2024-04-04)
 
 
