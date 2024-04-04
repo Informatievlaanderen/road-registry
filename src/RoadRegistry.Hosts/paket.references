@@ -1,6 +1,5 @@
 Be.Vlaanderen.Basisregisters.Aws.Lambda
 Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
-Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
 Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency
 Be.Vlaanderen.Basisregisters.EventHandling
 Be.Vlaanderen.Basisregisters.EventHandling.Autofac

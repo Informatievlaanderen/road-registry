@@ -1,10 +1,10 @@
 namespace RoadRegistry.Sync.OrganizationRegistry;
 
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -44,7 +44,7 @@ public class OrganizationConsumerContext : ConsumerDbContext<OrganizationConsume
         options
             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
             .UseSqlServer(
-                sp.GetRequiredService<TraceDbConnection<OrganizationConsumerContext>>(),
+                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.OrganizationConsumerProjections),
                 sqlOptions => sqlOptions
                     .EnableRetryOnFailure()
                     .MigrationsHistoryTable(MigrationTables.OrganizationConsumer, ConsumerSchema));

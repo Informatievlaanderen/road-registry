@@ -18,7 +18,6 @@ dependencies
   framework: net8.0
     Be.Vlaanderen.Basisregisters.Api >= LOCKEDVERSION
     Be.Vlaanderen.Basisregisters.Aws.DistributedMutex >= LOCKEDVERSION
-    Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac >= LOCKEDVERSION
     Be.Vlaanderen.Basisregisters.GrAr.Provenance >= LOCKEDVERSION
     Be.Vlaanderen.Basisregisters.Shaperon >= LOCKEDVERSION
     AspNetCore.HealthChecks.SqlServer >= LOCKEDVERSION

@@ -1,23 +1,22 @@
 namespace RoadRegistry.Jobs.Processor.Infrastructure;
 
-using BackOffice.Framework;
-using Hosts;
-using Microsoft.Extensions.DependencyInjection;
-using System.Threading.Tasks;
-using BackOffice;
-using BackOffice.Extensions;
-using Hosts.Infrastructure.Extensions;
 using Autofac;
+using BackOffice;
 using BackOffice.Core;
+using BackOffice.Extensions;
 using BackOffice.Extracts;
+using BackOffice.Framework;
 using BackOffice.Uploads;
 using BackOffice.ZipArchiveWriters.Cleaning;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
+using Hosts;
+using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using Options;
 using SqlStreamStore;
+using System.Threading.Tasks;
 
 public class Program
 {
@@ -66,7 +65,6 @@ public class Program
             .ConfigureContainer((hostContext, builder) =>
             {
                 builder
-                    .RegisterModule(new DataDogModule(hostContext.Configuration))
                     .RegisterModule<BlobClientModule>()
                     .RegisterModule<BackOffice.Handlers.MediatorModule>();
             })

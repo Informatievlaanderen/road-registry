@@ -1,7 +1,6 @@
 Be.Vlaanderen.Basisregisters.Auth.AcmIdm
 Be.Vlaanderen.Basisregisters.Api
 Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
-Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
 Be.Vlaanderen.Basisregisters.GrAr.Legacy
 Be.Vlaanderen.Basisregisters.GrAr.Provenance
 Be.Vlaanderen.Basisregisters.Shaperon

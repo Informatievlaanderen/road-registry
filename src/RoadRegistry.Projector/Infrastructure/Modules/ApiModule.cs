@@ -4,19 +4,18 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Editor.Schema;
+using Hosts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Options;
 using Product.Schema;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
-using System;
-using System.Collections.Generic;
-using Hosts;
-using Options;
 using RoadRegistry.Syndication.Schema;
 using Sync.StreetNameRegistry;
+using System;
+using System.Collections.Generic;
 using Wfs.Schema;
 using Wms.Schema;
 
@@ -36,7 +35,6 @@ public class ApiModule : Module
 
     protected override void Load(ContainerBuilder builder)
     {
-        builder.RegisterModule(new DataDogModule(_configuration));
         builder
             .RegisterType<ProblemDetailsHelper>()
             .AsSelf();

@@ -8,7 +8,6 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 using Autofac;
 using BackOffice.Extensions;
 using BackOffice.Infrastructure.Modules;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
 using FluentValidation;
@@ -56,7 +55,6 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
     protected override void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
     {
         builder
-            .RegisterModule(new DataDogModule(context.Configuration))
             .RegisterModule<EnvelopeModule>()
             .RegisterModule(new EventHandlingModule(typeof(BackOffice.Handlers.DomainAssemblyMarker).Assembly, EventSerializerSettings))
             .RegisterModule<CommandHandlingModule>()

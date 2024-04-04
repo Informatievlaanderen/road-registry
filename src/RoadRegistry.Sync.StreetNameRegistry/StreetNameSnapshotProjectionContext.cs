@@ -1,9 +1,9 @@
 namespace RoadRegistry.Sync.StreetNameRegistry;
 
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Models;
@@ -35,7 +35,7 @@ public class StreetNameSnapshotProjectionContext : RunnerDbContext<StreetNameSna
         options
             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
             .UseSqlServer(
-                sp.GetRequiredService<TraceDbConnection<StreetNameSnapshotProjectionContext>>(),
+                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.StreetNameProjections),
                 sqlOptions => sqlOptions
                     .EnableRetryOnFailure()
                     .MigrationsHistoryTable(MigrationTables.StreetName, WellKnownSchemas.StreetNameSchema));

@@ -1,10 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure;
 
-using System;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions;
 using Amazon;
 using Amazon.DynamoDBv2;
@@ -21,8 +16,6 @@ using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Behaviors;
 using Configuration;
@@ -61,7 +54,11 @@ using RoadSegments;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
-using Syndication.Schema;
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using ZipArchiveWriters.Cleaning;
 using DomainAssemblyMarker = BackOffice.Handlers.Sqs.DomainAssemblyMarker;
 using MediatorModule = Snapshot.Handlers.MediatorModule;
@@ -86,8 +83,6 @@ public class Startup
         IHostApplicationLifetime appLifetime,
         ILoggerFactory loggerFactory,
         IApiVersionDescriptionProvider apiVersionProvider,
-        ApiDataDogToggle datadogToggle,
-        ApiDebugDataDogToggle debugDataDogToggle,
         HealthCheckService healthCheckService)
     {
         StartupHelpers.CheckDatabases(healthCheckService, DatabaseTag, loggerFactory).GetAwaiter().GetResult();
@@ -100,23 +95,6 @@ public class Startup
         }
 
         app
-            .UseDataDog<Startup>(new DataDogOptions
-            {
-                Common =
-                {
-                    ServiceProvider = serviceProvider,
-                    LoggerFactory = loggerFactory
-                },
-                Toggles =
-                {
-                    Enable = new ApiDataDogToggle(datadogToggle.FeatureEnabled),
-                    Debug = new ApiDebugDataDogToggle(debugDataDogToggle.FeatureEnabled)
-                },
-                Tracing =
-                {
-                    ServiceName = _configuration.GetRequiredValue<string>("DataDog:ServiceName")
-                }
-            })
             .UseDefaultForApi(new StartupUseOptions
             {
                 Common =
@@ -161,7 +139,6 @@ public class Startup
     public void ConfigureContainer(ContainerBuilder builder)
     {
         builder
-            .RegisterModule(new DataDogModule(_configuration))
             .RegisterModule<BlobClientModule>()
             .RegisterModule<MediatorModule>()
             .RegisterModule<SnapshotSqsHandlersModule>()
@@ -331,22 +308,20 @@ public class Startup
                         sp.GetService<ILoggerFactory>()
                     )
                 })))
-            .AddTraceDbConnection<EditorContext>(WellKnownConnectionNames.EditorProjections)
-            .AddTraceDbConnection<SyndicationContext>(WellKnownConnectionNames.SyndicationProjections)
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 .UseSqlServer(
-                    sp.GetRequiredService<TraceDbConnection<EditorContext>>(),
+                    sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.EditorProjections),
                     sqlOptions => sqlOptions
                         .UseNetTopologySuite())
             )
-            .AddTraceDbConnection<ProductContext>(WellKnownConnectionNames.ProductProjections)
             .AddDbContext<ProductContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 .UseSqlServer(
-                    sp.GetRequiredService<TraceDbConnection<ProductContext>>()))
+                    sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.ProductProjections)
+                ))
             .AddOrganizationCache()
             .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
             .AddValidatorsAsScopedFromAssemblyContaining<Startup>()

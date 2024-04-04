@@ -26,7 +26,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
 
 public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
@@ -136,7 +135,6 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
         builder
             .RegisterMediator()
             .RegisterRetryPolicy()
-            .RegisterModule(new DataDogModule(context.Configuration))
             .RegisterModule<EnvelopeModule>()
             .RegisterModule<BlobClientModule>();
 
