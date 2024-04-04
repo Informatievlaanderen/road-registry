@@ -971,7 +971,7 @@ jobs:
           'backoffice-extracthost',
           'backoffice-commandhost',
           'adminhost',
-          'jobs-processor',
+          #'jobs-processor',
           'projector',
           'editor-projectionhost',
           'product-projectionhost',
