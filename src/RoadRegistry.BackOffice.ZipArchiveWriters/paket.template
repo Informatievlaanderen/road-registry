@@ -16,11 +16,6 @@ description Road Registry.
 
 dependencies
   framework: net8.0
-    AWSSDK.Core
-    Microsoft.IdentityModel.Abstractions >= LOCKEDVERSION
-    Microsoft.IdentityModel.JsonWebTokens >= LOCKEDVERSION
-    Microsoft.IdentityModel.Logging >= LOCKEDVERSION
-    Microsoft.IdentityModel.Tokens >= LOCKEDVERSION
     Microsoft.IO.RecyclableMemoryStream >= LOCKEDVERSION
 
 files
