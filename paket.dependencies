@@ -14,7 +14,6 @@ nuget AspNetCore.HealthChecks.Aws.S3 8.0.0
 nuget AspNetCore.HealthChecks.Aws.SQS 8.0.0
 nuget AspNetCore.HealthChecks.DynamoDb 8.0.0
 nuget AspNetCore.HealthChecks.Configuration 1.1.3
-nuget AspNetCore.HealthChecks.Network 8.0.0
 nuget AspNetCore.HealthChecks.UI.Client 8.0.0
 nuget Autofac 8.0.0
 nuget AutoFixture 4.18.1

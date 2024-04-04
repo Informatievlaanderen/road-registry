@@ -6,11 +6,11 @@ Be.Vlaanderen.Basisregisters.EventHandling
 Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac
-Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.Sqs
 Be.Vlaanderen.Basisregisters.Sqs.Lambda
 Be.Vlaanderen.Basisregisters.TicketingService.Abstractions
 Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy
+
 AWSSDK.Core
 AWSSDK.Lambda
 MediatR
@@ -36,7 +36,6 @@ Microsoft.IdentityModel.Tokens
 AspNetCore.HealthChecks.Aws.S3
 AspNetCore.HealthChecks.Aws.Sqs
 AspNetCore.HealthChecks.DynamoDb
-AspNetCore.HealthChecks.Network
 AspNetCore.HealthChecks.SqlServer
 AspNetCore.HealthChecks.UI.Client
 
