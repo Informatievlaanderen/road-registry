@@ -7,7 +7,3 @@ AWSSDK.SQS
 MediatR
 MediatR.Contracts
 Microsoft.Extensions.DependencyInjection
-Microsoft.IdentityModel.Abstractions
-Microsoft.IdentityModel.JsonWebTokens
-Microsoft.IdentityModel.Logging
-Microsoft.IdentityModel.Tokens
