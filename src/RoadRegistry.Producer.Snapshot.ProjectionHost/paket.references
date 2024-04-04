@@ -1,14 +1,10 @@
-Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
 Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
 Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 Be.Vlaanderen.Basisregisters.GrAr.Contracts
 Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer
-Be.Vlaanderen.Basisregisters.Shaperon
-Be.Vlaanderen.Basisregisters.Shaperon.Geometries
 
-AWSSDK.Core
 Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.Extensions.Hosting
 Microsoft.IdentityModel.Abstractions
