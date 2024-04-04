@@ -1,3 +1,5 @@
+DataDog.Trace.Bundle
+
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
 Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.Extensions.Hosting

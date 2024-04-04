@@ -4,6 +4,8 @@ Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer
 
+DataDog.Trace.Bundle
+
 Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.Extensions.Hosting
 Microsoft.IdentityModel.Abstractions

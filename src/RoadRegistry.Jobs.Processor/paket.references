@@ -1,6 +1,8 @@
 Be.Vlaanderen.Basisregisters.BlobStore
 Be.Vlaanderen.Basisregisters.TicketingService.Abstractions
 
+DataDog.Trace.Bundle
+
 Serilog
 Serilog.Settings.Configuration
 Serilog.Extensions.Logging
