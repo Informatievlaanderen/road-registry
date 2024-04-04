@@ -1,8 +1,5 @@
 namespace RoadRegistry.BackOffice.Abstractions
 {
-    using System;
-    using Microsoft.AspNetCore.Http;
-
     public sealed class Pagination
     {
         public const int MaxLimit = 200;
@@ -19,10 +16,10 @@ namespace RoadRegistry.BackOffice.Abstractions
             set => _limit = value is null or 0 or > MaxLimit ? MaxLimit : value.Value;
         }
 
-        public Pagination(IQueryCollection queryCollection)
+        public Pagination(int? offset, int? limit)
         {
-            Offset = Convert.ToInt32(queryCollection["offset"]);
-            Limit = Convert.ToInt32(queryCollection["limit"]);
+            Offset = offset;
+            Limit = limit;
         }
 
         public int NextPageOffset => _offset + _limit;
