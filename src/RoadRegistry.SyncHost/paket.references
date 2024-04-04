@@ -1,4 +1,3 @@
-Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
 Be.Vlaanderen.Basisregisters.CommandHandling
 Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
 Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql
@@ -7,7 +6,7 @@ Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 Be.Vlaanderen.Basisregisters.GrAr.Contracts
 Be.Vlaanderen.Basisregisters.GrAr.Provenance
 Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer
-Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector 
+Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac
 Be.Vlaanderen.Basisregisters.Projector
@@ -23,7 +22,6 @@ Serilog.Sinks.File
 Serilog.Sinks.Slack
 
 Autofac.Extensions.DependencyInjection
-AWSSDK.Core
 
 Microsoft.Data.SqlClient
 Microsoft.EntityFrameworkCore.SqlServer

@@ -1,15 +1,16 @@
 Be.Vlaanderen.Basisregisters.BlobStore
-Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple
 Be.Vlaanderen.Basisregisters.Sqs
 
 AWSSDK.Core
 MediatR.Contracts
+
 Microsoft.Extensions.Logging
 Microsoft.Net.Http.Headers
+
 Microsoft.Extensions.DependencyInjection
 Microsoft.Extensions.DependencyInjection.Abstractions
+
 Microsoft.IdentityModel.Abstractions
 Microsoft.IdentityModel.JsonWebTokens
 Microsoft.IdentityModel.Logging
 Microsoft.IdentityModel.Tokens
-Swashbuckle.AspNetCore.Filters

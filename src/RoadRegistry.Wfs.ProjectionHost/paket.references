@@ -1,11 +1,9 @@
-Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
 Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
 Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 
-AWSSDK.Core
 Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.Extensions.Hosting
-Polly
+
 Serilog.Enrichers.Environment
 Serilog.Enrichers.Thread
 Serilog.Extensions.Hosting

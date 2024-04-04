@@ -1,7 +1,6 @@
 namespace RoadRegistry.Wms.Projections;
 
 using BackOffice;
-using BackOffice.Abstractions;
 using BackOffice.Extensions;
 using BackOffice.FeatureToggles;
 using BackOffice.Messages;

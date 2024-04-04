@@ -5,7 +5,6 @@ Be.Vlaanderen.Basisregisters.AggregateSource.Testing.Xunit
 Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing
 Be.Vlaanderen.Basisregisters.TicketingService.Abstractions
-Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy
 
 Autofac.Extensions.DependencyInjection
 AutoFixture.Idioms
