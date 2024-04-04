@@ -44,7 +44,7 @@ jobs:
        matrix: 
          services: [
           'road-registry-adminhost',
-          #'road-registry-jobs-processor',
+          'road-registry-jobs-processor',
           'road-registry-backoffice-api',
           'road-registry-backoffice-commandhost',
           'road-registry-backoffice-eventhost',
