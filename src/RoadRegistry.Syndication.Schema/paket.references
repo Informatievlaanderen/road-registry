@@ -4,10 +4,5 @@ Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer
 
 Microsoft.Extensions.DependencyInjection.Abstractions
 
-Microsoft.IdentityModel.Abstractions
-Microsoft.IdentityModel.JsonWebTokens
-Microsoft.IdentityModel.Logging
-Microsoft.IdentityModel.Tokens
-
 Microsoft.EntityFrameworkCore.Design
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
