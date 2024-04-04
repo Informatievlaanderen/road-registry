@@ -1,7 +1,6 @@
 namespace RoadRegistry.SyncHost.Infrastructure.Modules;
 
 using Autofac;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
@@ -22,7 +21,6 @@ public class ApiModule : Module
         var eventSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
         builder
-            .RegisterModule(new DataDogModule(_configuration))
             .RegisterModule<EnvelopeModule>()
             .RegisterModule(new EventHandlingModule(typeof(DomainAssemblyMarker).Assembly, eventSerializerSettings));
     }

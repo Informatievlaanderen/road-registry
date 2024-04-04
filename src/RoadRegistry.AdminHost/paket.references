@@ -4,6 +4,8 @@ Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple
 Autofac.Extensions.DependencyInjection
 AWSSDK.Core
 
+DataDog.Trace.Bundle
+
 MediatR
 MediatR.Contracts
 

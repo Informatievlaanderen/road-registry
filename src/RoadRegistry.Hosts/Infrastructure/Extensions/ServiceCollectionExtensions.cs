@@ -3,11 +3,9 @@ namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 using Amazon;
 using BackOffice;
 using BackOffice.Core;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Editor.Schema;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +15,6 @@ using SqlStreamStore;
 using Sync.StreetNameRegistry;
 using System;
 using System.Linq;
-using BackOffice.Extensions;
 using IStreetNameCache = BackOffice.IStreetNameCache;
 
 public static class ServiceCollectionExtensions
@@ -37,7 +34,6 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddEditorContext(this IServiceCollection services)
     {
         return services
-                .AddTraceDbConnection<EditorContext>(WellKnownConnectionNames.EditorProjections, ServiceLifetime.Singleton)
                 .AddSingleton<Func<EditorContext>>(sp =>
                     {
                         var configuration = sp.GetRequiredService<IConfiguration>();
@@ -59,7 +55,7 @@ public static class ServiceCollectionExtensions
                     .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                     .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                     .UseSqlServer(
-                        sp.GetRequiredService<TraceDbConnection<EditorContext>>(),
+                        sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.EditorProjections),
                         sqlOptions => sqlOptions
                             .UseNetTopologySuite())
                 )
@@ -122,12 +118,11 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddRoadNetworkDbIdGenerator(this IServiceCollection services)
     {
         return services
-            .AddTraceDbConnection<RoadNetworkDbContext>(WellKnownConnectionNames.Events, ServiceLifetime.Singleton)
             .AddDbContext<RoadNetworkDbContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 .UseSqlServer(
-                    sp.GetRequiredService<TraceDbConnection<RoadNetworkDbContext>>(),
+                    sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.Events),
                     sqlOptions => sqlOptions
                         .UseNetTopologySuite()
                         .MigrationsHistoryTable(MigrationTables.Default, RoadNetworkDbContext.Schema)

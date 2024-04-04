@@ -1,8 +1,6 @@
 namespace RoadRegistry.SyncHost.Infrastructure.Modules
 {
-    using BackOffice;
     using BackOffice.Extensions;
-    using Hosts.Infrastructure.Extensions;
     using Microsoft.Extensions.DependencyInjection;
     using Sync.OrganizationRegistry;
 
@@ -13,7 +11,6 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
             return services
                 .RegisterOptions<OrganizationConsumerOptions>()
                 .AddSingleton<IOrganizationReader, OrganizationReader>()
-                .AddTraceDbConnection<OrganizationConsumerContext>(WellKnownConnectionNames.OrganizationConsumerProjections, ServiceLifetime.Singleton)
                 .AddDbContext<OrganizationConsumerContext>(OrganizationConsumerContext.ConfigureOptions)
                 .AddDbContextFactory<OrganizationConsumerContext>(OrganizationConsumerContext.ConfigureOptions)
                 ;

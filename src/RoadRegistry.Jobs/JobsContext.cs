@@ -1,8 +1,8 @@
 namespace RoadRegistry.Jobs
 {
     using BackOffice;
-    using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using System;
@@ -41,7 +41,7 @@ namespace RoadRegistry.Jobs
             options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseSqlServer(
-                    sp.GetRequiredService<TraceDbConnection<JobsContext>>(),
+                    sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.Jobs),
                     sqlOptions => sqlOptions
                         .EnableRetryOnFailure()
                         .MigrationsHistoryTable(MigrationsTableName, Schema));

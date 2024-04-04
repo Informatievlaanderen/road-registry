@@ -1,7 +1,6 @@
 namespace RoadRegistry.SyncHost.Infrastructure.Modules
 {
     using BackOffice;
-    using BackOffice.Extensions;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
@@ -27,7 +26,6 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
 
                     return sp.GetRequiredService<StreetNameSnapshotTopicConsumer>();
                 })
-                .AddTraceDbConnection<StreetNameSnapshotConsumerContext>(WellKnownConnectionNames.StreetNameSnapshotConsumer)
                 .AddSingleton<ConfigureDbContextOptionsBuilder<StreetNameSnapshotConsumerContext>>(StreetNameSnapshotConsumerContext.ConfigureOptions)
                 .AddDbContext<StreetNameSnapshotConsumerContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameSnapshotConsumerContext>>()(sp, options))
                 .AddDbContextFactory<StreetNameSnapshotConsumerContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameSnapshotConsumerContext>>()(sp, options))
@@ -45,7 +43,6 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
 
                     return sp.GetRequiredService<StreetNameEventTopicConsumer>();
                 })
-                .AddTraceDbConnection<StreetNameEventConsumerContext>(WellKnownConnectionNames.StreetNameEventConsumer)
                 .AddSingleton<ConfigureDbContextOptionsBuilder<StreetNameEventConsumerContext>>(StreetNameEventConsumerContext.ConfigureOptions)
                 .AddDbContext<StreetNameEventConsumerContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameEventConsumerContext>>()(sp, options))
                 .AddDbContextFactory<StreetNameEventConsumerContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<StreetNameEventConsumerContext>>()(sp, options))

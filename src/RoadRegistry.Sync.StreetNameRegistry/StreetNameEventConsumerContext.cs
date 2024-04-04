@@ -1,12 +1,12 @@
 namespace RoadRegistry.Sync.StreetNameRegistry;
 
-using System;
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
 
 public class StreetNameEventConsumerContext : ConsumerDbContext<StreetNameEventConsumerContext>
 {
@@ -39,7 +39,7 @@ public class StreetNameEventConsumerContext : ConsumerDbContext<StreetNameEventC
         options
             .UseLoggerFactory(sp.GetService<ILoggerFactory>())
             .UseSqlServer(
-                sp.GetRequiredService<TraceDbConnection<StreetNameEventConsumerContext>>(),
+                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.StreetNameEventConsumer),
                 sqlOptions => sqlOptions
                     .EnableRetryOnFailure()
                     .MigrationsHistoryTable(MigrationTables.StreetNameEventConsumer, WellKnownSchemas.StreetNameEventConsumerSchema));

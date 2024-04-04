@@ -19,7 +19,6 @@ dependencies
     Be.Vlaanderen.Basisregisters.Api >= LOCKEDVERSION
     Be.Vlaanderen.Basisregisters.Aws.DistributedMutex >= LOCKEDVERSION
     Be.Vlaanderen.Basisregisters.EventHandling.Autofac >= LOCKEDVERSION
-    Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac >= LOCKEDVERSION
 
 files
   RoadRegistry.Projector.dll => lib\net8.0

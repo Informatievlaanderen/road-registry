@@ -1,6 +1,4 @@
 Be.Vlaanderen.Basisregisters.BlobStore
-Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
-Be.Vlaanderen.Basisregisters.DataDog.Tracing.SqlStreamStore
 Be.Vlaanderen.Basisregisters.TicketingService.Abstractions
 
 Serilog

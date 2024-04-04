@@ -1,14 +1,10 @@
 namespace RoadRegistry.Projector.Infrastructure;
 
-using System;
-using System.Linq;
-using System.Reflection;
 using Asp.Versioning.ApiExplorer;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.Api;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Configuration;
 using Editor.Schema;
 using Extensions;
@@ -33,6 +29,9 @@ using Product.Schema;
 using RoadRegistry.Syndication.Schema;
 using Sync.OrganizationRegistry;
 using Sync.StreetNameRegistry;
+using System;
+using System.Linq;
+using System.Reflection;
 using Wfs.Schema;
 using Wms.Schema;
 
@@ -55,30 +54,11 @@ public class Startup
         IHostApplicationLifetime appLifetime,
         ILoggerFactory loggerFactory,
         IApiVersionDescriptionProvider apiVersionProvider,
-        ApiDataDogToggle datadogToggle,
-        ApiDebugDataDogToggle debugDataDogToggle,
         HealthCheckService healthCheckService)
     {
         StartupHelpers.CheckDatabases(healthCheckService, DatabaseTag, loggerFactory).GetAwaiter().GetResult();
 
         app
-            .UseDataDog<Startup>(new DataDogOptions
-            {
-                Common =
-                {
-                    ServiceProvider = serviceProvider,
-                    LoggerFactory = loggerFactory
-                },
-                Toggles =
-                {
-                    Enable = new ApiDataDogToggle(datadogToggle.FeatureEnabled),
-                    Debug = new ApiDebugDataDogToggle(debugDataDogToggle.FeatureEnabled)
-                },
-                Tracing =
-                {
-                    ServiceName = _configuration["DataDog:ServiceName"]
-                }
-            })
             .UseDefaultForApi(new StartupUseOptions
             {
                 Common =
