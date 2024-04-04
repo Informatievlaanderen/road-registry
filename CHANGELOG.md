@@ -1,3 +1,12 @@
+## [4.0.6](https://github.com/informatievlaanderen/road-registry/compare/v4.0.5...v4.0.6) (2024-04-04)
+
+
+### Bug Fixes
+
+* add datadog dependencies ([c30426a](https://github.com/informatievlaanderen/road-registry/commit/c30426ac8a176e2d6a744eb3e86eaacbd823ac8a))
+* pipeline remove huge unnecessary tools folder ([ec10e93](https://github.com/informatievlaanderen/road-registry/commit/ec10e938fa042f1d5396393cfccfc07910173af8))
+* remove vbr datadog dependencies ([8753ef7](https://github.com/informatievlaanderen/road-registry/commit/8753ef719c5d8e427c9c417ce408ec70e7a22f8c))
+
 ## [4.0.5](https://github.com/informatievlaanderen/road-registry/compare/v4.0.4...v4.0.5) (2024-04-04)
 
 
