@@ -1,31 +1,44 @@
 namespace RoadRegistry.BackOffice.Api.E2ETests;
 
+using System;
+using System.Data;
+using System.Diagnostics;
+using System.Linq;
 using RoadSegments;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 
 internal static class PublicApiHttpClientExtensions
 {
-    private sealed record TicketResponse(string Status);
-
-    public static async Task CreateOutlineRoadSegment(this PublicApiHttpClient client, PostRoadSegmentOutlineParameters request, CancellationToken cancellationToken)
+    public static async Task<RoadSegmentId> CreateOutlineRoadSegment(this PublicApiHttpClient client, PostRoadSegmentOutlineParameters request, CancellationToken cancellationToken)
     {
         var response = await client.PostAsJsonAsync("v2/wegsegmenten/acties/schetsen", request, cancellationToken);
         response.EnsureSuccessStatusCode();
+        var ticketUrl = response.Headers.Location;
 
-        //TODO-rik wait for ticket response
+        var sw = Stopwatch.StartNew();
+
         while (true)
         {
-            var ticketResponse = await client.GetFromJsonAsync<TicketResponse>(response.Headers.Location, cancellationToken: cancellationToken);
-
-            if (ticketResponse.Status == "completed")
+            if (sw.Elapsed.TotalMinutes > 5)
             {
-                break;
+                throw new TimeoutException($"Timed out at [{sw.Elapsed}] while waiting for outlined roadsegment to be created");
             }
+
+            var ticketResponse = await client.GetFromJsonAsync<TicketResponse>(ticketUrl, cancellationToken: cancellationToken);
+
+            switch (ticketResponse?.Status)
+            {
+                case "complete":
+                    var locationResult = ticketResponse.GetResult<LocationResult>();
+                    return new RoadSegmentId(int.Parse(locationResult.Location.ToString().Split('/').Last()));
+                case "error":
+                    throw new Exception($"Failed trying to create an outlined roadsegment: {ticketUrl}");
+            }
+
+            Thread.Sleep(TimeSpan.FromSeconds(1));
         }
-        
-        //TODO-rik return new roadsegmentid from ticket result
-        return;
     }
 }
