@@ -1,3 +1,10 @@
+## [4.0.7](https://github.com/informatievlaanderen/road-registry/compare/v4.0.6...v4.0.7) (2024-04-05)
+
+
+### Bug Fixes
+
+* WR-900 form parameter using presigned upload url ([#1464](https://github.com/informatievlaanderen/road-registry/issues/1464)) ([679eb64](https://github.com/informatievlaanderen/road-registry/commit/679eb64e06aeb89c1a66333aa81a33c4e4d68546))
+
 ## [4.0.6](https://github.com/informatievlaanderen/road-registry/compare/v4.0.5...v4.0.6) (2024-04-04)
 
 
