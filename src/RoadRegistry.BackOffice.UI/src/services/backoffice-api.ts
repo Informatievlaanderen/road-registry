@@ -70,12 +70,12 @@ export const BackOfficeApi = {
       const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
       
       const data = new FormData();
-      data.append("archive", file, filename);
       if (response.data.uploadUrlFormData) {
         for (let key in response.data.uploadUrlFormData) {
           data.append(key, response.data.uploadUrlFormData[key]);
         }
       }
+      data.append("file", file, filename);
       
       var uploadFileResponse = await apiClient.post(response.data.uploadUrl, data);
       
