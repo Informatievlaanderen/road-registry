@@ -8,17 +8,39 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests
     using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.Logging;
     using System;
+    using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
+    using System.Net.Http;
     using System.Threading.Tasks;
+    using IdentityModel;
+    using IdentityModel.Client;
+    using Microsoft.Extensions.Configuration;
+    using Xunit;
 
-    public class IntegrationTestFixture : ApiClientTestFixture
+    public class IntegrationTestFixture : IAsyncLifetime
     {
         public TestServer TestServer { get; private set; }
         public SqlConnection SqlConnection { get; private set; }
+        public IConfiguration Configuration { get; private set; }
+
+        private string _clientId;
+        private string _clientSecret;
+        private string _createTokenEndpoint;
+        private readonly IDictionary<string, AccessToken> _accessTokens = new Dictionary<string, AccessToken>();
         
-        public override async Task InitializeAsync()
+        public async Task InitializeAsync()
         {
-            await base.InitializeAsync();
+            Configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", optional: true, reloadOnChange: false)
+                .AddEnvironmentVariables()
+                .Build();
+
+            _clientId = Configuration.GetRequiredValue<string>("ClientId");
+            _clientSecret = Configuration.GetRequiredValue<string>("ClientSecret");
+            _createTokenEndpoint = Configuration.GetRequiredValue<string>("CreateTokenEndpoint");
 
             using var _ = DockerComposer.Compose("sqlserver.yml", "road-integration-tests");
             await WaitForSqlServerToBecomeAvailable();
@@ -33,6 +55,30 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests
                 .UseTestServer();
 
             TestServer = new TestServer(hostBuilder);
+        }
+
+        public async Task<string> GetAcmIdmAccessToken(string requiredScopes = "")
+        {
+            if (_accessTokens.ContainsKey(requiredScopes) && !_accessTokens[requiredScopes].IsExpired)
+            {
+                return _accessTokens[requiredScopes].Token;
+            }
+
+            var tokenClient = new TokenClient(
+                () => new HttpClient(),
+                new TokenClientOptions
+                {
+                    Address = _createTokenEndpoint,
+                    ClientId = _clientId,
+                    ClientSecret = _clientSecret,
+                    Parameters = new Parameters(new[] { new KeyValuePair<string, string>("scope", requiredScopes) })
+                });
+
+            var response = await tokenClient.RequestTokenAsync(OidcConstants.GrantTypes.ClientCredentials);
+
+            _accessTokens[requiredScopes] = new AccessToken(response.AccessToken, response.ExpiresIn);
+
+            return _accessTokens[requiredScopes].Token;
         }
 
         private async Task WaitForSqlServerToBecomeAvailable()
@@ -68,9 +114,8 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public override async Task DisposeAsync()
+        public async Task DisposeAsync()
         {
-            await base.DisposeAsync();
             await SqlConnection.DisposeAsync();
         }
     }

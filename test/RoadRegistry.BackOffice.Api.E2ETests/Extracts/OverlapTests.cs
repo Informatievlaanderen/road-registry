@@ -1,24 +1,34 @@
-namespace RoadRegistry.BackOffice.Api.IntegrationTests.Extracts
+namespace RoadRegistry.BackOffice.Api.E2ETests.Extracts
 {
     using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
+    using E2ETests;
     using Messages;
     using RoadRegistry.BackOffice.Api.Extracts;
     using System;
     using System.Diagnostics;
     using System.Linq;
-    using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
     using Xunit;
+    using Xunit.Abstractions;
 
-    public partial class ExtractsTests
+    public class OverlapTests : IClassFixture<ApiClientTestFixture>
     {
-        private const string ExtractDescriptionPrefix = "IntegrationTest_";
+        private const string ExtractDescriptionPrefix = "E2ETest_";
+
+        protected ApiClientTestFixture Fixture { get; }
+        protected ITestOutputHelper OutputHelper { get; }
+
+        public OverlapTests(ApiClientTestFixture fixture, ITestOutputHelper outputHelper)
+        {
+            Fixture = fixture;
+            OutputHelper = outputHelper;
+        }
 
         [Fact]
         public async Task WhenExtractGotRequestedWithOverlap()
         {
-            var apiClient = await Fixture.CreateApiClient(new[] { Scopes.DvWrIngemetenWegBeheer });
+            var apiClient = await Fixture.CreateBackOfficeApiClient(new[] { Scopes.DvWrIngemetenWegBeheer });
             if (apiClient is null)
             {
                 return;
@@ -38,8 +48,8 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Extracts
                 false
                 ), CancellationToken.None);
 
-            TestOutputHelper.WriteLine("Requested extract 1: {0}", extractRequest1.DownloadId);
-            TestOutputHelper.WriteLine("Requested extract 2: {0}", extractRequest2.DownloadId);
+            OutputHelper.WriteLine("Requested extract 1: {0}", extractRequest1.DownloadId);
+            OutputHelper.WriteLine("Requested extract 2: {0}", extractRequest2.DownloadId);
 
             // Wait until overlap is created
             try
@@ -55,7 +65,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Extracts
                         .SingleOrDefault(x => Equals(x.Properties["downloadId1"], extractRequest1.DownloadId) && Equals(x.Properties["downloadId2"], extractRequest2.DownloadId));
                     if (matchingOverlap is not null)
                     {
-                        TestOutputHelper.WriteLine("Overlap found");
+                        OutputHelper.WriteLine("Overlap found");
                         break;
                     }
 
@@ -86,7 +96,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Extracts
                         .SingleOrDefault(x => Equals(x.Properties["downloadId1"], extractRequest1.DownloadId) && Equals(x.Properties["downloadId2"], extractRequest2.DownloadId));
                     if (matchingOverlap is null)
                     {
-                        TestOutputHelper.WriteLine("Overlap is removed");
+                        OutputHelper.WriteLine("Overlap is removed");
                         break;
                     }
 
@@ -98,7 +108,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Extracts
             }
         }
 
-        private async Task CloseRemainingTestExtracts(HttpClient apiClient)
+        private async Task CloseRemainingTestExtracts(BackOfficeApiHttpClient apiClient)
         {
             var overlappings = await apiClient.GetOverlappingTransactionZonesGeoJson(CancellationToken.None);
 

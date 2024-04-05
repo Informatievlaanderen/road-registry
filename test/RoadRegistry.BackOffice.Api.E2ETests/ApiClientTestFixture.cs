@@ -1,11 +1,10 @@
-namespace RoadRegistry.BackOffice.Api.IntegrationTests
+namespace RoadRegistry.BackOffice.Api.E2ETests
 {
     using IdentityModel;
     using IdentityModel.Client;
     using Microsoft.Extensions.Configuration;
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Net.Http;
     using System.Net.Http.Headers;
@@ -14,30 +13,30 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests
 
     public class ApiClientTestFixture : IAsyncLifetime
     {
-        private string _clientId;
-        private string _clientSecret;
-        private string _createTokenEndpoint;
-        private string _backOfficeApiBaseUrl;
-        private string _apiKey;
+        private readonly string _clientId;
+        private readonly string _clientSecret;
+        private readonly string _createTokenEndpoint;
+        private readonly string _backOfficeApiBaseUrl;
+        private readonly string _publicApiBaseUrl;
+        private readonly string _apiKey;
         private readonly IDictionary<string, AccessToken> _accessTokens = new Dictionary<string, AccessToken>();
 
-        public IConfiguration Configuration { get; private set; }
+        public IConfiguration Configuration { get; }
 
-        public virtual Task InitializeAsync()
+        public ApiClientTestFixture(IConfiguration configuration)
         {
-            Configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
-                .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", optional: true, reloadOnChange: false)
-                .AddEnvironmentVariables()
-                .Build();
+            Configuration = configuration;
 
             _clientId = Configuration.GetRequiredValue<string>("ClientId");
             _clientSecret = Configuration.GetRequiredValue<string>("ClientSecret");
             _createTokenEndpoint = Configuration.GetRequiredValue<string>("CreateTokenEndpoint");
+            _publicApiBaseUrl = Configuration.GetRequiredValue<string>("PublicApiBaseUrl");
             _backOfficeApiBaseUrl = Configuration.GetRequiredValue<string>("BackOfficeApiBaseUrl");
             _apiKey = Configuration.GetRequiredValue<string>("ApiKey");
+        }
 
+        public virtual Task InitializeAsync()
+        {
             return Task.CompletedTask;
         }
 
@@ -70,16 +69,26 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests
             return _accessTokens[requiredScopes].Token;
         }
 
-        public async Task<HttpClient?> CreateApiClient(string[] requiredScopes)
+        public Task<BackOfficeApiHttpClient?> CreateBackOfficeApiClient(string[] requiredScopes)
         {
-            if (string.IsNullOrEmpty(_backOfficeApiBaseUrl))
+            return CreateApiClient<BackOfficeApiHttpClient>(_backOfficeApiBaseUrl, requiredScopes);
+        }
+        public Task<PublicApiHttpClient?> CreatePublicApiClient(string[] requiredScopes)
+        {
+            return CreateApiClient<PublicApiHttpClient>(_publicApiBaseUrl, requiredScopes);
+        }
+
+        private async Task<THttpClient?> CreateApiClient<THttpClient>(string baseUrl, string[] requiredScopes)
+            where THttpClient : HttpClient, new()
+        {
+            if (string.IsNullOrEmpty(baseUrl))
             {
                 return null;
             }
 
-            var httpClient = new HttpClient
+            var httpClient = new THttpClient
             {
-                BaseAddress = new Uri(_backOfficeApiBaseUrl)
+                BaseAddress = new Uri(baseUrl)
             };
             
             if (requiredScopes.Any())
@@ -96,5 +105,13 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests
 
             return httpClient;
         }
+    }
+
+    public class BackOfficeApiHttpClient : HttpClient
+    {
+    }
+
+    public class PublicApiHttpClient : HttpClient
+    {
     }
 }
