@@ -1,3 +1,10 @@
+## [4.0.8](https://github.com/informatievlaanderen/road-registry/compare/v4.0.7...v4.0.8) (2024-04-10)
+
+
+### Bug Fixes
+
+* update Be.Vlaanderen.Basisregisters.Api and enable authorization ([d688fd6](https://github.com/informatievlaanderen/road-registry/commit/d688fd6c451333087f91ac6cef136c53b03e7e4b))
+
 ## [4.0.7](https://github.com/informatievlaanderen/road-registry/compare/v4.0.6...v4.0.7) (2024-04-05)
 
 
