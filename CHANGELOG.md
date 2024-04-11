@@ -1,3 +1,10 @@
+## [4.0.9](https://github.com/informatievlaanderen/road-registry/compare/v4.0.8...v4.0.9) (2024-04-11)
+
+
+### Bug Fixes
+
+* WR-900 handle presignedupload response code ([#1468](https://github.com/informatievlaanderen/road-registry/issues/1468)) ([5218068](https://github.com/informatievlaanderen/road-registry/commit/52180681f728960670d0faa45c26d74f8bcd1c48))
+
 ## [4.0.8](https://github.com/informatievlaanderen/road-registry/compare/v4.0.7...v4.0.8) (2024-04-10)
 
 
