@@ -97,7 +97,7 @@ export const PublicApi = {
       var uploadFileResponse = await apiClient.post(response.data.uploadUrl, data);
       
       let status = uploadFileResponse.status as any;
-      if (status !== 200 && status !== 202) {
+      if (status !== 204) {
         return null;
       }
 
