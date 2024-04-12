@@ -21,6 +21,7 @@ namespace RoadRegistry.Jobs.Processor
     using System.Threading.Tasks;
     using BackOffice;
     using BackOffice.Abstractions.Jobs;
+    using BackOffice.Core;
     using Microsoft.Extensions.Hosting;
     using TicketingService.Abstractions;
     using JobsProcessorOptions = Infrastructure.Options.JobsProcessorOptions;
@@ -114,29 +115,34 @@ namespace RoadRegistry.Jobs.Processor
 
                             await UpdateJobStatus(job, JobStatus.Completed, stoppingToken);
                         }
-                        catch (UnsupportedMediaTypeException)
+                        catch (UnsupportedMediaTypeException ex)
                         {
-                            throw ToValidationException(ProblemCode.Upload.UnsupportedMediaType);
+                            if (ex.ContentType is not null)
+                            {
+                                var problem = new UnsupportedMediaType(ex.ContentType.Value).Translate();
+                                throw ToDutchValidationException(problem.ToValidationFailure());
+                            }
+                            throw ToDutchValidationException(ProblemCode.Upload.UnsupportedMediaType);
                         }
                         catch (DownloadExtractNotFoundException)
                         {
-                            throw ToValidationException(ProblemCode.Extract.NotFound);
+                            throw ToDutchValidationException(ProblemCode.Extract.NotFound);
                         }
                         catch (ExtractDownloadNotFoundException)
                         {
-                            throw ToValidationException(ProblemCode.Extract.NotFound);
+                            throw ToDutchValidationException(ProblemCode.Extract.NotFound);
                         }
                         catch (ExtractRequestMarkedInformativeException)
                         {
-                            throw ToValidationException(ProblemCode.Upload.UploadNotAllowedForInformativeExtract);
+                            throw ToDutchValidationException(ProblemCode.Upload.UploadNotAllowedForInformativeExtract);
                         }
                         catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException)
                         {
-                            throw ToValidationException(ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload);
+                            throw ToDutchValidationException(ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload);
                         }
                         catch (CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException)
                         {
-                            throw ToValidationException(ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce);
+                            throw ToDutchValidationException(ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce);
                         }
                         catch (ZipArchiveValidationException ex)
                         {
@@ -154,7 +160,7 @@ namespace RoadRegistry.Jobs.Processor
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, $"Unexpected exception for job '{job.Id}'");
-                        throw ToValidationException(ProblemCode.Upload.UnexpectedError);
+                        throw ToDutchValidationException(ProblemCode.Upload.UnexpectedError);
                     }
                 }
                 catch (ValidationException ex)
@@ -165,15 +171,19 @@ namespace RoadRegistry.Jobs.Processor
             }
         }
 
-        private ValidationException ToValidationException(ProblemCode problemCode)
+        private DutchValidationException ToDutchValidationException(ProblemCode problemCode)
         {
-            return new ValidationException(new[]
-            {
-                new ValidationFailure
+            return ToDutchValidationException(new ValidationFailure
                 {
                     PropertyName = string.Empty,
                     ErrorCode = problemCode
-                }
+                });
+        }
+        private DutchValidationException ToDutchValidationException(ValidationFailure validationFailure)
+        {
+            return new ValidationException(new[]
+            {
+                validationFailure
             }).TranslateToDutch();
         }
 
@@ -201,7 +211,7 @@ namespace RoadRegistry.Jobs.Processor
                     {
                         if (job.DownloadId is null)
                         {
-                            throw ToValidationException(ProblemCode.Upload.DownloadIdIsRequired);
+                            throw ToDutchValidationException(ProblemCode.Upload.DownloadIdIsRequired);
                         }
 
                         return new BackOffice.Abstractions.Extracts.UploadExtractRequest(new DownloadId(job.DownloadId.Value), new UploadExtractArchiveRequest(blob.Name, blobStream, blob.ContentType), job.TicketId);
