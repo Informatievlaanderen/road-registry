@@ -397,7 +397,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
             mockTicketing.Verify(x => x.Error(
                 ticketId,
                 It.Is<TicketError>(ticketError =>
-                    ticketError.Errors.First().ErrorCode == "UploadUnsupportedMediaType"
+                    ticketError.Errors.First().ErrorCode == "UnsupportedMediaType"
                     && ticketError.Errors.First().ErrorMessage == "Bestandstype is foutief. 'X-multipart/abc' is geen geldige waarde."),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
