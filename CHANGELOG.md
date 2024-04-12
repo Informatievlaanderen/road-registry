@@ -1,3 +1,11 @@
+## [4.0.10](https://github.com/informatievlaanderen/road-registry/compare/v4.0.9...v4.0.10) (2024-04-12)
+
+
+### Bug Fixes
+
+* default Serilog formatter ([#1469](https://github.com/informatievlaanderen/road-registry/issues/1469)) ([7a1c1ac](https://github.com/informatievlaanderen/road-registry/commit/7a1c1ac22a5b324ced58e39ff538dce03ab7303b))
+* WR-900 add invalid ContentType to error message ([#1470](https://github.com/informatievlaanderen/road-registry/issues/1470)) ([537902d](https://github.com/informatievlaanderen/road-registry/commit/537902dd357eed8434345426168ca5b12fc3215a))
+
 ## [4.0.9](https://github.com/informatievlaanderen/road-registry/compare/v4.0.8...v4.0.9) (2024-04-11)
 
 
