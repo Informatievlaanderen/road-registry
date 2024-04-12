@@ -1,3 +1,10 @@
+## [4.0.11](https://github.com/informatievlaanderen/road-registry/compare/v4.0.10...v4.0.11) (2024-04-12)
+
+
+### Bug Fixes
+
+* WR-900 add support for binary/octet-stream ContentType ([#1471](https://github.com/informatievlaanderen/road-registry/issues/1471)) ([0832a18](https://github.com/informatievlaanderen/road-registry/commit/0832a1818600565618eb6e3fc1cc1011604af69a))
+
 ## [4.0.10](https://github.com/informatievlaanderen/road-registry/compare/v4.0.9...v4.0.10) (2024-04-12)
 
 
