@@ -1,8 +1,10 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
+using System.IO.Compression;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Extracts;
+using BackOffice.Extensions;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Editor.Schema;
@@ -24,6 +26,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 {
     private static readonly ContentType[] SupportedContentTypes =
     {
+        ContentType.Parse("binary/octet-stream"),
         ContentType.Parse("application/zip"),
         ContentType.Parse("application/x-zip-compressed")
     };
@@ -74,7 +77,19 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             throw new ExtractDownloadNotFoundException(downloadId);
         }
 
-        await using var readStream = request.Archive.ReadStream;
+        await using var readStream = await request.Archive.ReadStream.CopyToNewMemoryStream(cancellationToken);
+
+        try
+        {
+            using (new ZipArchive(readStream, ZipArchiveMode.Read, true))
+            {
+            }
+            readStream.Position = 0;
+        }
+        catch (InvalidDataException)
+        {
+            throw new UnsupportedMediaTypeException();
+        }
 
         var uploadId = new UploadId(Guid.NewGuid());
         var archiveId = new ArchiveId(uploadId.ToString());

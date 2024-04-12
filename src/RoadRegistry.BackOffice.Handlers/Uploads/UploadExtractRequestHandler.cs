@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Uploads;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
+using BackOffice.Extensions;
 using BackOffice.Extracts;
 using BackOffice.FeatureCompare;
 using BackOffice.Uploads;
@@ -14,10 +15,9 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.FeatureCompare.Readers;
 using System.IO.Compression;
-using BackOffice.Extensions;
-using TicketingService.Abstractions;
 using ZipArchiveWriters;
 using ZipArchiveWriters.Cleaning;
+using ContentType = Be.Vlaanderen.Basisregisters.BlobStore.ContentType;
 
 /// <summary>Upload controller, post upload</summary>
 /// <exception cref="BlobClientNotFoundException"></exception>
@@ -26,6 +26,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 {
     private static readonly ContentType[] SupportedContentTypes =
     {
+        ContentType.Parse("binary/octet-stream"),
         ContentType.Parse("application/zip"),
         ContentType.Parse("application/x-zip-compressed")
     };
@@ -58,11 +59,11 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         {
             throw new UnsupportedMediaTypeException(request.Archive.ContentType);
         }
-        
+
         await using var readStream = await CleanArchive(request.Archive.ReadStream, cancellationToken);
 
         var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
-        
+
         var metadata = Metadata.None.Add(
             new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"),
                 string.IsNullOrEmpty(request.Archive.FileName)
@@ -71,7 +72,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         );
 
         await ValidateAndUploadAndQueueCommand(request, readStream, archiveId, metadata, cancellationToken);
-        
+
         return new UploadExtractResponse(archiveId);
     }
 
@@ -79,24 +80,31 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     {
         var writeStream = await readStream.CopyToNewMemoryStream(cancellationToken);
 
-        using (var archive = new ZipArchive(writeStream, ZipArchiveMode.Update, true))
+        try
         {
-            CleanResult cleanResult;
-            try
+            using (var archive = new ZipArchive(writeStream, ZipArchiveMode.Update, true))
             {
-                cleanResult = await _beforeFeatureCompareZipArchiveCleaner.CleanAsync(archive, cancellationToken);
-            }
-            catch
-            {
-                // ignore exceptions, let the validation handle it
-                cleanResult = CleanResult.NotApplicable;
-            }
+                CleanResult cleanResult;
+                try
+                {
+                    cleanResult = await _beforeFeatureCompareZipArchiveCleaner.CleanAsync(archive, cancellationToken);
+                }
+                catch
+                {
+                    // ignore exceptions, let the validation handle it
+                    cleanResult = CleanResult.NotApplicable;
+                }
 
-            if (cleanResult != CleanResult.Changed)
-            {
-                readStream.Position = 0;
-                return readStream;
+                if (cleanResult != CleanResult.Changed)
+                {
+                    readStream.Position = 0;
+                    return readStream;
+                }
             }
+        }
+        catch (InvalidDataException)
+        {
+            throw new UnsupportedMediaTypeException();
         }
 
         writeStream.Position = 0;
@@ -107,27 +115,34 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     {
         var entity = RoadNetworkChangesArchive.Upload(archiveId, readStream);
 
-        using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
+        try
         {
-            var problems = await entity.ValidateArchiveUsing(archive, request.TicketId, _beforeFeatureCompareValidator, cancellationToken);
-            problems.ThrowIfError();
-
-            var readerContext = new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);
-            var features = _transactionZoneFeatureReader.Read(archive, FeatureType.Change, ExtractFileName.Transactiezones, readerContext).Item1;
-            var transactionZone = features.Single().Attributes;
-            var downloadId = transactionZone.DownloadId;
-            
-            var extractRequest = await _editorContext.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
-            if (extractRequest is null)
+            using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
             {
-                throw new ExtractDownloadNotFoundException(new DownloadId(downloadId));
-            }
-            if (extractRequest.IsInformative)
-            {
-                throw new ExtractRequestMarkedInformativeException(downloadId);
-            }
+                var problems = await entity.ValidateArchiveUsing(archive, request.TicketId, _beforeFeatureCompareValidator, cancellationToken);
+                problems.ThrowIfError();
 
-            await UploadAndQueueCommand(request, readStream, archiveId, metadata, cancellationToken);
+                var readerContext = new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);
+                var features = _transactionZoneFeatureReader.Read(archive, FeatureType.Change, ExtractFileName.Transactiezones, readerContext).Item1;
+                var transactionZone = features.Single().Attributes;
+                var downloadId = transactionZone.DownloadId;
+
+                var extractRequest = await _editorContext.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
+                if (extractRequest is null)
+                {
+                    throw new ExtractDownloadNotFoundException(new DownloadId(downloadId));
+                }
+                if (extractRequest.IsInformative)
+                {
+                    throw new ExtractRequestMarkedInformativeException(downloadId);
+                }
+
+                await UploadAndQueueCommand(request, readStream, archiveId, metadata, cancellationToken);
+            }
+        }
+        catch (InvalidDataException)
+        {
+            throw new UnsupportedMediaTypeException();
         }
     }
 
