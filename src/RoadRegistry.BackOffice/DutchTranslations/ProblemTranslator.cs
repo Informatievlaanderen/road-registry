@@ -314,8 +314,9 @@ public static class ProblemTranslator
             "Upload is niet toegelaten voor een informatieve extractaanvraag.")},
         {ProblemCode.Upload.UnexpectedError, problem => new(problem.Severity, "OnverwachteFout",
             "Onverwachte fout bij de verwerking van het zip-bestand.")},
-        {ProblemCode.Upload.UnsupportedMediaType, problem => new(problem.Severity, "UnsupportedMediaType",
-            "Ongeldig bestandstype.")},
+        {ProblemCode.Upload.UnsupportedMediaType, problem => new(problem.Severity, "UnsupportedMediaType", problem.HasParameter("ContentType")
+            ? $"Bestandstype is foutief. '{problem.GetParameterValue("ContentType")}' is geen geldige waarde."
+            : "Ongeldig bestandstype.")},
         {ProblemCode.Upload.DownloadIdIsRequired, problem => new(problem.Severity, "DownloadIdIsRequired",
             "Download id is verplicht.")},
 

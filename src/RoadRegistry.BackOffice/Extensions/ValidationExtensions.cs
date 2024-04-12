@@ -39,7 +39,7 @@ public static class ValidationExtensions
     public static IRuleBuilderOptions<T, TProperty> WithProblemCode<T, TProperty>(this IRuleBuilderOptions<T, TProperty> rule, ProblemCode problemCode, Func<TProperty, Problem> problemBuilder)
     {
         rule.WithErrorCode(problemCode);
-        rule.WithState((parent, value) => problemBuilder(value).Parameters.ToArray());
+        rule.WithState((parent, value) => ToCustomState(problemBuilder(value).Parameters?.Select(x => x.Translate())));
 
         return rule;
     }
@@ -47,7 +47,7 @@ public static class ValidationExtensions
     public static IRuleBuilderOptions<T, TProperty> WithProblemCode<T, TProperty>(this IRuleBuilderOptions<T, TProperty> rule, ProblemCode problemCode, Func<T, TProperty, Problem> problemBuilder)
     {
         rule.WithErrorCode(problemCode);
-        rule.WithState((parent, value) => problemBuilder(parent, value).Parameters.ToArray());
+        rule.WithState((parent, value) => ToCustomState(problemBuilder(parent, value).Parameters?.Select(x => x.Translate())));
 
         return rule;
     }
@@ -87,6 +87,17 @@ public static class ValidationExtensions
             });
     }
 
+    public static ValidationFailure ToValidationFailure(this Messages.Problem problem, string propertyName = null)
+    {
+        return new ValidationFailure
+        {
+            PropertyName = propertyName ?? string.Empty,
+            ErrorCode = problem.Reason,
+            ErrorMessage = ProblemTranslator.Dutch(problem).Message,
+            CustomState = ToCustomState(problem.Parameters)
+        };
+    }
+
     public static ProblemTranslation TranslateToDutch(this Problem problem)
     {
         return problem.Translate().TranslateToDutch();
@@ -107,7 +118,7 @@ public static class ValidationExtensions
             .Select(problem =>
                 {
                     var translatedProblem = problem.TranslateToDutch();
-
+                    
                     return new ValidationFailure(problem.File, translatedProblem.Message)
                     {
                         ErrorCode = $"{problem.Severity}{translatedProblem.Code}"
@@ -142,5 +153,10 @@ public static class ValidationExtensions
         return ((ProblemParameter[])customState)
             .Select(problemParameter => problemParameter.Translate())
             .ToArray();
+    }
+
+    private static object ToCustomState(IEnumerable<Messages.ProblemParameter> parameters)
+    {
+        return parameters?.ToArray() ?? Array.Empty<Messages.ProblemParameter>();
     }
 }

@@ -15,11 +15,12 @@ namespace RoadRegistry.Jobs.Processor.Tests
     using System.IO;
     using System.Linq;
     using System.Threading;
+    using BackOffice.Abstractions.Exceptions;
     using BackOffice.Abstractions.Jobs;
     using TicketingService.Abstractions;
     using Xunit;
 
-    public class UploadProcessorTests
+    public class JobsProcessorTests
     {
         [Fact]
         public async Task FlowTest_Uploads()
@@ -341,6 +342,63 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 It.Is<TicketError>(ticketError =>
                     ticketError.Errors.First().ErrorCode == "file.dbf_ErrorNotFound"
                     && ticketError.Errors.First().ErrorMessage == "De waarde ontbreekt."),
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task WhenUnsupportedMediaTypeException_ThenTicketError()
+        {
+            var ct = CancellationToken.None;
+            var mockTicketing = new Mock<ITicketing>();
+            var mockIBlobClient = new Mock<IBlobClient>();
+            var mockMediator = new Mock<IMediator>();
+            var mockIHostApplicationLifeTime = new Mock<IHostApplicationLifetime>();
+            var jobsContext = new FakeJobsContextFactory().CreateDbContext();
+
+            var ticketId = Guid.NewGuid();
+            var job = new Job(DateTimeOffset.Now, JobStatus.Created, UploadType.Uploads, ticketId);
+
+            jobsContext.Jobs.Add(job);
+            await jobsContext.SaveChangesAsync(ct);
+
+            var blobName = new BlobName(job.ReceivedBlobName);
+
+            mockIBlobClient
+                .Setup(x => x.BlobExistsAsync(blobName, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            mockIBlobClient
+                .Setup(x => x.GetBlobAsync(blobName, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new BlobObject(blobName, null, ContentType.Parse("X-multipart/abc"),
+                    _ => Task.FromResult((Stream)EmbeddedResourceReader.Read("empty.zip"))));
+
+            mockMediator
+                .Setup(x => x.Send(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => throw new UnsupportedMediaTypeException(ContentType.Parse("X-multipart/abc")));
+
+            var sut = new JobsProcessor(
+                new JobsProcessorOptions
+                {
+                    MaxJobLifeTimeInMinutes = 65
+                },
+                jobsContext,
+                mockTicketing.Object,
+                new RoadNetworkJobsBlobClient(mockIBlobClient.Object),
+                mockMediator.Object,
+                new NullLoggerFactory(),
+                mockIHostApplicationLifeTime.Object);
+
+            // Act
+            await sut.StartAsync(ct);
+
+            // Assert
+            jobsContext.Jobs.First().Status.Should().Be(JobStatus.Error);
+
+            mockTicketing.Verify(x => x.Error(
+                ticketId,
+                It.Is<TicketError>(ticketError =>
+                    ticketError.Errors.First().ErrorCode == "UploadUnsupportedMediaType"
+                    && ticketError.Errors.First().ErrorMessage == "Bestandstype is foutief. 'X-multipart/abc' is geen geldige waarde."),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
     }

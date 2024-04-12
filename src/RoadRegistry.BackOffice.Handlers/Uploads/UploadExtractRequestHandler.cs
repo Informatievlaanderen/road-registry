@@ -56,7 +56,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     {
         if (!ContentType.TryParse(request.Archive.ContentType, out var parsed) || !SupportedContentTypes.Contains(parsed))
         {
-            throw new UnsupportedMediaTypeException();
+            throw new UnsupportedMediaTypeException(request.Archive.ContentType);
         }
         
         await using var readStream = await CleanArchive(request.Archive.ReadStream, cancellationToken);
