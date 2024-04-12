@@ -10,10 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="TestFiles\test.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="TestFiles\test.txt" />
   </ItemGroup>
 
