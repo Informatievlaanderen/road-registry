@@ -171,7 +171,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
             .WithReason(new Reason(reason));
 
         var recordNumber = RecordNumber.Initial;
-        var attributeId = AttributeId.Initial;
+        var attributeIdProvider = new NextAttributeIdProvider(AttributeId.Initial);
 
         foreach (var roadSegment in segments)
         {
@@ -213,25 +213,23 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
                 foreach (var lane in roadSegmentLanes)
                 {
                     modifyRoadSegment = modifyRoadSegment.WithLane(new BackOffice.Uploads.RoadSegmentLaneAttribute(
-                        attributeId,
+                        attributeIdProvider.Next(),
                         new RoadSegmentLaneCount(lane.AANTAL.Value),
                         RoadSegmentLaneDirection.ByIdentifier[lane.RICHTING.Value],
                         RoadSegmentPosition.FromDouble(lane.VANPOS.Value!.Value),
                         RoadSegmentPosition.FromDouble(lane.TOTPOS.Value!.Value)
                     ));
-                    attributeId = attributeId.Next();
                 }
             }
             else
             {
                 modifyRoadSegment = modifyRoadSegment.WithLane(new BackOffice.Uploads.RoadSegmentLaneAttribute(
-                    attributeId,
+                    attributeIdProvider.Next(),
                     RoadSegmentLaneCount.Unknown,
                     RoadSegmentLaneDirection.Unknown,
                     new RoadSegmentPosition(0),
                     RoadSegmentPosition.FromDouble(roadSegment.Geometry.Length)
                 ));
-                attributeId = attributeId.Next();
             }
             
             if (roadSegmentSurfaces.Any())
@@ -239,23 +237,21 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
                 foreach (var surface in roadSegmentSurfaces)
                 {
                     modifyRoadSegment = modifyRoadSegment.WithSurface(new BackOffice.Uploads.RoadSegmentSurfaceAttribute(
-                        attributeId,
+                        attributeIdProvider.Next(),
                         RoadSegmentSurfaceType.ByIdentifier[surface.TYPE.Value],
                         RoadSegmentPosition.FromDouble(surface.VANPOS.Value!.Value),
                         RoadSegmentPosition.FromDouble(surface.TOTPOS.Value!.Value)
                     ));
-                    attributeId = attributeId.Next();
                 }
             }
             else
             {
                 modifyRoadSegment = modifyRoadSegment.WithSurface(new BackOffice.Uploads.RoadSegmentSurfaceAttribute(
-                    attributeId,
+                    attributeIdProvider.Next(),
                     RoadSegmentSurfaceType.Unknown,
                     new RoadSegmentPosition(0),
                     RoadSegmentPosition.FromDouble(roadSegment.Geometry.Length)
                 ));
-                attributeId = attributeId.Next();
             }
             
             if (roadSegmentWidths.Any())
@@ -263,23 +259,21 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
                 foreach (var width in roadSegmentWidths)
                 {
                     modifyRoadSegment = modifyRoadSegment.WithWidth(new BackOffice.Uploads.RoadSegmentWidthAttribute(
-                        attributeId,
+                        attributeIdProvider.Next(),
                         new RoadSegmentWidth(width.BREEDTE.Value),
                         RoadSegmentPosition.FromDouble(width.VANPOS.Value!.Value),
                         RoadSegmentPosition.FromDouble(width.TOTPOS.Value!.Value)
                     ));
-                    attributeId = attributeId.Next();
                 }
             }
             else
             {
                 modifyRoadSegment = modifyRoadSegment.WithWidth(new BackOffice.Uploads.RoadSegmentWidthAttribute(
-                    attributeId,
+                    attributeIdProvider.Next(),
                     RoadSegmentWidth.Unknown,
                     new RoadSegmentPosition(0),
                     RoadSegmentPosition.FromDouble(roadSegment.Geometry.Length)
                 ));
-                attributeId = attributeId.Next();
             }
 
             translatedChanges = translatedChanges.AppendChange(modifyRoadSegment);

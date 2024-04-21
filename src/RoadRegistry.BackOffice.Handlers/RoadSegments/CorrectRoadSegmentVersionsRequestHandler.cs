@@ -70,7 +70,7 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
         }
 
         var recordNumber = RecordNumber.Initial;
-        var attributeId = AttributeId.Initial;
+        var attributeIdProvider = new NextAttributeIdProvider(AttributeId.Initial);
 
         using (var editorContext = _editorContextFactory())
         {
@@ -125,18 +125,15 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
 
                 foreach (var lane in roadSegment.Lanes)
                 {
-                    modifyRoadSegment = modifyRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeId, lane.Count, lane.Direction, lane.From, lane.To));
-                    attributeId = attributeId.Next();
+                    modifyRoadSegment = modifyRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeIdProvider.Next(), lane.Count, lane.Direction, lane.From, lane.To));
                 }
                 foreach (var surface in roadSegment.Surfaces)
                 {
-                    modifyRoadSegment = modifyRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeId, surface.Type, surface.From, surface.To));
-                    attributeId = attributeId.Next();
+                    modifyRoadSegment = modifyRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeIdProvider.Next(), surface.Type, surface.From, surface.To));
                 }
                 foreach (var width in roadSegment.Widths)
                 {
-                    modifyRoadSegment = modifyRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeId, width.Width, width.From, width.To));
-                    attributeId = attributeId.Next();
+                    modifyRoadSegment = modifyRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeIdProvider.Next(), width.Width, width.From, width.To));
                 }
 
                 translatedChanges = translatedChanges.AppendChange(modifyRoadSegment);

@@ -78,12 +78,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
                 }
 
                 var recordNumber = RecordNumber.Initial;
-                var attributeId = AttributeId.Initial;
-                AttributeId GetNextAttributeId()
-                {
-                    attributeId = attributeId.Next();
-                    return attributeId;
-                }
+                var attributeIdProvider = new NextAttributeIdProvider(AttributeId.Initial);
 
                 var leftStreetNameId = request.Request.LinkerstraatnaamId.GetIdentifierFromPuri();
                 var rightStreetNameId = request.Request.RechterstraatnaamId.GetIdentifierFromPuri();
@@ -131,15 +126,15 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
 
                     foreach (var lane in roadSegment.Lanes)
                     {
-                        modifyRoadSegment = modifyRoadSegment.WithLane(new RoadSegmentLaneAttribute(GetNextAttributeId(), lane.Count, lane.Direction, lane.From, lane.To));
+                        modifyRoadSegment = modifyRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeIdProvider.Next(), lane.Count, lane.Direction, lane.From, lane.To));
                     }
                     foreach (var surface in roadSegment.Surfaces)
                     {
-                        modifyRoadSegment = modifyRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(GetNextAttributeId(), surface.Type, surface.From, surface.To));
+                        modifyRoadSegment = modifyRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeIdProvider.Next(), surface.Type, surface.From, surface.To));
                     }
                     foreach (var width in roadSegment.Widths)
                     {
-                        modifyRoadSegment = modifyRoadSegment.WithWidth(new RoadSegmentWidthAttribute(GetNextAttributeId(), width.Width, width.From, width.To));
+                        modifyRoadSegment = modifyRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeIdProvider.Next(), width.Width, width.From, width.To));
                     }
 
                     translatedChanges = translatedChanges.AppendChange(modifyRoadSegment);

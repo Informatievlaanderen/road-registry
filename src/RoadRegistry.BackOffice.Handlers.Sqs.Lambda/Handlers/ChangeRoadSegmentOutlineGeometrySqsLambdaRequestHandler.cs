@@ -67,21 +67,16 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
             var fromPosition = RoadSegmentPosition.Zero;
             var toPosition = RoadSegmentPosition.FromDouble(geometry.Length);
 
-            var attributeId = AttributeId.Initial;
-            AttributeId GetNextAttributeId()
-            {
-                attributeId = attributeId.Next();
-                return attributeId;
-            }
-
+            var attributeIdProvider = new NextAttributeIdProvider(AttributeId.Initial);
+            
             var lanes = roadSegment.Lanes
-                .Select(lane => new RoadSegmentLaneAttribute(GetNextAttributeId(), lane.Count, lane.Direction, fromPosition, toPosition))
+                .Select(lane => new RoadSegmentLaneAttribute(attributeIdProvider.Next(), lane.Count, lane.Direction, fromPosition, toPosition))
                 .ToList();
             var surfaces = roadSegment.Surfaces
-                .Select(surface => new RoadSegmentSurfaceAttribute(GetNextAttributeId(), surface.Type, fromPosition, toPosition))
+                .Select(surface => new RoadSegmentSurfaceAttribute(attributeIdProvider.Next(), surface.Type, fromPosition, toPosition))
                 .ToList();
             var widths = roadSegment.Widths
-                .Select(width => new RoadSegmentWidthAttribute(GetNextAttributeId(), width.Width, fromPosition, toPosition))
+                .Select(width => new RoadSegmentWidthAttribute(attributeIdProvider.Next(), width.Width, fromPosition, toPosition))
                 .ToList();
 
             return translatedChanges.AppendChange(new ModifyRoadSegmentGeometry(

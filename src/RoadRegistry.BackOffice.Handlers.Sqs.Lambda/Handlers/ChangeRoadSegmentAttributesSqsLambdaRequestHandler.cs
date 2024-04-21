@@ -140,7 +140,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         }
 
         var recordNumberProvider = new NextRecordNumberProvider(RecordNumber.Initial);
-        var attributeIdProvider = new NextAttributeIdProvider(new AttributeId(1));
+        var attributeIdProvider = new NextAttributeIdProvider(AttributeId.Initial);
 
         var existingRoads = roadSegment.EuropeanRoadAttributes.Values.ToList();
         foreach (var europeanRoadNumber in europeanRoadNumbers)
@@ -150,14 +150,8 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
             var matches = existingRoads
                 .Where(x => x.Number == europeanRoadNumber)
                 .ToList();
-            if (matches.Any())
+            foreach (var match in matches)
             {
-                if (matches.Count > 1)
-                {
-                    throw new Exception($"Multiple European road attributes found ({string.Join(", ", matches.Select(x => x.AttributeId))}) for roadsegment {roadSegment.Id} and number {europeanRoadNumber}");
-                }
-
-                var match = matches.Single();
                 existingRoads.Remove(match);
 
                 changes = changes.AppendChange(new RemoveRoadSegmentFromEuropeanRoad(
@@ -197,7 +191,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         }
 
         var recordNumberProvider = new NextRecordNumberProvider(RecordNumber.Initial);
-        var attributeIdProvider = new NextAttributeIdProvider(new AttributeId(1));
+        var attributeIdProvider = new NextAttributeIdProvider(AttributeId.Initial);
 
         var existingRoads = roadSegment.NationalRoadAttributes.Values.ToList();
         foreach (var nationalRoadNumber in nationalRoadNumbers)
@@ -207,14 +201,8 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
             var matches = existingRoads
                 .Where(x => x.Number == nationalRoadNumber)
                 .ToList();
-            if (matches.Any())
+            foreach (var match in matches)
             {
-                if (matches.Count > 1)
-                {
-                    throw new Exception($"Multiple national road attributes found ({string.Join(", ", matches.Select(x => x.AttributeId))}) for roadsegment {roadSegment.Id} and number {nationalRoadNumber}");
-                }
-
-                var match = matches.Single();
                 existingRoads.Remove(match);
 
                 changes = changes.AppendChange(new RemoveRoadSegmentFromNationalRoad(
@@ -254,7 +242,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         }
 
         var recordNumberProvider = new NextRecordNumberProvider(RecordNumber.Initial);
-        var attributeIdProvider = new NextAttributeIdProvider(new AttributeId(1));
+        var attributeIdProvider = new NextAttributeIdProvider(AttributeId.Initial);
 
         var existingRoads = roadSegment.NumberedRoadAttributes.Values.ToList();
         foreach (var numberedRoad in numberedRoads)
@@ -263,38 +251,39 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
 
             var matches = existingRoads
                 .Where(x => x.Number == numberedRoad.Number)
+                .Select(match => new
+                {
+                    Attribute = match,
+                    IsExactMatch = numberedRoad.Ordinal == match.Ordinal && numberedRoad.Direction == match.Direction
+                })
                 .ToList();
-            if (matches.Any())
+
+            foreach (var match in matches)
             {
-                if (matches.Count > 1)
+                existingRoads.Remove(match.Attribute);
+
+                if (!match.IsExactMatch)
                 {
-                    throw new Exception($"Multiple numbered road attributes found ({string.Join(", ", matches.Select(x => x.AttributeId))}) for roadsegment {roadSegment.Id} and number {numberedRoad.Number}");
+                    changes = changes.AppendChange(new RemoveRoadSegmentFromNumberedRoad(
+                        recordNumber,
+                        match.Attribute.AttributeId,
+                        roadSegment.Id,
+                        match.Attribute.Number
+                    ));
                 }
-
-                var match = matches.Single();
-                existingRoads.Remove(match);
-
-                if (numberedRoad.Ordinal == match.Ordinal && numberedRoad.Direction == match.Direction)
-                {
-                    continue;
-                }
-
-                changes = changes.AppendChange(new RemoveRoadSegmentFromNumberedRoad(
-                    recordNumber,
-                    match.AttributeId,
-                    roadSegment.Id,
-                    match.Number
-                ));
             }
 
-            changes = changes.AppendChange(new AddRoadSegmentToNumberedRoad(
-                recordNumber,
-                attributeIdProvider.Next(),
-                roadSegment.Id,
-                numberedRoad.Number,
-                numberedRoad.Direction,
-                numberedRoad.Ordinal
-            ));
+            if (!matches.Any(x => x.IsExactMatch))
+            {
+                changes = changes.AppendChange(new AddRoadSegmentToNumberedRoad(
+                    recordNumber,
+                    attributeIdProvider.Next(),
+                    roadSegment.Id,
+                    numberedRoad.Number,
+                    numberedRoad.Direction,
+                    numberedRoad.Ordinal
+                ));
+            }
         }
 
         foreach (var numberedRoad in existingRoads)
