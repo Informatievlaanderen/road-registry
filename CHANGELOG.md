@@ -1,3 +1,10 @@
+## [4.0.12](https://github.com/informatievlaanderen/road-registry/compare/v4.0.11...v4.0.12) (2024-04-22)
+
+
+### Bug Fixes
+
+* WR-941 edit roadsegment attributes dealing with existing duplicate attributes ([#1477](https://github.com/informatievlaanderen/road-registry/issues/1477)) ([184b81b](https://github.com/informatievlaanderen/road-registry/commit/184b81befb43f56f5607d54c7fefaf6b6d52b8c0))
+
 ## [4.0.11](https://github.com/informatievlaanderen/road-registry/compare/v4.0.10...v4.0.11) (2024-04-12)
 
 
