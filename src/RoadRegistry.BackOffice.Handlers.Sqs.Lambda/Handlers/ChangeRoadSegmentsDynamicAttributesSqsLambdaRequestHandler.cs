@@ -65,12 +65,7 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
             await _changeRoadNetworkDispatcher.DispatchAsync(request, "Dynamische attributen wijzigen", async translatedChanges =>
             {
                 var recordNumber = RecordNumber.Initial;
-                var attributeId = AttributeId.Initial;
-                AttributeId GetNextAttributeId()
-                {
-                    attributeId = attributeId.Next();
-                    return attributeId;
-                }
+                var attributeIdProvider = new NextAttributeIdProvider(AttributeId.Initial);
 
                 var problems = Problems.None;
 
@@ -98,13 +93,13 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
                     var modifyChange = new ModifyRoadSegmentAttributes(recordNumber, roadSegmentId, geometryDrawMethod)
                     {
                         Lanes = change.Lanes?
-                            .Select(lane => new RoadSegmentLaneAttribute(GetNextAttributeId(), lane.Count, lane.Direction, lane.FromPosition, lane.ToPosition))
+                            .Select(lane => new RoadSegmentLaneAttribute(attributeIdProvider.Next(), lane.Count, lane.Direction, lane.FromPosition, lane.ToPosition))
                             .ToArray(),
                         Surfaces = change.Surfaces?
-                            .Select(surface => new RoadSegmentSurfaceAttribute(GetNextAttributeId(), surface.Type, surface.FromPosition, surface.ToPosition))
+                            .Select(surface => new RoadSegmentSurfaceAttribute(attributeIdProvider.Next(), surface.Type, surface.FromPosition, surface.ToPosition))
                             .ToArray(),
                         Widths = change.Widths?
-                            .Select(width => new RoadSegmentWidthAttribute(GetNextAttributeId(), width.Width, width.FromPosition, width.ToPosition))
+                            .Select(width => new RoadSegmentWidthAttribute(attributeIdProvider.Next(), width.Width, width.FromPosition, width.ToPosition))
                             .ToArray()
                     };
 

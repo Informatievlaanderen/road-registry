@@ -48,7 +48,7 @@ public sealed class MigrateOutlinedRoadSegmentsOutOfRoadNetworkRequestHandler : 
         }
         
         var recordNumber = RecordNumber.Initial;
-        var attributeId = AttributeId.Initial;
+        var attributeIdProvider = new NextAttributeIdProvider(AttributeId.Initial);
 
         foreach (var roadSegment in roadSegments)
         {
@@ -82,42 +82,36 @@ public sealed class MigrateOutlinedRoadSegmentsOutOfRoadNetworkRequestHandler : 
             {
                 foreach (var lane in roadSegment.Lanes)
                 {
-                    addRoadSegment = addRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeId, lane.Count, lane.Direction, lane.From, lane.To));
-                    attributeId = attributeId.Next();
+                    addRoadSegment = addRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeIdProvider.Next(), lane.Count, lane.Direction, lane.From, lane.To));
                 }
             }
             else
             {
-                addRoadSegment = addRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeId, RoadSegmentLaneCount.Unknown, RoadSegmentLaneDirection.Unknown, new RoadSegmentPosition(0), RoadSegmentPosition.FromDouble(roadSegment.Geometry.Length)));
-                attributeId = attributeId.Next();
+                addRoadSegment = addRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeIdProvider.Next(), RoadSegmentLaneCount.Unknown, RoadSegmentLaneDirection.Unknown, new RoadSegmentPosition(0), RoadSegmentPosition.FromDouble(roadSegment.Geometry.Length)));
             }
 
             if (roadSegment.Surfaces.Any())
             {
                 foreach (var surface in roadSegment.Surfaces)
                 {
-                    addRoadSegment = addRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeId, surface.Type, surface.From, surface.To));
-                    attributeId = attributeId.Next();
+                    addRoadSegment = addRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeIdProvider.Next(), surface.Type, surface.From, surface.To));
                 }
             }
             else
             {
-                addRoadSegment = addRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeId, RoadSegmentSurfaceType.Unknown, new RoadSegmentPosition(0), RoadSegmentPosition.FromDouble(roadSegment.Geometry.Length)));
-                attributeId = attributeId.Next();
+                addRoadSegment = addRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeIdProvider.Next(), RoadSegmentSurfaceType.Unknown, new RoadSegmentPosition(0), RoadSegmentPosition.FromDouble(roadSegment.Geometry.Length)));
             }
 
             if (roadSegment.Widths.Any())
             {
                 foreach (var width in roadSegment.Widths)
                 {
-                    addRoadSegment = addRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeId, width.Width, width.From, width.To));
-                    attributeId = attributeId.Next();
+                    addRoadSegment = addRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeIdProvider.Next(), width.Width, width.From, width.To));
                 }
             }
             else
             {
-                addRoadSegment = addRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeId, RoadSegmentWidth.Unknown, new RoadSegmentPosition(0), RoadSegmentPosition.FromDouble(roadSegment.Geometry.Length)));
-                attributeId = attributeId.Next();
+                addRoadSegment = addRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeIdProvider.Next(), RoadSegmentWidth.Unknown, new RoadSegmentPosition(0), RoadSegmentPosition.FromDouble(roadSegment.Geometry.Length)));
             }
 
             translatedChanges = translatedChanges.AppendChange(removeRoadSegment);
