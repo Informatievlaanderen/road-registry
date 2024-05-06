@@ -32,7 +32,6 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
         builder
             .RegisterModule(new EventHandlingModule(typeof(Sqs.DomainAssemblyMarker).Assembly, EventSerializerSettings))
             .RegisterModule<ContextModule>()
-            .RegisterModule<MediatorModule>()
             ;
     }
 }

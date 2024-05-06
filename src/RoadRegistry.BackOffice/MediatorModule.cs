@@ -21,7 +21,6 @@ public class MediatorModule : Module
         typeof(IStreamRequestHandler<,>)
     };
 
-    //TODO-jan assemblies shouldn't be registered dynamically
     private static IEnumerable<Assembly> DetermineAvailableAssemblyCollection()
     {
         var executorAssemblyLocation = Assembly.GetExecutingAssembly().Location;
