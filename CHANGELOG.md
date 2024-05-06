@@ -1,3 +1,11 @@
+## [4.0.13](https://github.com/informatievlaanderen/road-registry/compare/v4.0.12...v4.0.13) (2024-05-06)
+
+
+### Bug Fixes
+
+* disable jobs processor deploy ([#1481](https://github.com/informatievlaanderen/road-registry/issues/1481)) ([e79f344](https://github.com/informatievlaanderen/road-registry/commit/e79f344e289c7aabd04eb5fbe60b07587344dff1))
+* remove ValidationPipelineBehavior from snapshot lambda ([#1484](https://github.com/informatievlaanderen/road-registry/issues/1484)) ([08be79a](https://github.com/informatievlaanderen/road-registry/commit/08be79a9089e4fa52f24833586afe7d0a12064ad))
+
 ## [4.0.12](https://github.com/informatievlaanderen/road-registry/compare/v4.0.11...v4.0.12) (2024-04-22)
 
 
