@@ -2,7 +2,6 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.Json;
 
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
-
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
 using Autofac;
@@ -55,7 +54,6 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
     protected override void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
     {
         builder
-            .RegisterModule<EnvelopeModule>()
             .RegisterModule(new EventHandlingModule(typeof(BackOffice.Handlers.DomainAssemblyMarker).Assembly, EventSerializerSettings))
             .RegisterModule<CommandHandlingModule>()
             .RegisterModule<ContextModule>()
