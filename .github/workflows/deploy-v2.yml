@@ -160,8 +160,8 @@ jobs:
         ENVIRONMENT: ${{ github.event.inputs.environment == 'tst' && 'tst' || github.event.inputs.environment == 'prd' && 'acc' || github.event.inputs.environment }}
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
         PROMOTEURL: ${{ github.event.inputs.environment == 'tst' && vars.VBR_AWS_PROMOTE_LAMBDA_DEVOPS_BASEURL || secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
-        FUNCTION_BACKOFFICE: ${{ github.event.inputs.environment == 'tst' && 'rr-sqsbackofficefunction' || github.event.inputs.environment == 'stg' && 'wr-sqsbackofficehandlerfunction' || github.event.inputs.environment == 'prd' && 'rr-sqsbackoffice' || '' }}
-        FUNCTION_SNAPSHOT: ${{ github.event.inputs.environment == 'tst' && 'rr-sqssnapshotfunction' || github.event.inputs.environment == 'stg' && 'wr-sqssnapshothandlerfunction' || github.event.inputs.environment == 'prd' && 'rr-sqssnapshot' || '' }}
+        FUNCTION_BACKOFFICE: ${{ github.event.inputs.environment == 'tst' && 'rr-sqsbackofficefunction' || github.event.inputs.environment == 'stg' && 'wr-sqsbackofficehandlerfunction' || github.event.inputs.environment == 'prd' && 'rr-sqsbackofficefunction' || '' }}
+        FUNCTION_SNAPSHOT: ${{ github.event.inputs.environment == 'tst' && 'rr-sqssnapshotfunction' || github.event.inputs.environment == 'stg' && 'wr-sqssnapshothandlerfunction' || github.event.inputs.environment == 'prd' && 'rr-sqssnapshotfunction' || '' }}
 
   deploy_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
