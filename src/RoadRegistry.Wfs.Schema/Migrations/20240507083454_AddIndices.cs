@@ -10,17 +10,6 @@ namespace RoadRegistry.Wfs.Schema.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_ProjectionStates",
-                schema: "RoadRegistryWfsMeta",
-                table: "ProjectionStates");
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_ProjectionStates",
-                schema: "RoadRegistryWfsMeta",
-                table: "ProjectionStates",
-                column: "Name");
-
             migrationBuilder.AlterColumn<string>(
                 name: "toegangsbeperking",
                 schema: "RoadRegistryWfs",
