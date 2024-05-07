@@ -120,11 +120,6 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                 schema: "RoadRegistryWfs",
                 table: "Wegsegment");
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_ProjectionStates",
-                schema: "RoadRegistryWfsMeta",
-                table: "ProjectionStates");
-
             migrationBuilder.AlterColumn<string>(
                 name: "toegangsbeperking",
                 schema: "RoadRegistryWfs",
@@ -134,13 +129,6 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                 oldClrType: typeof(string),
                 oldType: "nvarchar(450)",
                 oldNullable: true);
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_ProjectionStates",
-                schema: "RoadRegistryWfsMeta",
-                table: "ProjectionStates",
-                column: "Name")
-                .Annotation("SqlServer:Clustered", true);
         }
     }
 }
