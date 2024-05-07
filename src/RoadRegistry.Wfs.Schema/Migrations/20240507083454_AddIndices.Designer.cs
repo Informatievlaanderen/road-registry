@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Wfs.Schema;
@@ -12,9 +13,11 @@ using RoadRegistry.Wfs.Schema;
 namespace RoadRegistry.Wfs.Schema.Migrations
 {
     [DbContext(typeof(WfsContext))]
-    partial class WfsContextModelSnapshot : ModelSnapshot
+    [Migration("20240507083454_AddIndices")]
+    partial class AddIndices
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -77,7 +80,7 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                         .HasColumnName("objectId");
 
                     b.Property<string>("AccessRestriction")
-                        .HasColumnType("varchar(64)")
+                        .HasColumnType("nvarchar(450)")
                         .HasColumnName("toegangsbeperking");
 
                     b.Property<int?>("BeginRoadNodeId")
