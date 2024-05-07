@@ -1,3 +1,10 @@
+## [4.0.14](https://github.com/informatievlaanderen/road-registry/compare/v4.0.13...v4.0.14) (2024-05-07)
+
+
+### Bug Fixes
+
+* GAWR-6321 add WFS roadsegment indices ([349ac34](https://github.com/informatievlaanderen/road-registry/commit/349ac34469971c455eff0f9aaa64d870040d996b))
+
 ## [4.0.13](https://github.com/informatievlaanderen/road-registry/compare/v4.0.12...v4.0.13) (2024-05-06)
 
 
