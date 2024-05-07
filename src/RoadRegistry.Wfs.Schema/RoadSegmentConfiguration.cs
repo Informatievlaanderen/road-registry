@@ -60,7 +60,8 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
             .HasColumnType("varchar(128)");
 
         b.Property(p => p.AccessRestriction)
-            .HasColumnName("toegangsbeperking");
+            .HasColumnName("toegangsbeperking")
+            .HasColumnType("varchar(64)");
 
         b.Property(p => p.MethodDutchName)
             .HasColumnName("methodeWegsegmentgeometrie")
@@ -81,9 +82,25 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
 
         b.HasIndex(p => p.IsRemoved)
             .IsClustered(false);
+        b.HasIndex(p => p.BeginRoadNodeId)
+            .IsClustered(false);
+        b.HasIndex(p => p.EndRoadNodeId)
+            .IsClustered(false);
         b.HasIndex(p => p.LeftSideStreetNameId)
             .IsClustered(false);
         b.HasIndex(p => p.RightSideStreetNameId)
+            .IsClustered(false);
+        b.HasIndex(p => p.AccessRestriction)
+            .IsClustered(false);
+        b.HasIndex(p => p.CategoryDutchName)
+            .IsClustered(false);
+        b.HasIndex(p => p.MaintainerId)
+            .IsClustered(false);
+        b.HasIndex(p => p.MethodDutchName)
+            .IsClustered(false);
+        b.HasIndex(p => p.MorphologyDutchName)
+            .IsClustered(false);
+        b.HasIndex(p => p.StatusDutchName)
             .IsClustered(false);
     }
 }

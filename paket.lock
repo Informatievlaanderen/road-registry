@@ -263,7 +263,7 @@ NUGET
       AWSSDK.S3 (>= 3.7.305.30)
       Microsoft.Data.SqlClient (>= 5.2)
       System.Collections.Immutable (>= 8.0)
-    Be.Vlaanderen.Basisregisters.Build.Pipeline (7.2.5)
+    Be.Vlaanderen.Basisregisters.Build.Pipeline (7.2.6)
     Be.Vlaanderen.Basisregisters.CommandHandling (9.0.1)
     Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency (9.0.1)
       Be.Vlaanderen.Basisregisters.CommandHandling (9.0.1)

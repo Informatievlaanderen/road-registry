@@ -105,7 +105,7 @@ nuget Be.Vlaanderen.Basisregisters.Aws.DistributedMutex 4.0.1
 nuget Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache 2.0.0
 nuget Be.Vlaanderen.Basisregisters.Aws.Lambda 4.0.0
 nuget Be.Vlaanderen.Basisregisters.BlobStore 4.0.0
-nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 7.2.5
+nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 7.2.6
 nuget Be.Vlaanderen.Basisregisters.CommandHandling 9.0.1
 nuget Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency 9.0.1
 nuget Be.Vlaanderen.Basisregisters.CommandHandling.SqlStreamStore 9.0.1
