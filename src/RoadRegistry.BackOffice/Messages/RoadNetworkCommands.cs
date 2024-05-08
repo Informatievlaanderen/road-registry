@@ -6,6 +6,7 @@ public static class RoadNetworkCommands
 {
     public static readonly Type[] All =
     {
+        typeof(CheckUploadHealth),
         typeof(AnnounceRoadNetworkExtractDownloadBecameAvailable),
         typeof(AnnounceRoadNetworkExtractDownloadTimeoutOccurred),
         typeof(ChangeRoadNetwork),
