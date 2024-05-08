@@ -6,6 +6,7 @@ using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Hosts;
 using Requests;
 using RoadNetworks;
+using Sqs.Infrastructure;
 
 public sealed class MessageHandler : RoadRegistryMessageHandler
 {
@@ -17,6 +18,7 @@ public sealed class MessageHandler : RoadRegistryMessageHandler
     {
         return sqsRequest switch
         {
+            SnapshotLambdaHealthCheckSqsRequest request => new SnapshotLambdaHealthCheckSqsLambdaRequest(groupId, request),
             CreateRoadNetworkSnapshotSqsRequest request => new CreateRoadNetworkSnapshotSqsLambdaRequest(groupId, request),
             _ => throw new NotImplementedException(
                 $"{sqsRequest.GetType().Name} has no corresponding {nameof(SqsLambdaRequest)} defined.")

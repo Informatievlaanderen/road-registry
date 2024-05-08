@@ -65,11 +65,6 @@ public class AdminMessageConsumer
 
                     var request = backOfficeRequest ?? message;
 
-                    if (request is HealthCheckSqsRequest)
-                    {
-                        return;
-                    }
-
                     var ticketId = (message as SqsRequest)?.TicketId;
                     if (ticketId is not null)
                     {
