@@ -61,7 +61,7 @@ public class RemoveRoadSegment : IRequestedChange
 
         var problems = Problems.None;
 
-        if (!context.BeforeView.View.Segments.ContainsKey(Id)) problems = problems.Add(new RoadSegmentNotFound());
+        if (!context.BeforeView.View.Segments.ContainsKey(Id)) problems = problems.Add(new RoadSegmentNotFound(Id));
 
         return problems;
     }

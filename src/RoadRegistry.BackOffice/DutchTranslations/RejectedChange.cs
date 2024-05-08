@@ -13,6 +13,7 @@ public static class RejectedChange
         AddRoadSegment m => $"Voeg wegsegment {m.OriginalId ?? m.TemporaryId} toe.",
         ModifyRoadSegment m => $"Wijzig wegsegment {m.Id}{(m.OriginalId is not null && m.OriginalId.Value != m.Id ? $" met aangeleverde identificator {m.OriginalId}" : "")}.",
         RemoveRoadSegment m => $"Verwijder wegsegment {m.Id}.",
+        RemoveOutlinedRoadSegment m => $"Verwijder ingeschetst wegsegment {m.Id}.",
         AddRoadSegmentToEuropeanRoad m => $"Voeg wegsegment {m.SegmentId} toe aan europese weg {m.Number}.",
         RemoveRoadSegmentFromEuropeanRoad m => $"Verwijder wegsegment {m.SegmentId} van europese weg {m.Number}.",
         AddRoadSegmentToNationalRoad m => $"Voeg wegsegment {m.SegmentId} toe aan nationale weg {m.Number}.",
