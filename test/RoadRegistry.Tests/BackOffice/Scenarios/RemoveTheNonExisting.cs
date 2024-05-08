@@ -568,7 +568,14 @@ public class RemoveTheNonExisting : RoadRegistryTestBase
                                 {
                                     Reason = "RoadSegmentNotFound",
                                     Severity = ProblemSeverity.Error,
-                                    Parameters = Array.Empty<ProblemParameter>()
+                                    Parameters =
+                                    [
+                                        new ProblemParameter
+                                        {
+                                            Name = "SegmentId",
+                                            Value = "1"
+                                        }
+                                    ]
                                 }
                             }
                         }
