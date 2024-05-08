@@ -48,7 +48,7 @@ public class RemoveOutlinedRoadSegmentFromRoadNetwork : IRequestedChange
         
         if (!context.BeforeView.View.Segments.ContainsKey(Id))
         {
-            problems = problems.Add(new RoadSegmentNotFound());
+            problems = problems.Add(new RoadSegmentNotFound(Id));
         }
 
         return problems;
