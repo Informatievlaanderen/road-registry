@@ -1,3 +1,10 @@
+## [4.0.15](https://github.com/informatievlaanderen/road-registry/compare/v4.0.14...v4.0.15) (2024-05-08)
+
+
+### Bug Fixes
+
+* GAWR-6423 add missing translation for RejectedChange ([#1486](https://github.com/informatievlaanderen/road-registry/issues/1486)) ([0f525bd](https://github.com/informatievlaanderen/road-registry/commit/0f525bd5f966a26b2b770ac130521b3f122d8535))
+
 ## [4.0.14](https://github.com/informatievlaanderen/road-registry/compare/v4.0.13...v4.0.14) (2024-05-07)
 
 
