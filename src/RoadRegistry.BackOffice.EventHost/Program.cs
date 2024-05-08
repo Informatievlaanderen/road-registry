@@ -81,17 +81,7 @@ public class Program
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));
             })
             .ConfigureHealthChecks(HostingPort, builder => builder
-                .AddSqlServer()
                 .AddHostedServicesStatus()
-                .AddS3(x => x
-                    .CheckPermission(WellKnownBuckets.SnapshotsBucket, Permission.Read)
-                    .CheckPermission(WellKnownBuckets.SqsMessagesBucket, Permission.Read)
-                    .CheckPermission(WellKnownBuckets.UploadsBucket, Permission.Read)
-                )
-                .AddSqs(x => x
-                    .CheckPermission(WellKnownQueues.SnapshotQueue, Permission.Read)
-                )
-                .AddTicketing()
             )
             .ConfigureContainer((context, builder) =>
             {

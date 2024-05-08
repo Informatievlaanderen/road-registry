@@ -67,17 +67,7 @@ public class Program
                 })
             )
             .ConfigureHealthChecks(HostingPort, builder => builder
-                .AddSqlServer()
                 .AddHostedServicesStatus()
-                .AddS3(x => x
-                    .CheckPermission(WellKnownBuckets.SnapshotsBucket, Permission.Read)
-                    .CheckPermission(WellKnownBuckets.SqsMessagesBucket, Permission.Read)
-                    .CheckPermission(WellKnownBuckets.UploadsBucket, Permission.Read)
-                )
-                .AddSqs(x => x
-                    .CheckPermission(WellKnownQueues.SnapshotQueue, Permission.Read)
-                )
-                .AddTicketing()
             )
             .ConfigureCommandDispatcher(sp => Resolve.WhenEqualToMessage(new CommandHandlerModule[] {
                 new RoadNetworkChangesArchiveCommandModule(

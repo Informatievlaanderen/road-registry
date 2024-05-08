@@ -140,11 +140,7 @@ public class Program
             }
         })
         .ConfigureHealthChecks(HostingPort, builder => builder
-            .AddSqlServer()
             .AddHostedServicesStatus()
-            .AddS3(x => x
-                .CheckPermission(WellKnownBuckets.UploadsBucket, Permission.Read)
-            )
         )
         .ConfigureContainer((context, builder) =>
         {

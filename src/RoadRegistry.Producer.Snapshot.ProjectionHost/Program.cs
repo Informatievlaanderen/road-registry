@@ -73,9 +73,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                         .Select(type => (IRunnerDbContextMigratorFactory)Activator.CreateInstance(type))
                         .ToArray()))
                 .ConfigureHealthChecks(HostingPort, builder => builder
-                    .AddSqlServer()
                     .AddHostedServicesStatus()
-                    .AddKafka()
                 )
                 .Build();
 
