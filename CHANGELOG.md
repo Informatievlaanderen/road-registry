@@ -1,3 +1,10 @@
+## [4.0.16](https://github.com/informatievlaanderen/road-registry/compare/v4.0.15...v4.0.16) (2024-05-14)
+
+
+### Bug Fixes
+
+* show also outlined activity in the feed ([#1489](https://github.com/informatievlaanderen/road-registry/issues/1489)) ([e4c379b](https://github.com/informatievlaanderen/road-registry/commit/e4c379b6c2e33e2d437c5dae82e7010fcf9d8cc6))
+
 ## [4.0.15](https://github.com/informatievlaanderen/road-registry/compare/v4.0.14...v4.0.15) (2024-05-08)
 
 
