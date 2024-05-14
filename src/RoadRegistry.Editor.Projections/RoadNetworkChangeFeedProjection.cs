@@ -5,11 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
-using BackOffice.Core;
 using BackOffice.DutchTranslations;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using DutchTranslations;
@@ -254,11 +252,6 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, ct) =>
         {
-            if (!MessageIsFromDefaultRoadNetwork(envelope))
-            {
-                return;
-            }
-
             var changeRequestId = ChangeRequestId.FromString(envelope.Message.RequestId);
 
             var request = context.RoadNetworkChangeRequestsBasedOnArchive.Local
@@ -352,11 +345,6 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<NoRoadNetworkChanges>>(async (context, envelope, ct) =>
         {
-            if (!MessageIsFromDefaultRoadNetwork(envelope))
-            {
-                return;
-            }
-
             var request = context.RoadNetworkChangeRequestsBasedOnArchive.Local
                               .FirstOrDefault(r =>
                                   r.ChangeRequestId == ChangeRequestId.FromString(envelope.Message.RequestId).ToBytes()
@@ -388,13 +376,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 }, ct);
         });
     }
-
-    private static bool MessageIsFromDefaultRoadNetwork<T>(Envelope<T> envelope)
-        where T : IMessage
-    {
-        return envelope.StreamId == RoadNetworkStreamNameProvider.Default;
-    }
-
+    
     private static async Task EnrichWithArchiveInformation(string archiveId, ArchiveInfo archiveInfo, IBlobClient client, CancellationToken ct)
     {
         var blobName = new BlobName(archiveId);
