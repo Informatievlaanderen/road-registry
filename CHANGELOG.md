@@ -1,3 +1,11 @@
+## [4.0.17](https://github.com/informatievlaanderen/road-registry/compare/v4.0.16...v4.0.17) (2024-05-15)
+
+
+### Bug Fixes
+
+* add support for "Actual" parameter name in translations ([#1491](https://github.com/informatievlaanderen/road-registry/issues/1491)) ([835a2cd](https://github.com/informatievlaanderen/road-registry/commit/835a2cd7c5041417cc94ae77829d59e974cea84e))
+* enable jobs processor deploy ([#1490](https://github.com/informatievlaanderen/road-registry/issues/1490)) ([ab323ef](https://github.com/informatievlaanderen/road-registry/commit/ab323ef03351fc644d77a31fa9f8c5cf40fab4ca))
+
 ## [4.0.16](https://github.com/informatievlaanderen/road-registry/compare/v4.0.15...v4.0.16) (2024-05-14)
 
 
