@@ -93,8 +93,8 @@ public static class ProblemTranslator
             "Wegcategorie is verplicht.") },
         {ProblemCode.RoadSegment.Category.NotValid, problem => new(problem.Severity, "WegcategorieNietCorrect",
             $"Wegcategorie is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.") },
-        {ProblemCode.RoadSegment.EndNode.Missing, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
-            ? $"De eind wegknoop van het wegsegment met id {problem.GetParameterValue("Identifier")} ontbreekt."
+        {ProblemCode.RoadSegment.EndNode.Missing, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier") || problem.HasParameter("Actual")
+            ? $"De eind wegknoop van het wegsegment met id {problem.GetOptionalParameterValue("Identifier") ?? problem.GetOptionalParameterValue("Actual")} ontbreekt."
             : "De eind wegknoop van het wegsegment ontbreekt.") },
         {ProblemCode.RoadSegment.EndNode.RefersToRemovedNode, problem => new(problem.Severity, problem.Reason,
             $"De eind knoop van wegsegment {problem.Parameters[0].Value} verwijst naar een verwijderde knoop {problem.Parameters[1].Value}.") },
@@ -210,8 +210,8 @@ public static class ProblemTranslator
         {ProblemCode.RoadSegment.Point.MeasureValueOutOfRange, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
             ? $"De meting ({problem.GetParameterValue("Measure")}) van het wegsegment met id {problem.GetParameterValue("Identifier")} op het punt [X={problem.GetParameterValue("PointX")},Y={problem.GetParameterValue("PointY")}] ligt niet binnen de verwachte grenzen [{problem.GetParameterValue("MeasureLowerBoundary")}-{problem.GetParameterValue("MeasureUpperBoundary")}]."
             : $"De meting ({problem.GetParameterValue("Measure")}) op het punt [X={problem.GetParameterValue("PointX")},Y={problem.GetParameterValue("PointY")}] ligt niet binnen de verwachte grenzen [{problem.GetParameterValue("MeasureLowerBoundary")}-{problem.GetParameterValue("MeasureUpperBoundary")}].") },
-        {ProblemCode.RoadSegment.StartNode.Missing, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
-            ? $"De start wegknoop van het wegsegment met id {problem.GetParameterValue("Identifier")} ontbreekt."
+        {ProblemCode.RoadSegment.StartNode.Missing, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier") || problem.HasParameter("Actual")
+            ? $"De start wegknoop van het wegsegment met id {problem.GetOptionalParameterValue("Identifier") ?? problem.GetOptionalParameterValue("Actual")} ontbreekt."
             : "De start wegknoop van het wegsegment ontbreekt.") },
         {ProblemCode.RoadSegment.StartNode.RefersToRemovedNode, problem => new(problem.Severity, problem.Reason,
             $"De begin knoop van wegsegment met id {problem.Parameters[0].Value} verwijst naar een verwijderde knoop {problem.Parameters[1].Value}.") },
