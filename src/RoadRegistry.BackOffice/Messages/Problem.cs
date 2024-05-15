@@ -31,12 +31,17 @@ public class Problem
 
     public string GetParameterValue(string parameterName)
     {
-        var parameter = Parameters.SingleOrDefault(x => string.Equals(x.Name, parameterName, StringComparison.InvariantCultureIgnoreCase));
-        if (parameter is null)
+        var value = GetOptionalParameterValue(parameterName);
+        if (value is null)
         {
             throw new ArgumentException($"No parameter found with name '{parameterName}'");
         }
-        return parameter.Value;
+        return value;
+    }
+    public string GetOptionalParameterValue(string parameterName)
+    {
+        var parameter = Parameters.SingleOrDefault(x => string.Equals(x.Name, parameterName, StringComparison.InvariantCultureIgnoreCase));
+        return parameter?.Value;
     }
 
     public bool HasParameter(string parameterName)
