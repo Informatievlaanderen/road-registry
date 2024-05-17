@@ -145,13 +145,13 @@ public static class FeatureValidationExtensions
             if (feature.Attributes.StartNodeId > 0 && !context.ChangedRoadNodes.ContainsKey(feature.Attributes.StartNodeId))
             {
                 var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
-                problems += recordContext.RoadSegmentStartNodeMissing(feature.Attributes.StartNodeId);
+                problems += recordContext.RoadSegmentStartNodeMissing(feature.Attributes.Id);
             }
 
             if (feature.Attributes.EndNodeId > 0 && !context.ChangedRoadNodes.ContainsKey(feature.Attributes.EndNodeId))
             {
                 var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
-                problems += recordContext.RoadSegmentEndNodeMissing(feature.Attributes.EndNodeId);
+                problems += recordContext.RoadSegmentEndNodeMissing(feature.Attributes.Id);
             }
         }
 
