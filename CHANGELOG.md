@@ -1,3 +1,10 @@
+## [4.0.18](https://github.com/informatievlaanderen/road-registry/compare/v4.0.17...v4.0.18) (2024-05-17)
+
+
+### Bug Fixes
+
+* use roadsegment id for error parameter ([#1492](https://github.com/informatievlaanderen/road-registry/issues/1492)) ([9d29cab](https://github.com/informatievlaanderen/road-registry/commit/9d29cabbdc13bff177c3864287bf2b404c3b0634))
+
 ## [4.0.17](https://github.com/informatievlaanderen/road-registry/compare/v4.0.16...v4.0.17) (2024-05-15)
 
 
