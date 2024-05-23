@@ -1,3 +1,10 @@
+## [4.0.19](https://github.com/informatievlaanderen/road-registry/compare/v4.0.18...v4.0.19) (2024-05-23)
+
+
+### Bug Fixes
+
+* **ci:** add new staging to deploy ([f4f243c](https://github.com/informatievlaanderen/road-registry/commit/f4f243c46e243c424867a5e94aa2b67be0713506))
+
 ## [4.0.18](https://github.com/informatievlaanderen/road-registry/compare/v4.0.17...v4.0.18) (2024-05-17)
 
 
