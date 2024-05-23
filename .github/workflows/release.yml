@@ -568,7 +568,7 @@ jobs:
       env:
         SEMVER: ${{ needs.release.outputs.version }}
 
-   - name: Configure AWS credentials (New Staging)
+    - name: Configure AWS credentials (New Staging)
       uses: aws-actions/configure-aws-credentials@v4.0.2
       with:
         aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
