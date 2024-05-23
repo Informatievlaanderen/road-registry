@@ -568,6 +568,24 @@ jobs:
       env:
         SEMVER: ${{ needs.release.outputs.version }}
 
+   - name: Configure AWS credentials (New Staging)
+      uses: aws-actions/configure-aws-credentials@v4.0.2
+      with:
+        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
+        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
+        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
+
+    - name: Login to Amazon ECR (New Staging)
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Push Lambda functions to S3 (New Staging)
+      shell: bash
+      run: |
+        aws s3 cp ~/backoffice/lambda.zip s3://s3-vbr-stg-basisregisters-lam-rr-sqsbackofficefunction/$SEMVER/lambda.zip
+        aws s3 cp ~/snapshot/lambda.zip s3://s3-vbr-stg-basisregisters-lam-rr-sqssnapshotfunction/$SEMVER/lambda.zip
+      env:
+        SEMVER: ${{ needs.release.outputs.version }}
+
     - name: Configure AWS credentials (Staging)
       uses: aws-actions/configure-aws-credentials@v4.0.2
       with:
@@ -959,7 +977,7 @@ jobs:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
         REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
-        
+
   push_images_to_staging:
     if: needs.release.outputs.version != 'none'
     needs: [ release ]
