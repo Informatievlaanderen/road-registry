@@ -1,3 +1,10 @@
+## [4.0.20](https://github.com/informatievlaanderen/road-registry/compare/v4.0.19...v4.0.20) (2024-05-29)
+
+
+### Bug Fixes
+
+* increase EditorContext commandtimeout ([#1496](https://github.com/informatievlaanderen/road-registry/issues/1496)) ([0e4b9d9](https://github.com/informatievlaanderen/road-registry/commit/0e4b9d9439985034ce2c6fd73ba7a00ff22a38b3))
+
 ## [4.0.19](https://github.com/informatievlaanderen/road-registry/compare/v4.0.18...v4.0.19) (2024-05-23)
 
 
