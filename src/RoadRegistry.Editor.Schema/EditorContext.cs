@@ -1,5 +1,6 @@
 namespace RoadRegistry.Editor.Schema;
 
+using System;
 using BackOffice;
 using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Extracts.Dbase.RoadSegments;
@@ -27,6 +28,10 @@ public class EditorContext : RunnerDbContext<EditorContext>
     public EditorContext(DbContextOptions<EditorContext> options)
         : base(options)
     {
+        if (!Database.IsInMemory())
+        {
+            Database.SetCommandTimeout(TimeSpan.FromMinutes(10));
+        }
     }
 
     public override string ProjectionStateSchema => WellKnownSchemas.EditorMetaSchema;
