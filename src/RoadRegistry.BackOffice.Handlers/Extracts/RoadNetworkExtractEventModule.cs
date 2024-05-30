@@ -1,5 +1,10 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
+using System;
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Threading;
+using System.Threading.Tasks;
 using Autofac;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
@@ -14,12 +19,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Polly;
 using SqlStreamStore;
-using System;
-using System.Collections.Generic;
-using System.IO.Compression;
-using System.Threading;
-using System.Threading.Tasks;
-using BackOffice.Uploads;
 using TicketingService.Abstractions;
 
 public class RoadNetworkExtractEventModule : EventHandlerModule
@@ -43,6 +42,27 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         ArgumentNullException.ThrowIfNull(applicationMetadata);
         ArgumentNullException.ThrowIfNull(roadNetworkEventWriter);
         ArgumentNullException.ThrowIfNull(logger);
+
+        For<ExtractHostSystemHealthCheckRequested>()
+            .Handle(async (message, ct) =>
+            {
+                var ticketId = new TicketId(message.Body.TicketId);
+
+                await using var container = lifetimeScope.BeginLifetimeScope();
+                var ticketing = container.Resolve<ITicketing>();
+                try
+                {
+                    //TODO-rik check what?
+
+                    await ticketing.Complete(ticketId, new TicketResult(), ct);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, $"{nameof(CheckUploadHealth)} failed");
+
+                    await ticketing.Error(ticketId, new TicketError(), ct);
+                }
+            });
 
         For<RoadNetworkExtractGotRequested>()
             .UseRoadNetworkExtractCommandQueue(store)

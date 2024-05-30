@@ -1,8 +1,7 @@
-namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthChecks;
+namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthCheck.HealthChecks;
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -23,13 +22,11 @@ internal class CommandHostHealthCheck : ISystemHealthCheck
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken)
     {
-        //TODO-rik aparte events starten voor de extracthost/eventhost te triggeren, via roadnetworkeventwriter
-
         var ticketId = await _ticketing.CreateTicket(new Dictionary<string, string>
             {
                 { "Action", "HealthCheck"}
             }, cancellationToken);
-        
+
         var request = new UploadHealthCheckRequest
         {
             TicketId = ticketId

@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthChecks;
+namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthCheck;
 
 using System;
 using System.Collections.Generic;

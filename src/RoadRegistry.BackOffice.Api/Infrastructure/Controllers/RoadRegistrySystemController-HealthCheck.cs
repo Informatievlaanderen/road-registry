@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Swashbuckle.AspNetCore.Annotations;
-using SystemHealthChecks;
+using SystemHealthCheck;
 
 public partial class RoadRegistrySystemController
 {

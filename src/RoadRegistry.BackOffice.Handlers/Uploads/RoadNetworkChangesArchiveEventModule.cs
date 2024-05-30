@@ -38,6 +38,27 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
         ArgumentNullException.ThrowIfNull(roadNetworkEventWriter);
         ArgumentNullException.ThrowIfNull(logger);
 
+        For<EventHostSystemHealthCheckRequested>()
+            .Handle(async (message, ct) =>
+            {
+                var ticketId = new TicketId(message.Body.TicketId);
+
+                await using var container = lifetimeScope.BeginLifetimeScope();
+                var ticketing = container.Resolve<ITicketing>();
+                try
+                {
+                    //TODO-rik check what?
+
+                    await ticketing.Complete(ticketId, new TicketResult(), ct);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, $"{nameof(CheckUploadHealth)} failed");
+
+                    await ticketing.Error(ticketId, new TicketError(), ct);
+                }
+            });
+
         For<RoadNetworkChangesArchiveAccepted>()
             .UseRoadNetworkCommandQueue(store, applicationMetadata)
             .Handle(async (queue, message, ct) =>

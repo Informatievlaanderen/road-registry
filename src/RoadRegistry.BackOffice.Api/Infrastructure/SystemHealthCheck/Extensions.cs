@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthChecks;
+namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthCheck;
 
 using System;
 using System.Diagnostics;
@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using TicketingService.Abstractions;
 
-public static class Extensions
+internal static class Extensions
 {
     public static IServiceCollection AddSystemHealthChecks(this IServiceCollection services)
     {
