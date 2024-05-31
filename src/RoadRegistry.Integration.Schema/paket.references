@@ -1,0 +1,15 @@
+Be.Vlaanderen.Basisregisters.BlobStore
+Be.Vlaanderen.Basisregisters.EventHandling
+Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
+Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer
+Be.Vlaanderen.Basisregisters.Shaperon
+
+AWSSDK.Core
+Microsoft.Extensions.DependencyInjection.Abstractions
+Microsoft.IdentityModel.Abstractions
+Microsoft.IdentityModel.JsonWebTokens
+Microsoft.IdentityModel.Logging
+Microsoft.IdentityModel.Tokens
+Microsoft.EntityFrameworkCore.Design
+Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
+NetTopologySuite
