@@ -1,20 +1,19 @@
 namespace RoadRegistry.Integration.Schema;
 
 using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Metrics;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
-using Extracts;
 using GradeSeparatedJunctions;
 using Microsoft.EntityFrameworkCore;
 using RoadNetworkChanges;
 using RoadNodes;
 using RoadSegments;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 public class IntegrationContext : RunnerDbContext<IntegrationContext>
 {
@@ -40,10 +39,6 @@ public class IntegrationContext : RunnerDbContext<IntegrationContext>
     public DbSet<EventProcessorMetricsRecord> EventProcessorMetrics { get; set; }
     #endregion
 
-    public DbSet<ExtractRequestRecord> ExtractRequests { get; set; }
-    public DbSet<ExtractRequestOverlapRecord> ExtractRequestOverlaps { get; set; }
-    public DbSet<ExtractDownloadRecord> ExtractDownloads { get; set; }
-    public DbSet<ExtractUploadRecord> ExtractUploads { get; set; }
     public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
     public DbSet<MunicipalityGeometry> MunicipalityGeometries { get; set; }
     public DbSet<OrganizationRecord> Organizations { get; set; }
