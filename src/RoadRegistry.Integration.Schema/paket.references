@@ -3,6 +3,7 @@ Be.Vlaanderen.Basisregisters.EventHandling
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer
 Be.Vlaanderen.Basisregisters.Shaperon
+Be.Vlaanderen.Basisregisters.Utilities.Rfc3339DateTimeOffset
 
 AWSSDK.Core
 Microsoft.Extensions.DependencyInjection.Abstractions

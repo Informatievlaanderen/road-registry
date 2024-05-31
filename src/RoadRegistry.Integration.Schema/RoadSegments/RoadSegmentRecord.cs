@@ -1,7 +1,10 @@
 namespace RoadRegistry.Integration.Schema.RoadSegments;
 
 using System;
+using Be.Vlaanderen.Basisregisters.GrAr.Common;
+using Be.Vlaanderen.Basisregisters.Utilities;
 using NetTopologySuite.Geometries;
+using NodaTime;
 
 public class RoadSegmentRecord
 {
@@ -38,7 +41,22 @@ public class RoadSegmentRecord
     public DateTime BeginTime { get; set; }
     public string BeginOrganizationId { get; set; }
     public string BeginOrganizationName { get; set; }
-    
+
+    public string Puri { get; set; }
+    public string Namespace { get; set; }
+    public string VersionAsString { get; set; }
+    private DateTimeOffset VersionTimestampAsDateTimeOffset { get; set; }
+
+    public Instant VersionTimestamp
+    {
+        get => Instant.FromDateTimeOffset(VersionTimestampAsDateTimeOffset);
+        set
+        {
+            VersionTimestampAsDateTimeOffset = value.ToDateTimeOffset();
+            VersionAsString = new Rfc3339SerializableDateTimeOffset(value.ToBelgianDateTimeOffset()).ToString();
+        }
+    }
+
     public RoadSegmentBoundingBox GetBoundingBox() => BoundingBoxMaximumX is not null
         ? new()
         {

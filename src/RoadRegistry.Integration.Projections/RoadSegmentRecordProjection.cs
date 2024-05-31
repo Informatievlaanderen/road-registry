@@ -44,35 +44,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<IntegrationContex
             var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(envelope.Message.AccessRestriction).Translation;
             var transactionId = new TransactionId(envelope.Message.Origin.TransactionId);
 
-            var dbaseRecord = new RoadSegmentDbaseRecord
-            {
-                WS_OIDN = { Value = envelope.Message.Id },
-                WS_UIDN = { Value = new UIDN(envelope.Message.Id, envelope.Message.Version) },
-                WS_GIDN = { Value = new UIDN(envelope.Message.Id, envelope.Message.GeometryVersion) },
-                B_WK_OIDN = { Value = envelope.Message.StartNodeId },
-                E_WK_OIDN = { Value = envelope.Message.EndNodeId },
-                STATUS = { Value = statusTranslation.Identifier },
-                LBLSTATUS = { Value = statusTranslation.Name },
-                MORF = { Value = morphologyTranslation.Identifier },
-                LBLMORF = { Value = morphologyTranslation.Name },
-                WEGCAT = { Value = categoryTranslation.Identifier },
-                LBLWEGCAT = { Value = categoryTranslation.Name },
-                LSTRNMID = { Value = envelope.Message.LeftSide.StreetNameId },
-                LSTRNM = { Value = envelope.Message.LeftSide.StreetName },
-                RSTRNMID = { Value = envelope.Message.RightSide.StreetNameId },
-                RSTRNM = { Value = envelope.Message.RightSide.StreetName },
-                BEHEER = { Value = envelope.Message.MaintenanceAuthority.Code },
-                LBLBEHEER = { Value = OrganizationName.FromValueWithFallback(envelope.Message.MaintenanceAuthority.Name) },
-                METHODE = { Value = geometryDrawMethodTranslation.Identifier },
-                LBLMETHOD = { Value = geometryDrawMethodTranslation.Name },
-                OPNDATUM = { Value = envelope.Message.RecordingDate },
-                BEGINTIJD = { Value = envelope.Message.Origin.Since },
-                BEGINORG = { Value = envelope.Message.Origin.OrganizationId },
-                LBLBGNORG = { Value = envelope.Message.Origin.Organization },
-                TGBEP = { Value = accessRestrictionTranslation.Identifier },
-                LBLTGBEP = { Value = accessRestrictionTranslation.Name }
-            };
-
             await context.RoadSegments.AddAsync(
                 UpdateHash(new RoadSegmentRecord
                 {
@@ -82,17 +53,24 @@ public class RoadSegmentRecordProjection : ConnectedProjection<IntegrationContex
                     ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding),
                     ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
                     Geometry = BackOffice.GeometryTranslator.Translate(envelope.Message.Geometry),
-                    
+
                     Version = envelope.Message.Version,
                     GeometryVersion = envelope.Message.GeometryVersion,
+                    //LBLSTATUS = { Value = statusTranslation.Name },
                     StatusId = statusTranslation.Identifier,
+                    // LBLMORF = { Value = morphologyTranslation.Name },
                     MorphologyId = morphologyTranslation.Identifier,
+                    // LBLWEGCAT = { Value = categoryTranslation.Name },
                     CategoryId = categoryTranslation.Identifier,
+                    // LSTRNM = { Value = envelope.Message.LeftSide.StreetName },
                     LeftSideStreetNameId = envelope.Message.LeftSide.StreetNameId,
+                    // RSTRNM = { Value = envelope.Message.RightSide.StreetName },
                     RightSideStreetNameId = envelope.Message.RightSide.StreetNameId,
                     MaintainerId = envelope.Message.MaintenanceAuthority.Code,
                     MaintainerName = OrganizationName.FromValueWithFallback(envelope.Message.MaintenanceAuthority.Name),
+                    // LBLMETHOD = { Value = geometryDrawMethodTranslation.Name },
                     MethodId = geometryDrawMethodTranslation.Identifier,
+                    // LBLTGBEP = { Value = accessRestrictionTranslation.Name }
                     AccessRestrictionId = accessRestrictionTranslation.Identifier,
 
                     TransactionId = transactionId,
@@ -101,7 +79,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<IntegrationContex
                     BeginOrganizationId = envelope.Message.Origin.OrganizationId,
                     BeginOrganizationName = envelope.Message.Origin.Organization,
 
-                    DbaseRecord = dbaseRecord.ToBytes(manager, encoding)
+                    // Puri =
+                    // Namespace =
+                    // VersionTimestamp =
+
                 }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape)), envelope.Message),
                 token);
         });
@@ -279,7 +260,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<IntegrationContex
         dbRecord.ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32();
         dbRecord.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentModified.Geometry);
         dbRecord.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
-        
+
         dbRecord.Version = roadSegmentModified.Version;
         dbRecord.GeometryVersion = roadSegmentModified.GeometryVersion;
         dbRecord.StatusId = statusTranslation.Identifier;
@@ -294,7 +275,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<IntegrationContex
 
         dbRecord.TransactionId = transactionId;
         dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        
+
         var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
         dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentModified.Id, roadSegmentModified.Version);
         dbaseRecord.WS_GIDN.Value = new UIDN(roadSegmentModified.Id, roadSegmentModified.GeometryVersion);
@@ -335,7 +316,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<IntegrationContex
         {
             throw new InvalidOperationException($"{nameof(RoadSegmentRecord)} with id {roadSegmentAttributesModified.Id} is not found");
         }
-        
+
         dbRecord.Version = roadSegmentAttributesModified.Version;
         dbRecord.TransactionId = new TransactionId(envelope.Message.TransactionId);
         dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
@@ -411,7 +392,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<IntegrationContex
         {
             throw new InvalidOperationException($"{nameof(RoadSegmentRecord)} with id {roadSegmentGeometryModified.Id} is not found");
         }
-        
+
         var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentGeometryModified.Geometry));
         var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
 
@@ -424,7 +405,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<IntegrationContex
         dbRecord.GeometryVersion = roadSegmentGeometryModified.GeometryVersion;
         dbRecord.TransactionId = new TransactionId(envelope.Message.TransactionId);
         dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        
+
         var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
         dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentGeometryModified.Id, roadSegmentGeometryModified.Version);
         dbaseRecord.WS_GIDN.Value = new UIDN(roadSegmentGeometryModified.Id, roadSegmentGeometryModified.GeometryVersion);
