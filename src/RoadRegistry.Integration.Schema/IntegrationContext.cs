@@ -33,7 +33,7 @@ public class IntegrationContext : RunnerDbContext<IntegrationContext>
         }
     }
 
-    public override string ProjectionStateSchema => WellKnownSchemas.EditorMetaSchema;
+    public override string ProjectionStateSchema => WellKnownSchemas.IntegrationSchema;
 
     #region Metrics
     public DbSet<EventProcessorMetricsRecord> EventProcessorMetrics { get; set; }
@@ -83,11 +83,11 @@ public class IntegrationContext : RunnerDbContext<IntegrationContext>
         builder
             .Entity<RoadNodeBoundingBox2D>()
             .HasNoKey()
-            .ToSqlQuery($"SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [{WellKnownSchemas.EditorSchema}].[RoadNode]");
+            .ToSqlQuery($"SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY FROM [{WellKnownSchemas.IntegrationSchema}].[RoadNode]");
 
         builder
             .Entity<RoadSegmentBoundingBox3D>()
             .HasNoKey()
-            .ToSqlQuery($"SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY, MIN([BoundingBox_MinimumM]) AS MinimumM, MAX([BoundingBox_MaximumM]) AS MaximumM FROM [{WellKnownSchemas.EditorSchema}].[RoadSegment]");
+            .ToSqlQuery($"SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY, MIN([BoundingBox_MinimumM]) AS MinimumM, MAX([BoundingBox_MaximumM]) AS MaximumM FROM [{WellKnownSchemas.IntegrationSchema}].[RoadSegment]");
     }
 }

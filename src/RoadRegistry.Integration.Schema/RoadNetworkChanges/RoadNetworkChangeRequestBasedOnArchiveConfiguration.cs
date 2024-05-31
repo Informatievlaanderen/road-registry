@@ -10,7 +10,7 @@ public class RoadNetworkChangeRequestBasedOnArchiveConfiguration : IEntityTypeCo
 
     public void Configure(EntityTypeBuilder<RoadNetworkChangeRequestBasedOnArchive> b)
     {
-        b.ToTable(TableName, WellKnownSchemas.EditorSchema)
+        b.ToTable(TableName, WellKnownSchemas.IntegrationSchema)
             .HasIndex(p => p.ChangeRequestId)
             .IsClustered(false);
 

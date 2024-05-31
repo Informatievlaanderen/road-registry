@@ -13,7 +13,6 @@
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
-    <ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Integration.Schema\RoadRegistry.Integration.Schema.csproj" />
   </ItemGroup>
 

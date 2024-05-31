@@ -10,7 +10,7 @@ public class MunicipalityGeometryConfiguration : IEntityTypeConfiguration<Munici
 
     public void Configure(EntityTypeBuilder<MunicipalityGeometry> b)
     {
-        b.ToTable(TableName, WellKnownSchemas.EditorSchema)
+        b.ToTable(TableName, WellKnownSchemas.IntegrationSchema)
             .HasKey(p => p.NisCode)
             .IsClustered();
 

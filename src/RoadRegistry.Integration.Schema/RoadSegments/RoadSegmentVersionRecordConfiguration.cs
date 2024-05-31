@@ -10,7 +10,7 @@ public class RoadSegmentVersionRecordConfiguration : IEntityTypeConfiguration<Ro
 
     public void Configure(EntityTypeBuilder<RoadSegmentVersionRecord> b)
     {
-        b.ToTable(TableName, WellKnownSchemas.EditorSchema)
+        b.ToTable(TableName, WellKnownSchemas.IntegrationSchema)
             .HasKey(x => new { x.StreamId, x.Id, x.Method })
             .IsClustered();
 

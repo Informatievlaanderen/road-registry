@@ -8,15 +8,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 public class IntegrationContextMigrationFactory : SqlServerRunnerDbContextMigrationFactory<IntegrationContext>
 {
     public IntegrationContextMigrationFactory()
-        : base(WellKnownConnectionNames.EditorProjectionsAdmin, HistoryConfiguration)
+        : base(WellKnownConnectionNames.IntegrationProjectionsAdmin, HistoryConfiguration)
     {
     }
 
     private static MigrationHistoryConfiguration HistoryConfiguration =>
         new()
         {
-            Schema = WellKnownSchemas.EditorSchema,
-            Table = MigrationTables.Editor
+            Schema = WellKnownSchemas.IntegrationSchema,
+            Table = MigrationTables.Integration
         };
 
     protected override void ConfigureSqlServerOptions(SqlServerDbContextOptionsBuilder sqlServerOptions)

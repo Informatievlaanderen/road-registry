@@ -10,7 +10,7 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
 
     public void Configure(EntityTypeBuilder<RoadSegmentRecord> b)
     {
-        b.ToTable(TableName, WellKnownSchemas.EditorSchema)
+        b.ToTable(TableName, WellKnownSchemas.IntegrationSchema)
             .HasKey(p => p.Id)
             .IsClustered();
 
@@ -61,7 +61,7 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
             .IsClustered(false);
         b.HasIndex(p => p.MaintainerId)
             .IsClustered(false);
-        
+
         b.HasQueryFilter(p => p.IsRemoved == false);
     }
 }
