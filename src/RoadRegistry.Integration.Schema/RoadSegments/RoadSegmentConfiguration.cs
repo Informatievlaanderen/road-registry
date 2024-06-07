@@ -17,48 +17,42 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
         b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
         b.Property(p => p.StartNodeId).ValueGeneratedNever().IsRequired();
         b.Property(p => p.EndNodeId).ValueGeneratedNever().IsRequired();
-        b.Property(p => p.ShapeRecordContent).IsRequired();
-        b.Property(p => p.ShapeRecordContentLength).IsRequired();
-        b.Property(p => p.DbaseRecord).IsRequired();
         b.Property(p => p.Geometry).HasColumnType("Geometry").IsRequired();
-        b.Property(p => p.LastEventHash);
         b.Property(p => p.IsRemoved).HasDefaultValue(false).IsRequired();
 
         b.Property(x => x.Id).HasColumnName("id");
         b.Property(x => x.EndNodeId).HasColumnName("end_node_id");
         b.Property(x => x.Geometry).HasColumnName("geometry");
-
-    // public int EndNodeId { get; set; }
-    // public Geometry Geometry { get; set; }
-    // public byte[] ShapeRecordContent { get; set; }
-    // public int ShapeRecordContentLength { get; set; }
-    // public int StartNodeId { get; set; }
-    // public string LastEventHash { get; set; }
-    // public bool IsRemoved { get; set; }
-    //
-    // public int Version { get; set; }
-    // public int GeometryVersion { get; set; }
-    // public int AccessRestrictionId { get; set; }
-    // public string CategoryId { get; set; }
-    // public int? LeftSideStreetNameId { get; set; }
-    // public string MaintainerId { get; set; }
-    // public string MaintainerName { get; set; }
-    // public int MethodId { get; set; }
-    // public int MorphologyId { get; set; }
-    // public int? RightSideStreetNameId { get; set; }
-    // public int StatusId { get; set; }
-    //
-    // public int TransactionId { get; set; }
-    // public DateTime RecordingDate { get; set; }
-    // public DateTime BeginTime { get; set; }
-    // public string BeginOrganizationId { get; set; }
-    // public string BeginOrganizationName { get; set; }
-
+        // public string LastEventHash { get; set; }
+        b.Property(x => x.StartNodeId).HasColumnName("start_node_id");
+        b.Property(x => x.IsRemoved).HasColumnName("is_removed");
+        b.Property(x => x.Version).HasColumnName("version");
+        b.Property(x => x.GeometryVersion).HasColumnName("geometry_version");
+        b.Property(x => x.AccessRestrictionId).HasColumnName("access_restriction_id");
+        b.Property(x => x.AccessRestrictionLabel).HasColumnName("access_restriction_label");
+        b.Property(x => x.CategoryId).HasColumnName("category_id");
+        b.Property(x => x.CategoryLabel).HasColumnName("category_label");
+        b.Property(x => x.LeftSideStreetNameId).HasColumnName("left_side_street_name_id");
+        b.Property(x => x.LeftSideStreetNameName).HasColumnName("left_side_street_name_name");
+        b.Property(x => x.MaintainerId).HasColumnName("maintainer_id");
+        b.Property(x => x.MaintainerName).HasColumnName("maintainer_name");
+        b.Property(x => x.MethodId).HasColumnName("method_id");
+        b.Property(x => x.MethodLabel).HasColumnName("method_label");
+        b.Property(x => x.MorphologyId).HasColumnName("morphology_id");
+        b.Property(x => x.MorphologyLabel).HasColumnName("morphology_label");
+        b.Property(x => x.RightSideStreetNameId).HasColumnName("right_side_street_name_id");
+        b.Property(x => x.RightSideStreetNameName).HasColumnName("right_side_street_name_name");
+        b.Property(x => x.StatusId).HasColumnName("status_id");
+        b.Property(x => x.StatusLabel).HasColumnName("status_label");
+        // public int TransactionId { get; set; }
+        b.Property(x => x.RecordingDate).HasColumnName("recording_date");
+        b.Property(x => x.BeginTime).HasColumnName("begin_time");
+        b.Property(x => x.BeginOrganizationId).HasColumnName("begin_organization_id");
+        b.Property(x => x.BeginOrganizationName).HasColumnName("begin_organization_name");
 
         b.HasIndex(p => p.IsRemoved)
             .IsClustered(false);
 
-        //b.OwnsOne(p => p.BoundingBox); // WR-913 Flattened due to performance issues with OwnsOne
         b.Property(p => p.BoundingBoxMaximumX).HasColumnName("bounding_box_maximum_x");
         b.Property(p => p.BoundingBoxMaximumY).HasColumnName("bounding_box_maximum_y");
         b.Property(p => p.BoundingBoxMaximumM).HasColumnName("bounding_box_maximum_m");
