@@ -113,190 +113,72 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
             problems += maintenanceAuthorityProblems;
         }
 
-        if (new object?[] { maintenanceAuthority, change.Morphology, change.Status, change.Category, change.AccessRestriction }.Any(x => x is not null))
+        changes = changes.AppendChange(new ModifyRoadSegmentAttributes(RecordNumber.Initial, roadSegment.Id, roadSegment.AttributeHash.GeometryDrawMethod)
         {
-            changes = changes.AppendChange(new ModifyRoadSegmentAttributes(RecordNumber.Initial, roadSegment.Id, roadSegment.AttributeHash.GeometryDrawMethod)
-            {
-                MaintenanceAuthority = maintenanceAuthority,
-                Morphology = change.Morphology,
-                Status = change.Status,
-                Category = change.Category,
-                AccessRestriction = change.AccessRestriction
-            });
-        }
-        //TODO-rik onderstaande wegnummers moeten mee in de ModifyRoadSegmentAttributes event komen zodat de wegsegment version gebumpt wordt
-        changes = AppendChange(changes, roadSegment, change.EuropeanRoads);
-        changes = AppendChange(changes, roadSegment, change.NationalRoads);
-        changes = AppendChange(changes, roadSegment, change.NumberedRoads);
+            MaintenanceAuthority = maintenanceAuthority,
+            Morphology = change.Morphology,
+            Status = change.Status,
+            Category = change.Category,
+            AccessRestriction = change.AccessRestriction,
+            EuropeanRoads = ConvertToChange(change.EuropeanRoads),
+            NationalRoads = ConvertToChange(change.NationalRoads),
+            NumberedRoads = ConvertToChange(change.NumberedRoads)
+        });
 
         return (changes, problems);
     }
 
-    private TranslatedChanges AppendChange(TranslatedChanges changes, RoadSegment roadSegment, ICollection<EuropeanRoadNumber>? europeanRoadNumbers)
+    private RoadSegmentEuropeanRoadAttribute[]? ConvertToChange(ICollection<EuropeanRoadNumber>? europeanRoadNumbers)
     {
         if (europeanRoadNumbers is null)
         {
-            return changes;
+            return null;
         }
 
-        var recordNumberProvider = new NextRecordNumberProvider(RecordNumber.Initial);
         var attributeIdProvider = new NextAttributeIdProvider(AttributeId.Initial);
 
-        var existingRoads = roadSegment.EuropeanRoadAttributes.Values.ToList();
-        foreach (var europeanRoadNumber in europeanRoadNumbers)
-        {
-            var recordNumber = recordNumberProvider.Next();
-
-            var matches = existingRoads
-                .Where(x => x.Number == europeanRoadNumber)
-                .ToList();
-            foreach (var match in matches)
-            {
-                existingRoads.Remove(match);
-
-                changes = changes.AppendChange(new RemoveRoadSegmentFromEuropeanRoad(
-                    recordNumber,
-                    match.AttributeId,
-                    roadSegment.Id,
-                    match.Number
-                ));
-            }
-
-            changes = changes.AppendChange(new AddRoadSegmentToEuropeanRoad(
-                recordNumber,
+        return europeanRoadNumbers
+            .Select(europeanRoadNumber => new RoadSegmentEuropeanRoadAttribute(
                 attributeIdProvider.Next(),
-                roadSegment.Id,
                 europeanRoadNumber
-            ));
-        }
-
-        foreach (var europeanRoad in existingRoads)
-        {
-            changes = changes.AppendChange(new RemoveRoadSegmentFromEuropeanRoad(
-                recordNumberProvider.Next(),
-                europeanRoad.AttributeId,
-                roadSegment.Id,
-                europeanRoad.Number
-            ));
-        }
-
-        return changes;
+            ))
+            .ToArray();
     }
 
-    private TranslatedChanges AppendChange(TranslatedChanges changes, RoadSegment roadSegment, ICollection<NationalRoadNumber>? nationalRoadNumbers)
+    private RoadSegmentNationalRoadAttribute[]? ConvertToChange(ICollection<NationalRoadNumber>? nationalRoadNumbers)
     {
         if (nationalRoadNumbers is null)
         {
-            return changes;
+            return null;
         }
 
-        var recordNumberProvider = new NextRecordNumberProvider(RecordNumber.Initial);
         var attributeIdProvider = new NextAttributeIdProvider(AttributeId.Initial);
 
-        var existingRoads = roadSegment.NationalRoadAttributes.Values.ToList();
-        foreach (var nationalRoadNumber in nationalRoadNumbers)
-        {
-            var recordNumber = recordNumberProvider.Next();
-
-            var matches = existingRoads
-                .Where(x => x.Number == nationalRoadNumber)
-                .ToList();
-            foreach (var match in matches)
-            {
-                existingRoads.Remove(match);
-
-                changes = changes.AppendChange(new RemoveRoadSegmentFromNationalRoad(
-                    recordNumber,
-                    match.AttributeId,
-                    roadSegment.Id,
-                    match.Number
-                ));
-            }
-
-            changes = changes.AppendChange(new AddRoadSegmentToNationalRoad(
-                recordNumber,
+        return nationalRoadNumbers
+            .Select(nationalRoadNumber => new RoadSegmentNationalRoadAttribute(
                 attributeIdProvider.Next(),
-                roadSegment.Id,
                 nationalRoadNumber
-            ));
-        }
-
-        foreach (var nationalRoad in existingRoads)
-        {
-            changes = changes.AppendChange(new RemoveRoadSegmentFromNationalRoad(
-                recordNumberProvider.Next(),
-                nationalRoad.AttributeId,
-                roadSegment.Id,
-                nationalRoad.Number
-            ));
-        }
-
-        return changes;
+            ))
+            .ToArray();
     }
 
-    private TranslatedChanges AppendChange(TranslatedChanges changes, RoadSegment roadSegment, ICollection<ChangeRoadSegmentNumberedRoadAttribute>? numberedRoads)
+    private RoadSegmentNumberedRoadAttribute[]? ConvertToChange(ICollection<ChangeRoadSegmentNumberedRoadAttribute>? numberedRoads)
     {
         if (numberedRoads is null)
         {
-            return changes;
+            return null;
         }
 
-        var recordNumberProvider = new NextRecordNumberProvider(RecordNumber.Initial);
         var attributeIdProvider = new NextAttributeIdProvider(AttributeId.Initial);
 
-        var existingRoads = roadSegment.NumberedRoadAttributes.Values.ToList();
-        foreach (var numberedRoad in numberedRoads)
-        {
-            var recordNumber = recordNumberProvider.Next();
-
-            var matches = existingRoads
-                .Where(x => x.Number == numberedRoad.Number)
-                .Select(match => new
-                {
-                    Attribute = match,
-                    IsExactMatch = numberedRoad.Ordinal == match.Ordinal && numberedRoad.Direction == match.Direction
-                })
-                .ToList();
-
-            foreach (var match in matches)
-            {
-                existingRoads.Remove(match.Attribute);
-
-                if (!match.IsExactMatch)
-                {
-                    changes = changes.AppendChange(new RemoveRoadSegmentFromNumberedRoad(
-                        recordNumber,
-                        match.Attribute.AttributeId,
-                        roadSegment.Id,
-                        match.Attribute.Number
-                    ));
-                }
-            }
-
-            if (!matches.Any(x => x.IsExactMatch))
-            {
-                changes = changes.AppendChange(new AddRoadSegmentToNumberedRoad(
-                    recordNumber,
-                    attributeIdProvider.Next(),
-                    roadSegment.Id,
-                    numberedRoad.Number,
-                    numberedRoad.Direction,
-                    numberedRoad.Ordinal
-                ));
-            }
-        }
-
-        foreach (var numberedRoad in existingRoads)
-        {
-            changes = changes.AppendChange(new RemoveRoadSegmentFromNumberedRoad(
-                recordNumberProvider.Next(),
-                numberedRoad.AttributeId,
-                roadSegment.Id,
-                numberedRoad.Number
-            ));
-        }
-
-        return changes;
+        return numberedRoads
+            .Select(numberedRoad => new RoadSegmentNumberedRoadAttribute(
+                attributeIdProvider.Next(),
+                numberedRoad.Number,
+                numberedRoad.Direction,
+                numberedRoad.Ordinal
+            ))
+            .ToArray();
     }
 
     private async Task<(OrganizationId, Problems)> FindOrganizationId(OrganizationId organizationId, CancellationToken cancellationToken)
