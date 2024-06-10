@@ -2,12 +2,8 @@ namespace RoadRegistry.Integration.Schema;
 
 using System;
 using BackOffice;
-using BackOffice.Extracts.Dbase.Organizations;
-using BackOffice.Extracts.Dbase.RoadSegments;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
-using GradeSeparatedJunctions;
 using Microsoft.EntityFrameworkCore;
-using RoadNodes;
 using RoadSegments;
 
 public class IntegrationContext : RunnerDbContext<IntegrationContext>
@@ -28,17 +24,16 @@ public class IntegrationContext : RunnerDbContext<IntegrationContext>
 
     public override string ProjectionStateSchema => WellKnownSchemas.IntegrationSchema;
 
-    public DbSet<MunicipalityGeometry> MunicipalityGeometries { get; set; }
-    public DbSet<OrganizationRecord> Organizations { get; set; }
-    public DbSet<RoadNodeRecord> RoadNodes { get; set; }
+    // public DbSet<OrganizationRecord> Organizations { get; set; }
+    // public DbSet<RoadNodeRecord> RoadNodes { get; set; }
     public DbSet<RoadSegmentLatestItem> RoadSegments { get; set; }
-    public DbSet<RoadSegmentEuropeanRoadAttributeRecord> RoadSegmentEuropeanRoadAttributes { get; set; }
-    public DbSet<RoadSegmentNationalRoadAttributeRecord> RoadSegmentNationalRoadAttributes { get; set; }
-    public DbSet<RoadSegmentNumberedRoadAttributeRecord> RoadSegmentNumberedRoadAttributes { get; set; }
-    public DbSet<RoadSegmentLaneAttributeRecord> RoadSegmentLaneAttributes { get; set; }
-    public DbSet<RoadSegmentSurfaceAttributeRecord> RoadSegmentSurfaceAttributes { get; set; }
-    public DbSet<RoadSegmentWidthAttributeRecord> RoadSegmentWidthAttributes { get; set; }
-    public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
+    // public DbSet<RoadSegmentEuropeanRoadAttributeRecord> RoadSegmentEuropeanRoadAttributes { get; set; }
+    // public DbSet<RoadSegmentNationalRoadAttributeRecord> RoadSegmentNationalRoadAttributes { get; set; }
+    // public DbSet<RoadSegmentNumberedRoadAttributeRecord> RoadSegmentNumberedRoadAttributes { get; set; }
+    // public DbSet<RoadSegmentLaneAttributeRecord> RoadSegmentLaneAttributes { get; set; }
+    // public DbSet<RoadSegmentSurfaceAttributeRecord> RoadSegmentSurfaceAttributes { get; set; }
+    // public DbSet<RoadSegmentWidthAttributeRecord> RoadSegmentWidthAttributes { get; set; }
+    // public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
 
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
