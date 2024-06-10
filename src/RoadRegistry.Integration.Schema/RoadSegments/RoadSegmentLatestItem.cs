@@ -37,9 +37,6 @@ public class RoadSegmentLatestItem
     public string BeginOrganizationId { get; set; }
     public string BeginOrganizationName { get; set; }
 
-    public string Puri { get; set; }
-    public string Namespace { get; set; }
-
     public DateTimeOffset VersionTimestamp { get; set; }
 
     public DateTimeOffset CreatedOnTimestamp { get; set; }

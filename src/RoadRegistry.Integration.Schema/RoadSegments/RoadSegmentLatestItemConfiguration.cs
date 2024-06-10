@@ -45,9 +45,6 @@ public class RoadSegmentLatestItemConfiguration : IEntityTypeConfiguration<RoadS
         b.Property(x => x.VersionTimestamp).HasColumnName("version_timestamp");
         b.Property(x => x.CreatedOnTimestamp).HasColumnName("created_on_timestamp");
 
-        b.HasIndex(p => p.IsRemoved)
-            .IsClustered(false);
-
         b.Property(p => p.BoundingBoxMaximumX).HasColumnName("bounding_box_maximum_x");
         b.Property(p => p.BoundingBoxMaximumY).HasColumnName("bounding_box_maximum_y");
         b.Property(p => p.BoundingBoxMaximumM).HasColumnName("bounding_box_maximum_m");
@@ -55,21 +52,21 @@ public class RoadSegmentLatestItemConfiguration : IEntityTypeConfiguration<RoadS
         b.Property(p => p.BoundingBoxMinimumY).HasColumnName("bounding_box_minimum_y");
         b.Property(p => p.BoundingBoxMinimumM).HasColumnName("bounding_box_minimum_m");
 
-        b.HasIndex(p => p.MethodId).IsClustered(false);
-        b.HasIndex(p => p.MethodLabel).IsClustered(false);
-        b.HasIndex(p => p.LeftSideStreetNameId).IsClustered(false);
-        b.HasIndex(p => p.RightSideStreetNameId).IsClustered(false);
-        b.HasIndex(p => p.MaintainerId).IsClustered(false);
-        b.HasIndex(p => p.MorphologyId).IsClustered(false);
-        b.HasIndex(p => p.MorphologyLabel).IsClustered(false);
-        b.HasIndex(p => p.CategoryId).IsClustered(false);
-        b.HasIndex(p => p.CategoryLabel).IsClustered(false);
-        b.HasIndex(p => p.StatusId).IsClustered(false);
-        b.HasIndex(p => p.StatusLabel).IsClustered(false);
-        b.HasIndex(p => p.IsRemoved).IsClustered(false);
+        b.HasIndex(p => p.MethodId);
+        b.HasIndex(p => p.MethodLabel);
+        b.HasIndex(p => p.LeftSideStreetNameId);
+        b.HasIndex(p => p.RightSideStreetNameId);
+        b.HasIndex(p => p.MaintainerId);
+        b.HasIndex(p => p.MorphologyId);
+        b.HasIndex(p => p.MorphologyLabel);
+        b.HasIndex(p => p.CategoryId);
+        b.HasIndex(p => p.CategoryLabel);
+        b.HasIndex(p => p.StatusId);
+        b.HasIndex(p => p.StatusLabel);
+        b.HasIndex(p => p.IsRemoved);
         b.HasIndex(x => new { x.IsRemoved, x.StatusId });
-        b.HasIndex(p => p.StartNodeId).IsClustered(false);
-        b.HasIndex(p => p.EndNodeId).IsClustered(false);
+        b.HasIndex(p => p.StartNodeId);
+        b.HasIndex(p => p.EndNodeId);
         b.HasIndex(x => x.Geometry).HasMethod("GIST");
 
         b.HasQueryFilter(p => p.IsRemoved == false);

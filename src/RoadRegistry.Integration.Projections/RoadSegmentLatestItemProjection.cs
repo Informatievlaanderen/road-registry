@@ -55,11 +55,7 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
                     CreatedOnTimestamp = new DateTimeOffset(envelope.Message.RecordingDate),
                     VersionTimestamp = new DateTimeOffset(envelope.Message.Origin.Since),
                     BeginOrganizationId = envelope.Message.Origin.OrganizationId,
-                    BeginOrganizationName = envelope.Message.Origin.Organization,
-
-                    // Puri = TODO
-                    // Namespace =
-
+                    BeginOrganizationName = envelope.Message.Origin.Organization
                 }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape)),
                 token);
         });
