@@ -28,7 +28,6 @@ public class RoadSegmentRecord
     public string CategoryId { get; set; }
     public string CategoryLabel { get; set; }
     public int? LeftSideStreetNameId { get; set; }
-    public string LeftSideStreetNameName { get; set; } // Enable nullable and make string?
     public string MaintainerId { get; set; }
     public string MaintainerName { get; set; }
     public int MethodId { get; set; }
@@ -36,7 +35,6 @@ public class RoadSegmentRecord
     public int MorphologyId { get; set; }
     public string MorphologyLabel { get; set; }
     public int? RightSideStreetNameId { get; set; }
-    public string RightSideStreetNameName { get; set; } // Enable nullable and make string?
     public int StatusId { get; set; }
     public string StatusLabel { get; set; }
 

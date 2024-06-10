@@ -53,9 +53,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<IntegrationContex
                     CategoryId = categoryTranslation.Identifier,
                     CategoryLabel = categoryTranslation.Name,
                     LeftSideStreetNameId = envelope.Message.LeftSide.StreetNameId,
-                    LeftSideStreetNameName = envelope.Message.LeftSide.StreetName,
                     RightSideStreetNameId = envelope.Message.RightSide.StreetNameId,
-                    RightSideStreetNameName = envelope.Message.RightSide.StreetName,
                     MaintainerId = envelope.Message.MaintenanceAuthority.Code,
                     MaintainerName = OrganizationName.FromValueWithFallback(envelope.Message.MaintenanceAuthority.Name),
                     MethodId = geometryDrawMethodTranslation.Identifier,
@@ -162,9 +160,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<IntegrationContex
         dbRecord.SetMorphology(morphology);
         dbRecord.SetCategory(category);
         dbRecord.LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId;
-        // dbRecord.LeftSideStreetNameName = roadSegmentAdded.LeftSide.StreetNameId; TODO
         dbRecord.RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId;
-        // dbRecord.RightSideStreetNameName = roadSegmentAdded.RightSide.StreetNameId; TODO
         dbRecord.MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code;
         dbRecord.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentAdded.MaintenanceAuthority.Name);
         dbRecord.SetMethod(geometryDrawMethod);
@@ -216,10 +212,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<IntegrationContex
         dbRecord.SetMorphology(morphology);
         dbRecord.SetCategory(category);
         dbRecord.LeftSideStreetNameId = roadSegmentModified.LeftSide.StreetNameId;
-        // dbRecord.LeftSideStreetNameName = roadSegmentAdded.LeftSide.StreetNameId; TODO
-        // This value is fetched from cache when downloading (see RoadSegmentsToZipArchiveWriter)
         dbRecord.RightSideStreetNameId = roadSegmentModified.RightSide.StreetNameId;
-        // dbRecord.RightSideStreetNameName = roadSegmentAdded.RightSide.StreetNameId; TODO
         dbRecord.MaintainerId = roadSegmentModified.MaintenanceAuthority.Code;
         dbRecord.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentModified.MaintenanceAuthority.Name);
         dbRecord.SetMethod(geometryDrawMethod);

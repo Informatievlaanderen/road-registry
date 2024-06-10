@@ -33,7 +33,6 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
         b.Property(x => x.CategoryId).HasColumnName("category_id");
         b.Property(x => x.CategoryLabel).HasColumnName("category_label");
         b.Property(x => x.LeftSideStreetNameId).HasColumnName("left_side_street_name_id");
-        b.Property(x => x.LeftSideStreetNameName).HasColumnName("left_side_street_name_name");
         b.Property(x => x.MaintainerId).HasColumnName("maintainer_id");
         b.Property(x => x.MaintainerName).HasColumnName("maintainer_name");
         b.Property(x => x.MethodId).HasColumnName("method_id");
@@ -41,7 +40,6 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
         b.Property(x => x.MorphologyId).HasColumnName("morphology_id");
         b.Property(x => x.MorphologyLabel).HasColumnName("morphology_label");
         b.Property(x => x.RightSideStreetNameId).HasColumnName("right_side_street_name_id");
-        b.Property(x => x.RightSideStreetNameName).HasColumnName("right_side_street_name_name");
         b.Property(x => x.StatusId).HasColumnName("status_id");
         b.Property(x => x.StatusLabel).HasColumnName("status_label");
         // public int TransactionId { get; set; }
@@ -78,6 +76,7 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
         b.Property(p => p.BeginOrganizationId);
         b.Property(p => p.BeginOrganizationName);
 
+        // Todo: add indexes: MorphologyId, StatusId, CategoryId, MethodId, MaintainerId
         b.HasIndex(p => p.MethodId)
             .IsClustered(false);
         b.HasIndex(p => p.LeftSideStreetNameId)
