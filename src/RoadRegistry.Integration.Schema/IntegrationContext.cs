@@ -1,24 +1,17 @@
 namespace RoadRegistry.Integration.Schema;
 
 using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Extracts.Dbase.RoadSegments;
-using BackOffice.Metrics;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using GradeSeparatedJunctions;
 using Microsoft.EntityFrameworkCore;
-using RoadNetworkChanges;
 using RoadNodes;
 using RoadSegments;
 
 public class IntegrationContext : RunnerDbContext<IntegrationContext>
 {
-    private RoadNetworkInfo _localRoadNetworkInfo;
-
     public IntegrationContext()
     {
     }
@@ -35,16 +28,9 @@ public class IntegrationContext : RunnerDbContext<IntegrationContext>
 
     public override string ProjectionStateSchema => WellKnownSchemas.IntegrationSchema;
 
-    #region Metrics
-    public DbSet<EventProcessorMetricsRecord> EventProcessorMetrics { get; set; }
-    #endregion
-
     public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
     public DbSet<MunicipalityGeometry> MunicipalityGeometries { get; set; }
     public DbSet<OrganizationRecord> Organizations { get; set; }
-    public DbSet<RoadNetworkChangeRequestBasedOnArchive> RoadNetworkChangeRequestsBasedOnArchive { get; set; }
-    public DbSet<RoadNetworkChange> RoadNetworkChanges { get; set; }
-    public DbSet<RoadNetworkInfo> RoadNetworkInfo { get; set; }
     public DbSet<RoadNetworkInfoSegmentCache> RoadNetworkInfoSegmentCache { get; set; }
     public DbSet<RoadNodeBoundingBox2D> RoadNodeBoundingBox { get; set; }
     public DbSet<RoadNodeRecord> RoadNodes { get; set; }
@@ -57,13 +43,6 @@ public class IntegrationContext : RunnerDbContext<IntegrationContext>
     public DbSet<RoadSegmentVersionRecord> RoadSegmentVersions { get; set; }
     public DbSet<RoadSegmentSurfaceAttributeRecord> RoadSegmentSurfaceAttributes { get; set; }
     public DbSet<RoadSegmentWidthAttributeRecord> RoadSegmentWidthAttributes { get; set; }
-
-    public async ValueTask<RoadNetworkInfo> GetRoadNetworkInfo(CancellationToken cancellationToken)
-    {
-        return _localRoadNetworkInfo ??=
-            RoadNetworkInfo.Local.SingleOrDefault() ??
-            await RoadNetworkInfo.SingleAsync(candidate => candidate.Id == BackOffice.RoadNetworkInfo.Identifier, cancellationToken);
-    }
 
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
