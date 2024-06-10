@@ -34,7 +34,6 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
             var categoryTranslation = RoadSegmentCategory.Parse(envelope.Message.Category).Translation;
             var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod).Translation;
             var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(envelope.Message.AccessRestriction).Translation;
-            var transactionId = new TransactionId(envelope.Message.Origin.TransactionId);
 
             await context.RoadSegments.AddAsync(
                 new RoadSegmentLatestItem
@@ -61,15 +60,14 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
                     AccessRestrictionId = accessRestrictionTranslation.Identifier,
                     AccessRestrictionLabel = accessRestrictionTranslation.Name,
 
-                    TransactionId = transactionId,
-                    RecordingDate = envelope.Message.RecordingDate,
-                    BeginTime = envelope.Message.Origin.Since,
+                    RecordingDate = envelope.Message.RecordingDate, // TODO Rename by CreationTimestamp
+                    BeginTime = envelope.Message.Origin.Since, // TODO Replace by VersionTimestamp
                     BeginOrganizationId = envelope.Message.Origin.OrganizationId,
                     BeginOrganizationName = envelope.Message.Origin.Organization,
 
                     // Puri = TODO
                     // Namespace =
-                    // VersionTimestamp =
+                    // VersionTimestamp = envelope.Message.Origin.Since
 
                 }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape)),
                 token);
@@ -147,7 +145,6 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         var category = RoadSegmentCategory.Parse(roadSegmentAdded.Category);
         var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod);
         var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction);
-        var transactionId = new TransactionId(envelope.Message.TransactionId);
 
         dbRecord.StartNodeId = roadSegmentAdded.StartNodeId;
         dbRecord.EndNodeId = roadSegmentAdded.EndNodeId;
@@ -166,7 +163,6 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         dbRecord.SetMethod(geometryDrawMethod);
         dbRecord.SetAccessRestriction(accessRestriction);
 
-        dbRecord.TransactionId = transactionId;
         dbRecord.RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         dbRecord.BeginOrganizationId = envelope.Message.OrganizationId;
@@ -198,7 +194,6 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         var category = RoadSegmentCategory.Parse(roadSegmentModified.Category);
         var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(roadSegmentModified.GeometryDrawMethod);
         var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentModified.AccessRestriction);
-        var transactionId = new TransactionId(envelope.Message.TransactionId);
 
         dbRecord.Id = roadSegmentModified.Id;
         dbRecord.StartNodeId = roadSegmentModified.StartNodeId;
@@ -218,7 +213,6 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         dbRecord.SetMethod(geometryDrawMethod);
         dbRecord.SetAccessRestriction(accessRestriction);
 
-        dbRecord.TransactionId = transactionId;
         dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
@@ -235,7 +229,6 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         }
 
         dbRecord.Version = roadSegmentAttributesModified.Version;
-        dbRecord.TransactionId = new TransactionId(envelope.Message.TransactionId);
         dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
         if (roadSegmentAttributesModified.Status is not null)
@@ -289,7 +282,6 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
 
         dbRecord.Version = roadSegmentGeometryModified.Version;
         dbRecord.GeometryVersion = roadSegmentGeometryModified.GeometryVersion;
-        dbRecord.TransactionId = new TransactionId(envelope.Message.TransactionId);
         dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
@@ -303,7 +295,6 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
 
         if (dbRecord is not null && !dbRecord.IsRemoved)
         {
-            dbRecord.TransactionId = new TransactionId(envelope.Message.TransactionId);
             dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
             dbRecord.IsRemoved = true;
         }

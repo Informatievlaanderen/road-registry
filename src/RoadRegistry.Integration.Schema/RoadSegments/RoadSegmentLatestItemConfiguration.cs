@@ -23,7 +23,6 @@ public class RoadSegmentLatestItemConfiguration : IEntityTypeConfiguration<RoadS
         b.Property(x => x.Id).HasColumnName("id");
         b.Property(x => x.EndNodeId).HasColumnName("end_node_id");
         b.Property(x => x.Geometry).HasColumnName("geometry");
-        // public string LastEventHash { get; set; }
         b.Property(x => x.StartNodeId).HasColumnName("start_node_id");
         b.Property(x => x.IsRemoved).HasColumnName("is_removed");
         b.Property(x => x.Version).HasColumnName("version");
@@ -42,7 +41,6 @@ public class RoadSegmentLatestItemConfiguration : IEntityTypeConfiguration<RoadS
         b.Property(x => x.RightSideStreetNameId).HasColumnName("right_side_street_name_id");
         b.Property(x => x.StatusId).HasColumnName("status_id");
         b.Property(x => x.StatusLabel).HasColumnName("status_label");
-        // public int TransactionId { get; set; }
         b.Property(x => x.RecordingDate).HasColumnName("recording_date");
         b.Property(x => x.BeginTime).HasColumnName("begin_time");
         b.Property(x => x.BeginOrganizationId).HasColumnName("begin_organization_id");
@@ -57,24 +55,6 @@ public class RoadSegmentLatestItemConfiguration : IEntityTypeConfiguration<RoadS
         b.Property(p => p.BoundingBoxMinimumX).HasColumnName("bounding_box_minimum_x");
         b.Property(p => p.BoundingBoxMinimumY).HasColumnName("bounding_box_minimum_y");
         b.Property(p => p.BoundingBoxMinimumM).HasColumnName("bounding_box_minimum_m");
-
-        b.Property(p => p.Version);
-        b.Property(p => p.GeometryVersion);
-        b.Property(p => p.AccessRestrictionId);
-        b.Property(p => p.MorphologyId);
-        b.Property(p => p.StatusId);
-        b.Property(p => p.CategoryId);
-        b.Property(p => p.MethodId);
-        b.Property(p => p.MaintainerId);
-        b.Property(p => p.MaintainerName);
-        b.Property(p => p.LeftSideStreetNameId);
-        b.Property(p => p.RightSideStreetNameId);
-
-        b.Property(p => p.TransactionId);
-        b.Property(p => p.RecordingDate);
-        b.Property(p => p.BeginTime);
-        b.Property(p => p.BeginOrganizationId);
-        b.Property(p => p.BeginOrganizationName);
 
         // Todo: add indexes: MorphologyId, StatusId, CategoryId, MethodId, MaintainerId
         b.HasIndex(p => p.MethodId)

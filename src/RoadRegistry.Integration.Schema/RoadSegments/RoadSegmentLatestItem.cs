@@ -38,7 +38,6 @@ public class RoadSegmentLatestItem
     public int StatusId { get; set; }
     public string StatusLabel { get; set; }
 
-    public int TransactionId { get; set; }
     public DateTime RecordingDate { get; set; }
     public DateTime BeginTime { get; set; }
     public string BeginOrganizationId { get; set; }
