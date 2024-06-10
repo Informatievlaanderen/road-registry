@@ -5,6 +5,9 @@ DataDog.Trace.Bundle
 Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.Extensions.Hosting
 
+Npgsql.EntityFrameworkCore.PostgreSQL
+Npgsql.EntityFrameworkCore.PostgreSQL.Design
+
 Serilog.Enrichers.Environment
 Serilog.Enrichers.Thread
 Serilog.Extensions.Hosting

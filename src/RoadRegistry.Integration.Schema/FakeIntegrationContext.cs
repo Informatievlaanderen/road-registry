@@ -1,20 +1,20 @@
-namespace RoadRegistry.Integration.Schema;
+//namespace RoadRegistry.Integration.Schema;
 
-using BackOffice;
-using Microsoft.EntityFrameworkCore;
+//using BackOffice;
+//using Microsoft.EntityFrameworkCore;
 
-public sealed class FakeIntegrationContext : IntegrationContext
-{
-    public FakeIntegrationContext()
-    { }
+//public sealed class FakeIntegrationContext : IntegrationContext
+//{
+//    public FakeIntegrationContext()
+//    { }
 
-    public FakeIntegrationContext(DbContextOptions<IntegrationContext> options)
-        : base(options)
-    {
-    }
+//    public FakeIntegrationContext(DbContextOptions<IntegrationContext> options)
+//        : base(options)
+//    {
+//    }
 
-    protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseRoadRegistryInMemorySqlServer();
-    }
-}
+//    protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
+//    {
+//        optionsBuilder.UseNpgsql();
+//    }
+//}
