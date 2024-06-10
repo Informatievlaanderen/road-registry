@@ -5,11 +5,11 @@ using BackOffice.Extracts.Dbase.RoadSegments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-public class RoadSegmentNationalRoadAttributeConfiguration : IEntityTypeConfiguration<RoadSegmentNationalRoadAttributeRecord>
+public class RoadSegmentLatestItemNumberedRoadAttributeConfiguration : IEntityTypeConfiguration<RoadSegmentNumberedRoadAttributeRecord>
 {
-    private const string TableName = "RoadSegmentNationalRoadAttribute";
+    private const string TableName = "RoadSegmentNumberedRoadAttribute";
 
-    public void Configure(EntityTypeBuilder<RoadSegmentNationalRoadAttributeRecord> b)
+    public void Configure(EntityTypeBuilder<RoadSegmentNumberedRoadAttributeRecord> b)
     {
         b.ToTable(TableName, WellKnownSchemas.IntegrationSchema)
             .HasKey(p => p.Id)
