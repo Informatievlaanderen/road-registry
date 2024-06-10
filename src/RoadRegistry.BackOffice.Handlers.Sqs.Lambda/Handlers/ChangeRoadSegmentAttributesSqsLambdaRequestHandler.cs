@@ -124,7 +124,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                 AccessRestriction = change.AccessRestriction
             });
         }
-
+        //TODO-rik onderstaande wegnummers moeten mee in de ModifyRoadSegmentAttributes event komen zodat de wegsegment version gebumpt wordt
         changes = AppendChange(changes, roadSegment, change.EuropeanRoads);
         changes = AppendChange(changes, roadSegment, change.NationalRoads);
         changes = AppendChange(changes, roadSegment, change.NumberedRoads);
