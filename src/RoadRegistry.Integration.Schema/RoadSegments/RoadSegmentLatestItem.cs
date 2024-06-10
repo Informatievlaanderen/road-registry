@@ -40,24 +40,9 @@ public class RoadSegmentLatestItem
     public string Puri { get; set; }
     public string Namespace { get; set; }
 
-    // Todo configuration
     public DateTimeOffset VersionTimestamp { get; set; }
 
-    // Todo configuration
-
     public DateTimeOffset CreatedOnTimestamp { get; set; }
-
-    public RoadSegmentBoundingBox GetBoundingBox() => BoundingBoxMaximumX is not null
-        ? new()
-        {
-            MaximumX = BoundingBoxMaximumX!.Value,
-            MaximumY = BoundingBoxMaximumY!.Value,
-            MaximumM = BoundingBoxMaximumM!.Value,
-            MinimumX = BoundingBoxMinimumX!.Value,
-            MinimumY = BoundingBoxMinimumY!.Value,
-            MinimumM = BoundingBoxMinimumM!.Value
-        }
-        : null;
 
     public RoadSegmentLatestItem WithBoundingBox(RoadSegmentBoundingBox value)
     {

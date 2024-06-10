@@ -124,6 +124,7 @@ nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple 5.0.1
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.LastChangedList 13.0.0
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner 13.0.0
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer 13.0.0
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.Npgsql 13.0.0
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore 13.0.0
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac 13.0.0
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication 13.0.0
@@ -180,3 +181,8 @@ nuget Microsoft.IdentityModel.Protocols.OpenIdConnect 7.4.1
 nuget Microsoft.Net.Http.Headers 8.0.3
 nuget Microsoft.TestPlatform.TestHost 17.9.0
 nuget Microsoft.NET.Test.Sdk 17.9.0
+
+nuget Npgsql 8.0.2
+nuget Npgsql.EntityFrameworkCore.PostgreSQL 8.0.2
+nuget Npgsql.EntityFrameworkCore.PostgreSQL.Design 2.0.0-preview1
+nuget Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite 8.0.2

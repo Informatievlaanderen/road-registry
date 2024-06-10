@@ -55,15 +55,22 @@ public class RoadSegmentLatestItemConfiguration : IEntityTypeConfiguration<RoadS
         b.Property(p => p.BoundingBoxMinimumY).HasColumnName("bounding_box_minimum_y");
         b.Property(p => p.BoundingBoxMinimumM).HasColumnName("bounding_box_minimum_m");
 
-        // Todo: add indexes: MorphologyId, StatusId, CategoryId, MethodId, MaintainerId
-        b.HasIndex(p => p.MethodId)
-            .IsClustered(false);
-        b.HasIndex(p => p.LeftSideStreetNameId)
-            .IsClustered(false);
-        b.HasIndex(p => p.RightSideStreetNameId)
-            .IsClustered(false);
-        b.HasIndex(p => p.MaintainerId)
-            .IsClustered(false);
+        b.HasIndex(p => p.MethodId).IsClustered(false);
+        b.HasIndex(p => p.MethodLabel).IsClustered(false);
+        b.HasIndex(p => p.LeftSideStreetNameId).IsClustered(false);
+        b.HasIndex(p => p.RightSideStreetNameId).IsClustered(false);
+        b.HasIndex(p => p.MaintainerId).IsClustered(false);
+        b.HasIndex(p => p.MorphologyId).IsClustered(false);
+        b.HasIndex(p => p.MorphologyLabel).IsClustered(false);
+        b.HasIndex(p => p.CategoryId).IsClustered(false);
+        b.HasIndex(p => p.CategoryLabel).IsClustered(false);
+        b.HasIndex(p => p.StatusId).IsClustered(false);
+        b.HasIndex(p => p.StatusLabel).IsClustered(false);
+        b.HasIndex(p => p.IsRemoved).IsClustered(false);
+        b.HasIndex(x => new { x.IsRemoved, x.StatusId });
+        b.HasIndex(p => p.StartNodeId).IsClustered(false);
+        b.HasIndex(p => p.EndNodeId).IsClustered(false);
+        b.HasIndex(x => x.Geometry).HasMethod("GIST");
 
         b.HasQueryFilter(p => p.IsRemoved == false);
     }

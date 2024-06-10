@@ -1,9 +1,10 @@
-Be.Vlaanderen.Basisregisters.BlobStore
 Be.Vlaanderen.Basisregisters.EventHandling
-Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
-Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer
+Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.Npgsql
 Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.Utilities.Rfc3339DateTimeOffset
+
+Npgsql.EntityFrameworkCore.PostgreSQL.Design
+Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite
 
 AWSSDK.Core
 Microsoft.Extensions.DependencyInjection.Abstractions
