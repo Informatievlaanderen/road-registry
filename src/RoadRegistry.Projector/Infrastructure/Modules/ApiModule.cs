@@ -16,6 +16,7 @@ using RoadRegistry.Syndication.Schema;
 using Sync.StreetNameRegistry;
 using System;
 using System.Collections.Generic;
+using Integration.Schema;
 using Wfs.Schema;
 using Wms.Schema;
 
@@ -81,6 +82,11 @@ public class ApiModule : Module
         if (projectionOptions.BackOfficeProcessors.Enabled)
         {
             RegisterBackOfficeProcessors();
+        }
+
+        if (projectionOptions.Integration.Enabled)
+        {
+            RegisterIntegrationProjections();
         }
 
         if (projectionOptions.StreetNameSync.Enabled)
@@ -245,6 +251,19 @@ public class ApiModule : Module
             Name = "municipality",
             WellKnownConnectionName = WellKnownConnectionNames.SyndicationProjections,
             IsSyndication = true
+        });
+    }
+
+    private void RegisterIntegrationProjections()
+    {
+        RegisterProjection<IntegrationContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-integration-projectionhost",
+            Description = "",
+            Name = "Integration",
+            WellKnownConnectionName = WellKnownConnectionNames.IntegrationProjections,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
         });
     }
 

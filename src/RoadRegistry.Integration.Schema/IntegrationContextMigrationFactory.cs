@@ -1,11 +1,11 @@
 namespace RoadRegistry.Integration.Schema;
 
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.Npgsql;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 
-public class IntegrationContextMigrationFactory : SqlServerRunnerDbContextMigrationFactory<IntegrationContext>
+public class IntegrationContextMigrationFactory : NpgsqlRunnerDbContextMigrationFactory<IntegrationContext>
 {
     public IntegrationContextMigrationFactory()
         : base(WellKnownConnectionNames.IntegrationProjectionsAdmin, HistoryConfiguration)
@@ -15,17 +15,18 @@ public class IntegrationContextMigrationFactory : SqlServerRunnerDbContextMigrat
     private static MigrationHistoryConfiguration HistoryConfiguration =>
         new()
         {
-            Schema = WellKnownSchemas.IntegrationSchema,
-            Table = MigrationTables.Integration
+            Table = MigrationTables.Integration,
+            Schema = WellKnownSchemas.IntegrationSchema
         };
 
-    protected override void ConfigureSqlServerOptions(SqlServerDbContextOptionsBuilder sqlServerOptions)
+    protected override void ConfigureSqlServerOptions(NpgsqlDbContextOptionsBuilder sqlServerOptions)
     {
         sqlServerOptions.UseNetTopologySuite();
         base.ConfigureSqlServerOptions(sqlServerOptions);
     }
 
-    protected override IntegrationContext CreateContext(DbContextOptions<IntegrationContext> migrationContextOptions)
+    protected override IntegrationContext CreateContext(
+        DbContextOptions<IntegrationContext> migrationContextOptions)
     {
         return new IntegrationContext(migrationContextOptions);
     }

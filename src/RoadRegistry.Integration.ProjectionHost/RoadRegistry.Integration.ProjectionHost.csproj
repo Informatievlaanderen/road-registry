@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.App.props" />
+
+  <PropertyGroup>
+    <RootNamespace>RoadRegistry.Integration.ProjectionHost</RootNamespace>
+    <AssemblyName>RoadRegistry.Integration.ProjectionHost</AssemblyName>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <Nullable>disable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+	  <EnableDefaultContentItems>false</EnableDefaultContentItems>
+	  <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RoadRegistry.Integration.Projections\RoadRegistry.Integration.Projections.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Integration.Schema\RoadRegistry.Integration.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Dockerfile" CopyToOutputDirectory="Always" />
+    <Content Include="init.sh" CopyToOutputDirectory="Always" />
+    <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
+    <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>
