@@ -41,10 +41,10 @@ public class RoadSegmentLatestItemConfiguration : IEntityTypeConfiguration<RoadS
         b.Property(x => x.RightSideStreetNameId).HasColumnName("right_side_street_name_id");
         b.Property(x => x.StatusId).HasColumnName("status_id");
         b.Property(x => x.StatusLabel).HasColumnName("status_label");
-        b.Property(x => x.RecordingDate).HasColumnName("recording_date");
-        b.Property(x => x.BeginTime).HasColumnName("begin_time");
         b.Property(x => x.BeginOrganizationId).HasColumnName("begin_organization_id");
         b.Property(x => x.BeginOrganizationName).HasColumnName("begin_organization_name");
+        b.Property(x => x.VersionTimestamp).HasColumnName("version_timestamp");
+        b.Property(x => x.CreatedOnTimestamp).HasColumnName("created_on_timestamp");
 
         b.HasIndex(p => p.IsRemoved)
             .IsClustered(false);

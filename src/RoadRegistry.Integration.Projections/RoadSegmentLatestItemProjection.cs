@@ -60,14 +60,13 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
                     AccessRestrictionId = accessRestrictionTranslation.Identifier,
                     AccessRestrictionLabel = accessRestrictionTranslation.Name,
 
-                    RecordingDate = envelope.Message.RecordingDate, // TODO Rename by CreationTimestamp
-                    BeginTime = envelope.Message.Origin.Since, // TODO Replace by VersionTimestamp
+                    CreatedOnTimestamp = new DateTimeOffset(envelope.Message.RecordingDate),
+                    VersionTimestamp = new DateTimeOffset(envelope.Message.Origin.Since),
                     BeginOrganizationId = envelope.Message.Origin.OrganizationId,
                     BeginOrganizationName = envelope.Message.Origin.Organization,
 
                     // Puri = TODO
                     // Namespace =
-                    // VersionTimestamp = envelope.Message.Origin.Since
 
                 }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape)),
                 token);
@@ -122,20 +121,20 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments
+        var latestItem = await context.RoadSegments
             .IncludeLocalWithoutQueryFiltersSingleOrDefaultAsync(x => x.Id == roadSegmentAdded.Id, token)
             .ConfigureAwait(false);
-        if (dbRecord is null)
+        if (latestItem is null)
         {
-            dbRecord = new RoadSegmentLatestItem
+            latestItem = new RoadSegmentLatestItem
             {
                 Id = roadSegmentAdded.Id
             };
-            await context.RoadSegments.AddAsync(dbRecord, token);
+            await context.RoadSegments.AddAsync(latestItem, token);
         }
         else
         {
-            dbRecord.IsRemoved = false;
+            latestItem.IsRemoved = false;
         }
 
         var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentAdded.Geometry));
@@ -146,27 +145,27 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod);
         var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction);
 
-        dbRecord.StartNodeId = roadSegmentAdded.StartNodeId;
-        dbRecord.EndNodeId = roadSegmentAdded.EndNodeId;
-        dbRecord.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentAdded.Geometry);
-        dbRecord.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
+        latestItem.StartNodeId = roadSegmentAdded.StartNodeId;
+        latestItem.EndNodeId = roadSegmentAdded.EndNodeId;
+        latestItem.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentAdded.Geometry);
+        latestItem.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
 
-        dbRecord.Version = roadSegmentAdded.Version;
-        dbRecord.GeometryVersion = roadSegmentAdded.GeometryVersion;
-        dbRecord.SetStatus(status);
-        dbRecord.SetMorphology(morphology);
-        dbRecord.SetCategory(category);
-        dbRecord.LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId;
-        dbRecord.RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId;
-        dbRecord.MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code;
-        dbRecord.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentAdded.MaintenanceAuthority.Name);
-        dbRecord.SetMethod(geometryDrawMethod);
-        dbRecord.SetAccessRestriction(accessRestriction);
+        latestItem.Version = roadSegmentAdded.Version;
+        latestItem.GeometryVersion = roadSegmentAdded.GeometryVersion;
+        latestItem.SetStatus(status);
+        latestItem.SetMorphology(morphology);
+        latestItem.SetCategory(category);
+        latestItem.LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId;
+        latestItem.RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId;
+        latestItem.MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code;
+        latestItem.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentAdded.MaintenanceAuthority.Name);
+        latestItem.SetMethod(geometryDrawMethod);
+        latestItem.SetAccessRestriction(accessRestriction);
 
-        dbRecord.RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        dbRecord.BeginOrganizationId = envelope.Message.OrganizationId;
-        dbRecord.BeginOrganizationName = envelope.Message.Organization;
+        latestItem.CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        latestItem.BeginOrganizationId = envelope.Message.OrganizationId;
+        latestItem.BeginOrganizationName = envelope.Message.Organization;
     }
 
     private static async Task ModifyRoadSegment(
@@ -175,16 +174,16 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments
+        var latestItem = await context.RoadSegments
             .IncludeLocalWithoutQueryFiltersSingleOrDefaultAsync(x => x.Id == roadSegmentModified.Id, token)
             .ConfigureAwait(false);
-        if (dbRecord is null)
+        if (latestItem is null)
         {
-            dbRecord = new RoadSegmentLatestItem
+            latestItem = new RoadSegmentLatestItem
             {
                 Id = roadSegmentModified.Id
             };
-            await context.RoadSegments.AddAsync(dbRecord, token);
+            await context.RoadSegments.AddAsync(latestItem, token);
         }
 
         var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentModified.Geometry));
@@ -195,25 +194,25 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(roadSegmentModified.GeometryDrawMethod);
         var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentModified.AccessRestriction);
 
-        dbRecord.Id = roadSegmentModified.Id;
-        dbRecord.StartNodeId = roadSegmentModified.StartNodeId;
-        dbRecord.EndNodeId = roadSegmentModified.EndNodeId;
-        dbRecord.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentModified.Geometry);
-        dbRecord.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
+        latestItem.Id = roadSegmentModified.Id;
+        latestItem.StartNodeId = roadSegmentModified.StartNodeId;
+        latestItem.EndNodeId = roadSegmentModified.EndNodeId;
+        latestItem.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentModified.Geometry);
+        latestItem.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
 
-        dbRecord.Version = roadSegmentModified.Version;
-        dbRecord.GeometryVersion = roadSegmentModified.GeometryVersion;
-        dbRecord.SetStatus(status);
-        dbRecord.SetMorphology(morphology);
-        dbRecord.SetCategory(category);
-        dbRecord.LeftSideStreetNameId = roadSegmentModified.LeftSide.StreetNameId;
-        dbRecord.RightSideStreetNameId = roadSegmentModified.RightSide.StreetNameId;
-        dbRecord.MaintainerId = roadSegmentModified.MaintenanceAuthority.Code;
-        dbRecord.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentModified.MaintenanceAuthority.Name);
-        dbRecord.SetMethod(geometryDrawMethod);
-        dbRecord.SetAccessRestriction(accessRestriction);
+        latestItem.Version = roadSegmentModified.Version;
+        latestItem.GeometryVersion = roadSegmentModified.GeometryVersion;
+        latestItem.SetStatus(status);
+        latestItem.SetMorphology(morphology);
+        latestItem.SetCategory(category);
+        latestItem.LeftSideStreetNameId = roadSegmentModified.LeftSide.StreetNameId;
+        latestItem.RightSideStreetNameId = roadSegmentModified.RightSide.StreetNameId;
+        latestItem.MaintainerId = roadSegmentModified.MaintenanceAuthority.Code;
+        latestItem.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentModified.MaintenanceAuthority.Name);
+        latestItem.SetMethod(geometryDrawMethod);
+        latestItem.SetAccessRestriction(accessRestriction);
 
-        dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
     private static async Task ModifyRoadSegmentAttributes(
@@ -222,43 +221,43 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentAttributesModified.Id, token).ConfigureAwait(false);
-        if (dbRecord is null)
+        var latestItem = await context.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentAttributesModified.Id, token).ConfigureAwait(false);
+        if (latestItem is null)
         {
             throw new InvalidOperationException($"{nameof(RoadSegmentLatestItem)} with id {roadSegmentAttributesModified.Id} is not found");
         }
 
-        dbRecord.Version = roadSegmentAttributesModified.Version;
-        dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        latestItem.Version = roadSegmentAttributesModified.Version;
+        latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
         if (roadSegmentAttributesModified.Status is not null)
         {
             var status = RoadSegmentStatus.Parse(roadSegmentAttributesModified.Status);
-            dbRecord.SetStatus(status);
+            latestItem.SetStatus(status);
         }
 
         if (roadSegmentAttributesModified.Morphology is not null)
         {
             var morphology = RoadSegmentMorphology.Parse(roadSegmentAttributesModified.Morphology);
-            dbRecord.SetMorphology(morphology);
+            latestItem.SetMorphology(morphology);
         }
 
         if (roadSegmentAttributesModified.Category is not null)
         {
             var category = RoadSegmentCategory.Parse(roadSegmentAttributesModified.Category);
-            dbRecord.SetCategory(category);
+            latestItem.SetCategory(category);
         }
 
         if (roadSegmentAttributesModified.AccessRestriction is not null)
         {
             var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentAttributesModified.AccessRestriction);
-            dbRecord.SetAccessRestriction(accessRestriction);
+            latestItem.SetAccessRestriction(accessRestriction);
         }
 
         if (roadSegmentAttributesModified.MaintenanceAuthority is not null)
         {
-            dbRecord.MaintainerId = roadSegmentAttributesModified.MaintenanceAuthority.Code;
-            dbRecord.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentAttributesModified.MaintenanceAuthority.Name);
+            latestItem.MaintainerId = roadSegmentAttributesModified.MaintenanceAuthority.Code;
+            latestItem.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentAttributesModified.MaintenanceAuthority.Name);
         }
     }
 
@@ -268,8 +267,8 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentGeometryModified.Id, token).ConfigureAwait(false);
-        if (dbRecord is null)
+        var latestItem = await context.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentGeometryModified.Id, token).ConfigureAwait(false);
+        if (latestItem is null)
         {
             throw new InvalidOperationException($"{nameof(RoadSegmentLatestItem)} with id {roadSegmentGeometryModified.Id} is not found");
         }
@@ -277,12 +276,12 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentGeometryModified.Geometry));
         var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
 
-        dbRecord.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentGeometryModified.Geometry);
-        dbRecord.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
+        latestItem.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentGeometryModified.Geometry);
+        latestItem.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
 
-        dbRecord.Version = roadSegmentGeometryModified.Version;
-        dbRecord.GeometryVersion = roadSegmentGeometryModified.GeometryVersion;
-        dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        latestItem.Version = roadSegmentGeometryModified.Version;
+        latestItem.GeometryVersion = roadSegmentGeometryModified.GeometryVersion;
+        latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
     private static async Task RemoveRoadSegment(
@@ -291,12 +290,12 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var dbRecord = await context.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentRemoved.Id, token).ConfigureAwait(false);
+        var latestItem = await context.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentRemoved.Id, token).ConfigureAwait(false);
 
-        if (dbRecord is not null && !dbRecord.IsRemoved)
+        if (latestItem is not null && !latestItem.IsRemoved)
         {
-            dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-            dbRecord.IsRemoved = true;
+            latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+            latestItem.IsRemoved = true;
         }
     }
 
@@ -312,13 +311,13 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         var organizationIdValue = organizationId.ToString();
 
         await context.RoadSegments
-            .ForEachBatchAsync(q => q.Where(x => x.MaintainerId == organizationIdValue), 5000, dbRecords =>
+            .ForEachBatchAsync(q => q.Where(x => x.MaintainerId == organizationIdValue), 5000, latestItems =>
             {
                 _logger.LogInformation("Processing batch {Batch}", batchIndex);
 
-                foreach (var dbRecord in dbRecords)
+                foreach (var latestItem in latestItems)
                 {
-                    dbRecord.MaintainerName = OrganizationName.FromValueWithFallback(organizationName);
+                    latestItem.MaintainerName = OrganizationName.FromValueWithFallback(organizationName);
                 }
 
                 batchIndex++;
