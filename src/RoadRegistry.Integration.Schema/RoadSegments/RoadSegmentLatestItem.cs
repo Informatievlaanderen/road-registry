@@ -7,7 +7,7 @@ using Be.Vlaanderen.Basisregisters.Utilities;
 using NetTopologySuite.Geometries;
 using NodaTime;
 
-public class RoadSegmentRecord
+public class RoadSegmentLatestItem
 {
     public int Id { get; set; }
     public double? BoundingBoxMaximumM { get; set; }
@@ -71,7 +71,7 @@ public class RoadSegmentRecord
         }
         : null;
 
-    public RoadSegmentRecord WithBoundingBox(RoadSegmentBoundingBox value)
+    public RoadSegmentLatestItem WithBoundingBox(RoadSegmentBoundingBox value)
     {
         BoundingBoxMaximumX = value.MaximumX;
         BoundingBoxMaximumY = value.MaximumY;

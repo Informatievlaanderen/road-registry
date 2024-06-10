@@ -2,9 +2,9 @@ namespace RoadRegistry.Integration.Schema.RoadSegments;
 
 using System.Collections.Generic;
 
-public class RoadSegmentRecordEqualityComparerById : IEqualityComparer<RoadSegmentRecord>
+public class RoadSegmentRecordEqualityComparerById : IEqualityComparer<RoadSegmentLatestItem>
 {
-    public bool Equals(RoadSegmentRecord x, RoadSegmentRecord y)
+    public bool Equals(RoadSegmentLatestItem x, RoadSegmentLatestItem y)
     {
         if (ReferenceEquals(x, y)) return true;
         if (ReferenceEquals(x, null)) return false;
@@ -13,7 +13,7 @@ public class RoadSegmentRecordEqualityComparerById : IEqualityComparer<RoadSegme
         return x.Id == y.Id;
     }
 
-    public int GetHashCode(RoadSegmentRecord obj)
+    public int GetHashCode(RoadSegmentLatestItem obj)
     {
         return obj.Id;
     }

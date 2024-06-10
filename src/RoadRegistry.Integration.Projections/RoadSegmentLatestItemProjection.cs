@@ -15,12 +15,12 @@ using Schema;
 using Schema.RoadSegments;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 
-public class RoadSegmentRecordProjection : ConnectedProjection<IntegrationContext>
+public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationContext>
 {
-    private readonly ILogger<RoadSegmentRecordProjection> _logger;
+    private readonly ILogger<RoadSegmentLatestItemProjection> _logger;
 
-    public RoadSegmentRecordProjection(
-        ILogger<RoadSegmentRecordProjection> logger)
+    public RoadSegmentLatestItemProjection(
+        ILogger<RoadSegmentLatestItemProjection> logger)
     {
         _logger = logger.ThrowIfNull();
 
@@ -37,7 +37,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<IntegrationContex
             var transactionId = new TransactionId(envelope.Message.Origin.TransactionId);
 
             await context.RoadSegments.AddAsync(
-                new RoadSegmentRecord
+                new RoadSegmentLatestItem
                 {
                     Id = envelope.Message.Id,
                     StartNodeId = envelope.Message.StartNodeId,
@@ -129,7 +129,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<IntegrationContex
             .ConfigureAwait(false);
         if (dbRecord is null)
         {
-            dbRecord = new RoadSegmentRecord
+            dbRecord = new RoadSegmentLatestItem
             {
                 Id = roadSegmentAdded.Id
             };
@@ -184,7 +184,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<IntegrationContex
             .ConfigureAwait(false);
         if (dbRecord is null)
         {
-            dbRecord = new RoadSegmentRecord
+            dbRecord = new RoadSegmentLatestItem
             {
                 Id = roadSegmentModified.Id
             };
@@ -231,7 +231,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<IntegrationContex
         var dbRecord = await context.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentAttributesModified.Id, token).ConfigureAwait(false);
         if (dbRecord is null)
         {
-            throw new InvalidOperationException($"{nameof(RoadSegmentRecord)} with id {roadSegmentAttributesModified.Id} is not found");
+            throw new InvalidOperationException($"{nameof(RoadSegmentLatestItem)} with id {roadSegmentAttributesModified.Id} is not found");
         }
 
         dbRecord.Version = roadSegmentAttributesModified.Version;
@@ -278,7 +278,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<IntegrationContex
         var dbRecord = await context.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentGeometryModified.Id, token).ConfigureAwait(false);
         if (dbRecord is null)
         {
-            throw new InvalidOperationException($"{nameof(RoadSegmentRecord)} with id {roadSegmentGeometryModified.Id} is not found");
+            throw new InvalidOperationException($"{nameof(RoadSegmentLatestItem)} with id {roadSegmentGeometryModified.Id} is not found");
         }
 
         var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentGeometryModified.Geometry));

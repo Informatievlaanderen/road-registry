@@ -4,11 +4,11 @@ using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentRecord>
+public class RoadSegmentLatestItemConfiguration : IEntityTypeConfiguration<RoadSegmentLatestItem>
 {
-    private const string TableName = "RoadSegment";
+    private const string TableName = "road_segment_latest_items";
 
-    public void Configure(EntityTypeBuilder<RoadSegmentRecord> b)
+    public void Configure(EntityTypeBuilder<RoadSegmentLatestItem> b)
     {
         b.ToTable(TableName, WellKnownSchemas.IntegrationSchema)
             .HasKey(p => p.Id)
