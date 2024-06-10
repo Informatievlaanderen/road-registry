@@ -33,7 +33,6 @@ public class RoadSegmentLatestItemConfiguration : IEntityTypeConfiguration<RoadS
         b.Property(x => x.CategoryLabel).HasColumnName("category_label");
         b.Property(x => x.LeftSideStreetNameId).HasColumnName("left_side_street_name_id");
         b.Property(x => x.MaintainerId).HasColumnName("maintainer_id");
-        b.Property(x => x.MaintainerName).HasColumnName("maintainer_name");
         b.Property(x => x.MethodId).HasColumnName("method_id");
         b.Property(x => x.MethodLabel).HasColumnName("method_label");
         b.Property(x => x.MorphologyId).HasColumnName("morphology_id");

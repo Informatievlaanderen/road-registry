@@ -26,7 +26,6 @@ public class RoadSegmentLatestItem
     public string CategoryLabel { get; set; }
     public int? LeftSideStreetNameId { get; set; }
     public string MaintainerId { get; set; }
-    public string MaintainerName { get; set; }
     public int MethodId { get; set; }
     public string MethodLabel { get; set; }
     public int MorphologyId { get; set; }

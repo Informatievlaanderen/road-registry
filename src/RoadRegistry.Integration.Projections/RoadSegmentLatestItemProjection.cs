@@ -1,7 +1,6 @@
 namespace RoadRegistry.Integration.Projections;
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
@@ -10,20 +9,14 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Microsoft.Extensions.Logging;
 using Schema;
 using Schema.RoadSegments;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 
 public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationContext>
 {
-    private readonly ILogger<RoadSegmentLatestItemProjection> _logger;
-
-    public RoadSegmentLatestItemProjection(
-        ILogger<RoadSegmentLatestItemProjection> logger)
+    public RoadSegmentLatestItemProjection()
     {
-        _logger = logger.ThrowIfNull();
-
         When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
         {
             var geometry =
@@ -54,7 +47,6 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
                     LeftSideStreetNameId = envelope.Message.LeftSide.StreetNameId,
                     RightSideStreetNameId = envelope.Message.RightSide.StreetNameId,
                     MaintainerId = envelope.Message.MaintenanceAuthority.Code,
-                    MaintainerName = OrganizationName.FromValueWithFallback(envelope.Message.MaintenanceAuthority.Name),
                     MethodId = geometryDrawMethodTranslation.Identifier,
                     MethodLabel = geometryDrawMethodTranslation.Name,
                     AccessRestrictionId = accessRestrictionTranslation.Identifier,
@@ -97,21 +89,6 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
                         await RemoveRoadSegment(context, roadSegmentRemoved, envelope, token);
                         break;
                 }
-        });
-
-        When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
-        {
-            await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
-        });
-
-        When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
-        {
-            _logger.LogInformation("{Message} started", envelope.Message.GetType().Name);
-            if (envelope.Message.NameModified)
-            {
-                await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
-            }
-            _logger.LogInformation("{Message} finished", envelope.Message.GetType().Name);
         });
     }
 
@@ -158,7 +135,6 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         latestItem.LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId;
         latestItem.RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId;
         latestItem.MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code;
-        latestItem.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentAdded.MaintenanceAuthority.Name);
         latestItem.SetMethod(geometryDrawMethod);
         latestItem.SetAccessRestriction(accessRestriction);
 
@@ -208,7 +184,6 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         latestItem.LeftSideStreetNameId = roadSegmentModified.LeftSide.StreetNameId;
         latestItem.RightSideStreetNameId = roadSegmentModified.RightSide.StreetNameId;
         latestItem.MaintainerId = roadSegmentModified.MaintenanceAuthority.Code;
-        latestItem.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentModified.MaintenanceAuthority.Name);
         latestItem.SetMethod(geometryDrawMethod);
         latestItem.SetAccessRestriction(accessRestriction);
 
@@ -257,7 +232,6 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         if (roadSegmentAttributesModified.MaintenanceAuthority is not null)
         {
             latestItem.MaintainerId = roadSegmentAttributesModified.MaintenanceAuthority.Code;
-            latestItem.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentAttributesModified.MaintenanceAuthority.Name);
         }
     }
 
@@ -297,33 +271,5 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
             latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
             latestItem.IsRemoved = true;
         }
-    }
-
-    private async Task RenameOrganization(
-        IntegrationContext context,
-        OrganizationId organizationId,
-        OrganizationName organizationName,
-        CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("Renaming organizations started");
-        var batchIndex = 0;
-
-        var organizationIdValue = organizationId.ToString();
-
-        await context.RoadSegments
-            .ForEachBatchAsync(q => q.Where(x => x.MaintainerId == organizationIdValue), 5000, latestItems =>
-            {
-                _logger.LogInformation("Processing batch {Batch}", batchIndex);
-
-                foreach (var latestItem in latestItems)
-                {
-                    latestItem.MaintainerName = OrganizationName.FromValueWithFallback(organizationName);
-                }
-
-                batchIndex++;
-                return Task.CompletedTask;
-            }, cancellationToken);
-
-        _logger.LogInformation("Renaming organizations finished");
     }
 }
