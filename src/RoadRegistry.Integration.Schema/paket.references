@@ -1,17 +1,10 @@
 Be.Vlaanderen.Basisregisters.EventHandling
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.Npgsql
-Be.Vlaanderen.Basisregisters.Shaperon
-Be.Vlaanderen.Basisregisters.Utilities.Rfc3339DateTimeOffset
 
 Npgsql.EntityFrameworkCore.PostgreSQL.Design
 Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite
 
-AWSSDK.Core
 Microsoft.Extensions.DependencyInjection.Abstractions
-Microsoft.IdentityModel.Abstractions
-Microsoft.IdentityModel.JsonWebTokens
-Microsoft.IdentityModel.Logging
-Microsoft.IdentityModel.Tokens
 Microsoft.EntityFrameworkCore.Design
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
 NetTopologySuite
