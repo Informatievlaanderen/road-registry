@@ -19,10 +19,10 @@ public class IntegrationContextMigrationFactory : NpgsqlRunnerDbContextMigration
             Schema = WellKnownSchemas.IntegrationSchema
         };
 
-    protected override void ConfigureSqlServerOptions(NpgsqlDbContextOptionsBuilder sqlServerOptions)
+    protected override void ConfigureSqlServerOptions(NpgsqlDbContextOptionsBuilder dbContextOptionsBuilder)
     {
-        sqlServerOptions.UseNetTopologySuite();
-        base.ConfigureSqlServerOptions(sqlServerOptions);
+        dbContextOptionsBuilder.UseNetTopologySuite();
+        base.ConfigureSqlServerOptions(dbContextOptionsBuilder);
     }
 
     protected override IntegrationContext CreateContext(
