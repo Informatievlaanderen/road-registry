@@ -291,15 +291,26 @@ public class ApiModule : Module
 
     private void RegisterProjection<TContext>(ProjectionDetail projectionDetail) where TContext : DbContext
     {
-        var connection = _configuration.GetRequiredConnectionString(projectionDetail.WellKnownConnectionName);
-        var dbContextOptions = new DbContextOptionsBuilder<TContext>()
-            .UseSqlServer(connection, o => o
-                .EnableRetryOnFailure()
-                .UseNetTopologySuite())
-            .Options;
+        var connectionString = _configuration.GetRequiredConnectionString(projectionDetail.WellKnownConnectionName);
+
+        var dbContextOptionsBuilder = new DbContextOptionsBuilder<TContext>();
+        if (connectionString.Contains("host=", StringComparison.InvariantCultureIgnoreCase))
+        {
+            dbContextOptionsBuilder
+                .UseNpgsql(o => o
+                    .EnableRetryOnFailure()
+                    .UseNetTopologySuite());
+        }
+        else
+        {
+            dbContextOptionsBuilder
+                .UseSqlServer(connectionString, o => o
+                    .EnableRetryOnFailure()
+                    .UseNetTopologySuite());
+        }
 
         var ctxFactory = (Func<DbContext>)(() =>
-            (DbContext)Activator.CreateInstance(typeof(TContext), dbContextOptions)!);
+            (DbContext)Activator.CreateInstance(typeof(TContext), dbContextOptionsBuilder.Options)!);
 
         _listOfProjections.Add(projectionDetail, ctxFactory);
     }
