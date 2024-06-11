@@ -152,11 +152,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Jobs.Processor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Jobs.Processor.Tests", "test\RoadRegistry.Jobs.Processor.Tests\RoadRegistry.Jobs.Processor.Tests.csproj", "{15D663D4-50B9-41B0-AAA7-C6F76DCB2BB7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.Integration.Projections", "src\RoadRegistry.Integration.Projections\RoadRegistry.Integration.Projections.csproj", "{55BACAE6-605D-4B38-8FCA-BC2B726522A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Integration.Projections", "src\RoadRegistry.Integration.Projections\RoadRegistry.Integration.Projections.csproj", "{55BACAE6-605D-4B38-8FCA-BC2B726522A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.Integration.Schema", "src\RoadRegistry.Integration.Schema\RoadRegistry.Integration.Schema.csproj", "{00FBE982-4B30-478E-B48F-B971EE735351}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Integration.Schema", "src\RoadRegistry.Integration.Schema\RoadRegistry.Integration.Schema.csproj", "{00FBE982-4B30-478E-B48F-B971EE735351}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.Integration.ProjectionHost", "src\RoadRegistry.Integration.ProjectionHost\RoadRegistry.Integration.ProjectionHost.csproj", "{2345054A-9FEC-4930-A278-49526BB73CF6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Integration.ProjectionHost", "src\RoadRegistry.Integration.ProjectionHost\RoadRegistry.Integration.ProjectionHost.csproj", "{2345054A-9FEC-4930-A278-49526BB73CF6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Integration.ProjectionHost.Tests", "test\RoadRegistry.Integration.ProjectionHost.Tests\RoadRegistry.Integration.ProjectionHost.Tests.csproj", "{8BBCF59D-7A4F-48A3-B8B2-5BD0C5CE46A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -970,6 +972,18 @@ Global
 		{2345054A-9FEC-4930-A278-49526BB73CF6}.Release|x64.Build.0 = Release|x64
 		{2345054A-9FEC-4930-A278-49526BB73CF6}.Release|x86.ActiveCfg = Release|x86
 		{2345054A-9FEC-4930-A278-49526BB73CF6}.Release|x86.Build.0 = Release|x86
+		{8BBCF59D-7A4F-48A3-B8B2-5BD0C5CE46A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BBCF59D-7A4F-48A3-B8B2-5BD0C5CE46A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BBCF59D-7A4F-48A3-B8B2-5BD0C5CE46A8}.Debug|x64.ActiveCfg = Debug|x64
+		{8BBCF59D-7A4F-48A3-B8B2-5BD0C5CE46A8}.Debug|x64.Build.0 = Debug|x64
+		{8BBCF59D-7A4F-48A3-B8B2-5BD0C5CE46A8}.Debug|x86.ActiveCfg = Debug|x86
+		{8BBCF59D-7A4F-48A3-B8B2-5BD0C5CE46A8}.Debug|x86.Build.0 = Debug|x86
+		{8BBCF59D-7A4F-48A3-B8B2-5BD0C5CE46A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BBCF59D-7A4F-48A3-B8B2-5BD0C5CE46A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BBCF59D-7A4F-48A3-B8B2-5BD0C5CE46A8}.Release|x64.ActiveCfg = Release|x64
+		{8BBCF59D-7A4F-48A3-B8B2-5BD0C5CE46A8}.Release|x64.Build.0 = Release|x64
+		{8BBCF59D-7A4F-48A3-B8B2-5BD0C5CE46A8}.Release|x86.ActiveCfg = Release|x86
+		{8BBCF59D-7A4F-48A3-B8B2-5BD0C5CE46A8}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1042,6 +1056,7 @@ Global
 		{55BACAE6-605D-4B38-8FCA-BC2B726522A4} = {C2F8FF63-7A48-4179-A720-86206C42F496}
 		{00FBE982-4B30-478E-B48F-B971EE735351} = {C2F8FF63-7A48-4179-A720-86206C42F496}
 		{2345054A-9FEC-4930-A278-49526BB73CF6} = {C2F8FF63-7A48-4179-A720-86206C42F496}
+		{8BBCF59D-7A4F-48A3-B8B2-5BD0C5CE46A8} = {8EA18457-86E2-4D2D-AC9E-2552FDC9676F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2EB87445-E263-4E1E-89CC-3839170028E5}

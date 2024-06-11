@@ -94,7 +94,6 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-    	//TODO-rik IncludeLocal variant niet nodig als de unit tests zelf eerst SaveChanges doen before asserting
         var latestItem = await context.RoadSegments
             .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentAdded.Id, token)
             .ConfigureAwait(false);
