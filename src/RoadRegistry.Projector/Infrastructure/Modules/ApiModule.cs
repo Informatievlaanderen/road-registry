@@ -297,7 +297,7 @@ public class ApiModule : Module
         if (connectionString.Contains("host=", StringComparison.InvariantCultureIgnoreCase))
         {
             dbContextOptionsBuilder
-                .UseNpgsql(o => o
+                .UseNpgsql(connectionString, o => o
                     .EnableRetryOnFailure()
                     .UseNetTopologySuite());
         }

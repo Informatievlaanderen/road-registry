@@ -7,6 +7,8 @@
     <NoWarn>1701;1702;1705;1591;8618</NoWarn>
 	  <EnableDefaultContentItems>false</EnableDefaultContentItems>
 	  <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
+	  <DocumentationFile>bin\$(Configuration)\net8.0\RoadRegistry.Projector.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
