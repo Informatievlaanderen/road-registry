@@ -32,6 +32,7 @@ using Sync.StreetNameRegistry;
 using System;
 using System.Linq;
 using System.Reflection;
+using Integration.Schema;
 using Wfs.Schema;
 using Wms.Schema;
 
@@ -144,10 +145,20 @@ public class Startup
 
                         foreach (var connectionString in connectionStrings)
                         {
-                            health.AddSqlServer(
-                                connectionString.Value,
-                                name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
-                                tags: new[] { DatabaseTag, "sql", "sqlserver" });
+                            if (connectionString.Value.Contains("host=", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                health.AddNpgSql(
+                                    connectionString.Value,
+                                    name: $"npgsql-{connectionString.Key.ToLowerInvariant()}",
+                                    tags: new[] { DatabaseTag, "sql", "npgsql" });
+                            }
+                            else
+                            {
+                                health.AddSqlServer(
+                                    connectionString.Value,
+                                    name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
+                                    tags: new[] { DatabaseTag, "sql", "sqlserver" });
+                            }
                         }
 
                         if (projectionOptions.Editor.Enabled)
@@ -201,6 +212,11 @@ public class Startup
                             health.AddDbContextCheck<StreetNameEventConsumerContext>();
                             health.AddDbContextCheck<StreetNameEventProjectionContext>();
                         }
+
+                        if (projectionOptions.Integration.Enabled)
+                        {
+                            health.AddDbContextCheck<IntegrationContext>();
+                        }
                     }
                 }
             })
@@ -223,6 +239,7 @@ public class Startup
             .AddDbContext<StreetNameSnapshotProjectionContext>(WellKnownConnectionNames.StreetNameProjections)
             .AddDbContext<StreetNameEventConsumerContext>(WellKnownConnectionNames.StreetNameEventConsumer)
             .AddDbContext<StreetNameEventProjectionContext>(WellKnownConnectionNames.StreetNameProjections)
+            .AddDbContext<IntegrationContext>(WellKnownConnectionNames.IntegrationProjections)
             ;
 
         var containerBuilder = new ContainerBuilder();
