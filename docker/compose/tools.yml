@@ -78,12 +78,14 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
 
   postgresql:
-    image: postgres
+    build: ./postgresql
     container_name: postgresql
     restart: always
     environment:
       POSTGRES_USER: sa
       POSTGRES_PASSWORD: E@syP@ssw0rd
+    ports:
+      - 29050:5432
 
   postgresql-admin:
     image: adminer

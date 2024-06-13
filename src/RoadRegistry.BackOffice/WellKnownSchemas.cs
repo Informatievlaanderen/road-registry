@@ -6,6 +6,7 @@ public static class WellKnownSchemas
     public const string EditorMetaSchema = "RoadRegistryEditorMeta";
     public const string EditorMetricsSchema = "RoadRegistryEditorMetrics";
     public const string EditorSchema = "RoadRegistryEditor";
+    public const string IntegrationSchema = "integration_road";
     public const string ExtractHostSchema = "RoadRegistryBackOfficeExtractHost";
     public const string EventHostSchema = "RoadRegistryBackOfficeEventHost";
     public const string EventSchema = "RoadRegistry";
@@ -44,6 +45,7 @@ public static class MigrationTables
     public const string Syndication = "__EFMigrationsHistorySyndication";
     public const string Product = "__EFMigrationsHistoryProduct";
     public const string Editor = "__EFMigrationsHistoryEditor";
+    public const string Integration = "__EFMigrationsHistory";
     public const string Wms = "__EFMigrationsHistoryWms";
     public const string Wfs = "__EFMigrationsHistoryWfs";
     public const string StreetName = "__EFMigrationsHistoryStreetName";

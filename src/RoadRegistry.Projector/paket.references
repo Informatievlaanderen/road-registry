@@ -5,6 +5,7 @@ Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 
 DataDog.Trace.Bundle
 
+AspNetCore.HealthChecks.NpgSql
 AspNetCore.HealthChecks.SqlServer
 AWSSDK.Core
 Dapper

@@ -11,6 +11,7 @@ public class ProjectionOptions
     public Option BackOfficeProcessors { get; set; }
     public Option OrganizationSync { get; set; }
     public Option StreetNameSync { get; set; }
+    public Option Integration { get; set; }
 
     public class Option
     {

@@ -1,6 +1,7 @@
 namespace RoadRegistry.Hosts;
 
 using System;
+using System.Data.Common;
 using System.Linq;
 using BackOffice.Configuration;
 using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
@@ -39,13 +40,14 @@ public static class ProgramConfigurationLogExtensions
         ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(connectionName);
 
-        var connectionString = configuration.GetConnectionString(connectionName);
-
+        var connectionString = configuration.GetRequiredConnectionString(connectionName);
+        
         logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
             connectionName,
-            new SqlConnectionStringBuilder(connectionString)
+            new DbConnectionStringBuilder
             {
-                Password = "**REDACTED**"
+                ConnectionString = connectionString,
+                ["Password"] = "**REDACTED**"
             }.ConnectionString);
     }
 
