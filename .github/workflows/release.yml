@@ -199,6 +199,21 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
     secrets: inherit
+  
+  build-projectionhost-integration:
+      name: Build Integration Projection Host
+      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+      needs: [ set-release-version ]
+      if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
+      with:
+        registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+        image-file: rr-integration-projectionhost-image.tar
+        image-name: integration-projectionhost
+        test-project: RoadRegistry.Integration.ProjectionHost.Tests
+        build-project: RoadRegistry.Integration.ProjectionHost
+        semver: ${{ needs.set-release-version.outputs.version }}
+        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+      secrets: inherit
 
   build-projectionhost-product:
     name: Build Product Projection Host
@@ -401,6 +416,7 @@ jobs:
       build-backoffice-ui,
       build-projector,
       build-projectionhost-editor,
+      build-projectionhost-integration,
       build-projectionhost-product,
       build-projectionhost-producersnapshot,
       build-synchost,
@@ -761,9 +777,10 @@ jobs:
           'backoffice-eventhost', 
           'backoffice-extracthost', 
           'backoffice-ui', 
-          'editor-projectionhost', 
+          'editor-projectionhost',
+          'integration-projectionhost',
           'producer-snapshot-projectionhost',
-          'product-projectionhost', 
+          'product-projectionhost',
           'projector', 
           'synchost',
           'syndication-projectionhost', 
