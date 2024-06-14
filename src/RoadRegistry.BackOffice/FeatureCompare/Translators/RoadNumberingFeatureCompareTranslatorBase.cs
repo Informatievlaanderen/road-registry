@@ -26,7 +26,7 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         var (extractFeatures, changeFeatures, problems) = ReadExtractAndChangeFeatures(context.Archive, _fileName, context);
 
         problems.ThrowIfError();
-
+        //TODO-rik existing bug: gelinkte roadsegmentids moeten bestaan, zoniet validatie fout (zie GradeSeparatedJunctionFeatureCompareTranslator)
         var wegsegmentenAdd = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Added).ToList();
         var wegsegmentenIdentical = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Identical).ToList();
         var wegsegmentenUpdate = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Modified).ToList();
@@ -78,10 +78,10 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
 
         problems.ThrowIfError();
 
-        return Task.FromResult((TranslateProcessedRecords(changes, processedRecords), problems));
+        return Task.FromResult((TranslateProcessedRecords(context, changes, processedRecords), problems));
     }
 
-    protected abstract TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records);
+    protected abstract TranslatedChanges TranslateProcessedRecords(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, List<Record> records);
 
     protected record Record(Feature<TAttributes> Feature, RecordType RecordType);
 }

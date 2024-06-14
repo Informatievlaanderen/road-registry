@@ -10,22 +10,28 @@ public class AddRoadSegmentToEuropeanRoad : IRequestedChange, IHaveHash
 
     public AddRoadSegmentToEuropeanRoad(AttributeId attributeId,
         AttributeId temporaryAttributeId,
+        RoadSegmentGeometryDrawMethod segmentGeometryDrawMethod,
         RoadSegmentId segmentId,
         RoadSegmentId? temporarySegmentId,
-        EuropeanRoadNumber number)
+        EuropeanRoadNumber number,
+        RoadSegmentVersion? segmentVersion)
     {
         AttributeId = attributeId;
         TemporaryAttributeId = temporaryAttributeId;
+        SegmentGeometryDrawMethod = segmentGeometryDrawMethod;
         SegmentId = segmentId;
         TemporarySegmentId = temporarySegmentId;
         Number = number;
+        SegmentVersion = segmentVersion;
     }
 
     public AttributeId AttributeId { get; }
     public EuropeanRoadNumber Number { get; }
+    public RoadSegmentGeometryDrawMethod SegmentGeometryDrawMethod { get; }
     public RoadSegmentId SegmentId { get; }
     public AttributeId TemporaryAttributeId { get; }
     public RoadSegmentId? TemporarySegmentId { get; }
+    public RoadSegmentVersion? SegmentVersion { get; } //TODO-rik handle SegmentVersion in projections
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -35,8 +41,10 @@ public class AddRoadSegmentToEuropeanRoad : IRequestedChange, IHaveHash
         {
             AttributeId = AttributeId,
             Number = Number,
+            SegmentGeometryDrawMethod = SegmentGeometryDrawMethod,
             SegmentId = SegmentId,
-            TemporaryAttributeId = TemporaryAttributeId
+            TemporaryAttributeId = TemporaryAttributeId,
+            SegmentVersion = SegmentVersion
         };
     }
 
@@ -48,6 +56,7 @@ public class AddRoadSegmentToEuropeanRoad : IRequestedChange, IHaveHash
         {
             TemporaryAttributeId = TemporaryAttributeId,
             Number = Number,
+            SegmentGeometryDrawMethod = SegmentGeometryDrawMethod,
             SegmentId = SegmentId
         };
     }

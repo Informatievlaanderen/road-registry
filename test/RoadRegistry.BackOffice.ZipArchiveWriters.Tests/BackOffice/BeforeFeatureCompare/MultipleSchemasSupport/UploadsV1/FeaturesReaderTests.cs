@@ -204,6 +204,7 @@ public class FeaturesReaderTests
                 (
                     new RecordNumber(1),
                     new AttributeId(europeanRoadDbaseRecord.EU_OIDN.Value),
+                    RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord2.METHODE.Value],
                     roadSegment2TemporaryId,
                     EuropeanRoadNumber.Parse(europeanRoadDbaseRecord.EUNUMMER.Value)
                 )
@@ -213,6 +214,7 @@ public class FeaturesReaderTests
                 (
                     new RecordNumber(1),
                     new AttributeId(nationalRoadDbaseRecord.NW_OIDN.Value),
+                    RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord2.METHODE.Value],
                     roadSegment2TemporaryId,
                     NationalRoadNumber.Parse(nationalRoadDbaseRecord.IDENT2.Value)
                 )
@@ -222,6 +224,7 @@ public class FeaturesReaderTests
                 (
                     new RecordNumber(1),
                     new AttributeId(numberedRoadDbaseRecord.GW_OIDN.Value),
+                    RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord2.METHODE.Value],
                     roadSegment2TemporaryId,
                     NumberedRoadNumber.Parse(numberedRoadDbaseRecord.IDENT8.Value),
                     RoadSegmentNumberedRoadDirection.ByIdentifier[numberedRoadDbaseRecord.RICHTING.Value],

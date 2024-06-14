@@ -103,7 +103,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         var successChangedMessages = new Dictionary<IEventSourcedEntity, List<IMessage>>();
         var failedChangedMessages = new Dictionary<IEventSourcedEntity, List<RoadNetworkChangesRejected>>();
 
-        using (var container = _lifetimeScope.BeginLifetimeScope())
+        await using (var container = _lifetimeScope.BeginLifetimeScope())
         {
             var idGenerator = container.Resolve<IRoadNetworkIdGenerator>();
 

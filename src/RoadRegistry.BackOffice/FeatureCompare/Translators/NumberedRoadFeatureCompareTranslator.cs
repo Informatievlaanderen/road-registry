@@ -127,10 +127,12 @@ public class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
         }
     }
     
-    protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)
+    protected override TranslatedChanges TranslateProcessedRecords(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, List<Record> records)
     {
         foreach (var record in records)
         {
+            var segment = context.FindNotRemovedRoadSegment(record.Feature.Attributes.RoadSegmentId);
+
             switch (record.RecordType.Translation.Identifier)
             {
                 case RecordType.AddedIdentifier:
@@ -138,6 +140,7 @@ public class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                         new AddRoadSegmentToNumberedRoad(
                             record.Feature.RecordNumber,
                             record.Feature.Attributes.Id,
+                            segment.Attributes.Method,
                             record.Feature.Attributes.RoadSegmentId,
                             record.Feature.Attributes.Number,
                             record.Feature.Attributes.Direction,
@@ -150,6 +153,7 @@ public class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                         new RemoveRoadSegmentFromNumberedRoad(
                             record.Feature.RecordNumber,
                             record.Feature.Attributes.Id,
+                            segment.Attributes.Method,
                             record.Feature.Attributes.RoadSegmentId,
                             record.Feature.Attributes.Number
                         )

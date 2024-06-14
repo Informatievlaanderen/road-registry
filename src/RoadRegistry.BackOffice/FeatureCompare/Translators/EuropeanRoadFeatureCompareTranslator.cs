@@ -39,7 +39,7 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                 }
             }
         }
-
+        
         foreach (var extractFeature in wegsegmentExtractFeatures)
         {
             var extractChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId == extractFeature.Attributes.RoadSegmentId
@@ -75,7 +75,7 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                 processedRecords.Add(new Record(leveringExtractFeatures.First(), RecordType.Identical));
             }
         }
-
+        
         foreach (var extractFeature in wegsegmentExtractFeatures)
         {
             {
@@ -90,10 +90,12 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
         }
     }
     
-    protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)
+    protected override TranslatedChanges TranslateProcessedRecords(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, List<Record> records)
     {
         foreach (var record in records)
         {
+            var segment = context.FindNotRemovedRoadSegment(record.Feature.Attributes.RoadSegmentId);
+
             switch (record.RecordType.Translation.Identifier)
             {
                 case RecordType.AddedIdentifier:
@@ -101,6 +103,7 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                         new AddRoadSegmentToEuropeanRoad(
                             record.Feature.RecordNumber,
                             record.Feature.Attributes.Id,
+                            segment.Attributes.Method,
                             record.Feature.Attributes.RoadSegmentId,
                             record.Feature.Attributes.Number
                         )
@@ -111,6 +114,7 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                         new RemoveRoadSegmentFromEuropeanRoad(
                             record.Feature.RecordNumber,
                             record.Feature.Attributes.Id,
+                            segment.Attributes.Method,
                             record.Feature.Attributes.RoadSegmentId,
                             record.Feature.Attributes.Number
                         )

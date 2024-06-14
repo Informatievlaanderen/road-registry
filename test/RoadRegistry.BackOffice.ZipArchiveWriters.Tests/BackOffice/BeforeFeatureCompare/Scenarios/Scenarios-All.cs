@@ -101,6 +101,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         (
                             new RecordNumber(1),
                             new AttributeId(context.Change.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EU_OIDN.Value),
+                            RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                             roadSegment1TemporaryId,
                             EuropeanRoadNumber.Parse(context.Change.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value)
                         )
@@ -110,6 +111,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         (
                             new RecordNumber(2),
                             new AttributeId(context.Change.TestData.RoadSegment1EuropeanRoadDbaseRecord2.EU_OIDN.Value),
+                            RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                             roadSegment1TemporaryId,
                             EuropeanRoadNumber.Parse(context.Change.TestData.RoadSegment1EuropeanRoadDbaseRecord2.EUNUMMER.Value)
                         )
@@ -119,6 +121,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         (
                             new RecordNumber(1),
                             new AttributeId(context.Change.TestData.RoadSegment1NationalRoadDbaseRecord1.NW_OIDN.Value),
+                            RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                             roadSegment1TemporaryId,
                             NationalRoadNumber.Parse(context.Change.TestData.RoadSegment1NationalRoadDbaseRecord1.IDENT2.Value)
                         )
@@ -128,6 +131,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         (
                             new RecordNumber(2),
                             new AttributeId(context.Change.TestData.RoadSegment1NationalRoadDbaseRecord2.NW_OIDN.Value),
+                            RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                             roadSegment1TemporaryId,
                             NationalRoadNumber.Parse(context.Change.TestData.RoadSegment1NationalRoadDbaseRecord2.IDENT2.Value)
                         )
@@ -137,6 +141,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         (
                             new RecordNumber(1),
                             new AttributeId(context.Change.TestData.RoadSegment1NumberedRoadDbaseRecord1.GW_OIDN.Value),
+                            RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                             roadSegment1TemporaryId,
                             NumberedRoadNumber.Parse(context.Change.TestData.RoadSegment1NumberedRoadDbaseRecord1.IDENT8.Value),
                             RoadSegmentNumberedRoadDirection.ByIdentifier[context.Change.TestData.RoadSegment1NumberedRoadDbaseRecord1.RICHTING.Value],
@@ -148,6 +153,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         (
                             new RecordNumber(2),
                             new AttributeId(context.Change.TestData.RoadSegment1NumberedRoadDbaseRecord2.GW_OIDN.Value),
+                            RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                             roadSegment1TemporaryId,
                             NumberedRoadNumber.Parse(context.Change.TestData.RoadSegment1NumberedRoadDbaseRecord2.IDENT8.Value),
                             RoadSegmentNumberedRoadDirection.ByIdentifier[context.Change.TestData.RoadSegment1NumberedRoadDbaseRecord2.RICHTING.Value],
@@ -244,6 +250,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         (
                             new RecordNumber(1),
                             new AttributeId(context.Change.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EU_OIDN.Value),
+                            RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                             new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
                             EuropeanRoadNumber.Parse(context.Change.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value)
                         )
@@ -253,6 +260,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         (
                             new RecordNumber(1),
                             new AttributeId(context.Change.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EU_OIDN.Value),
+                            RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                             new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
                             EuropeanRoadNumber.Parse(context.Extract.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value)
                         )
@@ -262,6 +270,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         (
                             new RecordNumber(1),
                             new AttributeId(context.Change.TestData.RoadSegment1NationalRoadDbaseRecord1.NW_OIDN.Value),
+                            RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                             new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
                             NationalRoadNumber.Parse(context.Change.TestData.RoadSegment1NationalRoadDbaseRecord1.IDENT2.Value)
                         )
@@ -271,6 +280,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         (
                             new RecordNumber(1),
                             new AttributeId(context.Change.TestData.RoadSegment1NationalRoadDbaseRecord1.NW_OIDN.Value),
+                            RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                             new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
                             NationalRoadNumber.Parse(context.Extract.TestData.RoadSegment1NationalRoadDbaseRecord1.IDENT2.Value)
                         )
@@ -280,6 +290,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         (
                             new RecordNumber(1),
                             new AttributeId(context.Change.TestData.RoadSegment1NumberedRoadDbaseRecord1.GW_OIDN.Value),
+                            RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                             new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
                             NumberedRoadNumber.Parse(context.Change.TestData.RoadSegment1NumberedRoadDbaseRecord1.IDENT8.Value),
                             RoadSegmentNumberedRoadDirection.ByIdentifier[context.Change.TestData.RoadSegment1NumberedRoadDbaseRecord1.RICHTING.Value],
@@ -291,6 +302,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         (
                             new RecordNumber(1),
                             new AttributeId(context.Change.TestData.RoadSegment1NumberedRoadDbaseRecord1.GW_OIDN.Value),
+                            RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                             new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
                             NumberedRoadNumber.Parse(context.Extract.TestData.RoadSegment1NumberedRoadDbaseRecord1.IDENT8.Value)
                         )
@@ -367,6 +379,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                 (
                     new RecordNumber(1),
                     new AttributeId(context.Extract.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EU_OIDN.Value),
+                    RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                     new RoadSegmentId(context.Extract.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
                     EuropeanRoadNumber.Parse(context.Extract.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value)
                 )
@@ -376,6 +389,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                 (
                     new RecordNumber(2),
                     new AttributeId(context.Extract.TestData.RoadSegment1EuropeanRoadDbaseRecord2.EU_OIDN.Value),
+                    RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                     new RoadSegmentId(context.Extract.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
                     EuropeanRoadNumber.Parse(context.Extract.TestData.RoadSegment1EuropeanRoadDbaseRecord2.EUNUMMER.Value)
                 )
@@ -385,6 +399,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                 (
                     new RecordNumber(1),
                     new AttributeId(context.Extract.TestData.RoadSegment1NationalRoadDbaseRecord1.NW_OIDN.Value),
+                    RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                     new RoadSegmentId(context.Extract.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
                     NationalRoadNumber.Parse(context.Extract.TestData.RoadSegment1NationalRoadDbaseRecord1.IDENT2.Value)
                 )
@@ -394,6 +409,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                 (
                     new RecordNumber(2),
                     new AttributeId(context.Extract.TestData.RoadSegment1NationalRoadDbaseRecord2.NW_OIDN.Value),
+                    RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                     new RoadSegmentId(context.Extract.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
                     NationalRoadNumber.Parse(context.Extract.TestData.RoadSegment1NationalRoadDbaseRecord2.IDENT2.Value)
                 )
@@ -403,6 +419,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                 (
                     new RecordNumber(1),
                     new AttributeId(context.Extract.TestData.RoadSegment1NumberedRoadDbaseRecord1.GW_OIDN.Value),
+                    RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                     new RoadSegmentId(context.Extract.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
                     NumberedRoadNumber.Parse(context.Extract.TestData.RoadSegment1NumberedRoadDbaseRecord1.IDENT8.Value)
                 )
@@ -412,6 +429,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                 (
                     new RecordNumber(2),
                     new AttributeId(context.Extract.TestData.RoadSegment1NumberedRoadDbaseRecord2.GW_OIDN.Value),
+                    RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                     new RoadSegmentId(context.Extract.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
                     NumberedRoadNumber.Parse(context.Extract.TestData.RoadSegment1NumberedRoadDbaseRecord2.IDENT8.Value)
                 )
