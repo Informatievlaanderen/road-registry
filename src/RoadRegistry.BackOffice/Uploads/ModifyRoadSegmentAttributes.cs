@@ -29,9 +29,6 @@ public class ModifyRoadSegmentAttributes : ITranslatedChange
     public RoadSegmentLaneAttribute[] Lanes { get; init; }
     public RoadSegmentSurfaceAttribute[] Surfaces { get; init; }
     public RoadSegmentWidthAttribute[] Widths { get; init; }
-    public RoadSegmentEuropeanRoadAttribute[] EuropeanRoads { get; init; }
-    public RoadSegmentNationalRoadAttribute[] NationalRoads { get; init; }
-    public RoadSegmentNumberedRoadAttribute[] NumberedRoads { get; init; }
 
     public void TranslateTo(RequestedChange message)
     {
