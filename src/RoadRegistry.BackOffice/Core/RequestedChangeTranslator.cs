@@ -11,9 +11,7 @@ using NetTopologySuite.Geometries;
 internal class RequestedChangeTranslator
 {
     private readonly IRoadNetworkIdProvider _roadNetworkIdProvider;
-    private readonly Func<RoadNodeId, RoadNodeVersion> _nextRoadNodeVersion;
-    private readonly Func<NextRoadSegmentVersionArgs, CancellationToken, Task<RoadSegmentVersion>> _nextRoadSegmentVersion;
-    private readonly Func<NextRoadSegmentVersionArgs, MultiLineString, CancellationToken, Task<GeometryVersion>> _nextRoadSegmentGeometryVersion;
+    private readonly RoadNetworkVersionProvider _roadNetworkVersionProvider;
 
     public RequestedChangeTranslator(
         IRoadNetworkIdProvider roadNetworkIdProvider,
@@ -21,10 +19,8 @@ internal class RequestedChangeTranslator
         Func<NextRoadSegmentVersionArgs, CancellationToken, Task<RoadSegmentVersion>> nextRoadSegmentVersion,
         Func<NextRoadSegmentVersionArgs, MultiLineString, CancellationToken, Task<GeometryVersion>> nextRoadSegmentGeometryVersion)
     {
+        _roadNetworkVersionProvider = new RoadNetworkVersionProvider(nextRoadNodeVersion, nextRoadSegmentVersion, nextRoadSegmentGeometryVersion);
         _roadNetworkIdProvider = roadNetworkIdProvider.ThrowIfNull();
-        _nextRoadNodeVersion = nextRoadNodeVersion.ThrowIfNull();
-        _nextRoadSegmentVersion = nextRoadSegmentVersion.ThrowIfNull();
-        _nextRoadSegmentGeometryVersion = nextRoadSegmentGeometryVersion.ThrowIfNull();
     }
 
     public async Task<RequestedChanges> Translate(IReadOnlyCollection<RequestedChange> changes, IOrganizations organizations, CancellationToken ct = default)
@@ -83,6 +79,7 @@ internal class RequestedChangeTranslator
                     translated = translated.Append(Translate(command, translated));
                     break;
                 case Messages.AddRoadSegmentToNumberedRoad command:
+                    //TODO-rik check of het wegsegment al gewijzigd is (ModifyRoadSegment, ModifyRoadSegmentAttributes), zoniet dan version increment doen
                     translated = translated.Append(await Translate(command, translated));
                     break;
                 case Messages.ModifyRoadSegmentOnNumberedRoad command:
@@ -125,7 +122,7 @@ internal class RequestedChangeTranslator
     private async Task<ModifyRoadNode> Translate(Messages.ModifyRoadNode command)
     {
         var permanent = new RoadNodeId(command.Id);
-        var version = _nextRoadNodeVersion(permanent);
+        var version = _roadNetworkVersionProvider.NextRoadNodeVersion(permanent);
 
         return new ModifyRoadNode
         (
@@ -328,10 +325,10 @@ internal class RequestedChangeTranslator
         var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
         var nextRoadSegmentVersionArgs = new NextRoadSegmentVersionArgs(permanent, geometryDrawMethod, command.ConvertedFromOutlined);
         var version = RoadSegmentVersion.FromValue(command.Version)
-                      ?? await _nextRoadSegmentVersion(nextRoadSegmentVersionArgs, ct);
+                      ?? await _roadNetworkVersionProvider.NextRoadSegmentVersion(nextRoadSegmentVersionArgs, ct);
         var geometry = GeometryTranslator.Translate(command.Geometry);
         var geometryVersion = GeometryVersion.FromValue(command.GeometryVersion)
-                              ?? await _nextRoadSegmentGeometryVersion(nextRoadSegmentVersionArgs, geometry, ct);
+                              ?? await _roadNetworkVersionProvider.NextRoadSegmentGeometryVersion(nextRoadSegmentVersionArgs, geometry, ct);
         
         var maintainerId = new OrganizationId(command.MaintenanceAuthority);
         var maintainer = await organizations.FindAsync(maintainerId, ct);
@@ -378,7 +375,7 @@ internal class RequestedChangeTranslator
         var permanent = new RoadSegmentId(command.Id);
 
         var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
-        var version = await _nextRoadSegmentVersion(new NextRoadSegmentVersionArgs(permanent, geometryDrawMethod, false), ct);
+        var version = await _roadNetworkVersionProvider.NextRoadSegmentVersion(new NextRoadSegmentVersionArgs(permanent, geometryDrawMethod, false), ct);
 
         OrganizationId? maintainerId = command.MaintenanceAuthority is not null
             ? new OrganizationId(command.MaintenanceAuthority)
@@ -424,10 +421,10 @@ internal class RequestedChangeTranslator
 
         var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
         var nextRoadSegmentVersionArgs = new NextRoadSegmentVersionArgs(permanent, geometryDrawMethod, false);
-        var version = await _nextRoadSegmentVersion(nextRoadSegmentVersionArgs, ct);
+        var version = await _roadNetworkVersionProvider.NextRoadSegmentVersion(nextRoadSegmentVersionArgs, ct);
         
         var geometry = GeometryTranslator.Translate(command.Geometry);
-        var geometryVersion = await _nextRoadSegmentGeometryVersion(nextRoadSegmentVersionArgs, geometry, ct);
+        var geometryVersion = await _roadNetworkVersionProvider.NextRoadSegmentGeometryVersion(nextRoadSegmentVersionArgs, geometry, ct);
 
         var laneAttributes = await Translate(command.Lanes, permanent);
         var widthAttributes = await Translate(command.Widths, permanent);
@@ -576,6 +573,10 @@ internal class RequestedChangeTranslator
         {
             temporarySegmentId = null;
         }
+
+        var version = !_roadNetworkVersionProvider.VersionHasBeenIncremented(segmentId)
+            ? await _roadNetworkVersionProvider.NextRoadSegmentVersion(new NextRoadSegmentVersionArgs(segmentId))
+            : null;
 
         var number = NumberedRoadNumber.Parse(command.Number);
         var direction = RoadSegmentNumberedRoadDirection.Parse(command.Direction);
@@ -758,5 +759,44 @@ internal class RequestedChangeTranslator
 
         public object Change { get; }
         public int Ordinal { get; }
+    }
+
+    private sealed class RoadNetworkVersionProvider
+    {
+        private readonly Func<RoadNodeId, RoadNodeVersion> _nextRoadNodeVersion;
+        private readonly Func<NextRoadSegmentVersionArgs, CancellationToken, Task<RoadSegmentVersion>> _nextRoadSegmentVersion;
+        private readonly Func<NextRoadSegmentVersionArgs, MultiLineString, CancellationToken, Task<GeometryVersion>> _nextRoadSegmentGeometryVersion;
+        private readonly List<RoadSegmentId> _incrementedRoadSegmentVersions = [];
+
+        public RoadNetworkVersionProvider(
+            Func<RoadNodeId, RoadNodeVersion> nextRoadNodeVersion,
+            Func<NextRoadSegmentVersionArgs, CancellationToken, Task<RoadSegmentVersion>> nextRoadSegmentVersion,
+            Func<NextRoadSegmentVersionArgs, MultiLineString, CancellationToken, Task<GeometryVersion>> nextRoadSegmentGeometryVersion)
+        {
+            _nextRoadNodeVersion = nextRoadNodeVersion;
+            _nextRoadSegmentVersion = nextRoadSegmentVersion;
+            _nextRoadSegmentGeometryVersion = nextRoadSegmentGeometryVersion;
+        }
+
+        public RoadNodeVersion NextRoadNodeVersion(RoadNodeId roadNodeId)
+        {
+            return _nextRoadNodeVersion(roadNodeId);
+        }
+
+        public async Task<RoadSegmentVersion> NextRoadSegmentVersion(NextRoadSegmentVersionArgs args, CancellationToken cancellationToken)
+        {
+            _incrementedRoadSegmentVersions.Add(args.Id);
+            return await _nextRoadSegmentVersion(args, cancellationToken);
+        }
+
+        public async Task<GeometryVersion> NextRoadSegmentGeometryVersion(NextRoadSegmentVersionArgs args, MultiLineString geometry, CancellationToken cancellationToken)
+        {
+            return await _nextRoadSegmentGeometryVersion(args, geometry, cancellationToken);
+        }
+
+        public bool VersionHasBeenIncremented(RoadSegmentId roadSegmentId)
+        {
+            return _incrementedRoadSegmentVersions.Contains(roadSegmentId);
+        }
     }
 }
