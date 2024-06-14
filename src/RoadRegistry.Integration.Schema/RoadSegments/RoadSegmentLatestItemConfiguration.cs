@@ -68,7 +68,5 @@ public class RoadSegmentLatestItemConfiguration : IEntityTypeConfiguration<RoadS
         b.HasIndex(p => p.StartNodeId);
         b.HasIndex(p => p.EndNodeId);
         b.HasIndex(x => x.Geometry).HasMethod("GIST");
-
-        b.HasQueryFilter(p => p.IsRemoved == false);
     }
 }
