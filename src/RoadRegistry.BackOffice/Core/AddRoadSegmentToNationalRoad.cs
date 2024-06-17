@@ -14,7 +14,7 @@ public class AddRoadSegmentToNationalRoad : IRequestedChange, IHaveHash
         RoadSegmentId segmentId,
         RoadSegmentId? temporarySegmentId,
         NationalRoadNumber number,
-        RoadSegmentVersion? segmentVersion)
+        RoadSegmentVersion segmentVersion)
     {
         AttributeId = attributeId;
         TemporaryAttributeId = temporaryAttributeId;
@@ -31,7 +31,7 @@ public class AddRoadSegmentToNationalRoad : IRequestedChange, IHaveHash
     public AttributeId TemporaryAttributeId { get; }
     public RoadSegmentGeometryDrawMethod SegmentGeometryDrawMethod { get; }
     public RoadSegmentId? TemporarySegmentId { get; }
-    public RoadSegmentVersion? SegmentVersion { get; }
+    public RoadSegmentVersion SegmentVersion { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {

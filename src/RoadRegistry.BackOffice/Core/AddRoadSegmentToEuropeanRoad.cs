@@ -14,7 +14,7 @@ public class AddRoadSegmentToEuropeanRoad : IRequestedChange, IHaveHash
         RoadSegmentId segmentId,
         RoadSegmentId? temporarySegmentId,
         EuropeanRoadNumber number,
-        RoadSegmentVersion? segmentVersion)
+        RoadSegmentVersion segmentVersion)
     {
         AttributeId = attributeId;
         TemporaryAttributeId = temporaryAttributeId;
@@ -31,7 +31,7 @@ public class AddRoadSegmentToEuropeanRoad : IRequestedChange, IHaveHash
     public RoadSegmentId SegmentId { get; }
     public AttributeId TemporaryAttributeId { get; }
     public RoadSegmentId? TemporarySegmentId { get; }
-    public RoadSegmentVersion? SegmentVersion { get; } //TODO-rik handle SegmentVersion in projections
+    public RoadSegmentVersion SegmentVersion { get; } //TODO-rik handle SegmentVersion in projections
 
     public void TranslateTo(Messages.AcceptedChange message)
     {

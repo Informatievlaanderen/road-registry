@@ -14,7 +14,7 @@ public class RemoveRoadSegmentFromNumberedRoad : IRequestedChange, IHaveHash
         RoadSegmentGeometryDrawMethod segmentGeometryDrawMethod,
         RoadSegmentId segmentId,
         NumberedRoadNumber number,
-        RoadSegmentVersion? segmentVersion)
+        RoadSegmentVersion segmentVersion)
     {
         AttributeId = attributeId;
         SegmentGeometryDrawMethod = segmentGeometryDrawMethod;
@@ -27,7 +27,7 @@ public class RemoveRoadSegmentFromNumberedRoad : IRequestedChange, IHaveHash
     public RoadSegmentGeometryDrawMethod SegmentGeometryDrawMethod { get; }
     public NumberedRoadNumber Number { get; }
     public RoadSegmentId SegmentId { get; }
-    public RoadSegmentVersion? SegmentVersion { get; }
+    public RoadSegmentVersion SegmentVersion { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {

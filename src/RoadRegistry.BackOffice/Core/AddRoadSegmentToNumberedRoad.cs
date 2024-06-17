@@ -16,7 +16,7 @@ public class AddRoadSegmentToNumberedRoad : IRequestedChange, IHaveHash
         NumberedRoadNumber number,
         RoadSegmentNumberedRoadDirection direction,
         RoadSegmentNumberedRoadOrdinal ordinal,
-        RoadSegmentVersion? segmentVersion)
+        RoadSegmentVersion segmentVersion)
     {
         AttributeId = attributeId;
         TemporaryAttributeId = temporaryAttributeId;
@@ -37,7 +37,7 @@ public class AddRoadSegmentToNumberedRoad : IRequestedChange, IHaveHash
     public AttributeId TemporaryAttributeId { get; }
     public RoadSegmentGeometryDrawMethod SegmentGeometryDrawMethod { get; }
     public RoadSegmentId? TemporarySegmentId { get; }
-    public RoadSegmentVersion? SegmentVersion { get; }
+    public RoadSegmentVersion SegmentVersion { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
