@@ -91,8 +91,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
             When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
             {
-                foreach (var change in envelope.Message.Changes.Flatten())
-                    switch (change)
+                foreach (var acceptedChange in envelope.Message.Changes.Flatten())
+                    switch (acceptedChange)
                     {
                         case RoadSegmentAdded roadSegmentAdded:
                             await AddRoadSegment(streetNameCache, context, envelope, roadSegmentAdded, token);
@@ -100,6 +100,27 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
                         case RoadSegmentModified roadSegmentModified:
                             await ModifyRoadSegment(streetNameCache, context, envelope, roadSegmentModified, token);
+                            break;
+
+                        case RoadSegmentAddedToEuropeanRoad change:
+                            await AddRoadSegmentToEuropeanRoad(context, change, envelope, token);
+                            break;
+                        case RoadSegmentRemovedFromEuropeanRoad change:
+                            await RemoveRoadSegmentFromEuropeanRoad(context, change, envelope, token);
+                            break;
+
+                        case RoadSegmentAddedToNationalRoad change:
+                            await AddRoadSegmentToNationalRoad(context, change, envelope, token);
+                            break;
+                        case RoadSegmentRemovedFromNationalRoad change:
+                            await RemoveRoadSegmentFromNationalRoad(context, change, envelope, token);
+                            break;
+
+                        case RoadSegmentAddedToNumberedRoad change:
+                            await AddRoadSegmentToNumberedRoad(context, change, envelope, token);
+                            break;
+                        case RoadSegmentRemovedFromNumberedRoad change:
+                            await RemoveRoadSegmentFromNumberedRoad(context, change, envelope, token);
                             break;
 
                         case RoadSegmentAttributesModified roadSegmentAttributesModified:
@@ -286,6 +307,60 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
 
+        private async Task AddRoadSegmentToEuropeanRoad(
+            RoadSegmentProducerSnapshotContext context,
+            RoadSegmentAddedToEuropeanRoad change,
+            Envelope<RoadNetworkChangesAccepted> envelope,
+            CancellationToken token)
+        {
+            await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+        }
+
+        private async Task RemoveRoadSegmentFromEuropeanRoad(
+            RoadSegmentProducerSnapshotContext context,
+            RoadSegmentRemovedFromEuropeanRoad change,
+            Envelope<RoadNetworkChangesAccepted> envelope,
+            CancellationToken token)
+        {
+            await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+        }
+
+        private async Task AddRoadSegmentToNationalRoad(
+            RoadSegmentProducerSnapshotContext context,
+            RoadSegmentAddedToNationalRoad change,
+            Envelope<RoadNetworkChangesAccepted> envelope,
+            CancellationToken token)
+        {
+            await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+        }
+
+        private async Task RemoveRoadSegmentFromNationalRoad(
+            RoadSegmentProducerSnapshotContext context,
+            RoadSegmentRemovedFromNationalRoad change,
+            Envelope<RoadNetworkChangesAccepted> envelope,
+            CancellationToken token)
+        {
+            await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+        }
+
+        private async Task AddRoadSegmentToNumberedRoad(
+            RoadSegmentProducerSnapshotContext context,
+            RoadSegmentAddedToNumberedRoad change,
+            Envelope<RoadNetworkChangesAccepted> envelope,
+            CancellationToken token)
+        {
+            await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+        }
+
+        private async Task RemoveRoadSegmentFromNumberedRoad(
+            RoadSegmentProducerSnapshotContext context,
+            RoadSegmentRemovedFromNumberedRoad change,
+            Envelope<RoadNetworkChangesAccepted> envelope,
+            CancellationToken token)
+        {
+            await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+        }
+
         private async Task ModifyRoadSegmentAttributes(
             RoadSegmentProducerSnapshotContext context,
             Envelope<RoadNetworkChangesAccepted> envelope,
@@ -402,6 +477,38 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             dbRecord.Origin = envelope.Message.ToOrigin();
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
             dbRecord.IsRemoved = true;
+
+            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
+        }
+
+        private async Task UpdateRoadSegmentVersion(
+            RoadSegmentProducerSnapshotContext context,
+            Envelope<RoadNetworkChangesAccepted> envelope,
+            int segmentId,
+            int? segmentVersion,
+            CancellationToken token)
+        {
+            if (segmentVersion is null)
+            {
+                return;
+            }
+
+            var dbRecord = await context.RoadSegments
+                            .IncludeLocalSingleOrDefaultAsync(x => x.Id == segmentId, token)
+                            .ConfigureAwait(false);
+            if (dbRecord is null)
+            {
+                throw new InvalidOperationException($"RoadSegmentRecord with id {segmentId} is not found");
+            }
+
+            dbRecord.Version = segmentVersion.Value;
+            dbRecord.RoadSegmentVersion = segmentVersion.Value;
+
+            var transactionId = new TransactionId(envelope.Message.TransactionId);
+            dbRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
+            
+            dbRecord.Origin = envelope.Message.ToOrigin();
+            dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
             await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }

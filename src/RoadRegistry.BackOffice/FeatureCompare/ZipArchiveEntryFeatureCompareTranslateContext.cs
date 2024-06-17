@@ -25,9 +25,9 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
             ?? RoadNodeRecords.NotRemoved().SingleOrDefault(x => x.Attributes.Id == id);
     }
 
-    public RoadSegmentFeatureCompareRecord FindNotRemovedRoadSegment(RoadSegmentId id)
+    public RoadSegmentFeatureCompareRecord FindRoadSegment(RoadSegmentId id)
     {
-        return RoadSegmentRecords.NotRemoved().SingleOrDefault(x => x.Id == id)
-            ?? RoadSegmentRecords.NotRemoved().SingleOrDefault(x => x.Attributes.Id == id);
+        return RoadSegmentRecords.SingleOrDefault(x => x.Id == id)
+            ?? RoadSegmentRecords.SingleOrDefault(x => x.Attributes.Id == id);
     }
 }

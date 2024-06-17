@@ -726,7 +726,9 @@ public static class Customizations
                     {
                         AttributeId = fixture.Create<AttributeId>(),
                         TemporaryAttributeId = fixture.Create<AttributeId>(),
+                        SegmentGeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<EuropeanRoadNumber>()
                     }
                 )
@@ -743,7 +745,9 @@ public static class Customizations
                     {
                         AttributeId = fixture.Create<AttributeId>(),
                         TemporaryAttributeId = fixture.Create<AttributeId>(),
+                        SegmentGeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<NationalRoadNumber>()
                     }
                 )
@@ -760,7 +764,9 @@ public static class Customizations
                     {
                         AttributeId = fixture.Create<AttributeId>(),
                         TemporaryAttributeId = fixture.Create<AttributeId>(),
+                        SegmentGeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<NumberedRoadNumber>(),
                         Direction = fixture.Create<RoadSegmentNumberedRoadDirection>(),
                         Ordinal = fixture.Create<RoadSegmentNumberedRoadOrdinal>()
@@ -939,7 +945,9 @@ public static class Customizations
                     new RoadSegmentRemovedFromEuropeanRoad
                     {
                         AttributeId = fixture.Create<AttributeId>(),
+                        SegmentGeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<EuropeanRoadNumber>()
                     }
                 )
@@ -955,7 +963,9 @@ public static class Customizations
                     new RoadSegmentRemovedFromNationalRoad
                     {
                         AttributeId = fixture.Create<AttributeId>(),
+                        SegmentGeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<NationalRoadNumber>()
                     }
                 )
@@ -971,7 +981,9 @@ public static class Customizations
                     new RoadSegmentRemovedFromNumberedRoad
                     {
                         AttributeId = fixture.Create<AttributeId>(),
+                        SegmentGeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<NationalRoadNumber>()
                     }
                 )

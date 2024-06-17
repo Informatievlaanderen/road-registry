@@ -92,7 +92,7 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
     {
         foreach (var record in records)
         {
-            var segment = context.FindNotRemovedRoadSegment(record.Feature.Attributes.RoadSegmentId);
+            var segment = context.FindRoadSegment(record.Feature.Attributes.RoadSegmentId);
 
             switch (record.RecordType.Translation.Identifier)
             {
