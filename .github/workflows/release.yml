@@ -1012,6 +1012,7 @@ jobs:
           #'jobs-processor',
           'projector',
           'editor-projectionhost',
+          'integration-projectionhost',
           'product-projectionhost',
           'producer-snapshot-projectionhost',
           'synchost',
