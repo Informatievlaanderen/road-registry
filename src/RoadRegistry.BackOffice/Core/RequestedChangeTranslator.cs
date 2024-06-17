@@ -488,7 +488,7 @@ internal class RequestedChangeTranslator
         {
             temporarySegmentId = null;
         }
-        //TODO-rik add unit test to confirm next version generating when it's supposed to
+        
         var segmentGeometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.SegmentGeometryDrawMethod);
         var version = await GetNextRoadSegmentVersionIfNotIncrementedYet(segmentGeometryDrawMethod, segmentId, translator, cancellationToken);
         
