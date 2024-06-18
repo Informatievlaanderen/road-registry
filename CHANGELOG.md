@@ -1,3 +1,24 @@
+## [4.1.3](https://github.com/informatievlaanderen/road-registry/compare/v4.1.2...v4.1.3) (2024-06-17)
+
+
+### Bug Fixes
+
+* pipeline disable integration-projectionhost push images to stg ([#1508](https://github.com/informatievlaanderen/road-registry/issues/1508)) ([ae89996](https://github.com/informatievlaanderen/road-registry/commit/ae89996824bba6a505549873fee538dcaab6f18a))
+
+## [4.1.2](https://github.com/informatievlaanderen/road-registry/compare/v4.1.1...v4.1.2) (2024-06-17)
+
+
+### Bug Fixes
+
+* version bump ([#1507](https://github.com/informatievlaanderen/road-registry/issues/1507)) ([6e54b65](https://github.com/informatievlaanderen/road-registry/commit/6e54b65eaa6a11f68839c064c9af498588ff88bd))
+
+## [4.1.1](https://github.com/informatievlaanderen/road-registry/compare/v4.1.0...v4.1.1) (2024-06-14)
+
+
+### Bug Fixes
+
+* remove query filter in integration projections ([#1504](https://github.com/informatievlaanderen/road-registry/issues/1504)) ([f2d8f9e](https://github.com/informatievlaanderen/road-registry/commit/f2d8f9efb47cfeb54fe8707d6de9166f665d6551))
+
 # [4.1.0](https://github.com/informatievlaanderen/road-registry/compare/v4.0.20...v4.1.0) (2024-06-13)
 
 
