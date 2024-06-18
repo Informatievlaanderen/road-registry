@@ -15,19 +15,19 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
         : base(metadata)
     {
         Archive = archive;
-        RoadNodeRecords = new List<RoadNodeFeatureCompareRecord>();
-        RoadSegmentRecords = new List<RoadSegmentFeatureCompareRecord>();
+        RoadNodeRecords = [];
+        RoadSegmentRecords = [];
     }
 
     public RoadNodeFeatureCompareRecord FindNotRemovedRoadNode(RoadNodeId id)
     {
-        return RoadNodeRecords.NotRemoved().SingleOrDefault(x => x.Id == id)
-            ?? RoadNodeRecords.NotRemoved().SingleOrDefault(x => x.Attributes.Id == id);
+        return RoadNodeRecords.NotRemoved().SingleOrDefault(x => x.GetActualId() == id)
+            ?? RoadNodeRecords.NotRemoved().SingleOrDefault(x => x.GetOriginalId() == id);
     }
 
     public RoadSegmentFeatureCompareRecord FindRoadSegment(RoadSegmentId id)
     {
-        return RoadSegmentRecords.SingleOrDefault(x => x.Id == id)
-            ?? RoadSegmentRecords.SingleOrDefault(x => x.Attributes.Id == id);
+        return RoadSegmentRecords.SingleOrDefault(x => x.GetActualId() == id)
+            ?? RoadSegmentRecords.SingleOrDefault(x => x.GetOriginalId() == id);
     }
 }

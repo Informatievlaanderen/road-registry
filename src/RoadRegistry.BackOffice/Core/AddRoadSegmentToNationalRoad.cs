@@ -41,7 +41,6 @@ public class AddRoadSegmentToNationalRoad : IRequestedChange, IHaveHash
         {
             AttributeId = AttributeId,
             Number = Number,
-            SegmentGeometryDrawMethod = SegmentGeometryDrawMethod,
             SegmentId = SegmentId,
             TemporaryAttributeId = TemporaryAttributeId,
             SegmentVersion = SegmentVersion

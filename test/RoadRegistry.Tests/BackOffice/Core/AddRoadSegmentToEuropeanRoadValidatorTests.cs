@@ -10,11 +10,13 @@ public class AddRoadSegmentToEuropeanRoadValidatorTests : ValidatorTest<AddRoadS
     public AddRoadSegmentToEuropeanRoadValidatorTests()
     {
         Fixture.CustomizeAttributeId();
+        Fixture.CustomizeRoadSegmentGeometryDrawMethod();
 
         Model = new AddRoadSegmentToEuropeanRoad
         {
             TemporaryAttributeId = Fixture.Create<AttributeId>(),
-            Number = EuropeanRoadNumber.All[new Random().Next(0, EuropeanRoadNumber.All.Length)].ToString()
+            Number = EuropeanRoadNumber.All[new Random().Next(0, EuropeanRoadNumber.All.Length)].ToString(),
+            SegmentGeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>()
         };
     }
 

@@ -49,7 +49,6 @@ public class AddRoadSegmentToNumberedRoad : IRequestedChange, IHaveHash
             Number = Number,
             Direction = Direction,
             Ordinal = Ordinal,
-            SegmentGeometryDrawMethod = SegmentGeometryDrawMethod,
             SegmentId = SegmentId,
             TemporaryAttributeId = TemporaryAttributeId,
             SegmentVersion = SegmentVersion

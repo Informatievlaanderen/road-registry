@@ -37,7 +37,6 @@ public class RemoveRoadSegmentFromEuropeanRoad : IRequestedChange, IHaveHash
         {
             AttributeId = AttributeId,
             Number = Number,
-            SegmentGeometryDrawMethod = SegmentGeometryDrawMethod,
             SegmentId = SegmentId,
             SegmentVersion = SegmentVersion
         };

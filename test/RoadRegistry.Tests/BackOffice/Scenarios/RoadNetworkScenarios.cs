@@ -1040,7 +1040,6 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             AttributeId = 1,
                             TemporaryAttributeId = addRoadSegmentToEuropeanRoad.TemporaryAttributeId,
                             Number = addRoadSegmentToEuropeanRoad.Number,
-                            SegmentGeometryDrawMethod = TestData.Segment1Added.GeometryDrawMethod,
                             SegmentId = TestData.Segment1Added.Id,
                             SegmentVersion = TestData.Segment1Added.Version
                         },
@@ -1123,7 +1122,6 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             AttributeId = 1,
                             TemporaryAttributeId = addRoadSegmentToEuropeanRoad.TemporaryAttributeId,
                             Number = addRoadSegmentToEuropeanRoad.Number,
-                            SegmentGeometryDrawMethod = TestData.Segment1Added.GeometryDrawMethod,
                             SegmentId = TestData.Segment1Added.Id,
                             SegmentVersion = 2
                         },
@@ -1204,7 +1202,6 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             AttributeId = 1,
                             TemporaryAttributeId = addRoadSegmentToNationalRoad.TemporaryAttributeId,
                             Number = addRoadSegmentToNationalRoad.Number,
-                            SegmentGeometryDrawMethod = TestData.Segment1Added.GeometryDrawMethod,
                             SegmentId = TestData.Segment1Added.Id,
                             SegmentVersion = TestData.Segment1Added.Version
                         },
@@ -1287,7 +1284,6 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             AttributeId = 1,
                             TemporaryAttributeId = addRoadSegmentToNationalRoad.TemporaryAttributeId,
                             Number = addRoadSegmentToNationalRoad.Number,
-                            SegmentGeometryDrawMethod = TestData.Segment1Added.GeometryDrawMethod,
                             SegmentId = TestData.Segment1Added.Id,
                             SegmentVersion = 2
                         },
@@ -1372,7 +1368,6 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             Number = addRoadSegmentToNumberedRoad.Number,
                             Direction = addRoadSegmentToNumberedRoad.Direction,
                             Ordinal = addRoadSegmentToNumberedRoad.Ordinal,
-                            SegmentGeometryDrawMethod = TestData.Segment1Added.GeometryDrawMethod,
                             SegmentId = TestData.Segment1Added.Id,
                             SegmentVersion = TestData.Segment1Added.Version
                         },
@@ -1459,7 +1454,6 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             Number = addRoadSegmentToNumberedRoad.Number,
                             Direction = addRoadSegmentToNumberedRoad.Direction,
                             Ordinal = addRoadSegmentToNumberedRoad.Ordinal,
-                            SegmentGeometryDrawMethod = TestData.Segment1Added.GeometryDrawMethod,
                             SegmentId = TestData.Segment1Added.Id,
                             SegmentVersion = 2
                         },

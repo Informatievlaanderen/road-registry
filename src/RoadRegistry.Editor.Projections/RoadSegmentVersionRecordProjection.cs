@@ -1,19 +1,17 @@
 namespace RoadRegistry.Editor.Projections;
 
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Extensions;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.Extensions.Logging;
-using Microsoft.IO;
 using Schema;
 using Schema.RoadSegments;
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorContext>
 {
@@ -152,7 +150,7 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        await UpdateRoadSegmentVersion(context, envelope, change.SegmentGeometryDrawMethod, change.SegmentId, change.SegmentVersion, token);
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
     }
 
     private static async Task RemoveRoadSegmentFromEuropeanRoad(
@@ -161,7 +159,7 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        await UpdateRoadSegmentVersion(context, envelope, change.SegmentGeometryDrawMethod, change.SegmentId, change.SegmentVersion, token);
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
     }
 
     private static async Task AddRoadSegmentToNationalRoad(
@@ -170,7 +168,7 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        await UpdateRoadSegmentVersion(context, envelope, change.SegmentGeometryDrawMethod, change.SegmentId, change.SegmentVersion, token);
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
     }
 
     private static async Task RemoveRoadSegmentFromNationalRoad(
@@ -179,7 +177,7 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        await UpdateRoadSegmentVersion(context, envelope, change.SegmentGeometryDrawMethod, change.SegmentId, change.SegmentVersion, token);
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
     }
 
     private static async Task AddRoadSegmentToNumberedRoad(
@@ -188,7 +186,7 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        await UpdateRoadSegmentVersion(context, envelope, change.SegmentGeometryDrawMethod, change.SegmentId, change.SegmentVersion, token);
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
     }
 
     private static async Task RemoveRoadSegmentFromNumberedRoad(
@@ -197,7 +195,7 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        await UpdateRoadSegmentVersion(context, envelope, change.SegmentGeometryDrawMethod, change.SegmentId, change.SegmentVersion, token);
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
     }
 
     private static async Task ModifyRoadSegmentAttributes(
@@ -295,7 +293,6 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
     private static async Task UpdateRoadSegmentVersion(
         EditorContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
-        string segmentGeometryDrawMethod,
         int segmentId,
         int? segmentVersion,
         CancellationToken token)
@@ -305,14 +302,16 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
             return;
         }
 
-        var method = RoadSegmentGeometryDrawMethod.Parse(segmentGeometryDrawMethod).Translation.Identifier;
+        var dbRecord = (await context.RoadSegmentVersions.IncludeLocalToListAsync(roadSegmentVersions =>
+                roadSegmentVersions
+                    .Where(x => x.Id == segmentId && x.StreamId == envelope.StreamId)
+                    .OrderByDescending(x => x.RecordingDate)
+                    .Take(1)
+            , token).ConfigureAwait(false)).FirstOrDefault();
 
-        var dbRecord = await context.RoadSegmentVersions
-            .IncludeLocalSingleOrDefaultAsync(x => x.Id == segmentId && x.StreamId == envelope.StreamId && x.Method == method, token)
-            .ConfigureAwait(false);
         if (dbRecord is null)
         {
-            throw new InvalidOperationException($"{nameof(RoadSegmentVersionRecord)} with id {segmentId} and method '{segmentGeometryDrawMethod}' is not found");
+            throw new InvalidOperationException($"{nameof(RoadSegmentVersionRecord)} with id {segmentId} is not found");
         }
 
         dbRecord.Version = segmentVersion.Value;

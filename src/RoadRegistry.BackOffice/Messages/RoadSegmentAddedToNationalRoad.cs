@@ -8,7 +8,6 @@ public class RoadSegmentAddedToNationalRoad: IHaveHash
 
     public int AttributeId { get; set; }
     public string Number { get; set; }
-    public string SegmentGeometryDrawMethod { get; set; }
     public int SegmentId { get; set; }
     public int TemporaryAttributeId { get; set; }
     public int? SegmentVersion { get; set; }

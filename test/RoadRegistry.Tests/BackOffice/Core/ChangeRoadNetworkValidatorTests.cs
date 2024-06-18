@@ -216,6 +216,7 @@ public class ChangeRoadNetworkValidatorTests : ValidatorTest<ChangeRoadNetwork, 
                     new AddRoadSegmentToEuropeanRoad
                     {
                         TemporaryAttributeId = Fixture.Create<int>(),
+                        SegmentGeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
                         SegmentId = Fixture.Create<RoadSegmentId>(),
                         Number = Fixture.Create<EuropeanRoadNumber>()
                     }
@@ -227,6 +228,7 @@ public class ChangeRoadNetworkValidatorTests : ValidatorTest<ChangeRoadNetwork, 
                     new AddRoadSegmentToNationalRoad
                     {
                         TemporaryAttributeId = Fixture.Create<int>(),
+                        SegmentGeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
                         SegmentId = Fixture.Create<RoadSegmentId>(),
                         Number = Fixture.Create<NationalRoadNumber>()
                     }
@@ -238,6 +240,7 @@ public class ChangeRoadNetworkValidatorTests : ValidatorTest<ChangeRoadNetwork, 
                     new AddRoadSegmentToNumberedRoad
                     {
                         TemporaryAttributeId = Fixture.Create<int>(),
+                        SegmentGeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
                         SegmentId = Fixture.Create<RoadSegmentId>(),
                         Number = Fixture.Create<NumberedRoadNumber>(),
                         Direction = RoadSegmentNumberedRoadDirection.Unknown

@@ -11,11 +11,13 @@ public class AddRoadSegmentToNationalRoadValidatorTests : ValidatorTest<AddRoadS
     {
         Fixture.CustomizeAttributeId();
         Fixture.CustomizeNationalRoadNumber();
+        Fixture.CustomizeRoadSegmentGeometryDrawMethod();
 
         Model = new AddRoadSegmentToNationalRoad
         {
             TemporaryAttributeId = Fixture.Create<AttributeId>(),
-            Number = Fixture.Create<NationalRoadNumber>()
+            Number = Fixture.Create<NationalRoadNumber>(),
+            SegmentGeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>()
         };
     }
 
