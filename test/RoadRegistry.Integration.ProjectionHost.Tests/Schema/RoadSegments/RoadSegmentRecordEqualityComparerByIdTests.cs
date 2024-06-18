@@ -3,6 +3,7 @@ namespace RoadRegistry.Integration.ProjectionHost.Tests.Schema.RoadSegments;
 using Integration.Schema.RoadSegments;
 using FluentAssertions;
 
+// What's the benefit of this?
 public class RoadSegmentLatestItemEqualityComparerByIdTests
 {
     private readonly RoadSegmentLatestItemEqualityComparerById _sut;

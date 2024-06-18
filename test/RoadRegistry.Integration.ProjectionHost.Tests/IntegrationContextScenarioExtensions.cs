@@ -1,14 +1,14 @@
 namespace RoadRegistry.Integration.ProjectionHost.Tests;
 
 using System.Text;
+using BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Integration.Schema;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Microsoft.EntityFrameworkCore;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.Integration.Schema;
 using RoadRegistry.Tests.Framework.Projections;
 using Xunit.Sdk;
 
@@ -16,12 +16,13 @@ public static class IntegrationContextScenarioExtensions
 {
     //IMPORTANT: Each time you change the db sets on the context, you must adjust this method as well.
     //
-    private static async Task<object[]> AllRecords(this IntegrationContext context)
+    private static Task<object[]> AllRecords(this IntegrationContext context)
     {
         var records = new List<object>();
         records.AddRange(context.RoadSegments.Local);
+        records.AddRange(context.RoadNodes.Local);
 
-        return records.ToArray();
+        return Task.FromResult(records.ToArray());
     }
 
     private static IntegrationContext CreateContextFor(string database)
@@ -85,7 +86,7 @@ public static class IntegrationContextScenarioExtensions
         });
 
         await using var context = CreateContextFor(database);
-        
+
         var projector = new ConnectedProjector<IntegrationContext>(specification.Resolver);
         var position = 0L;
         foreach (var message in specification.Messages)
@@ -102,7 +103,7 @@ public static class IntegrationContextScenarioExtensions
         await context.SaveChangesAsync();
 
         var result = await specification.Verification(context, CancellationToken.None);
-        
+
         if (result.Failed)
         {
             throw specification.CreateFailedScenarioExceptionFor(result);
