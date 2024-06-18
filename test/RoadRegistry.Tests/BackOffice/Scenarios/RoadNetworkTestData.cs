@@ -88,8 +88,6 @@ public class RoadNetworkTestData
                 instance.Ordinal = ObjectProvider.Create<RoadSegmentNumberedRoadOrdinal>();
             }).OmitAutoProperties());
         
-        
-
         customize?.Invoke(ObjectProvider);
 
         ArchiveId = ObjectProvider.Create<ArchiveId>();

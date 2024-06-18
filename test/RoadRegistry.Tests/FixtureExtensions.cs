@@ -1,5 +1,7 @@
 namespace RoadRegistry.Tests;
 
+using System.IO.Compression;
+using System.Text;
 using AutoFixture;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -11,8 +13,6 @@ using RoadRegistry.BackOffice.Extracts.Dbase;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
-using System.IO.Compression;
-using System.Text;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = NetTopologySuite.Geometries.Polygon;
