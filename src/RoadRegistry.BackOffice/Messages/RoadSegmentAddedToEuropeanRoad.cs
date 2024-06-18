@@ -11,7 +11,6 @@ public class RoadSegmentAddedToEuropeanRoad: IHaveHash
     public string SegmentGeometryDrawMethod { get; set; }
     public int SegmentId { get; set; }
     public int TemporaryAttributeId { get; set; }
-    //TODO-rik projections
     public int? SegmentVersion { get; set; }
 
     public System.Collections.Generic.IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
