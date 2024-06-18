@@ -17,7 +17,7 @@ public class RoadSegmentRecordProjectionTests
 {
     private readonly Fixture _fixture;
     private readonly TestDataHelper _testDataHelper;
-
+    //TODO-rik add tests
     public RoadSegmentRecordProjectionTests()
     {
         _testDataHelper = new TestDataHelper();
