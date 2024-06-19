@@ -21,6 +21,7 @@ public static class IntegrationContextScenarioExtensions
         var records = new List<object>();
         records.AddRange(context.RoadSegments.Local);
         records.AddRange(context.RoadNodes.Local);
+        records.AddRange(context.Organizations.Local);
 
         return Task.FromResult(records.ToArray());
     }

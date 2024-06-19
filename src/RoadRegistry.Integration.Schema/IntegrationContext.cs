@@ -3,6 +3,7 @@ namespace RoadRegistry.Integration.Schema;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Microsoft.EntityFrameworkCore;
+using Organizations;
 using RoadNodes;
 using RoadSegments;
 
@@ -10,9 +11,9 @@ public class IntegrationContext : RunnerDbContext<IntegrationContext>
 {
     public override string ProjectionStateSchema => WellKnownSchemas.IntegrationSchema;
 
-    // public DbSet<OrganizationRecord> Organizations { get; set; }
-    public DbSet<RoadNodeLatestItem> RoadNodes { get; set; }
-    public DbSet<RoadSegmentLatestItem> RoadSegments  => Set<RoadSegmentLatestItem>();
+    public DbSet<OrganizationLatestItem> Organizations => Set<OrganizationLatestItem>();
+    public DbSet<RoadNodeLatestItem> RoadNodes => Set<RoadNodeLatestItem>();
+    public DbSet<RoadSegmentLatestItem> RoadSegments => Set<RoadSegmentLatestItem>();
     // public DbSet<RoadSegmentEuropeanRoadAttributeRecord> RoadSegmentEuropeanRoadAttributes { get; set; }
     // public DbSet<RoadSegmentNationalRoadAttributeRecord> RoadSegmentNationalRoadAttributes { get; set; }
     // public DbSet<RoadSegmentNumberedRoadAttributeRecord> RoadSegmentNumberedRoadAttributes { get; set; }
