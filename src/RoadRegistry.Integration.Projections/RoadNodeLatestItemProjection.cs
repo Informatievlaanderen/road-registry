@@ -115,7 +115,6 @@ public class RoadNodeLatestItemProjection : ConnectedProjection<IntegrationConte
         RoadNodeRemoved node,
         CancellationToken token)
     {
-        // Use IncludeLocalSingleOrDefaultAsync?
         var roadNode = await context.RoadNodes.FindAsync(node.Id, cancellationToken: token).ConfigureAwait(false);
 
         if (roadNode is not null && !roadNode.IsRemoved)
