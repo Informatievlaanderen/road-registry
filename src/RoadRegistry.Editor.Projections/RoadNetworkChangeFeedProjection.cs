@@ -275,7 +275,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                                 Text = BackOffice.DutchTranslations.ProblemTranslator.Dutch(problem).Message
                             })
                             .ToArray()
-                            ?? Array.Empty<ProblemWithChange>()
+                            ?? []
                     })
                     .ToArray()
             };
