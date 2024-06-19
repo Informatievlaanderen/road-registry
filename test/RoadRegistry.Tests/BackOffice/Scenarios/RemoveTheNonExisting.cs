@@ -722,6 +722,7 @@ public class RemoveTheNonExisting : RoadRegistryTestBase
                             RemoveRoadSegmentFromEuropeanRoad = new RemoveRoadSegmentFromEuropeanRoad
                             {
                                 AttributeId = 1,
+                                SegmentGeometryDrawMethod = roadSegmentGeometryDrawMethod,
                                 SegmentId = 1,
                                 Number = europeanRoadNumber
                             }
@@ -738,6 +739,7 @@ public class RemoveTheNonExisting : RoadRegistryTestBase
                             RemoveRoadSegmentFromEuropeanRoad = new RemoveRoadSegmentFromEuropeanRoad
                             {
                                 AttributeId = 1,
+                                SegmentGeometryDrawMethod = roadSegmentGeometryDrawMethod,
                                 SegmentId = 1,
                                 Number = europeanRoadNumber
                             },
@@ -901,6 +903,7 @@ public class RemoveTheNonExisting : RoadRegistryTestBase
                             RemoveRoadSegmentFromNationalRoad = new RemoveRoadSegmentFromNationalRoad
                             {
                                 AttributeId = 1,
+                                SegmentGeometryDrawMethod = roadSegmentGeometryDrawMethod,
                                 SegmentId = 1,
                                 Number = nationalRoadNumber
                             }
@@ -917,6 +920,7 @@ public class RemoveTheNonExisting : RoadRegistryTestBase
                             RemoveRoadSegmentFromNationalRoad = new RemoveRoadSegmentFromNationalRoad
                             {
                                 AttributeId = 1,
+                                SegmentGeometryDrawMethod = roadSegmentGeometryDrawMethod,
                                 SegmentId = 1,
                                 Number = nationalRoadNumber
                             },
@@ -1080,6 +1084,7 @@ public class RemoveTheNonExisting : RoadRegistryTestBase
                             RemoveRoadSegmentFromNumberedRoad = new RemoveRoadSegmentFromNumberedRoad
                             {
                                 AttributeId = 1,
+                                SegmentGeometryDrawMethod = roadSegmentGeometryDrawMethod,
                                 SegmentId = 1,
                                 Number = numberedRoadNumber
                             }
@@ -1096,6 +1101,7 @@ public class RemoveTheNonExisting : RoadRegistryTestBase
                             RemoveRoadSegmentFromNumberedRoad = new RemoveRoadSegmentFromNumberedRoad
                             {
                                 AttributeId = 1,
+                                SegmentGeometryDrawMethod = roadSegmentGeometryDrawMethod,
                                 SegmentId = 1,
                                 Number = numberedRoadNumber
                             },

@@ -1,5 +1,9 @@
 namespace RoadRegistry.Wms.Projections;
 
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Extensions;
 using BackOffice.FeatureToggles;
@@ -7,10 +11,6 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Schema;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
 {
@@ -80,8 +80,8 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
         {
-            foreach (var change in envelope.Message.Changes.Flatten())
-                switch (change)
+            foreach (var acceptedChange in envelope.Message.Changes.Flatten())
+                switch (acceptedChange)
                 {
                     case RoadSegmentAdded roadSegmentAdded:
                         await AddRoadSegment(streetNameCache, context, envelope, roadSegmentAdded, token);
@@ -89,6 +89,27 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
 
                     case RoadSegmentModified roadSegmentModified:
                         await ModifyRoadSegment(streetNameCache, context, envelope, roadSegmentModified, token);
+                        break;
+
+                    case RoadSegmentAddedToEuropeanRoad change:
+                        await AddRoadSegmentToEuropeanRoad(context, change, envelope, token);
+                        break;
+                    case RoadSegmentRemovedFromEuropeanRoad change:
+                        await RemoveRoadSegmentFromEuropeanRoad(context, change, envelope, token);
+                        break;
+
+                    case RoadSegmentAddedToNationalRoad change:
+                        await AddRoadSegmentToNationalRoad(context, change, envelope, token);
+                        break;
+                    case RoadSegmentRemovedFromNationalRoad change:
+                        await RemoveRoadSegmentFromNationalRoad(context, change, envelope, token);
+                        break;
+
+                    case RoadSegmentAddedToNumberedRoad change:
+                        await AddRoadSegmentToNumberedRoad(context, change, envelope, token);
+                        break;
+                    case RoadSegmentRemovedFromNumberedRoad change:
+                        await RemoveRoadSegmentFromNumberedRoad(context, change, envelope, token);
                         break;
 
                     case RoadSegmentAttributesModified roadSegmentAttributesModified:
@@ -273,6 +294,60 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         dbRecord.EndRoadNodeId = roadSegmentModified.EndNodeId;
     }
 
+    private static async Task AddRoadSegmentToEuropeanRoad(
+        WmsContext context,
+        RoadSegmentAddedToEuropeanRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task RemoveRoadSegmentFromEuropeanRoad(
+        WmsContext context,
+        RoadSegmentRemovedFromEuropeanRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task AddRoadSegmentToNationalRoad(
+        WmsContext context,
+        RoadSegmentAddedToNationalRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task RemoveRoadSegmentFromNationalRoad(
+        WmsContext context,
+        RoadSegmentRemovedFromNationalRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task AddRoadSegmentToNumberedRoad(
+        WmsContext context,
+        RoadSegmentAddedToNumberedRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task RemoveRoadSegmentFromNumberedRoad(
+        WmsContext context,
+        RoadSegmentRemovedFromNumberedRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+    }
+
     private static async Task ModifyRoadSegmentAttributes(
         WmsContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -382,6 +457,34 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
                 context.RoadSegments.Remove(roadSegmentRecord);
             }
         }
+    }
+
+    private static async Task UpdateRoadSegmentVersion(
+        WmsContext context,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        int segmentId,
+        int? segmentVersion,
+        CancellationToken token)
+    {
+        if (segmentVersion is null)
+        {
+            return;
+        }
+
+        var dbRecord = await context.RoadSegments
+                    .IncludeLocalSingleOrDefaultAsync(x => x.Id == segmentId, token)
+                    .ConfigureAwait(false);
+        if (dbRecord is null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {segmentId} is not found");
+        }
+
+        dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+
+        var transactionId = new TransactionId(envelope.Message.TransactionId);
+        dbRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
+
+        dbRecord.RoadSegmentVersion = segmentVersion.Value;
     }
 
     private async Task RenameOrganization(

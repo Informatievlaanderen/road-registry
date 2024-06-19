@@ -9,19 +9,22 @@ public class RemoveRoadSegmentFromNumberedRoad : ITranslatedChange
     public RemoveRoadSegmentFromNumberedRoad(
         RecordNumber recordNumber,
         AttributeId attributeId,
+        RoadSegmentGeometryDrawMethod segmentGeometryDrawMethod,
         RoadSegmentId segmentId,
         NumberedRoadNumber number)
     {
         RecordNumber = recordNumber;
         AttributeId = attributeId;
+        SegmentGeometryDrawMethod = segmentGeometryDrawMethod;
         SegmentId = segmentId;
         Number = number;
     }
 
-    public AttributeId AttributeId { get; }
-    public NumberedRoadNumber Number { get; }
     public RecordNumber RecordNumber { get; }
+    public AttributeId AttributeId { get; }
+    public RoadSegmentGeometryDrawMethod SegmentGeometryDrawMethod { get; }
     public RoadSegmentId SegmentId { get; }
+    public NumberedRoadNumber Number { get; }
 
     public void TranslateTo(RequestedChange message)
     {
@@ -31,6 +34,7 @@ public class RemoveRoadSegmentFromNumberedRoad : ITranslatedChange
         {
             AttributeId = AttributeId,
             Number = Number,
+            SegmentGeometryDrawMethod = SegmentGeometryDrawMethod,
             SegmentId = SegmentId
         };
     }

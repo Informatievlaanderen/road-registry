@@ -1,16 +1,15 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
-using Extracts;
-using Extracts.Dbase.GradeSeparatedJuntions;
-using FeatureToggles;
-using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice.FeatureCompare.Readers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Extracts;
+using Extracts.Dbase.GradeSeparatedJuntions;
+using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice.FeatureCompare.Readers;
 using Uploads;
 
 public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTranslatorBase<GradeSeparatedJunctionFeatureCompareAttributes>

@@ -13,13 +13,15 @@ public class AddRoadSegmentToNumberedRoadValidatorTests : ValidatorTest<AddRoadS
         Fixture.CustomizeNumberedRoadNumber();
         Fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
         Fixture.CustomizeRoadSegmentNumberedRoadDirection();
+        Fixture.CustomizeRoadSegmentGeometryDrawMethod();
 
         Model = new AddRoadSegmentToNumberedRoad
         {
             TemporaryAttributeId = Fixture.Create<AttributeId>(),
             Number = Fixture.Create<NumberedRoadNumber>(),
             Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>(),
-            Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>()
+            Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>(),
+            SegmentGeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>()
         };
     }
 

@@ -52,12 +52,18 @@ public class RoadSegmentVersionRecordProjectionTests : IClassFixture<ProjectionT
         _fixture.CustomizeImportedRoadSegmentSideAttributes();
         _fixture.CustomizeOriginProperties();
 
+        _fixture.CustomizeRoadNetworkChangesAccepted();
         _fixture.CustomizeRoadSegmentAdded();
         _fixture.CustomizeRoadSegmentModified();
         _fixture.CustomizeRoadSegmentAttributesModified();
         _fixture.CustomizeRoadSegmentGeometryModified();
         _fixture.CustomizeRoadSegmentRemoved();
-        _fixture.CustomizeRoadNetworkChangesAccepted();
+        _fixture.CustomizeRoadSegmentAddedToEuropeanRoad();
+        _fixture.CustomizeRoadSegmentRemovedFromEuropeanRoad();
+        _fixture.CustomizeRoadSegmentAddedToNationalRoad();
+        _fixture.CustomizeRoadSegmentRemovedFromNationalRoad();
+        _fixture.CustomizeRoadSegmentAddedToNumberedRoad();
+        _fixture.CustomizeRoadSegmentRemovedFromNumberedRoad();
     }
 
     [Fact]
@@ -69,24 +75,204 @@ public class RoadSegmentVersionRecordProjectionTests : IClassFixture<ProjectionT
 
         var expectedRecords = Array.ConvertAll(message.Changes, change =>
         {
-            var roadSegmentAdded = change.RoadSegmentAdded;
-
-            var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation;
-
-            return (object)new RoadSegmentVersionRecord
-            {
-                StreamId = "roadnetwork",
-                Id = roadSegmentAdded.Id,
-                Method = geometryDrawMethodTranslation.Identifier,
-                Version = roadSegmentAdded.Version,
-                GeometryVersion = roadSegmentAdded.GeometryVersion,
-                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(message.When)
-            };
+            return (object)BuildRoadSegmentRecord(message, change.RoadSegmentAdded, _ => { });
         });
 
-        return new RoadSegmentVersionRecordProjection(new NullLogger<RoadSegmentVersionRecordProjection>())
+        return BuildProjection()
             .Scenario()
             .Given(message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_adding_road_segment_to_european_road()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToEuropeanRoad>());
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var roadSegmentAddedToEuropeanRoad = change.RoadSegmentAddedToEuropeanRoad;
+
+            return (object)BuildRoadSegmentRecord(
+                acceptedRoadSegmentAdded,
+                acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded,
+                record =>
+                {
+                    record.Version = roadSegmentAddedToEuropeanRoad.SegmentVersion!.Value;
+                });
+        });
+
+        return BuildProjection()
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_adding_road_segment_to_national_road()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToNationalRoad>());
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var roadSegmentAddedToNationalRoad = change.RoadSegmentAddedToNationalRoad;
+
+            return (object)BuildRoadSegmentRecord(
+                acceptedRoadSegmentAdded,
+                acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded,
+                record =>
+                {
+                    record.Version = roadSegmentAddedToNationalRoad.SegmentVersion!.Value;
+                });
+        });
+
+        return BuildProjection()
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_adding_road_segment_to_numbered_road()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToNumberedRoad>());
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var roadSegmentAddedToNumberedRoad = change.RoadSegmentAddedToNumberedRoad;
+
+            return (object)BuildRoadSegmentRecord(
+                acceptedRoadSegmentAdded,
+                acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded,
+                record =>
+                {
+                    record.Version = roadSegmentAddedToNumberedRoad.SegmentVersion!.Value;
+                });
+        });
+
+        return BuildProjection()
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_removing_road_segment_from_european_road()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentRemovedFromEuropeanRoad>());
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var roadSegmentRemovedFromEuropeanRoad = change.RoadSegmentRemovedFromEuropeanRoad;
+
+            return (object)BuildRoadSegmentRecord(
+                acceptedRoadSegmentAdded,
+                acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded,
+                record =>
+                {
+                    record.Version = roadSegmentRemovedFromEuropeanRoad.SegmentVersion!.Value;
+                });
+        });
+
+        return BuildProjection()
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_removing_road_segment_from_national_road()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentRemovedFromNationalRoad>());
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var roadSegmentRemovedFromNationalRoad = change.RoadSegmentRemovedFromNationalRoad;
+
+            return (object)BuildRoadSegmentRecord(
+                acceptedRoadSegmentAdded,
+                acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded,
+                record =>
+                {
+                    record.Version = roadSegmentRemovedFromNationalRoad.SegmentVersion!.Value;
+                });
+        });
+
+        return BuildProjection()
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_removing_road_segment_from_numbered_road()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentRemovedFromNumberedRoad>());
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var roadSegmentRemovedFromNumberedRoad = change.RoadSegmentRemovedFromNumberedRoad;
+
+            return (object)BuildRoadSegmentRecord(
+                acceptedRoadSegmentAdded,
+                acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded,
+                record =>
+                {
+                    record.Version = roadSegmentRemovedFromNumberedRoad.SegmentVersion!.Value;
+                });
+        });
+
+        return BuildProjection()
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, message)
             .Expect(expectedRecords);
     }
 
@@ -107,7 +293,7 @@ public class RoadSegmentVersionRecordProjectionTests : IClassFixture<ProjectionT
         {
             var roadSegmentAdded = acceptedRoadSegmentAdded.Changes[0].RoadSegmentAdded;
             var roadSegmentAttributesModified = change.RoadSegmentAttributesModified;
-            
+
             var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation;
 
             return (object)new RoadSegmentVersionRecord
@@ -121,7 +307,7 @@ public class RoadSegmentVersionRecordProjectionTests : IClassFixture<ProjectionT
             };
         });
 
-        return new RoadSegmentVersionRecordProjection(new NullLogger<RoadSegmentVersionRecordProjection>())
+        return BuildProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentAttributesModified)
             .Expect(expectedRecords);
@@ -158,7 +344,7 @@ public class RoadSegmentVersionRecordProjectionTests : IClassFixture<ProjectionT
             };
         });
 
-        return new RoadSegmentVersionRecordProjection(new NullLogger<RoadSegmentVersionRecordProjection>())
+        return BuildProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentGeometryModified)
             .Expect(expectedRecords);
@@ -194,7 +380,7 @@ public class RoadSegmentVersionRecordProjectionTests : IClassFixture<ProjectionT
             };
         });
 
-        return new RoadSegmentVersionRecordProjection(new NullLogger<RoadSegmentVersionRecordProjection>())
+        return BuildProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .Expect(expectedRecords);
@@ -224,7 +410,7 @@ public class RoadSegmentVersionRecordProjectionTests : IClassFixture<ProjectionT
             var roadSegmentAdded = change.RoadSegmentAdded;
 
             var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation;
-            
+
             return (object)new RoadSegmentVersionRecord
             {
                 StreamId = "roadnetwork",
@@ -237,7 +423,7 @@ public class RoadSegmentVersionRecordProjectionTests : IClassFixture<ProjectionT
             };
         });
 
-        return new RoadSegmentVersionRecordProjection(new NullLogger<RoadSegmentVersionRecordProjection>())
+        return BuildProjection()
             .Scenario()
             .Given(messages)
             .ExpectWhileIgnoringQueryFilters(expectedRecords);
@@ -265,9 +451,35 @@ public class RoadSegmentVersionRecordProjectionTests : IClassFixture<ProjectionT
                 return new { importedRoadSegment, expected };
             }).ToList();
 
-        return new RoadSegmentVersionRecordProjection(new NullLogger<RoadSegmentVersionRecordProjection>())
+        return BuildProjection()
             .Scenario()
             .Given(data.Select(d => d.importedRoadSegment))
             .Expect(data.Select(d => d.expected));
+    }
+
+    private RoadSegmentVersionRecord BuildRoadSegmentRecord(
+        RoadNetworkChangesAccepted acceptedRoadSegmentAdded,
+        RoadSegmentAdded roadSegmentAdded,
+        Action<RoadSegmentVersionRecord> changeRecord)
+    {
+        var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation;
+
+        var record = new RoadSegmentVersionRecord
+        {
+            StreamId = "roadnetwork",
+            Id = roadSegmentAdded.Id,
+            Method = geometryDrawMethodTranslation.Identifier,
+            Version = roadSegmentAdded.Version,
+            GeometryVersion = roadSegmentAdded.GeometryVersion,
+            RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When)
+        };
+        changeRecord(record);
+
+        return record;
+    }
+
+    private RoadSegmentVersionRecordProjection BuildProjection()
+    {
+        return new RoadSegmentVersionRecordProjection(new NullLogger<RoadSegmentVersionRecordProjection>());
     }
 }

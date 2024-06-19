@@ -73,6 +73,27 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
                         await ModifyRoadSegment(context, roadSegmentModified, envelope, token);
                         break;
 
+                    case RoadSegmentAddedToEuropeanRoad change:
+                        await AddRoadSegmentToEuropeanRoad(context, change, envelope, token);
+                        break;
+                    case RoadSegmentRemovedFromEuropeanRoad change:
+                        await RemoveRoadSegmentFromEuropeanRoad(context, change, envelope, token);
+                        break;
+
+                    case RoadSegmentAddedToNationalRoad change:
+                        await AddRoadSegmentToNationalRoad(context, change, envelope, token);
+                        break;
+                    case RoadSegmentRemovedFromNationalRoad change:
+                        await RemoveRoadSegmentFromNationalRoad(context, change, envelope, token);
+                        break;
+
+                    case RoadSegmentAddedToNumberedRoad change:
+                        await AddRoadSegmentToNumberedRoad(context, change, envelope, token);
+                        break;
+                    case RoadSegmentRemovedFromNumberedRoad change:
+                        await RemoveRoadSegmentFromNumberedRoad(context, change, envelope, token);
+                        break;
+
                     case RoadSegmentAttributesModified roadSegmentAttributesModified:
                         await ModifyRoadSegmentAttributes(context, roadSegmentAttributesModified, envelope, token);
                         break;
@@ -186,6 +207,60 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
+    private static async Task AddRoadSegmentToEuropeanRoad(
+        IntegrationContext context,
+        RoadSegmentAddedToEuropeanRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task RemoveRoadSegmentFromEuropeanRoad(
+        IntegrationContext context,
+        RoadSegmentRemovedFromEuropeanRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task AddRoadSegmentToNationalRoad(
+        IntegrationContext context,
+        RoadSegmentAddedToNationalRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task RemoveRoadSegmentFromNationalRoad(
+        IntegrationContext context,
+        RoadSegmentRemovedFromNationalRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task AddRoadSegmentToNumberedRoad(
+        IntegrationContext context,
+        RoadSegmentAddedToNumberedRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task RemoveRoadSegmentFromNumberedRoad(
+        IntegrationContext context,
+        RoadSegmentRemovedFromNumberedRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+    }
+
     private static async Task ModifyRoadSegmentAttributes(
         IntegrationContext context,
         RoadSegmentAttributesModified roadSegmentAttributesModified,
@@ -267,5 +342,30 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
             latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
             latestItem.IsRemoved = true;
         }
+    }
+
+    private static async Task UpdateRoadSegmentVersion(
+        IntegrationContext context,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        int segmentId,
+        int? segmentVersion,
+        CancellationToken token)
+    {
+        if (segmentVersion is null)
+        {
+            return;
+        }
+
+        var latestItem = await context.RoadSegments
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == segmentId, token)
+            .ConfigureAwait(false);
+        if (latestItem is null)
+        {
+            throw new InvalidOperationException($"{nameof(RoadSegmentLatestItem)} with id {segmentId} is not found");
+        }
+
+        latestItem.Version = segmentVersion.Value;
+        
+        latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 }

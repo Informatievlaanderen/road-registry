@@ -10,4 +10,5 @@ public interface IRequestedChangeIdentityTranslator
     bool TryTranslateToPermanent(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary);
     bool TryTranslateToTemporary(RoadNodeId id, out RoadNodeId temporary);
     bool TryTranslateToTemporary(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary);
+    bool IsSegmentAdded(RoadSegmentId id);
 }

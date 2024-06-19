@@ -1,5 +1,9 @@
 namespace RoadRegistry.Editor.Projections;
 
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Extensions;
 using BackOffice.Messages;
@@ -8,10 +12,6 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.Extensions.Logging;
 using Schema;
 using Schema.RoadSegments;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorContext>
 {
@@ -47,6 +47,27 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
 
                     case RoadSegmentModified roadSegmentModified:
                         await ModifyRoadSegment(context, roadSegmentModified, envelope, token);
+                        break;
+
+                    case RoadSegmentAddedToEuropeanRoad change:
+                        await AddRoadSegmentToEuropeanRoad(context, change, envelope, token);
+                        break;
+                    case RoadSegmentRemovedFromEuropeanRoad change:
+                        await RemoveRoadSegmentFromEuropeanRoad(context, change, envelope, token);
+                        break;
+
+                    case RoadSegmentAddedToNationalRoad change:
+                        await AddRoadSegmentToNationalRoad(context, change, envelope, token);
+                        break;
+                    case RoadSegmentRemovedFromNationalRoad change:
+                        await RemoveRoadSegmentFromNationalRoad(context, change, envelope, token);
+                        break;
+
+                    case RoadSegmentAddedToNumberedRoad change:
+                        await AddRoadSegmentToNumberedRoad(context, change, envelope, token);
+                        break;
+                    case RoadSegmentRemovedFromNumberedRoad change:
+                        await RemoveRoadSegmentFromNumberedRoad(context, change, envelope, token);
                         break;
 
                     case RoadSegmentAttributesModified roadSegmentAttributesModified:
@@ -121,6 +142,60 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         dbRecord.Version = roadSegmentModified.Version;
         dbRecord.GeometryVersion = roadSegmentModified.GeometryVersion;
         dbRecord.IsRemoved = false;
+    }
+
+    private static async Task AddRoadSegmentToEuropeanRoad(
+        EditorContext context,
+        RoadSegmentAddedToEuropeanRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task RemoveRoadSegmentFromEuropeanRoad(
+        EditorContext context,
+        RoadSegmentRemovedFromEuropeanRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task AddRoadSegmentToNationalRoad(
+        EditorContext context,
+        RoadSegmentAddedToNationalRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task RemoveRoadSegmentFromNationalRoad(
+        EditorContext context,
+        RoadSegmentRemovedFromNationalRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task AddRoadSegmentToNumberedRoad(
+        EditorContext context,
+        RoadSegmentAddedToNumberedRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task RemoveRoadSegmentFromNumberedRoad(
+        EditorContext context,
+        RoadSegmentRemovedFromNumberedRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.SegmentId, change.SegmentVersion, token);
     }
 
     private static async Task ModifyRoadSegmentAttributes(
@@ -213,5 +288,32 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         {
             dbRecord.IsRemoved = true;
         }
+    }
+    
+    private static async Task UpdateRoadSegmentVersion(
+        EditorContext context,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        int segmentId,
+        int? segmentVersion,
+        CancellationToken token)
+    {
+        if (segmentVersion is null)
+        {
+            return;
+        }
+
+        var dbRecord = (await context.RoadSegmentVersions.IncludeLocalToListAsync(roadSegmentVersions =>
+                roadSegmentVersions
+                    .Where(x => x.Id == segmentId && x.StreamId == envelope.StreamId)
+                    .OrderByDescending(x => x.RecordingDate)
+                    .Take(1)
+            , token).ConfigureAwait(false)).FirstOrDefault();
+
+        if (dbRecord is null)
+        {
+            throw new InvalidOperationException($"{nameof(RoadSegmentVersionRecord)} with id {segmentId} is not found");
+        }
+
+        dbRecord.Version = segmentVersion.Value;
     }
 }

@@ -1,5 +1,7 @@
 namespace RoadRegistry.Tests;
 
+using System.IO.Compression;
+using System.Text;
 using AutoFixture;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -11,8 +13,6 @@ using RoadRegistry.BackOffice.Extracts.Dbase;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
-using System.IO.Compression;
-using System.Text;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = NetTopologySuite.Geometries.Polygon;
@@ -727,6 +727,7 @@ public static class Customizations
                         AttributeId = fixture.Create<AttributeId>(),
                         TemporaryAttributeId = fixture.Create<AttributeId>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<EuropeanRoadNumber>()
                     }
                 )
@@ -744,6 +745,7 @@ public static class Customizations
                         AttributeId = fixture.Create<AttributeId>(),
                         TemporaryAttributeId = fixture.Create<AttributeId>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<NationalRoadNumber>()
                     }
                 )
@@ -761,6 +763,7 @@ public static class Customizations
                         AttributeId = fixture.Create<AttributeId>(),
                         TemporaryAttributeId = fixture.Create<AttributeId>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<NumberedRoadNumber>(),
                         Direction = fixture.Create<RoadSegmentNumberedRoadDirection>(),
                         Ordinal = fixture.Create<RoadSegmentNumberedRoadOrdinal>()
@@ -940,6 +943,7 @@ public static class Customizations
                     {
                         AttributeId = fixture.Create<AttributeId>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<EuropeanRoadNumber>()
                     }
                 )
@@ -956,6 +960,7 @@ public static class Customizations
                     {
                         AttributeId = fixture.Create<AttributeId>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<NationalRoadNumber>()
                     }
                 )
@@ -972,6 +977,7 @@ public static class Customizations
                     {
                         AttributeId = fixture.Create<AttributeId>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<NationalRoadNumber>()
                     }
                 )

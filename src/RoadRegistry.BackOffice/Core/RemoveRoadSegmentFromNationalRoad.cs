@@ -11,17 +11,23 @@ public class RemoveRoadSegmentFromNationalRoad : IRequestedChange, IHaveHash
 
     public RemoveRoadSegmentFromNationalRoad(
         AttributeId attributeId,
+        RoadSegmentGeometryDrawMethod segmentGeometryDrawMethod,
         RoadSegmentId segmentId,
-        NationalRoadNumber number)
+        NationalRoadNumber number,
+        RoadSegmentVersion segmentVersion)
     {
         AttributeId = attributeId;
+        SegmentGeometryDrawMethod = segmentGeometryDrawMethod;
         SegmentId = segmentId;
         Number = number;
+        SegmentVersion = segmentVersion;
     }
 
     public AttributeId AttributeId { get; }
+    public RoadSegmentGeometryDrawMethod SegmentGeometryDrawMethod { get; }
     public NationalRoadNumber Number { get; }
     public RoadSegmentId SegmentId { get; }
+    public RoadSegmentVersion SegmentVersion { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -31,7 +37,8 @@ public class RemoveRoadSegmentFromNationalRoad : IRequestedChange, IHaveHash
         {
             AttributeId = AttributeId,
             Number = Number,
-            SegmentId = SegmentId
+            SegmentId = SegmentId,
+            SegmentVersion = SegmentVersion
         };
     }
 
@@ -43,6 +50,7 @@ public class RemoveRoadSegmentFromNationalRoad : IRequestedChange, IHaveHash
         {
             AttributeId = AttributeId,
             Number = Number,
+            SegmentGeometryDrawMethod = SegmentGeometryDrawMethod,
             SegmentId = SegmentId
         };
     }
