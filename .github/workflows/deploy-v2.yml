@@ -58,7 +58,7 @@ jobs:
           'road-syndication-projectionhost',
           'road-wfs-projectionhost',
           'road-wms-projectionhost'
-        ]
+         ]
 
     steps:
     - name: CD services
@@ -95,7 +95,7 @@ jobs:
          services: [
           'road-adminhost',
           'road-jobs-processor'
-        ]
+         ]
 
     steps:
     - name: CD services
@@ -137,6 +137,7 @@ jobs:
         aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
 
     - name: Prepare Lambda(s)
+      if: github.event.inputs.environment == 'prd'
       shell: bash
       run: |
         aws s3 cp $S3_BASEURL-$FUNCTION_BACKOFFICE/$VERSION/lambda.zip $S3_BASEURL-$FUNCTION_BACKOFFICE/lambda.zip --copy-props none
@@ -148,6 +149,7 @@ jobs:
         FUNCTION_SNAPSHOT: ${{ github.event.inputs.environment == 'tst' && 'rr-sqssnapshotfunction' || github.event.inputs.environment == 'stg' && 'rr-sqssnapshotfunction' || github.event.inputs.environment == 'prd' && 'rr-sqssnapshot' || '' }}
         
     - name: Promote Lambda(s)
+      if: github.event.inputs.environment == 'prd'
       shell: bash
       run: |
         docker pull ghcr.io/okigan/awscurl:latest
@@ -162,6 +164,24 @@ jobs:
         PROMOTEURL: ${{ github.event.inputs.environment == 'tst' && vars.VBR_AWS_PROMOTE_LAMBDA_DEVOPS_BASEURL || github.event.inputs.environment == 'stg' && vars.VBR_AWS_PROMOTE_LAMBDA_DEVOPS_BASEURL || secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
         FUNCTION_BACKOFFICE: ${{ github.event.inputs.environment == 'tst' && 'rr-sqsbackofficefunction' || github.event.inputs.environment == 'stg' && 'rr-sqsbackofficefunction' || github.event.inputs.environment == 'prd' && 'rr-sqsbackofficefunction' || '' }}
         FUNCTION_SNAPSHOT: ${{ github.event.inputs.environment == 'tst' && 'rr-sqssnapshotfunction' || github.event.inputs.environment == 'stg' && 'rr-sqssnapshotfunction' || github.event.inputs.environment == 'prd' && 'rr-sqssnapshotfunction' || '' }}
+
+    - name: Promote Lambda(s)
+      if: github.event.inputs.environment != 'prd'
+      shell: bash
+      run: |
+        docker pull ghcr.io/okigan/awscurl:latest
+
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "deploy_target": "lambda", "version": "'$SEMVER'" }' $PROMOTEURL/$FUNCTION_BACKOFFICE/$ENVIRONMENT/deploy/v4/
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "deploy_target": "lambda", "version": "'$SEMVER'" }' $PROMOTEURL/$FUNCTION_SNAPSHOT/$ENVIRONMENT/deploy/v4/
+      env:
+        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
+        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
+        ENVIRONMENT: ${{ github.event.inputs.environment }}
+        REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
+        PROMOTEURL: ${{ vars.VBR_AWS_DEPLOY_LAMBDA_DEVOPS_BASEURL }}
+        SEMVER: ${{ github.event.inputs.version }}
+        FUNCTION_BACKOFFICE: rr-sqsbackofficefunction
+        FUNCTION_SNAPSHOT: rr-sqssnapshotfunction
 
   deploy_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
