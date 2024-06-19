@@ -1,3 +1,11 @@
+## [4.1.4](https://github.com/informatievlaanderen/road-registry/compare/v4.1.3...v4.1.4) (2024-06-19)
+
+
+### Bug Fixes
+
+* **ci:** new lambda deploy tst+stg ([35a86f2](https://github.com/informatievlaanderen/road-registry/commit/35a86f2c71a62586e48a1ae7dd0ead20913af33c))
+* GAWR-6462 bump roadsegment version when changing linked number attributes ([#1505](https://github.com/informatievlaanderen/road-registry/issues/1505)) ([018c57c](https://github.com/informatievlaanderen/road-registry/commit/018c57cfa3ecf4a43eb6bf821ffcbc2d71bcc4f3))
+
 ## [4.1.3](https://github.com/informatievlaanderen/road-registry/compare/v4.1.2...v4.1.3) (2024-06-17)
 
 
