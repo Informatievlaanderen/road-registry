@@ -2449,17 +2449,23 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             var attributeId = new AttributeId(@event.AttributeId);
             var roadSegmentId = new RoadSegmentId(@event.SegmentId);
             var europeanRoadNumber = EuropeanRoadNumber.Parse(@event.Number);
+            var roadSegmentVersion = RoadSegmentVersion.FromValue(@event.SegmentVersion);
 
             var attribute = new RoadSegmentEuropeanRoadAttribute(attributeId, europeanRoadNumber);
 
-            _segments.TryReplace(roadSegmentId, segment => segment.PartOfEuropeanRoad(attribute));
+            _segments.TryReplace(roadSegmentId, segment => segment
+                .PartOfEuropeanRoad(attribute)
+                .WithVersion(roadSegmentVersion ?? segment.Version));
         }
 
         private void Given(RoadSegmentRemovedFromEuropeanRoad @event)
         {
             var roadSegmentId = new RoadSegmentId(@event.SegmentId);
+            var roadSegmentVersion = RoadSegmentVersion.FromValue(@event.SegmentVersion);
 
-            _segments.TryReplace(roadSegmentId, segment => segment.NotPartOfEuropeanRoad(new AttributeId(@event.AttributeId)));
+            _segments.TryReplace(roadSegmentId, segment => segment
+                .NotPartOfEuropeanRoad(new AttributeId(@event.AttributeId))
+                .WithVersion(roadSegmentVersion ?? segment.Version));
         }
 
         private void Given(RoadSegmentAddedToNationalRoad @event)
@@ -2467,17 +2473,23 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             var attributeId = new AttributeId(@event.AttributeId);
             var roadSegmentId = new RoadSegmentId(@event.SegmentId);
             var nationalRoadNumber = NationalRoadNumber.Parse(@event.Number);
+            var roadSegmentVersion = RoadSegmentVersion.FromValue(@event.SegmentVersion);
 
             var attribute = new RoadSegmentNationalRoadAttribute(attributeId, nationalRoadNumber);
 
-            _segments.TryReplace(roadSegmentId, segment => segment.PartOfNationalRoad(attribute));
+            _segments.TryReplace(roadSegmentId, segment => segment
+                .PartOfNationalRoad(attribute)
+                .WithVersion(roadSegmentVersion ?? segment.Version));
         }
 
         private void Given(RoadSegmentRemovedFromNationalRoad @event)
         {
             var roadSegmentId = new RoadSegmentId(@event.SegmentId);
+            var roadSegmentVersion = RoadSegmentVersion.FromValue(@event.SegmentVersion);
 
-            _segments.TryReplace(roadSegmentId, segment => segment.NotPartOfNationalRoad(new AttributeId(@event.AttributeId)));
+            _segments.TryReplace(roadSegmentId, segment => segment
+                .NotPartOfNationalRoad(new AttributeId(@event.AttributeId))
+                .WithVersion(roadSegmentVersion ?? segment.Version));
         }
 
         private void Given(RoadSegmentAddedToNumberedRoad @event)
@@ -2485,6 +2497,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             var attributeId = new AttributeId(@event.AttributeId);
             var roadSegmentId = new RoadSegmentId(@event.SegmentId);
             var numberedRoadNumber = NumberedRoadNumber.Parse(@event.Number);
+            var roadSegmentVersion = RoadSegmentVersion.FromValue(@event.SegmentVersion);
 
             var attribute = new RoadSegmentNumberedRoadAttribute(
                 attributeId,
@@ -2493,7 +2506,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 new RoadSegmentNumberedRoadOrdinal(@event.Ordinal)
             );
 
-            _segments.TryReplace(roadSegmentId, segment => segment.PartOfNumberedRoad(attribute));
+            _segments.TryReplace(roadSegmentId, segment => segment
+                .PartOfNumberedRoad(attribute)
+                .WithVersion(roadSegmentVersion ?? segment.Version));
         }
 
         private void Given(RoadSegmentOnNumberedRoadModified @event)
@@ -2504,8 +2519,11 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         private void Given(RoadSegmentRemovedFromNumberedRoad @event)
         {
             var roadSegmentId = new RoadSegmentId(@event.SegmentId);
+            var roadSegmentVersion = RoadSegmentVersion.FromValue(@event.SegmentVersion);
 
-            _segments.TryReplace(roadSegmentId, segment => segment.NotPartOfNumberedRoad(new AttributeId(@event.AttributeId)));
+            _segments.TryReplace(roadSegmentId, segment => segment
+                .NotPartOfNumberedRoad(new AttributeId(@event.AttributeId))
+                .WithVersion(roadSegmentVersion ?? segment.Version));
         }
 
         private void With(AddRoadNode command)
