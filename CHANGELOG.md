@@ -1,3 +1,11 @@
+## [4.1.5](https://github.com/informatievlaanderen/road-registry/compare/v4.1.4...v4.1.5) (2024-06-20)
+
+
+### Bug Fixes
+
+* change feed mark segments as modified when number attribute changes ([1fe1120](https://github.com/informatievlaanderen/road-registry/commit/1fe11201cf75cf0f4d84e7713d499560b40dd501))
+* update roadsegment version after loading snapshot when playing road number attribute events ([399566d](https://github.com/informatievlaanderen/road-registry/commit/399566d081df3b03d79210dd49e2a45b341fd5e6))
+
 ## [4.1.4](https://github.com/informatievlaanderen/road-registry/compare/v4.1.3...v4.1.4) (2024-06-19)
 
 
