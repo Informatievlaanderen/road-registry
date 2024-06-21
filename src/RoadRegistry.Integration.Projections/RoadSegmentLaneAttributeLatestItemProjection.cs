@@ -9,7 +9,6 @@ using BackOffice.Extensions;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using Microsoft.EntityFrameworkCore;
 using Schema;
 using Schema.RoadSegments;
 
@@ -144,14 +143,9 @@ public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var latestItemsToRemove = context
-            .RoadSegmentLaneAttributes.Local
-            .Where(a => a.RoadSegmentId == segment.Id)
-            .Concat(await context
-                .RoadSegmentLaneAttributes
-                .Where(a => a.RoadSegmentId == segment.Id)
-                .ToArrayAsync(token)
-            );
+        var latestItemsToRemove = await context.RoadSegmentLaneAttributes.IncludeLocalToListAsync(
+            q => q.Where(x => x.RoadSegmentId == segment.Id),
+            token);
 
         foreach (var latestItem in latestItemsToRemove)
         {
@@ -169,14 +163,9 @@ public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<
         RoadSegmentLaneAttributes[] lanes,
         CancellationToken token)
     {
-        //Causes all attributes to be loaded into Local
-        await context
-            .RoadSegmentLaneAttributes
-            .Where(a => a.RoadSegmentId == roadSegmentId)
-            .ToArrayAsync(token);
-        var currentSet = context
-            .RoadSegmentLaneAttributes
-            .Local.Where(a => a.RoadSegmentId == roadSegmentId)
+        var currentSet = (await context.RoadSegmentLaneAttributes.IncludeLocalToListAsync(
+            q => q.Where(x => x.RoadSegmentId == roadSegmentId),
+            token))
             .ToDictionary(a => a.Id);
 
         var nextSet = lanes
