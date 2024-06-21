@@ -1,3 +1,10 @@
+## [4.1.6](https://github.com/informatievlaanderen/road-registry/compare/v4.1.5...v4.1.6) (2024-06-21)
+
+
+### Bug Fixes
+
+* add temporary logging ([#1511](https://github.com/informatievlaanderen/road-registry/issues/1511)) ([91f7c27](https://github.com/informatievlaanderen/road-registry/commit/91f7c27cfa6f26adedebcc0317e1c318ca7a7453))
+
 ## [4.1.5](https://github.com/informatievlaanderen/road-registry/compare/v4.1.4...v4.1.5) (2024-06-20)
 
 
