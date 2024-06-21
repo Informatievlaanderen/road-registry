@@ -519,7 +519,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             OrganizationName organizationName,
             CancellationToken cancellationToken)
         {
-            await context.RoadSegments.ForEachBatchAsync(q =>
+            await context.RoadSegments.IncludeLocalForEachBatchAsync(q =>
                 q.Where(x => x.MaintainerId == organizationId),
                 5000,
                 async dbRecords =>
@@ -539,7 +539,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             string dutchName,
             CancellationToken cancellationToken)
         {
-            await context.RoadSegments.ForEachBatchAsync(q =>
+            await context.RoadSegments.IncludeLocalForEachBatchAsync(q =>
                 q.Where(x => x.LeftSideStreetNameId == streetNameLocalId || x.RightSideStreetNameId == streetNameLocalId),
                 5000,
                 async dbRecords =>

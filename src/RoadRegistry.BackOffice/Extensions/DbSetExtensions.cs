@@ -10,13 +10,6 @@ using System.Threading.Tasks;
 
 public static class DbSetExtensions
 {
-    public static async Task ForEachBatchAsync<T>(this DbSet<T> dbSet, Func<IQueryable<T>, IQueryable<T>> queryBuilder, int batchSize, Func<ICollection<T>, Task> action, CancellationToken cancellationToken)
-        where T : class
-    {
-        await queryBuilder(dbSet.Local.AsQueryable()).ForEachBatchAsync(batchSize, action, cancellationToken);
-        await queryBuilder(dbSet).ForEachBatchAsync(batchSize, action, cancellationToken);
-    }
-
     public static async Task<T> IncludeLocalSingleOrDefaultAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
         where T : class
     {
@@ -41,10 +34,19 @@ public static class DbSetExtensions
     public static async Task<List<T>> IncludeLocalToListAsync<T>(this DbSet<T> dbSet, Func<IQueryable<T>, IQueryable<T>> query, CancellationToken cancellationToken)
         where T : class
     {
-        return query(dbSet.Local.AsQueryable())
-            .Concat(await query(dbSet)
-                .ToListAsync(cancellationToken))
-            .ToList();
+        // Load data to local
+        await query(dbSet).ToListAsync(cancellationToken);
+
+        return query(dbSet.Local.AsQueryable()).ToList();
+    }
+
+    public static async Task IncludeLocalForEachBatchAsync<T>(this DbSet<T> dbSet, Func<IQueryable<T>, IQueryable<T>> queryBuilder, int batchSize, Func<ICollection<T>, Task> action, CancellationToken cancellationToken)
+        where T : class
+    {
+        // Load data to local
+        await queryBuilder(dbSet).ToArrayAsync(cancellationToken);
+
+        await queryBuilder(dbSet.Local.AsQueryable()).ForEachBatchAsync(batchSize, action, cancellationToken);
     }
 
     public static void Synchronize<T>(this DbSet<T> source,
