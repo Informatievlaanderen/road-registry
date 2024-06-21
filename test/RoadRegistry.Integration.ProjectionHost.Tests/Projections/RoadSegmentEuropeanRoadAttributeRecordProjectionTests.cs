@@ -113,10 +113,10 @@ public class RoadSegmentEuropeanRoadAttributeLatestItemProjectionTests
                         Id = europeanRoad.AttributeId,
                         RoadSegmentId = segment.Id,
                         Number = europeanRoad.Number,
-                        BeginOrganizationId = segment.Origin.OrganizationId,
-                        BeginOrganizationName = segment.Origin.Organization,
-                        CreatedOnTimestamp = new DateTimeOffset(segment.RecordingDate),
-                        VersionTimestamp = new DateTimeOffset(segment.Origin.Since)
+                        BeginOrganizationId = europeanRoad.Origin.OrganizationId,
+                        BeginOrganizationName = europeanRoad.Origin.Organization,
+                        CreatedOnTimestamp = new DateTimeOffset(europeanRoad.Origin.Since),
+                        VersionTimestamp = new DateTimeOffset(europeanRoad.Origin.Since)
                     });
 
                 return new

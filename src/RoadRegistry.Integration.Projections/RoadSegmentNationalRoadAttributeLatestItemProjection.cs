@@ -26,10 +26,10 @@ public class RoadSegmentNationalRoadAttributeLatestItemProjection : ConnectedPro
                     Id = nationalRoad.AttributeId,
                     RoadSegmentId = envelope.Message.Id,
                     Number = nationalRoad.Number,
-                    BeginOrganizationId = envelope.Message.Origin.OrganizationId,
-                    BeginOrganizationName = envelope.Message.Origin.Organization,
-                    CreatedOnTimestamp = new DateTimeOffset(envelope.Message.RecordingDate),
-                    VersionTimestamp = new DateTimeOffset(envelope.Message.Origin.Since)
+                    BeginOrganizationId = nationalRoad.Origin.OrganizationId,
+                    BeginOrganizationName = nationalRoad.Origin.Organization,
+                    CreatedOnTimestamp = new DateTimeOffset(nationalRoad.Origin.Since),
+                    VersionTimestamp = new DateTimeOffset(nationalRoad.Origin.Since)
                 });
 
             return context.RoadSegmentNationalRoadAttributes.AddRangeAsync(nationalRoadAttributes, token);
