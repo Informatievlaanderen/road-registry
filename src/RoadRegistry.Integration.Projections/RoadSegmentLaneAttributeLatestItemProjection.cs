@@ -23,23 +23,23 @@ public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<
 
             var laneRecords = envelope.Message
                 .Lanes
-                .Select(lane =>
+                .Select(laneAttribute =>
                 {
-                    var laneDirectionTranslation = RoadSegmentLaneDirection.Parse(lane.Direction).Translation;
+                    var laneDirectionTranslation = RoadSegmentLaneDirection.Parse(laneAttribute.Direction).Translation;
                     return new RoadSegmentLaneAttributeLatestItem
                     {
-                        Id = lane.AttributeId,
+                        Id = laneAttribute.AttributeId,
                         RoadSegmentId = envelope.Message.Id,
-                        AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                        Count = lane.Count,
+                        AsOfGeometryVersion = laneAttribute.AsOfGeometryVersion,
+                        Count = laneAttribute.Count,
                         DirectionId = laneDirectionTranslation.Identifier,
                         DirectionLabel = laneDirectionTranslation.Name,
-                        FromPosition = (double)lane.FromPosition,
-                        ToPosition = (double)lane.ToPosition,
-                        BeginOrganizationId = envelope.Message.Origin.OrganizationId,
-                        BeginOrganizationName = envelope.Message.Origin.Organization,
-                        CreatedOnTimestamp = new DateTimeOffset(envelope.Message.RecordingDate),
-                        VersionTimestamp = new DateTimeOffset(envelope.Message.Origin.Since)
+                        FromPosition = (double)laneAttribute.FromPosition,
+                        ToPosition = (double)laneAttribute.ToPosition,
+                        BeginOrganizationId = laneAttribute.Origin.OrganizationId,
+                        BeginOrganizationName = laneAttribute.Origin.Organization,
+                        CreatedOnTimestamp = new DateTimeOffset(laneAttribute.Origin.Since),
+                        VersionTimestamp = new DateTimeOffset(laneAttribute.Origin.Since)
                     };
                 });
 
@@ -83,19 +83,19 @@ public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<
         {
             var lanes = segment
                 .Lanes
-                .Select(lane =>
+                .Select(laneAttribute =>
                 {
-                    var laneDirectionTranslation = RoadSegmentLaneDirection.Parse(lane.Direction).Translation;
+                    var laneDirectionTranslation = RoadSegmentLaneDirection.Parse(laneAttribute.Direction).Translation;
                     return new RoadSegmentLaneAttributeLatestItem
                     {
-                        Id = lane.AttributeId,
+                        Id = laneAttribute.AttributeId,
                         RoadSegmentId = segment.Id,
-                        AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                        Count = lane.Count,
+                        AsOfGeometryVersion = laneAttribute.AsOfGeometryVersion,
+                        Count = laneAttribute.Count,
                         DirectionId = laneDirectionTranslation.Identifier,
                         DirectionLabel = laneDirectionTranslation.Name,
-                        FromPosition = (double)lane.FromPosition,
-                        ToPosition = (double)lane.ToPosition,
+                        FromPosition = (double)laneAttribute.FromPosition,
+                        ToPosition = (double)laneAttribute.ToPosition,
                         BeginOrganizationId = envelope.Message.OrganizationId,
                         BeginOrganizationName = envelope.Message.Organization,
                         CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),

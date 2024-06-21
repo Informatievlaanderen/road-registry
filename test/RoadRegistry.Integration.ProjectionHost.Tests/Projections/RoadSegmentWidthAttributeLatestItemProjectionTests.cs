@@ -39,7 +39,7 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_adding_road_segment_with_surfaces()
+    public Task When_adding_road_segment_with_widths()
     {
         var message = _fixture
             .Create<RoadNetworkChangesAccepted>()
@@ -48,15 +48,15 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
         var expectedRecords = Array.ConvertAll(message.Changes, change =>
             {
                 var segment = change.RoadSegmentAdded;
-                return segment.Widths.Select(surface => new RoadSegmentWidthAttributeLatestItem
+                return segment.Widths.Select(width => new RoadSegmentWidthAttributeLatestItem
                 {
-                    Id = surface.AttributeId,
+                    Id = width.AttributeId,
                     RoadSegmentId = segment.Id,
-                    AsOfGeometryVersion = surface.AsOfGeometryVersion,
-                    Width = new RoadSegmentWidth(surface.Width),
-                    WidthLabel = new RoadSegmentWidth(surface.Width).ToDutchString(),
-                    FromPosition = (double)surface.FromPosition,
-                    ToPosition = (double)surface.ToPosition,
+                    AsOfGeometryVersion = width.AsOfGeometryVersion,
+                    Width = new RoadSegmentWidth(width.Width),
+                    WidthLabel = new RoadSegmentWidth(width.Width).ToDutchString(),
+                    FromPosition = (double)width.FromPosition,
+                    ToPosition = (double)width.ToPosition,
                     BeginOrganizationId = message.OrganizationId,
                     BeginOrganizationName = message.Organization,
                     IsRemoved = false,
@@ -73,7 +73,7 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_importing_a_road_segment_without_surfaces()
+    public Task When_importing_a_road_segment_without_widths()
     {
         var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
         importedRoadSegment.Widths = [];
@@ -98,20 +98,20 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
 
                 var expected = segment
                     .Widths
-                    .Select(surface => new RoadSegmentWidthAttributeLatestItem
+                    .Select(width => new RoadSegmentWidthAttributeLatestItem
                     {
-                        Id = surface.AttributeId,
+                        Id = width.AttributeId,
                         RoadSegmentId = segment.Id,
-                        AsOfGeometryVersion = surface.AsOfGeometryVersion,
-                        Width = new RoadSegmentWidth(surface.Width),
-                        WidthLabel = new RoadSegmentWidth(surface.Width).ToDutchString(),
-                        FromPosition = (double)surface.FromPosition,
-                        ToPosition = (double)surface.ToPosition,
-                        BeginOrganizationId = segment.Origin.OrganizationId,
-                        BeginOrganizationName = segment.Origin.Organization,
+                        AsOfGeometryVersion = width.AsOfGeometryVersion,
+                        Width = new RoadSegmentWidth(width.Width),
+                        WidthLabel = new RoadSegmentWidth(width.Width).ToDutchString(),
+                        FromPosition = (double)width.FromPosition,
+                        ToPosition = (double)width.ToPosition,
+                        BeginOrganizationId = width.Origin.OrganizationId,
+                        BeginOrganizationName = width.Origin.Organization,
                         IsRemoved = false,
-                        CreatedOnTimestamp = new DateTimeOffset(segment.RecordingDate),
-                        VersionTimestamp = new DateTimeOffset(segment.Origin.Since)
+                        CreatedOnTimestamp = new DateTimeOffset(width.Origin.Since),
+                        VersionTimestamp = new DateTimeOffset(width.Origin.Since)
                     });
 
                 return new
@@ -132,7 +132,7 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_modifying_road_segments_with_modified_surfaces_only()
+    public Task When_modifying_road_segments_with_modified_widths_only()
     {
         _fixture.Freeze<RoadSegmentId>();
 
@@ -159,15 +159,15 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentModified;
 
-            return segment.Widths.Select(surface => (object)new RoadSegmentWidthAttributeLatestItem
+            return segment.Widths.Select(width => (object)new RoadSegmentWidthAttributeLatestItem
             {
-                Id = surface.AttributeId,
+                Id = width.AttributeId,
                 RoadSegmentId = segment.Id,
-                AsOfGeometryVersion = surface.AsOfGeometryVersion,
-                Width = new RoadSegmentWidth(surface.Width),
-                WidthLabel = new RoadSegmentWidth(surface.Width).ToDutchString(),
-                FromPosition = (double)surface.FromPosition,
-                ToPosition = (double)surface.ToPosition,
+                AsOfGeometryVersion = width.AsOfGeometryVersion,
+                Width = new RoadSegmentWidth(width.Width),
+                WidthLabel = new RoadSegmentWidth(width.Width).ToDutchString(),
+                FromPosition = (double)width.FromPosition,
+                ToPosition = (double)width.ToPosition,
                 BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                 BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                 IsRemoved = false,
@@ -183,7 +183,7 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_modifying_road_segments_with_removed_surfaces_only()
+    public Task When_modifying_road_segments_with_removed_widths_only()
     {
         _fixture.Freeze<RoadSegmentId>();
 
@@ -203,15 +203,15 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentAdded;
 
-            return segment.Widths.Select(surface => (object)new RoadSegmentWidthAttributeLatestItem
+            return segment.Widths.Select(width => (object)new RoadSegmentWidthAttributeLatestItem
             {
-                Id = surface.AttributeId,
+                Id = width.AttributeId,
                 RoadSegmentId = segment.Id,
-                AsOfGeometryVersion = surface.AsOfGeometryVersion,
-                Width = new RoadSegmentWidth(surface.Width),
-                WidthLabel = new RoadSegmentWidth(surface.Width).ToDutchString(),
-                FromPosition = (double)surface.FromPosition,
-                ToPosition = (double)surface.ToPosition,
+                AsOfGeometryVersion = width.AsOfGeometryVersion,
+                Width = new RoadSegmentWidth(width.Width),
+                WidthLabel = new RoadSegmentWidth(width.Width).ToDutchString(),
+                FromPosition = (double)width.FromPosition,
+                ToPosition = (double)width.ToPosition,
                 BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                 BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                 IsRemoved = true,
@@ -227,7 +227,7 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_modifying_road_segments_with_some_added_surfaces()
+    public Task When_modifying_road_segments_with_some_added_widths()
     {
         _fixture.Freeze<RoadSegmentId>();
 
@@ -249,19 +249,19 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentModified;
 
-            return segment.Widths.Select(surface =>
+            return segment.Widths.Select(width =>
             {
-                var isAdded = roadSegmentAdded.Widths.All(x => x.AttributeId != surface.AttributeId);
+                var isAdded = roadSegmentAdded.Widths.All(x => x.AttributeId != width.AttributeId);
 
                 return (object)new RoadSegmentWidthAttributeLatestItem
                 {
-                    Id = surface.AttributeId,
+                    Id = width.AttributeId,
                     RoadSegmentId = segment.Id,
-                    AsOfGeometryVersion = surface.AsOfGeometryVersion,
-                    Width = new RoadSegmentWidth(surface.Width),
-                    WidthLabel = new RoadSegmentWidth(surface.Width).ToDutchString(),
-                    FromPosition = (double)surface.FromPosition,
-                    ToPosition = (double)surface.ToPosition,
+                    AsOfGeometryVersion = width.AsOfGeometryVersion,
+                    Width = new RoadSegmentWidth(width.Width),
+                    WidthLabel = new RoadSegmentWidth(width.Width).ToDutchString(),
+                    FromPosition = (double)width.FromPosition,
+                    ToPosition = (double)width.ToPosition,
                     BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                     BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                     IsRemoved = false,
@@ -281,7 +281,7 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_modifying_road_segments_with_some_modified_surfaces()
+    public Task When_modifying_road_segments_with_some_modified_widths()
     {
         _fixture.Freeze<RoadSegmentId>();
 
@@ -314,15 +314,15 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentModified;
 
-            return segment.Widths.Select(surface => (object)new RoadSegmentWidthAttributeLatestItem
+            return segment.Widths.Select(width => (object)new RoadSegmentWidthAttributeLatestItem
             {
-                Id = surface.AttributeId,
+                Id = width.AttributeId,
                 RoadSegmentId = segment.Id,
-                AsOfGeometryVersion = surface.AsOfGeometryVersion,
-                Width = new RoadSegmentWidth(surface.Width),
-                WidthLabel = new RoadSegmentWidth(surface.Width).ToDutchString(),
-                FromPosition = (double)surface.FromPosition,
-                ToPosition = (double)surface.ToPosition,
+                AsOfGeometryVersion = width.AsOfGeometryVersion,
+                Width = new RoadSegmentWidth(width.Width),
+                WidthLabel = new RoadSegmentWidth(width.Width).ToDutchString(),
+                FromPosition = (double)width.FromPosition,
+                ToPosition = (double)width.ToPosition,
                 BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                 BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                 IsRemoved = false,
@@ -338,7 +338,7 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_modifying_road_segments_with_some_removed_surfaces()
+    public Task When_modifying_road_segments_with_some_removed_widths()
     {
         _fixture.Freeze<RoadSegmentId>();
 
@@ -362,15 +362,15 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentModified;
 
-            return segment.Widths.Select(surface => (object)new RoadSegmentWidthAttributeLatestItem
+            return segment.Widths.Select(width => (object)new RoadSegmentWidthAttributeLatestItem
             {
-                Id = surface.AttributeId,
+                Id = width.AttributeId,
                 RoadSegmentId = segment.Id,
-                AsOfGeometryVersion = surface.AsOfGeometryVersion,
-                Width = new RoadSegmentWidth(surface.Width),
-                WidthLabel = new RoadSegmentWidth(surface.Width).ToDutchString(),
-                FromPosition = (double)surface.FromPosition,
-                ToPosition = (double)surface.ToPosition,
+                AsOfGeometryVersion = width.AsOfGeometryVersion,
+                Width = new RoadSegmentWidth(width.Width),
+                WidthLabel = new RoadSegmentWidth(width.Width).ToDutchString(),
+                FromPosition = (double)width.FromPosition,
+                ToPosition = (double)width.ToPosition,
                 BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                 BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                 IsRemoved = false,
@@ -404,7 +404,7 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_modifying_road_segment_geometry_with_new_surfaces_only()
+    public Task When_modifying_road_segment_geometry_with_new_widths_only()
     {
         _fixture.Freeze<RoadSegmentId>();
 
@@ -421,15 +421,15 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentGeometryModified;
 
-            return segment.Widths.Select(surface => (object)new RoadSegmentWidthAttributeLatestItem
+            return segment.Widths.Select(width => (object)new RoadSegmentWidthAttributeLatestItem
             {
-                Id = surface.AttributeId,
+                Id = width.AttributeId,
                 RoadSegmentId = segment.Id,
-                AsOfGeometryVersion = surface.AsOfGeometryVersion,
-                Width = new RoadSegmentWidth(surface.Width),
-                WidthLabel = new RoadSegmentWidth(surface.Width).ToDutchString(),
-                FromPosition = (double)surface.FromPosition,
-                ToPosition = (double)surface.ToPosition,
+                AsOfGeometryVersion = width.AsOfGeometryVersion,
+                Width = new RoadSegmentWidth(width.Width),
+                WidthLabel = new RoadSegmentWidth(width.Width).ToDutchString(),
+                FromPosition = (double)width.FromPosition,
+                ToPosition = (double)width.ToPosition,
                 BeginOrganizationId = acceptedRoadSegmentGeometryModified.OrganizationId,
                 BeginOrganizationName = acceptedRoadSegmentGeometryModified.Organization,
                 IsRemoved = false,
@@ -439,16 +439,16 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
         })
             .SelectMany(x => x)
             .Concat(roadSegmentAdded.Widths
-                .Select(surface =>
+                .Select(width =>
                     new RoadSegmentWidthAttributeLatestItem
                     {
-                        Id = surface.AttributeId,
+                        Id = width.AttributeId,
                         RoadSegmentId = roadSegmentAdded.Id,
-                        AsOfGeometryVersion = surface.AsOfGeometryVersion,
-                        Width = new RoadSegmentWidth(surface.Width),
-                        WidthLabel = new RoadSegmentWidth(surface.Width).ToDutchString(),
-                        FromPosition = (double)surface.FromPosition,
-                        ToPosition = (double)surface.ToPosition,
+                        AsOfGeometryVersion = width.AsOfGeometryVersion,
+                        Width = new RoadSegmentWidth(width.Width),
+                        WidthLabel = new RoadSegmentWidth(width.Width).ToDutchString(),
+                        FromPosition = (double)width.FromPosition,
+                        ToPosition = (double)width.ToPosition,
                         BeginOrganizationId = acceptedRoadSegmentGeometryModified.OrganizationId,
                         BeginOrganizationName = acceptedRoadSegmentGeometryModified.Organization,
                         IsRemoved = true,
@@ -464,7 +464,7 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_modifying_road_segments_with_new_surfaces_only()
+    public Task When_modifying_road_segments_with_new_widths_only()
     {
         _fixture.Freeze<RoadSegmentId>();
 
@@ -481,15 +481,15 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentModified;
 
-            return segment.Widths.Select(surface => (object)new RoadSegmentWidthAttributeLatestItem
+            return segment.Widths.Select(width => (object)new RoadSegmentWidthAttributeLatestItem
             {
-                Id = surface.AttributeId,
+                Id = width.AttributeId,
                 RoadSegmentId = segment.Id,
-                AsOfGeometryVersion = surface.AsOfGeometryVersion,
-                Width = new RoadSegmentWidth(surface.Width),
-                WidthLabel = new RoadSegmentWidth(surface.Width).ToDutchString(),
-                FromPosition = (double)surface.FromPosition,
-                ToPosition = (double)surface.ToPosition,
+                AsOfGeometryVersion = width.AsOfGeometryVersion,
+                Width = new RoadSegmentWidth(width.Width),
+                WidthLabel = new RoadSegmentWidth(width.Width).ToDutchString(),
+                FromPosition = (double)width.FromPosition,
+                ToPosition = (double)width.ToPosition,
                 BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                 BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                 IsRemoved = false,
@@ -499,16 +499,16 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
         })
             .SelectMany(x => x)
             .Concat(roadSegmentAdded.Widths
-                .Select(surface =>
+                .Select(width =>
                     new RoadSegmentWidthAttributeLatestItem
                     {
-                        Id = surface.AttributeId,
+                        Id = width.AttributeId,
                         RoadSegmentId = roadSegmentAdded.Id,
-                        AsOfGeometryVersion = surface.AsOfGeometryVersion,
-                        Width = new RoadSegmentWidth(surface.Width),
-                        WidthLabel = new RoadSegmentWidth(surface.Width).ToDutchString(),
-                        FromPosition = (double)surface.FromPosition,
-                        ToPosition = (double)surface.ToPosition,
+                        AsOfGeometryVersion = width.AsOfGeometryVersion,
+                        Width = new RoadSegmentWidth(width.Width),
+                        WidthLabel = new RoadSegmentWidth(width.Width).ToDutchString(),
+                        FromPosition = (double)width.FromPosition,
+                        ToPosition = (double)width.ToPosition,
                         BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                         BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                         IsRemoved = true,
@@ -524,7 +524,7 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_modifying_road_segment_attributes_with_new_surfaces_only()
+    public Task When_modifying_road_segment_attributes_with_new_widths_only()
     {
         _fixture.Freeze<RoadSegmentId>();
 
@@ -541,15 +541,15 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentAttributesModified;
 
-            return segment.Widths.Select(surface => (object)new RoadSegmentWidthAttributeLatestItem
+            return segment.Widths.Select(width => (object)new RoadSegmentWidthAttributeLatestItem
             {
-                Id = surface.AttributeId,
+                Id = width.AttributeId,
                 RoadSegmentId = segment.Id,
-                AsOfGeometryVersion = surface.AsOfGeometryVersion,
-                Width = new RoadSegmentWidth(surface.Width),
-                WidthLabel = new RoadSegmentWidth(surface.Width).ToDutchString(),
-                FromPosition = (double)surface.FromPosition,
-                ToPosition = (double)surface.ToPosition,
+                AsOfGeometryVersion = width.AsOfGeometryVersion,
+                Width = new RoadSegmentWidth(width.Width),
+                WidthLabel = new RoadSegmentWidth(width.Width).ToDutchString(),
+                FromPosition = (double)width.FromPosition,
+                ToPosition = (double)width.ToPosition,
                 BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                 BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                 IsRemoved = false,
@@ -559,16 +559,16 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
         })
             .SelectMany(x => x)
             .Concat(roadSegmentAdded.Widths
-                .Select(surface =>
+                .Select(width =>
                     new RoadSegmentWidthAttributeLatestItem
                     {
-                        Id = surface.AttributeId,
+                        Id = width.AttributeId,
                         RoadSegmentId = roadSegmentAdded.Id,
-                        AsOfGeometryVersion = surface.AsOfGeometryVersion,
-                        Width = new RoadSegmentWidth(surface.Width),
-                        WidthLabel = new RoadSegmentWidth(surface.Width).ToDutchString(),
-                        FromPosition = (double)surface.FromPosition,
-                        ToPosition = (double)surface.ToPosition,
+                        AsOfGeometryVersion = width.AsOfGeometryVersion,
+                        Width = new RoadSegmentWidth(width.Width),
+                        WidthLabel = new RoadSegmentWidth(width.Width).ToDutchString(),
+                        FromPosition = (double)width.FromPosition,
+                        ToPosition = (double)width.ToPosition,
                         BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                         BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                         IsRemoved = true,
@@ -600,15 +600,15 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentAdded;
 
-            return segment.Widths.Select(surface => (object)new RoadSegmentWidthAttributeLatestItem
+            return segment.Widths.Select(width => (object)new RoadSegmentWidthAttributeLatestItem
             {
-                Id = surface.AttributeId,
+                Id = width.AttributeId,
                 RoadSegmentId = segment.Id,
-                AsOfGeometryVersion = surface.AsOfGeometryVersion,
-                Width = new RoadSegmentWidth(surface.Width),
-                WidthLabel = new RoadSegmentWidth(surface.Width).ToDutchString(),
-                FromPosition = (double)surface.FromPosition,
-                ToPosition = (double)surface.ToPosition,
+                AsOfGeometryVersion = width.AsOfGeometryVersion,
+                Width = new RoadSegmentWidth(width.Width),
+                WidthLabel = new RoadSegmentWidth(width.Width).ToDutchString(),
+                FromPosition = (double)width.FromPosition,
+                ToPosition = (double)width.ToPosition,
                 BeginOrganizationId = acceptedRoadSegmentRemoved.OrganizationId,
                 BeginOrganizationName = acceptedRoadSegmentRemoved.Organization,
                 IsRemoved = true,

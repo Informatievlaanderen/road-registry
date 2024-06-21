@@ -110,11 +110,11 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
                         DirectionLabel = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name,
                         FromPosition = (double)lane.FromPosition,
                         ToPosition = (double)lane.ToPosition,
-                        BeginOrganizationId = segment.Origin.OrganizationId,
-                        BeginOrganizationName = segment.Origin.Organization,
+                        BeginOrganizationId = lane.Origin.OrganizationId,
+                        BeginOrganizationName = lane.Origin.Organization,
                         IsRemoved = false,
-                        CreatedOnTimestamp = new DateTimeOffset(segment.RecordingDate),
-                        VersionTimestamp = new DateTimeOffset(segment.Origin.Since)
+                        CreatedOnTimestamp = new DateTimeOffset(lane.Origin.Since),
+                        VersionTimestamp = new DateTimeOffset(lane.Origin.Since)
                     });
 
                 return new

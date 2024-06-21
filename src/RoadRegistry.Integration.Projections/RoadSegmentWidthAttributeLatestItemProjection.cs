@@ -36,10 +36,10 @@ public class RoadSegmentWidthAttributeLatestItemProjection : ConnectedProjection
                         WidthLabel = width.ToDutchString(),
                         FromPosition = (double)widthAttribute.FromPosition,
                         ToPosition = (double)widthAttribute.ToPosition,
-                        BeginOrganizationId = envelope.Message.Origin.OrganizationId,
-                        BeginOrganizationName = envelope.Message.Origin.Organization,
-                        CreatedOnTimestamp = new DateTimeOffset(envelope.Message.RecordingDate),
-                        VersionTimestamp = new DateTimeOffset(envelope.Message.Origin.Since)
+                        BeginOrganizationId = widthAttribute.Origin.OrganizationId,
+                        BeginOrganizationName = widthAttribute.Origin.Organization,
+                        CreatedOnTimestamp = new DateTimeOffset(widthAttribute.Origin.Since),
+                        VersionTimestamp = new DateTimeOffset(widthAttribute.Origin.Since)
                     };
                 });
 

@@ -107,11 +107,11 @@ public class RoadSegmentSurfaceAttributeLatestItemProjectionTests
                         TypeLabel = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name,
                         FromPosition = (double)surface.FromPosition,
                         ToPosition = (double)surface.ToPosition,
-                        BeginOrganizationId = segment.Origin.OrganizationId,
-                        BeginOrganizationName = segment.Origin.Organization,
+                        BeginOrganizationId = surface.Origin.OrganizationId,
+                        BeginOrganizationName = surface.Origin.Organization,
                         IsRemoved = false,
-                        CreatedOnTimestamp = new DateTimeOffset(segment.RecordingDate),
-                        VersionTimestamp = new DateTimeOffset(segment.Origin.Since)
+                        CreatedOnTimestamp = new DateTimeOffset(surface.Origin.Since),
+                        VersionTimestamp = new DateTimeOffset(surface.Origin.Since)
                     });
 
                 return new

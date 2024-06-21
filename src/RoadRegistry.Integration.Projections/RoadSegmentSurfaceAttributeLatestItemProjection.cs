@@ -23,22 +23,23 @@ public class RoadSegmentSurfaceAttributeLatestItemProjection : ConnectedProjecti
 
             var surfaceRecords = envelope.Message
                 .Surfaces
-                .Select(surface =>
+                .Select(surfaceAttribute =>
                 {
-                    var surfaceTypeTranslation = RoadSegmentSurfaceType.Parse(surface.Type).Translation;
+                    var surfaceTypeTranslation = RoadSegmentSurfaceType.Parse(surfaceAttribute.Type).Translation;
+
                     return new RoadSegmentSurfaceAttributeLatestItem
                     {
-                        Id = surface.AttributeId,
+                        Id = surfaceAttribute.AttributeId,
                         RoadSegmentId = envelope.Message.Id,
-                        AsOfGeometryVersion = surface.AsOfGeometryVersion,
+                        AsOfGeometryVersion = surfaceAttribute.AsOfGeometryVersion,
                         TypeId = surfaceTypeTranslation.Identifier,
                         TypeLabel = surfaceTypeTranslation.Name,
-                        FromPosition = (double)surface.FromPosition,
-                        ToPosition = (double)surface.ToPosition,
-                        BeginOrganizationId = envelope.Message.Origin.OrganizationId,
-                        BeginOrganizationName = envelope.Message.Origin.Organization,
-                        CreatedOnTimestamp = new DateTimeOffset(envelope.Message.RecordingDate),
-                        VersionTimestamp = new DateTimeOffset(envelope.Message.Origin.Since)
+                        FromPosition = (double)surfaceAttribute.FromPosition,
+                        ToPosition = (double)surfaceAttribute.ToPosition,
+                        BeginOrganizationId = surfaceAttribute.Origin.OrganizationId,
+                        BeginOrganizationName = surfaceAttribute.Origin.Organization,
+                        CreatedOnTimestamp = new DateTimeOffset(surfaceAttribute.Origin.Since),
+                        VersionTimestamp = new DateTimeOffset(surfaceAttribute.Origin.Since)
                     };
                 });
 
@@ -82,18 +83,19 @@ public class RoadSegmentSurfaceAttributeLatestItemProjection : ConnectedProjecti
         {
             var surfaces = segment
                 .Surfaces
-                .Select(surface =>
+                .Select(surfaceAttribute =>
                 {
-                    var surfaceTypeTranslation = RoadSegmentSurfaceType.Parse(surface.Type).Translation;
+                    var surfaceTypeTranslation = RoadSegmentSurfaceType.Parse(surfaceAttribute.Type).Translation;
+
                     return new RoadSegmentSurfaceAttributeLatestItem
                     {
-                        Id = surface.AttributeId,
+                        Id = surfaceAttribute.AttributeId,
                         RoadSegmentId = segment.Id,
-                        AsOfGeometryVersion = surface.AsOfGeometryVersion,
+                        AsOfGeometryVersion = surfaceAttribute.AsOfGeometryVersion,
                         TypeId = surfaceTypeTranslation.Identifier,
                         TypeLabel = surfaceTypeTranslation.Name,
-                        FromPosition = (double)surface.FromPosition,
-                        ToPosition = (double)surface.ToPosition,
+                        FromPosition = (double)surfaceAttribute.FromPosition,
+                        ToPosition = (double)surfaceAttribute.ToPosition,
                         BeginOrganizationId = envelope.Message.OrganizationId,
                         BeginOrganizationName = envelope.Message.Organization,
                         CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
@@ -167,18 +169,19 @@ public class RoadSegmentSurfaceAttributeLatestItemProjection : ConnectedProjecti
             .ToDictionary(a => a.Id);
 
         var nextSet = surfaces
-            .Select(surface =>
+            .Select(surfaceAttribute =>
             {
-                var surfaceTypeTranslation = RoadSegmentSurfaceType.Parse(surface.Type).Translation;
+                var surfaceTypeTranslation = RoadSegmentSurfaceType.Parse(surfaceAttribute.Type).Translation;
+
                 return new RoadSegmentSurfaceAttributeLatestItem
                 {
-                    Id = surface.AttributeId,
+                    Id = surfaceAttribute.AttributeId,
                     RoadSegmentId = roadSegmentId,
-                    AsOfGeometryVersion = surface.AsOfGeometryVersion,
+                    AsOfGeometryVersion = surfaceAttribute.AsOfGeometryVersion,
                     TypeId = surfaceTypeTranslation.Identifier,
                     TypeLabel = surfaceTypeTranslation.Name,
-                    FromPosition = (double)surface.FromPosition,
-                    ToPosition = (double)surface.ToPosition,
+                    FromPosition = (double)surfaceAttribute.FromPosition,
+                    ToPosition = (double)surfaceAttribute.ToPosition,
                     BeginOrganizationId = envelope.Message.OrganizationId,
                     BeginOrganizationName = envelope.Message.Organization,
                     CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
