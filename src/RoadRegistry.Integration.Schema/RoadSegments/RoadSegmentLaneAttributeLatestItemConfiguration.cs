@@ -16,8 +16,7 @@ public class RoadSegmentLaneAttributeLatestItemConfiguration : IEntityTypeConfig
 
         b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
         b.Property(p => p.IsRemoved).HasDefaultValue(false).IsRequired();
-
-
+        
         b.Property(x => x.Id).HasColumnName("id");
         b.Property(x => x.RoadSegmentId).HasColumnName("road_segment_id");
         b.Property(x => x.AsOfGeometryVersion).HasColumnName("as_of_geometry_version");
