@@ -6,7 +6,6 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using KellermanSoftware.CompareNetObjects;
-using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Microsoft.EntityFrameworkCore;
 using RoadRegistry.Tests.Framework.Projections;
 using Schema;
@@ -72,14 +71,14 @@ public static class IntegrationContextScenarioExtensions
             var comparisonConfig = new ComparisonConfig
             {
                 MaxDifferences = 10,
-                CustomComparers = new List<BaseTypeComparer>
-                {
+                CustomComparers =
+                [
                     new GeometryMultiPolygonComparer(RootComparerFactory.GetRootComparer()),
                     new GeometryPointComparer(RootComparerFactory.GetRootComparer()),
                     new GeometryPolygonComparer(RootComparerFactory.GetRootComparer()),
                     new GeometryMultiLineStringComparer(RootComparerFactory.GetRootComparer()),
                     new GeometryLineStringComparer(RootComparerFactory.GetRootComparer())
-                }
+                ]
             };
             var comparer = new CompareLogic(comparisonConfig);
             var actualRecords = await context.AllRecords();
