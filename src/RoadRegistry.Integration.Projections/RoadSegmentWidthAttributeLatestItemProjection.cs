@@ -12,30 +12,30 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Schema;
 using Schema.RoadSegments;
 
-public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<IntegrationContext>
+public class RoadSegmentWidthAttributeLatestItemProjection : ConnectedProjection<IntegrationContext>
 {
-    public RoadSegmentLaneAttributeLatestItemProjection()
+    public RoadSegmentWidthAttributeLatestItemProjection()
     {
         When<Envelope<ImportedRoadSegment>>((context, envelope, token) =>
         {
-            if (envelope.Message.Lanes.Length == 0)
+            if (envelope.Message.Widths.Length == 0)
                 return Task.CompletedTask;
 
-            var laneRecords = envelope.Message
-                .Lanes
-                .Select(lane =>
+            var widthRecords = envelope.Message
+                .Widths
+                .Select(widthAttribute =>
                 {
-                    var laneDirectionTranslation = RoadSegmentLaneDirection.Parse(lane.Direction).Translation;
-                    return new RoadSegmentLaneAttributeLatestItem
+                    var width = new RoadSegmentWidth(widthAttribute.Width);
+
+                    return new RoadSegmentWidthAttributeLatestItem
                     {
-                        Id = lane.AttributeId,
+                        Id = widthAttribute.AttributeId,
                         RoadSegmentId = envelope.Message.Id,
-                        AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                        Count = lane.Count,
-                        DirectionId = laneDirectionTranslation.Identifier,
-                        DirectionLabel = laneDirectionTranslation.Name,
-                        FromPosition = (double)lane.FromPosition,
-                        ToPosition = (double)lane.ToPosition,
+                        AsOfGeometryVersion = widthAttribute.AsOfGeometryVersion,
+                        Width = width,
+                        WidthLabel = width.ToDutchString(),
+                        FromPosition = (double)widthAttribute.FromPosition,
+                        ToPosition = (double)widthAttribute.ToPosition,
                         BeginOrganizationId = envelope.Message.Origin.OrganizationId,
                         BeginOrganizationName = envelope.Message.Origin.Organization,
                         CreatedOnTimestamp = new DateTimeOffset(envelope.Message.RecordingDate),
@@ -43,7 +43,7 @@ public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<
                     };
                 });
 
-            return context.RoadSegmentLaneAttributes.AddRangeAsync(laneRecords, token);
+            return context.RoadSegmentWidthAttributes.AddRangeAsync(widthRecords, token);
         });
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
@@ -79,23 +79,23 @@ public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<
         RoadSegmentAdded segment,
         Envelope<RoadNetworkChangesAccepted> envelope, CancellationToken cancellationToken)
     {
-        if (segment.Lanes.Length != 0)
+        if (segment.Widths.Length != 0)
         {
-            var lanes = segment
-                .Lanes
-                .Select(lane =>
+            var widths = segment
+                .Widths
+                .Select(widthAttribute =>
                 {
-                    var laneDirectionTranslation = RoadSegmentLaneDirection.Parse(lane.Direction).Translation;
-                    return new RoadSegmentLaneAttributeLatestItem
+                    var width = new RoadSegmentWidth(widthAttribute.Width);
+
+                    return new RoadSegmentWidthAttributeLatestItem
                     {
-                        Id = lane.AttributeId,
+                        Id = widthAttribute.AttributeId,
                         RoadSegmentId = segment.Id,
-                        AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                        Count = lane.Count,
-                        DirectionId = laneDirectionTranslation.Identifier,
-                        DirectionLabel = laneDirectionTranslation.Name,
-                        FromPosition = (double)lane.FromPosition,
-                        ToPosition = (double)lane.ToPosition,
+                        AsOfGeometryVersion = widthAttribute.AsOfGeometryVersion,
+                        Width = width,
+                        WidthLabel = width.ToDutchString(),
+                        FromPosition = (double)widthAttribute.FromPosition,
+                        ToPosition = (double)widthAttribute.ToPosition,
                         BeginOrganizationId = envelope.Message.OrganizationId,
                         BeginOrganizationName = envelope.Message.Organization,
                         CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
@@ -103,7 +103,7 @@ public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<
                     };
                 });
 
-            await context.RoadSegmentLaneAttributes.AddRangeAsync(lanes, cancellationToken);
+            await context.RoadSegmentWidthAttributes.AddRangeAsync(widths, cancellationToken);
         }
     }
 
@@ -113,7 +113,7 @@ public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        await UpdateLanes(context, envelope, segment.Id, segment.Lanes, token);
+        await UpdateWidths(context, envelope, segment.Id, segment.Widths, token);
     }
 
     private static async Task ModifyRoadSegmentAttributes(
@@ -122,9 +122,9 @@ public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        if (segment.Lanes is not null)
+        if (segment.Widths is not null)
         {
-            await UpdateLanes(context, envelope, segment.Id, segment.Lanes, token);
+            await UpdateWidths(context, envelope, segment.Id, segment.Widths, token);
         }
     }
 
@@ -134,7 +134,7 @@ public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        await UpdateLanes(context, envelope, segment.Id, segment.Lanes, token);
+        await UpdateWidths(context, envelope, segment.Id, segment.Widths, token);
     }
 
     private static async Task RemoveRoadSegment(
@@ -143,7 +143,7 @@ public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        var latestItemsToRemove = await context.RoadSegmentLaneAttributes.IncludeLocalToListAsync(
+        var latestItemsToRemove = await context.RoadSegmentWidthAttributes.IncludeLocalToListAsync(
             q => q.Where(x => x.RoadSegmentId == segment.Id),
             token);
 
@@ -156,32 +156,32 @@ public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<
         }
     }
 
-    private static async Task UpdateLanes(
+    private static async Task UpdateWidths(
         IntegrationContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
         int roadSegmentId,
-        RoadSegmentLaneAttributes[] lanes,
+        RoadSegmentWidthAttributes[] widths,
         CancellationToken token)
     {
-        var currentSet = (await context.RoadSegmentLaneAttributes.IncludeLocalToListAsync(
+        var currentSet = (await context.RoadSegmentWidthAttributes.IncludeLocalToListAsync(
             q => q.Where(x => x.RoadSegmentId == roadSegmentId),
             token))
             .ToDictionary(a => a.Id);
 
-        var nextSet = lanes
-            .Select(lane =>
+        var nextSet = widths
+            .Select(widthAttribute =>
             {
-                var laneDirectionTranslation = RoadSegmentLaneDirection.Parse(lane.Direction).Translation;
-                return new RoadSegmentLaneAttributeLatestItem
+                var width = new RoadSegmentWidth(widthAttribute.Width);
+
+                return new RoadSegmentWidthAttributeLatestItem
                 {
-                    Id = lane.AttributeId,
+                    Id = widthAttribute.AttributeId,
                     RoadSegmentId = roadSegmentId,
-                    AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                    Count = lane.Count,
-                    DirectionId = laneDirectionTranslation.Identifier,
-                    DirectionLabel = laneDirectionTranslation.Name,
-                    FromPosition = (double)lane.FromPosition,
-                    ToPosition = (double)lane.ToPosition,
+                    AsOfGeometryVersion = widthAttribute.AsOfGeometryVersion,
+                    Width = width,
+                    WidthLabel = width.ToDutchString(),
+                    FromPosition = (double)widthAttribute.FromPosition,
+                    ToPosition = (double)widthAttribute.ToPosition,
                     BeginOrganizationId = envelope.Message.OrganizationId,
                     BeginOrganizationName = envelope.Message.Organization,
                     CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
@@ -190,7 +190,7 @@ public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<
             })
             .ToDictionary(a => a.Id);
 
-        context.RoadSegmentLaneAttributes.Synchronize(
+        context.RoadSegmentWidthAttributes.Synchronize(
             currentSet,
             nextSet,
             (current, next) =>
@@ -198,9 +198,8 @@ public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<
                 current.Id = next.Id;
                 current.RoadSegmentId = next.RoadSegmentId;
                 current.AsOfGeometryVersion = next.AsOfGeometryVersion;
-                current.Count = next.Count;
-                current.DirectionId = next.DirectionId;
-                current.DirectionLabel = next.DirectionLabel;
+                current.Width = next.Width;
+                current.WidthLabel = next.WidthLabel;
                 current.FromPosition = next.FromPosition;
                 current.ToPosition = next.ToPosition;
                 current.BeginOrganizationId = next.BeginOrganizationId;

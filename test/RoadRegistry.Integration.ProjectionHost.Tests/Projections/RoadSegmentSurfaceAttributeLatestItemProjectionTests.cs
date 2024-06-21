@@ -7,11 +7,11 @@ using Integration.Projections;
 using RoadRegistry.Tests.BackOffice;
 using Schema.RoadSegments;
 
-public class RoadSegmentLaneAttributeLatestItemProjectionTests
+public class RoadSegmentSurfaceAttributeLatestItemProjectionTests
 {
     private readonly Fixture _fixture;
 
-    public RoadSegmentLaneAttributeLatestItemProjectionTests()
+    public RoadSegmentSurfaceAttributeLatestItemProjectionTests()
     {
         _fixture = new Fixture();
 
@@ -20,17 +20,16 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
         _fixture.CustomizeRoadSegmentId();
         _fixture.CustomizeOrganizationId();
         _fixture.CustomizePolylineM();
-        _fixture.CustomizeRoadSegmentLaneCount();
-        _fixture.CustomizeRoadSegmentLaneDirection();
+        _fixture.CustomizeRoadSegmentSurfaceType();
         _fixture.CustomizeRoadSegmentGeometryDrawMethod();
         _fixture.CustomizeRoadSegmentMorphology();
         _fixture.CustomizeRoadSegmentStatus();
         _fixture.CustomizeRoadSegmentCategory();
         _fixture.CustomizeRoadSegmentAccessRestriction();
 
-        _fixture.CustomizeImportedRoadSegmentLaneAttributes();
+        _fixture.CustomizeImportedRoadSegmentSurfaceAttributes();
 
-        _fixture.CustomizeRoadSegmentLaneAttributes();
+        _fixture.CustomizeRoadSegmentSurfaceAttributes();
         _fixture.CustomizeRoadSegmentAdded();
         _fixture.CustomizeRoadSegmentModified();
         _fixture.CustomizeRoadSegmentAttributesModified();
@@ -40,7 +39,7 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_adding_road_segment_with_lanes()
+    public Task When_adding_road_segment_with_surfaces()
     {
         var message = _fixture
             .Create<RoadNetworkChangesAccepted>()
@@ -49,16 +48,15 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
         var expectedRecords = Array.ConvertAll(message.Changes, change =>
             {
                 var segment = change.RoadSegmentAdded;
-                return segment.Lanes.Select(lane => new RoadSegmentLaneAttributeLatestItem
+                return segment.Surfaces.Select(surface => new RoadSegmentSurfaceAttributeLatestItem
                 {
-                    Id = lane.AttributeId,
+                    Id = surface.AttributeId,
                     RoadSegmentId = segment.Id,
-                    AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                    Count = lane.Count,
-                    DirectionId = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier,
-                    DirectionLabel = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name,
-                    FromPosition = (double)lane.FromPosition,
-                    ToPosition = (double)lane.ToPosition,
+                    AsOfGeometryVersion = surface.AsOfGeometryVersion,
+                    TypeId = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier,
+                    TypeLabel = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name,
+                    FromPosition = (double)surface.FromPosition,
+                    ToPosition = (double)surface.ToPosition,
                     BeginOrganizationId = message.OrganizationId,
                     BeginOrganizationName = message.Organization,
                     IsRemoved = false,
@@ -68,19 +66,19 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
             })
             .SelectMany(x => x);
 
-        return new RoadSegmentLaneAttributeLatestItemProjection()
+        return new RoadSegmentSurfaceAttributeLatestItemProjection()
             .Scenario()
             .Given(message)
             .Expect(expectedRecords);
     }
 
     [Fact]
-    public Task When_importing_a_road_segment_without_lanes()
+    public Task When_importing_a_road_segment_without_surfaces()
     {
         var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
-        importedRoadSegment.Lanes = [];
+        importedRoadSegment.Surfaces = [];
 
-        return new RoadSegmentLaneAttributeLatestItemProjection()
+        return new RoadSegmentSurfaceAttributeLatestItemProjection()
             .Scenario()
             .Given(importedRoadSegment)
             .Expect([]);
@@ -94,22 +92,21 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
             .CreateMany<ImportedRoadSegment>(random.Next(1, 10))
             .Select(segment =>
             {
-                segment.Lanes = _fixture
-                    .CreateMany<ImportedRoadSegmentLaneAttribute>(random.Next(1, 10))
+                segment.Surfaces = _fixture
+                    .CreateMany<ImportedRoadSegmentSurfaceAttribute>(random.Next(1, 10))
                     .ToArray();
 
                 var expected = segment
-                    .Lanes
-                    .Select(lane => new RoadSegmentLaneAttributeLatestItem
+                    .Surfaces
+                    .Select(surface => new RoadSegmentSurfaceAttributeLatestItem
                     {
-                        Id = lane.AttributeId,
+                        Id = surface.AttributeId,
                         RoadSegmentId = segment.Id,
-                        AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                        Count = lane.Count,
-                        DirectionId = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier,
-                        DirectionLabel = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name,
-                        FromPosition = (double)lane.FromPosition,
-                        ToPosition = (double)lane.ToPosition,
+                        AsOfGeometryVersion = surface.AsOfGeometryVersion,
+                        TypeId = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier,
+                        TypeLabel = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name,
+                        FromPosition = (double)surface.FromPosition,
+                        ToPosition = (double)surface.ToPosition,
                         BeginOrganizationId = segment.Origin.OrganizationId,
                         BeginOrganizationName = segment.Origin.Organization,
                         IsRemoved = false,
@@ -124,7 +121,7 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
                 };
             }).ToList();
 
-        return new RoadSegmentLaneAttributeLatestItemProjection()
+        return new RoadSegmentSurfaceAttributeLatestItemProjection()
             .Scenario()
             .Given(data.Select(d => d.importedRoadSegment))
             .Expect(data
@@ -135,7 +132,7 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_modifying_road_segments_with_modified_lanes_only()
+    public Task When_modifying_road_segments_with_modified_surfaces_only()
     {
         _fixture.Freeze<RoadSegmentId>();
 
@@ -145,12 +142,12 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
             .WithAcceptedChanges(roadSegmentAdded);
 
         var roadSegmentModified = _fixture.Create<RoadSegmentModified>();
-        roadSegmentModified.Lanes = roadSegmentAdded.Lanes
+        roadSegmentModified.Surfaces = roadSegmentAdded.Surfaces
             .Select(attributes =>
             {
-                var roadSegmentLaneAttributes = _fixture.Create<RoadSegmentLaneAttributes>();
-                roadSegmentLaneAttributes.AttributeId = attributes.AttributeId;
-                return roadSegmentLaneAttributes;
+                var roadSegmentSurfaceAttributes = _fixture.Create<RoadSegmentSurfaceAttributes>();
+                roadSegmentSurfaceAttributes.AttributeId = attributes.AttributeId;
+                return roadSegmentSurfaceAttributes;
             })
             .ToArray();
 
@@ -162,16 +159,15 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentModified;
 
-            return segment.Lanes.Select(lane => (object)new RoadSegmentLaneAttributeLatestItem
+            return segment.Surfaces.Select(surface => (object)new RoadSegmentSurfaceAttributeLatestItem
             {
-                Id = lane.AttributeId,
+                Id = surface.AttributeId,
                 RoadSegmentId = segment.Id,
-                AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                Count = lane.Count,
-                DirectionId = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier,
-                DirectionLabel = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name,
-                FromPosition = (double)lane.FromPosition,
-                ToPosition = (double)lane.ToPosition,
+                AsOfGeometryVersion = surface.AsOfGeometryVersion,
+                TypeId = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier,
+                TypeLabel = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name,
+                FromPosition = (double)surface.FromPosition,
+                ToPosition = (double)surface.ToPosition,
                 BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                 BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                 IsRemoved = false,
@@ -180,14 +176,14 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
             });
         }).SelectMany(x => x);
 
-        return new RoadSegmentLaneAttributeLatestItemProjection()
+        return new RoadSegmentSurfaceAttributeLatestItemProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .Expect(expectedRecords);
     }
 
     [Fact]
-    public Task When_modifying_road_segments_with_removed_lanes_only()
+    public Task When_modifying_road_segments_with_removed_surfaces_only()
     {
         _fixture.Freeze<RoadSegmentId>();
 
@@ -197,7 +193,7 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
             .WithAcceptedChanges(roadSegmentAdded);
 
         var roadSegmentModified = _fixture.Create<RoadSegmentModified>();
-        roadSegmentModified.Lanes = [];
+        roadSegmentModified.Surfaces = [];
 
         var acceptedRoadSegmentModified = _fixture
             .Create<RoadNetworkChangesAccepted>()
@@ -207,16 +203,15 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentAdded;
 
-            return segment.Lanes.Select(lane => (object)new RoadSegmentLaneAttributeLatestItem
+            return segment.Surfaces.Select(surface => (object)new RoadSegmentSurfaceAttributeLatestItem
             {
-                Id = lane.AttributeId,
+                Id = surface.AttributeId,
                 RoadSegmentId = segment.Id,
-                AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                Count = lane.Count,
-                DirectionId = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier,
-                DirectionLabel = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name,
-                FromPosition = (double)lane.FromPosition,
-                ToPosition = (double)lane.ToPosition,
+                AsOfGeometryVersion = surface.AsOfGeometryVersion,
+                TypeId = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier,
+                TypeLabel = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name,
+                FromPosition = (double)surface.FromPosition,
+                ToPosition = (double)surface.ToPosition,
                 BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                 BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                 IsRemoved = true,
@@ -225,14 +220,14 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
             });
         }).SelectMany(x => x);
 
-        return new RoadSegmentLaneAttributeLatestItemProjection()
+        return new RoadSegmentSurfaceAttributeLatestItemProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .Expect(expectedRecords);
     }
 
     [Fact]
-    public Task When_modifying_road_segments_with_some_added_lanes()
+    public Task When_modifying_road_segments_with_some_added_surfaces()
     {
         _fixture.Freeze<RoadSegmentId>();
 
@@ -242,8 +237,8 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
             .WithAcceptedChanges(roadSegmentAdded);
 
         var roadSegmentModified = _fixture.Create<RoadSegmentModified>();
-        roadSegmentModified.Lanes = roadSegmentAdded.Lanes
-            .Append(_fixture.Create<RoadSegmentLaneAttributes>())
+        roadSegmentModified.Surfaces = roadSegmentAdded.Surfaces
+            .Append(_fixture.Create<RoadSegmentSurfaceAttributes>())
             .ToArray();
 
         var acceptedRoadSegmentModified = _fixture
@@ -254,20 +249,19 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentModified;
 
-            return segment.Lanes.Select(lane =>
+            return segment.Surfaces.Select(surface =>
             {
-                var isAdded = roadSegmentAdded.Lanes.All(x => x.AttributeId != lane.AttributeId);
+                var isAdded = roadSegmentAdded.Surfaces.All(x => x.AttributeId != surface.AttributeId);
 
-                return (object)new RoadSegmentLaneAttributeLatestItem
+                return (object)new RoadSegmentSurfaceAttributeLatestItem
                 {
-                    Id = lane.AttributeId,
+                    Id = surface.AttributeId,
                     RoadSegmentId = segment.Id,
-                    AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                    Count = lane.Count,
-                    DirectionId = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier,
-                    DirectionLabel = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name,
-                    FromPosition = (double)lane.FromPosition,
-                    ToPosition = (double)lane.ToPosition,
+                    AsOfGeometryVersion = surface.AsOfGeometryVersion,
+                    TypeId = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier,
+                    TypeLabel = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name,
+                    FromPosition = (double)surface.FromPosition,
+                    ToPosition = (double)surface.ToPosition,
                     BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                     BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                     IsRemoved = false,
@@ -280,14 +274,14 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
             });
         }).SelectMany(x => x);
 
-        return new RoadSegmentLaneAttributeLatestItemProjection()
+        return new RoadSegmentSurfaceAttributeLatestItemProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .Expect(expectedRecords);
     }
 
     [Fact]
-    public Task When_modifying_road_segments_with_some_modified_lanes()
+    public Task When_modifying_road_segments_with_some_modified_surfaces()
     {
         _fixture.Freeze<RoadSegmentId>();
 
@@ -297,7 +291,7 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
             .WithAcceptedChanges(roadSegmentAdded);
 
         var roadSegmentModified = _fixture.Create<RoadSegmentModified>();
-        roadSegmentModified.Lanes = roadSegmentAdded.Lanes
+        roadSegmentModified.Surfaces = roadSegmentAdded.Surfaces
             .Select((attributes, i) =>
             {
                 if (i % 2 != 0)
@@ -305,9 +299,9 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
                     return attributes;
                 }
 
-                var roadSegmentLaneAttributes = _fixture.Create<RoadSegmentLaneAttributes>();
-                roadSegmentLaneAttributes.AttributeId = attributes.AttributeId;
-                return roadSegmentLaneAttributes;
+                var roadSegmentSurfaceAttributes = _fixture.Create<RoadSegmentSurfaceAttributes>();
+                roadSegmentSurfaceAttributes.AttributeId = attributes.AttributeId;
+                return roadSegmentSurfaceAttributes;
 
             })
             .ToArray();
@@ -320,16 +314,15 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentModified;
 
-            return segment.Lanes.Select(lane => (object)new RoadSegmentLaneAttributeLatestItem
+            return segment.Surfaces.Select(surface => (object)new RoadSegmentSurfaceAttributeLatestItem
             {
-                Id = lane.AttributeId,
+                Id = surface.AttributeId,
                 RoadSegmentId = segment.Id,
-                AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                Count = lane.Count,
-                DirectionId = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier,
-                DirectionLabel = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name,
-                FromPosition = (double)lane.FromPosition,
-                ToPosition = (double)lane.ToPosition,
+                AsOfGeometryVersion = surface.AsOfGeometryVersion,
+                TypeId = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier,
+                TypeLabel = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name,
+                FromPosition = (double)surface.FromPosition,
+                ToPosition = (double)surface.ToPosition,
                 BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                 BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                 IsRemoved = false,
@@ -338,14 +331,14 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
             });
         }).SelectMany(x => x);
 
-        return new RoadSegmentLaneAttributeLatestItemProjection()
+        return new RoadSegmentSurfaceAttributeLatestItemProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .Expect(expectedRecords);
     }
 
     [Fact]
-    public Task When_modifying_road_segments_with_some_removed_lanes()
+    public Task When_modifying_road_segments_with_some_removed_surfaces()
     {
         _fixture.Freeze<RoadSegmentId>();
 
@@ -355,11 +348,11 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
             .WithAcceptedChanges(roadSegmentAdded);
 
         var roadSegmentModified = _fixture.Create<RoadSegmentModified>();
-        roadSegmentModified.Lanes = roadSegmentAdded.Lanes
-            .Take(roadSegmentAdded.Lanes.Length - 1)
+        roadSegmentModified.Surfaces = roadSegmentAdded.Surfaces
+            .Take(roadSegmentAdded.Surfaces.Length - 1)
             .ToArray();
 
-        var removedLane = roadSegmentAdded.Lanes.Except(roadSegmentModified.Lanes).Single();
+        var removedSurface = roadSegmentAdded.Surfaces.Except(roadSegmentModified.Surfaces).Single();
 
         var acceptedRoadSegmentModified = _fixture
             .Create<RoadNetworkChangesAccepted>()
@@ -369,16 +362,15 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentModified;
 
-            return segment.Lanes.Select(lane => (object)new RoadSegmentLaneAttributeLatestItem
+            return segment.Surfaces.Select(surface => (object)new RoadSegmentSurfaceAttributeLatestItem
             {
-                Id = lane.AttributeId,
+                Id = surface.AttributeId,
                 RoadSegmentId = segment.Id,
-                AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                Count = lane.Count,
-                DirectionId = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier,
-                DirectionLabel = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name,
-                FromPosition = (double)lane.FromPosition,
-                ToPosition = (double)lane.ToPosition,
+                AsOfGeometryVersion = surface.AsOfGeometryVersion,
+                TypeId = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier,
+                TypeLabel = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name,
+                FromPosition = (double)surface.FromPosition,
+                ToPosition = (double)surface.ToPosition,
                 BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                 BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                 IsRemoved = false,
@@ -388,16 +380,15 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
         })
             .SelectMany(x => x)
             .Concat([
-                new RoadSegmentLaneAttributeLatestItem
+                new RoadSegmentSurfaceAttributeLatestItem
                 {
-                    Id = removedLane.AttributeId,
+                    Id = removedSurface.AttributeId,
                     RoadSegmentId = roadSegmentAdded.Id,
-                    AsOfGeometryVersion = removedLane.AsOfGeometryVersion,
-                    Count = removedLane.Count,
-                    DirectionId = RoadSegmentLaneDirection.Parse(removedLane.Direction).Translation.Identifier,
-                    DirectionLabel = RoadSegmentLaneDirection.Parse(removedLane.Direction).Translation.Name,
-                    FromPosition = (double)removedLane.FromPosition,
-                    ToPosition = (double)removedLane.ToPosition,
+                    AsOfGeometryVersion = removedSurface.AsOfGeometryVersion,
+                    TypeId = RoadSegmentSurfaceType.Parse(removedSurface.Type).Translation.Identifier,
+                    TypeLabel = RoadSegmentSurfaceType.Parse(removedSurface.Type).Translation.Name,
+                    FromPosition = (double)removedSurface.FromPosition,
+                    ToPosition = (double)removedSurface.ToPosition,
                     BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                     BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                     IsRemoved = true,
@@ -406,14 +397,14 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
                 }
             ]);
 
-        return new RoadSegmentLaneAttributeLatestItemProjection()
+        return new RoadSegmentSurfaceAttributeLatestItemProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .Expect(expectedRecords);
     }
 
     [Fact]
-    public Task When_modifying_road_segment_geometry_with_new_lanes_only()
+    public Task When_modifying_road_segment_geometry_with_new_surfaces_only()
     {
         _fixture.Freeze<RoadSegmentId>();
 
@@ -430,16 +421,15 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentGeometryModified;
 
-            return segment.Lanes.Select(lane => (object)new RoadSegmentLaneAttributeLatestItem
+            return segment.Surfaces.Select(surface => (object)new RoadSegmentSurfaceAttributeLatestItem
             {
-                Id = lane.AttributeId,
+                Id = surface.AttributeId,
                 RoadSegmentId = segment.Id,
-                AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                Count = lane.Count,
-                DirectionId = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier,
-                DirectionLabel = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name,
-                FromPosition = (double)lane.FromPosition,
-                ToPosition = (double)lane.ToPosition,
+                AsOfGeometryVersion = surface.AsOfGeometryVersion,
+                TypeId = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier,
+                TypeLabel = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name,
+                FromPosition = (double)surface.FromPosition,
+                ToPosition = (double)surface.ToPosition,
                 BeginOrganizationId = acceptedRoadSegmentGeometryModified.OrganizationId,
                 BeginOrganizationName = acceptedRoadSegmentGeometryModified.Organization,
                 IsRemoved = false,
@@ -448,18 +438,17 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
             });
         })
             .SelectMany(x => x)
-            .Concat(roadSegmentAdded.Lanes
-                .Select(lane =>
-                    new RoadSegmentLaneAttributeLatestItem
+            .Concat(roadSegmentAdded.Surfaces
+                .Select(surface =>
+                    new RoadSegmentSurfaceAttributeLatestItem
                     {
-                        Id = lane.AttributeId,
+                        Id = surface.AttributeId,
                         RoadSegmentId = roadSegmentAdded.Id,
-                        AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                        Count = lane.Count,
-                        DirectionId = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier,
-                        DirectionLabel = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name,
-                        FromPosition = (double)lane.FromPosition,
-                        ToPosition = (double)lane.ToPosition,
+                        AsOfGeometryVersion = surface.AsOfGeometryVersion,
+                        TypeId = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier,
+                        TypeLabel = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name,
+                        FromPosition = (double)surface.FromPosition,
+                        ToPosition = (double)surface.ToPosition,
                         BeginOrganizationId = acceptedRoadSegmentGeometryModified.OrganizationId,
                         BeginOrganizationName = acceptedRoadSegmentGeometryModified.Organization,
                         IsRemoved = true,
@@ -468,14 +457,14 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
                     }
                 ));
 
-        return new RoadSegmentLaneAttributeLatestItemProjection()
+        return new RoadSegmentSurfaceAttributeLatestItemProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentGeometryModified)
             .ExpectInAnyOrder(expectedRecords);
     }
 
     [Fact]
-    public Task When_modifying_road_segments_with_new_lanes_only()
+    public Task When_modifying_road_segments_with_new_surfaces_only()
     {
         _fixture.Freeze<RoadSegmentId>();
 
@@ -492,16 +481,15 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentModified;
 
-            return segment.Lanes.Select(lane => (object)new RoadSegmentLaneAttributeLatestItem
+            return segment.Surfaces.Select(surface => (object)new RoadSegmentSurfaceAttributeLatestItem
             {
-                Id = lane.AttributeId,
+                Id = surface.AttributeId,
                 RoadSegmentId = segment.Id,
-                AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                Count = lane.Count,
-                DirectionId = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier,
-                DirectionLabel = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name,
-                FromPosition = (double)lane.FromPosition,
-                ToPosition = (double)lane.ToPosition,
+                AsOfGeometryVersion = surface.AsOfGeometryVersion,
+                TypeId = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier,
+                TypeLabel = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name,
+                FromPosition = (double)surface.FromPosition,
+                ToPosition = (double)surface.ToPosition,
                 BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                 BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                 IsRemoved = false,
@@ -510,18 +498,17 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
             });
         })
             .SelectMany(x => x)
-            .Concat(roadSegmentAdded.Lanes
-                .Select(lane =>
-                    new RoadSegmentLaneAttributeLatestItem
+            .Concat(roadSegmentAdded.Surfaces
+                .Select(surface =>
+                    new RoadSegmentSurfaceAttributeLatestItem
                     {
-                        Id = lane.AttributeId,
+                        Id = surface.AttributeId,
                         RoadSegmentId = roadSegmentAdded.Id,
-                        AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                        Count = lane.Count,
-                        DirectionId = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier,
-                        DirectionLabel = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name,
-                        FromPosition = (double)lane.FromPosition,
-                        ToPosition = (double)lane.ToPosition,
+                        AsOfGeometryVersion = surface.AsOfGeometryVersion,
+                        TypeId = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier,
+                        TypeLabel = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name,
+                        FromPosition = (double)surface.FromPosition,
+                        ToPosition = (double)surface.ToPosition,
                         BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                         BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                         IsRemoved = true,
@@ -530,14 +517,14 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
                     }
                 ));
 
-        return new RoadSegmentLaneAttributeLatestItemProjection()
+        return new RoadSegmentSurfaceAttributeLatestItemProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .ExpectInAnyOrder(expectedRecords);
     }
 
     [Fact]
-    public Task When_modifying_road_segment_attributes_with_new_lanes_only()
+    public Task When_modifying_road_segment_attributes_with_new_surfaces_only()
     {
         _fixture.Freeze<RoadSegmentId>();
 
@@ -554,16 +541,15 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentAttributesModified;
 
-            return segment.Lanes.Select(lane => (object)new RoadSegmentLaneAttributeLatestItem
+            return segment.Surfaces.Select(surface => (object)new RoadSegmentSurfaceAttributeLatestItem
             {
-                Id = lane.AttributeId,
+                Id = surface.AttributeId,
                 RoadSegmentId = segment.Id,
-                AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                Count = lane.Count,
-                DirectionId = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier,
-                DirectionLabel = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name,
-                FromPosition = (double)lane.FromPosition,
-                ToPosition = (double)lane.ToPosition,
+                AsOfGeometryVersion = surface.AsOfGeometryVersion,
+                TypeId = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier,
+                TypeLabel = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name,
+                FromPosition = (double)surface.FromPosition,
+                ToPosition = (double)surface.ToPosition,
                 BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                 BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                 IsRemoved = false,
@@ -572,18 +558,17 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
             });
         })
             .SelectMany(x => x)
-            .Concat(roadSegmentAdded.Lanes
-                .Select(lane =>
-                    new RoadSegmentLaneAttributeLatestItem
+            .Concat(roadSegmentAdded.Surfaces
+                .Select(surface =>
+                    new RoadSegmentSurfaceAttributeLatestItem
                     {
-                        Id = lane.AttributeId,
+                        Id = surface.AttributeId,
                         RoadSegmentId = roadSegmentAdded.Id,
-                        AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                        Count = lane.Count,
-                        DirectionId = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier,
-                        DirectionLabel = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name,
-                        FromPosition = (double)lane.FromPosition,
-                        ToPosition = (double)lane.ToPosition,
+                        AsOfGeometryVersion = surface.AsOfGeometryVersion,
+                        TypeId = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier,
+                        TypeLabel = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name,
+                        FromPosition = (double)surface.FromPosition,
+                        ToPosition = (double)surface.ToPosition,
                         BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                         BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                         IsRemoved = true,
@@ -592,7 +577,7 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
                     }
                 ));
 
-        return new RoadSegmentLaneAttributeLatestItemProjection()
+        return new RoadSegmentSurfaceAttributeLatestItemProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .ExpectInAnyOrder(expectedRecords);
@@ -615,16 +600,15 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
         {
             var segment = change.RoadSegmentAdded;
 
-            return segment.Lanes.Select(lane => (object)new RoadSegmentLaneAttributeLatestItem
+            return segment.Surfaces.Select(surface => (object)new RoadSegmentSurfaceAttributeLatestItem
             {
-                Id = lane.AttributeId,
+                Id = surface.AttributeId,
                 RoadSegmentId = segment.Id,
-                AsOfGeometryVersion = lane.AsOfGeometryVersion,
-                Count = lane.Count,
-                DirectionId = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier,
-                DirectionLabel = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name,
-                FromPosition = (double)lane.FromPosition,
-                ToPosition = (double)lane.ToPosition,
+                AsOfGeometryVersion = surface.AsOfGeometryVersion,
+                TypeId = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier,
+                TypeLabel = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name,
+                FromPosition = (double)surface.FromPosition,
+                ToPosition = (double)surface.ToPosition,
                 BeginOrganizationId = acceptedRoadSegmentRemoved.OrganizationId,
                 BeginOrganizationName = acceptedRoadSegmentRemoved.Organization,
                 IsRemoved = true,
@@ -633,7 +617,7 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
             });
         }).SelectMany(x => x);
 
-        return new RoadSegmentLaneAttributeLatestItemProjection()
+        return new RoadSegmentSurfaceAttributeLatestItemProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentRemoved)
             .Expect(expectedRecords);

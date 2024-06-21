@@ -4,7 +4,7 @@ using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-public class RoadSegmentLatestItemLaneAttributeConfiguration : IEntityTypeConfiguration<RoadSegmentLaneAttributeLatestItem>
+public class RoadSegmentLaneAttributeLatestItemConfiguration : IEntityTypeConfiguration<RoadSegmentLaneAttributeLatestItem>
 {
     private const string TableName = "road_segment_lane_attribute_latest_items";
 
@@ -20,7 +20,7 @@ public class RoadSegmentLatestItemLaneAttributeConfiguration : IEntityTypeConfig
 
         b.Property(x => x.Id).HasColumnName("id");
         b.Property(x => x.RoadSegmentId).HasColumnName("road_segment_id");
-        b.Property(x => x.Version).HasColumnName("version");
+        b.Property(x => x.AsOfGeometryVersion).HasColumnName("as_of_geometry_version");
         b.Property(x => x.Count).HasColumnName("count");
         b.Property(x => x.DirectionId).HasColumnName("direction_id");
         b.Property(x => x.DirectionLabel).HasColumnName("direction_label");
@@ -35,6 +35,7 @@ public class RoadSegmentLatestItemLaneAttributeConfiguration : IEntityTypeConfig
         b.HasIndex(p => p.RoadSegmentId);
         b.HasIndex(p => p.DirectionId);
         b.HasIndex(p => p.DirectionLabel);
+        b.HasIndex(p => p.VersionTimestamp);
         b.HasIndex(p => p.IsRemoved);
     }
 }
