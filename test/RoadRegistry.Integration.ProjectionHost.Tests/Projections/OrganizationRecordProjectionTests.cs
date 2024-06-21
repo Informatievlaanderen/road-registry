@@ -146,8 +146,10 @@ public class OrganizationLatestItemProjectionTests
     {
         var data = _fixture
             .CreateMany<ImportedOrganization>(new Random().Next(1, 100))
-            .Select((@event, _) =>
+            .Select((@event, i) =>
             {
+                @event.Code = $"{@event.Code}{i}";
+
                 var expected = new OrganizationLatestItem
                 {
                     Code = @event.Code,

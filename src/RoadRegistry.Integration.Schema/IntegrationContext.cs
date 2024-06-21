@@ -17,7 +17,7 @@ public class IntegrationContext : RunnerDbContext<IntegrationContext>
     // public DbSet<RoadSegmentEuropeanRoadAttributeRecord> RoadSegmentEuropeanRoadAttributes { get; set; }
     // public DbSet<RoadSegmentNationalRoadAttributeRecord> RoadSegmentNationalRoadAttributes { get; set; }
     // public DbSet<RoadSegmentNumberedRoadAttributeRecord> RoadSegmentNumberedRoadAttributes { get; set; }
-    // public DbSet<RoadSegmentLaneAttributeRecord> RoadSegmentLaneAttributes { get; set; }
+    public DbSet<RoadSegmentLaneAttributeLatestItem> RoadSegmentLaneAttributes { get; set; }
     // public DbSet<RoadSegmentSurfaceAttributeRecord> RoadSegmentSurfaceAttributes { get; set; }
     // public DbSet<RoadSegmentWidthAttributeRecord> RoadSegmentWidthAttributes { get; set; }
     // public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }

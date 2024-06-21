@@ -5,11 +5,11 @@ using BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using Integration.Schema;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Microsoft.EntityFrameworkCore;
 using RoadRegistry.Tests.Framework.Projections;
+using Schema;
 using Xunit.Sdk;
 
 public static class IntegrationContextScenarioExtensions
@@ -22,6 +22,7 @@ public static class IntegrationContextScenarioExtensions
         records.AddRange(context.RoadSegments.Local);
         records.AddRange(context.RoadNodes.Local);
         records.AddRange(context.Organizations.Local);
+        records.AddRange(context.RoadSegmentLaneAttributes.Local);
 
         return Task.FromResult(records.ToArray());
     }
@@ -139,32 +140,28 @@ public static class IntegrationContextScenarioExtensions
                 : VerificationResult.Fail(result.CreateDifferenceMessage(actualRecords, records));
         });
 
-        await using (var context = CreateContextFor(database))
-        {
-            var projector = new ConnectedProjector<IntegrationContext>(specification.Resolver);
-            var position = 0L;
-            foreach (var message in specification.Messages)
-            {
-                var envelope = new Envelope(message, new Dictionary<string, object>
-                {
-                    { "Position", position },
-                    { "StreamId", RoadNetworkStreamNameProvider.Default.ToString() }
-                }).ToGenericEnvelope();
-                await projector.ProjectAsync(context, envelope);
-                position++;
-            }
+        await using var context = CreateContextFor(database);
 
-            await context.SaveChangesAsync();
+        var projector = new ConnectedProjector<IntegrationContext>(specification.Resolver);
+        var position = 0L;
+        foreach (var message in specification.Messages)
+        {
+            var envelope = new Envelope(message, new Dictionary<string, object>
+            {
+                { "Position", position },
+                { "StreamId", RoadNetworkStreamNameProvider.Default.ToString() }
+            }).ToGenericEnvelope();
+            await projector.ProjectAsync(context, envelope);
+            position++;
         }
 
-        await using (var context = CreateContextFor(database))
-        {
-            var result = await specification.Verification(context, CancellationToken.None);
+        await context.SaveChangesAsync();
 
-            if (result.Failed)
-            {
-                throw specification.CreateFailedScenarioExceptionFor(result);
-            }
+        var result = await specification.Verification(context, CancellationToken.None);
+
+        if (result.Failed)
+        {
+            throw specification.CreateFailedScenarioExceptionFor(result);
         }
     }
 
@@ -180,26 +177,22 @@ public static class IntegrationContextScenarioExtensions
                 : VerificationResult.Fail($"Expected 0 records but found {actualRecords.Length}.");
         });
 
-        await using (var context = CreateContextFor(database))
-        {
-            var projector = new ConnectedProjector<IntegrationContext>(specification.Resolver);
-            foreach (var message in specification.Messages)
-            {
-                var envelope = new Envelope(message, new Dictionary<string, object>()).ToGenericEnvelope();
-                await projector.ProjectAsync(context, envelope);
-            }
+        await using var context = CreateContextFor(database);
 
-            await context.SaveChangesAsync();
+        var projector = new ConnectedProjector<IntegrationContext>(specification.Resolver);
+        foreach (var message in specification.Messages)
+        {
+            var envelope = new Envelope(message, new Dictionary<string, object>()).ToGenericEnvelope();
+            await projector.ProjectAsync(context, envelope);
         }
 
-        await using (var context = CreateContextFor(database))
-        {
-            var result = await specification.Verification(context, CancellationToken.None);
+        await context.SaveChangesAsync();
 
-            if (result.Failed)
-            {
-                throw specification.CreateFailedScenarioExceptionFor(result);
-            }
+        var result = await specification.Verification(context, CancellationToken.None);
+
+        if (result.Failed)
+        {
+            throw specification.CreateFailedScenarioExceptionFor(result);
         }
     }
 
