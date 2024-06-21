@@ -4,11 +4,11 @@ using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-public class RoadSegmentLatestItemNumberedRoadAttributeConfiguration : IEntityTypeConfiguration<RoadSegmentNumberedRoadAttributeLatestItem>
+public class RoadSegmentEuropeanRoadAttributeConfiguration : IEntityTypeConfiguration<RoadSegmentEuropeanRoadAttributeLatestItem>
 {
-    private const string TableName = "RoadSegmentNumberedRoadAttribute";
+    private const string TableName = "RoadSegmentEuropeanRoadAttribute";
 
-    public void Configure(EntityTypeBuilder<RoadSegmentNumberedRoadAttributeLatestItem> b)
+    public void Configure(EntityTypeBuilder<RoadSegmentEuropeanRoadAttributeLatestItem> b)
     {
         b.ToTable(TableName, WellKnownSchemas.IntegrationSchema)
             .HasKey(p => p.Id)
@@ -18,5 +18,6 @@ public class RoadSegmentLatestItemNumberedRoadAttributeConfiguration : IEntityTy
         b.Property(p => p.RoadSegmentId).IsRequired();
 
         b.HasIndex(p => p.RoadSegmentId);
+        b.HasIndex(p => p.IsRemoved);
     }
 }
