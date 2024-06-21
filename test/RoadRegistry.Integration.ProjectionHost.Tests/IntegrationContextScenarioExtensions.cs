@@ -23,6 +23,12 @@ public static class IntegrationContextScenarioExtensions
         records.AddRange(context.RoadNodes.Local);
         records.AddRange(context.Organizations.Local);
         records.AddRange(context.RoadSegmentLaneAttributes.Local);
+        records.AddRange(context.RoadSegmentEuropeanRoadAttributes.Local);
+        records.AddRange(context.RoadSegmentNationalRoadAttributes.Local);
+        records.AddRange(context.RoadSegmentNumberedRoadAttributes.Local);
+        records.AddRange(context.GradeSeparatedJunctions.Local);
+        records.AddRange(context.RoadSegmentSurfaceAttributes.Local);
+        records.AddRange(context.RoadSegmentWidthAttributes.Local);
 
         return Task.FromResult(records.ToArray());
     }
