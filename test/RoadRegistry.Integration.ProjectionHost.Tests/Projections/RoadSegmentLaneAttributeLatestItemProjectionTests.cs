@@ -18,35 +18,17 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
         _fixture.CustomizeArchiveId();
         _fixture.CustomizeAttributeId();
         _fixture.CustomizeRoadSegmentId();
-        // _fixture.CustomizeRoadNodeId();
         _fixture.CustomizeOrganizationId();
-        // _fixture.CustomizeOrganizationName();
         _fixture.CustomizePolylineM();
-        // _fixture.CustomizeEuropeanRoadNumber();
-        // _fixture.CustomizeNationalRoadNumber();
-        // _fixture.CustomizeNumberedRoadNumber();
-        // _fixture.CustomizeRoadSegmentNumberedRoadDirection();
-        // _fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
         _fixture.CustomizeRoadSegmentLaneCount();
         _fixture.CustomizeRoadSegmentLaneDirection();
-        //_fixture.CustomizeRoadSegmentWidth();
-        // _fixture.CustomizeRoadSegmentSurfaceType();
         _fixture.CustomizeRoadSegmentGeometryDrawMethod();
         _fixture.CustomizeRoadSegmentMorphology();
         _fixture.CustomizeRoadSegmentStatus();
         _fixture.CustomizeRoadSegmentCategory();
         _fixture.CustomizeRoadSegmentAccessRestriction();
-        // _fixture.CustomizeRoadSegmentGeometryVersion();
 
-        // _fixture.CustomizeImportedRoadSegment();
-        // _fixture.CustomizeImportedRoadSegmentEuropeanRoadAttributes();
-        // _fixture.CustomizeImportedRoadSegmentNationalRoadAttributes();
-        // _fixture.CustomizeImportedRoadSegmentNumberedRoadAttributes();
         _fixture.CustomizeImportedRoadSegmentLaneAttributes();
-        // _fixture.CustomizeImportedRoadSegmentWidthAttributes();
-        // _fixture.CustomizeImportedRoadSegmentSurfaceAttributes();
-        // _fixture.CustomizeImportedRoadSegmentSideAttributes();
-        // _fixture.CustomizeOriginProperties();
 
         _fixture.CustomizeRoadSegmentLaneAttributes();
         _fixture.CustomizeRoadSegmentAdded();
