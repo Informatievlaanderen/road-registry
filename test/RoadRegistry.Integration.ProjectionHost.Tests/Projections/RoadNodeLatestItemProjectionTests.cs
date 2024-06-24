@@ -5,9 +5,9 @@ using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Integration.Projections;
-using Integration.Schema.RoadNodes;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
+using Schema.RoadNodes;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadNodeLatestItemProjectionTests
