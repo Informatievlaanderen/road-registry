@@ -8,17 +8,17 @@ using Microsoft.Extensions.Logging;
 using Schema;
 using SqlStreamStore;
 
-public class RoadNetworkEventProcessor : IntegrationContextEventProcessor
+public class RoadNetworkLatestItemEventProcessor : IntegrationContextEventProcessor
 {
-    public RoadNetworkEventProcessor(
+    public RoadNetworkLatestItemEventProcessor(
         IStreamStore streamStore,
-        DbContextEventProcessorProjections<RoadNetworkEventProcessor, IntegrationContext> projections,
+        DbContextEventProcessorProjections<RoadNetworkLatestItemEventProcessor, IntegrationContext> projections,
         EnvelopeFactory envelopeFactory,
         Func<IntegrationContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<RoadNetworkEventProcessor> logger)
+        ILogger<RoadNetworkLatestItemEventProcessor> logger)
         : base(
-            WellKnownProjectionStateNames.RoadRegistryIntegrationRoadNetworkProjectionHost,
+            "roadregistry-integration-roadnetwork-latestitem-projectionhost",
             streamStore,
             projections.Filter,
             envelopeFactory,
