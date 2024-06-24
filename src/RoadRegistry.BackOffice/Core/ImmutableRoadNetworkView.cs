@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Messages;
-using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using RoadSegmentEuropeanRoadAttribute = BackOffice.RoadSegmentEuropeanRoadAttribute;
 using RoadSegmentNationalRoadAttribute = BackOffice.RoadSegmentNationalRoadAttribute;
@@ -19,19 +18,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction>.Empty,
         ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Empty,
         ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Empty,
-        ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Empty,
-        null);
-    public static ImmutableRoadNetworkView New(ILogger logger) => new(
-        ImmutableDictionary<RoadNodeId, RoadNode>.Empty,
-        ImmutableDictionary<RoadSegmentId, RoadSegment>.Empty,
-        ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction>.Empty,
-        ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Empty,
-        ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Empty,
-        ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Empty,
-        logger);
+        ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Empty);
 
     private readonly ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> _gradeSeparatedJunctions;
-    private readonly ILogger _logger;
     private readonly ImmutableDictionary<RoadNodeId, RoadNode> _nodes;
     private readonly ImmutableDictionary<RoadSegmentId, RoadSegment> _segments;
 
@@ -41,13 +30,11 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> gradeSeparatedJunctions,
         ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> segmentReusableLaneAttributeIdentifiers,
         ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> segmentReusableWidthAttributeIdentifiers,
-        ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> segmentReusableSurfaceAttributeIdentifiers,
-        ILogger logger)
+        ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> segmentReusableSurfaceAttributeIdentifiers)
     {
         _nodes = nodes;
         _segments = segments;
         _gradeSeparatedJunctions = gradeSeparatedJunctions;
-        _logger = logger;
         SegmentReusableLaneAttributeIdentifiers = segmentReusableLaneAttributeIdentifiers;
         SegmentReusableWidthAttributeIdentifiers = segmentReusableWidthAttributeIdentifiers;
         SegmentReusableSurfaceAttributeIdentifiers = segmentReusableSurfaceAttributeIdentifiers;
@@ -149,11 +136,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             snapshot.Segments.ToImmutableDictionary(segment => new RoadSegmentId(segment.Id),
                 segment =>
                 {
-                    if (segment.Id == 600705)
-                    {
-                        _logger.LogInformation($"Restoring from snapshot, roadsegment id {segment.Id} has version {segment.Version}");
-                    }
-
                     var roadSegment = new RoadSegment(
                         new RoadSegmentId(segment.Id),
                         new RoadSegmentVersion(segment.Version),
@@ -225,14 +207,13 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             snapshot.SegmentReusableSurfaceAttributeIdentifiers.ToImmutableDictionary(
                 segment => new RoadSegmentId(segment.SegmentId),
                 segment => (IReadOnlyList<AttributeId>)segment.ReusableAttributeIdentifiers
-                    .Select(identifier => new AttributeId(identifier)).ToArray()),
-            _logger
+                    .Select(identifier => new AttributeId(identifier)).ToArray())
         );
     }
 
     public RoadNetworkSnapshot TakeSnapshot()
     {
-        var snapshot = new RoadNetworkSnapshot
+        return new RoadNetworkSnapshot
         {
             Nodes = _nodes.Select(node => new RoadNetworkSnapshotNode
             {
@@ -331,14 +312,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                         ReusableAttributeIdentifiers = segment.Value.Select(surface => surface.ToInt32()).ToArray()
                     }).ToArray()
         };
-
-        var segment = snapshot.Segments.SingleOrDefault(x => x.Id == 600705);
-        if (segment is not null)
-        {
-            _logger.LogInformation($"Taking snapshot, roadsegment id {segment.Id} has version {segment.Version}");
-        }
-
-        return snapshot;
     }
 
     public IRoadNetworkView ToBuilder()
@@ -349,8 +322,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions.ToBuilder(),
             SegmentReusableLaneAttributeIdentifiers.ToBuilder(),
             SegmentReusableWidthAttributeIdentifiers.ToBuilder(),
-            SegmentReusableSurfaceAttributeIdentifiers.ToBuilder(),
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers.ToBuilder());
     }
 
     public IRoadNetworkView ToImmutable()
@@ -439,8 +411,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView Given(ImportedRoadSegment @event)
@@ -518,8 +489,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             SegmentReusableWidthAttributeIdentifiers.Merge(id,
                 @event.Widths.Select(width => new AttributeId(width.AttributeId))),
             SegmentReusableSurfaceAttributeIdentifiers.Merge(id,
-                @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId))),
-            _logger
+                @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)))
         );
     }
 
@@ -542,8 +512,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             ),
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView Given(RoadNetworkChangesAccepted @event)
@@ -556,8 +525,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
         foreach (var change in @event.Changes.Flatten())
             switch (change)
             {
@@ -635,8 +603,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView Given(RoadNodeModified @event)
@@ -652,8 +619,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView Given(RoadNodeRemoved @event)
@@ -665,8 +631,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView Given(RoadSegmentAdded @event)
@@ -725,8 +690,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             SegmentReusableWidthAttributeIdentifiers.Merge(id,
                 @event.Widths.Select(width => new AttributeId(width.AttributeId))),
             SegmentReusableSurfaceAttributeIdentifiers.Merge(id,
-                @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId))),
-            _logger
+                @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)))
         );
     }
 
@@ -816,8 +780,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             view.SegmentReusableWidthAttributeIdentifiers.Merge(id,
                 @event.Widths.Select(width => new AttributeId(width.AttributeId))),
             view.SegmentReusableSurfaceAttributeIdentifiers.Merge(id,
-                @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId))),
-            _logger
+                @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)))
         );
     }
 
@@ -882,8 +845,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger
+            SegmentReusableSurfaceAttributeIdentifiers
         );
     }
 
@@ -938,8 +900,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             SegmentReusableWidthAttributeIdentifiers.Merge(id,
                 @event.Widths.Select(width => new AttributeId(width.AttributeId))),
             SegmentReusableSurfaceAttributeIdentifiers.Merge(id,
-                @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId))),
-            _logger
+                @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)))
         );
     }
 
@@ -956,8 +917,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger
+            SegmentReusableSurfaceAttributeIdentifiers
         );
     }
 
@@ -972,8 +932,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger
+            SegmentReusableSurfaceAttributeIdentifiers
         );
     }
 
@@ -994,8 +953,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             ),
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView Given(GradeSeparatedJunctionModified @event)
@@ -1014,8 +972,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             ),
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView Given(GradeSeparatedJunctionRemoved @event)
@@ -1027,35 +984,26 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions.Remove(id),
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView Given(RoadSegmentAddedToEuropeanRoad @event)
     {
-        _logger.LogInformation($"Given RoadSegmentAddedToEuropeanRoad: SegmentId: {@event.SegmentId}, SegmentVersion: {@event.SegmentVersion}");
-
         return new ImmutableRoadNetworkView(
             _nodes,
             _segments
-                .TryReplace(new RoadSegmentId(@event.SegmentId), segment =>
-                    {
-                        _logger.LogInformation($"Given RoadSegmentAddedToEuropeanRoad: SegmentId: {@event.SegmentId}, updating version {segment.Version} -> {@event.SegmentVersion ?? segment.Version}");
-
-                        return segment
-                            .PartOfEuropeanRoad(new RoadSegmentEuropeanRoadAttribute(
-                                new AttributeId(@event.AttributeId),
-                                EuropeanRoadNumber.Parse(@event.Number)
-                            ))
-                            .WithVersion(new RoadSegmentVersion(@event.SegmentVersion ?? segment.Version))
-                            .WithLastEventHash(@event.GetHash());
-                    }
+                .TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment
+                    .PartOfEuropeanRoad(new RoadSegmentEuropeanRoadAttribute(
+                        new AttributeId(@event.AttributeId),
+                        EuropeanRoadNumber.Parse(@event.Number)
+                    ))
+                    .WithVersion(new RoadSegmentVersion(@event.SegmentVersion ?? segment.Version))
+                    .WithLastEventHash(@event.GetHash())
                 ),
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView Given(RoadSegmentRemovedFromEuropeanRoad @event)
@@ -1071,8 +1019,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView Given(RoadSegmentAddedToNationalRoad @event)
@@ -1091,8 +1038,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView Given(RoadSegmentRemovedFromNationalRoad @event)
@@ -1108,8 +1054,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView Given(RoadSegmentAddedToNumberedRoad @event)
@@ -1130,8 +1075,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView Given(RoadSegmentOnNumberedRoadModified @event)
@@ -1142,8 +1086,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView Given(RoadSegmentRemovedFromNumberedRoad @event)
@@ -1159,8 +1102,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView With(AddRoadNode command)
@@ -1173,8 +1115,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView With(ModifyRoadNode command)
@@ -1185,8 +1126,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView With(RemoveRoadNode command)
@@ -1197,8 +1137,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView With(AddRoadSegment command)
@@ -1235,8 +1174,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             SegmentReusableWidthAttributeIdentifiers.Merge(command.Id,
                 command.Widths.Select(width => new AttributeId(width.Id))),
             SegmentReusableSurfaceAttributeIdentifiers.Merge(command.Id,
-                command.Surfaces.Select(surface => new AttributeId(surface.Id))),
-            _logger
+                command.Surfaces.Select(surface => new AttributeId(surface.Id)))
         );
     }
 
@@ -1320,8 +1258,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             view.SegmentReusableWidthAttributeIdentifiers.Merge(command.Id,
                 command.Widths.Select(width => new AttributeId(width.Id))),
             view.SegmentReusableSurfaceAttributeIdentifiers.Merge(command.Id,
-                command.Surfaces.Select(surface => new AttributeId(surface.Id))),
-            _logger
+                command.Surfaces.Select(surface => new AttributeId(surface.Id)))
         );
     }
 
@@ -1373,8 +1310,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger
+            SegmentReusableSurfaceAttributeIdentifiers
         );
     }
 
@@ -1434,8 +1370,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             SegmentReusableWidthAttributeIdentifiers.Merge(command.Id,
                 command.Widths.Select(width => new AttributeId(width.Id))),
             SegmentReusableSurfaceAttributeIdentifiers.Merge(command.Id,
-                command.Surfaces.Select(surface => new AttributeId(surface.Id))),
-            _logger
+                command.Surfaces.Select(surface => new AttributeId(surface.Id)))
         );
     }
 
@@ -1451,8 +1386,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger
+            SegmentReusableSurfaceAttributeIdentifiers
         );
     }
 
@@ -1464,8 +1398,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions.Add(command.Id, new GradeSeparatedJunction(command.Id, command.Type, command.UpperSegmentId, command.LowerSegmentId)),
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView With(ModifyGradeSeparatedJunction command)
@@ -1482,8 +1415,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                         .WithLowerSegment(command.LowerSegmentId)),
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView With(RemoveGradeSeparatedJunction command)
@@ -1494,14 +1426,11 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions.Remove(command.Id),
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
     
     private ImmutableRoadNetworkView With(AddRoadSegmentToEuropeanRoad command)
     {
-        _logger.LogInformation($"With AddRoadSegmentToEuropeanRoad: SegmentId: {command.SegmentId}");
-
         return new ImmutableRoadNetworkView(
             _nodes,
             _segments
@@ -1515,8 +1444,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView With(RemoveRoadSegmentFromEuropeanRoad command)
@@ -1532,8 +1460,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView With(AddRoadSegmentToNationalRoad command)
@@ -1551,8 +1478,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView With(RemoveRoadSegmentFromNationalRoad command)
@@ -1568,8 +1494,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView With(AddRoadSegmentToNumberedRoad command)
@@ -1590,8 +1515,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView With(ModifyRoadSegmentOnNumberedRoad command)
@@ -1602,8 +1526,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView With(RemoveRoadSegmentFromNumberedRoad command)
@@ -1619,8 +1542,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers,
-            _logger);
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private sealed class Builder : IRoadNetworkView
@@ -1633,8 +1555,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
 
         private readonly ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Builder
             _segmentReusableSurfaceAttributeIdentifiers;
-
-        private readonly ILogger _logger;
 
         private readonly ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Builder
             _segmentReusableWidthAttributeIdentifiers;
@@ -1650,8 +1570,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Builder
                 segmentReusableWidthAttributeIdentifiers,
             ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Builder
-                segmentReusableSurfaceAttributeIdentifiers,
-            ILogger logger)
+                segmentReusableSurfaceAttributeIdentifiers)
         {
             _nodes = nodes;
             _segments = segments;
@@ -1659,7 +1578,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _segmentReusableLaneAttributeIdentifiers = segmentReusableLaneAttributeIdentifiers;
             _segmentReusableWidthAttributeIdentifiers = segmentReusableWidthAttributeIdentifiers;
             _segmentReusableSurfaceAttributeIdentifiers = segmentReusableSurfaceAttributeIdentifiers;
-            _logger = logger;
         }
 
         public IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions => _gradeSeparatedJunctions.ToImmutable();
@@ -1716,10 +1634,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             ArgumentNullException.ThrowIfNull(events);
 
             var eventIndex = 0;
-            
+
             foreach (var @event in events)
             {
-                _logger.LogInformation("Restoring event: {Event}", @event.GetType().Name);
                 try
                 {
                     switch (@event)
@@ -1836,8 +1753,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 snapshot.SegmentReusableSurfaceAttributeIdentifiers.ToImmutableDictionary(
                     segment => new RoadSegmentId(segment.SegmentId),
                     segment => (IReadOnlyList<AttributeId>)segment.ReusableAttributeIdentifiers
-                        .Select(identifier => new AttributeId(identifier)).ToArray()).ToBuilder(),
-                _logger
+                        .Select(identifier => new AttributeId(identifier)).ToArray()).ToBuilder()
             );
         }
 
@@ -1957,8 +1873,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 _gradeSeparatedJunctions.ToImmutable(),
                 _segmentReusableLaneAttributeIdentifiers.ToImmutable(),
                 _segmentReusableWidthAttributeIdentifiers.ToImmutable(),
-                _segmentReusableSurfaceAttributeIdentifiers.ToImmutable(),
-                _logger);
+                _segmentReusableSurfaceAttributeIdentifiers.ToImmutable());
         }
 
         public IRoadNetworkView With(IReadOnlyCollection<IRequestedChange> changes)
@@ -2137,8 +2052,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             ArgumentNullException.ThrowIfNull(@event);
 
             foreach (var change in @event.Changes.Flatten())
-            {
-                _logger.LogInformation("Restoring change: {Change}", change.GetType().Name);
                 switch (change)
                 {
                     case RoadNodeAdded roadNodeAdded:
@@ -2199,7 +2112,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                         Given(gradeSeparatedJunctionRemoved);
                         break;
                 }
-            }
         }
 
         private void Given(RoadNodeAdded @event)
@@ -2541,16 +2453,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
 
             var attribute = new RoadSegmentEuropeanRoadAttribute(attributeId, europeanRoadNumber);
 
-            _logger.LogInformation($"Builder.Given RoadSegmentAddedToEuropeanRoad - RoadSegmentId: {roadSegmentId}, RoadSegmentVersion: {roadSegmentVersion}");
-
-            _segments.TryReplace(roadSegmentId, segment =>
-            {
-                _logger.LogInformation($"Builder.Given RoadSegmentAddedToEuropeanRoad - Replacing version in immutableview: {segment.Version} -> {roadSegmentVersion ?? segment.Version}");
-
-                return segment
-                    .PartOfEuropeanRoad(attribute)
-                    .WithVersion(roadSegmentVersion ?? segment.Version);
-            });
+            _segments.TryReplace(roadSegmentId, segment => segment
+                .PartOfEuropeanRoad(attribute)
+                .WithVersion(roadSegmentVersion ?? segment.Version));
         }
 
         private void Given(RoadSegmentRemovedFromEuropeanRoad @event)

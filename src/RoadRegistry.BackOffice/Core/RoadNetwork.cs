@@ -10,24 +10,21 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 using FluentValidation;
 using Framework;
 using Messages;
-using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 
 public class RoadNetwork : EventSourcedEntity
 {
-    public static readonly Func<IRoadNetworkView, ILogger, RoadNetwork> Factory =
-        (view, logger) => new RoadNetwork(view, logger);
+    public static readonly Func<IRoadNetworkView, RoadNetwork> Factory =
+        view => new RoadNetwork(view);
 
     public const int Identifier = 0;
 
     private IRoadNetworkView _view;
-    private readonly ILogger _logger;
 
-    private RoadNetwork(IRoadNetworkView view, ILogger logger)
+    private RoadNetwork(IRoadNetworkView view)
     {
         _view = view;
-        _logger = logger;
 
         On<ImportedRoadNode>(e => { _view = _view.RestoreFromEvent(e); });
         On<ImportedGradeSeparatedJunction>(e => { _view = _view.RestoreFromEvent(e); });
@@ -202,16 +199,9 @@ public class RoadNetwork : EventSourcedEntity
         {
             if (_view.Segments.TryGetValue(id, out var roadSegment) && roadSegment != null)
             {
-                var nextValue = new NextRoadSegmentVersionProvider(roadSegment.Version == 0 ? RoadSegmentVersion.Initial : roadSegment.Version).Next();
-                _logger.LogInformation($"Providing next road segment version for ID {id}: {roadSegment.Version} -> {nextValue}");
-                return nextValue;
+                return new NextRoadSegmentVersionProvider(roadSegment.Version == 0 ? RoadSegmentVersion.Initial : roadSegment.Version).Next();
             }
-            else
-            {
-                var nextValue = new NextRoadSegmentVersionProvider().Next();
-                _logger.LogInformation($"Providing next road segment version for ID {id}: {nextValue}");
-                return nextValue;
-            }
+            return new NextRoadSegmentVersionProvider().Next();
         };
     }
     
