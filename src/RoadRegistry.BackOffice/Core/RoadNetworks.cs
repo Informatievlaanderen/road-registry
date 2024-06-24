@@ -121,7 +121,7 @@ public class RoadNetworks : IRoadNetworks
         var snapshotContext = new ProcessSnapshotContext(version);
         view = await ProcessPages(streamName, view, snapshotContext, page, cancelMessageProcessing, cancellationToken);
 
-        var roadNetwork = RoadNetwork.Factory(view.ToImmutable(), _logger);
+        var roadNetwork = RoadNetwork.Factory(view.ToImmutable());
         _map.Attach(new EventSourcedEntityMapEntry(roadNetwork, streamName, ExpectedVersion.Any));
 
         return (roadNetwork, snapshotContext.Version.Value);
@@ -129,7 +129,7 @@ public class RoadNetworks : IRoadNetworks
 
     private (RoadNetwork, int) EmptyRoadNetwork(StreamName streamName)
     {
-        var initial = RoadNetwork.Factory(ImmutableRoadNetworkView.New(_logger), _logger);
+        var initial = RoadNetwork.Factory(ImmutableRoadNetworkView.Empty);
         _map.Attach(new EventSourcedEntityMapEntry(initial, streamName, ExpectedVersion.NoStream));
         return (initial, ExpectedVersion.NoStream);
     }
@@ -199,7 +199,7 @@ public class RoadNetworks : IRoadNetworks
 
     private async Task<(IRoadNetworkView, int)> BuildInitialRoadNetworkView(StreamName streamName, bool restoreSnapshot, CancellationToken cancellationToken)
     {
-        var view = ImmutableRoadNetworkView.New(_logger).ToBuilder();
+        var view = ImmutableRoadNetworkView.Empty.ToBuilder();
 
         var sw = Stopwatch.StartNew();
 
