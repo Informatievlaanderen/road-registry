@@ -26,8 +26,8 @@ public class RoadSegmentEuropeanRoadAttributeLatestItemProjection : ConnectedPro
                     Id = europeanRoad.AttributeId,
                     RoadSegmentId = envelope.Message.Id,
                     Number = europeanRoad.Number,
-                    BeginOrganizationId = europeanRoad.Origin.OrganizationId,
-                    BeginOrganizationName = europeanRoad.Origin.Organization,
+                    OrganizationId = europeanRoad.Origin.OrganizationId,
+                    OrganizationName = europeanRoad.Origin.Organization,
                     CreatedOnTimestamp = new DateTimeOffset(europeanRoad.Origin.Since),
                     VersionTimestamp = new DateTimeOffset(europeanRoad.Origin.Since)
                 });
@@ -46,8 +46,8 @@ public class RoadSegmentEuropeanRoadAttributeLatestItemProjection : ConnectedPro
                             Id = europeanRoad.AttributeId,
                             RoadSegmentId = europeanRoad.SegmentId,
                             Number = europeanRoad.Number,
-                            BeginOrganizationId = envelope.Message.OrganizationId,
-                            BeginOrganizationName = envelope.Message.Organization,
+                            OrganizationId = envelope.Message.OrganizationId,
+                            OrganizationName = envelope.Message.Organization,
                             CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
                             VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
                         });
@@ -61,8 +61,8 @@ public class RoadSegmentEuropeanRoadAttributeLatestItemProjection : ConnectedPro
                         if (latestItem is not null && !latestItem.IsRemoved)
                         {
                             latestItem.IsRemoved = true;
-                            latestItem.BeginOrganizationId = envelope.Message.OrganizationId;
-                            latestItem.BeginOrganizationName = envelope.Message.Organization;
+                            latestItem.OrganizationId = envelope.Message.OrganizationId;
+                            latestItem.OrganizationName = envelope.Message.Organization;
                             latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
                         }
                         break;
@@ -76,8 +76,8 @@ public class RoadSegmentEuropeanRoadAttributeLatestItemProjection : ConnectedPro
                         foreach (var latestItemToRemove in latestItemsToRemove)
                         {
                             latestItemToRemove.IsRemoved = true;
-                            latestItemToRemove.BeginOrganizationId = envelope.Message.OrganizationId;
-                            latestItemToRemove.BeginOrganizationName = envelope.Message.Organization;
+                            latestItemToRemove.OrganizationId = envelope.Message.OrganizationId;
+                            latestItemToRemove.OrganizationName = envelope.Message.Organization;
                             latestItemToRemove.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
                         }
                         break;

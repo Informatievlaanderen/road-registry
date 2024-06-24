@@ -26,8 +26,8 @@ public class GradeSeparatedJunctionLatestItemProjection : ConnectedProjection<In
                 LowerRoadSegmentId = envelope.Message.LowerRoadSegmentId,
                 TypeId = typeTranslation.Identifier,
                 TypeLabel = typeTranslation.Name,
-                BeginOrganizationId = envelope.Message.Origin.OrganizationId,
-                BeginOrganizationName = envelope.Message.Origin.Organization,
+                OrganizationId = envelope.Message.Origin.OrganizationId,
+                OrganizationName = envelope.Message.Origin.Organization,
                 CreatedOnTimestamp = envelope.Message.Origin.Since,
                 VersionTimestamp = envelope.Message.Origin.Since
             };
@@ -81,8 +81,8 @@ public class GradeSeparatedJunctionLatestItemProjection : ConnectedProjection<In
         latestItem.LowerRoadSegmentId = added.LowerRoadSegmentId;
         latestItem.TypeId = typeTranslation.Identifier;
         latestItem.TypeLabel = typeTranslation.Name;
-        latestItem.BeginOrganizationId = envelope.Message.OrganizationId;
-        latestItem.BeginOrganizationName = envelope.Message.Organization;
+        latestItem.OrganizationId = envelope.Message.OrganizationId;
+        latestItem.OrganizationName = envelope.Message.Organization;
         latestItem.CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
@@ -105,8 +105,8 @@ public class GradeSeparatedJunctionLatestItemProjection : ConnectedProjection<In
         latestItem.LowerRoadSegmentId = modified.LowerRoadSegmentId;
         latestItem.TypeId = typeTranslation.Identifier;
         latestItem.TypeLabel = typeTranslation.Name;
-        latestItem.BeginOrganizationId = envelope.Message.OrganizationId;
-        latestItem.BeginOrganizationName = envelope.Message.Organization;
+        latestItem.OrganizationId = envelope.Message.OrganizationId;
+        latestItem.OrganizationName = envelope.Message.Organization;
         latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
@@ -119,8 +119,8 @@ public class GradeSeparatedJunctionLatestItemProjection : ConnectedProjection<In
         var latestItem = await context.GradeSeparatedJunctions.FindAsync(removed.Id, cancellationToken: token);
         if (latestItem is not null && !latestItem.IsRemoved)
         {
-            latestItem.BeginOrganizationId = envelope.Message.OrganizationId;
-            latestItem.BeginOrganizationName = envelope.Message.Organization;
+            latestItem.OrganizationId = envelope.Message.OrganizationId;
+            latestItem.OrganizationName = envelope.Message.Organization;
             latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
             latestItem.IsRemoved = true;
         }

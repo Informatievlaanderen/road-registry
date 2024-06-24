@@ -27,18 +27,4 @@ public class RoadSegmentBoundingBox
             MaximumM = multiLineString.GetOrdinates(Ordinate.M).DefaultIfEmpty(double.PositiveInfinity).Max()
         };
     }
-
-    public BoundingBox3D ToBoundingBox3D()
-    {
-        return new BoundingBox3D(
-            MinimumX,
-            MinimumY,
-            MaximumX,
-            MaximumY,
-            0.0,
-            0.0,
-            MinimumM,
-            MaximumM
-        );
-    }
 }

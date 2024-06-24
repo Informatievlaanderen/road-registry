@@ -73,8 +73,8 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjectionTests
                 DirectionId = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Identifier,
                 DirectionLabel = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Name,
                 SequenceNumber = numberedRoad.Ordinal,
-                BeginOrganizationId = message.OrganizationId,
-                BeginOrganizationName = message.Organization,
+                OrganizationId = message.OrganizationId,
+                OrganizationName = message.Organization,
                 CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When),
                 VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When)
             };
@@ -120,8 +120,8 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjectionTests
                         DirectionId = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Identifier,
                         DirectionLabel = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Name,
                         SequenceNumber = numberedRoad.Ordinal,
-                        BeginOrganizationId = numberedRoad.Origin.OrganizationId,
-                        BeginOrganizationName = numberedRoad.Origin.Organization,
+                        OrganizationId = numberedRoad.Origin.OrganizationId,
+                        OrganizationName = numberedRoad.Origin.Organization,
                         CreatedOnTimestamp = new DateTimeOffset(numberedRoad.Origin.Since),
                         VersionTimestamp = new DateTimeOffset(numberedRoad.Origin.Since)
                     });
@@ -168,8 +168,8 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjectionTests
                 DirectionId = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Identifier,
                 DirectionLabel = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Name,
                 SequenceNumber = numberedRoad.Ordinal,
-                BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
-                BeginOrganizationName = acceptedRoadSegmentModified.Organization,
+                OrganizationId = acceptedRoadSegmentModified.OrganizationId,
+                OrganizationName = acceptedRoadSegmentModified.Organization,
                 CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
                 VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When)
             };
@@ -214,8 +214,8 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjectionTests
                     DirectionLabel = RoadSegmentNumberedRoadDirection.Parse(roadSegmentAddedToNumberedRoad.Direction).Translation.Name,
                     SequenceNumber =  roadSegmentAddedToNumberedRoad.Ordinal,
                     IsRemoved = false,
-                    BeginOrganizationId = acceptedRoadSegmentsAdded.OrganizationId,
-                    BeginOrganizationName = acceptedRoadSegmentsAdded.Organization,
+                    OrganizationId = acceptedRoadSegmentsAdded.OrganizationId,
+                    OrganizationName = acceptedRoadSegmentsAdded.Organization,
                     CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentsAdded.When),
                     VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentsAdded.When)
                 },
@@ -228,8 +228,8 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjectionTests
                     DirectionLabel = RoadSegmentNumberedRoadDirection.Parse(anotherRoadSegmentAddedToNumberedRoad.Direction).Translation.Name,
                     SequenceNumber =  anotherRoadSegmentAddedToNumberedRoad.Ordinal,
                     IsRemoved = true,
-                    BeginOrganizationId = acceptedRoadSegmentRemoved.OrganizationId,
-                    BeginOrganizationName = acceptedRoadSegmentRemoved.Organization,
+                    OrganizationId = acceptedRoadSegmentRemoved.OrganizationId,
+                    OrganizationName = acceptedRoadSegmentRemoved.Organization,
                     CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentsAdded.When),
                     VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentRemoved.When)
                 }
@@ -263,8 +263,8 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjectionTests
                     DirectionLabel = RoadSegmentNumberedRoadDirection.Parse(roadSegmentAddedToNumberedRoad.Direction).Translation.Name,
                     SequenceNumber =  roadSegmentAddedToNumberedRoad.Ordinal,
                     IsRemoved = true,
-                    BeginOrganizationId = acceptedRoadSegmentRemoved.OrganizationId,
-                    BeginOrganizationName = acceptedRoadSegmentRemoved.Organization,
+                    OrganizationId = acceptedRoadSegmentRemoved.OrganizationId,
+                    OrganizationName = acceptedRoadSegmentRemoved.Organization,
                     CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
                     VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentRemoved.When)
                 }

@@ -52,8 +52,8 @@ public class GradeSeparatedJunctionLatestItemProjectionTests
                 TypeLabel = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Name,
                 CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When),
                 VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When),
-                BeginOrganizationId = message.OrganizationId,
-                BeginOrganizationName = message.Organization
+                OrganizationId = message.OrganizationId,
+                OrganizationName = message.Organization
             };
         });
 
@@ -79,8 +79,8 @@ public class GradeSeparatedJunctionLatestItemProjectionTests
                     TypeLabel = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Name,
                     CreatedOnTimestamp = junction.Origin.Since,
                     VersionTimestamp = junction.Origin.Since,
-                    BeginOrganizationId = junction.Origin.OrganizationId,
-                    BeginOrganizationName = junction.Origin.Organization
+                    OrganizationId = junction.Origin.OrganizationId,
+                    OrganizationName = junction.Origin.Organization
                 };
 
                 return new
@@ -121,8 +121,8 @@ public class GradeSeparatedJunctionLatestItemProjectionTests
                 TypeLabel = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Name,
                 CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedGradeSeparatedJunctionAdded.When),
                 VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedGradeSeparatedJunctionModified.When),
-                BeginOrganizationId = acceptedGradeSeparatedJunctionModified.OrganizationId,
-                BeginOrganizationName = acceptedGradeSeparatedJunctionModified.Organization
+                OrganizationId = acceptedGradeSeparatedJunctionModified.OrganizationId,
+                OrganizationName = acceptedGradeSeparatedJunctionModified.Organization
             };
         });
 
@@ -158,8 +158,8 @@ public class GradeSeparatedJunctionLatestItemProjectionTests
                 TypeLabel = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Name,
                 CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedGradeSeparatedJunctionAdded.When),
                 VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedGradeSeparatedJunctionRemoved.When),
-                BeginOrganizationId = acceptedGradeSeparatedJunctionRemoved.OrganizationId,
-                BeginOrganizationName = acceptedGradeSeparatedJunctionRemoved.Organization,
+                OrganizationId = acceptedGradeSeparatedJunctionRemoved.OrganizationId,
+                OrganizationName = acceptedGradeSeparatedJunctionRemoved.Organization,
                 IsRemoved = true
             };
         });

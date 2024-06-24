@@ -9,8 +9,8 @@ public class RoadNodeLatestItem
     public int TypeId { get; set; }
     public string TypeLabel { get; set; }
     public int Version { get; set; }
-    public string BeginOrganizationId { get; set; }
-    public string BeginOrganizationName { get; set; }
+    public string OrganizationId { get; set; }
+    public string OrganizationName { get; set; }
     public bool IsRemoved { get; set; }
 
     public Geometry Geometry { get; set; }
@@ -21,16 +21,6 @@ public class RoadNodeLatestItem
 
     public DateTimeOffset VersionTimestamp { get; set; }
     public DateTimeOffset CreatedOnTimestamp { get; set; }
-
-    public RoadNodeBoundingBox GetBoundingBox() => BoundingBoxMaximumX is not null
-        ? new()
-        {
-            MaximumX = BoundingBoxMaximumX!.Value,
-            MaximumY = BoundingBoxMaximumY!.Value,
-            MinimumX = BoundingBoxMinimumX!.Value,
-            MinimumY = BoundingBoxMinimumY!.Value
-        }
-        : null;
 
     public RoadNodeLatestItem WithBoundingBox(RoadNodeBoundingBox value)
     {

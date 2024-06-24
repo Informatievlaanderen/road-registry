@@ -34,8 +34,8 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjection : ConnectedPro
                         DirectionId = directionTranslation.Identifier,
                         DirectionLabel = directionTranslation.Name,
                         SequenceNumber = numberedRoad.Ordinal, //     VOLGNUMMER = { Value = numberedRoad.Ordinal },
-                        BeginOrganizationId = numberedRoad.Origin.OrganizationId,
-                        BeginOrganizationName = numberedRoad.Origin.Organization,
+                        OrganizationId = numberedRoad.Origin.OrganizationId,
+                        OrganizationName = numberedRoad.Origin.Organization,
                         CreatedOnTimestamp = new DateTimeOffset(numberedRoad.Origin.Since),
                         VersionTimestamp = new DateTimeOffset(numberedRoad.Origin.Since)
                     };
@@ -78,8 +78,8 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjection : ConnectedPro
             DirectionId = directionTranslation.Identifier,
             DirectionLabel = directionTranslation.Name,
             SequenceNumber = numberedRoad.Ordinal,
-            BeginOrganizationId = envelope.Message.OrganizationId,
-            BeginOrganizationName = envelope.Message.Organization,
+            OrganizationId = envelope.Message.OrganizationId,
+            OrganizationName = envelope.Message.Organization,
             CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
             VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
         });
@@ -103,8 +103,8 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjection : ConnectedPro
         latestItem.DirectionId = directionTranslation.Identifier;
         latestItem.DirectionLabel = directionTranslation.Name;
         latestItem.SequenceNumber = numberedRoad.Ordinal;
-        latestItem.BeginOrganizationId = envelope.Message.OrganizationId;
-        latestItem.BeginOrganizationName = envelope.Message.Organization;
+        latestItem.OrganizationId = envelope.Message.OrganizationId;
+        latestItem.OrganizationName = envelope.Message.Organization;
         latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
@@ -121,8 +121,8 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjection : ConnectedPro
         if (latestItem is not null && !latestItem.IsRemoved)
         {
             latestItem.IsRemoved = true;
-            latestItem.BeginOrganizationId = envelope.Message.OrganizationId;
-            latestItem.BeginOrganizationName = envelope.Message.Organization;
+            latestItem.OrganizationId = envelope.Message.OrganizationId;
+            latestItem.OrganizationName = envelope.Message.Organization;
             latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         }
     }
@@ -142,8 +142,8 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjection : ConnectedPro
         foreach (var latestItemToRemove in latestItemsToRemove)
         {
             latestItemToRemove.IsRemoved = true;
-            latestItemToRemove.BeginOrganizationId = envelope.Message.OrganizationId;
-            latestItemToRemove.BeginOrganizationName = envelope.Message.Organization;
+            latestItemToRemove.OrganizationId = envelope.Message.OrganizationId;
+            latestItemToRemove.OrganizationName = envelope.Message.Organization;
             latestItemToRemove.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         }
     }

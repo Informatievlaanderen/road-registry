@@ -54,8 +54,8 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
 
                     CreatedOnTimestamp = new DateTimeOffset(envelope.Message.RecordingDate),
                     VersionTimestamp = new DateTimeOffset(envelope.Message.Origin.Since),
-                    BeginOrganizationId = envelope.Message.Origin.OrganizationId,
-                    BeginOrganizationName = envelope.Message.Origin.Organization
+                    OrganizationId = envelope.Message.Origin.OrganizationId,
+                    OrganizationName = envelope.Message.Origin.Organization
                 }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape)),
                 token);
         });
@@ -157,8 +157,8 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
 
         latestItem.CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        latestItem.BeginOrganizationId = envelope.Message.OrganizationId;
-        latestItem.BeginOrganizationName = envelope.Message.Organization;
+        latestItem.OrganizationId = envelope.Message.OrganizationId;
+        latestItem.OrganizationName = envelope.Message.Organization;
     }
 
     private static async Task ModifyRoadSegment(

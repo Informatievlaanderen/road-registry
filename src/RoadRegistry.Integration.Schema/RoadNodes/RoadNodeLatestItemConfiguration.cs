@@ -22,8 +22,8 @@ public class RoadNodeConfiguration : IEntityTypeConfiguration<RoadNodeLatestItem
         b.Property(x => x.TypeId).HasColumnName("type_id");
         b.Property(x => x.TypeLabel).HasColumnName("type_label");
         b.Property(x => x.Version).HasColumnName("version");
-        b.Property(x => x.BeginOrganizationId).HasColumnName("begin_organization_id");
-        b.Property(x => x.BeginOrganizationName).HasColumnName("begin_organization_name");
+        b.Property(x => x.OrganizationId).HasColumnName("organization_id");
+        b.Property(x => x.OrganizationName).HasColumnName("organization_name");
         b.Property(x => x.IsRemoved).HasColumnName("is_removed");
         b.Property(x => x.Geometry).HasColumnName("geometry");
         b.Property(x => x.VersionTimestamp).HasColumnName("version_timestamp");
@@ -37,6 +37,8 @@ public class RoadNodeConfiguration : IEntityTypeConfiguration<RoadNodeLatestItem
         b.HasIndex(p => p.TypeId);
         b.HasIndex(p => p.TypeLabel);
         b.HasIndex(p => p.IsRemoved);
+        b.HasIndex(p => p.OrganizationId);
+        b.HasIndex(p => p.OrganizationName);
         b.HasIndex(p => p.VersionTimestamp);
         b.HasIndex(x => x.Geometry).HasMethod("GIST");
     }

@@ -11,8 +11,8 @@ namespace RoadRegistry.Integration.Schema.RoadSegments
         public double ToPosition { get; set; }
         public int Width { get; set; }
         public string WidthLabel { get; set; }
-        public string BeginOrganizationId { get; set; }
-        public string BeginOrganizationName { get; set; }
+        public string OrganizationId { get; set; }
+        public string OrganizationName { get; set; }
         public bool IsRemoved { get; set; }
 
         public DateTimeOffset VersionTimestamp { get; set; }

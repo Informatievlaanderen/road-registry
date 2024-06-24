@@ -36,8 +36,8 @@ public class RoadSegmentWidthAttributeLatestItemProjection : ConnectedProjection
                         WidthLabel = width.ToDutchString(),
                         FromPosition = (double)widthAttribute.FromPosition,
                         ToPosition = (double)widthAttribute.ToPosition,
-                        BeginOrganizationId = widthAttribute.Origin.OrganizationId,
-                        BeginOrganizationName = widthAttribute.Origin.Organization,
+                        OrganizationId = widthAttribute.Origin.OrganizationId,
+                        OrganizationName = widthAttribute.Origin.Organization,
                         CreatedOnTimestamp = new DateTimeOffset(widthAttribute.Origin.Since),
                         VersionTimestamp = new DateTimeOffset(widthAttribute.Origin.Since)
                     };
@@ -96,8 +96,8 @@ public class RoadSegmentWidthAttributeLatestItemProjection : ConnectedProjection
                         WidthLabel = width.ToDutchString(),
                         FromPosition = (double)widthAttribute.FromPosition,
                         ToPosition = (double)widthAttribute.ToPosition,
-                        BeginOrganizationId = envelope.Message.OrganizationId,
-                        BeginOrganizationName = envelope.Message.Organization,
+                        OrganizationId = envelope.Message.OrganizationId,
+                        OrganizationName = envelope.Message.Organization,
                         CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
                         VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
                     };
@@ -149,8 +149,8 @@ public class RoadSegmentWidthAttributeLatestItemProjection : ConnectedProjection
 
         foreach (var latestItem in latestItemsToRemove)
         {
-            latestItem.BeginOrganizationId = envelope.Message.OrganizationId;
-            latestItem.BeginOrganizationName = envelope.Message.Organization;
+            latestItem.OrganizationId = envelope.Message.OrganizationId;
+            latestItem.OrganizationName = envelope.Message.Organization;
             latestItem.IsRemoved = true;
             latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         }
@@ -182,8 +182,8 @@ public class RoadSegmentWidthAttributeLatestItemProjection : ConnectedProjection
                     WidthLabel = width.ToDutchString(),
                     FromPosition = (double)widthAttribute.FromPosition,
                     ToPosition = (double)widthAttribute.ToPosition,
-                    BeginOrganizationId = envelope.Message.OrganizationId,
-                    BeginOrganizationName = envelope.Message.Organization,
+                    OrganizationId = envelope.Message.OrganizationId,
+                    OrganizationName = envelope.Message.Organization,
                     CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
                     VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
                 };
@@ -202,14 +202,14 @@ public class RoadSegmentWidthAttributeLatestItemProjection : ConnectedProjection
                 current.WidthLabel = next.WidthLabel;
                 current.FromPosition = next.FromPosition;
                 current.ToPosition = next.ToPosition;
-                current.BeginOrganizationId = next.BeginOrganizationId;
-                current.BeginOrganizationName = next.BeginOrganizationName;
+                current.OrganizationId = next.OrganizationId;
+                current.OrganizationName = next.OrganizationName;
                 current.VersionTimestamp = next.VersionTimestamp;
             },
             current =>
             {
-                current.BeginOrganizationId = envelope.Message.OrganizationId;
-                current.BeginOrganizationName = envelope.Message.Organization;
+                current.OrganizationId = envelope.Message.OrganizationId;
+                current.OrganizationName = envelope.Message.Organization;
                 current.IsRemoved = true;
                 current.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
             });

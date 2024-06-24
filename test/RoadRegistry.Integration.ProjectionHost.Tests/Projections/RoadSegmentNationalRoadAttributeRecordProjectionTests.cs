@@ -70,8 +70,8 @@ public class RoadSegmentNationalRoadAttributeLatestItemProjectionTests
                 Id = nationalRoad.AttributeId,
                 RoadSegmentId = nationalRoad.SegmentId,
                 Number = nationalRoad.Number,
-                BeginOrganizationId = message.OrganizationId,
-                BeginOrganizationName = message.Organization,
+                OrganizationId = message.OrganizationId,
+                OrganizationName = message.Organization,
                 CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When),
                 VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When)
             };
@@ -114,8 +114,8 @@ public class RoadSegmentNationalRoadAttributeLatestItemProjectionTests
                         Id = nationalRoad.AttributeId,
                         RoadSegmentId = segment.Id,
                         Number = nationalRoad.Number,
-                        BeginOrganizationId = nationalRoad.Origin.OrganizationId,
-                        BeginOrganizationName = nationalRoad.Origin.Organization,
+                        OrganizationId = nationalRoad.Origin.OrganizationId,
+                        OrganizationName = nationalRoad.Origin.Organization,
                         CreatedOnTimestamp = new DateTimeOffset(nationalRoad.Origin.Since),
                         VersionTimestamp = new DateTimeOffset(nationalRoad.Origin.Since)
                     });
@@ -166,8 +166,8 @@ public class RoadSegmentNationalRoadAttributeLatestItemProjectionTests
                     RoadSegmentId = roadSegmentAddedToNationalRoad.SegmentId,
                     Number = roadSegmentAddedToNationalRoad.Number,
                     IsRemoved = false,
-                    BeginOrganizationId = acceptedRoadSegmentsAdded.OrganizationId,
-                    BeginOrganizationName = acceptedRoadSegmentsAdded.Organization,
+                    OrganizationId = acceptedRoadSegmentsAdded.OrganizationId,
+                    OrganizationName = acceptedRoadSegmentsAdded.Organization,
                     CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentsAdded.When),
                     VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentsAdded.When)
                 },
@@ -177,8 +177,8 @@ public class RoadSegmentNationalRoadAttributeLatestItemProjectionTests
                     RoadSegmentId = anotherRoadSegmentAddedToNationalRoad.SegmentId,
                     Number = anotherRoadSegmentAddedToNationalRoad.Number,
                     IsRemoved = true,
-                    BeginOrganizationId = acceptedRoadSegmentRemoved.OrganizationId,
-                    BeginOrganizationName = acceptedRoadSegmentRemoved.Organization,
+                    OrganizationId = acceptedRoadSegmentRemoved.OrganizationId,
+                    OrganizationName = acceptedRoadSegmentRemoved.Organization,
                     CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentsAdded.When),
                     VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentRemoved.When)
                 }]);
@@ -208,8 +208,8 @@ public class RoadSegmentNationalRoadAttributeLatestItemProjectionTests
                     RoadSegmentId = roadSegmentAddedToNationalRoad.SegmentId,
                     Number = roadSegmentAddedToNationalRoad.Number,
                     IsRemoved = true,
-                    BeginOrganizationId = acceptedRoadSegmentRemoved.OrganizationId,
-                    BeginOrganizationName = acceptedRoadSegmentRemoved.Organization,
+                    OrganizationId = acceptedRoadSegmentRemoved.OrganizationId,
+                    OrganizationName = acceptedRoadSegmentRemoved.Organization,
                     CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
                     VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentRemoved.When)
                 }

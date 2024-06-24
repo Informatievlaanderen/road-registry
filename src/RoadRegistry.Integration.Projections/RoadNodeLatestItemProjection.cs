@@ -29,8 +29,8 @@ public class RoadNodeLatestItemProjection : ConnectedProjection<IntegrationConte
                 TypeId = typeTranslation.Identifier,
                 TypeLabel = typeTranslation.Name,
                 Version = envelope.Message.Version,
-                BeginOrganizationId = envelope.Message.Origin.OrganizationId,
-                BeginOrganizationName = envelope.Message.Origin.Organization,
+                OrganizationId = envelope.Message.Origin.OrganizationId,
+                OrganizationName = envelope.Message.Origin.Organization,
                 Geometry = BackOffice.GeometryTranslator.Translate(envelope.Message.Geometry),
                 CreatedOnTimestamp = new DateTimeOffset(envelope.Message.Origin.Since),
                 VersionTimestamp = new DateTimeOffset(envelope.Message.Origin.Since),
@@ -74,8 +74,8 @@ public class RoadNodeLatestItemProjection : ConnectedProjection<IntegrationConte
             TypeId = typeTranslation.Identifier,
             TypeLabel = typeTranslation.Name,
             Version = node.Version,
-            BeginOrganizationId = envelope.Message.OrganizationId ,
-            BeginOrganizationName = envelope.Message.Organization,
+            OrganizationId = envelope.Message.OrganizationId ,
+            OrganizationName = envelope.Message.Organization,
             Geometry = BackOffice.GeometryTranslator.Translate(node.Geometry),
             CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
             VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
@@ -102,8 +102,8 @@ public class RoadNodeLatestItemProjection : ConnectedProjection<IntegrationConte
         roadNode.TypeId = typeTranslation.Identifier;
         roadNode.TypeLabel = typeTranslation.Name;
         roadNode.Version = node.Version;
-        roadNode.BeginOrganizationId = envelope.Message.OrganizationId;
-        roadNode.BeginOrganizationName = envelope.Message.Organization;
+        roadNode.OrganizationId = envelope.Message.OrganizationId;
+        roadNode.OrganizationName = envelope.Message.Organization;
         roadNode.Geometry = BackOffice.GeometryTranslator.Translate(node.Geometry);
         roadNode.WithBoundingBox(RoadNodeBoundingBox.From(pointShapeContent.Shape));
         roadNode.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
