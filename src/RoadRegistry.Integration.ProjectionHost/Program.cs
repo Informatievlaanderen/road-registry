@@ -66,17 +66,22 @@ public class Program
                             ).Options)
                 )
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new IntegrationContextMigrationFactory())
-                .AddIntegrationContextEventProcessor<RoadNetworkEventProcessor>(_ =>
+                .AddIntegrationContextEventProcessor<RoadNetworkLatestItemEventProcessor>(_ =>
                 [
-                    new RoadSegmentLatestItemProjection()
+                    new RoadNodeLatestItemProjection(),
+                    new RoadSegmentLatestItemProjection(),
+                    new RoadSegmentEuropeanRoadAttributeLatestItemProjection(),
+                    new RoadSegmentNationalRoadAttributeLatestItemProjection(),
+                    new RoadSegmentNumberedRoadAttributeLatestItemProjection(),
+                    new RoadSegmentLaneAttributeLatestItemProjection(),
+                    new RoadSegmentSurfaceAttributeLatestItemProjection(),
+                    new RoadSegmentWidthAttributeLatestItemProjection(),
+                    new GradeSeparatedJunctionLatestItemProjection()
                 ])
-                // .AddIntegrationContextEventProcessor<OrganizationEventProcessor>(sp => new ConnectedProjection<IntegrationContext>[]
-                // {
-                //     new OrganizationRecordProjection(
-                //         sp.GetRequiredService<RecyclableMemoryStreamManager>(),
-                //         sp.GetRequiredService<FileEncoding>(),
-                //         sp.GetRequiredService<ILogger<OrganizationRecordProjection>>())
-                // })
+                 .AddIntegrationContextEventProcessor<OrganizationLatestItemEventProcessor>(_ =>
+                [
+                    new OrganizationLatestItemProjection()
+                ])
                 ;
         })
         .ConfigureHealthChecks(HostingPort, _ => { }

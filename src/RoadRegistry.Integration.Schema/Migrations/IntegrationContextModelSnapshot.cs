@@ -46,6 +46,326 @@ namespace RoadRegistry.Integration.Schema.Migrations
                     b.ToTable("ProjectionStates", "integration_road");
                 });
 
+            modelBuilder.Entity("RoadRegistry.Integration.Schema.GradeSeparatedJunctions.GradeSeparatedJunctionLatestItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedOnTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on_timestamp");
+
+                    b.Property<bool>("IsRemoved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_removed");
+
+                    b.Property<int>("LowerRoadSegmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("lower_road_segment_id");
+
+                    b.Property<string>("OrganizationId")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("OrganizationName")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_name");
+
+                    b.Property<int>("TypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("type_id");
+
+                    b.Property<string>("TypeLabel")
+                        .HasColumnType("text")
+                        .HasColumnName("type_label");
+
+                    b.Property<int>("UpperRoadSegmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("upper_road_segment_id");
+
+                    b.Property<DateTimeOffset>("VersionTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("version_timestamp");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.HasIndex("IsRemoved");
+
+                    b.HasIndex("LowerRoadSegmentId");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("OrganizationName");
+
+                    b.HasIndex("TypeId");
+
+                    b.HasIndex("TypeLabel");
+
+                    b.HasIndex("UpperRoadSegmentId");
+
+                    b.HasIndex("VersionTimestamp");
+
+                    b.ToTable("grade_separated_junction_latest_items", "integration_road");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Integration.Schema.Organizations.OrganizationLatestItem", b =>
+                {
+                    b.Property<string>("Code")
+                        .HasColumnType("text")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedOnTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on_timestamp");
+
+                    b.Property<bool>("IsRemoved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_removed");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string>("OvoCode")
+                        .HasColumnType("text")
+                        .HasColumnName("ovo_code");
+
+                    b.Property<DateTimeOffset>("VersionTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("version_timestamp");
+
+                    b.HasKey("Code")
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.HasIndex("IsRemoved");
+
+                    b.HasIndex("OvoCode");
+
+                    b.HasIndex("VersionTimestamp");
+
+                    b.ToTable("organization_latest_items", "integration_road");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Integration.Schema.RoadNodes.RoadNodeLatestItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    b.Property<double?>("BoundingBoxMaximumX")
+                        .HasColumnType("double precision")
+                        .HasColumnName("bounding_box_maximum_x");
+
+                    b.Property<double?>("BoundingBoxMaximumY")
+                        .HasColumnType("double precision")
+                        .HasColumnName("bounding_box_maximum_y");
+
+                    b.Property<double?>("BoundingBoxMinimumX")
+                        .HasColumnType("double precision")
+                        .HasColumnName("bounding_box_minimum_x");
+
+                    b.Property<double?>("BoundingBoxMinimumY")
+                        .HasColumnType("double precision")
+                        .HasColumnName("bounding_box_minimum_y");
+
+                    b.Property<DateTimeOffset>("CreatedOnTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on_timestamp");
+
+                    b.Property<Geometry>("Geometry")
+                        .IsRequired()
+                        .HasColumnType("Geometry")
+                        .HasColumnName("geometry");
+
+                    b.Property<bool>("IsRemoved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_removed");
+
+                    b.Property<string>("OrganizationId")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("OrganizationName")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_name");
+
+                    b.Property<int>("TypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("type_id");
+
+                    b.Property<string>("TypeLabel")
+                        .HasColumnType("text")
+                        .HasColumnName("type_label");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.Property<DateTimeOffset>("VersionTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("version_timestamp");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.HasIndex("Geometry");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Geometry"), "GIST");
+
+                    b.HasIndex("IsRemoved");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("OrganizationName");
+
+                    b.HasIndex("TypeId");
+
+                    b.HasIndex("TypeLabel");
+
+                    b.HasIndex("VersionTimestamp");
+
+                    b.ToTable("road_node_latest_items", "integration_road");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Integration.Schema.RoadSegments.RoadSegmentEuropeanRoadAttributeLatestItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedOnTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on_timestamp");
+
+                    b.Property<bool>("IsRemoved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_removed");
+
+                    b.Property<string>("Number")
+                        .HasColumnType("text")
+                        .HasColumnName("number");
+
+                    b.Property<string>("OrganizationId")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("OrganizationName")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_name");
+
+                    b.Property<int>("RoadSegmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("road_segment_id");
+
+                    b.Property<DateTimeOffset>("VersionTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("version_timestamp");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.HasIndex("IsRemoved");
+
+                    b.HasIndex("Number");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("OrganizationName")
+                        .HasDatabaseName("IX_road_segment_european_road_attribute_latest_items_organiza~1");
+
+                    b.HasIndex("RoadSegmentId");
+
+                    b.HasIndex("VersionTimestamp");
+
+                    b.ToTable("road_segment_european_road_attribute_latest_items", "integration_road");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Integration.Schema.RoadSegments.RoadSegmentLaneAttributeLatestItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AsOfGeometryVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("as_of_geometry_version");
+
+                    b.Property<int>("Count")
+                        .HasColumnType("integer")
+                        .HasColumnName("count");
+
+                    b.Property<DateTimeOffset>("CreatedOnTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on_timestamp");
+
+                    b.Property<int>("DirectionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("direction_id");
+
+                    b.Property<string>("DirectionLabel")
+                        .HasColumnType("text")
+                        .HasColumnName("direction_label");
+
+                    b.Property<double>("FromPosition")
+                        .HasColumnType("double precision")
+                        .HasColumnName("from_position");
+
+                    b.Property<bool>("IsRemoved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_removed");
+
+                    b.Property<string>("OrganizationId")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("OrganizationName")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_name");
+
+                    b.Property<int>("RoadSegmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("road_segment_id");
+
+                    b.Property<double>("ToPosition")
+                        .HasColumnType("double precision")
+                        .HasColumnName("to_position");
+
+                    b.Property<DateTimeOffset>("VersionTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("version_timestamp");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.HasIndex("DirectionId");
+
+                    b.HasIndex("DirectionLabel");
+
+                    b.HasIndex("IsRemoved");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("OrganizationName");
+
+                    b.HasIndex("RoadSegmentId");
+
+                    b.HasIndex("VersionTimestamp");
+
+                    b.ToTable("road_segment_lane_attribute_latest_items", "integration_road");
+                });
+
             modelBuilder.Entity("RoadRegistry.Integration.Schema.RoadSegments.RoadSegmentLatestItem", b =>
                 {
                     b.Property<int>("Id")
@@ -59,14 +379,6 @@ namespace RoadRegistry.Integration.Schema.Migrations
                     b.Property<string>("AccessRestrictionLabel")
                         .HasColumnType("text")
                         .HasColumnName("access_restriction_label");
-
-                    b.Property<string>("BeginOrganizationId")
-                        .HasColumnType("text")
-                        .HasColumnName("begin_organization_id");
-
-                    b.Property<string>("BeginOrganizationName")
-                        .HasColumnType("text")
-                        .HasColumnName("begin_organization_name");
 
                     b.Property<double?>("BoundingBoxMaximumM")
                         .HasColumnType("double precision")
@@ -147,6 +459,14 @@ namespace RoadRegistry.Integration.Schema.Migrations
                         .HasColumnType("text")
                         .HasColumnName("morphology_label");
 
+                    b.Property<string>("OrganizationId")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("OrganizationName")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_name");
+
                     b.Property<int?>("RightSideStreetNameId")
                         .HasColumnType("integer")
                         .HasColumnName("right_side_street_name_id");
@@ -198,6 +518,10 @@ namespace RoadRegistry.Integration.Schema.Migrations
 
                     b.HasIndex("MorphologyLabel");
 
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("OrganizationName");
+
                     b.HasIndex("RightSideStreetNameId");
 
                     b.HasIndex("StartNodeId");
@@ -206,9 +530,282 @@ namespace RoadRegistry.Integration.Schema.Migrations
 
                     b.HasIndex("StatusLabel");
 
+                    b.HasIndex("VersionTimestamp");
+
                     b.HasIndex("IsRemoved", "StatusId");
 
                     b.ToTable("road_segment_latest_items", "integration_road");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Integration.Schema.RoadSegments.RoadSegmentNationalRoadAttributeLatestItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedOnTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on_timestamp");
+
+                    b.Property<bool>("IsRemoved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_removed");
+
+                    b.Property<string>("Number")
+                        .HasColumnType("text")
+                        .HasColumnName("number");
+
+                    b.Property<string>("OrganizationId")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("OrganizationName")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_name");
+
+                    b.Property<int>("RoadSegmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("road_segment_id");
+
+                    b.Property<DateTimeOffset>("VersionTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("version_timestamp");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.HasIndex("IsRemoved");
+
+                    b.HasIndex("Number");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("OrganizationName")
+                        .HasDatabaseName("IX_road_segment_national_road_attribute_latest_items_organiza~1");
+
+                    b.HasIndex("RoadSegmentId");
+
+                    b.HasIndex("VersionTimestamp");
+
+                    b.ToTable("road_segment_national_road_attribute_latest_items", "integration_road");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Integration.Schema.RoadSegments.RoadSegmentNumberedRoadAttributeLatestItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedOnTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on_timestamp");
+
+                    b.Property<int>("DirectionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("direction_id");
+
+                    b.Property<string>("DirectionLabel")
+                        .HasColumnType("text")
+                        .HasColumnName("direction_label");
+
+                    b.Property<bool>("IsRemoved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_removed");
+
+                    b.Property<string>("Number")
+                        .HasColumnType("text")
+                        .HasColumnName("number");
+
+                    b.Property<string>("OrganizationId")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("OrganizationName")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_name");
+
+                    b.Property<int>("RoadSegmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("road_segment_id");
+
+                    b.Property<int>("SequenceNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("sequence_number");
+
+                    b.Property<DateTimeOffset>("VersionTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("version_timestamp");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.HasIndex("DirectionId");
+
+                    b.HasIndex("DirectionLabel")
+                        .HasDatabaseName("IX_road_segment_numbered_road_attribute_latest_items_directio~1");
+
+                    b.HasIndex("IsRemoved");
+
+                    b.HasIndex("Number");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("OrganizationName")
+                        .HasDatabaseName("IX_road_segment_numbered_road_attribute_latest_items_organiza~1");
+
+                    b.HasIndex("RoadSegmentId");
+
+                    b.HasIndex("VersionTimestamp");
+
+                    b.ToTable("road_segment_numbered_road_attribute_latest_items", "integration_road");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Integration.Schema.RoadSegments.RoadSegmentSurfaceAttributeLatestItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AsOfGeometryVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("as_of_geometry_version");
+
+                    b.Property<DateTimeOffset>("CreatedOnTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on_timestamp");
+
+                    b.Property<double>("FromPosition")
+                        .HasColumnType("double precision")
+                        .HasColumnName("from_position");
+
+                    b.Property<bool>("IsRemoved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_removed");
+
+                    b.Property<string>("OrganizationId")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("OrganizationName")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_name");
+
+                    b.Property<int>("RoadSegmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("road_segment_id");
+
+                    b.Property<double>("ToPosition")
+                        .HasColumnType("double precision")
+                        .HasColumnName("to_position");
+
+                    b.Property<int>("TypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("type_id");
+
+                    b.Property<string>("TypeLabel")
+                        .HasColumnType("text")
+                        .HasColumnName("type_label");
+
+                    b.Property<DateTimeOffset>("VersionTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("version_timestamp");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.HasIndex("IsRemoved");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("OrganizationName");
+
+                    b.HasIndex("RoadSegmentId");
+
+                    b.HasIndex("TypeId");
+
+                    b.HasIndex("TypeLabel");
+
+                    b.HasIndex("VersionTimestamp");
+
+                    b.ToTable("road_segment_surface_attribute_latest_items", "integration_road");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Integration.Schema.RoadSegments.RoadSegmentWidthAttributeLatestItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AsOfGeometryVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("as_of_geometry_version");
+
+                    b.Property<DateTimeOffset>("CreatedOnTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on_timestamp");
+
+                    b.Property<double>("FromPosition")
+                        .HasColumnType("double precision")
+                        .HasColumnName("from_position");
+
+                    b.Property<bool>("IsRemoved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_removed");
+
+                    b.Property<string>("OrganizationId")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_id");
+
+                    b.Property<string>("OrganizationName")
+                        .HasColumnType("text")
+                        .HasColumnName("organization_name");
+
+                    b.Property<int>("RoadSegmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("road_segment_id");
+
+                    b.Property<double>("ToPosition")
+                        .HasColumnType("double precision")
+                        .HasColumnName("to_position");
+
+                    b.Property<DateTimeOffset>("VersionTimestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("version_timestamp");
+
+                    b.Property<int>("Width")
+                        .HasColumnType("integer")
+                        .HasColumnName("width");
+
+                    b.Property<string>("WidthLabel")
+                        .HasColumnType("text")
+                        .HasColumnName("width_label");
+
+                    b.HasKey("Id")
+                        .HasAnnotation("SqlServer:Clustered", true);
+
+                    b.HasIndex("IsRemoved");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("OrganizationName");
+
+                    b.HasIndex("RoadSegmentId");
+
+                    b.HasIndex("VersionTimestamp");
+
+                    b.HasIndex("Width");
+
+                    b.HasIndex("WidthLabel");
+
+                    b.ToTable("road_segment_width_attribute_latest_items", "integration_road");
                 });
 #pragma warning restore 612, 618
         }

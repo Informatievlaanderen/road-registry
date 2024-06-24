@@ -33,12 +33,10 @@ public class RoadSegmentLatestItem
     public int? RightSideStreetNameId { get; set; }
     public int StatusId { get; set; }
     public string StatusLabel { get; set; }
-
-    public string BeginOrganizationId { get; set; }
-    public string BeginOrganizationName { get; set; }
+    public string OrganizationId { get; set; }
+    public string OrganizationName { get; set; }
 
     public DateTimeOffset VersionTimestamp { get; set; }
-
     public DateTimeOffset CreatedOnTimestamp { get; set; }
 
     public RoadSegmentLatestItem WithBoundingBox(RoadSegmentBoundingBox value)

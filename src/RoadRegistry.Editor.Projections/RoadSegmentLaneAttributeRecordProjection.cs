@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Extensions;
 using Schema.Extensions;
 
 public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<EditorContext>

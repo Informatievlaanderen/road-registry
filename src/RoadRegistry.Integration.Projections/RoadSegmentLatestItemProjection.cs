@@ -54,8 +54,8 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
 
                     CreatedOnTimestamp = new DateTimeOffset(envelope.Message.RecordingDate),
                     VersionTimestamp = new DateTimeOffset(envelope.Message.Origin.Since),
-                    BeginOrganizationId = envelope.Message.Origin.OrganizationId,
-                    BeginOrganizationName = envelope.Message.Origin.Organization
+                    OrganizationId = envelope.Message.Origin.OrganizationId,
+                    OrganizationName = envelope.Message.Origin.Organization
                 }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape)),
                 token);
         });
@@ -157,8 +157,8 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
 
         latestItem.CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        latestItem.BeginOrganizationId = envelope.Message.OrganizationId;
-        latestItem.BeginOrganizationName = envelope.Message.Organization;
+        latestItem.OrganizationId = envelope.Message.OrganizationId;
+        latestItem.OrganizationName = envelope.Message.Organization;
     }
 
     private static async Task ModifyRoadSegment(
@@ -204,6 +204,8 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         latestItem.SetMethod(geometryDrawMethod);
         latestItem.SetAccessRestriction(accessRestriction);
 
+        latestItem.OrganizationId = envelope.Message.OrganizationId;
+        latestItem.OrganizationName = envelope.Message.Organization;
         latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
@@ -273,6 +275,8 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
             throw new InvalidOperationException($"{nameof(RoadSegmentLatestItem)} with id {roadSegmentAttributesModified.Id} is not found");
         }
 
+        latestItem.OrganizationId = envelope.Message.OrganizationId;
+        latestItem.OrganizationName = envelope.Message.Organization;
         latestItem.Version = roadSegmentAttributesModified.Version;
         latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
@@ -326,6 +330,9 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
 
         latestItem.Version = roadSegmentGeometryModified.Version;
         latestItem.GeometryVersion = roadSegmentGeometryModified.GeometryVersion;
+
+        latestItem.OrganizationId = envelope.Message.OrganizationId;
+        latestItem.OrganizationName = envelope.Message.Organization;
         latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
@@ -339,6 +346,8 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
 
         if (latestItem is not null && !latestItem.IsRemoved)
         {
+            latestItem.OrganizationId = envelope.Message.OrganizationId;
+            latestItem.OrganizationName = envelope.Message.Organization;
             latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
             latestItem.IsRemoved = true;
         }
@@ -365,7 +374,9 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         }
 
         latestItem.Version = segmentVersion.Value;
-        
+
+        latestItem.OrganizationId = envelope.Message.OrganizationId;
+        latestItem.OrganizationName = envelope.Message.Organization;
         latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 }

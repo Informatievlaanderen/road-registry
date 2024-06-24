@@ -2,23 +2,26 @@ namespace RoadRegistry.Integration.Schema;
 
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
+using GradeSeparatedJunctions;
 using Microsoft.EntityFrameworkCore;
+using Organizations;
+using RoadNodes;
 using RoadSegments;
 
 public class IntegrationContext : RunnerDbContext<IntegrationContext>
 {
     public override string ProjectionStateSchema => WellKnownSchemas.IntegrationSchema;
 
-    // public DbSet<OrganizationRecord> Organizations { get; set; }
-    // public DbSet<RoadNodeRecord> RoadNodes { get; set; }
-    public DbSet<RoadSegmentLatestItem> RoadSegments  => Set<RoadSegmentLatestItem>();
-    // public DbSet<RoadSegmentEuropeanRoadAttributeRecord> RoadSegmentEuropeanRoadAttributes { get; set; }
-    // public DbSet<RoadSegmentNationalRoadAttributeRecord> RoadSegmentNationalRoadAttributes { get; set; }
-    // public DbSet<RoadSegmentNumberedRoadAttributeRecord> RoadSegmentNumberedRoadAttributes { get; set; }
-    // public DbSet<RoadSegmentLaneAttributeRecord> RoadSegmentLaneAttributes { get; set; }
-    // public DbSet<RoadSegmentSurfaceAttributeRecord> RoadSegmentSurfaceAttributes { get; set; }
-    // public DbSet<RoadSegmentWidthAttributeRecord> RoadSegmentWidthAttributes { get; set; }
-    // public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
+    public DbSet<OrganizationLatestItem> Organizations => Set<OrganizationLatestItem>();
+    public DbSet<RoadNodeLatestItem> RoadNodes => Set<RoadNodeLatestItem>();
+    public DbSet<RoadSegmentLatestItem> RoadSegments => Set<RoadSegmentLatestItem>();
+    public DbSet<RoadSegmentEuropeanRoadAttributeLatestItem> RoadSegmentEuropeanRoadAttributes => Set<RoadSegmentEuropeanRoadAttributeLatestItem>();
+    public DbSet<RoadSegmentNationalRoadAttributeLatestItem> RoadSegmentNationalRoadAttributes => Set<RoadSegmentNationalRoadAttributeLatestItem>();
+    public DbSet<RoadSegmentNumberedRoadAttributeLatestItem> RoadSegmentNumberedRoadAttributes => Set<RoadSegmentNumberedRoadAttributeLatestItem>();
+    public DbSet<RoadSegmentLaneAttributeLatestItem> RoadSegmentLaneAttributes => Set<RoadSegmentLaneAttributeLatestItem>();
+    public DbSet<RoadSegmentSurfaceAttributeLatestItem> RoadSegmentSurfaceAttributes => Set<RoadSegmentSurfaceAttributeLatestItem>();
+    public DbSet<RoadSegmentWidthAttributeLatestItem> RoadSegmentWidthAttributes => Set<RoadSegmentWidthAttributeLatestItem>();
+    public DbSet<GradeSeparatedJunctionLatestItem> GradeSeparatedJunctions => Set<GradeSeparatedJunctionLatestItem>();
 
     // This needs to be here to please EF
     public IntegrationContext()

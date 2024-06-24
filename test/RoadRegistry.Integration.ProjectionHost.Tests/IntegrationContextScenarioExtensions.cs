@@ -1,27 +1,35 @@
 namespace RoadRegistry.Integration.ProjectionHost.Tests;
 
 using System.Text;
+using BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using KellermanSoftware.CompareNetObjects;
-using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Microsoft.EntityFrameworkCore;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.Integration.Schema;
 using RoadRegistry.Tests.Framework.Projections;
+using Schema;
 using Xunit.Sdk;
 
 public static class IntegrationContextScenarioExtensions
 {
     //IMPORTANT: Each time you change the db sets on the context, you must adjust this method as well.
     //
-    private static async Task<object[]> AllRecords(this IntegrationContext context)
+    private static Task<object[]> AllRecords(this IntegrationContext context)
     {
         var records = new List<object>();
         records.AddRange(context.RoadSegments.Local);
+        records.AddRange(context.RoadNodes.Local);
+        records.AddRange(context.Organizations.Local);
+        records.AddRange(context.RoadSegmentLaneAttributes.Local);
+        records.AddRange(context.RoadSegmentEuropeanRoadAttributes.Local);
+        records.AddRange(context.RoadSegmentNationalRoadAttributes.Local);
+        records.AddRange(context.RoadSegmentNumberedRoadAttributes.Local);
+        records.AddRange(context.GradeSeparatedJunctions.Local);
+        records.AddRange(context.RoadSegmentSurfaceAttributes.Local);
+        records.AddRange(context.RoadSegmentWidthAttributes.Local);
 
-        return records.ToArray();
+        return Task.FromResult(records.ToArray());
     }
 
     private static IntegrationContext CreateContextFor(string database)
@@ -63,14 +71,14 @@ public static class IntegrationContextScenarioExtensions
             var comparisonConfig = new ComparisonConfig
             {
                 MaxDifferences = 10,
-                CustomComparers = new List<BaseTypeComparer>
-                {
+                CustomComparers =
+                [
                     new GeometryMultiPolygonComparer(RootComparerFactory.GetRootComparer()),
                     new GeometryPointComparer(RootComparerFactory.GetRootComparer()),
                     new GeometryPolygonComparer(RootComparerFactory.GetRootComparer()),
                     new GeometryMultiLineStringComparer(RootComparerFactory.GetRootComparer()),
                     new GeometryLineStringComparer(RootComparerFactory.GetRootComparer())
-                }
+                ]
             };
             var comparer = new CompareLogic(comparisonConfig);
             var actualRecords = await context.AllRecords();
@@ -85,7 +93,7 @@ public static class IntegrationContextScenarioExtensions
         });
 
         await using var context = CreateContextFor(database);
-        
+
         var projector = new ConnectedProjector<IntegrationContext>(specification.Resolver);
         var position = 0L;
         foreach (var message in specification.Messages)
@@ -102,7 +110,7 @@ public static class IntegrationContextScenarioExtensions
         await context.SaveChangesAsync();
 
         var result = await specification.Verification(context, CancellationToken.None);
-        
+
         if (result.Failed)
         {
             throw specification.CreateFailedScenarioExceptionFor(result);
@@ -137,32 +145,28 @@ public static class IntegrationContextScenarioExtensions
                 : VerificationResult.Fail(result.CreateDifferenceMessage(actualRecords, records));
         });
 
-        await using (var context = CreateContextFor(database))
-        {
-            var projector = new ConnectedProjector<IntegrationContext>(specification.Resolver);
-            var position = 0L;
-            foreach (var message in specification.Messages)
-            {
-                var envelope = new Envelope(message, new Dictionary<string, object>
-                {
-                    { "Position", position },
-                    { "StreamId", RoadNetworkStreamNameProvider.Default.ToString() }
-                }).ToGenericEnvelope();
-                await projector.ProjectAsync(context, envelope);
-                position++;
-            }
+        await using var context = CreateContextFor(database);
 
-            await context.SaveChangesAsync();
+        var projector = new ConnectedProjector<IntegrationContext>(specification.Resolver);
+        var position = 0L;
+        foreach (var message in specification.Messages)
+        {
+            var envelope = new Envelope(message, new Dictionary<string, object>
+            {
+                { "Position", position },
+                { "StreamId", RoadNetworkStreamNameProvider.Default.ToString() }
+            }).ToGenericEnvelope();
+            await projector.ProjectAsync(context, envelope);
+            position++;
         }
 
-        await using (var context = CreateContextFor(database))
-        {
-            var result = await specification.Verification(context, CancellationToken.None);
+        await context.SaveChangesAsync();
 
-            if (result.Failed)
-            {
-                throw specification.CreateFailedScenarioExceptionFor(result);
-            }
+        var result = await specification.Verification(context, CancellationToken.None);
+
+        if (result.Failed)
+        {
+            throw specification.CreateFailedScenarioExceptionFor(result);
         }
     }
 
@@ -178,26 +182,22 @@ public static class IntegrationContextScenarioExtensions
                 : VerificationResult.Fail($"Expected 0 records but found {actualRecords.Length}.");
         });
 
-        await using (var context = CreateContextFor(database))
-        {
-            var projector = new ConnectedProjector<IntegrationContext>(specification.Resolver);
-            foreach (var message in specification.Messages)
-            {
-                var envelope = new Envelope(message, new Dictionary<string, object>()).ToGenericEnvelope();
-                await projector.ProjectAsync(context, envelope);
-            }
+        await using var context = CreateContextFor(database);
 
-            await context.SaveChangesAsync();
+        var projector = new ConnectedProjector<IntegrationContext>(specification.Resolver);
+        foreach (var message in specification.Messages)
+        {
+            var envelope = new Envelope(message, new Dictionary<string, object>()).ToGenericEnvelope();
+            await projector.ProjectAsync(context, envelope);
         }
 
-        await using (var context = CreateContextFor(database))
-        {
-            var result = await specification.Verification(context, CancellationToken.None);
+        await context.SaveChangesAsync();
 
-            if (result.Failed)
-            {
-                throw specification.CreateFailedScenarioExceptionFor(result);
-            }
+        var result = await specification.Verification(context, CancellationToken.None);
+
+        if (result.Failed)
+        {
+            throw specification.CreateFailedScenarioExceptionFor(result);
         }
     }
 
