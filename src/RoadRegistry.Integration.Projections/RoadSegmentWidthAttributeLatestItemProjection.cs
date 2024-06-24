@@ -144,7 +144,8 @@ public class RoadSegmentWidthAttributeLatestItemProjection : ConnectedProjection
         CancellationToken token)
     {
         var latestItemsToRemove = await context.RoadSegmentWidthAttributes.IncludeLocalToListAsync(
-            q => q.Where(x => x.RoadSegmentId == segment.Id),
+            q => q.Where(x =>
+                x.RoadSegmentId == segment.Id && !x.IsRemoved),
             token);
 
         foreach (var latestItem in latestItemsToRemove)
@@ -164,8 +165,8 @@ public class RoadSegmentWidthAttributeLatestItemProjection : ConnectedProjection
         CancellationToken token)
     {
         var currentSet = (await context.RoadSegmentWidthAttributes.IncludeLocalToListAsync(
-            q => q.Where(x => x.RoadSegmentId == roadSegmentId),
-            token))
+                q => q.Where(x => x.RoadSegmentId == roadSegmentId),
+                token))
             .ToDictionary(a => a.Id);
 
         var nextSet = widths
@@ -208,6 +209,8 @@ public class RoadSegmentWidthAttributeLatestItemProjection : ConnectedProjection
             },
             current =>
             {
+                if (current.IsRemoved) return;
+
                 current.OrganizationId = envelope.Message.OrganizationId;
                 current.OrganizationName = envelope.Message.Organization;
                 current.IsRemoved = true;

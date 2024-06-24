@@ -57,7 +57,7 @@ public class RoadSegmentNationalRoadAttributeLatestItemProjection : ConnectedPro
                             .FindAsync(nationalRoad.AttributeId, cancellationToken: token)
                             .ConfigureAwait(false);
 
-                        if (latestItem is not null)
+                        if (latestItem is not null && !latestItem.IsRemoved)
                         {
                             latestItem.IsRemoved = true;
                             latestItem.OrganizationId = envelope.Message.OrganizationId;
@@ -69,7 +69,8 @@ public class RoadSegmentNationalRoadAttributeLatestItemProjection : ConnectedPro
                     case RoadSegmentRemoved roadSegmentRemoved:
                         var latestItemsToRemove =
                             await context.RoadSegmentNationalRoadAttributes.IncludeLocalToListAsync(
-                                q => q.Where(x => x.RoadSegmentId == roadSegmentRemoved.Id),
+                                q => q.Where(x =>
+                                    x.RoadSegmentId == roadSegmentRemoved.Id && !x.IsRemoved),
                                 token);
 
                         foreach (var latestItemToRemove in latestItemsToRemove)

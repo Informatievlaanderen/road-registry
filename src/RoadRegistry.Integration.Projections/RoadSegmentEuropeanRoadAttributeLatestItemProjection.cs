@@ -70,7 +70,8 @@ public class RoadSegmentEuropeanRoadAttributeLatestItemProjection : ConnectedPro
                     case RoadSegmentRemoved roadSegmentRemoved:
                         var latestItemsToRemove =
                             await context.RoadSegmentEuropeanRoadAttributes.IncludeLocalToListAsync(
-                                q => q.Where(x => x.RoadSegmentId == roadSegmentRemoved.Id),
+                                q => q.Where(x =>
+                                    x.RoadSegmentId == roadSegmentRemoved.Id && !x.IsRemoved),
                                 token);
 
                         foreach (var latestItemToRemove in latestItemsToRemove)

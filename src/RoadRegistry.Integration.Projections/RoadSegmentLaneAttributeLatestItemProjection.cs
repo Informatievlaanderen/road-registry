@@ -144,7 +144,8 @@ public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<
         CancellationToken token)
     {
         var latestItemsToRemove = await context.RoadSegmentLaneAttributes.IncludeLocalToListAsync(
-            q => q.Where(x => x.RoadSegmentId == segment.Id),
+            q => q.Where(x =>
+                x.RoadSegmentId == segment.Id && !x.IsRemoved),
             token);
 
         foreach (var latestItem in latestItemsToRemove)
@@ -209,6 +210,8 @@ public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<
             },
             current =>
             {
+                if (current.IsRemoved) return;
+
                 current.OrganizationId = envelope.Message.OrganizationId;
                 current.OrganizationName = envelope.Message.Organization;
                 current.IsRemoved = true;

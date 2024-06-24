@@ -136,7 +136,8 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjection : ConnectedPro
 
         var latestItemsToRemove =
             await context.RoadSegmentNumberedRoadAttributes.IncludeLocalToListAsync(
-                q => q.Where(x => x.RoadSegmentId == roadSegmentRemoved.Id),
+                q => q.Where(x =>
+                    x.RoadSegmentId == roadSegmentRemoved.Id && !x.IsRemoved),
                 token);
 
         foreach (var latestItemToRemove in latestItemsToRemove)
