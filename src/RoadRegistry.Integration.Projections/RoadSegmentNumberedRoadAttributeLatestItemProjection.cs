@@ -33,7 +33,7 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjection : ConnectedPro
                         Number = numberedRoad.Number,
                         DirectionId = directionTranslation.Identifier,
                         DirectionLabel = directionTranslation.Name,
-                        SequenceNumber = numberedRoad.Ordinal, //     VOLGNUMMER = { Value = numberedRoad.Ordinal },
+                        SequenceNumber = numberedRoad.Ordinal,
                         BeginOrganizationId = numberedRoad.Origin.OrganizationId,
                         BeginOrganizationName = numberedRoad.Origin.Organization,
                         CreatedOnTimestamp = new DateTimeOffset(numberedRoad.Origin.Since),
