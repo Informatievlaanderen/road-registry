@@ -25,7 +25,9 @@ public class OrganizationLatestItemProjection : ConnectedProjection<IntegrationC
             {
                 Code = envelope.Message.Code,
                 SortableCode = GetSortableCodeFor(envelope.Message.Code),
-                Name = envelope.Message.Name
+                Name = envelope.Message.Name,
+                CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
+                VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
             };
 
             await context.Organizations.AddAsync(organization, token);
@@ -43,7 +45,9 @@ public class OrganizationLatestItemProjection : ConnectedProjection<IntegrationC
                     Code = envelope.Message.Code,
                     SortableCode = GetSortableCodeFor(envelope.Message.Code),
                     Name = envelope.Message.Name,
-                    OvoCode = envelope.Message.OvoCode
+                    OvoCode = envelope.Message.OvoCode,
+                    CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
+                    VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
                 };
 
                 await context.Organizations.AddAsync(organization, token);
@@ -54,6 +58,7 @@ public class OrganizationLatestItemProjection : ConnectedProjection<IntegrationC
                 organization.SortableCode = GetSortableCodeFor(envelope.Message.Code);
                 organization.Name = envelope.Message.Name;
                 organization.OvoCode = envelope.Message.OvoCode;
+                organization.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
             }
         });
 
@@ -65,6 +70,7 @@ public class OrganizationLatestItemProjection : ConnectedProjection<IntegrationC
             organization!.Code = envelope.Message.Code;
             organization.SortableCode = GetSortableCodeFor(envelope.Message.Code);
             organization.Name = envelope.Message.Name;
+            organization.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         });
 
         When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
@@ -75,7 +81,8 @@ public class OrganizationLatestItemProjection : ConnectedProjection<IntegrationC
             organization!.Code = envelope.Message.Code;
             organization.SortableCode = GetSortableCodeFor(envelope.Message.Code);
             organization.Name = envelope.Message.Name;
-            organization.OvoCode = envelope.Message.OvoCode; // What is envelope.Message.OvoCodeModified?
+            organization.OvoCode = envelope.Message.OvoCode;
+            organization.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         });
 
         When<Envelope<DeleteOrganizationAccepted>>(async (context, envelope, token) =>
@@ -86,6 +93,7 @@ public class OrganizationLatestItemProjection : ConnectedProjection<IntegrationC
             if (organization is not null && !organization.IsRemoved)
             {
                 organization.IsRemoved = true;
+                organization.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
             }
         });
     }

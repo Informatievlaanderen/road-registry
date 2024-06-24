@@ -24,9 +24,12 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<OrganizationLa
         b.Property(p => p.Name).HasColumnName("name");
         b.Property(p => p.OvoCode).HasColumnName("ovo_code");
         b.Property(p => p.IsRemoved).HasColumnName("is_removed");
+        b.Property(x => x.VersionTimestamp).HasColumnName("version_timestamp");
+        b.Property(x => x.CreatedOnTimestamp).HasColumnName("created_on_timestamp");
 
         b.HasIndex(p => p.SortableCode);
         b.HasIndex(p => p.OvoCode);
+        b.HasIndex(p => p.VersionTimestamp);
         b.HasIndex(p => p.IsRemoved);
     }
 }

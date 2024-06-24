@@ -16,7 +16,7 @@ public class GradeSeparatedJunctionLatestItemConfiguration : IEntityTypeConfigur
 
         b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
         b.Property(p => p.IsRemoved).HasDefaultValue(false).IsRequired();
-        
+
         b.Property(x => x.Id).HasColumnName("id");
         b.Property(x => x.UpperRoadSegmentId).HasColumnName("upper_road_segment_id");
         b.Property(x => x.LowerRoadSegmentId).HasColumnName("lower_road_segment_id");

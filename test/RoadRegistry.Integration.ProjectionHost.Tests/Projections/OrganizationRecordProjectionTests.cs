@@ -1,18 +1,26 @@
 namespace RoadRegistry.Integration.ProjectionHost.Tests.Projections;
 
+using System.Globalization;
 using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
 using Integration.Projections;
+using NodaTime;
+using NodaTime.Testing;
 using RoadRegistry.Tests.BackOffice;
 using Schema.Organizations;
 
 public class OrganizationLatestItemProjectionTests
 {
     private readonly Fixture _fixture;
+    private readonly EventEnricher _eventEnricher;
 
     public OrganizationLatestItemProjectionTests()
     {
+        var instant = NodaConstants.UnixEpoch;
+        var clock = new FakeClock(instant);
+        _eventEnricher = EnrichEvent.WithTime(clock);
+
         _fixture = new Fixture();
         _fixture.CustomizeOrganizationId();
         _fixture.CustomizeOrganizationName();
@@ -21,10 +29,15 @@ public class OrganizationLatestItemProjectionTests
         _fixture.Customize<ImportedOrganization>(
             customization =>
                 customization.FromFactory(_ =>
-                    new ImportedOrganization
                     {
-                        Code = _fixture.Create<OrganizationId>(),
-                        Name = _fixture.Create<OrganizationName>()
+                        var @event = new ImportedOrganization
+                        {
+                            Code = _fixture.Create<OrganizationId>(),
+                            Name = _fixture.Create<OrganizationName>()
+                        };
+                        _eventEnricher(@event);
+
+                        return @event;
                     }
                 ).OmitAutoProperties()
         );
@@ -38,6 +51,7 @@ public class OrganizationLatestItemProjectionTests
             Name = _fixture.Create<OrganizationName>(),
             OvoCode = _fixture.Create<OrganizationOvoCode>()
         };
+        _eventEnricher(createOrganizationAccepted);
 
         var expected = new OrganizationLatestItem
         {
@@ -45,7 +59,9 @@ public class OrganizationLatestItemProjectionTests
             SortableCode = OrganizationLatestItemProjection.GetSortableCodeFor(createOrganizationAccepted.Code),
             Name = createOrganizationAccepted.Name,
             OvoCode = createOrganizationAccepted.OvoCode,
-            IsRemoved = false
+            IsRemoved = false,
+            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(createOrganizationAccepted.When),
+            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(createOrganizationAccepted.When)
         };
 
         return new OrganizationLatestItemProjection()
@@ -60,12 +76,15 @@ public class OrganizationLatestItemProjectionTests
         var createOrganizationAccepted = new CreateOrganizationAccepted
         {
             Code = _fixture.Create<OrganizationId>(),
-            Name = _fixture.Create<OrganizationName>()
+            Name = _fixture.Create<OrganizationName>(),
         };
+        _eventEnricher(createOrganizationAccepted);
+
         var deleteOrganizationAccepted = new DeleteOrganizationAccepted
         {
             Code = createOrganizationAccepted.Code
         };
+        _eventEnricher(deleteOrganizationAccepted);
 
         var expected = new OrganizationLatestItem
         {
@@ -73,7 +92,9 @@ public class OrganizationLatestItemProjectionTests
             SortableCode = OrganizationLatestItemProjection.GetSortableCodeFor(createOrganizationAccepted.Code),
             Name = createOrganizationAccepted.Name,
             OvoCode = createOrganizationAccepted.OvoCode,
-            IsRemoved = true
+            IsRemoved = true,
+            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(createOrganizationAccepted.When),
+            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(deleteOrganizationAccepted.When)
         };
 
         return new OrganizationLatestItemProjection()
@@ -85,16 +106,14 @@ public class OrganizationLatestItemProjectionTests
     [Fact]
     public Task When_organization_is_renamed()
     {
-        var importedOrganization = new ImportedOrganization
-        {
-            Code = _fixture.Create<OrganizationId>(),
-            Name = _fixture.Create<OrganizationName>()
-        };
+        var importedOrganization = _fixture.Create<ImportedOrganization>();
         var renameOrganizationAccepted = new RenameOrganizationAccepted
         {
             Code = importedOrganization.Code,
-            Name = _fixture.CreateWhichIsDifferentThan(new OrganizationName(importedOrganization.Name))
+            Name = _fixture.CreateWhichIsDifferentThan(new OrganizationName(importedOrganization.Name)),
+            When = _fixture.Create<DateTime>().ToString(CultureInfo.InvariantCulture)
         };
+        _eventEnricher(renameOrganizationAccepted);
 
         var expected = new OrganizationLatestItem
         {
@@ -102,7 +121,9 @@ public class OrganizationLatestItemProjectionTests
             SortableCode = OrganizationLatestItemProjection.GetSortableCodeFor(importedOrganization.Code),
             Name = renameOrganizationAccepted.Name,
             OvoCode = null,
-            IsRemoved = false
+            IsRemoved = false,
+            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(importedOrganization.When),
+            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(renameOrganizationAccepted.When)
         };
 
         return new OrganizationLatestItemProjection()
@@ -114,17 +135,14 @@ public class OrganizationLatestItemProjectionTests
     [Fact]
     public Task When_organization_is_changed()
     {
-        var importedOrganization = new ImportedOrganization
-        {
-            Code = _fixture.Create<OrganizationId>(),
-            Name = _fixture.Create<OrganizationName>()
-        };
+        var importedOrganization = _fixture.Create<ImportedOrganization>();
         var changeOrganizationAccepted = new ChangeOrganizationAccepted
         {
             Code = importedOrganization.Code,
             Name = importedOrganization.Name,
             OvoCode = _fixture.Create<OrganizationOvoCode>()
         };
+        _eventEnricher(changeOrganizationAccepted);
 
         var expected = new OrganizationLatestItem
         {
@@ -132,7 +150,9 @@ public class OrganizationLatestItemProjectionTests
             SortableCode = OrganizationLatestItemProjection.GetSortableCodeFor(importedOrganization.Code),
             Name = changeOrganizationAccepted.Name,
             OvoCode = changeOrganizationAccepted.OvoCode,
-            IsRemoved = false
+            IsRemoved = false,
+            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(importedOrganization.When),
+            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(changeOrganizationAccepted.When)
         };
 
         return new OrganizationLatestItemProjection()
@@ -156,7 +176,9 @@ public class OrganizationLatestItemProjectionTests
                     SortableCode = OrganizationLatestItemProjection.GetSortableCodeFor(@event.Code),
                     Name = @event.Name,
                     OvoCode = null,
-                    IsRemoved = false
+                    IsRemoved = false,
+                    CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(@event.When),
+                    VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(@event.When)
                 };
                 return new
                 {

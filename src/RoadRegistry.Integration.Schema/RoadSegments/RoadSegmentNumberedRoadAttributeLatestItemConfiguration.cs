@@ -32,6 +32,9 @@ public class RoadSegmentLatestItemNumberedRoadAttributeConfiguration : IEntityTy
 
         b.HasIndex(p => p.RoadSegmentId);
         b.HasIndex(p => p.Number);
+        b.HasIndex(p => p.DirectionId);
+        b.HasIndex(p => p.DirectionLabel);
+        b.HasIndex(p => p.VersionTimestamp);
         b.HasIndex(p => p.IsRemoved);
     }
 }

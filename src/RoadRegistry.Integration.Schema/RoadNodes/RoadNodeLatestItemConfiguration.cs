@@ -37,6 +37,7 @@ public class RoadNodeConfiguration : IEntityTypeConfiguration<RoadNodeLatestItem
         b.HasIndex(p => p.TypeId);
         b.HasIndex(p => p.TypeLabel);
         b.HasIndex(p => p.IsRemoved);
+        b.HasIndex(p => p.VersionTimestamp);
         b.HasIndex(x => x.Geometry).HasMethod("GIST");
     }
 }
