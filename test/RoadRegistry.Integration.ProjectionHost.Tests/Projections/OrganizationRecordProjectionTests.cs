@@ -56,7 +56,6 @@ public class OrganizationLatestItemProjectionTests
         var expected = new OrganizationLatestItem
         {
             Code = createOrganizationAccepted.Code,
-            SortableCode = OrganizationLatestItemProjection.GetSortableCodeFor(createOrganizationAccepted.Code),
             Name = createOrganizationAccepted.Name,
             OvoCode = createOrganizationAccepted.OvoCode,
             IsRemoved = false,
@@ -89,7 +88,6 @@ public class OrganizationLatestItemProjectionTests
         var expected = new OrganizationLatestItem
         {
             Code = createOrganizationAccepted.Code,
-            SortableCode = OrganizationLatestItemProjection.GetSortableCodeFor(createOrganizationAccepted.Code),
             Name = createOrganizationAccepted.Name,
             OvoCode = createOrganizationAccepted.OvoCode,
             IsRemoved = true,
@@ -118,7 +116,6 @@ public class OrganizationLatestItemProjectionTests
         var expected = new OrganizationLatestItem
         {
             Code = importedOrganization.Code,
-            SortableCode = OrganizationLatestItemProjection.GetSortableCodeFor(importedOrganization.Code),
             Name = renameOrganizationAccepted.Name,
             OvoCode = null,
             IsRemoved = false,
@@ -147,7 +144,6 @@ public class OrganizationLatestItemProjectionTests
         var expected = new OrganizationLatestItem
         {
             Code = importedOrganization.Code,
-            SortableCode = OrganizationLatestItemProjection.GetSortableCodeFor(importedOrganization.Code),
             Name = changeOrganizationAccepted.Name,
             OvoCode = changeOrganizationAccepted.OvoCode,
             IsRemoved = false,
@@ -173,7 +169,6 @@ public class OrganizationLatestItemProjectionTests
                 var expected = new OrganizationLatestItem
                 {
                     Code = @event.Code,
-                    SortableCode = OrganizationLatestItemProjection.GetSortableCodeFor(@event.Code),
                     Name = @event.Name,
                     OvoCode = null,
                     IsRemoved = false,
