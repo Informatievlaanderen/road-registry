@@ -17,7 +17,7 @@ public class OrganizationLatestItemEventProcessor : IntegrationContextEventProce
         Scheduler scheduler,
         ILogger<OrganizationLatestItemEventProcessor> logger)
         : base(
-            "roadregistry-integration-organization-projectionhost",
+            "roadregistry-integration-organization-latestitem-projectionhost",
             streamStore,
             projections.Filter,
             envelopeFactory,

@@ -47,6 +47,7 @@ public class OrganizationLatestItemProjection : ConnectedProjection<IntegrationC
                 organization.Name = envelope.Message.Name;
                 organization.OvoCode = envelope.Message.OvoCode;
                 organization.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+                organization.IsRemoved = false;
             }
         });
 

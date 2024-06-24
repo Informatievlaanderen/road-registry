@@ -70,6 +70,41 @@ public class OrganizationLatestItemProjectionTests
     }
 
     [Fact]
+    public Task When_organization_is_recreated()
+    {
+        _fixture.Freeze<OrganizationId>();
+
+        var importedOrganization = _fixture.Create<ImportedOrganization>();
+        var deleteOrganizationAccepted = new DeleteOrganizationAccepted
+        {
+            Code = importedOrganization.Code
+        };
+        _eventEnricher(deleteOrganizationAccepted);
+
+        var createOrganizationAccepted = new CreateOrganizationAccepted {
+            Code = _fixture.Create<OrganizationId>(),
+            Name = _fixture.Create<OrganizationName>(),
+            OvoCode = _fixture.Create<OrganizationOvoCode>()
+        };
+        _eventEnricher(createOrganizationAccepted);
+
+        var expected = new OrganizationLatestItem
+        {
+            Code = createOrganizationAccepted.Code,
+            Name = createOrganizationAccepted.Name,
+            OvoCode = createOrganizationAccepted.OvoCode,
+            IsRemoved = false,
+            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(importedOrganization.When),
+            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(createOrganizationAccepted.When)
+        };
+
+        return new OrganizationLatestItemProjection()
+            .Scenario()
+            .Given(importedOrganization, deleteOrganizationAccepted, createOrganizationAccepted)
+            .Expect([expected]);
+    }
+
+    [Fact]
     public Task When_organization_is_deleted()
     {
         var createOrganizationAccepted = new CreateOrganizationAccepted
