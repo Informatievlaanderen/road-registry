@@ -1,3 +1,10 @@
+## [4.1.7](https://github.com/informatievlaanderen/road-registry/compare/v4.1.6...v4.1.7) (2024-06-21)
+
+
+### Bug Fixes
+
+* add debug info ([#1512](https://github.com/informatievlaanderen/road-registry/issues/1512)) ([fec701e](https://github.com/informatievlaanderen/road-registry/commit/fec701e05faefe4c7b44303fd936b1628691ee64))
+
 ## [4.1.6](https://github.com/informatievlaanderen/road-registry/compare/v4.1.5...v4.1.6) (2024-06-21)
 
 
