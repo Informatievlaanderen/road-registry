@@ -1,14 +1,15 @@
-namespace RoadRegistry.Integration.Schema.RoadSegments;
+namespace RoadRegistry.Integration.Schema.RoadSegments.Version;
 
 using System;
 using BackOffice;
 using NetTopologySuite.Geometries;
+using RoadSegments;
 
 public class RoadSegmentVersion
 {
-    public int Position { get; set; }
+    public required long Position { get; init; }
+    public required int Id { get; init; }
 
-    public int Id { get; set; }
     public double? BoundingBoxMaximumM { get; set; }
     public double? BoundingBoxMaximumX { get; set; }
     public double? BoundingBoxMaximumY { get; set; }
@@ -41,7 +42,7 @@ public class RoadSegmentVersion
     public DateTimeOffset VersionTimestamp { get; set; }
     public DateTimeOffset CreatedOnTimestamp { get; set; }
 
-    public RoadSegmentLatestItem WithBoundingBox(RoadSegmentBoundingBox value)
+    public RoadSegmentVersion WithBoundingBox(RoadSegmentBoundingBox value)
     {
         BoundingBoxMaximumX = value.MaximumX;
         BoundingBoxMaximumY = value.MaximumY;
@@ -80,5 +81,54 @@ public class RoadSegmentVersion
     {
         StatusId = status.Translation.Identifier;
         StatusLabel = status.Translation.Name;
+    }
+
+    public RoadSegmentVersion Clone(long newPosition)
+    {
+        //var buildingUnits =
+        //    BuildingUnits.Select(x => x.CloneAndApplyEventInfo(newPosition, eventName));
+        //TODO-rik clone attributes (lanes, surfaces,...)
+        //TODO DISCUSS Arne: exclude IsRemoved records?
+
+        var newItem = new RoadSegmentVersion
+        {
+            Position = newPosition,
+            Id = Id,
+
+            BoundingBoxMaximumM = BoundingBoxMaximumM,
+            BoundingBoxMaximumX = BoundingBoxMaximumX,
+            BoundingBoxMaximumY = BoundingBoxMaximumY,
+            BoundingBoxMinimumM = BoundingBoxMinimumM,
+            BoundingBoxMinimumX = BoundingBoxMinimumX,
+            BoundingBoxMinimumY = BoundingBoxMinimumY,
+            EndNodeId = EndNodeId,
+            Geometry = Geometry,
+            StartNodeId = StartNodeId,
+            IsRemoved = IsRemoved,
+            Version = Version,
+            GeometryVersion = GeometryVersion,
+            AccessRestrictionId = AccessRestrictionId,
+            AccessRestrictionLabel = AccessRestrictionLabel,
+            CategoryId = CategoryId,
+            CategoryLabel = CategoryLabel,
+            LeftSideStreetNameId = LeftSideStreetNameId,
+            MaintainerId = MaintainerId,
+            MethodId = MethodId,
+            MethodLabel = MethodLabel,
+            MorphologyId = MorphologyId,
+            MorphologyLabel = MorphologyLabel,
+            RightSideStreetNameId = RightSideStreetNameId,
+            StatusId = StatusId,
+            StatusLabel = StatusLabel,
+            OrganizationId = OrganizationId,
+            OrganizationName = OrganizationName,
+
+            VersionTimestamp = VersionTimestamp,
+            CreatedOnTimestamp = CreatedOnTimestamp,
+
+            //BuildingUnits = new Collection<BuildingUnitVersion>(buildingUnits.ToList()),
+        };
+
+        return newItem;
     }
 }

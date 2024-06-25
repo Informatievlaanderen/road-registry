@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Projections;
+using Projections.Version;
 using Schema;
 
 public class Program
@@ -81,6 +82,10 @@ public class Program
                  .AddIntegrationContextEventProcessor<OrganizationLatestItemEventProcessor>(_ =>
                 [
                     new OrganizationLatestItemProjection()
+                ])
+                 .AddIntegrationContextEventProcessor<RoadNetworkVersionEventProcessor>(_ =>
+                [
+                    new RoadSegmentVersionProjection()
                 ])
                 ;
         })

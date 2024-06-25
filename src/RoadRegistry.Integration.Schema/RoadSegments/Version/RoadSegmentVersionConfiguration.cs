@@ -1,4 +1,4 @@
-namespace RoadRegistry.Integration.Schema.RoadSegments;
+namespace RoadRegistry.Integration.Schema.RoadSegments.Version;
 
 using BackOffice;
 using Microsoft.EntityFrameworkCore;
