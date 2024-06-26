@@ -27,11 +27,6 @@ namespace RoadRegistry.Integration.Projections.Version
             }
 
             var newRoadSegmentVersion = roadSegmentVersion.Clone(message.Position);
-
-            await context
-                .RoadSegmentVersions
-                .AddAsync(newRoadSegmentVersion, ct);
-
             return newRoadSegmentVersion;
         }
 

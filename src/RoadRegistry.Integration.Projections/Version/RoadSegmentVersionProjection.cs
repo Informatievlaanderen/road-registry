@@ -1,10 +1,7 @@
 namespace RoadRegistry.Integration.Projections.Version;
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -91,16 +88,15 @@ public class RoadSegmentVersionProjection : ConnectedProjection<IntegrationConte
                 if (roadSegmentChanges.OfType<RoadSegmentAdded>().Any())
                 {
                     var roadSegmentAdded = roadSegmentChanges.OfType<RoadSegmentAdded>().Single();
-                    roadSegment = await CreateFirstRoadSegmentVersion(roadSegmentAdded, envelope);
-                    await context.RoadSegmentVersions.AddAsync(roadSegment, token);
+                    roadSegment = CreateFirstRoadSegmentVersion(roadSegmentAdded, envelope);
                     roadSegmentChanges.Remove(roadSegmentAdded);
                 }
                 else
                 {
-                    roadSegment = await context.CreateNewRoadSegmentVersion(roadSegmentId,
-                        envelope,
-                        token);
+                    roadSegment = await context.CreateNewRoadSegmentVersion(roadSegmentId, envelope, token);
                 }
+
+                await context.RoadSegmentVersions.AddAsync(roadSegment, token);
 
                 foreach (var message in roadSegmentChanges)
                     switch (message)
@@ -109,97 +105,66 @@ public class RoadSegmentVersionProjection : ConnectedProjection<IntegrationConte
                             throw new InvalidOperationException($"Invalid RoadSegmentAdded change for ID {roadSegmentAdded.Id} for position {envelope.Position}");
 
                         case RoadSegmentModified roadSegmentModified:
-                            await ModifyRoadSegment(roadSegment, roadSegmentModified, envelope);
+                            ModifyRoadSegment(roadSegment, roadSegmentModified, envelope);
                             break;
 
                         case RoadSegmentAddedToEuropeanRoad change:
-                            await AddRoadSegmentToEuropeanRoad(roadSegment, change, envelope, token);
+                            AddRoadSegmentToEuropeanRoad(roadSegment, change, envelope);
                             break;
                         case RoadSegmentRemovedFromEuropeanRoad change:
-                            await RemoveRoadSegmentFromEuropeanRoad(roadSegment, change, envelope, token);
+                            RemoveRoadSegmentFromEuropeanRoad(roadSegment, change, envelope);
                             break;
 
                         case RoadSegmentAddedToNationalRoad change:
-                            await AddRoadSegmentToNationalRoad(roadSegment, change, envelope, token);
+                            AddRoadSegmentToNationalRoad(roadSegment, change, envelope);
                             break;
                         case RoadSegmentRemovedFromNationalRoad change:
-                            await RemoveRoadSegmentFromNationalRoad(roadSegment, change, envelope, token);
+                            RemoveRoadSegmentFromNationalRoad(roadSegment, change, envelope);
                             break;
 
                         case RoadSegmentAddedToNumberedRoad change:
-                            await AddRoadSegmentToNumberedRoad(roadSegment, change, envelope, token);
+                            AddRoadSegmentToNumberedRoad(roadSegment, change, envelope);
                             break;
                         case RoadSegmentRemovedFromNumberedRoad change:
-                            await RemoveRoadSegmentFromNumberedRoad(roadSegment, change, envelope, token);
+                            RemoveRoadSegmentFromNumberedRoad(roadSegment, change, envelope);
                             break;
 
                         case RoadSegmentAttributesModified roadSegmentAttributesModified:
-                            await ModifyRoadSegmentAttributes(roadSegment, roadSegmentAttributesModified, envelope, token);
+                            ModifyRoadSegmentAttributes(roadSegment, roadSegmentAttributesModified, envelope);
                             break;
 
                         case RoadSegmentGeometryModified roadSegmentGeometryModified:
-                            await ModifyRoadSegmentGeometry(roadSegment, roadSegmentGeometryModified, envelope, token);
+                            ModifyRoadSegmentGeometry(roadSegment, roadSegmentGeometryModified, envelope);
                             break;
 
-                        case RoadSegmentRemoved roadSegmentRemoved:
-                            await RemoveRoadSegment(roadSegment, roadSegmentRemoved, envelope, token);
+                        case RoadSegmentRemoved:
+                            RemoveRoadSegment(roadSegment, envelope);
                             break;
                     }
             }
         });
     }
 
-    private static int? GetRoadSegmentIdFromChange(object change)
+    private static int? GetRoadSegmentIdFromChange(object changeMessage)
     {
-        switch (change)
+        return changeMessage switch
         {
-            case RoadSegmentAdded roadSegmentAdded:
-                return roadSegmentAdded.Id;
-
-                //case RoadSegmentModified roadSegmentModified:
-                //    await ModifyRoadSegment(eventContext, roadSegmentModified, envelope, token);
-                //    break;
-
-                //case RoadSegmentAddedToEuropeanRoad change:
-                //    await AddRoadSegmentToEuropeanRoad(eventContext, change, envelope, token);
-                //    break;
-                //case RoadSegmentRemovedFromEuropeanRoad change:
-                //    await RemoveRoadSegmentFromEuropeanRoad(eventContext, change, envelope, token);
-                //    break;
-
-                //case RoadSegmentAddedToNationalRoad change:
-                //    await AddRoadSegmentToNationalRoad(eventContext, change, envelope, token);
-                //    break;
-                //case RoadSegmentRemovedFromNationalRoad change:
-                //    await RemoveRoadSegmentFromNationalRoad(eventContext, change, envelope, token);
-                //    break;
-
-                //case RoadSegmentAddedToNumberedRoad change:
-                //    await AddRoadSegmentToNumberedRoad(eventContext, change, envelope, token);
-                //    break;
-                //case RoadSegmentRemovedFromNumberedRoad change:
-                //    await RemoveRoadSegmentFromNumberedRoad(eventContext, change, envelope, token);
-                //    break;
-
-                //case RoadSegmentAttributesModified roadSegmentAttributesModified:
-                //    await ModifyRoadSegmentAttributes(eventContext, roadSegmentAttributesModified, envelope, token);
-                //    break;
-
-                //case RoadSegmentGeometryModified roadSegmentGeometryModified:
-                //    await ModifyRoadSegmentGeometry(eventContext, roadSegmentGeometryModified, envelope, token);
-                //    break;
-
-                //case RoadSegmentRemoved roadSegmentRemoved:
-                //    await RemoveRoadSegment(eventContext, roadSegmentRemoved, envelope, token);
-                //    break;
-        }
-
-        throw new NotImplementedException($"{change.GetType().Name}");
+            RoadSegmentAdded change => change.Id,
+            RoadSegmentModified change => change.Id,
+            RoadSegmentAddedToEuropeanRoad change => change.SegmentId,
+            RoadSegmentRemovedFromEuropeanRoad change => change.SegmentId,
+            RoadSegmentAddedToNationalRoad change => change.SegmentId,
+            RoadSegmentRemovedFromNationalRoad change => change.SegmentId,
+            RoadSegmentAddedToNumberedRoad change => change.SegmentId,
+            RoadSegmentRemovedFromNumberedRoad change => change.SegmentId,
+            RoadSegmentAttributesModified change => change.Id,
+            RoadSegmentGeometryModified change => change.Id,
+            RoadSegmentRemoved change => change.Id,
+            _ => throw new NotImplementedException($"{changeMessage.GetType().Name}")
+        };
     }
 
-    private sealed record RoadSegmentChange(int Id, object Change);
-
-    private static async Task<RoadSegmentVersion> CreateFirstRoadSegmentVersion(
+    private static RoadSegmentVersion CreateFirstRoadSegmentVersion(
         RoadSegmentAdded roadSegmentAdded,
         Envelope<RoadNetworkChangesAccepted> envelope)
     {
@@ -208,7 +173,7 @@ public class RoadSegmentVersionProjection : ConnectedProjection<IntegrationConte
             Position = envelope.Position,
             Id = roadSegmentAdded.Id
         };
-        
+
         var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentAdded.Geometry));
         var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
         var status = RoadSegmentStatus.Parse(roadSegmentAdded.Status);
@@ -241,7 +206,7 @@ public class RoadSegmentVersionProjection : ConnectedProjection<IntegrationConte
         return versionItem;
     }
 
-    private static async Task ModifyRoadSegment(
+    private static void ModifyRoadSegment(
         RoadSegmentVersion roadSegment,
         RoadSegmentModified roadSegmentModified,
         Envelope<RoadNetworkChangesAccepted> envelope)
@@ -274,62 +239,56 @@ public class RoadSegmentVersionProjection : ConnectedProjection<IntegrationConte
         roadSegment.OrganizationName = envelope.Message.Organization;
         roadSegment.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
-
-    private static async Task AddRoadSegmentToEuropeanRoad(
+    
+    private static void AddRoadSegmentToEuropeanRoad(
         RoadSegmentVersion roadSegment,
         RoadSegmentAddedToEuropeanRoad change,
-        Envelope<RoadNetworkChangesAccepted> envelope,
-        CancellationToken token)
+        Envelope<RoadNetworkChangesAccepted> envelope)
     {
-        await UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentId, change.SegmentVersion, token);
+        UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentVersion);
     }
 
-    private static async Task RemoveRoadSegmentFromEuropeanRoad(
+    private static void RemoveRoadSegmentFromEuropeanRoad(
         RoadSegmentVersion roadSegment,
         RoadSegmentRemovedFromEuropeanRoad change,
-        Envelope<RoadNetworkChangesAccepted> envelope,
-        CancellationToken token)
+        Envelope<RoadNetworkChangesAccepted> envelope)
     {
-        await UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentId, change.SegmentVersion, token);
+        UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentVersion);
     }
 
-    private static async Task AddRoadSegmentToNationalRoad(
+    private static void AddRoadSegmentToNationalRoad(
         RoadSegmentVersion roadSegment,
         RoadSegmentAddedToNationalRoad change,
-        Envelope<RoadNetworkChangesAccepted> envelope,
-        CancellationToken token)
+        Envelope<RoadNetworkChangesAccepted> envelope)
     {
-        await UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentId, change.SegmentVersion, token);
+        UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentVersion);
     }
 
-    private static async Task RemoveRoadSegmentFromNationalRoad(
+    private static void RemoveRoadSegmentFromNationalRoad(
         RoadSegmentVersion roadSegment,
         RoadSegmentRemovedFromNationalRoad change,
-        Envelope<RoadNetworkChangesAccepted> envelope,
-        CancellationToken token)
+        Envelope<RoadNetworkChangesAccepted> envelope)
     {
-        await UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentId, change.SegmentVersion, token);
+        UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentVersion);
     }
 
-    private static async Task AddRoadSegmentToNumberedRoad(
+    private static void AddRoadSegmentToNumberedRoad(
         RoadSegmentVersion roadSegment,
         RoadSegmentAddedToNumberedRoad change,
-        Envelope<RoadNetworkChangesAccepted> envelope,
-        CancellationToken token)
+        Envelope<RoadNetworkChangesAccepted> envelope)
     {
-        await UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentId, change.SegmentVersion, token);
+        UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentVersion);
     }
 
-    private static async Task RemoveRoadSegmentFromNumberedRoad(
+    private static void RemoveRoadSegmentFromNumberedRoad(
         RoadSegmentVersion roadSegment,
         RoadSegmentRemovedFromNumberedRoad change,
-        Envelope<RoadNetworkChangesAccepted> envelope,
-        CancellationToken token)
+        Envelope<RoadNetworkChangesAccepted> envelope)
     {
-        await UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentId, change.SegmentVersion, token);
+        UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentVersion);
     }
 
-    private static async Task ModifyRoadSegmentAttributes(
+    private static void ModifyRoadSegmentAttributes(
         RoadSegmentVersion roadSegment,
         RoadSegmentAttributesModified roadSegmentAttributesModified,
         Envelope<RoadNetworkChangesAccepted> envelope)
@@ -369,7 +328,7 @@ public class RoadSegmentVersionProjection : ConnectedProjection<IntegrationConte
         }
     }
 
-    private static async Task ModifyRoadSegmentGeometry(
+    private static void ModifyRoadSegmentGeometry(
         RoadSegmentVersion roadSegment,
         RoadSegmentGeometryModified roadSegmentGeometryModified,
         Envelope<RoadNetworkChangesAccepted> envelope)
@@ -388,60 +347,37 @@ public class RoadSegmentVersionProjection : ConnectedProjection<IntegrationConte
         roadSegment.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
-    private static async Task RemoveRoadSegment(
+    private static void RemoveRoadSegment(
         RoadSegmentVersion roadSegment,
-        RoadSegmentRemoved roadSegmentRemoved,
-        Envelope<RoadNetworkChangesAccepted> envelope,
-        CancellationToken token)
+        Envelope<RoadNetworkChangesAccepted> envelope)
     {
-        await context.DbContext.CreateNewRoadSegmentVersion(roadSegmentRemoved.Id,
-            envelope,
-            roadSegment =>
-            {
-                if (roadSegment.IsRemoved)
-                {
-                    return;
-                }
-
-                roadSegment.OrganizationId = envelope.Message.OrganizationId;
-                roadSegment.OrganizationName = envelope.Message.Organization;
-                roadSegment.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-                roadSegment.IsRemoved = true;
-            },
-            token);
-    }
-
-    private static async Task UpdateRoadSegmentVersion(
-        RoadSegmentVersion roadSegment,
-        Envelope<RoadNetworkChangesAccepted> envelope,
-        int segmentId,
-        int? segmentVersion,
-        CancellationToken token)
-    {
-        if (segmentVersion is null
-            || context.ProcessedRoadSegmentVersions.TryGetValue(segmentId, out var processedRoadSegmentVersion) && processedRoadSegmentVersion == segmentVersion.Value)
+        if (roadSegment.IsRemoved)
         {
             return;
         }
 
-        await context.DbContext.CreateNewRoadSegmentVersion(segmentId,
-            envelope,
-            roadSegment =>
-            {
-                roadSegment.Version = segmentVersion.Value;
-
-                roadSegment.OrganizationId = envelope.Message.OrganizationId;
-                roadSegment.OrganizationName = envelope.Message.Organization;
-                roadSegment.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-
-                context.ProcessedRoadSegmentVersions[segmentId] = segmentVersion.Value;
-            },
-            token);
+        roadSegment.OrganizationId = envelope.Message.OrganizationId;
+        roadSegment.OrganizationName = envelope.Message.Organization;
+        roadSegment.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        roadSegment.IsRemoved = true;
     }
 
-    private sealed class RoadNetworkChangesAcceptedContext(IntegrationContext dbContext)
+    private static void UpdateRoadSegmentVersion(
+        RoadSegmentVersion roadSegment,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        int? segmentVersion)
     {
-        public IntegrationContext DbContext { get; } = dbContext;
-        public readonly Dictionary<int, int> ProcessedRoadSegmentVersions = [];
+        if (segmentVersion is null)
+        {
+            return;
+        }
+
+        roadSegment.Version = segmentVersion.Value;
+
+        roadSegment.OrganizationId = envelope.Message.OrganizationId;
+        roadSegment.OrganizationName = envelope.Message.Organization;
+        roadSegment.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
+
+    private sealed record RoadSegmentChange(int Id, object Change);
 }

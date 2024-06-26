@@ -93,6 +93,44 @@ public class RoadSegmentVersionProjectionTests
     }
 
     [Fact]
+    public Task When_adding_road_segment_to_multiple_european_roads()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToEuropeanRoad>(), _fixture.Create<RoadSegmentAddedToEuropeanRoad>());
+
+        Assert.Equal(2, message.Changes.Length);
+
+        var expectedRecords = BuildInitialExpectedRoadSegmentRecords(acceptedRoadSegmentAdded)
+            .Concat(message.Changes.Skip(1).Select(change =>
+            {
+                return BuildRoadSegmentRecord(
+                    1,
+                    acceptedRoadSegmentAdded,
+                    acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded,
+                    record =>
+                    {
+                        record.Version = change.RoadSegmentAddedToEuropeanRoad.SegmentVersion!.Value;
+
+                        record.OrganizationId = message.OrganizationId;
+                        record.OrganizationName = message.Organization;
+                        record.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When);
+                    });
+            }));
+
+        return BuildProjection()
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
     public Task When_adding_road_segment_to_national_road()
     {
         _fixture.Freeze<RoadSegmentId>();
