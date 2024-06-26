@@ -1,11 +1,9 @@
-namespace RoadRegistry.Integration.Schema.RoadSegments;
+namespace RoadRegistry.Integration.Schema.RoadSegments.Version;
 
 using System;
 
 public class RoadSegmentEuropeanRoadAttributeVersion
 {
-    public int Position { get; set; }
-
     public int Id { get; set; }
     public int RoadSegmentId { get; set; }
     public string Number { get; set; }

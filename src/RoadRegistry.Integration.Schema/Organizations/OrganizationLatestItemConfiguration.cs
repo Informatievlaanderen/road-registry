@@ -4,7 +4,7 @@ using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-public class OrganizationConfiguration : IEntityTypeConfiguration<OrganizationLatestItem>
+public class OrganizationLatestItemConfiguration : IEntityTypeConfiguration<OrganizationLatestItem>
 {
     public const string TableName = "organization_latest_items";
 
