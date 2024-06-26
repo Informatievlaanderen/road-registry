@@ -1,6 +1,8 @@
 namespace RoadRegistry.Integration.Schema.RoadSegments.Version;
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using BackOffice;
 using NetTopologySuite.Geometries;
 using RoadSegments;
@@ -41,6 +43,13 @@ public class RoadSegmentVersion
 
     public DateTimeOffset VersionTimestamp { get; set; }
     public DateTimeOffset CreatedOnTimestamp { get; set; }
+
+    public ICollection<RoadSegmentLaneAttributeVersion> Lanes { get; set; } = [];
+    public ICollection<RoadSegmentSurfaceAttributeVersion> Surfaces { get; set; } = [];
+    public ICollection<RoadSegmentWidthAttributeVersion> Widths { get; set; } = [];
+    public ICollection<RoadSegmentEuropeanRoadAttributeVersion> EuropeanRoads { get; set; } = [];
+    public ICollection<RoadSegmentNationalRoadAttributeVersion> NationalRoads { get; set; } = [];
+    public ICollection<RoadSegmentNumberedRoadAttributeVersion> NumberedRoads { get; set; } = [];
 
     public RoadSegmentVersion WithBoundingBox(RoadSegmentBoundingBox value)
     {
@@ -85,11 +94,6 @@ public class RoadSegmentVersion
 
     public RoadSegmentVersion Clone(long newPosition)
     {
-        //var buildingUnits =
-        //    BuildingUnits.Select(x => x.CloneAndApplyEventInfo(newPosition, eventName));
-        //TODO-rik clone attributes (lanes, surfaces,...)
-        //TODO DISCUSS Arne: exclude IsRemoved records?
-
         var newItem = new RoadSegmentVersion
         {
             Position = newPosition,
@@ -126,7 +130,32 @@ public class RoadSegmentVersion
             VersionTimestamp = VersionTimestamp,
             CreatedOnTimestamp = CreatedOnTimestamp,
 
-            //BuildingUnits = new Collection<BuildingUnitVersion>(buildingUnits.ToList()),
+            Lanes = Lanes
+                .Where(x => !x.IsRemoved)
+                .Select(x => x.Clone(newPosition))
+                .ToList(),
+            Surfaces = Surfaces
+                .Where(x => !x.IsRemoved)
+                .Select(x => x.Clone(newPosition))
+                .ToList(),
+            Widths = Widths
+                .Where(x => !x.IsRemoved)
+                .Select(x => x.Clone(newPosition))
+                .ToList(),
+
+            //TODO-rik
+            //EuropeanRoads = EuropeanRoads
+            //    .Where(x => !x.IsRemoved)
+            //    .Select(x => x.Clone(newPosition))
+            //    .ToList(),
+            //NationalRoads = NationalRoads
+            //    .Where(x => !x.IsRemoved)
+            //    .Select(x => x.Clone(newPosition))
+            //    .ToList(),
+            //NumberedRoads = NumberedRoads
+            //    .Where(x => !x.IsRemoved)
+            //    .Select(x => x.Clone(newPosition))
+            //    .ToList()
         };
 
         return newItem;

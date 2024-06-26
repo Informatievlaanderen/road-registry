@@ -19,6 +19,13 @@ using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public static class Customizations
 {
+    public static T CreateWith<T>(this IFixture fixture, Action<T> modify)
+    {
+        var value = fixture.Create<T>();
+        modify(value);
+        return value;
+    }
+
     public static MemoryStream CreateDbfFile<T>(this IFixture fixture, DbaseSchema schema, ICollection<T> records, Action<T> updateRecord = null)
         where T : DbaseRecord
     {

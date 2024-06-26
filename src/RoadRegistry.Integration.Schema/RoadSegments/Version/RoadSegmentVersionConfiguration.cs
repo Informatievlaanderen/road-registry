@@ -11,7 +11,7 @@ public class RoadSegmentVersionConfiguration : IEntityTypeConfiguration<RoadSegm
     public void Configure(EntityTypeBuilder<RoadSegmentVersion> b)
     {
         b.ToTable(TableName, WellKnownSchemas.IntegrationSchema)
-            .HasKey(p => new { p.Id, p.Position })
+            .HasKey(p => new { p.Position, p.Id })
             .IsClustered();
 
         b.Property(p => p.Position).ValueGeneratedNever().IsRequired();
@@ -53,6 +53,32 @@ public class RoadSegmentVersionConfiguration : IEntityTypeConfiguration<RoadSegm
         b.Property(p => p.BoundingBoxMinimumX).HasColumnName("bounding_box_minimum_x");
         b.Property(p => p.BoundingBoxMinimumY).HasColumnName("bounding_box_minimum_y");
         b.Property(p => p.BoundingBoxMinimumM).HasColumnName("bounding_box_minimum_m");
+
+        b.HasMany(x => x.Lanes)
+            .WithOne()
+            .IsRequired()
+            .HasForeignKey(x => new { x.Position, x.RoadSegmentId });
+        b.HasMany(x => x.Surfaces)
+            .WithOne()
+            .IsRequired()
+            .HasForeignKey(x => new { x.Position, x.RoadSegmentId });
+        b.HasMany(x => x.Widths)
+            .WithOne()
+            .IsRequired()
+            .HasForeignKey(x => new { x.Position, x.RoadSegmentId });
+        //TODO-rik
+        //b.HasMany(x => x.EuropeanRoads)
+        //    .WithOne()
+        //    .IsRequired()
+        //    .HasForeignKey(x => new { x.Position, x.RoadSegmentId });
+        //b.HasMany(x => x.NationalRoads)
+        //    .WithOne()
+        //    .IsRequired()
+        //    .HasForeignKey(x => new { x.Position, x.RoadSegmentId });
+        //b.HasMany(x => x.NumberedRoads)
+        //    .WithOne()
+        //    .IsRequired()
+        //    .HasForeignKey(x => new { x.Position, x.RoadSegmentId });
 
         b.HasIndex(p => p.Position);
         b.HasIndex(p => p.Id);

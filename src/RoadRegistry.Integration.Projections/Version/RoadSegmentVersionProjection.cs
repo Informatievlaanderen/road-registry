@@ -1,12 +1,14 @@
 namespace RoadRegistry.Integration.Projections.Version;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Microsoft.EntityFrameworkCore;
 using Schema;
 using Schema.RoadSegments;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
@@ -18,7 +20,7 @@ using RoadSegmentVersion = Schema.RoadSegments.Version.RoadSegmentVersion;
  * - RoadSegmentVersionProjection handles all related data (lanes,surfaces,...)
  * - create new Version for each roadsegment change
  */
-public class RoadSegmentVersionProjection : ConnectedProjection<IntegrationContext>
+public partial class RoadSegmentVersionProjection : ConnectedProjection<IntegrationContext>
 {
     public RoadSegmentVersionProjection()
     {
@@ -33,38 +35,40 @@ public class RoadSegmentVersionProjection : ConnectedProjection<IntegrationConte
             var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod).Translation;
             var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(envelope.Message.AccessRestriction).Translation;
 
-            await context.RoadSegmentVersions.AddAsync(
-                new RoadSegmentVersion
-                {
-                    Position = envelope.Position,
-                    Id = envelope.Message.Id,
+            var roadSegment = new RoadSegmentVersion
+            {
+                Position = envelope.Position,
+                Id = envelope.Message.Id,
 
-                    StartNodeId = envelope.Message.StartNodeId,
-                    EndNodeId = envelope.Message.EndNodeId,
-                    Geometry = BackOffice.GeometryTranslator.Translate(envelope.Message.Geometry),
+                StartNodeId = envelope.Message.StartNodeId,
+                EndNodeId = envelope.Message.EndNodeId,
+                Geometry = BackOffice.GeometryTranslator.Translate(envelope.Message.Geometry),
 
-                    Version = envelope.Message.Version,
-                    GeometryVersion = envelope.Message.GeometryVersion,
-                    StatusId = statusTranslation.Identifier,
-                    StatusLabel = statusTranslation.Name,
-                    MorphologyId = morphologyTranslation.Identifier,
-                    MorphologyLabel = morphologyTranslation.Name,
-                    CategoryId = categoryTranslation.Identifier,
-                    CategoryLabel = categoryTranslation.Name,
-                    LeftSideStreetNameId = envelope.Message.LeftSide.StreetNameId,
-                    RightSideStreetNameId = envelope.Message.RightSide.StreetNameId,
-                    MaintainerId = envelope.Message.MaintenanceAuthority.Code,
-                    MethodId = geometryDrawMethodTranslation.Identifier,
-                    MethodLabel = geometryDrawMethodTranslation.Name,
-                    AccessRestrictionId = accessRestrictionTranslation.Identifier,
-                    AccessRestrictionLabel = accessRestrictionTranslation.Name,
+                Version = envelope.Message.Version,
+                GeometryVersion = envelope.Message.GeometryVersion,
+                StatusId = statusTranslation.Identifier,
+                StatusLabel = statusTranslation.Name,
+                MorphologyId = morphologyTranslation.Identifier,
+                MorphologyLabel = morphologyTranslation.Name,
+                CategoryId = categoryTranslation.Identifier,
+                CategoryLabel = categoryTranslation.Name,
+                LeftSideStreetNameId = envelope.Message.LeftSide.StreetNameId,
+                RightSideStreetNameId = envelope.Message.RightSide.StreetNameId,
+                MaintainerId = envelope.Message.MaintenanceAuthority.Code,
+                MethodId = geometryDrawMethodTranslation.Identifier,
+                MethodLabel = geometryDrawMethodTranslation.Name,
+                AccessRestrictionId = accessRestrictionTranslation.Identifier,
+                AccessRestrictionLabel = accessRestrictionTranslation.Name,
 
-                    CreatedOnTimestamp = new DateTimeOffset(envelope.Message.RecordingDate),
-                    VersionTimestamp = new DateTimeOffset(envelope.Message.Origin.Since),
-                    OrganizationId = envelope.Message.Origin.OrganizationId,
-                    OrganizationName = envelope.Message.Origin.Organization
-                }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape)),
-                token);
+                OrganizationId = envelope.Message.Origin.OrganizationId,
+                OrganizationName = envelope.Message.Origin.Organization,
+                CreatedOnTimestamp = new DateTimeOffset(envelope.Message.RecordingDate),
+                VersionTimestamp = new DateTimeOffset(envelope.Message.Origin.Since)
+            }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
+
+            ImportLanes(envelope, roadSegment, envelope.Message.Lanes);
+            
+            await context.RoadSegmentVersions.AddAsync(roadSegment, token);
         });
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
@@ -168,7 +172,7 @@ public class RoadSegmentVersionProjection : ConnectedProjection<IntegrationConte
         RoadSegmentAdded roadSegmentAdded,
         Envelope<RoadNetworkChangesAccepted> envelope)
     {
-        var versionItem = new RoadSegmentVersion
+        var roadSegment = new RoadSegmentVersion
         {
             Position = envelope.Position,
             Id = roadSegmentAdded.Id
@@ -182,28 +186,30 @@ public class RoadSegmentVersionProjection : ConnectedProjection<IntegrationConte
         var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod);
         var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction);
 
-        versionItem.StartNodeId = roadSegmentAdded.StartNodeId;
-        versionItem.EndNodeId = roadSegmentAdded.EndNodeId;
-        versionItem.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentAdded.Geometry);
-        versionItem.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
+        roadSegment.StartNodeId = roadSegmentAdded.StartNodeId;
+        roadSegment.EndNodeId = roadSegmentAdded.EndNodeId;
+        roadSegment.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentAdded.Geometry);
+        roadSegment.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
 
-        versionItem.Version = roadSegmentAdded.Version;
-        versionItem.GeometryVersion = roadSegmentAdded.GeometryVersion;
-        versionItem.SetStatus(status);
-        versionItem.SetMorphology(morphology);
-        versionItem.SetCategory(category);
-        versionItem.LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId;
-        versionItem.RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId;
-        versionItem.MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code;
-        versionItem.SetMethod(geometryDrawMethod);
-        versionItem.SetAccessRestriction(accessRestriction);
+        roadSegment.Version = roadSegmentAdded.Version;
+        roadSegment.GeometryVersion = roadSegmentAdded.GeometryVersion;
+        roadSegment.SetStatus(status);
+        roadSegment.SetMorphology(morphology);
+        roadSegment.SetCategory(category);
+        roadSegment.LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId;
+        roadSegment.RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId;
+        roadSegment.MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code;
+        roadSegment.SetMethod(geometryDrawMethod);
+        roadSegment.SetAccessRestriction(accessRestriction);
 
-        versionItem.CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        versionItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        versionItem.OrganizationId = envelope.Message.OrganizationId;
-        versionItem.OrganizationName = envelope.Message.Organization;
+        roadSegment.OrganizationId = envelope.Message.OrganizationId;
+        roadSegment.OrganizationName = envelope.Message.Organization;
+        roadSegment.CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        roadSegment.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
-        return versionItem;
+        UpdateLanes(envelope, roadSegment, roadSegmentAdded.Lanes);
+
+        return roadSegment;
     }
 
     private static void ModifyRoadSegment(
@@ -238,6 +244,8 @@ public class RoadSegmentVersionProjection : ConnectedProjection<IntegrationConte
         roadSegment.OrganizationId = envelope.Message.OrganizationId;
         roadSegment.OrganizationName = envelope.Message.Organization;
         roadSegment.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+
+        UpdateLanes(envelope, roadSegment, roadSegmentModified.Lanes);
     }
     
     private static void AddRoadSegmentToEuropeanRoad(
@@ -326,6 +334,8 @@ public class RoadSegmentVersionProjection : ConnectedProjection<IntegrationConte
         {
             roadSegment.MaintainerId = roadSegmentAttributesModified.MaintenanceAuthority.Code;
         }
+
+        UpdateLanes(envelope, roadSegment, roadSegmentAttributesModified.Lanes);
     }
 
     private static void ModifyRoadSegmentGeometry(
@@ -345,8 +355,10 @@ public class RoadSegmentVersionProjection : ConnectedProjection<IntegrationConte
         roadSegment.OrganizationId = envelope.Message.OrganizationId;
         roadSegment.OrganizationName = envelope.Message.Organization;
         roadSegment.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-    }
 
+        UpdateLanes(envelope, roadSegment, roadSegmentGeometryModified.Lanes);
+    }
+    
     private static void RemoveRoadSegment(
         RoadSegmentVersion roadSegment,
         Envelope<RoadNetworkChangesAccepted> envelope)
@@ -360,6 +372,8 @@ public class RoadSegmentVersionProjection : ConnectedProjection<IntegrationConte
         roadSegment.OrganizationName = envelope.Message.Organization;
         roadSegment.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         roadSegment.IsRemoved = true;
+
+        RemoveLanes(envelope, roadSegment);
     }
 
     private static void UpdateRoadSegmentVersion(
@@ -377,6 +391,36 @@ public class RoadSegmentVersionProjection : ConnectedProjection<IntegrationConte
         roadSegment.OrganizationId = envelope.Message.OrganizationId;
         roadSegment.OrganizationName = envelope.Message.Organization;
         roadSegment.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+    }
+
+    private static ICollection<T> Synchronize<T>(
+        Dictionary<int, T> currentSet,
+        Dictionary<int, T> nextSet,
+        Action<T, T> modifier,
+        Action<T> remove) where T : class
+    {
+        var source = currentSet.Values.ToList();
+
+        var allKeys = new HashSet<int>(currentSet.Keys.Concat(nextSet.Keys));
+        foreach (var key in allKeys)
+        {
+            var gotCurrent = currentSet.TryGetValue(key, out var current);
+            var gotNext = nextSet.TryGetValue(key, out var next);
+            if (gotCurrent && gotNext)
+            {
+                modifier(current, next);
+            }
+            else if (gotCurrent)
+            {
+                remove(current);
+            }
+            else if (gotNext)
+            {
+                source.Add(next);
+            }
+        }
+
+        return source;
     }
 
     private sealed record RoadSegmentChange(int Id, object Change);

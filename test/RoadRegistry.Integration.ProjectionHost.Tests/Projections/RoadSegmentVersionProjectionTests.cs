@@ -6,9 +6,11 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Integration.Projections;
 using RoadRegistry.Integration.Projections.Version;
+using RoadRegistry.Tests;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using Schema.RoadSegments;
+using Schema.RoadSegments.Version;
 using RoadSegmentVersion = Schema.RoadSegments.Version.RoadSegmentVersion;
 
 public class RoadSegmentVersionProjectionTests
@@ -325,18 +327,23 @@ public class RoadSegmentVersionProjectionTests
     {
         _fixture.Freeze<RoadSegmentId>();
 
+        var roadSegmentAdded = _fixture.Create<RoadSegmentAdded>();
         var acceptedRoadSegmentAdded = _fixture
             .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+            .WithAcceptedChanges(roadSegmentAdded);
 
         var acceptedRoadSegmentAttributesModified = _fixture
             .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentAttributesModified>());
-
+            .WithAcceptedChanges(_fixture.CreateWith<RoadSegmentAttributesModified>(x =>
+            {
+                x.Lanes = roadSegmentAdded.Lanes;
+                x.Surfaces = roadSegmentAdded.Surfaces;
+                x.Widths = roadSegmentAdded.Widths;
+            }));
+        
         var expectedRecords = BuildInitialExpectedRoadSegmentRecords(acceptedRoadSegmentAdded)
             .Concat(Array.ConvertAll(acceptedRoadSegmentAttributesModified.Changes, change =>
             {
-                var roadSegmentAdded = acceptedRoadSegmentAdded.Changes[0].RoadSegmentAdded;
                 var roadSegmentAttributesModified = change.RoadSegmentAttributesModified;
 
                 var geometry = GeometryTranslator.Translate(roadSegmentAdded.Geometry);
@@ -347,9 +354,11 @@ public class RoadSegmentVersionProjectionTests
                 var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation;
                 var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(roadSegmentAttributesModified.AccessRestriction).Translation;
 
+                var position = 1;
+
                 return new RoadSegmentVersion
                 {
-                    Position = 1,
+                    Position = position,
                     Id = roadSegmentAttributesModified.Id,
                     StartNodeId = roadSegmentAdded.StartNodeId,
                     EndNodeId = roadSegmentAdded.EndNodeId,
@@ -366,16 +375,36 @@ public class RoadSegmentVersionProjectionTests
                     MethodId = geometryDrawMethodTranslation.Identifier,
                     AccessRestrictionId = accessRestrictionTranslation.Identifier,
 
-                    CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
-                    VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAttributesModified.When),
                     OrganizationId = acceptedRoadSegmentAttributesModified.OrganizationId,
                     OrganizationName = acceptedRoadSegmentAttributesModified.Organization,
+                    CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+                    VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAttributesModified.When),
 
                     StatusLabel = statusTranslation.Name,
                     MorphologyLabel = morphologyTranslation.Name,
                     CategoryLabel = categoryTranslation.Name,
                     MethodLabel = geometryDrawMethodTranslation.Name,
-                    AccessRestrictionLabel = accessRestrictionTranslation.Name
+                    AccessRestrictionLabel = accessRestrictionTranslation.Name,
+
+                    Lanes = roadSegmentAttributesModified.Lanes
+                        .Select(x => new RoadSegmentLaneAttributeVersion
+                        {
+                            Position = position,
+                            Id = x.AttributeId,
+                            RoadSegmentId = roadSegmentAttributesModified.Id,
+                            AsOfGeometryVersion = x.AsOfGeometryVersion,
+                            FromPosition = (double)x.FromPosition,
+                            ToPosition = (double)x.ToPosition,
+                            Count = x.Count,
+                            DirectionId = RoadSegmentLaneDirection.Parse(x.Direction).Translation.Identifier,
+                            DirectionLabel = RoadSegmentLaneDirection.Parse(x.Direction).Translation.Name,
+
+                            OrganizationId = acceptedRoadSegmentAttributesModified.OrganizationId,
+                            OrganizationName = acceptedRoadSegmentAttributesModified.Organization,
+                            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+                            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAttributesModified.When)
+                        })
+                        .ToList()
                 }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
             }));
 
@@ -390,18 +419,23 @@ public class RoadSegmentVersionProjectionTests
     {
         _fixture.Freeze<RoadSegmentId>();
 
+        var roadSegmentAdded = _fixture.Create<RoadSegmentAdded>();
         var acceptedRoadSegmentAdded = _fixture
             .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+            .WithAcceptedChanges(roadSegmentAdded);
 
         var acceptedRoadSegmentGeometryModified = _fixture
             .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentGeometryModified>());
+            .WithAcceptedChanges(_fixture.CreateWith<RoadSegmentGeometryModified>(x =>
+            {
+                x.Lanes = roadSegmentAdded.Lanes;
+                x.Surfaces = roadSegmentAdded.Surfaces;
+                x.Widths = roadSegmentAdded.Widths;
+            }));
 
         var expectedRecords = BuildInitialExpectedRoadSegmentRecords(acceptedRoadSegmentAdded)
             .Concat(Array.ConvertAll(acceptedRoadSegmentGeometryModified.Changes, change =>
             {
-                var roadSegmentAdded = acceptedRoadSegmentAdded.Changes[0].RoadSegmentAdded;
                 var roadSegmentGeometryModified = change.RoadSegmentGeometryModified;
 
                 var geometry = GeometryTranslator.Translate(roadSegmentGeometryModified.Geometry);
@@ -412,9 +446,11 @@ public class RoadSegmentVersionProjectionTests
                 var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation;
                 var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction).Translation;
 
+                var position = 1;
+
                 return new RoadSegmentVersion
                 {
-                    Position = 1,
+                    Position = position,
                     Id = roadSegmentGeometryModified.Id,
                     StartNodeId = roadSegmentAdded.StartNodeId,
                     EndNodeId = roadSegmentAdded.EndNodeId,
@@ -431,16 +467,36 @@ public class RoadSegmentVersionProjectionTests
                     MethodId = geometryDrawMethodTranslation.Identifier,
                     AccessRestrictionId = accessRestrictionTranslation.Identifier,
 
-                    CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
-                    VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentGeometryModified.When),
                     OrganizationId = acceptedRoadSegmentGeometryModified.OrganizationId,
                     OrganizationName = acceptedRoadSegmentGeometryModified.Organization,
+                    CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+                    VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentGeometryModified.When),
 
                     StatusLabel = RoadSegmentStatus.Parse(roadSegmentAdded.Status).Translation.Name,
                     MorphologyLabel = RoadSegmentMorphology.Parse(roadSegmentAdded.Morphology).Translation.Name,
                     CategoryLabel = RoadSegmentCategory.Parse(roadSegmentAdded.Category).Translation.Name,
                     MethodLabel = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation.Name,
-                    AccessRestrictionLabel = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction).Translation.Name
+                    AccessRestrictionLabel = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction).Translation.Name,
+
+                    Lanes = roadSegmentGeometryModified.Lanes
+                        .Select(x => new RoadSegmentLaneAttributeVersion
+                        {
+                            Position = position,
+                            Id = x.AttributeId,
+                            RoadSegmentId = roadSegmentGeometryModified.Id,
+                            AsOfGeometryVersion = x.AsOfGeometryVersion,
+                            FromPosition = (double)x.FromPosition,
+                            ToPosition = (double)x.ToPosition,
+                            Count = x.Count,
+                            DirectionId = RoadSegmentLaneDirection.Parse(x.Direction).Translation.Identifier,
+                            DirectionLabel = RoadSegmentLaneDirection.Parse(x.Direction).Translation.Name,
+
+                            OrganizationId = acceptedRoadSegmentGeometryModified.OrganizationId,
+                            OrganizationName = acceptedRoadSegmentGeometryModified.Organization,
+                            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+                            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentGeometryModified.When)
+                        })
+                        .ToList()
                 }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
             }));
 
@@ -455,13 +511,19 @@ public class RoadSegmentVersionProjectionTests
     {
         _fixture.Freeze<RoadSegmentId>();
 
+        var roadSegmentAdded = _fixture.Create<RoadSegmentAdded>();
         var acceptedRoadSegmentAdded = _fixture
             .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+            .WithAcceptedChanges(roadSegmentAdded);
 
         var acceptedRoadSegmentModified = _fixture
             .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentModified>());
+            .WithAcceptedChanges(_fixture.CreateWith<RoadSegmentModified>(x =>
+            {
+                x.Lanes = roadSegmentAdded.Lanes;
+                x.Surfaces = roadSegmentAdded.Surfaces;
+                x.Widths = roadSegmentAdded.Widths;
+            }));
 
         var expectedRecords = BuildInitialExpectedRoadSegmentRecords(acceptedRoadSegmentAdded)
             .Concat(Array.ConvertAll(acceptedRoadSegmentModified.Changes, change =>
@@ -476,9 +538,11 @@ public class RoadSegmentVersionProjectionTests
                 var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(roadSegmentModified.GeometryDrawMethod).Translation;
                 var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(roadSegmentModified.AccessRestriction).Translation;
 
+                var position = 1;
+
                 return new RoadSegmentVersion
                 {
-                    Position = 1,
+                    Position = position,
                     Id = roadSegmentModified.Id,
                     StartNodeId = roadSegmentModified.StartNodeId,
                     EndNodeId = roadSegmentModified.EndNodeId,
@@ -495,16 +559,36 @@ public class RoadSegmentVersionProjectionTests
                     MethodId = geometryDrawMethodTranslation.Identifier,
                     AccessRestrictionId = accessRestrictionTranslation.Identifier,
 
-                    CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
-                    VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When),
                     OrganizationId = acceptedRoadSegmentModified.OrganizationId,
                     OrganizationName = acceptedRoadSegmentModified.Organization,
+                    CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+                    VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When),
 
                     StatusLabel = statusTranslation.Name,
                     MorphologyLabel = morphologyTranslation.Name,
                     CategoryLabel = categoryTranslation.Name,
                     MethodLabel = geometryDrawMethodTranslation.Name,
-                    AccessRestrictionLabel = accessRestrictionTranslation.Name
+                    AccessRestrictionLabel = accessRestrictionTranslation.Name,
+
+                    Lanes = roadSegmentModified.Lanes
+                        .Select(x => new RoadSegmentLaneAttributeVersion
+                        {
+                            Position = position,
+                            Id = x.AttributeId,
+                            RoadSegmentId = roadSegmentModified.Id,
+                            AsOfGeometryVersion = x.AsOfGeometryVersion,
+                            FromPosition = (double)x.FromPosition,
+                            ToPosition = (double)x.ToPosition,
+                            Count = x.Count,
+                            DirectionId = RoadSegmentLaneDirection.Parse(x.Direction).Translation.Identifier,
+                            DirectionLabel = RoadSegmentLaneDirection.Parse(x.Direction).Translation.Name,
+
+                            OrganizationId = acceptedRoadSegmentModified.OrganizationId,
+                            OrganizationName = acceptedRoadSegmentModified.Organization,
+                            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+                            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When)
+                        })
+                        .ToList()
                 }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
             }));
 
@@ -546,9 +630,11 @@ public class RoadSegmentVersionProjectionTests
                 var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation;
                 var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction).Translation;
 
+                var position = 1;
+
                 return new RoadSegmentVersion
                 {
-                    Position = 1,
+                    Position = position,
                     Id = roadSegmentAdded.Id,
                     StartNodeId = roadSegmentAdded.StartNodeId,
                     EndNodeId = roadSegmentAdded.EndNodeId,
@@ -565,10 +651,10 @@ public class RoadSegmentVersionProjectionTests
                     MethodId = geometryDrawMethodTranslation.Identifier,
                     AccessRestrictionId = accessRestrictionTranslation.Identifier,
 
-                    CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
-                    VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentRemoved.When),
                     OrganizationId = acceptedRoadSegmentRemoved.OrganizationId,
                     OrganizationName = acceptedRoadSegmentRemoved.Organization,
+                    CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+                    VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentRemoved.When),
 
                     StatusLabel = statusTranslation.Name,
                     MorphologyLabel = morphologyTranslation.Name,
@@ -576,7 +662,29 @@ public class RoadSegmentVersionProjectionTests
                     MethodLabel = geometryDrawMethodTranslation.Name,
                     AccessRestrictionLabel = accessRestrictionTranslation.Name,
 
-                    IsRemoved = true
+                    IsRemoved = true,
+
+                    Lanes = roadSegmentAdded.Lanes
+                        .Select(x => new RoadSegmentLaneAttributeVersion
+                        {
+                            Position = position,
+                            Id = x.AttributeId,
+                            RoadSegmentId = roadSegmentAdded.Id,
+                            AsOfGeometryVersion = x.AsOfGeometryVersion,
+                            FromPosition = (double)x.FromPosition,
+                            ToPosition = (double)x.ToPosition,
+                            Count = x.Count,
+                            DirectionId = RoadSegmentLaneDirection.Parse(x.Direction).Translation.Identifier,
+                            DirectionLabel = RoadSegmentLaneDirection.Parse(x.Direction).Translation.Name,
+
+                            OrganizationId = acceptedRoadSegmentRemoved.OrganizationId,
+                            OrganizationName = acceptedRoadSegmentRemoved.Organization,
+                            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+                            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentRemoved.When),
+
+                            IsRemoved = true
+                        })
+                        .ToList()
                 }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
             }));
 
@@ -621,16 +729,36 @@ public class RoadSegmentVersionProjectionTests
                     MethodId = geometryDrawMethodTranslation.Identifier,
                     AccessRestrictionId = accessRestrictionTranslation.Identifier,
 
-                    CreatedOnTimestamp = importedRoadSegment.RecordingDate,
-                    VersionTimestamp = importedRoadSegment.Origin.Since,
                     OrganizationId = importedRoadSegment.Origin.OrganizationId,
                     OrganizationName = importedRoadSegment.Origin.Organization,
+                    CreatedOnTimestamp = importedRoadSegment.RecordingDate,
+                    VersionTimestamp = importedRoadSegment.Origin.Since,
 
                     StatusLabel = statusTranslation.Name,
                     MorphologyLabel = morphologyTranslation.Name,
                     CategoryLabel = categoryTranslation.Name,
                     MethodLabel = geometryDrawMethodTranslation.Name,
-                    AccessRestrictionLabel = accessRestrictionTranslation.Name
+                    AccessRestrictionLabel = accessRestrictionTranslation.Name,
+
+                    Lanes = importedRoadSegment.Lanes
+                        .Select(x => new RoadSegmentLaneAttributeVersion
+                        {
+                            Position = eventIndex,
+                            Id = x.AttributeId,
+                            RoadSegmentId = importedRoadSegment.Id,
+                            AsOfGeometryVersion = x.AsOfGeometryVersion,
+                            FromPosition = (double)x.FromPosition,
+                            ToPosition = (double)x.ToPosition,
+                            Count = x.Count,
+                            DirectionId = RoadSegmentLaneDirection.Parse(x.Direction).Translation.Identifier,
+                            DirectionLabel = RoadSegmentLaneDirection.Parse(x.Direction).Translation.Name,
+
+                            OrganizationId = x.Origin.OrganizationId,
+                            OrganizationName = x.Origin.Organization,
+                            CreatedOnTimestamp = new DateTimeOffset(x.Origin.Since),
+                            VersionTimestamp = new DateTimeOffset(x.Origin.Since)
+                        })
+                        .ToList()
                 }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
                 return new { importedRoadSegment, expected };
             }).ToList();
@@ -662,7 +790,7 @@ public class RoadSegmentVersionProjectionTests
         var categoryTranslation = RoadSegmentCategory.Parse(roadSegmentAdded.Category).Translation;
         var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation;
         var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction).Translation;
-
+        
         var record = new RoadSegmentVersion
         {
             Position = position,
@@ -687,10 +815,66 @@ public class RoadSegmentVersionProjectionTests
             AccessRestrictionId = accessRestrictionTranslation.Identifier,
             AccessRestrictionLabel = accessRestrictionTranslation.Name,
 
+            OrganizationId = acceptedRoadSegmentAdded.OrganizationId,
+            OrganizationName = acceptedRoadSegmentAdded.Organization,
             CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
             VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
-            OrganizationId = acceptedRoadSegmentAdded.OrganizationId,
-            OrganizationName = acceptedRoadSegmentAdded.Organization
+            
+            Lanes = roadSegmentAdded.Lanes
+                .Select(x => new RoadSegmentLaneAttributeVersion
+                {
+                    Position = position,
+                    Id = x.AttributeId,
+                    RoadSegmentId = roadSegmentAdded.Id,
+                    AsOfGeometryVersion = x.AsOfGeometryVersion,
+                    FromPosition = (double)x.FromPosition,
+                    ToPosition = (double)x.ToPosition,
+                    Count = x.Count,
+                    DirectionId = RoadSegmentLaneDirection.Parse(x.Direction).Translation.Identifier,
+                    DirectionLabel = RoadSegmentLaneDirection.Parse(x.Direction).Translation.Name,
+
+                    OrganizationId = acceptedRoadSegmentAdded.OrganizationId,
+                    OrganizationName = acceptedRoadSegmentAdded.Organization,
+                    CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+                    VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When)
+                })
+                .ToList(),
+            //Surfaces = roadSegmentAdded.Surfaces
+            //    .Select(x => new RoadSegmentSurfaceAttributeVersion
+            //    {
+            //        Position = position,
+            //        Id = x.AttributeId,
+            //        RoadSegmentId = roadSegmentAdded.Id,
+            //        AsOfGeometryVersion = x.AsOfGeometryVersion,
+            //        FromPosition = (double)x.FromPosition,
+            //        ToPosition = (double)x.ToPosition,
+            //        TypeId = RoadSegmentSurfaceType.Parse(x.Type).Translation.Identifier,
+            //        TypeLabel = RoadSegmentSurfaceType.Parse(x.Type).Translation.Name,
+
+            //        OrganizationId = acceptedRoadSegmentAdded.OrganizationId,
+            //        OrganizationName = acceptedRoadSegmentAdded.Organization,
+            //        CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+            //        VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When)
+            //    })
+            //    .ToList(),
+            //Widths = roadSegmentAdded.Widths
+            //    .Select(x => new RoadSegmentWidthAttributeVersion
+            //    {
+            //        Position = position,
+            //        Id = x.AttributeId,
+            //        RoadSegmentId = roadSegmentAdded.Id,
+            //        AsOfGeometryVersion = x.AsOfGeometryVersion,
+            //        FromPosition = (double)x.FromPosition,
+            //        ToPosition = (double)x.ToPosition,
+            //        Width = x.Width,
+            //        WidthLabel = new RoadSegmentWidth(x.Width).ToDutchString(),
+
+            //        OrganizationId = acceptedRoadSegmentAdded.OrganizationId,
+            //        OrganizationName = acceptedRoadSegmentAdded.Organization,
+            //        CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+            //        VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When)
+            //    })
+            //    .ToList()
         }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         changeRecord?.Invoke(record);
 

@@ -1,6 +1,5 @@
 namespace RoadRegistry.Integration.Projections.Version
 {
-    using System;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -43,7 +42,10 @@ namespace RoadRegistry.Integration.Projections.Version
                    .RoadSegmentVersions
                    .AsNoTracking()
                    .Where(x => x.Id == roadSegmentId)
-                   //.Include(x => x.BuildingUnits).ThenInclude(y => y.Addresses) //TODO-rik add lanes/surfaces/...?
+                   .Include(x => x.Lanes)
+                   .Include(x => x.Surfaces)
+                   .Include(x => x.Widths)
+                   //.Include(x => x.BuildingUnits) //TODO-rik add lanes/surfaces/...?
                    .OrderByDescending(x => x.Position)
                    .FirstOrDefaultAsync(ct);
 
