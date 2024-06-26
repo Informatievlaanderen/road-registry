@@ -18,17 +18,27 @@ public static class IntegrationContextScenarioExtensions
     private static Task<object[]> AllRecords(this IntegrationContext context)
     {
         var records = new List<object>();
-        records.AddRange(context.RoadSegments.Local);
-        records.AddRange(context.RoadSegmentVersions.Local);
-        records.AddRange(context.RoadNodes.Local);
         records.AddRange(context.Organizations.Local);
+        records.AddRange(context.RoadNodes.Local);
+        records.AddRange(context.RoadSegments.Local);
         records.AddRange(context.RoadSegmentLaneAttributes.Local);
+        records.AddRange(context.RoadSegmentSurfaceAttributes.Local);
+        records.AddRange(context.RoadSegmentWidthAttributes.Local);
         records.AddRange(context.RoadSegmentEuropeanRoadAttributes.Local);
         records.AddRange(context.RoadSegmentNationalRoadAttributes.Local);
         records.AddRange(context.RoadSegmentNumberedRoadAttributes.Local);
         records.AddRange(context.GradeSeparatedJunctions.Local);
-        records.AddRange(context.RoadSegmentSurfaceAttributes.Local);
-        records.AddRange(context.RoadSegmentWidthAttributes.Local);
+
+        records.AddRange(context.OrganizationVersions.Local);
+        records.AddRange(context.RoadNodeVersions.Local);
+        records.AddRange(context.RoadSegmentVersions.Local);
+        records.AddRange(context.RoadSegmentLaneVersions.Local);
+        records.AddRange(context.RoadSegmentSurfaceVersions.Local);
+        records.AddRange(context.RoadSegmentWidthVersions.Local);
+        records.AddRange(context.RoadSegmentEuropeanRoadVersions.Local);
+        records.AddRange(context.RoadSegmentNationalRoadVersions.Local);
+        records.AddRange(context.RoadSegmentNumberedRoadVersions.Local);
+        records.AddRange(context.GradeSeparatedJunctionVersions.Local);
 
         return Task.FromResult(records.ToArray());
     }
