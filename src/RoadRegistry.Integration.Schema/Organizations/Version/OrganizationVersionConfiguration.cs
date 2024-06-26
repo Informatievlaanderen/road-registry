@@ -27,6 +27,7 @@ public class OrganizationVersionConfiguration : IEntityTypeConfiguration<Organiz
         b.Property(x => x.VersionTimestamp).HasColumnName("version_timestamp");
         b.Property(x => x.CreatedOnTimestamp).HasColumnName("created_on_timestamp");
 
+        b.HasIndex(p => p.Code);
         b.HasIndex(p => p.OvoCode);
         b.HasIndex(p => p.VersionTimestamp);
         b.HasIndex(p => p.IsRemoved);
