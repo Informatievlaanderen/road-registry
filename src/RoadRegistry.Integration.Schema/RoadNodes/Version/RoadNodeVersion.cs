@@ -22,7 +22,7 @@ public class RoadNodeVersion
     public DateTimeOffset VersionTimestamp { get; set; }
     public DateTimeOffset CreatedOnTimestamp { get; set; }
 
-    public RoadNodeLatestItem WithBoundingBox(RoadNodeBoundingBox value)
+    public RoadNodeVersion WithBoundingBox(RoadNodeBoundingBox value)
     {
         BoundingBoxMaximumX = value.MaximumX;
         BoundingBoxMaximumY = value.MaximumY;
