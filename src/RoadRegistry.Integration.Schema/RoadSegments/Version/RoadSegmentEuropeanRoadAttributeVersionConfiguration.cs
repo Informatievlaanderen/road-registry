@@ -1,14 +1,14 @@
-namespace RoadRegistry.Integration.Schema.RoadSegments;
+namespace RoadRegistry.Integration.Schema.RoadSegments.Version;
 
 using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-public class RoadSegmentNationalRoadAttributeLatestItemConfiguration : IEntityTypeConfiguration<RoadSegmentNationalRoadAttributeLatestItem>
+public class RoadSegmentEuropeanRoadAttributeVersionConfiguration : IEntityTypeConfiguration<RoadSegmentEuropeanRoadAttributeVersion>
 {
-    private const string TableName = "road_segment_national_road_attribute_latest_items";
+    private const string TableName = "road_segment_european_road_attribute_versions";
 
-    public void Configure(EntityTypeBuilder<RoadSegmentNationalRoadAttributeLatestItem> b)
+    public void Configure(EntityTypeBuilder<RoadSegmentEuropeanRoadAttributeVersion> b)
     {
         b.ToTable(TableName, WellKnownSchemas.IntegrationSchema)
             .HasKey(p => p.Id)
