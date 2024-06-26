@@ -45,16 +45,17 @@ public class OrganizationVersionProjection : ConnectedProjection<IntegrationCont
             }
             else
             {
-                organizationVersion.CloneAndApplyEventInfo(
+                var newOrganizationVersion = organizationVersion.CloneAndApplyEventInfo(
                     envelope.Position,
                     newVersion =>
                     {
-                        newVersion.Code = envelope.Message.Code;
                         newVersion.Name = envelope.Message.Name;
                         newVersion.OvoCode = envelope.Message.OvoCode;
                         newVersion.IsRemoved = false;
                         newVersion.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
                     });
+
+                await context.OrganizationVersions.AddAsync(newOrganizationVersion, token);
             }
         });
 
@@ -65,7 +66,6 @@ public class OrganizationVersionProjection : ConnectedProjection<IntegrationCont
                 envelope,
                 newVersion =>
                 {
-                    newVersion.Code = envelope.Message.Code;
                     newVersion.Name = envelope.Message.Name;
                     newVersion.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
                 },
@@ -79,7 +79,6 @@ public class OrganizationVersionProjection : ConnectedProjection<IntegrationCont
                 envelope,
                 newVersion =>
                 {
-                    newVersion.Code = envelope.Message.Code;
                     newVersion.Name = envelope.Message.Name;
                     newVersion.OvoCode = envelope.Message.OvoCode;
                     newVersion.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);

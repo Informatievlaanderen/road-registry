@@ -27,9 +27,11 @@ namespace RoadRegistry.Integration.Projections.Version
                 throw DatabaseItemNotFound(code);
             }
 
-            organizationVersion.CloneAndApplyEventInfo(
+            var newOrganizationVersion = organizationVersion.CloneAndApplyEventInfo(
                 message.Position,
                 applyEventInfoOn);
+
+            await context.OrganizationVersions.AddAsync(newOrganizationVersion, ct);
         }
 
         public static async Task<OrganizationVersion> LatestOrganizationVersionPosition(
