@@ -85,7 +85,13 @@ public class Program
                 ])
                  .AddIntegrationContextEventProcessor<RoadNetworkVersionEventProcessor>(_ =>
                 [
-                    new RoadSegmentVersionProjection()
+                    new RoadNodeVersionProjection(),
+                    new RoadSegmentVersionProjection(),
+                    new GradeSeparatedJunctionVersionProjection()
+                ])
+                 .AddIntegrationContextEventProcessor<OrganizationVersionEventProcessor>(_ =>
+                [
+                    new OrganizationVersionProjection()
                 ])
                 ;
         })
