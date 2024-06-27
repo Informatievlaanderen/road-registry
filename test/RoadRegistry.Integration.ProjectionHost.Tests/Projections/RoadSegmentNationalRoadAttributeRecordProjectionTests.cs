@@ -84,7 +84,7 @@ public class RoadSegmentNationalRoadAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_importing_a_road_node_without_national_road_links()
+    public Task When_importing_a_road_segment_without_national_road_links()
     {
         var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
         importedRoadSegment.PartOfNationalRoads = [];
@@ -96,7 +96,7 @@ public class RoadSegmentNationalRoadAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_importing_road_nodes()
+    public Task When_importing_road_segments()
     {
         var random = new Random();
         var data = _fixture

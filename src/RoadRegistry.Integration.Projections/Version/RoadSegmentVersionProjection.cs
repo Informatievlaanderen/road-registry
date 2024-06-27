@@ -69,6 +69,9 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
             ImportLanes(envelope, roadSegment, envelope.Message.Lanes);
             ImportSurfaces(envelope, roadSegment, envelope.Message.Surfaces);
             ImportWidths(envelope, roadSegment, envelope.Message.Widths);
+            ImportPartOfEuropeanRoads(envelope, roadSegment, envelope.Message.PartOfEuropeanRoads);
+            ImportPartOfNationalRoads(envelope, roadSegment, envelope.Message.PartOfNationalRoads);
+            ImportPartOfNumberedRoads(envelope, roadSegment, envelope.Message.PartOfNumberedRoads);
             
             await context.RoadSegmentVersions.AddAsync(roadSegment, token);
         });
@@ -260,6 +263,7 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
         Envelope<RoadNetworkChangesAccepted> envelope)
     {
         UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentVersion);
+        AddPartOfEuropeanRoad(envelope, roadSegment, change);
     }
 
     private static void RemoveRoadSegmentFromEuropeanRoad(
@@ -268,6 +272,7 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
         Envelope<RoadNetworkChangesAccepted> envelope)
     {
         UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentVersion);
+        RemovePartOfEuropeanRoads(envelope, roadSegment, change.AttributeId);
     }
 
     private static void AddRoadSegmentToNationalRoad(
@@ -276,6 +281,7 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
         Envelope<RoadNetworkChangesAccepted> envelope)
     {
         UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentVersion);
+        AddPartOfNationalRoad(envelope, roadSegment, change);
     }
 
     private static void RemoveRoadSegmentFromNationalRoad(
@@ -284,6 +290,7 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
         Envelope<RoadNetworkChangesAccepted> envelope)
     {
         UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentVersion);
+        RemovePartOfNationalRoads(envelope, roadSegment, change.AttributeId);
     }
 
     private static void AddRoadSegmentToNumberedRoad(
@@ -292,6 +299,7 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
         Envelope<RoadNetworkChangesAccepted> envelope)
     {
         UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentVersion);
+        AddPartOfNumberedRoad(envelope, roadSegment, change);
     }
 
     private static void RemoveRoadSegmentFromNumberedRoad(
@@ -300,6 +308,7 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
         Envelope<RoadNetworkChangesAccepted> envelope)
     {
         UpdateRoadSegmentVersion(roadSegment, envelope, change.SegmentVersion);
+        RemovePartOfNumberedRoads(envelope, roadSegment, change.AttributeId);
     }
 
     private static void ModifyRoadSegmentAttributes(
@@ -386,6 +395,9 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
         RemoveLanes(envelope, roadSegment);
         RemoveSurfaces(envelope, roadSegment);
         RemoveWidths(envelope, roadSegment);
+        RemovePartOfEuropeanRoads(envelope, roadSegment);
+        RemovePartOfNationalRoads(envelope, roadSegment);
+        RemovePartOfNumberedRoads(envelope, roadSegment);
     }
 
     private static void UpdateRoadSegmentVersion(

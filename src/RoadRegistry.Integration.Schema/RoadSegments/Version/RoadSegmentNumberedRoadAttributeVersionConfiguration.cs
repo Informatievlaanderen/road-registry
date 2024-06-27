@@ -11,13 +11,15 @@ public class RoadSegmentNumberedRoadAttributeVersionConfiguration : IEntityTypeC
     public void Configure(EntityTypeBuilder<RoadSegmentNumberedRoadAttributeVersion> b)
     {
         b.ToTable(TableName, WellKnownSchemas.IntegrationSchema)
-            .HasKey(p => p.Id)
+            .HasKey(p => new { p.Position, p.Id })
             .IsClustered();
 
+        b.Property(p => p.Position).ValueGeneratedNever().IsRequired();
         b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
         b.Property(p => p.RoadSegmentId).IsRequired();
         b.Property(p => p.IsRemoved).HasDefaultValue(false).IsRequired();
 
+        b.Property(x => x.Position).HasColumnName("position");
         b.Property(x => x.Id).HasColumnName("id");
         b.Property(x => x.RoadSegmentId).HasColumnName("road_segment_id");
         b.Property(x => x.Number).HasColumnName("number");
@@ -30,6 +32,8 @@ public class RoadSegmentNumberedRoadAttributeVersionConfiguration : IEntityTypeC
         b.Property(x => x.VersionTimestamp).HasColumnName("version_timestamp");
         b.Property(x => x.CreatedOnTimestamp).HasColumnName("created_on_timestamp");
 
+        b.HasIndex(p => p.Position);
+        b.HasIndex(p => p.Id);
         b.HasIndex(p => p.RoadSegmentId);
         b.HasIndex(p => p.Number);
         b.HasIndex(p => p.DirectionId);

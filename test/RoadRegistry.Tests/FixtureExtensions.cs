@@ -462,14 +462,15 @@ public static class Customizations
                         GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
                         LeftSide = fixture.Create<ImportedRoadSegmentSideAttribute>(),
                         RightSide = fixture.Create<ImportedRoadSegmentSideAttribute>(),
-                        Lanes = fixture.CreateMany<ImportedRoadSegmentLaneAttribute>(generator.Next(0, 10)).ToArray(),
-                        Widths = fixture.CreateMany<ImportedRoadSegmentWidthAttribute>(generator.Next(0, 10)).ToArray(),
-                        Surfaces = fixture.CreateMany<ImportedRoadSegmentSurfaceAttribute>(generator.Next(0, 10)).ToArray(),
-                        PartOfEuropeanRoads = fixture.CreateMany<ImportedRoadSegmentEuropeanRoadAttribute>(generator.Next(0, 10)).ToArray(),
-                        PartOfNationalRoads = fixture.CreateMany<ImportedRoadSegmentNationalRoadAttribute>(generator.Next(0, 10)).ToArray(),
-                        PartOfNumberedRoads = fixture.CreateMany<ImportedRoadSegmentNumberedRoadAttribute>(generator.Next(0, 10)).ToArray(),
+                        Lanes = fixture.CreateMany<ImportedRoadSegmentLaneAttribute>(generator.Next(1, 10)).ToArray(),
+                        Widths = fixture.CreateMany<ImportedRoadSegmentWidthAttribute>(generator.Next(1, 10)).ToArray(),
+                        Surfaces = fixture.CreateMany<ImportedRoadSegmentSurfaceAttribute>(generator.Next(1, 10)).ToArray(),
+                        PartOfEuropeanRoads = fixture.CreateMany<ImportedRoadSegmentEuropeanRoadAttribute>(generator.Next(1, 10)).ToArray(),
+                        PartOfNationalRoads = fixture.CreateMany<ImportedRoadSegmentNationalRoadAttribute>(generator.Next(1, 10)).ToArray(),
+                        PartOfNumberedRoads = fixture.CreateMany<ImportedRoadSegmentNumberedRoadAttribute>(generator.Next(1, 10)).ToArray(),
                         RecordingDate = fixture.Create<DateTime>(),
-                        Origin = fixture.Create<ImportedOriginProperties>()
+                        Origin = fixture.Create<ImportedOriginProperties>(),
+                        When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
                     }
                 )
                 .OmitAutoProperties()

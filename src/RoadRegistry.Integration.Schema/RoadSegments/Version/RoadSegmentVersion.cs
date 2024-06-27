@@ -47,9 +47,9 @@ public class RoadSegmentVersion
     public ICollection<RoadSegmentLaneAttributeVersion> Lanes { get; set; } = [];
     public ICollection<RoadSegmentSurfaceAttributeVersion> Surfaces { get; set; } = [];
     public ICollection<RoadSegmentWidthAttributeVersion> Widths { get; set; } = [];
-    public ICollection<RoadSegmentEuropeanRoadAttributeVersion> EuropeanRoads { get; set; } = [];
-    public ICollection<RoadSegmentNationalRoadAttributeVersion> NationalRoads { get; set; } = [];
-    public ICollection<RoadSegmentNumberedRoadAttributeVersion> NumberedRoads { get; set; } = [];
+    public ICollection<RoadSegmentEuropeanRoadAttributeVersion> PartOfEuropeanRoads { get; set; } = [];
+    public ICollection<RoadSegmentNationalRoadAttributeVersion> PartOfNationalRoads { get; set; } = [];
+    public ICollection<RoadSegmentNumberedRoadAttributeVersion> PartOfNumberedRoads { get; set; } = [];
 
     public RoadSegmentVersion WithBoundingBox(RoadSegmentBoundingBox value)
     {
@@ -142,20 +142,18 @@ public class RoadSegmentVersion
                 .Where(x => !x.IsRemoved)
                 .Select(x => x.Clone(newPosition))
                 .ToList(),
-
-            //TODO-rik
-            //EuropeanRoads = EuropeanRoads
-            //    .Where(x => !x.IsRemoved)
-            //    .Select(x => x.Clone(newPosition))
-            //    .ToList(),
-            //NationalRoads = NationalRoads
-            //    .Where(x => !x.IsRemoved)
-            //    .Select(x => x.Clone(newPosition))
-            //    .ToList(),
-            //NumberedRoads = NumberedRoads
-            //    .Where(x => !x.IsRemoved)
-            //    .Select(x => x.Clone(newPosition))
-            //    .ToList()
+            PartOfEuropeanRoads = PartOfEuropeanRoads
+                .Where(x => !x.IsRemoved)
+                .Select(x => x.Clone(newPosition))
+                .ToList(),
+            PartOfNationalRoads = PartOfNationalRoads
+                .Where(x => !x.IsRemoved)
+                .Select(x => x.Clone(newPosition))
+                .ToList(),
+            PartOfNumberedRoads = PartOfNumberedRoads
+                .Where(x => !x.IsRemoved)
+                .Select(x => x.Clone(newPosition))
+                .ToList()
         };
 
         return newItem;

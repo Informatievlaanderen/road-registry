@@ -66,19 +66,18 @@ public class RoadSegmentVersionConfiguration : IEntityTypeConfiguration<RoadSegm
             .WithOne()
             .IsRequired()
             .HasForeignKey(x => new { x.Position, x.RoadSegmentId });
-        //TODO-rik
-        //b.HasMany(x => x.EuropeanRoads)
-        //    .WithOne()
-        //    .IsRequired()
-        //    .HasForeignKey(x => new { x.Position, x.RoadSegmentId });
-        //b.HasMany(x => x.NationalRoads)
-        //    .WithOne()
-        //    .IsRequired()
-        //    .HasForeignKey(x => new { x.Position, x.RoadSegmentId });
-        //b.HasMany(x => x.NumberedRoads)
-        //    .WithOne()
-        //    .IsRequired()
-        //    .HasForeignKey(x => new { x.Position, x.RoadSegmentId });
+        b.HasMany(x => x.PartOfEuropeanRoads)
+            .WithOne()
+            .IsRequired()
+            .HasForeignKey(x => new { x.Position, x.RoadSegmentId });
+        b.HasMany(x => x.PartOfNationalRoads)
+            .WithOne()
+            .IsRequired()
+            .HasForeignKey(x => new { x.Position, x.RoadSegmentId });
+        b.HasMany(x => x.PartOfNumberedRoads)
+            .WithOne()
+            .IsRequired()
+            .HasForeignKey(x => new { x.Position, x.RoadSegmentId });
 
         b.HasIndex(p => p.Position);
         b.HasIndex(p => p.Id);

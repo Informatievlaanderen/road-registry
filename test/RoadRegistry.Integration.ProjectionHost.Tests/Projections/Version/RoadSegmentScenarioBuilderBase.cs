@@ -21,7 +21,7 @@ public class RoadSegmentScenarioBuilderBase
     protected object[] BuildInitialExpectedRoadSegmentRecords(RoadNetworkChangesAccepted message)
     {
         return message.Changes
-            .Select(change => BuildRoadSegmentRecord(0, message, change.RoadSegmentAdded))
+            .Select(change => BuildRoadSegmentRecord(IntegrationContextScenarioExtensions.InitialPosition, message, change.RoadSegmentAdded))
             .Cast<object>()
             .ToArray();
     }

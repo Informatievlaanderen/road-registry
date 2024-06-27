@@ -3,11 +3,8 @@ namespace RoadRegistry.Integration.ProjectionHost.Tests.Projections.Version;
 using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
-using Be.Vlaanderen.Basisregisters.Shaperon;
 using Integration.Projections;
 using RoadRegistry.Integration.Schema.RoadSegments.Version;
-using Schema.RoadSegments;
-using RoadSegmentVersion = Schema.RoadSegments.Version.RoadSegmentVersion;
 
 public partial class RoadSegmentVersionProjectionTests
 {
@@ -20,100 +17,9 @@ public partial class RoadSegmentVersionProjectionTests
             {
                 importedRoadSegment.Widths = [];
 
-                var geometry = GeometryTranslator.Translate(importedRoadSegment.Geometry);
-                var polyLineMShapeContent = new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(geometry));
-                var statusTranslation = RoadSegmentStatus.Parse(importedRoadSegment.Status).Translation;
-                var morphologyTranslation = RoadSegmentMorphology.Parse(importedRoadSegment.Morphology).Translation;
-                var categoryTranslation = RoadSegmentCategory.Parse(importedRoadSegment.Category).Translation;
-                var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(importedRoadSegment.GeometryDrawMethod).Translation;
-                var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(importedRoadSegment.AccessRestriction).Translation;
+                var expected = BuildRoadSegmentRecord(eventIndex, importedRoadSegment);
+                expected.Widths = [];
 
-                var expected = new RoadSegmentVersion
-                {
-                    Position = eventIndex,
-                    Id = importedRoadSegment.Id,
-                    StartNodeId = importedRoadSegment.StartNodeId,
-                    EndNodeId = importedRoadSegment.EndNodeId,
-                    Geometry = geometry,
-
-                    Version = importedRoadSegment.Version,
-                    GeometryVersion = importedRoadSegment.GeometryVersion,
-                    StatusId = statusTranslation.Identifier,
-                    MorphologyId = morphologyTranslation.Identifier,
-                    CategoryId = categoryTranslation.Identifier,
-                    LeftSideStreetNameId = importedRoadSegment.LeftSide.StreetNameId,
-                    RightSideStreetNameId = importedRoadSegment.RightSide.StreetNameId,
-                    MaintainerId = importedRoadSegment.MaintenanceAuthority.Code,
-                    MethodId = geometryDrawMethodTranslation.Identifier,
-                    AccessRestrictionId = accessRestrictionTranslation.Identifier,
-
-                    OrganizationId = importedRoadSegment.Origin.OrganizationId,
-                    OrganizationName = importedRoadSegment.Origin.Organization,
-                    CreatedOnTimestamp = importedRoadSegment.RecordingDate,
-                    VersionTimestamp = importedRoadSegment.Origin.Since,
-
-                    StatusLabel = statusTranslation.Name,
-                    MorphologyLabel = morphologyTranslation.Name,
-                    CategoryLabel = categoryTranslation.Name,
-                    MethodLabel = geometryDrawMethodTranslation.Name,
-                    AccessRestrictionLabel = accessRestrictionTranslation.Name,
-
-                    Lanes = importedRoadSegment.Lanes
-                        .Select(laneAttribute => new RoadSegmentLaneAttributeVersion
-                        {
-                            Position = eventIndex,
-                            Id = laneAttribute.AttributeId,
-                            RoadSegmentId = importedRoadSegment.Id,
-                            AsOfGeometryVersion = laneAttribute.AsOfGeometryVersion,
-                            FromPosition = (double)laneAttribute.FromPosition,
-                            ToPosition = (double)laneAttribute.ToPosition,
-                            Count = laneAttribute.Count,
-                            DirectionId = RoadSegmentLaneDirection.Parse(laneAttribute.Direction).Translation.Identifier,
-                            DirectionLabel = RoadSegmentLaneDirection.Parse(laneAttribute.Direction).Translation.Name,
-
-                            OrganizationId = laneAttribute.Origin.OrganizationId,
-                            OrganizationName = laneAttribute.Origin.Organization,
-                            CreatedOnTimestamp = new DateTimeOffset(laneAttribute.Origin.Since),
-                            VersionTimestamp = new DateTimeOffset(laneAttribute.Origin.Since)
-                        })
-                        .ToList(),
-                    Surfaces = importedRoadSegment.Surfaces
-                        .Select(x => new RoadSegmentSurfaceAttributeVersion
-                        {
-                            Position = eventIndex,
-                            Id = x.AttributeId,
-                            RoadSegmentId = importedRoadSegment.Id,
-                            AsOfGeometryVersion = x.AsOfGeometryVersion,
-                            FromPosition = (double)x.FromPosition,
-                            ToPosition = (double)x.ToPosition,
-                            TypeId = RoadSegmentSurfaceType.Parse(x.Type).Translation.Identifier,
-                            TypeLabel = RoadSegmentSurfaceType.Parse(x.Type).Translation.Name,
-
-                            OrganizationId = x.Origin.OrganizationId,
-                            OrganizationName = x.Origin.Organization,
-                            CreatedOnTimestamp = new DateTimeOffset(x.Origin.Since),
-                            VersionTimestamp = new DateTimeOffset(x.Origin.Since)
-                        })
-                        .ToList(),
-                    Widths = importedRoadSegment.Widths
-                        .Select(widthAttribute => new RoadSegmentWidthAttributeVersion
-                        {
-                            Position = eventIndex,
-                            Id = widthAttribute.AttributeId,
-                            RoadSegmentId = importedRoadSegment.Id,
-                            AsOfGeometryVersion = widthAttribute.AsOfGeometryVersion,
-                            FromPosition = (double)widthAttribute.FromPosition,
-                            ToPosition = (double)widthAttribute.ToPosition,
-                            Width = widthAttribute.Width,
-                            WidthLabel = new RoadSegmentWidth(widthAttribute.Width).ToDutchString(),
-
-                            OrganizationId = widthAttribute.Origin.OrganizationId,
-                            OrganizationName = widthAttribute.Origin.Organization,
-                            CreatedOnTimestamp = new DateTimeOffset(widthAttribute.Origin.Since),
-                            VersionTimestamp = new DateTimeOffset(widthAttribute.Origin.Since)
-                        })
-                        .ToList()
-                }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
                 return new { importedRoadSegment, expected };
             }).ToList();
 
