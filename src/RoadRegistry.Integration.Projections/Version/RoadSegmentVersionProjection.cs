@@ -12,13 +12,6 @@ using Schema;
 using Schema.RoadSegments;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 using RoadSegmentVersion = Schema.RoadSegments.Version.RoadSegmentVersion;
-//TODO-rik versioned:
-/*
- * - copy of Version entity + add Position prop
- * - add Position to PK + add indices
- * - RoadSegmentVersionProjection handles all related data (lanes,surfaces,...)
- * - create new Version for each roadsegment change
- */
 
 public partial class RoadSegmentVersionProjection : ConnectedProjection<IntegrationContext>
 {
@@ -156,10 +149,13 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
 
     private static int? GetRoadSegmentIdFromChange(object changeMessage)
     {
+        //TODO-rik create unit test to ensure all possible changes in AcceptedChange are handled here
+        //those that are unhandled in handler of RoadNetworkChangesAccepted should return null
         return changeMessage switch
         {
             RoadSegmentAdded change => change.Id,
             RoadSegmentModified change => change.Id,
+            RoadSegmentRemoved change => change.Id,
             RoadSegmentAddedToEuropeanRoad change => change.SegmentId,
             RoadSegmentRemovedFromEuropeanRoad change => change.SegmentId,
             RoadSegmentAddedToNationalRoad change => change.SegmentId,
@@ -168,7 +164,14 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
             RoadSegmentRemovedFromNumberedRoad change => change.SegmentId,
             RoadSegmentAttributesModified change => change.Id,
             RoadSegmentGeometryModified change => change.Id,
-            RoadSegmentRemoved change => change.Id,
+            GradeSeparatedJunctionAdded => null,
+            GradeSeparatedJunctionModified => null,
+            GradeSeparatedJunctionRemoved => null,
+            RoadNodeAdded => null,
+            RoadNodeModified => null,
+            RoadNodeRemoved => null,
+            OutlinedRoadSegmentRemoved => null,
+            RoadSegmentOnNumberedRoadModified => null,
             _ => throw new NotImplementedException($"{changeMessage.GetType().Name}")
         };
     }

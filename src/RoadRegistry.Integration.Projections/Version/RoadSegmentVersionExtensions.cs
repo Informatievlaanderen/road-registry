@@ -45,7 +45,9 @@ namespace RoadRegistry.Integration.Projections.Version
                    .Include(x => x.Lanes)
                    .Include(x => x.Surfaces)
                    .Include(x => x.Widths)
-                   //.Include(x => x.BuildingUnits) //TODO-rik add lanes/surfaces/...?
+                   .Include(x => x.PartOfEuropeanRoads)
+                   .Include(x => x.PartOfNationalRoads)
+                   .Include(x => x.PartOfNumberedRoads)
                    .OrderByDescending(x => x.Position)
                    .FirstOrDefaultAsync(ct);
 
