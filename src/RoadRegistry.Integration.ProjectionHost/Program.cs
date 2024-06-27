@@ -67,32 +67,32 @@ public class Program
                             ).Options)
                 )
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new IntegrationContextMigrationFactory())
-                //.AddIntegrationContextEventProcessor<RoadNetworkLatestItemEventProcessor>(_ =>
-                //[
-                //    new RoadNodeLatestItemProjection(),
-                //    new RoadSegmentLatestItemProjection(),
-                //    new RoadSegmentEuropeanRoadAttributeLatestItemProjection(),
-                //    new RoadSegmentNationalRoadAttributeLatestItemProjection(),
-                //    new RoadSegmentNumberedRoadAttributeLatestItemProjection(),
-                //    new RoadSegmentLaneAttributeLatestItemProjection(),
-                //    new RoadSegmentSurfaceAttributeLatestItemProjection(),
-                //    new RoadSegmentWidthAttributeLatestItemProjection(),
-                //    new GradeSeparatedJunctionLatestItemProjection()
-                //])
+                .AddIntegrationContextEventProcessor<RoadNetworkLatestItemEventProcessor>(_ =>
+                [
+                    new RoadNodeLatestItemProjection(),
+                    new RoadSegmentLatestItemProjection(),
+                    new RoadSegmentEuropeanRoadAttributeLatestItemProjection(),
+                    new RoadSegmentNationalRoadAttributeLatestItemProjection(),
+                    new RoadSegmentNumberedRoadAttributeLatestItemProjection(),
+                    new RoadSegmentLaneAttributeLatestItemProjection(),
+                    new RoadSegmentSurfaceAttributeLatestItemProjection(),
+                    new RoadSegmentWidthAttributeLatestItemProjection(),
+                    new GradeSeparatedJunctionLatestItemProjection()
+                ])
                 .AddIntegrationContextEventProcessor<OrganizationLatestItemEventProcessor>(_ =>
                 [
                     new OrganizationLatestItemProjection()
                 ])
-                //.AddIntegrationContextEventProcessor<RoadNetworkVersionEventProcessor>(_ =>
-                //[
-                //    new RoadNodeVersionProjection(),
-                //    new RoadSegmentVersionProjection(),
-                //    new GradeSeparatedJunctionVersionProjection()
-                //])
-                //.AddIntegrationContextEventProcessor<OrganizationVersionEventProcessor>(_ =>
-                //[
-                //    new OrganizationVersionProjection()
-                //])
+                .AddIntegrationContextEventProcessor<RoadNetworkVersionEventProcessor>(_ =>
+                [
+                    new RoadNodeVersionProjection(),
+                    new RoadSegmentVersionProjection(),
+                    new GradeSeparatedJunctionVersionProjection()
+                ])
+                .AddIntegrationContextEventProcessor<OrganizationVersionEventProcessor>(_ =>
+                [
+                    new OrganizationVersionProjection()
+                ])
                 ;
         })
         .ConfigureHealthChecks(HostingPort, _ => { }
