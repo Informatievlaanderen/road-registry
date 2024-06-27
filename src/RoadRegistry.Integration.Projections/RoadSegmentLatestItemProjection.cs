@@ -9,6 +9,7 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using NodaTime;
 using Schema;
 using Schema.RoadSegments;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
@@ -51,9 +52,9 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
                     MethodLabel = geometryDrawMethodTranslation.Name,
                     AccessRestrictionId = accessRestrictionTranslation.Identifier,
                     AccessRestrictionLabel = accessRestrictionTranslation.Name,
-
-                    CreatedOnTimestamp = new DateTimeOffset(envelope.Message.RecordingDate),
-                    VersionTimestamp = new DateTimeOffset(envelope.Message.Origin.Since),
+                    
+                    CreatedOnTimestamp = Instant.FromDateTimeOffset(new DateTimeOffset(envelope.Message.RecordingDate)),
+                    VersionTimestamp = Instant.FromDateTimeOffset(new DateTimeOffset(envelope.Message.Origin.Since)),
                     OrganizationId = envelope.Message.Origin.OrganizationId,
                     OrganizationName = envelope.Message.Origin.Organization
                 }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape)),

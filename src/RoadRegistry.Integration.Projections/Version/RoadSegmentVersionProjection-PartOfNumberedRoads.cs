@@ -31,8 +31,8 @@ public partial class RoadSegmentVersionProjection
                     SequenceNumber = numberedRoadAttribute.Ordinal,
                     OrganizationId = numberedRoadAttribute.Origin.OrganizationId,
                     OrganizationName = numberedRoadAttribute.Origin.Organization,
-                    CreatedOnTimestamp = new DateTimeOffset(numberedRoadAttribute.Origin.Since),
-                    VersionTimestamp = new DateTimeOffset(numberedRoadAttribute.Origin.Since)
+                    CreatedOnTimestamp = numberedRoadAttribute.Origin.Since.ToBelgianInstant(),
+                    VersionTimestamp = numberedRoadAttribute.Origin.Since.ToBelgianInstant()
                 };
             })
             .ToList();

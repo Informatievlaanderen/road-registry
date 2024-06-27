@@ -24,12 +24,17 @@ public class OrganizationVersionConfiguration : IEntityTypeConfiguration<Organiz
         b.Property(p => p.Name).HasColumnName("name");
         b.Property(p => p.OvoCode).HasColumnName("ovo_code");
         b.Property(p => p.IsRemoved).HasColumnName("is_removed");
-        b.Property(x => x.VersionTimestamp).HasColumnName("version_timestamp");
-        b.Property(x => x.CreatedOnTimestamp).HasColumnName("created_on_timestamp");
+        b.Property(x => x.VersionAsString).HasColumnName("version_as_string");
+        b.Property(OrganizationVersion.VersionTimestampBackingPropertyName).HasColumnName("version_timestamp");
+        b.Property(x => x.CreatedOnAsString).HasColumnName("created_on_as_string");
+        b.Property(OrganizationVersion.CreatedOnTimestampBackingPropertyName).HasColumnName("created_on_timestamp");
+
+        b.Ignore(x => x.VersionTimestamp);
+        b.Ignore(x => x.CreatedOnTimestamp);
 
         b.HasIndex(p => p.Code);
         b.HasIndex(p => p.OvoCode);
-        b.HasIndex(p => p.VersionTimestamp);
+        b.HasIndex(OrganizationVersion.VersionTimestampBackingPropertyName);
         b.HasIndex(p => p.IsRemoved);
     }
 }

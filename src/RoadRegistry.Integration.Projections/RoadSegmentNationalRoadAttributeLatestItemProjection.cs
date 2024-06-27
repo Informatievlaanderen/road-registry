@@ -28,8 +28,8 @@ public class RoadSegmentNationalRoadAttributeLatestItemProjection : ConnectedPro
                     Number = nationalRoad.Number,
                     OrganizationId = nationalRoad.Origin.OrganizationId,
                     OrganizationName = nationalRoad.Origin.Organization,
-                    CreatedOnTimestamp = new DateTimeOffset(nationalRoad.Origin.Since),
-                    VersionTimestamp = new DateTimeOffset(nationalRoad.Origin.Since)
+                    CreatedOnTimestamp = nationalRoad.Origin.Since.ToBelgianInstant(),
+                    VersionTimestamp = nationalRoad.Origin.Since.ToBelgianInstant()
                 });
 
             return context.RoadSegmentNationalRoadAttributes.AddRangeAsync(nationalRoadAttributes, token);

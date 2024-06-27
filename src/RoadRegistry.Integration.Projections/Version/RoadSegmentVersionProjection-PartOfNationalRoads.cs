@@ -23,8 +23,8 @@ public partial class RoadSegmentVersionProjection
                 Number = nationalRoadAttribute.Number,
                 OrganizationId = nationalRoadAttribute.Origin.OrganizationId,
                 OrganizationName = nationalRoadAttribute.Origin.Organization,
-                CreatedOnTimestamp = new DateTimeOffset(nationalRoadAttribute.Origin.Since),
-                VersionTimestamp = new DateTimeOffset(nationalRoadAttribute.Origin.Since)
+                CreatedOnTimestamp = nationalRoadAttribute.Origin.Since.ToBelgianInstant(),
+                VersionTimestamp = nationalRoadAttribute.Origin.Since.ToBelgianInstant()
             })
             .ToList();
     }

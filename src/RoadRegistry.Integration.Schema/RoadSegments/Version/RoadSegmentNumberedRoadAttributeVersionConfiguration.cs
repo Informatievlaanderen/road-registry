@@ -29,8 +29,13 @@ public class RoadSegmentNumberedRoadAttributeVersionConfiguration : IEntityTypeC
         b.Property(x => x.IsRemoved).HasColumnName("is_removed");
         b.Property(x => x.OrganizationId).HasColumnName("organization_id");
         b.Property(x => x.OrganizationName).HasColumnName("organization_name");
-        b.Property(x => x.VersionTimestamp).HasColumnName("version_timestamp");
-        b.Property(x => x.CreatedOnTimestamp).HasColumnName("created_on_timestamp");
+        b.Property(x => x.VersionAsString).HasColumnName("version_as_string");
+        b.Property(RoadSegmentNumberedRoadAttributeVersion.VersionTimestampBackingPropertyName).HasColumnName("version_timestamp");
+        b.Property(x => x.CreatedOnAsString).HasColumnName("created_on_as_string");
+        b.Property(RoadSegmentNumberedRoadAttributeVersion.CreatedOnTimestampBackingPropertyName).HasColumnName("created_on_timestamp");
+
+        b.Ignore(x => x.VersionTimestamp);
+        b.Ignore(x => x.CreatedOnTimestamp);
 
         b.HasIndex(p => p.Position);
         b.HasIndex(p => p.Id);
@@ -40,7 +45,7 @@ public class RoadSegmentNumberedRoadAttributeVersionConfiguration : IEntityTypeC
         b.HasIndex(p => p.DirectionLabel);
         b.HasIndex(p => p.OrganizationId);
         b.HasIndex(p => p.OrganizationName);
-        b.HasIndex(p => p.VersionTimestamp);
+        b.HasIndex(RoadSegmentNumberedRoadAttributeVersion.VersionTimestampBackingPropertyName);
         b.HasIndex(p => p.IsRemoved);
     }
 }

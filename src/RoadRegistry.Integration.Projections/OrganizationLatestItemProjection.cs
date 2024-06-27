@@ -1,8 +1,10 @@
 namespace RoadRegistry.Integration.Projections;
 
+using System;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using NodaTime.Extensions;
 using Schema;
 using Schema.Organizations;
 

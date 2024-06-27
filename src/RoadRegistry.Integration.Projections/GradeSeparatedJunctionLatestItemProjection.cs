@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Extensions;
 using BackOffice.Messages;
+using Be.Vlaanderen.Basisregisters.Crab;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using NodaTime;
 using Schema;
 using Schema.GradeSeparatedJunctions;
 
@@ -28,8 +30,8 @@ public class GradeSeparatedJunctionLatestItemProjection : ConnectedProjection<In
                 TypeLabel = typeTranslation.Name,
                 OrganizationId = envelope.Message.Origin.OrganizationId,
                 OrganizationName = envelope.Message.Origin.Organization,
-                CreatedOnTimestamp = envelope.Message.Origin.Since,
-                VersionTimestamp = envelope.Message.Origin.Since
+                CreatedOnTimestamp = envelope.Message.Origin.Since.ToBelgianInstant(),
+                VersionTimestamp = envelope.Message.Origin.Since.ToBelgianInstant()
             };
 
             await context.AddAsync(junctionRecord, token);

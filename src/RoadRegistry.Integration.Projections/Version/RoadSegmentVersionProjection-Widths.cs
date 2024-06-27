@@ -32,8 +32,8 @@ public partial class RoadSegmentVersionProjection
                     ToPosition = (double)widthAttribute.ToPosition,
                     OrganizationId = widthAttribute.Origin.OrganizationId,
                     OrganizationName = widthAttribute.Origin.Organization,
-                    CreatedOnTimestamp = new DateTimeOffset(widthAttribute.Origin.Since),
-                    VersionTimestamp = new DateTimeOffset(widthAttribute.Origin.Since)
+                    CreatedOnTimestamp = widthAttribute.Origin.Since.ToBelgianInstant(),
+                    VersionTimestamp = widthAttribute.Origin.Since.ToBelgianInstant()
                 };
             })
             .ToList();

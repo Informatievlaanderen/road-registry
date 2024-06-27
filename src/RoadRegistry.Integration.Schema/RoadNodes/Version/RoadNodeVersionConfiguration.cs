@@ -28,13 +28,18 @@ public class RoadNodeVersionConfiguration : IEntityTypeConfiguration<RoadNodeVer
         b.Property(x => x.OrganizationName).HasColumnName("organization_name");
         b.Property(x => x.IsRemoved).HasColumnName("is_removed");
         b.Property(x => x.Geometry).HasColumnName("geometry");
-        b.Property(x => x.VersionTimestamp).HasColumnName("version_timestamp");
-        b.Property(x => x.CreatedOnTimestamp).HasColumnName("created_on_timestamp");
+        b.Property(x => x.VersionAsString).HasColumnName("version_as_string");
+        b.Property(RoadNodeVersion.VersionTimestampBackingPropertyName).HasColumnName("version_timestamp");
+        b.Property(x => x.CreatedOnAsString).HasColumnName("created_on_as_string");
+        b.Property(RoadNodeVersion.CreatedOnTimestampBackingPropertyName).HasColumnName("created_on_timestamp");
 
         b.Property(p => p.BoundingBoxMaximumX).HasColumnName("bounding_box_maximum_x");
         b.Property(p => p.BoundingBoxMaximumY).HasColumnName("bounding_box_maximum_y");
         b.Property(p => p.BoundingBoxMinimumX).HasColumnName("bounding_box_minimum_x");
         b.Property(p => p.BoundingBoxMinimumY).HasColumnName("bounding_box_minimum_y");
+
+        b.Ignore(x => x.VersionTimestamp);
+        b.Ignore(x => x.CreatedOnTimestamp);
 
         b.HasIndex(p => p.Position);
         b.HasIndex(p => p.Id);
@@ -43,7 +48,7 @@ public class RoadNodeVersionConfiguration : IEntityTypeConfiguration<RoadNodeVer
         b.HasIndex(p => p.IsRemoved);
         b.HasIndex(p => p.OrganizationId);
         b.HasIndex(p => p.OrganizationName);
-        b.HasIndex(p => p.VersionTimestamp);
+        b.HasIndex(RoadNodeVersion.VersionTimestampBackingPropertyName);
         b.HasIndex(x => x.Geometry).HasMethod("GIST");
     }
 }

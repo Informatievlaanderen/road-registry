@@ -42,8 +42,10 @@ public class RoadSegmentLatestItemConfiguration : IEntityTypeConfiguration<RoadS
         b.Property(x => x.StatusLabel).HasColumnName("status_label");
         b.Property(x => x.OrganizationId).HasColumnName("organization_id");
         b.Property(x => x.OrganizationName).HasColumnName("organization_name");
-        b.Property(x => x.VersionTimestamp).HasColumnName("version_timestamp");
-        b.Property(x => x.CreatedOnTimestamp).HasColumnName("created_on_timestamp");
+        b.Property(x => x.VersionAsString).HasColumnName("version_as_string");
+        b.Property(RoadSegmentLatestItem.VersionTimestampBackingPropertyName).HasColumnName("version_timestamp");
+        b.Property(x => x.CreatedOnAsString).HasColumnName("created_on_as_string");
+        b.Property(RoadSegmentLatestItem.CreatedOnTimestampBackingPropertyName).HasColumnName("created_on_timestamp");
 
         b.Property(p => p.BoundingBoxMaximumX).HasColumnName("bounding_box_maximum_x");
         b.Property(p => p.BoundingBoxMaximumY).HasColumnName("bounding_box_maximum_y");
@@ -51,6 +53,9 @@ public class RoadSegmentLatestItemConfiguration : IEntityTypeConfiguration<RoadS
         b.Property(p => p.BoundingBoxMinimumX).HasColumnName("bounding_box_minimum_x");
         b.Property(p => p.BoundingBoxMinimumY).HasColumnName("bounding_box_minimum_y");
         b.Property(p => p.BoundingBoxMinimumM).HasColumnName("bounding_box_minimum_m");
+
+        b.Ignore(x => x.VersionTimestamp);
+        b.Ignore(x => x.CreatedOnTimestamp);
 
         b.HasIndex(p => p.MethodId);
         b.HasIndex(p => p.MethodLabel);
@@ -69,7 +74,7 @@ public class RoadSegmentLatestItemConfiguration : IEntityTypeConfiguration<RoadS
         b.HasIndex(p => p.EndNodeId);
         b.HasIndex(p => p.OrganizationId);
         b.HasIndex(p => p.OrganizationName);
-        b.HasIndex(p => p.VersionTimestamp);
+        b.HasIndex(RoadSegmentLatestItem.VersionTimestampBackingPropertyName);
         b.HasIndex(x => x.Geometry).HasMethod("GIST");
     }
 }

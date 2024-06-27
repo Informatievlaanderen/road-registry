@@ -62,8 +62,8 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
 
                 OrganizationId = envelope.Message.Origin.OrganizationId,
                 OrganizationName = envelope.Message.Origin.Organization,
-                CreatedOnTimestamp = new DateTimeOffset(envelope.Message.RecordingDate),
-                VersionTimestamp = new DateTimeOffset(envelope.Message.Origin.Since)
+                CreatedOnTimestamp = envelope.Message.RecordingDate.ToBelgianInstant(),
+                VersionTimestamp = envelope.Message.Origin.Since.ToBelgianInstant()
             }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
 
             ImportLanes(envelope, roadSegment, envelope.Message.Lanes);

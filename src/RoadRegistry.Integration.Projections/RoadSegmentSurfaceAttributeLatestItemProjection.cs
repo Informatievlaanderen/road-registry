@@ -38,8 +38,8 @@ public class RoadSegmentSurfaceAttributeLatestItemProjection : ConnectedProjecti
                         ToPosition = (double)surfaceAttribute.ToPosition,
                         OrganizationId = surfaceAttribute.Origin.OrganizationId,
                         OrganizationName = surfaceAttribute.Origin.Organization,
-                        CreatedOnTimestamp = new DateTimeOffset(surfaceAttribute.Origin.Since),
-                        VersionTimestamp = new DateTimeOffset(surfaceAttribute.Origin.Since)
+                        CreatedOnTimestamp = surfaceAttribute.Origin.Since.ToBelgianInstant(),
+                        VersionTimestamp = surfaceAttribute.Origin.Since.ToBelgianInstant()
                     };
                 });
 

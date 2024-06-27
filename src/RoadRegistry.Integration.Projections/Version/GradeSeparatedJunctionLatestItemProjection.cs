@@ -27,8 +27,8 @@ public class GradeSeparatedJunctionVersionProjection : ConnectedProjection<Integ
                 TypeLabel = typeTranslation.Name,
                 OrganizationId = envelope.Message.Origin.OrganizationId,
                 OrganizationName = envelope.Message.Origin.Organization,
-                CreatedOnTimestamp = envelope.Message.Origin.Since,
-                VersionTimestamp = envelope.Message.Origin.Since
+                CreatedOnTimestamp = envelope.Message.Origin.Since.ToBelgianInstant(),
+                VersionTimestamp = envelope.Message.Origin.Since.ToBelgianInstant()
             };
 
             await context.GradeSeparatedJunctionVersions.AddAsync(junctionVersion, token);
