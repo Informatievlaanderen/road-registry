@@ -11,9 +11,10 @@ public class GradeSeparatedJunctionVersionConfiguration : IEntityTypeConfigurati
     public void Configure(EntityTypeBuilder<GradeSeparatedJunctionVersion> b)
     {
         b.ToTable(TableName, WellKnownSchemas.IntegrationSchema)
-            .HasKey(p => p.Id)
+            .HasKey(p => new { p.Position, p.Id })
             .IsClustered();
 
+        b.Property(p => p.Position).ValueGeneratedNever().IsRequired();
         b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
         b.Property(p => p.IsRemoved).HasDefaultValue(false).IsRequired();
 
@@ -28,6 +29,7 @@ public class GradeSeparatedJunctionVersionConfiguration : IEntityTypeConfigurati
         b.Property(x => x.VersionTimestamp).HasColumnName("version_timestamp");
         b.Property(x => x.CreatedOnTimestamp).HasColumnName("created_on_timestamp");
 
+        b.HasIndex(p => p.Id);
         b.HasIndex(p => p.UpperRoadSegmentId);
         b.HasIndex(p => p.LowerRoadSegmentId);
         b.HasIndex(p => p.TypeId);

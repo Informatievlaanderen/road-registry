@@ -11,13 +11,15 @@ public class RoadNodeVersionConfiguration : IEntityTypeConfiguration<RoadNodeVer
     public void Configure(EntityTypeBuilder<RoadNodeVersion> b)
     {
         b.ToTable(TableName, WellKnownSchemas.IntegrationSchema)
-            .HasKey(p => p.Id)
+            .HasKey(p => new { p.Position, p.Id })
             .IsClustered();
 
+        b.Property(p => p.Position).ValueGeneratedNever().IsRequired();
         b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
         b.Property(p => p.Geometry).HasColumnType("Geometry").IsRequired();
         b.Property(p => p.IsRemoved).HasDefaultValue(false).IsRequired();
 
+        b.Property(p => p.Position).HasColumnName("position");
         b.Property(x => x.Id).HasColumnName("id");
         b.Property(x => x.TypeId).HasColumnName("type_id");
         b.Property(x => x.TypeLabel).HasColumnName("type_label");
@@ -34,6 +36,7 @@ public class RoadNodeVersionConfiguration : IEntityTypeConfiguration<RoadNodeVer
         b.Property(p => p.BoundingBoxMinimumX).HasColumnName("bounding_box_minimum_x");
         b.Property(p => p.BoundingBoxMinimumY).HasColumnName("bounding_box_minimum_y");
 
+        b.HasIndex(p => p.Id);
         b.HasIndex(p => p.TypeId);
         b.HasIndex(p => p.TypeLabel);
         b.HasIndex(p => p.IsRemoved);

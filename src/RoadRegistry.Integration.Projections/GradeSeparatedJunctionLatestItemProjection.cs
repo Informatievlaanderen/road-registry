@@ -66,7 +66,8 @@ public class GradeSeparatedJunctionLatestItemProjection : ConnectedProjection<In
         {
             latestItem = new GradeSeparatedJunctionLatestItem
             {
-                Id = added.Id
+                Id = added.Id,
+                CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
             };
             await context.GradeSeparatedJunctions.AddAsync(latestItem, token);
         }
@@ -83,7 +84,6 @@ public class GradeSeparatedJunctionLatestItemProjection : ConnectedProjection<In
         latestItem.TypeLabel = typeTranslation.Name;
         latestItem.OrganizationId = envelope.Message.OrganizationId;
         latestItem.OrganizationName = envelope.Message.Organization;
-        latestItem.CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 

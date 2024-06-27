@@ -13,6 +13,8 @@ using Xunit.Sdk;
 
 public static class IntegrationContextScenarioExtensions
 {
+    public const long InitialPosition = 0L;
+
     //IMPORTANT: Each time you change the db sets on the context, you must adjust this method as well.
     //
     private static Task<object[]> AllRecords(this IntegrationContext context)
@@ -100,7 +102,7 @@ public static class IntegrationContextScenarioExtensions
         await using var context = CreateContextFor(database);
 
         var projector = new ConnectedProjector<IntegrationContext>(specification.Resolver);
-        var position = 0L;
+        var position = InitialPosition;
         foreach (var message in specification.Messages)
         {
             var envelope = new Envelope(message, new Dictionary<string, object>
@@ -174,7 +176,7 @@ public static class IntegrationContextScenarioExtensions
             throw specification.CreateFailedScenarioExceptionFor(result);
         }
     }
-    
+
     public static ConnectedProjectionScenario<IntegrationContext> Scenario(this ConnectedProjection<IntegrationContext> projection)
     {
         return new ConnectedProjectionScenario<IntegrationContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
