@@ -36,6 +36,7 @@ public class RoadNodeVersionConfiguration : IEntityTypeConfiguration<RoadNodeVer
         b.Property(p => p.BoundingBoxMinimumX).HasColumnName("bounding_box_minimum_x");
         b.Property(p => p.BoundingBoxMinimumY).HasColumnName("bounding_box_minimum_y");
 
+        b.HasIndex(p => p.Position);
         b.HasIndex(p => p.Id);
         b.HasIndex(p => p.TypeId);
         b.HasIndex(p => p.TypeLabel);

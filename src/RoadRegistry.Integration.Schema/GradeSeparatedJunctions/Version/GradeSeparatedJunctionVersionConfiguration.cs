@@ -18,6 +18,7 @@ public class GradeSeparatedJunctionVersionConfiguration : IEntityTypeConfigurati
         b.Property(p => p.Id).ValueGeneratedNever().IsRequired();
         b.Property(p => p.IsRemoved).HasDefaultValue(false).IsRequired();
 
+        b.Property(x => x.Position).HasColumnName("position");
         b.Property(x => x.Id).HasColumnName("id");
         b.Property(x => x.UpperRoadSegmentId).HasColumnName("upper_road_segment_id");
         b.Property(x => x.LowerRoadSegmentId).HasColumnName("lower_road_segment_id");
@@ -29,6 +30,7 @@ public class GradeSeparatedJunctionVersionConfiguration : IEntityTypeConfigurati
         b.Property(x => x.VersionTimestamp).HasColumnName("version_timestamp");
         b.Property(x => x.CreatedOnTimestamp).HasColumnName("created_on_timestamp");
 
+        b.HasIndex(p => p.Position);
         b.HasIndex(p => p.Id);
         b.HasIndex(p => p.UpperRoadSegmentId);
         b.HasIndex(p => p.LowerRoadSegmentId);
