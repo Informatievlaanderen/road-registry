@@ -8,7 +8,6 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Microsoft.EntityFrameworkCore;
 using Schema;
 using Schema.RoadSegments;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
@@ -20,6 +19,7 @@ using RoadSegmentVersion = Schema.RoadSegments.Version.RoadSegmentVersion;
  * - RoadSegmentVersionProjection handles all related data (lanes,surfaces,...)
  * - create new Version for each roadsegment change
  */
+
 public partial class RoadSegmentVersionProjection : ConnectedProjection<IntegrationContext>
 {
     public RoadSegmentVersionProjection()
@@ -67,6 +67,8 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
             }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
 
             ImportLanes(envelope, roadSegment, envelope.Message.Lanes);
+            ImportSurfaces(envelope, roadSegment, envelope.Message.Surfaces);
+            ImportWidths(envelope, roadSegment, envelope.Message.Widths);
             
             await context.RoadSegmentVersions.AddAsync(roadSegment, token);
         });
@@ -208,6 +210,8 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
         roadSegment.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
         UpdateLanes(envelope, roadSegment, roadSegmentAdded.Lanes);
+        UpdateSurfaces(envelope, roadSegment, roadSegmentAdded.Surfaces);
+        UpdateWidths(envelope, roadSegment, roadSegmentAdded.Widths);
 
         return roadSegment;
     }
@@ -246,6 +250,8 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
         roadSegment.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
         UpdateLanes(envelope, roadSegment, roadSegmentModified.Lanes);
+        UpdateSurfaces(envelope, roadSegment, roadSegmentModified.Surfaces);
+        UpdateWidths(envelope, roadSegment, roadSegmentModified.Widths);
     }
     
     private static void AddRoadSegmentToEuropeanRoad(
@@ -336,6 +342,8 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
         }
 
         UpdateLanes(envelope, roadSegment, roadSegmentAttributesModified.Lanes);
+        UpdateSurfaces(envelope, roadSegment, roadSegmentAttributesModified.Surfaces);
+        UpdateWidths(envelope, roadSegment, roadSegmentAttributesModified.Widths);
     }
 
     private static void ModifyRoadSegmentGeometry(
@@ -357,6 +365,8 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
         roadSegment.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
         UpdateLanes(envelope, roadSegment, roadSegmentGeometryModified.Lanes);
+        UpdateSurfaces(envelope, roadSegment, roadSegmentGeometryModified.Surfaces);
+        UpdateWidths(envelope, roadSegment, roadSegmentGeometryModified.Widths);
     }
     
     private static void RemoveRoadSegment(
@@ -374,6 +384,8 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
         roadSegment.IsRemoved = true;
 
         RemoveLanes(envelope, roadSegment);
+        RemoveSurfaces(envelope, roadSegment);
+        RemoveWidths(envelope, roadSegment);
     }
 
     private static void UpdateRoadSegmentVersion(

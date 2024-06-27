@@ -10,64 +10,62 @@ using RoadSegmentVersion = Schema.RoadSegments.Version.RoadSegmentVersion;
 
 public partial class RoadSegmentVersionProjection
 {
-    private static void ImportLanes(
+    private static void ImportSurfaces(
         Envelope<ImportedRoadSegment> envelope,
         RoadSegmentVersion roadSegment,
-        ImportedRoadSegmentLaneAttribute[] lanes)
+        ImportedRoadSegmentSurfaceAttribute[] surfaces)
     {
-        roadSegment.Lanes = lanes
-            .Select(laneAttribute =>
+        roadSegment.Surfaces = surfaces
+            .Select(surfaceAttribute =>
             {
-                var laneDirectionTranslation = RoadSegmentLaneDirection.Parse(laneAttribute.Direction).Translation;
+                var surfaceTypeTranslation = RoadSegmentSurfaceType.Parse(surfaceAttribute.Type).Translation;
 
-                return new RoadSegmentLaneAttributeVersion
+                return new RoadSegmentSurfaceAttributeVersion
                 {
                     Position = roadSegment.Position,
-                    Id = laneAttribute.AttributeId,
+                    Id = surfaceAttribute.AttributeId,
                     RoadSegmentId = envelope.Message.Id,
-                    AsOfGeometryVersion = laneAttribute.AsOfGeometryVersion,
-                    Count = laneAttribute.Count,
-                    DirectionId = laneDirectionTranslation.Identifier,
-                    DirectionLabel = laneDirectionTranslation.Name,
-                    FromPosition = (double)laneAttribute.FromPosition,
-                    ToPosition = (double)laneAttribute.ToPosition,
-                    OrganizationId = laneAttribute.Origin.OrganizationId,
-                    OrganizationName = laneAttribute.Origin.Organization,
-                    CreatedOnTimestamp = new DateTimeOffset(laneAttribute.Origin.Since),
-                    VersionTimestamp = new DateTimeOffset(laneAttribute.Origin.Since)
+                    AsOfGeometryVersion = surfaceAttribute.AsOfGeometryVersion,
+                    TypeId = surfaceTypeTranslation.Identifier,
+                    TypeLabel = surfaceTypeTranslation.Name,
+                    FromPosition = (double)surfaceAttribute.FromPosition,
+                    ToPosition = (double)surfaceAttribute.ToPosition,
+                    OrganizationId = surfaceAttribute.Origin.OrganizationId,
+                    OrganizationName = surfaceAttribute.Origin.Organization,
+                    CreatedOnTimestamp = new DateTimeOffset(surfaceAttribute.Origin.Since),
+                    VersionTimestamp = new DateTimeOffset(surfaceAttribute.Origin.Since)
                 };
             })
             .ToList();
     }
 
-    private static void UpdateLanes(
+    private static void UpdateSurfaces(
         Envelope<RoadNetworkChangesAccepted> envelope,
         RoadSegmentVersion roadSegment,
-        RoadSegmentLaneAttributes[] lanes)
+        RoadSegmentSurfaceAttributes[] surfaces)
     {
-        if (lanes is null)
+        if (surfaces is null)
         {
             return;
         }
 
-        var currentSet = roadSegment.Lanes.ToDictionary(a => a.Id);
+        var currentSet = roadSegment.Surfaces.ToDictionary(a => a.Id);
 
-        var nextSet = lanes
-            .Select(laneAttribute =>
+        var nextSet = surfaces
+            .Select(surfaceAttribute =>
             {
-                var laneDirectionTranslation = RoadSegmentLaneDirection.Parse(laneAttribute.Direction).Translation;
+                var surfaceTypeTranslation = RoadSegmentSurfaceType.Parse(surfaceAttribute.Type).Translation;
 
-                return new RoadSegmentLaneAttributeVersion
+                return new RoadSegmentSurfaceAttributeVersion
                 {
                     Position = roadSegment.Position,
-                    Id = laneAttribute.AttributeId,
+                    Id = surfaceAttribute.AttributeId,
                     RoadSegmentId = roadSegment.Id,
-                    AsOfGeometryVersion = laneAttribute.AsOfGeometryVersion,
-                    Count = laneAttribute.Count,
-                    DirectionId = laneDirectionTranslation.Identifier,
-                    DirectionLabel = laneDirectionTranslation.Name,
-                    FromPosition = (double)laneAttribute.FromPosition,
-                    ToPosition = (double)laneAttribute.ToPosition,
+                    AsOfGeometryVersion = surfaceAttribute.AsOfGeometryVersion,
+                    TypeId = surfaceTypeTranslation.Identifier,
+                    TypeLabel = surfaceTypeTranslation.Name,
+                    FromPosition = (double)surfaceAttribute.FromPosition,
+                    ToPosition = (double)surfaceAttribute.ToPosition,
                     OrganizationId = envelope.Message.OrganizationId,
                     OrganizationName = envelope.Message.Organization,
                     CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
@@ -76,15 +74,14 @@ public partial class RoadSegmentVersionProjection
             })
             .ToDictionary(a => a.Id);
 
-        roadSegment.Lanes = Synchronize(
+        roadSegment.Surfaces = Synchronize(
             currentSet,
             nextSet,
             (current, next) =>
             {
                 current.AsOfGeometryVersion = next.AsOfGeometryVersion;
-                current.Count = next.Count;
-                current.DirectionId = next.DirectionId;
-                current.DirectionLabel = next.DirectionLabel;
+                current.TypeId = next.TypeId;
+                current.TypeLabel = next.TypeLabel;
                 current.FromPosition = next.FromPosition;
                 current.ToPosition = next.ToPosition;
                 current.OrganizationId = next.OrganizationId;
@@ -102,11 +99,11 @@ public partial class RoadSegmentVersionProjection
             });
     }
 
-    private static void RemoveLanes(
+    private static void RemoveSurfaces(
         Envelope<RoadNetworkChangesAccepted> envelope,
         RoadSegmentVersion roadSegment)
     {
-        foreach (var version in roadSegment.Lanes)
+        foreach (var version in roadSegment.Surfaces)
         {
             version.OrganizationId = envelope.Message.OrganizationId;
             version.OrganizationName = envelope.Message.Organization;
