@@ -935,7 +935,7 @@ jobs:
       shell: bash
 
     - name: Notify deployment started
-      uses: slackapi/slack-github-action@v1.25.0
+      uses: slackapi/slack-github-action@v1.26.0
       with:
         channel-id: '#team-wegenregister-dev'
         slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to tst has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -956,7 +956,7 @@ jobs:
       shell: bash
 
     - name: Notify deployment finished
-      uses: slackapi/slack-github-action@v1.25.0
+      uses: slackapi/slack-github-action@v1.26.0
       with:
         channel-id: '#team-wegenregister-dev'
         slack-message: ":white_check_mark: Deployment of road-registry ${{ needs.release.outputs.version }} to tst has finished."
@@ -1037,7 +1037,7 @@ jobs:
     steps:
       - name: Notify release skipped
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         with:
           channel-id: '#team-wegenregister-dev'
           slack-message: ":x: Release of road-registry has been skipped. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
@@ -1055,7 +1055,7 @@ jobs:
     steps:
       - name: Notify release skipped
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         with:
           channel-id: '#team-wegenregister-dev'
           slack-message: ":x: Release of road-registry has been skipped. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
@@ -1073,7 +1073,7 @@ jobs:
     steps:
       - name: Notify release failed
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         with:
           channel-id: '#team-wegenregister-dev'
           slack-message: ":x: Release of road-registry has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
@@ -1089,7 +1089,7 @@ jobs:
     steps:
       - name: Notify deployment failed
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         with:
           channel-id: '#team-wegenregister-dev'
           slack-message: ":x: Deployment of road-registry ${{ needs.release.outputs.version }} to tst has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

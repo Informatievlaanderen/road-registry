@@ -62,7 +62,7 @@ jobs:
     steps:
       - name: Notify integration tests failed
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         with:
           channel-id: '#team-wegenregister-dev'
           slack-message: ":x: Integration Tests of road-registry have failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

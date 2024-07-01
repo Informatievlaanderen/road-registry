@@ -51,7 +51,7 @@ jobs:
         echo "ENVIRONMENT_UPPER=${environment,,}" >>${GITHUB_ENV}
 
     - name: Notify deployment started
-      uses: slackapi/slack-github-action@v1.25.0
+      uses: slackapi/slack-github-action@v1.26.0
       with:
         channel-id: '#team-wegenregister-dev'
         slack-message: Deployment of ${{ github.event.inputs.service }} ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -136,7 +136,7 @@ jobs:
       shell: bash
 
     - name: Notify deployment finished
-      uses: slackapi/slack-github-action@v1.25.0
+      uses: slackapi/slack-github-action@v1.26.0
       with:
         channel-id: '#team-wegenregister-dev'
         slack-message: ":white_check_mark: Deployment of ${{ github.event.inputs.service }} ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has finished."
@@ -153,7 +153,7 @@ jobs:
     steps:
       - name: Notify deployment failed
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         with:
           channel-id: '#team-wegenregister-dev'
           slack-message: ":x: Deployment of road-registry ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
