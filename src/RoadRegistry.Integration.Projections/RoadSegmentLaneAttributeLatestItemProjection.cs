@@ -38,8 +38,8 @@ public class RoadSegmentLaneAttributeLatestItemProjection : ConnectedProjection<
                         ToPosition = (double)laneAttribute.ToPosition,
                         OrganizationId = laneAttribute.Origin.OrganizationId,
                         OrganizationName = laneAttribute.Origin.Organization,
-                        CreatedOnTimestamp = new DateTimeOffset(laneAttribute.Origin.Since),
-                        VersionTimestamp = new DateTimeOffset(laneAttribute.Origin.Since)
+                        CreatedOnTimestamp = laneAttribute.Origin.Since.ToBelgianInstant(),
+                        VersionTimestamp = laneAttribute.Origin.Since.ToBelgianInstant()
                     };
                 });
 

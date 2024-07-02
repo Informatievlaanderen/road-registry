@@ -50,8 +50,8 @@ public class GradeSeparatedJunctionLatestItemProjectionTests
                 LowerRoadSegmentId = junction.LowerRoadSegmentId,
                 TypeId = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Identifier,
                 TypeLabel = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Name,
-                CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When),
-                VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When),
+                CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When).ToBelgianInstant(),
+                VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When).ToBelgianInstant(),
                 OrganizationId = message.OrganizationId,
                 OrganizationName = message.Organization
             };
@@ -77,8 +77,8 @@ public class GradeSeparatedJunctionLatestItemProjectionTests
                     LowerRoadSegmentId = junction.LowerRoadSegmentId,
                     TypeId = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Identifier,
                     TypeLabel = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Name,
-                    CreatedOnTimestamp = junction.Origin.Since,
-                    VersionTimestamp = junction.Origin.Since,
+                    CreatedOnTimestamp = junction.Origin.Since.ToBelgianInstant(),
+                    VersionTimestamp = junction.Origin.Since.ToBelgianInstant(),
                     OrganizationId = junction.Origin.OrganizationId,
                     OrganizationName = junction.Origin.Organization
                 };
@@ -119,8 +119,8 @@ public class GradeSeparatedJunctionLatestItemProjectionTests
                 LowerRoadSegmentId = junction.LowerRoadSegmentId,
                 TypeId = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Identifier,
                 TypeLabel = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Name,
-                CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedGradeSeparatedJunctionAdded.When),
-                VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedGradeSeparatedJunctionModified.When),
+                CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedGradeSeparatedJunctionAdded.When).ToBelgianInstant(),
+                VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedGradeSeparatedJunctionModified.When).ToBelgianInstant(),
                 OrganizationId = acceptedGradeSeparatedJunctionModified.OrganizationId,
                 OrganizationName = acceptedGradeSeparatedJunctionModified.Organization
             };
@@ -156,8 +156,8 @@ public class GradeSeparatedJunctionLatestItemProjectionTests
                 LowerRoadSegmentId = junction.LowerRoadSegmentId,
                 TypeId = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Identifier,
                 TypeLabel = GradeSeparatedJunctionType.Parse(junction.Type).Translation.Name,
-                CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedGradeSeparatedJunctionAdded.When),
-                VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedGradeSeparatedJunctionRemoved.When),
+                CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedGradeSeparatedJunctionAdded.When).ToBelgianInstant(),
+                VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedGradeSeparatedJunctionRemoved.When).ToBelgianInstant(),
                 OrganizationId = acceptedGradeSeparatedJunctionRemoved.OrganizationId,
                 OrganizationName = acceptedGradeSeparatedJunctionRemoved.Organization,
                 IsRemoved = true

@@ -9,9 +9,14 @@ public static class LocalDateTimeTranslator
     private static readonly DateTimeZone LocalTimeZone =
         DateTimeZoneProviders.Tzdb["Europe/Brussels"];
 
-    public static DateTime TranslateFromWhen(string value)
+    public static Instant TranslateFromWhen(string value)
     {
-        return new ZonedDateTime(InstantPattern.ExtendedIso.Parse(value).Value, LocalTimeZone)
-            .ToDateTimeUnspecified();
+        return Instant.FromDateTimeOffset(new ZonedDateTime(InstantPattern.ExtendedIso.Parse(value).Value, LocalTimeZone)
+            .ToDateTimeUnspecified());
+    }
+
+    public static Instant ToBelgianInstant(this DateTime value)
+    {
+        return Instant.FromDateTimeOffset(new DateTimeOffset(value));
     }
 }

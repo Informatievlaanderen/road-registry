@@ -87,7 +87,7 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_importing_a_road_node_without_numbered_road_links()
+    public Task When_importing_a_road_segment_without_numbered_road_links()
     {
         var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
         importedRoadSegment.PartOfNumberedRoads = [];
@@ -99,7 +99,7 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_importing_road_nodes()
+    public Task When_importing_road_segments()
     {
         var random = new Random();
         var data = _fixture
@@ -122,8 +122,8 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjectionTests
                         SequenceNumber = numberedRoad.Ordinal,
                         OrganizationId = numberedRoad.Origin.OrganizationId,
                         OrganizationName = numberedRoad.Origin.Organization,
-                        CreatedOnTimestamp = new DateTimeOffset(numberedRoad.Origin.Since),
-                        VersionTimestamp = new DateTimeOffset(numberedRoad.Origin.Since)
+                        CreatedOnTimestamp = numberedRoad.Origin.Since.ToBelgianInstant(),
+                        VersionTimestamp = numberedRoad.Origin.Since.ToBelgianInstant()
                     });
 
                 return new

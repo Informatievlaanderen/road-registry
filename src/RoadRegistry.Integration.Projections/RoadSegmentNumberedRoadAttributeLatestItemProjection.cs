@@ -36,8 +36,8 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjection : ConnectedPro
                         SequenceNumber = numberedRoad.Ordinal,
                         OrganizationId = numberedRoad.Origin.OrganizationId,
                         OrganizationName = numberedRoad.Origin.Organization,
-                        CreatedOnTimestamp = new DateTimeOffset(numberedRoad.Origin.Since),
-                        VersionTimestamp = new DateTimeOffset(numberedRoad.Origin.Since)
+                        CreatedOnTimestamp = numberedRoad.Origin.Since.ToBelgianInstant(),
+                        VersionTimestamp = numberedRoad.Origin.Since.ToBelgianInstant()
                     };
                 });
             return context.RoadSegmentNumberedRoadAttributes.AddRangeAsync(numberedRoadAttributes, token);

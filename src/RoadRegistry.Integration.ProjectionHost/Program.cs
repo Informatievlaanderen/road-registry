@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Projections;
+using Projections.Version;
 using Schema;
 
 public class Program
@@ -78,9 +79,19 @@ public class Program
                     new RoadSegmentWidthAttributeLatestItemProjection(),
                     new GradeSeparatedJunctionLatestItemProjection()
                 ])
-                 .AddIntegrationContextEventProcessor<OrganizationLatestItemEventProcessor>(_ =>
+                .AddIntegrationContextEventProcessor<OrganizationLatestItemEventProcessor>(_ =>
                 [
                     new OrganizationLatestItemProjection()
+                ])
+                .AddIntegrationContextEventProcessor<RoadNetworkVersionEventProcessor>(_ =>
+                [
+                    new RoadNodeVersionProjection(),
+                    new RoadSegmentVersionProjection(),
+                    new GradeSeparatedJunctionVersionProjection()
+                ])
+                .AddIntegrationContextEventProcessor<OrganizationVersionEventProcessor>(_ =>
+                [
+                    new OrganizationVersionProjection()
                 ])
                 ;
         })

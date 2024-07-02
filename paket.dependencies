@@ -139,6 +139,7 @@ nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing 13.0.0
 nuget Be.Vlaanderen.Basisregisters.Testing.Infrastructure.Events 4.0.0 content: true, copy_content_to_output_dir: always, copy_local: true
 nuget Be.Vlaanderen.Basisregisters.TicketingService.Abstractions 2.0.1
 nuget Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy 2.0.1
+nuget Be.Vlaanderen.Basisregisters.Utilities.Rfc3339DateTimeOffset 4.0.0
 
 // MICROSOFT STUFF
 nuget Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore 8.0.3

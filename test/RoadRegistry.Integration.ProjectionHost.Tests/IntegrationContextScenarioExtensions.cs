@@ -13,21 +13,28 @@ using Xunit.Sdk;
 
 public static class IntegrationContextScenarioExtensions
 {
+    public const long InitialPosition = 0L;
+
     //IMPORTANT: Each time you change the db sets on the context, you must adjust this method as well.
     //
     private static Task<object[]> AllRecords(this IntegrationContext context)
     {
         var records = new List<object>();
-        records.AddRange(context.RoadSegments.Local);
-        records.AddRange(context.RoadNodes.Local);
         records.AddRange(context.Organizations.Local);
+        records.AddRange(context.RoadNodes.Local);
+        records.AddRange(context.RoadSegments.Local);
         records.AddRange(context.RoadSegmentLaneAttributes.Local);
+        records.AddRange(context.RoadSegmentSurfaceAttributes.Local);
+        records.AddRange(context.RoadSegmentWidthAttributes.Local);
         records.AddRange(context.RoadSegmentEuropeanRoadAttributes.Local);
         records.AddRange(context.RoadSegmentNationalRoadAttributes.Local);
         records.AddRange(context.RoadSegmentNumberedRoadAttributes.Local);
         records.AddRange(context.GradeSeparatedJunctions.Local);
-        records.AddRange(context.RoadSegmentSurfaceAttributes.Local);
-        records.AddRange(context.RoadSegmentWidthAttributes.Local);
+
+        records.AddRange(context.OrganizationVersions.Local);
+        records.AddRange(context.RoadNodeVersions.Local);
+        records.AddRange(context.RoadSegmentVersions.Local);
+        records.AddRange(context.GradeSeparatedJunctionVersions.Local);
 
         return Task.FromResult(records.ToArray());
     }
@@ -95,7 +102,7 @@ public static class IntegrationContextScenarioExtensions
         await using var context = CreateContextFor(database);
 
         var projector = new ConnectedProjector<IntegrationContext>(specification.Resolver);
-        var position = 0L;
+        var position = InitialPosition;
         foreach (var message in specification.Messages)
         {
             var envelope = new Envelope(message, new Dictionary<string, object>
@@ -158,37 +165,6 @@ public static class IntegrationContextScenarioExtensions
             }).ToGenericEnvelope();
             await projector.ProjectAsync(context, envelope);
             position++;
-        }
-
-        await context.SaveChangesAsync();
-
-        var result = await specification.Verification(context, CancellationToken.None);
-
-        if (result.Failed)
-        {
-            throw specification.CreateFailedScenarioExceptionFor(result);
-        }
-    }
-
-    public static async Task ExpectNone(this ConnectedProjectionScenario<IntegrationContext> scenario)
-    {
-        var database = Guid.NewGuid().ToString("N");
-
-        var specification = scenario.Verify(async context =>
-        {
-            var actualRecords = await context.AllRecords();
-            return actualRecords.Length == 0
-                ? VerificationResult.Pass()
-                : VerificationResult.Fail($"Expected 0 records but found {actualRecords.Length}.");
-        });
-
-        await using var context = CreateContextFor(database);
-
-        var projector = new ConnectedProjector<IntegrationContext>(specification.Resolver);
-        foreach (var message in specification.Messages)
-        {
-            var envelope = new Envelope(message, new Dictionary<string, object>()).ToGenericEnvelope();
-            await projector.ProjectAsync(context, envelope);
         }
 
         await context.SaveChangesAsync();

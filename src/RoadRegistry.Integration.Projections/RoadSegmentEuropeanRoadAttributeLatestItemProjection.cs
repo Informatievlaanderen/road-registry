@@ -28,8 +28,8 @@ public class RoadSegmentEuropeanRoadAttributeLatestItemProjection : ConnectedPro
                     Number = europeanRoad.Number,
                     OrganizationId = europeanRoad.Origin.OrganizationId,
                     OrganizationName = europeanRoad.Origin.Organization,
-                    CreatedOnTimestamp = new DateTimeOffset(europeanRoad.Origin.Since),
-                    VersionTimestamp = new DateTimeOffset(europeanRoad.Origin.Since)
+                    CreatedOnTimestamp = europeanRoad.Origin.Since.ToBelgianInstant(),
+                    VersionTimestamp = europeanRoad.Origin.Since.ToBelgianInstant()
                 });
 
             return context.AddRangeAsync(europeanRoadAttributes, token);
