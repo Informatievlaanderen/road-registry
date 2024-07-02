@@ -33,12 +33,9 @@
 import Vue from "vue";
 import { trimEnd } from "lodash";
 import Map from "ol/Map";
-import { WR_ENV, API_ENDPOINT, API_OLDENDPOINT } from "@/environment";
+import { API_OLDENDPOINT } from "@/environment";
 
-const usePublicApi = WR_ENV !== "development";
-const geoJsonBaseUrl = usePublicApi
-  ? `${trimEnd(API_ENDPOINT, "/")}/v1/wegen/extract`
-  : `${trimEnd(API_OLDENDPOINT, "/")}/v1/extracts`;
+const geoJsonBaseUrl = `${trimEnd(API_OLDENDPOINT, "/")}/v1/extracts`;
 
 export default Vue.extend({
   computed: {
