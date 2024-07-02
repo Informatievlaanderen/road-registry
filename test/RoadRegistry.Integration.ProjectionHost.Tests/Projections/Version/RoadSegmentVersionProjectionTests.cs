@@ -386,8 +386,8 @@ public partial class RoadSegmentVersionProjectionTests
 
             OrganizationId = importedRoadSegment.Origin.OrganizationId,
             OrganizationName = importedRoadSegment.Origin.Organization,
-            CreatedOnTimestamp = new DateTimeOffset(importedRoadSegment.RecordingDate),
-            VersionTimestamp = new DateTimeOffset(importedRoadSegment.Origin.Since),
+            CreatedOnTimestamp = importedRoadSegment.RecordingDate.ToBelgianInstant(),
+            VersionTimestamp = importedRoadSegment.Origin.Since.ToBelgianInstant(),
 
             Lanes = importedRoadSegment.Lanes
                 .Select(x => new RoadSegmentLaneAttributeVersion
@@ -404,8 +404,8 @@ public partial class RoadSegmentVersionProjectionTests
 
                     OrganizationId = x.Origin.OrganizationId,
                     OrganizationName = x.Origin.Organization,
-                    CreatedOnTimestamp = new DateTimeOffset(x.Origin.Since),
-                    VersionTimestamp = new DateTimeOffset(x.Origin.Since)
+                    CreatedOnTimestamp = x.Origin.Since.ToBelgianInstant(),
+                    VersionTimestamp = x.Origin.Since.ToBelgianInstant()
                 })
                 .ToList(),
             Surfaces = importedRoadSegment.Surfaces
@@ -422,8 +422,8 @@ public partial class RoadSegmentVersionProjectionTests
 
                     OrganizationId = x.Origin.OrganizationId,
                     OrganizationName = x.Origin.Organization,
-                    CreatedOnTimestamp = new DateTimeOffset(x.Origin.Since),
-                    VersionTimestamp = new DateTimeOffset(x.Origin.Since)
+                    CreatedOnTimestamp = x.Origin.Since.ToBelgianInstant(),
+                    VersionTimestamp = x.Origin.Since.ToBelgianInstant()
                 })
                 .ToList(),
             Widths = importedRoadSegment.Widths
@@ -440,8 +440,8 @@ public partial class RoadSegmentVersionProjectionTests
 
                     OrganizationId = x.Origin.OrganizationId,
                     OrganizationName = x.Origin.Organization,
-                    CreatedOnTimestamp = new DateTimeOffset(x.Origin.Since),
-                    VersionTimestamp = new DateTimeOffset(x.Origin.Since)
+                    CreatedOnTimestamp = x.Origin.Since.ToBelgianInstant(),
+                    VersionTimestamp = x.Origin.Since.ToBelgianInstant()
                 })
                 .ToList(),
             PartOfEuropeanRoads = importedRoadSegment.PartOfEuropeanRoads
@@ -454,8 +454,8 @@ public partial class RoadSegmentVersionProjectionTests
 
                     OrganizationId = x.Origin.OrganizationId,
                     OrganizationName = x.Origin.Organization,
-                    CreatedOnTimestamp = new DateTimeOffset(x.Origin.Since),
-                    VersionTimestamp = new DateTimeOffset(x.Origin.Since)
+                    CreatedOnTimestamp = x.Origin.Since.ToBelgianInstant(),
+                    VersionTimestamp = x.Origin.Since.ToBelgianInstant()
                 })
                 .ToList(),
             PartOfNationalRoads = importedRoadSegment.PartOfNationalRoads
@@ -468,8 +468,8 @@ public partial class RoadSegmentVersionProjectionTests
 
                     OrganizationId = x.Origin.OrganizationId,
                     OrganizationName = x.Origin.Organization,
-                    CreatedOnTimestamp = new DateTimeOffset(x.Origin.Since),
-                    VersionTimestamp = new DateTimeOffset(x.Origin.Since)
+                    CreatedOnTimestamp = x.Origin.Since.ToBelgianInstant(),
+                    VersionTimestamp = x.Origin.Since.ToBelgianInstant()
                 })
                 .ToList(),
             PartOfNumberedRoads = importedRoadSegment.PartOfNumberedRoads
@@ -488,8 +488,8 @@ public partial class RoadSegmentVersionProjectionTests
                         SequenceNumber = x.Ordinal,
                         OrganizationId = x.Origin.OrganizationId,
                         OrganizationName = x.Origin.Organization,
-                        CreatedOnTimestamp = new DateTimeOffset(x.Origin.Since),
-                        VersionTimestamp = new DateTimeOffset(x.Origin.Since)
+                        CreatedOnTimestamp = x.Origin.Since.ToBelgianInstant(),
+                        VersionTimestamp = x.Origin.Since.ToBelgianInstant()
                     };
                 })
                 .ToList()

@@ -116,8 +116,8 @@ public class RoadSegmentNationalRoadAttributeLatestItemProjectionTests
                         Number = nationalRoad.Number,
                         OrganizationId = nationalRoad.Origin.OrganizationId,
                         OrganizationName = nationalRoad.Origin.Organization,
-                        CreatedOnTimestamp = new DateTimeOffset(nationalRoad.Origin.Since),
-                        VersionTimestamp = new DateTimeOffset(nationalRoad.Origin.Since)
+                        CreatedOnTimestamp = nationalRoad.Origin.Since.ToBelgianInstant(),
+                        VersionTimestamp = nationalRoad.Origin.Since.ToBelgianInstant()
                     });
 
                 return new

@@ -565,8 +565,8 @@ public class RoadSegmentLatestItemProjectionTests
                     MethodId = geometryDrawMethodTranslation.Identifier,
                     AccessRestrictionId = accessRestrictionTranslation.Identifier,
 
-                    CreatedOnTimestamp = importedRoadSegment.RecordingDate,
-                    VersionTimestamp = importedRoadSegment.Origin.Since,
+                    CreatedOnTimestamp = importedRoadSegment.RecordingDate.ToBelgianInstant(),
+                    VersionTimestamp = importedRoadSegment.Origin.Since.ToBelgianInstant(),
                     OrganizationId = importedRoadSegment.Origin.OrganizationId,
                     OrganizationName = importedRoadSegment.Origin.Organization,
 

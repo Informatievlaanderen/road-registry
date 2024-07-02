@@ -53,8 +53,8 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
                     AccessRestrictionId = accessRestrictionTranslation.Identifier,
                     AccessRestrictionLabel = accessRestrictionTranslation.Name,
                     
-                    CreatedOnTimestamp = Instant.FromDateTimeOffset(new DateTimeOffset(envelope.Message.RecordingDate)),
-                    VersionTimestamp = Instant.FromDateTimeOffset(new DateTimeOffset(envelope.Message.Origin.Since)),
+                    CreatedOnTimestamp = envelope.Message.RecordingDate.ToBelgianInstant(),
+                    VersionTimestamp = envelope.Message.Origin.Since.ToBelgianInstant(),
                     OrganizationId = envelope.Message.Origin.OrganizationId,
                     OrganizationName = envelope.Message.Origin.Organization
                 }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape)),

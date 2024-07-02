@@ -110,8 +110,8 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
                         OrganizationId = width.Origin.OrganizationId,
                         OrganizationName = width.Origin.Organization,
                         IsRemoved = false,
-                        CreatedOnTimestamp = new DateTimeOffset(width.Origin.Since),
-                        VersionTimestamp = new DateTimeOffset(width.Origin.Since)
+                        CreatedOnTimestamp = width.Origin.Since.ToBelgianInstant(),
+                        VersionTimestamp = width.Origin.Since.ToBelgianInstant()
                     });
 
                 return new
