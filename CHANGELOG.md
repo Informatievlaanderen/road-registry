@@ -1,3 +1,16 @@
+# [4.2.0](https://github.com/informatievlaanderen/road-registry/compare/v4.1.7...v4.2.0) (2024-07-02)
+
+
+### Bug Fixes
+
+* always use backoffice-api for transaction zone layers ([#1515](https://github.com/informatievlaanderen/road-registry/issues/1515)) ([1c74a50](https://github.com/informatievlaanderen/road-registry/commit/1c74a50013c47c0820f08d7b112c3c0ca78a7689))
+* revert temporary logging ([#1513](https://github.com/informatievlaanderen/road-registry/issues/1513)) ([36b4839](https://github.com/informatievlaanderen/road-registry/commit/36b483967d8c60ee2c7914fd7f7c19d297e3275d))
+
+
+### Features
+
+* integration latest item projections ([220074e](https://github.com/informatievlaanderen/road-registry/commit/220074e48bb7be0607fc0de226424ea10407791a))
+
 ## [4.1.7](https://github.com/informatievlaanderen/road-registry/compare/v4.1.6...v4.1.7) (2024-06-21)
 
 
