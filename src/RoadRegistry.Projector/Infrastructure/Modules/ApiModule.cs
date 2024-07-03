@@ -258,9 +258,39 @@ public class ApiModule : Module
     {
         RegisterProjection<IntegrationContext>(new ProjectionDetail
         {
-            Id = "roadregistry-integration-projectionhost",
+            Id = "roadregistry-integration-organization-latestitem-projectionhost",
             Description = "",
-            Name = "Integration",
+            Name = "Integration - Organization Latest Item",
+            WellKnownConnectionName = WellKnownConnectionNames.IntegrationProjections,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
+        });
+
+        RegisterProjection<IntegrationContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-integration-organization-version-projectionhost",
+            Description = "",
+            Name = "Integration - Organization Version",
+            WellKnownConnectionName = WellKnownConnectionNames.IntegrationProjections,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
+        });
+
+        RegisterProjection<IntegrationContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-integration-roadnetwork-latestitem-projectionhost",
+            Description = "",
+            Name = "Integration - RoadNetwork Latest Item",
+            WellKnownConnectionName = WellKnownConnectionNames.IntegrationProjections,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
+        });
+
+        RegisterProjection<IntegrationContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-integration-roadnetwork-version-projectionhost",
+            Description = "",
+            Name = "Integration - RoadNetwork Version",
             WellKnownConnectionName = WellKnownConnectionNames.IntegrationProjections,
             FallbackDesiredState = "subscribed",
             IsSyndication = false
