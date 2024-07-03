@@ -54,7 +54,7 @@ public class RoadSegmentEuropeanRoadAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_adding_road_nodes()
+    public Task When_adding_road_segments()
     {
         var message = _fixture
             .Create<RoadNetworkChangesAccepted>()
@@ -83,7 +83,7 @@ public class RoadSegmentEuropeanRoadAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_importing_a_road_node_without_european_road_links()
+    public Task When_importing_a_road_segment_without_european_road_links()
     {
         var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
         importedRoadSegment.PartOfEuropeanRoads = [];
@@ -95,7 +95,7 @@ public class RoadSegmentEuropeanRoadAttributeLatestItemProjectionTests
     }
 
     [Fact]
-    public Task When_importing_road_nodes()
+    public Task When_importing_road_segments()
     {
         var random = new Random();
         var data = _fixture
@@ -115,8 +115,8 @@ public class RoadSegmentEuropeanRoadAttributeLatestItemProjectionTests
                         Number = europeanRoad.Number,
                         OrganizationId = europeanRoad.Origin.OrganizationId,
                         OrganizationName = europeanRoad.Origin.Organization,
-                        CreatedOnTimestamp = new DateTimeOffset(europeanRoad.Origin.Since),
-                        VersionTimestamp = new DateTimeOffset(europeanRoad.Origin.Since)
+                        CreatedOnTimestamp = europeanRoad.Origin.Since.ToBelgianInstant(),
+                        VersionTimestamp = europeanRoad.Origin.Since.ToBelgianInstant()
                     });
 
                 return new

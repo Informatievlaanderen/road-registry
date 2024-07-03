@@ -113,8 +113,8 @@ public class RoadSegmentLaneAttributeLatestItemProjectionTests
                         OrganizationId = lane.Origin.OrganizationId,
                         OrganizationName = lane.Origin.Organization,
                         IsRemoved = false,
-                        CreatedOnTimestamp = new DateTimeOffset(lane.Origin.Since),
-                        VersionTimestamp = new DateTimeOffset(lane.Origin.Since)
+                        CreatedOnTimestamp = lane.Origin.Since.ToBelgianInstant(),
+                        VersionTimestamp = lane.Origin.Since.ToBelgianInstant()
                     });
 
                 return new

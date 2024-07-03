@@ -110,8 +110,8 @@ public class RoadSegmentSurfaceAttributeLatestItemProjectionTests
                         OrganizationId = surface.Origin.OrganizationId,
                         OrganizationName = surface.Origin.Organization,
                         IsRemoved = false,
-                        CreatedOnTimestamp = new DateTimeOffset(surface.Origin.Since),
-                        VersionTimestamp = new DateTimeOffset(surface.Origin.Since)
+                        CreatedOnTimestamp = surface.Origin.Since.ToBelgianInstant(),
+                        VersionTimestamp = surface.Origin.Since.ToBelgianInstant()
                     });
 
                 return new

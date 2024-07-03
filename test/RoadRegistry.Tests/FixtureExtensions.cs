@@ -19,6 +19,13 @@ using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public static class Customizations
 {
+    public static T CreateWith<T>(this IFixture fixture, Action<T> modify)
+    {
+        var value = fixture.Create<T>();
+        modify(value);
+        return value;
+    }
+
     public static MemoryStream CreateDbfFile<T>(this IFixture fixture, DbaseSchema schema, ICollection<T> records, Action<T> updateRecord = null)
         where T : DbaseRecord
     {
@@ -455,14 +462,15 @@ public static class Customizations
                         GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
                         LeftSide = fixture.Create<ImportedRoadSegmentSideAttribute>(),
                         RightSide = fixture.Create<ImportedRoadSegmentSideAttribute>(),
-                        Lanes = fixture.CreateMany<ImportedRoadSegmentLaneAttribute>(generator.Next(0, 10)).ToArray(),
-                        Widths = fixture.CreateMany<ImportedRoadSegmentWidthAttribute>(generator.Next(0, 10)).ToArray(),
-                        Surfaces = fixture.CreateMany<ImportedRoadSegmentSurfaceAttribute>(generator.Next(0, 10)).ToArray(),
-                        PartOfEuropeanRoads = fixture.CreateMany<ImportedRoadSegmentEuropeanRoadAttribute>(generator.Next(0, 10)).ToArray(),
-                        PartOfNationalRoads = fixture.CreateMany<ImportedRoadSegmentNationalRoadAttribute>(generator.Next(0, 10)).ToArray(),
-                        PartOfNumberedRoads = fixture.CreateMany<ImportedRoadSegmentNumberedRoadAttribute>(generator.Next(0, 10)).ToArray(),
+                        Lanes = fixture.CreateMany<ImportedRoadSegmentLaneAttribute>(generator.Next(1, 10)).ToArray(),
+                        Widths = fixture.CreateMany<ImportedRoadSegmentWidthAttribute>(generator.Next(1, 10)).ToArray(),
+                        Surfaces = fixture.CreateMany<ImportedRoadSegmentSurfaceAttribute>(generator.Next(1, 10)).ToArray(),
+                        PartOfEuropeanRoads = fixture.CreateMany<ImportedRoadSegmentEuropeanRoadAttribute>(generator.Next(1, 10)).ToArray(),
+                        PartOfNationalRoads = fixture.CreateMany<ImportedRoadSegmentNationalRoadAttribute>(generator.Next(1, 10)).ToArray(),
+                        PartOfNumberedRoads = fixture.CreateMany<ImportedRoadSegmentNumberedRoadAttribute>(generator.Next(1, 10)).ToArray(),
                         RecordingDate = fixture.Create<DateTime>(),
-                        Origin = fixture.Create<ImportedOriginProperties>()
+                        Origin = fixture.Create<ImportedOriginProperties>(),
+                        When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
                     }
                 )
                 .OmitAutoProperties()
@@ -1188,5 +1196,48 @@ public static class Customizations
         return new PolygonShapeContent(
             Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPolygon(polygon)
         );
+    }
+
+    public static IEnumerable<RequestedChange> CreateAllRequestedChanges(this Fixture fixture)
+    {
+        var changeProperties = typeof(RequestedChange).GetProperties();
+        Assert.NotEmpty(changeProperties);
+
+        var data = fixture
+            .Create<RequestedChange>();
+
+        foreach (var changeProperty in changeProperties)
+        {
+            var change = new RequestedChange();
+
+            var changeValue = changeProperty.GetValue(data);
+            Assert.NotNull(changeValue);
+            changeProperty.SetValue(change, changeValue);
+
+            yield return change;
+        }
+    }
+
+    public static IEnumerable<AcceptedChange> CreateAllAcceptedChanges(this Fixture fixture)
+    {
+        var changeProperties = typeof(AcceptedChange)
+            .GetProperties()
+            .Where(x => x.Name != nameof(AcceptedChange.Problems))
+            .ToArray();
+        Assert.NotEmpty(changeProperties);
+
+        var data = fixture
+            .Create<AcceptedChange>();
+
+        foreach (var changeProperty in changeProperties)
+        {
+            var change = new AcceptedChange();
+
+            var changeValue = changeProperty.GetValue(data);
+            Assert.NotNull(changeValue);
+            changeProperty.SetValue(change, changeValue);
+
+            yield return change;
+        }
     }
 }

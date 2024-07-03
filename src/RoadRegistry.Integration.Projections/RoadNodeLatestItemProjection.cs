@@ -8,6 +8,7 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using NodaTime;
 using Schema;
 using Schema.RoadNodes;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
@@ -32,8 +33,8 @@ public class RoadNodeLatestItemProjection : ConnectedProjection<IntegrationConte
                 OrganizationId = envelope.Message.Origin.OrganizationId,
                 OrganizationName = envelope.Message.Origin.Organization,
                 Geometry = BackOffice.GeometryTranslator.Translate(envelope.Message.Geometry),
-                CreatedOnTimestamp = new DateTimeOffset(envelope.Message.Origin.Since),
-                VersionTimestamp = new DateTimeOffset(envelope.Message.Origin.Since),
+                CreatedOnTimestamp = envelope.Message.Origin.Since.ToBelgianInstant(),
+                VersionTimestamp = envelope.Message.Origin.Since.ToBelgianInstant(),
             }.WithBoundingBox(RoadNodeBoundingBox.From(pointShapeContent.Shape)), token);
         });
 

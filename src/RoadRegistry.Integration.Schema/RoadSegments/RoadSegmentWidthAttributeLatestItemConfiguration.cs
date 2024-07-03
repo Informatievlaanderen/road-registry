@@ -27,15 +27,20 @@ public class RoadSegmentWidthAttributeLatestItemConfiguration : IEntityTypeConfi
         b.Property(x => x.OrganizationId).HasColumnName("organization_id");
         b.Property(x => x.OrganizationName).HasColumnName("organization_name");
         b.Property(x => x.IsRemoved).HasColumnName("is_removed");
-        b.Property(x => x.VersionTimestamp).HasColumnName("version_timestamp");
-        b.Property(x => x.CreatedOnTimestamp).HasColumnName("created_on_timestamp");
+        b.Property(x => x.VersionAsString).HasColumnName("version_as_string");
+        b.Property(RoadSegmentWidthAttributeLatestItem.VersionTimestampBackingPropertyName).HasColumnName("version_timestamp");
+        b.Property(x => x.CreatedOnAsString).HasColumnName("created_on_as_string");
+        b.Property(RoadSegmentWidthAttributeLatestItem.CreatedOnTimestampBackingPropertyName).HasColumnName("created_on_timestamp");
+
+        b.Ignore(x => x.VersionTimestamp);
+        b.Ignore(x => x.CreatedOnTimestamp);
 
         b.HasIndex(p => p.RoadSegmentId);
         b.HasIndex(p => p.Width);
         b.HasIndex(p => p.WidthLabel);
         b.HasIndex(p => p.OrganizationId);
         b.HasIndex(p => p.OrganizationName);
-        b.HasIndex(p => p.VersionTimestamp);
+        b.HasIndex(RoadSegmentWidthAttributeLatestItem.VersionTimestampBackingPropertyName);
         b.HasIndex(p => p.IsRemoved);
     }
 }

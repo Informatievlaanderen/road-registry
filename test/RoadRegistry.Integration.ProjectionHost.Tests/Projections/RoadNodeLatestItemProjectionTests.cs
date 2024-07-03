@@ -178,8 +178,8 @@ public class RoadNodeLatestItemProjectionTests
                     OrganizationName =  @event.Origin.Organization,
                     IsRemoved = false,
                     Geometry = point,
-                    CreatedOnTimestamp = @event.Origin.Since,
-                    VersionTimestamp = @event.Origin.Since
+                    CreatedOnTimestamp = @event.Origin.Since.ToBelgianInstant(),
+                    VersionTimestamp = @event.Origin.Since.ToBelgianInstant()
                 }.WithBoundingBox(RoadNodeBoundingBox.From(pointShapeContent.Shape));
 
                 return new

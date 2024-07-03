@@ -2,8 +2,8 @@ namespace RoadRegistry.BackOffice.CommandHost.Tests
 {
     using System.Linq;
     using AutoFixture;
+    using Messages;
     using RoadRegistry.BackOffice.Core;
-    using RoadRegistry.BackOffice.Messages;
     using RoadRegistry.Tests.BackOffice;
     using RoadRegistry.Tests.BackOffice.Scenarios;
     using Xunit.Sdk;
@@ -11,7 +11,6 @@ namespace RoadRegistry.BackOffice.CommandHost.Tests
     using AddRoadNode = Messages.AddRoadNode;
     using ModifyGradeSeparatedJunction = Messages.ModifyGradeSeparatedJunction;
     using ModifyRoadNode = Messages.ModifyRoadNode;
-    using ModifyRoadSegment = Messages.ModifyRoadSegment;
     using ModifyRoadSegmentOnNumberedRoad = Messages.ModifyRoadSegmentOnNumberedRoad;
     using RemoveGradeSeparatedJunction = Messages.RemoveGradeSeparatedJunction;
     using RemoveOutlinedRoadSegmentFromRoadNetwork = Messages.RemoveOutlinedRoadSegmentFromRoadNetwork;
@@ -75,35 +74,25 @@ namespace RoadRegistry.BackOffice.CommandHost.Tests
             fixture.CustomizeRemoveRoadSegmentFromNationalRoad();
             fixture.CustomizeRemoveRoadSegmentFromNumberedRoad();
             
-            var changeProperties = typeof(RequestedChange).GetProperties();
-            Assert.NotEmpty(changeProperties);
-
-            var requestedChangeData = fixture
-                .Create<RequestedChange>();
-
             var unhandledChangeTypes = new List<Type>();
 
-            foreach (var changeProperty in changeProperties)
+            foreach (var requestedChange in fixture.CreateAllRequestedChanges())
             {
-                var requestedChange = new RequestedChange();
-
-                var changeValue = changeProperty.GetValue(requestedChangeData);
-                Assert.NotNull(changeValue);
-                changeProperty.SetValue(requestedChange, changeValue);
-
                 var streamChanges = RequestedChangesConverter.SplitChangesByRoadNetworkStream([requestedChange]);
                 Assert.Single(streamChanges.Keys);
                 Assert.Single(streamChanges.Values);
                 Assert.Single(streamChanges.Values.Single());
 
+                var changePropertyType = requestedChange.Flatten().GetType();
+
                 var actualStreamName = streamChanges.Keys.Single();
-                var expectedStreamName = changeTypesThatAlwaysBelongInDefaultRoadNetwork.Contains(changeProperty.PropertyType)
+                var expectedStreamName = changeTypesThatAlwaysBelongInDefaultRoadNetwork.Contains(changePropertyType)
                     ? RoadNetworkStreamNameProvider.Default
                     : RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(roadSegmentId);
 
                 if (expectedStreamName != actualStreamName)
                 {
-                    unhandledChangeTypes.Add(changeProperty.PropertyType);
+                    unhandledChangeTypes.Add(changePropertyType);
                 }
             }
 

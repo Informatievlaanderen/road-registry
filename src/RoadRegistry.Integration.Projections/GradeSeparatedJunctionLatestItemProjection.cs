@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Extensions;
 using BackOffice.Messages;
+using Be.Vlaanderen.Basisregisters.Crab;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using NodaTime;
 using Schema;
 using Schema.GradeSeparatedJunctions;
 
@@ -28,8 +30,8 @@ public class GradeSeparatedJunctionLatestItemProjection : ConnectedProjection<In
                 TypeLabel = typeTranslation.Name,
                 OrganizationId = envelope.Message.Origin.OrganizationId,
                 OrganizationName = envelope.Message.Origin.Organization,
-                CreatedOnTimestamp = envelope.Message.Origin.Since,
-                VersionTimestamp = envelope.Message.Origin.Since
+                CreatedOnTimestamp = envelope.Message.Origin.Since.ToBelgianInstant(),
+                VersionTimestamp = envelope.Message.Origin.Since.ToBelgianInstant()
             };
 
             await context.AddAsync(junctionRecord, token);
@@ -66,7 +68,8 @@ public class GradeSeparatedJunctionLatestItemProjection : ConnectedProjection<In
         {
             latestItem = new GradeSeparatedJunctionLatestItem
             {
-                Id = added.Id
+                Id = added.Id,
+                CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
             };
             await context.GradeSeparatedJunctions.AddAsync(latestItem, token);
         }
@@ -83,7 +86,6 @@ public class GradeSeparatedJunctionLatestItemProjection : ConnectedProjection<In
         latestItem.TypeLabel = typeTranslation.Name;
         latestItem.OrganizationId = envelope.Message.OrganizationId;
         latestItem.OrganizationName = envelope.Message.Organization;
-        latestItem.CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
