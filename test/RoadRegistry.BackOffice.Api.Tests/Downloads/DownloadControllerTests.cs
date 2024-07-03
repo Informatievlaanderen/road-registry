@@ -134,7 +134,13 @@ public partial class DownloadControllerTests : ControllerTests<DownloadControlle
                 RecordFrom(RoadSegmentCategory.SecondaryRoadType1),
                 RecordFrom(RoadSegmentCategory.SecondaryRoadType2),
                 RecordFrom(RoadSegmentCategory.SecondaryRoadType3),
-                RecordFrom(RoadSegmentCategory.SecondaryRoadType4)
+                RecordFrom(RoadSegmentCategory.SecondaryRoadType4),
+                RecordFrom(RoadSegmentCategory.EuropeanMainRoad),
+                RecordFrom(RoadSegmentCategory.FlemishMainRoad),
+                RecordFrom(RoadSegmentCategory.RegionalRoad),
+                RecordFrom(RoadSegmentCategory.InterLocalRoad),
+                RecordFrom(RoadSegmentCategory.LocalAccessRoad),
+                RecordFrom(RoadSegmentCategory.LocalHeritageAccessRoad)
             });
     }
 
