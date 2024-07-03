@@ -71,12 +71,8 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
         {
-            var changesGroupedByRoadSegments = envelope.Message.Changes.Flatten()
-                .Select(change =>
-                {
-                    var roadSegmentId = GetRoadSegmentIdFromChange(change);
-                    return roadSegmentId is not null ? new RoadSegmentChange(roadSegmentId.Value, change) : null;
-                })
+            var changesGroupedByRoadSegments = envelope.Message.Changes
+                .Select(RoadSegmentChange.From)
                 .Where(x => x is not null)
                 .GroupBy(x => x.Id)
                 .ToList();
@@ -103,11 +99,11 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
                 foreach (var message in roadSegmentChanges)
                     switch (message)
                     {
-                        case RoadSegmentAdded roadSegmentAdded:
-                            throw new InvalidOperationException($"Invalid RoadSegmentAdded change for ID {roadSegmentAdded.Id} for position {envelope.Position}");
+                        case RoadSegmentAdded change:
+                            throw new InvalidOperationException($"Invalid RoadSegmentAdded change for ID {change.Id} for position {envelope.Position}");
 
-                        case RoadSegmentModified roadSegmentModified:
-                            ModifyRoadSegment(roadSegment, roadSegmentModified, envelope);
+                        case RoadSegmentModified change:
+                            ModifyRoadSegment(roadSegment, change, envelope);
                             break;
 
                         case RoadSegmentAddedToEuropeanRoad change:
@@ -131,12 +127,12 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
                             RemoveRoadSegmentFromNumberedRoad(roadSegment, change, envelope);
                             break;
 
-                        case RoadSegmentAttributesModified roadSegmentAttributesModified:
-                            ModifyRoadSegmentAttributes(roadSegment, roadSegmentAttributesModified, envelope);
+                        case RoadSegmentAttributesModified change:
+                            ModifyRoadSegmentAttributes(roadSegment, change, envelope);
                             break;
 
-                        case RoadSegmentGeometryModified roadSegmentGeometryModified:
-                            ModifyRoadSegmentGeometry(roadSegment, roadSegmentGeometryModified, envelope);
+                        case RoadSegmentGeometryModified change:
+                            ModifyRoadSegmentGeometry(roadSegment, change, envelope);
                             break;
 
                         case RoadSegmentRemoved:
@@ -145,35 +141,6 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
                     }
             }
         });
-    }
-
-    private static int? GetRoadSegmentIdFromChange(object changeMessage)
-    {
-        //TODO-rik create unit test to ensure all possible changes in AcceptedChange are handled here
-        //those that are unhandled in handler of RoadNetworkChangesAccepted should return null
-        return changeMessage switch
-        {
-            RoadSegmentAdded change => change.Id,
-            RoadSegmentModified change => change.Id,
-            RoadSegmentRemoved change => change.Id,
-            RoadSegmentAddedToEuropeanRoad change => change.SegmentId,
-            RoadSegmentRemovedFromEuropeanRoad change => change.SegmentId,
-            RoadSegmentAddedToNationalRoad change => change.SegmentId,
-            RoadSegmentRemovedFromNationalRoad change => change.SegmentId,
-            RoadSegmentAddedToNumberedRoad change => change.SegmentId,
-            RoadSegmentRemovedFromNumberedRoad change => change.SegmentId,
-            RoadSegmentAttributesModified change => change.Id,
-            RoadSegmentGeometryModified change => change.Id,
-            GradeSeparatedJunctionAdded => null,
-            GradeSeparatedJunctionModified => null,
-            GradeSeparatedJunctionRemoved => null,
-            RoadNodeAdded => null,
-            RoadNodeModified => null,
-            RoadNodeRemoved => null,
-            OutlinedRoadSegmentRemoved => null,
-            RoadSegmentOnNumberedRoadModified => null,
-            _ => throw new NotImplementedException($"{changeMessage.GetType().Name}")
-        };
     }
 
     private static RoadSegmentVersion CreateFirstRoadSegmentVersion(
@@ -450,5 +417,42 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
         return source;
     }
 
-    private sealed record RoadSegmentChange(int Id, object Change);
+    public sealed record RoadSegmentChange(int Id, object Change)
+    {
+        public static RoadSegmentChange From(AcceptedChange acceptedChange)
+        {
+            var change = acceptedChange.Flatten();
+            var roadSegmentId = GetHandledRoadSegmentIdFromChange(change);
+            return roadSegmentId is not null ? new RoadSegmentChange(roadSegmentId.Value, change) : null;
+        }
+
+        private static int? GetHandledRoadSegmentIdFromChange(object changeMessage)
+        {
+            // All changes which aren't handled in RoadNetworkChangesAccepted should return null
+
+            return changeMessage switch
+            {
+                RoadSegmentAdded change => change.Id,
+                RoadSegmentModified change => change.Id,
+                RoadSegmentRemoved change => change.Id,
+                RoadSegmentAddedToEuropeanRoad change => change.SegmentId,
+                RoadSegmentRemovedFromEuropeanRoad change => change.SegmentId,
+                RoadSegmentAddedToNationalRoad change => change.SegmentId,
+                RoadSegmentRemovedFromNationalRoad change => change.SegmentId,
+                RoadSegmentAddedToNumberedRoad change => change.SegmentId,
+                RoadSegmentRemovedFromNumberedRoad change => change.SegmentId,
+                RoadSegmentAttributesModified change => change.Id,
+                RoadSegmentGeometryModified change => change.Id,
+                GradeSeparatedJunctionAdded => null,
+                GradeSeparatedJunctionModified => null,
+                GradeSeparatedJunctionRemoved => null,
+                RoadNodeAdded => null,
+                RoadNodeModified => null,
+                RoadNodeRemoved => null,
+                OutlinedRoadSegmentRemoved => null,
+                RoadSegmentOnNumberedRoadModified => null,
+                _ => throw new NotImplementedException($"Missing implementation for change {changeMessage.GetType().Name}")
+            };
+        }
+    }
 }

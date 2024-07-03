@@ -11,6 +11,7 @@ using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using Schema.RoadSegments;
 using Schema.RoadSegments.Version;
+using static RoadRegistry.Integration.Projections.Version.RoadSegmentVersionProjection;
 using RoadSegmentVersion = Schema.RoadSegments.Version.RoadSegmentVersion;
 
 public partial class RoadSegmentVersionProjectionTests
@@ -232,6 +233,15 @@ public partial class RoadSegmentVersionProjectionTests
             .Scenario()
             .Given(data.Select(d => d.importedRoadSegment))
             .Expect(data.Select(d => d.expected));
+    }
+
+    [Fact]
+    public void EnsureAllAcceptedChangesAreHandled()
+    {
+        foreach (var acceptedChange in _fixture.CreateAllAcceptedChanges())
+        {
+            RoadSegmentChange.From(acceptedChange);
+        }
     }
 
     private object[] BuildInitialExpectedRoadSegmentRecords(RoadNetworkChangesAccepted message)

@@ -1197,4 +1197,47 @@ public static class Customizations
             Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPolygon(polygon)
         );
     }
+
+    public static IEnumerable<RequestedChange> CreateAllRequestedChanges(this Fixture fixture)
+    {
+        var changeProperties = typeof(RequestedChange).GetProperties();
+        Assert.NotEmpty(changeProperties);
+
+        var data = fixture
+            .Create<RequestedChange>();
+
+        foreach (var changeProperty in changeProperties)
+        {
+            var change = new RequestedChange();
+
+            var changeValue = changeProperty.GetValue(data);
+            Assert.NotNull(changeValue);
+            changeProperty.SetValue(change, changeValue);
+
+            yield return change;
+        }
+    }
+
+    public static IEnumerable<AcceptedChange> CreateAllAcceptedChanges(this Fixture fixture)
+    {
+        var changeProperties = typeof(AcceptedChange)
+            .GetProperties()
+            .Where(x => x.Name != nameof(AcceptedChange.Problems))
+            .ToArray();
+        Assert.NotEmpty(changeProperties);
+
+        var data = fixture
+            .Create<AcceptedChange>();
+
+        foreach (var changeProperty in changeProperties)
+        {
+            var change = new AcceptedChange();
+
+            var changeValue = changeProperty.GetValue(data);
+            Assert.NotNull(changeValue);
+            changeProperty.SetValue(change, changeValue);
+
+            yield return change;
+        }
+    }
 }
