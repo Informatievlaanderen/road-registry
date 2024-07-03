@@ -138,6 +138,9 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
                         case RoadSegmentRemoved:
                             RemoveRoadSegment(roadSegment, envelope);
                             break;
+
+                        default:
+                            throw new NotImplementedException($"Change {message.GetType().Name} is not implemented when handling {nameof(RoadNetworkChangesAccepted)}");
                     }
             }
         });
