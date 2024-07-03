@@ -1,3 +1,10 @@
+## [4.2.1](https://github.com/informatievlaanderen/road-registry/compare/v4.2.0...v4.2.1) (2024-07-03)
+
+
+### Bug Fixes
+
+* remove old staging env for pipelines ([#1516](https://github.com/informatievlaanderen/road-registry/issues/1516)) ([56fa27d](https://github.com/informatievlaanderen/road-registry/commit/56fa27d9af4977e82e4208e8ef6acf900431328c))
+
 # [4.2.0](https://github.com/informatievlaanderen/road-registry/compare/v4.1.7...v4.2.0) (2024-07-02)
 
 
