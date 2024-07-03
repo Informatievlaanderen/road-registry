@@ -39,7 +39,13 @@ public class RoadSegmentCategoryTests
                 RoadSegmentCategory.SecondaryRoadType1,
                 RoadSegmentCategory.SecondaryRoadType2,
                 RoadSegmentCategory.SecondaryRoadType3,
-                RoadSegmentCategory.SecondaryRoadType4
+                RoadSegmentCategory.SecondaryRoadType4,
+                RoadSegmentCategory.EuropeanMainRoad,
+                RoadSegmentCategory.FlemishMainRoad,
+                RoadSegmentCategory.RegionalRoad,
+                RoadSegmentCategory.InterLocalRoad,
+                RoadSegmentCategory.LocalAccessRoad,
+                RoadSegmentCategory.LocalHeritageAccessRoad
             },
             RoadSegmentCategory.All);
     }
