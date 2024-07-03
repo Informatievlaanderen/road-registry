@@ -946,7 +946,7 @@ jobs:
 
   deploy_to_test_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ release, deploy_lambda_to_test, push_images_to_staging ]
+    needs: [ release, deploy_lambda_to_test ]
     name: Deploy to test finished
     runs-on: ubuntu-latest
 
@@ -964,70 +964,6 @@ jobs:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
         REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
-
-  push_images_to_staging:
-    if: needs.release.outputs.version != 'none'
-    needs: [ release ]
-    name: Push images to Staging
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        image: [
-          'backoffice-api',
-          'backoffice-ui',
-          'backoffice-eventhost',
-          'backoffice-extracthost',
-          'backoffice-commandhost',
-          'adminhost',
-          #'jobs-processor',
-          'projector',
-          'editor-projectionhost',
-          #'integration-projectionhost',
-          'product-projectionhost',
-          'producer-snapshot-projectionhost',
-          'synchost',
-          'syndication-projectionhost',
-          'wms-projectionhost',
-          'wfs-projectionhost'
-        ]
-    steps:
-      - name: Configure AWS credentials (Staging)
-        uses: aws-actions/configure-aws-credentials@v4.0.2
-        with:
-          aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-
-      - name: Login to Amazon ECR (Staging)
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        continue-on-error: false
-        with:
-          name: ${{ matrix.image }}-${{ needs.release.outputs.version }}
-          path: ~/
-
-      - name: Load artifact
-        shell: bash
-        run: |
-          echo rr-$IMAGE-image.tar
-          docker image load -i ~/rr-$IMAGE-image.tar
-        env:
-          IMAGE: ${{ matrix.image }}
-
-      - name: Push artifacts to ECR (Staging)
-        shell: bash
-        run: |
-          echo $IMAGE:$SEMVER
-          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/$IMAGE:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
-          docker push $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
-        env:
-          BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_DEVOPS_DOCKER_REGISTRY }}
-          BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY }}
-          IMAGE: ${{ matrix.image }}
-          SEMVER: ${{ needs.release.outputs.version }}
-          WORKSPACE: ${{ github.workspace }}
 
   build_notify_skipped:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version == 'none') }}
