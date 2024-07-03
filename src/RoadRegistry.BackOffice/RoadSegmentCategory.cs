@@ -173,7 +173,7 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
             nameof(EuropeanMainRoad),
             new DutchTranslation(
                 "EHW",
-                "europese hoofdwegen",
+                "europese hoofdweg",
                 "Europese hoofdwegen"
             )
         );
@@ -183,7 +183,7 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
             nameof(FlemishMainRoad),
             new DutchTranslation(
                 "VHW",
-                "vlaamse hoofdwegen",
+                "vlaamse hoofdweg",
                 "Vlaamse hoofdwegen"
             )
         );
@@ -193,7 +193,7 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
             nameof(RegionalRoad),
             new DutchTranslation(
                 "RW",
-                "regionale wegen",
+                "regionale weg",
                 "Regionale wegen"
             )
         );
@@ -203,14 +203,14 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
             nameof(InterLocalRoad),
             new DutchTranslation(
                 "IW",
-                "interlokale wegen",
+                "interlokale weg",
                 "Interlokale wegen"
             )
         );
 
-    public static readonly RoadSegmentCategory LocalOntsluitingsRoad = //TODO-rik translate
+    public static readonly RoadSegmentCategory LocalAccessRoad =
         new(
-            nameof(LocalOntsluitingsRoad),
+            nameof(LocalAccessRoad),
             new DutchTranslation(
                 "OW",
                 "lokale onstsluitingsweg",
@@ -218,9 +218,9 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
             )
         );
 
-    public static readonly RoadSegmentCategory LocalErftoegangsRoad = //TODO-rik translate
+    public static readonly RoadSegmentCategory LocalHeritageAccessRoad =
         new(
-            nameof(LocalErftoegangsRoad),
+            nameof(LocalHeritageAccessRoad),
             new DutchTranslation(
                 "EW",
                 "lokale erftoegangsweg",
@@ -272,8 +272,8 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
         FlemishMainRoad,
         RegionalRoad,
         InterLocalRoad,
-        LocalOntsluitingsRoad,
-        LocalErftoegangsRoad
+        LocalAccessRoad,
+        LocalHeritageAccessRoad
     };
 
     public static readonly IReadOnlyDictionary<string, RoadSegmentCategory> ByIdentifier =
