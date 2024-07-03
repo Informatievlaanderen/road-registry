@@ -51,7 +51,6 @@ jobs:
           'road-backoffice-extracthost',
           'road-backoffice-ui',
           'road-editor-projectionhost',
-          #'road-integration-projectionhost',
           'road-producer-snapshot-projectionhost',
           'road-product-projectionhost',
           'road-projector',
