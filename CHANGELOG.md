@@ -1,3 +1,15 @@
+# [4.3.0](https://github.com/informatievlaanderen/road-registry/compare/v4.2.1...v4.3.0) (2024-07-03)
+
+
+### Bug Fixes
+
+* unit tests ([#1518](https://github.com/informatievlaanderen/road-registry/issues/1518)) ([e436fbf](https://github.com/informatievlaanderen/road-registry/commit/e436fbf0582c337b4fc089064b5a281252991567))
+
+
+### Features
+
+* add new roadsegment categories ([64d9fb9](https://github.com/informatievlaanderen/road-registry/commit/64d9fb9c8321517c85cd22157a992e779e9853d7))
+
 ## [4.2.1](https://github.com/informatievlaanderen/road-registry/compare/v4.2.0...v4.2.1) (2024-07-03)
 
 
