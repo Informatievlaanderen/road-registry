@@ -1,3 +1,10 @@
+# [4.4.0](https://github.com/informatievlaanderen/road-registry/compare/v4.3.0...v4.4.0) (2024-07-08)
+
+
+### Features
+
+* add integration version projections ([a542685](https://github.com/informatievlaanderen/road-registry/commit/a542685c7d9a5910a96e416e5781e37e1d8c1b0a))
+
 # [4.3.0](https://github.com/informatievlaanderen/road-registry/compare/v4.2.1...v4.3.0) (2024-07-03)
 
 
