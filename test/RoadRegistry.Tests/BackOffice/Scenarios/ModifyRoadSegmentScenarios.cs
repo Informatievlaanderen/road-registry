@@ -3,6 +3,8 @@ namespace RoadRegistry.Tests.BackOffice.Scenarios;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Datadog.Trace.Ci;
+using FluentAssertions;
 using Framework.Testing;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
@@ -19,6 +21,7 @@ using ModifyRoadSegment = RoadRegistry.BackOffice.Messages.ModifyRoadSegment;
 using Point = NetTopologySuite.Geometries.Point;
 using Problem = RoadRegistry.BackOffice.Messages.Problem;
 using ProblemParameter = RoadRegistry.BackOffice.Messages.ProblemParameter;
+using ProblemSeverity = RoadRegistry.BackOffice.Messages.ProblemSeverity;
 using RejectedChange = RoadRegistry.BackOffice.Messages.RejectedChange;
 using RequestedRoadSegmentEuropeanRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentEuropeanRoadAttribute;
 using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLaneAttributes;
@@ -27,7 +30,7 @@ using RequestedRoadSegmentNumberedRoadAttribute = RoadRegistry.BackOffice.Messag
 using RoadSegmentSurfaceAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes;
 using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes;
 
-public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
+public class ModifyRoadSegmentScenarios : RoadNetworkTestBase
 {
     public ModifyRoadSegmentScenarios(ITestOutputHelper testOutputHelper)
         : base(testOutputHelper)
@@ -855,6 +858,145 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
+        );
+    }
+
+    [Fact]
+    public Task GivenUpgradedCategory_WhenCategoryNotModified_ThenIgnoreNewValueAndGiveWarning()
+    {
+        var upgradedCategory = RoadSegmentCategory.EuropeanMainRoad;
+        var notUpgradedCategory = RoadSegmentCategory.Unknown;
+
+        var initial = new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithRoadNodeAdded(TestData.StartNode1Added)
+            .WithRoadNodeAdded(TestData.EndNode1Added)
+            .WithRoadSegmentAdded(TestData.Segment1Added, segment =>
+            {
+                segment.Category = upgradedCategory;
+            })
+            .Build();
+
+        var command = new ChangeRoadNetworkBuilder(TestData)
+            .WithModifyRoadSegment(TestData.ModifySegment1, segment =>
+            {
+                segment.Category = notUpgradedCategory;
+                segment.CategoryModified = false;
+            })
+            .Build();
+
+        var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithClock(Clock)
+            .WithTransactionId(2)
+            .WithRoadSegmentModified(TestData.Segment1Modified,
+                segment =>
+                {
+                    segment.Category = upgradedCategory;
+                },
+                [
+                    new Problem
+                    {
+                        Severity = ProblemSeverity.Warning,
+                        Reason = "RoadSegmentCategoryNotChanged",
+                        Parameters =
+                        [
+                            new ProblemParameter
+                            {
+                                Name = "SegmentId",
+                                Value = "1"
+                            }
+                        ]
+                    }
+                ])
+            .Build();
+
+        return Run(scenario =>
+            scenario
+                .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
+                .Given(RoadNetworks.Stream, initial)
+                .When(command)
+                .Then(RoadNetworks.Stream, expected)
+        );
+    }
+
+    [Fact]
+    public Task GivenUpgradedCategory_WhenCategoryNotModifiedAndSegmentIsOutlined_ThenKeepNewValue()
+    {
+        var upgradedCategory = RoadSegmentCategory.EuropeanMainRoad;
+        var notUpgradedCategory = RoadSegmentCategory.Unknown;
+
+        var initial = new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithOutlinedRoadSegment(TestData.Segment1Added, segment =>
+            {
+                segment.Category = upgradedCategory;
+            })
+            .Build();
+
+        var command = new ChangeRoadNetworkBuilder(TestData)
+            .WithModifyOutlinedRoadSegment(TestData.ModifySegment1, segment =>
+            {
+                segment.Category = notUpgradedCategory;
+                segment.CategoryModified = false;
+            })
+            .Build();
+
+        var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithClock(Clock)
+            .WithTransactionId(2)
+            .WithOutlinedRoadSegmentModified(TestData.Segment1Modified,
+                segment =>
+                {
+                    segment.Category = upgradedCategory;
+                })
+            .Build();
+
+        return Run(scenario =>
+            scenario
+                .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
+                .Given(RoadNetworks.Stream, initial)
+                .When(command)
+                .Then(RoadNetworks.Stream, expected)
+        );
+    }
+
+    [Fact]
+    public Task GivenUpgradedCategory_WhenCategoryModified_ThenKeepNewValue()
+    {
+        var upgradedCategory = RoadSegmentCategory.EuropeanMainRoad;
+        var category = ObjectProvider.Create<RoadSegmentCategory>();
+
+        var initial = new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithRoadNodeAdded(TestData.StartNode1Added)
+            .WithRoadNodeAdded(TestData.EndNode1Added)
+            .WithRoadSegmentAdded(TestData.Segment1Added, segment =>
+            {
+                segment.Category = upgradedCategory;
+            })
+            .Build();
+
+        var command = new ChangeRoadNetworkBuilder(TestData)
+            .WithModifyRoadSegment(TestData.ModifySegment1, segment =>
+            {
+                segment.Category = category;
+                segment.CategoryModified = true;
+            })
+            .Build();
+
+        var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithClock(Clock)
+            .WithTransactionId(2)
+            .WithRoadSegmentModified(TestData.Segment1Modified,
+                segment =>
+                {
+                    segment.Category = category;
+                })
+            .Build();
+
+        return Run(scenario =>
+            scenario
+                .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
+                .Given(RoadNetworks.Stream, initial)
+                .When(command)
+                .Then(RoadNetworks.Stream, expected)
         );
     }
 }

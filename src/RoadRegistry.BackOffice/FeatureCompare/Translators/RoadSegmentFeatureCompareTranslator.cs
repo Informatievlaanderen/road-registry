@@ -184,15 +184,13 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             extractFeature.Attributes.Id,
                             RecordType.Modified)
                         {
-                            GeometryChanged = true,
-                            ConvertedFromOutlined = extractFeature.Attributes.Method == RoadSegmentGeometryDrawMethod.Outlined
-                                                    && changeFeatureAttributes.Method != extractFeature.Attributes.Method
+                            GeometryChanged = true
                         });
                     }
                 }
                 else
                 {
-                    //no features with with unchanged non-critical attributes in criticalAttributesUnchanged
+                    //no features with unchanged non-critical attributes in criticalAttributesUnchanged
                     var identicalGeometries = matchingExtractFeatures.FindAll(f =>
                         changeFeatureAttributes.Geometry.IsReasonablyEqualTo(f.Attributes.Geometry, context.Tolerances)
                     );
@@ -207,7 +205,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     {
                         GeometryChanged = !identicalGeometries.Any(),
                         ConvertedFromOutlined = extractFeature.Attributes.Method == RoadSegmentGeometryDrawMethod.Outlined
-                                                && changeFeatureAttributes.Method != extractFeature.Attributes.Method
+                                                && changeFeatureAttributes.Method != extractFeature.Attributes.Method,
+                        CategoryModified = extractFeature.Attributes.Category != changeFeatureAttributes.Category
                     });
                 }
                 continue;
@@ -391,7 +390,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             record.Attributes.RightStreetNameId
                         )
                         .WithGeometry(record.Attributes.Geometry)
-                        .WithConvertedFromOutlined(record.ConvertedFromOutlined);
+                        .WithConvertedFromOutlined(record.ConvertedFromOutlined)
+                        .WithCategoryModified(record.CategoryModified);
                     if (record.Id != record.Attributes.Id)
                     {
                         modifyRoadSegment = modifyRoadSegment.WithOriginalId(record.Attributes.Id);

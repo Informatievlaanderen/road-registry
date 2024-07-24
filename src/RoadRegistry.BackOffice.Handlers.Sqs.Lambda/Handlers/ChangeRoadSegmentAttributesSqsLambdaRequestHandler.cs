@@ -115,6 +115,9 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
 
         if (new object?[] { maintenanceAuthority, change.Morphology, change.Status, change.Category, change.AccessRestriction }.Any(x => x is not null))
         {
+            //TODO-rik add validatie+test voor upgraded status
+            //validatie: indien het wegsegment momenteel een ge-upgrade categorie heeft (1 van die 6) dan mag de categorie enkel veranderd worden naar een categorie uit de nieuwe lijst
+
             changes = changes.AppendChange(new ModifyRoadSegmentAttributes(RecordNumber.Initial, roadSegment.Id, roadSegment.AttributeHash.GeometryDrawMethod)
             {
                 MaintenanceAuthority = maintenanceAuthority,
@@ -124,7 +127,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                 AccessRestriction = change.AccessRestriction
             });
         }
-        
+
         changes = AppendChange(changes, roadSegment, change.EuropeanRoads);
         changes = AppendChange(changes, roadSegment, change.NationalRoads);
         changes = AppendChange(changes, roadSegment, change.NumberedRoads);

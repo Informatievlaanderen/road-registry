@@ -27,6 +27,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         RoadSegmentMorphology morphology,
         RoadSegmentStatus status,
         RoadSegmentCategory category,
+        bool categoryModified,
         RoadSegmentAccessRestriction accessRestriction,
         StreetNameLocalId? leftSideStreetNameId,
         StreetNameLocalId? rightSideStreetNameId,
@@ -50,6 +51,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         Morphology = morphology ?? throw new ArgumentNullException(nameof(morphology));
         Status = status ?? throw new ArgumentNullException(nameof(status));
         Category = category ?? throw new ArgumentNullException(nameof(category));
+        CategoryModified = categoryModified;
         AccessRestriction = accessRestriction ?? throw new ArgumentNullException(nameof(accessRestriction));
         LeftSideStreetNameId = leftSideStreetNameId;
         RightSideStreetNameId = rightSideStreetNameId;
@@ -61,6 +63,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
 
     public RoadSegmentAccessRestriction AccessRestriction { get; }
     public RoadSegmentCategory Category { get; }
+    public bool CategoryModified { get; }
     public RoadNodeId EndNodeId { get; }
     public MultiLineString Geometry { get; }
     public GeometryVersion GeometryVersion { get; }
@@ -81,6 +84,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
     public RoadNodeId? TemporaryStartNodeId { get; }
     public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
     public bool ConvertedFromOutlined { get; }
+    private RoadSegmentCategory? _correctedCategory;
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -103,7 +107,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
             GeometryDrawMethod = GeometryDrawMethod,
             Morphology = Morphology,
             Status = Status,
-            Category = Category,
+            Category = _correctedCategory ?? Category,
             AccessRestriction = AccessRestriction,
             LeftSide = new RoadSegmentSideAttributes
             {
@@ -275,7 +279,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
 
         var intersectingSegments = context.AfterView.View.CreateScopedView(Geometry.EnvelopeInternal)
             .FindIntersectingRoadSegments(this);
-       var intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions = intersectingSegments
+        var intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions = intersectingSegments
             .Where(intersectingSegment =>
                 !context.AfterView.GradeSeparatedJunctions.Any(junction =>
                     (junction.Value.LowerSegment == Id && junction.Value.UpperSegment == intersectingSegment.Key) ||
@@ -295,12 +299,12 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
 
         var problems = Problems.None;
         var originalIdOrId = context.Translator.TranslateToOriginalOrTemporaryOrId(Id);
-        
-        if (!context.BeforeView.Segments.ContainsKey(Id) && !ConvertedFromOutlined)
+
+        if (!context.BeforeView.Segments.TryGetValue(Id, out var currentSegment) && !ConvertedFromOutlined)
         {
             problems = problems.Add(new RoadSegmentNotFound(originalIdOrId));
         }
-        
+
         var line = Geometry.GetSingleLineString();
 
         if (GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
@@ -314,6 +318,12 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         problems += line.GetProblemsForRoadSegmentLanes(Lanes, context.Tolerances);
         problems += line.GetProblemsForRoadSegmentWidths(Widths, context.Tolerances);
         problems += line.GetProblemsForRoadSegmentSurfaces(Surfaces, context.Tolerances);
+
+        if (currentSegment is not null && !CategoryModified && RoadSegmentCategory.IsUpgraded(currentSegment.AttributeHash.Category))
+        {
+            _correctedCategory = currentSegment.AttributeHash.Category;
+            problems += new RoadSegmentCategoryNotChanged(originalIdOrId);
+        }
 
         return problems;
     }

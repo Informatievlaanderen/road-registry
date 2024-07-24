@@ -249,9 +249,11 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
         );
 
     public static readonly RoadSegmentCategory[] All =
-    {
+    [
         Unknown,
         NotApplicable,
+
+        // obsolete
         MainRoad,
         LocalRoad,
         LocalRoadType1,
@@ -268,13 +270,29 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
         SecondaryRoadType2,
         SecondaryRoadType3,
         SecondaryRoadType4,
+
+        // upgraded
         EuropeanMainRoad,
         FlemishMainRoad,
         RegionalRoad,
         InterLocalRoad,
         LocalAccessRoad,
         LocalHeritageAccessRoad
-    };
+    ];
+    private static readonly RoadSegmentCategory[] _upgraded =
+    [
+        EuropeanMainRoad,
+        FlemishMainRoad,
+        RegionalRoad,
+        InterLocalRoad,
+        LocalAccessRoad,
+        LocalHeritageAccessRoad
+    ];
+
+    public static bool IsUpgraded(RoadSegmentCategory category)
+    {
+        return _upgraded.Contains(category);
+    }
 
     public static readonly IReadOnlyDictionary<string, RoadSegmentCategory> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier, StringComparer.InvariantCultureIgnoreCase);
@@ -342,7 +360,7 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
         if (!TryParseUsingDutchName(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment access restriction.");
         return parsed;
     }
-    
+
     public override string ToString()
     {
         return _value;

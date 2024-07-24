@@ -4,6 +4,7 @@ public class ModifyRoadSegment
 {
     public string AccessRestriction { get; set; }
     public string Category { get; set; }
+    public bool CategoryModified { get; set; }
     public int EndNodeId { get; set; }
     public RoadSegmentGeometry Geometry { get; set; }
     public string GeometryDrawMethod { get; set; }

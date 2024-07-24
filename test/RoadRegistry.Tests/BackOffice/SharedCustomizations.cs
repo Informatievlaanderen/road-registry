@@ -16,6 +16,7 @@ using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
 using System.Linq;
+using NodaTime.Text;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = RoadRegistry.BackOffice.Messages.Point;
 using Polygon = RoadRegistry.BackOffice.Messages.Polygon;
@@ -477,7 +478,12 @@ public static class SharedCustomizations
     {
         fixture.Customize<RoadSegmentCategory>(customization =>
             customization.FromFactory(generator =>
-                RoadSegmentCategory.All[generator.Next() % RoadSegmentCategory.All.Length]
+                {
+                    var allowedValues = RoadSegmentCategory.All
+                        .Where(x => !RoadSegmentCategory.IsUpgraded(x))
+                        .ToArray();
+                    return allowedValues[generator.Next() % allowedValues.Length];
+                }
             )
         );
     }
@@ -668,7 +674,7 @@ public static class SharedCustomizations
             customization.FromFactory(_ => RoadSegmentGeometryDrawMethod.Outlined)
         );
     }
-    
+
     public static void CustomizeRoadSegmentOutlineMorphology(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentMorphology>(customization =>
@@ -692,7 +698,7 @@ public static class SharedCustomizations
             )
         );
     }
-    
+
     public static void CustomizeRoadSegmentPosition(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentPosition>(customization =>
