@@ -699,6 +699,15 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeRoadSegmentOutline(this IFixture fixture)
+    {
+        fixture.CustomizeRoadSegmentOutlineGeometryDrawMethod();
+        fixture.CustomizeRoadSegmentOutlineMorphology();
+        fixture.CustomizeRoadSegmentOutlineStatus();
+        fixture.CustomizeRoadSegmentOutlineLaneCount();
+        fixture.CustomizeRoadSegmentOutlineWidth();
+    }
+
     public static void CustomizeRoadSegmentPosition(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentPosition>(customization =>

@@ -322,7 +322,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         if (currentSegment is not null && !CategoryModified && RoadSegmentCategory.IsUpgraded(currentSegment.AttributeHash.Category))
         {
             _correctedCategory = currentSegment.AttributeHash.Category;
-            problems += new RoadSegmentCategoryNotChangedBecauseAlreadyIsNewerVersion(originalIdOrId);
+            problems += new RoadSegmentCategoryNotChangedBecauseCurrentIsNewerVersion(originalIdOrId);
         }
 
         return problems;

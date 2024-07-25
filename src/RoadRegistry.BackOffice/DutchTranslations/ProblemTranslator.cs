@@ -93,7 +93,7 @@ public static class ProblemTranslator
             "Wegcategorie is verplicht.") },
         {ProblemCode.RoadSegment.Category.NotValid, problem => new(problem.Severity, "WegcategorieNietCorrect",
             $"Wegcategorie is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.") },
-        {ProblemCode.RoadSegment.Category.NotChangedBecauseAlreadyIsNewerVersion, problem => new(problem.Severity, "WegcategorieNietVeranderdBevatRecentereVersie",
+        {ProblemCode.RoadSegment.Category.NotChangedBecauseCurrentIsNewerVersion, problem => new(problem.Severity, "WegcategorieNietVeranderdHuidigeBevatRecentereVersie",
             $"Wegcategorie werd niet gewijzigd voor wegsegment {problem.GetParameterValue("Identifier")} omdat het record reeds een recentere versie bevat.") },
         {ProblemCode.RoadSegment.EndNode.Missing, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier") || problem.HasParameter("Actual")
             ? $"De eind wegknoop van het wegsegment met id {problem.GetOptionalParameterValue("Identifier") ?? problem.GetOptionalParameterValue("Actual")} ontbreekt."

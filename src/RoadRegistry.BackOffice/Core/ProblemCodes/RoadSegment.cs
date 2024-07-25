@@ -24,7 +24,7 @@ public sealed partial record ProblemCode
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentCategoryNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentCategoryIsRequired");
-            public static readonly ProblemCode NotChangedBecauseAlreadyIsNewerVersion = new("RoadSegmentCategoryNotChangedBecauseAlreadyIsNewerVersion");
+            public static readonly ProblemCode NotChangedBecauseCurrentIsNewerVersion = new("RoadSegmentCategoryNotChangedBecauseCurrentIsNewerVersion");
         }
 
         public static class EuropeanRoads

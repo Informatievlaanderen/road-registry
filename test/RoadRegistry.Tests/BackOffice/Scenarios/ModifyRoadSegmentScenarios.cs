@@ -809,7 +809,7 @@ public class ModifyRoadSegmentScenarios : RoadNetworkTestBase
                     new Problem
                     {
                         Severity = ProblemSeverity.Warning,
-                        Reason = "RoadSegmentCategoryNotChangedBecauseAlreadyIsNewerVersion",
+                        Reason = "RoadSegmentCategoryNotChangedBecauseCurrentIsNewerVersion",
                         Parameters =
                         [
                             new ProblemParameter
@@ -836,10 +836,7 @@ public class ModifyRoadSegmentScenarios : RoadNetworkTestBase
     {
         var testData = new RoadNetworkTestData(fixture =>
         {
-            fixture.CustomizeRoadSegmentOutlineStatus();
-            fixture.CustomizeRoadSegmentOutlineMorphology();
-            fixture.CustomizeRoadSegmentOutlineLaneCount();
-            fixture.CustomizeRoadSegmentOutlineWidth();
+            fixture.CustomizeRoadSegmentOutline();
         });
 
         var upgradedCategory = RoadSegmentCategory.EuropeanMainRoad;
