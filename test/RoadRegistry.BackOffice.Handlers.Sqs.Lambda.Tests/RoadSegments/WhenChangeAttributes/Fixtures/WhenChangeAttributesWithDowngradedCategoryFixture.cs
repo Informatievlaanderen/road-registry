@@ -73,7 +73,7 @@ public class WhenChangeAttributesWithDowngradedCategoryFixture : WhenChangeAttri
 
         var ticketError = new TicketError(new[]
         {
-            new TicketError("Wegcategorie werd niet gewijzigd voor wegsegment 1 omdat het record reeds een recentere versie bevat.", "WegcategorieNietVeranderdBevatRecentereVersie")
+            new TicketError("Wegcategorie werd niet gewijzigd voor wegsegment 1 omdat het record reeds een recentere versie bevat.", "WegcategorieNietVeranderdHuidigeBevatRecentereVersie")
         });
 
         TicketingMock.Verify(x =>
