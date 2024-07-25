@@ -11,6 +11,7 @@ using Core;
 using Editor.Schema;
 using Editor.Schema.Extensions;
 using Exceptions;
+using Fluid.Ast;
 using Hosts;
 using Infrastructure;
 using Infrastructure.Extensions;
@@ -117,6 +118,17 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         {
             //TODO-rik add validatie+test voor upgraded status
             //validatie: indien het wegsegment momenteel een ge-upgrade categorie heeft (1 van die 6) dan mag de categorie enkel veranderd worden naar een categorie uit de nieuwe lijst
+
+            if (change.Category is not null
+                && roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Measured
+                && RoadSegmentCategory.IsUpgraded(roadSegment.AttributeHash.Category))
+            {
+                var allowedCategories = RoadSegmentCategory.All.Except(RoadSegmentCategory.Obsolete).ToArray();
+                if (!allowedCategories.Contains(change.Category))
+                {
+                    problems += new RoadSegmentCategoryNotChangedBecauseAlreadyIsNewerVersion(roadSegment.Id);
+                }
+            }
 
             changes = changes.AppendChange(new ModifyRoadSegmentAttributes(RecordNumber.Initial, roadSegment.Id, roadSegment.AttributeHash.GeometryDrawMethod)
             {

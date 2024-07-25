@@ -279,6 +279,25 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
         LocalAccessRoad,
         LocalHeritageAccessRoad
     ];
+    public static readonly RoadSegmentCategory[] Obsolete =
+    [
+        MainRoad,
+        LocalRoad,
+        LocalRoadType1,
+        LocalRoadType2,
+        LocalRoadType3,
+        PrimaryRoadI,
+        PrimaryRoadII,
+        PrimaryRoadIIType1,
+        PrimaryRoadIIType2,
+        PrimaryRoadIIType3,
+        PrimaryRoadIIType4,
+        SecondaryRoad,
+        SecondaryRoadType1,
+        SecondaryRoadType2,
+        SecondaryRoadType3,
+        SecondaryRoadType4
+    ];
     private static readonly RoadSegmentCategory[] _upgraded =
     [
         EuropeanMainRoad,

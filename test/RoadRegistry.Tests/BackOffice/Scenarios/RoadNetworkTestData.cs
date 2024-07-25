@@ -320,6 +320,9 @@ public class RoadNetworkTestData
                     part.FromPosition = part.FromPosition.ToRoundedMeasurement();
                     part.ToPosition = part.ToPosition.ToRoundedMeasurement();
 
+                    part.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
+                    part.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
+
                     return part;
                 })
                 .ToArray(),
@@ -519,6 +522,9 @@ public class RoadNetworkTestData
                     part.FromPosition = part.FromPosition.ToRoundedMeasurement();
                     part.ToPosition = part.ToPosition.ToRoundedMeasurement();
 
+                    part.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
+                    part.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
+
                     return part;
                 })
                 .ToArray(),
@@ -655,6 +661,9 @@ public class RoadNetworkTestData
                     {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString3.Length) / laneCount3);
                     }
+
+                    part.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
+                    part.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
 
                     return part;
                 })

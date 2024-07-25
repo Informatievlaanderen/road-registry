@@ -25,7 +25,7 @@ public class WhenCreateOutlineWithInvalidRequestFixture : WhenCreateOutlineWithV
         Status = RoadSegmentStatus.Unknown
     };
 
-    protected override bool VerifyThatTicketHasError(string code, string message)
+    protected override Task<bool> VerifyTicketAsync()
     {
         if (Exception is not null)
         {
@@ -37,17 +37,12 @@ public class WhenCreateOutlineWithInvalidRequestFixture : WhenCreateOutlineWithV
             new TicketError("Wegsegment status is foutief. 'Unknown' is geen geldige waarde.", "WegsegmentStatusNietCorrect"),
             new TicketError("Morfologische wegklasse is foutief. 'Unknown' is geen geldige waarde.", "MorfologischeWegklasseNietCorrect")
         });
-        
+
         TicketingMock.Verify(x =>
             x.Error(It.IsAny<Guid>(),
                 ticketError,
                 CancellationToken.None));
 
-        return true;
-    }
-
-    protected override Task<bool> VerifyTicketAsync()
-    {
-        return Task.FromResult(VerifyThatTicketHasError("WegsegmentStatusNietCorrect", "Wegsegment status is foutief. 'Unknown' is geen geldige waarde."));
+        return Task.FromResult(true);
     }
 }
