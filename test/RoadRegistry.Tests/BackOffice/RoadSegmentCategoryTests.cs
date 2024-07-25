@@ -344,6 +344,28 @@ public class RoadSegmentCategoryTests
     }
 
     [Fact]
+    public void IsUpgraded()
+    {
+        var upgraded = new[]
+        {
+            RoadSegmentCategory.EuropeanMainRoad,
+            RoadSegmentCategory.FlemishMainRoad,
+            RoadSegmentCategory.RegionalRoad,
+            RoadSegmentCategory.InterLocalRoad,
+            RoadSegmentCategory.LocalAccessRoad,
+            RoadSegmentCategory.LocalHeritageAccessRoad
+        };
+
+        foreach (var category in RoadSegmentCategory.All)
+        {
+            var isUpgraded = RoadSegmentCategory.IsUpgraded(category);
+            var expected = upgraded.Contains(category);
+
+            Assert.Equal(expected, isUpgraded);
+        }
+    }
+
+    [Fact]
     public void VerifyBehavior()
     {
         _fixture.Customizations.Add(

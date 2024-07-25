@@ -11,10 +11,7 @@ public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
 {
     public WhenCreateOutlineWithValidRequestFixture(IMediator mediator, EditorContext editorContext) : base(mediator, editorContext)
     {
-        ObjectProvider.CustomizeRoadSegmentOutlineStatus();
-        ObjectProvider.CustomizeRoadSegmentOutlineMorphology();
-        ObjectProvider.CustomizeRoadSegmentOutlineLaneCount();
-        ObjectProvider.CustomizeRoadSegmentOutlineWidth();
+        ObjectProvider.CustomizeRoadSegmentOutline();
     }
 
     protected override PostRoadSegmentOutlineParameters CreateRequest()

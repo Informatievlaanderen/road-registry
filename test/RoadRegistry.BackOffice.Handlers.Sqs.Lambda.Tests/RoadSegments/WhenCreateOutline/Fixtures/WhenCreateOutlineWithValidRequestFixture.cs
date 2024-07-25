@@ -26,11 +26,8 @@ public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
         SqsLambdaHandlerOptions options)
         : base(configuration, customRetryPolicy, clock, options)
     {
-        ObjectProvider.CustomizeRoadSegmentOutlineStatus();
+        ObjectProvider.CustomizeRoadSegmentOutline();
         ObjectProvider.CustomizeRoadSegmentSurfaceType();
-        ObjectProvider.CustomizeRoadSegmentOutlineWidth();
-        ObjectProvider.CustomizeRoadSegmentOutlineLaneCount();
-        ObjectProvider.CustomizeRoadSegmentOutlineMorphology();
 
         ObjectProvider.Customize<LineString>(customization =>
             customization.FromFactory(generator => new LineString(

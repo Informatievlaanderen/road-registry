@@ -688,6 +688,20 @@ public static class Customizations
         );
     }
 
+    public static void CustomizeImportedOrganization(this IFixture fixture)
+    {
+        fixture.Customize<ImportedOrganization>(composer =>
+            composer.FromFactory(generator =>
+                new ImportedOrganization
+                {
+                    Code = fixture.Create<OrganizationId>(),
+                    Name = fixture.Create<OrganizationName>(),
+                    When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                }
+            ).OmitAutoProperties()
+        );
+    }
+
     public static void CustomizeRoadSegmentAdded(this IFixture fixture)
     {
         fixture.CustomizeRoadSegmentSideAttributes();

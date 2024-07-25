@@ -115,6 +115,17 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
 
         if (new object?[] { maintenanceAuthority, change.Morphology, change.Status, change.Category, change.AccessRestriction }.Any(x => x is not null))
         {
+            if (change.Category is not null
+                && roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Measured
+                && RoadSegmentCategory.IsUpgraded(roadSegment.AttributeHash.Category))
+            {
+                var allowedCategories = RoadSegmentCategory.All.Except(RoadSegmentCategory.Obsolete).ToArray();
+                if (!allowedCategories.Contains(change.Category))
+                {
+                    problems += new RoadSegmentCategoryNotChangedBecauseCurrentIsNewerVersion(roadSegment.Id);
+                }
+            }
+
             changes = changes.AppendChange(new ModifyRoadSegmentAttributes(RecordNumber.Initial, roadSegment.Id, roadSegment.AttributeHash.GeometryDrawMethod)
             {
                 MaintenanceAuthority = maintenanceAuthority,
@@ -124,7 +135,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                 AccessRestriction = change.AccessRestriction
             });
         }
-        
+
         changes = AppendChange(changes, roadSegment, change.EuropeanRoads);
         changes = AppendChange(changes, roadSegment, change.NationalRoads);
         changes = AppendChange(changes, roadSegment, change.NumberedRoads);
