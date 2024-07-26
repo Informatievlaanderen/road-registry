@@ -241,8 +241,14 @@ public class Startup
                     },
                     Authorization = options =>
                     {
+                        var blacklistedOvoCodes =  _configuration
+                            .GetSection("BlacklistedOvoCodes")
+                            .GetChildren()
+                            .Select(c => c.Value!)
+                            .ToArray();
+
                         options
-                            .AddAcmIdmAuthorization()
+                            .AddRoadPolicies(blacklistedOvoCodes)
                             .AddAcmIdmPolicyVoInfo()
                             ;
                     }
