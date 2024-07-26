@@ -15,7 +15,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
         : base(testOutputHelper, logger)
     {
     }
-    
+
     [Fact]
     public async Task RemovedRoadSegmentShouldGiveProblem()
     {
@@ -34,7 +34,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, expected));
         Assert.Contains(ex.Problems, x => x.Reason == nameof(DbaseFileProblems.LowerRoadSegmentIdOutOfRange));
     }
-    
+
     [Fact]
     public async Task EqualLowerAndUpperShouldGiveProblem()
     {
@@ -167,7 +167,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
                 var roadSegment1Geometry = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
 
                 var intersection = roadSegment1Geometry.Centroid;
-                
+
                 var roadSegment2Geometry = new LineString(new Coordinate[]
                 {
                     new (intersection.X, intersection.Y),
@@ -193,7 +193,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
             .WithChange((builder, context) =>
             {
                 var fixture = context.Fixture;
-                
+
                 var gradeSeparatedJunctionDbaseRecord2 = builder.CreateGradeSeparatedJunctionDbaseRecord();
                 gradeSeparatedJunctionDbaseRecord2.BO_WS_OIDN.Value = builder.TestData.GradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value;
                 gradeSeparatedJunctionDbaseRecord2.ON_WS_OIDN.Value = builder.TestData.GradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value;
@@ -204,7 +204,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
             .BuildWithResult(context =>
             {
                 var gradeSeparatedJunctionDbaseRecord2 = context.Change.DataSet.GradeSeparatedJunctionDbaseRecords.Single();
-                
+
                 return TranslatedChanges.Empty
                     .AppendChange(
                         new AddGradeSeparatedJunction
@@ -224,7 +224,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
                         )
                     );
             });
-        
+
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
 

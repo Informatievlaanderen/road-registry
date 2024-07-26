@@ -218,6 +218,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                                 StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
                                 StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
                             )
+                            .WithCategoryModified(false)
                             .WithGeometry(context.Change.TestData.RoadSegment1ShapeRecord.Geometry)
                             .WithLane(
                                 new RoadSegmentLaneAttribute(
@@ -334,7 +335,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     {
         var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
             .BuildWithResult(_ => TranslatedChanges.Empty);
-        
+
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
 
@@ -342,7 +343,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
     public async Task Removed()
     {
         var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
-            .WithChange((builder, context) =>
+            .WithChange((builder, _) =>
             {
                 builder.DataSet.RoadNodeDbaseRecords = new[] { builder.TestData.RoadNode3DbaseRecord, builder.TestData.RoadNode4DbaseRecord }.ToList();
                 builder.DataSet.RoadNodeShapeRecords = new[] { builder.TestData.RoadNode3ShapeRecord, builder.TestData.RoadNode4ShapeRecord }.ToList();

@@ -3,6 +3,7 @@ namespace RoadRegistry.Tests.BackOffice.Scenarios;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Datadog.Trace.Ci;
 using Framework.Testing;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
@@ -19,102 +20,17 @@ using ModifyRoadSegment = RoadRegistry.BackOffice.Messages.ModifyRoadSegment;
 using Point = NetTopologySuite.Geometries.Point;
 using Problem = RoadRegistry.BackOffice.Messages.Problem;
 using ProblemParameter = RoadRegistry.BackOffice.Messages.ProblemParameter;
+using ProblemSeverity = RoadRegistry.BackOffice.Messages.ProblemSeverity;
 using RejectedChange = RoadRegistry.BackOffice.Messages.RejectedChange;
-using RequestedRoadSegmentEuropeanRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentEuropeanRoadAttribute;
 using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLaneAttributes;
-using RequestedRoadSegmentNationalRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentNationalRoadAttribute;
-using RequestedRoadSegmentNumberedRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentNumberedRoadAttribute;
 using RoadSegmentSurfaceAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes;
 using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes;
 
-public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
+public class ModifyRoadSegmentScenarios : RoadNetworkTestBase
 {
     public ModifyRoadSegmentScenarios(ITestOutputHelper testOutputHelper)
         : base(testOutputHelper)
     {
-        ObjectProvider.CustomizePoint();
-        ObjectProvider.CustomizePolylineM();
-
-        ObjectProvider.CustomizeAttributeId();
-        ObjectProvider.CustomizeOrganizationId();
-        ObjectProvider.CustomizeOrganizationName();
-        ObjectProvider.CustomizeRoadNodeId();
-        ObjectProvider.CustomizeRoadNodeType();
-        ObjectProvider.CustomizeRoadSegmentId();
-        ObjectProvider.CustomizeRoadSegmentCategory();
-        ObjectProvider.CustomizeRoadSegmentMorphology();
-        ObjectProvider.CustomizeRoadSegmentStatus();
-        ObjectProvider.CustomizeRoadSegmentAccessRestriction();
-        ObjectProvider.CustomizeRoadSegmentLaneCount();
-        ObjectProvider.CustomizeRoadSegmentLaneDirection();
-        ObjectProvider.CustomizeRoadSegmentNumberedRoadDirection();
-        ObjectProvider.CustomizeRoadSegmentGeometryDrawMethod();
-        ObjectProvider.CustomizeRoadSegmentNumberedRoadOrdinal();
-        ObjectProvider.CustomizeRoadSegmentSurfaceType();
-        ObjectProvider.CustomizeRoadSegmentWidth();
-        ObjectProvider.CustomizeEuropeanRoadNumber();
-        ObjectProvider.CustomizeNationalRoadNumber();
-        ObjectProvider.CustomizeNumberedRoadNumber();
-        ObjectProvider.CustomizeOriginProperties();
-        ObjectProvider.CustomizeGradeSeparatedJunctionId();
-        ObjectProvider.CustomizeGradeSeparatedJunctionType();
-        ObjectProvider.CustomizeArchiveId();
-        ObjectProvider.CustomizeChangeRequestId();
-        ObjectProvider.CustomizeReason();
-        ObjectProvider.CustomizeOperatorName();
-        ObjectProvider.CustomizeTransactionId();
-
-        ObjectProvider.Customize<RequestedRoadSegmentEuropeanRoadAttribute>(composer =>
-            composer.Do(instance =>
-                {
-                    instance.AttributeId = ObjectProvider.Create<AttributeId>();
-                    instance.Number = ObjectProvider.Create<EuropeanRoadNumber>();
-                })
-                .OmitAutoProperties());
-        ObjectProvider.Customize<RequestedRoadSegmentNationalRoadAttribute>(composer =>
-            composer.Do(instance =>
-                {
-                    instance.AttributeId = ObjectProvider.Create<AttributeId>();
-                    instance.Number = ObjectProvider.Create<NationalRoadNumber>();
-                })
-                .OmitAutoProperties());
-        ObjectProvider.Customize<RequestedRoadSegmentNumberedRoadAttribute>(composer =>
-            composer.Do(instance =>
-            {
-                instance.AttributeId = ObjectProvider.Create<AttributeId>();
-                instance.Number = ObjectProvider.Create<NumberedRoadNumber>();
-                instance.Direction = ObjectProvider.Create<RoadSegmentNumberedRoadDirection>();
-                instance.Ordinal = ObjectProvider.Create<RoadSegmentNumberedRoadOrdinal>();
-            }).OmitAutoProperties());
-        ObjectProvider.Customize<RequestedRoadSegmentLaneAttribute>(composer =>
-            composer.Do(instance =>
-            {
-                var positionGenerator = new Generator<RoadSegmentPosition>(ObjectProvider);
-                instance.AttributeId = ObjectProvider.Create<AttributeId>();
-                instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
-                instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
-                instance.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
-                instance.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
-            }).OmitAutoProperties());
-        ObjectProvider.Customize<RequestedRoadSegmentWidthAttribute>(composer =>
-            composer.Do(instance =>
-            {
-                var positionGenerator = new Generator<RoadSegmentPosition>(ObjectProvider);
-                instance.AttributeId = ObjectProvider.Create<AttributeId>();
-                instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
-                instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
-                instance.Width = ObjectProvider.Create<RoadSegmentWidth>();
-            }).OmitAutoProperties());
-        ObjectProvider.Customize<RequestedRoadSegmentSurfaceAttribute>(composer =>
-            composer.Do(instance =>
-            {
-                var positionGenerator = new Generator<RoadSegmentPosition>(ObjectProvider);
-                instance.AttributeId = ObjectProvider.Create<AttributeId>();
-                instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
-                instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
-                instance.Type = ObjectProvider.Create<RoadSegmentSurfaceType>();
-            }).OmitAutoProperties());
-
         ArchiveId = ObjectProvider.Create<ArchiveId>();
         RequestId = ChangeRequestId.FromArchiveId(ArchiveId);
         ReasonForChange = ObjectProvider.Create<Reason>();
@@ -855,6 +771,150 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                     },
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
+        );
+    }
+
+    [Fact]
+    public Task GivenUpgradedCategory_WhenCategoryNotModified_ThenIgnoreNewValueAndGiveWarning()
+    {
+        var upgradedCategory = RoadSegmentCategory.EuropeanMainRoad;
+        var notUpgradedCategory = RoadSegmentCategory.Unknown;
+
+        var initial = new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithRoadNodeAdded(TestData.StartNode1Added)
+            .WithRoadNodeAdded(TestData.EndNode1Added)
+            .WithRoadSegmentAdded(TestData.Segment1Added, segment =>
+            {
+                segment.Category = upgradedCategory;
+            })
+            .Build();
+
+        var command = new ChangeRoadNetworkBuilder(TestData)
+            .WithModifyRoadSegment(TestData.ModifySegment1, segment =>
+            {
+                segment.Category = notUpgradedCategory;
+                segment.CategoryModified = false;
+            })
+            .Build();
+
+        var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithClock(Clock)
+            .WithTransactionId(2)
+            .WithRoadSegmentModified(TestData.Segment1Modified,
+                segment =>
+                {
+                    segment.Category = upgradedCategory;
+                },
+                [
+                    new Problem
+                    {
+                        Severity = ProblemSeverity.Warning,
+                        Reason = "RoadSegmentCategoryNotChangedBecauseCurrentIsNewerVersion",
+                        Parameters =
+                        [
+                            new ProblemParameter
+                            {
+                                Name = "Identifier",
+                                Value = "1"
+                            }
+                        ]
+                    }
+                ])
+            .Build();
+
+        return Run(scenario =>
+            scenario
+                .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
+                .Given(RoadNetworks.Stream, initial)
+                .When(command)
+                .Then(RoadNetworks.Stream, expected)
+        );
+    }
+
+    [Fact]
+    public Task GivenUpgradedCategory_WhenCategoryNotModifiedAndSegmentIsOutlined_ThenKeepNewValue()
+    {
+        var testData = new RoadNetworkTestData(fixture =>
+        {
+            fixture.CustomizeRoadSegmentOutline();
+        });
+
+        var upgradedCategory = RoadSegmentCategory.EuropeanMainRoad;
+        var notUpgradedCategory = RoadSegmentCategory.Unknown;
+
+        var initial = new RoadNetworkChangesAcceptedBuilder(testData)
+            .WithOutlinedRoadSegment(testData.Segment1Added, segment =>
+            {
+                segment.Category = upgradedCategory;
+            })
+            .Build();
+
+        var command = new ChangeRoadNetworkBuilder(testData)
+            .WithModifyOutlinedRoadSegment(testData.ModifySegment1, segment =>
+            {
+                segment.Category = notUpgradedCategory;
+                segment.CategoryModified = false;
+            })
+            .Build();
+
+        var expected = new RoadNetworkChangesAcceptedBuilder(testData)
+            .WithClock(Clock)
+            .WithTransactionId(2)
+            .WithOutlinedRoadSegmentModified(testData.Segment1Modified,
+                segment =>
+                {
+                    segment.Category = notUpgradedCategory;
+                })
+            .Build();
+
+        return Run(scenario =>
+            scenario
+                .Given(Organizations.ToStreamName(testData.ChangedByOrganization), testData.ChangedByImportedOrganization)
+                .Given(RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(testData.Segment1Added.Id)), initial)
+                .When(command)
+                .Then(RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(testData.Segment1Added.Id)), expected)
+        );
+    }
+
+    [Fact]
+    public Task GivenUpgradedCategory_WhenCategoryModified_ThenKeepNewValue()
+    {
+        var upgradedCategory = RoadSegmentCategory.EuropeanMainRoad;
+        var category = ObjectProvider.Create<RoadSegmentCategory>();
+
+        var initial = new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithRoadNodeAdded(TestData.StartNode1Added)
+            .WithRoadNodeAdded(TestData.EndNode1Added)
+            .WithRoadSegmentAdded(TestData.Segment1Added, segment =>
+            {
+                segment.Category = upgradedCategory;
+            })
+            .Build();
+
+        var command = new ChangeRoadNetworkBuilder(TestData)
+            .WithModifyRoadSegment(TestData.ModifySegment1, segment =>
+            {
+                segment.Category = category;
+                segment.CategoryModified = true;
+            })
+            .Build();
+
+        var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithClock(Clock)
+            .WithTransactionId(2)
+            .WithRoadSegmentModified(TestData.Segment1Modified,
+                segment =>
+                {
+                    segment.Category = category;
+                })
+            .Build();
+
+        return Run(scenario =>
+            scenario
+                .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
+                .Given(RoadNetworks.Stream, initial)
+                .When(command)
+                .Then(RoadNetworks.Stream, expected)
         );
     }
 }

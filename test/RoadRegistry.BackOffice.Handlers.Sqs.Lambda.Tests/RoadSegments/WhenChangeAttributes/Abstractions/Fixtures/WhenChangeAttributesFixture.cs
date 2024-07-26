@@ -25,12 +25,6 @@ public abstract class WhenChangeAttributesFixture : SqsLambdaHandlerFixture<Chan
     protected WhenChangeAttributesFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IClock clock, SqsLambdaHandlerOptions options)
         : base(configuration, customRetryPolicy, clock, options)
     {
-        ObjectProvider.CustomizeRoadSegmentOutlineStatus();
-        ObjectProvider.CustomizeRoadSegmentSurfaceType();
-        ObjectProvider.CustomizeRoadSegmentWidth();
-        ObjectProvider.CustomizeRoadSegmentLaneCount();
-        ObjectProvider.CustomizeRoadSegmentOutlineMorphology();
-
         Organisation = ObjectProvider.Create<Organisation>();
     }
 

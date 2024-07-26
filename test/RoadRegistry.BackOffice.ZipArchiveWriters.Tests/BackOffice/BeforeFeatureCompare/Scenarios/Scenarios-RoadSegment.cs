@@ -461,7 +461,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                     ))
                     ;
             });
-        
+
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
 
@@ -519,7 +519,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                         )
                     ));
             });
-        
+
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
 
@@ -544,12 +544,12 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                 });
                 var roadSegmentShapeRecord = builder.CreateRoadSegmentShapeRecord(lineString);
                 builder.DataSet.RoadSegmentShapeRecords.Add(roadSegmentShapeRecord);
-                
+
                 var roadSegmentDbaseRecord = builder.CreateRoadSegmentDbaseRecord();
                 roadSegmentDbaseRecord.B_WK_OIDN.Value = roadNodeDbaseRecord1.WK_OIDN.Value;
                 roadSegmentDbaseRecord.E_WK_OIDN.Value = roadNodeDbaseRecord2.WK_OIDN.Value;
                 builder.DataSet.RoadSegmentDbaseRecords.Add(roadSegmentDbaseRecord);
-                
+
                 var laneDbaseRecord = builder.CreateRoadSegmentLaneDbaseRecord();
                 laneDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord.WS_OIDN.Value;
                 laneDbaseRecord.VANPOS.Value = 0;
@@ -574,7 +574,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var problem = Assert.Single(ex.Problems);
         Assert.Equal(nameof(DbaseFileProblems.RoadSegmentIsAlreadyProcessed), problem.Reason);
     }
-    
+
     [Fact]
     public async Task ConversionFromOutlinedToMeasuredShouldReturnExpectedResult()
     {
@@ -667,7 +667,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
-    
+
     [Fact]
     public async Task MultipleOutlinedRoadSegmentsWithIdenticalGeometriesShouldNotBeAProblem()
     {
@@ -709,7 +709,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
-    
+
     [Fact]
     public async Task MultipleOutlinedRoadSegmentsWithOverlappingGeometriesButChangedGeometriesShouldReturnExpectedResult()
     {
@@ -744,7 +744,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                     new CoordinateM(lineString.Coordinates[1].X + 1, lineString.Coordinates[1].Y, lineString.Coordinates[1].M + 1)
                 });
                 builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
-                
+
                 builder.DataSet.Clear();
                 builder.DataSet.RoadSegmentDbaseRecords.Add(builder.TestData.RoadSegment1DbaseRecord);
                 builder.DataSet.RoadSegmentShapeRecords.Add(builder.TestData.RoadSegment1ShapeRecord);
@@ -805,5 +805,65 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
         var problem = Assert.Single(ex.Problems);
         Assert.Equal(nameof(DbaseFileProblems.RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange), problem.Reason);
+    }
+
+    [Fact]
+    public async Task GivenUserChangedCategory_ThenCategoryModifiedShouldBeTrue()
+    {
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                var extractCategory = RoadSegmentCategory.ByIdentifier[context.Extract.TestData.RoadSegment1DbaseRecord.CATEGORIE.Value];
+                builder.TestData.RoadSegment1DbaseRecord.CATEGORIE.Value = context.Fixture.CreateWhichIsDifferentThan(extractCategory).Translation.Identifier;
+            })
+            .BuildWithResult(context =>
+            {
+                return TranslatedChanges.Empty
+                    .AppendChange(
+                        new ModifyRoadSegment(
+                                new RecordNumber(1),
+                                new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
+                                new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value),
+                                new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value),
+                                new OrganizationId(context.Change.TestData.RoadSegment1DbaseRecord.BEHEERDER.Value),
+                                RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
+                                RoadSegmentMorphology.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.MORFOLOGIE.Value],
+                                RoadSegmentStatus.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.STATUS.Value],
+                                RoadSegmentCategory.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.CATEGORIE.Value],
+                                RoadSegmentAccessRestriction.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.TGBEP.Value],
+                                StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
+                                StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
+                            )
+                            .WithCategoryModified(true)
+                            .WithGeometry(context.Change.TestData.RoadSegment1ShapeRecord.Geometry)
+                            .WithLane(
+                                new RoadSegmentLaneAttribute(
+                                    new AttributeId(context.Change.TestData.RoadSegment1LaneDbaseRecord.RS_OIDN.Value),
+                                    new RoadSegmentLaneCount(context.Change.TestData.RoadSegment1LaneDbaseRecord.AANTAL.Value),
+                                    RoadSegmentLaneDirection.ByIdentifier[context.Change.TestData.RoadSegment1LaneDbaseRecord.RICHTING.Value],
+                                    new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1LaneDbaseRecord.VANPOS.Value)),
+                                    new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value))
+                                )
+                            )
+                            .WithWidth(
+                                new RoadSegmentWidthAttribute(
+                                    new AttributeId(context.Change.TestData.RoadSegment1WidthDbaseRecord.WB_OIDN.Value),
+                                    new RoadSegmentWidth(context.Change.TestData.RoadSegment1WidthDbaseRecord.BREEDTE.Value),
+                                    new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1WidthDbaseRecord.VANPOS.Value)),
+                                    new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value))
+                                )
+                            )
+                            .WithSurface(
+                                new RoadSegmentSurfaceAttribute(
+                                    new AttributeId(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.WV_OIDN.Value),
+                                    RoadSegmentSurfaceType.ByIdentifier[context.Change.TestData.RoadSegment1SurfaceDbaseRecord.TYPE.Value],
+                                    new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.VANPOS.Value)),
+                                    new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value))
+                                )
+                            )
+                    );
+            });
+
+        await TranslateReturnsExpectedResult(zipArchive, expected);
     }
 }

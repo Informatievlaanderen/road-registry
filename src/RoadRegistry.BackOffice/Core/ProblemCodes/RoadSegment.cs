@@ -24,6 +24,7 @@ public sealed partial record ProblemCode
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentCategoryNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentCategoryIsRequired");
+            public static readonly ProblemCode NotChangedBecauseCurrentIsNewerVersion = new("RoadSegmentCategoryNotChangedBecauseCurrentIsNewerVersion");
         }
 
         public static class EuropeanRoads
@@ -105,13 +106,13 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode CountGreaterThanOne = new("RoadSegmentLanesCountGreaterThanOne");
             public static readonly ProblemCode HasCountOfZero = new("RoadSegmentLanesHasCountOfZero");
         }
-        
+
         public static class LaneCount
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentLaneCountNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentLaneCountIsRequired");
         }
-        
+
         public static class LaneDirection
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentLaneDirectionNotValid");
@@ -124,7 +125,7 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode IsRequired = new("RoadSegmentMaintenanceAuthorityIsRequired");
             public static readonly ProblemCode NotKnown = new("RoadSegmentMaintenanceAuthorityNotKnown");
         }
-        
+
         public static class Morphology
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentMorphologyNotValid");

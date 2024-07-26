@@ -89,6 +89,12 @@ public class ProblemTranslatorTests
                     new ProblemParameter("Minimum", "1.0")
                 }
             },
+            {
+                ProblemCode.RoadSegment.Category.NotChangedBecauseCurrentIsNewerVersion, new[]
+                {
+                    new ProblemParameter("Identifier", "1")
+                }
+            },
         };
 
         var allValues = ProblemCode.GetValues();
