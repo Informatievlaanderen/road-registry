@@ -1,28 +1,31 @@
 namespace RoadRegistry.SyncHost;
 
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Autofac;
 using BackOffice;
 using BackOffice.Core;
 using BackOffice.Extensions;
 using BackOffice.Extracts.Dbase.RoadSegments;
-using BackOffice.FeatureToggles;
 using BackOffice.Framework;
 using BackOffice.Messages;
 using BackOffice.Uploads;
+using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Editor.Schema.Extensions;
 using FluentValidation;
 using Hosts;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
 using SqlStreamStore;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
+using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
+using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
+using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
 using StreetNameWasRemovedV2 = Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry.StreetNameWasRemovedV2;
 using StreetNameWasRenamed = Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry.StreetNameWasRenamed;
 
@@ -64,7 +67,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         await _consumer.ConsumeContinuously(async (message, dbContext) =>
             {
                 Logger.LogInformation("Processing {Type}", message.GetType().Name);
-                
+
                 Command roadNetworkCommand = null;
 
                 if (message is StreetNameWasRemovedV2 streetNameWasRemoved)
@@ -77,6 +80,14 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
 
                     var streetNameEvent = BuildStreetNameEvent(streetNameWasRenamed);
                     await _streetNameEventWriter.WriteAsync(streetNameEvent, cancellationToken);
+                }
+                else if (message is StreetNameWasRetiredBecauseOfMunicipalityMerger streetNameWasRetired)
+                {
+                    roadNetworkCommand = await BuildRoadNetworkCommand(streetNameWasRetired, cancellationToken);
+                }
+                else if (message is StreetNameWasRejectedBecauseOfMunicipalityMerger streetNameWasRejected)
+                {
+                    roadNetworkCommand = await BuildRoadNetworkCommand(streetNameWasRejected, cancellationToken);
                 }
 
                 if (roadNetworkCommand is not null)
@@ -98,7 +109,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
             DestinationStreetNameLocalId = message.DestinationPersistentLocalId
         });
     }
-    
+
     private async Task<Command> BuildRoadNetworkCommand(StreetNameWasRemovedV2 message, CancellationToken cancellationToken)
     {
         var waitForProjectionStateName = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
@@ -145,6 +156,52 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         return null;
     }
 
+    private async Task<Command> BuildRoadNetworkCommand(StreetNameWasRetiredBecauseOfMunicipalityMerger message, CancellationToken cancellationToken)
+    {
+        var waitForProjectionStateName = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
+
+        using (var editorContext = _editorContextFactory())
+        {
+            await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, waitForProjectionStateName, Logger, cancellationToken);
+
+            var changeRoadNetwork = await BuildChangeRoadNetworkToConnectRoadSegmentsToDifferentStreetName(
+                message.PersistentLocalId,
+                message.NewPersistentLocalIds.First(),
+                $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {message.NewPersistentLocalIds.First()} in functie van een gemeentefusie",
+                editorContext,
+                cancellationToken);
+            if (changeRoadNetwork is not null)
+            {
+                return new Command(changeRoadNetwork);
+            }
+        }
+
+        return null;
+    }
+
+    private async Task<Command> BuildRoadNetworkCommand(StreetNameWasRejectedBecauseOfMunicipalityMerger message, CancellationToken cancellationToken)
+    {
+        var waitForProjectionStateName = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
+
+        using (var editorContext = _editorContextFactory())
+        {
+            await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, waitForProjectionStateName, Logger, cancellationToken);
+
+            var changeRoadNetwork = await BuildChangeRoadNetworkToConnectRoadSegmentsToDifferentStreetName(
+                message.PersistentLocalId,
+                message.NewPersistentLocalIds.First(),
+                $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {message.NewPersistentLocalIds.First()} in functie van een gemeentefusie",
+                editorContext,
+                cancellationToken);
+            if (changeRoadNetwork is not null)
+            {
+                return new Command(changeRoadNetwork);
+            }
+        }
+
+        return null;
+    }
+
     private async Task<ChangeRoadNetwork> BuildChangeRoadNetworkToConnectRoadSegmentsToDifferentStreetName(int sourceStreetNameId, int destinationStreetNameId, string reason, EditorContext editorContext, CancellationToken cancellationToken)
     {
         var segments = await editorContext.RoadSegments
@@ -175,7 +232,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
 
         foreach (var roadSegment in segments)
         {
-            var modifyRoadSegment = new BackOffice.Uploads.ModifyRoadSegment(
+            var modifyRoadSegment = new ModifyRoadSegment(
                 recordNumber,
                 new RoadSegmentId(roadSegment.Id),
                 new RoadNodeId(roadSegment.StartNodeId),
@@ -189,7 +246,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
                 roadSegment.LeftSideStreetNameId == sourceStreetNameId ? StreetNameLocalId.FromValue(destinationStreetNameId) : StreetNameLocalId.FromValue(roadSegment.LeftSideStreetNameId),
                 roadSegment.RightSideStreetNameId == sourceStreetNameId ? StreetNameLocalId.FromValue(destinationStreetNameId) : StreetNameLocalId.FromValue(roadSegment.RightSideStreetNameId)
             ).WithGeometry(roadSegment.Geometry.ToMultiLineString());
-            
+
             var roadSegmentLanes = lanes
                 .Where(x => x.RoadSegmentId == roadSegment.Id)
                 .Select(x => new RoadSegmentLaneAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _encoding))
@@ -212,7 +269,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
             {
                 foreach (var lane in roadSegmentLanes)
                 {
-                    modifyRoadSegment = modifyRoadSegment.WithLane(new BackOffice.Uploads.RoadSegmentLaneAttribute(
+                    modifyRoadSegment = modifyRoadSegment.WithLane(new RoadSegmentLaneAttribute(
                         attributeIdProvider.Next(),
                         new RoadSegmentLaneCount(lane.AANTAL.Value),
                         RoadSegmentLaneDirection.ByIdentifier[lane.RICHTING.Value],
@@ -223,7 +280,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
             }
             else
             {
-                modifyRoadSegment = modifyRoadSegment.WithLane(new BackOffice.Uploads.RoadSegmentLaneAttribute(
+                modifyRoadSegment = modifyRoadSegment.WithLane(new RoadSegmentLaneAttribute(
                     attributeIdProvider.Next(),
                     RoadSegmentLaneCount.Unknown,
                     RoadSegmentLaneDirection.Unknown,
@@ -231,12 +288,12 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
                     RoadSegmentPosition.FromDouble(roadSegment.Geometry.Length)
                 ));
             }
-            
+
             if (roadSegmentSurfaces.Any())
             {
                 foreach (var surface in roadSegmentSurfaces)
                 {
-                    modifyRoadSegment = modifyRoadSegment.WithSurface(new BackOffice.Uploads.RoadSegmentSurfaceAttribute(
+                    modifyRoadSegment = modifyRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(
                         attributeIdProvider.Next(),
                         RoadSegmentSurfaceType.ByIdentifier[surface.TYPE.Value],
                         RoadSegmentPosition.FromDouble(surface.VANPOS.Value!.Value),
@@ -246,19 +303,19 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
             }
             else
             {
-                modifyRoadSegment = modifyRoadSegment.WithSurface(new BackOffice.Uploads.RoadSegmentSurfaceAttribute(
+                modifyRoadSegment = modifyRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(
                     attributeIdProvider.Next(),
                     RoadSegmentSurfaceType.Unknown,
                     new RoadSegmentPosition(0),
                     RoadSegmentPosition.FromDouble(roadSegment.Geometry.Length)
                 ));
             }
-            
+
             if (roadSegmentWidths.Any())
             {
                 foreach (var width in roadSegmentWidths)
                 {
-                    modifyRoadSegment = modifyRoadSegment.WithWidth(new BackOffice.Uploads.RoadSegmentWidthAttribute(
+                    modifyRoadSegment = modifyRoadSegment.WithWidth(new RoadSegmentWidthAttribute(
                         attributeIdProvider.Next(),
                         new RoadSegmentWidth(width.BREEDTE.Value),
                         RoadSegmentPosition.FromDouble(width.VANPOS.Value!.Value),
@@ -268,7 +325,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
             }
             else
             {
-                modifyRoadSegment = modifyRoadSegment.WithWidth(new BackOffice.Uploads.RoadSegmentWidthAttribute(
+                modifyRoadSegment = modifyRoadSegment.WithWidth(new RoadSegmentWidthAttribute(
                     attributeIdProvider.Next(),
                     RoadSegmentWidth.Unknown,
                     new RoadSegmentPosition(0),
