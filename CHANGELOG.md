@@ -1,3 +1,12 @@
+# [4.5.0](https://github.com/informatievlaanderen/road-registry/compare/v4.4.0...v4.5.0) (2024-08-05)
+
+
+### Features
+
+* blacklist ovocodes ([7d2d7de](https://github.com/informatievlaanderen/road-registry/commit/7d2d7deb32df06a4fda0abe40fb928677246e6ea))
+* consume streetname events for municipality merger ([#1520](https://github.com/informatievlaanderen/road-registry/issues/1520)) ([02e213c](https://github.com/informatievlaanderen/road-registry/commit/02e213ce1e521cb3e1d8de3d8b34c3dedaf755b1))
+* GAWR-6543 add validation when trying to change an upgraded category ([0221065](https://github.com/informatievlaanderen/road-registry/commit/0221065470b7377ec96e3e96b50662b37157dcfb))
+
 # [4.4.0](https://github.com/informatievlaanderen/road-registry/compare/v4.3.0...v4.4.0) (2024-07-08)
 
 
