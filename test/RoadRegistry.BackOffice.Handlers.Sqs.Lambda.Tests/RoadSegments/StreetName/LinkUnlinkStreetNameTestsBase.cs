@@ -6,18 +6,17 @@ using Core;
 using FeatureToggles;
 using Framework;
 using Messages;
-using Microsoft.Extensions.Logging;
 using NodaTime.Text;
 using RoadRegistry.StreetName;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 
-public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
+public abstract class LinkUnlinkStreetNameTestsBase : BackOfficeLambdaTest
 {
     protected readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.Lambda);
 
-    protected LinkUnlinkStreetNameTestsBase(ITestOutputHelper testOutputHelper, ILoggerFactory loggerFactory)
-        : base(testOutputHelper, loggerFactory)
+    protected LinkUnlinkStreetNameTestsBase(ITestOutputHelper testOutputHelper)
+        : base(testOutputHelper)
     {
         StreetNameClient = new StreetNameCacheClient(new FakeStreetNameCache()
             .AddStreetName(WellKnownStreetNameIds.Proposed, "Proposed street", nameof(StreetNameStatus.Proposed))
@@ -33,9 +32,9 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
     {
         base.ConfigureCommandHandling(builder);
 
-        builder.RegisterInstance(Dispatch.Using(Resolve.WhenEqualToMessage(
-            new CommandHandlerModule[]
-            {
+        builder
+            .Register(_ => Dispatch.Using(Resolve.WhenEqualToMessage(
+            [
                 new RoadNetworkCommandModule(
                     Store,
                     ScopedContainer,
@@ -46,7 +45,8 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
                     new RoadNetworkEventWriter(Store, EnrichEvent.WithTime(Clock)),
                     LoggerFactory
                 )
-            }), ApplicationMetadata));
+            ]), ApplicationMetadata))
+            .SingleInstance();
     }
 
     protected async Task GivenSegment1Added()
@@ -57,6 +57,7 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
             Name = TestData.ChangedByOrganizationName,
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
+
         await Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
         {
             RequestId = TestData.RequestId,
@@ -64,8 +65,8 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
             Operator = TestData.ChangedByOperator,
             OrganizationId = TestData.ChangedByOrganization,
             Organization = TestData.ChangedByOrganizationName,
-            Changes = new[]
-            {
+            Changes =
+            [
                 new AcceptedChange
                 {
                     RoadNodeAdded = TestData.StartNode1Added
@@ -78,7 +79,7 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
                 {
                     RoadSegmentAdded = TestData.Segment1Added
                 }
-            },
+            ],
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
     }

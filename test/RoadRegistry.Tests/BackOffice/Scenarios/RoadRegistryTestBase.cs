@@ -36,18 +36,12 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     private static readonly JsonSerializerSettings Settings =
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
-    protected readonly ILifetimeScope ScopedContainer;
     private ScenarioRunner _runner;
 
     protected RoadRegistryTestBase(ITestOutputHelper testOutputHelper, ComparisonConfig comparisonConfig = null)
         : base(testOutputHelper)
     {
-        var containerBuilder = new ContainerBuilder();
-        containerBuilder.RegisterInstance(new EventSourcedEntityMap());
-        containerBuilder.RegisterInstance(new FakeRoadNetworkIdGenerator()).As<IRoadNetworkIdGenerator>();
-        containerBuilder.RegisterInstance(TicketingMock.Object);
-        var container = containerBuilder.Build();
-        ScopedContainer = container.BeginLifetimeScope();
+        ScopedContainer = Container.BeginLifetimeScope();
 
         ObjectProvider = new Fixture();
         ObjectProvider.Register(() => (ISnapshotStrategy)NoSnapshotStrategy.Instance);
@@ -59,9 +53,25 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
         LoggerFactory = new LoggerFactory();
 
         WithStore(new InMemoryStreamStore(), comparisonConfig);
-        RoadRegistryContext = new RoadRegistryContext(ScopedContainer.Resolve<EventSourcedEntityMap>(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping, new NullLoggerFactory());
+        RoadRegistryContext = new RoadRegistryContext(
+            ScopedContainer.Resolve<EventSourcedEntityMap>(),
+            Store,
+            new FakeRoadNetworkSnapshotReader(),
+            Settings,
+            Mapping,
+            new NullLoggerFactory());
     }
 
+    protected override void ConfigureContainer(ContainerBuilder containerBuilder)
+    {
+        base.ConfigureContainer(containerBuilder);
+
+        containerBuilder.RegisterInstance(new EventSourcedEntityMap());
+        containerBuilder.RegisterInstance(new FakeRoadNetworkIdGenerator()).As<IRoadNetworkIdGenerator>();
+        containerBuilder.RegisterInstance(TicketingMock.Object);
+    }
+
+    protected ILifetimeScope ScopedContainer { get; }
     public MemoryBlobClient Client { get; }
     public FakeClock Clock { get; }
     public Fixture ObjectProvider { get; }
@@ -75,6 +85,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     public void Dispose()
     {
         Store?.Dispose();
+        ScopedContainer?.Dispose();
     }
 
     protected override void ConfigureCommandHandling(ContainerBuilder builder)
@@ -130,7 +141,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
         }
 
         var scenarioBuilder = builder(new Scenario());
-        
+
         var idGenerator = (FakeRoadNetworkIdGenerator)ScopedContainer.Resolve<IRoadNetworkIdGenerator>();
         idGenerator.SeedEvents(scenarioBuilder.Build()
             .Givens

@@ -22,7 +22,8 @@ using Xunit.Abstractions;
 
 public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 {
-    public SqsLambdaHandlerTests(ITestOutputHelper testOutputHelper, ILoggerFactory loggerFactory) : base(testOutputHelper, loggerFactory)
+    public SqsLambdaHandlerTests(ITestOutputHelper testOutputHelper)
+        : base(testOutputHelper)
     {
     }
 
