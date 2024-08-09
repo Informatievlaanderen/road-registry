@@ -1,5 +1,10 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenCreatingOutline;
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Abstractions.RoadSegmentsOutline;
 using Autofac;
 using AutoFixture;
@@ -19,10 +24,15 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using Requests;
+using RoadRegistry.Tests;
 using RoadRegistry.Tests.BackOffice;
 using Sqs.RoadSegments;
+using Xunit;
 using Xunit.Abstractions;
+using GeometryTranslator = BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
+
+//TODO-rik maak test variant voor edit outlined geometry volgens deze structuur + test voor geometry length too long
 
 public class GivenOrganizationExists: BackOfficeLambdaTest
 {
@@ -99,6 +109,27 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
 
         // Assert
         VerifyThatTicketHasError("MorfologischeWegklasseNietCorrect", "Morfologische wegklasse is foutief. 'Unknown' is geen geldige waarde.");
+    }
+
+    [Fact]
+    public async Task WhenGeometryIsTooLong_ThenTicketError()
+    {
+        // Arrange
+        await GivenOrganization();
+
+        // Act
+        var tooLongLineString = new LineString(
+            new CoordinateArraySequence([new CoordinateM(0, 0, 0), new CoordinateM(100000, 0, 100000)]),
+            GeometryConfiguration.GeometryFactory);
+
+        var request = ObjectProvider.Create<CreateRoadSegmentOutlineRequest>() with
+        {
+            Geometry = GeometryTranslator.Translate(tooLongLineString.ToMultiLineString())
+        };
+        await HandleRequest(request);
+
+        // Assert
+        VerifyThatTicketHasError("MiddellijnGeometrieTeLang", "De opgegeven geometrie zijn lengte is groter of gelijk dan 1 meter.");
     }
 
     private async Task HandleRequest(CreateRoadSegmentOutlineRequest request)

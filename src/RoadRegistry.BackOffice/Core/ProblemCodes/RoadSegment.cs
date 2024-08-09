@@ -78,6 +78,7 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode IsRequired = new("RoadSegmentGeometryIsRequired");
             public static readonly ProblemCode LengthIsZero = new("RoadSegmentGeometryLengthIsZero");
             public static readonly ProblemCode LengthLessThanMinimum = new("RoadSegmentGeometryLengthLessThanMinimum");
+            public static readonly ProblemCode LengthTooLong = new("RoadSegmentGeometryLengthTooLong");
             public static readonly ProblemCode SelfIntersects = new("RoadSegmentGeometrySelfIntersects");
             public static readonly ProblemCode SelfOverlaps = new("RoadSegmentGeometrySelfOverlaps");
             public static readonly ProblemCode SridNotValid = new("RoadSegmentGeometrySridNotValid");

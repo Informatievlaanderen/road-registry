@@ -37,18 +37,29 @@ public static class NetTopologySuiteExtensions
             problems = problems.Add(new RoadSegmentGeometryLengthIsLessThanMinimum(id, Distances.TooClose));
         }
 
+        if (!line.Length.IsReasonablyLessThan(Distances.TooLongSegmentLength, contextTolerances))
+        {
+            problems = problems.Add(new RoadSegmentGeometryLengthIsTooLong(id));
+        }
+
         return problems;
     }
-    
+
     public static Problems GetProblemsForRoadSegmentGeometry(this LineString line, RoadSegmentId id, VerificationContextTolerances contextTolerances)
     {
         var problems = Problems.None;
-        
+
         if (line.Length.IsReasonablyEqualTo(0, contextTolerances))
         {
             problems = problems.Add(new RoadSegmentGeometryLengthIsZero(id));
         }
-        
+
+        //TODO-rik add test
+        if (!line.Length.IsReasonablyLessThan(Distances.TooLongSegmentLength, contextTolerances))
+        {
+            problems = problems.Add(new RoadSegmentGeometryLengthIsTooLong(id));
+        }
+
         if (line.SelfOverlaps())
         {
             problems = problems.Add(new RoadSegmentGeometrySelfOverlaps(id));
@@ -328,7 +339,7 @@ public static class NetTopologySuiteExtensions
 
         throw new NotSupportedException($"{nameof(OgcGeometryType)}.{oGisGeometryType} is not supported");
     }
-    
+
     private static bool CheckOverlapViceVersa(Geometry g0, Geometry g1, OgcGeometryType oGisGeometryType, double threshold, double compareTolerance)
     {
         if (oGisGeometryType == OgcGeometryType.LineString)
