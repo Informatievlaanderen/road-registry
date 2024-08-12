@@ -138,7 +138,15 @@ public class ModifyRoadSegmentGeometry : IRequestedChange, IHaveHash
         {
             problems += new RoadSegmentNotFound();
         }
-        
+
+        if (GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+        {
+            var line = Geometry.GetSingleLineString();
+            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(Id, context.Tolerances);
+
+            return problems;
+        }
+
         return problems;
     }
 

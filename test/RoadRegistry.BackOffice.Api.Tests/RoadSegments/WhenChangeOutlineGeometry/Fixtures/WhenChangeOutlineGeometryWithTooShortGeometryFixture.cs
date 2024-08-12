@@ -4,9 +4,9 @@ using Api.RoadSegments;
 using Editor.Schema;
 using MediatR;
 
-public class WhenChangeOutlineGeometryWithInvalidGeometryLengthFixture : WhenChangeOutlineGeometryWithValidRequestFixture
+public class WhenChangeOutlineGeometryWithTooShortGeometryFixture : WhenChangeOutlineGeometryWithValidRequestFixture
 {
-    public WhenChangeOutlineGeometryWithInvalidGeometryLengthFixture(IMediator mediator, EditorContext editorContext, IRoadSegmentRepository roadSegmentRepository)
+    public WhenChangeOutlineGeometryWithTooShortGeometryFixture(IMediator mediator, EditorContext editorContext, IRoadSegmentRepository roadSegmentRepository)
         : base(mediator, editorContext, roadSegmentRepository)
     {
     }

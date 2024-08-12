@@ -32,14 +32,14 @@ public static class NetTopologySuiteExtensions
     {
         var problems = Problems.None;
 
-        if (Math.Abs(line.Length) <= Distances.TooClose)
+        if (line.Length.IsReasonablyLessThan(Distances.TooClose, contextTolerances))
         {
             problems = problems.Add(new RoadSegmentGeometryLengthIsLessThanMinimum(id, Distances.TooClose));
         }
 
         if (!line.Length.IsReasonablyLessThan(Distances.TooLongSegmentLength, contextTolerances))
         {
-            problems = problems.Add(new RoadSegmentGeometryLengthIsTooLong(id));
+            problems = problems.Add(new RoadSegmentGeometryLengthIsTooLong(id, Distances.TooLongSegmentLength));
         }
 
         return problems;
@@ -57,7 +57,7 @@ public static class NetTopologySuiteExtensions
         //TODO-rik add test
         if (!line.Length.IsReasonablyLessThan(Distances.TooLongSegmentLength, contextTolerances))
         {
-            problems = problems.Add(new RoadSegmentGeometryLengthIsTooLong(id));
+            problems = problems.Add(new RoadSegmentGeometryLengthIsTooLong(id, Distances.TooLongSegmentLength));
         }
 
         if (line.SelfOverlaps())

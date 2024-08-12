@@ -107,7 +107,7 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
 
     protected async Task GivenOrganization()
     {
-        await Given(Organizations.ToStreamName(new OrganizationId(OrganizationDbaseRecord.ORG.Value)),
+        await GivenEvents(Organizations.ToStreamName(new OrganizationId(OrganizationDbaseRecord.ORG.Value)),
             new ImportedOrganization
             {
                 Code = OrganizationDbaseRecord.ORG.Value,
@@ -166,12 +166,12 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
         return idempotentCommandHandler;
     }
 
-    protected Task Given(StreamName streamName, params object[] events)
+    protected Task GivenEvents(StreamName streamName, params object[] events)
     {
         return Store.Given(Mapping, Settings, StreamNameConverter, streamName, events);
     }
 
-    protected async Task AddRoadSegment(RoadSegmentId roadSegmentId)
+    protected async Task AddMeasuredRoadSegment(RoadSegmentId roadSegmentId)
     {
         var pointA = new Point(new CoordinateM(0.0, 0.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         var nodeA = ObjectProvider.Create<RoadNodeId>();
@@ -236,7 +236,7 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
                         Category = ObjectProvider.Create<RoadSegmentCategory>(),
                         Morphology = ObjectProvider.Create<RoadSegmentMorphology>(),
                         Status = ObjectProvider.Create<RoadSegmentStatus>(),
-                        GeometryDrawMethod = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>(),
+                        GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
                         Geometry = GeometryTranslator.Translate(line1),
                         GeometryVersion = ObjectProvider.Create<GeometryVersion>(),
                         MaintenanceAuthority = new MaintenanceAuthority
@@ -316,7 +316,106 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
             ]
         };
 
-        await Given(RoadNetworks.Stream, roadNetworkChangesAccepted);
+        await GivenEvents(RoadNetworks.Stream, roadNetworkChangesAccepted);
+    }
+
+    protected async Task AddOutlinedRoadSegment(RoadSegmentId roadSegmentId)
+    {
+        var pointA = new Point(new CoordinateM(0.0, 0.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+        var pointB = new Point(new CoordinateM(10.0, 0.0, 10.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+        var segment1 = roadSegmentId;
+        var line1 = new MultiLineString(
+            [
+                new LineString(
+                        new CoordinateArraySequence(new[] { pointA.Coordinate, pointB.Coordinate }),
+                        GeometryConfiguration.GeometryFactory
+                    )
+            ])
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+
+        var roadNetworkChangesAccepted = new RoadNetworkChangesAccepted
+        {
+            RequestId = TestData.RequestId,
+            Reason = TestData.ReasonForChange,
+            Operator = TestData.ChangedByOperator,
+            OrganizationId = TestData.ChangedByOrganization,
+            Organization = TestData.ChangedByOrganizationName,
+            TransactionId = new TransactionId(1),
+            Changes =
+            [
+                new AcceptedChange
+                {
+                    RoadSegmentAdded = new RoadSegmentAdded
+                    {
+                        Id = segment1,
+                        TemporaryId = ObjectProvider.Create<RoadSegmentId>(),
+                        Version = ObjectProvider.Create<int>(),
+                        StartNodeId = 0,
+                        EndNodeId = 0,
+                        AccessRestriction = ObjectProvider.Create<RoadSegmentAccessRestriction>(),
+                        Category = ObjectProvider.Create<RoadSegmentCategory>(),
+                        Morphology = ObjectProvider.Create<RoadSegmentMorphology>(),
+                        Status = ObjectProvider.Create<RoadSegmentStatus>(),
+                        GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined,
+                        Geometry = GeometryTranslator.Translate(line1),
+                        GeometryVersion = ObjectProvider.Create<GeometryVersion>(),
+                        MaintenanceAuthority = new MaintenanceAuthority
+                        {
+                            Code = ObjectProvider.Create<OrganizationId>(),
+                            Name = ObjectProvider.Create<OrganizationName>()
+                        },
+                        LeftSide = new RoadSegmentSideAttributes
+                        {
+                            StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
+                        },
+                        RightSide = new RoadSegmentSideAttributes
+                        {
+                            StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
+                        },
+                        Lanes = ObjectProvider
+                            .CreateMany<RoadSegmentLaneAttributes>(1)
+                            .Select(part =>
+                            {
+                                part.FromPosition = 0;
+                                part.ToPosition = Convert.ToDecimal(line1.Length);
+
+                                part.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
+                                part.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
+
+                                return part;
+                            })
+                            .ToArray(),
+                        Widths = ObjectProvider
+                            .CreateMany<RoadSegmentWidthAttributes>(1)
+                            .Select(part =>
+                            {
+                                part.FromPosition = 0;
+                                part.ToPosition = Convert.ToDecimal(line1.Length);
+
+                                part.Width = ObjectProvider.Create<RoadSegmentWidth>();
+
+                                return part;
+                            })
+                            .ToArray(),
+                        Surfaces = ObjectProvider
+                            .CreateMany<RoadSegmentSurfaceAttributes>(1)
+                            .Select(part =>
+                            {
+                                part.FromPosition = 0;
+                                part.ToPosition = Convert.ToDecimal(line1.Length);
+
+                                part.Type = ObjectProvider.Create<RoadSegmentSurfaceType>();
+
+                                return part;
+                            })
+                            .ToArray()
+                    },
+                    Problems = []
+                }
+            ]
+        };
+
+        await GivenEvents(RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(roadSegmentId), roadNetworkChangesAccepted);
     }
 
     protected async Task ThrowIfLastCommandIsRoadNetworkChangesRejected()
@@ -375,6 +474,10 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
             x.Error(It.IsAny<Guid>(),
                 new TicketError(message, code),
                 CancellationToken.None));
+    }
+    protected void VerifyThatTicketHasErrorList(string code, string message)
+    {
+        VerifyThatTicketHasErrorList(TicketingMock, code, message);
     }
     protected void VerifyThatTicketHasErrorList(Mock<ITicketing> ticketing, string code, string message)
     {

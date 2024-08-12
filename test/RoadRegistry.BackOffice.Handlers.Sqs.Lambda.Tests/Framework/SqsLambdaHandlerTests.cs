@@ -65,7 +65,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 
         var roadSegmentId = new RoadSegmentId(456);
 
-        await AddRoadSegment(roadSegmentId);
+        await AddMeasuredRoadSegment(roadSegmentId);
 
         var sut = new FakeLambdaHandler(
             Container.Resolve<SqsLambdaHandlerOptions>(),

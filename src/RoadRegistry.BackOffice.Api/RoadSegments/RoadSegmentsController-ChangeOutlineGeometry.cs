@@ -134,7 +134,6 @@ public class PostChangeOutlineGeometryParametersValidator : AbstractValidator<Po
             .WithProblemCode(ProblemCode.RoadSegment.Geometry.SridNotValid)
             .Must(gml => GeometryTranslator.ParseGmlLineString(gml).Length >= Distances.TooClose)
             .WithProblemCode(RoadSegmentGeometryLengthIsLessThanMinimum.ProblemCode, _ => new RoadSegmentGeometryLengthIsLessThanMinimum(Distances.TooClose))
-            //TODO-rik test
             .Must(gml => GeometryTranslator.ParseGmlLineString(gml).Length < Distances.TooLongSegmentLength)
             .WithProblemCode(RoadSegmentGeometryLengthIsTooLong.ProblemCode, _ => new RoadSegmentGeometryLengthIsTooLong(Distances.TooLongSegmentLength));
     }

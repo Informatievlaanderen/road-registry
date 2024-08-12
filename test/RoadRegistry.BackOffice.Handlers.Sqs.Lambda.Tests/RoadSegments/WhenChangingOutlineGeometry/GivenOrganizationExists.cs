@@ -1,10 +1,5 @@
-﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenCreatingOutline;
+﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenChangingOutlineGeometry;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.RoadSegmentsOutline;
 using Autofac;
 using AutoFixture;
@@ -24,12 +19,10 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using Requests;
-using RoadRegistry.Tests;
 using RoadRegistry.Tests.BackOffice;
 using Sqs.RoadSegments;
-using Xunit;
 using Xunit.Abstractions;
-using GeometryTranslator = BackOffice.GeometryTranslator;
+using GeometryTranslator = GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 
 public class GivenOrganizationExists: BackOfficeLambdaTest
@@ -43,70 +36,40 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
     {
         CustomRetryPolicy = customRetryPolicy;
 
-        ObjectProvider.CustomizeRoadSegmentOutline();
-        ObjectProvider.CustomizeRoadSegmentSurfaceType();
-
-        ObjectProvider.Customize<LineString>(customization =>
-            customization.FromFactory(_ => new LineString(
-                new CoordinateArraySequence([new CoordinateM(0, 0, 0), new CoordinateM(10, 0, 10)]),
-                GeometryConfiguration.GeometryFactory)
-            ).OmitAutoProperties()
-        );
+        ObjectProvider.CustomizeRoadSegmentOutlineGeometryDrawMethod();
     }
 
-    [Fact]
-    public async Task WhenValidRequest_ThenChangeRoadNetwork()
+    [Theory]
+    [InlineData(2)]
+    [InlineData(10)]
+    [InlineData(99999.99)]
+    public async Task WhenValidRequest_ThenChangeRoadNetwork(double length)
     {
         // Arrange
         await GivenOrganization();
 
+        var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
+        await AddOutlinedRoadSegment(roadSegmentId);
+
         // Act
-        var request = ObjectProvider.Create<CreateRoadSegmentOutlineRequest>();
+        var lineString = new LineString(
+            new CoordinateArraySequence([new CoordinateM(0, 0, 0), new CoordinateM(length, 0, length)]),
+            GeometryConfiguration.GeometryFactory);
+
+        var request = new ChangeRoadSegmentOutlineGeometryRequest(
+            roadSegmentId,
+            GeometryTranslator.Translate(lineString.ToMultiLineString())
+        );
         await HandleRequest(request);
 
         // Assert
         await ThrowIfLastCommandIsRoadNetworkChangesRejected();
 
-        var roadSegmentId = new RoadSegmentId(1);
         await VerifyThatTicketHasCompleted(roadSegmentId);
 
         var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
         command.Changes.Length.Should().Be(1);
-        command.Changes.Single().RoadSegmentAdded.Id.Should().Be(roadSegmentId);
-    }
-
-    [Fact]
-    public async Task WhenStatusIsUnknown_ThenTicketError()
-    {
-        // Arrange
-        await GivenOrganization();
-
-        // Act
-        var request = ObjectProvider.Create<CreateRoadSegmentOutlineRequest>() with
-        {
-            Status = RoadSegmentStatus.Unknown
-        };
-        await HandleRequest(request);
-
-        // Assert
-        VerifyThatTicketHasError("WegsegmentStatusNietCorrect", "Wegsegment status is foutief. 'Unknown' is geen geldige waarde.");
-    }
-
-    [Fact]
-    public async Task WhenMorphologyIsUnknown_ThenTicketError()
-    {
-        // Arrange
-        await GivenOrganization();
-
-        // Act
-        var request = ObjectProvider.Create<CreateRoadSegmentOutlineRequest>() with
-        {
-            Morphology = RoadSegmentMorphology.Unknown
-        };
-        await HandleRequest(request);
-
-        // Assert
-        VerifyThatTicketHasError("MorfologischeWegklasseNietCorrect", "Morfologische wegklasse is foutief. 'Unknown' is geen geldige waarde.");
+        command.Changes.Single().RoadSegmentGeometryModified.Id.Should().Be(roadSegmentId);
     }
 
     [Fact]
@@ -115,24 +78,51 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
         // Arrange
         await GivenOrganization();
 
+        var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
+        await AddOutlinedRoadSegment(roadSegmentId);
+
         // Act
         var tooLongLineString = new LineString(
             new CoordinateArraySequence([new CoordinateM(0, 0, 0), new CoordinateM(100000, 0, 100000)]),
             GeometryConfiguration.GeometryFactory);
 
-        var request = ObjectProvider.Create<CreateRoadSegmentOutlineRequest>() with
-        {
-            Geometry = GeometryTranslator.Translate(tooLongLineString.ToMultiLineString())
-        };
+        var request = new ChangeRoadSegmentOutlineGeometryRequest(
+            roadSegmentId,
+            GeometryTranslator.Translate(tooLongLineString.ToMultiLineString())
+        );
         await HandleRequest(request);
 
         // Assert
-        VerifyThatTicketHasError("MiddellijnGeometrieTeLang", "De opgegeven geometrie zijn lengte is groter of gelijk dan 1 meter.");
+        VerifyThatTicketHasErrorList("MiddellijnGeometrieTeLang", "De opgegeven geometrie van wegsegment met id 1 zijn lengte is groter of gelijk dan 100000 meter.");
     }
 
-    private async Task HandleRequest(CreateRoadSegmentOutlineRequest request)
+    [Fact]
+    public async Task WhenGeometryIsTooShort_ThenTicketError()
     {
-        var sqsRequest = new CreateRoadSegmentOutlineSqsRequest
+        // Arrange
+        await GivenOrganization();
+
+        var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
+        await AddOutlinedRoadSegment(roadSegmentId);
+
+        // Act
+        var tooLongLineString = new LineString(
+            new CoordinateArraySequence([new CoordinateM(0, 0, 0), new CoordinateM(1.99, 0, 1.99)]),
+            GeometryConfiguration.GeometryFactory);
+
+        var request = new ChangeRoadSegmentOutlineGeometryRequest(
+            roadSegmentId,
+            GeometryTranslator.Translate(tooLongLineString.ToMultiLineString())
+        );
+        await HandleRequest(request);
+
+        // Assert
+        VerifyThatTicketHasErrorList("MiddellijnGeometrieKorterDanMinimum", "De opgegeven geometrie van wegsegment met id 1 heeft niet de minimale lengte van 2 meter.");
+    }
+
+    private async Task HandleRequest(ChangeRoadSegmentOutlineGeometryRequest request)
+    {
+        var sqsRequest = new ChangeRoadSegmentOutlineGeometrySqsRequest
         {
             Request = request,
             TicketId = Guid.NewGuid(),
@@ -140,17 +130,16 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
             ProvenanceData = ObjectProvider.Create<ProvenanceData>()
         };
 
-        var sqsLambdaRequest = new CreateRoadSegmentOutlineSqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest);
+        var sqsLambdaRequest = new ChangeRoadSegmentOutlineGeometrySqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest);
 
-        var handler = new CreateRoadSegmentOutlineSqsLambdaRequestHandler(
+        var handler = new ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler(
             SqsLambdaHandlerOptions,
             CustomRetryPolicy,
             TicketingMock.Object,
             ScopedContainer.Resolve<IIdempotentCommandHandler>(),
             RoadRegistryContext,
             ScopedContainer.Resolve<IChangeRoadNetworkDispatcher>(),
-            OrganizationCache,
-            new NullLogger<CreateRoadSegmentOutlineSqsLambdaRequestHandler>()
+            new NullLogger<ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler>()
         );
         await handler.Handle(sqsLambdaRequest, CancellationToken.None);
     }

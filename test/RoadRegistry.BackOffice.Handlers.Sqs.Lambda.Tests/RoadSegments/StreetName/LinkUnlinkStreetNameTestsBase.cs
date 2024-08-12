@@ -51,14 +51,14 @@ public abstract class LinkUnlinkStreetNameTestsBase : BackOfficeLambdaTest
 
     protected async Task GivenSegment1Added()
     {
-        await Given(Organizations.ToStreamName(TestData.ChangedByOrganization), new ImportedOrganization
+        await GivenEvents(Organizations.ToStreamName(TestData.ChangedByOrganization), new ImportedOrganization
         {
             Code = TestData.ChangedByOrganization,
             Name = TestData.ChangedByOrganizationName,
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
 
-        await Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+        await GivenEvents(RoadNetworks.Stream, new RoadNetworkChangesAccepted
         {
             RequestId = TestData.RequestId,
             Reason = TestData.ReasonForChange,
