@@ -1,3 +1,10 @@
+# [4.6.0](https://github.com/informatievlaanderen/road-registry/compare/v4.5.0...v4.6.0) (2024-08-12)
+
+
+### Features
+
+* limit length of road segment geometry ([#1522](https://github.com/informatievlaanderen/road-registry/issues/1522)) ([4f13d7a](https://github.com/informatievlaanderen/road-registry/commit/4f13d7ac3cd7e4e03add0a3043dfe336aaa08471))
+
 # [4.5.0](https://github.com/informatievlaanderen/road-registry/compare/v4.4.0...v4.5.0) (2024-08-05)
 
 
