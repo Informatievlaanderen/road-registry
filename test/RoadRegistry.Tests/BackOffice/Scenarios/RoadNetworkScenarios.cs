@@ -1079,7 +1079,8 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                     OrganizationId = TestData.ChangedByOrganization,
                     Organization = TestData.ChangedByOrganizationName,
                     TransactionId = new TransactionId(1),
-                    Changes = [
+                    Changes =
+                    [
                         new AcceptedChange
                         {
                             RoadNodeAdded = TestData.StartNode1Added,
@@ -1241,7 +1242,8 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                     OrganizationId = TestData.ChangedByOrganization,
                     Organization = TestData.ChangedByOrganizationName,
                     TransactionId = new TransactionId(1),
-                    Changes = [
+                    Changes =
+                    [
                         new AcceptedChange
                         {
                             RoadNodeAdded = TestData.StartNode1Added,
@@ -1409,7 +1411,8 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                     OrganizationId = TestData.ChangedByOrganization,
                     Organization = TestData.ChangedByOrganizationName,
                     TransactionId = new TransactionId(1),
-                    Changes = [
+                    Changes =
+                    [
                         new AcceptedChange
                         {
                             RoadNodeAdded = TestData.StartNode1Added,
@@ -2209,7 +2212,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             new Problem
                             {
                                 Reason = "RoadSegmentLaneAttributeToPositionNotEqualToLength",
-                                Parameters = new []
+                                Parameters = new[]
                                 {
                                     new ProblemParameter { Name = "AttributeId", Value = TestData.Segment1Added.Lanes[0].AttributeId.ToString() },
                                     new ProblemParameter { Name = "ToPosition", Value = "1" },
@@ -2219,7 +2222,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             new Problem
                             {
                                 Reason = "RoadSegmentWidthAttributeToPositionNotEqualToLength",
-                                Parameters = new []
+                                Parameters = new[]
                                 {
                                     new ProblemParameter { Name = "AttributeId", Value = TestData.Segment1Added.Widths[0].AttributeId.ToString() },
                                     new ProblemParameter { Name = "ToPosition", Value = "1" },
@@ -2229,7 +2232,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             new Problem
                             {
                                 Reason = "RoadSegmentSurfaceAttributeToPositionNotEqualToLength",
-                                Parameters = new []
+                                Parameters = new[]
                                 {
                                     new ProblemParameter { Name = "AttributeId", Value = TestData.Segment1Added.Surfaces[0].AttributeId.ToString() },
                                     new ProblemParameter { Name = "ToPosition", Value = "1" },
@@ -2239,6 +2242,88 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                         }
                     }
                 },
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            }));
+    }
+
+    [Fact]
+    public Task when_adding_a_segment_with_a_line_string_with_length_at_least_100000()
+    {
+        var startPoint = new Point(new CoordinateM(0.0, 0.0, 0.0))
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+        var endPoint = new Point(new CoordinateM(100000.0, 0.0, 100000.0))
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+        var lineString = new LineString(
+            new CoordinateArraySequence([startPoint.Coordinate, endPoint.Coordinate]),
+            GeometryConfiguration.GeometryFactory
+        );
+        var geometry = new MultiLineString([lineString])
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+        TestData.AddSegment1.Geometry = GeometryTranslator.Translate(geometry);
+        TestData.AddSegment1.Lanes = [TestData.ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(lineString.Length)];
+        TestData.AddSegment1.Widths = [TestData.ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(lineString.Length)];
+        TestData.AddSegment1.Surfaces = [TestData.ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(lineString.Length)];
+        TestData.Segment1Added.Lanes = TestData.AddSegment1.Lanes.ToRoadSegmentLaneAttributes(asOfGeometryVersion: TestData.Segment1Added.GeometryVersion);
+        TestData.Segment1Added.Widths = TestData.AddSegment1.Widths.ToRoadSegmentWidthAttributes(asOfGeometryVersion: TestData.Segment1Added.GeometryVersion);
+        TestData.Segment1Added.Surfaces = TestData.AddSegment1.Surfaces.ToRoadSegmentSurfaceAttributes(asOfGeometryVersion: TestData.Segment1Added.GeometryVersion);
+
+        return Run(scenario => scenario
+            .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
+                new ImportedOrganization
+                {
+                    Code = TestData.ChangedByOrganization,
+                    Name = TestData.ChangedByOrganizationName,
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                }
+            )
+            .When(TheOperator.ChangesTheRoadNetwork(
+                TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization,
+                new RequestedChange
+                {
+                    AddRoadNode = TestData.AddStartNode1
+                },
+                new RequestedChange
+                {
+                    AddRoadNode = TestData.AddEndNode1
+                },
+                new RequestedChange
+                {
+                    AddRoadSegment = TestData.AddSegment1
+                }
+            ))
+            .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
+            {
+                RequestId = TestData.RequestId,
+                Reason = TestData.ReasonForChange,
+                Operator = TestData.ChangedByOperator,
+                OrganizationId = TestData.ChangedByOrganization,
+                Organization = TestData.ChangedByOrganizationName,
+                TransactionId = new TransactionId(1),
+                Changes =
+                [
+                    new RejectedChange
+                    {
+                        AddRoadSegment = TestData.AddSegment1,
+                        Problems =
+                        [
+                            new Problem
+                            {
+                                Reason = "RoadSegmentGeometryLengthTooLong",
+                                Parameters =
+                                [
+                                    new("Identifier", TestData.AddSegment1.TemporaryId.ToString()),
+                                    new("TooLongSegmentLength", "100000")
+                                ]
+                            }
+                        ]
+                    }
+                ],
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             }));
     }
@@ -2899,7 +2984,8 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
         outlinedSegmentModified.Geometry = GeometryTranslator.Translate(geometry);
         outlinedSegmentModified.Version = 2;
         outlinedSegmentModified.GeometryVersion = 2;
-        outlinedSegmentModified.Lanes = new[] {
+        outlinedSegmentModified.Lanes = new[]
+        {
             new RoadSegmentLaneAttributes
             {
                 AttributeId = TestData.ModifySegment1.Lanes[0].AttributeId,
@@ -2936,7 +3022,8 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
         var modifySegmentToMeasured = TestData.ModifySegment1;
         modifySegmentToMeasured.ConvertedFromOutlined = true;
         modifySegmentToMeasured.Geometry = GeometryTranslator.Translate(geometry);
-        modifySegmentToMeasured.Lanes = new[] {
+        modifySegmentToMeasured.Lanes = new[]
+        {
             new RequestedRoadSegmentLaneAttribute
             {
                 AttributeId = 2,
@@ -2972,7 +3059,8 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
         segmentToMeasuredModified.Geometry = GeometryTranslator.Translate(geometry);
         segmentToMeasuredModified.Version = 3;
         segmentToMeasuredModified.GeometryVersion = 2;
-        segmentToMeasuredModified.Lanes = new[] {
+        segmentToMeasuredModified.Lanes = new[]
+        {
             new RoadSegmentLaneAttributes
             {
                 AttributeId = modifySegmentToMeasured.Lanes[0].AttributeId,
@@ -3503,12 +3591,12 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
 
         TestData.AddSegment2.StartNodeId = TestData.AddStartNode1.TemporaryId;
         var geometry2 = new MultiLineString(new[]
+        {
+            new LineString(new CoordinateArraySequence(new[]
             {
-                new LineString(new CoordinateArraySequence(new[]
-                {
-                    startPoint.Coordinate, endPoint2.Coordinate
-                }), GeometryConfiguration.GeometryFactory)
-            })
+                startPoint.Coordinate, endPoint2.Coordinate
+            }), GeometryConfiguration.GeometryFactory)
+        })
         {
             SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
         };
@@ -4099,12 +4187,21 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
         };
         TestData.AddSegment2.Geometry = GeometryTranslator.Translate(geometry2);
         TestData.Segment2Added.Geometry = GeometryTranslator.Translate(geometry2);
-        TestData.AddSegment2.Lanes = new[] { ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Lanes.Select(x => x.AttributeId).Max() + 1) };
-        TestData.AddSegment2.Widths = new[] { ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Widths.Select(x => x.AttributeId).Max() + 1) };
-        TestData.AddSegment2.Surfaces = new[] { ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Surfaces.Select(x => x.AttributeId).Max() + 1) };
+        TestData.AddSegment2.Lanes = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Lanes.Select(x => x.AttributeId).Max() + 1)
+        };
+        TestData.AddSegment2.Widths = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Widths.Select(x => x.AttributeId).Max() + 1)
+        };
+        TestData.AddSegment2.Surfaces = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Surfaces.Select(x => x.AttributeId).Max() + 1)
+        };
         TestData.Segment2Added.Lanes = TestData.AddSegment2.Lanes.ToRoadSegmentLaneAttributes();
         TestData.Segment2Added.Widths = TestData.AddSegment2.Widths.ToRoadSegmentWidthAttributes();
         TestData.Segment2Added.Surfaces = TestData.AddSegment2.Surfaces.ToRoadSegmentSurfaceAttributes();
@@ -4548,7 +4645,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                     TestData.StartPoint1.X + random.Next(1, 1000) / 1000.0 * Distances.TooClose,
                     TestData.StartPoint1.Y + random.Next(1, 1000) / 1000.0 * Distances.TooClose
                 ))
-            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+                { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
             TestData.AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(
                         new[]
@@ -4564,7 +4661,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                                 GeometryConfiguration.GeometryFactory
                             )
                         })
-                { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
+                    { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
             );
             TestData.AddStartNode2.Geometry = GeometryTranslator.Translate(startPoint);
 
@@ -4573,12 +4670,21 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
         } while (GeometryTranslator.Translate(TestData.Segment1Added.Geometry).Intersects(GeometryTranslator.Translate(TestData.AddSegment2.Geometry)));
 
         var geometry2 = GeometryTranslator.Translate(TestData.AddSegment2.Geometry);
-        TestData.AddSegment2.Lanes = new[] { ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Lanes.Select(x => x.AttributeId).Max() + 1) };
-        TestData.AddSegment2.Widths = new[] { ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Widths.Select(x => x.AttributeId).Max() + 1) };
-        TestData.AddSegment2.Surfaces = new[] { ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Surfaces.Select(x => x.AttributeId).Max() + 1) };
+        TestData.AddSegment2.Lanes = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Lanes.Select(x => x.AttributeId).Max() + 1)
+        };
+        TestData.AddSegment2.Widths = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Widths.Select(x => x.AttributeId).Max() + 1)
+        };
+        TestData.AddSegment2.Surfaces = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Surfaces.Select(x => x.AttributeId).Max() + 1)
+        };
         TestData.Segment2Added.Lanes = TestData.AddSegment2.Lanes.ToRoadSegmentLaneAttributes();
         TestData.Segment2Added.Widths = TestData.AddSegment2.Widths.ToRoadSegmentWidthAttributes();
         TestData.Segment2Added.Surfaces = TestData.AddSegment2.Surfaces.ToRoadSegmentSurfaceAttributes();
@@ -4700,14 +4806,23 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                         GeometryConfiguration.GeometryFactory
                     )
                 })
-        { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         TestData.AddSegment2.Geometry = GeometryTranslator.Translate(geometry2);
-        TestData.AddSegment2.Lanes = new[] { ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Lanes.Select(x => x.AttributeId).Max() + 1) };
-        TestData.AddSegment2.Widths = new[] { ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Widths.Select(x => x.AttributeId).Max() + 1) };
-        TestData.AddSegment2.Surfaces = new[] { ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Surfaces.Select(x => x.AttributeId).Max() + 1) };
+        TestData.AddSegment2.Lanes = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Lanes.Select(x => x.AttributeId).Max() + 1)
+        };
+        TestData.AddSegment2.Widths = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Widths.Select(x => x.AttributeId).Max() + 1)
+        };
+        TestData.AddSegment2.Surfaces = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Surfaces.Select(x => x.AttributeId).Max() + 1)
+        };
         TestData.Segment2Added.Lanes = TestData.AddSegment2.Lanes.ToRoadSegmentLaneAttributes();
         TestData.Segment2Added.Widths = TestData.AddSegment2.Widths.ToRoadSegmentWidthAttributes();
         TestData.Segment2Added.Surfaces = TestData.AddSegment2.Surfaces.ToRoadSegmentSurfaceAttributes();
@@ -5006,7 +5121,6 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
         TestData.Segment1Added.Widths = TestData.AddSegment1.Widths.ToRoadSegmentWidthAttributes();
         TestData.Segment1Added.Surfaces = TestData.AddSegment1.Surfaces.ToRoadSegmentSurfaceAttributes();
 
-
         TestData.AddSegment2.EndNodeId = TestData.AddEndNode1.TemporaryId;
         var geometry2 = new MultiLineString(new[]
         {
@@ -5019,35 +5133,52 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
             SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
         };
         TestData.AddSegment2.Geometry = GeometryTranslator.Translate(geometry2);
-        TestData.AddSegment2.Lanes = new[] { ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Lanes.Select(x => x.AttributeId).Max() + 1) };
-        TestData.AddSegment2.Widths = new[] { ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Widths.Select(x => x.AttributeId).Max() + 1) };
-        TestData.AddSegment2.Surfaces = new[] { ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Surfaces.Select(x => x.AttributeId).Max() + 1) };
+        TestData.AddSegment2.Lanes = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Lanes.Select(x => x.AttributeId).Max() + 1)
+        };
+        TestData.AddSegment2.Widths = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Widths.Select(x => x.AttributeId).Max() + 1)
+        };
+        TestData.AddSegment2.Surfaces = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Surfaces.Select(x => x.AttributeId).Max() + 1)
+        };
         TestData.Segment2Added.Lanes = TestData.AddSegment2.Lanes.ToRoadSegmentLaneAttributes();
         TestData.Segment2Added.Widths = TestData.AddSegment2.Widths.ToRoadSegmentWidthAttributes();
         TestData.Segment2Added.Surfaces = TestData.AddSegment2.Surfaces.ToRoadSegmentSurfaceAttributes();
 
-
         TestData.AddSegment3.EndNodeId = TestData.AddEndNode1.TemporaryId;
         var geometry3 = new MultiLineString(new[]
+        {
+            new LineString(new CoordinateArraySequence(new[]
             {
-                new LineString(new CoordinateArraySequence(new[]
-                {
-                    startPoint3.Coordinate, endPoint.Coordinate
-                }), GeometryConfiguration.GeometryFactory)
-            })
+                startPoint3.Coordinate, endPoint.Coordinate
+            }), GeometryConfiguration.GeometryFactory)
+        })
         {
             SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
         };
         TestData.AddSegment3.Geometry = GeometryTranslator.Translate(geometry3);
-        TestData.AddSegment3.Lanes = new[] { ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry3.Length,
-            attributeId: TestData.Segment2Added.Lanes.Select(x => x.AttributeId).Max() + 1) };
-        TestData.AddSegment3.Widths = new[] { ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry3.Length,
-            attributeId: TestData.Segment2Added.Widths.Select(x => x.AttributeId).Max() + 1) };
-        TestData.AddSegment3.Surfaces = new[] { ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry3.Length,
-            attributeId: TestData.Segment2Added.Surfaces.Select(x => x.AttributeId).Max() + 1) };
+        TestData.AddSegment3.Lanes = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry3.Length,
+                attributeId: TestData.Segment2Added.Lanes.Select(x => x.AttributeId).Max() + 1)
+        };
+        TestData.AddSegment3.Widths = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry3.Length,
+                attributeId: TestData.Segment2Added.Widths.Select(x => x.AttributeId).Max() + 1)
+        };
+        TestData.AddSegment3.Surfaces = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry3.Length,
+                attributeId: TestData.Segment2Added.Surfaces.Select(x => x.AttributeId).Max() + 1)
+        };
         TestData.Segment3Added.Lanes = TestData.AddSegment3.Lanes.ToRoadSegmentLaneAttributes();
         TestData.Segment3Added.Widths = TestData.AddSegment3.Widths.ToRoadSegmentWidthAttributes();
         TestData.Segment3Added.Surfaces = TestData.AddSegment3.Surfaces.ToRoadSegmentSurfaceAttributes();
@@ -5383,12 +5514,21 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
             SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
         };
         TestData.AddSegment2.Geometry = GeometryTranslator.Translate(geometry2);
-        TestData.AddSegment2.Lanes = new[] { ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Lanes.Select(x => x.AttributeId).Max() + 1) };
-        TestData.AddSegment2.Widths = new[] { ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Widths.Select(x => x.AttributeId).Max() + 1) };
-        TestData.AddSegment2.Surfaces = new[] { ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Surfaces.Select(x => x.AttributeId).Max() + 1) };
+        TestData.AddSegment2.Lanes = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Lanes.Select(x => x.AttributeId).Max() + 1)
+        };
+        TestData.AddSegment2.Widths = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Widths.Select(x => x.AttributeId).Max() + 1)
+        };
+        TestData.AddSegment2.Surfaces = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Surfaces.Select(x => x.AttributeId).Max() + 1)
+        };
         TestData.Segment2Added.Lanes = TestData.AddSegment2.Lanes.ToRoadSegmentLaneAttributes();
         TestData.Segment2Added.Widths = TestData.AddSegment2.Widths.ToRoadSegmentWidthAttributes();
         TestData.Segment2Added.Surfaces = TestData.AddSegment2.Surfaces.ToRoadSegmentSurfaceAttributes();
@@ -5607,7 +5747,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             GeometryConfiguration.GeometryFactory
                         )
                     })
-            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
+                { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
         );
         TestData.AddEndNode2.Geometry = GeometryTranslator.Translate(endPoint);
         return Run(scenario => scenario
@@ -5712,14 +5852,23 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                         GeometryConfiguration.GeometryFactory
                     )
                 })
-        { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         TestData.AddSegment2.Geometry = GeometryTranslator.Translate(geometry2);
-        TestData.AddSegment2.Lanes = new[] { ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Lanes.Select(x => x.AttributeId).Max() + 1) };
-        TestData.AddSegment2.Widths = new[] { ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Widths.Select(x => x.AttributeId).Max() + 1) };
-        TestData.AddSegment2.Surfaces = new[] { ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Surfaces.Select(x => x.AttributeId).Max() + 1) };
+        TestData.AddSegment2.Lanes = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Lanes.Select(x => x.AttributeId).Max() + 1)
+        };
+        TestData.AddSegment2.Widths = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Widths.Select(x => x.AttributeId).Max() + 1)
+        };
+        TestData.AddSegment2.Surfaces = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Surfaces.Select(x => x.AttributeId).Max() + 1)
+        };
         TestData.Segment2Added.Lanes = TestData.AddSegment2.Lanes.ToRoadSegmentLaneAttributes();
         TestData.Segment2Added.Widths = TestData.AddSegment2.Widths.ToRoadSegmentWidthAttributes();
         TestData.Segment2Added.Surfaces = TestData.AddSegment2.Surfaces.ToRoadSegmentSurfaceAttributes();
@@ -6145,6 +6294,172 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
     }
 
     [Fact]
+    public Task when_modifying_a_segment_geometry_with_length_at_least_100000()
+    {
+        var startPoint = new Point(new CoordinateM(0.0, 0.0, 0.0))
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+        var endPoint = new Point(new CoordinateM(100000.0, 0.0, 100000.0))
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+        var lineString = new LineString(
+            new CoordinateArraySequence([startPoint.Coordinate, endPoint.Coordinate]),
+            GeometryConfiguration.GeometryFactory
+        );
+        var geometry = new MultiLineString([lineString])
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+
+        var geometryLength = (decimal)geometry.Length;
+
+        var modifyRoadSegmentGeometry = new ModifyRoadSegmentGeometry
+        {
+            Id = TestData.Segment1Added.Id,
+            GeometryDrawMethod = TestData.Segment1Added.GeometryDrawMethod,
+            Geometry = GeometryTranslator.Translate(geometry),
+            Lanes = new[]
+            {
+                new RequestedRoadSegmentLaneAttribute
+                {
+                    AttributeId = 1,
+                    FromPosition = 0,
+                    ToPosition = geometryLength,
+                    Count = ObjectProvider.Create<RoadSegmentLaneCount>(),
+                    Direction = ObjectProvider.Create<RoadSegmentLaneDirection>()
+                }
+            },
+            Surfaces = new[]
+            {
+                new RequestedRoadSegmentSurfaceAttribute
+                {
+                    AttributeId = 1,
+                    FromPosition = 0,
+                    ToPosition = geometryLength,
+                    Type = ObjectProvider.Create<RoadSegmentSurfaceType>()
+                }
+            },
+            Widths = new[]
+            {
+                new RequestedRoadSegmentWidthAttribute
+                {
+                    AttributeId = 1,
+                    FromPosition = 0,
+                    ToPosition = geometryLength,
+                    Width = ObjectProvider.Create<RoadSegmentWidth>()
+                }
+            }
+        };
+
+        return Run(scenario => scenario
+            .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
+                new ImportedOrganization
+                {
+                    Code = TestData.ChangedByOrganization,
+                    Name = TestData.ChangedByOrganizationName,
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                }
+            ).Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+            {
+                RequestId = TestData.RequestId,
+                Reason = TestData.ReasonForChange,
+                Operator = TestData.ChangedByOperator,
+                OrganizationId = TestData.ChangedByOrganization,
+                Organization = TestData.ChangedByOrganizationName,
+                Changes = new[]
+                {
+                    new AcceptedChange
+                    {
+                        RoadNodeAdded = TestData.StartNode1Added
+                    },
+                    new AcceptedChange
+                    {
+                        RoadNodeAdded = TestData.EndNode1Added
+                    },
+                    new AcceptedChange
+                    {
+                        RoadSegmentAdded = TestData.Segment1Added
+                    }
+                },
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
+            .When(TheOperator.ChangesTheRoadNetwork(
+                TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization,
+                new RequestedChange
+                {
+                    ModifyRoadSegmentGeometry = modifyRoadSegmentGeometry
+                }
+            ))
+            .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
+            {
+                RequestId = TestData.RequestId,
+                Reason = TestData.ReasonForChange,
+                Operator = TestData.ChangedByOperator,
+                OrganizationId = TestData.ChangedByOrganization,
+                Organization = TestData.ChangedByOrganizationName,
+                TransactionId = new TransactionId(1),
+                Changes =
+                [
+                    new RejectedChange
+                    {
+                        ModifyRoadSegmentGeometry = new ModifyRoadSegmentGeometry
+                        {
+                            Id = TestData.Segment1Added.Id,
+                            Geometry = GeometryTranslator.Translate(geometry),
+                            GeometryDrawMethod = modifyRoadSegmentGeometry.GeometryDrawMethod,
+                            Lanes =
+                            [
+                                new RequestedRoadSegmentLaneAttribute
+                                {
+                                    AttributeId = 1,
+                                    FromPosition = 0,
+                                    ToPosition = geometryLength,
+                                    Count = modifyRoadSegmentGeometry.Lanes.Single().Count,
+                                    Direction = modifyRoadSegmentGeometry.Lanes.Single().Direction
+                                }
+                            ],
+                            Surfaces =
+                            [
+                                new RequestedRoadSegmentSurfaceAttribute
+                                {
+                                    AttributeId = 1,
+                                    FromPosition = 0,
+                                    ToPosition = geometryLength,
+                                    Type = modifyRoadSegmentGeometry.Surfaces.Single().Type,
+                                }
+                            ],
+                            Widths =
+                            [
+                                new RequestedRoadSegmentWidthAttribute
+                                {
+                                    AttributeId = 1,
+                                    FromPosition = 0,
+                                    ToPosition = geometryLength,
+                                    Width = modifyRoadSegmentGeometry.Widths.Single().Width,
+                                }
+                            ]
+                        },
+                        Problems =
+                        [
+                            new Problem
+                            {
+                                Reason = "RoadSegmentGeometryLengthTooLong",
+                                Parameters =
+                                [
+                                    new("Identifier", TestData.Segment1Added.Id.ToString()),
+                                    new("TooLongSegmentLength", "100000")
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            }));
+    }
+
+    [Fact]
     public Task when_modifying_a_segment_that_intersects_without_grade_separated_junction()
     {
         var geometry1 = new MultiLineString(new[]
@@ -6157,12 +6472,21 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
             }
         });
         TestData.Segment1Added.Geometry = GeometryTranslator.Translate(geometry1);
-        TestData.AddSegment1.Lanes = new[] { ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry1.Length,
-            attributeId: 1) };
-        TestData.AddSegment1.Widths = new[] { ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry1.Length,
-            attributeId: 1) };
-        TestData.AddSegment1.Surfaces = new[] { ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry1.Length,
-            attributeId: 1) };
+        TestData.AddSegment1.Lanes = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry1.Length,
+                attributeId: 1)
+        };
+        TestData.AddSegment1.Widths = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry1.Length,
+                attributeId: 1)
+        };
+        TestData.AddSegment1.Surfaces = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry1.Length,
+                attributeId: 1)
+        };
         TestData.Segment1Added.Lanes = TestData.AddSegment1.Lanes.ToRoadSegmentLaneAttributes();
         TestData.Segment1Added.Widths = TestData.AddSegment1.Widths.ToRoadSegmentWidthAttributes();
         TestData.Segment1Added.Surfaces = TestData.AddSegment1.Surfaces.ToRoadSegmentSurfaceAttributes();
@@ -6182,12 +6506,21 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
             SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
         };
         TestData.AddSegment2.Geometry = GeometryTranslator.Translate(geometry2);
-        TestData.AddSegment2.Lanes = new[] { ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Lanes.Select(x => x.AttributeId).Max() + 1) };
-        TestData.AddSegment2.Widths = new[] { ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Widths.Select(x => x.AttributeId).Max() + 1) };
-        TestData.AddSegment2.Surfaces = new[] { ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry2.Length,
-            attributeId: TestData.Segment1Added.Surfaces.Select(x => x.AttributeId).Max() + 1) };
+        TestData.AddSegment2.Lanes = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Lanes.Select(x => x.AttributeId).Max() + 1)
+        };
+        TestData.AddSegment2.Widths = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Widths.Select(x => x.AttributeId).Max() + 1)
+        };
+        TestData.AddSegment2.Surfaces = new[]
+        {
+            ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry2.Length,
+                attributeId: TestData.Segment1Added.Surfaces.Select(x => x.AttributeId).Max() + 1)
+        };
         TestData.Segment2Added.Lanes = TestData.AddSegment2.Lanes.ToRoadSegmentLaneAttributes();
         TestData.Segment2Added.Widths = TestData.AddSegment2.Widths.ToRoadSegmentWidthAttributes();
         TestData.Segment2Added.Surfaces = TestData.AddSegment2.Surfaces.ToRoadSegmentSurfaceAttributes();

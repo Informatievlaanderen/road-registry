@@ -160,6 +160,9 @@ public static class ProblemTranslator
         {ProblemCode.RoadSegment.Geometry.LengthLessThanMinimum, problem => new(problem.Severity, "MiddellijnGeometrieKorterDanMinimum", problem.HasParameter("Identifier")
             ? $"De opgegeven geometrie van wegsegment met id {problem.GetParameterValue("Identifier")} heeft niet de minimale lengte van {problem.GetParameterValue("Minimum")} meter."
             : $"De opgegeven geometrie heeft niet de minimale lengte van {problem.GetParameterValue("Minimum")} meter.") },
+        {ProblemCode.RoadSegment.Geometry.LengthTooLong, problem => new(problem.Severity, "MiddellijnGeometrieTeLang", problem.HasParameter("Identifier")
+            ? $"De opgegeven geometrie van wegsegment met id {problem.GetParameterValue("Identifier")} zijn lengte is groter of gelijk dan {problem.GetParameterValue("TooLongSegmentLength")} meter."
+            : $"De opgegeven geometrie zijn lengte is groter of gelijk dan {problem.GetParameterValue("TooLongSegmentLength")} meter.") },
         {ProblemCode.RoadSegment.Geometry.SridNotValid, problem => new(problem.Severity, "MiddellijnGeometrieCRSNietCorrect",
             "De opgegeven geometrie heeft niet het coördinatenstelsel Lambert 72.") },
         {ProblemCode.RoadSegment.Geometry.Taken, problem => new(problem.Severity, problem.Reason,

@@ -22,6 +22,7 @@ public abstract class AutofacBasedTestBase
 
             ConfigureEventHandling(containerBuilder);
             ConfigureCommandHandling(containerBuilder);
+            ConfigureContainer(containerBuilder);
             containerBuilder.RegisterModule(new SqlStreamStoreModule());
 
             containerBuilder.UseAggregateSourceTesting(CreateFactComparer(), CreateExceptionComparer());
@@ -55,6 +56,9 @@ public abstract class AutofacBasedTestBase
         builder.Assert(EventCentricTestSpecificationRunner, FactComparer, Logger);
     }
 
+    protected virtual void ConfigureContainer(ContainerBuilder containerBuilder)
+    {
+    }
     protected abstract void ConfigureCommandHandling(ContainerBuilder builder);
     protected abstract void ConfigureEventHandling(ContainerBuilder builder);
 

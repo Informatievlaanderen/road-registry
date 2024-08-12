@@ -22,7 +22,8 @@ using Xunit.Abstractions;
 
 public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 {
-    public SqsLambdaHandlerTests(ITestOutputHelper testOutputHelper, ILoggerFactory loggerFactory) : base(testOutputHelper, loggerFactory)
+    public SqsLambdaHandlerTests(ITestOutputHelper testOutputHelper)
+        : base(testOutputHelper)
     {
     }
 
@@ -64,7 +65,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 
         var roadSegmentId = new RoadSegmentId(456);
 
-        await AddRoadSegment(roadSegmentId);
+        await AddMeasuredRoadSegment(roadSegmentId);
 
         var sut = new FakeLambdaHandler(
             Container.Resolve<SqsLambdaHandlerOptions>(),

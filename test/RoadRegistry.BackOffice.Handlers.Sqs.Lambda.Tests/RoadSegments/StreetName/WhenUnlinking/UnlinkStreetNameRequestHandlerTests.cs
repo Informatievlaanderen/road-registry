@@ -4,8 +4,8 @@ using Abstractions.RoadSegments;
 using Autofac;
 using AutoFixture;
 using BackOffice.Extensions;
-using BackOffice.Framework;
 using BackOffice.Handlers.RoadSegments;
+using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Core;
 using Handlers;
@@ -14,7 +14,6 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Requests;
-using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
@@ -23,27 +22,20 @@ using Xunit.Abstractions;
 
 public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 {
-    public UnlinkStreetNameRequestHandlerTests(ITestOutputHelper testOutputHelper, ILoggerFactory loggerFactory)
-        : base(testOutputHelper, loggerFactory)
+    public UnlinkStreetNameRequestHandlerTests(ITestOutputHelper testOutputHelper)
+        : base(testOutputHelper)
     {
     }
 
     private async Task HandleRequest(ITicketing ticketing, UnlinkStreetNameRequest request)
     {
-        var idempotentCommandHandler = new RoadRegistryIdempotentCommandHandler(Container.Resolve<CommandHandlerDispatcher>());
-
         var handler = new UnlinkStreetNameSqsLambdaRequestHandler(
             new FakeSqsLambdaHandlerOptions(),
             new FakeRetryPolicy(),
             ticketing,
-            idempotentCommandHandler,
+            ScopedContainer.Resolve<IIdempotentCommandHandler>(),
             RoadRegistryContext,
-            new ChangeRoadNetworkDispatcher(
-                new RoadNetworkCommandQueue(Store, ApplicationMetadata),
-                idempotentCommandHandler,
-                ScopedContainer.Resolve<EventSourcedEntityMap>(),
-                new FakeOrganizationCache(),
-                LoggerFactory.CreateLogger<ChangeRoadNetworkDispatcher>()),
+            ScopedContainer.Resolve<IChangeRoadNetworkDispatcher>(),
             new FakeDistributedStreamStoreLockOptions(),
             LoggerFactory.CreateLogger<UnlinkStreetNameSqsLambdaRequestHandler>()
         );
@@ -75,7 +67,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         //Assert
         var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(CancellationToken.None);
         var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
-        VerifyThatTicketHasCompleted(ticketing, string.Format(Options.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
+        VerifyThatTicketHasCompleted(ticketing, string.Format(SqsLambdaHandlerOptions.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
 
         var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
         var roadSegmentModified = command!.Changes.Single().RoadSegmentModified;
@@ -116,7 +108,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, linkerstraatnaamPuri, null));
 
         //Assert
-        VerifyThatTicketHasError(ticketing, "LinkerstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de linkerstraatnaam '{linkerstraatnaamPuri}'");
+        VerifyThatTicketHasErrorList(ticketing, "LinkerstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de linkerstraatnaam '{linkerstraatnaamPuri}'");
     }
 
     [Fact]
@@ -135,7 +127,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, linkerstraatnaamPuri, null));
 
         //Assert
-        VerifyThatTicketHasError(ticketing, "LinkerstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de linkerstraatnaam '{linkerstraatnaamPuri}'");
+        VerifyThatTicketHasErrorList(ticketing, "LinkerstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de linkerstraatnaam '{linkerstraatnaamPuri}'");
     }
 
     [Fact]
@@ -155,7 +147,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         //Assert
         var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(CancellationToken.None);
         var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
-        VerifyThatTicketHasCompleted(ticketing, string.Format(Options.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
+        VerifyThatTicketHasCompleted(ticketing, string.Format(SqsLambdaHandlerOptions.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
 
         var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
         Xunit.Assert.Equal(StreetNameLocalId.NotApplicable, command!.Changes.Single().RoadSegmentModified.LeftSide.StreetNameId);
@@ -177,7 +169,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, null, rechterstraatnaamPuri));
 
         //Assert
-        VerifyThatTicketHasError(ticketing, "RechterstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de rechterstraatnaam '{rechterstraatnaamPuri}'");
+        VerifyThatTicketHasErrorList(ticketing, "RechterstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de rechterstraatnaam '{rechterstraatnaamPuri}'");
     }
 
     [Fact]
@@ -196,7 +188,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, null, rechterstraatnaamPuri));
 
         //Assert
-        VerifyThatTicketHasError(ticketing, "RechterstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de rechterstraatnaam '{rechterstraatnaamPuri}'");
+        VerifyThatTicketHasErrorList(ticketing, "RechterstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de rechterstraatnaam '{rechterstraatnaamPuri}'");
     }
 
     [Fact]
@@ -216,7 +208,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         //Assert
         var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(CancellationToken.None);
         var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
-        VerifyThatTicketHasCompleted(ticketing, string.Format(Options.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
+        VerifyThatTicketHasCompleted(ticketing, string.Format(SqsLambdaHandlerOptions.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
 
         var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
         Xunit.Assert.Equal(StreetNameLocalId.NotApplicable, command!.Changes.Single().RoadSegmentModified.RightSide.StreetNameId);
@@ -235,7 +227,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, GetStreetNameIdAsString(99999), null));
 
         //Assert
-        VerifyThatTicketHasError(ticketing, "NotFound", $"Het wegsegment met id {roadSegmentId} bestaat niet.");
+        VerifyThatTicketHasErrorList(ticketing, "NotFound", $"Het wegsegment met id {roadSegmentId} bestaat niet.");
     }
 
     [Fact]

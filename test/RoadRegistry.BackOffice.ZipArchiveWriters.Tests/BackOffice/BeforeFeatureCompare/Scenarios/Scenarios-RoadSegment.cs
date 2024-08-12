@@ -37,6 +37,29 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     }
 
     [Fact]
+    public async Task SegmentWithTooLongGeometryShouldGiveProblem()
+    {
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
+                lineString = new LineString(new[]
+                {
+                    lineString.Coordinates[0],
+                    new CoordinateM(lineString.Coordinates[1].X + 100000, lineString.Coordinates[1].Y, lineString.Coordinates[1].M + 100000)
+                });
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
+            })
+            .BuildWithResult(context => TranslatedChanges.Empty);
+
+        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create();
+        var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateSucceeds(zipArchive, translator));
+        Assert.NotEmpty(ex.Problems);
+        var problem = ex.Problems.First();
+        Assert.Equal("RoadSegmentGeometryLengthTooLong", problem.Reason);
+    }
+
+    [Fact]
     public async Task SegmentWithRemovedLeftSideStreetNameShouldGiveWarningAndFixAutomatically()
     {
         var removedStreetNameId = 1;

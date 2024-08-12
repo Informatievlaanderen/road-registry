@@ -4,9 +4,9 @@ using Abstractions;
 using Fixtures;
 using Xunit.Abstractions;
 
-public class WhenChangeOutlineGeometryWithInvalidGeometryLength : WhenChangeOutlineGeometryWithInvalidRequest<WhenChangeOutlineGeometryWithInvalidGeometryLengthFixture>
+public class WhenChangeOutlineGeometryWithTooShortGeometry : WhenChangeOutlineGeometryWithInvalidRequest<WhenChangeOutlineGeometryWithTooShortGeometryFixture>
 {
-    public WhenChangeOutlineGeometryWithInvalidGeometryLength(WhenChangeOutlineGeometryWithInvalidGeometryLengthFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public WhenChangeOutlineGeometryWithTooShortGeometry(WhenChangeOutlineGeometryWithTooShortGeometryFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
     {
     }
 

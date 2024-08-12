@@ -22,78 +22,75 @@ public class ProblemTranslatorTests
         var defaultProblemParameters = new Dictionary<ProblemCode, ProblemParameter[]>
         {
             {
-                ProblemCode.RoadNode.TypeMismatch, new[]
-                {
+                ProblemCode.RoadNode.TypeMismatch, [
                     new ProblemParameter { Name = "RoadNodeId", Value = "1" },
                     new ProblemParameter { Name = "ConnectedSegmentCount", Value = "1" },
                     new ProblemParameter { Name = "Actual", Value = RoadNodeType.EndNode.ToString() }
-                }
+                ]
             },
             {
-                ProblemCode.StreetName.RegistryUnexpectedError, new[]
-                {
+                ProblemCode.StreetName.RegistryUnexpectedError, [
                     new ProblemParameter { Name = "StatusCode", Value = "500" }
-                }
+                ]
             },
             {
-                ProblemCode.RoadSegment.MaintenanceAuthority.NotKnown, new[]
-                {
+                ProblemCode.RoadSegment.MaintenanceAuthority.NotKnown, [
                     new ProblemParameter { Name = "OrganizationId", Value = "ABC" }
-                }
+                ]
             },
             {
-                ProblemCode.RoadSegment.StartPoint.MeasureValueNotEqualToZero, new[]
-                {
+                ProblemCode.RoadSegment.StartPoint.MeasureValueNotEqualToZero, [
                     new ProblemParameter("Identifier", "1"),
                     new ProblemParameter("PointX", "1.0"),
                     new ProblemParameter("PointY", "1.0"),
                     new ProblemParameter("Measure", "34"),
                     new ProblemParameter("Length", "234.4")
-                }
+                ]
             },
             {
-                ProblemCode.RoadSegment.EndPoint.MeasureValueNotEqualToLength, new[]
-                {
+                ProblemCode.RoadSegment.EndPoint.MeasureValueNotEqualToLength, [
                     new ProblemParameter("Identifier", "1"),
                     new ProblemParameter("PointX", "1.0"),
                     new ProblemParameter("PointY", "1.0"),
                     new ProblemParameter("Measure", "34"),
                     new ProblemParameter("Length", "234.4")
-                }
+                ]
             },
             {
-                ProblemCode.RoadSegment.Point.MeasureValueDoesNotIncrease, new[]
-                {
+                ProblemCode.RoadSegment.Point.MeasureValueDoesNotIncrease, [
                     new ProblemParameter("Identifier", "1"),
                     new ProblemParameter("PointX", "1.0"),
                     new ProblemParameter("PointY", "1.0"),
                     new ProblemParameter("Measure", "34"),
                     new ProblemParameter("PreviousMeasure", "34")
-                }
+                ]
             },
             {
-                ProblemCode.RoadSegment.Point.MeasureValueOutOfRange, new[]
-                {
+                ProblemCode.RoadSegment.Point.MeasureValueOutOfRange, [
                     new ProblemParameter("Identifier", "1"),
                     new ProblemParameter("PointX", "1.0"),
                     new ProblemParameter("PointY", "1.0"),
                     new ProblemParameter("Measure", "34"),
                     new ProblemParameter("MeasureLowerBoundary", "34"),
                     new ProblemParameter("MeasureUpperBoundary", "34")
-                }
+                ]
             },
             {
-                ProblemCode.RoadSegment.Geometry.LengthLessThanMinimum, new[]
-                {
+                ProblemCode.RoadSegment.Geometry.LengthLessThanMinimum, [
                     new ProblemParameter("Identifier", "1"),
                     new ProblemParameter("Minimum", "1.0")
-                }
+                ]
             },
             {
-                ProblemCode.RoadSegment.Category.NotChangedBecauseCurrentIsNewerVersion, new[]
-                {
+                ProblemCode.RoadSegment.Geometry.LengthTooLong, [
+                    new ProblemParameter("Identifier", "1"),
+                    new ProblemParameter("TooLongSegmentLength", "100000.0")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.Category.NotChangedBecauseCurrentIsNewerVersion, [
                     new ProblemParameter("Identifier", "1")
-                }
+                ]
             },
         };
 

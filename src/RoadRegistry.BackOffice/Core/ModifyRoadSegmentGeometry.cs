@@ -89,6 +89,7 @@ public class ModifyRoadSegmentGeometry : IRequestedChange, IHaveHash
         message.ModifyRoadSegmentGeometry = new Messages.ModifyRoadSegmentGeometry
         {
             Id = Id,
+            GeometryDrawMethod = GeometryDrawMethod,
             Geometry = GeometryTranslator.Translate(Geometry),
             Lanes = Lanes
                 .Select(item => new RequestedRoadSegmentLaneAttribute
@@ -138,7 +139,18 @@ public class ModifyRoadSegmentGeometry : IRequestedChange, IHaveHash
         {
             problems += new RoadSegmentNotFound();
         }
-        
+
+        var line = Geometry.GetSingleLineString();
+
+        if (GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+        {
+            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(Id, context.Tolerances);
+        }
+        else
+        {
+            problems += line.GetProblemsForRoadSegmentGeometry(Id, context.Tolerances);
+        }
+
         return problems;
     }
 
