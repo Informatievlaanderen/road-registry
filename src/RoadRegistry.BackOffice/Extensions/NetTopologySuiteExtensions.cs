@@ -54,7 +54,6 @@ public static class NetTopologySuiteExtensions
             problems = problems.Add(new RoadSegmentGeometryLengthIsZero(id));
         }
 
-        //TODO-rik add test
         if (!line.Length.IsReasonablyLessThan(Distances.TooLongSegmentLength, contextTolerances))
         {
             problems = problems.Add(new RoadSegmentGeometryLengthIsTooLong(id, Distances.TooLongSegmentLength));
