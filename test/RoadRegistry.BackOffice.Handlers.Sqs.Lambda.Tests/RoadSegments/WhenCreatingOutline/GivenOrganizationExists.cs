@@ -127,7 +127,7 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
         await HandleRequest(request);
 
         // Assert
-        VerifyThatTicketHasError("MiddellijnGeometrieTeLang", "De opgegeven geometrie zijn lengte is groter of gelijk dan 1 meter.");
+        VerifyThatTicketHasError("MiddellijnGeometrieTeLang", "De opgegeven geometrie van wegsegment met id 1 zijn lengte is groter of gelijk dan 100000 meter.");
     }
 
     private async Task HandleRequest(CreateRoadSegmentOutlineRequest request)
