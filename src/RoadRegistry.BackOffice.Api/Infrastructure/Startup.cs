@@ -248,7 +248,7 @@ public class Startup
                             .ToArray();
 
                         options
-                            //.AddRoadPolicies(blacklistedOvoCodes) //TODO-rik temp
+                            .AddRoadPolicies(blacklistedOvoCodes)
                             .AddAcmIdmPolicyVoInfo()
                             ;
                     }
