@@ -9,7 +9,7 @@ using Uploads;
 
 public class TransactionZoneFeatureCompareTranslator : FeatureCompareTranslatorBase<TransactionZoneFeatureCompareAttributes>
 {
-    public TransactionZoneFeatureCompareTranslator(TransactionZoneFeatureCompareFeatureReader featureReader)
+    public TransactionZoneFeatureCompareTranslator(ITransactionZoneFeatureCompareFeatureReader featureReader)
         : base(featureReader)
     {
     }
