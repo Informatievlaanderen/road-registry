@@ -1,3 +1,10 @@
+## [4.6.2](https://github.com/informatievlaanderen/road-registry/compare/v4.6.1...v4.6.2) (2024-08-13)
+
+
+### Bug Fixes
+
+* use interface in dependency ([#1524](https://github.com/informatievlaanderen/road-registry/issues/1524)) ([72dbe9f](https://github.com/informatievlaanderen/road-registry/commit/72dbe9f4668e9e468e33962fb12c932a1437554b))
+
 ## [4.6.1](https://github.com/informatievlaanderen/road-registry/compare/v4.6.0...v4.6.1) (2024-08-13)
 
 
