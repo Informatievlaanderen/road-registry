@@ -22,6 +22,7 @@ using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
 using System.Threading;
 using System.Threading.Tasks;
+using FeatureCompare.Readers;
 using Jobs;
 using Uploads;
 
@@ -79,13 +80,14 @@ public class Program
                 )
                 .AddTicketing()
             )
-            .ConfigureCommandDispatcher(sp => Resolve.WhenEqualToMessage(new CommandHandlerModule[] {
+            .ConfigureCommandDispatcher(sp => Resolve.WhenEqualToMessage([
                 new RoadNetworkChangesArchiveCommandModule(
                     sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
                     sp.GetRequiredService<IStreamStore>(),
                     sp.GetRequiredService<ILifetimeScope>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     sp.GetRequiredService<IZipArchiveBeforeFeatureCompareValidator>(),
+                    sp.GetRequiredService<ITransactionZoneFeatureCompareFeatureReader>(),
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 ),
@@ -109,7 +111,7 @@ public class Program
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 )
-            }))
+            ]))
             .ConfigureContainer((context, builder) =>
             {
                 builder
@@ -135,7 +137,7 @@ public class Program
                         configuration.GetRequiredConnectionString(WellKnownConnectionNames.CommandHostAdmin))
                     )
                     .CreateSchemaIfNotExists(WellKnownSchemas.CommandHostSchema).ConfigureAwait(false);
-                
+
                 var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
                 var migratorFactories = sp.GetRequiredService<IDbContextMigratorFactory[]>();
 
