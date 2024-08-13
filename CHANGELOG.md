@@ -1,3 +1,10 @@
+## [4.6.1](https://github.com/informatievlaanderen/road-registry/compare/v4.6.0...v4.6.1) (2024-08-13)
+
+
+### Bug Fixes
+
+* validate ziparchive before trying to read extract description ([#1523](https://github.com/informatievlaanderen/road-registry/issues/1523)) ([28707d6](https://github.com/informatievlaanderen/road-registry/commit/28707d64d287c83e2ea72d134627894ecafdbc01))
+
 # [4.6.0](https://github.com/informatievlaanderen/road-registry/compare/v4.5.0...v4.6.0) (2024-08-12)
 
 
