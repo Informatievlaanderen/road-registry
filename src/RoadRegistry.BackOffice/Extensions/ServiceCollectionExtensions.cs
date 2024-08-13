@@ -186,7 +186,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddFeatureCompare(this IServiceCollection services)
     {
         return services
-            .AddSingleton<TransactionZoneFeatureCompareFeatureReader>()
+            .AddSingleton<ITransactionZoneFeatureCompareFeatureReader, TransactionZoneFeatureCompareFeatureReader>()
             .AddSingleton<RoadNodeFeatureCompareFeatureReader>()
             .AddSingleton<RoadSegmentFeatureCompareFeatureReader>()
             .AddSingleton<RoadSegmentLaneFeatureCompareFeatureReader>()

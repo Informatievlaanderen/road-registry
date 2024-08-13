@@ -63,7 +63,7 @@ public class Program
                             sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
                             sp.GetRequiredService<IStreamStore>(),
                             ApplicationMetadata,
-                            sp.GetRequiredService<TransactionZoneFeatureCompareFeatureReader>(),
+                            sp.GetRequiredService<ITransactionZoneFeatureCompareFeatureReader>(),
                             sp.GetRequiredService<IRoadNetworkEventWriter>(),
                             sp.GetService<IExtractUploadFailedEmailClient>(),
                             sp.GetRequiredService<ILogger<RoadNetworkChangesArchiveEventModule>>()

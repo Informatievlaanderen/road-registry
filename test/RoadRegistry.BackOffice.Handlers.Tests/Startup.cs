@@ -6,6 +6,7 @@ using BackOffice.Extracts;
 using BackOffice.Framework;
 using BackOffice.Uploads;
 using Core;
+using FeatureCompare.Readers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -27,6 +28,7 @@ public class Startup : TestStartup
                     sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
+                    sp.GetService<ITransactionZoneFeatureCompareFeatureReader>(),
                     sp.GetService<IClock>(),
                     sp.GetService<ILoggerFactory>()
                 ),

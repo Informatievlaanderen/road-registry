@@ -27,6 +27,7 @@ using RoadRegistry.BackOffice.Api.Organizations;
 using RoadRegistry.Hosts.Infrastructure.Options;
 using SqlStreamStore;
 using System.Reflection;
+using FeatureCompare.Readers;
 using MediatorModule = BackOffice.MediatorModule;
 
 public class Startup : TestStartup
@@ -42,6 +43,7 @@ public class Startup : TestStartup
                     sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
+                    sp.GetService<ITransactionZoneFeatureCompareFeatureReader>(),
                     sp.GetService<IClock>(),
                     sp.GetService<ILoggerFactory>()
                 ),

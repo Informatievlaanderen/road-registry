@@ -59,6 +59,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using FeatureCompare.Readers;
 using ZipArchiveWriters.Cleaning;
 using DomainAssemblyMarker = BackOffice.Handlers.Sqs.DomainAssemblyMarker;
 using MediatorModule = Snapshot.Handlers.MediatorModule;
@@ -291,6 +292,7 @@ public class Startup
                         sp.GetService<ILifetimeScope>(),
                         sp.GetService<IRoadNetworkSnapshotReader>(),
                         sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
+                        sp.GetService<ITransactionZoneFeatureCompareFeatureReader>(),
                         sp.GetService<IClock>(),
                         sp.GetService<ILoggerFactory>()
                     ),
