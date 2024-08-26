@@ -193,6 +193,7 @@ internal class RequestedChangeTranslator
 
         return result.ToArray();
     }
+
     private async Task<RoadSegmentSurfaceAttribute[]> Translate(RequestedRoadSegmentSurfaceAttribute[] attributes, RoadSegmentId roadSegmentId)
     {
         if (attributes is null)
@@ -322,7 +323,26 @@ internal class RequestedChangeTranslator
         }
 
         var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
-        var nextRoadSegmentVersionArgs = new NextRoadSegmentVersionArgs(permanent, geometryDrawMethod, command.ConvertedFromOutlined);
+
+        //TODO-rik als we extra migration events registreren, dan moeten die ook de huidige version+geometryversion gebruiken
+        //en is er geen speciale logica (zie hieronder) meer nodig voor de next version te bepalen, want dan is dat altijd binnen zijn eigen aggregate
+
+        //TODO-rik determine geometryDrawMethod based on outlined conversion
+        /*var streamName = args.ConvertedFromOutlined
+            ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(args.Id)
+            : RoadNetworkStreamNameProvider.Get(args.Id, args.GeometryDrawMethod);*/
+        var geometryDrawMethodForVersionDetermination = geometryDrawMethod;
+        if (command.ConvertedFromOutlined)
+        {
+            geometryDrawMethodForVersionDetermination = RoadSegmentGeometryDrawMethod.Outlined;
+        }
+        else if (command.ConvertedToOutlined)
+        {
+            geometryDrawMethodForVersionDetermination = RoadSegmentGeometryDrawMethod.Measured;
+        }
+
+        var nextRoadSegmentVersionArgs = new NextRoadSegmentVersionArgs(permanent, geometryDrawMethod);
+
         var version = RoadSegmentVersion.FromValue(command.Version)
                       ?? await _roadNetworkVersionProvider.NextRoadSegmentVersion(nextRoadSegmentVersionArgs, ct);
         var geometry = GeometryTranslator.Translate(command.Geometry);
@@ -356,6 +376,7 @@ internal class RequestedChangeTranslator
             maintainerId,
             maintainer?.Translation.Name,
             geometryDrawMethod,
+            command.GeometryDrawMethodModified,
             morphology,
             status,
             category,
@@ -365,8 +386,7 @@ internal class RequestedChangeTranslator
             rightSideStreetNameId,
             laneAttributes,
             widthAttributes,
-            surfaceAttributes,
-            command.ConvertedFromOutlined
+            surfaceAttributes
         );
     }
 
@@ -375,7 +395,7 @@ internal class RequestedChangeTranslator
         var permanent = new RoadSegmentId(command.Id);
 
         var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
-        var version = await _roadNetworkVersionProvider.NextRoadSegmentVersion(new NextRoadSegmentVersionArgs(permanent, geometryDrawMethod, false), ct);
+        var version = await _roadNetworkVersionProvider.NextRoadSegmentVersion(new NextRoadSegmentVersionArgs(permanent, geometryDrawMethod), ct);
 
         OrganizationId? maintainerId = command.MaintenanceAuthority is not null
             ? new OrganizationId(command.MaintenanceAuthority)
@@ -420,7 +440,7 @@ internal class RequestedChangeTranslator
         var permanent = new RoadSegmentId(command.Id);
 
         var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
-        var nextRoadSegmentVersionArgs = new NextRoadSegmentVersionArgs(permanent, geometryDrawMethod, false);
+        var nextRoadSegmentVersionArgs = new NextRoadSegmentVersionArgs(permanent, geometryDrawMethod);
         var version = await _roadNetworkVersionProvider.NextRoadSegmentVersion(nextRoadSegmentVersionArgs, ct);
 
         var geometry = GeometryTranslator.Translate(command.Geometry);
@@ -751,7 +771,7 @@ internal class RequestedChangeTranslator
 
         return version
                ?? await _roadNetworkVersionProvider.NextRoadSegmentVersion(
-                   new NextRoadSegmentVersionArgs(roadSegmentId, geometryDrawMethod, false), cancellationToken);
+                   new NextRoadSegmentVersionArgs(roadSegmentId, geometryDrawMethod), cancellationToken);
     }
 
     private sealed class RankChangeBeforeTranslation : IComparer<SortableChange>

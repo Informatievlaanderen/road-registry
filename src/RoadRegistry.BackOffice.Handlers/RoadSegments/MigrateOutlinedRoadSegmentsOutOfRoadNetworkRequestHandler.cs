@@ -38,7 +38,7 @@ public sealed class MigrateOutlinedRoadSegmentsOutOfRoadNetworkRequestHandler : 
             .WithOrganization(OrganizationId.DigitaalVlaanderen)
             .WithOperatorName(OperatorName.Unknown)
             .WithReason(new Reason("Migreer ingeschetste wegsegmenten uit het wegennetwerk"));
-        
+
         var network = await _roadRegistryContext.RoadNetworks.Get(cancellationToken);
         var roadSegments = network.FindRoadSegments(x => x.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined);
 
@@ -46,7 +46,7 @@ public sealed class MigrateOutlinedRoadSegmentsOutOfRoadNetworkRequestHandler : 
         {
             return new MigrateOutlinedRoadSegmentsOutOfRoadNetworkResponse(0);
         }
-        
+
         var recordNumber = RecordNumber.Initial;
         var attributeIdProvider = new NextAttributeIdProvider(AttributeId.Initial);
 
@@ -74,9 +74,8 @@ public sealed class MigrateOutlinedRoadSegmentsOutOfRoadNetworkRequestHandler : 
                 roadSegment.AttributeHash.LeftStreetNameId,
                 roadSegment.AttributeHash.RightStreetNameId
             )
-            {
-                PermanentId = roadSegment.Id
-            }.WithGeometry(roadSegment.Geometry);
+                .WithGeometry(roadSegment.Geometry)
+                .WithPermanentId(roadSegment.Id);
 
             if (roadSegment.Lanes.Any())
             {

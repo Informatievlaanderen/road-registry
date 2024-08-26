@@ -126,10 +126,12 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     {
                         problems += recordContext.BeginRoadNodeIdOutOfRange(changeFeatureAttributes.StartNodeId);
                     }
+
                     if (endNodeFeature is null)
                     {
                         problems += recordContext.EndRoadNodeIdOutOfRange(changeFeatureAttributes.EndNodeId);
                     }
+
                     continue;
                 }
 
@@ -204,11 +206,11 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         RecordType.Modified)
                     {
                         GeometryChanged = !identicalGeometries.Any(),
-                        ConvertedFromOutlined = extractFeature.Attributes.Method == RoadSegmentGeometryDrawMethod.Outlined
-                                                && changeFeatureAttributes.Method != extractFeature.Attributes.Method,
+                        PreviousGeometryDrawMethod = extractFeature.Attributes.Method,
                         CategoryModified = extractFeature.Attributes.Category != changeFeatureAttributes.Category
                     });
                 }
+
                 continue;
             }
 
@@ -244,7 +246,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             var processedLeveringRecords = await Task.WhenAll(
                 changeFeatures.SplitIntoBatches(batchCount)
                     .Select(changeFeaturesBatch => ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, streetNameContext, context, cancellationToken))
-                );
+            );
 
             foreach (var processedProblems in processedLeveringRecords.Select(x => x.Item2))
             {
@@ -267,7 +269,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         return (changes, problems);
     }
-
 
     private async Task<(List<Feature<RoadSegmentFeatureCompareAttributes>>, ZipArchiveProblems)> ValidateMaintenanceAuthorityAndMapToInternalId(List<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures, CancellationToken cancellationToken)
     {
@@ -375,6 +376,11 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     );
                     break;
                 case RecordType.ModifiedIdentifier:
+                    var convertedFromOutlined = record.PreviousGeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
+                                                && record.Attributes.Method != record.PreviousGeometryDrawMethod;
+                    var convertedToOutlined = record.Attributes.Method == RoadSegmentGeometryDrawMethod.Outlined
+                                              && record.Attributes.Method != record.PreviousGeometryDrawMethod;
+                    //TODO-rik Q naar Jelmer gestuurd: indien OK dan bij conversie van ingemeten->ingeschetst simpelweg het ingemeten wegsegment verwijderen en een nieuwe inschetste toevoegen
                     var modifyRoadSegment = new ModifyRoadSegment(
                             record.RecordNumber,
                             record.Id,
@@ -390,15 +396,19 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             record.Attributes.RightStreetNameId
                         )
                         .WithGeometry(record.Attributes.Geometry)
-                        .WithConvertedFromOutlined(record.ConvertedFromOutlined)
                         .WithCategoryModified(record.CategoryModified);
                     if (record.Id != record.Attributes.Id)
                     {
                         modifyRoadSegment = modifyRoadSegment.WithOriginalId(record.Attributes.Id);
                     }
+                    if (record.PreviousGeometryDrawMethod is not null)
+                    {
+                        modifyRoadSegment = modifyRoadSegment.WithPreviousGeometryDrawMethod(record.PreviousGeometryDrawMethod);
+                    }
+
                     changes = changes.AppendChange(modifyRoadSegment);
 
-                    if (record.ConvertedFromOutlined)
+                    if (convertedFromOutlined)
                     {
                         changes = changes.AppendChange(
                             new RemoveOutlinedRoadSegment(
@@ -407,6 +417,17 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             )
                         );
                     }
+                    else if (convertedToOutlined)
+                    {
+                        //TODO-rik is dit ook nodig om te doen? of iets generiekers zoals hierboven maar dan volgens de PreviousGeometryDrawMethod
+                        // changes = changes.AppendChange(
+                        //     new RemoveRoadSegment(
+                        //         record.RecordNumber,
+                        //         record.Id
+                        //     )
+                        // );
+                    }
+
                     break;
                 case RecordType.AddedIdentifier:
                     changes = changes.AppendChange(

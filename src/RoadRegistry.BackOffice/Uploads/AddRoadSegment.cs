@@ -114,7 +114,7 @@ public class AddRoadSegment : ITranslatedChange
     public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }
     public RoadSegmentId TemporaryId { get; }
     public RoadSegmentId? OriginalId { get; }
-    public RoadSegmentId? PermanentId { get; init; }
+    public RoadSegmentId? PermanentId { get; }
     public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
 
     public void TranslateTo(RequestedChange message)
@@ -173,6 +173,14 @@ public class AddRoadSegment : ITranslatedChange
         if (geometry == null) throw new ArgumentNullException(nameof(geometry));
         return new AddRoadSegment(
             RecordNumber, TemporaryId, OriginalId, PermanentId, StartNodeId, EndNodeId, geometry,
+            MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
+            LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces);
+    }
+
+    public AddRoadSegment WithPermanentId(RoadSegmentId permanentId)
+    {
+        return new AddRoadSegment(
+            RecordNumber, TemporaryId, OriginalId, permanentId, StartNodeId, EndNodeId, Geometry,
             MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
             LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces);
     }

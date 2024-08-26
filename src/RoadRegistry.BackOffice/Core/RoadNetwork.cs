@@ -132,7 +132,7 @@ public class RoadNetwork : EventSourcedEntity
         {
             return segment;
         }
-        
+
         return null;
     }
 
@@ -204,7 +204,7 @@ public class RoadNetwork : EventSourcedEntity
             return new NextRoadSegmentVersionProvider().Next();
         };
     }
-    
+
     public void RestoreFromSnapshot(RoadNetworkSnapshot snapshot)
     {
         if (snapshot == null)
@@ -287,4 +287,4 @@ public class RoadNetwork : EventSourcedEntity
     }
 }
 
-public sealed record NextRoadSegmentVersionArgs(RoadSegmentId Id, RoadSegmentGeometryDrawMethod GeometryDrawMethod, bool ConvertedFromOutlined);
+public sealed record NextRoadSegmentVersionArgs(RoadSegmentId Id, RoadSegmentGeometryDrawMethod GeometryDrawMethod);

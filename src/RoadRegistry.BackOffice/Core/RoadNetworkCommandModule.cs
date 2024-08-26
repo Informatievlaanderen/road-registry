@@ -201,9 +201,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
     private async Task<RoadSegmentVersion> GetNextVersion(IRoadRegistryContext context, NextRoadSegmentVersionArgs args, CancellationToken cancellationToken)
     {
-        var streamName = args.ConvertedFromOutlined
-            ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(args.Id)
-            : RoadNetworkStreamNameProvider.Get(args.Id, args.GeometryDrawMethod);
+        var streamName = RoadNetworkStreamNameProvider.Get(args.Id, args.GeometryDrawMethod);
 
         var network = await context.RoadNetworks.Get(streamName, cancellationToken);
         return network.ProvidesNextRoadSegmentVersion()(args.Id);
@@ -211,9 +209,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
     private async Task<GeometryVersion> GetNextGeometryVersion(IRoadRegistryContext context, NextRoadSegmentVersionArgs args, MultiLineString geometry, CancellationToken cancellationToken)
     {
-        var streamName = args.ConvertedFromOutlined
-            ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(args.Id)
-            : RoadNetworkStreamNameProvider.Get(args.Id, args.GeometryDrawMethod);
+        var streamName = RoadNetworkStreamNameProvider.Get(args.Id, args.GeometryDrawMethod);
 
         var network = await context.RoadNetworks.Get(streamName, cancellationToken);
         return network.ProvidesNextRoadSegmentGeometryVersion()(args.Id, geometry);
@@ -371,6 +367,7 @@ public class RequestedChangesConverter
 {
     public static Dictionary<StreamName, RequestedChange[]> SplitChangesByRoadNetworkStream(RequestedChange[] changes)
     {
+        //TODO-rik hier 1 per 1 requestedchange analyseren en bij conversie van method extra migratie events toevoegen op de nodige aggregates
         var roadNetworkStreamChanges = changes
         .Select(change => new
         {

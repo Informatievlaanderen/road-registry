@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Messages;
 
+using System;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 
 public class RoadSegmentModified: IHaveHash
@@ -25,6 +26,7 @@ public class RoadSegmentModified: IHaveHash
     public int Version { get; set; }
     public RoadSegmentWidthAttributes[] Widths { get; set; }
     public bool ConvertedFromOutlined { get; set; }
+    public bool ConvertedToOutlined { get; set; }//TODO-rik handle
 
     public System.Collections.Generic.IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
     public string GetHash() => this.ToEventHash(EventName);

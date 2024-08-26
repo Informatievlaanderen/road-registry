@@ -22,7 +22,7 @@ public class RoadSegmentFeatureCompareRecord
     public RecordType RecordType { get; }
 
     public bool GeometryChanged { get; init; }
-    public bool ConvertedFromOutlined { get; init; }
+    public RoadSegmentGeometryDrawMethod? PreviousGeometryDrawMethod { get; init; }
     public bool CategoryModified { get; init; }
 
     public RoadSegmentId GetActualId() => Id;

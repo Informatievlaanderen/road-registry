@@ -34,7 +34,8 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         IReadOnlyList<RoadSegmentLaneAttribute> lanes,
         IReadOnlyList<RoadSegmentWidthAttribute> widths,
         IReadOnlyList<RoadSegmentSurfaceAttribute> surfaces,
-        bool convertedFromOutlined)
+        bool convertedFromOutlined,
+        bool convertedToOutlined)
     {
         Id = id;
         OriginalId = originalId;
@@ -59,6 +60,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         Widths = widths ?? throw new ArgumentNullException(nameof(widths));
         Surfaces = surfaces ?? throw new ArgumentNullException(nameof(surfaces));
         ConvertedFromOutlined = convertedFromOutlined;
+        ConvertedToOutlined = convertedToOutlined;
     }
 
     public RoadSegmentAccessRestriction AccessRestriction { get; }
@@ -84,6 +86,8 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
     public RoadNodeId? TemporaryStartNodeId { get; }
     public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
     public bool ConvertedFromOutlined { get; }
+    public bool ConvertedToOutlined { get; }
+
     private RoadSegmentCategory? _correctedCategory;
 
     public void TranslateTo(Messages.AcceptedChange message)
@@ -148,7 +152,8 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
                     ToPosition = item.To
                 })
                 .ToArray(),
-            ConvertedFromOutlined = ConvertedFromOutlined
+            ConvertedFromOutlined = ConvertedFromOutlined,
+            ConvertedToOutlined = ConvertedToOutlined
         };
     }
 
@@ -199,7 +204,8 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
                     ToPosition = item.To
                 })
                 .ToArray(),
-            ConvertedFromOutlined = ConvertedFromOutlined
+            ConvertedFromOutlined = ConvertedFromOutlined,
+            ConvertedToOutlined = ConvertedToOutlined
         };
     }
 
@@ -230,16 +236,8 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
             ));
         }
 
-        var checkSegmentBefore = true;
-        if (ConvertedFromOutlined && !context.BeforeView.Segments.ContainsKey(Id))
+        if (context.BeforeView.Segments.TryGetValue(Id, out var segmentBefore))
         {
-            checkSegmentBefore = false;
-        }
-
-        if (checkSegmentBefore)
-        {
-            var segmentBefore = context.BeforeView.Segments[Id];
-
             if (segmentBefore.Start != StartNodeId && segmentBefore.Start != EndNodeId &&
                 context.AfterView.Nodes.TryGetValue(segmentBefore.Start, out var beforeStartNode))
                 problems = problems.AddRange(
@@ -300,7 +298,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         var problems = Problems.None;
         var originalIdOrId = context.Translator.TranslateToOriginalOrTemporaryOrId(Id);
 
-        if (!context.BeforeView.Segments.TryGetValue(Id, out var currentSegment) && !ConvertedFromOutlined)
+        if (!context.BeforeView.Segments.TryGetValue(Id, out var currentSegment) && !ConvertedFromOutlined && !ConvertedToOutlined)
         {
             problems = problems.Add(new RoadSegmentNotFound(originalIdOrId));
         }

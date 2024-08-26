@@ -19,7 +19,9 @@ public class ModifyRoadSegment
     public string Status { get; set; }
     public RequestedRoadSegmentSurfaceAttribute[] Surfaces { get; set; }
     public RequestedRoadSegmentWidthAttribute[] Widths { get; set; }
-    public bool ConvertedFromOutlined { get; set; }
     public int? Version { get; set; }
     public int? GeometryVersion { get; set; }
+    //public bool ConvertedFromOutlined { get; set; }
+    public string? PreviousGeometryDrawMethod { get; set; }
+    //public bool ConvertedToOutlined { get; set; }
 }
