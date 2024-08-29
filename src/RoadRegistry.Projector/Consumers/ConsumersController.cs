@@ -64,13 +64,11 @@ namespace RoadRegistry.Projector.Consumers
                 $"SELECT TOP(1) [{nameof(ProcessedMessage.DateProcessed)}] FROM [{schemaName}].[{ProcessedMessageConfiguration.TableName}] ORDER BY [{nameof(ProcessedMessage.DateProcessed)}] DESC"
                 , ct);
 
-            return result is not null
-                ? new ConsumerStatus
-                {
-                    Name = consumerName,
-                    LastProcessedMessage = result.Value
-                }
-                : null;
+            return new ConsumerStatus
+            {
+                Name = consumerName,
+                LastProcessedMessage = result ?? default
+            };
         }
     }
 }
