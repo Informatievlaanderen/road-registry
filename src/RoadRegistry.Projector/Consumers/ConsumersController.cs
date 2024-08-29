@@ -27,11 +27,18 @@ namespace RoadRegistry.Projector.Consumers
             var organizationConsumerResult = projectionOptions.OrganizationSync.Enabled
                 ? GetLastProcessedMessageDateProcessed(configuration, WellKnownConnectionNames.OrganizationConsumerProjections, WellKnownSchemas.OrganizationConsumerSchema)
                 : null;
-            var streetNameConsumerResult = projectionOptions.StreetNameSync.Enabled
+            var streetNameSnapshotConsumerResult = projectionOptions.StreetNameSync.Enabled
                 ? GetLastProcessedMessageDateProcessed(configuration, WellKnownConnectionNames.StreetNameSnapshotConsumer, WellKnownSchemas.StreetNameSnapshotConsumerSchema)
                 : null;
+            var streetNameEventConsumerResult = projectionOptions.StreetNameSync.Enabled
+                ? GetLastProcessedMessageDateProcessed(configuration, WellKnownConnectionNames.StreetNameEventConsumer, WellKnownSchemas.StreetNameEventConsumerSchema)
+                : null;
 
-            await Task.WhenAll(organizationConsumerResult ?? Task.CompletedTask, streetNameConsumerResult ?? Task.CompletedTask);
+            await Task.WhenAll(
+                organizationConsumerResult ?? Task.CompletedTask,
+                streetNameSnapshotConsumerResult ?? Task.CompletedTask,
+                streetNameEventConsumerResult ?? Task.CompletedTask
+            );
 
             var statuses = new ConsumerStatus?[]
             {
@@ -42,11 +49,18 @@ namespace RoadRegistry.Projector.Consumers
                         LastProcessedMessage = organizationConsumerResult.Result.Value
                     }
                     : null,
-                streetNameConsumerResult?.Result is not null
+                streetNameSnapshotConsumerResult?.Result is not null
                     ? new()
                     {
-                        Name = "Synchronisatie van straatnaam register",
-                        LastProcessedMessage = streetNameConsumerResult.Result.Value
+                        Name = "Synchronisatie van straatnaam register (snapshot)",
+                        LastProcessedMessage = streetNameSnapshotConsumerResult.Result.Value
+                    }
+                    : null,
+                streetNameEventConsumerResult?.Result is not null
+                    ? new()
+                    {
+                        Name = "Synchronisatie van straatnaam register (event)",
+                        LastProcessedMessage = streetNameEventConsumerResult.Result.Value
                     }
                     : null
             }.Where(x => x is not null).ToArray();
