@@ -36,14 +36,14 @@ namespace RoadRegistry.Projector.Consumers
                     ? GetConsumerStatus(configuration,
                         WellKnownConnectionNames.StreetNameSnapshotConsumer,
                         WellKnownSchemas.StreetNameSnapshotConsumerSchema,
-                        "Synchronisatie van straatnaam register (snapshot)",
+                        "Consumer van straatnaam (snapshot)",
                         cancellationToken)
                     : Task.FromResult((ConsumerStatus?)null),
                 projectionOptions.StreetNameSync.Enabled
                     ? GetConsumerStatus(configuration,
                         WellKnownConnectionNames.StreetNameEventConsumer,
                         WellKnownSchemas.StreetNameEventConsumerSchema,
-                        "Synchronisatie van straatnaam register (event)",
+                        "Consumer van straatnaam (event)",
                         cancellationToken)
                     : Task.FromResult((ConsumerStatus?)null)
             )).Where(x => x is not null).ToArray();
