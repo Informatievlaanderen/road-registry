@@ -1,3 +1,11 @@
+## [4.6.3](https://github.com/informatievlaanderen/road-registry/compare/v4.6.2...v4.6.3) (2024-08-30)
+
+
+### Bug Fixes
+
+* add event consumer to projector + EF query include local ([fa275ff](https://github.com/informatievlaanderen/road-registry/commit/fa275ffc6974d790af4286878d9ed29a99307463))
+* integration tests ([9fec0b2](https://github.com/informatievlaanderen/road-registry/commit/9fec0b2d4c2710b147833d442027806da9b14acb))
+
 ## [4.6.2](https://github.com/informatievlaanderen/road-registry/compare/v4.6.1...v4.6.2) (2024-08-13)
 
 
