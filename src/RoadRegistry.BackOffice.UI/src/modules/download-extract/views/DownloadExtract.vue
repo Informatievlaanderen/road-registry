@@ -223,7 +223,7 @@
           </div>
           <div class="vl-form-col--12-12">
             <label>
-              <input v-model="contourFlow.isInformative" type="radio" :value="false" />
+              <input v-model="contourFlow.isInformative" type="radio" :value="false" @input="contourFlowUserSelectedNotInformative" />
               Ja, ik wens een oplading uit te voeren
             </label>
           </div>
@@ -248,13 +248,29 @@
               mod-block
             ></textarea>
           </div>
+          <div class="vl-form-col--12-12" v-if="contourFlow.overlapWarning">
+            <p>De contour voor deze extractaanvraag overlapt met de contour van een andere, onafgesloten extractaanvraag.</p>
+            <label class="vl-checkbox" for="contour-overlap-warning">
+              <input
+                class="vl-checkbox__toggle"
+                type="checkbox"
+                id="contour-overlap-warning"
+                v-model="contourFlow.overlapWarningAccepted"
+              />
+              <span class="vl-checkbox__label">
+                <i class="vl-checkbox__box" aria-hidden="true"></i>
+                Ik wens toch het extract aan te vragen
+              </span>
+            </label>
+          </div>
+          </div>
           <div class="vl-form-col--12-12">
             <vl-action-group>
               <vl-button @click="currentStep = steps.Step2_Contour">Vorige</vl-button>
               <vl-button
                 @click="submitContourRequest"
                 :mod-disabled="
-                  isSubmitting || !isDescriptionValid(contourFlow.description) || !contourFlowHasIsInformative
+                  isSubmitting || !isDescriptionValid(contourFlow.description) || !contourFlowHasIsInformative || (contourFlow.overlapWarning && !contourFlow.overlapWarningAccepted)
                 "
               >
                 Extract aanvragen
@@ -339,6 +355,8 @@ export default Vue.extend({
         validationErrors: {} as RoadRegistry.PerContourValidationErrors,
         hasGenericError: false,
         isInformative: null as Boolean | null,
+        overlapWarning: false,
+        overlapWarningAccepted: false
       },
       validation: {
         description: {
@@ -606,6 +624,12 @@ export default Vue.extend({
       this.resetContourFlow();
       this.isCheckingWkt = true;
       this.debouncedCheckIfContourWktIsValid();
+    },
+    async contourFlowUserSelectedNotInformative(){
+      debugger;
+      //TODO-rik check if contourflow has overlap
+
+      this.contourFlow.overlapWarning = true;
     },
     resetContourFlow() {
       this.contourFlow.wktIsValid = false;
