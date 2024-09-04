@@ -1,3 +1,10 @@
+## [4.6.4](https://github.com/informatievlaanderen/road-registry/compare/v4.6.3...v4.6.4) (2024-09-04)
+
+
+### Bug Fixes
+
+* no error spam when organization registry is temporarily unavailable ([3ca3793](https://github.com/informatievlaanderen/road-registry/commit/3ca3793d50177b72a0bb119f1c7e18fcbae8ecd4))
+
 ## [4.6.3](https://github.com/informatievlaanderen/road-registry/compare/v4.6.2...v4.6.3) (2024-08-30)
 
 

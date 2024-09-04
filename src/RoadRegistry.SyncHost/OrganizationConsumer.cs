@@ -24,6 +24,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice.Extensions;
+using Sync.OrganizationRegistry.Exceptions;
 using Organization = Sync.OrganizationRegistry.Models.Organization;
 
 public class OrganizationConsumer : RoadRegistryBackgroundService
@@ -65,6 +66,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
     protected override async Task ExecutingAsync(CancellationToken cancellationToken)
     {
         var consecutiveExceptionsCount = 0;
+        var serviceIsUnavailable = false;
 
         while (!cancellationToken.IsCancellationRequested)
         {
@@ -83,6 +85,12 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
 
                 await _organizationReader.ReadAsync(projectionState.Position + 1, async organization =>
                 {
+                    if (serviceIsUnavailable)
+                    {
+                        Logger.LogError("Organization registry is available, continuing sync");
+                        serviceIsUnavailable = false;
+                    }
+
                     projectionState.Position = organization.ChangeId;
                     var idempotenceKey = $"organization-{organization.ChangeId}-{organization.OvoNumber}".ToSha512();
 
@@ -116,6 +124,17 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
             {
                 Logger.LogError(ex.Message);
                 return;
+            }
+            catch (OrganizationRegistryTemporarilyUnavailableException ex)
+            {
+                if (!serviceIsUnavailable)
+                {
+                    Logger.LogError("Organization registry is temporarily unavailable");
+                    serviceIsUnavailable = true;
+
+                    projectionState.ErrorMessage = "Organization registry service unavailable";
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                }
             }
             catch (Exception ex)
             {
