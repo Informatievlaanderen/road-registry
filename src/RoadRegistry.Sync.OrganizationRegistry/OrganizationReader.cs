@@ -6,10 +6,12 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Exceptions;
 
 public interface IOrganizationReader
 {
@@ -38,6 +40,10 @@ public class OrganizationReader : IOrganizationReader
 
         var httpClient = _factory.CreateClient();
         var response = await httpClient.GetAsync(CreateSyncUri(startAtChangeId), cancellationToken);
+        if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
+        {
+            throw new OrganizationRegistryTemporarilyUnavailableException();
+        }
 
         var scrollId = string.Empty;
         int? totalItems = null;
@@ -76,7 +82,7 @@ public class OrganizationReader : IOrganizationReader
             }
         }
     }
-    
+
     private Uri CreateSyncUri(long changeId)
     {
         return new Uri(new Uri(_options.OrganizationRegistrySyncUrl), $"/v1/search/organisations?q=changeId:[{changeId} TO *]&fields=name,ovoNumber&sort=changeId,id&scroll=true");
