@@ -1,3 +1,10 @@
+## [4.6.5](https://github.com/informatievlaanderen/road-registry/compare/v4.6.4...v4.6.5) (2024-09-05)
+
+
+### Bug Fixes
+
+* streetname event consumer when no new ids were provided for merger ([a04f8e0](https://github.com/informatievlaanderen/road-registry/commit/a04f8e0aa9abc209adfd5ee86db0edf80532595c))
+
 ## [4.6.4](https://github.com/informatievlaanderen/road-registry/compare/v4.6.3...v4.6.4) (2024-09-04)
 
 
