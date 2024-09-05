@@ -164,10 +164,14 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         {
             await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, waitForProjectionStateName, Logger, cancellationToken);
 
+            var destinationStreetNameId = message.NewPersistentLocalIds.Any()
+                ? message.NewPersistentLocalIds.First()
+                : StreetNameLocalId.NotApplicable;
+
             var changeRoadNetwork = await BuildChangeRoadNetworkToConnectRoadSegmentsToDifferentStreetName(
                 message.PersistentLocalId,
-                message.NewPersistentLocalIds.First(),
-                $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {message.NewPersistentLocalIds.First()} in functie van een gemeentefusie",
+                destinationStreetNameId,
+                $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {destinationStreetNameId} in functie van een gemeentefusie",
                 editorContext,
                 cancellationToken);
             if (changeRoadNetwork is not null)
