@@ -2,5 +2,5 @@ namespace RoadRegistry.BackOffice.Abstractions.Extracts;
 
 public sealed record GetOverlappingTransactionZonesResponse : EndpointResponse
 {
-    public List<object> TransactionZones { get; init; }
+    public List<Guid> DownloadIds { get; init; }
 }

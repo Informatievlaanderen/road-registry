@@ -8,6 +8,7 @@ using Framework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 
 public class GetOverlappingTransactionZonesRequestHandler : EndpointRequestHandler<GetOverlappingTransactionZonesRequest, GetOverlappingTransactionZonesResponse>
 {
@@ -25,28 +26,48 @@ public class GetOverlappingTransactionZonesRequestHandler : EndpointRequestHandl
     {
         //TODO-rik find non-informative extracts adv niscode of contour
 
-        var availableOverlaps = await (
-            from overlap in _context.ExtractRequestOverlaps
-            join download1 in _context.ExtractDownloads on overlap.DownloadId1 equals download1.DownloadId
-            join download2 in _context.ExtractDownloads on overlap.DownloadId2 equals download2.DownloadId
-            where !download1.IsInformative && !download2.IsInformative
-                && download1.Available && download2.Available
-            select overlap
-        ).ToListAsync(cancellationToken);
+        var overlapQuery = (
+            from extractRequest in _context.ExtractRequests
+            where !extractRequest.IsInformative
+            select extractRequest
+        );
+
+        if (request.NisCode is not null)
+        {
+            if (request.Buffer > 0)
+            {
+                overlapQuery = (
+                    from overlap in overlapQuery
+                    let municipalityGeometry = _context.MunicipalityGeometries.SingleOrDefault(x => x.NisCode == request.NisCode)
+                    where municipalityGeometry != null && overlap.Contour.Intersects(municipalityGeometry.Geometry.Buffer(request.Buffer))
+                    select overlap
+                );
+            }
+            else
+            {
+                overlapQuery = (
+                    from overlap in overlapQuery
+                    let municipalityGeometry = _context.MunicipalityGeometries.SingleOrDefault(x => x.NisCode == request.NisCode)
+                    where municipalityGeometry != null && overlap.Contour.Intersects(municipalityGeometry.Geometry)
+                    select overlap
+                );
+            }
+        }
+
+        if (request.Contour is not null)
+        {
+            var geometry = new WKTReader().Read(request.Contour);
+            overlapQuery = overlapQuery.Where(x => x.Contour.Intersects(geometry));
+        }
+
+        var availableOverlaps = await overlapQuery.ToListAsync(cancellationToken);
 
         return new GetOverlappingTransactionZonesResponse
         {
-            //TODO-rik temp
-            // FeatureCollection = new FeatureCollection(availableOverlaps
-            //     .Select(overlap => new Feature(overlap.Contour.ToMultiPolygon().To(), new
-            //     {
-            //         DownloadId1 = DownloadId.FromValue(overlap.DownloadId1).ToString(),
-            //         DownloadId2 = DownloadId.FromValue(overlap.DownloadId2).ToString(),
-            //         Description1 = overlap.Description1,
-            //         Description2 = overlap.Description2
-            //     }))
-            //     .ToList()
-            // )
+            DownloadIds = availableOverlaps
+                .Select(x => x.DownloadId)
+                .Distinct()
+                .ToList()
         };
     }
 }
