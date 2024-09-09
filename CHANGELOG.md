@@ -1,3 +1,10 @@
+# [4.7.0](https://github.com/informatievlaanderen/road-registry/compare/v4.6.5...v4.7.0) (2024-09-09)
+
+
+### Features
+
+* extract overlap check when requesting a new extract ([#1528](https://github.com/informatievlaanderen/road-registry/issues/1528)) ([4261db6](https://github.com/informatievlaanderen/road-registry/commit/4261db6aacc852da9968d45de37f18a1189986f0))
+
 ## [4.6.5](https://github.com/informatievlaanderen/road-registry/compare/v4.6.4...v4.6.5) (2024-09-05)
 
 
