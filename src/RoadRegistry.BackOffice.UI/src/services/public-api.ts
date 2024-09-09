@@ -163,6 +163,36 @@ export const PublicApi = {
       const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, downloadRequest);
       return response.data;
     },
+    getOverlappingExtractRequestsByNisCode: async (
+      nisCode: String,
+      buffer: Number
+    ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
+      if (useBackOfficeApi) {
+        return BackOfficeApi.Extracts.getOverlappingExtractRequestsByNisCode(nisCode, buffer);
+      }
+
+      const request = {
+        nisCode,
+        buffer
+      } as RoadRegistry.ListOverlappingExtractsByNisCodeRequest;
+      const path = `${apiEndpoint}/v1/wegen/extracts/overlapping/perniscode`;
+      const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
+      return response.data;
+    },
+    getOverlappingExtractRequestsByContour: async (
+      contour: String
+    ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
+      if (useBackOfficeApi) {
+        return BackOfficeApi.Extracts.getOverlappingExtractRequestsByContour(contour);
+      }
+
+      const request = {
+        contour
+      } as RoadRegistry.ListOverlappingExtractsByContourRequest;
+      const path = `${apiEndpoint}/v1/wegen/extracts/overlapping/percontour`;
+      const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
+      return response.data;
+    },
   },
   Information: {
     getInformation: async (): Promise<RoadRegistry.RoadNetworkInformationResponse> => {

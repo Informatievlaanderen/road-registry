@@ -14,7 +14,7 @@ public class WhenByContour
 
         sut.IsValid.Should().BeFalse();
         sut.Errors.Should().HaveCount(1);
-        sut.Errors.Should().Contain(x => x.PropertyName == "" && x.ErrorMessage == "'Contour' is verplicht.");
+        sut.Errors.Should().Contain(x => x.PropertyName == "Contour" && x.ErrorMessage == "'Contour' is verplicht.");
     }
 
     [Fact]

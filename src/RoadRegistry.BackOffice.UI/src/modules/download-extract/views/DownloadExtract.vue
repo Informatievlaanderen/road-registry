@@ -359,7 +359,7 @@ import ValidationUtils from "@/core/utils/validation-utils";
 import Municipalities from "../../../types/municipalities";
 import RoadRegistry from "../../../types/road-registry";
 import RoadRegistryExceptions from "../../../types/road-registry-exceptions";
-import { WR_ENV } from "@/environment";
+import { featureToggles, WR_ENV } from "@/environment";
 
 import Vue from "vue";
 import { debounce } from "lodash";
@@ -587,6 +587,10 @@ export default Vue.extend({
       return this.municipalityFlow.buffer ? 100 : 0;
     },
     async municipalityFlowUserSelectedIsInformative(isInformative: boolean) {
+      if (!featureToggles.useOverlapCheck) {
+        return;
+      }
+
       if (isInformative) {
         this.municipalityFlow.overlapWarning = false;
         this.municipalityFlow.overlapWarningAccepted = false;
@@ -598,8 +602,9 @@ export default Vue.extend({
       }
 
       this.isCheckingOverlap = true;
+
       try {
-        let response = await BackOfficeApi.Extracts.getOverlappingExtractRequestsByNisCode(
+        let response = await PublicApi.Extracts.getOverlappingExtractRequestsByNisCode(
           this.municipalityFlow.nisCode,
           this.getBufferAsNumber()
         );
@@ -723,6 +728,10 @@ export default Vue.extend({
       this.debouncedCheckIfContourWktIsValid();
     },
     async contourFlowUserSelectedIsInformative(isInformative: boolean) {
+      if (!featureToggles.useOverlapCheck) {
+        return;
+      }
+
       if (isInformative) {
         this.contourFlow.overlapWarning = false;
         this.contourFlow.overlapWarningAccepted = false;
@@ -735,7 +744,7 @@ export default Vue.extend({
 
       this.isCheckingOverlap = true;
       try {
-        let response = await BackOfficeApi.Extracts.getOverlappingExtractRequestsByContour(this.contourFlow.wkt);
+        let response = await PublicApi.Extracts.getOverlappingExtractRequestsByContour(this.contourFlow.wkt);
         this.contourFlow.overlapWarning = response.downloadIds.length > 0;
       } finally {
         this.isCheckingOverlap = false;
