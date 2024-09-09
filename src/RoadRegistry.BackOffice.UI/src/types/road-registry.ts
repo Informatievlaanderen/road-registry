@@ -98,6 +98,17 @@ export namespace RoadRegistry {
         isInformative: Boolean;
     }
 
+    export interface ListOverlappingExtractsByNisCodeRequest {
+        buffer: number;
+        nisCode: string;
+    }
+    export interface ListOverlappingExtractsByContourRequest {
+        contour: string;
+    }
+    export interface ListOverlappingExtractsResponse {
+        downloadIds: string[];
+    }
+
     export interface ValidateWktResponse {
         area: number;
         areaMaximumSquareKilometers: number;

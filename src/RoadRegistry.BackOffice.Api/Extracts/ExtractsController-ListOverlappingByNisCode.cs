@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Extracts;
 
+using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,7 +19,7 @@ public partial class ExtractsController
     /// <param name="parameters"></param>
     /// <param name="validator"></param>
     /// <param name="cancellationToken"></param>
-    [HttpPost("overlapping/niscode", Name = nameof(ListOverlappingByNisCode))]
+    [HttpPost("overlapping/byniscode", Name = nameof(ListOverlappingByNisCode))]
     [AllowAnonymous]
     [SwaggerOperation(OperationId = nameof(ListOverlappingByNisCode))]
     public async Task<IActionResult> ListOverlappingByNisCode(
@@ -33,7 +35,7 @@ public partial class ExtractsController
             Buffer = parameters.Buffer
         }, cancellationToken);
 
-        return Ok(response.DownloadIds);
+        return Ok(new ListOverlappingByNisCodeResponse(response.DownloadIds));
     }
 
     public class ListOverlappingByNisCodeParameters
@@ -41,6 +43,8 @@ public partial class ExtractsController
         public string? NisCode { get; set; }
         public int Buffer { get; set; }
     }
+
+    public record ListOverlappingByNisCodeResponse(List<Guid> DownloadIds);
 
     public class ListOverlappingByNisCodeParametersValidator : AbstractValidator<ListOverlappingByNisCodeParameters>
     {

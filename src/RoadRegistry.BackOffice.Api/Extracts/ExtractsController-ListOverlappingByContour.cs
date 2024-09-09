@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Extracts;
 
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Extracts;
@@ -17,7 +19,7 @@ public partial class ExtractsController
     /// <param name="parameters"></param>
     /// <param name="validator"></param>
     /// <param name="cancellationToken"></param>
-    [HttpPost("overlapping/contour", Name = nameof(ListOverlappingByContour))]
+    [HttpPost("overlapping/bycontour", Name = nameof(ListOverlappingByContour))]
     [AllowAnonymous]
     [SwaggerOperation(OperationId = nameof(ListOverlappingByContour))]
     public async Task<IActionResult> ListOverlappingByContour(
@@ -32,13 +34,15 @@ public partial class ExtractsController
             Contour = parameters.Contour!
         }, cancellationToken);
 
-        return Ok(response.DownloadIds);
+        return Ok(new ListOverlappingByContourResponse(response.DownloadIds));
     }
 
     public class ListOverlappingByContourParameters
     {
         public string? Contour { get; set; }
     }
+
+    public record ListOverlappingByContourResponse(List<Guid> DownloadIds);
 
     public class ListOverlappingByContourParametersValidator : AbstractValidator<ListOverlappingByContourParameters>
     {

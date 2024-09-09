@@ -157,6 +157,28 @@ export const BackOfficeApi = {
       const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, downloadRequest);
       return response.data;
     },
+    getOverlappingExtractRequestsByNisCode: async (
+      nisCode: String,
+      buffer: Number
+    ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
+      const request = {
+        nisCode,
+        buffer
+      } as RoadRegistry.ListOverlappingExtractsByNisCodeRequest;
+      const path = `${apiEndpoint}/v1/extracts/overlapping/byniscode`;
+      const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
+      return response.data;
+    },
+    getOverlappingExtractRequestsByContour: async (
+      contour: String
+    ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
+      const request = {
+        contour
+      } as RoadRegistry.ListOverlappingExtractsByContourRequest;
+      const path = `${apiEndpoint}/v1/extracts/overlapping/bycontour`;
+      const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
+      return response.data;
+    },
   },
   Information: {
     getInformation: async (): Promise<RoadRegistry.RoadNetworkInformationResponse> => {

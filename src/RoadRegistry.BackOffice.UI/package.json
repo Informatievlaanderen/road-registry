@@ -3,7 +3,8 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "serve": "NODE_ENV=development vue-cli-service serve --mode development",
+    "serve": "vue-cli-service serve --mode development",
+    "serve-dev": "NODE_ENV=development vue-cli-service serve --mode development",
     "serve-tst": "NODE_ENV=test vue-cli-service serve --mode test",
     "serve-stg": "NODE_ENV=staging vue-cli-service serve --mode staging",
     "serve-prd": "NODE_ENV=production vue-cli-service serve --mode production",
