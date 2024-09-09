@@ -20,7 +20,6 @@ public partial class ExtractsController
     /// <param name="validator"></param>
     /// <param name="cancellationToken"></param>
     [HttpPost("overlapping/byniscode", Name = nameof(ListOverlappingByNisCode))]
-    [AllowAnonymous]
     [SwaggerOperation(OperationId = nameof(ListOverlappingByNisCode))]
     public async Task<IActionResult> ListOverlappingByNisCode(
         [FromBody] ListOverlappingByNisCodeParameters parameters,

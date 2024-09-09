@@ -20,7 +20,6 @@ public partial class ExtractsController
     /// <param name="validator"></param>
     /// <param name="cancellationToken"></param>
     [HttpPost("overlapping/bycontour", Name = nameof(ListOverlappingByContour))]
-    [AllowAnonymous]
     [SwaggerOperation(OperationId = nameof(ListOverlappingByContour))]
     public async Task<IActionResult> ListOverlappingByContour(
         [FromBody] ListOverlappingByContourParameters parameters,
@@ -49,19 +48,24 @@ public partial class ExtractsController
         public ListOverlappingByContourParametersValidator()
         {
             RuleFor(x => x.Contour)
-                .NotEmpty().WithMessage("'Contour' is verplicht.")
-                .Must(x =>
-                {
-                    try
+                .NotEmpty().WithMessage("'Contour' is verplicht.");
+
+            When(x => !string.IsNullOrWhiteSpace(x.Contour), () =>
+            {
+                RuleFor(x => x.Contour)
+                    .Must(x =>
                     {
-                        return new WKTReader().Read(x).IsValid;
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-                })
-                .WithMessage("'Contour' is geen geldige geometrie.");
+                        try
+                        {
+                            return new WKTReader().Read(x).IsValid;
+                        }
+                        catch
+                        {
+                            return false;
+                        }
+                    })
+                    .WithMessage("'Contour' is geen geldige geometrie.");
+            });
         }
     }
 }

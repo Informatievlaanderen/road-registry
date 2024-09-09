@@ -43,6 +43,8 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             new(HttpMethod.Post, "v1/extracts/download/{downloadId}/jobs", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/extracts/upload/{uploadId}/status", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/extracts/overlappingtransactionzones.geojson"),
+            new(HttpMethod.Post, "v1/extracts/overlapping/byniscode", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v1/extracts/overlapping/bycontour", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/extracts/transactionzones.geojson"),
 
             new(HttpMethod.Get, "v1/information"),
