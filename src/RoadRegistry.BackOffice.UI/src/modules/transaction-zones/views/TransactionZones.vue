@@ -31,11 +31,8 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { trimEnd } from "lodash";
 import Map from "ol/Map";
-import { API_OLDENDPOINT } from "@/environment";
-
-const geoJsonBaseUrl = `${trimEnd(API_OLDENDPOINT, "/")}/v1/extracts`;
+import { PublicApi } from "@/services";
 
 export default Vue.extend({
   computed: {
@@ -43,10 +40,10 @@ export default Vue.extend({
       return (this.$refs.map as any).olMap as Map;
     },
     transactionZonesGeoJsonUrl() {
-      return `${geoJsonBaseUrl}/transactionzones.geojson`;
+      return PublicApi.Extracts.getTransactionZonesGeoJsonUrl();
     },
     overlappingTransactionZonesGeoJsonUrl() {
-      return `${geoJsonBaseUrl}/overlappingtransactionzones.geojson`;
+      return PublicApi.Extracts.getOverlappingTransactionZonesGeoJsonUrl();
     },
   },
   methods: {

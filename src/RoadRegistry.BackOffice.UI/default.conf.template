@@ -9,12 +9,6 @@ server {
         try_files ${DOLLAR}uri ${DOLLAR}uri/ /index.html;
     }
 
-    location /public/v1 {
-        proxy_redirect off;
-        proxy_ssl_server_name on;
-        proxy_pass ${API_ENDPOINT}v1;
-    }
-
     location /public/v2 {
         proxy_redirect off;
         proxy_ssl_server_name on;

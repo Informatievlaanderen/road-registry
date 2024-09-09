@@ -7,7 +7,8 @@ import { trimEnd } from "lodash";
 import { featureToggles, API_ENDPOINT } from "@/environment";
 import BackOfficeApi from "./backoffice-api";
 
-const apiEndpoint = trimEnd(featureToggles.useDirectApiCalls ? API_ENDPOINT : "/public", "/");
+const directApiEndpoint = trimEnd(API_ENDPOINT, "/");
+const apiEndpoint = trimEnd(featureToggles.useDirectApiCalls ? directApiEndpoint : "/public", "/");
 const useBackOfficeApi = process.env.NODE_ENV !== "production";
 
 export const PublicApi = {
@@ -17,7 +18,7 @@ export const PublicApi = {
         return BackOfficeApi.ChangeFeed.getHead(maxEntryCount, filter);
       }
 
-      const path = `${apiEndpoint}/v1/wegen/activiteit/begin`;
+      const path = `${apiEndpoint}/v2/wegen/activiteit/begin`;
       const response = await apiClient.get<RoadRegistry.GetHeadApiResponse>(path, { maxEntryCount, filter });
       return response.data as RoadRegistry.GetHeadApiResponse;
     },
@@ -26,7 +27,7 @@ export const PublicApi = {
         return BackOfficeApi.ChangeFeed.getContent(id);
       }
 
-      const path = `${apiEndpoint}/v1/wegen/activiteit/gebeurtenis/${id}/inhoud`;
+      const path = `${apiEndpoint}/v2/wegen/activiteit/gebeurtenis/${id}/inhoud`;
       const response = await apiClient.get<RoadRegistry.ChangeFeedContent>(path);
       return response.data;
     },
@@ -35,7 +36,7 @@ export const PublicApi = {
         return BackOfficeApi.ChangeFeed.getNext(afterEntry, maxEntryCount, filter);
       }
 
-      const path = `${apiEndpoint}/v1/wegen/activiteit/volgende`;
+      const path = `${apiEndpoint}/v2/wegen/activiteit/volgende`;
       const response = await apiClient.get<RoadRegistry.GetHeadApiResponse>(path, {
         afterEntry,
         maxEntryCount,
@@ -48,7 +49,7 @@ export const PublicApi = {
         return BackOfficeApi.ChangeFeed.getPrevious(beforeEntry, maxEntryCount, filter);
       }
 
-      const path = `${apiEndpoint}/v1/wegen/activiteit/vorige`;
+      const path = `${apiEndpoint}/v2/wegen/activiteit/vorige`;
       const response = await apiClient.get<RoadRegistry.GetHeadApiResponse>(path, {
         beforeEntry,
         maxEntryCount,
@@ -59,17 +60,17 @@ export const PublicApi = {
   },
   Downloads: {
     getForEditor: async () => {
-      const path = `${apiEndpoint}/v1/wegen/download/voor-editor`;
+      const path = `${apiEndpoint}/v2/wegen/download/voor-editor`;
       await apiClient.download("application/zip", "wegenregister.zip", path, "GET");
     },
     getForProduct: async (date: string) => {
-      const path = `${apiEndpoint}/v1/wegen/download/voor-product/${date}`;
+      const path = `${apiEndpoint}/v2/wegen/download/voor-product/${date}`;
       await apiClient.download("application/zip", `wegenregister-${date}.zip`, path, "GET");
     },
   },
   Uploads: {
     upload: async (file: string | Blob, filename: string): Promise<boolean> => {
-      const path = `${apiEndpoint}/v1/wegen/upload`;
+      const path = `${apiEndpoint}/v2/wegen/upload`;
       const data = new FormData();
       data.append("archive", file, filename);
       const response = await apiClient.post(path, data);
@@ -83,7 +84,7 @@ export const PublicApi = {
         return BackOfficeApi.Uploads.uploadUsingPresignedUrl(file, filename);
       }
 
-      const path = `${apiEndpoint}/v1/wegen/upload/jobs`;
+      const path = `${apiEndpoint}/v2/wegen/upload/jobs`;
       const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
       
       const data = new FormData();
@@ -104,31 +105,31 @@ export const PublicApi = {
       return response.data;
     },
     download: async (identifier: string): Promise<void> => {
-      const path = `${apiEndpoint}/v1/wegen/upload/${identifier}`;
+      const path = `${apiEndpoint}/v2/wegen/upload/${identifier}`;
       await apiClient.download("application/zip", `${identifier}.zip`, path, "GET");
     },
   },
   Extracts: {
     download: async (downloadid: string) => {
-      const path = `${apiEndpoint}/v1/wegen/extract/download/${downloadid}`;
+      const path = `${apiEndpoint}/v2/wegen/extract/download/${downloadid}`;
       await apiClient.download("application/zip", `${downloadid}.zip`, path, "GET");
     },
     upload: async (downloadid: string, file: string | Blob, filename: string) => {
-      const path = `${apiEndpoint}/v1/wegen/extract/download/${downloadid}/uploads`;
+      const path = `${apiEndpoint}/v2/wegen/extract/download/${downloadid}/uploads`;
       const data = new FormData();
       data.append(downloadid, file, filename);
       const response = await apiClient.post<RoadRegistry.UploadExtractResponseBody>(path, data);
       return response.data;
     },
     getUploadStatus: async (uploadid: string): Promise<{ status: string }> => {
-      const path = `${apiEndpoint}/v1/wegen/extract/upload/${uploadid}/status`;
+      const path = `${apiEndpoint}/v2/wegen/extract/upload/${uploadid}/status`;
       const response = await apiClient.get<{ status: string }>(path);
       return response.data;
     },
     postDownloadRequest: async (
       downloadRequest: RoadRegistry.DownloadExtractRequest
     ): Promise<RoadRegistry.DownloadExtractResponse> => {
-      const path = `${apiEndpoint}/v1/wegen/extract/downloadaanvragen`;
+      const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen`;
       const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, downloadRequest);
       return response.data;
     },
@@ -140,7 +141,7 @@ export const PublicApi = {
       }
 
       try {
-        const path = `${apiEndpoint}/v1/wegen/extract/downloadaanvragen/percontour`;
+        const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/percontour`;
         const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, downloadRequest);
         return response.data;
       } catch (exception) {
@@ -159,10 +160,46 @@ export const PublicApi = {
     postDownloadRequestByNisCode: async (
       downloadRequest: RoadRegistry.DownloadExtractByNisCodeRequest
     ): Promise<RoadRegistry.DownloadExtractResponse> => {
-      const path = `${apiEndpoint}/v1/wegen/extract/downloadaanvragen/perniscode`;
+      const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/perniscode`;
       const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, downloadRequest);
       return response.data;
     },
+    getOverlappingExtractRequestsByNisCode: async (
+      nisCode: String,
+      buffer: Number
+    ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
+      if (useBackOfficeApi) {
+        return BackOfficeApi.Extracts.getOverlappingExtractRequestsByNisCode(nisCode, buffer);
+      }
+
+      const request = {
+        nisCode,
+        buffer
+      } as RoadRegistry.ListOverlappingExtractsByNisCodeRequest;
+      const path = `${apiEndpoint}/v2/wegen/extracts/overlapping/perniscode`;
+      const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
+      return response.data;
+    },
+    getOverlappingExtractRequestsByContour: async (
+      contour: String
+    ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
+      if (useBackOfficeApi) {
+        return BackOfficeApi.Extracts.getOverlappingExtractRequestsByContour(contour);
+      }
+
+      const request = {
+        contour
+      } as RoadRegistry.ListOverlappingExtractsByContourRequest;
+      const path = `${apiEndpoint}/v2/wegen/extracts/overlapping/percontour`;
+      const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
+      return response.data;
+    },
+    getOverlappingTransactionZonesGeoJsonUrl() : String {
+      return `${directApiEndpoint}/v2/wegen/extract/overlappingtransactionzones.geojson`;
+    },
+    getTransactionZonesGeoJsonUrl() : String {
+      return `${directApiEndpoint}/v2/wegen/extract/transactionzones.geojson`;
+    }
   },
   Information: {
     getInformation: async (): Promise<RoadRegistry.RoadNetworkInformationResponse> => {
@@ -170,7 +207,7 @@ export const PublicApi = {
         return BackOfficeApi.Information.getInformation();
       }
 
-      const path = `${apiEndpoint}/v1/wegen/informatie`;
+      const path = `${apiEndpoint}/v2/wegen/informatie`;
       const response = await apiClient.get<RoadRegistry.RoadNetworkInformationResponse>(path);
       return response.data;
     },
@@ -179,7 +216,7 @@ export const PublicApi = {
         return BackOfficeApi.Information.postValidateWkt(wkt);
       }
 
-      const path = `${apiEndpoint}/v1/wegen/informatie/valideer-wkt`;
+      const path = `${apiEndpoint}/v2/wegen/informatie/valideer-wkt`;
       const response = await apiClient.post(path, { contour: wkt });
       return response.data;
     },
@@ -190,7 +227,7 @@ export const PublicApi = {
         return BackOfficeApi.Security.getInfo();
       }
 
-      const path = `${apiEndpoint}/v1/wegen/security/info`;
+      const path = `${apiEndpoint}/v2/wegen/security/info`;
       const response = await apiClient.get<RoadRegistry.SecurityInfo>(path);
       return response.data;
     },
@@ -199,7 +236,7 @@ export const PublicApi = {
         return BackOfficeApi.Security.getExchangeCode(code, verifier, redirectUri);
       }
 
-      const path = `${apiEndpoint}/v1/wegen/security/exchange?code=${code}&verifier=${verifier}&redirectUri=${redirectUri}`;
+      const path = `${apiEndpoint}/v2/wegen/security/exchange?code=${code}&verifier=${verifier}&redirectUri=${redirectUri}`;
       const response = await apiClient.get(path);
       return response.data;
     },
@@ -211,7 +248,7 @@ export const PublicApi = {
       const apiClient = new AxiosHttpApiClient({
         noRedirectOnUnauthorized: true,
       });
-      const path = `${apiEndpoint}/v1/wegen/security/user`;
+      const path = `${apiEndpoint}/v2/wegen/security/user`;
       const response = await apiClient.get<RoadRegistry.UserInfo>(path);
       return response.data;
     },

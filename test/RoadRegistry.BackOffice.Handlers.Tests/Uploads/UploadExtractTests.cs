@@ -17,7 +17,7 @@ namespace RoadRegistry.BackOffice.Handlers.Tests.Uploads
         [Fact]
         public async Task GivenNotZipFile_ThenThrowsUnsupportedMediaTypeException()
         {
-            // Given
+            // Arrange
             var request = new UploadExtractRequest(new UploadExtractArchiveRequest("test.zip", EmbeddedResourceReader.Read("test.txt"), ContentType.Parse("binary/octet-stream")), null);
 
             // Act
