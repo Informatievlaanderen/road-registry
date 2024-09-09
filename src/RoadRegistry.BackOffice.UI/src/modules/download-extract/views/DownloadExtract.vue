@@ -566,7 +566,7 @@ export default Vue.extend({
             gemeenteStatus: Municipalities.GemeenteStatus.InGebruik,
           },
         ];
-      }else{
+      } else {
         throw err;
       }
     }
