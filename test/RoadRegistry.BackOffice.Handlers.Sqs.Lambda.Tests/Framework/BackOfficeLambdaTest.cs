@@ -420,7 +420,7 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
 
     protected async Task ThrowIfLastCommandIsRoadNetworkChangesRejected()
     {
-        var rejectCommand = await Store.GetLastCommandIfTypeIs<RoadNetworkChangesRejected>();
+        var rejectCommand = await Store.GetLastMessageIfTypeIs<RoadNetworkChangesRejected>();
         if (rejectCommand != null)
         {
             var problems = rejectCommand.Changes.SelectMany(change => change.Problems).ToArray();

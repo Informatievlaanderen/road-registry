@@ -152,8 +152,6 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
             _ => throw new NotSupportedException($"Message type '{message.GetType().Name}' does not have support to extract the description")
         };
 
-        //TODO-rik add unit test for this logic, lijkt geen test voor te bestaan die hier in komt
-        //-> nieuwe test voorzien die de extracteventmodule gebruikt
         var overlappingDownloadIds = !message.Body.IsInformative
             ? await GetOverlappingDownloadIds(message.Body.DownloadId, message.Body.Contour, ct)
             : [];
@@ -191,7 +189,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
 
             try
             {
-                using (var content = await assembler.AssembleArchive(request, ct)) //(content, revision)
+                using (var content = await assembler.AssembleArchive(request, ct))
                 {
                     content.Position = 0L;
 

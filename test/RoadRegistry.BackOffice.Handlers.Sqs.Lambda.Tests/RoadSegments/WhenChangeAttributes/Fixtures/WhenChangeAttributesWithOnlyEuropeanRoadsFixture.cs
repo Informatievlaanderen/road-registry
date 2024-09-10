@@ -73,7 +73,7 @@ public class WhenChangeAttributesWithOnlyEuropeanRoadsFixture : WhenChangeAttrib
 
     protected override async Task<bool> VerifyTicketAsync()
     {
-        var rejectCommand = await Store.GetLastCommandIfTypeIs<RoadNetworkChangesRejected>();
+        var rejectCommand = await Store.GetLastMessageIfTypeIs<RoadNetworkChangesRejected>();
         if (rejectCommand != null)
         {
             var problems = rejectCommand.Changes.SelectMany(change => change.Problems).ToArray();
@@ -87,7 +87,7 @@ public class WhenChangeAttributesWithOnlyEuropeanRoadsFixture : WhenChangeAttrib
 
         var change = Request.ChangeRequests.Single();
 
-        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
+        var command = await Store.GetLastMessage<RoadNetworkChangesAccepted>();
         Assert.Equal(2, command.Changes.Length);
         
         var europeanRoadsIsCorrect = command.Changes[0].RoadSegmentAddedToEuropeanRoad.Number == change.EuropeanRoads!.Single()

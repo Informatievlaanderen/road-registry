@@ -72,7 +72,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
         VerifyThatTicketHasCompleted(ticketing, string.Format(SqsLambdaHandlerOptions.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
 
-        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
+        var command = await Store.GetLastMessage<RoadNetworkChangesAccepted>();
         var roadSegmentModified = command!.Changes.Single().RoadSegmentModified;
 
         Xunit.Assert.NotEmpty(roadSegmentModified.Lanes);
@@ -170,7 +170,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
         VerifyThatTicketHasCompleted(ticketing, string.Format(SqsLambdaHandlerOptions.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
 
-        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
+        var command = await Store.GetLastMessage<RoadNetworkChangesAccepted>();
         Xunit.Assert.Equal(streetNameId, command!.Changes.Single().RoadSegmentModified.LeftSide.StreetNameId);
     }
 
@@ -248,7 +248,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
         VerifyThatTicketHasCompleted(ticketing, string.Format(SqsLambdaHandlerOptions.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
 
-        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
+        var command = await Store.GetLastMessage<RoadNetworkChangesAccepted>();
         Xunit.Assert.Equal(streetNameId, command!.Changes.Single().RoadSegmentModified.RightSide.StreetNameId);
     }
 
