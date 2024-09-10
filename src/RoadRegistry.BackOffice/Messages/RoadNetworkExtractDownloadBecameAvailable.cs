@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Messages;
 
 using System;
+using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("RoadNetworkExtractDownloadBecameAvailable")]
@@ -14,4 +15,5 @@ public class RoadNetworkExtractDownloadBecameAvailable : IMessage
     public string RequestId { get; set; }
     public string When { get; set; }
     public bool IsInformative { get; set; }
+    public ICollection<Guid> OverlapsWithDownloadIds { get; set; }
 }

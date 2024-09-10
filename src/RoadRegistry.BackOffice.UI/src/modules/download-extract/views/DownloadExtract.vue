@@ -555,11 +555,11 @@ export default Vue.extend({
 
         this.municipalities = [
           {
-            identificator: { id: "", naamruimte: "", objectId: "10000", versieId: "" },
+            identificator: { id: "", naamruimte: "", objectId: "11001", versieId: "" },
             detail: "",
             gemeentenaam: {
               geografischeNaam: {
-                spelling: "10000 (failed to load municipalities)",
+                spelling: "11001 (failed to load municipalities)",
                 taal: Municipalities.Taal.Nl,
               },
             },

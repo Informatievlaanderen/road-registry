@@ -1,29 +1,30 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
+using System.IO.Compression;
 using Autofac;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Core;
+using Editor.Schema;
 using Exceptions;
 using FeatureCompare;
 using FluentValidation;
 using Framework;
 using Messages;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using Polly;
 using SqlStreamStore;
-using System;
-using System.Collections.Generic;
-using System.IO.Compression;
-using System.Threading;
-using System.Threading.Tasks;
-using BackOffice.Uploads;
 using TicketingService.Abstractions;
+using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public class RoadNetworkExtractEventModule : EventHandlerModule
 {
+    private readonly ILifetimeScope _lifetimeScope;
+
     public RoadNetworkExtractEventModule(
         ILifetimeScope lifetimeScope,
         RoadNetworkExtractDownloadsBlobClient downloadsBlobClient,
@@ -35,7 +36,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
         ILogger<RoadNetworkExtractEventModule> logger)
     {
-        ArgumentNullException.ThrowIfNull(lifetimeScope);
+        _lifetimeScope = lifetimeScope.ThrowIfNull();
+
         ArgumentNullException.ThrowIfNull(downloadsBlobClient);
         ArgumentNullException.ThrowIfNull(uploadsBlobClient);
         ArgumentNullException.ThrowIfNull(assembler);
@@ -133,7 +135,12 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
             });
     }
 
-    private async Task RoadNetworkExtractRequestHandler<TMessage>(IRoadNetworkExtractCommandQueue queue, IRoadNetworkExtractArchiveAssembler assembler, RoadNetworkExtractDownloadsBlobClient downloadsBlobClient, Event<TMessage> message, CancellationToken ct)
+    private async Task RoadNetworkExtractRequestHandler<TMessage>(
+        IRoadNetworkExtractCommandQueue queue,
+        IRoadNetworkExtractArchiveAssembler assembler,
+        RoadNetworkExtractDownloadsBlobClient downloadsBlobClient,
+        Event<TMessage> message,
+        CancellationToken ct)
         where TMessage : IRoadNetworkExtractGotRequestedMessage
     {
         var archiveId = new ArchiveId(message.Body.DownloadId.ToString("N"));
@@ -144,7 +151,11 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
             Event<RoadNetworkExtractGotRequestedV2> v2 => v2.Body.Description,
             _ => throw new NotSupportedException($"Message type '{message.GetType().Name}' does not have support to extract the description")
         };
-        
+
+        //TODO-rik add unit test for this logic, lijkt geen test voor te bestaan die hier in komt
+        //-> nieuwe test voorzien die de extracteventmodule gebruikt
+        var overlappingDownloadIds = await GetOverlappingDownloadIds(message.Body.DownloadId, message.Body.Contour, ct);
+
         var policy = Policy
             .HandleResult<bool>(exists => !exists)
             .WaitAndRetryAsync(new[]
@@ -163,7 +174,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                     RequestId = message.Body.RequestId,
                     DownloadId = message.Body.DownloadId,
                     ArchiveId = archiveId,
-                    IsInformative = message.Body.IsInformative
+                    IsInformative = message.Body.IsInformative,
+                    OverlapsWithDownloadIds = overlappingDownloadIds
                 })
                 .WithMessageId(message.MessageId), ct);
         }
@@ -195,7 +207,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                             RequestId = message.Body.RequestId,
                             DownloadId = message.Body.DownloadId,
                             ArchiveId = archiveId,
-                            IsInformative = message.Body.IsInformative
+                            IsInformative = message.Body.IsInformative,
+                            OverlapsWithDownloadIds = overlappingDownloadIds
                         })
                     .WithMessageId(message.MessageId), ct);
             }
@@ -210,5 +223,15 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                     .WithMessageId(message.MessageId), ct);
             }
         }
+    }
+
+    private async Task<List<Guid>> GetOverlappingDownloadIds(Guid downloadId, RoadNetworkExtractGeometry extractGeometry, CancellationToken cancellationToken)
+    {
+        await using var container = _lifetimeScope.BeginLifetimeScope();
+        await using var editorContext = container.Resolve<EditorContext>();
+
+        var geometry = (Geometry)GeometryTranslator.Translate(extractGeometry);
+
+        return await editorContext.GetOverlappingExtractDownloadIds(geometry, [downloadId], cancellationToken);
     }
 }

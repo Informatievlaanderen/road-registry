@@ -25,21 +25,7 @@ public class GetOverlappingTransactionZonesByContourRequestHandler : EndpointReq
     {
         var geometry = new WKTReader().Read(request.Contour);
 
-        var extractRequestsQuery = _context.ExtractRequests.Where(x => !x.IsInformative);
-
-        var overlaps = await (
-            from extractRequest in extractRequestsQuery
-            let intersection = extractRequest.Contour.Intersection(geometry)
-            where intersection != null
-            select new { overlap = extractRequest, intersection }
-        ).ToListAsync(cancellationToken);
-
-        var downloadIds = overlaps
-            .Where(x => (x.intersection is Polygon polygon && polygon.Area > 0)
-                        || (x.intersection is MultiPolygon multiPolygon && multiPolygon.Area > 0))
-            .Select(x => x.overlap.DownloadId)
-            .Distinct()
-            .ToList();
+        var downloadIds = await _context.GetOverlappingExtractDownloadIds(geometry, null, cancellationToken);
 
         return new GetOverlappingTransactionZonesByContourResponse
         {

@@ -87,8 +87,17 @@
                           ['RoadNetworkExtractDownloadBecameAvailable'].some((x) => x === activity.changeFeedEntry.type)
                         "
                       >
-                        <vl-button v-if="isDownloading" mod-loading> Download... </vl-button>
-                        <vl-button v-else @click="downloadExtract(activity)"> Download </vl-button>
+                        <div v-if="activity.changeFeedContent.content?.overlapsWithDownloadIds">
+                          <vl-alert icon="warning" mod-warning mod-small>
+                            De contour voor deze extractaanvraag overlapt met de contour van een andere, open
+                            extractaanvraag.
+                          </vl-alert>
+                          <br />
+                        </div>
+                        <div>
+                          <vl-button v-if="isDownloading" mod-loading> Download... </vl-button>
+                          <vl-button v-else @click="downloadExtract(activity)"> Download </vl-button>
+                        </div>
                       </div>
 
                       <div
@@ -172,7 +181,9 @@
         <vl-column>
           <div v-vl-flex v-vl-flex:align-center>
             <vl-button mod-loading v-if="pagination.isLoading"></vl-button>
-            <vl-button v-else-if="activities.length >= pagination.pageSize" v-on:click="loadNextPage()">Meer ...</vl-button>
+            <vl-button v-else-if="activities.length >= pagination.pageSize" v-on:click="loadNextPage()"
+              >Meer ...</vl-button
+            >
           </div>
         </vl-column>
       </vl-grid>
@@ -191,7 +202,7 @@ import ActivitySummary from "../components/ActivitySummary.vue";
 export default Vue.extend({
   components: {
     ActivityProblems,
-    ActivitySummary
+    ActivitySummary,
   },
   data() {
     return {
@@ -213,7 +224,7 @@ export default Vue.extend({
     this.debouncedLoadToTop = debounce(this.loadToTop, 500, { trailing: true });
   },
   mounted() {
-    this.filter = (this.$route.query.filter ?? '').toString();
+    this.filter = (this.$route.query.filter ?? "").toString();
     this.loadToTop();
   },
   beforeDestroy() {
