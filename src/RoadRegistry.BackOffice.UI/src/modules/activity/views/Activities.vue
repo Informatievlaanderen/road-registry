@@ -87,7 +87,7 @@
                           ['RoadNetworkExtractDownloadBecameAvailable'].some((x) => x === activity.changeFeedEntry.type)
                         "
                       >
-                        <div v-if="activity.changeFeedContent.content?.overlapsWithDownloadIds">
+                        <div v-if="activity.changeFeedContent.content?.overlapsWithDownloadIds?.length > 0">
                           <vl-alert icon="warning" mod-warning mod-small>
                             De contour voor deze extractaanvraag overlapt met de contour van een andere, open
                             extractaanvraag.
