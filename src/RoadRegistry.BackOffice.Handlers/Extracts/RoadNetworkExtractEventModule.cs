@@ -154,7 +154,9 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
 
         //TODO-rik add unit test for this logic, lijkt geen test voor te bestaan die hier in komt
         //-> nieuwe test voorzien die de extracteventmodule gebruikt
-        var overlappingDownloadIds = await GetOverlappingDownloadIds(message.Body.DownloadId, message.Body.Contour, ct);
+        var overlappingDownloadIds = !message.Body.IsInformative
+            ? await GetOverlappingDownloadIds(message.Body.DownloadId, message.Body.Contour, ct)
+            : [];
 
         var policy = Policy
             .HandleResult<bool>(exists => !exists)

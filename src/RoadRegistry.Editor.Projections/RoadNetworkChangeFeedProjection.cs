@@ -74,7 +74,6 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkExtractDownloadBecameAvailable>>(async (context, envelope, ct) =>
         {
-            //TODO-rik unit test to check overlapswithdownloadids
             var content = new RoadNetworkExtractDownloadBecameAvailableEntry
             {
                 Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId },

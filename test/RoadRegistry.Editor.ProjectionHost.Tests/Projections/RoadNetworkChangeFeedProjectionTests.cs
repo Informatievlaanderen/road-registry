@@ -372,6 +372,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         var downloadId = _fixture.Create<DownloadId>();
         var archiveId = _fixture.Create<ArchiveId>();
         var filename = _fixture.Create<string>();
+        var overlapsWithDownloadIds = _fixture.CreateMany<Guid>().ToList();
+
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
             Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
             ContentType.Parse("application/zip"), Stream.Null);
@@ -385,7 +387,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 RequestId = extractRequestId,
                 DownloadId = downloadId,
                 ArchiveId = archiveId,
-                IsInformative = false
+                IsInformative = false,
+                OverlapsWithDownloadIds = overlapsWithDownloadIds
             })
             .Expect(new RoadNetworkChange
             {
@@ -394,7 +397,13 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 Type = nameof(RoadNetworkExtractDownloadBecameAvailable),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadBecameAvailableEntry
                 {
-                    Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename }
+                    Archive = new ArchiveInfo
+                    {
+                        Id = archiveId,
+                        Available = true,
+                        Filename = filename
+                    },
+                    OverlapsWithDownloadIds = overlapsWithDownloadIds
                 })
             });
     }
@@ -430,7 +439,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 Type = nameof(RoadNetworkExtractDownloadBecameAvailable),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadBecameAvailableEntry
                 {
-                    Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename }
+                    Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename },
+                    OverlapsWithDownloadIds = null
                 })
             });
     }
