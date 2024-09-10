@@ -9,24 +9,24 @@ using SqlStreamStore.Streams;
 
 public static class StreamStoreExtensions
 {
-    public static async Task<TCommand> GetLastCommand<TCommand>(this IStreamStore store)
-        where TCommand : class
+    public static async Task<TMessage> GetLastMessage<TMessage>(this IStreamStore store)
+        where TMessage : class
     {
         var page = await store.ReadAllBackwards(Position.End, 1);
         var message = page.Messages.Single();
-        Assert.Equal(typeof(TCommand).Name, message.Type);
+        Assert.Equal(typeof(TMessage).Name, message.Type);
 
-        return JsonConvert.DeserializeObject<TCommand>(await message.GetJsonData());
+        return JsonConvert.DeserializeObject<TMessage>(await message.GetJsonData());
     }
 
-    public static async Task<TCommand> GetLastCommandIfTypeIs<TCommand>(this IStreamStore store)
-        where TCommand : class
+    public static async Task<TMessage> GetLastMessageIfTypeIs<TMessage>(this IStreamStore store)
+        where TMessage : class
     {
         var page = await store.ReadAllBackwards(Position.End, 1);
         var message = page.Messages.Single();
-        if (typeof(TCommand).Name == message.Type)
+        if (typeof(TMessage).Name == message.Type)
         {
-            return JsonConvert.DeserializeObject<TCommand>(await message.GetJsonData());
+            return JsonConvert.DeserializeObject<TMessage>(await message.GetJsonData());
         }
 
         return default;

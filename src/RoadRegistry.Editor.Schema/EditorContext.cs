@@ -1,6 +1,7 @@
 namespace RoadRegistry.Editor.Schema;
 
 using System;
+using System.Collections.Generic;
 using BackOffice;
 using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Extracts.Dbase.RoadSegments;
@@ -15,6 +16,7 @@ using RoadSegments;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NetTopologySuite.Geometries;
 
 public class EditorContext : RunnerDbContext<EditorContext>
 {
@@ -94,5 +96,32 @@ public class EditorContext : RunnerDbContext<EditorContext>
             .Entity<RoadSegmentBoundingBox3D>()
             .HasNoKey()
             .ToSqlQuery($"SELECT MIN([BoundingBox_MinimumX]) AS MinimumX, MAX([BoundingBox_MaximumX]) AS MaximumX, MIN([BoundingBox_MinimumY]) AS MinimumY, MAX([BoundingBox_MaximumY]) AS MaximumY, MIN([BoundingBox_MinimumM]) AS MinimumM, MAX([BoundingBox_MaximumM]) AS MaximumM FROM [{WellKnownSchemas.EditorSchema}].[RoadSegment]");
+    }
+
+    public async Task<List<Guid>> GetOverlappingExtractDownloadIds(Geometry geometry, ICollection<Guid>? excludeDownloadIds, CancellationToken cancellationToken)
+    {
+        var extractRequestsQuery = ExtractRequests
+            .Where(x => !x.IsInformative);
+
+        if (excludeDownloadIds is not null && excludeDownloadIds.Any())
+        {
+            extractRequestsQuery = extractRequestsQuery.Where(x => !excludeDownloadIds.Contains(x.DownloadId));
+        }
+
+        var overlaps = await (
+            from extractRequest in extractRequestsQuery
+            let intersection = extractRequest.Contour.Intersection(geometry)
+            where intersection != null
+            select new { overlap = extractRequest, intersection }
+        ).ToListAsync(cancellationToken);
+
+        var downloadIds = overlaps
+            .Where(x => (x.intersection is Polygon polygon && polygon.Area > 0)
+                        || (x.intersection is MultiPolygon multiPolygon && multiPolygon.Area > 0))
+            .Select(x => x.overlap.DownloadId)
+            .Distinct()
+            .ToList();
+
+        return downloadIds;
     }
 }

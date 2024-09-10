@@ -67,7 +67,7 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
 
         await VerifyThatTicketHasCompleted(roadSegmentId);
 
-        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
+        var command = await Store.GetLastMessage<RoadNetworkChangesAccepted>();
         command.Changes.Length.Should().Be(1);
         command.Changes.Single().RoadSegmentGeometryModified.Id.Should().Be(roadSegmentId);
     }

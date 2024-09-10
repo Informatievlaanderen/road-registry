@@ -72,7 +72,7 @@ public class GivenDowngradedCategoryForOutlined_ThenSucceededFixture : WhenChang
 
     protected override async Task<bool> VerifyTicketAsync()
     {
-        var rejectCommand = await Store.GetLastCommandIfTypeIs<RoadNetworkChangesRejected>();
+        var rejectCommand = await Store.GetLastMessageIfTypeIs<RoadNetworkChangesRejected>();
         if (rejectCommand != null)
         {
             var problems = rejectCommand.Changes.SelectMany(change => change.Problems).ToArray();
@@ -88,7 +88,7 @@ public class GivenDowngradedCategoryForOutlined_ThenSucceededFixture : WhenChang
 
         var change = Request.ChangeRequests.Single();
 
-        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
+        var command = await Store.GetLastMessage<RoadNetworkChangesAccepted>();
         var attributesModified = Assert.Single(command.Changes).RoadSegmentAttributesModified;
 
         var attributesModifiedIsCorrect = attributesModified.Id == roadSegmentId

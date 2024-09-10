@@ -10,6 +10,7 @@ using NodaTime;
 using SqlStreamStore;
 using System;
 using System.IO.Compression;
+using System.Linq;
 using TicketingService.Abstractions;
 using Uploads;
 
@@ -99,10 +100,12 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
 
                 var downloadId = new DownloadId(message.Body.DownloadId);
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
+                var overlapsWithDownloadIds = message.Body.OverlapsWithDownloadIds?.Select(x => new DownloadId(x)).ToList() ?? [];
 
                 var extractRequestId = ExtractRequestId.FromString(message.Body.RequestId);
                 var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
-                extract.AnnounceAvailable(downloadId, archiveId);
+
+                extract.AnnounceAvailable(downloadId, archiveId, overlapsWithDownloadIds);
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(AnnounceRoadNetworkExtractDownloadBecameAvailable));
             });

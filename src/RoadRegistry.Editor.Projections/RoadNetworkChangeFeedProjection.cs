@@ -76,7 +76,8 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
         {
             var content = new RoadNetworkExtractDownloadBecameAvailableEntry
             {
-                Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId }
+                Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId },
+                OverlapsWithDownloadIds = envelope.Message.OverlapsWithDownloadIds
             };
 
             await EnrichWithArchiveInformation(envelope.Message.ArchiveId, content.Archive, client, ct);
@@ -118,7 +119,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             };
 
             await EnrichWithArchiveInformation(envelope.Message.ArchiveId, content.Archive, client, ct);
-            
+
             var description = !string.IsNullOrEmpty(envelope.Message.Description) ? envelope.Message.Description : "onbekend";
             var changeRequestId = ChangeRequestId
                 .FromArchiveId(new ArchiveId(envelope.Message.ArchiveId));
@@ -259,7 +260,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                                   r.ChangeRequestId == changeRequestId.ToBytes()
                                       .ToArray())
                           ?? context.RoadNetworkChangeRequestsBasedOnArchive.Find(changeRequestId.ToBytes().ToArray());
-            
+
             var content = new RoadNetworkChangesBasedOnArchiveAcceptedEntry
             {
                 Archive = new ArchiveInfo { Id = request?.ArchiveId },
@@ -301,7 +302,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
         When<Envelope<RoadNetworkChangesRejected>>(async (context, envelope, ct) =>
         {
             var changeRequestId = ChangeRequestId.FromString(envelope.Message.RequestId);
-            
+
             var request = context.RoadNetworkChangeRequestsBasedOnArchive.Local
                               .FirstOrDefault(r =>
                                   r.ChangeRequestId == changeRequestId.ToBytes()
@@ -376,7 +377,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 }, ct);
         });
     }
-    
+
     private static async Task EnrichWithArchiveInformation(string archiveId, ArchiveInfo archiveInfo, IBlobClient client, CancellationToken ct)
     {
         var blobName = new BlobName(archiveId);
