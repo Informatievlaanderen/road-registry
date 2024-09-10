@@ -1,3 +1,10 @@
+# [4.8.0](https://github.com/informatievlaanderen/road-registry/compare/v4.7.0...v4.8.0) (2024-09-10)
+
+
+### Features
+
+* add overlap warning on activity feed ([#1529](https://github.com/informatievlaanderen/road-registry/issues/1529)) ([5fa68cc](https://github.com/informatievlaanderen/road-registry/commit/5fa68ccc89ddc12a21e532f9c3a5102ce277ebe7))
+
 # [4.7.0](https://github.com/informatievlaanderen/road-registry/compare/v4.6.5...v4.7.0) (2024-09-09)
 
 
