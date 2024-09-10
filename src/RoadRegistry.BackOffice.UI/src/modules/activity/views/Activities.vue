@@ -181,9 +181,9 @@
         <vl-column>
           <div v-vl-flex v-vl-flex:align-center>
             <vl-button mod-loading v-if="pagination.isLoading"></vl-button>
-            <vl-button v-else-if="activities.length >= pagination.pageSize" v-on:click="loadNextPage()"
-              >Meer ...</vl-button
-            >
+            <vl-button v-else-if="activities.length >= pagination.pageSize" v-on:click="loadNextPage()">
+              Meer ...
+            </vl-button>
           </div>
         </vl-column>
       </vl-grid>
