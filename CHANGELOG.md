@@ -1,3 +1,10 @@
+## [4.8.1](https://github.com/informatievlaanderen/road-registry/compare/v4.8.0...v4.8.1) (2024-09-12)
+
+
+### Bug Fixes
+
+* close extract when upload received for GRB flow ([#1530](https://github.com/informatievlaanderen/road-registry/issues/1530)) ([304bc50](https://github.com/informatievlaanderen/road-registry/commit/304bc50ebdc84e071803195f97757f5f65f2948b))
+
 # [4.8.0](https://github.com/informatievlaanderen/road-registry/compare/v4.7.0...v4.8.0) (2024-09-10)
 
 
