@@ -68,7 +68,12 @@ public class ExtractRequestRecordProjection : ConnectedProjection<EditorContext>
                 return;
             }
 
-            await CloseExtractRequests(context, new[] { envelope.Message.DownloadId.Value }, ct);
+            await CloseExtractRequests(context, [envelope.Message.DownloadId.Value], ct);
+        });
+
+        When<Envelope<RoadNetworkExtractChangesArchiveUploaded>>(async (context, envelope, ct) =>
+        {
+            await CloseExtractRequests(context, [envelope.Message.DownloadId], ct);
         });
     }
 
