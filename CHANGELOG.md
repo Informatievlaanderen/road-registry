@@ -1,3 +1,10 @@
+## [4.8.2](https://github.com/informatievlaanderen/road-registry/compare/v4.8.1...v4.8.2) (2024-09-16)
+
+
+### Bug Fixes
+
+* huge memory usage for GradeSeparatedJunctionFeatureCompareTranslator ([#1531](https://github.com/informatievlaanderen/road-registry/issues/1531)) ([22f61dc](https://github.com/informatievlaanderen/road-registry/commit/22f61dcc5891c2e222c2d1bd18dd9c4f04a18af5))
+
 ## [4.8.1](https://github.com/informatievlaanderen/road-registry/compare/v4.8.0...v4.8.1) (2024-09-12)
 
 
