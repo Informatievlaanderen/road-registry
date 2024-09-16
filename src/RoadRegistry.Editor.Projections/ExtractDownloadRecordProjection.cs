@@ -62,6 +62,12 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
             records.ForEach(record => record.IsInformative = true);
         });
 
+        When<Envelope<RoadNetworkExtractChangesArchiveUploaded>>(async (context, envelope, ct) =>
+        {
+            var record = await context.ExtractDownloads.IncludeLocalSingleAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
+            record.IsInformative = true;
+        });
+
         When<Envelope<RoadNetworkExtractDownloadBecameAvailable>>(async (context, envelope, ct) =>
         {
             var record = await context.ExtractDownloads.IncludeLocalSingleAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
