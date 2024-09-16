@@ -260,4 +260,40 @@ public class ExtractDownloadRecordProjectionTests
             .Given(data.Select(d => d.@event))
             .Expect(data.Select(d => d.expected));
     }
+
+    [Fact]
+    public async Task When_extract_archive_got_uploaded_then_isinformative()
+    {
+        var extractGotRequested = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
+
+        var downloadBecameAvailable = _fixture.Create<RoadNetworkExtractDownloadBecameAvailable>();
+        downloadBecameAvailable.DownloadId = extractGotRequested.DownloadId;
+        downloadBecameAvailable.ExternalRequestId = extractGotRequested.ExternalRequestId;
+        downloadBecameAvailable.RequestId = extractGotRequested.RequestId;
+
+        var extractArchiveUploaded = _fixture.Create<RoadNetworkExtractChangesArchiveUploaded>();
+        extractArchiveUploaded.DownloadId = extractGotRequested.DownloadId;
+        extractArchiveUploaded.ExternalRequestId = extractGotRequested.ExternalRequestId;
+        extractArchiveUploaded.RequestId = extractGotRequested.RequestId;
+        extractArchiveUploaded.UploadId = Guid.NewGuid();
+        extractArchiveUploaded.When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant());
+
+        await new ExtractDownloadRecordProjection()
+            .Scenario()
+            .Given(extractGotRequested)
+            .Given(downloadBecameAvailable)
+            .Given(extractArchiveUploaded)
+            .Expect(
+                new ExtractDownloadRecord
+                {
+                    DownloadId = extractGotRequested.DownloadId,
+                    RequestId = extractGotRequested.RequestId,
+                    ExternalRequestId = extractGotRequested.ExternalRequestId,
+                    ArchiveId = downloadBecameAvailable.ArchiveId,
+                    Available = true,
+                    AvailableOn = InstantPattern.ExtendedIso.Parse(extractArchiveUploaded.When).Value.ToUnixTimeSeconds(),
+                    RequestedOn = InstantPattern.ExtendedIso.Parse(downloadBecameAvailable.When).Value.ToUnixTimeSeconds(),
+                    IsInformative = true
+                });
+    }
 }

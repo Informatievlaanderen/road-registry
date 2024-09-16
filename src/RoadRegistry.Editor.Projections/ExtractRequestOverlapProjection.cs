@@ -12,6 +12,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Extensions;
 using Microsoft.Extensions.Logging;
 
 public class ExtractRequestOverlapRecordProjection : ConnectedProjection<EditorContext>
@@ -117,8 +118,8 @@ WHERE o.Contour.STIsEmpty() = 0 AND o.Contour.STGeometryType() LIKE '%POLYGON'
     private async Task DeleteLinkedRecords(EditorContext context, Guid[] downloadIds, CancellationToken cancellationToken)
     {
         var requestsToRemoved = await context.ExtractRequestOverlaps
-            .Where(x => downloadIds.Contains(x.DownloadId1) || downloadIds.Contains(x.DownloadId2))
-            .ToListAsync(cancellationToken);
+            .IncludeLocalToListAsync(q =>
+                q.Where(x => downloadIds.Contains(x.DownloadId1) || downloadIds.Contains(x.DownloadId2)), cancellationToken);
 
         _logger.LogInformation("Removing {OverlapCount} overlap records for extracts [{DownloadIds}]", requestsToRemoved.Count, string.Join(", ", downloadIds.Select(x => x.ToString("N"))));
 
