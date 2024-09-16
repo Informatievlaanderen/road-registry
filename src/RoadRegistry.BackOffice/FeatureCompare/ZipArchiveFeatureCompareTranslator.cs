@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Compression;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Translators;
@@ -18,7 +19,7 @@ public interface IZipArchiveFeatureCompareTranslator
 public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTranslator
 {
     private readonly ILogger _logger;
-    private readonly IReadOnlyCollection<IZipArchiveEntryFeatureCompareTranslator> _translators;
+    private readonly ICollection<IZipArchiveEntryFeatureCompareTranslator> _translators;
 
     public ZipArchiveFeatureCompareTranslator(
         TransactionZoneFeatureCompareTranslator transactionZoneTranslator,
@@ -33,21 +34,35 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
         GradeSeparatedJunctionFeatureCompareTranslator gradeSeparatedJunctionTranslator,
         ILogger<ZipArchiveFeatureCompareTranslator> logger
     )
+        : this([
+                transactionZoneTranslator.ThrowIfNull(),
+                roadNodeTranslator.ThrowIfNull(),
+                roadSegmentTranslator.ThrowIfNull(),
+                roadSegmentLaneTranslator.ThrowIfNull(),
+                roadSegmentWidthTranslator.ThrowIfNull(),
+                roadSegmentSurfaceTranslator.ThrowIfNull(),
+                europeanRoadTranslator.ThrowIfNull(),
+                nationalRoadTranslator.ThrowIfNull(),
+                numberedRoadTranslator.ThrowIfNull(),
+                gradeSeparatedJunctionTranslator.ThrowIfNull()
+            ],
+            logger)
+    {
+    }
+
+    private ZipArchiveFeatureCompareTranslator(
+        ICollection<IZipArchiveEntryFeatureCompareTranslator> translators,
+        ILogger<ZipArchiveFeatureCompareTranslator> logger)
     {
         _logger = logger.ThrowIfNull();
+        _translators = translators.ThrowIfNull();
+    }
 
-        _translators = new IZipArchiveEntryFeatureCompareTranslator[] {
-            transactionZoneTranslator.ThrowIfNull(),
-            roadNodeTranslator.ThrowIfNull(),
-            roadSegmentTranslator.ThrowIfNull(),
-            roadSegmentLaneTranslator.ThrowIfNull(),
-            roadSegmentWidthTranslator.ThrowIfNull(),
-            roadSegmentSurfaceTranslator.ThrowIfNull(),
-            europeanRoadTranslator.ThrowIfNull(),
-            nationalRoadTranslator.ThrowIfNull(),
-            numberedRoadTranslator.ThrowIfNull(),
-            gradeSeparatedJunctionTranslator.ThrowIfNull()
-        };
+    public static IZipArchiveFeatureCompareTranslator Create(
+        ICollection<IZipArchiveEntryFeatureCompareTranslator> translators,
+        ILogger<ZipArchiveFeatureCompareTranslator> logger)
+    {
+        return new ZipArchiveFeatureCompareTranslator(translators, logger);
     }
 
     public async Task<TranslatedChanges> TranslateAsync(ZipArchive archive, CancellationToken cancellationToken)
