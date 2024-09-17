@@ -1,3 +1,10 @@
+## [4.8.3](https://github.com/informatievlaanderen/road-registry/compare/v4.8.2...v4.8.3) (2024-09-17)
+
+
+### Bug Fixes
+
+* extract overlap check to include local records ([#1532](https://github.com/informatievlaanderen/road-registry/issues/1532)) ([6cf5759](https://github.com/informatievlaanderen/road-registry/commit/6cf5759a6f8a7ea1c587fb9f6f937bfbbd853176))
+
 ## [4.8.2](https://github.com/informatievlaanderen/road-registry/compare/v4.8.1...v4.8.2) (2024-09-16)
 
 
