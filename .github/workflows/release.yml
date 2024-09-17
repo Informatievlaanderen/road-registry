@@ -582,25 +582,6 @@ jobs:
       env:
         SEMVER: ${{ needs.release.outputs.version }}
 
-    - name: Configure AWS credentials (Staging)
-      uses: aws-actions/configure-aws-credentials@v4.0.2
-      with:
-        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.VBR_AWS_REGION }}
-
-    - name: Login to Amazon ECR (Staging)
-      uses: aws-actions/amazon-ecr-login@v2
-
-    - name: Push Lambda functions to S3 (Staging)
-      shell: bash
-      run: |
-        aws s3 cp ~/backoffice/lambda.zip s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
-        aws s3 cp ~/snapshot/lambda.zip s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
-      env:
-        SEMVER: ${{ needs.release.outputs.version }}
-        ENVIRONMENT: stg
-
     - name: Configure AWS credentials (Production)
       uses: aws-actions/configure-aws-credentials@v4.0.2
       with:
