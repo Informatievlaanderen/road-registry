@@ -1,3 +1,10 @@
+## [4.8.4](https://github.com/informatievlaanderen/road-registry/compare/v4.8.3...v4.8.4) (2024-09-17)
+
+
+### Bug Fixes
+
+* remove old staging from release pipeline ([#1533](https://github.com/informatievlaanderen/road-registry/issues/1533)) ([5db0eb7](https://github.com/informatievlaanderen/road-registry/commit/5db0eb78aee776803a525a572c2fb9f59d75a3dc))
+
 ## [4.8.3](https://github.com/informatievlaanderen/road-registry/compare/v4.8.2...v4.8.3) (2024-09-17)
 
 
