@@ -1,3 +1,10 @@
+## [4.8.5](https://github.com/informatievlaanderen/road-registry/compare/v4.8.4...v4.8.5) (2024-09-18)
+
+
+### Bug Fixes
+
+* set catchupBatchSize to 1 for extract overlap projection ([#1534](https://github.com/informatievlaanderen/road-registry/issues/1534)) ([6e802fe](https://github.com/informatievlaanderen/road-registry/commit/6e802fef8570c625e4e438e55100fd861deb3b0c))
+
 ## [4.8.4](https://github.com/informatievlaanderen/road-registry/compare/v4.8.3...v4.8.4) (2024-09-17)
 
 
