@@ -58,16 +58,6 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
             )
         );
 
-    public static readonly RoadSegmentCategory NotApplicable =
-        new(
-            nameof(NotApplicable),
-            new DutchTranslation(
-                "-9",
-                "niet van toepassing",
-                "Niet van toepassing"
-            )
-        );
-
     public static readonly RoadSegmentCategory PrimaryRoadI =
         new(
             nameof(PrimaryRoadI),
@@ -178,6 +168,66 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
             )
         );
 
+    public static readonly RoadSegmentCategory EuropeanMainRoad =
+        new(
+            nameof(EuropeanMainRoad),
+            new DutchTranslation(
+                "EHW",
+                "europese hoofdweg",
+                "Europese hoofdwegen"
+            )
+        );
+
+    public static readonly RoadSegmentCategory FlemishMainRoad =
+        new(
+            nameof(FlemishMainRoad),
+            new DutchTranslation(
+                "VHW",
+                "vlaamse hoofdweg",
+                "Vlaamse hoofdwegen"
+            )
+        );
+
+    public static readonly RoadSegmentCategory RegionalRoad =
+        new(
+            nameof(RegionalRoad),
+            new DutchTranslation(
+                "RW",
+                "regionale weg",
+                "Regionale wegen"
+            )
+        );
+
+    public static readonly RoadSegmentCategory InterLocalRoad =
+        new(
+            nameof(InterLocalRoad),
+            new DutchTranslation(
+                "IW",
+                "interlokale weg",
+                "Interlokale wegen"
+            )
+        );
+
+    public static readonly RoadSegmentCategory LocalAccessRoad =
+        new(
+            nameof(LocalAccessRoad),
+            new DutchTranslation(
+                "OW",
+                "lokale onstsluitingsweg",
+                "Lokale onstsluitingsweg"
+            )
+        );
+
+    public static readonly RoadSegmentCategory LocalHeritageAccessRoad =
+        new(
+            nameof(LocalHeritageAccessRoad),
+            new DutchTranslation(
+                "EW",
+                "lokale erftoegangsweg",
+                "Lokale erftoegangsweg"
+            )
+        );
+
     public static readonly RoadSegmentCategory Unknown =
         new(
             nameof(Unknown),
@@ -188,10 +238,49 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
             )
         );
 
+    public static readonly RoadSegmentCategory NotApplicable =
+        new(
+            nameof(NotApplicable),
+            new DutchTranslation(
+                "-9",
+                "niet van toepassing",
+                "Niet van toepassing"
+            )
+        );
+
     public static readonly RoadSegmentCategory[] All =
-    {
+    [
         Unknown,
         NotApplicable,
+
+        // obsolete
+        MainRoad,
+        LocalRoad,
+        LocalRoadType1,
+        LocalRoadType2,
+        LocalRoadType3,
+        PrimaryRoadI,
+        PrimaryRoadII,
+        PrimaryRoadIIType1,
+        PrimaryRoadIIType2,
+        PrimaryRoadIIType3,
+        PrimaryRoadIIType4,
+        SecondaryRoad,
+        SecondaryRoadType1,
+        SecondaryRoadType2,
+        SecondaryRoadType3,
+        SecondaryRoadType4,
+
+        // upgraded
+        EuropeanMainRoad,
+        FlemishMainRoad,
+        RegionalRoad,
+        InterLocalRoad,
+        LocalAccessRoad,
+        LocalHeritageAccessRoad
+    ];
+    public static readonly RoadSegmentCategory[] Obsolete =
+    [
         MainRoad,
         LocalRoad,
         LocalRoadType1,
@@ -208,7 +297,21 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
         SecondaryRoadType2,
         SecondaryRoadType3,
         SecondaryRoadType4
-    };
+    ];
+    private static readonly RoadSegmentCategory[] _upgraded =
+    [
+        EuropeanMainRoad,
+        FlemishMainRoad,
+        RegionalRoad,
+        InterLocalRoad,
+        LocalAccessRoad,
+        LocalHeritageAccessRoad
+    ];
+
+    public static bool IsUpgraded(RoadSegmentCategory category)
+    {
+        return _upgraded.Contains(category);
+    }
 
     public static readonly IReadOnlyDictionary<string, RoadSegmentCategory> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier, StringComparer.InvariantCultureIgnoreCase);
@@ -276,7 +379,7 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
         if (!TryParseUsingDutchName(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment access restriction.");
         return parsed;
     }
-    
+
     public override string ToString()
     {
         return _value;

@@ -12,6 +12,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Extensions;
 using Microsoft.Extensions.Logging;
 
 public class ExtractRequestOverlapRecordProjection : ConnectedProjection<EditorContext>
@@ -43,7 +44,7 @@ public class ExtractRequestOverlapRecordProjection : ConnectedProjection<EditorC
 
             await CreateOverlappingRecords(context, (Geometry)GeometryTranslator.Translate(message.Contour), message.DownloadId, message.Description, ct);
         });
-        
+
         When<Envelope<RoadNetworkExtractClosed>>(async (context, envelope, ct) =>
         {
             var downloadIds = envelope.Message.DownloadIds.Select(DownloadId.Parse).Select(x => x.ToGuid()).ToArray();
@@ -57,7 +58,7 @@ public class ExtractRequestOverlapRecordProjection : ConnectedProjection<EditorC
                 return;
             }
 
-            await DeleteLinkedRecords(context, new[] { envelope.Message.DownloadId.Value }, ct);
+            await DeleteLinkedRecords(context, [envelope.Message.DownloadId.Value], ct);
         });
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, ct) =>
@@ -67,7 +68,12 @@ public class ExtractRequestOverlapRecordProjection : ConnectedProjection<EditorC
                 return;
             }
 
-            await DeleteLinkedRecords(context, new[] { envelope.Message.DownloadId.Value }, ct);
+            await DeleteLinkedRecords(context, [envelope.Message.DownloadId.Value], ct);
+        });
+
+        When<Envelope<RoadNetworkExtractChangesArchiveUploaded>>(async (context, envelope, ct) =>
+        {
+            await DeleteLinkedRecords(context, [envelope.Message.DownloadId], ct);
         });
     }
 
@@ -77,7 +83,7 @@ public class ExtractRequestOverlapRecordProjection : ConnectedProjection<EditorC
         {
             description = "onbekend";
         }
-        
+
         var overlapRecords = await context.ExtractRequestOverlaps.FromSqlRaw(@"
 SELECT o.*
 FROM (
@@ -112,8 +118,8 @@ WHERE o.Contour.STIsEmpty() = 0 AND o.Contour.STGeometryType() LIKE '%POLYGON'
     private async Task DeleteLinkedRecords(EditorContext context, Guid[] downloadIds, CancellationToken cancellationToken)
     {
         var requestsToRemoved = await context.ExtractRequestOverlaps
-            .Where(x => downloadIds.Contains(x.DownloadId1) || downloadIds.Contains(x.DownloadId2))
-            .ToListAsync(cancellationToken);
+            .IncludeLocalToListAsync(q =>
+                q.Where(x => downloadIds.Contains(x.DownloadId1) || downloadIds.Contains(x.DownloadId2)), cancellationToken);
 
         _logger.LogInformation("Removing {OverlapCount} overlap records for extracts [{DownloadIds}]", requestsToRemoved.Count, string.Join(", ", downloadIds.Select(x => x.ToString("N"))));
 

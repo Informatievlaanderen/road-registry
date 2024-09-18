@@ -82,7 +82,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                     ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding),
                     ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
                     Geometry = BackOffice.GeometryTranslator.Translate(envelope.Message.Geometry),
-                    
+
                     Version = envelope.Message.Version,
                     GeometryVersion = envelope.Message.GeometryVersion,
                     StatusId = statusTranslation.Identifier,
@@ -117,6 +117,27 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
 
                     case RoadSegmentModified roadSegmentModified:
                         await ModifyRoadSegment(manager, encoding, context, roadSegmentModified, envelope, token);
+                        break;
+
+                    case RoadSegmentAddedToEuropeanRoad change:
+                        await AddRoadSegmentToEuropeanRoad(manager, encoding, context, change, envelope, token);
+                        break;
+                    case RoadSegmentRemovedFromEuropeanRoad change:
+                        await RemoveRoadSegmentFromEuropeanRoad(manager, encoding, context, change, envelope, token);
+                        break;
+
+                    case RoadSegmentAddedToNationalRoad change:
+                        await AddRoadSegmentToNationalRoad(manager, encoding, context, change, envelope, token);
+                        break;
+                    case RoadSegmentRemovedFromNationalRoad change:
+                        await RemoveRoadSegmentFromNationalRoad(manager, encoding, context, change, envelope, token);
+                        break;
+
+                    case RoadSegmentAddedToNumberedRoad change:
+                        await AddRoadSegmentToNumberedRoad(manager, encoding, context, change, envelope, token);
+                        break;
+                    case RoadSegmentRemovedFromNumberedRoad change:
+                        await RemoveRoadSegmentFromNumberedRoad(manager, encoding, context, change, envelope, token);
                         break;
 
                     case RoadSegmentAttributesModified roadSegmentAttributesModified:
@@ -244,7 +265,8 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         UpdateHash(dbRecord, roadSegmentAdded);
     }
 
-    private static async Task ModifyRoadSegment(RecyclableMemoryStreamManager manager,
+    private static async Task ModifyRoadSegment(
+        RecyclableMemoryStreamManager manager,
         Encoding encoding,
         EditorContext context,
         RoadSegmentModified roadSegmentModified,
@@ -279,7 +301,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         dbRecord.ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32();
         dbRecord.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentModified.Geometry);
         dbRecord.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
-        
+
         dbRecord.Version = roadSegmentModified.Version;
         dbRecord.GeometryVersion = roadSegmentModified.GeometryVersion;
         dbRecord.StatusId = statusTranslation.Identifier;
@@ -294,7 +316,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
 
         dbRecord.TransactionId = transactionId;
         dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        
+
         var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
         dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentModified.Id, roadSegmentModified.Version);
         dbaseRecord.WS_GIDN.Value = new UIDN(roadSegmentModified.Id, roadSegmentModified.GeometryVersion);
@@ -323,6 +345,72 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         UpdateHash(dbRecord, roadSegmentModified);
     }
 
+    private static async Task AddRoadSegmentToEuropeanRoad(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        EditorContext context,
+        RoadSegmentAddedToEuropeanRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(manager, encoding, context, envelope, change, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task RemoveRoadSegmentFromEuropeanRoad(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        EditorContext context,
+        RoadSegmentRemovedFromEuropeanRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(manager, encoding, context, envelope, change, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task AddRoadSegmentToNationalRoad(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        EditorContext context,
+        RoadSegmentAddedToNationalRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(manager, encoding, context, envelope, change, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task RemoveRoadSegmentFromNationalRoad(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        EditorContext context,
+        RoadSegmentRemovedFromNationalRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(manager, encoding, context, envelope, change, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task AddRoadSegmentToNumberedRoad(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        EditorContext context,
+        RoadSegmentAddedToNumberedRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(manager, encoding, context, envelope, change, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task RemoveRoadSegmentFromNumberedRoad(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        EditorContext context,
+        RoadSegmentRemovedFromNumberedRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(manager, encoding, context, envelope, change, change.SegmentId, change.SegmentVersion, token);
+    }
+
     private static async Task ModifyRoadSegmentAttributes(RecyclableMemoryStreamManager manager,
         Encoding encoding,
         EditorContext context,
@@ -335,7 +423,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         {
             throw new InvalidOperationException($"{nameof(RoadSegmentRecord)} with id {roadSegmentAttributesModified.Id} is not found");
         }
-        
+
         dbRecord.Version = roadSegmentAttributesModified.Version;
         dbRecord.TransactionId = new TransactionId(envelope.Message.TransactionId);
         dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
@@ -411,7 +499,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         {
             throw new InvalidOperationException($"{nameof(RoadSegmentRecord)} with id {roadSegmentGeometryModified.Id} is not found");
         }
-        
+
         var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentGeometryModified.Geometry));
         var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
 
@@ -424,7 +512,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         dbRecord.GeometryVersion = roadSegmentGeometryModified.GeometryVersion;
         dbRecord.TransactionId = new TransactionId(envelope.Message.TransactionId);
         dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        
+
         var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
         dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentGeometryModified.Id, roadSegmentGeometryModified.Version);
         dbaseRecord.WS_GIDN.Value = new UIDN(roadSegmentGeometryModified.Id, roadSegmentGeometryModified.GeometryVersion);
@@ -473,7 +561,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         var organizationIdValue = organizationId.ToString();
 
         await context.RoadSegments
-            .ForEachBatchAsync(q => q.Where(x => x.MaintainerId == organizationIdValue), 5000, dbRecords =>
+            .IncludeLocalForEachBatchAsync(q => q.Where(x => x.MaintainerId == organizationIdValue), 5000, dbRecords =>
             {
                 _logger.LogInformation("Processing batch {Batch}", batchIndex);
 
@@ -491,6 +579,46 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
             }, cancellationToken);
 
         _logger.LogInformation("Renaming organizations finished");
+    }
+
+    private static async Task UpdateRoadSegmentVersion<T>(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        EditorContext context,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        T message,
+        int segmentId,
+        int? segmentVersion,
+        CancellationToken token)
+        where T : IHaveHash
+    {
+        if (segmentVersion is null)
+        {
+            return;
+        }
+
+        var dbRecord = await context.RoadSegments
+            .IncludeLocalWithoutQueryFiltersSingleOrDefaultAsync(x => x.Id == segmentId, token)
+            .ConfigureAwait(false);
+        if (dbRecord is null)
+        {
+            throw new InvalidOperationException($"{nameof(RoadSegmentRecord)} with id {segmentId} is not found");
+        }
+
+        var transactionId = new TransactionId(envelope.Message.TransactionId);
+
+        dbRecord.Version = segmentVersion.Value;
+
+        dbRecord.TransactionId = transactionId;
+        dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+
+        var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
+        dbaseRecord.WS_UIDN.Value = new UIDN(segmentId, segmentVersion.Value);
+        dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+
+        dbRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
+
+        UpdateHash(dbRecord, message);
     }
 
     private static RoadSegmentRecord UpdateHash<T>(RoadSegmentRecord entity, T message) where T : IHaveHash

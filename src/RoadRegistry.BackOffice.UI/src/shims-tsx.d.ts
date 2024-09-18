@@ -14,6 +14,7 @@ declare global {
     useDirectApiCalls: boolean;
     useTransactionZonesTab: boolean;
     usePresignedUpload: boolean;
+    useOverlapCheck: boolean;
   }
 
   interface Window { 

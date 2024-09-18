@@ -11,6 +11,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
     using Editor.Schema.Extensions;
     using Editor.Schema.RoadSegments;
     using Extensions;
+    using FluentAssertions;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Microsoft.IO;
@@ -37,7 +38,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
             _fileEncoding = fileEncoding;
             _loggerFactory = loggerFactory;
         }
-        
+
         [Fact]
         public async Task CanConsumeSuccessfully_StreetNameWasRemovedV2()
         {
@@ -179,7 +180,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                 }
             }
         }
-        
+
         [Fact]
         public async Task CanConsumeSuccessfully_StreetNameWasRenamed()
         {
@@ -196,7 +197,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                     Name = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost,
                     Position = -1
                 });
-                
+
                 var statusTranslation = RoadSegmentStatus.Parse(testData.Segment1Added.Status).Translation;
                 var morphologyTranslation = RoadSegmentMorphology.Parse(testData.Segment1Added.Morphology).Translation;
                 var categoryTranslation = RoadSegmentCategory.Parse(testData.Segment1Added.Category).Translation;
@@ -250,6 +251,343 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                 Assert.Equal(testData.Segment1Added.Id, modifyRoadSegment.Id);
                 Assert.Equal(streetName2LocalId, modifyRoadSegment.LeftSideStreetNameId);
                 Assert.Equal(streetName2LocalId, modifyRoadSegment.RightSideStreetNameId);
+            }
+        }
+
+        [Fact]
+        public async Task WhenStreetNameWasRetiredBecauseOfMunicipalityMerger_ThenChangeRoadNetwork()
+        {
+            var testData = new RoadNetworkTestData();
+
+            var oldStreetNamePersistentLocalId = 1;
+            var newStreetNamePersistentLocalId1 = 2;
+            var newStreetNamePersistentLocalId2 = 3;
+
+            var (consumer, store, topicConsumer) = BuildSetup(configureEditorContext: editorContext =>
+            {
+                editorContext.ProjectionStates.Add(new ProjectionStateItem
+                {
+                    Name = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost,
+                    Position = -1
+                });
+
+                var segment = testData.Segment1Added;
+
+                var statusTranslation = RoadSegmentStatus.Parse(segment.Status).Translation;
+                var morphologyTranslation = RoadSegmentMorphology.Parse(segment.Morphology).Translation;
+                var categoryTranslation = RoadSegmentCategory.Parse(segment.Category).Translation;
+                var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation;
+                var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation;
+
+                editorContext.RoadSegments.AddRange(
+                    new RoadSegmentRecord
+                    {
+                        Id = 1,
+                        StartNodeId = segment.StartNodeId,
+                        EndNodeId = segment.EndNodeId,
+                        Geometry = GeometryTranslator.Translate(segment.Geometry),
+                        Version = segment.Version,
+                        GeometryVersion = segment.GeometryVersion,
+                        StatusId = statusTranslation.Identifier,
+                        MorphologyId = morphologyTranslation.Identifier,
+                        CategoryId = categoryTranslation.Identifier,
+                        LeftSideStreetNameId = oldStreetNamePersistentLocalId,
+                        RightSideStreetNameId = StreetNameLocalId.Unknown,
+                        MaintainerId = segment.MaintenanceAuthority.Code,
+                        MaintainerName = segment.MaintenanceAuthority.Name,
+                        MethodId = geometryDrawMethodTranslation.Identifier,
+                        AccessRestrictionId = accessRestrictionTranslation.Identifier
+                    },
+                    new RoadSegmentRecord
+                    {
+                        Id = 2,
+                        StartNodeId = segment.StartNodeId,
+                        EndNodeId = segment.EndNodeId,
+                        Geometry = GeometryTranslator.Translate(segment.Geometry),
+                        Version = segment.Version,
+                        GeometryVersion = segment.GeometryVersion,
+                        StatusId = statusTranslation.Identifier,
+                        MorphologyId = morphologyTranslation.Identifier,
+                        CategoryId = categoryTranslation.Identifier,
+                        LeftSideStreetNameId = StreetNameLocalId.Unknown,
+                        RightSideStreetNameId = oldStreetNamePersistentLocalId,
+                        MaintainerId = segment.MaintenanceAuthority.Code,
+                        MaintainerName = segment.MaintenanceAuthority.Name,
+                        MethodId = geometryDrawMethodTranslation.Identifier,
+                        AccessRestrictionId = accessRestrictionTranslation.Identifier
+                    },
+                    new RoadSegmentRecord
+                    {
+                        Id = 3,
+                        StartNodeId = segment.StartNodeId,
+                        EndNodeId = segment.EndNodeId,
+                        Geometry = GeometryTranslator.Translate(segment.Geometry),
+                        Version = segment.Version,
+                        GeometryVersion = segment.GeometryVersion,
+                        StatusId = statusTranslation.Identifier,
+                        MorphologyId = morphologyTranslation.Identifier,
+                        CategoryId = categoryTranslation.Identifier,
+                        LeftSideStreetNameId = StreetNameLocalId.Unknown,
+                        RightSideStreetNameId = StreetNameLocalId.Unknown,
+                        MaintainerId = segment.MaintenanceAuthority.Code,
+                        MaintainerName = segment.MaintenanceAuthority.Name,
+                        MethodId = geometryDrawMethodTranslation.Identifier,
+                        AccessRestrictionId = accessRestrictionTranslation.Identifier
+                    });
+            });
+
+            var @event = new StreetNameWasRetiredBecauseOfMunicipalityMerger(
+                string.Empty,
+                oldStreetNamePersistentLocalId,
+                new[] { newStreetNamePersistentLocalId1, newStreetNamePersistentLocalId2 },
+                new FakeProvenance());
+            topicConsumer
+                .SeedMessage(@event);
+
+            await consumer.StartAsync(CancellationToken.None);
+
+            var page = await store.ReadAllForwards(Position.Start, 1);
+            {
+                var streamMessage = page.Messages[0];
+                Assert.Equal(nameof(ChangeRoadNetwork), streamMessage.Type);
+                Assert.Equal("roadnetwork-command-queue", streamMessage.StreamId);
+
+                var message = JsonConvert.DeserializeObject<ChangeRoadNetwork>(await streamMessage.GetJsonData());
+                message.Changes.Should().HaveCount(2);
+
+                var modifyRoadSegment1 = message.Changes[0].ModifyRoadSegment;
+                Assert.Equal(1, modifyRoadSegment1.Id);
+                Assert.Equal(newStreetNamePersistentLocalId1, modifyRoadSegment1.LeftSideStreetNameId);
+                Assert.Equal(StreetNameLocalId.Unknown, modifyRoadSegment1.RightSideStreetNameId);
+
+                var modifyRoadSegment2 = message.Changes[1].ModifyRoadSegment;
+                Assert.Equal(2, modifyRoadSegment2.Id);
+                Assert.Equal(StreetNameLocalId.Unknown, modifyRoadSegment2.LeftSideStreetNameId);
+                Assert.Equal(newStreetNamePersistentLocalId1, modifyRoadSegment2.RightSideStreetNameId);
+            }
+        }
+
+        [Fact]
+        public async Task WhenStreetNameWasRetiredBecauseOfMunicipalityMergerWithNoNewPersistentLocalIds_ThenChangeRoadNetworkToDisconnectSegments()
+        {
+            var testData = new RoadNetworkTestData();
+
+            var oldStreetNamePersistentLocalId = 1;
+
+            var (consumer, store, topicConsumer) = BuildSetup(configureEditorContext: editorContext =>
+            {
+                editorContext.ProjectionStates.Add(new ProjectionStateItem
+                {
+                    Name = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost,
+                    Position = -1
+                });
+
+                var segment = testData.Segment1Added;
+
+                var statusTranslation = RoadSegmentStatus.Parse(segment.Status).Translation;
+                var morphologyTranslation = RoadSegmentMorphology.Parse(segment.Morphology).Translation;
+                var categoryTranslation = RoadSegmentCategory.Parse(segment.Category).Translation;
+                var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation;
+                var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation;
+
+                editorContext.RoadSegments.AddRange(
+                    new RoadSegmentRecord
+                    {
+                        Id = 1,
+                        StartNodeId = segment.StartNodeId,
+                        EndNodeId = segment.EndNodeId,
+                        Geometry = GeometryTranslator.Translate(segment.Geometry),
+                        Version = segment.Version,
+                        GeometryVersion = segment.GeometryVersion,
+                        StatusId = statusTranslation.Identifier,
+                        MorphologyId = morphologyTranslation.Identifier,
+                        CategoryId = categoryTranslation.Identifier,
+                        LeftSideStreetNameId = oldStreetNamePersistentLocalId,
+                        RightSideStreetNameId = StreetNameLocalId.Unknown,
+                        MaintainerId = segment.MaintenanceAuthority.Code,
+                        MaintainerName = segment.MaintenanceAuthority.Name,
+                        MethodId = geometryDrawMethodTranslation.Identifier,
+                        AccessRestrictionId = accessRestrictionTranslation.Identifier
+                    },
+                    new RoadSegmentRecord
+                    {
+                        Id = 2,
+                        StartNodeId = segment.StartNodeId,
+                        EndNodeId = segment.EndNodeId,
+                        Geometry = GeometryTranslator.Translate(segment.Geometry),
+                        Version = segment.Version,
+                        GeometryVersion = segment.GeometryVersion,
+                        StatusId = statusTranslation.Identifier,
+                        MorphologyId = morphologyTranslation.Identifier,
+                        CategoryId = categoryTranslation.Identifier,
+                        LeftSideStreetNameId = StreetNameLocalId.Unknown,
+                        RightSideStreetNameId = oldStreetNamePersistentLocalId,
+                        MaintainerId = segment.MaintenanceAuthority.Code,
+                        MaintainerName = segment.MaintenanceAuthority.Name,
+                        MethodId = geometryDrawMethodTranslation.Identifier,
+                        AccessRestrictionId = accessRestrictionTranslation.Identifier
+                    },
+                    new RoadSegmentRecord
+                    {
+                        Id = 3,
+                        StartNodeId = segment.StartNodeId,
+                        EndNodeId = segment.EndNodeId,
+                        Geometry = GeometryTranslator.Translate(segment.Geometry),
+                        Version = segment.Version,
+                        GeometryVersion = segment.GeometryVersion,
+                        StatusId = statusTranslation.Identifier,
+                        MorphologyId = morphologyTranslation.Identifier,
+                        CategoryId = categoryTranslation.Identifier,
+                        LeftSideStreetNameId = StreetNameLocalId.Unknown,
+                        RightSideStreetNameId = StreetNameLocalId.Unknown,
+                        MaintainerId = segment.MaintenanceAuthority.Code,
+                        MaintainerName = segment.MaintenanceAuthority.Name,
+                        MethodId = geometryDrawMethodTranslation.Identifier,
+                        AccessRestrictionId = accessRestrictionTranslation.Identifier
+                    });
+            });
+
+            var @event = new StreetNameWasRetiredBecauseOfMunicipalityMerger(
+                string.Empty,
+                oldStreetNamePersistentLocalId,
+                [],
+                new FakeProvenance());
+            topicConsumer
+                .SeedMessage(@event);
+
+            await consumer.StartAsync(CancellationToken.None);
+
+            var page = await store.ReadAllForwards(Position.Start, 1);
+            {
+                var streamMessage = page.Messages[0];
+                Assert.Equal(nameof(ChangeRoadNetwork), streamMessage.Type);
+                Assert.Equal("roadnetwork-command-queue", streamMessage.StreamId);
+
+                var message = JsonConvert.DeserializeObject<ChangeRoadNetwork>(await streamMessage.GetJsonData());
+                message.Changes.Should().HaveCount(2);
+
+                var modifyRoadSegment1 = message.Changes[0].ModifyRoadSegment;
+                Assert.Equal(1, modifyRoadSegment1.Id);
+                Assert.Equal(-9, modifyRoadSegment1.LeftSideStreetNameId);
+                Assert.Equal(StreetNameLocalId.Unknown, modifyRoadSegment1.RightSideStreetNameId);
+
+                var modifyRoadSegment2 = message.Changes[1].ModifyRoadSegment;
+                Assert.Equal(2, modifyRoadSegment2.Id);
+                Assert.Equal(StreetNameLocalId.Unknown, modifyRoadSegment2.LeftSideStreetNameId);
+                Assert.Equal(-9, modifyRoadSegment2.RightSideStreetNameId);
+            }
+        }
+
+        [Fact]
+        public async Task WhenStreetNameWasRejectedBecauseOfMunicipalityMerger_ThenChangeRoadNetwork()
+        {
+            var testData = new RoadNetworkTestData();
+
+            var oldStreetNamePersistentLocalId = 1;
+            var newStreetNamePersistentLocalId1 = 2;
+            var newStreetNamePersistentLocalId2 = 3;
+
+            var (consumer, store, topicConsumer) = BuildSetup(configureEditorContext: editorContext =>
+            {
+                editorContext.ProjectionStates.Add(new ProjectionStateItem
+                {
+                    Name = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost,
+                    Position = -1
+                });
+
+                var segment = testData.Segment1Added;
+
+                var statusTranslation = RoadSegmentStatus.Parse(segment.Status).Translation;
+                var morphologyTranslation = RoadSegmentMorphology.Parse(segment.Morphology).Translation;
+                var categoryTranslation = RoadSegmentCategory.Parse(segment.Category).Translation;
+                var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation;
+                var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation;
+
+                editorContext.RoadSegments.AddRange(
+                    new RoadSegmentRecord
+                    {
+                        Id = 1,
+                        StartNodeId = segment.StartNodeId,
+                        EndNodeId = segment.EndNodeId,
+                        Geometry = GeometryTranslator.Translate(segment.Geometry),
+                        Version = segment.Version,
+                        GeometryVersion = segment.GeometryVersion,
+                        StatusId = statusTranslation.Identifier,
+                        MorphologyId = morphologyTranslation.Identifier,
+                        CategoryId = categoryTranslation.Identifier,
+                        LeftSideStreetNameId = oldStreetNamePersistentLocalId,
+                        RightSideStreetNameId = StreetNameLocalId.Unknown,
+                        MaintainerId = segment.MaintenanceAuthority.Code,
+                        MaintainerName = segment.MaintenanceAuthority.Name,
+                        MethodId = geometryDrawMethodTranslation.Identifier,
+                        AccessRestrictionId = accessRestrictionTranslation.Identifier
+                    },
+                    new RoadSegmentRecord
+                    {
+                        Id = 2,
+                        StartNodeId = segment.StartNodeId,
+                        EndNodeId = segment.EndNodeId,
+                        Geometry = GeometryTranslator.Translate(segment.Geometry),
+                        Version = segment.Version,
+                        GeometryVersion = segment.GeometryVersion,
+                        StatusId = statusTranslation.Identifier,
+                        MorphologyId = morphologyTranslation.Identifier,
+                        CategoryId = categoryTranslation.Identifier,
+                        LeftSideStreetNameId = StreetNameLocalId.Unknown,
+                        RightSideStreetNameId = oldStreetNamePersistentLocalId,
+                        MaintainerId = segment.MaintenanceAuthority.Code,
+                        MaintainerName = segment.MaintenanceAuthority.Name,
+                        MethodId = geometryDrawMethodTranslation.Identifier,
+                        AccessRestrictionId = accessRestrictionTranslation.Identifier
+                    },
+                    new RoadSegmentRecord
+                    {
+                        Id = 3,
+                        StartNodeId = segment.StartNodeId,
+                        EndNodeId = segment.EndNodeId,
+                        Geometry = GeometryTranslator.Translate(segment.Geometry),
+                        Version = segment.Version,
+                        GeometryVersion = segment.GeometryVersion,
+                        StatusId = statusTranslation.Identifier,
+                        MorphologyId = morphologyTranslation.Identifier,
+                        CategoryId = categoryTranslation.Identifier,
+                        LeftSideStreetNameId = StreetNameLocalId.Unknown,
+                        RightSideStreetNameId = StreetNameLocalId.Unknown,
+                        MaintainerId = segment.MaintenanceAuthority.Code,
+                        MaintainerName = segment.MaintenanceAuthority.Name,
+                        MethodId = geometryDrawMethodTranslation.Identifier,
+                        AccessRestrictionId = accessRestrictionTranslation.Identifier
+                    });
+            });
+
+            var @event = new StreetNameWasRejectedBecauseOfMunicipalityMerger(
+                string.Empty,
+                oldStreetNamePersistentLocalId,
+                new[] { newStreetNamePersistentLocalId1, newStreetNamePersistentLocalId2 },
+                new FakeProvenance());
+            topicConsumer
+                .SeedMessage(@event);
+
+            await consumer.StartAsync(CancellationToken.None);
+
+            var page = await store.ReadAllForwards(Position.Start, 1);
+            {
+                var streamMessage = page.Messages[0];
+                Assert.Equal(nameof(ChangeRoadNetwork), streamMessage.Type);
+                Assert.Equal("roadnetwork-command-queue", streamMessage.StreamId);
+
+                var message = JsonConvert.DeserializeObject<ChangeRoadNetwork>(await streamMessage.GetJsonData());
+                message.Changes.Should().HaveCount(2);
+
+                var modifyRoadSegment1 = message.Changes[0].ModifyRoadSegment;
+                Assert.Equal(1, modifyRoadSegment1.Id);
+                Assert.Equal(newStreetNamePersistentLocalId1, modifyRoadSegment1.LeftSideStreetNameId);
+                Assert.Equal(StreetNameLocalId.Unknown, modifyRoadSegment1.RightSideStreetNameId);
+
+                var modifyRoadSegment2 = message.Changes[1].ModifyRoadSegment;
+                Assert.Equal(2, modifyRoadSegment2.Id);
+                Assert.Equal(StreetNameLocalId.Unknown, modifyRoadSegment2.LeftSideStreetNameId);
+                Assert.Equal(newStreetNamePersistentLocalId1, modifyRoadSegment2.RightSideStreetNameId);
             }
         }
 

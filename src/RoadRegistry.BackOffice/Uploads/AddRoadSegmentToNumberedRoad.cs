@@ -9,6 +9,7 @@ public class AddRoadSegmentToNumberedRoad : ITranslatedChange
     public AddRoadSegmentToNumberedRoad(
         RecordNumber recordNumber,
         AttributeId temporaryAttributeId,
+        RoadSegmentGeometryDrawMethod segmentGeometryDrawMethod,
         RoadSegmentId segmentId,
         NumberedRoadNumber number,
         RoadSegmentNumberedRoadDirection direction,
@@ -16,18 +17,20 @@ public class AddRoadSegmentToNumberedRoad : ITranslatedChange
     {
         RecordNumber = recordNumber;
         TemporaryAttributeId = temporaryAttributeId;
+        SegmentGeometryDrawMethod = segmentGeometryDrawMethod;
         SegmentId = segmentId;
         Number = number;
         Direction = direction;
         Ordinal = ordinal;
     }
 
-    public RoadSegmentNumberedRoadDirection Direction { get; }
-    public NumberedRoadNumber Number { get; }
-    public RoadSegmentNumberedRoadOrdinal Ordinal { get; }
     public RecordNumber RecordNumber { get; }
-    public RoadSegmentId SegmentId { get; }
     public AttributeId TemporaryAttributeId { get; }
+    public RoadSegmentGeometryDrawMethod SegmentGeometryDrawMethod { get; }
+    public RoadSegmentId SegmentId { get; }
+    public NumberedRoadNumber Number { get; }
+    public RoadSegmentNumberedRoadDirection Direction { get; }
+    public RoadSegmentNumberedRoadOrdinal Ordinal { get; }
 
     public void TranslateTo(RequestedChange message)
     {
@@ -39,6 +42,7 @@ public class AddRoadSegmentToNumberedRoad : ITranslatedChange
             Number = Number,
             Direction = Direction,
             Ordinal = Ordinal,
+            SegmentGeometryDrawMethod = SegmentGeometryDrawMethod,
             SegmentId = SegmentId
         };
     }

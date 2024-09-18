@@ -59,7 +59,7 @@ public class WhenDeleteOutlineWithValidRequestFixture : WhenDeleteOutlineFixture
 
     protected override async Task<bool> VerifyTicketAsync()
     {
-        var rejectCommand = await Store.GetLastCommandIfTypeIs<RoadNetworkChangesRejected>();
+        var rejectCommand = await Store.GetLastMessageIfTypeIs<RoadNetworkChangesRejected>();
         if (rejectCommand != null)
         {
             var problems = rejectCommand.Changes.SelectMany(change => change.Problems).ToArray();
@@ -73,7 +73,7 @@ public class WhenDeleteOutlineWithValidRequestFixture : WhenDeleteOutlineFixture
 
         await VerifyThatTicketHasCompleted(roadSegmentId);
 
-        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
+        var command = await Store.GetLastMessage<RoadNetworkChangesAccepted>();
         return command.Changes.Single().RoadSegmentRemoved.Id == roadSegmentId;
     }
 }

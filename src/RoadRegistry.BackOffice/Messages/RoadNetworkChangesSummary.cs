@@ -1,5 +1,8 @@
 namespace RoadRegistry.BackOffice.Messages;
 
+using System.Collections.Generic;
+using System.Linq;
+
 public class RoadNetworkChangesSummary
 {
     public RoadNetworkChangeCounters GradeSeparatedJunctions { get; set; }
@@ -15,8 +18,11 @@ public class RoadNetworkChangesSummary
             GradeSeparatedJunctions = new RoadNetworkChangeCounters()
         };
 
-        foreach (var change in changes)
-            switch (change.Flatten())
+        var addedRoadSegmentIds = new List<int>();
+        var modifiedRoadSegmentIds = new List<int>();
+
+        foreach (var acceptedChange in changes)
+            switch (acceptedChange.Flatten())
             {
                 case RoadNodeAdded _:
                     summary.RoadNodes.Added += 1;
@@ -27,13 +33,53 @@ public class RoadNetworkChangesSummary
                 case RoadNodeRemoved _:
                     summary.RoadNodes.Removed += 1;
                     break;
-                case RoadSegmentAdded _:
-                    summary.RoadSegments.Added += 1;
+                case RoadSegmentAdded change:
+                    addedRoadSegmentIds.Add(change.Id);
                     break;
-                case RoadSegmentModified _:
-                case RoadSegmentAttributesModified _:
-                case RoadSegmentGeometryModified _:
-                    summary.RoadSegments.Modified += 1;
+                case RoadSegmentModified change:
+                    modifiedRoadSegmentIds.Add(change.Id);
+                    break;
+                case RoadSegmentAttributesModified change:
+                    modifiedRoadSegmentIds.Add(change.Id);
+                    break;
+                case RoadSegmentGeometryModified change:
+                    modifiedRoadSegmentIds.Add(change.Id);
+                    break;
+                case RoadSegmentAddedToEuropeanRoad change:
+                    if (!addedRoadSegmentIds.Contains(change.SegmentId))
+                    {
+                        modifiedRoadSegmentIds.Add(change.SegmentId);
+                    }
+                    break;
+                case RoadSegmentAddedToNationalRoad change:
+                    if (!addedRoadSegmentIds.Contains(change.SegmentId))
+                    {
+                        modifiedRoadSegmentIds.Add(change.SegmentId);
+                    }
+                    break;
+                case RoadSegmentAddedToNumberedRoad change:
+                    if (!addedRoadSegmentIds.Contains(change.SegmentId))
+                    {
+                        modifiedRoadSegmentIds.Add(change.SegmentId);
+                    }
+                    break;
+                case RoadSegmentRemovedFromEuropeanRoad change:
+                    if (!addedRoadSegmentIds.Contains(change.SegmentId))
+                    {
+                        modifiedRoadSegmentIds.Add(change.SegmentId);
+                    }
+                    break;
+                case RoadSegmentRemovedFromNationalRoad change:
+                    if (!addedRoadSegmentIds.Contains(change.SegmentId))
+                    {
+                        modifiedRoadSegmentIds.Add(change.SegmentId);
+                    }
+                    break;
+                case RoadSegmentRemovedFromNumberedRoad change:
+                    if (!addedRoadSegmentIds.Contains(change.SegmentId))
+                    {
+                        modifiedRoadSegmentIds.Add(change.SegmentId);
+                    }
                     break;
                 case RoadSegmentRemoved _:
                     summary.RoadSegments.Removed += 1;
@@ -48,6 +94,9 @@ public class RoadNetworkChangesSummary
                     summary.GradeSeparatedJunctions.Removed += 1;
                     break;
             }
+
+        summary.RoadSegments.Added = addedRoadSegmentIds.Distinct().Count();
+        summary.RoadSegments.Modified = modifiedRoadSegmentIds.Distinct().Count();
 
         return summary;
     }

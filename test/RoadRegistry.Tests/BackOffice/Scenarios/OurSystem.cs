@@ -9,13 +9,15 @@ public static class OurSystem
     public static Command AnnouncesRoadNetworkExtractDownloadBecameAvailable(
         ExtractRequestId requestId,
         DownloadId downloadId,
-        ArchiveId archiveId)
+        ArchiveId archiveId,
+        ICollection<Guid> overlapsWithDownloadIds = null)
     {
         return new Command(new AnnounceRoadNetworkExtractDownloadBecameAvailable
         {
             RequestId = requestId,
             DownloadId = downloadId,
-            ArchiveId = archiveId
+            ArchiveId = archiveId,
+            OverlapsWithDownloadIds = overlapsWithDownloadIds ?? []
         });
     }
 

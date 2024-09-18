@@ -5,6 +5,8 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
+using NodaTime;
+using NodaTime.Text;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Messages;
@@ -64,6 +66,19 @@ public class RoadNetworkTestData
         ObjectProvider.CustomizeTransactionId();
 
         ObjectProvider.CustomizeRoadNetworkChangesAccepted();
+        ObjectProvider.CustomizeImportedOrganization();
+        ObjectProvider.CustomizeAddRoadNode();
+        ObjectProvider.CustomizeRoadNodeAdded();
+        ObjectProvider.CustomizeModifyRoadNode();
+        ObjectProvider.CustomizeRoadNodeModified();
+        ObjectProvider.CustomizeRemoveRoadNode();
+        ObjectProvider.CustomizeRoadNodeRemoved();
+        ObjectProvider.CustomizeAddRoadSegment();
+        ObjectProvider.CustomizeRoadSegmentAdded();
+        ObjectProvider.CustomizeModifyRoadSegment();
+        ObjectProvider.CustomizeRoadSegmentModified();
+        ObjectProvider.CustomizeRemoveRoadSegment();
+        ObjectProvider.CustomizeRoadSegmentRemoved();
 
         ObjectProvider.Customize<RequestedRoadSegmentEuropeanRoadAttribute>(composer =>
             composer.Do(instance =>
@@ -87,8 +102,6 @@ public class RoadNetworkTestData
                 instance.Direction = ObjectProvider.Create<RoadSegmentNumberedRoadDirection>();
                 instance.Ordinal = ObjectProvider.Create<RoadSegmentNumberedRoadOrdinal>();
             }).OmitAutoProperties());
-        
-        
 
         customize?.Invoke(ObjectProvider);
 
@@ -99,6 +112,12 @@ public class RoadNetworkTestData
         ChangedByOrganization = ObjectProvider.Create<OrganizationId>();
         ChangedByOrganizationName = ObjectProvider.Create<OrganizationName>();
         TransactionId = ObjectProvider.Create<TransactionId>();
+        ChangedByImportedOrganization = new ImportedOrganization
+        {
+            Code = ChangedByOrganization,
+            Name = ChangedByOrganizationName,
+            When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+        };
 
         StartPoint1 = new Point(new CoordinateM(0.0, 0.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MiddlePoint1 = new Point(new CoordinateM(50.0, 50.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
@@ -301,6 +320,9 @@ public class RoadNetworkTestData
                     part.FromPosition = part.FromPosition.ToRoundedMeasurement();
                     part.ToPosition = part.ToPosition.ToRoundedMeasurement();
 
+                    part.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
+                    part.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
+
                     return part;
                 })
                 .ToArray(),
@@ -500,6 +522,9 @@ public class RoadNetworkTestData
                     part.FromPosition = part.FromPosition.ToRoundedMeasurement();
                     part.ToPosition = part.ToPosition.ToRoundedMeasurement();
 
+                    part.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
+                    part.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
+
                     return part;
                 })
                 .ToArray(),
@@ -636,6 +661,9 @@ public class RoadNetworkTestData
                     {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString3.Length) / laneCount3);
                     }
+
+                    part.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
+                    part.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
 
                     return part;
                 })
@@ -1246,6 +1274,7 @@ public class RoadNetworkTestData
     public Point StartPoint2 { get; }
     public Point StartPoint3 { get; }
     public TransactionId TransactionId { get; }
+    public ImportedOrganization ChangedByImportedOrganization { get; }
 
     public RoadNetworkTestData CopyCustomizationsTo(Fixture target)
     {

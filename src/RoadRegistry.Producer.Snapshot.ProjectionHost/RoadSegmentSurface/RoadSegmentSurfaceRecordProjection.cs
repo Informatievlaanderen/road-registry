@@ -13,6 +13,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using BackOffice.Extensions;
 
     public class RoadSegmentSurfaceRecordProjection : ConnectedProjection<RoadSegmentSurfaceProducerSnapshotContext>
     {
@@ -84,7 +85,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
                 }
             }
         }
-        
+
         private async Task RoadSegmentAdded(RoadSegmentSurfaceProducerSnapshotContext context, Envelope<RoadNetworkChangesAccepted> envelope,
             RoadSegmentAdded roadSegmentAdded,
             CancellationToken token)

@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Extensions;
 
 public class RoadSegmentSurfaceAttributeRecordProjection : ConnectedProjection<ProductContext>
 {

@@ -1,7 +1,6 @@
 namespace RoadRegistry.Tests.BackOffice.Core;
 
 using AutoFixture;
-using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RemoveRoadNode = RoadRegistry.BackOffice.Messages.RemoveRoadNode;
 
@@ -11,11 +10,9 @@ public class RemoveRoadNodeValidatorTests : ValidatorTest<RemoveRoadNode, Remove
     {
         Fixture.CustomizeRoadNodeId();
         Fixture.CustomizeRoadNodeType();
+        Fixture.CustomizeRemoveRoadNode();
 
-        Model = new RemoveRoadNode
-        {
-            Id = Fixture.Create<RoadNodeId>()
-        };
+        Model = Fixture.Create<RemoveRoadNode>();
     }
 
     [Theory]

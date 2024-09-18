@@ -1,3 +1,237 @@
+## [4.8.5](https://github.com/informatievlaanderen/road-registry/compare/v4.8.4...v4.8.5) (2024-09-18)
+
+
+### Bug Fixes
+
+* set catchupBatchSize to 1 for extract overlap projection ([#1534](https://github.com/informatievlaanderen/road-registry/issues/1534)) ([6e802fe](https://github.com/informatievlaanderen/road-registry/commit/6e802fef8570c625e4e438e55100fd861deb3b0c))
+
+## [4.8.4](https://github.com/informatievlaanderen/road-registry/compare/v4.8.3...v4.8.4) (2024-09-17)
+
+
+### Bug Fixes
+
+* remove old staging from release pipeline ([#1533](https://github.com/informatievlaanderen/road-registry/issues/1533)) ([5db0eb7](https://github.com/informatievlaanderen/road-registry/commit/5db0eb78aee776803a525a572c2fb9f59d75a3dc))
+
+## [4.8.3](https://github.com/informatievlaanderen/road-registry/compare/v4.8.2...v4.8.3) (2024-09-17)
+
+
+### Bug Fixes
+
+* extract overlap check to include local records ([#1532](https://github.com/informatievlaanderen/road-registry/issues/1532)) ([6cf5759](https://github.com/informatievlaanderen/road-registry/commit/6cf5759a6f8a7ea1c587fb9f6f937bfbbd853176))
+
+## [4.8.2](https://github.com/informatievlaanderen/road-registry/compare/v4.8.1...v4.8.2) (2024-09-16)
+
+
+### Bug Fixes
+
+* huge memory usage for GradeSeparatedJunctionFeatureCompareTranslator ([#1531](https://github.com/informatievlaanderen/road-registry/issues/1531)) ([22f61dc](https://github.com/informatievlaanderen/road-registry/commit/22f61dcc5891c2e222c2d1bd18dd9c4f04a18af5))
+
+## [4.8.1](https://github.com/informatievlaanderen/road-registry/compare/v4.8.0...v4.8.1) (2024-09-12)
+
+
+### Bug Fixes
+
+* close extract when upload received for GRB flow ([#1530](https://github.com/informatievlaanderen/road-registry/issues/1530)) ([304bc50](https://github.com/informatievlaanderen/road-registry/commit/304bc50ebdc84e071803195f97757f5f65f2948b))
+
+# [4.8.0](https://github.com/informatievlaanderen/road-registry/compare/v4.7.0...v4.8.0) (2024-09-10)
+
+
+### Features
+
+* add overlap warning on activity feed ([#1529](https://github.com/informatievlaanderen/road-registry/issues/1529)) ([5fa68cc](https://github.com/informatievlaanderen/road-registry/commit/5fa68ccc89ddc12a21e532f9c3a5102ce277ebe7))
+
+# [4.7.0](https://github.com/informatievlaanderen/road-registry/compare/v4.6.5...v4.7.0) (2024-09-09)
+
+
+### Features
+
+* extract overlap check when requesting a new extract ([#1528](https://github.com/informatievlaanderen/road-registry/issues/1528)) ([4261db6](https://github.com/informatievlaanderen/road-registry/commit/4261db6aacc852da9968d45de37f18a1189986f0))
+
+## [4.6.5](https://github.com/informatievlaanderen/road-registry/compare/v4.6.4...v4.6.5) (2024-09-05)
+
+
+### Bug Fixes
+
+* streetname event consumer when no new ids were provided for merger ([a04f8e0](https://github.com/informatievlaanderen/road-registry/commit/a04f8e0aa9abc209adfd5ee86db0edf80532595c))
+
+## [4.6.4](https://github.com/informatievlaanderen/road-registry/compare/v4.6.3...v4.6.4) (2024-09-04)
+
+
+### Bug Fixes
+
+* no error spam when organization registry is temporarily unavailable ([3ca3793](https://github.com/informatievlaanderen/road-registry/commit/3ca3793d50177b72a0bb119f1c7e18fcbae8ecd4))
+
+## [4.6.3](https://github.com/informatievlaanderen/road-registry/compare/v4.6.2...v4.6.3) (2024-08-30)
+
+
+### Bug Fixes
+
+* add event consumer to projector + EF query include local ([fa275ff](https://github.com/informatievlaanderen/road-registry/commit/fa275ffc6974d790af4286878d9ed29a99307463))
+* integration tests ([9fec0b2](https://github.com/informatievlaanderen/road-registry/commit/9fec0b2d4c2710b147833d442027806da9b14acb))
+
+## [4.6.2](https://github.com/informatievlaanderen/road-registry/compare/v4.6.1...v4.6.2) (2024-08-13)
+
+
+### Bug Fixes
+
+* use interface in dependency ([#1524](https://github.com/informatievlaanderen/road-registry/issues/1524)) ([72dbe9f](https://github.com/informatievlaanderen/road-registry/commit/72dbe9f4668e9e468e33962fb12c932a1437554b))
+
+## [4.6.1](https://github.com/informatievlaanderen/road-registry/compare/v4.6.0...v4.6.1) (2024-08-13)
+
+
+### Bug Fixes
+
+* validate ziparchive before trying to read extract description ([#1523](https://github.com/informatievlaanderen/road-registry/issues/1523)) ([28707d6](https://github.com/informatievlaanderen/road-registry/commit/28707d64d287c83e2ea72d134627894ecafdbc01))
+
+# [4.6.0](https://github.com/informatievlaanderen/road-registry/compare/v4.5.0...v4.6.0) (2024-08-12)
+
+
+### Features
+
+* limit length of road segment geometry ([#1522](https://github.com/informatievlaanderen/road-registry/issues/1522)) ([4f13d7a](https://github.com/informatievlaanderen/road-registry/commit/4f13d7ac3cd7e4e03add0a3043dfe336aaa08471))
+
+# [4.5.0](https://github.com/informatievlaanderen/road-registry/compare/v4.4.0...v4.5.0) (2024-08-05)
+
+
+### Features
+
+* blacklist ovocodes ([7d2d7de](https://github.com/informatievlaanderen/road-registry/commit/7d2d7deb32df06a4fda0abe40fb928677246e6ea))
+* consume streetname events for municipality merger ([#1520](https://github.com/informatievlaanderen/road-registry/issues/1520)) ([02e213c](https://github.com/informatievlaanderen/road-registry/commit/02e213ce1e521cb3e1d8de3d8b34c3dedaf755b1))
+* GAWR-6543 add validation when trying to change an upgraded category ([0221065](https://github.com/informatievlaanderen/road-registry/commit/0221065470b7377ec96e3e96b50662b37157dcfb))
+
+# [4.4.0](https://github.com/informatievlaanderen/road-registry/compare/v4.3.0...v4.4.0) (2024-07-08)
+
+
+### Features
+
+* add integration version projections ([a542685](https://github.com/informatievlaanderen/road-registry/commit/a542685c7d9a5910a96e416e5781e37e1d8c1b0a))
+
+# [4.3.0](https://github.com/informatievlaanderen/road-registry/compare/v4.2.1...v4.3.0) (2024-07-03)
+
+
+### Bug Fixes
+
+* unit tests ([#1518](https://github.com/informatievlaanderen/road-registry/issues/1518)) ([e436fbf](https://github.com/informatievlaanderen/road-registry/commit/e436fbf0582c337b4fc089064b5a281252991567))
+
+
+### Features
+
+* add new roadsegment categories ([64d9fb9](https://github.com/informatievlaanderen/road-registry/commit/64d9fb9c8321517c85cd22157a992e779e9853d7))
+
+## [4.2.1](https://github.com/informatievlaanderen/road-registry/compare/v4.2.0...v4.2.1) (2024-07-03)
+
+
+### Bug Fixes
+
+* remove old staging env for pipelines ([#1516](https://github.com/informatievlaanderen/road-registry/issues/1516)) ([56fa27d](https://github.com/informatievlaanderen/road-registry/commit/56fa27d9af4977e82e4208e8ef6acf900431328c))
+
+# [4.2.0](https://github.com/informatievlaanderen/road-registry/compare/v4.1.7...v4.2.0) (2024-07-02)
+
+
+### Bug Fixes
+
+* always use backoffice-api for transaction zone layers ([#1515](https://github.com/informatievlaanderen/road-registry/issues/1515)) ([1c74a50](https://github.com/informatievlaanderen/road-registry/commit/1c74a50013c47c0820f08d7b112c3c0ca78a7689))
+* revert temporary logging ([#1513](https://github.com/informatievlaanderen/road-registry/issues/1513)) ([36b4839](https://github.com/informatievlaanderen/road-registry/commit/36b483967d8c60ee2c7914fd7f7c19d297e3275d))
+
+
+### Features
+
+* integration latest item projections ([220074e](https://github.com/informatievlaanderen/road-registry/commit/220074e48bb7be0607fc0de226424ea10407791a))
+
+## [4.1.7](https://github.com/informatievlaanderen/road-registry/compare/v4.1.6...v4.1.7) (2024-06-21)
+
+
+### Bug Fixes
+
+* add debug info ([#1512](https://github.com/informatievlaanderen/road-registry/issues/1512)) ([fec701e](https://github.com/informatievlaanderen/road-registry/commit/fec701e05faefe4c7b44303fd936b1628691ee64))
+
+## [4.1.6](https://github.com/informatievlaanderen/road-registry/compare/v4.1.5...v4.1.6) (2024-06-21)
+
+
+### Bug Fixes
+
+* add temporary logging ([#1511](https://github.com/informatievlaanderen/road-registry/issues/1511)) ([91f7c27](https://github.com/informatievlaanderen/road-registry/commit/91f7c27cfa6f26adedebcc0317e1c318ca7a7453))
+
+## [4.1.5](https://github.com/informatievlaanderen/road-registry/compare/v4.1.4...v4.1.5) (2024-06-20)
+
+
+### Bug Fixes
+
+* change feed mark segments as modified when number attribute changes ([1fe1120](https://github.com/informatievlaanderen/road-registry/commit/1fe11201cf75cf0f4d84e7713d499560b40dd501))
+* update roadsegment version after loading snapshot when playing road number attribute events ([399566d](https://github.com/informatievlaanderen/road-registry/commit/399566d081df3b03d79210dd49e2a45b341fd5e6))
+
+## [4.1.4](https://github.com/informatievlaanderen/road-registry/compare/v4.1.3...v4.1.4) (2024-06-19)
+
+
+### Bug Fixes
+
+* **ci:** new lambda deploy tst+stg ([35a86f2](https://github.com/informatievlaanderen/road-registry/commit/35a86f2c71a62586e48a1ae7dd0ead20913af33c))
+* GAWR-6462 bump roadsegment version when changing linked number attributes ([#1505](https://github.com/informatievlaanderen/road-registry/issues/1505)) ([018c57c](https://github.com/informatievlaanderen/road-registry/commit/018c57cfa3ecf4a43eb6bf821ffcbc2d71bcc4f3))
+
+## [4.1.3](https://github.com/informatievlaanderen/road-registry/compare/v4.1.2...v4.1.3) (2024-06-17)
+
+
+### Bug Fixes
+
+* pipeline disable integration-projectionhost push images to stg ([#1508](https://github.com/informatievlaanderen/road-registry/issues/1508)) ([ae89996](https://github.com/informatievlaanderen/road-registry/commit/ae89996824bba6a505549873fee538dcaab6f18a))
+
+## [4.1.2](https://github.com/informatievlaanderen/road-registry/compare/v4.1.1...v4.1.2) (2024-06-17)
+
+
+### Bug Fixes
+
+* version bump ([#1507](https://github.com/informatievlaanderen/road-registry/issues/1507)) ([6e54b65](https://github.com/informatievlaanderen/road-registry/commit/6e54b65eaa6a11f68839c064c9af498588ff88bd))
+
+## [4.1.1](https://github.com/informatievlaanderen/road-registry/compare/v4.1.0...v4.1.1) (2024-06-14)
+
+
+### Bug Fixes
+
+* remove query filter in integration projections ([#1504](https://github.com/informatievlaanderen/road-registry/issues/1504)) ([f2d8f9e](https://github.com/informatievlaanderen/road-registry/commit/f2d8f9efb47cfeb54fe8707d6de9166f665d6551))
+
+# [4.1.0](https://github.com/informatievlaanderen/road-registry/compare/v4.0.20...v4.1.0) (2024-06-13)
+
+
+### Features
+
+* integration db projections ([5b591e3](https://github.com/informatievlaanderen/road-registry/commit/5b591e377a12c16197041c421de691def48585b6))
+
+## [4.0.20](https://github.com/informatievlaanderen/road-registry/compare/v4.0.19...v4.0.20) (2024-05-29)
+
+
+### Bug Fixes
+
+* increase EditorContext commandtimeout ([#1496](https://github.com/informatievlaanderen/road-registry/issues/1496)) ([0e4b9d9](https://github.com/informatievlaanderen/road-registry/commit/0e4b9d9439985034ce2c6fd73ba7a00ff22a38b3))
+
+## [4.0.19](https://github.com/informatievlaanderen/road-registry/compare/v4.0.18...v4.0.19) (2024-05-23)
+
+
+### Bug Fixes
+
+* **ci:** add new staging to deploy ([f4f243c](https://github.com/informatievlaanderen/road-registry/commit/f4f243c46e243c424867a5e94aa2b67be0713506))
+
+## [4.0.18](https://github.com/informatievlaanderen/road-registry/compare/v4.0.17...v4.0.18) (2024-05-17)
+
+
+### Bug Fixes
+
+* use roadsegment id for error parameter ([#1492](https://github.com/informatievlaanderen/road-registry/issues/1492)) ([9d29cab](https://github.com/informatievlaanderen/road-registry/commit/9d29cabbdc13bff177c3864287bf2b404c3b0634))
+
+## [4.0.17](https://github.com/informatievlaanderen/road-registry/compare/v4.0.16...v4.0.17) (2024-05-15)
+
+
+### Bug Fixes
+
+* add support for "Actual" parameter name in translations ([#1491](https://github.com/informatievlaanderen/road-registry/issues/1491)) ([835a2cd](https://github.com/informatievlaanderen/road-registry/commit/835a2cd7c5041417cc94ae77829d59e974cea84e))
+* enable jobs processor deploy ([#1490](https://github.com/informatievlaanderen/road-registry/issues/1490)) ([ab323ef](https://github.com/informatievlaanderen/road-registry/commit/ab323ef03351fc644d77a31fa9f8c5cf40fab4ca))
+
+## [4.0.16](https://github.com/informatievlaanderen/road-registry/compare/v4.0.15...v4.0.16) (2024-05-14)
+
+
+### Bug Fixes
+
+* show also outlined activity in the feed ([#1489](https://github.com/informatievlaanderen/road-registry/issues/1489)) ([e4c379b](https://github.com/informatievlaanderen/road-registry/commit/e4c379b6c2e33e2d437c5dae82e7010fcf9d8cc6))
+
 ## [4.0.15](https://github.com/informatievlaanderen/road-registry/compare/v4.0.14...v4.0.15) (2024-05-08)
 
 

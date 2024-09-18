@@ -83,24 +83,9 @@ public class ModifyRoadSegmentValidatorTests : ValidatorTest<ModifyRoadSegment, 
                 instance.Type = Fixture.Create<RoadSegmentSurfaceType>();
             }).OmitAutoProperties());
         Fixture.CustomizePolylineM();
+        Fixture.CustomizeModifyRoadSegment();
 
-        Model = new ModifyRoadSegment
-        {
-            StartNodeId = Fixture.Create<RoadNodeId>(),
-            EndNodeId = Fixture.Create<RoadNodeId>(),
-            Geometry = GeometryTranslator.Translate(Fixture.Create<MultiLineString>()),
-            MaintenanceAuthority = Fixture.Create<OrganizationId>(),
-            GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
-            Morphology = Fixture.Create<RoadSegmentMorphology>(),
-            Status = Fixture.Create<RoadSegmentStatus>(),
-            Category = Fixture.Create<RoadSegmentCategory>(),
-            AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
-            LeftSideStreetNameId = Fixture.Create<int?>(),
-            RightSideStreetNameId = Fixture.Create<int?>(),
-            Lanes = Fixture.CreateMany<RequestedRoadSegmentLaneAttribute>().ToArray(),
-            Widths = Fixture.CreateMany<RequestedRoadSegmentWidthAttribute>().ToArray(),
-            Surfaces = Fixture.CreateMany<RequestedRoadSegmentSurfaceAttribute>().ToArray()
-        };
+        Model = Fixture.Create<ModifyRoadSegment>();
     }
 
     [Fact]

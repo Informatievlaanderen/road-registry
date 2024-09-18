@@ -15,6 +15,7 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.FeatureCompare.Readers;
 using System.IO.Compression;
+using FeatureCompare.Translators;
 using ZipArchiveWriters;
 using ZipArchiveWriters.Cleaning;
 using ContentType = Be.Vlaanderen.Basisregisters.BlobStore.ContentType;
@@ -35,11 +36,11 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     private readonly EditorContext _editorContext;
     private readonly IZipArchiveBeforeFeatureCompareValidator _beforeFeatureCompareValidator;
     private readonly IBeforeFeatureCompareZipArchiveCleaner _beforeFeatureCompareZipArchiveCleaner;
-    private readonly TransactionZoneFeatureCompareFeatureReader _transactionZoneFeatureReader;
+    private readonly ITransactionZoneFeatureCompareFeatureReader _transactionZoneFeatureReader;
 
     public UploadExtractRequestHandler(
         RoadNetworkUploadsBlobClient client,
-        TransactionZoneFeatureCompareFeatureReader transactionZoneFeatureReader,
+        ITransactionZoneFeatureCompareFeatureReader transactionZoneFeatureReader,
         EditorContext editorContext,
         IZipArchiveBeforeFeatureCompareValidator beforeFeatureCompareValidator,
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
@@ -82,24 +83,23 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
         try
         {
-            using (var archive = new ZipArchive(writeStream, ZipArchiveMode.Update, true))
-            {
-                CleanResult cleanResult;
-                try
-                {
-                    cleanResult = await _beforeFeatureCompareZipArchiveCleaner.CleanAsync(archive, cancellationToken);
-                }
-                catch
-                {
-                    // ignore exceptions, let the validation handle it
-                    cleanResult = CleanResult.NotApplicable;
-                }
+            using var archive = new ZipArchive(writeStream, ZipArchiveMode.Update, true);
 
-                if (cleanResult != CleanResult.Changed)
-                {
-                    readStream.Position = 0;
-                    return readStream;
-                }
+            CleanResult cleanResult;
+            try
+            {
+                cleanResult = await _beforeFeatureCompareZipArchiveCleaner.CleanAsync(archive, cancellationToken);
+            }
+            catch
+            {
+                // ignore exceptions, let the validation handle it
+                cleanResult = CleanResult.NotApplicable;
+            }
+
+            if (cleanResult != CleanResult.Changed)
+            {
+                readStream.Position = 0;
+                return readStream;
             }
         }
         catch (InvalidDataException)
@@ -113,37 +113,50 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
     private async Task ValidateAndUploadAndQueueCommand(UploadExtractRequest request, Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
     {
-        var entity = RoadNetworkChangesArchive.Upload(archiveId, readStream);
-
         try
         {
-            using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
+            using var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false);
+
+            var problems = await _beforeFeatureCompareValidator.ValidateAsync(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty), cancellationToken);
+            problems.ThrowIfError();
+
+            var transactionZone = GetTransactionZone(archive);
+
+            var entity = RoadNetworkChangesArchive.Upload(archiveId, transactionZone.Description);
+            entity.AcceptOrReject(problems, request.TicketId);
+
+            var downloadId = transactionZone.DownloadId;
+
+            var extractRequest = await _editorContext.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
+            if (extractRequest is null)
             {
-                var problems = await entity.ValidateArchiveUsing(archive, request.TicketId, _beforeFeatureCompareValidator, cancellationToken);
-                problems.ThrowIfError();
-
-                var readerContext = new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);
-                var features = _transactionZoneFeatureReader.Read(archive, FeatureType.Change, ExtractFileName.Transactiezones, readerContext).Item1;
-                var transactionZone = features.Single().Attributes;
-                var downloadId = transactionZone.DownloadId;
-
-                var extractRequest = await _editorContext.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
-                if (extractRequest is null)
-                {
-                    throw new ExtractDownloadNotFoundException(new DownloadId(downloadId));
-                }
-                if (extractRequest.IsInformative)
-                {
-                    throw new ExtractRequestMarkedInformativeException(downloadId);
-                }
-
-                await UploadAndQueueCommand(request, readStream, archiveId, metadata, cancellationToken);
+                throw new ExtractDownloadNotFoundException(new DownloadId(downloadId));
             }
+            if (extractRequest.IsInformative)
+            {
+                throw new ExtractRequestMarkedInformativeException(downloadId);
+            }
+
+            await UploadAndQueueCommand(request, readStream, archiveId, metadata, cancellationToken);
         }
         catch (InvalidDataException)
         {
             throw new UnsupportedMediaTypeException();
         }
+    }
+
+    private TransactionZoneFeatureCompareAttributes GetTransactionZone(ZipArchive archive)
+    {
+        return _transactionZoneFeatureReader
+            .Read(
+                archive,
+                FeatureType.Change,
+                ExtractFileName.Transactiezones,
+                new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty)
+            )
+            .Item1
+            .Single()
+            .Attributes;
     }
 
     private async Task UploadAndQueueCommand(UploadExtractRequest request, Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)

@@ -11,7 +11,10 @@ using Editor.Schema.RoadNetworkChanges;
 using Newtonsoft.Json;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
+using AcceptedChange = BackOffice.Messages.AcceptedChange;
 using FileProblem = BackOffice.Messages.FileProblem;
+using RoadNetworkChangeCounters = Editor.Schema.RoadNetworkChanges.RoadNetworkChangeCounters;
+using RoadNetworkChangesSummary = Editor.Schema.RoadNetworkChanges.RoadNetworkChangesSummary;
 
 public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTestServices>
 {
@@ -369,6 +372,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         var downloadId = _fixture.Create<DownloadId>();
         var archiveId = _fixture.Create<ArchiveId>();
         var filename = _fixture.Create<string>();
+        var overlapsWithDownloadIds = _fixture.CreateMany<Guid>().ToList();
+
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
             Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
             ContentType.Parse("application/zip"), Stream.Null);
@@ -382,7 +387,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 RequestId = extractRequestId,
                 DownloadId = downloadId,
                 ArchiveId = archiveId,
-                IsInformative = false
+                IsInformative = false,
+                OverlapsWithDownloadIds = overlapsWithDownloadIds
             })
             .Expect(new RoadNetworkChange
             {
@@ -391,7 +397,13 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 Type = nameof(RoadNetworkExtractDownloadBecameAvailable),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadBecameAvailableEntry
                 {
-                    Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename }
+                    Archive = new ArchiveInfo
+                    {
+                        Id = archiveId,
+                        Available = true,
+                        Filename = filename
+                    },
+                    OverlapsWithDownloadIds = overlapsWithDownloadIds
                 })
             });
     }
@@ -427,7 +439,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 Type = nameof(RoadNetworkExtractDownloadBecameAvailable),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadBecameAvailableEntry
                 {
-                    Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename }
+                    Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename },
+                    OverlapsWithDownloadIds = null
                 })
             });
     }
@@ -639,6 +652,84 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             {
                 ChangeRequestId = changeRequestId.ToBytes().ToArray(),
                 ArchiveId = archiveId
+            });
+    }
+
+    [Fact]
+    public async Task When_upload_was_accepted()
+    {
+        var description = _fixture.Create<ExtractDescription>();
+        var archiveId = _fixture.Create<ArchiveId>();
+        var changeRequestId = ChangeRequestId.FromArchiveId(archiveId);
+
+        await new RoadNetworkChangeFeedProjection(_client)
+            .Scenario()
+            .Given(new RoadNetworkChangesAccepted
+            {
+                RequestId = changeRequestId,
+                Reason = description,
+                Changes = [
+                    new AcceptedChange
+                    {
+                        RoadSegmentAdded = new RoadSegmentAdded
+                        {
+                            Id = 1
+                        }
+                    },
+                    new AcceptedChange
+                    {
+                        RoadSegmentAddedToEuropeanRoad = new RoadSegmentAddedToEuropeanRoad
+                        {
+                            SegmentId = 1,
+                            Number = "E40"
+                        }
+                    },
+                    new AcceptedChange
+                    {
+                        RoadSegmentAddedToEuropeanRoad = new RoadSegmentAddedToEuropeanRoad
+                        {
+                            SegmentId = 2,
+                            Number = "E40"
+                        }
+                    }
+                ]
+            })
+            .Expect(new RoadNetworkChange
+            {
+                Id = 0,
+                Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": aanvaard",
+                Type = "RoadNetworkChangesAccepted:v2",
+                Content = JsonConvert.SerializeObject(new RoadNetworkChangesBasedOnArchiveAcceptedEntry
+                {
+                    Archive = new ArchiveInfo(),
+                    Summary = new RoadNetworkChangesSummary
+                    {
+                        RoadNodes = new RoadNetworkChangeCounters(),
+                        RoadSegments = new RoadNetworkChangeCounters
+                        {
+                            Added = 1,
+                            Modified = 1
+                        },
+                        GradeSeparatedJunctions = new RoadNetworkChangeCounters()
+                    },
+                    Changes = [
+                        new Editor.Schema.RoadNetworkChanges.AcceptedChange
+                        {
+                            Change = "Wegsegment 0 toegevoegd met id 1.",
+                            Problems = []
+                        },
+                        new Editor.Schema.RoadNetworkChanges.AcceptedChange
+                        {
+                            Change = "Wegsegment 1 toegevoegd aan europese weg E40.",
+                            Problems = []
+                        },
+                        new Editor.Schema.RoadNetworkChanges.AcceptedChange
+                        {
+                            Change = "Wegsegment 2 toegevoegd aan europese weg E40.",
+                            Problems = []
+                        }
+                    ]
+                })
             });
     }
 }

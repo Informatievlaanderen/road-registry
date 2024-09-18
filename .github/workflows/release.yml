@@ -199,6 +199,21 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
     secrets: inherit
+  
+  build-projectionhost-integration:
+      name: Build Integration Projection Host
+      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+      needs: [ set-release-version ]
+      if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
+      with:
+        registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+        image-file: rr-integration-projectionhost-image.tar
+        image-name: integration-projectionhost
+        test-project: RoadRegistry.Integration.ProjectionHost.Tests
+        build-project: RoadRegistry.Integration.ProjectionHost
+        semver: ${{ needs.set-release-version.outputs.version }}
+        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+      secrets: inherit
 
   build-projectionhost-product:
     name: Build Product Projection Host
@@ -401,6 +416,7 @@ jobs:
       build-backoffice-ui,
       build-projector,
       build-projectionhost-editor,
+      build-projectionhost-integration,
       build-projectionhost-product,
       build-projectionhost-producersnapshot,
       build-synchost,
@@ -550,42 +566,21 @@ jobs:
         name: lambda-snapshot-${{ needs.release.outputs.version }}
         path: ~/snapshot/
 
-    - name: Configure AWS credentials (Test)
+    - name: Configure AWS credentials (DevOps)
       uses: aws-actions/configure-aws-credentials@v4.0.2
       with:
         aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
         aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
         aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
 
-    - name: Login to Amazon ECR (Test)
-      uses: aws-actions/amazon-ecr-login@v2
-
-    - name: Push Lambda functions to S3 (Test)
+    - name: Push Lambda functions to S3 DevOps
       shell: bash
       run: |
-        aws s3 cp ~/backoffice/lambda.zip s3://s3-vbr-tst-basisregisters-lam-rr-sqsbackofficefunction/$SEMVER/lambda.zip
-        aws s3 cp ~/snapshot/lambda.zip s3://s3-vbr-tst-basisregisters-lam-rr-sqssnapshotfunction/$SEMVER/lambda.zip
+        echo Push Lambda functions to S3 DevOps
+        aws s3 cp ~/backoffice/lambda.zip s3://s3-vbr-lam-rr-sqsbackofficefunction-362233117987/$SEMVER/lambda.zip
+        aws s3 cp ~/snapshot/lambda.zip s3://s3-vbr-lam-rr-sqssnapshotfunction-362233117987/$SEMVER/lambda.zip
       env:
         SEMVER: ${{ needs.release.outputs.version }}
-
-    - name: Configure AWS credentials (Staging)
-      uses: aws-actions/configure-aws-credentials@v4.0.2
-      with:
-        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.VBR_AWS_REGION }}
-
-    - name: Login to Amazon ECR (Staging)
-      uses: aws-actions/amazon-ecr-login@v2
-
-    - name: Push Lambda functions to S3 (Staging)
-      shell: bash
-      run: |
-        aws s3 cp ~/backoffice/lambda.zip s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
-        aws s3 cp ~/snapshot/lambda.zip s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
-      env:
-        SEMVER: ${{ needs.release.outputs.version }}
-        ENVIRONMENT: stg
 
     - name: Configure AWS credentials (Production)
       uses: aws-actions/configure-aws-credentials@v4.0.2
@@ -743,9 +738,10 @@ jobs:
           'backoffice-eventhost', 
           'backoffice-extracthost', 
           'backoffice-ui', 
-          'editor-projectionhost', 
+          'editor-projectionhost',
+          'integration-projectionhost',
           'producer-snapshot-projectionhost',
-          'product-projectionhost', 
+          'product-projectionhost',
           'projector', 
           'synchost',
           'syndication-projectionhost', 
@@ -812,7 +808,7 @@ jobs:
           'road-syndication-projectionhost',
           'road-wfs-projectionhost',
           'road-wms-projectionhost'
-        ]
+         ]
 
     steps:
     - name: CD services
@@ -849,7 +845,7 @@ jobs:
          services: [
           'road-adminhost',
           'road-jobs-processor'
-        ]
+         ]
 
     steps:
     - name: CD services
@@ -889,31 +885,21 @@ jobs:
         aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
         aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
         aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-
-    - name: Prepare Lambda(s)
-      shell: bash
-      run: |
-        aws s3 cp $S3_BASEURL-$FUNCTION_BACKOFFICE/$VERSION/lambda.zip $S3_BASEURL-$FUNCTION_BACKOFFICE/lambda.zip --copy-props none
-        aws s3 cp $S3_BASEURL-$FUNCTION_SNAPSHOT/$VERSION/lambda.zip $S3_BASEURL-$FUNCTION_SNAPSHOT/lambda.zip --copy-props none
-      env:
-        VERSION: ${{ needs.release.outputs.version }}
-        S3_BASEURL: s3://s3-vbr-tst-basisregisters-lam
-        FUNCTION_BACKOFFICE: rr-sqsbackofficefunction
-        FUNCTION_SNAPSHOT: rr-sqssnapshotfunction
         
     - name: Promote Lambda(s)
       shell: bash
       run: |
         docker pull ghcr.io/okigan/awscurl:latest
         
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "'$FUNCTION_BACKOFFICE'", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "'$FUNCTION_SNAPSHOT'", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "deploy_target": "lambda", "version": "'$SEMVER'" }' $PROMOTEURL/$FUNCTION_BACKOFFICE/$ENVIRONMENT/deploy/v4/
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "deploy_target": "lambda", "version": "'$SEMVER'" }' $PROMOTEURL/$FUNCTION_SNAPSHOT/$ENVIRONMENT/deploy/v4/
       env:
         ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
         SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
         ENVIRONMENT: tst
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
-        PROMOTEURL: ${{ vars.VBR_AWS_PROMOTE_LAMBDA_DEVOPS_BASEURL }}
+        PROMOTEURL: ${{ vars.VBR_AWS_DEPLOY_LAMBDA_DEVOPS_BASEURL }}
+        SEMVER: ${{ needs.release.outputs.version }}
         FUNCTION_BACKOFFICE: rr-sqsbackofficefunction
         FUNCTION_SNAPSHOT: rr-sqssnapshotfunction
 
@@ -941,7 +927,7 @@ jobs:
 
   deploy_to_test_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ release, deploy_lambda_to_test, push_images_to_staging ]
+    needs: [ release, deploy_lambda_to_test ]
     name: Deploy to test finished
     runs-on: ubuntu-latest
 
@@ -959,69 +945,6 @@ jobs:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
         REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
-        
-  push_images_to_staging:
-    if: needs.release.outputs.version != 'none'
-    needs: [ release ]
-    name: Push images to Staging
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        image: [
-          'backoffice-api',
-          'backoffice-ui',
-          'backoffice-eventhost',
-          'backoffice-extracthost',
-          'backoffice-commandhost',
-          'adminhost',
-          #'jobs-processor',
-          'projector',
-          'editor-projectionhost',
-          'product-projectionhost',
-          'producer-snapshot-projectionhost',
-          'synchost',
-          'syndication-projectionhost',
-          'wms-projectionhost',
-          'wfs-projectionhost'
-        ]
-    steps:
-      - name: Configure AWS credentials (Staging)
-        uses: aws-actions/configure-aws-credentials@v4.0.2
-        with:
-          aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-
-      - name: Login to Amazon ECR (Staging)
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        continue-on-error: false
-        with:
-          name: ${{ matrix.image }}-${{ needs.release.outputs.version }}
-          path: ~/
-
-      - name: Load artifact
-        shell: bash
-        run: |
-          echo rr-$IMAGE-image.tar
-          docker image load -i ~/rr-$IMAGE-image.tar
-        env:
-          IMAGE: ${{ matrix.image }}
-
-      - name: Push artifacts to ECR (Staging)
-        shell: bash
-        run: |
-          echo $IMAGE:$SEMVER
-          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/$IMAGE:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
-          docker push $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
-        env:
-          BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_DEVOPS_DOCKER_REGISTRY }}
-          BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY }}
-          IMAGE: ${{ matrix.image }}
-          SEMVER: ${{ needs.release.outputs.version }}
-          WORKSPACE: ${{ github.workspace }}
 
   build_notify_skipped:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version == 'none') }}

@@ -39,7 +39,13 @@ public class RoadSegmentCategoryTests
                 RoadSegmentCategory.SecondaryRoadType1,
                 RoadSegmentCategory.SecondaryRoadType2,
                 RoadSegmentCategory.SecondaryRoadType3,
-                RoadSegmentCategory.SecondaryRoadType4
+                RoadSegmentCategory.SecondaryRoadType4,
+                RoadSegmentCategory.EuropeanMainRoad,
+                RoadSegmentCategory.FlemishMainRoad,
+                RoadSegmentCategory.RegionalRoad,
+                RoadSegmentCategory.InterLocalRoad,
+                RoadSegmentCategory.LocalAccessRoad,
+                RoadSegmentCategory.LocalHeritageAccessRoad
             },
             RoadSegmentCategory.All);
     }
@@ -335,6 +341,28 @@ public class RoadSegmentCategoryTests
     public void UnknownTranslationReturnsExpectedResult()
     {
         Assert.Equal("-8", RoadSegmentCategory.Unknown.Translation.Identifier);
+    }
+
+    [Fact]
+    public void IsUpgraded()
+    {
+        var upgraded = new[]
+        {
+            RoadSegmentCategory.EuropeanMainRoad,
+            RoadSegmentCategory.FlemishMainRoad,
+            RoadSegmentCategory.RegionalRoad,
+            RoadSegmentCategory.InterLocalRoad,
+            RoadSegmentCategory.LocalAccessRoad,
+            RoadSegmentCategory.LocalHeritageAccessRoad
+        };
+
+        foreach (var category in RoadSegmentCategory.All)
+        {
+            var isUpgraded = RoadSegmentCategory.IsUpgraded(category);
+            var expected = upgraded.Contains(category);
+
+            Assert.Equal(expected, isUpgraded);
+        }
     }
 
     [Fact]

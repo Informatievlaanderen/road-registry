@@ -10,6 +10,9 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatu
     using System.IO.Compression;
     using Exceptions;
     using FeatureCompare;
+    using FeatureCompare.Readers;
+    using FeatureCompare.Translators;
+    using Microsoft.Extensions.Logging.Abstractions;
     using Uploads;
     using Xunit.Abstractions;
 
@@ -29,8 +32,15 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatu
             var path = @"d7d82ea7f37d4e1db45d313cae4b7600.zip";
 
             var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create();
-            var translator = ZipArchiveFeatureCompareTranslatorFactory.Create();
 
+            var translator = ZipArchiveFeatureCompareTranslatorFactory.Create();            
+            /*
+            var translator = ZipArchiveFeatureCompareTranslator.Create([
+                new RoadNodeFeatureCompareTranslator(new RoadNodeFeatureCompareFeatureReader(FileEncoding.UTF8)),
+                new RoadSegmentFeatureCompareTranslator(new RoadSegmentFeatureCompareFeatureReader(FileEncoding.UTF8), new FakeOrganizationCache(), new FakeStreetNameCache()),
+                new GradeSeparatedJunctionFeatureCompareTranslator(new GradeSeparatedJunctionFeatureCompareFeatureReader(FileEncoding.UTF8)),
+            ], new NullLogger<ZipArchiveFeatureCompareTranslator>());
+            */
             try
             {
                 using (var fileStream = File.OpenRead(path))

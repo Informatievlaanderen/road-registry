@@ -73,13 +73,23 @@
           </div>
           <div class="vl-form-col--12-12">
             <label>
-              <input v-model="municipalityFlow.isInformative" type="radio" :value="false" />
+              <input
+                v-model="municipalityFlow.isInformative"
+                type="radio"
+                :value="false"
+                @input="municipalityFlowUserSelectedIsInformative(false)"
+              />
               Ja, ik wens een oplading uit te voeren
             </label>
           </div>
           <div class="vl-form-col--12-12">
             <label>
-              <input v-model="municipalityFlow.isInformative" type="radio" :value="true" />
+              <input
+                v-model="municipalityFlow.isInformative"
+                type="radio"
+                :value="true"
+                @input="municipalityFlowUserSelectedIsInformative(true)"
+              />
               Nee, ik vraag een informatief extract aan
             </label>
           </div>
@@ -96,6 +106,31 @@
               v-model="municipalityFlow.description"
               mod-block
             ></vl-textarea>
+            <div v-if="!isDescriptionValid(municipalityFlow.description)">
+              <vl-alert mod-warning mod-small>
+                Gelieve een beschrijving mee te geven van minimaal 5 en maximaal 250 karakters.
+              </vl-alert>
+            </div>
+          </div>
+
+          <div class="vl-form-col--12-12" v-if="municipalityFlow.overlapWarning">
+            <vl-alert mod-warning mod-small>
+              De contour voor deze extractaanvraag overlapt met de contour van een andere, open extractaanvraag.
+              <p>
+                <label class="vl-checkbox" for="municipality-overlap-warning">
+                  <input
+                    class="vl-checkbox__toggle"
+                    type="checkbox"
+                    id="municipality-overlap-warning"
+                    v-model="municipalityFlow.overlapWarningAccepted"
+                  />
+                  <span class="vl-checkbox__label">
+                    <i class="vl-checkbox__box" aria-hidden="true"></i>
+                    Ik wens toch het extract aan te vragen
+                  </span>
+                </label>
+              </p>
+            </vl-alert>
           </div>
           <div class="vl-form-col--12-12">
             <vl-action-group>
@@ -103,7 +138,11 @@
               <vl-button
                 @click="submitMunicipalityRequest"
                 :mod-disabled="
-                  isSubmitting || !isDescriptionValid(municipalityFlow.description) || !municipalityFlowHasIsInformative
+                  isSubmitting ||
+                  !isDescriptionValid(municipalityFlow.description) ||
+                  !municipalityFlowHasIsInformative ||
+                  isCheckingOverlap ||
+                  (municipalityFlow.overlapWarning && !municipalityFlow.overlapWarningAccepted)
                 "
               >
                 Extract aanvragen
@@ -111,14 +150,6 @@
             </vl-action-group>
           </div>
           <div class="vl-form-col--12-12">
-            <vl-alert
-              v-if="!isDescriptionValid(municipalityFlow.description)"
-              mod-warning
-              title="Validatie fouten"
-              mod-small
-            >
-              Gelieve een beschrijving mee te geven van minimaal 5 en maximaal 250 karakters.
-            </vl-alert>
             <vl-alert v-if="municipalityFlow.hasGenericError" mod-error mod-small>
               <p>Er is een onverwachte fout opgetreden.</p>
             </vl-alert>
@@ -223,13 +254,23 @@
           </div>
           <div class="vl-form-col--12-12">
             <label>
-              <input v-model="contourFlow.isInformative" type="radio" :value="false" />
+              <input
+                v-model="contourFlow.isInformative"
+                type="radio"
+                :value="false"
+                @input="contourFlowUserSelectedIsInformative(false)"
+              />
               Ja, ik wens een oplading uit te voeren
             </label>
           </div>
           <div class="vl-form-col--12-12">
             <label>
-              <input v-model="contourFlow.isInformative" type="radio" :value="true" />
+              <input
+                v-model="contourFlow.isInformative"
+                type="radio"
+                :value="true"
+                @input="contourFlowUserSelectedIsInformative(true)"
+              />
               Nee, ik vraag een informatief extract aan
             </label>
           </div>
@@ -239,14 +280,38 @@
             </label>
           </div>
           <div class="vl-form-col--12-12">
-            <textarea
-              class="vl-textarea"
+            <vl-textarea
               id="contour-description"
               cols="200"
               rows="4"
               v-model="contourFlow.description"
               mod-block
-            ></textarea>
+            ></vl-textarea>
+            <div v-if="!isDescriptionValid(contourFlow.description)">
+              <vl-alert mod-warning mod-small>
+                Gelieve een beschrijving mee te geven van minimaal 5 en maximaal 250 karakters.
+              </vl-alert>
+            </div>
+          </div>
+
+          <div class="vl-form-col--12-12" v-if="contourFlow.overlapWarning">
+            <vl-alert mod-warning mod-small>
+              De contour voor deze extractaanvraag overlapt met de contour van een andere, open extractaanvraag.
+              <p>
+                <label class="vl-checkbox" for="contour-overlap-warning">
+                  <input
+                    class="vl-checkbox__toggle"
+                    type="checkbox"
+                    id="contour-overlap-warning"
+                    v-model="contourFlow.overlapWarningAccepted"
+                  />
+                  <span class="vl-checkbox__label">
+                    <i class="vl-checkbox__box" aria-hidden="true"></i>
+                    Ik wens toch het extract aan te vragen
+                  </span>
+                </label>
+              </p>
+            </vl-alert>
           </div>
           <div class="vl-form-col--12-12">
             <vl-action-group>
@@ -254,7 +319,11 @@
               <vl-button
                 @click="submitContourRequest"
                 :mod-disabled="
-                  isSubmitting || !isDescriptionValid(contourFlow.description) || !contourFlowHasIsInformative
+                  isSubmitting ||
+                  !isDescriptionValid(contourFlow.description) ||
+                  !contourFlowHasIsInformative ||
+                  isCheckingOverlap ||
+                  (contourFlow.overlapWarning && !contourFlow.overlapWarningAccepted)
                 "
               >
                 Extract aanvragen
@@ -264,14 +333,6 @@
 
           <div class="vl-form-col--8-12"></div>
           <div class="vl-form-col--6-12">
-            <vl-alert
-              v-if="!isDescriptionValid(contourFlow.description)"
-              mod-warning
-              title="Validatie fouten"
-              mod-small
-            >
-              Gelieve een beschrijving mee te geven van minimaal 5 en maximaal 250 karakters.
-            </vl-alert>
             <vl-alert v-if="contourFlow.hasGenericError" mod-error mod-small>
               <p>Er is een onverwachte fout opgetreden.</p>
             </vl-alert>
@@ -298,6 +359,7 @@ import ValidationUtils from "@/core/utils/validation-utils";
 import Municipalities from "../../../types/municipalities";
 import RoadRegistry from "../../../types/road-registry";
 import RoadRegistryExceptions from "../../../types/road-registry-exceptions";
+import { featureToggles, WR_ENV } from "@/environment";
 
 import Vue from "vue";
 import { debounce } from "lodash";
@@ -324,6 +386,8 @@ export default Vue.extend({
         description: "",
         hasGenericError: false,
         isInformative: null as Boolean | null,
+        overlapWarning: false,
+        overlapWarningAccepted: false,
       },
       contourFlow: {
         contourTypes,
@@ -339,6 +403,8 @@ export default Vue.extend({
         validationErrors: {} as RoadRegistry.PerContourValidationErrors,
         hasGenericError: false,
         isInformative: null as Boolean | null,
+        overlapWarning: false,
+        overlapWarningAccepted: false,
       },
       validation: {
         description: {
@@ -346,6 +412,7 @@ export default Vue.extend({
           maxLength: 250,
         },
       },
+      isCheckingOverlap: false as Boolean,
       isCheckingWkt: false as Boolean,
       isUploading: false as Boolean,
       isSubmitting: false as Boolean,
@@ -468,19 +535,41 @@ export default Vue.extend({
     this.debouncedCheckIfContourWktIsValid = debounce(this.checkIfContourWktIsValid, 500, { trailing: true });
   },
   async mounted() {
-    // fetch paginated data
-    this.municipalities = await PublicApi.Municipalities.getAll();
+    try {
+      // fetch paginated data
+      this.municipalities = await PublicApi.Municipalities.getAll();
 
-    // sort
-    this.municipalities = this.municipalities.sort((m1, m2) => {
-      if (m1.gemeentenaam.geografischeNaam.spelling > m2.gemeentenaam.geografischeNaam.spelling) {
-        return 1;
+      // sort
+      this.municipalities = this.municipalities.sort((m1, m2) => {
+        if (m1.gemeentenaam.geografischeNaam.spelling > m2.gemeentenaam.geografischeNaam.spelling) {
+          return 1;
+        }
+        if (m1.gemeentenaam.geografischeNaam.spelling < m2.gemeentenaam.geografischeNaam.spelling) {
+          return -1;
+        }
+        return 0;
+      });
+    } catch (err) {
+      if (WR_ENV === "development") {
+        console.error(err);
+
+        this.municipalities = [
+          {
+            identificator: { id: "", naamruimte: "", objectId: "11001", versieId: "" },
+            detail: "",
+            gemeentenaam: {
+              geografischeNaam: {
+                spelling: "11001 (failed to load municipalities)",
+                taal: Municipalities.Taal.Nl,
+              },
+            },
+            gemeenteStatus: Municipalities.GemeenteStatus.InGebruik,
+          },
+        ];
+      } else {
+        throw err;
       }
-      if (m1.gemeentenaam.geografischeNaam.spelling < m2.gemeentenaam.geografischeNaam.spelling) {
-        return -1;
-      }
-      return 0;
-    });
+    }
   },
   methods: {
     async approveStep2() {
@@ -494,6 +583,37 @@ export default Vue.extend({
     contourTypeChanged(value: string) {
       this.contourFlow.contourType = value;
     },
+    getBufferAsNumber(): number {
+      return this.municipalityFlow.buffer ? 100 : 0;
+    },
+    async municipalityFlowUserSelectedIsInformative(isInformative: boolean) {
+      if (!featureToggles.useOverlapCheck) {
+        return;
+      }
+
+      if (isInformative) {
+        this.municipalityFlow.overlapWarning = false;
+        this.municipalityFlow.overlapWarningAccepted = false;
+        return;
+      }
+
+      if (this.municipalityFlow.overlapWarning) {
+        return;
+      }
+
+      this.isCheckingOverlap = true;
+
+      try {
+        let response = await PublicApi.Extracts.getOverlappingExtractRequestsByNisCode(
+          this.municipalityFlow.nisCode,
+          this.getBufferAsNumber()
+        );
+
+        this.municipalityFlow.overlapWarning = response.downloadIds.length > 0;
+      } finally {
+        this.isCheckingOverlap = false;
+      }
+    },
     async submitMunicipalityRequest() {
       this.isSubmitting = true;
       try {
@@ -504,7 +624,7 @@ export default Vue.extend({
         }
 
         const requestData: RoadRegistry.DownloadExtractByNisCodeRequest = {
-          buffer: this.municipalityFlow.buffer ? 100 : 0,
+          buffer: this.getBufferAsNumber(),
           nisCode: this.municipalityFlow.nisCode,
           description: this.municipalityFlow.description,
           isInformative: this.municipalityFlow.isInformative as Boolean,
@@ -607,11 +727,36 @@ export default Vue.extend({
       this.isCheckingWkt = true;
       this.debouncedCheckIfContourWktIsValid();
     },
+    async contourFlowUserSelectedIsInformative(isInformative: boolean) {
+      if (!featureToggles.useOverlapCheck) {
+        return;
+      }
+
+      if (isInformative) {
+        this.contourFlow.overlapWarning = false;
+        this.contourFlow.overlapWarningAccepted = false;
+        return;
+      }
+
+      if (this.contourFlow.overlapWarning) {
+        return;
+      }
+
+      this.isCheckingOverlap = true;
+      try {
+        let response = await PublicApi.Extracts.getOverlappingExtractRequestsByContour(this.contourFlow.wkt);
+        this.contourFlow.overlapWarning = response.downloadIds.length > 0;
+      } finally {
+        this.isCheckingOverlap = false;
+      }
+    },
     resetContourFlow() {
       this.contourFlow.wktIsValid = false;
       this.contourFlow.wktIsLargerThanMaximumArea = false;
       this.contourFlow.area = 0;
       this.contourFlow.areaMaximumSquareKilometers = 0;
+      this.contourFlow.overlapWarning = false;
+      this.contourFlow.overlapWarningAccepted = false;
     },
     async checkIfContourWktIsValid(): Promise<RoadRegistry.ValidateWktResponse | void> {
       if (!this.contourFlow.wkt) {

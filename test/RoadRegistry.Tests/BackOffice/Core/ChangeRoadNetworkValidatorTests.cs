@@ -94,60 +94,10 @@ public class ChangeRoadNetworkValidatorTests : ValidatorTest<ChangeRoadNetwork, 
                 instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
                 instance.Type = Fixture.Create<RoadSegmentSurfaceType>();
             }).OmitAutoProperties());
-        Fixture.Customize<AddRoadNode>(composer =>
-            composer.FromFactory(random =>
-                new AddRoadNode
-                {
-                    TemporaryId = Fixture.Create<RoadNodeId>(),
-                    Type = Fixture.Create<RoadNodeType>(),
-                    Geometry = Fixture.Create<RoadNodeGeometry>()
-                }
-            ));
-        Fixture.Customize<ModifyRoadNode>(
-            composer =>
-                composer.FromFactory(random =>
-                    new ModifyRoadNode
-                    {
-                        Id = Fixture.Create<RoadNodeId>(),
-                        Type = Fixture.Create<RoadNodeType>(),
-                        Geometry = Fixture.Create<RoadNodeGeometry>()
-                    }
-                )
-        );
-        Fixture.Customize<AddRoadSegment>(
-            composer =>
-                composer.FromFactory(random =>
-                    new AddRoadSegment
-                    {
-                        TemporaryId = Fixture.Create<RoadSegmentId>(),
-                        StartNodeId = Fixture.Create<RoadNodeId>(),
-                        EndNodeId = Fixture.Create<RoadNodeId>(),
-                        Geometry = GeometryTranslator.Translate(Fixture.Create<MultiLineString>()),
-                        MaintenanceAuthority = Fixture.Create<string>(),
-                        GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
-                        Morphology = Fixture.Create<RoadSegmentMorphology>(),
-                        Status = Fixture.Create<RoadSegmentStatus>(),
-                        Category = Fixture.Create<RoadSegmentCategory>(),
-                        AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
-                        LeftSideStreetNameId = Fixture.Create<int?>(),
-                        RightSideStreetNameId = Fixture.Create<int?>(),
-                        Lanes = Fixture.CreateMany<RequestedRoadSegmentLaneAttribute>().ToArray(),
-                        Widths = Fixture.CreateMany<RequestedRoadSegmentWidthAttribute>().ToArray(),
-                        Surfaces = Fixture.CreateMany<RequestedRoadSegmentSurfaceAttribute>().ToArray()
-                    }).OmitAutoProperties()
-        );
-        Fixture.Customize<AddGradeSeparatedJunction>(
-            composer =>
-                composer.FromFactory(random =>
-                    new AddGradeSeparatedJunction
-                    {
-                        TemporaryId = Fixture.Create<GradeSeparatedJunctionId>(),
-                        UpperSegmentId = Fixture.Create<RoadSegmentId>(),
-                        LowerSegmentId = Fixture.Create<RoadSegmentId>(),
-                        Type = Fixture.Create<GradeSeparatedJunctionType>()
-                    }
-                ).OmitAutoProperties()
-        );
+        Fixture.CustomizeAddRoadNode();
+        Fixture.CustomizeModifyRoadNode();
+        Fixture.CustomizeAddRoadSegment();
+        Fixture.CustomizeAddGradeSeparatedJunction();
         Fixture.Customize<RequestedRoadSegmentLaneAttribute>(
             composer =>
                 composer.FromFactory(random =>
@@ -210,40 +160,9 @@ public class ChangeRoadNetworkValidatorTests : ValidatorTest<ChangeRoadNetwork, 
                     }
                 ).OmitAutoProperties()
         );
-        Fixture.Customize<AddRoadSegmentToEuropeanRoad>(
-            composer =>
-                composer.FromFactory(random =>
-                    new AddRoadSegmentToEuropeanRoad
-                    {
-                        TemporaryAttributeId = Fixture.Create<int>(),
-                        SegmentId = Fixture.Create<RoadSegmentId>(),
-                        Number = Fixture.Create<EuropeanRoadNumber>()
-                    }
-                ).OmitAutoProperties()
-        );
-        Fixture.Customize<AddRoadSegmentToNationalRoad>(
-            composer =>
-                composer.FromFactory(random =>
-                    new AddRoadSegmentToNationalRoad
-                    {
-                        TemporaryAttributeId = Fixture.Create<int>(),
-                        SegmentId = Fixture.Create<RoadSegmentId>(),
-                        Number = Fixture.Create<NationalRoadNumber>()
-                    }
-                ).OmitAutoProperties()
-        );
-        Fixture.Customize<AddRoadSegmentToNumberedRoad>(
-            composer =>
-                composer.FromFactory(random =>
-                    new AddRoadSegmentToNumberedRoad
-                    {
-                        TemporaryAttributeId = Fixture.Create<int>(),
-                        SegmentId = Fixture.Create<RoadSegmentId>(),
-                        Number = Fixture.Create<NumberedRoadNumber>(),
-                        Direction = RoadSegmentNumberedRoadDirection.Unknown
-                    }
-                ).OmitAutoProperties()
-        );
+        Fixture.CustomizeAddRoadSegmentToEuropeanRoad();
+        Fixture.CustomizeAddRoadSegmentToNationalRoad();
+        Fixture.CustomizeAddRoadSegmentToNumberedRoad();
 
         Model = new ChangeRoadNetwork
         {

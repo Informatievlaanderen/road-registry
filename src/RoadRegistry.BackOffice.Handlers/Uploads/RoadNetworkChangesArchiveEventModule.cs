@@ -25,7 +25,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
         RoadNetworkUploadsBlobClient client,
         IStreamStore store,
         ApplicationMetadata applicationMetadata,
-        TransactionZoneFeatureCompareFeatureReader transactionZoneFeatureReader,
+        ITransactionZoneFeatureCompareFeatureReader transactionZoneFeatureReader,
         IRoadNetworkEventWriter roadNetworkEventWriter,
         IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
         ILogger<RoadNetworkChangesArchiveEventModule> logger)
@@ -91,7 +91,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                         var readerContext = new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);
                         var transactionZoneFeatures = transactionZoneFeatureReader.Read(archive, FeatureType.Change, ExtractFileName.Transactiezones, readerContext).Item1;
                         var downloadId = transactionZoneFeatures.Single().Attributes.DownloadId;
-                        
+
                         var command = new Command(new ChangeRoadNetwork
                             {
                                 RequestId = requestId,
@@ -103,7 +103,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                                 TicketId = message.Body.TicketId
                             })
                             .WithMessageId(message.MessageId);
-                        
+
                         await queue.WriteAsync(command, ct);
                     }
                 }

@@ -58,6 +58,12 @@ using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
 using SystemHealthCheck;
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using FeatureCompare.Readers;
 using ZipArchiveWriters.Cleaning;
 using DomainAssemblyMarker = BackOffice.Handlers.Sqs.DomainAssemblyMarker;
 using MediatorModule = Snapshot.Handlers.MediatorModule;
@@ -216,8 +222,14 @@ public class Startup
                     },
                     Authorization = options =>
                     {
+                        var blacklistedOvoCodes =  _configuration
+                            .GetSection("BlacklistedOvoCodes")
+                            .GetChildren()
+                            .Select(c => c.Value!)
+                            .ToArray();
+
                         options
-                            .AddAcmIdmAuthorization()
+                            .AddRoadPolicies(blacklistedOvoCodes)
                             .AddAcmIdmPolicyVoInfo()
                             ;
                     }
@@ -260,6 +272,7 @@ public class Startup
                         sp.GetService<ILifetimeScope>(),
                         sp.GetService<IRoadNetworkSnapshotReader>(),
                         sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
+                        sp.GetService<ITransactionZoneFeatureCompareFeatureReader>(),
                         sp.GetService<IClock>(),
                         sp.GetService<ILoggerFactory>()
                     ),

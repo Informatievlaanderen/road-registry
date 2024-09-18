@@ -23,12 +23,16 @@ public partial class ExtractsController
     [SwaggerOperation(OperationId = nameof(RequestDownload), Description = "")]
     public async Task<IActionResult> RequestDownload([FromBody] DownloadExtractRequestBody body, CancellationToken cancellationToken)
     {
-        var request = new DownloadExtractRequest(body.RequestId, body.Contour, body.IsInformative);
+        var isInformative = body.IsInformative ??
+                            body.RequestId?.StartsWith("INF_")
+                            ?? false;
+
+        var request = new DownloadExtractRequest(body.RequestId, body.Contour, isInformative);
         var response = await _mediator.Send(request, cancellationToken);
         return Accepted(new DownloadExtractResponseBody(response.DownloadId, response.IsInformative));
     }
 }
 
-public record DownloadExtractRequestBody(string Contour, string RequestId, bool IsInformative);
+public record DownloadExtractRequestBody(string Contour, string RequestId, bool? IsInformative);
 
 public record DownloadExtractResponseBody(string DownloadId, bool IsInformative);

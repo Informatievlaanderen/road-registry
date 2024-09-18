@@ -22,7 +22,6 @@ namespace RoadRegistry.BackOffice
                 new AttributesTableConverter(),
                 new GeometryConverter(factory, 2),
                 new EnvelopeConverter(),
-
                 new GeoJSON.Net.Converters.GeoJsonConverter()
             ];
         }

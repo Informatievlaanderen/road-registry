@@ -10,6 +10,7 @@ using Exceptions;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 using Requests;
 using TicketingService.Abstractions;
 using ModifyRoadSegmentGeometry = BackOffice.Uploads.ModifyRoadSegmentGeometry;
@@ -51,24 +52,31 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
             var problems = Problems.None;
 
             var roadSegment = network.FindRoadSegment(roadSegmentId);
-            if (roadSegment == null || roadSegment.AttributeHash.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined)
+            if (roadSegment is null || roadSegment.AttributeHash.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined)
             {
-                if (roadSegment == null)
+                if (roadSegment is null)
                 {
                     problems = problems.Add(new RoadSegmentOutlinedNotFound());
                     throw new RoadRegistryProblemsException(problems);
                 }
+
                 throw new RoadSegmentOutlinedNotFoundException();
             }
 
             var recordNumber = RecordNumber.Initial;
 
             var geometry = GeometryTranslator.Translate(request.Request.Geometry);
+            problems += geometry.GetSingleLineString().GetProblemsForRoadSegmentOutlinedGeometry(roadSegmentId, VerificationContextTolerances.Default);
+            if (problems.Any())
+            {
+                throw new RoadRegistryProblemsException(problems);
+            }
+
             var fromPosition = RoadSegmentPosition.Zero;
             var toPosition = RoadSegmentPosition.FromDouble(geometry.Length);
 
             var attributeIdProvider = new NextAttributeIdProvider(AttributeId.Initial);
-            
+
             var lanes = roadSegment.Lanes
                 .Select(lane => new RoadSegmentLaneAttribute(attributeIdProvider.Next(), lane.Count, lane.Direction, fromPosition, toPosition))
                 .ToList();

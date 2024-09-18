@@ -117,6 +117,27 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
                         await ModifyRoadSegment(manager, encoding, context, roadSegmentModified, envelope, token);
                         break;
 
+                    case RoadSegmentAddedToEuropeanRoad change:
+                        await AddRoadSegmentToEuropeanRoad(manager, encoding, context, change, envelope, token);
+                        break;
+                    case RoadSegmentRemovedFromEuropeanRoad change:
+                        await RemoveRoadSegmentFromEuropeanRoad(manager, encoding, context, change, envelope, token);
+                        break;
+
+                    case RoadSegmentAddedToNationalRoad change:
+                        await AddRoadSegmentToNationalRoad(manager, encoding, context, change, envelope, token);
+                        break;
+                    case RoadSegmentRemovedFromNationalRoad change:
+                        await RemoveRoadSegmentFromNationalRoad(manager, encoding, context, change, envelope, token);
+                        break;
+
+                    case RoadSegmentAddedToNumberedRoad change:
+                        await AddRoadSegmentToNumberedRoad(manager, encoding, context, change, envelope, token);
+                        break;
+                    case RoadSegmentRemovedFromNumberedRoad change:
+                        await RemoveRoadSegmentFromNumberedRoad(manager, encoding, context, change, envelope, token);
+                        break;
+
                     case RoadSegmentAttributesModified roadSegmentAttributesModified:
                         await ModifyRoadSegmentAttributes(manager, encoding, context, roadSegmentAttributesModified, envelope, token);
                         break;
@@ -309,6 +330,72 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         UpdateHash(dbRecord, roadSegmentModified);
     }
 
+    private static async Task AddRoadSegmentToEuropeanRoad(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        ProductContext context,
+        RoadSegmentAddedToEuropeanRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(manager, encoding, context, envelope, change, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task RemoveRoadSegmentFromEuropeanRoad(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        ProductContext context,
+        RoadSegmentRemovedFromEuropeanRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(manager, encoding, context, envelope, change, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task AddRoadSegmentToNationalRoad(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        ProductContext context,
+        RoadSegmentAddedToNationalRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(manager, encoding, context, envelope, change, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task RemoveRoadSegmentFromNationalRoad(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        ProductContext context,
+        RoadSegmentRemovedFromNationalRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(manager, encoding, context, envelope, change, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task AddRoadSegmentToNumberedRoad(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        ProductContext context,
+        RoadSegmentAddedToNumberedRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(manager, encoding, context, envelope, change, change.SegmentId, change.SegmentVersion, token);
+    }
+
+    private static async Task RemoveRoadSegmentFromNumberedRoad(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        ProductContext context,
+        RoadSegmentRemovedFromNumberedRoad change,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(manager, encoding, context, envelope, change, change.SegmentId, change.SegmentVersion, token);
+    }
+
     private static async Task ModifyRoadSegmentAttributes(RecyclableMemoryStreamManager manager,
         Encoding encoding,
         ProductContext context,
@@ -448,7 +535,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         var organizationIdValue = organizationId.ToString();
 
         await context.RoadSegments
-            .ForEachBatchAsync(q => q.Where(x => x.MaintainerId == organizationIdValue), 5000, dbRecords =>
+            .IncludeLocalForEachBatchAsync(q => q.Where(x => x.MaintainerId == organizationIdValue), 5000, dbRecords =>
             {
                 _logger.LogInformation("Processing renaming organizations batch {Batch}", batchIndex);
 
@@ -464,6 +551,46 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
                 batchIndex++;
                 return Task.CompletedTask;
             }, cancellationToken);
+    }
+
+    private static async Task UpdateRoadSegmentVersion<T>(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        ProductContext context,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        T message,
+        int segmentId,
+        int? segmentVersion,
+        CancellationToken token)
+        where T : IHaveHash
+    {
+        if (segmentVersion is null)
+        {
+            return;
+        }
+
+        var dbRecord = await context.RoadSegments
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == segmentId, token)
+            .ConfigureAwait(false);
+        if (dbRecord is null)
+        {
+            throw new InvalidOperationException($"{nameof(RoadSegmentRecord)} with id {segmentId} is not found");
+        }
+
+        var transactionId = new TransactionId(envelope.Message.TransactionId);
+
+        dbRecord.Version = segmentVersion.Value;
+
+        dbRecord.TransactionId = transactionId;
+        dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+
+        var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
+        dbaseRecord.WS_UIDN.Value = new UIDN(segmentId, segmentVersion.Value);
+        dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+
+        dbRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
+
+        UpdateHash(dbRecord, message);
     }
 
     private static RoadSegmentRecord UpdateHash<T>(RoadSegmentRecord entity, T message) where T : IHaveHash

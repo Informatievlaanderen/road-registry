@@ -9,19 +9,22 @@ public class AddRoadSegmentToNationalRoad : ITranslatedChange
     public AddRoadSegmentToNationalRoad(
         RecordNumber recordNumber,
         AttributeId temporaryAttributeId,
+        RoadSegmentGeometryDrawMethod segmentGeometryDrawMethod,
         RoadSegmentId segmentId,
         NationalRoadNumber number)
     {
         RecordNumber = recordNumber;
         TemporaryAttributeId = temporaryAttributeId;
+        SegmentGeometryDrawMethod = segmentGeometryDrawMethod;
         SegmentId = segmentId;
         Number = number;
     }
 
-    public NationalRoadNumber Number { get; }
     public RecordNumber RecordNumber { get; }
-    public RoadSegmentId SegmentId { get; }
     public AttributeId TemporaryAttributeId { get; }
+    public RoadSegmentGeometryDrawMethod SegmentGeometryDrawMethod { get; }
+    public RoadSegmentId SegmentId { get; }
+    public NationalRoadNumber Number { get; }
 
     public void TranslateTo(RequestedChange message)
     {
@@ -31,6 +34,7 @@ public class AddRoadSegmentToNationalRoad : ITranslatedChange
         {
             TemporaryAttributeId = TemporaryAttributeId,
             Number = Number,
+            SegmentGeometryDrawMethod = SegmentGeometryDrawMethod,
             SegmentId = SegmentId
         };
     }

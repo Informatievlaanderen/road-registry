@@ -10,7 +10,11 @@ using System.Text;
 using Translators;
 using Uploads;
 
-public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<TransactionZoneFeatureCompareAttributes>>
+public interface ITransactionZoneFeatureCompareFeatureReader: IZipArchiveFeatureReader<Feature<TransactionZoneFeatureCompareAttributes>>
+{
+}
+
+public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<TransactionZoneFeatureCompareAttributes>>, ITransactionZoneFeatureCompareFeatureReader
 {
     public TransactionZoneFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding))

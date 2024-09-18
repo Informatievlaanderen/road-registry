@@ -122,7 +122,7 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
 
     protected override async Task<bool> VerifyTicketAsync()
     {
-        var rejectCommand = await Store.GetLastCommandIfTypeIs<RoadNetworkChangesRejected>();
+        var rejectCommand = await Store.GetLastMessageIfTypeIs<RoadNetworkChangesRejected>();
         if (rejectCommand != null)
         {
             var problems = rejectCommand.Changes.SelectMany(change => change.Problems).ToArray();
@@ -138,7 +138,7 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
 
         var change = Request.ChangeRequests.Single();
 
-        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
+        var command = await Store.GetLastMessage<RoadNetworkChangesAccepted>();
         Assert.Equal(8, command.Changes.Length);
 
         var attributesModified = command.Changes[0].RoadSegmentAttributesModified;

@@ -5,11 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
-using BackOffice.Core;
 using BackOffice.DutchTranslations;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using DutchTranslations;
@@ -78,7 +76,8 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
         {
             var content = new RoadNetworkExtractDownloadBecameAvailableEntry
             {
-                Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId }
+                Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId },
+                OverlapsWithDownloadIds = envelope.Message.OverlapsWithDownloadIds
             };
 
             await EnrichWithArchiveInformation(envelope.Message.ArchiveId, content.Archive, client, ct);
@@ -120,7 +119,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             };
 
             await EnrichWithArchiveInformation(envelope.Message.ArchiveId, content.Archive, client, ct);
-            
+
             var description = !string.IsNullOrEmpty(envelope.Message.Description) ? envelope.Message.Description : "onbekend";
             var changeRequestId = ChangeRequestId
                 .FromArchiveId(new ArchiveId(envelope.Message.ArchiveId));
@@ -254,11 +253,6 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, ct) =>
         {
-            if (!MessageIsFromDefaultRoadNetwork(envelope))
-            {
-                return;
-            }
-
             var changeRequestId = ChangeRequestId.FromString(envelope.Message.RequestId);
 
             var request = context.RoadNetworkChangeRequestsBasedOnArchive.Local
@@ -266,7 +260,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                                   r.ChangeRequestId == changeRequestId.ToBytes()
                                       .ToArray())
                           ?? context.RoadNetworkChangeRequestsBasedOnArchive.Find(changeRequestId.ToBytes().ToArray());
-            
+
             var content = new RoadNetworkChangesBasedOnArchiveAcceptedEntry
             {
                 Archive = new ArchiveInfo { Id = request?.ArchiveId },
@@ -282,7 +276,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                                 Text = BackOffice.DutchTranslations.ProblemTranslator.Dutch(problem).Message
                             })
                             .ToArray()
-                            ?? Array.Empty<ProblemWithChange>()
+                            ?? []
                     })
                     .ToArray()
             };
@@ -308,7 +302,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
         When<Envelope<RoadNetworkChangesRejected>>(async (context, envelope, ct) =>
         {
             var changeRequestId = ChangeRequestId.FromString(envelope.Message.RequestId);
-            
+
             var request = context.RoadNetworkChangeRequestsBasedOnArchive.Local
                               .FirstOrDefault(r =>
                                   r.ChangeRequestId == changeRequestId.ToBytes()
@@ -352,11 +346,6 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<NoRoadNetworkChanges>>(async (context, envelope, ct) =>
         {
-            if (!MessageIsFromDefaultRoadNetwork(envelope))
-            {
-                return;
-            }
-
             var request = context.RoadNetworkChangeRequestsBasedOnArchive.Local
                               .FirstOrDefault(r =>
                                   r.ChangeRequestId == ChangeRequestId.FromString(envelope.Message.RequestId).ToBytes()
@@ -387,12 +376,6 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                     When = envelope.Message.When
                 }, ct);
         });
-    }
-
-    private static bool MessageIsFromDefaultRoadNetwork<T>(Envelope<T> envelope)
-        where T : IMessage
-    {
-        return envelope.StreamId == RoadNetworkStreamNameProvider.Default;
     }
 
     private static async Task EnrichWithArchiveInformation(string archiveId, ArchiveInfo archiveInfo, IBlobClient client, CancellationToken ct)

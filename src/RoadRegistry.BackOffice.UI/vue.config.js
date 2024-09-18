@@ -20,11 +20,6 @@ module.exports = defineConfig({
     host: "localhost",
     port: 1234,
     proxy: {
-      "/public/v1/": {
-        target: API_ENDPOINT,
-        changeOrigin: true,
-        pathRewrite: {"/public/v1/": "/v1/"}
-      },
       "/public/v2/": {
         target: API_ENDPOINT,
         changeOrigin: true,

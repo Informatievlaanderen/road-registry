@@ -1,5 +1,7 @@
 namespace RoadRegistry.Tests;
 
+using System.IO.Compression;
+using System.Text;
 using AutoFixture;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -11,14 +13,19 @@ using RoadRegistry.BackOffice.Extracts.Dbase;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
-using System.IO.Compression;
-using System.Text;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public static class Customizations
 {
+    public static T CreateWith<T>(this IFixture fixture, Action<T> modify)
+    {
+        var value = fixture.Create<T>();
+        modify(value);
+        return value;
+    }
+
     public static MemoryStream CreateDbfFile<T>(this IFixture fixture, DbaseSchema schema, ICollection<T> records, Action<T> updateRecord = null)
         where T : DbaseRecord
     {
@@ -455,14 +462,15 @@ public static class Customizations
                         GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
                         LeftSide = fixture.Create<ImportedRoadSegmentSideAttribute>(),
                         RightSide = fixture.Create<ImportedRoadSegmentSideAttribute>(),
-                        Lanes = fixture.CreateMany<ImportedRoadSegmentLaneAttribute>(generator.Next(0, 10)).ToArray(),
-                        Widths = fixture.CreateMany<ImportedRoadSegmentWidthAttribute>(generator.Next(0, 10)).ToArray(),
-                        Surfaces = fixture.CreateMany<ImportedRoadSegmentSurfaceAttribute>(generator.Next(0, 10)).ToArray(),
-                        PartOfEuropeanRoads = fixture.CreateMany<ImportedRoadSegmentEuropeanRoadAttribute>(generator.Next(0, 10)).ToArray(),
-                        PartOfNationalRoads = fixture.CreateMany<ImportedRoadSegmentNationalRoadAttribute>(generator.Next(0, 10)).ToArray(),
-                        PartOfNumberedRoads = fixture.CreateMany<ImportedRoadSegmentNumberedRoadAttribute>(generator.Next(0, 10)).ToArray(),
+                        Lanes = fixture.CreateMany<ImportedRoadSegmentLaneAttribute>(generator.Next(1, 10)).ToArray(),
+                        Widths = fixture.CreateMany<ImportedRoadSegmentWidthAttribute>(generator.Next(1, 10)).ToArray(),
+                        Surfaces = fixture.CreateMany<ImportedRoadSegmentSurfaceAttribute>(generator.Next(1, 10)).ToArray(),
+                        PartOfEuropeanRoads = fixture.CreateMany<ImportedRoadSegmentEuropeanRoadAttribute>(generator.Next(1, 10)).ToArray(),
+                        PartOfNationalRoads = fixture.CreateMany<ImportedRoadSegmentNationalRoadAttribute>(generator.Next(1, 10)).ToArray(),
+                        PartOfNumberedRoads = fixture.CreateMany<ImportedRoadSegmentNumberedRoadAttribute>(generator.Next(1, 10)).ToArray(),
                         RecordingDate = fixture.Create<DateTime>(),
-                        Origin = fixture.Create<ImportedOriginProperties>()
+                        Origin = fixture.Create<ImportedOriginProperties>(),
+                        When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
                     }
                 )
                 .OmitAutoProperties()
@@ -680,6 +688,20 @@ public static class Customizations
         );
     }
 
+    public static void CustomizeImportedOrganization(this IFixture fixture)
+    {
+        fixture.Customize<ImportedOrganization>(composer =>
+            composer.FromFactory(generator =>
+                new ImportedOrganization
+                {
+                    Code = fixture.Create<OrganizationId>(),
+                    Name = fixture.Create<OrganizationName>(),
+                    When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                }
+            ).OmitAutoProperties()
+        );
+    }
+
     public static void CustomizeRoadSegmentAdded(this IFixture fixture)
     {
         fixture.CustomizeRoadSegmentSideAttributes();
@@ -727,6 +749,7 @@ public static class Customizations
                         AttributeId = fixture.Create<AttributeId>(),
                         TemporaryAttributeId = fixture.Create<AttributeId>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<EuropeanRoadNumber>()
                     }
                 )
@@ -744,6 +767,7 @@ public static class Customizations
                         AttributeId = fixture.Create<AttributeId>(),
                         TemporaryAttributeId = fixture.Create<AttributeId>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<NationalRoadNumber>()
                     }
                 )
@@ -761,6 +785,7 @@ public static class Customizations
                         AttributeId = fixture.Create<AttributeId>(),
                         TemporaryAttributeId = fixture.Create<AttributeId>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<NumberedRoadNumber>(),
                         Direction = fixture.Create<RoadSegmentNumberedRoadDirection>(),
                         Ordinal = fixture.Create<RoadSegmentNumberedRoadOrdinal>()
@@ -940,6 +965,7 @@ public static class Customizations
                     {
                         AttributeId = fixture.Create<AttributeId>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<EuropeanRoadNumber>()
                     }
                 )
@@ -956,6 +982,7 @@ public static class Customizations
                     {
                         AttributeId = fixture.Create<AttributeId>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<NationalRoadNumber>()
                     }
                 )
@@ -972,6 +999,7 @@ public static class Customizations
                     {
                         AttributeId = fixture.Create<AttributeId>(),
                         SegmentId = fixture.Create<RoadSegmentId>(),
+                        SegmentVersion = fixture.Create<RoadSegmentVersion>(),
                         Number = fixture.Create<NationalRoadNumber>()
                     }
                 )
@@ -1182,5 +1210,48 @@ public static class Customizations
         return new PolygonShapeContent(
             Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPolygon(polygon)
         );
+    }
+
+    public static IEnumerable<RequestedChange> CreateAllRequestedChanges(this Fixture fixture)
+    {
+        var changeProperties = typeof(RequestedChange).GetProperties();
+        Assert.NotEmpty(changeProperties);
+
+        var data = fixture
+            .Create<RequestedChange>();
+
+        foreach (var changeProperty in changeProperties)
+        {
+            var change = new RequestedChange();
+
+            var changeValue = changeProperty.GetValue(data);
+            Assert.NotNull(changeValue);
+            changeProperty.SetValue(change, changeValue);
+
+            yield return change;
+        }
+    }
+
+    public static IEnumerable<AcceptedChange> CreateAllAcceptedChanges(this Fixture fixture)
+    {
+        var changeProperties = typeof(AcceptedChange)
+            .GetProperties()
+            .Where(x => x.Name != nameof(AcceptedChange.Problems))
+            .ToArray();
+        Assert.NotEmpty(changeProperties);
+
+        var data = fixture
+            .Create<AcceptedChange>();
+
+        foreach (var changeProperty in changeProperties)
+        {
+            var change = new AcceptedChange();
+
+            var changeValue = changeProperty.GetValue(data);
+            Assert.NotNull(changeValue);
+            changeProperty.SetValue(change, changeValue);
+
+            yield return change;
+        }
     }
 }

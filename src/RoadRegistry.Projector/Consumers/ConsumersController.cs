@@ -24,45 +24,51 @@ namespace RoadRegistry.Projector.Consumers
             [FromServices] ProjectionOptions projectionOptions,
             CancellationToken cancellationToken = default)
         {
-            var organizationConsumerResult = projectionOptions.OrganizationSync.Enabled
-                ? GetLastProcessedMessageDateProcessed(configuration, WellKnownConnectionNames.OrganizationConsumerProjections, WellKnownSchemas.OrganizationConsumerSchema)
-                : null;
-            var streetNameConsumerResult = projectionOptions.StreetNameSync.Enabled
-                ? GetLastProcessedMessageDateProcessed(configuration, WellKnownConnectionNames.StreetNameSnapshotConsumer, WellKnownSchemas.StreetNameSnapshotConsumerSchema)
-                : null;
+            var consumerStatusses = (await Task.WhenAll(
+                projectionOptions.OrganizationSync.Enabled
+                    ? GetConsumerStatus(configuration,
+                        WellKnownConnectionNames.OrganizationConsumerProjections,
+                        WellKnownSchemas.OrganizationConsumerSchema,
+                        "Synchronisatie van organisatie register",
+                        cancellationToken)
+                    : Task.FromResult((ConsumerStatus?)null),
+                projectionOptions.StreetNameSync.Enabled
+                    ? GetConsumerStatus(configuration,
+                        WellKnownConnectionNames.StreetNameSnapshotConsumer,
+                        WellKnownSchemas.StreetNameSnapshotConsumerSchema,
+                        "Consumer van straatnaam (snapshot)",
+                        cancellationToken)
+                    : Task.FromResult((ConsumerStatus?)null),
+                projectionOptions.StreetNameSync.Enabled
+                    ? GetConsumerStatus(configuration,
+                        WellKnownConnectionNames.StreetNameEventConsumer,
+                        WellKnownSchemas.StreetNameEventConsumerSchema,
+                        "Consumer van straatnaam (event)",
+                        cancellationToken)
+                    : Task.FromResult((ConsumerStatus?)null)
+            )).Where(x => x is not null).ToArray();
 
-            await Task.WhenAll(organizationConsumerResult ?? Task.CompletedTask, streetNameConsumerResult ?? Task.CompletedTask);
-
-            var statuses = new ConsumerStatus?[]
-            {
-                organizationConsumerResult?.Result is not null
-                    ? new()
-                    {
-                        Name = "Synchronisatie van organisatie register",
-                        LastProcessedMessage = organizationConsumerResult.Result.Value
-                    }
-                    : null,
-                streetNameConsumerResult?.Result is not null
-                    ? new()
-                    {
-                        Name = "Synchronisatie van straatnaam register",
-                        LastProcessedMessage = streetNameConsumerResult.Result.Value
-                    }
-                    : null
-            }.Where(x => x is not null).ToArray();
-
-            return Ok(statuses);
+            return Ok(consumerStatusses);
         }
 
-        private async Task<DateTimeOffset?> GetLastProcessedMessageDateProcessed(IConfiguration configuration, string connectionStringName, string schemaName)
+        private async Task<ConsumerStatus?> GetConsumerStatus(
+            IConfiguration configuration,
+            string connectionStringName,
+            string schemaName,
+            string consumerName,
+            CancellationToken ct)
         {
             await using var sqlConnection = new SqlConnection(configuration.GetRequiredConnectionString(connectionStringName));
 
             var result = await sqlConnection.QueryFirstOrDefaultAsync<DateTimeOffset?>(
                 $"SELECT TOP(1) [{nameof(ProcessedMessage.DateProcessed)}] FROM [{schemaName}].[{ProcessedMessageConfiguration.TableName}] ORDER BY [{nameof(ProcessedMessage.DateProcessed)}] DESC"
-                );
+                , ct);
 
-            return result;
+            return new ConsumerStatus
+            {
+                Name = consumerName,
+                LastProcessedMessage = result ?? default
+            };
         }
     }
 }

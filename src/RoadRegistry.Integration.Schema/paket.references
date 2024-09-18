@@ -1,0 +1,11 @@
+Be.Vlaanderen.Basisregisters.EventHandling
+Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.Npgsql
+Be.Vlaanderen.Basisregisters.Utilities.Rfc3339DateTimeOffset
+
+Npgsql.EntityFrameworkCore.PostgreSQL.Design
+Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite
+
+Microsoft.Extensions.DependencyInjection.Abstractions
+Microsoft.EntityFrameworkCore.Design
+Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
+NetTopologySuite

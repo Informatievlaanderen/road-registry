@@ -16,6 +16,7 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
     private readonly ImmutableDictionary<RoadNodeId, RoadNodeId> _mapToTemporaryNodeIdentifiers;
     private readonly ImmutableDictionary<RoadSegmentId, RoadSegmentId> _mapToTemporarySegmentIdentifiers;
     private readonly ImmutableDictionary<RoadSegmentId, RoadSegmentId> _mapToOriginalSegmentIdentifiers;
+    private readonly ImmutableList<RoadSegmentId> _addedSegmentIdentifiers;
 
     private RequestedChanges(
         TransactionId transactionId,
@@ -28,7 +29,8 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
         ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>
             mapToPermanentGradeSeparatedJunctionIdentifiers,
         ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>
-            mapToTemporaryGradeSeparatedJunctionIdentifiers)
+            mapToTemporaryGradeSeparatedJunctionIdentifiers,
+        ImmutableList<RoadSegmentId> addedSegmentIdentifiers)
     {
         TransactionId = transactionId;
         _changes = changes;
@@ -39,6 +41,7 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
         _mapToOriginalSegmentIdentifiers = mapToOriginalSegmentIdentifiers;
         _mapToPermanentGradeSeparatedJunctionIdentifiers = mapToPermanentGradeSeparatedJunctionIdentifiers;
         _mapToTemporaryGradeSeparatedJunctionIdentifiers = mapToTemporaryGradeSeparatedJunctionIdentifiers;
+        _addedSegmentIdentifiers = addedSegmentIdentifiers;
     }
 
     public int Count => _changes.Count;
@@ -102,6 +105,11 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
         return _mapToTemporaryGradeSeparatedJunctionIdentifiers.TryGetValue(id, out temporary);
     }
 
+    public bool IsSegmentAdded(RoadSegmentId id)
+    {
+        return _addedSegmentIdentifiers.Contains(id);
+    }
+
     public RequestedChanges Append(AddRoadNode change)
     {
         if (change == null)
@@ -115,7 +123,8 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
             _mapToTemporarySegmentIdentifiers,
             _mapToOriginalSegmentIdentifiers,
             _mapToPermanentGradeSeparatedJunctionIdentifiers,
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+            _mapToTemporaryGradeSeparatedJunctionIdentifiers,
+            _addedSegmentIdentifiers);
     }
 
     public RequestedChanges Append(ModifyRoadNode change)
@@ -140,7 +149,8 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
             _mapToTemporarySegmentIdentifiers.Add(change.Id, change.TemporaryId),
             change.OriginalId is not null ? _mapToOriginalSegmentIdentifiers.Add(change.Id, change.OriginalId.Value) : _mapToOriginalSegmentIdentifiers,
             _mapToPermanentGradeSeparatedJunctionIdentifiers,
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+            _mapToTemporaryGradeSeparatedJunctionIdentifiers,
+            _addedSegmentIdentifiers.Add(change.Id));
     }
 
     public RequestedChanges Append(ModifyRoadSegment change)
@@ -155,7 +165,8 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
             _mapToTemporarySegmentIdentifiers,
             change.OriginalId is not null ? _mapToOriginalSegmentIdentifiers.Add(change.Id, change.OriginalId.Value) : _mapToOriginalSegmentIdentifiers,
             _mapToPermanentGradeSeparatedJunctionIdentifiers,
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+            _mapToTemporaryGradeSeparatedJunctionIdentifiers,
+            _addedSegmentIdentifiers);
     }
 
     public RequestedChanges Append(ModifyRoadSegmentAttributes change)
@@ -231,7 +242,8 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
             _mapToTemporarySegmentIdentifiers,
             _mapToOriginalSegmentIdentifiers,
             _mapToPermanentGradeSeparatedJunctionIdentifiers.Add(change.TemporaryId, change.Id),
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers.Add(change.Id, change.TemporaryId));
+            _mapToTemporaryGradeSeparatedJunctionIdentifiers.Add(change.Id, change.TemporaryId),
+            _addedSegmentIdentifiers);
     }
 
     public RequestedChanges Append(ModifyGradeSeparatedJunction change)
@@ -321,7 +333,8 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
             ImmutableDictionary<RoadSegmentId, RoadSegmentId>.Empty,
             ImmutableDictionary<RoadSegmentId, RoadSegmentId>.Empty,
             ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>.Empty,
-            ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>.Empty);
+            ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>.Empty,
+            ImmutableList<RoadSegmentId>.Empty);
     }
 
     private RequestedChanges AppendChange(IRequestedChange change)
@@ -336,6 +349,7 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
             _mapToTemporarySegmentIdentifiers,
             _mapToOriginalSegmentIdentifiers,
             _mapToPermanentGradeSeparatedJunctionIdentifiers,
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+            _mapToTemporaryGradeSeparatedJunctionIdentifiers,
+            _addedSegmentIdentifiers);
     }
 }

@@ -10,22 +10,28 @@ public class AddRoadSegmentToNationalRoad : IRequestedChange, IHaveHash
 
     public AddRoadSegmentToNationalRoad(AttributeId attributeId,
         AttributeId temporaryAttributeId,
+        RoadSegmentGeometryDrawMethod segmentGeometryDrawMethod,
         RoadSegmentId segmentId,
         RoadSegmentId? temporarySegmentId,
-        NationalRoadNumber number)
+        NationalRoadNumber number,
+        RoadSegmentVersion segmentVersion)
     {
         AttributeId = attributeId;
         TemporaryAttributeId = temporaryAttributeId;
+        SegmentGeometryDrawMethod = segmentGeometryDrawMethod;
         SegmentId = segmentId;
         TemporarySegmentId = temporarySegmentId;
         Number = number;
+        SegmentVersion = segmentVersion;
     }
 
     public AttributeId AttributeId { get; }
     public NationalRoadNumber Number { get; }
     public RoadSegmentId SegmentId { get; }
     public AttributeId TemporaryAttributeId { get; }
+    public RoadSegmentGeometryDrawMethod SegmentGeometryDrawMethod { get; }
     public RoadSegmentId? TemporarySegmentId { get; }
+    public RoadSegmentVersion SegmentVersion { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -36,7 +42,8 @@ public class AddRoadSegmentToNationalRoad : IRequestedChange, IHaveHash
             AttributeId = AttributeId,
             Number = Number,
             SegmentId = SegmentId,
-            TemporaryAttributeId = TemporaryAttributeId
+            TemporaryAttributeId = TemporaryAttributeId,
+            SegmentVersion = SegmentVersion
         };
     }
 
@@ -48,6 +55,7 @@ public class AddRoadSegmentToNationalRoad : IRequestedChange, IHaveHash
         {
             TemporaryAttributeId = TemporaryAttributeId,
             Number = Number,
+            SegmentGeometryDrawMethod = SegmentGeometryDrawMethod,
             SegmentId = SegmentId
         };
     }

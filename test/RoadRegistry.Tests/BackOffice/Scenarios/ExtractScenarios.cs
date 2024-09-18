@@ -10,7 +10,6 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Messages;
 using System.IO.Compression;
-using Autofac;
 using Moq;
 using TicketingService.Abstractions;
 using FileProblem = RoadRegistry.BackOffice.Messages.FileProblem;
@@ -116,6 +115,44 @@ public class ExtractScenarios : RoadRegistryTestBase
                 ArchiveId = archiveId,
                 Description = extractDescription,
                 IsInformative = true,
+                OverlapsWithDownloadIds = [],
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
+        );
+    }
+
+    [Fact]
+    public Task when_announcing_a_requested_road_network_extract_download_became_available_with_overlapping_downloadids()
+    {
+        var externalExtractRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
+        var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
+        var extractDescription = ObjectProvider.Create<ExtractDescription>();
+        var downloadId = ObjectProvider.Create<DownloadId>();
+        var archiveId = ObjectProvider.Create<ArchiveId>();
+        var contour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
+        var overlapsWithDownloadIds = ObjectProvider.CreateMany<Guid>(3).ToList();
+
+        return Run(scenario => scenario
+            .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
+            {
+                RequestId = extractRequestId,
+                ExternalRequestId = externalExtractRequestId,
+                DownloadId = downloadId,
+                Contour = contour,
+                Description = extractDescription,
+                IsInformative = true,
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
+            .When(OurSystem.AnnouncesRoadNetworkExtractDownloadBecameAvailable(extractRequestId, downloadId, archiveId, overlapsWithDownloadIds))
+            .Then(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractDownloadBecameAvailable
+            {
+                RequestId = extractRequestId,
+                ExternalRequestId = externalExtractRequestId,
+                DownloadId = downloadId,
+                ArchiveId = archiveId,
+                Description = extractDescription,
+                IsInformative = true,
+                OverlapsWithDownloadIds = overlapsWithDownloadIds,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             })
         );
@@ -408,7 +445,7 @@ public class ExtractScenarios : RoadRegistryTestBase
             .Throws(new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException(externalExtractRequestId, extractRequestId, unknownDownloadId, uploadId))
         );
     }
-    
+
     [Fact]
     public async Task when_uploading_an_archive_of_changes_which_are_accepted_after_validation()
     {

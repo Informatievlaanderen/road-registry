@@ -16,7 +16,7 @@ public class ExtractRequestEventProcessor : EditorContextEventProcessor
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,
         ILogger<ExtractRequestEventProcessor> logger)
-        : base("roadregistry-editor-extractrequest-projectionhost", streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, logger)
+        : base("roadregistry-editor-extractrequest-projectionhost", streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, logger, catchUpBatchSize: 1)
     {
     }
 }

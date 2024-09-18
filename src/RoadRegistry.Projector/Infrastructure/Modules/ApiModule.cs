@@ -16,6 +16,7 @@ using RoadRegistry.Syndication.Schema;
 using Sync.StreetNameRegistry;
 using System;
 using System.Collections.Generic;
+using Integration.Schema;
 using Wfs.Schema;
 using Wms.Schema;
 
@@ -81,6 +82,11 @@ public class ApiModule : Module
         if (projectionOptions.BackOfficeProcessors.Enabled)
         {
             RegisterBackOfficeProcessors();
+        }
+
+        if (projectionOptions.Integration.Enabled)
+        {
+            RegisterIntegrationProjections();
         }
 
         if (projectionOptions.StreetNameSync.Enabled)
@@ -248,6 +254,49 @@ public class ApiModule : Module
         });
     }
 
+    private void RegisterIntegrationProjections()
+    {
+        RegisterProjection<IntegrationContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-integration-organization-latestitem-projectionhost",
+            Description = "",
+            Name = "Integration - Organization Latest Item",
+            WellKnownConnectionName = WellKnownConnectionNames.IntegrationProjections,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
+        });
+
+        RegisterProjection<IntegrationContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-integration-organization-version-projectionhost",
+            Description = "",
+            Name = "Integration - Organization Version",
+            WellKnownConnectionName = WellKnownConnectionNames.IntegrationProjections,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
+        });
+
+        RegisterProjection<IntegrationContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-integration-roadnetwork-latestitem-projectionhost",
+            Description = "",
+            Name = "Integration - RoadNetwork Latest Item",
+            WellKnownConnectionName = WellKnownConnectionNames.IntegrationProjections,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
+        });
+
+        RegisterProjection<IntegrationContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-integration-roadnetwork-version-projectionhost",
+            Description = "",
+            Name = "Integration - RoadNetwork Version",
+            WellKnownConnectionName = WellKnownConnectionNames.IntegrationProjections,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
+        });
+    }
+
     private void RegisterStreetNameProjection()
     {
         RegisterProjection<StreetNameSnapshotProjectionContext>(new ProjectionDetail
@@ -272,15 +321,26 @@ public class ApiModule : Module
 
     private void RegisterProjection<TContext>(ProjectionDetail projectionDetail) where TContext : DbContext
     {
-        var connection = _configuration.GetRequiredConnectionString(projectionDetail.WellKnownConnectionName);
-        var dbContextOptions = new DbContextOptionsBuilder<TContext>()
-            .UseSqlServer(connection, o => o
-                .EnableRetryOnFailure()
-                .UseNetTopologySuite())
-            .Options;
+        var connectionString = _configuration.GetRequiredConnectionString(projectionDetail.WellKnownConnectionName);
+
+        var dbContextOptionsBuilder = new DbContextOptionsBuilder<TContext>();
+        if (connectionString.Contains("host=", StringComparison.InvariantCultureIgnoreCase))
+        {
+            dbContextOptionsBuilder
+                .UseNpgsql(connectionString, o => o
+                    .EnableRetryOnFailure()
+                    .UseNetTopologySuite());
+        }
+        else
+        {
+            dbContextOptionsBuilder
+                .UseSqlServer(connectionString, o => o
+                    .EnableRetryOnFailure()
+                    .UseNetTopologySuite());
+        }
 
         var ctxFactory = (Func<DbContext>)(() =>
-            (DbContext)Activator.CreateInstance(typeof(TContext), dbContextOptions)!);
+            (DbContext)Activator.CreateInstance(typeof(TContext), dbContextOptionsBuilder.Options)!);
 
         _listOfProjections.Add(projectionDetail, ctxFactory);
     }

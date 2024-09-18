@@ -115,6 +115,17 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
 
         if (new object?[] { maintenanceAuthority, change.Morphology, change.Status, change.Category, change.AccessRestriction }.Any(x => x is not null))
         {
+            if (change.Category is not null
+                && roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Measured
+                && RoadSegmentCategory.IsUpgraded(roadSegment.AttributeHash.Category))
+            {
+                var allowedCategories = RoadSegmentCategory.All.Except(RoadSegmentCategory.Obsolete).ToArray();
+                if (!allowedCategories.Contains(change.Category))
+                {
+                    problems += new RoadSegmentCategoryNotChangedBecauseCurrentIsNewerVersion(roadSegment.Id);
+                }
+            }
+
             changes = changes.AppendChange(new ModifyRoadSegmentAttributes(RecordNumber.Initial, roadSegment.Id, roadSegment.AttributeHash.GeometryDrawMethod)
             {
                 MaintenanceAuthority = maintenanceAuthority,
@@ -157,6 +168,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                 changes = changes.AppendChange(new RemoveRoadSegmentFromEuropeanRoad(
                     recordNumber,
                     match.AttributeId,
+                    roadSegment.AttributeHash.GeometryDrawMethod,
                     roadSegment.Id,
                     match.Number
                 ));
@@ -165,6 +177,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
             changes = changes.AppendChange(new AddRoadSegmentToEuropeanRoad(
                 recordNumber,
                 attributeIdProvider.Next(),
+                roadSegment.AttributeHash.GeometryDrawMethod,
                 roadSegment.Id,
                 europeanRoadNumber
             ));
@@ -175,6 +188,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
             changes = changes.AppendChange(new RemoveRoadSegmentFromEuropeanRoad(
                 recordNumberProvider.Next(),
                 europeanRoad.AttributeId,
+                roadSegment.AttributeHash.GeometryDrawMethod,
                 roadSegment.Id,
                 europeanRoad.Number
             ));
@@ -208,6 +222,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                 changes = changes.AppendChange(new RemoveRoadSegmentFromNationalRoad(
                     recordNumber,
                     match.AttributeId,
+                    roadSegment.AttributeHash.GeometryDrawMethod,
                     roadSegment.Id,
                     match.Number
                 ));
@@ -216,6 +231,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
             changes = changes.AppendChange(new AddRoadSegmentToNationalRoad(
                 recordNumber,
                 attributeIdProvider.Next(),
+                roadSegment.AttributeHash.GeometryDrawMethod,
                 roadSegment.Id,
                 nationalRoadNumber
             ));
@@ -226,6 +242,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
             changes = changes.AppendChange(new RemoveRoadSegmentFromNationalRoad(
                 recordNumberProvider.Next(),
                 nationalRoad.AttributeId,
+                roadSegment.AttributeHash.GeometryDrawMethod,
                 roadSegment.Id,
                 nationalRoad.Number
             ));
@@ -267,6 +284,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                     changes = changes.AppendChange(new RemoveRoadSegmentFromNumberedRoad(
                         recordNumber,
                         match.Attribute.AttributeId,
+                        roadSegment.AttributeHash.GeometryDrawMethod,
                         roadSegment.Id,
                         match.Attribute.Number
                     ));
@@ -278,6 +296,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                 changes = changes.AppendChange(new AddRoadSegmentToNumberedRoad(
                     recordNumber,
                     attributeIdProvider.Next(),
+                    roadSegment.AttributeHash.GeometryDrawMethod,
                     roadSegment.Id,
                     numberedRoad.Number,
                     numberedRoad.Direction,
@@ -291,6 +310,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
             changes = changes.AppendChange(new RemoveRoadSegmentFromNumberedRoad(
                 recordNumberProvider.Next(),
                 numberedRoad.AttributeId,
+                roadSegment.AttributeHash.GeometryDrawMethod,
                 roadSegment.Id,
                 numberedRoad.Number
             ));

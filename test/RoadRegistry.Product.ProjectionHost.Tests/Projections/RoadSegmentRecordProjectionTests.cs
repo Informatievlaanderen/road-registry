@@ -1,5 +1,6 @@
 namespace RoadRegistry.Product.ProjectionHost.Tests.Projections;
 
+using System.Text;
 using AutoFixture;
 using BackOffice;
 using BackOffice.Extracts.Dbase.RoadSegments;
@@ -11,13 +12,12 @@ using Product.Projections;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 using Schema.RoadSegments;
-using System.Text;
 
 public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {
     private readonly Fixture _fixture;
     private readonly ProjectionTestServices _services;
-
+    
     public RoadSegmentRecordProjectionTests(ProjectionTestServices services)
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
@@ -56,12 +56,18 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
         _fixture.CustomizeImportedRoadSegmentSideAttributes();
         _fixture.CustomizeOriginProperties();
 
+        _fixture.CustomizeRoadNetworkChangesAccepted();
         _fixture.CustomizeRoadSegmentAdded();
         _fixture.CustomizeRoadSegmentModified();
         _fixture.CustomizeRoadSegmentAttributesModified();
         _fixture.CustomizeRoadSegmentGeometryModified();
         _fixture.CustomizeRoadSegmentRemoved();
-        _fixture.CustomizeRoadNetworkChangesAccepted();
+        _fixture.CustomizeRoadSegmentAddedToEuropeanRoad();
+        _fixture.CustomizeRoadSegmentRemovedFromEuropeanRoad();
+        _fixture.CustomizeRoadSegmentAddedToNationalRoad();
+        _fixture.CustomizeRoadSegmentRemovedFromNationalRoad();
+        _fixture.CustomizeRoadSegmentAddedToNumberedRoad();
+        _fixture.CustomizeRoadSegmentRemovedFromNumberedRoad();
     }
 
     [Fact]
@@ -73,78 +79,228 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 
         var expectedRecords = Array.ConvertAll(message.Changes, change =>
         {
-            var roadSegmentAdded = change.RoadSegmentAdded;
-
-            var geometry = GeometryTranslator.Translate(roadSegmentAdded.Geometry);
-            var polyLineMShapeContent = new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(geometry));
-            var statusTranslation = RoadSegmentStatus.Parse(roadSegmentAdded.Status).Translation;
-            var morphologyTranslation = RoadSegmentMorphology.Parse(roadSegmentAdded.Morphology).Translation;
-            var categoryTranslation = RoadSegmentCategory.Parse(roadSegmentAdded.Category).Translation;
-            var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation;
-            var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction).Translation;
-            var transactionId = new TransactionId(message.TransactionId);
-
-            return (object)new RoadSegmentRecord
-            {
-                Id = roadSegmentAdded.Id,
-                StartNodeId = roadSegmentAdded.StartNodeId,
-                EndNodeId = roadSegmentAdded.EndNodeId,
-                ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
-                ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
-                
-                Version = roadSegmentAdded.Version,
-                GeometryVersion = roadSegmentAdded.GeometryVersion,
-                StatusId = statusTranslation.Identifier,
-                MorphologyId = morphologyTranslation.Identifier,
-                CategoryId = categoryTranslation.Identifier,
-                LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId,
-                RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId,
-                MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code,
-                MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentAdded.MaintenanceAuthority.Name),
-                MethodId = geometryDrawMethodTranslation.Identifier,
-                AccessRestrictionId = accessRestrictionTranslation.Identifier,
-
-                TransactionId = transactionId,
-                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(message.When),
-                BeginTime = LocalDateTimeTranslator.TranslateFromWhen(message.When),
-                BeginOrganizationId = message.OrganizationId,
-                BeginOrganizationName = message.Organization,
-                
-                DbaseRecord = new RoadSegmentDbaseRecord
-                {
-                    WS_OIDN = { Value = roadSegmentAdded.Id },
-                    WS_UIDN = { Value = roadSegmentAdded.Id + "_" + roadSegmentAdded.Version },
-                    WS_GIDN = { Value = roadSegmentAdded.Id + "_" + roadSegmentAdded.GeometryVersion },
-                    B_WK_OIDN = { Value = roadSegmentAdded.StartNodeId },
-                    E_WK_OIDN = { Value = roadSegmentAdded.EndNodeId },
-                    STATUS = { Value = RoadSegmentStatus.Parse(roadSegmentAdded.Status).Translation.Identifier },
-                    LBLSTATUS = { Value = RoadSegmentStatus.Parse(roadSegmentAdded.Status).Translation.Name },
-                    MORF = { Value = RoadSegmentMorphology.Parse(roadSegmentAdded.Morphology).Translation.Identifier },
-                    LBLMORF = { Value = RoadSegmentMorphology.Parse(roadSegmentAdded.Morphology).Translation.Name },
-                    WEGCAT = { Value = RoadSegmentCategory.Parse(roadSegmentAdded.Category).Translation.Identifier },
-                    LBLWEGCAT = { Value = RoadSegmentCategory.Parse(roadSegmentAdded.Category).Translation.Name },
-                    LSTRNMID = { Value = roadSegmentAdded.LeftSide.StreetNameId },
-                    LSTRNM = { Value = null },
-                    RSTRNMID = { Value = roadSegmentAdded.RightSide.StreetNameId },
-                    RSTRNM = { Value = null },
-                    BEHEER = { Value = roadSegmentAdded.MaintenanceAuthority.Code },
-                    LBLBEHEER = { Value = roadSegmentAdded.MaintenanceAuthority.Name },
-                    METHODE = { Value = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation.Identifier },
-                    LBLMETHOD = { Value = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation.Name },
-                    OPNDATUM = { Value = LocalDateTimeTranslator.TranslateFromWhen(message.When) },
-                    BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(message.When) },
-                    BEGINORG = { Value = message.OrganizationId },
-                    LBLBGNORG = { Value = message.Organization },
-                    TGBEP = { Value = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction).Translation.Identifier },
-                    LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction).Translation.Name }
-                }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
-                LastEventHash = roadSegmentAdded.GetHash()
-            }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
+            return (object)BuildRoadSegmentRecord(message, change.RoadSegmentAdded, _ => { });
         });
 
-        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8, new NullLogger<RoadSegmentRecordProjection>())
+        return BuildProjection()
             .Scenario()
             .Given(message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_adding_road_segment_to_european_road()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToEuropeanRoad>());
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var roadSegmentAddedToEuropeanRoad = change.RoadSegmentAddedToEuropeanRoad;
+
+            return (object)BuildRoadSegmentRecord(
+                acceptedRoadSegmentAdded,
+                acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded,
+                record =>
+                {
+                    record.Version = roadSegmentAddedToEuropeanRoad.SegmentVersion!.Value;
+
+                    record.TransactionId = new TransactionId(message.TransactionId);
+                    record.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(message.When);
+                    record.LastEventHash = roadSegmentAddedToEuropeanRoad.GetHash();
+                });
+        });
+
+        return BuildProjection()
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_adding_road_segment_to_national_road()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToNationalRoad>());
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var roadSegmentAddedToNationalRoad = change.RoadSegmentAddedToNationalRoad;
+
+            return (object)BuildRoadSegmentRecord(
+                acceptedRoadSegmentAdded,
+                acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded,
+                record =>
+                {
+                    record.Version = roadSegmentAddedToNationalRoad.SegmentVersion!.Value;
+
+                    record.TransactionId = new TransactionId(message.TransactionId);
+                    record.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(message.When);
+                    record.LastEventHash = roadSegmentAddedToNationalRoad.GetHash();
+                });
+        });
+
+        return BuildProjection()
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_adding_road_segment_to_numbered_road()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToNumberedRoad>());
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var roadSegmentAddedToNumberedRoad = change.RoadSegmentAddedToNumberedRoad;
+
+            return (object)BuildRoadSegmentRecord(
+                acceptedRoadSegmentAdded,
+                acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded,
+                record =>
+                {
+                    record.Version = roadSegmentAddedToNumberedRoad.SegmentVersion!.Value;
+
+                    record.TransactionId = new TransactionId(message.TransactionId);
+                    record.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(message.When);
+                    record.LastEventHash = roadSegmentAddedToNumberedRoad.GetHash();
+                });
+        });
+
+        return BuildProjection()
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_removing_road_segment_from_european_road()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentRemovedFromEuropeanRoad>());
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var roadSegmentRemovedFromEuropeanRoad = change.RoadSegmentRemovedFromEuropeanRoad;
+
+            return (object)BuildRoadSegmentRecord(
+                acceptedRoadSegmentAdded,
+                acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded,
+                record =>
+                {
+                    record.Version = roadSegmentRemovedFromEuropeanRoad.SegmentVersion!.Value;
+
+                    record.TransactionId = new TransactionId(message.TransactionId);
+                    record.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(message.When);
+                    record.LastEventHash = roadSegmentRemovedFromEuropeanRoad.GetHash();
+                });
+        });
+
+        return BuildProjection()
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_removing_road_segment_from_national_road()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentRemovedFromNationalRoad>());
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var roadSegmentRemovedFromNationalRoad = change.RoadSegmentRemovedFromNationalRoad;
+
+            return (object)BuildRoadSegmentRecord(
+                acceptedRoadSegmentAdded,
+                acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded,
+                record =>
+                {
+                    record.Version = roadSegmentRemovedFromNationalRoad.SegmentVersion!.Value;
+
+                    record.TransactionId = new TransactionId(message.TransactionId);
+                    record.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(message.When);
+                    record.LastEventHash = roadSegmentRemovedFromNationalRoad.GetHash();
+                });
+        });
+
+        return BuildProjection()
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_removing_road_segment_from_numbered_road()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentRemovedFromNumberedRoad>());
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var roadSegmentRemovedFromNumberedRoad = change.RoadSegmentRemovedFromNumberedRoad;
+
+            return (object)BuildRoadSegmentRecord(
+                acceptedRoadSegmentAdded,
+                acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded,
+                record =>
+                {
+                    record.Version = roadSegmentRemovedFromNumberedRoad.SegmentVersion!.Value;
+
+                    record.TransactionId = new TransactionId(message.TransactionId);
+                    record.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(message.When);
+                    record.LastEventHash = roadSegmentRemovedFromNumberedRoad.GetHash();
+                });
+        });
+
+        return BuildProjection()
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, message)
             .Expect(expectedRecords);
     }
 
@@ -232,7 +388,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         });
 
-        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8, new NullLogger<RoadSegmentRecordProjection>())
+        return BuildProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentAttributesModified)
             .Expect(expectedRecords);
@@ -322,7 +478,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         });
 
-        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8, new NullLogger<RoadSegmentRecordProjection>())
+        return BuildProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentGeometryModified)
             .Expect(expectedRecords);
@@ -412,7 +568,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         });
 
-        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8, new NullLogger<RoadSegmentRecordProjection>())
+        return BuildProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .Expect(expectedRecords);
@@ -437,7 +593,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             acceptedRoadSegmentRemoved
         };
         
-        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8, new NullLogger<RoadSegmentRecordProjection>())
+        return BuildProjection()
             .Scenario()
             .Given(messages)
             .ExpectNone();
@@ -519,7 +675,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 return new { importedRoadSegment, expected };
             }).ToList();
 
-        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8, new NullLogger<RoadSegmentRecordProjection>())
+        return BuildProjection()
             .Scenario()
             .Given(data.Select(d => d.importedRoadSegment))
             .Expect(data.Select(d => d.expected));
@@ -544,7 +700,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             acceptedRoadSegmentRemoved
         };
 
-        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8, new NullLogger<RoadSegmentRecordProjection>())
+        return BuildProjection()
             .Scenario()
             .Given(messages)
             .ExpectNone();
@@ -643,9 +799,93 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
         });
 
-        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8, new NullLogger<RoadSegmentRecordProjection>())
+        return BuildProjection()
             .Scenario()
             .Given(messages)
             .Expect(expectedRecords);
+    }
+
+    private RoadSegmentRecord BuildRoadSegmentRecord(
+        RoadNetworkChangesAccepted acceptedRoadSegmentAdded,
+        RoadSegmentAdded roadSegmentAdded,
+        Action<RoadSegmentRecord> changeRecord,
+        Action<RoadSegmentDbaseRecord>? changeDbaseRecord = null)
+    {
+        var geometry = GeometryTranslator.Translate(roadSegmentAdded.Geometry);
+        var polyLineMShapeContent = new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(geometry));
+        var statusTranslation = RoadSegmentStatus.Parse(roadSegmentAdded.Status).Translation;
+        var morphologyTranslation = RoadSegmentMorphology.Parse(roadSegmentAdded.Morphology).Translation;
+        var categoryTranslation = RoadSegmentCategory.Parse(roadSegmentAdded.Category).Translation;
+        var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation;
+        var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction).Translation;
+        var transactionId = new TransactionId(acceptedRoadSegmentAdded.TransactionId);
+
+        var record = new RoadSegmentRecord
+        {
+            Id = roadSegmentAdded.Id,
+            StartNodeId = roadSegmentAdded.StartNodeId,
+            EndNodeId = roadSegmentAdded.EndNodeId,
+            ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
+            ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
+
+            Version = roadSegmentAdded.Version,
+            GeometryVersion = roadSegmentAdded.GeometryVersion,
+            StatusId = statusTranslation.Identifier,
+            MorphologyId = morphologyTranslation.Identifier,
+            CategoryId = categoryTranslation.Identifier,
+            LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId,
+            RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId,
+            MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code,
+            MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentAdded.MaintenanceAuthority.Name),
+            MethodId = geometryDrawMethodTranslation.Identifier,
+            AccessRestrictionId = accessRestrictionTranslation.Identifier,
+
+            TransactionId = transactionId,
+            RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+            BeginTime = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+            BeginOrganizationId = acceptedRoadSegmentAdded.OrganizationId,
+            BeginOrganizationName = acceptedRoadSegmentAdded.Organization,
+
+            LastEventHash = roadSegmentAdded.GetHash()
+        }.WithBoundingBox(RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape));
+        changeRecord(record);
+
+        var dbaseRecord = new RoadSegmentDbaseRecord
+        {
+            WS_OIDN = { Value = record.Id },
+            WS_UIDN = { Value = record.Id + "_" + record.Version },
+            WS_GIDN = { Value = record.Id + "_" + record.GeometryVersion },
+            B_WK_OIDN = { Value = record.StartNodeId },
+            E_WK_OIDN = { Value = record.EndNodeId },
+            STATUS = { Value = RoadSegmentStatus.ByIdentifier[record.StatusId].Translation.Identifier },
+            LBLSTATUS = { Value = RoadSegmentStatus.ByIdentifier[record.StatusId].Translation.Name },
+            MORF = { Value = RoadSegmentMorphology.ByIdentifier[record.MorphologyId].Translation.Identifier },
+            LBLMORF = { Value = RoadSegmentMorphology.ByIdentifier[record.MorphologyId].Translation.Name },
+            WEGCAT = { Value = RoadSegmentCategory.ByIdentifier[record.CategoryId].Translation.Identifier },
+            LBLWEGCAT = { Value = RoadSegmentCategory.ByIdentifier[record.CategoryId].Translation.Name },
+            LSTRNMID = { Value = record.LeftSideStreetNameId },
+            LSTRNM = { Value = null },
+            RSTRNMID = { Value = record.RightSideStreetNameId },
+            RSTRNM = { Value = null },
+            BEHEER = { Value = record.MaintainerId },
+            LBLBEHEER = { Value = record.MaintainerName },
+            METHODE = { Value = RoadSegmentGeometryDrawMethod.ByIdentifier[record.MethodId].Translation.Identifier },
+            LBLMETHOD = { Value = RoadSegmentGeometryDrawMethod.ByIdentifier[record.MethodId].Translation.Name },
+            OPNDATUM = { Value = record.RecordingDate },
+            BEGINTIJD = { Value = record.BeginTime },
+            BEGINORG = { Value = record.BeginOrganizationId },
+            LBLBGNORG = { Value = record.BeginOrganizationName },
+            TGBEP = { Value = RoadSegmentAccessRestriction.ByIdentifier[record.AccessRestrictionId].Translation.Identifier },
+            LBLTGBEP = { Value = RoadSegmentAccessRestriction.ByIdentifier[record.AccessRestrictionId].Translation.Name }
+        };
+        changeDbaseRecord?.Invoke(dbaseRecord);
+        record.DbaseRecord = dbaseRecord.ToBytes(_services.MemoryStreamManager, Encoding.UTF8);
+
+        return record;
+    }
+
+    private RoadSegmentRecordProjection BuildProjection()
+    {
+        return new RoadSegmentRecordProjection(_services.MemoryStreamManager, Encoding.UTF8, new NullLogger<RoadSegmentRecordProjection>());
     }
 }
