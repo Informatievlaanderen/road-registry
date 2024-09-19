@@ -9,12 +9,12 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using RoadRegistry.BackOffice.Abstractions.Uploads;
 using TicketingService.Abstractions;
 
-internal class CommandHostHealthCheck : ISystemHealthCheck
+internal class CommandHostSystemHealthCheck : ISystemHealthCheck
 {
     private readonly IMediator _mediator;
     private readonly ITicketing _ticketing;
 
-    public CommandHostHealthCheck(IMediator mediator, ITicketing ticketing)
+    public CommandHostSystemHealthCheck(IMediator mediator, ITicketing ticketing)
     {
         _mediator = mediator;
         _ticketing = ticketing;

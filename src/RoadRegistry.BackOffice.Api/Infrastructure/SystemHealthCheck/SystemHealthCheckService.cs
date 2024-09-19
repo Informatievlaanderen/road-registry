@@ -115,7 +115,6 @@ public class SystemHealthCheckService : ISystemHealthCheckService
                     data: null,
                     tags: registration.Tags);
             }
-
             finally
             {
                 timeoutCancellationTokenSource?.Dispose();
@@ -124,9 +123,4 @@ public class SystemHealthCheckService : ISystemHealthCheckService
             return entry;
         }
     }
-}
-
-public sealed class SystemHealthCheckOptions
-{
-    public required ICollection<Type> HealthCheckTypes { get; init; }
 }

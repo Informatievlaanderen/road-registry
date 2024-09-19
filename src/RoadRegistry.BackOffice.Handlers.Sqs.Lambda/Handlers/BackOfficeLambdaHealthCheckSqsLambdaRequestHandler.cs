@@ -1,9 +1,11 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
+using System.Reflection;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Core;
+using Exceptions;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
@@ -35,6 +37,12 @@ public sealed class BackOfficeLambdaHealthCheckSqsLambdaRequestHandler : SqsLamb
 
     protected override async Task<object> InnerHandle(BackOfficeLambdaHealthCheckSqsLambdaRequest request, CancellationToken cancellationToken)
     {
+        var assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString();
+        if (request.Request.AssemblyVersion != assemblyVersion)
+        {
+            throw new IncorrectAssemblyVersionException(assemblyVersion);
+        }
+
         // try get lock in dynamo
         var distributedStreamStoreLock = new DistributedStreamStoreLock(_distributedStreamStoreLockOptions, RoadNetworkStreamNameProvider.Default, Logger);
         await distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(() => Task.CompletedTask, cancellationToken);

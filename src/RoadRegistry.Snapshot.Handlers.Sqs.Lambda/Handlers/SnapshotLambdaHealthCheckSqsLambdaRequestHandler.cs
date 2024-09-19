@@ -1,7 +1,9 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Handlers;
 
+using System.Reflection;
 using BackOffice;
 using BackOffice.Core;
+using BackOffice.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Hosts;
@@ -31,6 +33,12 @@ public sealed class SnapshotLambdaHealthCheckSqsLambdaRequestHandler : SqsLambda
 
     protected override async Task<object> InnerHandle(SnapshotLambdaHealthCheckSqsLambdaRequest request, CancellationToken cancellationToken)
     {
+        var assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString();
+        if (request.Request.AssemblyVersion != assemblyVersion)
+        {
+            throw new IncorrectAssemblyVersionException(assemblyVersion);
+        }
+
         var snapshotVersion = await _snapshotReader.ReadSnapshotVersionAsync(cancellationToken);
 
         var (roadNetwork, roadNetworkVersion) = await RoadRegistryContext.RoadNetworks.GetWithVersion(true, (messageStreamVersion, _) => messageStreamVersion > snapshotVersion, cancellationToken);

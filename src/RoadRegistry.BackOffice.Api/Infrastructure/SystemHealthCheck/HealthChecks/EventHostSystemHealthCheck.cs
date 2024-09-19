@@ -11,13 +11,13 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using SqlStreamStore.Streams;
 using TicketingService.Abstractions;
 
-internal class EventHostHealthCheck : ISystemHealthCheck
+internal class EventHostSystemHealthCheck : ISystemHealthCheck
 {
     private readonly ITicketing _ticketing;
     private readonly IRoadNetworkEventWriter _roadNetworkEventWriter;
     private readonly RoadNetworkUploadsBlobClient _roadNetworkUploadsBlobClient;
 
-    public EventHostHealthCheck(
+    public EventHostSystemHealthCheck(
         ITicketing ticketing,
         IRoadNetworkEventWriter roadNetworkEventWriter,
         RoadNetworkUploadsBlobClient roadNetworkUploadsBlobClient)

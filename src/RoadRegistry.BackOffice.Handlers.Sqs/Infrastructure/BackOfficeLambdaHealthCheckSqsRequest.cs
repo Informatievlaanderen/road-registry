@@ -4,4 +4,7 @@ using Abstractions;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 
 [BlobRequest]
-public class BackOfficeLambdaHealthCheckSqsRequest : SqsRequest;
+public class BackOfficeLambdaHealthCheckSqsRequest : SqsRequest
+{
+    public string? AssemblyVersion { get; init; }
+}

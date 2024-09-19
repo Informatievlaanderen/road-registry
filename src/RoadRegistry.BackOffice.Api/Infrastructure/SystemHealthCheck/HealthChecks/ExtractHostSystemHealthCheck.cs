@@ -12,14 +12,14 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using SqlStreamStore.Streams;
 using TicketingService.Abstractions;
 
-internal class ExtractHostHealthCheck : ISystemHealthCheck
+internal class ExtractHostSystemHealthCheck : ISystemHealthCheck
 {
     private readonly ITicketing _ticketing;
     private readonly IRoadNetworkEventWriter _roadNetworkExtractWriter;
     private readonly RoadNetworkUploadsBlobClient _roadNetworkUploadsBlobClient;
     private readonly RoadNetworkExtractDownloadsBlobClient _roadNetworkExtractDownloadsBlobClient;
 
-    public ExtractHostHealthCheck(
+    public ExtractHostSystemHealthCheck(
         ITicketing ticketing,
         IRoadNetworkEventWriter roadNetworkExtractWriter,
         RoadNetworkUploadsBlobClient roadNetworkUploadsBlobClient,

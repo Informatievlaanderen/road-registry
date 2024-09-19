@@ -2,19 +2,20 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthCheck.HealthChe
 {
     using System;
     using System.Linq;
+    using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
+    using BackOffice.Handlers.Sqs.Infrastructure;
     using MediatR;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
-    using RoadRegistry.Snapshot.Handlers.Sqs.Infrastructure;
     using TicketingService.Abstractions;
 
-    internal class SnapshotLambdaHealthCheck : ISystemHealthCheck
+    internal class BackOfficeLambdaSystemHealthCheck : ISystemHealthCheck
     {
         private readonly IMediator _mediator;
         private readonly ITicketing _ticketing;
 
-        public SnapshotLambdaHealthCheck(IMediator mediator, ITicketing ticketing)
+        public BackOfficeLambdaSystemHealthCheck(IMediator mediator, ITicketing ticketing)
         {
             _mediator = mediator;
             _ticketing = ticketing;
@@ -22,7 +23,10 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthCheck.HealthChe
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new SnapshotLambdaHealthCheckSqsRequest(), cancellationToken);
+            var result = await _mediator.Send(new BackOfficeLambdaHealthCheckSqsRequest
+            {
+                AssemblyVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString()
+            }, cancellationToken);
 
             var ticketId = Guid.Parse(result.Location.ToString().Split('/').Last());
 

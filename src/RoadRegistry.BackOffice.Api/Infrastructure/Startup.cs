@@ -324,11 +324,11 @@ public class Startup
             .Configure<ResponseOptions>(_configuration)
 
             .AddSystemHealthChecks([
-                typeof(BackOfficeLambdaHealthCheck),
-                typeof(CommandHostHealthCheck),
-                typeof(EventHostHealthCheck),
-                typeof(ExtractHostHealthCheck),
-                typeof(SnapshotLambdaHealthCheck),
+                typeof(CommandHostSystemHealthCheck),
+                typeof(EventHostSystemHealthCheck),
+                typeof(ExtractHostSystemHealthCheck),
+                typeof(BackOfficeLambdaSystemHealthCheck),
+                typeof(SnapshotLambdaSystemHealthCheck),
             ])
 
             // Jobs
