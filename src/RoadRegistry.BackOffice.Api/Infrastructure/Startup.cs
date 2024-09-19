@@ -324,11 +324,11 @@ public class Startup
             .Configure<ResponseOptions>(_configuration)
 
             .AddSystemHealthChecks([
-                //typeof(BackOfficeLambdaHealthCheck), //TODO-rik krijg dit niet meer getest in Rider
+                typeof(BackOfficeLambdaHealthCheck),
                 typeof(CommandHostHealthCheck),
                 typeof(EventHostHealthCheck),
                 typeof(ExtractHostHealthCheck),
-                // typeof(SnapshotLambdaHealthCheck),
+                typeof(SnapshotLambdaHealthCheck),
             ])
 
             // Jobs
