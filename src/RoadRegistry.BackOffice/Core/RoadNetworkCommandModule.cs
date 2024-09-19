@@ -7,8 +7,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
-using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using DutchTranslations;
 using FeatureToggles;
 using Framework;
 using Messages;
@@ -18,7 +18,6 @@ using NodaTime;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 using TicketingService.Abstractions;
-using Uploads;
 
 public class RoadNetworkCommandModule : CommandHandlerModule
 {
@@ -56,10 +55,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         var enricher = EnrichEvent.WithTime(clock);
         _organizationEventWriter = new OrganizationEventWriter(store, enricher);
 
-        For<CheckUploadHealth>()
-            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
-            .Handle(CheckUploadHealth);
-
         For<ChangeRoadNetwork>()
             .UseValidator(new ChangeRoadNetworkValidator())
             .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
@@ -84,30 +79,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             .UseValidator(new ChangeOrganizationValidator())
             .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(ChangeOrganization);
-    }
-
-    private async Task CheckUploadHealth(IRoadRegistryContext context, Command<CheckUploadHealth> command, ApplicationMetadata applicationMetadata, CancellationToken cancellationToken)
-    {
-        var ticketId = new TicketId(command.Body.TicketId);
-
-        await using var container = _lifetimeScope.BeginLifetimeScope();
-        var ticketing = container.Resolve<ITicketing>();
-
-        try
-        {
-            await context.RoadNetworks.Get(cancellationToken);
-
-            var blobClient = container.Resolve<RoadNetworkUploadsBlobClient>();
-            await blobClient.GetBlobAsync(new BlobName(command.Body.FileName), cancellationToken);
-
-            await ticketing.Complete(ticketId, new TicketResult(), cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"{nameof(CheckUploadHealth)} failed");
-
-            await ticketing.Error(ticketId, new TicketError(), cancellationToken);
-        }
     }
 
     private async Task ChangeRoadNetwork(IRoadRegistryContext context, Command<ChangeRoadNetwork> command, ApplicationMetadata applicationMetadata, CancellationToken cancellationToken)
@@ -213,7 +184,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                                 {
                                     Severity = problem.Severity.ToString(),
                                     problem.Reason,
-                                    Text = DutchTranslations.ProblemTranslator.Dutch(problem).Message
+                                    Text = ProblemTranslator.Dutch(problem).Message
                                 })
                                 .ToArray()
                         })

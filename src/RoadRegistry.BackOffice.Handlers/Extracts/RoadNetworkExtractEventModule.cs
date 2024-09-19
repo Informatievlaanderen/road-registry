@@ -1,10 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
-using System;
-using System.Collections.Generic;
 using System.IO.Compression;
-using System.Threading;
-using System.Threading.Tasks;
 using Autofac;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
@@ -16,14 +12,12 @@ using FluentValidation;
 using Framework;
 using Messages;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using Polly;
 using SqlStreamStore;
 using TicketingService.Abstractions;
-using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public class RoadNetworkExtractEventModule : EventHandlerModule
 {
@@ -49,32 +43,6 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         ArgumentNullException.ThrowIfNull(applicationMetadata);
         ArgumentNullException.ThrowIfNull(roadNetworkEventWriter);
         ArgumentNullException.ThrowIfNull(logger);
-
-        For<ExtractHostSystemHealthCheckRequested>()
-            .Handle(async (message, ct) =>
-            {
-                var ticketId = new TicketId(message.Body.TicketId);
-
-                await using var container = lifetimeScope.BeginLifetimeScope();
-                var ticketing = container.Resolve<ITicketing>();
-                try
-                {
-                    var bucketFileName = new BlobName(message.Body.BucketFileName);
-
-                    await downloadsBlobClient.GetBlobAsync(bucketFileName, ct);
-                    await downloadsBlobClient.DeleteBlobAsync(bucketFileName, ct);
-
-                    await uploadsBlobClient.GetBlobAsync(bucketFileName, ct);
-
-                    await ticketing.Complete(ticketId, new TicketResult(), ct);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, $"{nameof(CheckUploadHealth)} failed");
-
-                    await ticketing.Error(ticketId, new TicketError(), ct);
-                }
-            });
 
         For<RoadNetworkExtractGotRequested>()
             .UseRoadNetworkExtractCommandQueue(store)

@@ -23,7 +23,6 @@ using ZipArchiveWriters.ExtractHost;
 public class Program
 {
     public const int HostingPort = 10003;
-
     private static readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.BackOffice);
 
     protected Program()
@@ -68,6 +67,11 @@ public class Program
                     .AddFeatureCompare()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {
+                        new ExtractHostHealthModule(
+                            sp.GetService<ILifetimeScope>(),
+                            sp.GetService<RoadNetworkExtractDownloadsBlobClient>(),
+                            sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
+                            sp.GetService<ILoggerFactory>()),
                         new RoadNetworkExtractEventModule(
                             sp.GetService<ILifetimeScope>(),
                             sp.GetService<RoadNetworkExtractDownloadsBlobClient>(),
@@ -100,13 +104,11 @@ public class Program
                 WellKnownConnectionNames.EditorProjections,
                 WellKnownConnectionNames.SyndicationProjections
             ])
-            .Log((sp, logger) => {
+            .Log((sp, logger) =>
+            {
                 var blobClientOptions = sp.GetService<BlobClientOptions>();
                 logger.LogBlobClientCredentials(blobClientOptions);
             })
-            .RunAsync(async (sp, host, configuration) =>
-            {
-                await new SqlEventProcessorPositionStoreSchema(new SqlConnectionStringBuilder(configuration.GetRequiredConnectionString(WellKnownConnectionNames.ExtractHostAdmin))).CreateSchemaIfNotExists(WellKnownSchemas.ExtractHostSchema).ConfigureAwait(false);
-            });
+            .RunAsync(async (sp, host, configuration) => { await new SqlEventProcessorPositionStoreSchema(new SqlConnectionStringBuilder(configuration.GetRequiredConnectionString(WellKnownConnectionNames.ExtractHostAdmin))).CreateSchemaIfNotExists(WellKnownSchemas.ExtractHostSchema).ConfigureAwait(false); });
     }
 }

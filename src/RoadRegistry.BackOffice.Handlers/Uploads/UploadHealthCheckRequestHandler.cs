@@ -46,7 +46,7 @@ public class UploadHealthCheckRequestHandler : EndpointRequestHandler<UploadHeal
             cancellationToken
         );
 
-        var command = new Command(new CheckUploadHealth
+        var command = new Command(new CheckCommandHostHealth
         {
             TicketId = request.TicketId,
             FileName = fileName

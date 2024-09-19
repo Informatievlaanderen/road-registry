@@ -70,6 +70,13 @@ public class Program
                 .AddHostedServicesStatus()
             )
             .ConfigureCommandDispatcher(sp => Resolve.WhenEqualToMessage([
+                new CommandHostHealthModule(
+                    sp.GetRequiredService<IStreamStore>(),
+                    sp.GetRequiredService<ILifetimeScope>(),
+                    sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
+                    sp.GetRequiredService<IClock>(),
+                    sp.GetRequiredService<ILoggerFactory>()
+                ),
                 new RoadNetworkChangesArchiveCommandModule(
                     sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
                     sp.GetRequiredService<IStreamStore>(),
@@ -111,13 +118,13 @@ public class Program
             .Build();
 
         await roadRegistryHost
-            .LogSqlServerConnectionStrings(new [] {
+            .LogSqlServerConnectionStrings([
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.CommandHost,
                 WellKnownConnectionNames.CommandHostAdmin,
                 WellKnownConnectionNames.Jobs,
                 WellKnownConnectionNames.JobsAdmin
-            })
+            ])
             .RunAsync(async (sp, host, configuration) =>
             {
                 await new SqlCommandProcessorPositionStoreSchema(

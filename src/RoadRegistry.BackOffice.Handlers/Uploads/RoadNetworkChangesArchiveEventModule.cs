@@ -1,21 +1,19 @@
 namespace RoadRegistry.BackOffice.Handlers.Uploads;
 
+using System.IO.Compression;
 using Autofac;
 using BackOffice.Extracts;
-using BackOffice.FeatureCompare;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Exceptions;
+using FeatureCompare;
+using FeatureCompare.Readers;
 using FluentValidation;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using RoadRegistry.BackOffice.FeatureCompare.Readers;
 using SqlStreamStore;
-using System;
-using System.Collections.Generic;
-using System.IO.Compression;
 using TicketingService.Abstractions;
 
 public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
@@ -37,29 +35,6 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
         ArgumentNullException.ThrowIfNull(transactionZoneFeatureReader);
         ArgumentNullException.ThrowIfNull(roadNetworkEventWriter);
         ArgumentNullException.ThrowIfNull(logger);
-
-        For<EventHostSystemHealthCheckRequested>()
-            .Handle(async (message, ct) =>
-            {
-                var ticketId = new TicketId(message.Body.TicketId);
-
-                await using var container = lifetimeScope.BeginLifetimeScope();
-                var ticketing = container.Resolve<ITicketing>();
-                try
-                {
-                    var bucketFileName = new BlobName(message.Body.BucketFileName);
-
-                    await uploadsBlobClient.GetBlobAsync(bucketFileName, ct);
-
-                    await ticketing.Complete(ticketId, new TicketResult(), ct);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, $"{nameof(CheckUploadHealth)} failed");
-
-                    await ticketing.Error(ticketId, new TicketError(), ct);
-                }
-            });
 
         For<RoadNetworkChangesArchiveAccepted>()
             .UseRoadNetworkCommandQueue(store, applicationMetadata)

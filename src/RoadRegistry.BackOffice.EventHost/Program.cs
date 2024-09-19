@@ -58,6 +58,10 @@ public class Program
                     .AddFeatureCompare()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {
+                        new EventHostHealthModule(
+                            sp.GetRequiredService<ILifetimeScope>(),
+                            sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
+                            sp.GetRequiredService<ILoggerFactory>()),
                         new RoadNetworkChangesArchiveEventModule(
                             sp.GetService<ILifetimeScope>(),
                             sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
