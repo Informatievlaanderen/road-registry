@@ -22,7 +22,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
 {
     public RoadNetworkChangesArchiveEventModule(
         ILifetimeScope lifetimeScope,
-        RoadNetworkUploadsBlobClient client,
+        RoadNetworkUploadsBlobClient uploadsBlobClient,
         IStreamStore store,
         ApplicationMetadata applicationMetadata,
         ITransactionZoneFeatureCompareFeatureReader transactionZoneFeatureReader,
@@ -31,7 +31,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
         ILogger<RoadNetworkChangesArchiveEventModule> logger)
     {
         ArgumentNullException.ThrowIfNull(lifetimeScope);
-        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(uploadsBlobClient);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(applicationMetadata);
         ArgumentNullException.ThrowIfNull(transactionZoneFeatureReader);
@@ -47,17 +47,9 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                 var ticketing = container.Resolve<ITicketing>();
                 try
                 {
-                    //TODO-rik check:
-                    /*
-                   .AddS3(x => x
-                    .CheckPermission(WellKnownBuckets.SnapshotsBucket, Permission.Read)
-                    .CheckPermission(WellKnownBuckets.SqsMessagesBucket, Permission.Read)
-                    .CheckPermission(WellKnownBuckets.UploadsBucket, Permission.Read)
-                )
-                .AddSqs(x => x
-                    .CheckPermission(WellKnownQueues.SnapshotQueue, Permission.Read)
-                )
-                     */
+                    var bucketFileName = new BlobName(message.Body.BucketFileName);
+
+                    await uploadsBlobClient.GetBlobAsync(bucketFileName, ct);
 
                     await ticketing.Complete(ticketId, new TicketResult(), ct);
                 }
@@ -80,7 +72,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
                 var requestId = ChangeRequestId.FromArchiveId(archiveId);
 
-                var archiveBlob = await client.GetBlobAsync(new BlobName(archiveId), ct);
+                var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
 
                 try
                 {

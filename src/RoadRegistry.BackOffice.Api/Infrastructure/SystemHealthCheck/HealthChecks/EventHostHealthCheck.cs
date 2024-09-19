@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Uploads;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -14,13 +15,16 @@ internal class EventHostHealthCheck : ISystemHealthCheck
 {
     private readonly ITicketing _ticketing;
     private readonly IRoadNetworkEventWriter _roadNetworkEventWriter;
+    private readonly RoadNetworkUploadsBlobClient _roadNetworkUploadsBlobClient;
 
     public EventHostHealthCheck(
         ITicketing ticketing,
-        IRoadNetworkEventWriter roadNetworkEventWriter)
+        IRoadNetworkEventWriter roadNetworkEventWriter,
+        RoadNetworkUploadsBlobClient roadNetworkUploadsBlobClient)
     {
         _ticketing = ticketing;
         _roadNetworkEventWriter = roadNetworkEventWriter;
+        _roadNetworkUploadsBlobClient = roadNetworkUploadsBlobClient;
     }
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken)
@@ -30,12 +34,18 @@ internal class EventHostHealthCheck : ISystemHealthCheck
                 { "Action", "HealthCheck"}
             }, cancellationToken);
 
+        var fileName = "healthcheck-eventhost.bin";
+        Task.WaitAll(
+            _roadNetworkUploadsBlobClient.CreateDummyFile(fileName, cancellationToken)
+        );
+
         await _roadNetworkEventWriter.WriteAsync(
             new StreamName("healthcheck"),
             ExpectedVersion.Any,
             new Event(new EventHostSystemHealthCheckRequested
             {
-                TicketId = ticketId
+                TicketId = ticketId,
+                BucketFileName = fileName
             }),
             cancellationToken);
 

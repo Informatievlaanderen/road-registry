@@ -8,5 +8,6 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 public class EventHostSystemHealthCheckRequested : IMessage
 {
     public Guid TicketId { get; set; }
+    public string BucketFileName { get; set; }
     public string When { get; set; }
 }

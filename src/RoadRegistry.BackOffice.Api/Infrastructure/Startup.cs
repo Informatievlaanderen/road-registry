@@ -325,9 +325,9 @@ public class Startup
 
             .AddSystemHealthChecks([
                 //typeof(BackOfficeLambdaHealthCheck), //TODO-rik krijg dit niet meer getest in Rider
-                typeof(CommandHostHealthCheck), //OK
-                typeof(EventHostHealthCheck), //OK
-                typeof(ExtractHostHealthCheck), //OK
+                typeof(CommandHostHealthCheck),
+                typeof(EventHostHealthCheck),
+                typeof(ExtractHostHealthCheck),
                 // typeof(SnapshotLambdaHealthCheck),
             ])
 

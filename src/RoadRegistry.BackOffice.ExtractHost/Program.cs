@@ -93,14 +93,13 @@ public class Program
             .Build();
 
         await roadRegistryHost
-            .LogSqlServerConnectionStrings(new []
-            {
+            .LogSqlServerConnectionStrings([
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.ExtractHost,
                 WellKnownConnectionNames.ExtractHostAdmin,
                 WellKnownConnectionNames.EditorProjections,
                 WellKnownConnectionNames.SyndicationProjections
-            })
+            ])
             .Log((sp, logger) => {
                 var blobClientOptions = sp.GetService<BlobClientOptions>();
                 logger.LogBlobClientCredentials(blobClientOptions);

@@ -3,8 +3,10 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthCheck;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.BlobStore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using TicketingService.Abstractions;
@@ -55,5 +57,29 @@ internal static class Extensions
 
             Thread.Sleep(TimeSpan.FromSeconds(1));
         }
+    }
+
+    internal static async Task CreateDummyFile(this IBlobClient blobClient, string fileName, CancellationToken cancellationToken)
+    {
+        var metadata = Metadata.None.Add(
+            new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), fileName)
+        );
+
+        var blobName = new BlobName(fileName);
+
+        if (await blobClient.BlobExistsAsync(blobName, cancellationToken))
+        {
+            await blobClient.DeleteBlobAsync(blobName, cancellationToken);
+        }
+
+        await using var emptyFileStream = new MemoryStream();
+
+        await blobClient.CreateBlobAsync(
+            new BlobName(fileName),
+            metadata,
+            ContentType.Parse("application/octet-stream"),
+            emptyFileStream,
+            cancellationToken
+        );
     }
 }
