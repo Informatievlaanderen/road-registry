@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthCheck.HealthChe
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice.Uploads;
@@ -45,6 +46,7 @@ internal class EventHostSystemHealthCheck : ISystemHealthCheck
             new Event(new EventHostSystemHealthCheckRequested
             {
                 TicketId = ticketId,
+                AssemblyVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString(),
                 BucketFileName = fileName
             }),
             cancellationToken);

@@ -8,6 +8,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 public class ExtractHostSystemHealthCheckRequested : IMessage
 {
     public Guid TicketId { get; set; }
+    public string AssemblyVersion { get; set; }
     public string BucketFileName { get; set; }
     public string When { get; set; }
 }

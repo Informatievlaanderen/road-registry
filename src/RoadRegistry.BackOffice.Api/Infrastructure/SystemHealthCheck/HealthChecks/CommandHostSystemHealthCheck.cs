@@ -2,22 +2,29 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthCheck.HealthChe
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
+using BackOffice.Uploads;
+using Framework;
+using Messages;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using RoadRegistry.BackOffice.Abstractions.Uploads;
 using TicketingService.Abstractions;
 
 internal class CommandHostSystemHealthCheck : ISystemHealthCheck
 {
-    private readonly IMediator _mediator;
     private readonly ITicketing _ticketing;
+    private readonly RoadNetworkUploadsBlobClient _uploadsBlobClient;
+    private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
 
-    public CommandHostSystemHealthCheck(IMediator mediator, ITicketing ticketing)
+    public CommandHostSystemHealthCheck(
+        ITicketing ticketing,
+        RoadNetworkUploadsBlobClient uploadsBlobClient,
+        IRoadNetworkCommandQueue roadNetworkCommandQueue)
     {
-        _mediator = mediator;
         _ticketing = ticketing;
+        _uploadsBlobClient = uploadsBlobClient;
+        _roadNetworkCommandQueue = roadNetworkCommandQueue;
     }
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken)
@@ -27,12 +34,16 @@ internal class CommandHostSystemHealthCheck : ISystemHealthCheck
                 { "Action", "HealthCheck"}
             }, cancellationToken);
 
-        var request = new UploadHealthCheckRequest
-        {
-            TicketId = ticketId
-        };
+        var fileName = "healthcheck.bin";
+        await _uploadsBlobClient.CreateDummyFile(fileName, cancellationToken);
 
-        await _mediator.Send(request, cancellationToken);
+        var command = new Command(new CheckCommandHostHealth
+        {
+            TicketId = ticketId,
+            AssemblyVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString(),
+            FileName = fileName
+        });
+        await _roadNetworkCommandQueue.WriteAsync(command, cancellationToken);
 
         return await _ticketing.WaitUntilCompleteOrTimeout(ticketId, TimeSpan.FromMinutes(1), cancellationToken);
     }
