@@ -47,7 +47,17 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                 var ticketing = container.Resolve<ITicketing>();
                 try
                 {
-                    //TODO-rik check what?
+                    //TODO-rik check:
+                    /*
+                   .AddS3(x => x
+                    .CheckPermission(WellKnownBuckets.SnapshotsBucket, Permission.Read)
+                    .CheckPermission(WellKnownBuckets.SqsMessagesBucket, Permission.Read)
+                    .CheckPermission(WellKnownBuckets.UploadsBucket, Permission.Read)
+                )
+                .AddSqs(x => x
+                    .CheckPermission(WellKnownQueues.SnapshotQueue, Permission.Read)
+                )
+                     */
 
                     await ticketing.Complete(ticketId, new TicketResult(), ct);
                 }

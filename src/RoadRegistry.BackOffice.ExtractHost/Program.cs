@@ -1,8 +1,9 @@
 namespace RoadRegistry.BackOffice.ExtractHost;
 
+using System;
+using System.Threading.Tasks;
 using Abstractions;
 using Autofac;
-using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Configuration;
 using Editor.Schema;
 using Extensions;
@@ -17,8 +18,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using SqlStreamStore;
-using System;
-using System.Threading.Tasks;
 using ZipArchiveWriters.ExtractHost;
 
 public class Program
@@ -99,8 +98,6 @@ public class Program
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.ExtractHost,
                 WellKnownConnectionNames.ExtractHostAdmin,
-                WellKnownConnectionNames.Snapshots,
-                WellKnownConnectionNames.SnapshotsAdmin,
                 WellKnownConnectionNames.EditorProjections,
                 WellKnownConnectionNames.SyndicationProjections
             })
@@ -110,7 +107,6 @@ public class Program
             })
             .RunAsync(async (sp, host, configuration) =>
             {
-                await new SqlBlobSchema(new SqlConnectionStringBuilder(configuration.GetRequiredConnectionString(WellKnownConnectionNames.SnapshotsAdmin))).CreateSchemaIfNotExists(WellKnownSchemas.SnapshotSchema).ConfigureAwait(false);
                 await new SqlEventProcessorPositionStoreSchema(new SqlConnectionStringBuilder(configuration.GetRequiredConnectionString(WellKnownConnectionNames.ExtractHostAdmin))).CreateSchemaIfNotExists(WellKnownSchemas.ExtractHostSchema).ConfigureAwait(false);
             });
     }

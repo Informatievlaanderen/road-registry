@@ -1,9 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthCheck;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,10 +11,8 @@ using TicketingService.Abstractions;
 
 internal static class Extensions
 {
-    public static IServiceCollection AddSystemHealthChecks(this IServiceCollection services)
+    public static IServiceCollection AddSystemHealthChecks(this IServiceCollection services, ICollection<Type> systemHealthCheckTypes)
     {
-        var systemHealthCheckTypes = GetHealthCheckTypes();
-
         services.AddSingleton<ISystemHealthCheckService, SystemHealthCheckService>();
         services.AddSingleton(new SystemHealthCheckOptions
         {
@@ -58,15 +55,5 @@ internal static class Extensions
 
             Thread.Sleep(TimeSpan.FromSeconds(1));
         }
-    }
-    
-    private static Type[] GetHealthCheckTypes()
-    {
-        var interfaceType = typeof(ISystemHealthCheck);
-
-        return Assembly.GetExecutingAssembly()
-            .GetTypes()
-            .Where(type => interfaceType.IsAssignableFrom(type) && !type.IsAbstract)
-            .ToArray();
     }
 }

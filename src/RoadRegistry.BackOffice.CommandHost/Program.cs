@@ -1,30 +1,29 @@
 namespace RoadRegistry.BackOffice.CommandHost;
 
+using System.Threading;
+using System.Threading.Tasks;
 using Abstractions;
 using Autofac;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.MigrationExtensions;
 using Core;
 using Extensions;
 using Extracts;
+using FeatureCompare.Readers;
 using FeatureToggles;
 using Framework;
 using Handlers.Sqs;
 using Hosts;
+using Hosts.Infrastructure.Extensions;
+using Jobs;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using RoadNetwork.Schema;
-using RoadRegistry.Hosts.Infrastructure.Extensions;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
-using System.Threading;
-using System.Threading.Tasks;
-using FeatureCompare.Readers;
-using Jobs;
 using Uploads;
+using MediatorModule = Snapshot.Handlers.Sqs.MediatorModule;
 
 public class Program
 {
@@ -105,7 +104,7 @@ public class Program
             .ConfigureContainer((context, builder) =>
             {
                 builder
-                    .RegisterModule<Snapshot.Handlers.Sqs.MediatorModule>()
+                    .RegisterModule<MediatorModule>()
                     .RegisterModule<SqsHandlersModule>()
                     .RegisterModule<SnapshotSqsHandlersModule>();
             })
@@ -117,8 +116,7 @@ public class Program
                 WellKnownConnectionNames.CommandHost,
                 WellKnownConnectionNames.CommandHostAdmin,
                 WellKnownConnectionNames.Jobs,
-                WellKnownConnectionNames.JobsAdmin,
-                WellKnownConnectionNames.Snapshots
+                WellKnownConnectionNames.JobsAdmin
             })
             .RunAsync(async (sp, host, configuration) =>
             {

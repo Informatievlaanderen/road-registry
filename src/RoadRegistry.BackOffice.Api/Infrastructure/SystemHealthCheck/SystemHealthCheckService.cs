@@ -104,7 +104,7 @@ public class SystemHealthCheckService : ISystemHealthCheckService
             }
 
             // Allow cancellation to propagate if it's not a timeout.
-            catch (Exception ex) when (ex as OperationCanceledException == null)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 var duration = stopwatch.Elapsed;
                 entry = new HealthReportEntry(

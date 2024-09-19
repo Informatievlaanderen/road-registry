@@ -1,8 +1,8 @@
 namespace RoadRegistry.BackOffice.EventHost;
 
+using System.Threading.Tasks;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Configuration;
 using Core;
 using Extensions;
@@ -21,8 +21,8 @@ using NodaTime;
 using Snapshot.Handlers;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
-using System.Threading.Tasks;
 using Uploads;
+using MediatorModule = Snapshot.Handlers.Sqs.MediatorModule;
 
 public class Program
 {
@@ -87,24 +87,23 @@ public class Program
             {
                 builder
                     .RegisterModule<ContextModule>()
-                    .RegisterModule<Snapshot.Handlers.Sqs.MediatorModule>()
+                    .RegisterModule<MediatorModule>()
                     .RegisterModule<SqsHandlersModule>()
                     .RegisterModule<SnapshotSqsHandlersModule>();
 
                 builder
                     .Register(c => c.Resolve<RoadNetworkUploadsBlobClient>())
-                    .As<IBlobClient>().SingleInstance();
+                    .As<IBlobClient>()
+                    .SingleInstance();
             })
             .Build();
 
         await roadRegistryHost
-            .LogSqlServerConnectionStrings(new[] {
+            .LogSqlServerConnectionStrings([
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.EventHost,
-                WellKnownConnectionNames.EventHostAdmin,
-                WellKnownConnectionNames.Snapshots,
-                WellKnownConnectionNames.SnapshotsAdmin
-            })
+                WellKnownConnectionNames.EventHostAdmin
+            ])
             .Log((sp, logger) =>
             {
                 var blobClientOptions = sp.GetService<BlobClientOptions>();
@@ -112,10 +111,6 @@ public class Program
             })
             .RunAsync(async (sp, host, configuration) =>
             {
-                await
-                    new SqlBlobSchema(
-                        new SqlConnectionStringBuilder(configuration.GetRequiredConnectionString(WellKnownConnectionNames.SnapshotsAdmin))
-                    ).CreateSchemaIfNotExists(WellKnownSchemas.SnapshotSchema).ConfigureAwait(false);
                 await
                     new SqlEventProcessorPositionStoreSchema(
                         new SqlConnectionStringBuilder(configuration.GetRequiredConnectionString(WellKnownConnectionNames.EventHostAdmin))

@@ -137,14 +137,7 @@ public static class ServiceCollectionExtensions
         return services
             .AddDistributedS3Cache()
             .AddSingleton(new RecyclableMemoryStreamManager())
-            .AddSingleton(sp =>
-            {
-                var configuration = sp.GetRequiredService<IConfiguration>();
-                return new RoadNetworkSnapshotsBlobClient(
-                    new SqlBlobClient(
-                        new SqlConnectionStringBuilder(configuration.GetRequiredConnectionString(WellKnownConnectionNames.Snapshots)),
-                        WellKnownSchemas.SnapshotSchema));
-            })
+            .AddSingleton(sp => new RoadNetworkSnapshotsBlobClient(sp.GetService<IBlobClientFactory>().Create(WellKnownBuckets.SnapshotsBucket)))
             .AddSingleton<IRoadNetworkSnapshotReader, RoadNetworkSnapshotReader>()
             .AddSingleton<IRoadNetworkSnapshotWriter, RoadNetworkSnapshotWriter>();
     }

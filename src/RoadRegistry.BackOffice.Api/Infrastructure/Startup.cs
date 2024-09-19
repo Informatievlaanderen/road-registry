@@ -64,6 +64,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FeatureCompare.Readers;
+using SystemHealthCheck.HealthChecks;
 using ZipArchiveWriters.Cleaning;
 using DomainAssemblyMarker = BackOffice.Handlers.Sqs.DomainAssemblyMarker;
 using MediatorModule = Snapshot.Handlers.MediatorModule;
@@ -91,7 +92,7 @@ public class Startup
         HealthCheckService healthCheckService)
     {
         StartupHelpers.CheckDatabases(healthCheckService, DatabaseTag, loggerFactory).GetAwaiter().GetResult();
-        
+
         var environment = serviceProvider.GetRequiredService<IHostEnvironment>();
         if (environment.IsDevelopment())
         {
@@ -256,10 +257,6 @@ public class Startup
                 )
             ))
             .AddSingleton(new RecyclableMemoryStreamManager())
-            .AddSingleton<IBlobClient>(new SqlBlobClient(
-                new SqlConnectionStringBuilder(
-                    _configuration.GetRequiredConnectionString(WellKnownConnectionNames.Snapshots)),
-                WellKnownSchemas.SnapshotSchema))
             .AddRoadRegistrySnapshot()
             .AddRoadNetworkEventWriter()
             .AddScoped(_ => new EventSourcedEntityMap())
@@ -326,7 +323,13 @@ public class Startup
             .AddSingleton(apiOptions)
             .Configure<ResponseOptions>(_configuration)
 
-            .AddSystemHealthChecks()
+            .AddSystemHealthChecks([
+                //typeof(BackOfficeLambdaHealthCheck), //TODO-rik krijg dit niet meer getest in Rider
+                typeof(CommandHostHealthCheck), //OK
+                typeof(EventHostHealthCheck), //OK
+                typeof(ExtractHostHealthCheck), //OK
+                // typeof(SnapshotLambdaHealthCheck),
+            ])
 
             // Jobs
             .Configure<JobsBucketOptions>(_configuration.GetSection(JobsBucketOptions.ConfigKey))

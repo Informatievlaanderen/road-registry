@@ -77,7 +77,6 @@ public class Program
 
             logger.LogSqlServerConnectionString(configuration, WellKnownConnectionNames.Events);
             logger.LogSqlServerConnectionString(configuration, WellKnownConnectionNames.Jobs);
-            logger.LogSqlServerConnectionString(configuration, WellKnownConnectionNames.Snapshots);
             logger.LogSqlServerConnectionString(configuration, WellKnownConnectionNames.EditorProjections);
             logger.LogSqlServerConnectionString(configuration, WellKnownConnectionNames.ProductProjections);
             logger.LogSqlServerConnectionString(configuration, WellKnownConnectionNames.StreetNameProjections);
@@ -92,6 +91,9 @@ public class Program
         finally
         {
             await Log.CloseAndFlushAsync();
+
+            // Allow some time for flushing before shutdown.
+            await Task.Delay(500, default);
         }
     }
 }
