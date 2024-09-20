@@ -1,3 +1,10 @@
+# [4.9.0](https://github.com/informatievlaanderen/road-registry/compare/v4.8.5...v4.9.0) (2024-09-20)
+
+
+### Features
+
+* system healthcheck endpoint ([#1535](https://github.com/informatievlaanderen/road-registry/issues/1535)) ([38ce04d](https://github.com/informatievlaanderen/road-registry/commit/38ce04d9e7b1a0c8e0ddbefd563e2eb9f59c0649))
+
 ## [4.8.5](https://github.com/informatievlaanderen/road-registry/compare/v4.8.4...v4.8.5) (2024-09-18)
 
 
