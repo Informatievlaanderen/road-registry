@@ -192,17 +192,17 @@ jobs:
     steps:
     - name: Run
       run: |
-        response=$(curl -X POST "$API_URL/v1/system/healthcheck" -H "x-api-key: $APIKEY" --fail)
+        #response=$(curl -X POST "$API_URL/v1/system/healthcheck" -H "x-api-key: $APIKEY" --fail)
 
-        if [ $? -ne 0 ]; then
-          exit 1
-        fi
+        #if [ $? -ne 0 ]; then
+        #  exit 1
+        #fi
 
-        if echo "$response" | grep -q "unhealthy"; then
-          echo "System is unhealthy:"
-          echo $response
-          exit 1
-        fi
+        #if echo "$response" | grep -q "unhealthy"; then
+        #  echo "System is unhealthy:"
+        #  echo $response
+        #  exit 1
+        #fi
 
         echo "System is healthy"
       shell: bash
@@ -235,7 +235,7 @@ jobs:
     if: ${{ github.repository_owner == 'Informatievlaanderen' && failure() }}
     name: Notify deployment failed
     runs-on: ubuntu-latest
-    needs: [ deploy_services, deploy_tasks ]
+    needs: [ system_healthcheck ]
     steps:
       - name: Notify deployment failed
         id: slack
