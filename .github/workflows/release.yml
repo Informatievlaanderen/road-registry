@@ -372,7 +372,7 @@ jobs:
   
   build-lambda-backoffice:
     name: Build Lambda BackOffice
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-lambda.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-lambda.yml@version-lambda
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -385,7 +385,7 @@ jobs:
 
   build-lambda-snapshot:
     name: Build Lambda Snapshot
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-lambda.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-lambda.yml@version-lambda
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -925,9 +925,36 @@ jobs:
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
         REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
 
-  deploy_to_test_finish_slack:
+  system_healthcheck:
     if: github.repository_owner == 'Informatievlaanderen'
     needs: [ release, deploy_lambda_to_test ]
+    name: Sytem healthcheck
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Run
+      run: |
+        response=$(curl -X POST "$API_URL/v1/system/healthcheck" -H "x-api-key: $APIKEY" --fail)
+
+        if [ $? -ne 0 ]; then
+          exit 1
+        fi
+
+        if echo "$response" | grep -q "unhealthy"; then
+          echo "System is unhealthy:"
+          echo $response
+          exit 1
+        fi
+
+        echo "System is healthy"
+      shell: bash
+      env:
+        APIKEY: ${{ secrets.HEALTHCHECK_APIKEY }}
+        API_URL: ${{ vars.BACKOFFICE_API_URL_TST }}
+
+  deploy_to_test_finish_slack:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [ system_healthcheck ]
     name: Deploy to test finished
     runs-on: ubuntu-latest
 

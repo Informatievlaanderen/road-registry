@@ -1,10 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Swashbuckle.AspNetCore.Annotations;
 using SystemHealthCheck;
 
@@ -29,14 +27,6 @@ public partial class RoadRegistrySystemController
     {
         var report = await healthCheckService.CheckHealthAsync(cancellationToken);
 
-        if (report.Status == HealthStatus.Healthy)
-        {
-            return Ok(report);
-        }
-
-        return new ObjectResult(report)
-        {
-            StatusCode = (int)HttpStatusCode.ServiceUnavailable
-        };
+        return Ok(report);
     }
 }
