@@ -69,7 +69,6 @@ public class Program
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new WmsContextMigrationFactory())
                 .AddHostedService<WmsContextEventProcessor>())
             .ConfigureHealthChecks(HostingPort,builder => builder
-                .AddSqlServer()
                 .AddHostedServicesStatus()
             )
             .Build();

@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 
-internal class RoadNetworkSnapshotsBlobClient : IBlobClient
+public class RoadNetworkSnapshotsBlobClient : IBlobClient
 {
     private readonly IBlobClient _client;
 

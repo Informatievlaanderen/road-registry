@@ -1,28 +1,26 @@
 namespace RoadRegistry.BackOffice.Handlers.Uploads;
 
+using System.IO.Compression;
 using Autofac;
 using BackOffice.Extracts;
-using BackOffice.FeatureCompare;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Exceptions;
+using FeatureCompare;
+using FeatureCompare.Readers;
 using FluentValidation;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using RoadRegistry.BackOffice.FeatureCompare.Readers;
 using SqlStreamStore;
-using System;
-using System.Collections.Generic;
-using System.IO.Compression;
 using TicketingService.Abstractions;
 
 public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
 {
     public RoadNetworkChangesArchiveEventModule(
         ILifetimeScope lifetimeScope,
-        RoadNetworkUploadsBlobClient client,
+        RoadNetworkUploadsBlobClient uploadsBlobClient,
         IStreamStore store,
         ApplicationMetadata applicationMetadata,
         ITransactionZoneFeatureCompareFeatureReader transactionZoneFeatureReader,
@@ -31,7 +29,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
         ILogger<RoadNetworkChangesArchiveEventModule> logger)
     {
         ArgumentNullException.ThrowIfNull(lifetimeScope);
-        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(uploadsBlobClient);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(applicationMetadata);
         ArgumentNullException.ThrowIfNull(transactionZoneFeatureReader);
@@ -49,7 +47,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
                 var requestId = ChangeRequestId.FromArchiveId(archiveId);
 
-                var archiveBlob = await client.GetBlobAsync(new BlobName(archiveId), ct);
+                var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
 
                 try
                 {

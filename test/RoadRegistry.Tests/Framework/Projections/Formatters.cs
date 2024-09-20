@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 public static class Formatters
 {
-    private static readonly GeometryFactory _factory = new(new PrecisionModel(), 31370);
+    private static readonly GeometryFactory Factory = new(new PrecisionModel(), 31370);
     private static readonly JsonConverter[] Converters;
 
     static Formatters()
@@ -17,7 +17,7 @@ public static class Formatters
             new FeatureCollectionConverter(),
             new FeatureConverter(),
             new AttributesTableConverter(),
-            new GeometryConverter(_factory, 2),
+            new GeometryConverter(Factory, 2),
             new EnvelopeConverter()
         ];
     }

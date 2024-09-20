@@ -1,10 +1,15 @@
 namespace RoadRegistry.Hosts;
+
+using System;
+using System.IO;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using BackOffice;
 using BackOffice.Configuration;
 using BackOffice.Extensions;
-using BackOffice.FeatureToggles;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Infrastructure.Extensions;
@@ -20,12 +25,6 @@ using NetTopologySuite.IO;
 using NodaTime;
 using RoadRegistry.Hosts.Infrastructure.HealthChecks;
 using Serilog;
-using System;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 {
@@ -120,11 +119,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
         {
             var builder = services.AddHealthChecks();
 
-            var useHealthChecksFeatureToggle = hostContext.Configuration.GetFeatureToggles<ApplicationFeatureToggle>().OfType<UseHealthChecksFeatureToggle>().Single();
-            if (useHealthChecksFeatureToggle.FeatureEnabled)
-            {
-                configureDelegate?.Invoke(HealthCheckInitializer.Configure(builder, hostContext.Configuration, hostContext.HostingEnvironment));
-            }
+            configureDelegate?.Invoke(HealthCheckInitializer.Configure(builder));
         });
 
         this.ConfigureWebHostDefaults(webHostBuilder =>

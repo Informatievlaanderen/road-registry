@@ -1,5 +1,9 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure;
 
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
 using Abstractions;
 using Amazon;
 using Amazon.DynamoDBv2;
@@ -27,7 +31,6 @@ using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Hosts.Infrastructure.Extensions;
-using Hosts.Infrastructure.HealthChecks;
 using Hosts.Infrastructure.Modules;
 using IdentityModel.AspNetCore.OAuth2Introspection;
 using Jobs;
@@ -54,12 +57,14 @@ using RoadSegments;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
+using SystemHealthCheck;
 using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FeatureCompare.Readers;
+using SystemHealthCheck.HealthChecks;
 using ZipArchiveWriters.Cleaning;
 using DomainAssemblyMarker = BackOffice.Handlers.Sqs.DomainAssemblyMarker;
 using MediatorModule = Snapshot.Handlers.MediatorModule;
@@ -165,7 +170,6 @@ public class Startup
         apiOptions.BaseUrl = apiOptions.BaseUrl?.TrimEnd('/') ?? string.Empty;
 
         var featureToggles = _configuration.GetFeatureToggles<ApplicationFeatureToggle>();
-        var useHealthChecksFeatureToggle = featureToggles.OfType<UseHealthChecksFeatureToggle>().Single();
 
         services
             .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
@@ -212,29 +216,6 @@ public class Startup
                 },
                 MiddlewareHooks =
                 {
-                    AfterHealthChecks = builder =>
-                    {
-                        var healthCheckInitializer = HealthCheckInitializer.Configure(builder, _configuration, _webHostEnvironment)
-                            .AddSqlServer();
-
-                        if (useHealthChecksFeatureToggle.FeatureEnabled)
-                        {
-                            healthCheckInitializer
-                                .AddS3(x => x
-                                    .CheckPermission(WellKnownBuckets.UploadsBucket, Permission.Read, Permission.Write)
-                                    .CheckPermission(WellKnownBuckets.ExtractDownloadsBucket, Permission.Read)
-                                    .CheckPermission(WellKnownBuckets.SqsMessagesBucket, Permission.Write)
-                                    .CheckPermission(WellKnownBuckets.SnapshotsBucket, Permission.Read)
-                                )
-                                .AddSqs(x => x
-                                    .CheckPermission(WellKnownQueues.AdminQueue, Permission.Write)
-                                    .CheckPermission(WellKnownQueues.BackOfficeQueue, Permission.Write)
-                                    .CheckPermission(WellKnownQueues.SnapshotQueue, Permission.Write)
-                                )
-                                .AddTicketing()
-                                ;
-                        }
-                    },
                     FluentValidation = _ =>
                     {
                         // Do not remove this handler!
@@ -276,10 +257,6 @@ public class Startup
                 )
             ))
             .AddSingleton(new RecyclableMemoryStreamManager())
-            .AddSingleton<IBlobClient>(new SqlBlobClient(
-                new SqlConnectionStringBuilder(
-                    _configuration.GetRequiredConnectionString(WellKnownConnectionNames.Snapshots)),
-                WellKnownSchemas.SnapshotSchema))
             .AddRoadRegistrySnapshot()
             .AddRoadNetworkEventWriter()
             .AddScoped(_ => new EventSourcedEntityMap())
@@ -346,6 +323,14 @@ public class Startup
             .AddSingleton(apiOptions)
             .Configure<ResponseOptions>(_configuration)
 
+            .AddSystemHealthChecks([
+                typeof(CommandHostSystemHealthCheck),
+                typeof(EventHostSystemHealthCheck),
+                typeof(ExtractHostSystemHealthCheck),
+                typeof(BackOfficeLambdaSystemHealthCheck),
+                typeof(SnapshotLambdaSystemHealthCheck),
+            ])
+
             // Jobs
             .Configure<JobsBucketOptions>(_configuration.GetSection(JobsBucketOptions.ConfigKey))
             .AddJobsContext()
@@ -373,20 +358,5 @@ public class Startup
     private static string GetApiLeadingText(ApiVersionDescription description)
     {
         return $"Momenteel leest u de documentatie voor versie {description.ApiVersion} van de Basisregisters Vlaanderen Road Registry API{string.Format(description.IsDeprecated ? ", **deze API versie is niet meer ondersteund * *." : ".")}";
-    }
-}
-
-public class SqlServerHealthCheck : IHealthCheck
-{
-    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
-    {
-        try
-        {
-            return HealthCheckResult.Healthy();
-        }
-        catch (Exception ex)
-        {
-            return new HealthCheckResult(HealthStatus.Unhealthy, "dfd", ex);
-        }
     }
 }

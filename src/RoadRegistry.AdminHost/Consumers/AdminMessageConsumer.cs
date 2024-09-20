@@ -1,21 +1,20 @@
 namespace RoadRegistry.AdminHost.Consumers;
 
-using BackOffice;
-using BackOffice.Abstractions;
-using BackOffice.Configuration;
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
-using BackOffice.Core.ProblemCodes;
+using BackOffice;
+using BackOffice.Abstractions;
+using BackOffice.Configuration;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Hosts.Infrastructure;
 using Infrastructure.Options;
+using MediatR;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using TicketingService.Abstractions;
 
 public class AdminMessageConsumer
@@ -65,11 +64,6 @@ public class AdminMessageConsumer
                     }
 
                     var request = backOfficeRequest ?? message;
-
-                    if (request is HealthCheckSqsRequest)
-                    {
-                        return;
-                    }
 
                     var ticketId = (message as SqsRequest)?.TicketId;
                     if (ticketId is not null)

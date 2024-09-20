@@ -1,8 +1,9 @@
 namespace RoadRegistry.BackOffice.ExtractHost;
 
+using System;
+using System.Threading.Tasks;
 using Abstractions;
 using Autofac;
-using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Configuration;
 using Editor.Schema;
 using Extensions;
@@ -17,14 +18,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using SqlStreamStore;
-using System;
-using System.Threading.Tasks;
 using ZipArchiveWriters.ExtractHost;
 
 public class Program
 {
     public const int HostingPort = 10003;
-
     private static readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.BackOffice);
 
     protected Program()
@@ -69,6 +67,11 @@ public class Program
                     .AddFeatureCompare()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {
+                        new ExtractHostHealthModule(
+                            sp.GetService<ILifetimeScope>(),
+                            sp.GetService<RoadNetworkExtractDownloadsBlobClient>(),
+                            sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
+                            sp.GetService<ILoggerFactory>()),
                         new RoadNetworkExtractEventModule(
                             sp.GetService<ILifetimeScope>(),
                             sp.GetService<RoadNetworkExtractDownloadsBlobClient>(),
@@ -84,17 +87,7 @@ public class Program
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));
             })
             .ConfigureHealthChecks(HostingPort, builder => builder
-                .AddSqlServer()
                 .AddHostedServicesStatus()
-                .AddS3(x => x
-                    .CheckPermission(WellKnownBuckets.SnapshotsBucket, Permission.Read)
-                    .CheckPermission(WellKnownBuckets.SqsMessagesBucket, Permission.Read)
-                    .CheckPermission(WellKnownBuckets.UploadsBucket, Permission.Read)
-                    .CheckPermission(WellKnownBuckets.ExtractDownloadsBucket, Permission.Read, Permission.Delete)
-                )
-                .AddSqs(x => x
-                    .CheckPermission(WellKnownQueues.SnapshotQueue, Permission.Read)
-                )
             )
             .ConfigureContainer((context, builder) =>
             {
@@ -104,24 +97,18 @@ public class Program
             .Build();
 
         await roadRegistryHost
-            .LogSqlServerConnectionStrings(new []
-            {
+            .LogSqlServerConnectionStrings([
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.ExtractHost,
                 WellKnownConnectionNames.ExtractHostAdmin,
-                WellKnownConnectionNames.Snapshots,
-                WellKnownConnectionNames.SnapshotsAdmin,
                 WellKnownConnectionNames.EditorProjections,
                 WellKnownConnectionNames.SyndicationProjections
-            })
-            .Log((sp, logger) => {
+            ])
+            .Log((sp, logger) =>
+            {
                 var blobClientOptions = sp.GetService<BlobClientOptions>();
                 logger.LogBlobClientCredentials(blobClientOptions);
             })
-            .RunAsync(async (sp, host, configuration) =>
-            {
-                await new SqlBlobSchema(new SqlConnectionStringBuilder(configuration.GetRequiredConnectionString(WellKnownConnectionNames.SnapshotsAdmin))).CreateSchemaIfNotExists(WellKnownSchemas.SnapshotSchema).ConfigureAwait(false);
-                await new SqlEventProcessorPositionStoreSchema(new SqlConnectionStringBuilder(configuration.GetRequiredConnectionString(WellKnownConnectionNames.ExtractHostAdmin))).CreateSchemaIfNotExists(WellKnownSchemas.ExtractHostSchema).ConfigureAwait(false);
-            });
+            .RunAsync(async (sp, host, configuration) => { await new SqlEventProcessorPositionStoreSchema(new SqlConnectionStringBuilder(configuration.GetRequiredConnectionString(WellKnownConnectionNames.ExtractHostAdmin))).CreateSchemaIfNotExists(WellKnownSchemas.ExtractHostSchema).ConfigureAwait(false); });
     }
 }

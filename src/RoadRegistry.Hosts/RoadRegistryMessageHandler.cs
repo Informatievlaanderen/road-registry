@@ -6,7 +6,6 @@ using Autofac;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using Infrastructure;
 using MediatR;
 
 public abstract class RoadRegistryMessageHandler : IMessageHandler
@@ -27,12 +26,7 @@ public abstract class RoadRegistryMessageHandler : IMessageHandler
             messageMetadata.Logger?.LogInformation($"Unable to cast '{nameof(messageData)}' as {nameof(SqsRequest)}.");
             return;
         }
-
-        if (sqsRequest is HealthCheckSqsRequest)
-        {
-            return;
-        }
-
+        
         await using var lifetimeScope = _container.BeginLifetimeScope();
         var mediator = lifetimeScope.Resolve<IMediator>();
 

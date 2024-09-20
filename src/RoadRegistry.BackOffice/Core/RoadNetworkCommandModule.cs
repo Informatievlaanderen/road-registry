@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using DutchTranslations;
 using FeatureToggles;
 using Framework;
 using Messages;
@@ -183,7 +184,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                                 {
                                     Severity = problem.Severity.ToString(),
                                     problem.Reason,
-                                    Text = DutchTranslations.ProblemTranslator.Dutch(problem).Message
+                                    Text = ProblemTranslator.Dutch(problem).Message
                                 })
                                 .ToArray()
                         })

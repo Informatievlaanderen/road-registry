@@ -1,30 +1,29 @@
 namespace RoadRegistry.BackOffice.CommandHost;
 
+using System.Threading;
+using System.Threading.Tasks;
 using Abstractions;
 using Autofac;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.MigrationExtensions;
 using Core;
 using Extensions;
 using Extracts;
+using FeatureCompare.Readers;
 using FeatureToggles;
 using Framework;
 using Handlers.Sqs;
 using Hosts;
+using Hosts.Infrastructure.Extensions;
+using Jobs;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using RoadNetwork.Schema;
-using RoadRegistry.Hosts.Infrastructure.Extensions;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
-using System.Threading;
-using System.Threading.Tasks;
-using FeatureCompare.Readers;
-using Jobs;
 using Uploads;
+using MediatorModule = Snapshot.Handlers.Sqs.MediatorModule;
 
 public class Program
 {
@@ -68,19 +67,16 @@ public class Program
                 })
             )
             .ConfigureHealthChecks(HostingPort, builder => builder
-                .AddSqlServer()
                 .AddHostedServicesStatus()
-                .AddS3(x => x
-                    .CheckPermission(WellKnownBuckets.SnapshotsBucket, Permission.Read)
-                    .CheckPermission(WellKnownBuckets.SqsMessagesBucket, Permission.Read)
-                    .CheckPermission(WellKnownBuckets.UploadsBucket, Permission.Read)
-                )
-                .AddSqs(x => x
-                    .CheckPermission(WellKnownQueues.SnapshotQueue, Permission.Read)
-                )
-                .AddTicketing()
             )
             .ConfigureCommandDispatcher(sp => Resolve.WhenEqualToMessage([
+                new CommandHostHealthModule(
+                    sp.GetRequiredService<IStreamStore>(),
+                    sp.GetRequiredService<ILifetimeScope>(),
+                    sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
+                    sp.GetRequiredService<IClock>(),
+                    sp.GetRequiredService<ILoggerFactory>()
+                ),
                 new RoadNetworkChangesArchiveCommandModule(
                     sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
                     sp.GetRequiredService<IStreamStore>(),
@@ -115,21 +111,20 @@ public class Program
             .ConfigureContainer((context, builder) =>
             {
                 builder
-                    .RegisterModule<Snapshot.Handlers.Sqs.MediatorModule>()
+                    .RegisterModule<MediatorModule>()
                     .RegisterModule<SqsHandlersModule>()
                     .RegisterModule<SnapshotSqsHandlersModule>();
             })
             .Build();
 
         await roadRegistryHost
-            .LogSqlServerConnectionStrings(new [] {
+            .LogSqlServerConnectionStrings([
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.CommandHost,
                 WellKnownConnectionNames.CommandHostAdmin,
                 WellKnownConnectionNames.Jobs,
-                WellKnownConnectionNames.JobsAdmin,
-                WellKnownConnectionNames.Snapshots
-            })
+                WellKnownConnectionNames.JobsAdmin
+            ])
             .RunAsync(async (sp, host, configuration) =>
             {
                 await new SqlCommandProcessorPositionStoreSchema(

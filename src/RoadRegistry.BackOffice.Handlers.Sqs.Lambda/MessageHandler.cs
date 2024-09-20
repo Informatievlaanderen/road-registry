@@ -5,10 +5,11 @@ using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using Hosts.Infrastructure;
 using MediatR;
 using Requests;
+using RoadRegistry.BackOffice.Handlers.Sqs.Infrastructure;
 using RoadSegments;
+using Sqs;
 
 public sealed class MessageHandler : BlobMessageHandler
 {
@@ -30,17 +31,15 @@ public sealed class MessageHandler : BlobMessageHandler
         await using var lifetimeScope = _container.BeginLifetimeScope();
         var mediator = lifetimeScope.Resolve<IMediator>();
 
-        if (sqsRequest is not HealthCheckSqsRequest)
-        {
-            var sqsLambdaRequest = ConvertToLambdaRequest(sqsRequest, messageMetadata.MessageGroupId!);
-            await mediator.Send(sqsLambdaRequest, cancellationToken);
-        }
+        var sqsLambdaRequest = ConvertToLambdaRequest(sqsRequest, messageMetadata.MessageGroupId!);
+        await mediator.Send(sqsLambdaRequest, cancellationToken);
     }
 
     private static SqsLambdaRequest ConvertToLambdaRequest(SqsRequest sqsRequest, string groupId)
     {
         return sqsRequest switch
         {
+            BackOfficeLambdaHealthCheckSqsRequest request => new BackOfficeLambdaHealthCheckSqsLambdaRequest(groupId, request),
             LinkStreetNameSqsRequest request => new LinkStreetNameSqsLambdaRequest(groupId, request),
             UnlinkStreetNameSqsRequest request => new UnlinkStreetNameSqsLambdaRequest(groupId, request),
             CreateRoadSegmentOutlineSqsRequest request => new CreateRoadSegmentOutlineSqsLambdaRequest(groupId, request),

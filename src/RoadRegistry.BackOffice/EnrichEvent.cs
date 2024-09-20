@@ -125,6 +125,13 @@ public static class EnrichEvent
                 case StreetNameRenamed m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
+                // System health checks
+                case EventHostSystemHealthCheckRequested m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
+                case ExtractHostSystemHealthCheckRequested m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
             }
         };
     }

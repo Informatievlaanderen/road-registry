@@ -69,7 +69,6 @@ public class Program
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new WfsContextMigrationFactory())
                 .AddHostedService<WfsContextEventProcessor>())
             .ConfigureHealthChecks(HostingPort, builder => builder
-                .AddSqlServer()
                 .AddHostedServicesStatus()
             )
             .Build();

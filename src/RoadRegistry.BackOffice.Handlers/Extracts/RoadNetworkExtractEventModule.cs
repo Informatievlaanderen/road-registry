@@ -12,14 +12,12 @@ using FluentValidation;
 using Framework;
 using Messages;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using Polly;
 using SqlStreamStore;
 using TicketingService.Abstractions;
-using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public class RoadNetworkExtractEventModule : EventHandlerModule
 {
