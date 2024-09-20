@@ -950,7 +950,7 @@ jobs:
       shell: bash
       env:
         APIKEY: ${{ secrets.HEALTHCHECK_APIKEY }}
-        API_URL: ${{ env.BACKOFFICE_API_URL_TST }}
+        API_URL: ${{ vars.BACKOFFICE_API_URL_TST }}
 
   deploy_to_test_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
