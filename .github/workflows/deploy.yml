@@ -208,7 +208,7 @@ jobs:
       shell: bash
       env:
         APIKEY: ${{ secrets.HEALTHCHECK_APIKEY }}
-        API_URL: ${{ github.event.inputs.environment == 'tst' && env.BACKOFFICE_API_URL_TST || github.event.inputs.environment == 'stg' && env.BACKOFFICE_API_URL_STG  || env.BACKOFFICE_API_URL_PRD }}
+        API_URL: ${{ github.event.inputs.environment == 'tst' && vars.BACKOFFICE_API_URL_TST || github.event.inputs.environment == 'stg' && vars.BACKOFFICE_API_URL_STG  || vars.BACKOFFICE_API_URL_PRD }}
 
   deploy_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
