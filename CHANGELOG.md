@@ -1,3 +1,10 @@
+## [4.9.2](https://github.com/informatievlaanderen/road-registry/compare/v4.9.1...v4.9.2) (2024-09-20)
+
+
+### Bug Fixes
+
+* system healthcheck via pipeline ([#1537](https://github.com/informatievlaanderen/road-registry/issues/1537)) ([4046c35](https://github.com/informatievlaanderen/road-registry/commit/4046c35170b2c7db819df9c9c67fcabbef241f41))
+
 ## [4.9.1](https://github.com/informatievlaanderen/road-registry/compare/v4.9.0...v4.9.1) (2024-09-20)
 
 
