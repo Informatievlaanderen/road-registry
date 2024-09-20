@@ -1,3 +1,10 @@
+## [4.9.4](https://github.com/informatievlaanderen/road-registry/compare/v4.9.3...v4.9.4) (2024-09-20)
+
+
+### Bug Fixes
+
+* ExtractRequestRecordProjection deal with missing data ([#1539](https://github.com/informatievlaanderen/road-registry/issues/1539)) ([0c915f6](https://github.com/informatievlaanderen/road-registry/commit/0c915f618b0d3a774c78bbeb74e8040ca60f474c))
+
 ## [4.9.3](https://github.com/informatievlaanderen/road-registry/compare/v4.9.2...v4.9.3) (2024-09-20)
 
 
