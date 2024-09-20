@@ -13,6 +13,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Extensions;
 
 public class ExtractRequestRecordProjection : ConnectedProjection<EditorContext>
 {
@@ -50,8 +51,12 @@ public class ExtractRequestRecordProjection : ConnectedProjection<EditorContext>
 
         When<Envelope<RoadNetworkExtractDownloaded>>(async (context, envelope, ct) =>
         {
-            var record = context.ExtractRequests.Local.SingleOrDefault(record => record.DownloadId == envelope.Message.DownloadId)
-                                 ?? await context.ExtractRequests.SingleAsync(record => record.DownloadId == envelope.Message.DownloadId, ct);
+            var record = await context.ExtractRequests
+                .IncludeLocalSingleOrDefaultAsync(record => record.DownloadId == envelope.Message.DownloadId, ct);
+            if (record is null)
+            {
+                return;
+            }
 
             record.DownloadedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToDateTimeOffset();
         });
