@@ -1,3 +1,10 @@
+## [4.9.5](https://github.com/informatievlaanderen/road-registry/compare/v4.9.4...v4.9.5) (2024-09-23)
+
+
+### Bug Fixes
+
+* get transactionzones geojson via backoffice-api ([#1540](https://github.com/informatievlaanderen/road-registry/issues/1540)) ([9b94545](https://github.com/informatievlaanderen/road-registry/commit/9b945453c28aab06a4fbe6a827fa58517cdd2807))
+
 ## [4.9.4](https://github.com/informatievlaanderen/road-registry/compare/v4.9.3...v4.9.4) (2024-09-20)
 
 
