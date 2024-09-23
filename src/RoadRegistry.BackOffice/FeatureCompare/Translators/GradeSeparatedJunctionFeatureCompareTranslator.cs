@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Extracts;
 using Extracts.Dbase.GradeSeparatedJuntions;
 using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice.FeatureCompare.Readers;
+using Readers;
 using Uploads;
 
 public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTranslatorBase<GradeSeparatedJunctionFeatureCompareAttributes>
@@ -68,22 +68,6 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
             }
         }
 
-        RoadSegmentFeatureCompareRecord FindRoadSegmentByOriginalId(RoadSegmentId originalId)
-        {
-            var matchingFeatures = context.RoadSegmentRecords
-                .NotRemoved()
-                .Where(x => x.GetOriginalId() == originalId)
-                .ToList();
-
-            if (matchingFeatures.Count > 1)
-            {
-                var matchingFeaturesInfo = string.Join("\n", matchingFeatures.Select(feature => $"RoadSegment #{feature.RecordNumber}, ID: {feature.Id}, FeatureType: {feature.FeatureType}, RecordType: {feature.RecordType}"));
-                throw new InvalidOperationException($"Found {matchingFeatures.Count} processed road segments with original ID {originalId} while only 1 is expected.\n{matchingFeaturesInfo}");
-            }
-
-            return matchingFeatures.SingleOrDefault();
-        }
-
         foreach (var changeFeature in changeFeatures)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -98,8 +82,8 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
                 continue;
             }
 
-            var boWegsegmentFeature = FindRoadSegmentByOriginalId(changeFeature.Attributes.UpperRoadSegmentId);
-            var onWegsegmentFeature = FindRoadSegmentByOriginalId(changeFeature.Attributes.LowerRoadSegmentId);
+            var boWegsegmentFeature = context.FindNotRemovedRoadSegmentByOriginalId(changeFeature.Attributes.UpperRoadSegmentId);
+            var onWegsegmentFeature = context.FindNotRemovedRoadSegmentByOriginalId(changeFeature.Attributes.LowerRoadSegmentId);
 
             if (boWegsegmentFeature is null || onWegsegmentFeature is null)
             {
