@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.FeatureCompare;
 
+using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
@@ -29,5 +30,21 @@ public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureRe
     {
         return RoadSegmentRecords.SingleOrDefault(x => x.GetActualId() == id)
             ?? RoadSegmentRecords.SingleOrDefault(x => x.GetOriginalId() == id);
+    }
+
+    public RoadSegmentFeatureCompareRecord FindNotRemovedRoadSegmentByOriginalId(RoadSegmentId originalId)
+    {
+        var matchingFeatures = RoadSegmentRecords
+            .NotRemoved()
+            .Where(x => x.GetOriginalId() == originalId)
+            .ToList();
+
+        if (matchingFeatures.Count > 1)
+        {
+            var matchingFeaturesInfo = string.Join("\n", matchingFeatures.Select(feature => $"RoadSegment #{feature.RecordNumber}, ID: {feature.Id}, FeatureType: {feature.FeatureType}, RecordType: {feature.RecordType}"));
+            throw new InvalidOperationException($"Found {matchingFeatures.Count} processed road segments with original ID {originalId} while only 1 is expected.\n{matchingFeaturesInfo}");
+        }
+
+        return matchingFeatures.SingleOrDefault();
     }
 }
