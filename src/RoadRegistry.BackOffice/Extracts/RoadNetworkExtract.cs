@@ -155,8 +155,7 @@ public class RoadNetworkExtract : EventSourcedEntity
                 _externalExtractRequestId, Id, downloadId, _requestedDownloads[^1], uploadId);
 
         if (_knownUploads.Count == 1)
-            throw new CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException(
-                _externalExtractRequestId, Id, downloadId, uploadId);
+            throw new CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException();
 
         Apply(new RoadNetworkExtractChangesArchiveUploaded
         {

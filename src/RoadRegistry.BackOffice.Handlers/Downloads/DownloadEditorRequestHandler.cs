@@ -38,7 +38,7 @@ public class DownloadEditorRequestHandler : EndpointRequestHandler<DownloadEdito
         _cache = cache;
     }
 
-    public override async Task<DownloadEditorResponse> HandleAsync(DownloadEditorRequest request, CancellationToken cancellationToken)
+    protected override async Task<DownloadEditorResponse> InnerHandleAsync(DownloadEditorRequest request, CancellationToken cancellationToken)
     {
         var info = await _context.RoadNetworkInfo.SingleOrDefaultAsync(cancellationToken);
 

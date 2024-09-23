@@ -15,9 +15,9 @@ public abstract class RequestHandler<TRequest, TResponse> : IRequestHandler<TReq
 
     public virtual async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken)
     {
-        var response = await HandleAsync(request, cancellationToken);
+        var response = await InnerHandleAsync(request, cancellationToken);
         return response;
     }
 
-    public abstract Task<TResponse> HandleAsync(TRequest request, CancellationToken cancellationToken);
+    protected abstract Task<TResponse> InnerHandleAsync(TRequest request, CancellationToken cancellationToken);
 }

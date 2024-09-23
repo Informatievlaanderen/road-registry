@@ -28,7 +28,7 @@ public class DownloadFileContentRequestHandler : EndpointRetryableRequestHandler
         _client = client ?? throw new ArgumentNullException(nameof(client));
     }
 
-    public override async Task<DownloadFileContentResponse> HandleAsync(DownloadFileContentRequest request, CancellationToken cancellationToken)
+    protected override async Task<DownloadFileContentResponse> InnerHandleAsync(DownloadFileContentRequest request, CancellationToken cancellationToken)
     {
         if (request.DownloadId is null)
         {

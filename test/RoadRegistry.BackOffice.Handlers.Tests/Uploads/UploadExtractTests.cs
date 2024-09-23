@@ -32,7 +32,7 @@ namespace RoadRegistry.BackOffice.Handlers.Tests.Uploads
             );
 
             // Assert
-            await Assert.ThrowsAsync<UnsupportedMediaTypeException>(() => sut.HandleAsync(request, CancellationToken.None));
+            await Assert.ThrowsAsync<UnsupportedMediaTypeException>(() => sut.Handle(request, CancellationToken.None));
         }
     }
 }

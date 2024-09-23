@@ -38,7 +38,7 @@ public class ByNisCode
 
         // Act
         var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
-        var result = await handler.HandleAsync(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         result.DownloadIds.Should().BeEmpty();
@@ -85,7 +85,7 @@ public class ByNisCode
 
         // Act
         var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
-        var result = await handler.HandleAsync(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         result.DownloadIds.Should().HaveCount(1);
@@ -123,7 +123,7 @@ public class ByNisCode
 
         // Act
         var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
-        var result = await handler.HandleAsync(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         result.DownloadIds.Should().HaveCount(1);
@@ -162,7 +162,7 @@ public class ByNisCode
 
         // Act
         var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
-        var result = await handler.HandleAsync(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         result.DownloadIds.Should().HaveCount(1);
@@ -201,7 +201,7 @@ public class ByNisCode
 
         // Act
         var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
-        var result = await handler.HandleAsync(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         result.DownloadIds.Should().HaveCount(1);
@@ -237,7 +237,7 @@ public class ByNisCode
 
         // Act
         var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
-        var result = await handler.HandleAsync(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         result.DownloadIds.Should().BeEmpty();
@@ -273,7 +273,7 @@ public class ByNisCode
 
         // Act
         var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
-        var result = await handler.HandleAsync(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         result.DownloadIds.Should().BeEmpty();
@@ -308,7 +308,7 @@ public class ByNisCode
 
         // Act
         var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
-        var result = await handler.HandleAsync(request, CancellationToken.None);
+        var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         result.DownloadIds.Should().BeEmpty();

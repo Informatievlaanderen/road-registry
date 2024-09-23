@@ -21,7 +21,7 @@ public class UploadStatusRequestHandler : EndpointRetryableRequestHandler<Upload
     {
     }
 
-    public override async Task<UploadStatusResponse> HandleAsync(UploadStatusRequest request, CancellationToken cancellationToken)
+    protected override async Task<UploadStatusResponse> InnerHandleAsync(UploadStatusRequest request, CancellationToken cancellationToken)
     {
         if (!Guid.TryParseExact(request.UploadId, "N", out var parsedUploadId))
         {

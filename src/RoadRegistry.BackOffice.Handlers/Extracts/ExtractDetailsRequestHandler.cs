@@ -21,7 +21,7 @@ public class ExtractDetailsRequestHandler : EndpointRetryableRequestHandler<Extr
     {
     }
 
-    public override async Task<ExtractDetailsResponse> HandleAsync(ExtractDetailsRequest request, CancellationToken cancellationToken)
+    protected override async Task<ExtractDetailsResponse> InnerHandleAsync(ExtractDetailsRequest request, CancellationToken cancellationToken)
     {
         var record = await Context.ExtractRequests.FindAsync(new object[] { request.DownloadId.ToGuid() }, cancellationToken);
 

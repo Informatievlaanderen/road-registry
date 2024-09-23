@@ -27,7 +27,7 @@ public class ValidateWktContourRequestHandler : EndpointRequestHandler<ValidateW
         _reader = reader ?? throw new ArgumentNullException(nameof(reader));
     }
 
-    public override Task<ValidateWktContourResponse> HandleAsync(ValidateWktContourRequest request, CancellationToken cancellationToken)
+    protected override Task<ValidateWktContourResponse> InnerHandleAsync(ValidateWktContourRequest request, CancellationToken cancellationToken)
     {
         var geometry = _reader.Read(request.Contour);
 

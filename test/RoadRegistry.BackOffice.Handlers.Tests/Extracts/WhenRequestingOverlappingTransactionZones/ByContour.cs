@@ -38,7 +38,7 @@
 
          // Act
          var handler = new GetOverlappingTransactionZonesByContourRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
-         var result = await handler.HandleAsync(request, CancellationToken.None);
+         var result = await handler.Handle(request, CancellationToken.None);
 
          // Assert
          result.DownloadIds.Should().HaveCount(1);
@@ -81,7 +81,7 @@
 
          // Act
          var handler = new GetOverlappingTransactionZonesByContourRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
-         var result = await handler.HandleAsync(request, CancellationToken.None);
+         var result = await handler.Handle(request, CancellationToken.None);
 
          // Assert
          result.DownloadIds.Should().HaveCount(1);
@@ -112,7 +112,7 @@
 
          // Act
          var handler = new GetOverlappingTransactionZonesByContourRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
-         var result = await handler.HandleAsync(request, CancellationToken.None);
+         var result = await handler.Handle(request, CancellationToken.None);
 
          // Assert
          result.DownloadIds.Should().BeEmpty();
@@ -142,7 +142,7 @@
 
          // Act
          var handler = new GetOverlappingTransactionZonesByContourRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
-         var result = await handler.HandleAsync(request, CancellationToken.None);
+         var result = await handler.Handle(request, CancellationToken.None);
 
          // Assert
          result.DownloadIds.Should().BeEmpty();

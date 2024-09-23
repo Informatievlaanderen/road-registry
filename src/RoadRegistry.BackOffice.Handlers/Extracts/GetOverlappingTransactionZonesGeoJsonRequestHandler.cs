@@ -22,7 +22,7 @@ public class GetOverlappingTransactionZonesGeoJsonRequestHandler : EndpointReque
         _context = context;
     }
 
-    public override async Task<GetOverlappingTransactionZonesGeoJsonResponse> HandleAsync(GetOverlappingTransactionZonesGeoJsonRequest request, CancellationToken cancellationToken)
+    protected override async Task<GetOverlappingTransactionZonesGeoJsonResponse> InnerHandleAsync(GetOverlappingTransactionZonesGeoJsonRequest request, CancellationToken cancellationToken)
     {
         var availableOverlaps = await (
             from overlap in _context.ExtractRequestOverlaps
