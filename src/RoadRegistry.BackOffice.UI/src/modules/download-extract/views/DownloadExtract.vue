@@ -114,24 +114,27 @@
           </div>
 
           <div class="vl-form-col--12-12" v-if="municipalityFlow.overlapWarning">
-            <vl-alert mod-warning mod-small>
-              De contour voor deze extractaanvraag overlapt met de contour van een andere, open extractaanvraag.
-              <p>
-                <label class="vl-checkbox" for="municipality-overlap-warning">
-                  <input
-                    class="vl-checkbox__toggle"
-                    type="checkbox"
-                    id="municipality-overlap-warning"
-                    v-model="municipalityFlow.overlapWarningAccepted"
-                  />
-                  <span class="vl-checkbox__label">
-                    <i class="vl-checkbox__box" aria-hidden="true"></i>
-                    Ik wens toch het extract aan te vragen
-                  </span>
-                </label>
-              </p>
+            <vl-alert mod-warning mod-small style="padding: 0">
+              <div style="margin: 1.5rem">
+                De contour voor deze extractaanvraag overlapt met de contour van een andere, open extractaanvraag.
+                <p>
+                  <label class="vl-checkbox" for="municipality-overlap-warning">
+                    <input
+                      class="vl-checkbox__toggle"
+                      type="checkbox"
+                      id="municipality-overlap-warning"
+                      v-model="municipalityFlow.overlapWarningAccepted"
+                    />
+                    <span class="vl-checkbox__label">
+                      <i class="vl-checkbox__box" aria-hidden="true"></i>
+                      Ik wens toch het extract aan te vragen
+                    </span>
+                  </label>
+                </p>
+              </div>
             </vl-alert>
           </div>
+
           <div class="vl-form-col--12-12">
             <vl-action-group>
               <vl-button @click="currentStep = steps.Step2_Municipality">Vorige</vl-button>
@@ -295,22 +298,24 @@
           </div>
 
           <div class="vl-form-col--12-12" v-if="contourFlow.overlapWarning">
-            <vl-alert mod-warning mod-small>
-              De contour voor deze extractaanvraag overlapt met de contour van een andere, open extractaanvraag.
-              <p>
-                <label class="vl-checkbox" for="contour-overlap-warning">
-                  <input
-                    class="vl-checkbox__toggle"
-                    type="checkbox"
-                    id="contour-overlap-warning"
-                    v-model="contourFlow.overlapWarningAccepted"
-                  />
-                  <span class="vl-checkbox__label">
-                    <i class="vl-checkbox__box" aria-hidden="true"></i>
-                    Ik wens toch het extract aan te vragen
-                  </span>
-                </label>
-              </p>
+            <vl-alert mod-warning mod-small style="padding: 0">
+              <div style="margin: 1.5rem">
+                De contour voor deze extractaanvraag overlapt met de contour van een andere, open extractaanvraag.
+                <p>
+                  <label class="vl-checkbox" for="contour-overlap-warning">
+                    <input
+                      class="vl-checkbox__toggle"
+                      type="checkbox"
+                      id="contour-overlap-warning"
+                      v-model="contourFlow.overlapWarningAccepted"
+                    />
+                    <span class="vl-checkbox__label">
+                      <i class="vl-checkbox__box" aria-hidden="true"></i>
+                      Ik wens toch het extract aan te vragen
+                    </span>
+                  </label>
+                </p>
+              </div>
             </vl-alert>
           </div>
           <div class="vl-form-col--12-12">
