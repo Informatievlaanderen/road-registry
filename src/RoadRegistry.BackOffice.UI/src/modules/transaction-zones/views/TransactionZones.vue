@@ -32,7 +32,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Map from "ol/Map";
-import { PublicApi } from "@/services";
+import { BackOfficeApi } from "@/services";
 
 export default Vue.extend({
   computed: {
@@ -40,10 +40,12 @@ export default Vue.extend({
       return (this.$refs.map as any).olMap as Map;
     },
     transactionZonesGeoJsonUrl() {
-      return PublicApi.Extracts.getTransactionZonesGeoJsonUrl();
+      // Do not use PublicApi to avoid response size limit error
+      return BackOfficeApi.Extracts.getTransactionZonesGeoJsonUrl();
     },
     overlappingTransactionZonesGeoJsonUrl() {
-      return PublicApi.Extracts.getOverlappingTransactionZonesGeoJsonUrl();
+      // Do not use PublicApi to avoid response size limit error
+      return BackOfficeApi.Extracts.getOverlappingTransactionZonesGeoJsonUrl();
     },
   },
   methods: {

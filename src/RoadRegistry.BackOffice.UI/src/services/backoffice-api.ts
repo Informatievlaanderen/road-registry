@@ -5,7 +5,8 @@ import axios from "axios";
 import { trimEnd } from "lodash";
 import { featureToggles, API_OLDENDPOINT } from "@/environment";
 
-const apiEndpoint = trimEnd(featureToggles.useDirectApiCalls ? API_OLDENDPOINT : "/roads", "/");
+const directApiEndpoint = trimEnd(API_OLDENDPOINT, "/");
+const apiEndpoint = trimEnd(featureToggles.useDirectApiCalls ? directApiEndpoint : "/roads", "/");
 
 export const BackOfficeApi = {
   ChangeFeed: {
@@ -179,6 +180,12 @@ export const BackOfficeApi = {
       const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
       return response.data;
     },
+    getOverlappingTransactionZonesGeoJsonUrl() : String {
+      return `${directApiEndpoint}/v1/extracts/overlappingtransactionzones.geojson`;
+    },
+    getTransactionZonesGeoJsonUrl() : String {
+      return `${directApiEndpoint}/v1/extracts/transactionzones.geojson`;
+    }
   },
   Information: {
     getInformation: async (): Promise<RoadRegistry.RoadNetworkInformationResponse> => {
