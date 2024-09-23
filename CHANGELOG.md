@@ -1,3 +1,12 @@
+## [4.9.6](https://github.com/informatievlaanderen/road-registry/compare/v4.9.5...v4.9.6) (2024-09-23)
+
+
+### Bug Fixes
+
+* styling checkbox inside vl-alert ([#1543](https://github.com/informatievlaanderen/road-registry/issues/1543)) ([b91cb10](https://github.com/informatievlaanderen/road-registry/commit/b91cb1041532c5d76820374170e392da6284b2c7))
+* validate RoadSegmentId in FC europeanroad/nationalroad/numberedroad ([#1541](https://github.com/informatievlaanderen/road-registry/issues/1541)) ([6ddee84](https://github.com/informatievlaanderen/road-registry/commit/6ddee846dc055192b3d68d1f78c95d9128d1c5e5))
+* validation message when uploading 2nd time for extract ([#1542](https://github.com/informatievlaanderen/road-registry/issues/1542)) ([0ef3d8f](https://github.com/informatievlaanderen/road-registry/commit/0ef3d8f0d4f5ce61ef80265384f49fd30af2905a))
+
 ## [4.9.5](https://github.com/informatievlaanderen/road-registry/compare/v4.9.4...v4.9.5) (2024-09-23)
 
 
