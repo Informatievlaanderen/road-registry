@@ -21,7 +21,7 @@ public class GetOverlappingTransactionZonesByContourRequestHandler : EndpointReq
         _context = context;
     }
 
-    public override async Task<GetOverlappingTransactionZonesByContourResponse> HandleAsync(GetOverlappingTransactionZonesByContourRequest request, CancellationToken cancellationToken)
+    protected override async Task<GetOverlappingTransactionZonesByContourResponse> InnerHandleAsync(GetOverlappingTransactionZonesByContourRequest request, CancellationToken cancellationToken)
     {
         var geometry = new WKTReader().Read(request.Contour);
 

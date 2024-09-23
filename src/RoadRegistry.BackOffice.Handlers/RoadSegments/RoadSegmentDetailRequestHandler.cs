@@ -34,7 +34,7 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
         _streetNameCache = streetNameCache;
     }
 
-    public override async Task<RoadSegmentDetailResponse> HandleAsync(RoadSegmentDetailRequest request, CancellationToken cancellationToken)
+    protected override async Task<RoadSegmentDetailResponse> InnerHandleAsync(RoadSegmentDetailRequest request, CancellationToken cancellationToken)
     {
         var roadSegment = await _editorContext.RoadSegments
             .IgnoreQueryFilters()
@@ -68,7 +68,7 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
             .ToListAsync(cancellationToken: cancellationToken))
             .Select(x => new RoadSegmentSurfaceAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .ToList();
-        
+
         var widths = (await _editorContext.RoadSegmentWidthAttributes
             .Where(x => x.RoadSegmentId == roadSegment.Id)
             .ToListAsync(cancellationToken: cancellationToken))

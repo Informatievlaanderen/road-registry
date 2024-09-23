@@ -21,7 +21,7 @@ public class DownloadExtractRequestHandler : ExtractRequestHandler<DownloadExtra
         _reader = reader ?? throw new ArgumentNullException(nameof(reader));
     }
 
-    public override async Task<DownloadExtractResponse> HandleRequestAsync(DownloadExtractRequest request, DownloadId downloadId, string randomExternalRequestId, CancellationToken cancellationToken)
+    protected override async Task<DownloadExtractResponse> HandleRequestAsync(DownloadExtractRequest request, DownloadId downloadId, string randomExternalRequestId, CancellationToken cancellationToken)
     {
         var message = new RequestRoadNetworkExtract
         {

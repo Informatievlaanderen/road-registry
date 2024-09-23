@@ -10,7 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="TestFiles\test.txt" />
+    <EmbeddedResource Include="TestFiles\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

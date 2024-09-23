@@ -27,7 +27,7 @@ public class GetOrganizationsRequestHandler : EndpointRequestHandler<GetOrganiza
         _fileEncoding = fileEncoding;
     }
 
-    public override async Task<GetOrganizationsResponse> HandleAsync(GetOrganizationsRequest request, CancellationToken cancellationToken)
+    protected override async Task<GetOrganizationsResponse> InnerHandleAsync(GetOrganizationsRequest request, CancellationToken cancellationToken)
     {
         var organizationRecordReader = new OrganizationDbaseRecordReader(_manager, _fileEncoding);
 
@@ -38,7 +38,7 @@ public class GetOrganizationsRequestHandler : EndpointRequestHandler<GetOrganiza
             )
             .Select(organization => organizationRecordReader.Read(organization.DbaseRecord, organization.DbaseSchemaVersion))
             .ToList();
-        
+
         return new GetOrganizationsResponse(organizations);
     }
 }

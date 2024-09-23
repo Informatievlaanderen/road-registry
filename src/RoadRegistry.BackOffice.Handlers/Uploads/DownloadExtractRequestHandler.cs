@@ -30,7 +30,7 @@ public class DownloadExtractRequestHandler : EndpointRequestHandler<DownloadExtr
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
     }
 
-    public override async Task<DownloadExtractResponse> HandleAsync(DownloadExtractRequest request, CancellationToken cancellationToken)
+    protected override async Task<DownloadExtractResponse> InnerHandleAsync(DownloadExtractRequest request, CancellationToken cancellationToken)
     {
         if (!ArchiveId.Accepts(request.Identifier))
             throw new ValidationException(new[]

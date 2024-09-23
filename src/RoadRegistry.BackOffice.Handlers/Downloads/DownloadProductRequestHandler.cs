@@ -40,7 +40,7 @@ public class DownloadProductRequestHandler : EndpointRequestHandler<DownloadProd
         _cache = cache;
     }
 
-    public override async Task<DownloadProductResponse> HandleAsync(DownloadProductRequest request, CancellationToken cancellationToken)
+    protected override async Task<DownloadProductResponse> InnerHandleAsync(DownloadProductRequest request, CancellationToken cancellationToken)
     {
         var info = await _context.RoadNetworkInfo.SingleOrDefaultAsync(cancellationToken);
         if (info is null || !info.CompletedImport)
