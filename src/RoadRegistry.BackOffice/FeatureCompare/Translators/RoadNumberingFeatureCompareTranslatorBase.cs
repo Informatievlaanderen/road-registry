@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
 using Extracts;
+using Extracts.Dbase.RoadSegments;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -26,7 +27,9 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         var (extractFeatures, changeFeatures, problems) = ReadExtractAndChangeFeatures(context.Archive, _fileName, context);
 
         problems.ThrowIfError();
-        
+
+        problems = ValidateRoadSegmentIds(changeFeatures, problems, context, cancellationToken);
+
         var wegsegmentenAdd = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Added).ToList();
         var wegsegmentenIdentical = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Identical).ToList();
         var wegsegmentenUpdate = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Modified).ToList();
@@ -79,6 +82,26 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
         problems.ThrowIfError();
 
         return Task.FromResult((TranslateProcessedRecords(context, changes, processedRecords), problems));
+    }
+
+    private ZipArchiveProblems ValidateRoadSegmentIds(List<Feature<TAttributes>> changeFeatures, ZipArchiveProblems problems, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    {
+        foreach (var changeFeature in changeFeatures)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var wegsegmentFeature = context.FindNotRemovedRoadSegmentByOriginalId(changeFeature.Attributes.RoadSegmentId);
+            if (wegsegmentFeature is null)
+            {
+                var recordContext = _fileName
+                    .AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber)
+                    .WithIdentifier(nameof(RoadSegmentNationalRoadAttributeDbaseRecord.WS_OIDN), changeFeature.Attributes.Id);
+
+                problems += recordContext.RoadSegmentIdOutOfRange(changeFeature.Attributes.RoadSegmentId);
+            }
+        }
+
+        return problems;
     }
 
     protected abstract TranslatedChanges TranslateProcessedRecords(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, List<Record> records);
