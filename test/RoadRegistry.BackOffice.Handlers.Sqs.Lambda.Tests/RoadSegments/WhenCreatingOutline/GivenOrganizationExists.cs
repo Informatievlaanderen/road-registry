@@ -74,8 +74,8 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
         command.Changes.Length.Should().Be(1);
         var roadSegmentAdded = command.Changes.Single().RoadSegmentAdded;
         roadSegmentAdded.Id.Should().Be(roadSegmentId);
-        roadSegmentAdded.LeftSide.StreetNameId.Should().BeNull();
-        roadSegmentAdded.RightSide.StreetNameId.Should().BeNull();
+        roadSegmentAdded.LeftSide.StreetNameId.Should().Be(-9);
+        roadSegmentAdded.RightSide.StreetNameId.Should().Be(-9);
     }
 
     [Fact]

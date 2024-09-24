@@ -36,27 +36,10 @@ public class AddRoadSegment : ITranslatedChange
             status.ThrowIfNull(),
             category.ThrowIfNull(),
             accessRestriction.ThrowIfNull(),
-            leftSideStreetNameId ?? StreetNameLocalId.NotApplicable, //TODO-rik add unit test to ensure default is -9
+            leftSideStreetNameId ?? StreetNameLocalId.NotApplicable,
             rightSideStreetNameId ?? StreetNameLocalId.NotApplicable,
             [], [], [])
     {
-        RecordNumber = recordNumber;
-        TemporaryId = temporaryId;
-        OriginalId = originalId;
-        StartNodeId = startNodeId;
-        EndNodeId = endNodeId;
-        Geometry = null;
-        MaintenanceAuthority = maintenanceAuthority;
-        GeometryDrawMethod = geometryDrawMethod ?? throw new ArgumentNullException(nameof(geometryDrawMethod));
-        Morphology = morphology ?? throw new ArgumentNullException(nameof(morphology));
-        Status = status ?? throw new ArgumentNullException(nameof(status));
-        Category = category ?? throw new ArgumentNullException(nameof(category));
-        AccessRestriction = accessRestriction ?? throw new ArgumentNullException(nameof(accessRestriction));
-        Lanes = Array.Empty<RoadSegmentLaneAttribute>();
-        Widths = Array.Empty<RoadSegmentWidthAttribute>();
-        Surfaces = Array.Empty<RoadSegmentSurfaceAttribute>();
-        LeftSideStreetNameId = leftSideStreetNameId;
-        RightSideStreetNameId = rightSideStreetNameId;
     }
 
     private AddRoadSegment(
