@@ -1,3 +1,10 @@
+## [4.9.8](https://github.com/informatievlaanderen/road-registry/compare/v4.9.7...v4.9.8) (2024-09-24)
+
+
+### Bug Fixes
+
+* slack notification message in release pipeline ([#1546](https://github.com/informatievlaanderen/road-registry/issues/1546)) ([5e631e8](https://github.com/informatievlaanderen/road-registry/commit/5e631e85c4637986cbf6a59148654ea6e6a5a09c))
+
 ## [4.9.7](https://github.com/informatievlaanderen/road-registry/compare/v4.9.6...v4.9.7) (2024-09-24)
 
 
