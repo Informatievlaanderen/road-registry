@@ -877,31 +877,24 @@ jobs:
     needs: [ deploy_services_to_test, deploy_tasks_to_test, release ]
     name: Deploy lambda(s) to test
     runs-on: ubuntu-latest
+    strategy:
+       matrix:
+         functions: [
+          'rr-sqsbackofficefunction',
+          'rr-sqssnapshotfunction'
+         ]
 
     steps:
-    - name: CD Lambda(s) Configure credentials
-      uses: aws-actions/configure-aws-credentials@v4.0.2
-      with:
-        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
-        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
-        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-        
     - name: Promote Lambda(s)
-      shell: bash
-      run: |
-        docker pull ghcr.io/okigan/awscurl:latest
-        
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "deploy_target": "lambda", "version": "'$SEMVER'" }' $PROMOTEURL/$FUNCTION_BACKOFFICE/$ENVIRONMENT/deploy/v4/
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "deploy_target": "lambda", "version": "'$SEMVER'" }' $PROMOTEURL/$FUNCTION_SNAPSHOT/$ENVIRONMENT/deploy/v4/
-      env:
-        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
-        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
-        ENVIRONMENT: tst
-        REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
-        PROMOTEURL: ${{ vars.VBR_AWS_DEPLOY_LAMBDA_DEVOPS_BASEURL }}
-        SEMVER: ${{ needs.release.outputs.version }}
-        FUNCTION_BACKOFFICE: rr-sqsbackofficefunction
-        FUNCTION_SNAPSHOT: rr-sqssnapshotfunction
+      uses: Informatievlaanderen/build-pipeline/.github/actions/deploy-lambda@main
+      with:
+        function-name: ${{ matrix.functions }}
+        deploy-url: ${{ vars.VBR_AWS_DEPLOY_LAMBDA_DEVOPS_BASEURL }}
+        access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
+        secret-access-key-id: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
+        region: ${{ secrets.VBR_AWS_REGION_PRD }}
+        version: ${{ needs.release.outputs.version }}
+        environment: tst
 
   deploy_to_test_start_slack:
     if: github.repository_owner == 'Informatievlaanderen'
