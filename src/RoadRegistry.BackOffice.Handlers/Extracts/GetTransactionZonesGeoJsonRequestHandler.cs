@@ -22,12 +22,12 @@ public class GetTransactionZonesGeoJsonRequestHandler : EndpointRequestHandler<G
         _context = context;
     }
 
-    public override async Task<GetTransactionZonesGeoJsonResponse> HandleAsync(GetTransactionZonesGeoJsonRequest request, CancellationToken cancellationToken)
+    protected override async Task<GetTransactionZonesGeoJsonResponse> InnerHandleAsync(GetTransactionZonesGeoJsonRequest request, CancellationToken cancellationToken)
     {
         var transactionZones = await _context.ExtractRequests
             .Where(x => !x.IsInformative)
             .ToListAsync(cancellationToken);
-        
+
         return new GetTransactionZonesGeoJsonResponse
         {
             FeatureCollection = new FeatureCollection(transactionZones

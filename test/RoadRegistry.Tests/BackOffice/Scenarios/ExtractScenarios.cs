@@ -359,7 +359,7 @@ public class ExtractScenarios : RoadRegistryTestBase
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
             .When(TheExternalSystem.UploadsRoadNetworkExtractChangesArchive(extractRequestId, downloadId, uploadId, archiveId))
-            .Throws(new CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException(externalExtractRequestId, extractRequestId, downloadId, uploadId))
+            .Throws(new CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException())
         );
     }
 

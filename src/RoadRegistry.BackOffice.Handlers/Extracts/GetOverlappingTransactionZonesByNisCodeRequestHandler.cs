@@ -23,7 +23,7 @@ public class GetOverlappingTransactionZonesByNisCodeRequestHandler : EndpointReq
 
     private record ExtractRequestIntersection(ExtractRequestRecord ExtractRequest, Geometry Intersection);
 
-    public override async Task<GetOverlappingTransactionZonesByNisCodeResponse> HandleAsync(GetOverlappingTransactionZonesByNisCodeRequest request, CancellationToken cancellationToken)
+    protected override async Task<GetOverlappingTransactionZonesByNisCodeResponse> InnerHandleAsync(GetOverlappingTransactionZonesByNisCodeRequest request, CancellationToken cancellationToken)
     {
         var extractRequestsQuery = _context.ExtractRequests.Where(x => !x.IsInformative);
 

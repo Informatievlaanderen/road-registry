@@ -29,7 +29,7 @@ public abstract class EndpointRequestHandler<TRequest, TResponse> : RequestHandl
         Dispatch = async (command, token) => await HandleInitializer(command, token);
         Queue = async (command, token) => await HandleInitializer(command, token);
 
-        var response = await HandleAsync(request, cancellationToken);
+        var response = await InnerHandleAsync(request, cancellationToken);
         return response;
 
         async Task HandleInitializer(Command command, CancellationToken token)

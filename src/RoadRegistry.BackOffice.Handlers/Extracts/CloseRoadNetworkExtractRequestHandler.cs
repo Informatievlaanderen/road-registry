@@ -21,7 +21,7 @@ public class CloseRoadNetworkExtractRequestHandler : EndpointRequestHandler<Clos
         _editorContext = editorContext;
     }
 
-    public override async Task<CloseRoadNetworkExtractResponse> HandleAsync(CloseRoadNetworkExtractRequest request, CancellationToken cancellationToken)
+    protected override async Task<CloseRoadNetworkExtractResponse> InnerHandleAsync(CloseRoadNetworkExtractRequest request, CancellationToken cancellationToken)
     {
         var extractRequest = await _editorContext.ExtractRequests.FindAsync(request.DownloadId.ToGuid(), cancellationToken: cancellationToken);
         if (extractRequest is null)

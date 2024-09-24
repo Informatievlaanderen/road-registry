@@ -44,7 +44,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         _context = context ?? throw new EditorContextNotFoundException(nameof(context));
     }
 
-    public override async Task<UploadExtractResponse> HandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
+    protected override async Task<UploadExtractResponse> InnerHandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
     {
         if (!ContentType.TryParse(request.Archive.ContentType, out var parsedContentType) || !SupportedContentTypes.Contains(parsedContentType))
         {
@@ -61,20 +61,21 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             throw new InvalidGuidValidationException(nameof(request.DownloadId));
         }
 
-        var extractRequest = await _context.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
-        if (extractRequest is null)
-        {
-            throw new ExtractDownloadNotFoundException(downloadId);
-        }
-        if (extractRequest.IsInformative)
-        {
-            throw new ExtractRequestMarkedInformativeException(downloadId);
-        }
-
         var download = await _context.ExtractDownloads.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
         if (download is null)
         {
             throw new ExtractDownloadNotFoundException(downloadId);
+        }
+
+        var previousUpload = await _context.ExtractUploads.IncludeLocalSingleOrDefaultAsync(x => x.RequestId == download.RequestId, cancellationToken);
+        if (previousUpload is not null)
+        {
+            throw new CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException();
+        }
+
+        if (download.IsInformative)
+        {
+            throw new ExtractRequestMarkedInformativeException(downloadId);
         }
 
         await using var readStream = await request.Archive.ReadStream.CopyToNewMemoryStream(cancellationToken);

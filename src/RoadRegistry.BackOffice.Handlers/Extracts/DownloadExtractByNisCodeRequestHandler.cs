@@ -18,7 +18,7 @@ public class DownloadExtractByNisCodeRequestHandler : ExtractRequestHandler<Down
     {
     }
 
-    public override async Task<DownloadExtractByNisCodeResponse> HandleRequestAsync(DownloadExtractByNisCodeRequest request, DownloadId downloadId, string randomExternalRequestId, CancellationToken cancellationToken)
+    protected override async Task<DownloadExtractByNisCodeResponse> HandleRequestAsync(DownloadExtractByNisCodeRequest request, DownloadId downloadId, string randomExternalRequestId, CancellationToken cancellationToken)
     {
         var municipalityGeometry = await _context.MunicipalityGeometries.SingleOrDefaultAsync(x => x.NisCode == request.NisCode, cancellationToken)
                                    ?? throw new DownloadExtractByNisCodeNotFoundException("Could not find details about the supplied NIS code");

@@ -19,7 +19,7 @@ public class DownloadExtractByFileRequestHandler : ExtractRequestHandler<Downloa
         _translator = translator;
     }
 
-    public override async Task<DownloadExtractByFileResponse> HandleRequestAsync(DownloadExtractByFileRequest request, DownloadId downloadId, string randomExternalRequestId, CancellationToken cancellationToken)
+    protected override async Task<DownloadExtractByFileResponse> HandleRequestAsync(DownloadExtractByFileRequest request, DownloadId downloadId, string randomExternalRequestId, CancellationToken cancellationToken)
     {
         var contour = _translator.Translate(request.ShpFile, request.Buffer);
 
