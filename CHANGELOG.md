@@ -1,3 +1,10 @@
+## [4.9.7](https://github.com/informatievlaanderen/road-registry/compare/v4.9.6...v4.9.7) (2024-09-24)
+
+
+### Bug Fixes
+
+* do not allow streetname ID 0 + treat null as -9 ([#1545](https://github.com/informatievlaanderen/road-registry/issues/1545)) ([ab5505a](https://github.com/informatievlaanderen/road-registry/commit/ab5505a2384624e8d202dfb053c4337c300623a9))
+
 ## [4.9.6](https://github.com/informatievlaanderen/road-registry/compare/v4.9.5...v4.9.6) (2024-09-23)
 
 
