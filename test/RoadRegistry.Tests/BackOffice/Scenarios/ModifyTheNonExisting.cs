@@ -739,8 +739,8 @@ public class ModifyTheNonExisting : RoadRegistryTestBase
                                 Lanes = lanes,
                                 Widths = widths,
                                 Surfaces = surfaces,
-                                LeftSideStreetNameId = 0,
-                                RightSideStreetNameId = 0,
+                                LeftSideStreetNameId = null,
+                                RightSideStreetNameId = null,
                                 MaintenanceAuthority = maintenanceAuthority
                             }
                         }))
@@ -767,8 +767,8 @@ public class ModifyTheNonExisting : RoadRegistryTestBase
                                 Widths = widths,
                                 Surfaces = surfaces,
                                 Status = roadSegmentStatus,
-                                LeftSideStreetNameId = 0,
-                                RightSideStreetNameId = 0,
+                                LeftSideStreetNameId = null,
+                                RightSideStreetNameId = null,
                                 MaintenanceAuthority = maintenanceAuthority
                             },
                             Problems = new[]

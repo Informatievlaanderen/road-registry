@@ -76,6 +76,21 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     }
 
     [Fact]
+    public async Task WhenLeftSideStreetNameIdIsNull_ThenNotApplicableIsUsedSilently()
+    {
+        var zipArchive = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value = null;
+            })
+            .Build();
+
+        var (result, _) = await TranslateSucceeds(zipArchive);
+        var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
+        Assert.Equal(StreetNameLocalId.NotApplicable, modifyRoadSegment.LeftSideStreetNameId);
+    }
+
+    [Fact]
     public async Task WhenRightSideStreetNameIdIsZero_ThenRightStreetNameIdOutOfRange()
     {
         var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
@@ -88,6 +103,21 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
 
         ex.Problems.Should().ContainSingle(x => x.Reason == "RightStreetNameIdOutOfRange");
+    }
+
+    [Fact]
+    public async Task WhenRightSideStreetNameIdIsNull_ThenNotApplicableIsUsedSilently()
+    {
+        var zipArchive = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = null;
+            })
+            .Build();
+
+        var (result, _) = await TranslateSucceeds(zipArchive);
+        var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
+        Assert.Equal(StreetNameLocalId.NotApplicable, modifyRoadSegment.RightSideStreetNameId);
     }
 
     [Fact]
@@ -169,7 +199,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var (result, problems) = await TranslateSucceeds(zipArchive, translator, validator);
 
         var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
-        Assert.Equal(renamedToStreetNameId, modifyRoadSegment.LeftSideStreetNameId!.Value.ToInt32());
+        Assert.Equal(renamedToStreetNameId, modifyRoadSegment.LeftSideStreetNameId!.ToInt32());
 
         Assert.NotEmpty(problems);
         Assert.True(problems.All(x => x.Reason == "LeftStreetNameIdIsRenamed"));
@@ -198,7 +228,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var (result, problems) = await TranslateSucceeds(zipArchive, translator, validator);
 
         var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
-        Assert.Equal(renamedToStreetNameId, modifyRoadSegment.RightSideStreetNameId!.Value.ToInt32());
+        Assert.Equal(renamedToStreetNameId, modifyRoadSegment.RightSideStreetNameId!.ToInt32());
 
         Assert.NotEmpty(problems);
         Assert.True(problems.All(x => x.Reason == "RightStreetNameIdIsRenamed"));

@@ -84,8 +84,8 @@ public class ModifyRoadSegment : ITranslatedChange
         Category = category;
         CategoryModified = categoryModified;
         AccessRestriction = accessRestriction;
-        LeftSideStreetNameId = leftSideStreetNameId;
-        RightSideStreetNameId = rightSideStreetNameId;
+        LeftSideStreetNameId = leftSideStreetNameId ?? StreetNameLocalId.NotApplicable;
+        RightSideStreetNameId = rightSideStreetNameId ?? StreetNameLocalId.NotApplicable;
         Lanes = lanes;
         Widths = widths;
         Surfaces = surfaces;
@@ -103,11 +103,11 @@ public class ModifyRoadSegment : ITranslatedChange
     public RoadSegmentId Id { get; }
     public RoadSegmentId? OriginalId { get; }
     public IReadOnlyList<RoadSegmentLaneAttribute> Lanes { get; }
-    public StreetNameLocalId? LeftSideStreetNameId { get; }
+    public StreetNameLocalId LeftSideStreetNameId { get; }
     public OrganizationId MaintenanceAuthority { get; }
     public RoadSegmentMorphology Morphology { get; }
     public RecordNumber RecordNumber { get; }
-    public StreetNameLocalId? RightSideStreetNameId { get; }
+    public StreetNameLocalId RightSideStreetNameId { get; }
     public RoadNodeId StartNodeId { get; }
     public RoadSegmentStatus Status { get; }
     public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }

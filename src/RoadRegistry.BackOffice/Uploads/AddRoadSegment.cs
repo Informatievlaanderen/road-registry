@@ -36,8 +36,8 @@ public class AddRoadSegment : ITranslatedChange
             status.ThrowIfNull(),
             category.ThrowIfNull(),
             accessRestriction.ThrowIfNull(),
-            leftSideStreetNameId ?? StreetNameLocalId.NotApplicable,
-            rightSideStreetNameId ?? StreetNameLocalId.NotApplicable,
+            leftSideStreetNameId,
+            rightSideStreetNameId,
             [], [], [])
     {
     }
@@ -75,8 +75,8 @@ public class AddRoadSegment : ITranslatedChange
         Status = status;
         Category = category;
         AccessRestriction = accessRestriction;
-        LeftSideStreetNameId = leftSideStreetNameId;
-        RightSideStreetNameId = rightSideStreetNameId;
+        LeftSideStreetNameId = leftSideStreetNameId ?? StreetNameLocalId.NotApplicable;
+        RightSideStreetNameId = rightSideStreetNameId ?? StreetNameLocalId.NotApplicable;
         Lanes = lanes;
         Widths = widths;
         Surfaces = surfaces;
@@ -88,11 +88,11 @@ public class AddRoadSegment : ITranslatedChange
     public MultiLineString Geometry { get; }
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
     public IReadOnlyList<RoadSegmentLaneAttribute> Lanes { get; }
-    public StreetNameLocalId? LeftSideStreetNameId { get; }
+    public StreetNameLocalId LeftSideStreetNameId { get; }
     public OrganizationId MaintenanceAuthority { get; }
     public RoadSegmentMorphology Morphology { get; }
     public RecordNumber RecordNumber { get; }
-    public StreetNameLocalId? RightSideStreetNameId { get; }
+    public StreetNameLocalId RightSideStreetNameId { get; }
     public RoadNodeId StartNodeId { get; }
     public RoadSegmentStatus Status { get; }
     public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }
