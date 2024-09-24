@@ -67,17 +67,22 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
             var (maintenanceAuthority, maintenanceAuthorityProblems) = await FindOrganizationId(request.MaintenanceAuthority, cancellationToken);
             problems += maintenanceAuthorityProblems;
 
+            //TODO-rik edit test to ensure streetname links are -9
             translatedChanges = translatedChanges.AppendChange(
                 new AddRoadSegment(
                         recordNumber,
                         new RoadSegmentId(1),
                         new RoadSegmentId(1),
+                        RoadNodeId.Zero,
+                        RoadNodeId.Zero,
                         maintenanceAuthority,
                         RoadSegmentGeometryDrawMethod.Outlined,
                         request.Morphology,
                         request.Status,
                         RoadSegmentCategory.Unknown,
-                        request.AccessRestriction)
+                        request.AccessRestriction,
+                        null,
+                        null)
                     .WithGeometry(geometry)
                     .WithSurface(new RoadSegmentSurfaceAttribute(AttributeId.Initial, request.SurfaceType, fromPosition, toPosition))
                     .WithWidth(new RoadSegmentWidthAttribute(AttributeId.Initial, request.Width, fromPosition, toPosition))

@@ -17,7 +17,7 @@ public readonly struct StreetNameLocalId : IEquatable<StreetNameLocalId>
     {
         if (value != UnknownValue
             && value != NotApplicableValue
-            && value < 0)
+            && value < 0) // allow 0 for backwards compatibility
             throw new ArgumentOutOfRangeException(nameof(value), value, "The street name local identifier must be greater than or equal to zero.");
 
         _value = value;
@@ -30,12 +30,12 @@ public readonly struct StreetNameLocalId : IEquatable<StreetNameLocalId>
 
     public static bool Accepts(int value)
     {
-        return value == UnknownValue || value == NotApplicableValue || 0 <= value;
+        return value == UnknownValue || value == NotApplicableValue || value > 0;
     }
 
     public static StreetNameLocalId? FromValue(int? value)
     {
-        return value.HasValue
+        return value.HasValue && value != 0
             ? new StreetNameLocalId(value.Value)
             : new StreetNameLocalId?();
     }

@@ -23,29 +23,28 @@ public class AddRoadSegment : ITranslatedChange
         RoadSegmentAccessRestriction accessRestriction,
         StreetNameLocalId? leftSideStreetNameId,
         StreetNameLocalId? rightSideStreetNameId)
-        : this(recordNumber, temporaryId, originalId, maintenanceAuthority, geometryDrawMethod, morphology, status, category, accessRestriction)
-    {
-        StartNodeId = startNodeId;
-        EndNodeId = endNodeId;
-        LeftSideStreetNameId = leftSideStreetNameId;
-        RightSideStreetNameId = rightSideStreetNameId;
-    }
-
-    public AddRoadSegment(
-        RecordNumber recordNumber,
-        RoadSegmentId temporaryId,
-        RoadSegmentId? originalId,
-        OrganizationId maintenanceAuthority,
-        RoadSegmentGeometryDrawMethod geometryDrawMethod,
-        RoadSegmentMorphology morphology,
-        RoadSegmentStatus status,
-        RoadSegmentCategory category,
-        RoadSegmentAccessRestriction accessRestriction
-    )
+        : this(recordNumber,
+            temporaryId,
+            originalId,
+            null,
+            startNodeId,
+            endNodeId,
+            null,
+            maintenanceAuthority,
+            geometryDrawMethod.ThrowIfNull(),
+            morphology.ThrowIfNull(),
+            status.ThrowIfNull(),
+            category.ThrowIfNull(),
+            accessRestriction.ThrowIfNull(),
+            leftSideStreetNameId ?? StreetNameLocalId.NotApplicable, //TODO-rik add unit test to ensure default is -9
+            rightSideStreetNameId ?? StreetNameLocalId.NotApplicable,
+            [], [], [])
     {
         RecordNumber = recordNumber;
         TemporaryId = temporaryId;
         OriginalId = originalId;
+        StartNodeId = startNodeId;
+        EndNodeId = endNodeId;
         Geometry = null;
         MaintenanceAuthority = maintenanceAuthority;
         GeometryDrawMethod = geometryDrawMethod ?? throw new ArgumentNullException(nameof(geometryDrawMethod));
@@ -56,6 +55,8 @@ public class AddRoadSegment : ITranslatedChange
         Lanes = Array.Empty<RoadSegmentLaneAttribute>();
         Widths = Array.Empty<RoadSegmentWidthAttribute>();
         Surfaces = Array.Empty<RoadSegmentSurfaceAttribute>();
+        LeftSideStreetNameId = leftSideStreetNameId;
+        RightSideStreetNameId = rightSideStreetNameId;
     }
 
     private AddRoadSegment(
@@ -135,8 +136,8 @@ public class AddRoadSegment : ITranslatedChange
             Status = Status,
             Category = Category,
             AccessRestriction = AccessRestriction,
-            LeftSideStreetNameId = LeftSideStreetNameId.GetValueOrDefault(),
-            RightSideStreetNameId = RightSideStreetNameId.GetValueOrDefault(),
+            LeftSideStreetNameId = LeftSideStreetNameId,
+            RightSideStreetNameId = RightSideStreetNameId,
             Lanes = Lanes
                 .Select(item => new RequestedRoadSegmentLaneAttribute
                 {

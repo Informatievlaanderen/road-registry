@@ -134,8 +134,8 @@ public class ModifyRoadSegment : ITranslatedChange
             Category = Category,
             CategoryModified = CategoryModified,
             AccessRestriction = AccessRestriction,
-            LeftSideStreetNameId = LeftSideStreetNameId.GetValueOrDefault(),
-            RightSideStreetNameId = RightSideStreetNameId.GetValueOrDefault(),
+            LeftSideStreetNameId = LeftSideStreetNameId,
+            RightSideStreetNameId = RightSideStreetNameId,
             Lanes = Lanes
                 .Select(item => new RequestedRoadSegmentLaneAttribute
                 {

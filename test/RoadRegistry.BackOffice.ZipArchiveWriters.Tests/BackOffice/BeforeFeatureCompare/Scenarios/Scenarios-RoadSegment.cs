@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatu
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Exceptions;
 using FeatureCompare;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Tests.BackOffice;
@@ -57,6 +58,36 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         Assert.NotEmpty(ex.Problems);
         var problem = ex.Problems.First();
         Assert.Equal("RoadSegmentGeometryLengthTooLong", problem.Reason);
+    }
+
+    [Fact]
+    public async Task WhenLeftSideStreetNameIdIsZero_ThenLeftStreetNameIdOutOfRange()
+    {
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value = 0;
+            })
+            .BuildWithResult(context => TranslatedChanges.Empty);
+
+        var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
+
+        ex.Problems.Should().ContainSingle(x => x.Reason == "LeftStreetNameIdOutOfRange");
+    }
+
+    [Fact]
+    public async Task WhenRightSideStreetNameIdIsZero_ThenRightStreetNameIdOutOfRange()
+    {
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = 0;
+            })
+            .BuildWithResult(context => TranslatedChanges.Empty);
+
+        var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
+
+        ex.Problems.Should().ContainSingle(x => x.Reason == "RightStreetNameIdOutOfRange");
     }
 
     [Fact]

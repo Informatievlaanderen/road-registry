@@ -78,18 +78,18 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             return matchingFeatures.SingleOrDefault();
         }
 
-        StreetNameLocalId? CorrectStreetNameId(StreetNameLocalId? id)
+        StreetNameLocalId CorrectStreetNameId(StreetNameLocalId id)
         {
             if (id > 0)
             {
-                if (streetNameContext.RemovedIds.Contains(id.Value))
+                if (streetNameContext.RemovedIds.Contains(id))
                 {
                     return StreetNameLocalId.NotApplicable;
                 }
 
-                if (streetNameContext.RenamedIds.TryGetValue(id.Value, out var renamedToId))
+                if (streetNameContext.RenamedIds.TryGetValue(id, out var renamedToId))
                 {
-                    return StreetNameLocalId.FromValue(renamedToId);
+                    return new StreetNameLocalId(renamedToId);
                 }
             }
 
@@ -495,7 +495,7 @@ public sealed class RoadSegmentFeatureCompareStreetNameContext
             .Concat(changeFeatures
                 .Where(x => x.Attributes.RightStreetNameId > 0)
                 .Select(x => x.Attributes.RightStreetNameId))
-            .Select(x => x.Value.ToInt32())
+            .Select(x => x.ToInt32())
             .Distinct()
             .ToList();
 
