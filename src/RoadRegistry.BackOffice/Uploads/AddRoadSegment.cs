@@ -23,39 +23,23 @@ public class AddRoadSegment : ITranslatedChange
         RoadSegmentAccessRestriction accessRestriction,
         StreetNameLocalId? leftSideStreetNameId,
         StreetNameLocalId? rightSideStreetNameId)
-        : this(recordNumber, temporaryId, originalId, maintenanceAuthority, geometryDrawMethod, morphology, status, category, accessRestriction)
+        : this(recordNumber,
+            temporaryId,
+            originalId,
+            null,
+            startNodeId,
+            endNodeId,
+            null,
+            maintenanceAuthority,
+            geometryDrawMethod.ThrowIfNull(),
+            morphology.ThrowIfNull(),
+            status.ThrowIfNull(),
+            category.ThrowIfNull(),
+            accessRestriction.ThrowIfNull(),
+            leftSideStreetNameId,
+            rightSideStreetNameId,
+            [], [], [])
     {
-        StartNodeId = startNodeId;
-        EndNodeId = endNodeId;
-        LeftSideStreetNameId = leftSideStreetNameId;
-        RightSideStreetNameId = rightSideStreetNameId;
-    }
-
-    public AddRoadSegment(
-        RecordNumber recordNumber,
-        RoadSegmentId temporaryId,
-        RoadSegmentId? originalId,
-        OrganizationId maintenanceAuthority,
-        RoadSegmentGeometryDrawMethod geometryDrawMethod,
-        RoadSegmentMorphology morphology,
-        RoadSegmentStatus status,
-        RoadSegmentCategory category,
-        RoadSegmentAccessRestriction accessRestriction
-    )
-    {
-        RecordNumber = recordNumber;
-        TemporaryId = temporaryId;
-        OriginalId = originalId;
-        Geometry = null;
-        MaintenanceAuthority = maintenanceAuthority;
-        GeometryDrawMethod = geometryDrawMethod ?? throw new ArgumentNullException(nameof(geometryDrawMethod));
-        Morphology = morphology ?? throw new ArgumentNullException(nameof(morphology));
-        Status = status ?? throw new ArgumentNullException(nameof(status));
-        Category = category ?? throw new ArgumentNullException(nameof(category));
-        AccessRestriction = accessRestriction ?? throw new ArgumentNullException(nameof(accessRestriction));
-        Lanes = Array.Empty<RoadSegmentLaneAttribute>();
-        Widths = Array.Empty<RoadSegmentWidthAttribute>();
-        Surfaces = Array.Empty<RoadSegmentSurfaceAttribute>();
     }
 
     private AddRoadSegment(
@@ -91,8 +75,8 @@ public class AddRoadSegment : ITranslatedChange
         Status = status;
         Category = category;
         AccessRestriction = accessRestriction;
-        LeftSideStreetNameId = leftSideStreetNameId;
-        RightSideStreetNameId = rightSideStreetNameId;
+        LeftSideStreetNameId = leftSideStreetNameId ?? StreetNameLocalId.NotApplicable;
+        RightSideStreetNameId = rightSideStreetNameId ?? StreetNameLocalId.NotApplicable;
         Lanes = lanes;
         Widths = widths;
         Surfaces = surfaces;
@@ -104,11 +88,11 @@ public class AddRoadSegment : ITranslatedChange
     public MultiLineString Geometry { get; }
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
     public IReadOnlyList<RoadSegmentLaneAttribute> Lanes { get; }
-    public StreetNameLocalId? LeftSideStreetNameId { get; }
+    public StreetNameLocalId LeftSideStreetNameId { get; }
     public OrganizationId MaintenanceAuthority { get; }
     public RoadSegmentMorphology Morphology { get; }
     public RecordNumber RecordNumber { get; }
-    public StreetNameLocalId? RightSideStreetNameId { get; }
+    public StreetNameLocalId RightSideStreetNameId { get; }
     public RoadNodeId StartNodeId { get; }
     public RoadSegmentStatus Status { get; }
     public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }
@@ -135,8 +119,8 @@ public class AddRoadSegment : ITranslatedChange
             Status = Status,
             Category = Category,
             AccessRestriction = AccessRestriction,
-            LeftSideStreetNameId = LeftSideStreetNameId.GetValueOrDefault(),
-            RightSideStreetNameId = RightSideStreetNameId.GetValueOrDefault(),
+            LeftSideStreetNameId = LeftSideStreetNameId,
+            RightSideStreetNameId = RightSideStreetNameId,
             Lanes = Lanes
                 .Select(item => new RequestedRoadSegmentLaneAttribute
                 {

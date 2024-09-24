@@ -72,7 +72,10 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
 
         var command = await Store.GetLastMessage<RoadNetworkChangesAccepted>();
         command.Changes.Length.Should().Be(1);
-        command.Changes.Single().RoadSegmentAdded.Id.Should().Be(roadSegmentId);
+        var roadSegmentAdded = command.Changes.Single().RoadSegmentAdded;
+        roadSegmentAdded.Id.Should().Be(roadSegmentId);
+        roadSegmentAdded.LeftSide.StreetNameId.Should().Be(-9);
+        roadSegmentAdded.RightSide.StreetNameId.Should().Be(-9);
     }
 
     [Fact]

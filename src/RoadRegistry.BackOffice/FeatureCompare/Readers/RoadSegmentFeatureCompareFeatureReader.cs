@@ -355,7 +355,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return default;
             }
 
-            StreetNameLocalId? ReadLeftStreetNameId()
+            StreetNameLocalId ReadLeftStreetNameId()
             {
                 if (LSTRNMID is not null)
                 {
@@ -369,10 +369,10 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     }
                 }
 
-                return default;
+                return StreetNameLocalId.NotApplicable;
             }
 
-            StreetNameLocalId? ReadRightStreetNameId()
+            StreetNameLocalId ReadRightStreetNameId()
             {
                 if (RSTRNMID is not null)
                 {
@@ -386,7 +386,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     }
                 }
 
-                return default;
+                return StreetNameLocalId.NotApplicable;
             }
 
             OrganizationId ReadMaintenanceAuthority()

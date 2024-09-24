@@ -105,11 +105,11 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
             AccessRestriction = AccessRestriction,
             LeftSide = new RoadSegmentSideAttributes
             {
-                StreetNameId = LeftSideStreetNameId.GetValueOrDefault()
+                StreetNameId = LeftSideStreetNameId
             },
             RightSide = new RoadSegmentSideAttributes
             {
-                StreetNameId = RightSideStreetNameId.GetValueOrDefault()
+                StreetNameId = RightSideStreetNameId
             },
             Lanes = Lanes
                 .Select(item => new Messages.RoadSegmentLaneAttributes
@@ -163,8 +163,8 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
             Status = Status,
             Category = Category,
             AccessRestriction = AccessRestriction,
-            LeftSideStreetNameId = LeftSideStreetNameId.GetValueOrDefault(),
-            RightSideStreetNameId = RightSideStreetNameId.GetValueOrDefault(),
+            LeftSideStreetNameId = LeftSideStreetNameId,
+            RightSideStreetNameId = RightSideStreetNameId,
             Lanes = Lanes
                 .Select(item => new RequestedRoadSegmentLaneAttribute
                 {
