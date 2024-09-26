@@ -13,6 +13,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Configure AWS credentials (DevOps)
+      uses: aws-actions/configure-aws-credentials@v4.0.2
+      with:
+        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
+        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
+        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
+        
     - name: Run
       run: |
         # docker pull ghcr.io/okigan/awscurl:latest
