@@ -11,7 +11,7 @@ jobs:
     if: github.repository_owner == 'Informatievlaanderen'
     name: Sytem healthcheck
     runs-on: ubuntu-latest
-
+    steps:
     - name: Run
       run: |
         # docker pull ghcr.io/okigan/awscurl:latest
