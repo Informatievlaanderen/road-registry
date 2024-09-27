@@ -32,6 +32,8 @@ jobs:
         echo $COMMAND_ID
         echo $URL
         until [ $(aws ssm get-command-invocation --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'Status' --output text) != "InProgress" ]; do 
+          response=$(aws ssm get-command-invocation --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'Status' --output text)
+          echo $response
           echo "command is still running!"
           sleep 1
         done
