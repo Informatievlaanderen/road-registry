@@ -34,7 +34,7 @@ jobs:
         #until [ $(aws ssm get-command-invocation --profile cross-account --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'Status' --output text) != "InProgress" ]; do 
           status=$(aws ssm get-command-invocation --profile cross-account --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'Status' --output text)
           echo $status
-          if [$status != "InProgress"]; then
+          if ["$status" != "InProgress"]; then
             break
           fi
 
