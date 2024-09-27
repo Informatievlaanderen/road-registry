@@ -1,3 +1,10 @@
+## [4.9.9](https://github.com/informatievlaanderen/road-registry/compare/v4.9.8...v4.9.9) (2024-09-27)
+
+
+### Bug Fixes
+
+* wfs/wms road segment projection deal with unknown roadsegments instead of error ([#1547](https://github.com/informatievlaanderen/road-registry/issues/1547)) ([5a8dacc](https://github.com/informatievlaanderen/road-registry/commit/5a8dacc0230865e41d578e10c96176a6f93adcba))
+
 ## [4.9.8](https://github.com/informatievlaanderen/road-registry/compare/v4.9.7...v4.9.8) (2024-09-24)
 
 
