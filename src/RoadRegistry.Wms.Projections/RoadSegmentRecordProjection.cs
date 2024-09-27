@@ -237,7 +237,11 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
             .ConfigureAwait(false);
         if (dbRecord is null)
         {
-            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
+            dbRecord = new RoadSegmentRecord
+            {
+                Id = roadSegmentModified.Id
+            };
+            await context.RoadSegments.AddAsync(dbRecord, token);
         }
 
         var transactionId = new TransactionId(envelope.Message.TransactionId);

@@ -129,7 +129,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
 
         var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.LeftSide.StreetNameId, token);
         var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.RightSide.StreetNameId, token);
-        
+
         dbRecord.MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code;
         dbRecord.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentAdded.MaintenanceAuthority.Name);
         dbRecord.MethodDutchName = method.Translation.Name;
@@ -159,7 +159,11 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
             .ConfigureAwait(false);
         if (dbRecord is null)
         {
-            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
+            dbRecord = new RoadSegmentRecord
+            {
+                Id = roadSegmentModified.Id
+            };
+            await context.RoadSegments.AddAsync(dbRecord, token);
         }
 
         var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentModified.GeometryDrawMethod);
@@ -170,7 +174,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
 
         var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.LeftSide.StreetNameId, token);
         var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.RightSide.StreetNameId, token);
-        
+
         dbRecord.Id = roadSegmentModified.Id;
         dbRecord.MaintainerId = roadSegmentModified.MaintenanceAuthority.Code;
         dbRecord.MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentModified.MaintenanceAuthority.Name);
