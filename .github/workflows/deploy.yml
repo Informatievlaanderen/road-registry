@@ -196,23 +196,64 @@ jobs:
     steps:
     - name: Run
       run: |
-        #response=$(curl -X POST "$API_URL/v1/system/healthcheck" -H "x-api-key: $APIKEY" --fail)
+        URL=$BACKOFFICE_API_URL/v1/system/healthcheck
 
-        #if [ $? -ne 0 ]; then
-        #  exit 1
-        #fi
+        # aws configure set default.aws_access_key_id $ACCESS_KEY_ID
+        # aws configure set default.aws_secret_access_key $SECRET_ACCESS_KEY_ID
+        # aws configure set default.region $REGION
+        # aws configure set default.role_session_name "Pipeline"
 
-        #if echo "$response" | grep -q "unhealthy"; then
-        #  echo "System is unhealthy:"
-        #  echo $response
-        #  exit 1
-        #fi
+        # aws configure set region $REGION --profile cross-account
+        # aws configure set role_arn arn:aws:iam::$ACCOUNT_ID:role/bastion-ssm-send-command --profile cross-account
+        # aws configure set source_profile default --profile cross-account
 
-        echo "System is healthy"
+        # echo $URL
+        # COMMAND_ID=$(aws ssm send-command --profile cross-account --instance-id $INSTANCE_ID --document-name AWS-RunShellScript --parameters "{\"commands\":[\"#!/bin/bash\",\"curl -X POST $URL -H 'x-api-key: $ROAD_API_KEY' --fail\"]}" --query 'Command.CommandId' --output text)
+
+        # for i in {1..120}
+        # do
+        #   status=$(aws ssm get-command-invocation --profile cross-account --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'Status' --output text)
+
+        #   if [[ "$status" == "Failed" ]]; then
+        #     exit 1
+        #   fi
+
+        #   echo $status
+        #   if [[ "$status" == "Success" ]]; then
+        #     break
+        #   fi
+
+        #   sleep 1
+        # done
+
+        # if [[ "$status" == "InProgress" ]]; then
+        #   echo "Timed out"
+        #   exit 1
+        # fi
+
+        # response=$(aws ssm get-command-invocation --profile cross-account --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'StandardOutputContent' --output text)
+        # echo "$response"
+
+        # if echo "$response" | grep -q "unhealthy"; then
+        #   echo "System is unhealthy"
+        #   exit 1
+        # fi
+
+        # if echo "$response" | grep -q "healthy"; then
+        #   echo "System is healthy"
+        #   exit 0
+        # fi
+
+        # exit 1
       shell: bash
       env:
-        APIKEY: ${{ secrets.HEALTHCHECK_APIKEY }}
-        API_URL: ${{ github.event.inputs.environment == 'tst' && vars.BACKOFFICE_API_URL_TST || github.event.inputs.environment == 'stg' && vars.BACKOFFICE_API_URL_STG  || vars.BACKOFFICE_API_URL_PRD }}
+        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
+        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
+        REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
+        INSTANCE_ID: ${{ github.event.inputs.environment == 'tst' && vars.AWS_BASTION_ID_TST || github.event.inputs.environment == 'stg' && vars.AWS_BASTION_ID_STG  || vars.AWS_BASTION_ID_PRD }}
+        ACCOUNT_ID: ${{ github.event.inputs.environment == 'tst' && vars.AWS_ACCOUNT_ID_TST || github.event.inputs.environment == 'stg' && vars.AWS_ACCOUNT_ID_STG  || vars.AWS_ACCOUNT_ID_PRD }}
+        BACKOFFICE_API_URL: ${{ github.event.inputs.environment == 'tst' && vars.BACKOFFICE_API_URL_TST || github.event.inputs.environment == 'stg' && vars.BACKOFFICE_API_URL_STG  || vars.BACKOFFICE_API_URL_PRD }}
+        ROAD_API_KEY: ${{ secrets.HEALTHCHECK_APIKEY }}
 
   deploy_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
