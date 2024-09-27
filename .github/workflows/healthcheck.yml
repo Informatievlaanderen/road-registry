@@ -32,25 +32,25 @@ jobs:
         do
           status=$(aws ssm get-command-invocation --profile cross-account --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'Status' --output text)
 
-          if ["$status" == "Failed"]; then
+          if ["$status" = "Failed"]; then
             exit 1
           fi
 
           echo $status
-          if ["$status" != "InProgress"]; then
+          if ["$status" = "Success"]; then
             break
           fi
 
           sleep 1
         done
 
-        if ["$status" == "InProgress"]; then
+        if ["$status" = "InProgress"]; then
           echo "Timed out"
           exit 1
         fi
 
-        response=$(aws ssm get-command-invocation --profile cross-account --instance-id "$INSTANCE_ID" --command-id "$COMMAND_ID" --query 'StandardOutputContent' --output text)
-        echo "${response}"
+        response=$(aws ssm get-command-invocation --profile cross-account --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'StandardOutputContent' --output text)
+        echo "$response"
 
         if echo "$response" | grep -q "unhealthy"; then
           echo "System is unhealthy"
