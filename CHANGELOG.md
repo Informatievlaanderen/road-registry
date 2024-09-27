@@ -1,3 +1,18 @@
+## [4.9.10](https://github.com/informatievlaanderen/road-registry/compare/v4.9.9...v4.9.10) (2024-09-27)
+
+
+### Bug Fixes
+
+* add healthcheck to integration tests ([#1548](https://github.com/informatievlaanderen/road-registry/issues/1548)) ([1e14f4a](https://github.com/informatievlaanderen/road-registry/commit/1e14f4a0deb629e0456c20feb1bcb87aacd0db09))
+* healthcheck via pipeline ([#1549](https://github.com/informatievlaanderen/road-registry/issues/1549)) ([95b4c7d](https://github.com/informatievlaanderen/road-registry/commit/95b4c7d96e634460d713b9436a171d505e266f99))
+
+## [4.9.9](https://github.com/informatievlaanderen/road-registry/compare/v4.9.8...v4.9.9) (2024-09-27)
+
+
+### Bug Fixes
+
+* wfs/wms road segment projection deal with unknown roadsegments instead of error ([#1547](https://github.com/informatievlaanderen/road-registry/issues/1547)) ([5a8dacc](https://github.com/informatievlaanderen/road-registry/commit/5a8dacc0230865e41d578e10c96176a6f93adcba))
+
 ## [4.9.8](https://github.com/informatievlaanderen/road-registry/compare/v4.9.7...v4.9.8) (2024-09-24)
 
 
