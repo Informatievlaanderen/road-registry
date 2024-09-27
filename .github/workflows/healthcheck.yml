@@ -29,9 +29,15 @@ jobs:
         COMMAND_ID=$(aws ssm send-command --profile cross-account --instance-id $INSTANCE_ID --document-name AWS-RunShellScript --parameters "{\"commands\":[\"#!/bin/bash\",\"curl -X POST $URL -H 'x-api-key: $ROAD_API_KEY' --fail\"]}" --query 'Command.CommandId' --output text)
         echo "Waiting for response..."
 
-        until [ $(aws ssm get-command-invocation --profile cross-account --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'Status' --output text) != "InProgress" ]; do 
-          progress=$(aws ssm get-command-invocation --profile cross-account --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'Status' --output text)
-          echo "Progress: $progress"
+        for i in {1..60}
+        do
+        #until [ $(aws ssm get-command-invocation --profile cross-account --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'Status' --output text) != "InProgress" ]; do 
+          status=$(aws ssm get-command-invocation --profile cross-account --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'Status' --output text)
+          echo $status
+          if [$status != "InProgress"]; then
+            break
+          fi
+
           sleep 1
         done
 
