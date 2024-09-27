@@ -25,7 +25,7 @@ jobs:
         aws configure set default.role_session_name "Pipeline"
 
         aws configure set region $REGION --profile cross-account
-        aws configure set role_arn arn:aws:iam::$ACCOUNT_ID:role/bastion-ssm-send-command --profile cross-account
+        aws configure set role_arn arn:aws:iam::031900181085:role/bastion-ssm-send-command --profile cross-account
         aws configure set source_profile default --profile cross-account
 
         COMMAND_ID=$(aws ssm send-command --profile cross-account --instance-id $INSTANCE_ID --document-name AWS-RunShellScript --parameters "{\"commands\":[\"#!/bin/bash\",\"curl -X POST $URL -H 'x-api-key: $ROAD_API_KEY' --fail\"]}" --query 'Command.CommandId' --output text)
