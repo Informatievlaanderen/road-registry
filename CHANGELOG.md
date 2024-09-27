@@ -1,3 +1,10 @@
+## [4.9.11](https://github.com/informatievlaanderen/road-registry/compare/v4.9.10...v4.9.11) (2024-09-27)
+
+
+### Bug Fixes
+
+* increase system healthcheck timeout ([#1550](https://github.com/informatievlaanderen/road-registry/issues/1550)) ([9f60519](https://github.com/informatievlaanderen/road-registry/commit/9f60519967ba5b1777fd8cec3f8864e651d15f50))
+
 ## [4.9.10](https://github.com/informatievlaanderen/road-registry/compare/v4.9.9...v4.9.10) (2024-09-27)
 
 
