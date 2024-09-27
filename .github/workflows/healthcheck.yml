@@ -14,10 +14,7 @@ jobs:
     steps:
     - name: Run
       run: |
-        # docker pull ghcr.io/okigan/awscurl:latest
-        # response=$(docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST $BACKOFFICE_API_URL/v1/system/healthcheck -H "x-api-key: $ROAD_API_KEY" --fail)
-        
-        URL="$BACKOFFICE_API_URL/v1/system/healthcheck"
+        URL=$BACKOFFICE_API_URL/v1/system/healthcheck
 
         aws configure set default.aws_access_key_id $ACCESS_KEY_ID
         aws configure set default.aws_secret_access_key $SECRET_ACCESS_KEY_ID
@@ -25,37 +22,37 @@ jobs:
         aws configure set default.role_session_name "Pipeline"
 
         aws configure set region $REGION --profile cross-account
-        aws configure set role_arn arn:aws:iam::031900181085:role/bastion-ssm-send-command --profile cross-account
+        aws configure set role_arn arn:aws:iam::$ACCOUNT_ID:role/bastion-ssm-send-command --profile cross-account
         aws configure set source_profile default --profile cross-account
 
-        COMMAND_ID=$(aws ssm send-command --profile cross-account --instance-id $INSTANCE_ID --document-name AWS-RunShellScript --parameters "{\"commands\":[\"#!/bin/bash\",\"curl -X POST $URL -H 'x-api-key: $ROAD_API_KEY' --fail\"]}" --query 'Command.CommandId' --output text)
-        echo $COMMAND_ID
         echo $URL
+        COMMAND_ID=$(aws ssm send-command --profile cross-account --instance-id $INSTANCE_ID --document-name AWS-RunShellScript --parameters "{\"commands\":[\"#!/bin/bash\",\"curl -X POST $URL -H 'x-api-key: $ROAD_API_KEY' --fail\"]}" --query 'Command.CommandId' --output text)
+
         until [ $(aws ssm get-command-invocation --profile cross-account --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'Status' --output text) != "InProgress" ]; do 
-          echo "command is still running!"
+          echo "Waiting for response..."
           sleep 1
         done
-        COMMAND_EXIT_CODE=$(aws ssm get-command-invocation --profile cross-account --instance-id "$INSTANCE_ID" --command-id "$COMMAND_ID" --query 'StandardOutputContent' --output text)
-        echo "${COMMAND_EXIT_CODE}"
 
-        # if [ $? -ne 0 ]; then
-        #   exit 1
-        # fi
+        response=$(aws ssm get-command-invocation --profile cross-account --instance-id "$INSTANCE_ID" --command-id "$COMMAND_ID" --query 'StandardOutputContent' --output text)
+        echo "${response}"
 
-        # echo "Response: $response"
+        if echo "$response" | grep -q "unhealthy"; then
+          echo "System is unhealthy"
+          exit 1
+        fi
 
-        # if echo "$response" | grep -q "unhealthy"; then
-        #   echo "System is unhealthy"
-        #   exit 1
-        # fi
+        if echo "$response" | grep -q "healthy"; then
+          echo "System is healthy"
+          exit 0
+        fi
 
-        # echo "System is healthy"
+        exit 1
       shell: bash
       env:
         ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
         SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
         INSTANCE_ID: i-0b56a2c4c6f2cc329
-        ACCOUNT_ID: "031900181085"
+        ACCOUNT_ID: 031900181085
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
         ROAD_API_KEY: ${{ secrets.HEALTHCHECK_APIKEY }}
         BACKOFFICE_API_URL: ${{ vars.BACKOFFICE_API_URL_TST }}
