@@ -32,19 +32,19 @@ jobs:
         do
           status=$(aws ssm get-command-invocation --profile cross-account --instance-id $INSTANCE_ID --command-id $COMMAND_ID --query 'Status' --output text)
 
-          if ["$status" = "Failed"]; then
+          if [[ "$status" == "Failed" ]]; then
             exit 1
           fi
 
           echo $status
-          if ["$status" = "Success"]; then
+          if [[ "$status" == "Success" ]]; then
             break
           fi
 
           sleep 1
         done
 
-        if ["$status" = "InProgress"]; then
+        if [[ "$status" == "InProgress" ]]; then
           echo "Timed out"
           exit 1
         fi
