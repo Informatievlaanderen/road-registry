@@ -19,9 +19,9 @@ jobs:
         
         URL="$BACKOFFICE_API_URL/v1/system/healthcheck"
 
-        aws configure set default.access_key "$ACCESS_KEY_ID"
-        aws configure set default.secret_key "$SECRET_ACCESS_KEY_ID"
-        aws configure set default.region "$REGION"
+        aws configure set default.aws_access_key_id $ACCESS_KEY_ID
+        aws configure set default.aws_secret_access_key $SECRET_ACCESS_KEY_ID
+        aws configure set default.region $REGION
         aws configure set default.role_session_name "Pipeline"
 
         aws configure set region $REGION --profile cross-account
@@ -52,8 +52,8 @@ jobs:
         # echo "System is healthy"
       shell: bash
       env:
-        ACCESS_KEY_ID: ${{ secrets.HEALTHCHECK_ACCESS_KEY_ID }}
-        SECRET_ACCESS_KEY_ID: ${{ secrets.HEALTHCHECK_SECRET_KEY_ID }}
+        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
+        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
         INSTANCE_ID: i-0b56a2c4c6f2cc329
         ACCOUNT_ID: 031900181085
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
