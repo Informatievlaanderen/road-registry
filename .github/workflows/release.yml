@@ -921,7 +921,7 @@ jobs:
   system_healthcheck:
     if: github.repository_owner == 'Informatievlaanderen'
     needs: [ deploy_lambda_to_test ]
-    name: Sytem healthcheck
+    name: System healthcheck
     runs-on: ubuntu-latest
 
     steps:
