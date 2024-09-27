@@ -14,11 +14,16 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthCheck.HealthChe
     {
         private readonly IMediator _mediator;
         private readonly ITicketing _ticketing;
+        private readonly SystemHealthCheckOptions _options;
 
-        public BackOfficeLambdaSystemHealthCheck(IMediator mediator, ITicketing ticketing)
+        public BackOfficeLambdaSystemHealthCheck(
+            IMediator mediator,
+            ITicketing ticketing,
+            SystemHealthCheckOptions options)
         {
             _mediator = mediator;
             _ticketing = ticketing;
+            _options = options;
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken)
@@ -30,7 +35,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthCheck.HealthChe
 
             var ticketId = Guid.Parse(result.Location.ToString().Split('/').Last());
 
-            return await _ticketing.WaitUntilCompleteOrTimeout(ticketId, TimeSpan.FromMinutes(1), cancellationToken);
+            return await _ticketing.WaitUntilCompleteOrTimeout(ticketId, _options.CheckTimeout, cancellationToken);
         }
     }
 }

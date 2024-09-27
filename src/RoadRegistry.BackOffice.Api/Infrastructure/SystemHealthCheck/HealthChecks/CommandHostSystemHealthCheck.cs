@@ -16,15 +16,18 @@ internal class CommandHostSystemHealthCheck : ISystemHealthCheck
     private readonly ITicketing _ticketing;
     private readonly RoadNetworkUploadsBlobClient _uploadsBlobClient;
     private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
+    private readonly SystemHealthCheckOptions _options;
 
     public CommandHostSystemHealthCheck(
         ITicketing ticketing,
         RoadNetworkUploadsBlobClient uploadsBlobClient,
-        IRoadNetworkCommandQueue roadNetworkCommandQueue)
+        IRoadNetworkCommandQueue roadNetworkCommandQueue,
+        SystemHealthCheckOptions options)
     {
         _ticketing = ticketing;
         _uploadsBlobClient = uploadsBlobClient;
         _roadNetworkCommandQueue = roadNetworkCommandQueue;
+        _options = options;
     }
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken)
@@ -45,6 +48,6 @@ internal class CommandHostSystemHealthCheck : ISystemHealthCheck
         });
         await _roadNetworkCommandQueue.WriteAsync(command, cancellationToken);
 
-        return await _ticketing.WaitUntilCompleteOrTimeout(ticketId, TimeSpan.FromMinutes(1), cancellationToken);
+        return await _ticketing.WaitUntilCompleteOrTimeout(ticketId, _options.CheckTimeout, cancellationToken);
     }
 }

@@ -17,15 +17,18 @@ internal class EventHostSystemHealthCheck : ISystemHealthCheck
     private readonly ITicketing _ticketing;
     private readonly IRoadNetworkEventWriter _roadNetworkEventWriter;
     private readonly RoadNetworkUploadsBlobClient _roadNetworkUploadsBlobClient;
+    private readonly SystemHealthCheckOptions _options;
 
     public EventHostSystemHealthCheck(
         ITicketing ticketing,
         IRoadNetworkEventWriter roadNetworkEventWriter,
-        RoadNetworkUploadsBlobClient roadNetworkUploadsBlobClient)
+        RoadNetworkUploadsBlobClient roadNetworkUploadsBlobClient,
+        SystemHealthCheckOptions options)
     {
         _ticketing = ticketing;
         _roadNetworkEventWriter = roadNetworkEventWriter;
         _roadNetworkUploadsBlobClient = roadNetworkUploadsBlobClient;
+        _options = options;
     }
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken)
@@ -51,6 +54,6 @@ internal class EventHostSystemHealthCheck : ISystemHealthCheck
             }),
             cancellationToken);
 
-        return await _ticketing.WaitUntilCompleteOrTimeout(ticketId, TimeSpan.FromMinutes(1), cancellationToken);
+        return await _ticketing.WaitUntilCompleteOrTimeout(ticketId, _options.CheckTimeout, cancellationToken);
     }
 }

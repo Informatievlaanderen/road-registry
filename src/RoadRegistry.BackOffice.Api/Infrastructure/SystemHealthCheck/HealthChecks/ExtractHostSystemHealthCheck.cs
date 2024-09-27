@@ -19,17 +19,20 @@ internal class ExtractHostSystemHealthCheck : ISystemHealthCheck
     private readonly IRoadNetworkEventWriter _roadNetworkExtractWriter;
     private readonly RoadNetworkUploadsBlobClient _roadNetworkUploadsBlobClient;
     private readonly RoadNetworkExtractDownloadsBlobClient _roadNetworkExtractDownloadsBlobClient;
+    private readonly SystemHealthCheckOptions _options;
 
     public ExtractHostSystemHealthCheck(
         ITicketing ticketing,
         IRoadNetworkEventWriter roadNetworkExtractWriter,
         RoadNetworkUploadsBlobClient roadNetworkUploadsBlobClient,
-        RoadNetworkExtractDownloadsBlobClient roadNetworkExtractDownloadsBlobClient)
+        RoadNetworkExtractDownloadsBlobClient roadNetworkExtractDownloadsBlobClient,
+        SystemHealthCheckOptions options)
     {
         _ticketing = ticketing;
         _roadNetworkExtractWriter = roadNetworkExtractWriter;
         _roadNetworkUploadsBlobClient = roadNetworkUploadsBlobClient;
         _roadNetworkExtractDownloadsBlobClient = roadNetworkExtractDownloadsBlobClient;
+        _options = options;
     }
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken)
@@ -56,6 +59,6 @@ internal class ExtractHostSystemHealthCheck : ISystemHealthCheck
             }),
             cancellationToken);
 
-        return await _ticketing.WaitUntilCompleteOrTimeout(ticketId, TimeSpan.FromMinutes(1), cancellationToken);
+        return await _ticketing.WaitUntilCompleteOrTimeout(ticketId, _options.CheckTimeout, cancellationToken);
     }
 }
