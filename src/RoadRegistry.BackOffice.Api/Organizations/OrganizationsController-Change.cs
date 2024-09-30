@@ -31,11 +31,13 @@ public partial class OrganizationsController
         [FromServices] IValidator<ChangeOrganization> validator,
         CancellationToken cancellationToken)
     {
+        //TODO-rik add test for IsMaintainer
         var command = new ChangeOrganization
         {
             Code = id,
             Name = parameters?.Name,
-            OvoCode = parameters?.OvoCode
+            OvoCode = parameters?.OvoCode,
+            IsMaintainer = parameters?.IsMaintainer
         };
         await validator.ValidateAndThrowAsync(command, cancellationToken);
 
@@ -46,4 +48,4 @@ public partial class OrganizationsController
     }
 }
 
-public sealed record OrganizationChangeParameters(string Name, string OvoCode);
+public sealed record OrganizationChangeParameters(string Name, string OvoCode, bool? IsMaintainer);

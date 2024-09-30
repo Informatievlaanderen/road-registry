@@ -15,12 +15,15 @@ public class Organization : EventSourcedEntity
         {
             Translation = new DutchTranslation(new OrganizationId(e.Code), OrganizationName.WithoutExcessLength(e.Name));
             OvoCode = OrganizationOvoCode.FromValue(e.OvoCode);
+            KboNumber = OrganizationKboNumber.FromValue(e.KboNumber);
         });
         On<RenameOrganizationAccepted>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), OrganizationName.WithoutExcessLength(e.Name)));
         On<ChangeOrganizationAccepted>(e =>
         {
             Translation = new DutchTranslation(new OrganizationId(e.Code), OrganizationName.WithoutExcessLength(e.Name));
             OvoCode = OrganizationOvoCode.FromValue(e.OvoCode);
+            KboNumber = OrganizationKboNumber.FromValue(e.KboNumber);
+            IsMaintainer = e.IsMaintainer;
         });
         On<DeleteOrganizationAccepted>(e =>
         {
@@ -30,6 +33,8 @@ public class Organization : EventSourcedEntity
 
     public DutchTranslation Translation { get; private set; }
     public OrganizationOvoCode? OvoCode { get; private set; }
+    public OrganizationKboNumber? KboNumber { get; private set; }
+    public bool IsMaintainer { get; private set; }
 
     public bool IsRemoved { get; private set; }
 
@@ -58,7 +63,7 @@ public class Organization : EventSourcedEntity
                 : Unknown;
         }
     }
-    
+
     public void Rename(OrganizationName name)
     {
         Apply(new RenameOrganizationAccepted
@@ -68,7 +73,11 @@ public class Organization : EventSourcedEntity
         });
     }
 
-    public void Change(OrganizationName? name, OrganizationOvoCode? ovoCode)
+    public void Change(
+        OrganizationName? name,
+        OrganizationOvoCode? ovoCode,
+        OrganizationKboNumber? kboNumber,
+        bool? isMaintainer)
     {
         Apply(new ChangeOrganizationAccepted
         {
@@ -76,10 +85,14 @@ public class Organization : EventSourcedEntity
             Name = name ?? Translation.Name,
             NameModified = name is not null && name != Translation.Name,
             OvoCode = ovoCode ?? OvoCode,
-            OvoCodeModified = ovoCode is not null && ovoCode != OvoCode
+            OvoCodeModified = ovoCode is not null && ovoCode != OvoCode,
+            KboNumber = kboNumber ?? KboNumber,
+            KboNumberModified = kboNumber is not null && kboNumber != KboNumber,
+            IsMaintainer = isMaintainer ?? IsMaintainer,
+            IsMaintainerModified = isMaintainer is not null && isMaintainer != IsMaintainer,
         });
     }
-    
+
     public void Delete()
     {
         Apply(new DeleteOrganizationAccepted

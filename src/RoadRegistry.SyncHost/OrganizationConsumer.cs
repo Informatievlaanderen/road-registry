@@ -108,6 +108,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
 
                     Logger.LogInformation("Organization {OvoNumber}: processing...", organization.OvoNumber);
 
+                    //TODO-rik drop this cache once OrganizationsV2 table is there, then only query to whats needed
                     ovoCodeToClassicIdMapping ??= await BuildOvoCodeToClassicIdMapping(scope, cancellationToken);
 
                     await CreateOrUpdateOrganization(ovoCodeToClassicIdMapping, organizationsContext, organization, cancellationToken);
@@ -180,7 +181,9 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
         cancellationToken.ThrowIfCancellationRequested();
 
         var ovoCode = new OrganizationOvoCode(organization.OvoNumber);
+        var kboNumber = OrganizationKboNumber.FromValue(organization.KboNumber);
 
+        //TODO-rik stop using idmapping and use sql directly
         var classicOrganizationIds = ovoCodeToClassicIdMapping[ovoCode].ToList();
         if (classicOrganizationIds.Count > 1)
         {
@@ -198,24 +201,22 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
             {
                 Code = ovoCode,
                 Name = organization.Name,
-                OvoCode = ovoCode
-            };
-            await _roadNetworkCommandQueue.WriteAsync(new Command(command), cancellationToken);
-        }
-        else if (existingOrganization.Translation.Name != organization.Name)
-        {
-            Logger.LogInformation("Organization {OvoNumber}: renaming to '{Name}'", organization.OvoNumber, organization.Name);
-            var command = new ChangeOrganization
-            {
-                Code = ovoCode,
-                Name = organization.Name,
-                OvoCode = ovoCode
+                OvoCode = ovoCode,
+                KboNumber = kboNumber
             };
             await _roadNetworkCommandQueue.WriteAsync(new Command(command), cancellationToken);
         }
         else
         {
-            Logger.LogInformation("Organization {OvoNumber}: no changes", organization.OvoNumber);
+            Logger.LogInformation("Organization {OvoNumber}: updating", organization.OvoNumber);
+            var command = new ChangeOrganization
+            {
+                Code = ovoCode,
+                Name = organization.Name,
+                OvoCode = ovoCode,
+                KboNumber = kboNumber
+            };
+            await _roadNetworkCommandQueue.WriteAsync(new Command(command), cancellationToken);
         }
     }
 }

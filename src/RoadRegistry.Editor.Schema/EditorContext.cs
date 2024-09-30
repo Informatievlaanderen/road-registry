@@ -17,6 +17,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NetTopologySuite.Geometries;
+using Organizations;
 
 public class EditorContext : RunnerDbContext<EditorContext>
 {
@@ -49,6 +50,7 @@ public class EditorContext : RunnerDbContext<EditorContext>
     public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
     public DbSet<MunicipalityGeometry> MunicipalityGeometries { get; set; }
     public DbSet<OrganizationRecord> Organizations { get; set; }
+    public DbSet<OrganizationRecordV2> OrganizationsV2 { get; set; }
     public DbSet<RoadNetworkChangeRequestBasedOnArchive> RoadNetworkChangeRequestsBasedOnArchive { get; set; }
     public DbSet<RoadNetworkChange> RoadNetworkChanges { get; set; }
     public DbSet<RoadNetworkInfo> RoadNetworkInfo { get; set; }

@@ -21,7 +21,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
     using SqlStreamStore.Streams;
     using Sync.OrganizationRegistry;
     using Organization = Sync.OrganizationRegistry.Models.Organization;
-
+    //TODO-rik update tests for KboNumber
     public class OrganizationConsumerTests
     {
         private static readonly EventMapping Mapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
@@ -30,7 +30,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
 
         private readonly RecyclableMemoryStreamManager _memoryStreamManager;
         private readonly FileEncoding _fileEncoding;
-        
+
         public OrganizationConsumerTests(
             RecyclableMemoryStreamManager memoryStreamManager,
             FileEncoding fileEncoding)

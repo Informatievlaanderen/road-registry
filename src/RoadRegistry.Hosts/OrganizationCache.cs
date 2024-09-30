@@ -84,7 +84,9 @@ namespace RoadRegistry.Hosts
                 {
                     Code = organizationId,
                     Name = organization.Translation.Name,
-                    OvoCode = organization.OvoCode
+                    OvoCode = organization.OvoCode,
+                    KboNumber = organization.KboNumber,
+                    IsMaintainer = organization.IsMaintainer
                 };
             }
 
@@ -93,6 +95,8 @@ namespace RoadRegistry.Hosts
 
         private async Task<OrganizationDetail> FindByMappedOvoCode(OrganizationOvoCode ovoCode, CancellationToken cancellationToken)
         {
+            //TODO-rik use OrganizationsV2 table, dont forget to set KboNumber and IsMaintainer
+
             var organizationRecords = await _editorContext.Organizations.ToListAsync(cancellationToken);
             var organizationDetails = organizationRecords
                 .Select(organizationRecord => _organizationRecordReader.Read(organizationRecord.DbaseRecord, organizationRecord.DbaseSchemaVersion))

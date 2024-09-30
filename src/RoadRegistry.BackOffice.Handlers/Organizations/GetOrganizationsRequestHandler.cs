@@ -31,6 +31,7 @@ public class GetOrganizationsRequestHandler : EndpointRequestHandler<GetOrganiza
     {
         var organizationRecordReader = new OrganizationDbaseRecordReader(_manager, _fileEncoding);
 
+        //TODO-rik use OrganizationsV2 with IsMaintainer=true
         var organizations = (
             await _editorContext.Organizations
                 .IgnoreQueryFilters()
