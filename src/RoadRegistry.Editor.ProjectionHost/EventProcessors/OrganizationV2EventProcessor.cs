@@ -1,6 +1,7 @@
 namespace RoadRegistry.Editor.ProjectionHost.EventProcessors;
 
 using System;
+using BackOffice;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
 using Microsoft.Extensions.Logging;
@@ -16,7 +17,7 @@ public class OrganizationV2EventProcessor : EditorContextEventProcessor
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,
         ILogger<OrganizationV2EventProcessor> logger)
-        : base("roadregistry-editor-organization-v2-projectionhost", streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, logger)
+        : base(WellKnownProjectionStateNames.RoadRegistryEditorOrganizationV2ProjectionHost, streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, logger)
     {
     }
 }

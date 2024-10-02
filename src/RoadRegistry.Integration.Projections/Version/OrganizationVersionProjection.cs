@@ -6,6 +6,8 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Schema;
 using Schema.Organizations.Version;
 
+//TODO-rik add KboNumber and IsMaintainer to organization version/latestitem projections? + tests
+
 public class OrganizationVersionProjection : ConnectedProjection<IntegrationContext>
 {
     public OrganizationVersionProjection()

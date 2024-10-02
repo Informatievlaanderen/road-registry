@@ -226,7 +226,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         var organizationId = new OrganizationId(command.Body.Code);
         var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
-        //TODO-rik add test for KboNumber
+
         if (organization != null)
         {
             var rejectedEvent = new CreateOrganizationRejected
@@ -312,7 +312,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         var organizationId = new OrganizationId(command.Body.Code);
         var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
-        //TODO-rik add test for IsMaintainer and KboNumber
+
         if (organization is not null)
         {
             organization.Change(

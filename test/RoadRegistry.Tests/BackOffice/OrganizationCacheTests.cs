@@ -3,6 +3,7 @@ namespace RoadRegistry.Tests.BackOffice
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Editor.Schema;
     using Editor.Schema.Extensions;
+    using Editor.Schema.Organizations;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging.Abstractions;
     using Microsoft.IO;
@@ -22,7 +23,7 @@ namespace RoadRegistry.Tests.BackOffice
         private static readonly EventMapping Mapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
         private static readonly JsonSerializerSettings Settings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
         private static readonly StreamNameConverter StreamNameConverter = StreamNameConversions.PassThru;
-        
+
         [Theory]
         [InlineData("ABC", "DV")]
         [InlineData("-7", "andere")]
@@ -111,18 +112,12 @@ namespace RoadRegistry.Tests.BackOffice
             var sut = await BuildOrganizationCache(
                 configureEditorContext: async editorContext =>
                 {
-                    await editorContext.Organizations.AddRangeAsync(
-                        new OrganizationRecord
+                    await editorContext.OrganizationsV2.AddRangeAsync(
+                        new OrganizationRecordV2
                         {
                             Code = organizationId,
-                            SortableCode = organizationId,
-                            DbaseSchemaVersion = RoadRegistry.BackOffice.Extracts.Dbase.Organizations.V2.OrganizationDbaseRecord.DbaseSchemaVersion,
-                            DbaseRecord = new RoadRegistry.BackOffice.Extracts.Dbase.Organizations.V2.OrganizationDbaseRecord
-                            {
-                                ORG = { Value = organizationId },
-                                LBLORG = { Value = organizationName },
-                                OVOCODE = { Value = ovoCode }
-                            }.ToBytes(new RecyclableMemoryStreamManager(), FileEncoding.UTF8)
+                            Name = organizationName,
+                            OvoCode = ovoCode
                         }
                     );
 
@@ -176,8 +171,6 @@ namespace RoadRegistry.Tests.BackOffice
 
             return new OrganizationCache(
                 editorContext,
-                new RecyclableMemoryStreamManager(),
-                FileEncoding.UTF8,
                 new UseOvoCodeInChangeRoadNetworkFeatureToggle(useOvoCodeInChangeRoadNetworkFeatureToggle),
                 roadRegistryContext,
                 new NullLogger<OrganizationCache>());

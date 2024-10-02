@@ -31,7 +31,6 @@ public partial class OrganizationsController
         [FromServices] IValidator<ChangeOrganization> validator,
         CancellationToken cancellationToken)
     {
-        //TODO-rik add test for IsMaintainer
         var command = new ChangeOrganization
         {
             Code = id,
@@ -48,4 +47,9 @@ public partial class OrganizationsController
     }
 }
 
-public sealed record OrganizationChangeParameters(string Name, string OvoCode, bool? IsMaintainer);
+public sealed class OrganizationChangeParameters
+{
+    public string? Name { get; set; }
+    public string? OvoCode { get; set; }
+    public bool? IsMaintainer { get; set; }
+};

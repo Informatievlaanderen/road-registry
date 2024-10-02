@@ -1,42 +1,42 @@
 namespace RoadRegistry.SyncHost.Tests.Organization
 {
     using Autofac;
+    using AutoFixture;
     using BackOffice;
     using BackOffice.Core;
-    using BackOffice.Extracts.Dbase.Organizations;
-    using BackOffice.Extracts.Dbase.Organizations.V2;
     using BackOffice.Framework;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
     using Editor.Schema;
-    using Editor.Schema.Extensions;
+    using Editor.Schema.Organizations;
     using Extensions;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
-    using Microsoft.IO;
+    using Microsoft.Extensions.Logging.Abstractions;
     using Moq;
     using Newtonsoft.Json;
+    using RoadRegistry.Tests.BackOffice;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
     using Sync.OrganizationRegistry;
     using Organization = Sync.OrganizationRegistry.Models.Organization;
-    //TODO-rik update tests for KboNumber
+
     public class OrganizationConsumerTests
     {
         private static readonly EventMapping Mapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
         private static readonly JsonSerializerSettings Settings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
         private static readonly StreamNameConverter StreamNameConverter = StreamNameConversions.PassThru;
 
-        private readonly RecyclableMemoryStreamManager _memoryStreamManager;
-        private readonly FileEncoding _fileEncoding;
+        private readonly Fixture _fixture;
 
-        public OrganizationConsumerTests(
-            RecyclableMemoryStreamManager memoryStreamManager,
-            FileEncoding fileEncoding)
+        public OrganizationConsumerTests()
         {
-            _memoryStreamManager = memoryStreamManager;
-            _fileEncoding = fileEncoding;
+            _fixture = new Fixture();
+            _fixture.CustomizeOrganizationId();
+            _fixture.CustomizeOrganizationName();
+            _fixture.CustomizeOrganizationOvoCode();
+            _fixture.CustomizeOrganizationKboNumber();
         }
 
         private (OrganizationConsumer, IStreamStore) BuildSetup(IOrganizationReader organizationReader,
@@ -45,7 +45,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
             ILoggerFactory? loggerFactory = null
         )
         {
-            loggerFactory ??= new LoggerFactory();
+            loggerFactory ??= new NullLoggerFactory();
 
             var containerBuilder = new ContainerBuilder();
             containerBuilder.Register(_ => new EventSourcedEntityMap());
@@ -59,6 +59,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
                     {
                         var context = new OrganizationConsumerContext(dbContextOptionsBuilder.Options);
                         configureOrganizationConsumerContext?.Invoke(context);
+                        context.SaveChanges();
                         return context;
                     }
                 );
@@ -69,6 +70,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
                     {
                         var context = new EditorContext(dbContextOptionsBuilder.Options);
                         configureEditorContext?.Invoke(context);
+                        context.SaveChanges();
                         return context;
                     }
                 );
@@ -77,34 +79,33 @@ namespace RoadRegistry.SyncHost.Tests.Organization
 
             return (new OrganizationConsumer(
                 containerBuilder.Build(),
-                new OrganizationConsumerOptions { ConsumerDelaySeconds = -1 },
+                new OrganizationConsumerOptions
+                {
+                    ConsumerDelaySeconds = -1,
+                    DisableWaitForEditorContextProjection = true
+                },
                 organizationReader,
                 store,
-                _memoryStreamManager,
-                _fileEncoding,
                 new RoadNetworkCommandQueue(store, new ApplicationMetadata(RoadRegistryApplication.BackOffice)),
                 loggerFactory
             ), store);
         }
 
         [Fact]
-        public async Task CreatesOrganization()
+        public async Task GivenNoOrganization_ThenCreateOrganization()
         {
             var organization1 = new Organization
             {
                 ChangeId = 1,
-                Name = "Org 1",
-                OvoNumber = "OVO100001"
+                Name = _fixture.Create<OrganizationName>(),
+                OvoNumber = _fixture.Create<OrganizationOvoCode>()
             };
 
             var (consumer, store) = BuildSetup(new FakeOrganizationReader(organization1));
 
             await consumer.StartAsync(CancellationToken.None);
 
-            var page = await store.ReadAllForwards(Position.Start, 1);
-            var message = Assert.Single(page.Messages);
-            Assert.Equal(nameof(CreateOrganization), message.Type);
-            var createOrganizationMessage = JsonConvert.DeserializeObject<CreateOrganization>(await message.GetJsonData());
+            var createOrganizationMessage = await store.GetLastMessage<CreateOrganization>();
 
             Assert.Equal(organization1.OvoNumber, createOrganizationMessage.Code);
             Assert.Equal(organization1.Name, createOrganizationMessage.Name);
@@ -112,65 +113,55 @@ namespace RoadRegistry.SyncHost.Tests.Organization
         }
 
         [Fact]
-        public async Task RenamesOrganization()
+        public async Task GivenOrganization_ThenChangeOrganization()
         {
-            var ovoCode = new OrganizationOvoCode("OVO100001");
+            var organizationId = _fixture.Create<OrganizationId>();
+            var ovoCode = _fixture.Create<OrganizationOvoCode>();
+
+            var existingOrganization = new CreateOrganizationAccepted
+            {
+                Code = organizationId,
+                Name = _fixture.Create<OrganizationName>(),
+                OvoCode = ovoCode,
+                KboNumber = null
+            };
 
             var organization1 = new Organization
             {
                 ChangeId = 1,
-                Name = "Org 1",
-                OvoNumber = ovoCode
+                Name = _fixture.Create<OrganizationName>(),
+                OvoNumber = ovoCode,
+                KboNumber = _fixture.Create<OrganizationKboNumber>()
             };
 
-            var (consumer, store) = BuildSetup(new FakeOrganizationReader(organization1));
-            await store.Given(Mapping, Settings, StreamNameConverter, Organizations.ToStreamName(new OrganizationId(ovoCode)), new CreateOrganizationAccepted
-            {
-                Code = ovoCode,
-                Name = "WR Org 1",
-                OvoCode = ovoCode
-            });
+            //TODO-rik gebruik existingOrganization voor onderstaande editorContext en Store initialisatie
+            var (consumer, store) = BuildSetup(new FakeOrganizationReader(organization1),
+                configureEditorContext: editorContext =>
+                {
+                    editorContext.OrganizationsV2.Add(new OrganizationRecordV2
+                    {
+                        Id = 1,
+                        Code = existingOrganization.Code,
+                        Name = existingOrganization.Name,
+                        OvoCode = existingOrganization.OvoCode,
+                        KboNumber = existingOrganization.KboNumber,
+                        IsMaintainer = _fixture.Create<bool>()
+                    });
+                });
+            await store.Given(Mapping, Settings, StreamNameConverter, Organizations.ToStreamName(organizationId), existingOrganization);
 
             await consumer.StartAsync(CancellationToken.None);
 
-            var page = await store.ReadAllForwards(Position.Start, 2);
-            var message = page.Messages[1];
-            Assert.Equal(nameof(ChangeOrganization), message.Type);
-            var changeOrganizationMessage = JsonConvert.DeserializeObject<ChangeOrganization>(await message.GetJsonData());
+            var changeOrganizationMessage = await store.GetLastMessage<ChangeOrganization>();
 
             Assert.Equal(organization1.OvoNumber, changeOrganizationMessage.Code);
             Assert.Equal(organization1.Name, changeOrganizationMessage.Name);
             Assert.Equal(organization1.OvoNumber, changeOrganizationMessage.OvoCode);
+            Assert.Equal(organization1.KboNumber, changeOrganizationMessage.KboNumber);
         }
 
         [Fact]
-        public async Task DoesNothingWhenNoChangesAreDetected()
-        {
-            var ovoCode = new OrganizationOvoCode("OVO100001");
-
-            var organization1 = new Organization
-            {
-                ChangeId = 1,
-                Name = "Org 1",
-                OvoNumber = ovoCode
-            };
-
-            var (consumer, store) = BuildSetup(new FakeOrganizationReader(organization1));
-            await store.Given(Mapping, Settings, StreamNameConverter, Organizations.ToStreamName(new OrganizationId(ovoCode)), new CreateOrganizationAccepted
-            {
-                Code = ovoCode,
-                Name = "Org 1",
-                OvoCode = ovoCode
-            });
-
-            await consumer.StartAsync(CancellationToken.None);
-
-            var page = await store.ReadAllForwards(Position.Start, 2);
-            Assert.Single(page.Messages);
-        }
-
-        [Fact]
-        public async Task LogsErrorWhenMultipleOrganizationAreFoundWithTheSameOvoCode()
+        public async Task WhenMultipleOrganizationAreFoundWithTheSameOvoCode_ThenLogsError()
         {
             var loggerMock = new Mock<ILogger>();
             var loggerFactoryMock = new Mock<ILoggerFactory>();
@@ -178,42 +169,34 @@ namespace RoadRegistry.SyncHost.Tests.Organization
                 .Setup(x => x.CreateLogger(It.IsAny<string>()))
                 .Returns(loggerMock.Object);
 
-            var organization1DbaseRecord = new OrganizationDbaseRecord
+            var ovoCode = _fixture.Create<OrganizationOvoCode>();
+
+            var organization1Record = new OrganizationRecordV2
             {
-                ORG = { Value = "WR1" },
-                LBLORG = { Value = "WR Org 1" },
-                OVOCODE = { Value = "OVO100001" }
+                Code = _fixture.Create<OrganizationId>(),
+                Name = _fixture.Create<OrganizationName>(),
+                OvoCode = ovoCode
             };
-            var organization2DbaseRecord = new OrganizationDbaseRecord
+            var organization2Record = new OrganizationRecordV2
             {
-                ORG = { Value = "WR2" },
-                LBLORG = { Value = "WR Org 2" },
-                OVOCODE = { Value = "OVO100001" }
+                Code = _fixture.Create<OrganizationId>(),
+                Name = _fixture.Create<OrganizationName>(),
+                OvoCode = ovoCode
             };
-            Assert.Equal(organization1DbaseRecord.OVOCODE.Value, organization2DbaseRecord.OVOCODE.Value);
+            Assert.Equal(organization1Record.OvoCode, organization2Record.OvoCode);
 
             var organization1 = new Organization
             {
                 ChangeId = 1,
-                Name = "Org 1",
-                OvoNumber = "OVO100001"
+                Name = _fixture.Create<OrganizationName>(),
+                OvoNumber = ovoCode
             };
 
             var (consumer, store) = BuildSetup(new FakeOrganizationReader(organization1),
                 configureEditorContext: context =>
                 {
-                    context.Organizations.Add(new OrganizationRecord
-                    {
-                        Code = organization1DbaseRecord.ORG.Value,
-                        DbaseRecord = organization1DbaseRecord.ToBytes(_memoryStreamManager, _fileEncoding),
-                        DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion
-                    });
-                    context.Organizations.Add(new OrganizationRecord
-                    {
-                        Code = organization2DbaseRecord.ORG.Value,
-                        DbaseRecord = organization2DbaseRecord.ToBytes(_memoryStreamManager, _fileEncoding),
-                        DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion
-                    });
+                    context.OrganizationsV2.Add(organization1Record);
+                    context.OrganizationsV2.Add(organization2Record);
                 },
                 loggerFactory: loggerFactoryMock.Object);
 
@@ -225,7 +208,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
             Assert.Single(loggerMock.Invocations
                 .Where(x => x.Arguments.Count >= 3
                             && Equals(x.Arguments[0], LogLevel.Error)
-                            && x.Arguments[2].ToString().StartsWith("Multiple Organizations found with a link to OVO100001")));
+                            && x.Arguments[2].ToString().StartsWith($"Multiple Organizations found with a link to {ovoCode}")));
         }
 
         [Fact]
@@ -256,10 +239,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
 
             await consumer.StartAsync(CancellationToken.None);
 
-            var page = await store.ReadAllForwards(Position.Start, 1);
-            var message = Assert.Single(page.Messages);
-            Assert.Equal(nameof(CreateOrganization), message.Type);
-            var createOrganizationMessage = JsonConvert.DeserializeObject<CreateOrganization>(await message.GetJsonData());
+            var createOrganizationMessage = await store.GetLastMessage<CreateOrganization>();
 
             Assert.Equal(organization2.OvoNumber, createOrganizationMessage.Code);
             Assert.Equal(organization2.Name, createOrganizationMessage.Name);

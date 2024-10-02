@@ -3,12 +3,11 @@ namespace RoadRegistry.BackOffice;
 using System;
 using System.Linq;
 
-//TODO-rik add tests
 public readonly struct OrganizationKboNumber : IEquatable<OrganizationKboNumber>
 {
     private readonly string _value;
 
-    private const int Length = 10;
+    public const int Length = 10;
 
     public OrganizationKboNumber(string value)
     {

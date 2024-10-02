@@ -2,22 +2,19 @@ namespace RoadRegistry.Hosts
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using BackOffice;
-    using BackOffice.Abstractions.Organizations;
+    using BackOffice.Core;
     using BackOffice.FeatureToggles;
     using Editor.Schema;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
-    using Microsoft.IO;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BackOffice.Core;
 
     public class OrganizationCache : IOrganizationCache
     {
         private readonly EditorContext _editorContext;
-        private readonly OrganizationDbaseRecordReader _organizationRecordReader;
         private readonly UseOvoCodeInChangeRoadNetworkFeatureToggle _useOvoCodeInChangeRoadNetworkFeatureToggle;
         private readonly IRoadRegistryContext _roadRegistryContext;
         private readonly ConcurrentDictionary<OrganizationId, OrganizationDetail> _cache = new();
@@ -25,14 +22,11 @@ namespace RoadRegistry.Hosts
 
         public OrganizationCache(
             EditorContext editorContext,
-            RecyclableMemoryStreamManager manager,
-            FileEncoding fileEncoding,
             UseOvoCodeInChangeRoadNetworkFeatureToggle useOvoCodeInChangeRoadNetworkFeatureToggle,
             IRoadRegistryContext roadRegistryContext,
             ILogger<OrganizationCache> logger)
         {
             _editorContext = editorContext;
-            _organizationRecordReader = new OrganizationDbaseRecordReader(manager, fileEncoding);
             _useOvoCodeInChangeRoadNetworkFeatureToggle = useOvoCodeInChangeRoadNetworkFeatureToggle;
             _roadRegistryContext = roadRegistryContext;
             _logger = logger;
@@ -85,8 +79,7 @@ namespace RoadRegistry.Hosts
                     Code = organizationId,
                     Name = organization.Translation.Name,
                     OvoCode = organization.OvoCode,
-                    KboNumber = organization.KboNumber,
-                    IsMaintainer = organization.IsMaintainer
+                    KboNumber = organization.KboNumber
                 };
             }
 
@@ -95,24 +88,25 @@ namespace RoadRegistry.Hosts
 
         private async Task<OrganizationDetail> FindByMappedOvoCode(OrganizationOvoCode ovoCode, CancellationToken cancellationToken)
         {
-            //TODO-rik use OrganizationsV2 table, dont forget to set KboNumber and IsMaintainer
+            var organizationRecords = await _editorContext.OrganizationsV2
+                .Where(x => x.OvoCode == ovoCode)
+                .ToListAsync(cancellationToken);
 
-            var organizationRecords = await _editorContext.Organizations.ToListAsync(cancellationToken);
-            var organizationDetails = organizationRecords
-                .Select(organizationRecord => _organizationRecordReader.Read(organizationRecord.DbaseRecord, organizationRecord.DbaseSchemaVersion))
-                .Where(sod => sod.OvoCode == ovoCode)
-                .ToList();
-
-            if (organizationDetails.Count > 1)
+            if (organizationRecords.Count > 1)
             {
-                throw new Exception($"Multiple organizations found in cache for OVO-code '{ovoCode}' (Ids: {string.Join(", ", organizationDetails.Select(x => x.Code))})");
+                throw new Exception($"Multiple organizations found in cache for OVO-code '{ovoCode}' (Ids: {string.Join(", ", organizationRecords.Select(x => x.Code))})");
             }
 
-            var organizationDetail = organizationDetails.SingleOrDefault();
-
-            if (organizationDetail is not null)
+            var organizationRecord = organizationRecords.SingleOrDefault();
+            if (organizationRecord is not null)
             {
-                return organizationDetail;
+                return new OrganizationDetail
+                {
+                    Code = new OrganizationId(organizationRecord.Code),
+                    Name = new OrganizationName(organizationRecord.Name),
+                    OvoCode = OrganizationOvoCode.FromValue(organizationRecord.OvoCode),
+                    KboNumber = OrganizationKboNumber.FromValue(organizationRecord.KboNumber)
+                };
             }
 
             _logger.LogError($"Could not find a mapping to an organization for OVO-code {ovoCode}");

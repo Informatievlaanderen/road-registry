@@ -1,33 +1,24 @@
 namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 
-using System.Text;
 using AutoFixture;
 using BackOffice;
-using BackOffice.Extracts.Dbase.Organizations;
-using BackOffice.Extracts.Dbase.Organizations.V2;
 using BackOffice.Messages;
 using Editor.Projections;
-using Editor.Schema.Extensions;
 using Editor.Schema.Organizations;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.IO;
-using RoadRegistry.Tests;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
-//TODO-rik update tests
+
 public class OrganizationRecordV2ProjectionTests : IClassFixture<ProjectionTestServices>
 {
     private readonly Fixture _fixture;
-    private readonly ProjectionTestServices _services;
 
-    public OrganizationRecordV2ProjectionTests(ProjectionTestServices services)
+    public OrganizationRecordV2ProjectionTests()
     {
-        _services = services ?? throw new ArgumentNullException(nameof(services));
-
         _fixture = new Fixture();
         _fixture.CustomizeOrganizationId();
         _fixture.CustomizeOrganizationName();
         _fixture.CustomizeOrganizationOvoCode();
+        _fixture.CustomizeOrganizationKboNumber();
         _fixture.Customize<ImportedOrganization>(
             customization =>
                 customization.FromFactory(_ =>
@@ -46,24 +37,20 @@ public class OrganizationRecordV2ProjectionTests : IClassFixture<ProjectionTestS
         var createOrganizationAccepted = new CreateOrganizationAccepted {
             Code = _fixture.Create<OrganizationId>(),
             Name = _fixture.Create<OrganizationName>(),
-            OvoCode = _fixture.Create<OrganizationOvoCode>()
+            OvoCode = _fixture.Create<OrganizationOvoCode>(),
+            KboNumber = _fixture.Create<OrganizationKboNumber>()
         };
 
         var expected = new OrganizationRecordV2
         {
             Id = 1,
             Code = createOrganizationAccepted.Code,
-            SortableCode = OrganizationRecordV2Projection.GetSortableCodeFor(createOrganizationAccepted.Code),
-            DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion,
-            DbaseRecord = new OrganizationDbaseRecord
-            {
-                ORG = { Value = createOrganizationAccepted.Code },
-                LBLORG = { Value = createOrganizationAccepted.Name },
-                OVOCODE = { Value = createOrganizationAccepted.OvoCode }
-            }.ToBytes(_services.MemoryStreamManager, _services.FileEncoding)
+            Name = createOrganizationAccepted.Name,
+            OvoCode = createOrganizationAccepted.OvoCode,
+            KboNumber = createOrganizationAccepted.KboNumber
         };
 
-        return new OrganizationRecordV2Projection(_services.MemoryStreamManager, _services.FileEncoding, new NullLogger<OrganizationRecordV2Projection>())
+        return new OrganizationRecordV2Projection()
             .Scenario()
             .Given(createOrganizationAccepted)
             .Expect(expected);
@@ -82,7 +69,7 @@ public class OrganizationRecordV2ProjectionTests : IClassFixture<ProjectionTestS
             Code = createOrganizationAccepted.Code
         };
 
-        return new OrganizationRecordV2Projection(_services.MemoryStreamManager, _services.FileEncoding, new NullLogger<OrganizationRecordV2Projection>())
+        return new OrganizationRecordV2Projection()
             .Scenario()
             .Given(createOrganizationAccepted, deleteOrganizationAccepted)
             .Expect(Enumerable.Empty<OrganizationRecordV2>());
@@ -106,16 +93,10 @@ public class OrganizationRecordV2ProjectionTests : IClassFixture<ProjectionTestS
         {
             Id = 1,
             Code = importedOrganization.Code,
-            SortableCode = OrganizationRecordV2Projection.GetSortableCodeFor(importedOrganization.Code),
-            DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion,
-            DbaseRecord = new OrganizationDbaseRecord
-            {
-                ORG = { Value = importedOrganization.Code },
-                LBLORG = { Value = renameOrganizationAccepted.Name }
-            }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+            Name = renameOrganizationAccepted.Name
         };
 
-        return new OrganizationRecordV2Projection(_services.MemoryStreamManager, _services.FileEncoding, new NullLogger<OrganizationRecordV2Projection>())
+        return new OrganizationRecordV2Projection()
             .Scenario()
             .Given(importedOrganization, renameOrganizationAccepted)
             .Expect(expected);
@@ -133,24 +114,22 @@ public class OrganizationRecordV2ProjectionTests : IClassFixture<ProjectionTestS
         {
             Code = importedOrganization.Code,
             Name = importedOrganization.Name,
-            OvoCode = _fixture.Create<OrganizationOvoCode>()
+            OvoCode = _fixture.Create<OrganizationOvoCode>(),
+            KboNumber = _fixture.Create<OrganizationKboNumber>(),
+            IsMaintainer = _fixture.Create<bool>()
         };
 
         var expected = new OrganizationRecordV2
         {
             Id = 1,
             Code = importedOrganization.Code,
-            SortableCode = OrganizationRecordV2Projection.GetSortableCodeFor(importedOrganization.Code),
-            DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion,
-            DbaseRecord = new OrganizationDbaseRecord
-            {
-                ORG = { Value = importedOrganization.Code },
-                LBLORG = { Value = importedOrganization.Name },
-                OVOCODE = { Value = changeOrganizationAccepted.OvoCode }
-            }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+            Name = importedOrganization.Name,
+            OvoCode = changeOrganizationAccepted.OvoCode,
+            KboNumber = changeOrganizationAccepted.KboNumber,
+            IsMaintainer = changeOrganizationAccepted.IsMaintainer
         };
 
-        return new OrganizationRecordV2Projection(_services.MemoryStreamManager, _services.FileEncoding, new NullLogger<OrganizationRecordV2Projection>())
+        return new OrganizationRecordV2Projection()
             .Scenario()
             .Given(importedOrganization, changeOrganizationAccepted)
             .Expect(expected);
@@ -167,13 +146,7 @@ public class OrganizationRecordV2ProjectionTests : IClassFixture<ProjectionTestS
                 {
                     Id = i + 1,
                     Code = @event.Code,
-                    SortableCode = OrganizationRecordV2Projection.GetSortableCodeFor(@event.Code),
-                    DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion,
-                    DbaseRecord = new OrganizationDbaseRecord
-                    {
-                        ORG = { Value = @event.Code },
-                        LBLORG = { Value = @event.Name }
-                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+                    Name = @event.Name
                 };
                 return new
                 {
@@ -182,7 +155,7 @@ public class OrganizationRecordV2ProjectionTests : IClassFixture<ProjectionTestS
                 };
             }).ToList();
 
-        return new OrganizationRecordV2Projection(_services.MemoryStreamManager, _services.FileEncoding, new NullLogger<OrganizationRecordV2Projection>())
+        return new OrganizationRecordV2Projection()
             .Scenario()
             .Given(data.Select(d => d.ImportedOrganization))
             .Expect(data.Select(d => d.Expected));

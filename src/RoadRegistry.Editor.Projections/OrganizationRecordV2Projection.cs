@@ -7,8 +7,6 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Schema;
 using Schema.Organizations;
 
-//TODO-rik unit tests
-
 public class OrganizationRecordV2Projection : ConnectedProjection<EditorContext>
 {
     public OrganizationRecordV2Projection()
@@ -64,7 +62,8 @@ public class OrganizationRecordV2Projection : ConnectedProjection<EditorContext>
 
         When<Envelope<DeleteOrganizationAccepted>>(async (context, envelope, token) =>
         {
-            var organization = await context.OrganizationsV2.IncludeLocalSingleOrDefaultAsync(o => o.Code == envelope.Message.Code, token);
+            var organization = await context.OrganizationsV2
+                .IncludeLocalSingleOrDefaultAsync(o => o.Code == envelope.Message.Code, token);
 
             if (organization is not null)
             {
