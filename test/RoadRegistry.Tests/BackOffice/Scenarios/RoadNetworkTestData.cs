@@ -31,6 +31,8 @@ public class RoadNetworkTestData
         ObjectProvider.CustomizeAttributeId();
         ObjectProvider.CustomizeOrganizationId();
         ObjectProvider.CustomizeOrganizationName();
+        ObjectProvider.CustomizeOrganizationOvoCode();
+        ObjectProvider.CustomizeOrganizationKboNumber();
         ObjectProvider.CustomizeRoadNodeId();
         ObjectProvider.CustomizeRoadNodeVersion();
         ObjectProvider.CustomizeRoadNodeType();

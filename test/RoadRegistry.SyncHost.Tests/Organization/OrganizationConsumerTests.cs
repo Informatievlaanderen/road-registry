@@ -134,7 +134,6 @@ namespace RoadRegistry.SyncHost.Tests.Organization
                 KboNumber = _fixture.Create<OrganizationKboNumber>()
             };
 
-            //TODO-rik gebruik existingOrganization voor onderstaande editorContext en Store initialisatie
             var (consumer, store) = BuildSetup(new FakeOrganizationReader(organization1),
                 configureEditorContext: editorContext =>
                 {
@@ -154,7 +153,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
 
             var changeOrganizationMessage = await store.GetLastMessage<ChangeOrganization>();
 
-            Assert.Equal(organization1.OvoNumber, changeOrganizationMessage.Code);
+            Assert.Equal(organizationId, changeOrganizationMessage.Code);
             Assert.Equal(organization1.Name, changeOrganizationMessage.Name);
             Assert.Equal(organization1.OvoNumber, changeOrganizationMessage.OvoCode);
             Assert.Equal(organization1.KboNumber, changeOrganizationMessage.KboNumber);
