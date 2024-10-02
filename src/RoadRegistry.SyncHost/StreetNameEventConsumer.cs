@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Autofac;
 using BackOffice;
 using BackOffice.Core;
 using BackOffice.Extensions;
@@ -31,7 +30,6 @@ using StreetNameWasRenamed = Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetN
 
 public class StreetNameEventConsumer : RoadRegistryBackgroundService
 {
-    private readonly ILifetimeScope _container;
     private readonly IStreamStore _store;
     private readonly IStreetNameEventWriter _streetNameEventWriter;
     private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
@@ -41,7 +39,6 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
     private readonly FileEncoding _encoding;
 
     public StreetNameEventConsumer(
-        ILifetimeScope container,
         IStreamStore store,
         IStreetNameEventWriter streetNameEventWriter,
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
@@ -52,7 +49,6 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         ILogger<StreetNameEventConsumer> logger
     ) : base(logger)
     {
-        _container = container.ThrowIfNull();
         _store = store.ThrowIfNull();
         _streetNameEventWriter = streetNameEventWriter.ThrowIfNull();
         _roadNetworkCommandQueue = roadNetworkCommandQueue.ThrowIfNull();
@@ -114,20 +110,18 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
     {
         var waitForProjectionStateName = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
 
-        using (var editorContext = _editorContextFactory())
-        {
-            await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, waitForProjectionStateName, Logger, cancellationToken);
+        await using var editorContext = _editorContextFactory();
+        await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, waitForProjectionStateName, Logger, cancellationToken);
 
-            var changeRoadNetwork = await BuildChangeRoadNetworkToConnectRoadSegmentsToDifferentStreetName(
-                message.PersistentLocalId,
-                StreetNameLocalId.NotApplicable,
-                $"Wegsegmenten ontkoppelen van straatnaam {message.PersistentLocalId}",
-                editorContext,
-                cancellationToken);
-            if (changeRoadNetwork is not null)
-            {
-                return new Command(changeRoadNetwork);
-            }
+        var changeRoadNetwork = await BuildChangeRoadNetworkToConnectRoadSegmentsToDifferentStreetName(
+            message.PersistentLocalId,
+            StreetNameLocalId.NotApplicable,
+            $"Wegsegmenten ontkoppelen van straatnaam {message.PersistentLocalId}",
+            editorContext,
+            cancellationToken);
+        if (changeRoadNetwork is not null)
+        {
+            return new Command(changeRoadNetwork);
         }
 
         return null;
@@ -137,20 +131,18 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
     {
         var waitForProjectionStateName = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
 
-        using (var editorContext = _editorContextFactory())
-        {
-            await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, waitForProjectionStateName, Logger, cancellationToken);
+        await using var editorContext = _editorContextFactory();
+        await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, waitForProjectionStateName, Logger, cancellationToken);
 
-            var changeRoadNetwork = await BuildChangeRoadNetworkToConnectRoadSegmentsToDifferentStreetName(
-                message.PersistentLocalId,
-                message.DestinationPersistentLocalId,
-                $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {message.DestinationPersistentLocalId}",
-                editorContext,
-                cancellationToken);
-            if (changeRoadNetwork is not null)
-            {
-                return new Command(changeRoadNetwork);
-            }
+        var changeRoadNetwork = await BuildChangeRoadNetworkToConnectRoadSegmentsToDifferentStreetName(
+            message.PersistentLocalId,
+            message.DestinationPersistentLocalId,
+            $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {message.DestinationPersistentLocalId}",
+            editorContext,
+            cancellationToken);
+        if (changeRoadNetwork is not null)
+        {
+            return new Command(changeRoadNetwork);
         }
 
         return null;
@@ -160,24 +152,22 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
     {
         var waitForProjectionStateName = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
 
-        using (var editorContext = _editorContextFactory())
+        await using var editorContext = _editorContextFactory();
+        await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, waitForProjectionStateName, Logger, cancellationToken);
+
+        var destinationStreetNameId = message.NewPersistentLocalIds.Any()
+            ? message.NewPersistentLocalIds.First()
+            : StreetNameLocalId.NotApplicable;
+
+        var changeRoadNetwork = await BuildChangeRoadNetworkToConnectRoadSegmentsToDifferentStreetName(
+            message.PersistentLocalId,
+            destinationStreetNameId,
+            $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {destinationStreetNameId} in functie van een gemeentefusie",
+            editorContext,
+            cancellationToken);
+        if (changeRoadNetwork is not null)
         {
-            await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, waitForProjectionStateName, Logger, cancellationToken);
-
-            var destinationStreetNameId = message.NewPersistentLocalIds.Any()
-                ? message.NewPersistentLocalIds.First()
-                : StreetNameLocalId.NotApplicable;
-
-            var changeRoadNetwork = await BuildChangeRoadNetworkToConnectRoadSegmentsToDifferentStreetName(
-                message.PersistentLocalId,
-                destinationStreetNameId,
-                $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {destinationStreetNameId} in functie van een gemeentefusie",
-                editorContext,
-                cancellationToken);
-            if (changeRoadNetwork is not null)
-            {
-                return new Command(changeRoadNetwork);
-            }
+            return new Command(changeRoadNetwork);
         }
 
         return null;
@@ -187,20 +177,22 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
     {
         var waitForProjectionStateName = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
 
-        using (var editorContext = _editorContextFactory())
-        {
-            await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, waitForProjectionStateName, Logger, cancellationToken);
+        await using var editorContext = _editorContextFactory();
+        await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, waitForProjectionStateName, Logger, cancellationToken);
 
-            var changeRoadNetwork = await BuildChangeRoadNetworkToConnectRoadSegmentsToDifferentStreetName(
-                message.PersistentLocalId,
-                message.NewPersistentLocalIds.First(),
-                $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {message.NewPersistentLocalIds.First()} in functie van een gemeentefusie",
-                editorContext,
-                cancellationToken);
-            if (changeRoadNetwork is not null)
-            {
-                return new Command(changeRoadNetwork);
-            }
+        var destinationStreetNameId = message.NewPersistentLocalIds.Any()
+            ? message.NewPersistentLocalIds.First()
+            : StreetNameLocalId.NotApplicable;
+
+        var changeRoadNetwork = await BuildChangeRoadNetworkToConnectRoadSegmentsToDifferentStreetName(
+            message.PersistentLocalId,
+            destinationStreetNameId,
+            $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {destinationStreetNameId} in functie van een gemeentefusie",
+            editorContext,
+            cancellationToken);
+        if (changeRoadNetwork is not null)
+        {
+            return new Command(changeRoadNetwork);
         }
 
         return null;
