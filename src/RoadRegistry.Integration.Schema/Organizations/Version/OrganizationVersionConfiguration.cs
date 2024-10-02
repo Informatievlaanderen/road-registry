@@ -17,12 +17,16 @@ public class OrganizationVersionConfiguration : IEntityTypeConfiguration<Organiz
         b.Property(p => p.Position).ValueGeneratedNever().IsRequired();
         b.Property(p => p.Code).IsRequired();
         b.Property(p => p.OvoCode).IsRequired(false);
+        b.Property(p => p.KboNumber).IsRequired(false);
+        b.Property(p => p.IsMaintainer).HasDefaultValue(false).IsRequired();
         b.Property(p => p.IsRemoved).HasDefaultValue(false).IsRequired();
 
         b.Property(p => p.Position).HasColumnName("position");
         b.Property(p => p.Code).HasColumnName("code");
         b.Property(p => p.Name).HasColumnName("name");
         b.Property(p => p.OvoCode).HasColumnName("ovo_code");
+        b.Property(p => p.KboNumber).HasColumnName("kbo_number");
+        b.Property(p => p.IsMaintainer).HasColumnName("is_maintainer");
         b.Property(p => p.IsRemoved).HasColumnName("is_removed");
         b.Property(x => x.VersionAsString).HasColumnName("version_as_string");
         b.Property(OrganizationVersion.VersionTimestampBackingPropertyName).HasColumnName("version_timestamp");
@@ -34,6 +38,7 @@ public class OrganizationVersionConfiguration : IEntityTypeConfiguration<Organiz
 
         b.HasIndex(p => p.Code);
         b.HasIndex(p => p.OvoCode);
+        b.HasIndex(p => p.IsMaintainer);
         b.HasIndex(OrganizationVersion.VersionTimestampBackingPropertyName);
         b.HasIndex(p => p.IsRemoved);
     }

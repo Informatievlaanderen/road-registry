@@ -15,6 +15,8 @@ namespace RoadRegistry.Integration.Schema.Organizations.Version
         public string Code { get; set; }
         public string Name { get; set; }
         public string OvoCode { get; set; }
+        public string KboNumber { get; set; }
+        public bool IsMaintainer { get; set; }
         public bool IsRemoved { get; set; }
 
         public string VersionAsString { get; set; }
@@ -53,6 +55,8 @@ namespace RoadRegistry.Integration.Schema.Organizations.Version
                 Code = Code,
                 Name = Name,
                 OvoCode = OvoCode,
+                KboNumber = KboNumber,
+                IsMaintainer = IsMaintainer,
                 IsRemoved = IsRemoved,
                 VersionTimestamp = VersionTimestamp,
                 CreatedOnTimestamp = CreatedOnTimestamp
