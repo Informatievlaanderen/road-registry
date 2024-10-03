@@ -1,3 +1,11 @@
+## [4.9.12](https://github.com/informatievlaanderen/road-registry/compare/v4.9.11...v4.9.12) (2024-10-02)
+
+
+### Bug Fixes
+
+* handling StreetNameWasRejectedBecauseOfMunicipalityMerger when NewPersistentLocalIds empty ([#1552](https://github.com/informatievlaanderen/road-registry/issues/1552)) ([d1689fe](https://github.com/informatievlaanderen/road-registry/commit/d1689fef2b0f5cdf9a3f25a269748618de290a11))
+* type in pipeline ([#1551](https://github.com/informatievlaanderen/road-registry/issues/1551)) ([02aef11](https://github.com/informatievlaanderen/road-registry/commit/02aef116de9e4053a7cda1de2d44e5b7a201f1f0))
+
 ## [4.9.11](https://github.com/informatievlaanderen/road-registry/compare/v4.9.10...v4.9.11) (2024-09-27)
 
 
