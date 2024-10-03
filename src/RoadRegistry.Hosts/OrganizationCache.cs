@@ -32,7 +32,7 @@ namespace RoadRegistry.Hosts
             _logger = logger;
         }
 
-        public async Task<OrganizationDetail?> FindByIdOrOvoCodeAsync(OrganizationId organizationId, CancellationToken cancellationToken)
+        public async Task<OrganizationDetail?> FindByIdOrOvoCodeOrKboNumberAsync(OrganizationId organizationId, CancellationToken cancellationToken)
         {
             if (OrganizationId.IsSystemValue(organizationId))
             {
@@ -66,6 +66,11 @@ namespace RoadRegistry.Hosts
                 return await FindByMappedOvoCode(new OrganizationOvoCode(organizationId), cancellationToken);
             }
 
+            if (OrganizationKboNumber.AcceptsValue(organizationId))
+            {
+                return await FindByKboNumber(new OrganizationKboNumber(organizationId), cancellationToken);
+            }
+
             return await GetById(organizationId, cancellationToken);
         }
 
@@ -88,29 +93,46 @@ namespace RoadRegistry.Hosts
 
         private async Task<OrganizationDetail> FindByMappedOvoCode(OrganizationOvoCode ovoCode, CancellationToken cancellationToken)
         {
-            var organizationRecords = await _editorContext.OrganizationsV2
+            var organizationCodes = await _editorContext.OrganizationsV2
                 .Where(x => x.OvoCode == ovoCode)
+                .Select(x => x.Code)
                 .ToListAsync(cancellationToken);
 
-            if (organizationRecords.Count > 1)
+            if (organizationCodes.Count > 1)
             {
-                throw new Exception($"Multiple organizations found in cache for OVO-code '{ovoCode}' (Ids: {string.Join(", ", organizationRecords.Select(x => x.Code))})");
+                throw new Exception($"Multiple organizations found in cache for OVO-code '{ovoCode}' (Ids: {string.Join(", ", organizationCodes)})");
             }
 
-            var organizationRecord = organizationRecords.SingleOrDefault();
-            if (organizationRecord is not null)
+            var organizationCode = organizationCodes.SingleOrDefault();
+            if (organizationCode is null)
             {
-                return new OrganizationDetail
-                {
-                    Code = new OrganizationId(organizationRecord.Code),
-                    Name = new OrganizationName(organizationRecord.Name),
-                    OvoCode = OrganizationOvoCode.FromValue(organizationRecord.OvoCode),
-                    KboNumber = OrganizationKboNumber.FromValue(organizationRecord.KboNumber)
-                };
+                _logger.LogError($"Could not find a mapping to an organization for OVO-code {ovoCode}");
+                return null;
             }
 
-            _logger.LogError($"Could not find a mapping to an organization for OVO-code {ovoCode}");
-            return null;
+            return await GetById(new OrganizationId(organizationCode), cancellationToken);
+        }
+
+        private async Task<OrganizationDetail> FindByKboNumber(OrganizationKboNumber kboNumber, CancellationToken cancellationToken)
+        {
+            var organizationCodes = await _editorContext.OrganizationsV2
+                .Where(x => x.KboNumber == kboNumber)
+                .Select(x => x.Code)
+                .ToListAsync(cancellationToken);
+
+            if (organizationCodes.Count > 1)
+            {
+                throw new Exception($"Multiple organizations found in cache for KBO-number '{kboNumber}' (Ids: {string.Join(", ", organizationCodes)})");
+            }
+
+            var organizationCode = organizationCodes.SingleOrDefault();
+            if (organizationCode is null)
+            {
+                _logger.LogError($"Could not find a mapping to an organization for KBO-number {kboNumber}");
+                return null;
+            }
+
+            return await GetById(new OrganizationId(organizationCode), cancellationToken);
         }
     }
 }

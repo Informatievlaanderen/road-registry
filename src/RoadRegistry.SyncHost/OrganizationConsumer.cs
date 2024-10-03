@@ -75,8 +75,11 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
 
             try
             {
-                var map = _container.Resolve<EventSourcedEntityMap>();
-                var organizationsContext = new Organizations(map, _store, SerializerSettings, EventMapping);
+                var organizationsContext = new Lazy<Organizations>(() =>
+                {
+                    var map = _container.Resolve<EventSourcedEntityMap>();
+                    return new Organizations(map, _store, SerializerSettings, EventMapping);
+                });
 
                 await _organizationReader.ReadAsync(projectionState.Position + 1, async organization =>
                 {
@@ -108,7 +111,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                         await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, WellKnownProjectionStateNames.RoadRegistryEditorOrganizationV2ProjectionHost, Logger, cancellationToken);
                     }
 
-                    await CreateOrUpdateOrganization(editorContext, organizationsContext, organization, cancellationToken);
+                    await CreateOrUpdateOrganization(editorContext, organizationsContext.Value, organization, cancellationToken);
 
                     await dbContext.ProcessedMessages.AddAsync(new ProcessedMessage(idempotenceKey, DateTimeOffset.UtcNow), cancellationToken);
                     await dbContext.SaveChangesAsync(cancellationToken);
