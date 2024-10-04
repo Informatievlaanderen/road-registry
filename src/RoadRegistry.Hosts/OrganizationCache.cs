@@ -2,22 +2,19 @@ namespace RoadRegistry.Hosts
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using BackOffice;
-    using BackOffice.Abstractions.Organizations;
+    using BackOffice.Core;
     using BackOffice.FeatureToggles;
     using Editor.Schema;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
-    using Microsoft.IO;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BackOffice.Core;
 
     public class OrganizationCache : IOrganizationCache
     {
         private readonly EditorContext _editorContext;
-        private readonly OrganizationDbaseRecordReader _organizationRecordReader;
         private readonly UseOvoCodeInChangeRoadNetworkFeatureToggle _useOvoCodeInChangeRoadNetworkFeatureToggle;
         private readonly IRoadRegistryContext _roadRegistryContext;
         private readonly ConcurrentDictionary<OrganizationId, OrganizationDetail> _cache = new();
@@ -25,20 +22,17 @@ namespace RoadRegistry.Hosts
 
         public OrganizationCache(
             EditorContext editorContext,
-            RecyclableMemoryStreamManager manager,
-            FileEncoding fileEncoding,
             UseOvoCodeInChangeRoadNetworkFeatureToggle useOvoCodeInChangeRoadNetworkFeatureToggle,
             IRoadRegistryContext roadRegistryContext,
             ILogger<OrganizationCache> logger)
         {
             _editorContext = editorContext;
-            _organizationRecordReader = new OrganizationDbaseRecordReader(manager, fileEncoding);
             _useOvoCodeInChangeRoadNetworkFeatureToggle = useOvoCodeInChangeRoadNetworkFeatureToggle;
             _roadRegistryContext = roadRegistryContext;
             _logger = logger;
         }
 
-        public async Task<OrganizationDetail?> FindByIdOrOvoCodeAsync(OrganizationId organizationId, CancellationToken cancellationToken)
+        public async Task<OrganizationDetail?> FindByIdOrOvoCodeOrKboNumberAsync(OrganizationId organizationId, CancellationToken cancellationToken)
         {
             if (OrganizationId.IsSystemValue(organizationId))
             {
@@ -72,6 +66,11 @@ namespace RoadRegistry.Hosts
                 return await FindByMappedOvoCode(new OrganizationOvoCode(organizationId), cancellationToken);
             }
 
+            if (OrganizationKboNumber.AcceptsValue(organizationId))
+            {
+                return await FindByKboNumber(new OrganizationKboNumber(organizationId), cancellationToken);
+            }
+
             return await GetById(organizationId, cancellationToken);
         }
 
@@ -84,7 +83,8 @@ namespace RoadRegistry.Hosts
                 {
                     Code = organizationId,
                     Name = organization.Translation.Name,
-                    OvoCode = organization.OvoCode
+                    OvoCode = organization.OvoCode,
+                    KboNumber = organization.KboNumber
                 };
             }
 
@@ -93,26 +93,46 @@ namespace RoadRegistry.Hosts
 
         private async Task<OrganizationDetail> FindByMappedOvoCode(OrganizationOvoCode ovoCode, CancellationToken cancellationToken)
         {
-            var organizationRecords = await _editorContext.Organizations.ToListAsync(cancellationToken);
-            var organizationDetails = organizationRecords
-                .Select(organizationRecord => _organizationRecordReader.Read(organizationRecord.DbaseRecord, organizationRecord.DbaseSchemaVersion))
-                .Where(sod => sod.OvoCode == ovoCode)
-                .ToList();
+            var organizationCodes = await _editorContext.OrganizationsV2
+                .Where(x => x.OvoCode == ovoCode)
+                .Select(x => x.Code)
+                .ToListAsync(cancellationToken);
 
-            if (organizationDetails.Count > 1)
+            if (organizationCodes.Count > 1)
             {
-                throw new Exception($"Multiple organizations found in cache for OVO-code '{ovoCode}' (Ids: {string.Join(", ", organizationDetails.Select(x => x.Code))})");
+                throw new Exception($"Multiple organizations found in cache for OVO-code '{ovoCode}' (Ids: {string.Join(", ", organizationCodes)})");
             }
 
-            var organizationDetail = organizationDetails.SingleOrDefault();
-
-            if (organizationDetail is not null)
+            var organizationCode = organizationCodes.SingleOrDefault();
+            if (organizationCode is null)
             {
-                return organizationDetail;
+                _logger.LogError($"Could not find a mapping to an organization for OVO-code {ovoCode}");
+                return null;
             }
 
-            _logger.LogError($"Could not find a mapping to an organization for OVO-code {ovoCode}");
-            return null;
+            return await GetById(new OrganizationId(organizationCode), cancellationToken);
+        }
+
+        private async Task<OrganizationDetail> FindByKboNumber(OrganizationKboNumber kboNumber, CancellationToken cancellationToken)
+        {
+            var organizationCodes = await _editorContext.OrganizationsV2
+                .Where(x => x.KboNumber == kboNumber)
+                .Select(x => x.Code)
+                .ToListAsync(cancellationToken);
+
+            if (organizationCodes.Count > 1)
+            {
+                throw new Exception($"Multiple organizations found in cache for KBO-number '{kboNumber}' (Ids: {string.Join(", ", organizationCodes)})");
+            }
+
+            var organizationCode = organizationCodes.SingleOrDefault();
+            if (organizationCode is null)
+            {
+                _logger.LogError($"Could not find a mapping to an organization for KBO-number {kboNumber}");
+                return null;
+            }
+
+            return await GetById(new OrganizationId(organizationCode), cancellationToken);
         }
     }
 }

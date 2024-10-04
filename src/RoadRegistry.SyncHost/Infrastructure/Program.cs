@@ -69,7 +69,7 @@ public class Program
                 }
             )
             .Build();
-        
+
         await roadRegistryHost
             .RunAsync(async (sp, host, configuration) =>
             {

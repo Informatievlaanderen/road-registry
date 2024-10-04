@@ -2,19 +2,17 @@ namespace RoadRegistry.Tests.BackOffice
 {
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Editor.Schema;
-    using Editor.Schema.Extensions;
+    using Editor.Schema.Organizations;
+    using Framework.Projections;
+    using Hosts;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging.Abstractions;
-    using Microsoft.IO;
     using Newtonsoft.Json;
     using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Core;
-    using RoadRegistry.BackOffice.Extracts.Dbase.Organizations;
     using RoadRegistry.BackOffice.FeatureToggles;
     using RoadRegistry.BackOffice.Framework;
     using RoadRegistry.BackOffice.Messages;
-    using RoadRegistry.Hosts;
-    using RoadRegistry.Tests.Framework.Projections;
     using SqlStreamStore;
 
     public class OrganizationCacheTests
@@ -22,7 +20,7 @@ namespace RoadRegistry.Tests.BackOffice
         private static readonly EventMapping Mapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
         private static readonly JsonSerializerSettings Settings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
         private static readonly StreamNameConverter StreamNameConverter = StreamNameConversions.PassThru;
-        
+
         [Theory]
         [InlineData("ABC", "DV")]
         [InlineData("-7", "andere")]
@@ -43,10 +41,44 @@ namespace RoadRegistry.Tests.BackOffice
                 }
             );
 
-            var organization = await sut.FindByIdOrOvoCodeAsync(organizationId, CancellationToken.None);
+            var organization = await sut.FindByIdOrOvoCodeOrKboNumberAsync(organizationId, CancellationToken.None);
             Assert.NotNull(organization);
             Assert.Equal(organizationId, organization.Code);
             Assert.Equal(organizationName, organization.Name);
+        }
+        [Theory]
+        [InlineData("0123456789", "DV")]
+        public async Task ShouldFindByKboNumber(string kboNumber, string organizationNameValue)
+        {
+            var organizationId = new OrganizationId("ABC");
+            var organizationName = new OrganizationName(organizationNameValue);
+
+            var sut = await BuildOrganizationCache(
+                configureStore: async store =>
+                {
+                    await store.Given(Mapping, Settings, StreamNameConverter, Organizations.ToStreamName(organizationId), new CreateOrganizationAccepted
+                    {
+                        Code = organizationId,
+                        Name = organizationName,
+                        KboNumber = kboNumber
+                    });
+                },
+                configureEditorContext: async editorContext =>
+                {
+                    await editorContext.OrganizationsV2.AddAsync(new OrganizationRecordV2
+                    {
+                        Code = organizationId,
+                        Name = organizationName,
+                        KboNumber = kboNumber
+                    });
+                }
+            );
+
+            var organization = await sut.FindByIdOrOvoCodeOrKboNumberAsync(new OrganizationId(kboNumber), CancellationToken.None);
+            Assert.NotNull(organization);
+            Assert.Equal(organizationId, organization.Code);
+            Assert.Equal(organizationName, organization.Name);
+            Assert.Equal(kboNumber, organization.KboNumber);
         }
 
         [Fact]
@@ -70,7 +102,7 @@ namespace RoadRegistry.Tests.BackOffice
 
             Assert.Equal(ovoCode.ToString(), ovoCodeAsOrganizationId.ToString());
 
-            var organization = await sut.FindByIdOrOvoCodeAsync(ovoCodeAsOrganizationId, CancellationToken.None);
+            var organization = await sut.FindByIdOrOvoCodeOrKboNumberAsync(ovoCodeAsOrganizationId, CancellationToken.None);
             Assert.NotNull(organization);
             Assert.Equal(ovoCodeAsOrganizationId, organization.Code);
             Assert.Equal(organizationName, organization.Name);
@@ -97,7 +129,7 @@ namespace RoadRegistry.Tests.BackOffice
 
             Assert.Equal(ovoCode.ToString(), ovoCodeAsOrganizationId.ToString());
 
-            var organization = await sut.FindByIdOrOvoCodeAsync(ovoCodeAsOrganizationId, CancellationToken.None);
+            var organization = await sut.FindByIdOrOvoCodeOrKboNumberAsync(ovoCodeAsOrganizationId, CancellationToken.None);
             Assert.Null(organization);
         }
 
@@ -108,31 +140,31 @@ namespace RoadRegistry.Tests.BackOffice
             var organizationName = new OrganizationName("DV");
             var ovoCode = new OrganizationOvoCode(1);
 
-            var sut = await BuildOrganizationCache(
+            var sut = await BuildOrganizationCache(configureStore: async store =>
+                {
+                    await store.Given(Mapping, Settings, StreamNameConverter, Organizations.ToStreamName(organizationId), new CreateOrganizationAccepted
+                    {
+                        Code = ovoCode,
+                        Name = organizationName,
+                        OvoCode = ovoCode
+                    });
+                },
                 configureEditorContext: async editorContext =>
                 {
-                    await editorContext.Organizations.AddRangeAsync(
-                        new OrganizationRecord
+                    await editorContext.OrganizationsV2.AddRangeAsync(
+                        new OrganizationRecordV2
                         {
                             Code = organizationId,
-                            SortableCode = organizationId,
-                            DbaseSchemaVersion = RoadRegistry.BackOffice.Extracts.Dbase.Organizations.V2.OrganizationDbaseRecord.DbaseSchemaVersion,
-                            DbaseRecord = new RoadRegistry.BackOffice.Extracts.Dbase.Organizations.V2.OrganizationDbaseRecord
-                            {
-                                ORG = { Value = organizationId },
-                                LBLORG = { Value = organizationName },
-                                OVOCODE = { Value = ovoCode }
-                            }.ToBytes(new RecyclableMemoryStreamManager(), FileEncoding.UTF8)
+                            Name = organizationName,
+                            OvoCode = ovoCode
                         }
                     );
-
-                    await editorContext.SaveChangesAsync(CancellationToken.None);
                 }
             );
 
             Assert.NotEqual(ovoCode.ToString(), organizationId.ToString());
 
-            var organization = await sut.FindByIdOrOvoCodeAsync(new OrganizationId(ovoCode), CancellationToken.None);
+            var organization = await sut.FindByIdOrOvoCodeOrKboNumberAsync(new OrganizationId(ovoCode), CancellationToken.None);
             Assert.NotNull(organization);
             Assert.Equal(organizationId, organization.Code);
             Assert.Equal(organizationName, organization.Name);
@@ -145,7 +177,7 @@ namespace RoadRegistry.Tests.BackOffice
 
             var sut = await BuildOrganizationCache();
 
-            var organization = await sut.FindByIdOrOvoCodeAsync(organizationId, CancellationToken.None);
+            var organization = await sut.FindByIdOrOvoCodeOrKboNumberAsync(organizationId, CancellationToken.None);
             Assert.Null(organization);
         }
 
@@ -164,6 +196,7 @@ namespace RoadRegistry.Tests.BackOffice
             if (configureEditorContext is not null)
             {
                 await configureEditorContext(editorContext);
+                await editorContext.SaveChangesAsync();
             }
 
             var roadRegistryContext = new RoadRegistryContext(
@@ -176,8 +209,6 @@ namespace RoadRegistry.Tests.BackOffice
 
             return new OrganizationCache(
                 editorContext,
-                new RecyclableMemoryStreamManager(),
-                FileEncoding.UTF8,
                 new UseOvoCodeInChangeRoadNetworkFeatureToggle(useOvoCodeInChangeRoadNetworkFeatureToggle),
                 roadRegistryContext,
                 new NullLogger<OrganizationCache>());

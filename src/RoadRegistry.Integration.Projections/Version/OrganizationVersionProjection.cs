@@ -37,6 +37,7 @@ public class OrganizationVersionProjection : ConnectedProjection<IntegrationCont
                     Code = envelope.Message.Code,
                     Name = envelope.Message.Name,
                     OvoCode = envelope.Message.OvoCode,
+                    KboNumber = envelope.Message.KboNumber,
                     CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
                     VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
                 };
@@ -51,6 +52,7 @@ public class OrganizationVersionProjection : ConnectedProjection<IntegrationCont
                     {
                         newVersion.Name = envelope.Message.Name;
                         newVersion.OvoCode = envelope.Message.OvoCode;
+                        newVersion.KboNumber = envelope.Message.KboNumber;
                         newVersion.IsRemoved = false;
                         newVersion.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
                     });
@@ -81,6 +83,8 @@ public class OrganizationVersionProjection : ConnectedProjection<IntegrationCont
                 {
                     newVersion.Name = envelope.Message.Name;
                     newVersion.OvoCode = envelope.Message.OvoCode;
+                    newVersion.KboNumber = envelope.Message.KboNumber;
+                    newVersion.IsMaintainer = envelope.Message.IsMaintainer;
                     newVersion.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
                 },
                 token);

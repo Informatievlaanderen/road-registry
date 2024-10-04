@@ -60,6 +60,11 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
             Settings,
             Mapping,
             new NullLoggerFactory());
+        Organizations = new Organizations(
+            ScopedContainer.Resolve<EventSourcedEntityMap>(),
+            Store,
+            Settings,
+            Mapping);
     }
 
     protected override void ConfigureContainer(ContainerBuilder containerBuilder)
@@ -79,6 +84,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     public IZipArchiveBeforeFeatureCompareValidator ZipArchiveBeforeFeatureCompareValidator { get; set; }
     public IExtractUploadFailedEmailClient ExtractUploadFailedEmailClient { get; set; }
     protected IRoadRegistryContext RoadRegistryContext { get; }
+    protected Organizations Organizations { get; }
     protected LoggerFactory LoggerFactory { get; }
     protected Mock<ITicketing> TicketingMock { get; } = new();
 

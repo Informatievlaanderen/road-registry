@@ -1,10 +1,8 @@
 namespace RoadRegistry.Integration.Projections;
 
-using System;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using NodaTime.Extensions;
 using Schema;
 using Schema.Organizations;
 
@@ -37,6 +35,7 @@ public class OrganizationLatestItemProjection : ConnectedProjection<IntegrationC
                     Code = envelope.Message.Code,
                     Name = envelope.Message.Name,
                     OvoCode = envelope.Message.OvoCode,
+                    KboNumber = envelope.Message.KboNumber,
                     CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
                     VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
                 };
@@ -48,6 +47,7 @@ public class OrganizationLatestItemProjection : ConnectedProjection<IntegrationC
                 organization.Code = envelope.Message.Code;
                 organization.Name = envelope.Message.Name;
                 organization.OvoCode = envelope.Message.OvoCode;
+                organization.KboNumber = envelope.Message.KboNumber;
                 organization.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
                 organization.IsRemoved = false;
             }
@@ -71,6 +71,8 @@ public class OrganizationLatestItemProjection : ConnectedProjection<IntegrationC
             organization!.Code = envelope.Message.Code;
             organization.Name = envelope.Message.Name;
             organization.OvoCode = envelope.Message.OvoCode;
+            organization.KboNumber = envelope.Message.KboNumber;
+            organization.IsMaintainer = envelope.Message.IsMaintainer;
             organization.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         });
 

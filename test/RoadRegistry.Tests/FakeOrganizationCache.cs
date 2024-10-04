@@ -7,7 +7,7 @@ namespace RoadRegistry.Tests
     {
         private readonly Dictionary<OrganizationId, OrganizationDetail> _organizations = new();
 
-        public Task<OrganizationDetail> FindByIdOrOvoCodeAsync(OrganizationId organizationId, CancellationToken cancellationToken)
+        public Task<OrganizationDetail> FindByIdOrOvoCodeOrKboNumberAsync(OrganizationId organizationId, CancellationToken cancellationToken)
         {
             if (OrganizationId.IsSystemValue(organizationId))
             {

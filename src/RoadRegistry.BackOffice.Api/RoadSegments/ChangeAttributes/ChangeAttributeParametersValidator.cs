@@ -141,7 +141,7 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
             return false;
         }
 
-        var organization = await _organizationCache.FindByIdOrOvoCodeAsync(new OrganizationId(code), cancellationToken);
+        var organization = await _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(new OrganizationId(code), cancellationToken);
         return organization is not null;
     }
 

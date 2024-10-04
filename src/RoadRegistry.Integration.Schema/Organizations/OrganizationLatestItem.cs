@@ -13,6 +13,8 @@ namespace RoadRegistry.Integration.Schema.Organizations
         public string Code { get; set; }
         public string Name { get; set; }
         public string OvoCode { get; set; }
+        public string KboNumber { get; set; }
+        public bool IsMaintainer { get; set; }
         public bool IsRemoved { get; set; }
 
         public string VersionAsString { get; set; }
