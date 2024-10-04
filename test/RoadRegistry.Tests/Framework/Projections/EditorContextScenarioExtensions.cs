@@ -72,6 +72,7 @@ public static class EditorContextScenarioExtensions
         records.AddRange(await context.RoadSegmentNumberedRoadAttributes.ToArrayAsync());
         records.AddRange(await context.GradeSeparatedJunctions.ToArrayAsync());
         records.AddRange(await context.Organizations.ToArrayAsync());
+        records.AddRange(await context.OrganizationsV2.ToArrayAsync());
         records.AddRange(await context.RoadNetworkInfo.ToArrayAsync());
         records.AddRange(await context.RoadNetworkChanges.ToArrayAsync());
         records.AddRange(await context.RoadNetworkChangeRequestsBasedOnArchive.ToArrayAsync());

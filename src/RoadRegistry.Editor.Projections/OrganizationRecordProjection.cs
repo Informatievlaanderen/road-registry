@@ -38,7 +38,7 @@ public class OrganizationRecordProjection : ConnectedProjection<EditorContext>
         _manager = manager.ThrowIfNull();
         _encoding = encoding.ThrowIfNull();
         _logger = logger.ThrowIfNull();
-        
+
         When<Envelope<ImportedOrganization>>(async (context, envelope, token) =>
         {
             var organization = new OrganizationRecord
@@ -55,7 +55,7 @@ public class OrganizationRecordProjection : ConnectedProjection<EditorContext>
         {
             var organization = context.Organizations.Local.SingleOrDefault(o => o.Code == envelope.Message.Code)
                                ?? await context.Organizations.SingleOrDefaultAsync(o => o.Code == envelope.Message.Code, token);
-            
+
             if (organization is null)
             {
                 organization = new OrganizationRecord

@@ -5,6 +5,7 @@ public class OrganizationDetail
     public OrganizationId Code { get; set; }
     public OrganizationName Name { get; set; }
     public OrganizationOvoCode? OvoCode { get; set; }
+    public OrganizationKboNumber? KboNumber { get; set; }
 
     public static OrganizationDetail FromCode(OrganizationId code)
     {

@@ -233,7 +233,8 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             {
                 Code = command.Body.Code,
                 Name = command.Body.Name,
-                OvoCode = command.Body.OvoCode
+                OvoCode = command.Body.OvoCode,
+                KboNumber = command.Body.KboNumber
             };
             await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, ExpectedVersion.Any, new Event(
                 rejectedEvent
@@ -245,7 +246,8 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             {
                 Code = command.Body.Code,
                 Name = command.Body.Name,
-                OvoCode = command.Body.OvoCode
+                OvoCode = command.Body.OvoCode,
+                KboNumber = command.Body.KboNumber
             }).WithMessageId(command.MessageId);
             await _organizationEventWriter.WriteAsync(organizationId, acceptedEvent, cancellationToken);
         }
@@ -315,7 +317,9 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         {
             organization.Change(
                 command.Body.Name is not null ? OrganizationName.WithoutExcessLength(command.Body.Name) : null,
-                OrganizationOvoCode.FromValue(command.Body.OvoCode)
+                OrganizationOvoCode.FromValue(command.Body.OvoCode),
+                OrganizationKboNumber.FromValue(command.Body.KboNumber),
+                command.Body.IsMaintainer
             );
         }
         else
@@ -324,7 +328,9 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             {
                 Code = command.Body.Code,
                 Name = command.Body.Name,
-                OvoCode = command.Body.OvoCode
+                OvoCode = command.Body.OvoCode,
+                KboNumber = command.Body.KboNumber,
+                IsMaintainer = command.Body.IsMaintainer
             };
             await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, ExpectedVersion.Any, new Event(
                 rejectedEvent

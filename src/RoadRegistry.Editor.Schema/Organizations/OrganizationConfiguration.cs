@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class OrganizationConfiguration : IEntityTypeConfiguration<OrganizationRecord>
 {
-    public const string TableName = "Organization";
+    private const string TableName = "Organization";
 
     public void Configure(EntityTypeBuilder<OrganizationRecord> b)
     {

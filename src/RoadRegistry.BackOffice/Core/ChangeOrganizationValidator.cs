@@ -15,5 +15,11 @@ public class ChangeOrganizationValidator : AbstractValidator<ChangeOrganization>
             RuleFor(x => x.OvoCode)
                 .Must(OrganizationOvoCode.AcceptsValue);
         });
+
+        When(x => x.KboNumber is not null, () =>
+        {
+            RuleFor(x => x.KboNumber)
+                .Must(OrganizationKboNumber.AcceptsValue);
+        });
     }
 }

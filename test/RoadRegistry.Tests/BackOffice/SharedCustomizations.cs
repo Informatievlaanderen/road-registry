@@ -311,6 +311,14 @@ public static class SharedCustomizations
         ));
     }
 
+    public static void CustomizeOrganizationKboNumber(this IFixture fixture)
+    {
+        fixture.Customize<OrganizationKboNumber>(composer =>
+            composer.FromFactory(generator =>
+                new OrganizationKboNumber($"{generator.Next(1, 99999):00000}{generator.Next(1, 99999):00000}")
+        ));
+    }
+
     public static void CustomizeOriginProperties(this IFixture fixture)
     {
         fixture.Customize<ImportedOriginProperties>(customization =>

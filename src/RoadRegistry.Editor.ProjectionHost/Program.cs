@@ -83,8 +83,8 @@ public class Program
                             ).Options)
                 )
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new EditorContextMigrationFactory())
-                .AddEditorContextEventProcessor<RoadNetworkEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
-                {
+                .AddEditorContextEventProcessor<RoadNetworkEventProcessor>(sp =>
+                [
                     new RoadNetworkInfoProjection(),
                     new RoadNodeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<RoadSegmentRecordProjection>>()),
@@ -95,48 +95,52 @@ public class Program
                     new RoadSegmentSurfaceAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentWidthAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new GradeSeparatedJunctionRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>())
-                })
-                .AddEditorContextEventProcessor<OrganizationEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
-                {
+                ])
+                .AddEditorContextEventProcessor<OrganizationEventProcessor>(sp =>
+                [
                     new OrganizationRecordProjection(
                         sp.GetRequiredService<RecyclableMemoryStreamManager>(),
                         sp.GetRequiredService<FileEncoding>(),
                         sp.GetRequiredService<ILogger<OrganizationRecordProjection>>())
-                })
-                .AddEditorContextEventProcessor<MunicipalityEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
-                {
+                ])
+                .AddEditorContextEventProcessor<OrganizationV2EventProcessor>(sp =>
+                [
+                    new OrganizationRecordV2Projection()
+                ])
+                .AddEditorContextEventProcessor<MunicipalityEventProcessor>(sp =>
+                [
                     new MunicipalityGeometryProjection()
-                })
-                .AddEditorContextEventProcessor<ChangeFeedEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
-                {
+                ])
+                .AddEditorContextEventProcessor<ChangeFeedEventProcessor>(sp =>
+                [
                     new RoadNetworkChangeFeedProjection(sp.GetRequiredService<IBlobClient>())
-                })
-                .AddEditorContextEventProcessor<ExtractDownloadEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
-                {
+                ])
+                .AddEditorContextEventProcessor<ExtractDownloadEventProcessor>(sp =>
+                [
                     new ExtractDownloadRecordProjection()
-                })
-                .AddEditorContextEventProcessor<ExtractRequestEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
-                {
+                ])
+                .AddEditorContextEventProcessor<ExtractRequestEventProcessor>(sp =>
+                [
                     new ExtractRequestRecordProjection(),
                     !useExtractRequestOverlapEventProcessorFeatureToggle.FeatureEnabled ? new ExtractRequestOverlapRecordProjection(sp.GetRequiredService<ILogger<ExtractRequestOverlapRecordProjection>>()) : null
-                })
-                .AddEditorContextEventProcessor<ExtractUploadEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
-                {
+                ])
+                .AddEditorContextEventProcessor<ExtractUploadEventProcessor>(sp =>
+                [
                     new ExtractUploadRecordProjection()
-                })
-                .AddEditorContextEventProcessor<RoadSegmentVersionEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
-                {
+                ])
+                .AddEditorContextEventProcessor<RoadSegmentVersionEventProcessor>(sp =>
+                [
                     new RoadSegmentVersionRecordProjection(sp.GetRequiredService<ILogger<RoadSegmentVersionRecordProjection>>())
-                })
+                ])
                 ;
 
             if (useExtractRequestOverlapEventProcessorFeatureToggle.FeatureEnabled)
             {
                 services
-                    .AddEditorContextEventProcessor<ExtractRequestOverlapEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
-                    {
+                    .AddEditorContextEventProcessor<ExtractRequestOverlapEventProcessor>(sp =>
+                    [
                         new ExtractRequestOverlapRecordProjection(sp.GetRequiredService<ILogger<ExtractRequestOverlapRecordProjection>>())
-                    });
+                    ]);
             }
         })
         .ConfigureHealthChecks(HostingPort, builder => builder
