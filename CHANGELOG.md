@@ -1,3 +1,10 @@
+# [4.10.0](https://github.com/informatievlaanderen/road-registry/compare/v4.9.12...v4.10.0) (2024-10-04)
+
+
+### Features
+
+* GAWR-5728 add Organization V2 projection + endpoint to mark organizations as maintainers ([#1555](https://github.com/informatievlaanderen/road-registry/issues/1555)) ([2893608](https://github.com/informatievlaanderen/road-registry/commit/289360866b193f0d8549f0d3edc9ff98682e5d2c))
+
 ## [4.9.12](https://github.com/informatievlaanderen/road-registry/compare/v4.9.11...v4.9.12) (2024-10-02)
 
 
