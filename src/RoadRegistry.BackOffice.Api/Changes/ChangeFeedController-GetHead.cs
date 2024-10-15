@@ -40,12 +40,19 @@ public partial class ChangeFeedController
             throw new ValidationException(new[] { new ValidationFailure("MaxEntryCount", "MaxEntryCount query string parameter is missing.") });
         }
 
-        var entries = await GetChangeFeedEntries(context, q => q
-            .Where(change => string.IsNullOrEmpty(filter) || change.Title.Contains(filter))
-            .OrderByDescending(change => change.Id)
-            .Take(maxEntryCount.Value)
+        var entries = await GetChangeFeedEntries(context, q =>
+            {
+                if (!string.IsNullOrWhiteSpace(filter))
+                {
+                    q = q.Where(x => x.Title.Contains(filter));
+                }
+
+                return q
+                    .OrderByDescending(change => change.Id)
+                    .Take(maxEntryCount.Value);
+            }
         );
-        
+
         return new JsonResult(new ChangeFeedResponse(entries)) { StatusCode = StatusCodes.Status200OK };
     }
 }
