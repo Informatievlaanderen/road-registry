@@ -323,7 +323,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
     {
         var problems = Problems.None;
 
-        var maintenanceAuthorityOrganization = await _organizationCache.FindByIdOrOvoCodeAsync(organizationId, cancellationToken);
+        var maintenanceAuthorityOrganization = await _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(organizationId, cancellationToken);
         if (maintenanceAuthorityOrganization is not null)
         {
             return (maintenanceAuthorityOrganization.Code, problems);

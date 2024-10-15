@@ -25,6 +25,7 @@ public class OrganizationLatestItemProjectionTests
         _fixture.CustomizeOrganizationId();
         _fixture.CustomizeOrganizationName();
         _fixture.CustomizeOrganizationOvoCode();
+        _fixture.CustomizeOrganizationKboNumber();
 
         _fixture.Customize<ImportedOrganization>(
             customization =>
@@ -49,7 +50,8 @@ public class OrganizationLatestItemProjectionTests
         var createOrganizationAccepted = new CreateOrganizationAccepted {
             Code = _fixture.Create<OrganizationId>(),
             Name = _fixture.Create<OrganizationName>(),
-            OvoCode = _fixture.Create<OrganizationOvoCode>()
+            OvoCode = _fixture.Create<OrganizationOvoCode>(),
+            KboNumber = _fixture.Create<OrganizationKboNumber>()
         };
         _eventEnricher(createOrganizationAccepted);
 
@@ -58,6 +60,8 @@ public class OrganizationLatestItemProjectionTests
             Code = createOrganizationAccepted.Code,
             Name = createOrganizationAccepted.Name,
             OvoCode = createOrganizationAccepted.OvoCode,
+            KboNumber = createOrganizationAccepted.KboNumber,
+            IsMaintainer = false,
             IsRemoved = false,
             CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(createOrganizationAccepted.When),
             VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(createOrganizationAccepted.When)
@@ -172,7 +176,9 @@ public class OrganizationLatestItemProjectionTests
         {
             Code = importedOrganization.Code,
             Name = importedOrganization.Name,
-            OvoCode = _fixture.Create<OrganizationOvoCode>()
+            OvoCode = _fixture.Create<OrganizationOvoCode>(),
+            KboNumber = _fixture.Create<OrganizationKboNumber>(),
+            IsMaintainer = _fixture.Create<bool>(),
         };
         _eventEnricher(changeOrganizationAccepted);
 
@@ -181,6 +187,8 @@ public class OrganizationLatestItemProjectionTests
             Code = importedOrganization.Code,
             Name = changeOrganizationAccepted.Name,
             OvoCode = changeOrganizationAccepted.OvoCode,
+            KboNumber = changeOrganizationAccepted.KboNumber,
+            IsMaintainer = changeOrganizationAccepted.IsMaintainer,
             IsRemoved = false,
             CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(importedOrganization.When),
             VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(changeOrganizationAccepted.When)

@@ -5,5 +5,5 @@ using System.Threading.Tasks;
 
 public interface IOrganizationCache
 {
-    Task<OrganizationDetail> FindByIdOrOvoCodeAsync(OrganizationId organizationId, CancellationToken cancellationToken);
+    Task<OrganizationDetail> FindByIdOrOvoCodeOrKboNumberAsync(OrganizationId organizationId, CancellationToken cancellationToken);
 }
