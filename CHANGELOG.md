@@ -1,3 +1,15 @@
+# [4.11.0](https://github.com/informatievlaanderen/road-registry/compare/v4.10.1...v4.11.0) (2024-10-16)
+
+
+### Bug Fixes
+
+* extract request event processor higher catchUpBatchSize ([#1557](https://github.com/informatievlaanderen/road-registry/issues/1557)) ([f384c43](https://github.com/informatievlaanderen/road-registry/commit/f384c433f23ba7860c1ed1ab2086ea8a9c5492a3))
+
+
+### Features
+
+* GAWR-5728 add KboNumber and IsMaintainer to Organization ([#1553](https://github.com/informatievlaanderen/road-registry/issues/1553)) ([322c048](https://github.com/informatievlaanderen/road-registry/commit/322c048c506f63ecb1496e29444b3c95aad8f584))
+
 ## [4.10.1](https://github.com/informatievlaanderen/road-registry/compare/v4.10.0...v4.10.1) (2024-10-14)
 
 
