@@ -1,3 +1,10 @@
+## [4.10.1](https://github.com/informatievlaanderen/road-registry/compare/v4.10.0...v4.10.1) (2024-10-14)
+
+
+### Bug Fixes
+
+* only apply changefeed filter when not empty ([#1556](https://github.com/informatievlaanderen/road-registry/issues/1556)) ([12e35f5](https://github.com/informatievlaanderen/road-registry/commit/12e35f506848e7fd3e12ec6aa5b9247acf8edd51))
+
 # [4.10.0](https://github.com/informatievlaanderen/road-registry/compare/v4.9.12...v4.10.0) (2024-10-04)
 
 

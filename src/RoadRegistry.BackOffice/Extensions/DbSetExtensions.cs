@@ -34,8 +34,8 @@ public static class DbSetExtensions
     public static async Task<List<T>> IncludeLocalToListAsync<T>(this DbSet<T> dbSet, Func<IQueryable<T>, IQueryable<T>> query, CancellationToken cancellationToken)
         where T : class
     {
-        var items = await query(dbSet).ToListAsync(cancellationToken);
         var localItems = query(dbSet.Local.AsQueryable()).ToList();
+        var items = await query(dbSet).ToListAsync(cancellationToken);
 
         return items.Union(localItems).ToList();
     }

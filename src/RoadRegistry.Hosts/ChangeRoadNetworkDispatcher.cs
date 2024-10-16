@@ -49,7 +49,7 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
     {
         var sw = Stopwatch.StartNew();
         var organizationId = new OrganizationId(lambdaRequest.Provenance.Operator);
-        var organization = await _organizationCache.FindByIdOrOvoCodeAsync(organizationId, cancellationToken)
+        var organization = await _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(organizationId, cancellationToken)
                            ?? OrganizationDetail.FromCode(organizationId);
         _logger.LogInformation("TIMETRACKING dispatcher: finding organization by '{Operator}' took {Elapsed}", lambdaRequest.Provenance.Operator, sw.Elapsed);
         sw.Restart();

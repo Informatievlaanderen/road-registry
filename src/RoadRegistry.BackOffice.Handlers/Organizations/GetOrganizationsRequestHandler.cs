@@ -1,42 +1,38 @@
 namespace RoadRegistry.BackOffice.Handlers.Organizations;
 
 using Abstractions;
+using Abstractions.Organizations;
 using Editor.Schema;
 using Framework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.IO;
-using RoadRegistry.BackOffice.Abstractions.Organizations;
-using ZipArchiveWriters.ExtractHost;
 
 public class GetOrganizationsRequestHandler : EndpointRequestHandler<GetOrganizationsRequest, GetOrganizationsResponse>
 {
     private readonly EditorContext _editorContext;
-    private readonly RecyclableMemoryStreamManager _manager;
-    private readonly FileEncoding _fileEncoding;
 
     public GetOrganizationsRequestHandler(CommandHandlerDispatcher dispatcher,
         ILogger<GetOrganizationsRequestHandler> logger,
-        EditorContext editorContext,
-        RecyclableMemoryStreamManager manager,
-        FileEncoding fileEncoding)
+        EditorContext editorContext)
         : base(dispatcher, logger)
     {
         _editorContext = editorContext;
-        _manager = manager;
-        _fileEncoding = fileEncoding;
     }
 
     protected override async Task<GetOrganizationsResponse> InnerHandleAsync(GetOrganizationsRequest request, CancellationToken cancellationToken)
     {
-        var organizationRecordReader = new OrganizationDbaseRecordReader(_manager, _fileEncoding);
-
         var organizations = (
-            await _editorContext.Organizations
-                .IgnoreQueryFilters()
+            await _editorContext.OrganizationsV2
+                .Where(x => x.IsMaintainer)
                 .ToListAsync(cancellationToken)
             )
-            .Select(organization => organizationRecordReader.Read(organization.DbaseRecord, organization.DbaseSchemaVersion))
+            .Select(organization => new OrganizationDetail
+            {
+                Code = new OrganizationId(organization.Code),
+                Name = new OrganizationName(organization.Name),
+                OvoCode = OrganizationOvoCode.FromValue(organization.OvoCode),
+                KboNumber = OrganizationKboNumber.FromValue(organization.KboNumber)
+            })
             .ToList();
 
         return new GetOrganizationsResponse(organizations);

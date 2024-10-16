@@ -278,7 +278,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         {
             var maintenanceAuthorityCode = changeFeature.Attributes.MaintenanceAuthority;
 
-            var maintenanceAuthority = await _organizationCache.FindByIdOrOvoCodeAsync(maintenanceAuthorityCode, cancellationToken);
+            var maintenanceAuthority = await _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(maintenanceAuthorityCode, cancellationToken);
             if (maintenanceAuthority is null)
             {
                 var recordContext = FileName
