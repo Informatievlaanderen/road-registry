@@ -1,6 +1,7 @@
 namespace RoadRegistry.Editor.ProjectionHost.EventProcessors;
 
 using System;
+using BackOffice.FeatureToggles;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
 using Microsoft.Extensions.Logging;
@@ -15,8 +16,9 @@ public class ExtractRequestEventProcessor : EditorContextEventProcessor
         EnvelopeFactory envelopeFactory,
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,
+        UseExtractRequestOverlapEventProcessorFeatureToggle useExtractRequestOverlapEventProcessorFeatureToggle,
         ILogger<ExtractRequestEventProcessor> logger)
-        : base("roadregistry-editor-extractrequest-projectionhost", streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, logger, catchUpBatchSize: 1)
+        : base("roadregistry-editor-extractrequest-projectionhost", streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, logger, catchUpBatchSize: useExtractRequestOverlapEventProcessorFeatureToggle.FeatureEnabled ? 500 : 1)
     {
     }
 }
