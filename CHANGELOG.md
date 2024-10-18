@@ -1,3 +1,11 @@
+## [4.11.1](https://github.com/informatievlaanderen/road-registry/compare/v4.11.0...v4.11.1) (2024-10-18)
+
+
+### Bug Fixes
+
+* deploy pipeline dependency on new lambda_prd step ([#1558](https://github.com/informatievlaanderen/road-registry/issues/1558)) ([a60a132](https://github.com/informatievlaanderen/road-registry/commit/a60a132385177bf6fddaf24945d3225b1f48ee52))
+* remove buffer option when requesting municipality extract ([#1559](https://github.com/informatievlaanderen/road-registry/issues/1559)) ([f828034](https://github.com/informatievlaanderen/road-registry/commit/f8280342a793f82e23cdade217803663b147de2f))
+
 # [4.11.0](https://github.com/informatievlaanderen/road-registry/compare/v4.10.1...v4.11.0) (2024-10-16)
 
 
