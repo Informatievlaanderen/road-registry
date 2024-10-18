@@ -92,14 +92,12 @@ export namespace RoadRegistry {
     }
 
     export interface DownloadExtractByNisCodeRequest {
-        buffer: number;
         nisCode: string;
         description: string;
         isInformative: Boolean;
     }
 
     export interface ListOverlappingExtractsByNisCodeRequest {
-        buffer: number;
         nisCode: string;
     }
     export interface ListOverlappingExtractsByContourRequest {

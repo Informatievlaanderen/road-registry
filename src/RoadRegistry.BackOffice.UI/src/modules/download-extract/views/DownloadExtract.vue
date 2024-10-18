@@ -40,23 +40,6 @@
             </select>
           </div>
           <div class="vl-form-col--9-12"></div>
-          <div class="vl-form-col--12-12">
-            <p>Wenst u een bufferzone van 100m toe te voegen aan de contour?</p>
-          </div>
-          <div class="vl-form-col--12-12">
-            <label class="vl-checkbox" for="municipality-buffer">
-              <input
-                class="vl-checkbox__toggle"
-                type="checkbox"
-                id="municipality-buffer"
-                v-model="municipalityFlow.buffer"
-              />
-              <span class="vl-checkbox__label">
-                <i class="vl-checkbox__box" aria-hidden="true"></i>
-                Voeg buffer toe
-              </span>
-            </label>
-          </div>
           <vl-action-group>
             <vl-button v-on:click="currentStep = steps.Step1">Vorige</vl-button>
             <vl-button v-if="municipalityFlow.nisCode == ''" mod-disabled>Volgende</vl-button>
@@ -387,7 +370,6 @@ export default Vue.extend({
       municipalities: [] as Municipalities.Gemeenten[],
       municipalityFlow: {
         nisCode: "",
-        buffer: false,
         description: "",
         hasGenericError: false,
         isInformative: null as Boolean | null,
@@ -588,9 +570,6 @@ export default Vue.extend({
     contourTypeChanged(value: string) {
       this.contourFlow.contourType = value;
     },
-    getBufferAsNumber(): number {
-      return this.municipalityFlow.buffer ? 100 : 0;
-    },
     async municipalityFlowUserSelectedIsInformative(isInformative: boolean) {
       if (!featureToggles.useOverlapCheck) {
         return;
@@ -610,8 +589,7 @@ export default Vue.extend({
 
       try {
         let response = await PublicApi.Extracts.getOverlappingExtractRequestsByNisCode(
-          this.municipalityFlow.nisCode,
-          this.getBufferAsNumber()
+          this.municipalityFlow.nisCode
         );
 
         this.municipalityFlow.overlapWarning = response.downloadIds.length > 0;
@@ -629,13 +607,12 @@ export default Vue.extend({
         }
 
         const requestData: RoadRegistry.DownloadExtractByNisCodeRequest = {
-          buffer: this.getBufferAsNumber(),
           nisCode: this.municipalityFlow.nisCode,
           description: this.municipalityFlow.description,
           isInformative: this.municipalityFlow.isInformative as Boolean,
         };
 
-        const response = await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
+        await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
 
         // wait a little bit to give the projection time to process the request to show in the activity feed
         await new Promise((resolve) => {
