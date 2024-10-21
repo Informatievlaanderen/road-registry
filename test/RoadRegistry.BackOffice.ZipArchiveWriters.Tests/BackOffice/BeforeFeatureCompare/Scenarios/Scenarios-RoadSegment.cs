@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatu
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Exceptions;
 using FeatureCompare;
+using FeatureCompare.Translators;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
@@ -127,18 +128,20 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         var streetNameCache = new FakeStreetNameCache()
             .AddStreetName(removedStreetNameId, string.Empty, string.Empty, isRemoved: true);
+        var streetNameContextFactory = new RoadSegmentFeatureCompareStreetNameContextFactory(streetNameCache);
 
         Assert.True((await streetNameCache.GetAsync(removedStreetNameId, CancellationToken.None)).IsRemoved);
 
         var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
+                FillStreetNameCache(builder, streetNameCache);
                 builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value = removedStreetNameId;
             })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
-        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(streetNameCache: streetNameCache);
-        var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create(streetNameCache: streetNameCache);
+        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(streetNameContextFactory: streetNameContextFactory);
+        var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create(streetNameContextFactory: streetNameContextFactory);
         var (result, problems) = await TranslateSucceeds(zipArchive, translator, validator);
 
         var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
@@ -155,18 +158,20 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         var streetNameCache = new FakeStreetNameCache()
             .AddStreetName(removedStreetNameId, string.Empty, string.Empty, isRemoved: true);
+        var streetNameContextFactory = new RoadSegmentFeatureCompareStreetNameContextFactory(streetNameCache);
 
         Assert.True((await streetNameCache.GetAsync(removedStreetNameId, CancellationToken.None)).IsRemoved);
 
         var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
+                FillStreetNameCache(builder, streetNameCache);
                 builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = removedStreetNameId;
             })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
-        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(streetNameCache: streetNameCache);
-        var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create(streetNameCache: streetNameCache);
+        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(streetNameContextFactory: streetNameContextFactory);
+        var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create(streetNameContextFactory: streetNameContextFactory);
         var (result, problems) = await TranslateSucceeds(zipArchive, translator, validator);
 
         var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
@@ -183,19 +188,22 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var renamedToStreetNameId = 2;
 
         var streetNameCache = new FakeStreetNameCache()
+            .AddStreetName(streetNameId, string.Empty, string.Empty)
             .AddRenamedStreetName(streetNameId, renamedToStreetNameId);
+        var streetNameContextFactory = new RoadSegmentFeatureCompareStreetNameContextFactory(streetNameCache);
 
         Assert.Equal(renamedToStreetNameId, (await streetNameCache.GetRenamedIdsAsync(new[] { streetNameId }, CancellationToken.None))[streetNameId]);
 
         var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
+                FillStreetNameCache(builder, streetNameCache);
                 builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value = streetNameId;
             })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
-        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(streetNameCache: streetNameCache);
-        var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create(streetNameCache: streetNameCache);
+        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(streetNameContextFactory: streetNameContextFactory);
+        var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create(streetNameContextFactory: streetNameContextFactory);
         var (result, problems) = await TranslateSucceeds(zipArchive, translator, validator);
 
         var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
@@ -212,9 +220,58 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var renamedToStreetNameId = 2;
 
         var streetNameCache = new FakeStreetNameCache()
+            .AddStreetName(streetNameId, string.Empty, string.Empty)
             .AddRenamedStreetName(streetNameId, renamedToStreetNameId);
+        var streetNameContextFactory = new RoadSegmentFeatureCompareStreetNameContextFactory(streetNameCache);
 
         Assert.Equal(renamedToStreetNameId, (await streetNameCache.GetRenamedIdsAsync(new[] { streetNameId }, CancellationToken.None))[streetNameId]);
+
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                FillStreetNameCache(builder, streetNameCache);
+                builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = streetNameId;
+            })
+            .BuildWithResult(context => TranslatedChanges.Empty);
+
+        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(streetNameContextFactory: streetNameContextFactory);
+        var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create(streetNameContextFactory: streetNameContextFactory);
+        var (result, problems) = await TranslateSucceeds(zipArchive, translator, validator);
+
+        var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
+        Assert.Equal(renamedToStreetNameId, modifyRoadSegment.RightSideStreetNameId!.ToInt32());
+
+        Assert.NotEmpty(problems);
+        Assert.True(problems.All(x => x.Reason == "RightStreetNameIdIsRenamed"));
+    }
+
+    [Fact]
+    public async Task WhenUnknownLeftStreetNameId_ThenLeftStreetNameIdOutOfRangeProblem()
+    {
+        var streetNameId = 1;
+
+        var streetNameContextFactory = new RoadSegmentFeatureCompareStreetNameContextFactory(new FakeStreetNameCache());
+
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value = streetNameId;
+            })
+            .BuildWithResult(context => TranslatedChanges.Empty);
+
+        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(streetNameContextFactory: streetNameContextFactory);
+        var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create(streetNameContextFactory: streetNameContextFactory);
+        var act = () => TranslateSucceeds(zipArchive, translator, validator);
+        var assert = await act.Should().ThrowAsync<ZipArchiveValidationException>();
+        assert.Where(ex => ex.Problems.Any(x => x.Reason == "LeftStreetNameIdOutOfRange"));
+    }
+
+    [Fact]
+    public async Task WhenUnknownRightStreetNameId_ThenRightStreetNameIdOutOfRangeProblem()
+    {
+        var streetNameId = 1;
+
+        var streetNameContextFactory = new RoadSegmentFeatureCompareStreetNameContextFactory(new FakeStreetNameCache());
 
         var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
             .WithChange((builder, context) =>
@@ -223,15 +280,11 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
-        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(streetNameCache: streetNameCache);
-        var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create(streetNameCache: streetNameCache);
-        var (result, problems) = await TranslateSucceeds(zipArchive, translator, validator);
-
-        var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
-        Assert.Equal(renamedToStreetNameId, modifyRoadSegment.RightSideStreetNameId!.ToInt32());
-
-        Assert.NotEmpty(problems);
-        Assert.True(problems.All(x => x.Reason == "RightStreetNameIdIsRenamed"));
+        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(streetNameContextFactory: streetNameContextFactory);
+        var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create(streetNameContextFactory: streetNameContextFactory);
+        var act = () => TranslateSucceeds(zipArchive, translator, validator);
+        var assert = await act.Should().ThrowAsync<ZipArchiveValidationException>();
+        assert.Where(ex => ex.Problems.Any(x => x.Reason == "RightStreetNameIdOutOfRange"));
     }
 
     [Fact]
@@ -949,5 +1002,20 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             });
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
+    }
+
+    private static void FillStreetNameCache(ExtractsZipArchiveExtractDataSetBuilder builder, FakeStreetNameCache streetNameCache)
+    {
+        var streetNameIds = builder.DataSet.RoadSegmentDbaseRecords
+            .SelectMany(x => new[] { x.LSTRNMID.Value, x.RSTRNMID.Value })
+            .Where(x => x is not null)
+            .Select(x => x.Value)
+            .Distinct()
+            .ToList();
+
+        foreach (var streetNameId in streetNameIds)
+        {
+            streetNameCache.AddStreetName(streetNameId, string.Empty, string.Empty);
+        }
     }
 }

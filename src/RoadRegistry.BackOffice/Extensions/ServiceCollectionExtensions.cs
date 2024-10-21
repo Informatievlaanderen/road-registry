@@ -192,6 +192,7 @@ public static class ServiceCollectionExtensions
 
             .AddSingleton<TransactionZoneFeatureCompareTranslator>()
             .AddSingleton<RoadNodeFeatureCompareTranslator>()
+            .AddSingleton<IRoadSegmentFeatureCompareStreetNameContextFactory, RoadSegmentFeatureCompareStreetNameContextFactory>()
             .AddSingleton<RoadSegmentFeatureCompareTranslator>()
             .AddSingleton<RoadSegmentLaneFeatureCompareTranslator>()
             .AddSingleton<RoadSegmentWidthFeatureCompareTranslator>()

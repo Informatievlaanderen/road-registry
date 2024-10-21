@@ -19,24 +19,24 @@ using RemoveRoadSegment = Uploads.RemoveRoadSegment;
 
 public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareAttributes>
 {
+    private readonly IRoadSegmentFeatureCompareStreetNameContextFactory _streetNameContextFactory;
     private readonly IOrganizationCache _organizationCache;
-    private readonly IStreetNameCache _streetNameCache;
     private const ExtractFileName FileName = ExtractFileName.Wegsegment;
 
     public RoadSegmentFeatureCompareTranslator(
         RoadSegmentFeatureCompareFeatureReader featureReader,
-        IOrganizationCache organizationCache,
-        IStreetNameCache streetNameCache)
+        IRoadSegmentFeatureCompareStreetNameContextFactory streetNameContextFactory,
+        IOrganizationCache organizationCache)
         : base(featureReader)
     {
+        _streetNameContextFactory = streetNameContextFactory.ThrowIfNull();
         _organizationCache = organizationCache.ThrowIfNull();
-        _streetNameCache = streetNameCache.ThrowIfNull();
     }
 
     private async Task<(List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems)> ProcessLeveringRecords(
         ICollection<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures,
         ICollection<Feature<RoadSegmentFeatureCompareAttributes>> extractFeatures,
-        RoadSegmentFeatureCompareStreetNameContext streetNameContext,
+        IRoadSegmentFeatureCompareStreetNameContext streetNameContext,
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
@@ -82,14 +82,14 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         {
             if (id > 0)
             {
-                if (streetNameContext.RemovedIds.Contains(id))
+                if (streetNameContext.IsRemoved(id))
                 {
                     return StreetNameLocalId.NotApplicable;
                 }
 
-                if (streetNameContext.RenamedIds.TryGetValue(id, out var renamedToId))
+                if (streetNameContext.TryGetRenamedId(id, out var renamedToId))
                 {
-                    return new StreetNameLocalId(renamedToId);
+                    return renamedToId;
                 }
             }
 
@@ -238,7 +238,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             (changeFeatures, var maintenanceAuthorityProblems) = await ValidateMaintenanceAuthorityAndMapToInternalId(changeFeatures, cancellationToken);
             problems += maintenanceAuthorityProblems;
 
-            var streetNameContext = await RoadSegmentFeatureCompareStreetNameContext.FromFeatures(changeFeatures, _streetNameCache, cancellationToken);
+            var streetNameContext = await _streetNameContextFactory.Create(changeFeatures, cancellationToken);
             var batchCount = Debugger.IsAttached ? 1 : 2;
 
             var processedLeveringRecords = await Task.WhenAll(
@@ -476,44 +476,5 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 context.RoadSegmentRecords.Add(new RoadSegmentFeatureCompareRecord(FeatureType.Extract, extractFeature.RecordNumber, extractFeature.Attributes, extractFeature.Attributes.Id, RecordType.Removed));
             }
         }
-    }
-}
-
-public sealed class RoadSegmentFeatureCompareStreetNameContext
-{
-    public ICollection<int> RemovedIds { get; init; } = Array.Empty<int>();
-    public IDictionary<int, int> RenamedIds { get; init; } = new Dictionary<int, int>();
-
-    public static async Task<RoadSegmentFeatureCompareStreetNameContext> FromFeatures(
-        ICollection<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures,
-        IStreetNameCache streetNameCache,
-        CancellationToken cancellationToken)
-    {
-        var usedStreetNameIds = changeFeatures
-            .Where(x => x.Attributes.LeftStreetNameId > 0)
-            .Select(x => x.Attributes.LeftStreetNameId)
-            .Concat(changeFeatures
-                .Where(x => x.Attributes.RightStreetNameId > 0)
-                .Select(x => x.Attributes.RightStreetNameId))
-            .Select(x => x.ToInt32())
-            .Distinct()
-            .ToList();
-
-        if (!usedStreetNameIds.Any())
-        {
-            return new RoadSegmentFeatureCompareStreetNameContext();
-        }
-
-        var removedStreetNameIds = (await streetNameCache.GetAsync(usedStreetNameIds, cancellationToken))
-            .Where(x => x.IsRemoved)
-            .Select(x => x.Id)
-            .ToArray();
-        var renamedStreetNameIds = await streetNameCache.GetRenamedIdsAsync(usedStreetNameIds, cancellationToken);
-
-        return new RoadSegmentFeatureCompareStreetNameContext
-        {
-            RemovedIds = removedStreetNameIds,
-            RenamedIds = renamedStreetNameIds
-        };
     }
 }

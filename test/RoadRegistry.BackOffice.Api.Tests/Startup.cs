@@ -28,6 +28,7 @@ using RoadRegistry.Hosts.Infrastructure.Options;
 using SqlStreamStore;
 using System.Reflection;
 using FeatureCompare.Readers;
+using FeatureCompare.Translators;
 using MediatorModule = BackOffice.MediatorModule;
 
 public class Startup : TestStartup
@@ -79,6 +80,9 @@ public class Startup : TestStartup
         builder
             .RegisterInstance(new FakeBackOfficeS3SqsQueue())
             .As<IBackOfficeS3SqsQueue>();
+        builder
+            .RegisterInstance(new FakeRoadSegmentFeatureCompareStreetNameContextFactory())
+            .As<IRoadSegmentFeatureCompareStreetNameContextFactory>();
     }
 
     protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
