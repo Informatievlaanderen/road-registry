@@ -13,14 +13,16 @@ using Uploads;
 
 public class RoadSegmentZipArchiveValidator : FeatureReaderZipArchiveValidator<RoadSegmentFeatureCompareAttributes>
 {
-    private readonly IStreetNameCache _streetNameCache;
+    private readonly IRoadSegmentFeatureCompareStreetNameContextFactory _streetNameContextFactory;
     private const ExtractFileName FileName = ExtractFileName.Wegsegment;
 
-    public RoadSegmentZipArchiveValidator(RoadSegmentFeatureCompareFeatureReader featureReader, IStreetNameCache streetNameCache)
+    public RoadSegmentZipArchiveValidator(
+        RoadSegmentFeatureCompareFeatureReader featureReader,
+        IRoadSegmentFeatureCompareStreetNameContextFactory streetNameContextFactory)
         : base(FileName, new[] { FeatureType.Extract, FeatureType.Change, FeatureType.Integration },
             featureReader)
     {
-        _streetNameCache = streetNameCache.ThrowIfNull();
+        _streetNameContextFactory = streetNameContextFactory.ThrowIfNull();
     }
 
     public override async Task<ZipArchiveProblems> ValidateAsync(ZipArchive archive, ZipArchiveValidatorContext context, CancellationToken cancellationToken)
@@ -29,8 +31,8 @@ public class RoadSegmentZipArchiveValidator : FeatureReaderZipArchiveValidator<R
 
         if (context.ChangedRoadSegments.Any())
         {
-            var streetNameContext = await RoadSegmentFeatureCompareStreetNameContext.FromFeatures(context.ChangedRoadSegments.Values, _streetNameCache, cancellationToken);
-            
+            var streetNameContext = await _streetNameContextFactory.Create(context.ChangedRoadSegments.Values, cancellationToken);
+
             foreach (var feature in context.ChangedRoadSegments.Values)
             {
                 var recordContext = FileName
@@ -45,20 +47,27 @@ public class RoadSegmentZipArchiveValidator : FeatureReaderZipArchiveValidator<R
         return problems;
     }
 
-    private static ZipArchiveProblems GetProblemsForStreetNameId(IDbaseFileRecordProblemBuilder recordContext, StreetNameLocalId? id, bool leftSide, RoadSegmentFeatureCompareStreetNameContext streetNameContext)
+    private static ZipArchiveProblems GetProblemsForStreetNameId(IDbaseFileRecordProblemBuilder recordContext, StreetNameLocalId? id, bool leftSide, IRoadSegmentFeatureCompareStreetNameContext streetNameContext)
     {
         var problems = ZipArchiveProblems.None;
 
         if (id > 0)
         {
-            if (streetNameContext.RemovedIds.Contains(id.Value))
+            if (!streetNameContext.Exists(id.Value))
+            {
+                return problems + (leftSide
+                    ? recordContext.LeftStreetNameIdOutOfRange(id.Value)
+                    : recordContext.RightStreetNameIdOutOfRange(id.Value));
+            }
+
+            if (streetNameContext.IsRemoved(id.Value))
             {
                 return problems + (leftSide
                     ? recordContext.LeftStreetNameIdIsRemoved(id.Value)
                     : recordContext.RightStreetNameIdIsRemoved(id.Value));
             }
 
-            if (streetNameContext.RenamedIds.TryGetValue(id.Value, out var renamedToId))
+            if (streetNameContext.TryGetRenamedId(id.Value, out var renamedToId))
             {
                 return problems + (leftSide
                     ? recordContext.LeftStreetNameIdIsRenamed(id.Value, renamedToId)
