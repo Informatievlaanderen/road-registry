@@ -1,3 +1,10 @@
+# [4.12.0](https://github.com/informatievlaanderen/road-registry/compare/v4.11.1...v4.12.0) (2024-10-21)
+
+
+### Features
+
+* validate streetnameid existance when file upload ([#1560](https://github.com/informatievlaanderen/road-registry/issues/1560)) ([d686758](https://github.com/informatievlaanderen/road-registry/commit/d6867586127e5aec966167499d214dce6c494d88))
+
 ## [4.11.1](https://github.com/informatievlaanderen/road-registry/compare/v4.11.0...v4.11.1) (2024-10-18)
 
 
