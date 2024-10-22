@@ -29,7 +29,7 @@ This host projects the entire event stream into a series of shape and dbase reco
 
 This host projects the entire event stream into a series of shape and dbase records which can be composed into shape files for product release purposes, i.e. what third party consumers need.
 
-### Syndication Projection Host
+### Sync Host
 
 This host projects the municipality and street name registry streams into a cached shape that can be used to enrich road registry entities with municipality and street names.
 

@@ -24,7 +24,6 @@
     <ProjectReference Include="..\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Snapshot.Handlers.Sqs\RoadRegistry.Snapshot.Handlers.Sqs.csproj" />
     <ProjectReference Include="..\RoadRegistry.Snapshot.Handlers\RoadRegistry.Snapshot.Handlers.csproj" />
-    <ProjectReference Include="..\RoadRegistry.Syndication.Schema\RoadRegistry.Syndication.Schema.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Dockerfile" CopyToOutputDirectory="Always" />

@@ -73,9 +73,3 @@ files
 
   RoadRegistry.Sync.StreetNameRegistry.dll => lib\net8.0
   RoadRegistry.Sync.StreetNameRegistry.pdb => lib\net8.0
-
-  RoadRegistry.Syndication.Projections.dll => lib\net8.0
-  RoadRegistry.Syndication.Projections.pdb => lib\net8.0
-
-  RoadRegistry.Syndication.Schema.dll => lib\net8.0
-  RoadRegistry.Syndication.Schema.pdb => lib\net8.0

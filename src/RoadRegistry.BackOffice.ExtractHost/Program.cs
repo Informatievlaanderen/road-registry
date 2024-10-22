@@ -101,8 +101,7 @@ public class Program
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.ExtractHost,
                 WellKnownConnectionNames.ExtractHostAdmin,
-                WellKnownConnectionNames.EditorProjections,
-                WellKnownConnectionNames.SyndicationProjections
+                WellKnownConnectionNames.EditorProjections
             ])
             .Log((sp, logger) =>
             {

@@ -12,7 +12,6 @@
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
-    <ProjectReference Include="..\RoadRegistry.Syndication.Schema\RoadRegistry.Syndication.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Wfs.Schema\RoadRegistry.Wfs.Schema.csproj" />
   </ItemGroup>
 

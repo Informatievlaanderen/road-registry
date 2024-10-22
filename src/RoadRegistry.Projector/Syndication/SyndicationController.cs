@@ -2,7 +2,6 @@ namespace RoadRegistry.Projector.Syndication;
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Asp.Versioning;
 using Be.Vlaanderen.Basisregisters.Api;
@@ -21,26 +20,8 @@ public class SyndicationController : DefaultProjectionsController
     }
 
     [HttpGet]
-    public async Task<IActionResult> ListSyndicationProjections(CancellationToken cancellationToken)
+    public async Task<IActionResult> ListSyndicationProjections()
     {
-        var response = new List<SyndicationStatus>();
-
-        foreach (var p in Projections)
-        {
-            var detail = p.Key;
-
-            if (!detail.IsSyndication) continue;
-
-            var projection = await GetProjectionStateItem(detail.Id, p.Value, cancellationToken);
-            if (projection == null) continue;
-
-            response.Add(new SyndicationStatus
-            {
-                Position = projection.Position,
-                ProjectionName = detail.Name
-            });
-        }
-
-        return Ok(response);
+        return Ok(Array.Empty<object>());
     }
 }

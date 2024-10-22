@@ -11,9 +11,8 @@ create_network road-registry-network
 
 docker volume create seq-data > /dev/null
 
-docker-compose --project-name road-registry-tools \
-    -f ./docker/compose/mssql.yml \
-    -f ./docker/compose/tools.yml \
+docker-compose --project-name road-registry \
+    -f ./docker/docker-compose.yml \
     up $1 \
     --remove-orphans \
     --force-recreate

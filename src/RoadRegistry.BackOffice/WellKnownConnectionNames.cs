@@ -19,8 +19,6 @@ public static class WellKnownConnectionNames
     public const string ProducerSnapshotProjectionsAdmin = "ProducerSnapshotProjectionsAdmin";
     public const string ProductProjections = "ProductProjections";
     public const string ProductProjectionsAdmin = "ProductProjectionsAdmin";
-    public const string SyndicationProjections = "SyndicationProjections";
-    public const string SyndicationProjectionsAdmin = "SyndicationProjectionsAdmin";
     public const string WmsProjections = "WmsProjections";
     public const string WmsProjectionsAdmin = "WmsProjectionsAdmin";
     public const string WfsProjections = "WfsProjections";

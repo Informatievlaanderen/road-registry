@@ -18,7 +18,6 @@ using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
 using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
-using StreetNameStatus = Syndication.Schema.StreetNameStatus;
 
 public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<LinkStreetNameSqsLambdaRequest>
 {
@@ -26,13 +25,11 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
     private readonly DistributedStreamStoreLockOptions _distributedStreamStoreLockOptions;
 
-    private static readonly string[] ProposedOrCurrentStreetNameStatuses = new[]
-    {
-        StreetNameStatus.Current.ToString(),
-        StreetNameStatus.Proposed.ToString(),
-        RoadRegistry.StreetName.StreetNameStatus.Current,
-        RoadRegistry.StreetName.StreetNameStatus.Proposed
-    };
+    private static readonly string[] ProposedOrCurrentStreetNameStatuses =
+    [
+        StreetNameStatus.Current,
+        StreetNameStatus.Proposed
+    ];
 
     public LinkStreetNameSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,

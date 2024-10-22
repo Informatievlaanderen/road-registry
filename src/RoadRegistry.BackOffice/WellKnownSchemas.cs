@@ -14,8 +14,6 @@ public static class WellKnownSchemas
     public const string ProductMetricsSchema = "RoadRegistryProductMetrics";
     public const string ProductSchema = "RoadRegistryProduct";
     public const string SnapshotSchema = "RoadRegistrySnapshot";
-    public const string SyndicationMetaSchema = "RoadRegistrySyndicationMeta";
-    public const string SyndicationSchema = "RoadRegistrySyndication";
     public const string WmsMetaSchema = "RoadRegistryWmsMeta";
     public const string WmsSchema = "RoadRegistryWms";
     public const string WfsMetaSchema = "RoadRegistryWfsMeta";
@@ -42,7 +40,6 @@ public static class MigrationTables
 {
     public const string Default = "__EFMigrationsHistory";
 
-    public const string Syndication = "__EFMigrationsHistorySyndication";
     public const string Product = "__EFMigrationsHistoryProduct";
     public const string Editor = "__EFMigrationsHistoryEditor";
     public const string Integration = "__EFMigrationsHistory";

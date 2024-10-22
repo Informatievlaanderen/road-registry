@@ -80,7 +80,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
             await roadRegistryHost
                 .LogSqlServerConnectionStrings(new []
                 {
-                    WellKnownConnectionNames.SyndicationProjections,
                     WellKnownConnectionNames.Events,
                     WellKnownConnectionNames.ProducerSnapshotProjections,
                     WellKnownConnectionNames.ProducerSnapshotProjectionsAdmin
