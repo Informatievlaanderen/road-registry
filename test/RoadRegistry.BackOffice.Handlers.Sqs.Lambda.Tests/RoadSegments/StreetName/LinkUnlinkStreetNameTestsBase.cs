@@ -19,9 +19,9 @@ public abstract class LinkUnlinkStreetNameTestsBase : BackOfficeLambdaTest
         : base(testOutputHelper)
     {
         StreetNameClient = new StreetNameCacheClient(new FakeStreetNameCache()
-            .AddStreetName(WellKnownStreetNameIds.Proposed, "Proposed street", nameof(StreetNameStatus.Proposed))
-            .AddStreetName(WellKnownStreetNameIds.Current, "Current street", nameof(StreetNameStatus.Current))
-            .AddStreetName(WellKnownStreetNameIds.Retired, "Retired street", nameof(StreetNameStatus.Retired))
+            .AddStreetName(WellKnownStreetNameIds.Proposed, "Proposed street", "voorgesteld")
+            .AddStreetName(WellKnownStreetNameIds.Current, "Current street", "inGebruik")
+            .AddStreetName(WellKnownStreetNameIds.Retired, "Retired street", "gehistoreerd")
             .AddStreetName(WellKnownStreetNameIds.Null, "Not found street", null)
         );
     }
