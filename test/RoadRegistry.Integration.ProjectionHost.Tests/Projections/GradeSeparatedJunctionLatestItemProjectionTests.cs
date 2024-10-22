@@ -5,7 +5,6 @@ using Integration.Projections;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Tests.BackOffice;
-using RoadRegistry.Tests.Framework.Projections;
 using Schema.GradeSeparatedJunctions;
 using LocalDateTimeTranslator = Editor.Projections.LocalDateTimeTranslator;
 

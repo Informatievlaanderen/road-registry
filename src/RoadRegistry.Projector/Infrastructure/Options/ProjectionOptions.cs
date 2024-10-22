@@ -2,7 +2,6 @@ namespace RoadRegistry.Projector.Infrastructure.Options;
 
 public class ProjectionOptions
 {
-    public Option Syndication { get; set; }
     public Option Product { get; set; }
     public Option Editor { get; set; }
     public Option Wms { get; set; }

@@ -55,7 +55,6 @@ jobs:
           'road-product-projectionhost',
           'road-projector',
           'road-synchost',
-          'road-syndication-projectionhost',
           'road-wfs-projectionhost',
           'road-wms-projectionhost'
          ]

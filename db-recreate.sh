@@ -18,9 +18,6 @@ if [[ ! -z "$containerIds" ]]; then
     docker rm -f $containerIds
 fi
 
-compose_service_up ./docker/compose/mssql.yml import-backup road-mssql-data
-compose_service_up ./docker/compose/municipality.yml municipality-mssql-seed-filled municipality-mssql-data
-compose_service_up ./docker/compose/streetname.yml streetname-mssql-seed-filled streetname-mssql-data
-compose_service_up ./docker/compose/legacy.yml legacy-mssql-seed-filled legacy-mssql-data
+compose_service_up ./docker/docker-compose.yml import-backup road-mssql-data
 
 compose_service_down

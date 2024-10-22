@@ -38,8 +38,6 @@ public class ProjectionsController : DefaultProjectionsController
         {
             var detail = p.Key;
 
-            if (detail.IsSyndication) continue;
-
             try
             {
                 var projection = await GetProjectionStateItem(detail.Id, p.Value, cancellationToken);

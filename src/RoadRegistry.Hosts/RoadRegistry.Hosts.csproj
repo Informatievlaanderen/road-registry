@@ -16,7 +16,6 @@
     <ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.RoadNetwork.Schema\RoadRegistry.RoadNetwork.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Sync.StreetNameRegistry\RoadRegistry.Sync.StreetNameRegistry.csproj" />
-    <ProjectReference Include="..\RoadRegistry.Syndication.Projections\RoadRegistry.Syndication.Projections.csproj" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

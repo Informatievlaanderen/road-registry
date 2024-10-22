@@ -80,7 +80,6 @@ public class Program
             logger.LogSqlServerConnectionString(configuration, WellKnownConnectionNames.EditorProjections);
             logger.LogSqlServerConnectionString(configuration, WellKnownConnectionNames.ProductProjections);
             logger.LogSqlServerConnectionString(configuration, WellKnownConnectionNames.StreetNameProjections);
-            logger.LogSqlServerConnectionString(configuration, WellKnownConnectionNames.SyndicationProjections);
 
             await host.RunAsync().ConfigureAwait(false);
         }

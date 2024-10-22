@@ -15,7 +15,6 @@ public enum RoadRegistryAssembly
     ProducerSnapshotProjectionHost,
     ProductProjectionHost,
     SnapshotHandlersSqsLambda,
-    SyndicationProjectionHost,
     WfsProjectionHost,
     WmsProjectionHost
 }

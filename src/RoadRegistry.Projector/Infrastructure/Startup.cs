@@ -26,7 +26,6 @@ using Producer.Snapshot.ProjectionHost.RoadNode;
 using Producer.Snapshot.ProjectionHost.RoadSegment;
 using Producer.Snapshot.ProjectionHost.RoadSegmentSurface;
 using Product.Schema;
-using RoadRegistry.Syndication.Schema;
 using Sync.OrganizationRegistry;
 using Sync.StreetNameRegistry;
 using System;
@@ -171,11 +170,6 @@ public class Startup
                             health.AddDbContextCheck<ProductContext>();
                         }
 
-                        if (projectionOptions.Syndication.Enabled)
-                        {
-                            health.AddDbContextCheck<SyndicationContext>();
-                        }
-
                         if (projectionOptions.Wfs.Enabled)
                         {
                             health.AddDbContextCheck<WfsContext>();
@@ -225,7 +219,6 @@ public class Startup
 
             .AddDbContext<EditorContext>(WellKnownConnectionNames.EditorProjections)
             .AddDbContext<ProductContext>(WellKnownConnectionNames.ProductProjections)
-            .AddDbContext<SyndicationContext>(WellKnownConnectionNames.SyndicationProjections)
             .AddDbContext<WfsContext>(WellKnownConnectionNames.WfsProjections)
             .AddDbContext<WmsContext>(WellKnownConnectionNames.WmsProjections)
             .AddDbContext<RoadNodeProducerSnapshotContext>(WellKnownConnectionNames.ProducerSnapshotProjections)

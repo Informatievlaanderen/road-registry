@@ -12,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Options;
 using Product.Schema;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
-using RoadRegistry.Syndication.Schema;
 using Sync.StreetNameRegistry;
 using System;
 using System.Collections.Generic;
@@ -64,11 +63,6 @@ public class ApiModule : Module
             RegisterEditorProjections();
         }
 
-        if (projectionOptions.Syndication.Enabled)
-        {
-            RegisterSyndicationProjections();
-        }
-
         if (projectionOptions.Wms.Enabled)
         {
             RegisterWmsProjections();
@@ -103,8 +97,7 @@ public class ApiModule : Module
             Description = "",
             Name = "Producer Snapshot - RoadNode",
             WellKnownConnectionName = WellKnownConnectionNames.ProducerSnapshotProjections,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
 
         RegisterProjection<Producer.Snapshot.ProjectionHost.RoadSegment.RoadSegmentProducerSnapshotContext>(new ProjectionDetail
@@ -113,8 +106,7 @@ public class ApiModule : Module
             Description = "",
             Name = "Producer Snapshot - RoadSegment",
             WellKnownConnectionName = WellKnownConnectionNames.ProducerSnapshotProjections,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
 
         RegisterProjection<Producer.Snapshot.ProjectionHost.RoadSegmentSurface.RoadSegmentSurfaceProducerSnapshotContext>(new ProjectionDetail
@@ -123,8 +115,7 @@ public class ApiModule : Module
             Description = "",
             Name = "Producer Snapshot - RoadSegmentSurface",
             WellKnownConnectionName = WellKnownConnectionNames.ProducerSnapshotProjections,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
 
         RegisterProjection<Producer.Snapshot.ProjectionHost.GradeSeparatedJunction.GradeSeparatedJunctionProducerSnapshotContext>(new ProjectionDetail
@@ -133,8 +124,7 @@ public class ApiModule : Module
             Description = "",
             Name = "Producer Snapshot - GradeSeparatedJunction",
             WellKnownConnectionName = WellKnownConnectionNames.ProducerSnapshotProjections,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
 
         RegisterProjection<Producer.Snapshot.ProjectionHost.NationalRoad.NationalRoadProducerSnapshotContext>(new ProjectionDetail
@@ -143,8 +133,7 @@ public class ApiModule : Module
             Description = "",
             Name = "Producer Snapshot - NationalRoad",
             WellKnownConnectionName = WellKnownConnectionNames.ProducerSnapshotProjections,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
     }
 
@@ -156,8 +145,7 @@ public class ApiModule : Module
             Description = "",
             Name = "Product",
             WellKnownConnectionName = WellKnownConnectionNames.ProductProjections,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
     }
 
@@ -169,8 +157,7 @@ public class ApiModule : Module
             Description = "",
             Name = "Editor",
             WellKnownConnectionName = WellKnownConnectionNames.EditorProjections,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
     }
 
@@ -182,8 +169,7 @@ public class ApiModule : Module
             Description = "Projectie die de wegen data voor het WMS wegenregister voorziet.",
             Name = "WMS Wegen",
             WellKnownConnectionName = WellKnownConnectionNames.WmsProjections,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
     }
 
@@ -195,8 +181,7 @@ public class ApiModule : Module
             Description = "Projectie die de wegen data voor het WFS wegenregister voorziet.",
             Name = "WFS Wegen",
             WellKnownConnectionName = WellKnownConnectionNames.WfsProjections,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
     }
 
@@ -208,8 +193,7 @@ public class ApiModule : Module
             Description = "Verwerker van events",
             Name = "BackOffice Processor - Event",
             WellKnownConnectionName = WellKnownConnectionNames.Events,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
 
         RegisterProjection<BackOfficeProcessorDbContext>(new ProjectionDetail
@@ -218,8 +202,7 @@ public class ApiModule : Module
             Description = "Verwerker van extract events",
             Name = "BackOffice Processor - Extract Event",
             WellKnownConnectionName = WellKnownConnectionNames.Events,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
 
         RegisterProjection<BackOfficeProcessorDbContext>(new ProjectionDetail
@@ -228,8 +211,7 @@ public class ApiModule : Module
             Description = "Verwerker van commando's",
             Name = "BackOffice Processor - Command",
             WellKnownConnectionName = WellKnownConnectionNames.Events,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
 
         RegisterProjection<BackOfficeProcessorDbContext>(new ProjectionDetail
@@ -238,19 +220,7 @@ public class ApiModule : Module
             Description = "Verwerker van extract commando's",
             Name = "BackOffice Processor - Extract Command",
             WellKnownConnectionName = WellKnownConnectionNames.Events,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
-        });
-    }
-
-    private void RegisterSyndicationProjections()
-    {
-        RegisterProjection<SyndicationContext>(new ProjectionDetail
-        {
-            Id = "roadregistry-syndication-projectionhost-Gemeente",
-            Name = "municipality",
-            WellKnownConnectionName = WellKnownConnectionNames.SyndicationProjections,
-            IsSyndication = true
+            FallbackDesiredState = "subscribed"
         });
     }
 
@@ -262,8 +232,7 @@ public class ApiModule : Module
             Description = "",
             Name = "Integration - Organization Latest Item",
             WellKnownConnectionName = WellKnownConnectionNames.IntegrationProjections,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
 
         RegisterProjection<IntegrationContext>(new ProjectionDetail
@@ -272,8 +241,7 @@ public class ApiModule : Module
             Description = "",
             Name = "Integration - Organization Version",
             WellKnownConnectionName = WellKnownConnectionNames.IntegrationProjections,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
 
         RegisterProjection<IntegrationContext>(new ProjectionDetail
@@ -282,8 +250,7 @@ public class ApiModule : Module
             Description = "",
             Name = "Integration - RoadNetwork Latest Item",
             WellKnownConnectionName = WellKnownConnectionNames.IntegrationProjections,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
 
         RegisterProjection<IntegrationContext>(new ProjectionDetail
@@ -292,8 +259,7 @@ public class ApiModule : Module
             Description = "",
             Name = "Integration - RoadNetwork Version",
             WellKnownConnectionName = WellKnownConnectionNames.IntegrationProjections,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
     }
 
@@ -305,8 +271,7 @@ public class ApiModule : Module
             Description = "",
             Name = "Sync - Street Name Snapshot",
             WellKnownConnectionName = WellKnownConnectionNames.StreetNameProjections,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
         RegisterProjection<StreetNameEventProjectionContext>(new ProjectionDetail
         {
@@ -314,8 +279,7 @@ public class ApiModule : Module
             Description = "",
             Name = "Sync - Street Name Event",
             WellKnownConnectionName = WellKnownConnectionNames.StreetNameProjections,
-            FallbackDesiredState = "subscribed",
-            IsSyndication = false
+            FallbackDesiredState = "subscribed"
         });
     }
 

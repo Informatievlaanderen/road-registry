@@ -2,525 +2,91 @@ version: '3.8'
 
 services:
 
-  # ROAD REGISTRY BACKOFFICE
-
-  backoffice-api:
-    build: dist/RoadRegistry.BackOffice.Api/linux
-    container_name: backoffice-api
-    depends_on:
-      - mssql-seed
-      - editor-projection-host
-      - localstack
-    ports:
-      - 5020:10002
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      SERILOG__WRITETO__0__NAME: Seq
-      SERILOG__WRITETO__0__ARGS__SERVERURL: http://seq:80
-      SERILOG__WRITETO__1__NAME: Console
-      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: Debug
-      BLOBCLIENTTYPE: S3BlobClient
-      S3__SERVICEURL: http://localstack:4566
-      S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
-      S3BLOBCLIENTOPTIONS__BUCKETS__EXTRACTDOWNLOADS: road-registry-extract-downloads
-      CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EDITORPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__PRODUCTPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      IDEMPOTENCY__CONNECTIONSTRING: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CORS__0: http://localhost:5010
-      CORS__1: http://localhost:1234
-
-  backoffice-event-host:
-    build: dist/RoadRegistry.BackOffice.EventHost/linux
-    container_name: backoffice-event-host
-    depends_on:
-      - mssql-seed
-      - localstack
-      - seq
-    environment:
-      DOTNET_ENVIRONMENT: Development
-      SERILOG__WRITETO__0__NAME: "Seq"
-      SERILOG__WRITETO__0__ARGS__SERVERURL: http://seq:80
-      SERILOG__WRITETO__1__NAME: Console
-      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: Debug
-      BLOBCLIENTTYPE: S3BlobClient
-      S3__SERVICEURL: http://localstack:4566
-      S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
-      CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__SNAPSHOTSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EVENTHOST: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EVENTHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-
-  backoffice-extract-host:
-    build: dist/RoadRegistry.BackOffice.ExtractHost/linux
-    container_name: backoffice-extract-host
-    depends_on:
-      - mssql-seed
-      - localstack
-      - seq
-    environment:
-      DOTNET_ENVIRONMENT: Development
-      SERILOG__WRITETO__0__NAME: Seq
-      SERILOG__WRITETO__0__ARGS__SERVERURL: http://seq:80
-      SERILOG__WRITETO__1__NAME: Console
-      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: Debug
-      BLOBCLIENTTYPE: S3BlobClient
-      S3__SERVICEURL: http://localstack:4566
-      S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
-      S3BLOBCLIENTOPTIONS__BUCKETS__EXTRACTDOWNLOADS: road-registry-extract-downloads
-      CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__SNAPSHOTSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EXTRACTHOST: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EXTRACTHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EDITORPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-
-  backoffice-command-host:
-    build: dist/RoadRegistry.BackOffice.CommandHost/linux
-    container_name: backoffice-command-host
-    depends_on:
-      - mssql-seed
-      - localstack
-      - seq
-    environment:
-      DOTNET_ENVIRONMENT: Development
-      SERILOG__WRITETO__0__NAME: Seq
-      SERILOG__WRITETO__0__ARGS__SERVERURL: http://seq:80
-      SERILOG__WRITETO__1__NAME: Console
-      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: Debug
-      BLOBCLIENTTYPE: S3BlobClient
-      S3__SERVICEURL: http://localstack:4566
-      S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
-      CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__COMMANDHOST: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__COMMANDHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-
-  backoffice-messaging-host-sqs:
-    build: dist/RoadRegistry.BackOffice.MessagingHost.Sqs/linux
-    container_name: backoffice-messaging-host-sqs
-    depends_on:
-      - mssql-seed
-      - localstack
-      - seq
-    environment:
-      DOTNET_ENVIRONMENT: Development
-      SERILOG__WRITETO__0__NAME: Seq
-      SERILOG__WRITETO__0__ARGS__SERVERURL: http://seq:80
-      SERILOG__WRITETO__1__NAME: Console
-      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: Debug
-      BLOBCLIENTTYPE: S3BlobClient
-      S3__SERVICEURL: http://localstack:4566
-      S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
-      S3BLOBCLIENTOPTIONS__BUCKETS__FEATURECOMPARE: road-registry-feature-compare
-      CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__COMMANDHOST: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__COMMANDHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      FEATURECOMPAREMESSAGINGOPTIONS__REQUESTQUEUEURL: https://sqs.eu-west-1.amazonaws.com/830031229216/sqs-road-registry-feature-compare-request.fifo
-      FEATURECOMPAREMESSAGINGOPTIONS__RESPONSEQUEUEURL: https://sqs.eu-west-1.amazonaws.com/830031229216/sqs-road-registry-feature-compare-response.fifo
-      FEATURECOMPAREMESSAGINGOPTIONS__CONSUMERDELAYSECONDS: 30
-
-  backoffice-ui:
-    build: 
-      context: dist/RoadRegistry.BackOffice.UI/linux
-      args:
-        build_number: 2.38.0
-    container_name: backoffice-ui
-    depends_on:
-      - backoffice-api
-      - seq
-      - public-api
-    ports:
-      - 5010:10007
-    environment:
-      API_ENDPOINT: http://localhost:2080
-      API_OLDENDPOINT: http://localhost:5020
-
-  # LEGACY
-
-  legacy-mssql:
-    image: mcr.microsoft.com/mssql/server:2019-latest
-    container_name: legacy-mssql   
-    environment:
-      ACCEPT_EULA: 'Y'
-      SA_PASSWORD: E@syP@ssw0rd
-      MSSQL_MEMORY_LIMIT_MB: 1000
-      MSSQL_PID: Standard
-    ports:
-      - 31433:1433
-    volumes:
-      - legacy-mssql-data:/var/opt/mssql
-      - ./src/RoadRegistry.LegacyDatabase/empty:/var/lib/backup/empty
-      - ./src/RoadRegistry.LegacyDatabase/filled:/var/lib/backup/filled
-
-  legacy-mssql-seed-empty:
-    build: src/RoadRegistry.LegacyDatabase/empty
-    container_name: legacy-mssql-seed-empty
-    depends_on:
-      - legacy-mssql   
-
-  legacy-mssql-seed-filled:
-    build: src/RoadRegistry.LegacyDatabase/filled
-    container_name: legacy-mssql-seed-filled
-    depends_on:
-      - legacy-mssql
-    volumes:
-      - ./src/RoadRegistry.LegacyDatabase/filled:/var/lib/backup
-
-  legacy-extract-empty:
-    build: dist/RoadRegistry.Legacy.Extract/linux
-    container_name: legacy-extract-empty
-    depends_on:
-      - legacy-mssql-seed-empty
-      - localstack
-      - seq
-    environment:
-      DOTNET_ENVIRONMENT: Development
-      SERILOG__WRITETO__0__NAME: Seq
-      SERILOG__WRITETO__0__ARGS__SERVERURL: http://seq:80
-      SERILOG__WRITETO__1__NAME: Console
-      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: Debug
-      BLOBCLIENTTYPE: S3BlobClient
-      S3__SERVICEURL: http://localstack:4566
-      S3BLOBCLIENTOPTIONS__BUCKETS__IMPORTLEGACY: road-registry-import-legacy
-      CONNECTIONSTRINGS__LEGACY: Data Source=tcp:legacy-mssql,1433;Initial Catalog=LegacyRoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-    volumes:
-      - ./src/RoadRegistry.Legacy.Extract:/var/lib/RoadRegistry.Legacy.Extract
-
-  legacy-extract-filled:
-    build: dist/RoadRegistry.Legacy.Extract/linux
-    container_name: legacy-extract-filled
-    depends_on:
-      - legacy-mssql-seed-filled
-      - localstack
-      - seq
-    environment:
-      DOTNET_ENVIRONMENT: Development
-      SERILOG__WRITETO__0__NAME: Seq
-      SERILOG__WRITETO__0__ARGS__SERVERURL: http://seq:80
-      SERILOG__WRITETO__1__NAME: Console
-      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: Debug
-      BLOBCLIENTTYPE: S3BlobClient
-      S3__SERVICEURL: http://localstack:4566
-      S3BLOBCLIENTOPTIONS__BUCKETS__IMPORTLEGACY: road-registry-import-legacy
-      CONNECTIONSTRINGS__LEGACY: Data Source=tcp:legacy-mssql,1433;Initial Catalog=LegacyRoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-    volumes:
-      - ./src/RoadRegistry.Legacy.Extract:/var/lib/RoadRegistry.Legacy.Extract
-
   mssql:
     image: mcr.microsoft.com/mssql/server:2019-latest
-    container_name: mssql
-    environment:
-      ACCEPT_EULA: 'Y'
-      SA_PASSWORD: E@syP@ssw0rd
-      MSSQL_MEMORY_LIMIT_MB: 4000
-      MSSQL_PID: Standard
+    container_name: road-mssql
     ports:
       - 21433:1433
+    environment:
+      ACCEPT_EULA: 'Y'
+      SA_PASSWORD: E@syP@ssw0rd
+      MSSQL_MEMORY_LIMIT_MB: 1000
+      MSSQL_PID: Standard
     volumes:
       - road-mssql-data:/var/opt/mssql
-      - ./src/RoadRegistry.BackupDatabase/filled:/var/lib/backup
-
-  mssql-seed:
-    build: ./src/RoadRegistry.Database
-    container_name: mssql-seed
-    depends_on:
-      - mssql
-
-  # MUNICIPALITY REGISTRY
-
-  municipality-api:
-    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/municipality-registry/api-legacy:4.1.11
-    container_name: municipality-api
-    depends_on:
-      - municipality-mssql
-      - seq
-    ports:
-      - 2002:2002
-    environment:
-      ASPNETCORE__ENVIRONMENT: Development
-      DATADOG__ENABLED: false
-      DATADOG__DEBUG: false
-      DATADOG__SERVICENAME: Municipalities-RoadRegistry
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:municipality-mssql,1433;Initial Catalog=municipality-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__LEGACYPROJECTIONS: Data Source=tcp:municipality-mssql,1433;Initial Catalog=municipality-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__LEGACYPROJECTIONSADMIN: Data Source=tcp:municipality-mssql,1433;Initial Catalog=municipality-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      SERILOG__WRITETO__0__NAME: Console
-      SERILOG__WRITETO__0__ARGS__FORMATTER: "Serilog.Formatting.Compact.RenderedCompactJsonFormatter, Serilog.Formatting.Compact"
-
-  municipality-mssql:
-    image: mcr.microsoft.com/mssql/server:2019-latest
-    container_name: municipality-mssql
-    environment:
-      ACCEPT_EULA: 'Y'
-      SA_PASSWORD: E@syP@ssw0rd
-      MSSQL_MEMORY_LIMIT_MB: 1000
-      MSSQL_PID: Standard
-    ports:
-      - 41433:1433
-    volumes:
-      - municipality-mssql-data:/var/opt/mssql
-      - ./src/RoadRegistry.MunicipalityDatabase/filled:/var/lib/backup/filled
-
-  municipality-mssql-seed-filled:
-    build: src/RoadRegistry.MunicipalityDatabase/filled
-    container_name: municipality-mssql-seed-filled
-    depends_on:
-      - municipality-mssql
-    volumes:
-      - ./src/RoadRegistry.MunicipalityDatabase/filled:/var/lib/backup
-
-  # STREETNAME REGISTRY
-
-  streetname-api:
-    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/streetname-registry/api-legacy:3.10.44
-    depends_on:
-      - streetname-mssql
-      - seq
-    ports:
-      - 4002:4002
-    environment:
-      ASPNETCORE__ENVIRONMENT: Development
-      DATADOG__ENABLED: false
-      DATADOG__DEBUG: false
-      DATADOG__SERVICENAME: Streetnames-RoadRegistry
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:streetname-mssql,1433;Initial Catalog=streetname-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__LEGACYPROJECTIONS: Data Source=tcp:streetname-mssql,1433;Initial Catalog=streetname-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:streetname-mssql,1433;Initial Catalog=streetname-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__LEGACYPROJECTIONSADMIN: Data Source=tcp:streetname-mssql,1433;Initial Catalog=streetname-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      SERILOG__WRITETO__0__NAME: Console
-      SERILOG__WRITETO__0__ARGS__FORMATTER: Serilog.Formatting.Compact.RenderedCompactJsonFormatter, Serilog.Formatting.Compact
-
-  streetname-mssql:
-    image: mcr.microsoft.com/mssql/server:2019-latest
-    container_name: streetname-mssql
-    environment:
-      ACCEPT_EULA: 'Y'
-      SA_PASSWORD: E@syP@ssw0rd
-      MSSQL_MEMORY_LIMIT_MB: 1000
-      MSSQL_PID: Standard
-    ports:
-      - 51433:1433
-    volumes:
-      - streetname-mssql-data:/var/opt/mssql
-      - ./src/RoadRegistry.StreetNameDatabase/filled:/var/lib/backup/filled
-  
-  streetname-mssql-seed-filled:
-    build: src/RoadRegistry.StreetNameDatabase/filled
-    container_name: streetname-mssql-seed-filled
-    depends_on:
-      - streetname-mssql
-    volumes:
-      - ./src/RoadRegistry.StreetNameDatabase/filled:/var/lib/backup
-
-  # TICKETING SERVICE 
-
-  ticketing-service:
-    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/ticketing-service/ticketing:1.8.1
-    container_name: ticketing-service
-    depends_on:
-      - postgresql
-      - postgresql-admin
-    environment:
-      DOTNET_ENVIRONMENT: Development
-      BASEURL: http://localhost:9100
-      CONNECTIONSTRINGS__MARTEN: Server=postgresql;Port=5432;Database=ticketing;Userid=sa;Password=E@syP@ssw0rd;Trust Server Certificate=true;Timeout=120;
-      CORS__0: http://localhost:3000
-      CORS__1: http://localhost:5000
-      SERILOG__WRITETO__0__NAME: Seq
-      SERILOG__WRITETO__0__ARGS__SERVERURL: http://seq:80
-      SERILOG__WRITETO__1__NAME: Console
-      SERILOG__WRITETO__1__ARGS__FORMATTER: Serilog.Formatting.Compact.RenderedCompactJsonFormatter, Serilog.Formatting.Compact
-      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: Debug
-    ports:
-      - 9100:9000
-
-  # DATA IMPORT
+      - ../src/RoadRegistry.BackupDatabase/filled:/var/lib/backup
 
   import-backup:
-    build: src/RoadRegistry.BackupDatabase/filled
-    container_name: import-backup
+    build: ../src/RoadRegistry.BackupDatabase/filled
+    container_name: road-mssql-import-backup
     depends_on:
-      - mssql-seed
+      - mssql
     volumes:
-      - ./src/RoadRegistry.BackupDatabase/filled:/var/lib/backup
-
-  import-legacy:
-    build: dist/RoadRegistry.Legacy.Import/linux
-    container_name: import-legacy
-    depends_on:
-      - mssql-seed
-      - localstack
-      - seq
-    environment:
-      DOTNET_ENVIRONMENT: Development
-      SERILOG__WRITETO__0__NAME: Seq
-      SERILOG__WRITETO__0__ARGS__SERVERURL: http://seq:80
-      SERILOG__WRITETO__1__NAME: Console
-      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: Debug
-      BLOBCLIENTTYPE: S3BlobClient
-      S3__SERVICEURL: http://localstack:4566
-      S3BLOBCLIENTOPTIONS__BUCKETS__IMPORTLEGACY: road-registry-import-legacy
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-    volumes:
-      - ./src/RoadRegistry.Legacy.Extract:/var/lib/RoadRegistry.Legacy.Extract
-
-  # PROJECTION HOSTS
-
-  editor-projection-host:
-    build: dist/RoadRegistry.Editor.ProjectionHost/linux
-    container_name: editor-projection-host
-    depends_on:
-      - mssql-seed
-      - localstack
-      - seq
-    environment:
-      DOTNET_ENVIRONMENT: Development
-      SERILOG__WRITETO__0__NAME: Seq
-      SERILOG__WRITETO__0__ARGS__SERVERURL: http://seq:80
-      SERILOG__WRITETO__1__NAME: Console
-      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: Debug
-      BLOBCLIENTTYPE: S3BlobClient
-      S3__SERVICEURL: http://localstack:4566
-      S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EDITORPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EDITORPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-
-  product-projection-host:
-    build: dist/RoadRegistry.Product.ProjectionHost/linux
-    container_name: product-projection-host
-    depends_on:
-      - mssql-seed
-      - seq
-    environment:
-      DOTNET_ENVIRONMENT: Development
-      SERILOG__WRITETO__0__NAME: Seq
-      SERILOG__WRITETO__0__ARGS__SERVERURL: http://seq:80
-      SERILOG__WRITETO__1__NAME: Console
-      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: Debug
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__PRODUCTPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__PRODUCTPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-
-  syndication-projection-host:
-    build: dist/RoadRegistry.Syndication.ProjectionHost/linux
-    container_name: syndication-projection-host
-    depends_on:
-      - mssql-seed
-      - seq
-      - municipality-api
-      - streetname-api
-    environment:
-      DOTNET_ENVIRONMENT: Development
-      SERILOG__WRITETO__0__NAME: Seq
-      SERILOG__WRITETO__0__ARGS__SERVERURL: http://seq:80
-      SERILOG__WRITETO__1__NAME: Console
-      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: Debug
-      MUNICIPALITYFEED__URI: http://municipality-api:2002/v1/gemeenten/sync
-      STREETNAMEFEED__URI: http://streetname-api:4002/v1/straatnamen/sync
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-
-  wfs-projection-host:
-    build: dist/RoadRegistry.Wfs.ProjectionHost/linux
-    container_name: wfs-projection-host
-    depends_on:
-      - mssql-seed
-      - seq
-      - wiremock
-    environment:
-      DOTNET_ENVIRONMENT: Development
-      SERILOG__WRITETO__0__NAME: Seq
-      SERILOG__WRITETO__0__ARGS__SERVERURL: http://seq:80
-      SERILOG__WRITETO__1__NAME: Console
-      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: Debug
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__WFSPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__WFSPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      METADATA__URI: http://wiremock:8080/metadatacenter/srv/dut/csw-publication
-      METADATA__LOGINURI: http://wiremock:8080/metadatacenter/srv/dut/info?info=me
-
-  wms-projection-host:
-    build: dist/RoadRegistry.Wms.ProjectionHost/linux
-    container_name: wms-projection-host
-    depends_on:
-      - mssql-seed
-      - seq
-      - wiremock
-    environment:
-      DOTNET_ENVIRONMENT: Development
-      SERILOG__WRITETO__0__NAME: Seq
-      SERILOG__WRITETO__0__ARGS__SERVERURL: http://seq:80
-      SERILOG__WRITETO__1__NAME: Console
-      SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: Debug
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__WMSPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__WMSPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      METADATA__URI: http://wiremock:8080/metadatacenter/srv/dut/csw-publication
-      METADATA__LOGINURI: http://wiremock:8080/metadatacenter/srv/dut/info?info=me
-
-  # PUBLIC API
-
-  public-api:
-    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/public-api/api-legacy:5.35.1
-    container_name: public-api
-    volumes:
-      - ./docker/public-api/appsettings.json:/app/appsettings.json
-    ports:
-      - 2080:2080
-
-  # ENVIRONMENT TOOLS
+      - ../src/RoadRegistry.BackupDatabase/filled:/var/lib/backup
+    profiles:
+      - seed
 
   localstack:
     image: localstack/localstack
     container_name: localstack
+    restart: always
     ports:
-      - 127.0.0.1:4566:4566            # LocalStack Gateway
-      - 127.0.0.1:4510-4559:4510-4559  # external services port range
+      - 4566:4566
+      - 4510-4559:4510-4559
     environment:
       SERVICES: s3,sqs,lambda,dynamodb,logs
-      # LOCALSTACK_HOST: localstack
       DOCKER_HOST: unix:///var/run/docker.sock
-      DEFAULT_REGION: eu-west-1
-      DEBUG: 1
-      DATA_DIR: /tmp/localstack/data
-      PORT_WEB_UI: 8080
+      LAMBDA_EXECUTOR: docker-reuse
+      LAMBDA_REMOTE_DOCKER: true
+      LAMBDA_REMOVE_CONTAINERS: true
+      DEBUG: true
+      PORT_WEB_UI: 8081
+      SQS_ENDPOINT_STRATEGY: path
+      AWS_REGION: eu-west-1
     volumes:
-      - .localstack:/etc/localstack/init
-      - localstack-data:/var/lib/localstack
+      - type: bind
+        source: ../.localstack/data
+        target: /var/lib/localstack
+      - ../.localstack/s3data:/usr/local/lib/localstack
+      - ../.localstack/init:/etc/localstack/init
+      - ../.localstack/lambda:/etc/localstack/lambda
       - /var/run/docker.sock:/var/run/docker.sock
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+    - "9010:9000"
+    - "9011:9001"
+    environment:
+      MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
+      MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
+    volumes:
+    - minio-data:/data
+    command: server --console-address :9001 /data
 
   seq:
     image: datalust/seq:latest
     container_name: seq
+    restart: always
     ports:
       - 5341:80
     environment:
       ACCEPT_EULA: 'Y'
     volumes:
-    - seq-data:/data
+      - seq-data:/data
 
   kafka:
     image: confluentinc/cp-kafka:7.0.1
     container_name: kafka
+    restart: always
     ports:
-    # To learn about configuring Kafka for access across networks see
-    # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
       - 9092:9092
     depends_on:
-      - zookeeper
+      - kafka-admin
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ZOOKEEPER_CONNECT: kafka-admin:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://broker:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -530,17 +96,20 @@ services:
   kafka-admin:
     image: confluentinc/cp-zookeeper:7.0.1
     container_name: kafka-admin
+    restart: always
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
   postgresql:
-    image: postgres
+    build: ./postgresql
     container_name: postgresql
     restart: always
     environment:
       POSTGRES_USER: sa
       POSTGRES_PASSWORD: E@syP@ssw0rd
+    ports:
+      - 29050:5432
 
   postgresql-admin:
     image: adminer
@@ -553,14 +122,44 @@ services:
     image: rodolpheche/wiremock:2.29.1
     container_name: wiremock
     volumes:
-      - ./wiremock/mappings:/home/wiremock/mappings
+      - ../wiremock/mappings:/home/wiremock/mappings
     ports:
       - 8080:8080
+  
+  ticketing-service:
+    image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/ticketing-service/ticketing:1.16.2
+    container_name: ticketing-service
+    depends_on:
+      - postgresql
+      - postgresql-admin
+    environment:
+      BASEURL: http://localhost:9100
+      CONNECTIONSTRINGS__MARTEN: Server=postgresql;Port=5432;Database=ticketing;Userid=sa;Password=E@syP@ssw0rd;Trust Server Certificate=true;Timeout=120
+      DOTNET_ENVIRONMENT: Development
+      #CORS__0: http://localhost:3000
+      #CORS__1: http://localhost:5000
+    ports:
+      - 9100:9000
+
+  # identity-server:
+  #    #image: ghcr.io/informatievlaanderen/identity-server-fake:latest
+  #    build: ../src/Be.Vlaanderen.Basisregisters.IdentityServer
+  #    container_name: identity-server
+  #    volumes:
+  #      - ../.identityserver:/home/identityserver
+  #    ports:
+  #      - 5050:80
 
 volumes:
   road-mssql-data:
-  municipality-mssql-data:
-  streetname-mssql-data:
-  legacy-mssql-data:
-  localstack-data:
+    name: road-mssql-data
+    external: true
   seq-data:
+    name: seq-data
+    external: true
+  minio-data:
+
+networks:
+  default:
+    name: road-registry-network
+    external: true

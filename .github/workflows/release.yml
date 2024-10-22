@@ -260,21 +260,6 @@ jobs:
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
     secrets: inherit
 
-  build-projectionhost-syndication:
-      name: Build Syndication Projection Host
-      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
-      needs: [ set-release-version ]
-      if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
-      with:
-        registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
-        image-file: rr-syndication-projectionhost-image.tar
-        image-name: syndication-projectionhost
-        test-project: RoadRegistry.Syndication.ProjectionHost.Tests
-        build-project: RoadRegistry.Syndication.ProjectionHost
-        semver: ${{ needs.set-release-version.outputs.version }}
-        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
-      secrets: inherit
-  
   build-projectionhost-wms:
     name: Build WMS Projection Host
     uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
@@ -420,7 +405,6 @@ jobs:
       build-projectionhost-product,
       build-projectionhost-producersnapshot,
       build-synchost,
-      build-projectionhost-syndication,
       build-projectionhost-wfs,
       build-projectionhost-wms,
       build-lambda-backoffice,
@@ -744,7 +728,6 @@ jobs:
           'product-projectionhost',
           'projector', 
           'synchost',
-          'syndication-projectionhost', 
           'wfs-projectionhost', 
           'wms-projectionhost'
         ]
@@ -805,7 +788,6 @@ jobs:
           'road-product-projectionhost',
           'road-projector',
           'road-synchost',
-          'road-syndication-projectionhost',
           'road-wfs-projectionhost',
           'road-wms-projectionhost'
          ]
