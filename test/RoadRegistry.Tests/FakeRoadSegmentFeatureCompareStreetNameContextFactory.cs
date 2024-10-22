@@ -25,7 +25,7 @@ public class FakeRoadSegmentFeatureCompareStreetNameContext : IRoadSegmentFeatur
         return false;
     }
 
-    public bool Exists(StreetNameLocalId id)
+    public bool IsValid(StreetNameLocalId id)
     {
         return true;
     }
