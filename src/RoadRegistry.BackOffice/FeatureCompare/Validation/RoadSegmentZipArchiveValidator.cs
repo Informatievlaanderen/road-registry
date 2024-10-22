@@ -53,7 +53,7 @@ public class RoadSegmentZipArchiveValidator : FeatureReaderZipArchiveValidator<R
 
         if (id > 0)
         {
-            if (!streetNameContext.Exists(id.Value))
+            if (!streetNameContext.IsValid(id.Value))
             {
                 return problems + (leftSide
                     ? recordContext.LeftStreetNameIdOutOfRange(id.Value)
