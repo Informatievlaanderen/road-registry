@@ -1,3 +1,15 @@
+# [4.13.0](https://github.com/informatievlaanderen/road-registry/compare/v4.12.0...v4.13.0) (2024-10-23)
+
+
+### Bug Fixes
+
+* cleanup ([#1561](https://github.com/informatievlaanderen/road-registry/issues/1561)) ([7e58ce7](https://github.com/informatievlaanderen/road-registry/commit/7e58ce746dcf2716fa9dc6f24e8c49db3132c625))
+
+
+### Features
+
+* **wms:** add geolocation view ([baa247f](https://github.com/informatievlaanderen/road-registry/commit/baa247f2130237983b3f6710877e48e3d3b6c0e5))
+
 # [4.12.0](https://github.com/informatievlaanderen/road-registry/compare/v4.11.1...v4.12.0) (2024-10-21)
 
 
