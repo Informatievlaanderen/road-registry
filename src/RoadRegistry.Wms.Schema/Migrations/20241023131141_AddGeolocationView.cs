@@ -26,10 +26,10 @@ SELECT
       ,[rechtsGemeenteNisCode] as [RIGHTSIDEMUNICIPALITYNISCODE]
       ,[rechtsStraatnaam] as [RIGHTSIDESTREETNAME]
       ,[rechtsStraatnaamID] as [RIGHTSIDESTREETNAMEID]
-      ,[wegsegmentID] as Id
+      ,[wegsegmentID] as [Id]
 FROM [RoadRegistryWms].[wegsegmentDenorm]");
 
-            migrationBuilder.Sql("CREATE UNIQUE CLUSTERED INDEX IX_RoadSegmentGeolocationView_ObjectId ON [geolocation].[RoadSegmentOsloGeolocationView] (Id)");
+            migrationBuilder.Sql("CREATE UNIQUE CLUSTERED INDEX IX_RoadSegmentGeolocationView_ObjectId ON [geolocation].[RoadSegmentOsloGeolocationView] ([Id])");
         }
 
         /// <inheritdoc />
