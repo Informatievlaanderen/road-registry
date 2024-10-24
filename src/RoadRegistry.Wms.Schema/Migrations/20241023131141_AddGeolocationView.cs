@@ -15,11 +15,7 @@ namespace RoadRegistry.Wms.Schema.Migrations
             migrationBuilder.Sql(@"
 CREATE VIEW geolocation.RoadSegmentGeolocationView WITH SCHEMABINDING AS
 SELECT
-      CASE
-        WHEN [geometrie2D].STGeometryType() = 'LINESTRING' 
-            THEN 'MULTILINESTRING (' + REPLACE([geometrie2D].STAsText(), 'LINESTRING ', '') + ')'
-        ELSE [geometrie2D].STAsText()
-      END AS [GEOMETRYASWKT]
+      geometrie2D].STAsText() AS [GEOMETRYASWKT]
       ,[linksGemeenteNisCode] as [LEFTSIDEMUNICIPALITYNISCODE]
       ,[linksStraatnaam] as [LEFTSIDESTREETNAME]
       ,[linksStraatnaamID] as [LEFTSIDESTREETNAMEID]
