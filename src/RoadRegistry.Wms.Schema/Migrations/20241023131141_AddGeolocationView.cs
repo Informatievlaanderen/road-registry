@@ -15,7 +15,7 @@ namespace RoadRegistry.Wms.Schema.Migrations
             migrationBuilder.Sql(@"
 CREATE VIEW geolocation.RoadSegmentGeolocationView WITH SCHEMABINDING AS
 SELECT
-      geometrie2D].STAsText() AS [GEOMETRYASWKT]
+      [geometrie2D].STAsText() AS [GEOMETRYASWKT]
       ,[linksGemeenteNisCode] as [LEFTSIDEMUNICIPALITYNISCODE]
       ,[linksStraatnaam] as [LEFTSIDESTREETNAME]
       ,[linksStraatnaamID] as [LEFTSIDESTREETNAMEID]
