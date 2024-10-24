@@ -13,11 +13,12 @@ namespace RoadRegistry.Wms.Schema.Migrations
             migrationBuilder.EnsureSchema(name: "geolocation");
             migrationBuilder.Sql("ALTER AUTHORIZATION ON SCHEMA::geolocation TO wms");
             migrationBuilder.Sql(@"
-CREATE VIEW geolocation.RoadSegmentOsloGeolocationView WITH SCHEMABINDING AS
+CREATE VIEW geolocation.RoadSegmentGeolocationView WITH SCHEMABINDING AS
 SELECT
       CASE
-            WHEN [geometrie2D].STGeometryType() = 'LINESTRING' THEN 'MULTILINESTRING (' + [geometrie2D].STAsText() + ')'
-            ELSE [geometrie2D].STAsText()
+        WHEN [geometrie2D].STGeometryType() = 'LINESTRING' 
+            THEN 'MULTILINESTRING (' + REPLACE([geometrie2D].STAsText(), 'LINESTRING ', '') + ')'
+        ELSE [geometrie2D].STAsText()
       END AS [GEOMETRYASWKT]
       ,[linksGemeenteNisCode] as [LEFTSIDEMUNICIPALITYNISCODE]
       ,[linksStraatnaam] as [LEFTSIDESTREETNAME]
@@ -29,13 +30,13 @@ SELECT
       ,[wegsegmentID] as [Id]
 FROM [RoadRegistryWms].[wegsegmentDenorm]");
 
-            migrationBuilder.Sql("CREATE UNIQUE CLUSTERED INDEX IX_RoadSegmentGeolocationView_ObjectId ON [geolocation].[RoadSegmentOsloGeolocationView] ([Id])");
+            migrationBuilder.Sql("CREATE UNIQUE CLUSTERED INDEX IX_RoadSegmentGeolocationView_ObjectId ON [geolocation].[RoadSegmentGeolocationView] ([Id])");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("DROP VIEW geolocation.RoadSegmentOsloGeolocationView;");
+            migrationBuilder.Sql("DROP VIEW geolocation.RoadSegmentGeolocationView;");
         }
     }
 }
