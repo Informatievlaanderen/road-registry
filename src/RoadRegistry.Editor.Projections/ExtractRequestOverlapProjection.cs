@@ -70,11 +70,6 @@ public class ExtractRequestOverlapRecordProjection : ConnectedProjection<EditorC
 
             await DeleteLinkedRecords(context, [envelope.Message.DownloadId.Value], ct);
         });
-
-        When<Envelope<RoadNetworkExtractChangesArchiveUploaded>>(async (context, envelope, ct) =>
-        {
-            await DeleteLinkedRecords(context, [envelope.Message.DownloadId], ct);
-        });
     }
 
     private async Task CreateOverlappingRecords(EditorContext context, Geometry geometry, Guid downloadId, string description, CancellationToken cancellationToken)

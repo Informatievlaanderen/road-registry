@@ -22,9 +22,10 @@ public class ContextModule : Module
             var snapshotReader = context.Resolve<IRoadNetworkSnapshotReader>();
             var serializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
             var map = context.Resolve<EventSourcedEntityMap>();
+            var eventEnricher = context.Resolve<EventEnricher>();
             var loggerFactory = context.Resolve<ILoggerFactory>();
 
-            return new RoadRegistryContext(map, store, snapshotReader, serializerSettings, RoadNetworkEventsEventMapping, loggerFactory);
+            return new RoadRegistryContext(map, store, snapshotReader, serializerSettings, RoadNetworkEventsEventMapping, eventEnricher, loggerFactory);
         });
     }
 }

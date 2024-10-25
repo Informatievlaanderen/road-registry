@@ -49,6 +49,7 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
                 logger.LogInformation("Command handler started for {Command}", nameof(UploadRoadNetworkChangesArchive));
 
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
+                var extractRequestId = ExtractRequestId.FromString(message.Body.ExtractRequestId);
 
                 logger.LogInformation("Download started for S3 blob {BlobName}", archiveId);
                 var archiveBlob = await blobClient.GetBlobAsync(new BlobName(archiveId), ct);
@@ -64,7 +65,7 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
                         var extractDescription = ReadExtractDescriptionSafely(archive);
 
                         var upload = RoadNetworkChangesArchive.Upload(archiveId, extractDescription);
-                        upload.AcceptOrReject(problems, message.Body.TicketId);
+                        upload.AcceptOrReject(problems, extractRequestId, message.Body.TicketId);
 
                         if (problems.HasError() && message.Body.TicketId is not null)
                         {

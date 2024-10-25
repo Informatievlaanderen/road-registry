@@ -66,6 +66,7 @@ public class RoadNetworkTestData
         ObjectProvider.CustomizeReason();
         ObjectProvider.CustomizeOperatorName();
         ObjectProvider.CustomizeTransactionId();
+        ObjectProvider.CustomizeExtractRequestId();
 
         ObjectProvider.CustomizeRoadNetworkChangesAccepted();
         ObjectProvider.CustomizeImportedOrganization();

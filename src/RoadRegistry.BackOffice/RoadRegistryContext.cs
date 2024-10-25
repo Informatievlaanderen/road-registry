@@ -20,11 +20,12 @@ public class RoadRegistryContext : IRoadRegistryContext, IDisposable
         IRoadNetworkSnapshotReader snapshotReader,
         JsonSerializerSettings settings,
         EventMapping mapping,
+        EventEnricher eventEnricher,
         ILoggerFactory loggerFactory)
     {
         _map = map.ThrowIfNull();
         RoadNetworks = new RoadNetworks(map, store, snapshotReader, settings, mapping, loggerFactory.CreateLogger<RoadNetworks>());
-        RoadNetworkExtracts = new RoadNetworkExtracts(map, store, settings, mapping);
+        RoadNetworkExtracts = new RoadNetworkExtracts(map, store, settings, mapping, eventEnricher);
         RoadNetworkChangesArchives = new RoadNetworkChangesArchives(map, store, settings, mapping);
         Organizations = new Organizations(map, store, settings, mapping);
         EventFilter = new RoadRegistryEventFilter();
@@ -35,7 +36,7 @@ public class RoadRegistryContext : IRoadRegistryContext, IDisposable
     public IRoadNetworkExtracts RoadNetworkExtracts { get; }
     public IRoadNetworks RoadNetworks { get; }
     public IRoadRegistryEventFilter EventFilter { get; }
-    
+
     public void Dispose()
     {
         _map.Dispose();

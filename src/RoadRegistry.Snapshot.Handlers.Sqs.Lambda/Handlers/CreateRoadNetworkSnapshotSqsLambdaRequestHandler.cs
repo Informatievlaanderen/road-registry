@@ -51,13 +51,14 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
                 var snapshotVersion = await _snapshotReader.ReadSnapshotVersionAsync(cancellationToken);
 
                 // Check if current snapshot is already further that stream version
-                if (snapshotVersion >= streamMaxVersion)
+                if (streamMaxVersion > 0 && snapshotVersion >= streamMaxVersion)
                 {
                     Logger.LogWarning("Create snapshot skipped for new message received from SQS with snapshot version {SnapshotVersion} and stream version {StreamVersion}", snapshotVersion, streamVersion);
                 }
                 else
                 {
-                    var (roadnetwork, roadnetworkVersion) = await RoadRegistryContext.RoadNetworks.GetWithVersion(true, (messageStreamVersion, _) => messageStreamVersion > streamMaxVersion, cancellationToken);
+                    var (roadnetwork, roadnetworkVersion) = await RoadRegistryContext.RoadNetworks.GetWithVersion(true,
+                        (messageStreamVersion, _) => streamMaxVersion > 0 && messageStreamVersion > streamMaxVersion, cancellationToken);
                     var snapshot = roadnetwork.TakeSnapshot();
 
                     Logger.LogInformation("Create snapshot started for new message received from SQS with snapshot version {SnapshotVersion}", roadnetworkVersion);

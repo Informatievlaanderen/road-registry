@@ -77,7 +77,13 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         var container = containerBuilder.Build();
         LifetimeScope = container.BeginLifetimeScope();
 
-        RoadRegistryContext = new RoadRegistryContext(LifetimeScope.Resolve<EventSourcedEntityMap>(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping, new NullLoggerFactory());
+        RoadRegistryContext = new RoadRegistryContext(
+            LifetimeScope.Resolve<EventSourcedEntityMap>(),
+            Store, new FakeRoadNetworkSnapshotReader(),
+            Settings,
+            Mapping,
+            EnrichEvent.WithTime(clock),
+            new NullLoggerFactory());
         RoadNetworkCommandQueue = roadNetworkCommandQueue;
         Clock = clock;
         Options = options;

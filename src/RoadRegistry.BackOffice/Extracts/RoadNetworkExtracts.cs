@@ -15,15 +15,17 @@ public class RoadNetworkExtracts : IRoadNetworkExtracts
     public static readonly StreamName Prefix = new("extract-");
     private readonly EventSourcedEntityMap _map;
     private readonly EventMapping _mapping;
+    private readonly EventEnricher _eventEnricher;
     private readonly JsonSerializerSettings _settings;
     private readonly IStreamStore _store;
 
-    public RoadNetworkExtracts(EventSourcedEntityMap map, IStreamStore store, JsonSerializerSettings settings, EventMapping mapping)
+    public RoadNetworkExtracts(EventSourcedEntityMap map, IStreamStore store, JsonSerializerSettings settings, EventMapping mapping, EventEnricher eventEnricher)
     {
         _map = map ?? throw new ArgumentNullException(nameof(map));
         _store = store ?? throw new ArgumentNullException(nameof(store));
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         _mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
+        _eventEnricher = eventEnricher.ThrowIfNull();
     }
 
     public void Add(RoadNetworkExtract extract)
@@ -40,7 +42,7 @@ public class RoadNetworkExtracts : IRoadNetworkExtracts
         if (_map.TryGet(stream, out var entry)) return (RoadNetworkExtract)entry.Entity;
         var page = await _store.ReadStreamForwards(stream, StreamVersion.Start, 1024, ct);
         if (page.Status == PageReadStatus.StreamNotFound) return null;
-        IEventSourcedEntity entity = RoadNetworkExtract.Factory();
+        IEventSourcedEntity entity = RoadNetworkExtract.Factory(_eventEnricher);
         var messages = new List<object>(page.Messages.Length);
         foreach (var message in page.Messages)
             messages.Add(

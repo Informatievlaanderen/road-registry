@@ -152,6 +152,13 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     }
             }
 
+            if (!failedChangedMessages.Any() && command.Body.ExtractRequestId is not null)
+            {
+                var extractRequestId = ExtractRequestId.FromString(command.Body.ExtractRequestId);
+                var extract = await context.RoadNetworkExtracts.Get(extractRequestId, cancellationToken);
+                extract.Close(RoadNetworkExtractCloseReason.UploadAccepted);
+            }
+
             if (ticketId is not null)
             {
                 var ticketing = container.Resolve<ITicketing>();

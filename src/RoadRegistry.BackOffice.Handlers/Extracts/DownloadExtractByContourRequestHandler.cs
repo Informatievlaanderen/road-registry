@@ -25,7 +25,6 @@ public class DownloadExtractByContourRequestHandler : ExtractRequestHandler<Down
     {
         var geometry = _reader.Read(request.Contour).ToMultiPolygon();
 
-
         var message = new RequestRoadNetworkExtract
         {
             ExternalRequestId = randomExternalRequestId,

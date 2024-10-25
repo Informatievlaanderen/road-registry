@@ -7,6 +7,17 @@ public abstract class EventSourcedEntity : IEventSourcedEntity
     private readonly EventPlayer Player = new();
     private readonly EventRecorder Recorder = new();
 
+    private readonly EventEnricher? _eventEnricher;
+
+    protected EventSourcedEntity()
+    {
+    }
+
+    protected EventSourcedEntity(EventEnricher eventEnricher)
+    {
+        _eventEnricher = eventEnricher;
+    }
+
     void IEventSourcedEntity.RestoreFromEvents(object[] events)
     {
         if (events == null)
@@ -31,6 +42,8 @@ public abstract class EventSourcedEntity : IEventSourcedEntity
 
     protected void Apply(object @event)
     {
+        _eventEnricher?.Invoke(@event);
+
         Player.Play(@event);
         Recorder.Record(@event);
     }
