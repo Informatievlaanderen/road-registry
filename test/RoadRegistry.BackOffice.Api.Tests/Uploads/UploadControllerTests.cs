@@ -37,15 +37,15 @@ public partial class UploadControllerTests : ControllerTests<UploadController>, 
             new ExtractRequestRecord {
                 Contour = Geometry.DefaultFactory.CreateEmpty(Dimension.Unknown),
                 Description = "Valid-Before",
-                ExternalRequestId = "",
+                ExternalRequestId = new ExternalExtractRequestId("extract-1"),
                 DownloadId = DownloadId.Parse("d554de226e6842c597d392a50636fa45").ToGuid(),
                 IsInformative = false,
-                RequestedOn = DateTimeOffset.UtcNow
+                RequestedOn = DateTimeOffset.UtcNow,
             },
             new ExtractRequestRecord {
                 Contour = Geometry.DefaultFactory.CreateEmpty(Dimension.Unknown),
                 Description = "Valid-After",
-                ExternalRequestId = "",
+                ExternalRequestId = new ExternalExtractRequestId("extract-2"),
                 DownloadId = DownloadId.Parse("bc57a81104a3481f87920f008dece82b").ToGuid(),
                 IsInformative = false,
                 RequestedOn = DateTimeOffset.UtcNow

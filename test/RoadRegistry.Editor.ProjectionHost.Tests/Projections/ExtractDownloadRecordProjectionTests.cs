@@ -262,7 +262,7 @@ public class ExtractDownloadRecordProjectionTests
     }
 
     [Fact]
-    public async Task When_extract_archive_got_uploaded_then_isinformative()
+    public async Task When_extract_archive_got_uploaded_then_isinformative_stays_false()
     {
         var extractGotRequested = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
 
@@ -293,7 +293,7 @@ public class ExtractDownloadRecordProjectionTests
                     Available = true,
                     AvailableOn = InstantPattern.ExtendedIso.Parse(extractArchiveUploaded.When).Value.ToUnixTimeSeconds(),
                     RequestedOn = InstantPattern.ExtendedIso.Parse(downloadBecameAvailable.When).Value.ToUnixTimeSeconds(),
-                    IsInformative = true
+                    IsInformative = false
                 });
     }
 }

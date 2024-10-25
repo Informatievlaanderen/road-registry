@@ -6,6 +6,7 @@ using System.Linq;
 using Framework;
 using Messages;
 using NetTopologySuite.Geometries;
+using NodaTime.Text;
 
 public class RoadNetworkExtract : EventSourcedEntity
 {
@@ -28,7 +29,7 @@ public class RoadNetworkExtract : EventSourcedEntity
             Id = ExtractRequestId.FromString(e.RequestId);
             Description = new ExtractDescription(e.Description ?? string.Empty);
             IsInformative = e.IsInformative;
-            DateRequested = DateTime.UtcNow;
+            DateRequested = InstantPattern.ExtendedIso.Parse(e.When).Value.ToDateTimeUtc();
             _externalExtractRequestId = new ExternalExtractRequestId(e.ExternalRequestId);
         });
         On<RoadNetworkExtractGotRequestedV2>(e =>
@@ -38,7 +39,7 @@ public class RoadNetworkExtract : EventSourcedEntity
             Id = ExtractRequestId.FromString(e.RequestId);
             Description = new ExtractDescription(e.Description);
             IsInformative = e.IsInformative;
-            DateRequested = DateTime.UtcNow;
+            DateRequested = InstantPattern.ExtendedIso.Parse(e.When).Value.ToDateTimeUtc();
             _externalExtractRequestId = new ExternalExtractRequestId(e.ExternalRequestId);
         });
         On<RoadNetworkExtractDownloadTimeoutOccurred>(e =>
