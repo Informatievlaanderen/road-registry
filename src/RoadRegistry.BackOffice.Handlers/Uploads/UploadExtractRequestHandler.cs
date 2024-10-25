@@ -122,9 +122,6 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
             var transactionZone = GetTransactionZone(archive);
 
-            var entity = RoadNetworkChangesArchive.Upload(archiveId, transactionZone.Description);
-            entity.AcceptOrReject(problems, request.TicketId);
-
             var downloadId = transactionZone.DownloadId;
 
             var extractRequest = await _editorContext.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
@@ -137,7 +134,9 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                 throw new ExtractRequestMarkedInformativeException(downloadId);
             }
 
-            await UploadAndQueueCommand(request, readStream, archiveId, metadata, cancellationToken);
+            var externalExtractRequestId = new ExternalExtractRequestId(extractRequest.ExternalRequestId);
+            var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
+            await UploadAndQueueCommand(request, readStream, extractRequestId, archiveId, metadata, cancellationToken);
         }
         catch (InvalidDataException)
         {
@@ -159,7 +158,12 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             .Attributes;
     }
 
-    private async Task UploadAndQueueCommand(UploadExtractRequest request, Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
+    private async Task UploadAndQueueCommand(UploadExtractRequest request,
+        Stream readStream,
+        ExtractRequestId extractRequestId,
+        ArchiveId archiveId,
+        Metadata metadata,
+        CancellationToken cancellationToken)
     {
         readStream.Position = 0;
 
@@ -173,6 +177,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
         var command = new Command(new UploadRoadNetworkChangesArchive
         {
+            ExtractRequestId = extractRequestId,
             ArchiveId = archiveId,
             TicketId = request.TicketId
         });

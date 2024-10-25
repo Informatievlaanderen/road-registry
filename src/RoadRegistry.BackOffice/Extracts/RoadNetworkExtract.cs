@@ -53,8 +53,6 @@ public class RoadNetworkExtract : EventSourcedEntity
         On<RoadNetworkExtractChangesArchiveUploaded>(e =>
         {
             _knownUploads.Add(new UploadId(e.UploadId));
-
-            IsInformative = true;
         });
         On<RoadNetworkExtractChangesArchiveFeatureCompareCompleted>(e =>
         {
