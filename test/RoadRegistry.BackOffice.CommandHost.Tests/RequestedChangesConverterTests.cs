@@ -11,7 +11,6 @@ namespace RoadRegistry.BackOffice.CommandHost.Tests
     using AddRoadNode = Messages.AddRoadNode;
     using ModifyGradeSeparatedJunction = Messages.ModifyGradeSeparatedJunction;
     using ModifyRoadNode = Messages.ModifyRoadNode;
-    using ModifyRoadSegmentOnNumberedRoad = Messages.ModifyRoadSegmentOnNumberedRoad;
     using RemoveGradeSeparatedJunction = Messages.RemoveGradeSeparatedJunction;
     using RemoveOutlinedRoadSegmentFromRoadNetwork = Messages.RemoveOutlinedRoadSegmentFromRoadNetwork;
     using RemoveRoadNode = Messages.RemoveRoadNode;
@@ -24,7 +23,6 @@ namespace RoadRegistry.BackOffice.CommandHost.Tests
             typeof(AddRoadNode),
             typeof(ModifyGradeSeparatedJunction),
             typeof(ModifyRoadNode),
-            typeof(ModifyRoadSegmentOnNumberedRoad),
             typeof(RemoveGradeSeparatedJunction),
             typeof(RemoveRoadNode),
             typeof(RemoveOutlinedRoadSegmentFromRoadNetwork)
@@ -64,7 +62,6 @@ namespace RoadRegistry.BackOffice.CommandHost.Tests
             fixture.CustomizeModifyRoadSegment();
             fixture.CustomizeModifyRoadSegmentAttributes();
             fixture.CustomizeModifyRoadSegmentGeometry();
-            fixture.CustomizeModifyRoadSegmentOnNumberedRoad();
             fixture.CustomizeRemoveGradeSeparatedJunction();
             fixture.CustomizeRemoveRoadNode();
             fixture.CustomizeRemoveRoadSegment();
@@ -73,7 +70,7 @@ namespace RoadRegistry.BackOffice.CommandHost.Tests
             fixture.CustomizeRemoveRoadSegmentFromEuropeanRoad();
             fixture.CustomizeRemoveRoadSegmentFromNationalRoad();
             fixture.CustomizeRemoveRoadSegmentFromNumberedRoad();
-            
+
             var unhandledChangeTypes = new List<Type>();
 
             foreach (var requestedChange in fixture.CreateAllRequestedChanges())

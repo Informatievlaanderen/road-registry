@@ -90,7 +90,6 @@ public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
                     change.AddRoadSegmentToNationalRoad,
                     change.RemoveRoadSegmentFromNationalRoad,
                     change.AddRoadSegmentToNumberedRoad,
-                    change.ModifyRoadSegmentOnNumberedRoad,
                     change.RemoveRoadSegmentFromNumberedRoad,
                     change.AddGradeSeparatedJunction,
                     change.ModifyGradeSeparatedJunction,
@@ -159,10 +158,6 @@ public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
         var identifiers = changes
             .Where(change => change?.RemoveRoadSegmentFromNumberedRoad != null)
             .Select(change => change.RemoveRoadSegmentFromNumberedRoad.AttributeId)
-            .Union(
-                changes
-                    .Where(change => change?.ModifyRoadSegmentOnNumberedRoad != null)
-                    .Select(change => change.ModifyRoadSegmentOnNumberedRoad.AttributeId))
             .ToArray();
         return identifiers.Length == identifiers.Distinct().Count();
     }

@@ -22,7 +22,6 @@ public class RequestedChangeValidator : AbstractValidator<RequestedChange>
         RuleFor(c => c.AddRoadSegmentToNationalRoad).SetValidator(new AddRoadSegmentToNationalRoadValidator());
         RuleFor(c => c.RemoveRoadSegmentFromNationalRoad).SetValidator(new RemoveRoadSegmentFromNationalRoadValidator());
         RuleFor(c => c.AddRoadSegmentToNumberedRoad).SetValidator(new AddRoadSegmentToNumberedRoadValidator());
-        RuleFor(c => c.ModifyRoadSegmentOnNumberedRoad).SetValidator(new ModifyRoadSegmentOnNumberedRoadValidator());
         RuleFor(c => c.RemoveRoadSegmentFromNumberedRoad).SetValidator(new RemoveRoadSegmentFromNumberedRoadValidator());
         RuleFor(c => c.AddGradeSeparatedJunction).SetValidator(new AddGradeSeparatedJunctionValidator());
         RuleFor(c => c.ModifyGradeSeparatedJunction).SetValidator(new ModifyGradeSeparatedJunctionValidator());

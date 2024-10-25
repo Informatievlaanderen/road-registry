@@ -181,7 +181,7 @@ public static class RequestedChangeFixtureExtensions
                     {
                         Id = fixture.Create<RoadSegmentId>(),
                         GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
-                        
+
                         AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>(),
                         Category = fixture.Create<RoadSegmentCategory>(),
                         MaintenanceAuthority = fixture.Create<OrganizationId>(),
@@ -204,28 +204,11 @@ public static class RequestedChangeFixtureExtensions
                     {
                         Id = fixture.Create<RoadSegmentId>(),
                         GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
-                        
+
                         Geometry = fixture.Create<RoadSegmentGeometry>(),
                         Lanes = fixture.CreateMany<RequestedRoadSegmentLaneAttribute>().ToArray(),
                         Widths = fixture.CreateMany<RequestedRoadSegmentWidthAttribute>().ToArray(),
                         Surfaces = fixture.CreateMany<RequestedRoadSegmentSurfaceAttribute>().ToArray()
-                    }
-                ).OmitAutoProperties()
-        );
-    }
-
-    public static void CustomizeModifyRoadSegmentOnNumberedRoad(this IFixture fixture)
-    {
-        fixture.Customize<ModifyRoadSegmentOnNumberedRoad>(
-            composer =>
-                composer.FromFactory(random =>
-                    new ModifyRoadSegmentOnNumberedRoad
-                    {
-                        AttributeId = fixture.Create<AttributeId>(),
-                        SegmentId = fixture.Create<RoadSegmentId>(),
-                        Direction = fixture.Create<RoadSegmentNumberedRoadDirection>(),
-                        Number = fixture.Create<NumberedRoadNumber>(),
-                        Ordinal = fixture.Create<RoadSegmentNumberedRoadOrdinal>()
                     }
                 ).OmitAutoProperties()
         );

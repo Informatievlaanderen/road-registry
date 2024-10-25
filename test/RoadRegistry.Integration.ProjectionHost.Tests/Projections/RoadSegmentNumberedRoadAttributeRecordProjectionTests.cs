@@ -50,7 +50,6 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjectionTests
         _fixture.CustomizeRoadNetworkChangesAccepted();
 
         _fixture.CustomizeRoadSegmentAddedToNumberedRoad();
-        _fixture.CustomizeRoadSegmentOnNumberedRoadModified();
         _fixture.CustomizeRoadSegmentRemovedFromNumberedRoad();
     }
 
@@ -141,44 +140,6 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjectionTests
                 .Cast<object>()
                 .ToArray()
             );
-    }
-
-    [Fact]
-    public Task When_modifying_road_segments()
-    {
-        _fixture.Freeze<AttributeId>();
-
-        var acceptedRoadSegmentAdded = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToNumberedRoad>());
-
-        var acceptedRoadSegmentModified = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentOnNumberedRoadModified>());
-
-        var expectedRecords = Array.ConvertAll(acceptedRoadSegmentModified.Changes, change =>
-        {
-            var numberedRoad = change.RoadSegmentOnNumberedRoadModified;
-
-            return (object)new RoadSegmentNumberedRoadAttributeLatestItem
-            {
-                Id = numberedRoad.AttributeId,
-                RoadSegmentId = numberedRoad.SegmentId,
-                Number = numberedRoad.Number,
-                DirectionId = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Identifier,
-                DirectionLabel = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Name,
-                SequenceNumber = numberedRoad.Ordinal,
-                OrganizationId = acceptedRoadSegmentModified.OrganizationId,
-                OrganizationName = acceptedRoadSegmentModified.Organization,
-                CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
-                VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When)
-            };
-        });
-
-        return new RoadSegmentNumberedRoadAttributeLatestItemProjection()
-            .Scenario()
-            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
-            .Expect(expectedRecords);
     }
 
     [Fact]

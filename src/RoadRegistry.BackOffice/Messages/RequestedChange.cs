@@ -13,7 +13,6 @@ public class RequestedChange
     public ModifyRoadSegment ModifyRoadSegment { get; set; }
     public ModifyRoadSegmentAttributes ModifyRoadSegmentAttributes { get; set; }
     public ModifyRoadSegmentGeometry ModifyRoadSegmentGeometry { get; set; }
-    public ModifyRoadSegmentOnNumberedRoad ModifyRoadSegmentOnNumberedRoad { get; set; } //TODO-rik remove? Is not in use and no event exists with it
     public RemoveGradeSeparatedJunction RemoveGradeSeparatedJunction { get; set; }
     public RemoveRoadNode RemoveRoadNode { get; set; }
     public RemoveRoadSegment RemoveRoadSegment { get; set; }

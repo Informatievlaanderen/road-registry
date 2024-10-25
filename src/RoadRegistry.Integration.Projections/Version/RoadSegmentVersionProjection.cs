@@ -65,7 +65,7 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
             ImportPartOfEuropeanRoads(envelope, roadSegment, envelope.Message.PartOfEuropeanRoads);
             ImportPartOfNationalRoads(envelope, roadSegment, envelope.Message.PartOfNationalRoads);
             ImportPartOfNumberedRoads(envelope, roadSegment, envelope.Message.PartOfNumberedRoads);
-            
+
             await context.RoadSegmentVersions.AddAsync(roadSegment, token);
         });
 
@@ -229,7 +229,7 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
         UpdateSurfaces(envelope, roadSegment, roadSegmentModified.Surfaces);
         UpdateWidths(envelope, roadSegment, roadSegmentModified.Widths);
     }
-    
+
     private static void AddRoadSegmentToEuropeanRoad(
         RoadSegmentVersion roadSegment,
         RoadSegmentAddedToEuropeanRoad change,
@@ -350,7 +350,7 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
         UpdateSurfaces(envelope, roadSegment, roadSegmentGeometryModified.Surfaces);
         UpdateWidths(envelope, roadSegment, roadSegmentGeometryModified.Widths);
     }
-    
+
     private static void RemoveRoadSegment(
         RoadSegmentVersion roadSegment,
         Envelope<RoadNetworkChangesAccepted> envelope)
@@ -453,7 +453,6 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
                 RoadNodeModified => null,
                 RoadNodeRemoved => null,
                 OutlinedRoadSegmentRemoved => null,
-                RoadSegmentOnNumberedRoadModified => null,
                 _ => throw new NotImplementedException($"Missing implementation for change {changeMessage.GetType().Name}")
             };
         }

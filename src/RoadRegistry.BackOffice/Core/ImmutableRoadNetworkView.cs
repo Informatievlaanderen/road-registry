@@ -377,9 +377,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 case AddRoadSegmentToNumberedRoad addRoadSegmentToNumberedRoad:
                     result = result.With(addRoadSegmentToNumberedRoad);
                     break;
-                case ModifyRoadSegmentOnNumberedRoad modifyRoadSegmentOnNumberedRoad:
-                    result = result.With(modifyRoadSegmentOnNumberedRoad);
-                    break;
                 case RemoveRoadSegmentFromNumberedRoad removeRoadSegmentFromNumberedRoad:
                     result = result.With(removeRoadSegmentFromNumberedRoad);
                     break;
@@ -571,9 +568,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 case RoadSegmentAddedToNumberedRoad roadSegmentAddedToNumberedRoad:
                     result = result.Given(roadSegmentAddedToNumberedRoad);
                     break;
-                case RoadSegmentOnNumberedRoadModified roadSegmentOnNumberedRoadModified:
-                    result = result.Given(roadSegmentOnNumberedRoadModified);
-                    break;
                 case RoadSegmentRemovedFromNumberedRoad roadSegmentRemovedFromNumberedRoad:
                     result = result.Given(roadSegmentRemovedFromNumberedRoad);
                     break;
@@ -699,7 +693,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         var view = this;
 
         var id = new RoadSegmentId(@event.Id);
-        
+
         if (@event.ConvertedFromOutlined && !_segments.ContainsKey(id))
         {
             view = Given(new RoadSegmentAdded
@@ -1078,17 +1072,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             SegmentReusableSurfaceAttributeIdentifiers);
     }
 
-    private ImmutableRoadNetworkView Given(RoadSegmentOnNumberedRoadModified @event)
-    {
-        return new ImmutableRoadNetworkView(
-            _nodes,
-            _segments,
-            _gradeSeparatedJunctions,
-            SegmentReusableLaneAttributeIdentifiers,
-            SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers);
-    }
-
     private ImmutableRoadNetworkView Given(RoadSegmentRemovedFromNumberedRoad @event)
     {
         return new ImmutableRoadNetworkView(
@@ -1162,12 +1145,12 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id)),
             _segments.Add(command.Id,
                 new RoadSegment(command.Id, version, command.Geometry, geometryVersion, command.StartNodeId, command.EndNodeId,
-                                attributeHash,
-                                command.Lanes.Select(lane => new BackOffice.RoadSegmentLaneAttribute(lane.From, lane.To, lane.Count, lane.Direction, lane.AsOfGeometryVersion)).ToArray(),
-                                command.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(surface.From, surface.To, surface.Type, surface.AsOfGeometryVersion)).ToArray(),
-                                command.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(width.From, width.To, width.Width, width.AsOfGeometryVersion)).ToArray(),
-                                command.GetHash())
-                ),
+                    attributeHash,
+                    command.Lanes.Select(lane => new BackOffice.RoadSegmentLaneAttribute(lane.From, lane.To, lane.Count, lane.Direction, lane.AsOfGeometryVersion)).ToArray(),
+                    command.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(surface.From, surface.To, surface.Type, surface.AsOfGeometryVersion)).ToArray(),
+                    command.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(width.From, width.To, width.Width, width.AsOfGeometryVersion)).ToArray(),
+                    command.GetHash())
+            ),
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers.Merge(command.Id,
                 command.Lanes.Select(lane => new AttributeId(lane.Id))),
@@ -1276,7 +1259,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             command.MaintenanceAuthorityId ?? segmentBefore.AttributeHash.OrganizationId,
             command.GeometryDrawMethod
         );
-        
+
         return new ImmutableRoadNetworkView(
             _nodes,
             _segments
@@ -1428,7 +1411,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             SegmentReusableWidthAttributeIdentifiers,
             SegmentReusableSurfaceAttributeIdentifiers);
     }
-    
+
     private ImmutableRoadNetworkView With(AddRoadSegmentToEuropeanRoad command)
     {
         return new ImmutableRoadNetworkView(
@@ -1512,17 +1495,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     .WithVersion(command.SegmentVersion)
                     .WithLastEventHash(command.GetHash())
                 ),
-            _gradeSeparatedJunctions,
-            SegmentReusableLaneAttributeIdentifiers,
-            SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers);
-    }
-
-    private ImmutableRoadNetworkView With(ModifyRoadSegmentOnNumberedRoad command)
-    {
-        return new ImmutableRoadNetworkView(
-            _nodes,
-            _segments,
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
@@ -1922,9 +1894,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     case AddRoadSegmentToNumberedRoad addRoadSegmentToNumberedRoad:
                         With(addRoadSegmentToNumberedRoad);
                         break;
-                    case ModifyRoadSegmentOnNumberedRoad modifyRoadSegmentOnNumberedRoad:
-                        With(modifyRoadSegmentOnNumberedRoad);
-                        break;
                     case RemoveRoadSegmentFromNumberedRoad removeRoadSegmentFromNumberedRoad:
                         With(removeRoadSegmentFromNumberedRoad);
                         break;
@@ -2095,9 +2064,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                         break;
                     case RoadSegmentAddedToNumberedRoad roadSegmentAddedToNumberedRoad:
                         Given(roadSegmentAddedToNumberedRoad);
-                        break;
-                    case RoadSegmentOnNumberedRoadModified roadSegmentOnNumberedRoadModified:
-                        Given(roadSegmentOnNumberedRoadModified);
                         break;
                     case RoadSegmentRemovedFromNumberedRoad roadSegmentRemovedFromNumberedRoad:
                         Given(roadSegmentRemovedFromNumberedRoad);
@@ -2511,11 +2477,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 .WithVersion(roadSegmentVersion ?? segment.Version));
         }
 
-        private void Given(RoadSegmentOnNumberedRoadModified @event)
-        {
-            // no action required
-        }
-
         private void Given(RoadSegmentRemovedFromNumberedRoad @event)
         {
             var roadSegmentId = new RoadSegmentId(@event.SegmentId);
@@ -2596,7 +2557,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 With(new AddRoadSegment(
                     command.Id,
                     command.Id,
-                     command.OriginalId ?? command.Id,
+                    command.OriginalId ?? command.Id,
                     command.Id,
                     command.StartNodeId,
                     command.EndNodeId,
@@ -2800,7 +2761,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         }
 
         private void With(AddRoadSegmentToEuropeanRoad command)
-    {
+        {
             _segments.TryReplace(command.SegmentId, segment => segment
                 .WithVersion(command.SegmentVersion)
                 .WithLastEventHash(command.GetHash()));
@@ -2821,22 +2782,17 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         }
 
         private void With(RemoveRoadSegmentFromNationalRoad command)
-    {
+        {
             _segments.TryReplace(command.SegmentId, segment => segment
                 .WithVersion(command.SegmentVersion)
                 .WithLastEventHash(command.GetHash()));
         }
 
         private void With(AddRoadSegmentToNumberedRoad command)
-    {
+        {
             _segments.TryReplace(command.SegmentId, segment => segment
                 .WithVersion(command.SegmentVersion)
                 .WithLastEventHash(command.GetHash()));
-        }
-
-        private void With(ModifyRoadSegmentOnNumberedRoad command)
-        {
-            // not supported/no action required
         }
 
         private void With(RemoveRoadSegmentFromNumberedRoad command)

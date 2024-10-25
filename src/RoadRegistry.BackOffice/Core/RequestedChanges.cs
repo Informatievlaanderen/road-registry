@@ -63,7 +63,7 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
             ? temporary
             : id;
     }
-    
+
     public RoadSegmentId TranslateToOriginalOrTemporaryOrId(RoadSegmentId id)
     {
         return _mapToOriginalSegmentIdentifiers.TryGetValue(id, out var originalId)
@@ -99,7 +99,7 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
     {
         return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out temporary);
     }
-    
+
     public bool TryTranslateToTemporary(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary)
     {
         return _mapToTemporaryGradeSeparatedJunctionIdentifiers.TryGetValue(id, out temporary);
@@ -219,11 +219,6 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
         return AppendChange(change);
     }
 
-    public RequestedChanges Append(ModifyRoadSegmentOnNumberedRoad change)
-    {
-        return AppendChange(change);
-    }
-
     public RequestedChanges Append(RemoveRoadSegmentFromNumberedRoad change)
     {
         return AppendChange(change);
@@ -321,7 +316,7 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
 
         return envelope;
     }
-    
+
     public static RequestedChanges Start(TransactionId transactionId)
     {
         return new RequestedChanges(
