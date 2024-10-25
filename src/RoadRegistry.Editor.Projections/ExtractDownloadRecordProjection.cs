@@ -9,6 +9,7 @@ using NodaTime.Text;
 using Schema;
 using Schema.Extracts;
 using System.Linq;
+using NodaTime;
 
 public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext>
 {
@@ -60,12 +61,6 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
                 .IncludeLocalToListAsync(q => q.Where(record => downloadIds.Contains(record.DownloadId)), ct);
 
             records.ForEach(record => record.IsInformative = true);
-        });
-
-        When<Envelope<RoadNetworkExtractChangesArchiveUploaded>>(async (context, envelope, ct) =>
-        {
-            var record = await context.ExtractDownloads.IncludeLocalSingleAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
-            record.IsInformative = true;
         });
 
         When<Envelope<RoadNetworkExtractDownloadBecameAvailable>>(async (context, envelope, ct) =>

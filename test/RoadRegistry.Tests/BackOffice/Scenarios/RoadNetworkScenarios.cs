@@ -14,9 +14,11 @@ using Newtonsoft.Json;
 using NodaTime.Text;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using TicketingService.Abstractions;
+using Xunit.Sdk;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
 using AddGradeSeparatedJunction = RoadRegistry.BackOffice.Messages.AddGradeSeparatedJunction;
@@ -106,6 +108,91 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
 
         TicketingMock
             .Verify(x => x.Complete(ticketId, It.IsAny<TicketResult>(), It.IsAny<CancellationToken>()));
+    }
+
+    [Fact]
+    public async Task WhenChangesAccepted_ThenExtractIsClosed()
+    {
+        var externalRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
+        var extractRequestId = ObjectProvider.Create<ExtractRequestId>();
+        var downloadId = ObjectProvider.Create<DownloadId>();
+        var currentInstant = Clock.GetCurrentInstant();
+
+        await Run(scenario => scenario
+            .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
+                new ImportedOrganization
+                {
+                    Code = TestData.ChangedByOrganization,
+                    Name = TestData.ChangedByOrganizationName,
+                    When = InstantPattern.ExtendedIso.Format(currentInstant)
+                }
+            )
+            .Given(RoadNetworkExtracts.ToStreamName(extractRequestId),
+                new RoadNetworkExtractGotRequestedV2
+                {
+                    RequestId = extractRequestId,
+                    ExternalRequestId = externalRequestId,
+                    DownloadId = downloadId,
+                    IsInformative = false,
+                    Description = ObjectProvider.Create<ExtractDescription>(),
+                    When = InstantPattern.ExtendedIso.Format(currentInstant)
+                }
+            )
+            .When(TheOperator.ChangesTheRoadNetwork(
+                TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization,
+                extractRequestId,
+                new RequestedChange
+                {
+                    AddRoadNode = TestData.AddStartNode1
+                },
+                new RequestedChange
+                {
+                    AddRoadNode = TestData.AddEndNode1
+                },
+                new RequestedChange
+                {
+                    AddRoadSegment = TestData.AddSegment1
+                }
+            ))
+            .Then([
+                new RecordedEvent(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+                {
+                    RequestId = TestData.RequestId,
+                    Reason = TestData.ReasonForChange,
+                    Operator = TestData.ChangedByOperator,
+                    OrganizationId = TestData.ChangedByOrganization,
+                    Organization = TestData.ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
+                    Changes =
+                    [
+                        new AcceptedChange
+                        {
+                            RoadNodeAdded = TestData.StartNode1Added,
+                            Problems = []
+                        },
+                        new AcceptedChange
+                        {
+                            RoadNodeAdded = TestData.EndNode1Added,
+                            Problems = []
+                        },
+                        new AcceptedChange
+                        {
+                            RoadSegmentAdded = TestData.Segment1Added,
+                            Problems = []
+                        }
+                    ],
+                    When = InstantPattern.ExtendedIso.Format(currentInstant)
+                }),
+                new RecordedEvent(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractClosed
+                {
+                    RequestId = extractRequestId,
+                    ExternalRequestId = externalRequestId,
+                    DownloadIds = [downloadId],
+                    Reason = RoadNetworkExtractCloseReason.UploadAccepted,
+                    DateRequested = currentInstant.ToDateTimeUtc(),
+                    When = InstantPattern.ExtendedIso.Format(currentInstant)
+                })
+            ]));
     }
 
     [Fact]

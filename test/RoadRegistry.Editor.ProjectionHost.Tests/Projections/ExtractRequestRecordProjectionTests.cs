@@ -204,7 +204,7 @@ public class ExtractRequestRecordProjectionTests
 
                 return new
                 {
-                    @event = @event,
+                    @event,
                     expected
                 };
             }).ToList();
@@ -262,7 +262,7 @@ public class ExtractRequestRecordProjectionTests
 
                 return new
                 {
-                    @event = @event,
+                    @event,
                     expected
                 };
             }).ToList();
@@ -315,12 +315,12 @@ public class ExtractRequestRecordProjectionTests
                     Description = knownRequested.expected.Description,
                     Contour = knownRequested.expected.Contour,
                     RequestedOn = knownRequested.expected.RequestedOn,
-                    IsInformative = true
+                    IsInformative = false
                 };
 
                 return new
                 {
-                    @event = @event,
+                    @event,
                     expected
                 };
             }).ToList();

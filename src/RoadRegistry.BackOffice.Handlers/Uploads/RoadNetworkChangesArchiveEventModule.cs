@@ -45,6 +45,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                 logger.LogInformation("Event handler started for {EventName}", message.Body.GetType().Name);
 
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
+                var extractRequestId = ExtractRequestId.FromString(message.Body.ExtractRequestId);
                 var requestId = ChangeRequestId.FromArchiveId(archiveId);
 
                 var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
@@ -71,6 +72,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
 
                         var command = new Command(new ChangeRoadNetwork
                             {
+                                ExtractRequestId = extractRequestId,
                                 RequestId = requestId,
                                 DownloadId = downloadId,
                                 Changes = requestedChanges.ToArray(),

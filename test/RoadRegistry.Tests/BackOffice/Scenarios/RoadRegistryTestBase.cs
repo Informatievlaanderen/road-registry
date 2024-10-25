@@ -59,6 +59,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
             new FakeRoadNetworkSnapshotReader(),
             Settings,
             Mapping,
+            EnrichEvent.WithTime(Clock),
             new NullLoggerFactory());
         Organizations = new Organizations(
             ScopedContainer.Resolve<EventSourcedEntityMap>(),

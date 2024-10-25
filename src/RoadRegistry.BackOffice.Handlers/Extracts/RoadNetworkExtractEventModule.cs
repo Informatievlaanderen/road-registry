@@ -63,7 +63,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                 var uploadId = new UploadId(message.Body.UploadId);
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
                 var downloadId = new DownloadId(message.Body.DownloadId);
-                var requestId = ChangeRequestId.FromUploadId(uploadId);
+                var changeRequestId = ChangeRequestId.FromUploadId(uploadId);
                 var extractRequestId = ExtractRequestId.FromString(message.Body.RequestId);
 
                 var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
@@ -86,7 +86,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
 
                         var command = new Command(new ChangeRoadNetwork
                             {
-                                RequestId = requestId,
+                                ExtractRequestId = extractRequestId,
+                                RequestId = changeRequestId,
                                 DownloadId = downloadId,
                                 Changes = requestedChanges.ToArray(),
                                 Reason = translatedChanges.Reason,
@@ -105,7 +106,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                     {
                         Description = message.Body.Description,
                         ExternalRequestId = message.Body.ExternalRequestId,
-                        RequestId = requestId,
+                        RequestId = changeRequestId,
                         DownloadId = downloadId,
                         UploadId = uploadId,
                         ArchiveId = archiveId,

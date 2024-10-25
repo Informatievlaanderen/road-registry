@@ -70,7 +70,7 @@ public static class CommandHandlerModulePipelines
         {
             var map = container.Resolve<EventSourcedEntityMap>();
 
-            var context = new RoadRegistryContext(map, store, snapshotReader, SerializerSettings, EventMapping, loggerFactory);
+            var context = new RoadRegistryContext(map, store, snapshotReader, SerializerSettings, EventMapping, enricher, loggerFactory);
             IRoadNetworkEventWriter roadNetworkEventWriter = new RoadNetworkEventWriter(store, enricher);
 
             await next(context);

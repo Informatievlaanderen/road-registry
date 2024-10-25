@@ -36,7 +36,7 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
         return instance;
     }
 
-    public void AcceptOrReject(ZipArchiveProblems problems, Guid? ticketId)
+    public void AcceptOrReject(ZipArchiveProblems problems, ExtractRequestId extractRequestId, Guid? ticketId)
     {
         if (!problems.HasError())
         {
@@ -44,6 +44,7 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
                 new RoadNetworkChangesArchiveAccepted
                 {
                     ArchiveId = Id,
+                    ExtractRequestId = extractRequestId,
                     Description = Description,
                     Problems = problems.Select(problem => problem.Translate()).ToArray(),
                     TicketId = ticketId

@@ -34,10 +34,11 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
         var logger = loggerFactory.CreateLogger<RoadNetworkExtractCommandModule>();
+        var eventEnricher = EnrichEvent.WithTime(clock);
 
         For<RequestRoadNetworkExtract>()
             .UseValidator(new RequestRoadNetworkExtractValidator())
-            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, eventEnricher)
             .Handle(async (context, message, _, ct) =>
             {
                 logger.LogInformation("Command handler started for {Command}", nameof(RequestRoadNetworkExtract));
@@ -53,7 +54,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
                 if (extract == null)
                 {
-                    extract = RoadNetworkExtract.Request(externalRequestId, downloadId, extractDescription, contour, isInformative);
+                    extract = RoadNetworkExtract.Request(eventEnricher, externalRequestId, downloadId, extractDescription, contour, isInformative);
                     context.RoadNetworkExtracts.Add(extract);
                 }
                 else
@@ -65,7 +66,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
             });
 
         For<DownloadRoadNetworkExtract>()
-            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, eventEnricher)
             .Handle(async (context, message, _, ct) =>
             {
                 logger.LogInformation("Command handler started for {Command}", nameof(DownloadRoadNetworkExtract));
@@ -79,7 +80,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
             });
 
         For<CloseRoadNetworkExtract>()
-            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, eventEnricher)
             .Handle(async (context, message, _, ct) =>
             {
                 logger.LogInformation("Command handler started for {Command}", nameof(CloseRoadNetworkExtract));
@@ -93,7 +94,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
             });
 
         For<AnnounceRoadNetworkExtractDownloadBecameAvailable>()
-            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, eventEnricher)
             .Handle(async (context, message, _, ct) =>
             {
                 logger.LogInformation("Command handler started for {Command}", nameof(AnnounceRoadNetworkExtractDownloadBecameAvailable));
@@ -111,7 +112,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
             });
 
         For<AnnounceRoadNetworkExtractDownloadTimeoutOccurred>()
-            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, eventEnricher)
             .Handle(async (context, message, _, ct) =>
             {
                 logger.LogInformation("Command handler started for {Command}", nameof(AnnounceRoadNetworkExtractDownloadTimeoutOccurred));
@@ -126,7 +127,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
             });
 
         For<UploadRoadNetworkExtractChangesArchive>()
-            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, eventEnricher)
             .Handle(async (context, command, _, ct) =>
             {
                 logger.LogInformation("Command handler started for {Command}", nameof(UploadRoadNetworkExtractChangesArchive));

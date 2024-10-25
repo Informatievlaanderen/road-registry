@@ -16,6 +16,7 @@ public class ChangeRoadNetwork : IMessage, IHasCommandProvenance
     public string OrganizationId { get; set; }
     public string Reason { get; set; }
     public string RequestId { get; set; }
+    public string ExtractRequestId { get; set; }
     public Guid? DownloadId { get; set; }
     public Guid? TicketId { get; set; }
 
@@ -38,6 +39,7 @@ public class ChangeRoadNetwork : IMessage, IHasCommandProvenance
     private IEnumerable<object> IdentityFields()
     {
         yield return RequestId;
+        yield return ExtractRequestId;
 
         foreach (var field in Provenance.GetIdentityFields())
         {

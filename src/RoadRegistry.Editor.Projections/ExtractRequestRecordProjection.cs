@@ -75,22 +75,13 @@ public class ExtractRequestRecordProjection : ConnectedProjection<EditorContext>
 
             await CloseExtractRequests(context, [envelope.Message.DownloadId.Value], ct);
         });
-
-        When<Envelope<RoadNetworkExtractChangesArchiveUploaded>>(async (context, envelope, ct) =>
-        {
-            await CloseExtractRequests(context, [envelope.Message.DownloadId], ct);
-        });
     }
 
     private async Task CloseExtractRequests(EditorContext editorContext, Guid[] downloadIds, CancellationToken cancellationToken)
     {
-        var records = editorContext.ExtractRequests.Local
-            .Where(record => downloadIds.Contains(record.DownloadId))
-            .ToList()
-            .Concat(await editorContext.ExtractRequests
-                .Where(record => downloadIds.Contains(record.DownloadId))
-                .ToListAsync(cancellationToken))
-            .ToList();
+        var records = await editorContext.ExtractRequests
+            .IncludeLocalToListAsync(q => q
+                .Where(record => downloadIds.Contains(record.DownloadId)), cancellationToken);
 
         records.ForEach(record => record.IsInformative = true);
     }
