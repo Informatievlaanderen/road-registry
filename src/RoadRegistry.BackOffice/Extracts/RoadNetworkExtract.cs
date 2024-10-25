@@ -6,17 +6,19 @@ using System.Linq;
 using Framework;
 using Messages;
 using NetTopologySuite.Geometries;
+using NodaTime;
 using NodaTime.Text;
 
 public class RoadNetworkExtract : EventSourcedEntity
 {
-    public static readonly Func<RoadNetworkExtract> Factory = () => new RoadNetworkExtract();
+    public static readonly Func<EventEnricher, RoadNetworkExtract> Factory = eventEnricher => new RoadNetworkExtract(eventEnricher);
     private readonly HashSet<DownloadId> _announcedDownloads;
     private readonly HashSet<UploadId> _knownUploads;
     private readonly List<DownloadId> _requestedDownloads;
     private ExternalExtractRequestId _externalExtractRequestId;
 
-    private RoadNetworkExtract()
+    private RoadNetworkExtract(EventEnricher eventEnricher)
+        : base(eventEnricher)
     {
         _requestedDownloads = new List<DownloadId>();
         _announcedDownloads = new HashSet<DownloadId>();
@@ -29,7 +31,7 @@ public class RoadNetworkExtract : EventSourcedEntity
             Id = ExtractRequestId.FromString(e.RequestId);
             Description = new ExtractDescription(e.Description ?? string.Empty);
             IsInformative = e.IsInformative;
-            DateRequested = InstantPattern.ExtendedIso.Parse(e.When).Value.ToDateTimeUtc();
+            DateRequested = DateTime.UtcNow;
             _externalExtractRequestId = new ExternalExtractRequestId(e.ExternalRequestId);
         });
         On<RoadNetworkExtractGotRequestedV2>(e =>
@@ -110,13 +112,14 @@ public class RoadNetworkExtract : EventSourcedEntity
     }
 
     public static RoadNetworkExtract Request(
+        EventEnricher eventEnricher,
         ExternalExtractRequestId externalExtractRequestId,
         DownloadId downloadId,
         ExtractDescription extractDescription,
         IPolygonal contour,
         bool isInformative)
     {
-        var instance = Factory();
+        var instance = Factory(eventEnricher);
         instance.Apply(new RoadNetworkExtractGotRequestedV2
         {
             Description = extractDescription,

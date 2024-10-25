@@ -11,5 +11,4 @@ public interface IRoadNetworkExtractGotRequestedMessage : IMessage
     string ExternalRequestId { get; set; }
     string RequestId { get; set; }
     bool IsInformative { get; set; }
-    string When { get; set; }
 }

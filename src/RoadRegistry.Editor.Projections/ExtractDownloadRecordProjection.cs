@@ -9,6 +9,7 @@ using NodaTime.Text;
 using Schema;
 using Schema.Extracts;
 using System.Linq;
+using NodaTime;
 
 public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext>
 {

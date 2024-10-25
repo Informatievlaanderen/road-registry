@@ -8,6 +8,8 @@ namespace RoadRegistry.Tests.BackOffice
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging.Abstractions;
     using Newtonsoft.Json;
+    using NodaTime;
+    using NodaTime.Testing;
     using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Core;
     using RoadRegistry.BackOffice.FeatureToggles;
@@ -205,6 +207,7 @@ namespace RoadRegistry.Tests.BackOffice
                 new FakeRoadNetworkSnapshotReader(),
                 Settings,
                 Mapping,
+                EnrichEvent.WithTime(new FakeClock(NodaConstants.UnixEpoch)),
                 new NullLoggerFactory());
 
             return new OrganizationCache(
