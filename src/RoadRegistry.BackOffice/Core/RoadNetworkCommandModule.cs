@@ -154,15 +154,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
             if (!failedChangedMessages.Any())
             {
-                //TODO-rik close extract: wat is de geldige requestid?
-                /* GRB flow extract request:
-                var externalRequestId = new ExternalExtractRequestId(message.Body.ExternalRequestId);
-                var extractRequestId = ExtractRequestId.FromExternalRequestId(externalRequestId);
-
-                GRB upload:
-                var extractRequestId = ExtractRequestId.FromString(command.Body.RequestId)
-                */
-
                 var extractRequestId = ExtractRequestId.FromString(command.Body.ExtractRequestId);
                 var extract = await context.RoadNetworkExtracts.Get(extractRequestId, cancellationToken);
                 extract.Close(RoadNetworkExtractCloseReason.UploadAccepted);

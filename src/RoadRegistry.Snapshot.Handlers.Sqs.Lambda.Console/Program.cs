@@ -55,17 +55,16 @@ class Program
         {
             ContractResolver = new CamelCaseExceptDictionaryKeysResolver()
         };
+        var sqsEventAsJObject = JsonConvert.DeserializeObject<JObject>(JsonConvert.SerializeObject(sqsEvent, lambdaSerializer), lambdaSerializer);
 
-        await function.Handler(JsonConvert.DeserializeObject<JObject>(JsonConvert.SerializeObject(sqsEvent, lambdaSerializer), lambdaSerializer),
-            new TestLambdaContext());
+        await function.Handler(sqsEventAsJObject, new TestLambdaContext());
     }
 
-    class CamelCaseExceptDictionaryKeysResolver : CamelCasePropertyNamesContractResolver
+    private sealed class CamelCaseExceptDictionaryKeysResolver : CamelCasePropertyNamesContractResolver
     {
         protected override JsonDictionaryContract CreateDictionaryContract(Type objectType)
         {
             var contract = base.CreateDictionaryContract(objectType);
-
             contract.DictionaryKeyResolver = propertyName => propertyName;
 
             return contract;
