@@ -62,9 +62,6 @@ public class RoadSegmentNumberedRoadAttributeRecordProjection : ConnectedProject
                     case RoadSegmentAddedToNumberedRoad numberedRoad:
                         await RoadSegmentAdded(manager, encoding, context, envelope, numberedRoad);
                         break;
-                    case RoadSegmentOnNumberedRoadModified numberedRoad:
-                        await RoadSegmentModified(manager, encoding, context, envelope, numberedRoad, token);
-                        break;
                     case RoadSegmentRemovedFromNumberedRoad numberedRoad:
                         await RoadSegmentRemovedFromNumberedRoad(context, numberedRoad, token);
                         break;
@@ -100,34 +97,6 @@ public class RoadSegmentNumberedRoadAttributeRecordProjection : ConnectedProject
                 LBLBGNORG = { Value = envelope.Message.Organization }
             }.ToBytes(manager, encoding)
         });
-    }
-
-    private static async Task RoadSegmentModified(RecyclableMemoryStreamManager manager,
-        Encoding encoding,
-        ProductContext context,
-        Envelope<RoadNetworkChangesAccepted> envelope,
-        RoadSegmentOnNumberedRoadModified numberedRoad,
-        CancellationToken token)
-    {
-        var directionTranslation =
-            RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
-        var roadSegment =
-            await context.RoadSegmentNumberedRoadAttributes.FindAsync(numberedRoad.AttributeId, cancellationToken: token).ConfigureAwait(false);
-
-        roadSegment.Id = numberedRoad.AttributeId;
-        roadSegment.RoadSegmentId = numberedRoad.SegmentId;
-        roadSegment.DbaseRecord = new RoadSegmentNumberedRoadAttributeDbaseRecord
-        {
-            GW_OIDN = { Value = numberedRoad.AttributeId },
-            WS_OIDN = { Value = numberedRoad.SegmentId },
-            IDENT8 = { Value = numberedRoad.Number },
-            RICHTING = { Value = directionTranslation.Identifier },
-            LBLRICHT = { Value = directionTranslation.Name },
-            VOLGNUMMER = { Value = numberedRoad.Ordinal },
-            BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
-            BEGINORG = { Value = envelope.Message.OrganizationId },
-            LBLBGNORG = { Value = envelope.Message.Organization }
-        }.ToBytes(manager, encoding);
     }
 
     private static async Task RoadSegmentRemoved(ProductContext context, RoadSegmentRemoved roadSegmentRemoved, CancellationToken token)

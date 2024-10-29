@@ -122,11 +122,6 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
         return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
     }
 
-    public TranslatedChanges AppendChange(ModifyRoadSegmentOnNumberedRoad change)
-    {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
-    }
-
     public TranslatedChanges AppendChange(RemoveRoadSegmentFromNumberedRoad change)
     {
         return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);

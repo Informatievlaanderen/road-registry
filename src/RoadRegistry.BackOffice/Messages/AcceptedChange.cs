@@ -25,7 +25,6 @@ public class AcceptedChange
     public RoadSegmentAttributesModified RoadSegmentAttributesModified { get; set; }
     public RoadSegmentGeometryModified RoadSegmentGeometryModified { get; set; }
 
-    public RoadSegmentOnNumberedRoadModified RoadSegmentOnNumberedRoadModified { get; set; }
     public RoadSegmentRemoved RoadSegmentRemoved { get; set; }
     public OutlinedRoadSegmentRemoved OutlinedRoadSegmentRemoved { get; set; }
     public RoadSegmentRemovedFromEuropeanRoad RoadSegmentRemovedFromEuropeanRoad { get; set; }

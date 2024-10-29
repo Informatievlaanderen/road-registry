@@ -41,12 +41,6 @@ public class TranslatedChangeEqualityComparer : IEqualityComparer<ITranslatedCha
                 )
             },
             {
-                (typeof(ModifyRoadSegmentOnNumberedRoad), typeof(ModifyRoadSegmentOnNumberedRoad)),
-                new TranslatedChangeEqualityComparer<ModifyRoadSegmentOnNumberedRoad>(
-                    new ModifyRoadSegmentOnNumberedRoadEqualityComparer()
-                )
-            },
-            {
                 (typeof(RemoveRoadSegmentFromNumberedRoad), typeof(RemoveRoadSegmentFromNumberedRoad)),
                 new TranslatedChangeEqualityComparer<RemoveRoadSegmentFromNumberedRoad>(
                     new RemoveRoadSegmentFromNumberedRoadEqualityComparer(ignoreRecordNumber)

@@ -66,9 +66,6 @@ public static class RoadNetworkChangeAcceptedExtensions
                 case RoadSegmentAddedToNumberedRoad roadSegmentAddedToNumberedRoad:
                     acceptedChange.RoadSegmentAddedToNumberedRoad = roadSegmentAddedToNumberedRoad;
                     break;
-                case RoadSegmentOnNumberedRoadModified roadSegmentOnNumberedRoadModified:
-                    acceptedChange.RoadSegmentOnNumberedRoadModified = roadSegmentOnNumberedRoadModified;
-                    break;
                 case RoadSegmentRemovedFromNumberedRoad roadSegmentRemovedFromNumberedRoad:
                     acceptedChange.RoadSegmentRemovedFromNumberedRoad = roadSegmentRemovedFromNumberedRoad;
                     break;

@@ -19,7 +19,6 @@ public static class RejectedChange
         AddRoadSegmentToNationalRoad m => $"Voeg wegsegment {m.SegmentId} toe aan nationale weg {m.Number}.",
         RemoveRoadSegmentFromNationalRoad m => $"Verwijder wegsegment {m.SegmentId} van nationale weg {m.Number}.",
         AddRoadSegmentToNumberedRoad m => $"Voeg wegsegment {m.SegmentId} toe aan genummerde weg {m.Number}.",
-        ModifyRoadSegmentOnNumberedRoad m => $"Wijzig wegsegment {m.SegmentId} op genummerde weg {m.Number}.",
         RemoveRoadSegmentFromNumberedRoad m => $"Verwijder wegsegment {m.SegmentId} van genummerde weg {m.Number}.",
         AddGradeSeparatedJunction m => $"Voeg ongelijkgrondse kruising {m.TemporaryId} toe.",
         ModifyGradeSeparatedJunction m => $"Wijzig ongelijkgrondse kruising {m.Id}.",

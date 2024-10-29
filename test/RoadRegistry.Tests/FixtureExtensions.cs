@@ -924,24 +924,6 @@ public static class Customizations
         );
     }
 
-    public static void CustomizeRoadSegmentOnNumberedRoadModified(this IFixture fixture)
-    {
-        fixture.Customize<RoadSegmentOnNumberedRoadModified>(customization =>
-            customization
-                .FromFactory(generator =>
-                    new RoadSegmentOnNumberedRoadModified
-                    {
-                        AttributeId = fixture.Create<AttributeId>(),
-                        SegmentId = fixture.Create<RoadSegmentId>(),
-                        Number = fixture.Create<NumberedRoadNumber>(),
-                        Direction = fixture.Create<RoadSegmentNumberedRoadDirection>(),
-                        Ordinal = fixture.Create<RoadSegmentNumberedRoadOrdinal>()
-                    }
-                )
-                .OmitAutoProperties()
-        );
-    }
-
     public static void CustomizeRoadSegmentRemoved(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentRemoved>(customization =>

@@ -23,7 +23,6 @@ public static class AcceptedChange
                 RoadSegmentAddedToNationalRoad m => $"Wegsegment {m.SegmentId} toegevoegd aan nationale weg {m.Number}.",
                 RoadSegmentRemovedFromNationalRoad m => $"Wegsegment {m.SegmentId} verwijderd van nationale weg {m.Number}.",
                 RoadSegmentAddedToNumberedRoad m => $"Wegsegment {m.SegmentId} toegevoegd aan genummerde weg {m.Number}.",
-                RoadSegmentOnNumberedRoadModified m => $"Wegsegment {m.SegmentId} gewijzigd op genummerde weg {m.Number}.",
                 RoadSegmentRemovedFromNumberedRoad m => $"Wegsegment {m.SegmentId} verwijderd van genummerde weg {m.Number}.",
                 GradeSeparatedJunctionAdded m => $"Ongelijkgrondse kruising {m.TemporaryId} toegevoegd met id {m.Id}.",
                 GradeSeparatedJunctionModified m => $"Ongelijkgrondse kruising {m.Id} gewijzigd.",

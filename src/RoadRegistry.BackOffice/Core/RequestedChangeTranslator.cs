@@ -81,9 +81,6 @@ internal class RequestedChangeTranslator
                 case Messages.AddRoadSegmentToNumberedRoad command:
                     translated = translated.Append(await Translate(command, translated, ct));
                     break;
-                case Messages.ModifyRoadSegmentOnNumberedRoad command:
-                    translated = translated.Append(Translate(command)); //TODO-rik remove? Obsolete, uploads variant is no longer produced and doesn't exist in any event
-                    break;
                 case Messages.RemoveRoadSegmentFromNumberedRoad command:
                     translated = translated.Append(await Translate(command, translated, ct));
                     break;
@@ -613,23 +610,6 @@ internal class RequestedChangeTranslator
             direction,
             ordinal,
             version
-        );
-    }
-
-    private ModifyRoadSegmentOnNumberedRoad Translate(Messages.ModifyRoadSegmentOnNumberedRoad command)
-    {
-        var permanent = new AttributeId(command.AttributeId);
-        var segmentId = new RoadSegmentId(command.SegmentId);
-        var number = NumberedRoadNumber.Parse(command.Number);
-        var direction = RoadSegmentNumberedRoadDirection.Parse(command.Direction);
-        var ordinal = new RoadSegmentNumberedRoadOrdinal(command.Ordinal);
-        return new ModifyRoadSegmentOnNumberedRoad
-        (
-            permanent,
-            segmentId,
-            number,
-            direction,
-            ordinal
         );
     }
 
