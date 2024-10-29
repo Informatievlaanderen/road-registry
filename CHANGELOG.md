@@ -1,3 +1,10 @@
+## [4.13.2](https://github.com/informatievlaanderen/road-registry/compare/v4.13.1...v4.13.2) (2024-10-29)
+
+
+### Bug Fixes
+
+* GAWR-6651 close extract on RoadNetworkChangesAccepted and not when RoadNet… ([#1564](https://github.com/informatievlaanderen/road-registry/issues/1564)) ([4731b4c](https://github.com/informatievlaanderen/road-registry/commit/4731b4cc4a4010bd5edf98c3053f09df3142ab93))
+
 ## [4.13.1](https://github.com/informatievlaanderen/road-registry/compare/v4.13.0...v4.13.1) (2024-10-24)
 
 
