@@ -249,8 +249,8 @@ jobs:
         ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
         SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
-        INSTANCE_ID: ${{ github.event.inputs.environment == 'tst' && vars.AWS_BASTION_ID_TST || github.event.inputs.environment == 'stg' && vars.AWS_BASTION_ID_STG  || vars.AWS_BASTION_ID_PRD }}
-        ACCOUNT_ID: ${{ github.event.inputs.environment == 'tst' && vars.AWS_ACCOUNT_ID_TST || github.event.inputs.environment == 'stg' && vars.AWS_ACCOUNT_ID_STG  || vars.AWS_ACCOUNT_ID_PRD }}
+        INSTANCE_ID: ${{ github.event.inputs.environment == 'tst' && secrets.AWS_BASTION_ID_TST || github.event.inputs.environment == 'stg' && secrets.AWS_BASTION_ID_STG  || secrets.AWS_BASTION_ID_PRD }}
+        ACCOUNT_ID: ${{ github.event.inputs.environment == 'tst' && secrets.AWS_ACCOUNT_ID_TST || github.event.inputs.environment == 'stg' && secrets.AWS_ACCOUNT_ID_STG  || secrets.AWS_ACCOUNT_ID_PRD }}
         BACKOFFICE_API_URL: ${{ github.event.inputs.environment == 'tst' && vars.BACKOFFICE_API_URL_TST || github.event.inputs.environment == 'stg' && vars.BACKOFFICE_API_URL_STG  || vars.BACKOFFICE_API_URL_PRD }}
         ROAD_API_KEY: ${{ secrets.HEALTHCHECK_APIKEY }}
 
