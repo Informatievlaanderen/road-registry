@@ -187,9 +187,9 @@ jobs:
         FUNCTION_SNAPSHOT: ${{ github.event.inputs.environment == 'tst' && 'rr-sqssnapshotfunction' || github.event.inputs.environment == 'stg' && 'rr-sqssnapshotfunction' || github.event.inputs.environment == 'prd' && 'rr-sqssnapshotfunction' || '' }}
 
   system_healthcheck:
-    if: github.repository_owner == 'Informatievlaanderen'
     needs: [ deploy_lambda, deploy_lambda_prd ]
-    name: Sytem healthcheck
+    if: success() && github.repository_owner == 'Informatievlaanderen'
+    name: System healthcheck
     runs-on: ubuntu-latest
 
     steps:
