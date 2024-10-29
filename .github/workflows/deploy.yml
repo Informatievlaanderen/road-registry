@@ -188,7 +188,7 @@ jobs:
 
   system_healthcheck:
     needs: [ deploy_lambda, deploy_lambda_prd ]
-    if: ${{ always() && github.repository_owner == 'Informatievlaanderen' && needs.deploy_lambda.result != 'failure' && needs.deploy_lambda_prd.result != 'failure' }}
+    if: ${{ github.repository_owner == 'Informatievlaanderen' && always() && (needs.deploy_lambda.result == 'success' || needs.deploy_lambda.result == 'skipped') && (needs.deploy_lambda_prd.result == 'success' || needs.deploy_lambda_prd.result == 'skipped') }}
     name: System healthcheck
     runs-on: ubuntu-latest
 
@@ -256,7 +256,7 @@ jobs:
 
   deploy_finish_slack:
     needs: [system_healthcheck]
-    if: ${{ always() && github.repository_owner == 'Informatievlaanderen' && needs.system_healthcheck.result == 'success' }}
+    if: ${{ github.repository_owner == 'Informatievlaanderen' && always() && needs.system_healthcheck.result == 'success' }}
     name: Deploy finished
     runs-on: ubuntu-latest
 
