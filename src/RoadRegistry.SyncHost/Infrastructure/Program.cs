@@ -14,6 +14,7 @@ using Sync.OrganizationRegistry;
 using Sync.StreetNameRegistry;
 using System.Threading;
 using System.Threading.Tasks;
+using Sync.MunicipalityRegistry;
 
 public class Program
 {
@@ -37,16 +38,20 @@ public class Program
                     .AddEditorContext()
                     .RegisterOptions<KafkaOptions>()
 
-                    .AddOrganizationConsumerServices()
-                    .AddHostedService<OrganizationConsumer>()
+                    //TODO-rik temp disable
+                    // .AddOrganizationConsumerServices()
+                    // .AddHostedService<OrganizationConsumer>()
+                    //
+                    // .AddStreetNameConsumerServices()
+                    // .AddHostedService<StreetNameEventConsumer>()
+                    // .AddHostedService<StreetNameSnapshotConsumer>()
+                    //
+                    // .AddStreetNameProjectionServices()
+                    // .AddHostedService<StreetNameEventProjectionContextEventProcessor>()
+                    // .AddHostedService<StreetNameSnapshotProjectionContextEventProcessor>()
 
-                    .AddStreetNameConsumerServices()
-                    .AddHostedService<StreetNameEventConsumer>()
-                    .AddHostedService<StreetNameSnapshotConsumer>()
-
-                    .AddStreetNameProjectionServices()
-                    .AddHostedService<StreetNameEventProjectionContextEventProcessor>()
-                    .AddHostedService<StreetNameSnapshotProjectionContextEventProcessor>()
+                    .AddMunicipalityConsumerServices()
+                    .AddHostedService<MunicipalityEventConsumer>()
 
                     .AddSingleton(new IDbContextMigratorFactory[]
                     {
@@ -54,7 +59,8 @@ public class Program
                         new StreetNameEventConsumerContextMigrationFactory(),
                         new StreetNameEventProjectionContextMigrationFactory(),
                         new StreetNameSnapshotConsumerContextMigrationFactory(),
-                        new StreetNameSnapshotProjectionContextMigrationFactory()
+                        new StreetNameSnapshotProjectionContextMigrationFactory(),
+                        new MunicipalityEventConsumerContextMigrationFactory()
                     })
                     ;
             })

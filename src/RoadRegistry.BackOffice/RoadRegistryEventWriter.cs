@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.Generators.Guid;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Framework;
+using Messages;
 using Newtonsoft.Json;
 using SqlStreamStore.Streams;
 using SqlStreamStore;
@@ -19,9 +20,17 @@ public abstract class RoadRegistryEventWriter
     protected static readonly JsonSerializerSettings SerializerSettings =
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
+    private static readonly EventMapping EventMapping =
+        new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+
     private readonly EventEnricher _enricher;
     private readonly IStreamStore _store;
     private readonly EventMapping _eventMapping;
+
+    protected RoadRegistryEventWriter(IStreamStore store, EventEnricher enricher)
+        : this(store, enricher, EventMapping)
+    {
+    }
 
     protected RoadRegistryEventWriter(IStreamStore store, EventEnricher enricher, EventMapping eventMapping)
     {

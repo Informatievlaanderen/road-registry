@@ -23,6 +23,7 @@ public static class WellKnownSchemas
     public const string StreetNameEventConsumerSchema = "RoadRegistryStreetNameEventConsumer";
     public const string StreetNameSnapshotConsumerSchema = "RoadRegistryStreetNameSnapshotConsumer";
     public const string OrganizationConsumerSchema = "RoadRegistryOrganizationConsumer";
+    public const string MunicipalityEventConsumerSchema = "RoadRegistryMunicipalityEventConsumer";
 
     public const string RoadNodeProducerSnapshotMetaSchema = "RoadRegistryRoadNodeProducerSnapshotMeta";
     public const string RoadNodeProducerSnapshotSchema = "RoadRegistryRoadNodeProducerSnapshot";
@@ -50,6 +51,7 @@ public static class MigrationTables
     public const string StreetNameEventConsumer = "__EFMigrationsHistoryStreetNameEventConsumer";
     public const string StreetNameSnapshotConsumer = "__EFMigrationsHistoryStreetNameSnapshotConsumer";
     public const string OrganizationConsumer = "__EFMigrationsHistoryOrganizationConsumer";
+    public const string MunicipalityEventConsumer = "__EFMigrationsHistoryMunicipalityEventConsumer";
 
     public const string RoadNodeProducerSnapshot = "__EFMigrationsHistoryRoadNodeProducerSnapshot";
     public const string RoadSegmentProducerSnapshot = "__EFMigrationsHistoryRoadSegmentProducerSnapshot";
