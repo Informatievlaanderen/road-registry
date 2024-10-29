@@ -188,7 +188,7 @@ jobs:
 
   system_healthcheck:
     needs: [ deploy_lambda, deploy_lambda_prd ]
-    if: success() && github.repository_owner == 'Informatievlaanderen'
+    if: ${{ always() && github.repository_owner == 'Informatievlaanderen' && needs.deploy_lambda.result != 'failure' && needs.deploy_lambda_prd.result != 'failure' }}
     name: System healthcheck
     runs-on: ubuntu-latest
 
@@ -255,8 +255,8 @@ jobs:
         ROAD_API_KEY: ${{ secrets.HEALTHCHECK_APIKEY }}
 
   deploy_finish_slack:
-    if: github.repository_owner == 'Informatievlaanderen'
     needs: [system_healthcheck]
+    if: ${{ always() && github.repository_owner == 'Informatievlaanderen' && needs.system_healthcheck.result == 'success' }}
     name: Deploy finished
     runs-on: ubuntu-latest
 
@@ -276,10 +276,10 @@ jobs:
         REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
 
   deployment_notify_failure:
+    needs: [ system_healthcheck ]
     if: ${{ github.repository_owner == 'Informatievlaanderen' && failure() }}
     name: Notify deployment failed
     runs-on: ubuntu-latest
-    needs: [ system_healthcheck ]
     steps:
       - name: Notify deployment failed
         id: slack
