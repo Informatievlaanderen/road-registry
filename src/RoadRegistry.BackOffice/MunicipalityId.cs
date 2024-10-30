@@ -2,19 +2,18 @@ namespace RoadRegistry.BackOffice;
 
 using System;
 using Extensions;
-using Framework;
 
-public readonly struct MunicipalityNisCode
+public readonly struct MunicipalityId
 {
     private readonly string _value;
 
-    public MunicipalityNisCode(string value)
+    public MunicipalityId(string value)
     {
         ArgumentNullException.ThrowIfNull(value);
 
         if (!AcceptsValue(value))
         {
-            throw new ArgumentException("The value is not a well known nis-code", nameof(value));
+            throw new ArgumentException("The value is not a well known municipality identifier", nameof(value));
         }
 
         _value = value;
@@ -22,7 +21,7 @@ public readonly struct MunicipalityNisCode
 
     public static bool AcceptsValue(string value)
     {
-        return !string.IsNullOrEmpty(value) && !value.ContainsWhitespace() && value.Length == 5;
+        return !string.IsNullOrEmpty(value) && !value.ContainsWhitespace();
     }
 
     public override string ToString()
@@ -30,7 +29,7 @@ public readonly struct MunicipalityNisCode
         return _value;
     }
 
-    public static implicit operator string(MunicipalityNisCode instance)
+    public static implicit operator string(MunicipalityId instance)
     {
         return instance.ToString();
     }

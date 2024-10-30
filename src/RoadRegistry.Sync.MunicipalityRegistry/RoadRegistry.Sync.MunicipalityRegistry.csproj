@@ -4,7 +4,7 @@
   <PropertyGroup>
     <RootNamespace>RoadRegistry.Sync.MunicipalityRegistry</RootNamespace>
     <Platforms>AnyCPU;x64;x86</Platforms>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>

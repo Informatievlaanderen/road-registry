@@ -1,11 +1,11 @@
-namespace RoadRegistry.SyncHost;
+namespace RoadRegistry.SyncHost.StreetName;
 
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using Hosts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Hosts;
+using RoadRegistry.Sync.StreetNameRegistry;
 using SqlStreamStore;
-using Sync.StreetNameRegistry;
 
 public class StreetNameSnapshotProjectionContextEventProcessor : DbContextEventProcessor<StreetNameSnapshotProjectionContext>
 {

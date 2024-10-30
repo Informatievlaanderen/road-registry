@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using NetTopologySuite.Geometries;
 
 #nullable disable
 
@@ -13,6 +14,22 @@ namespace RoadRegistry.Sync.MunicipalityRegistry.Migrations
         {
             migrationBuilder.EnsureSchema(
                 name: "RoadRegistryMunicipalityEventConsumer");
+
+            migrationBuilder.CreateTable(
+                name: "Municipalities",
+                schema: "RoadRegistryMunicipalityEventConsumer",
+                columns: table => new
+                {
+                    MunicipalityId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    NisCode = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Geometry = table.Column<Geometry>(type: "Geometry", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Municipalities", x => x.MunicipalityId)
+                        .Annotation("SqlServer:Clustered", false);
+                });
 
             migrationBuilder.CreateTable(
                 name: "ProcessedMessages",
@@ -29,6 +46,13 @@ namespace RoadRegistry.Sync.MunicipalityRegistry.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Municipalities_NisCode",
+                schema: "RoadRegistryMunicipalityEventConsumer",
+                table: "Municipalities",
+                column: "NisCode")
+                .Annotation("SqlServer:Clustered", true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ProcessedMessages_DateProcessed",
                 schema: "RoadRegistryMunicipalityEventConsumer",
                 table: "ProcessedMessages",
@@ -38,6 +62,10 @@ namespace RoadRegistry.Sync.MunicipalityRegistry.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Municipalities",
+                schema: "RoadRegistryMunicipalityEventConsumer");
+
             migrationBuilder.DropTable(
                 name: "ProcessedMessages",
                 schema: "RoadRegistryMunicipalityEventConsumer");

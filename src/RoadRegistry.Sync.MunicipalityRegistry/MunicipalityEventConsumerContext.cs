@@ -4,13 +4,17 @@ using System;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Models;
 
 public class MunicipalityEventConsumerContext : ConsumerDbContext<MunicipalityEventConsumerContext>
 {
     private const string ConsumerSchema = WellKnownSchemas.MunicipalityEventConsumerSchema;
+
+    public DbSet<Municipality> Municipalities => Set<Municipality>();
 
     public MunicipalityEventConsumerContext()
     {
@@ -32,6 +36,7 @@ public class MunicipalityEventConsumerContext : ConsumerDbContext<MunicipalityEv
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfiguration(new ProcessedMessageConfiguration(ConsumerSchema));
+        modelBuilder.ApplyConfiguration(new MunicipalityConfiguration());
     }
 
     public static void ConfigureOptions(IServiceProvider sp, DbContextOptionsBuilder options)
@@ -42,6 +47,7 @@ public class MunicipalityEventConsumerContext : ConsumerDbContext<MunicipalityEv
                 sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.MunicipalityEventConsumer),
                 sqlOptions => sqlOptions
                     .EnableRetryOnFailure()
+                    .UseNetTopologySuite()
                     .MigrationsHistoryTable(MigrationTables.MunicipalityEventConsumer, WellKnownSchemas.MunicipalityEventConsumerSchema));
     }
 }
@@ -60,5 +66,12 @@ public class MunicipalityEventConsumerContextMigrationFactory : DbContextMigrato
     protected override MunicipalityEventConsumerContext CreateContext(DbContextOptions<MunicipalityEventConsumerContext> migrationContextOptions)
     {
         return new MunicipalityEventConsumerContext(migrationContextOptions);
+    }
+
+    protected override void ConfigureSqlServerOptions(SqlServerDbContextOptionsBuilder sqlServerOptions)
+    {
+        base.ConfigureSqlServerOptions(sqlServerOptions);
+
+        sqlServerOptions.UseNetTopologySuite();
     }
 }

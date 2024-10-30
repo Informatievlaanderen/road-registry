@@ -1,5 +1,7 @@
 namespace RoadRegistry.SyncHost.Infrastructure;
 
+using System.Threading;
+using System.Threading.Tasks;
 using Autofac;
 using BackOffice;
 using BackOffice.Extensions;
@@ -10,11 +12,12 @@ using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Modules;
+using Municipality;
+using Organization;
+using StreetName;
+using Sync.MunicipalityRegistry;
 using Sync.OrganizationRegistry;
 using Sync.StreetNameRegistry;
-using System.Threading;
-using System.Threading.Tasks;
-using Sync.MunicipalityRegistry;
 
 public class Program
 {
@@ -38,17 +41,16 @@ public class Program
                     .AddEditorContext()
                     .RegisterOptions<KafkaOptions>()
 
-                    //TODO-rik temp disable
-                    // .AddOrganizationConsumerServices()
-                    // .AddHostedService<OrganizationConsumer>()
-                    //
-                    // .AddStreetNameConsumerServices()
-                    // .AddHostedService<StreetNameEventConsumer>()
-                    // .AddHostedService<StreetNameSnapshotConsumer>()
-                    //
-                    // .AddStreetNameProjectionServices()
-                    // .AddHostedService<StreetNameEventProjectionContextEventProcessor>()
-                    // .AddHostedService<StreetNameSnapshotProjectionContextEventProcessor>()
+                    .AddOrganizationConsumerServices()
+                    .AddHostedService<OrganizationConsumer>()
+
+                    .AddStreetNameConsumerServices()
+                    .AddHostedService<StreetNameEventConsumer>()
+                    .AddHostedService<StreetNameSnapshotConsumer>()
+
+                    .AddStreetNameProjectionServices()
+                    .AddHostedService<StreetNameEventProjectionContextEventProcessor>()
+                    .AddHostedService<StreetNameSnapshotProjectionContextEventProcessor>()
 
                     .AddMunicipalityConsumerServices()
                     .AddHostedService<MunicipalityEventConsumer>()

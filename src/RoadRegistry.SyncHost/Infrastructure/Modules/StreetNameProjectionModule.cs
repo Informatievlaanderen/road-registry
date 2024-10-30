@@ -4,6 +4,7 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Hosts.Infrastructure.Extensions;
     using Microsoft.Extensions.DependencyInjection;
+    using StreetName;
     using Sync.StreetNameRegistry;
 
     public static class StreetNameProjectionModule

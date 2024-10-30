@@ -20,6 +20,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
     using SqlStreamStore;
     using SqlStreamStore.Streams;
     using Sync.OrganizationRegistry;
+    using SyncHost.Organization;
     using Organization = Sync.OrganizationRegistry.Models.Organization;
 
     public class OrganizationConsumerTests

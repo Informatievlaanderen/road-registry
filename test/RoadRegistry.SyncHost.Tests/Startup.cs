@@ -7,6 +7,7 @@ using Infrastructure.Modules;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Sync.MunicipalityRegistry;
 using Sync.StreetNameRegistry;
 
 public class Startup : TestStartup
@@ -27,6 +28,9 @@ public class Startup : TestStartup
             .AddStreetNameProjectionServices()
             .AddInMemoryDbContextOptionsBuilder<StreetNameSnapshotProjectionContext>()
             .AddInMemoryDbContextOptionsBuilder<StreetNameEventProjectionContext>()
+
+            .AddMunicipalityConsumerServices()
+            .AddInMemoryDbContextOptionsBuilder<MunicipalityEventConsumerContext>()
             ;
     }
 }

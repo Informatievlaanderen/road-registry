@@ -85,6 +85,15 @@ public abstract class EventSourcedEntityRepository<TEntity, TIdentifier>
         return ConvertEntity(entity);
     }
 
+    public TEntity AddNew(TIdentifier id)
+    {
+        var entity = _entityFactory();
+        var stream = _getStreamName(id);
+        _map.Attach(new EventSourcedEntityMapEntry(entity, stream, ExpectedVersion.NoStream));
+
+        return entity;
+    }
+
     protected virtual TEntity ConvertEntity(TEntity entity)
     {
         return entity;

@@ -3,7 +3,9 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NetTopologySuite.Geometries;
 using RoadRegistry.Sync.MunicipalityRegistry;
 
 #nullable disable
@@ -11,9 +13,11 @@ using RoadRegistry.Sync.MunicipalityRegistry;
 namespace RoadRegistry.Sync.MunicipalityRegistry.Migrations
 {
     [DbContext(typeof(MunicipalityEventConsumerContext))]
-    partial class MunicipalityEventConsumerContextModelSnapshot : ModelSnapshot
+    [Migration("20241030142232_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,6 +42,32 @@ namespace RoadRegistry.Sync.MunicipalityRegistry.Migrations
                     b.HasIndex("DateProcessed");
 
                     b.ToTable("ProcessedMessages", "RoadRegistryMunicipalityEventConsumer");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Sync.MunicipalityRegistry.Models.Municipality", b =>
+                {
+                    b.Property<string>("MunicipalityId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Geometry>("Geometry")
+                        .HasColumnType("Geometry");
+
+                    b.Property<string>("NisCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("MunicipalityId");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("MunicipalityId"), false);
+
+                    b.HasIndex("NisCode");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("NisCode"));
+
+                    b.ToTable("Municipalities", "RoadRegistryMunicipalityEventConsumer");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,14 +1,14 @@
-namespace RoadRegistry.SyncHost;
+namespace RoadRegistry.SyncHost.StreetName;
 
-using Be.Vlaanderen.Basisregisters.EventHandling;
-using Infrastructure;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using StreetName;
-using Sync.StreetNameRegistry;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using RoadRegistry.StreetName;
+using RoadRegistry.Sync.StreetNameRegistry;
+using RoadRegistry.SyncHost.Infrastructure;
 
 internal class StreetNameSnapshotTopicConsumerByFile : KafkaTopicConsumerByFile<StreetNameSnapshotConsumerContext>, IStreetNameSnapshotTopicConsumer
 {

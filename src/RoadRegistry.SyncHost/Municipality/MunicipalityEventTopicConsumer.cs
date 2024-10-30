@@ -1,16 +1,16 @@
-namespace RoadRegistry.SyncHost;
+namespace RoadRegistry.SyncHost.Municipality;
 
-using Be.Vlaanderen.Basisregisters.EventHandling;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
-using Infrastructure;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Sync.MunicipalityRegistry;
 using System;
 using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using RoadRegistry.Sync.MunicipalityRegistry;
+using RoadRegistry.SyncHost.Infrastructure;
 
 public interface IMunicipalityEventTopicConsumer
 {

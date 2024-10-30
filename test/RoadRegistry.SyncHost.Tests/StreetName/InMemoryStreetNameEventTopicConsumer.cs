@@ -1,5 +1,6 @@
 namespace RoadRegistry.SyncHost.Tests.StreetName;
 using Sync.StreetNameRegistry;
+using SyncHost.StreetName;
 
 public class InMemoryStreetNameEventTopicConsumer : IStreetNameEventTopicConsumer
 {
