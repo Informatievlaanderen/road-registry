@@ -1,8 +1,0 @@
-[
-    {
-        "headers":{"IdempotenceKey": "1"},
-        "offset": 1,
-        "key": "1",
-        "value": "{\"type\":\"StreetNameWasRenamed\",\"data\":\"{}\"}"
-    }
-]
