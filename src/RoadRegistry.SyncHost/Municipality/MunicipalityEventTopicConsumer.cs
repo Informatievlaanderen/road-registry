@@ -1,51 +1,51 @@
-namespace RoadRegistry.SyncHost;
+namespace RoadRegistry.SyncHost.Municipality;
 
-using Be.Vlaanderen.Basisregisters.EventHandling;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
-using Infrastructure;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Sync.StreetNameRegistry;
 using System;
 using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using RoadRegistry.Sync.MunicipalityRegistry;
+using RoadRegistry.SyncHost.Infrastructure;
 
-public interface IStreetNameEventTopicConsumer
+public interface IMunicipalityEventTopicConsumer
 {
-    Task ConsumeContinuously(Func<object, StreetNameEventConsumerContext, Task> messageHandler, CancellationToken cancellationToken);
+    Task ConsumeContinuously(Func<object, MunicipalityEventConsumerContext, Task> messageHandler, CancellationToken cancellationToken);
 }
 
-public class StreetNameEventTopicConsumer : IStreetNameEventTopicConsumer
+public class MunicipalityEventTopicConsumer : IMunicipalityEventTopicConsumer
 {
     private readonly KafkaOptions _options;
-    private readonly IDbContextFactory<StreetNameEventConsumerContext> _dbContextFactory;
+    private readonly IDbContextFactory<MunicipalityEventConsumerContext> _dbContextFactory;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger _logger;
 
-    public StreetNameEventTopicConsumer(
+    public MunicipalityEventTopicConsumer(
         KafkaOptions options,
-        IDbContextFactory<StreetNameEventConsumerContext> dbContextFactory,
+        IDbContextFactory<MunicipalityEventConsumerContext> dbContextFactory,
         ILoggerFactory loggerFactory
     )
     {
         _options = options.ThrowIfNull();
         _dbContextFactory = dbContextFactory.ThrowIfNull();
         _loggerFactory = loggerFactory.ThrowIfNull();
-        _logger = loggerFactory.CreateLogger<StreetNameEventTopicConsumer>();
+        _logger = loggerFactory.CreateLogger<MunicipalityEventTopicConsumer>();
     }
 
-    public async Task ConsumeContinuously(Func<object, StreetNameEventConsumerContext, Task> messageHandler, CancellationToken cancellationToken)
+    public async Task ConsumeContinuously(Func<object, MunicipalityEventConsumerContext, Task> messageHandler, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(_options.Consumers?.StreetNameEvent?.Topic))
+        if (string.IsNullOrEmpty(_options.Consumers?.MunicipalityEvent?.Topic))
         {
-            _logger.LogError($"Configuration has no {nameof(KafkaConsumers.StreetNameEvent)} Consumer with a Topic.");
+            _logger.LogError($"Configuration has no {nameof(KafkaConsumers.MunicipalityEvent)} Consumer with a Topic.");
             return;
         }
 
-        var kafkaConsumerOptions = _options.Consumers.StreetNameEvent;
-        var consumerGroupId = $"{nameof(RoadRegistry)}.{nameof(StreetNameEventConsumer)}.{kafkaConsumerOptions.Topic}{kafkaConsumerOptions.GroupSuffix}";
+        var kafkaConsumerOptions = _options.Consumers.MunicipalityEvent;
+        var consumerGroupId = $"{nameof(RoadRegistry)}.{nameof(MunicipalityEventConsumer)}.{kafkaConsumerOptions.Topic}{kafkaConsumerOptions.GroupSuffix}";
 
         var jsonSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
@@ -64,14 +64,14 @@ public class StreetNameEventTopicConsumer : IStreetNameEventTopicConsumer
         {
             consumerOptions.ConfigureOffset(new Offset(kafkaConsumerOptions.Offset.Value));
         }
-        
+
         _logger.LogInformation("Starting to consume Topic '{Topic}' with ConsumerGroupId '{ConsumerGroupId}'", consumerOptions.Topic, consumerOptions.ConsumerGroupId);
 
         while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
-                await new IdempotentConsumer<StreetNameEventConsumerContext>(consumerOptions, _dbContextFactory, _loggerFactory)
+                await new IdempotentConsumer<MunicipalityEventConsumerContext>(consumerOptions, _dbContextFactory, _loggerFactory)
                     .ConsumeContinuously(messageHandler, cancellationToken);
             }
             catch (ConfigurationErrorsException ex)

@@ -3,6 +3,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName;
 using Infrastructure;
 using RoadRegistry.StreetName;
 using Sync.StreetNameRegistry;
+using SyncHost.StreetName;
 
 public class InMemoryStreetNameSnapshotTopicConsumer : IStreetNameSnapshotTopicConsumer
 {

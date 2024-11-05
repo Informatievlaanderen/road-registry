@@ -1,0 +1,26 @@
+namespace RoadRegistry.SyncHost.Tests.Municipality.Projections.WhenMunicipalityWasRegistered;
+
+using FluentAssertions;
+using Sync.MunicipalityRegistry.Models;
+
+public class GivenMunicipality : MunicipalityEventProjectionTestsBase
+{
+    public GivenMunicipality(MunicipalityEventProjectionClassFixture projector)
+        : base(projector)
+    {
+    }
+
+    [Fact]
+    public async Task ThenCreated()
+    {
+        var @event = await GivenRegisteredMunicipality();
+
+        var actual = await Projector.Connection.Municipalities.FindAsync([@event.MunicipalityId]);
+
+        actual.Should().NotBeNull();
+        actual!.MunicipalityId.Should().Be(@event.MunicipalityId);
+        actual.NisCode.Should().Be(@event.NisCode);
+        actual.Status.Should().Be(MunicipalityStatus.Proposed);
+        actual.Geometry.Should().BeNull();
+    }
+}

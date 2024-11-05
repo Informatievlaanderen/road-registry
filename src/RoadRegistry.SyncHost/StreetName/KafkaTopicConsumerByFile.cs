@@ -1,5 +1,10 @@
-namespace RoadRegistry.SyncHost;
+namespace RoadRegistry.SyncHost.StreetName;
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
@@ -7,11 +12,6 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 internal abstract class KafkaTopicConsumerByFile<TDbContext>
     where TDbContext : ConsumerDbContext<TDbContext>

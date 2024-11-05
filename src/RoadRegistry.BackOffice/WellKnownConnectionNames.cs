@@ -31,4 +31,6 @@ public static class WellKnownConnectionNames
     public const string StreetNameSnapshotConsumerAdmin = "StreetNameSnapshotConsumerAdmin";
     public const string OrganizationConsumerProjections = "OrganizationConsumerProjections";
     public const string OrganizationConsumerProjectionsAdmin = "OrganizationConsumerProjectionsAdmin";
+    public const string MunicipalityEventConsumer = "MunicipalityEventConsumer";
+    public const string MunicipalityEventConsumerAdmin = "MunicipalityEventConsumerAdmin";
 }

@@ -4,6 +4,7 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
+    using StreetName;
     using Sync.StreetNameRegistry;
 
     public static class StreetNameConsumerModule

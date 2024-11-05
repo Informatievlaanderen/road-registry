@@ -1,22 +1,22 @@
-namespace RoadRegistry.SyncHost;
+namespace RoadRegistry.SyncHost.StreetName;
 
-using Autofac;
-using BackOffice;
-using BackOffice.Core;
-using BackOffice.Framework;
-using BackOffice.Messages;
-using Be.Vlaanderen.Basisregisters.EventHandling;
-using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
-using Hosts;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using SqlStreamStore;
-using StreetName;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Hosts;
+using RoadRegistry.StreetName;
+using SqlStreamStore;
 using StreetNameRecord = BackOffice.Messages.StreetNameRecord;
 
 public class StreetNameSnapshotConsumer : RoadRegistryBackgroundService

@@ -308,7 +308,7 @@ public static class SharedCustomizations
         fixture.Customize<OrganizationOvoCode>(composer =>
             composer.FromFactory(generator =>
                 new OrganizationOvoCode(generator.Next(1, OrganizationOvoCode.MaxDigitsValue))
-        ));
+            ));
     }
 
     public static void CustomizeOrganizationKboNumber(this IFixture fixture)
@@ -316,7 +316,7 @@ public static class SharedCustomizations
         fixture.Customize<OrganizationKboNumber>(composer =>
             composer.FromFactory(generator =>
                 new OrganizationKboNumber($"{generator.Next(1, 99999):00000}{generator.Next(1, 99999):00000}")
-        ));
+            ));
     }
 
     public static void CustomizeOriginProperties(this IFixture fixture)

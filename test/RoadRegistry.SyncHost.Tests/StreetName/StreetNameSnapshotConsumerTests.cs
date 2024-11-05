@@ -23,6 +23,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
     using SqlStreamStore;
     using SqlStreamStore.Streams;
     using Sync.StreetNameRegistry;
+    using SyncHost.StreetName;
 
     public class StreetNameSnapshotConsumerTests
     {

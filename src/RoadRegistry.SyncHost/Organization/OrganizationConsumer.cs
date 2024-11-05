@@ -1,30 +1,28 @@
-namespace RoadRegistry.SyncHost;
+namespace RoadRegistry.SyncHost.Organization;
 
+using System;
+using System.Configuration;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.IO;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Abstractions.Organizations;
 using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Hosts;
+using RoadRegistry.Sync.OrganizationRegistry;
+using RoadRegistry.Sync.OrganizationRegistry.Exceptions;
 using RoadRegistry.Sync.OrganizationRegistry.Extensions;
 using SqlStreamStore;
-using Sync.OrganizationRegistry;
-using System;
-using System.Configuration;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using BackOffice.Extensions;
-using Sync.OrganizationRegistry.Exceptions;
 using Organization = Sync.OrganizationRegistry.Models.Organization;
 
 public class OrganizationConsumer : RoadRegistryBackgroundService

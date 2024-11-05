@@ -19,6 +19,7 @@ public class KafkaConsumers
 {
     public KafkaConsumer StreetNameEvent { get; private set; }
     public KafkaConsumer StreetNameSnapshot { get; private set; }
+    public KafkaConsumer MunicipalityEvent { get; private set; }
 }
 
 public class KafkaConsumer
