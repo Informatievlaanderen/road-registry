@@ -319,14 +319,6 @@ public static class SharedCustomizations
             ));
     }
 
-    public static void CustomizeMunicipalityId(this IFixture fixture)
-    {
-        fixture.Customize<MunicipalityId>(composer =>
-            composer.FromFactory(_ =>
-                new MunicipalityId(fixture.Create<string>())
-            ));
-    }
-
     public static void CustomizeOriginProperties(this IFixture fixture)
     {
         fixture.Customize<ImportedOriginProperties>(customization =>

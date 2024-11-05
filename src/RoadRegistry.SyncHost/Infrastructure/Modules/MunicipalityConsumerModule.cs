@@ -10,8 +10,7 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
         public static IServiceCollection AddMunicipalityConsumerServices(this IServiceCollection services)
         {
             return services
-                .AddSingleton<MunicipalityEventTopicConsumer>()
-                .AddSingleton<IMunicipalityEventTopicConsumer>(sp => sp.GetRequiredService<MunicipalityEventTopicConsumer>())
+                .AddSingleton<IMunicipalityEventTopicConsumer, MunicipalityEventTopicConsumer>()
                 .AddSingleton<ConfigureDbContextOptionsBuilder<MunicipalityEventConsumerContext>>(MunicipalityEventConsumerContext.ConfigureOptions)
                 .AddDbContext<MunicipalityEventConsumerContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<MunicipalityEventConsumerContext>>()(sp, options))
                 .AddDbContextFactory<MunicipalityEventConsumerContext>((sp, options) => sp.GetRequiredService<ConfigureDbContextOptionsBuilder<MunicipalityEventConsumerContext>>()(sp, options))

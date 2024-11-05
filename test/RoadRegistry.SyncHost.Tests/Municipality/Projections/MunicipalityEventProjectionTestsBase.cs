@@ -14,13 +14,12 @@ public abstract class MunicipalityEventProjectionTestsBase : IClassFixture<Munic
     {
         Projector = projector;
         Fixture = new Fixture();
-        Fixture.CustomizeMunicipalityId();
     }
 
     protected async Task<MunicipalityWasRegistered> GivenRegisteredMunicipality()
     {
         var @event = new MunicipalityWasRegistered(
-            Fixture.Create<MunicipalityId>(),
+            Fixture.Create<string>(),
             Fixture.Create<string>(),
             null);
 
