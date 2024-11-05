@@ -1,3 +1,18 @@
+# [4.14.0](https://github.com/informatievlaanderen/road-registry/compare/v4.13.2...v4.14.0) (2024-11-05)
+
+
+### Bug Fixes
+
+* deploy pipeline run system healthcheck ([#1566](https://github.com/informatievlaanderen/road-registry/issues/1566)) ([69d0e7b](https://github.com/informatievlaanderen/road-registry/commit/69d0e7b0aac54a42259f855f6c3c25339e6a4955))
+* deploy pipeline run system healthcheck ([#1567](https://github.com/informatievlaanderen/road-registry/issues/1567)) ([8eae7b0](https://github.com/informatievlaanderen/road-registry/commit/8eae7b095fc9f069c9b47ce7dec38160e3f05065))
+* deploy pipeline run system healthcheck ([#1568](https://github.com/informatievlaanderen/road-registry/issues/1568)) ([72de073](https://github.com/informatievlaanderen/road-registry/commit/72de07304711593521fdc9e3febe538a40061d1a))
+* deploy pipeline use secrets instead of vars ([#1569](https://github.com/informatievlaanderen/road-registry/issues/1569)) ([e35a05d](https://github.com/informatievlaanderen/road-registry/commit/e35a05d7e22a82c1c2573c0b8d09dd5c0458d3b1))
+
+
+### Features
+
+* add sync from municipality registry ([#1570](https://github.com/informatievlaanderen/road-registry/issues/1570)) ([c7c10ec](https://github.com/informatievlaanderen/road-registry/commit/c7c10ec973daf840264379897dad9adbbb325875))
+
 ## [4.13.2](https://github.com/informatievlaanderen/road-registry/compare/v4.13.1...v4.13.2) (2024-10-29)
 
 
