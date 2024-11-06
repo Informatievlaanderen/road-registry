@@ -16,13 +16,15 @@ public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
         RoadSegmentGeometryDrawMethod geometryDrawMethod,
         OrganizationId? maintenanceAuthorityId,
         OrganizationName? maintenanceAuthorityName,
-        RoadSegmentMorphology morphology,
-        RoadSegmentStatus status,
-        RoadSegmentCategory category,
-        RoadSegmentAccessRestriction accessRestriction,
-        IReadOnlyList<RoadSegmentLaneAttribute> lanes,
-        IReadOnlyList<RoadSegmentSurfaceAttribute> surfaces,
-        IReadOnlyList<RoadSegmentWidthAttribute> widths)
+        RoadSegmentMorphology? morphology,
+        RoadSegmentStatus? status,
+        RoadSegmentCategory? category,
+        RoadSegmentAccessRestriction? accessRestriction,
+        RoadSegmentSideAttributes? leftSide,
+        RoadSegmentSideAttributes? rightSide,
+        IReadOnlyList<RoadSegmentLaneAttribute>? lanes,
+        IReadOnlyList<RoadSegmentSurfaceAttribute>? surfaces,
+        IReadOnlyList<RoadSegmentWidthAttribute>? widths)
     {
         Id = id;
         Version = version;
@@ -33,6 +35,8 @@ public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
         Status = status;
         Category = category;
         AccessRestriction = accessRestriction;
+        LeftSide = leftSide;
+        RightSide = rightSide;
         Lanes = lanes;
         Surfaces = surfaces;
         Widths = widths;
@@ -41,15 +45,18 @@ public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
     public RoadSegmentId Id { get; }
     public RoadSegmentVersion Version { get; }
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
+
     public OrganizationId? MaintenanceAuthorityId { get; }
     public OrganizationName? MaintenanceAuthorityName { get; }
-    public RoadSegmentMorphology Morphology { get; }
-    public RoadSegmentStatus Status { get; }
-    public RoadSegmentCategory Category { get; }
-    public RoadSegmentAccessRestriction AccessRestriction { get; }
-    public IReadOnlyList<RoadSegmentLaneAttribute> Lanes { get; }
-    public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }
-    public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
+    public RoadSegmentMorphology? Morphology { get; }
+    public RoadSegmentStatus? Status { get; }
+    public RoadSegmentCategory? Category { get; }
+    public RoadSegmentSideAttributes? LeftSide { get; }
+    public RoadSegmentSideAttributes? RightSide { get; }
+    public RoadSegmentAccessRestriction? AccessRestriction { get; }
+    public IReadOnlyList<RoadSegmentLaneAttribute>? Lanes { get; }
+    public IReadOnlyList<RoadSegmentSurfaceAttribute>? Surfaces { get; }
+    public IReadOnlyList<RoadSegmentWidthAttribute>? Widths { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -61,13 +68,27 @@ public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
             Version = Version,
             AccessRestriction = AccessRestriction,
             Category = Category,
-            MaintenanceAuthority = MaintenanceAuthorityId != null ? new MaintenanceAuthority
-            {
-                Code = MaintenanceAuthorityId.Value,
-                Name = OrganizationName.FromValueWithFallback(MaintenanceAuthorityName)
-            } : null,
+            MaintenanceAuthority = MaintenanceAuthorityId is not null
+                ? new MaintenanceAuthority
+                {
+                    Code = MaintenanceAuthorityId.Value,
+                    Name = OrganizationName.FromValueWithFallback(MaintenanceAuthorityName)
+                }
+                : null,
             Morphology = Morphology,
             Status = Status,
+            LeftSide = LeftSide is not null
+                ? new Messages.RoadSegmentSideAttributes
+                {
+                    StreetNameId = LeftSide.StreetNameId
+                }
+                : null,
+            RightSide = RightSide is not null
+                ? new Messages.RoadSegmentSideAttributes
+                {
+                    StreetNameId = RightSide.StreetNameId
+                }
+                : null,
             Lanes = Lanes?
                 .Select(item => new Messages.RoadSegmentLaneAttributes
                 {
@@ -112,6 +133,18 @@ public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
             MaintenanceAuthority = MaintenanceAuthorityId?.ToString(),
             Morphology = Morphology?.ToString(),
             Status = Status?.ToString(),
+            LeftSide = LeftSide is not null
+                ? new Messages.RoadSegmentSideAttributes
+                {
+                    StreetNameId = LeftSide.StreetNameId
+                }
+                : null,
+            RightSide = RightSide is not null
+                ? new Messages.RoadSegmentSideAttributes
+                {
+                    StreetNameId = RightSide.StreetNameId
+                }
+                : null,
             Lanes = Lanes?
                 .Select(item => new RequestedRoadSegmentLaneAttribute
                 {

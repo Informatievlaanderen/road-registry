@@ -138,7 +138,7 @@ internal class RequestedChangeTranslator
         );
     }
 
-    private async Task<RoadSegmentLaneAttribute[]> Translate(RequestedRoadSegmentLaneAttribute[] attributes, RoadSegmentId roadSegmentId)
+    private async Task<RoadSegmentLaneAttribute[]?> Translate(RequestedRoadSegmentLaneAttribute[]? attributes, RoadSegmentId roadSegmentId)
     {
         if (attributes is null)
         {
@@ -390,6 +390,12 @@ internal class RequestedChangeTranslator
         var accessRestriction = command.AccessRestriction is not null
             ? RoadSegmentAccessRestriction.Parse(command.AccessRestriction)
             : null;
+        var leftSide = command.LeftSide is not null
+            ? new RoadSegmentSideAttributes(StreetNameLocalId.FromValue(command.LeftSide.StreetNameId))
+            : null;
+        var rightSide = command.RightSide is not null
+            ? new RoadSegmentSideAttributes(StreetNameLocalId.FromValue(command.RightSide.StreetNameId))
+            : null;
 
         var laneAttributes = await Translate(command.Lanes, permanent);
         var widthAttributes = await Translate(command.Widths, permanent);
@@ -406,6 +412,8 @@ internal class RequestedChangeTranslator
             status,
             category,
             accessRestriction,
+            leftSide,
+            rightSide,
             laneAttributes,
             surfaceAttributes,
             widthAttributes

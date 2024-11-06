@@ -54,7 +54,7 @@ public class Organization : EventSourcedEntity
     {
         public static readonly DutchTranslation Other = new(OrganizationId.Other, new OrganizationName("andere"));
         public static readonly DutchTranslation Unknown = new(OrganizationId.Unknown, new OrganizationName("niet gekend"));
-        public static readonly DutchTranslation[] All = { Other, Unknown };
+        public static readonly DutchTranslation[] All = [Other, Unknown];
 
         public static DutchTranslation FromSystemValue(OrganizationId organizationId)
         {

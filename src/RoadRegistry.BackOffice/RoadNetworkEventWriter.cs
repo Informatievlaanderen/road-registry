@@ -23,13 +23,13 @@ public class RoadNetworkEventWriter : RoadRegistryEventWriter, IRoadNetworkEvent
         : base(store, enricher, EventMapping)
     {
     }
-    
+
     public Task WriteAsync(StreamName streamName, int expectedVersion, Event @event, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(@event);
-        return AppendToStoreStream(streamName, @event.MessageId, expectedVersion, new[] { @event.Body }, null, null, cancellationToken);
+        return AppendToStoreStream(streamName, @event.MessageId, expectedVersion, [@event.Body], null, null, cancellationToken);
     }
-    
+
     public Task WriteAsync(StreamName streamName, int expectedVersion, IRoadRegistryMessage message, object[] events, CancellationToken cancellationToken)
     {
         return AppendToStoreStream(streamName, message.MessageId, expectedVersion, events, message.Principal, message.ProvenanceData, cancellationToken);

@@ -38,6 +38,7 @@ public class Program
                     .AddScoped(_ => new EventSourcedEntityMap())
                     .AddRoadNetworkCommandQueue()
                     .AddRoadNetworkEventWriter()
+                    .AddRoadNetworkDbIdGenerator()
                     .AddEditorContext()
                     .RegisterOptions<KafkaOptions>()
 

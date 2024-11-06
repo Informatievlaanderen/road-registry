@@ -5,12 +5,14 @@ public class ModifyRoadSegmentAttributes
     public int Id { get; set; }
     public string GeometryDrawMethod { get; set; }
 
-    public string AccessRestriction { get; set; }
-    public string Category { get; set; }
-    public string MaintenanceAuthority { get; set; }
-    public string Morphology { get; set; }
-    public string Status { get; set; }
-    public RequestedRoadSegmentLaneAttribute[] Lanes { get; set; }
-    public RequestedRoadSegmentWidthAttribute[] Widths { get; set; }
-    public RequestedRoadSegmentSurfaceAttribute[] Surfaces { get; set; }
+    public string? AccessRestriction { get; set; }
+    public string? Category { get; set; }
+    public string? MaintenanceAuthority { get; set; }
+    public string? Morphology { get; set; }
+    public string? Status { get; set; }
+    public RoadSegmentSideAttributes? LeftSide { get; set; }
+    public RoadSegmentSideAttributes? RightSide { get; set; }
+    public RequestedRoadSegmentLaneAttribute[]? Lanes { get; set; }
+    public RequestedRoadSegmentWidthAttribute[]? Widths { get; set; }
+    public RequestedRoadSegmentSurfaceAttribute[]? Surfaces { get; set; }
 }

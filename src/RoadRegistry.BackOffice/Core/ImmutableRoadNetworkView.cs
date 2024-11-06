@@ -798,8 +798,12 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             @event.Status is not null
                 ? RoadSegmentStatus.Parse(@event.Status)
                 : segmentBefore.AttributeHash.Status,
-            segmentBefore.AttributeHash.LeftStreetNameId,
-            segmentBefore.AttributeHash.RightStreetNameId,
+            @event.LeftSide is not null
+                ? StreetNameLocalId.FromValue(@event.LeftSide.StreetNameId)
+                : segmentBefore.AttributeHash.LeftStreetNameId,
+            @event.RightSide is not null
+                ? StreetNameLocalId.FromValue(@event.RightSide.StreetNameId)
+                : segmentBefore.AttributeHash.RightStreetNameId,
             @event.MaintenanceAuthority is not null
                 ? new OrganizationId(@event.MaintenanceAuthority.Code)
                 : segmentBefore.AttributeHash.OrganizationId,
@@ -1254,8 +1258,12 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             command.Category ?? segmentBefore.AttributeHash.Category,
             command.Morphology ?? segmentBefore.AttributeHash.Morphology,
             command.Status ?? segmentBefore.AttributeHash.Status,
-            segmentBefore.AttributeHash.LeftStreetNameId,
-            segmentBefore.AttributeHash.RightStreetNameId,
+            command.LeftSide is not null
+                ? command.LeftSide.StreetNameId
+                : segmentBefore.AttributeHash.LeftStreetNameId,
+            command.RightSide is not null
+                ? command.RightSide.StreetNameId
+                : segmentBefore.AttributeHash.RightStreetNameId,
             command.MaintenanceAuthorityId ?? segmentBefore.AttributeHash.OrganizationId,
             command.GeometryDrawMethod
         );
@@ -2267,8 +2275,12 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 @event.Status is not null
                     ? RoadSegmentStatus.Parse(@event.Status)
                     : segmentBefore.AttributeHash.Status,
-                segmentBefore.AttributeHash.LeftStreetNameId,
-                segmentBefore.AttributeHash.RightStreetNameId,
+                @event.LeftSide is not null
+                    ? StreetNameLocalId.FromValue(@event.LeftSide.StreetNameId)
+                    : segmentBefore.AttributeHash.LeftStreetNameId,
+                @event.RightSide is not null
+                    ? StreetNameLocalId.FromValue(@event.RightSide.StreetNameId)
+                    : segmentBefore.AttributeHash.RightStreetNameId,
                 @event.MaintenanceAuthority is not null
                     ? new OrganizationId(@event.MaintenanceAuthority.Code)
                     : segmentBefore.AttributeHash.OrganizationId,
@@ -2639,8 +2651,12 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 command.Category ?? segmentBefore.AttributeHash.Category,
                 command.Morphology ?? segmentBefore.AttributeHash.Morphology,
                 command.Status ?? segmentBefore.AttributeHash.Status,
-                segmentBefore.AttributeHash.LeftStreetNameId,
-                segmentBefore.AttributeHash.RightStreetNameId,
+                command.LeftSide is not null
+                    ? command.LeftSide.StreetNameId
+                    : segmentBefore.AttributeHash.LeftStreetNameId,
+                command.RightSide is not null
+                    ? command.RightSide.StreetNameId
+                    : segmentBefore.AttributeHash.RightStreetNameId,
                 command.MaintenanceAuthorityId ?? segmentBefore.AttributeHash.OrganizationId,
                 command.GeometryDrawMethod
             );
