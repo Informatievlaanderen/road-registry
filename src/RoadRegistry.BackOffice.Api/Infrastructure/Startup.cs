@@ -64,6 +64,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FeatureCompare.Readers;
+using Sync.MunicipalityRegistry;
 using SystemHealthCheck.HealthChecks;
 using ZipArchiveWriters.Cleaning;
 using DomainAssemblyMarker = BackOffice.Handlers.Sqs.DomainAssemblyMarker;
@@ -308,6 +309,14 @@ public class Startup
                 .UseSqlServer(
                     sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.ProductProjections)
                 ))
+            .AddDbContext<MunicipalityEventConsumerContext>((sp, options) => options
+                .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                .UseSqlServer(
+                    sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.MunicipalityEventConsumer),
+                    sqlOptions => sqlOptions
+                        .UseNetTopologySuite())
+            )
             .AddOrganizationCache()
             .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
             .AddValidatorsAsScopedFromAssemblyContaining<Startup>()

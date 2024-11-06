@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
 using Abstractions.Extracts;
-using Editor.Schema;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
@@ -11,10 +10,9 @@ public class DownloadExtractByFileRequestHandler : ExtractRequestHandler<Downloa
     private readonly IDownloadExtractByFileRequestItemTranslator _translator;
 
     public DownloadExtractByFileRequestHandler(
-        EditorContext context,
         CommandHandlerDispatcher dispatcher,
         IDownloadExtractByFileRequestItemTranslator translator,
-        ILogger<DownloadExtractByContourRequestHandler> logger) : base(context, dispatcher, logger)
+        ILogger<DownloadExtractByContourRequestHandler> logger) : base(dispatcher, logger)
     {
         _translator = translator;
     }

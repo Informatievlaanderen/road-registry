@@ -1,7 +1,11 @@
 namespace RoadRegistry.Sync.MunicipalityRegistry;
 
 using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using BackOffice;
+using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -49,6 +53,16 @@ public class MunicipalityEventConsumerContext : ConsumerDbContext<MunicipalityEv
                     .EnableRetryOnFailure()
                     .UseNetTopologySuite()
                     .MigrationsHistoryTable(MigrationTables.MunicipalityEventConsumer, WellKnownSchemas.MunicipalityEventConsumerSchema));
+    }
+
+    public async Task<Municipality?> FindCurrentMunicipalityByNisCode(string nisCode, CancellationToken cancellationToken)
+    {
+        return await Municipalities.IncludeLocalSingleOrDefaultAsync(x => x.NisCode == nisCode && x.Status == MunicipalityStatus.Current, cancellationToken);
+    }
+
+    public async Task<bool> CurrentMunicipalityExistsByNisCode(string nisCode, CancellationToken cancellationToken)
+    {
+        return await Municipalities.AnyAsync(x => x.NisCode == nisCode && x.Status == MunicipalityStatus.Current, cancellationToken);
     }
 }
 

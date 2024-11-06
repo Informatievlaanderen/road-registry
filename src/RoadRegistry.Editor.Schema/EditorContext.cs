@@ -48,7 +48,6 @@ public class EditorContext : RunnerDbContext<EditorContext>
     public DbSet<ExtractDownloadRecord> ExtractDownloads { get; set; }
     public DbSet<ExtractUploadRecord> ExtractUploads { get; set; }
     public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
-    public DbSet<MunicipalityGeometry> MunicipalityGeometries { get; set; }
     public DbSet<OrganizationRecord> Organizations { get; set; }
     public DbSet<OrganizationRecordV2> OrganizationsV2 { get; set; }
     public DbSet<RoadNetworkChangeRequestBasedOnArchive> RoadNetworkChangeRequestsBasedOnArchive { get; set; }

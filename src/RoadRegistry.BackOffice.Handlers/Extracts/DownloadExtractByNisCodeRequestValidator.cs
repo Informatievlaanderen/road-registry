@@ -6,14 +6,15 @@ using Editor.Schema;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Sync.MunicipalityRegistry;
 
 public sealed class DownloadExtractByNisCodeRequestValidator : AbstractValidator<DownloadExtractByNisCodeRequest>, IPipelineBehavior<DownloadExtractByNisCodeRequest, DownloadExtractByNisCodeResponse>
 {
-    private readonly EditorContext _editorContext;
+    private readonly MunicipalityEventConsumerContext _municipalityContext;
 
-    public DownloadExtractByNisCodeRequestValidator(EditorContext editorContext)
+    public DownloadExtractByNisCodeRequestValidator(MunicipalityEventConsumerContext editorContext)
     {
-        _editorContext = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
+        _municipalityContext = editorContext.ThrowIfNull();
 
         RuleFor(c => c.NisCode)
             .Cascade(CascadeMode.Stop)
@@ -38,7 +39,7 @@ public sealed class DownloadExtractByNisCodeRequestValidator : AbstractValidator
 
     private Task<bool> BeKnownNisCode(string nisCode, CancellationToken cancellationToken)
     {
-        return _editorContext.MunicipalityGeometries.AnyAsync(x => x.NisCode == nisCode, cancellationToken);
+        return _municipalityContext.CurrentMunicipalityExistsByNisCode(nisCode, cancellationToken);
     }
 
     private static bool BeNisCodeWithExpectedFormat(string nisCode)

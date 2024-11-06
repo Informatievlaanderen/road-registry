@@ -29,6 +29,7 @@ using SqlStreamStore;
 using System.Reflection;
 using FeatureCompare.Readers;
 using FeatureCompare.Translators;
+using Sync.MunicipalityRegistry;
 using MediatorModule = BackOffice.MediatorModule;
 
 public class Startup : TestStartup
@@ -95,6 +96,7 @@ public class Startup : TestStartup
             .AddRoadNetworkEventWriter()
             .AddInMemoryDbContext<EditorContext>()
             .AddInMemoryDbContext<ProductContext>()
+            .AddInMemoryDbContext<MunicipalityEventConsumerContext>()
             .AddSingleton<TicketingOptions>(new FakeTicketingOptions())
             .AddScoped<ChangeFeedController>()
             .AddScoped<DownloadController>()
