@@ -9,7 +9,6 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using NodaTime;
 using Schema;
 using Schema.RoadSegments;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
@@ -52,7 +51,7 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
                     MethodLabel = geometryDrawMethodTranslation.Name,
                     AccessRestrictionId = accessRestrictionTranslation.Identifier,
                     AccessRestrictionLabel = accessRestrictionTranslation.Name,
-                    
+
                     CreatedOnTimestamp = envelope.Message.RecordingDate.ToBelgianInstant(),
                     VersionTimestamp = envelope.Message.Origin.Since.ToBelgianInstant(),
                     OrganizationId = envelope.Message.Origin.OrganizationId,
@@ -308,6 +307,16 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         if (roadSegmentAttributesModified.MaintenanceAuthority is not null)
         {
             latestItem.MaintainerId = roadSegmentAttributesModified.MaintenanceAuthority.Code;
+        }
+
+        if (roadSegmentAttributesModified.LeftSide is not null)
+        {
+            latestItem.LeftSideStreetNameId = roadSegmentAttributesModified.LeftSide.StreetNameId;
+        }
+
+        if (roadSegmentAttributesModified.RightSide is not null)
+        {
+            latestItem.RightSideStreetNameId = roadSegmentAttributesModified.RightSide.StreetNameId;
         }
     }
 
