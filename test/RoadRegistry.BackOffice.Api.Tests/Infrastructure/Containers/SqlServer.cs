@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Product.Schema;
 using RoadRegistry.Tests.Framework.Containers;
+using Sync.MunicipalityRegistry;
 
 public class SqlServer : ISqlServerDatabase
 {
@@ -72,35 +73,20 @@ public class SqlServer : ISqlServerDatabase
         return context;
     }
 
-    public async Task<ProductContext> CreateEmptyProductContextAsync(SqlConnectionStringBuilder builder)
+    public async Task<MunicipalityEventConsumerContext> CreateEmptyMunicipalityEventConsumerContextAsync(SqlConnectionStringBuilder builder)
     {
-        var context = await CreateProductContextAsync(builder);
-
-        context.Organizations.RemoveRange(context.Organizations);
-        context.RoadNodes.RemoveRange(context.RoadNodes);
-        context.RoadSegments.RemoveRange(context.RoadSegments);
-        context.RoadSegmentEuropeanRoadAttributes.RemoveRange(context.RoadSegmentEuropeanRoadAttributes);
-        context.RoadSegmentNationalRoadAttributes.RemoveRange(context.RoadSegmentNationalRoadAttributes);
-        context.RoadSegmentNumberedRoadAttributes.RemoveRange(context.RoadSegmentNumberedRoadAttributes);
-        context.RoadSegmentLaneAttributes.RemoveRange(context.RoadSegmentLaneAttributes);
-        context.RoadSegmentWidthAttributes.RemoveRange(context.RoadSegmentWidthAttributes);
-        context.RoadSegmentSurfaceAttributes.RemoveRange(context.RoadSegmentSurfaceAttributes);
-        context.GradeSeparatedJunctions.RemoveRange(context.GradeSeparatedJunctions);
-        context.RoadNetworkInfo.RemoveRange(context.RoadNetworkInfo);
-        context.ProjectionStates.RemoveRange(context.ProjectionStates);
-        await context.SaveChangesAsync();
-
+        var context = await CreateMunicipalityEventConsumerContextAsync(builder);
         return context;
     }
 
-    public async Task<ProductContext> CreateProductContextAsync(SqlConnectionStringBuilder builder)
+    private async Task<MunicipalityEventConsumerContext> CreateMunicipalityEventConsumerContextAsync(SqlConnectionStringBuilder builder)
     {
-        var options = new DbContextOptionsBuilder<ProductContext>()
-            .UseSqlServer(builder.ConnectionString)
+        var options = new DbContextOptionsBuilder<MunicipalityEventConsumerContext>()
+            .UseSqlServer(builder.ConnectionString, sqlServerOptions => sqlServerOptions.UseNetTopologySuite())
             .EnableSensitiveDataLogging()
             .Options;
 
-        var context = new ProductContext(options);
+        var context = new MunicipalityEventConsumerContext(options);
         await context.Database.MigrateAsync();
         return context;
     }

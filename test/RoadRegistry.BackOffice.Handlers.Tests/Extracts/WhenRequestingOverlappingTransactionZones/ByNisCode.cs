@@ -9,6 +9,8 @@ using Handlers.Extracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.IO;
+using Sync.MunicipalityRegistry;
+using Sync.MunicipalityRegistry.Models;
 
 public class ByNisCode
 {
@@ -18,6 +20,7 @@ public class ByNisCode
         // Arrange
         var fixture = new Fixture();
         await using var editorContext = BuildEditorContext();
+        await using var municipalityContext = BuildMunicipalityEventConsumerContext();
 
         var downloadId1 = Guid.NewGuid();
 
@@ -37,7 +40,7 @@ public class ByNisCode
         };
 
         // Act
-        var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
+        var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, municipalityContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
@@ -50,6 +53,7 @@ public class ByNisCode
         // Arrange
         var fixture = new Fixture();
         await using var editorContext = BuildEditorContext();
+        await using var municipalityContext = BuildMunicipalityEventConsumerContext();
 
         var downloadId1 = Guid.NewGuid();
 
@@ -71,12 +75,15 @@ public class ByNisCode
             ExternalRequestId = fixture.Create<string>(),
             Description = fixture.Create<string>()
         });
-        editorContext.MunicipalityGeometries.Add(new MunicipalityGeometry
+        municipalityContext.Municipalities.Add(new Municipality
         {
+            MunicipalityId = fixture.Create<string>(),
             NisCode = "12345",
+            Status = MunicipalityStatus.Current,
             Geometry = new WKTReader().Read("MULTIPOLYGON (((5 0, 5 10, 15 10, 15 0, 5 0)))")
         });
         await editorContext.SaveChangesAsync();
+        await municipalityContext.SaveChangesAsync();
 
         var request = new GetOverlappingTransactionZonesByNisCodeRequest
         {
@@ -84,7 +91,7 @@ public class ByNisCode
         };
 
         // Act
-        var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
+        var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, municipalityContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
@@ -98,6 +105,7 @@ public class ByNisCode
         // Arrange
         var fixture = new Fixture();
         await using var editorContext = BuildEditorContext();
+        await using var municipalityContext = BuildMunicipalityEventConsumerContext();
 
         var downloadId1 = Guid.NewGuid();
 
@@ -109,12 +117,15 @@ public class ByNisCode
             ExternalRequestId = fixture.Create<string>(),
             Description = fixture.Create<string>()
         });
-        editorContext.MunicipalityGeometries.Add(new MunicipalityGeometry
+        municipalityContext.Municipalities.Add(new Municipality
         {
+            MunicipalityId = fixture.Create<string>(),
             NisCode = "12345",
+            Status = MunicipalityStatus.Current,
             Geometry = new WKTReader().Read("MULTIPOLYGON (((5 0, 5 10, 15 10, 15 0, 5 0)))")
         });
         await editorContext.SaveChangesAsync();
+        await municipalityContext.SaveChangesAsync();
 
         var request = new GetOverlappingTransactionZonesByNisCodeRequest
         {
@@ -122,7 +133,7 @@ public class ByNisCode
         };
 
         // Act
-        var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
+        var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, municipalityContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
@@ -136,6 +147,7 @@ public class ByNisCode
         // Arrange
         var fixture = new Fixture();
         await using var editorContext = BuildEditorContext();
+        await using var municipalityContext = BuildMunicipalityEventConsumerContext();
 
         var downloadId1 = Guid.NewGuid();
 
@@ -147,12 +159,15 @@ public class ByNisCode
             ExternalRequestId = fixture.Create<string>(),
             Description = fixture.Create<string>()
         });
-        editorContext.MunicipalityGeometries.Add(new MunicipalityGeometry
+        municipalityContext.Municipalities.Add(new Municipality
         {
+            MunicipalityId = fixture.Create<string>(),
             NisCode = "12345",
+            Status = MunicipalityStatus.Current,
             Geometry = new WKTReader().Read("MULTIPOLYGON (((5 0, 5 10, 15 10, 15 0, 5 0)))")
         });
         await editorContext.SaveChangesAsync();
+        await municipalityContext.SaveChangesAsync();
 
         var request = new GetOverlappingTransactionZonesByNisCodeRequest
         {
@@ -161,7 +176,7 @@ public class ByNisCode
         };
 
         // Act
-        var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
+        var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, municipalityContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
@@ -175,6 +190,7 @@ public class ByNisCode
         // Arrange
         var fixture = new Fixture();
         await using var editorContext = BuildEditorContext();
+        await using var municipalityContext = BuildMunicipalityEventConsumerContext();
 
         var downloadId1 = Guid.NewGuid();
 
@@ -186,12 +202,15 @@ public class ByNisCode
             ExternalRequestId = fixture.Create<string>(),
             Description = fixture.Create<string>()
         });
-        editorContext.MunicipalityGeometries.Add(new MunicipalityGeometry
+        municipalityContext.Municipalities.Add(new Municipality
         {
+            MunicipalityId = fixture.Create<string>(),
             NisCode = "12345",
+            Status = MunicipalityStatus.Current,
             Geometry = new WKTReader().Read("MULTIPOLYGON (((50 0, 50 10, 55 10, 55 0, 50 0)))")
         });
         await editorContext.SaveChangesAsync();
+        await municipalityContext.SaveChangesAsync();
 
         var request = new GetOverlappingTransactionZonesByNisCodeRequest
         {
@@ -200,7 +219,7 @@ public class ByNisCode
         };
 
         // Act
-        var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
+        var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, municipalityContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
@@ -214,6 +233,7 @@ public class ByNisCode
         // Arrange
         var fixture = new Fixture();
         await using var editorContext = BuildEditorContext();
+        await using var municipalityContext = BuildMunicipalityEventConsumerContext();
 
         editorContext.ExtractRequests.Add(new ExtractRequestRecord
         {
@@ -223,12 +243,15 @@ public class ByNisCode
             ExternalRequestId = fixture.Create<string>(),
             Description = fixture.Create<string>()
         });
-        editorContext.MunicipalityGeometries.Add(new MunicipalityGeometry
+        municipalityContext.Municipalities.Add(new Municipality
         {
+            MunicipalityId = fixture.Create<string>(),
             NisCode = "12345",
+            Status = MunicipalityStatus.Current,
             Geometry = new WKTReader().Read("MULTIPOLYGON (((50 0, 50 10, 55 10, 55 0, 50 0)))")
         });
         await editorContext.SaveChangesAsync();
+        await municipalityContext.SaveChangesAsync();
 
         var request = new GetOverlappingTransactionZonesByNisCodeRequest
         {
@@ -236,7 +259,7 @@ public class ByNisCode
         };
 
         // Act
-        var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
+        var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, municipalityContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
@@ -249,6 +272,7 @@ public class ByNisCode
         // Arrange
         var fixture = new Fixture();
         await using var editorContext = BuildEditorContext();
+        await using var municipalityContext = BuildMunicipalityEventConsumerContext();
 
         editorContext.ExtractRequests.Add(new ExtractRequestRecord
         {
@@ -258,8 +282,9 @@ public class ByNisCode
             ExternalRequestId = fixture.Create<string>(),
             Description = fixture.Create<string>()
         });
-        editorContext.MunicipalityGeometries.Add(new MunicipalityGeometry
+        municipalityContext.Municipalities.Add(new Municipality
         {
+            MunicipalityId = fixture.Create<string>(),
             NisCode = "12345",
             Geometry = new WKTReader().Read("MULTIPOLYGON (((50 0, 50 10, 55 10, 55 0, 50 0)))")
         });
@@ -272,7 +297,7 @@ public class ByNisCode
         };
 
         // Act
-        var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
+        var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, municipalityContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
@@ -285,6 +310,7 @@ public class ByNisCode
         // Arrange
         var fixture = new Fixture();
         await using var editorContext = BuildEditorContext();
+        await using var municipalityContext = BuildMunicipalityEventConsumerContext();
 
         editorContext.ExtractRequests.Add(new ExtractRequestRecord
         {
@@ -294,8 +320,9 @@ public class ByNisCode
             ExternalRequestId = fixture.Create<string>(),
             Description = fixture.Create<string>()
         });
-        editorContext.MunicipalityGeometries.Add(new MunicipalityGeometry
+        municipalityContext.Municipalities.Add(new Municipality
         {
+            MunicipalityId = fixture.Create<string>(),
             NisCode = "12345",
             Geometry = new WKTReader().Read("MULTIPOLYGON (((10 0, 10 10, 20 10, 20 0, 10 0)))")
         });
@@ -307,7 +334,7 @@ public class ByNisCode
         };
 
         // Act
-        var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
+        var handler = new GetOverlappingTransactionZonesByNisCodeRequestHandler(editorContext, municipalityContext, null, new NullLogger<DownloadExtractByContourRequestHandler>());
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
@@ -320,5 +347,13 @@ public class ByNisCode
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
         return new EditorContext(options);
+    }
+
+    private MunicipalityEventConsumerContext BuildMunicipalityEventConsumerContext()
+    {
+        var options = new DbContextOptionsBuilder<MunicipalityEventConsumerContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        return new MunicipalityEventConsumerContext(options);
     }
 }

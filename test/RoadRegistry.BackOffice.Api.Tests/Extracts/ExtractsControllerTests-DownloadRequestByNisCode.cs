@@ -7,6 +7,7 @@ using FluentAssertions;
 using FluentValidation;
 using Infrastructure.Containers;
 using NetTopologySuite.Geometries;
+using Sync.MunicipalityRegistry.Models;
 
 [Collection(nameof(SqlServerCollection))]
 public class DownloadExtractByNisCodeRequestValidatorTests
@@ -29,12 +30,14 @@ public class DownloadExtractByNisCodeRequestValidatorTests
     [Fact]
     public async Task Validate_will_allow_known_niscode()
     {
-        await using var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
+        await using var context = await _sqlServerFixture.CreateEmptyMunicipalityEventConsumerContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
         const string nisCode = "12345";
 
-        await context.MunicipalityGeometries.AddAsync(new MunicipalityGeometry
+        await context.Municipalities.AddAsync(new Municipality
         {
+            MunicipalityId = "1",
             NisCode = nisCode,
+            Status = MunicipalityStatus.Current,
             Geometry = GeometryCollection.Empty
         });
         await context.SaveChangesAsync();
@@ -49,12 +52,14 @@ public class DownloadExtractByNisCodeRequestValidatorTests
     [MemberData(nameof(ValidDescriptionCases))]
     public async Task Validate_will_allow_valid_description(string givenDescription)
     {
-        await using var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
+        await using var context = await _sqlServerFixture.CreateEmptyMunicipalityEventConsumerContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
         const string validNisCode = "12345";
 
-        await context.MunicipalityGeometries.AddAsync(new MunicipalityGeometry
+        await context.Municipalities.AddAsync(new Municipality
         {
+            MunicipalityId = "1",
             NisCode = validNisCode,
+            Status = MunicipalityStatus.Current,
             Geometry = GeometryCollection.Empty
         });
         await context.SaveChangesAsync();
@@ -70,7 +75,7 @@ public class DownloadExtractByNisCodeRequestValidatorTests
     [InlineData(null)]
     public async Task Validate_will_not_allow_empty_niscodes(string givenNisCode)
     {
-        await using var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
+        await using var context = await _sqlServerFixture.CreateEmptyMunicipalityEventConsumerContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
         var validator = new DownloadExtractByNisCodeRequestValidator(context);
 
         var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(givenNisCode, ValidBuffer, ValidDescription, false));
@@ -81,12 +86,14 @@ public class DownloadExtractByNisCodeRequestValidatorTests
     [MemberData(nameof(InvalidDescriptionCases))]
     public async Task Validate_will_not_allow_invalid_description(string givenDescription)
     {
-        await using var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
+        await using var context = await _sqlServerFixture.CreateEmptyMunicipalityEventConsumerContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
         const string validNisCode = "12345";
 
-        await context.MunicipalityGeometries.AddAsync(new MunicipalityGeometry
+        await context.Municipalities.AddAsync(new Municipality
         {
+            MunicipalityId = "1",
             NisCode = validNisCode,
+            Status = MunicipalityStatus.Current,
             Geometry = GeometryCollection.Empty
         });
         await context.SaveChangesAsync();
@@ -104,7 +111,7 @@ public class DownloadExtractByNisCodeRequestValidatorTests
     [InlineData("1234A")]
     public async Task Validate_will_not_allow_invalid_niscodes(string givenNisCode)
     {
-        await using var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
+        await using var context = await _sqlServerFixture.CreateEmptyMunicipalityEventConsumerContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
         var validator = new DownloadExtractByNisCodeRequestValidator(context);
 
         var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(
@@ -119,7 +126,7 @@ public class DownloadExtractByNisCodeRequestValidatorTests
     [Fact]
     public async Task Validate_will_not_allow_unknown_niscode()
     {
-        await using var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
+        await using var context = await _sqlServerFixture.CreateEmptyMunicipalityEventConsumerContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
         var validator = new DownloadExtractByNisCodeRequestValidator(context);
         var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest("12345", ValidBuffer, ValidDescription, false));
         await act.Should().ThrowAsync<ValidationException>();

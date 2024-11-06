@@ -107,10 +107,6 @@ public class Program
                 [
                     new OrganizationRecordV2Projection()
                 ])
-                .AddEditorContextEventProcessor<MunicipalityEventProcessor>(sp =>
-                [
-                    new MunicipalityGeometryProjection()
-                ])
                 .AddEditorContextEventProcessor<ChangeFeedEventProcessor>(sp =>
                 [
                     new RoadNetworkChangeFeedProjection(sp.GetRequiredService<IBlobClient>())

@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
 using Abstractions.Extracts;
-using Editor.Schema;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
@@ -13,10 +12,9 @@ public class DownloadExtractRequestHandler : ExtractRequestHandler<DownloadExtra
     private readonly WKTReader _reader;
 
     public DownloadExtractRequestHandler(
-        EditorContext context,
         CommandHandlerDispatcher dispatcher,
         WKTReader reader,
-        ILogger<DownloadExtractRequestHandler> logger) : base(context, dispatcher, logger)
+        ILogger<DownloadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
         _reader = reader ?? throw new ArgumentNullException(nameof(reader));
     }

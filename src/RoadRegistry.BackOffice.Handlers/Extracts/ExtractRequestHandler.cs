@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
 using Abstractions;
-using Editor.Schema;
 using Framework;
 using Microsoft.Extensions.Logging;
 
@@ -9,14 +8,10 @@ public abstract class ExtractRequestHandler<TRequest, TResponse> : EndpointReque
     where TRequest : EndpointRequest<TResponse>
     where TResponse : EndpointResponse
 {
-    protected readonly EditorContext _context;
-
     protected ExtractRequestHandler(
-        EditorContext context,
         CommandHandlerDispatcher dispatcher,
         ILogger logger) : base(dispatcher, logger)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
     protected override async Task<TResponse> InnerHandleAsync(TRequest request, CancellationToken cancellationToken)
