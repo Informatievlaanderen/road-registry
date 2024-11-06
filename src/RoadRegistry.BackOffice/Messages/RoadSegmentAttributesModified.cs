@@ -14,7 +14,7 @@ public class RoadSegmentAttributesModified : IHaveHash
     public string? Morphology { get; set; }
     public string? AccessRestriction { get; set; }
     public string? Category { get; set; }
-    public RoadSegmentSideAttributes? LeftSide { get; set; } //TODO-rik projections
+    public RoadSegmentSideAttributes? LeftSide { get; set; }
     public RoadSegmentSideAttributes? RightSide { get; set; }
     public RoadSegmentLaneAttributes[]? Lanes { get; set; }
     public RoadSegmentSurfaceAttributes[]? Surfaces { get; set; }
