@@ -412,22 +412,22 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
 
         if (roadSegmentAttributesModified.LeftSide is not null)
         {
-            var leftSideStreetNameRecord = await TryGetFromStreetNameCache(roadSegmentAttributesModified.LeftSide.StreetNameId, token);
+            var streetNameRecord = await TryGetFromStreetNameCache(roadSegmentAttributesModified.LeftSide.StreetNameId, token);
 
             dbRecord.LeftSideMunicipalityId = null;
-            dbRecord.LeftSideMunicipalityNisCode = leftSideStreetNameRecord?.NisCode;
+            dbRecord.LeftSideMunicipalityNisCode = streetNameRecord?.NisCode;
             dbRecord.LeftSideStreetNameId = roadSegmentAttributesModified.LeftSide.StreetNameId;
-            dbRecord.LeftSideStreetName = leftSideStreetNameRecord?.Name;
+            dbRecord.LeftSideStreetName = streetNameRecord?.Name;
         }
 
         if (roadSegmentAttributesModified.RightSide is not null)
         {
-            var leftSideStreetNameRecord = await TryGetFromStreetNameCache(roadSegmentAttributesModified.RightSide.StreetNameId, token);
+            var streetNameRecord = await TryGetFromStreetNameCache(roadSegmentAttributesModified.RightSide.StreetNameId, token);
 
             dbRecord.RightSideMunicipalityId = null;
-            dbRecord.RightSideMunicipalityNisCode = leftSideStreetNameRecord?.NisCode;
+            dbRecord.RightSideMunicipalityNisCode = streetNameRecord?.NisCode;
             dbRecord.RightSideStreetNameId = roadSegmentAttributesModified.RightSide.StreetNameId;
-            dbRecord.RightSideStreetName = leftSideStreetNameRecord?.Name;
+            dbRecord.RightSideStreetName = streetNameRecord?.Name;
         }
 
         dbRecord.RoadSegmentVersion = roadSegmentAttributesModified.Version;
