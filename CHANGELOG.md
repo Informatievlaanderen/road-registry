@@ -1,3 +1,10 @@
+## [4.15.2](https://github.com/informatievlaanderen/road-registry/compare/v4.15.1...v4.15.2) (2024-11-07)
+
+
+### Bug Fixes
+
+* streetnameeventconsumer register events for outlined roadsegments on the correct stream ([#1574](https://github.com/informatievlaanderen/road-registry/issues/1574)) ([7f50863](https://github.com/informatievlaanderen/road-registry/commit/7f508636dd4beb34fa150b68a5fb7f97ae3142fa))
+
 ## [4.15.1](https://github.com/informatievlaanderen/road-registry/compare/v4.15.0...v4.15.1) (2024-11-07)
 
 
