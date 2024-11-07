@@ -1,3 +1,15 @@
+# [4.15.0](https://github.com/informatievlaanderen/road-registry/compare/v4.14.0...v4.15.0) (2024-11-07)
+
+
+### Bug Fixes
+
+* use municipality consumer tables instead of editorcontext ([#1571](https://github.com/informatievlaanderen/road-registry/issues/1571)) ([347fdf0](https://github.com/informatievlaanderen/road-registry/commit/347fdf0c5fab70243a2234dfe2d0387f48bec8f5))
+
+
+### Features
+
+* streetname event consumer register RoadNetworkChangesAccepted event instead of ChangeRoadNetwork command ([#1572](https://github.com/informatievlaanderen/road-registry/issues/1572)) ([18890d8](https://github.com/informatievlaanderen/road-registry/commit/18890d8c15cfe8282cffe2a3b92e3863ec6a1c0d))
+
 # [4.14.0](https://github.com/informatievlaanderen/road-registry/compare/v4.13.2...v4.14.0) (2024-11-05)
 
 
