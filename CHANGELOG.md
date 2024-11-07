@@ -1,3 +1,10 @@
+## [4.15.3](https://github.com/informatievlaanderen/road-registry/compare/v4.15.2...v4.15.3) (2024-11-07)
+
+
+### Bug Fixes
+
+* projector query ([#1575](https://github.com/informatievlaanderen/road-registry/issues/1575)) ([333314f](https://github.com/informatievlaanderen/road-registry/commit/333314faaa3aea71fd4b46abd1894eb4716e89d8))
+
 ## [4.15.2](https://github.com/informatievlaanderen/road-registry/compare/v4.15.1...v4.15.2) (2024-11-07)
 
 
