@@ -45,28 +45,23 @@ SELECT [Name]
     ,null as DesiredState
     ,null as DesiredStateChangedAt
     ,null as ErrorMessage
-FROM [RoadRegistryBackOfficeEventHost].[EventProcessorPosition]
+FROM [RoadRegistryBackOfficeEventHost].[EventProcessorPosition] with (nolock)
 UNION ALL
 SELECT [Name]
     ,[Position]
     ,null as DesiredState
     ,null as DesiredStateChangedAt
     ,null as ErrorMessage
-FROM [RoadRegistryBackOfficeExtractHost].[EventProcessorPosition]
+FROM [RoadRegistryBackOfficeExtractHost].[EventProcessorPosition] with (nolock)
 UNION ALL
-SELECT q.Name
-    ,(q.MaxPosition - (q.MaxStreamVersion - q.Version)) as Position
+SELECT cpp.[Name]
+    ,m.Position
     ,null as DesiredState
     ,null as DesiredStateChangedAt
     ,null as ErrorMessage
-FROM (
-SELECT cpp.[Name]
-    ,cpp.[Version]
-    ,s.Version as MaxStreamVersion
-    ,s.Position as MaxStreamPosition
-    ,(SELECT MAX(Position) FROM [RoadRegistry].Messages) as MaxPosition
-FROM [RoadRegistryBackOfficeCommandHost].[CommandProcessorPosition] cpp
-JOIN [RoadRegistry].Streams s ON cpp.Name = s.IdOriginal
+FROM [RoadRegistryBackOfficeCommandHost].[CommandProcessorPosition] cpp with (nolock)
+JOIN [RoadRegistry].Streams s with (nolock) ON cpp.[Name] = s.[IdOriginal]
+JOIN [RoadRegistry].Messages m with (nolock) ON s.[IdInternal] = m.[StreamIdInternal] AND cpp.[Version] = m.[StreamVersion]
 ) q
 ")
                 .HasKey(x => x.Name);
