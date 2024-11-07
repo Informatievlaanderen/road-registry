@@ -17,10 +17,12 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
     public class RoadSegmentRecordProjection : ConnectedProjection<RoadSegmentProducerSnapshotContext>
     {
         private readonly IKafkaProducer _kafkaProducer;
+        private readonly IStreetNameCache _streetNameCache;
 
         public RoadSegmentRecordProjection(IKafkaProducer kafkaProducer, IStreetNameCache streetNameCache)
         {
-            _kafkaProducer = kafkaProducer;
+            _kafkaProducer = kafkaProducer.ThrowIfNull();
+            _streetNameCache = streetNameCache.ThrowIfNull();
 
             When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
             {
@@ -31,8 +33,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                 var category = RoadSegmentCategory.Parse(envelope.Message.Category);
                 var transactionId = new TransactionId(envelope.Message.Origin.TransactionId);
 
-                var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, envelope.Message.LeftSide.StreetNameId, token);
-                var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, envelope.Message.RightSide.StreetNameId, token);
+                var leftSideStreetNameRecord = await TryGetFromStreetNameCache(envelope.Message.LeftSide.StreetNameId, token);
+                var rightSideStreetNameRecord = await TryGetFromStreetNameCache(envelope.Message.RightSide.StreetNameId, token);
 
                 var roadNode = await context.RoadSegments.AddAsync(
                     new RoadSegmentRecord
@@ -95,11 +97,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                     switch (acceptedChange)
                     {
                         case RoadSegmentAdded roadSegmentAdded:
-                            await AddRoadSegment(streetNameCache, context, envelope, roadSegmentAdded, token);
+                            await AddRoadSegment(context, envelope, roadSegmentAdded, token);
                             break;
 
                         case RoadSegmentModified roadSegmentModified:
-                            await ModifyRoadSegment(streetNameCache, context, envelope, roadSegmentModified, token);
+                            await ModifyRoadSegment(context, envelope, roadSegmentModified, token);
                             break;
 
                         case RoadSegmentAddedToEuropeanRoad change:
@@ -159,7 +161,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             });
         }
 
-        private async Task AddRoadSegment(IStreetNameCache streetNameCache,
+        private async Task AddRoadSegment(
             RoadSegmentProducerSnapshotContext context,
             Envelope<RoadNetworkChangesAccepted> envelope,
             RoadSegmentAdded roadSegmentAdded,
@@ -188,8 +190,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             var morphology = RoadSegmentMorphology.Parse(roadSegmentAdded.Morphology);
             var category = RoadSegmentCategory.Parse(roadSegmentAdded.Category);
 
-            var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.LeftSide.StreetNameId, token);
-            var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.RightSide.StreetNameId, token);
+            var leftSideStreetNameRecord = await TryGetFromStreetNameCache(roadSegmentAdded.LeftSide.StreetNameId, token);
+            var rightSideStreetNameRecord = await TryGetFromStreetNameCache(roadSegmentAdded.RightSide.StreetNameId, token);
 
             dbRecord.Version = roadSegmentAdded.Version;
 
@@ -238,7 +240,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
 
-        private async Task ModifyRoadSegment(IStreetNameCache streetNameCache,
+        private async Task ModifyRoadSegment(
             RoadSegmentProducerSnapshotContext context,
             Envelope<RoadNetworkChangesAccepted> envelope,
             RoadSegmentModified roadSegmentModified,
@@ -259,8 +261,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             var morphology = RoadSegmentMorphology.Parse(roadSegmentModified.Morphology);
             var category = RoadSegmentCategory.Parse(roadSegmentModified.Category);
 
-            var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.LeftSide.StreetNameId, token);
-            var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.RightSide.StreetNameId, token);
+            var leftSideStreetNameRecord = await TryGetFromStreetNameCache(roadSegmentModified.LeftSide.StreetNameId, token);
+            var rightSideStreetNameRecord = await TryGetFromStreetNameCache(roadSegmentModified.RightSide.StreetNameId, token);
 
             dbRecord.Version = roadSegmentModified.Version;
             dbRecord.MaintainerId = roadSegmentModified.MaintenanceAuthority.Code;
@@ -414,6 +416,26 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                 dbRecord.AccessRestrictionDutchName = accessRestriction.Translation.Name;
             }
 
+            if (roadSegmentAttributesModified.LeftSide is not null)
+            {
+                var streetNameRecord = await TryGetFromStreetNameCache(roadSegmentAttributesModified.LeftSide.StreetNameId, token);
+
+                dbRecord.LeftSideMunicipalityId = null;
+                dbRecord.LeftSideMunicipalityNisCode = streetNameRecord?.NisCode;
+                dbRecord.LeftSideStreetNameId = roadSegmentAttributesModified.LeftSide.StreetNameId;
+                dbRecord.LeftSideStreetName = streetNameRecord?.Name;
+            }
+
+            if (roadSegmentAttributesModified.RightSide is not null)
+            {
+                var streetNameRecord = await TryGetFromStreetNameCache(roadSegmentAttributesModified.RightSide.StreetNameId, token);
+
+                dbRecord.RightSideMunicipalityId = null;
+                dbRecord.RightSideMunicipalityNisCode = streetNameRecord?.NisCode;
+                dbRecord.RightSideStreetNameId = roadSegmentAttributesModified.RightSide.StreetNameId;
+                dbRecord.RightSideStreetName = streetNameRecord?.Name;
+            }
+
             var transactionId = new TransactionId(envelope.Message.TransactionId);
             dbRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
 
@@ -506,7 +528,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
             var transactionId = new TransactionId(envelope.Message.TransactionId);
             dbRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
-            
+
             dbRecord.Origin = envelope.Message.ToOrigin();
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
@@ -574,12 +596,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             }
         }
 
-        private static async Task<StreetNameCacheItem> TryGetFromCache(
-            IStreetNameCache streetNameCache,
+        private async Task<StreetNameCacheItem> TryGetFromStreetNameCache(
             int? streetNameId,
             CancellationToken token)
         {
-            return streetNameId.HasValue ? await streetNameCache.GetAsync(streetNameId.Value, token).ConfigureAwait(false) : null;
+            return streetNameId.HasValue ? await _streetNameCache.GetAsync(streetNameId.Value, token).ConfigureAwait(false) : null;
         }
     }
 }

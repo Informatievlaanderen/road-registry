@@ -17,7 +17,7 @@ public class RoadSegmentRecordProjectionTests
 {
     private readonly Fixture _fixture;
     private readonly TestDataHelper _testDataHelper;
-    
+
     public RoadSegmentRecordProjectionTests()
     {
         _testDataHelper = new TestDataHelper();
@@ -475,11 +475,11 @@ public class RoadSegmentRecordProjectionTests
                 TransactionId = acceptedRoadSegmentAttributesModified.TransactionId,
 
                 LeftSideMunicipalityId = null,
-                LeftSideStreetNameId = segmentAdded.LeftSide.StreetNameId,
+                LeftSideStreetNameId = segment.LeftSide?.StreetNameId,
                 LeftSideStreetName = null,
 
                 RightSideMunicipalityId = null,
-                RightSideStreetNameId = segmentAdded.RightSide.StreetNameId,
+                RightSideStreetNameId = segment.RightSide?.StreetNameId,
                 RightSideStreetName = null,
 
                 RoadSegmentVersion = segment.Version,
@@ -741,7 +741,7 @@ public class RoadSegmentRecordProjectionTests
     {
         _fixture.Freeze<RoadSegmentId>();
         _fixture.Freeze<OrganizationId>();
-        
+
         var acceptedRoadSegmentAdded = _fixture
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
@@ -819,7 +819,7 @@ public class RoadSegmentRecordProjectionTests
     {
         _fixture.Freeze<RoadSegmentId>();
         _fixture.Freeze<StreetNameLocalId>();
-        
+
         var acceptedRoadSegmentAdded = _fixture
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.CreateUntil<RoadSegmentAdded>(x => x.LeftSide.StreetNameId is not null));

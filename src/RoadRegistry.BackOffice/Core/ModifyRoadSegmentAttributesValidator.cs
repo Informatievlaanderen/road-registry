@@ -36,6 +36,13 @@ public abstract class ModifyRoadSegmentAttributesValidatorBase : AbstractValidat
             .Must(RoadSegmentAccessRestriction.CanParse)
             .When(c => c.AccessRestriction != null, ApplyConditionTo.CurrentValidator)
             .WithProblemCode(ProblemCode.RoadSegment.AccessRestriction.NotValid);
+
+        RuleFor(c => c.LeftSide)
+            .SetValidator(new RoadSegmentSideAttributesValidator())
+            .When(c => c.LeftSide != null, ApplyConditionTo.CurrentValidator);
+        RuleFor(c => c.RightSide)
+            .SetValidator(new RoadSegmentSideAttributesValidator())
+            .When(c => c.RightSide != null, ApplyConditionTo.CurrentValidator);
     }
 }
 

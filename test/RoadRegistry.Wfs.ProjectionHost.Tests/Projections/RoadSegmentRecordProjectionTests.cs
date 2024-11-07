@@ -240,10 +240,10 @@ public class RoadSegmentRecordProjectionTests
 
                 AccessRestriction = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name,
 
-                LeftSideStreetNameId = segmentAdded.LeftSide.StreetNameId,
+                LeftSideStreetNameId = segment.LeftSide?.StreetNameId,
                 LeftSideStreetName = null,
 
-                RightSideStreetNameId = segmentAdded.RightSide.StreetNameId,
+                RightSideStreetNameId = segment.RightSide?.StreetNameId,
                 RightSideStreetName = null,
 
                 BeginRoadNodeId = segmentAdded.StartNodeId,
@@ -456,7 +456,7 @@ public class RoadSegmentRecordProjectionTests
     {
         _fixture.Freeze<RoadSegmentId>();
         _fixture.Freeze<OrganizationId>();
-        
+
         var acceptedRoadSegmentAdded = _fixture
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
@@ -518,7 +518,7 @@ public class RoadSegmentRecordProjectionTests
     {
         _fixture.Freeze<RoadSegmentId>();
         _fixture.Freeze<StreetNameLocalId>();
-        
+
         var acceptedRoadSegmentAdded = _fixture
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.CreateUntil<RoadSegmentAdded>(x => x.LeftSide.StreetNameId is not null));

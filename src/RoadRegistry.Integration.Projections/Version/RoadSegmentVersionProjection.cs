@@ -323,6 +323,16 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
             roadSegment.MaintainerId = roadSegmentAttributesModified.MaintenanceAuthority.Code;
         }
 
+        if (roadSegmentAttributesModified.LeftSide is not null)
+        {
+            roadSegment.LeftSideStreetNameId = roadSegmentAttributesModified.LeftSide.StreetNameId;
+        }
+
+        if (roadSegmentAttributesModified.RightSide is not null)
+        {
+            roadSegment.RightSideStreetNameId = roadSegmentAttributesModified.RightSide.StreetNameId;
+        }
+
         UpdateLanes(envelope, roadSegment, roadSegmentAttributesModified.Lanes);
         UpdateSurfaces(envelope, roadSegment, roadSegmentAttributesModified.Surfaces);
         UpdateWidths(envelope, roadSegment, roadSegmentAttributesModified.Widths);

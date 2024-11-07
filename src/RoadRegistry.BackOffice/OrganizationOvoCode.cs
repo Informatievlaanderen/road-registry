@@ -11,6 +11,8 @@ public readonly struct OrganizationOvoCode : IEquatable<OrganizationOvoCode>
     private readonly string _value;
     public const string Prefix = "OVO";
 
+    public static readonly OrganizationOvoCode DigitaalVlaanderen = new("OVO002949");
+
     public OrganizationOvoCode(string value)
     {
         if (string.IsNullOrEmpty(value))

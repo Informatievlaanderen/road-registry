@@ -20,7 +20,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 {
     private readonly Fixture _fixture;
     private readonly ProjectionTestServices _services;
-    
+
     public RoadSegmentRecordProjectionTests(ProjectionTestServices services)
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
@@ -375,21 +375,21 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
         {
             var segmentAdded = acceptedRoadSegmentAdded.Changes[0].RoadSegmentAdded;
 
-            var roadSegmentModified = change.RoadSegmentAttributesModified;
+            var roadSegmentAttributesModified = change.RoadSegmentAttributesModified;
             var transactionId = new TransactionId(acceptedRoadSegmentAttributesModified.TransactionId);
             var method = RoadSegmentGeometryDrawMethod.Parse(segmentAdded.GeometryDrawMethod);
-            var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentModified.AccessRestriction);
-            var status = RoadSegmentStatus.Parse(roadSegmentModified.Status);
-            var morphology = RoadSegmentMorphology.Parse(roadSegmentModified.Morphology);
-            var category = RoadSegmentCategory.Parse(roadSegmentModified.Category);
+            var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentAttributesModified.AccessRestriction);
+            var status = RoadSegmentStatus.Parse(roadSegmentAttributesModified.Status);
+            var morphology = RoadSegmentMorphology.Parse(roadSegmentAttributesModified.Morphology);
+            var category = RoadSegmentCategory.Parse(roadSegmentAttributesModified.Category);
 
             var roadSegmentRecord = new RoadSegmentRecord
             {
-                Id = roadSegmentModified.Id,
-                Version = roadSegmentModified.Version,
+                Id = roadSegmentAttributesModified.Id,
+                Version = roadSegmentAttributesModified.Version,
 
-                MaintainerId = roadSegmentModified.MaintenanceAuthority.Code,
-                MaintainerName = roadSegmentModified.MaintenanceAuthority.Name,
+                MaintainerId = roadSegmentAttributesModified.MaintenanceAuthority.Code,
+                MaintainerName = roadSegmentAttributesModified.MaintenanceAuthority.Name,
 
                 MethodId = method.Translation.Identifier,
                 MethodDutchName = method.Translation.Name,
@@ -414,15 +414,15 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 
                 LeftSideMunicipalityId = null,
                 LeftSideMunicipalityNisCode = null,
-                LeftSideStreetNameId = segmentAdded.LeftSide?.StreetNameId,
+                LeftSideStreetNameId = roadSegmentAttributesModified.LeftSide?.StreetNameId,
                 LeftSideStreetName = null,
 
                 RightSideMunicipalityId = null,
                 RightSideMunicipalityNisCode = null,
-                RightSideStreetNameId = segmentAdded.RightSide?.StreetNameId,
+                RightSideStreetNameId = roadSegmentAttributesModified.RightSide?.StreetNameId,
                 RightSideStreetName = null,
 
-                RoadSegmentVersion = roadSegmentModified.Version,
+                RoadSegmentVersion = roadSegmentAttributesModified.Version,
 
                 BeginRoadNodeId = segmentAdded.StartNodeId,
                 EndRoadNodeId = segmentAdded.EndNodeId,
@@ -833,11 +833,11 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
     {
         _fixture.Freeze<RoadSegmentId>();
         _fixture.Freeze<OrganizationId>();
-        
+
         var acceptedRoadSegmentAdded = _fixture
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
-        
+
         var renameOrganizationAccepted = new RenameOrganizationAccepted
         {
             Code = _fixture.Create<OrganizationId>(),
@@ -849,7 +849,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             acceptedRoadSegmentAdded,
             renameOrganizationAccepted
         };
-        
+
         var created = DateTimeOffset.UtcNow;
 
         var expectedRecords = ConvertToRoadSegmentRecords(acceptedRoadSegmentAdded, created, record =>
@@ -859,7 +859,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 
         var kafkaProducer = BuildKafkaProducer();
         var streetNameCache = BuildStreetNameCache();
-        
+
         await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
             .Scenario()
             .Given(messages)
@@ -895,7 +895,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             record.LeftSideStreetName = streetNameModified.Record.DutchName;
             record.RightSideStreetName = streetNameModified.Record.DutchName;
         });
-        
+
         var kafkaProducer = BuildKafkaProducer();
         var streetNameCache = BuildStreetNameCache();
 

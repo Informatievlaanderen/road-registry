@@ -109,11 +109,11 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
             Status = Status,
             Category = _correctedCategory ?? Category,
             AccessRestriction = AccessRestriction,
-            LeftSide = new RoadSegmentSideAttributes
+            LeftSide = new Messages.RoadSegmentSideAttributes
             {
                 StreetNameId = LeftSideStreetNameId
             },
-            RightSide = new RoadSegmentSideAttributes
+            RightSide = new Messages.RoadSegmentSideAttributes
             {
                 StreetNameId = RightSideStreetNameId
             },

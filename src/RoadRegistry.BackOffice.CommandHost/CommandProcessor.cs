@@ -62,6 +62,8 @@ public class CommandProcessor : RoadRegistryHostedService
         });
         _messagePump = Task.Factory.StartNew(async () =>
         {
+            //TODO-rik bij failure toch blijven proberen zodat commandhost niet herstart moet worden
+
             IStreamSubscription subscription = null;
             try
             {

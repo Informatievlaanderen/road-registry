@@ -17,7 +17,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 {
     private readonly Fixture _fixture;
     private readonly ProjectionTestServices _services;
-    
+
     public RoadSegmentRecordProjectionTests(ProjectionTestServices services)
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
@@ -321,7 +321,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
         {
             var roadSegmentAdded = acceptedRoadSegmentAdded.Changes[0].RoadSegmentAdded;
             var roadSegmentAttributesModified = change.RoadSegmentAttributesModified;
-            
+
             var geometry = GeometryTranslator.Translate(roadSegmentAdded.Geometry);
             var polyLineMShapeContent = new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(geometry));
             var statusTranslation = RoadSegmentStatus.Parse(roadSegmentAttributesModified.Status).Translation;
@@ -343,8 +343,8 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 StatusId = statusTranslation.Identifier,
                 MorphologyId = morphologyTranslation.Identifier,
                 CategoryId = categoryTranslation.Identifier,
-                LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId,
-                RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId,
+                LeftSideStreetNameId = roadSegmentAttributesModified.LeftSide?.StreetNameId,
+                RightSideStreetNameId = roadSegmentAttributesModified.RightSide?.StreetNameId,
                 MaintainerId = roadSegmentAttributesModified.MaintenanceAuthority.Code,
                 MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentAttributesModified.MaintenanceAuthority.Name),
                 MethodId = geometryDrawMethodTranslation.Identifier,
@@ -369,9 +369,9 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     LBLMORF = { Value = morphologyTranslation.Name },
                     WEGCAT = { Value = categoryTranslation.Identifier },
                     LBLWEGCAT = { Value = categoryTranslation.Name },
-                    LSTRNMID = { Value = roadSegmentAdded.LeftSide.StreetNameId },
+                    LSTRNMID = { Value = roadSegmentAttributesModified.LeftSide?.StreetNameId },
                     LSTRNM = { Value = null },
-                    RSTRNMID = { Value = roadSegmentAdded.RightSide.StreetNameId },
+                    RSTRNMID = { Value = roadSegmentAttributesModified.RightSide?.StreetNameId },
                     RSTRNM = { Value = null },
                     BEHEER = { Value = roadSegmentAttributesModified.MaintenanceAuthority.Code },
                     LBLBEHEER = { Value = roadSegmentAttributesModified.MaintenanceAuthority.Name },
@@ -592,7 +592,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             acceptedRoadSegmentAdded,
             acceptedRoadSegmentRemoved
         };
-        
+
         return BuildProjection()
             .Scenario()
             .Given(messages)
@@ -623,7 +623,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     EndNodeId = importedRoadSegment.EndNodeId,
                     ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                     ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
-                    
+
                     Version = importedRoadSegment.Version,
                     GeometryVersion = importedRoadSegment.GeometryVersion,
                     StatusId = statusTranslation.Identifier,
@@ -641,7 +641,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     BeginTime = importedRoadSegment.Origin.Since,
                     BeginOrganizationId = importedRoadSegment.Origin.OrganizationId,
                     BeginOrganizationName = importedRoadSegment.Origin.Organization,
-                    
+
                     DbaseRecord = new RoadSegmentDbaseRecord
                     {
                         WS_OIDN = { Value = importedRoadSegment.Id },

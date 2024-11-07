@@ -6,6 +6,7 @@ using Hosts;
 using Microsoft.Extensions.Logging;
 using SqlStreamStore;
 
+//TODO-rik aparte processor voor system healthcheck?
 public class RoadNetworkCommandProcessor : CommandProcessor
 {
     public RoadNetworkCommandProcessor(

@@ -12,6 +12,7 @@ using AddRoadSegment = RoadRegistry.BackOffice.Messages.AddRoadSegment;
 using AddRoadSegmentToEuropeanRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToEuropeanRoad;
 using AddRoadSegmentToNationalRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToNationalRoad;
 using AddRoadSegmentToNumberedRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToNumberedRoad;
+using ModifyRoadSegmentAttributes = RoadRegistry.BackOffice.Messages.ModifyRoadSegmentAttributes;
 using ModifyRoadNode = RoadRegistry.BackOffice.Messages.ModifyRoadNode;
 using RequestedRoadSegmentEuropeanRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentEuropeanRoadAttribute;
 using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLaneAttributes;
@@ -26,6 +27,7 @@ public class ChangeRoadNetworkValidatorTests : ValidatorTest<ChangeRoadNetwork, 
     {
         Fixture.CustomizePoint();
         Fixture.CustomizePolylineM();
+        Fixture.CustomizeOrganizationId();
         Fixture.CustomizeRoadNodeId();
         Fixture.CustomizeRoadNodeType();
         Fixture.CustomizeRoadSegmentId();
@@ -97,6 +99,7 @@ public class ChangeRoadNetworkValidatorTests : ValidatorTest<ChangeRoadNetwork, 
         Fixture.CustomizeAddRoadNode();
         Fixture.CustomizeModifyRoadNode();
         Fixture.CustomizeAddRoadSegment();
+        Fixture.CustomizeModifyRoadSegmentAttributes();
         Fixture.CustomizeAddGradeSeparatedJunction();
         Fixture.Customize<RequestedRoadSegmentLaneAttribute>(
             composer =>
@@ -207,7 +210,8 @@ public class ChangeRoadNetworkValidatorTests : ValidatorTest<ChangeRoadNetwork, 
                     },
                     AddRoadSegmentToEuropeanRoad = Fixture.Create<AddRoadSegmentToEuropeanRoad>(),
                     AddRoadSegmentToNationalRoad = Fixture.Create<AddRoadSegmentToNationalRoad>(),
-                    AddRoadSegmentToNumberedRoad = Fixture.Create<AddRoadSegmentToNumberedRoad>()
+                    AddRoadSegmentToNumberedRoad = Fixture.Create<AddRoadSegmentToNumberedRoad>(),
+                    ModifyRoadSegmentAttributes = Fixture.Create<ModifyRoadSegmentAttributes>()
                 }
             }
         };
@@ -316,6 +320,7 @@ public class ChangeRoadNetworkValidatorTests : ValidatorTest<ChangeRoadNetwork, 
         Model.Changes[0].AddRoadSegmentToEuropeanRoad = null;
         Model.Changes[0].AddRoadSegmentToNationalRoad = null;
         Model.Changes[0].AddRoadSegmentToNumberedRoad = null;
+        Model.Changes[0].ModifyRoadSegmentAttributes = null;
 
         base.VerifyValid();
     }

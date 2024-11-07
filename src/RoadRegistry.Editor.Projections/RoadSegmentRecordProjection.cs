@@ -479,6 +479,22 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
             dbaseRecord.LBLBEHEER.Value = OrganizationName.FromValueWithFallback(roadSegmentAttributesModified.MaintenanceAuthority.Name);
         }
 
+        if (roadSegmentAttributesModified.LeftSide is not null)
+        {
+            dbRecord.LeftSideStreetNameId = roadSegmentAttributesModified.LeftSide.StreetNameId;
+
+            dbaseRecord.LSTRNMID.Value = roadSegmentAttributesModified.LeftSide.StreetNameId;
+            dbaseRecord.LSTRNM.Value = null; // This value is fetched from cache when downloading (see RoadSegmentsToZipArchiveWriter)
+        }
+
+        if (roadSegmentAttributesModified.RightSide is not null)
+        {
+            dbRecord.RightSideStreetNameId = roadSegmentAttributesModified.RightSide.StreetNameId;
+
+            dbaseRecord.RSTRNMID.Value = roadSegmentAttributesModified.RightSide.StreetNameId;
+            dbaseRecord.RSTRNM.Value = null; // This value is fetched from cache when downloading (see RoadSegmentsToZipArchiveWriter)
+        }
+
         dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentAttributesModified.Id, roadSegmentAttributesModified.Version);
         dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 

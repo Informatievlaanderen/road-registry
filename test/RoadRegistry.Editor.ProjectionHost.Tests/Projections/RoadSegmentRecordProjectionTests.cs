@@ -104,7 +104,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
         var expectedRecords = Array.ConvertAll(message.Changes, change =>
         {
             var roadSegmentAddedToEuropeanRoad = change.RoadSegmentAddedToEuropeanRoad;
-            
+
             return (object)BuildRoadSegmentRecord(
                 acceptedRoadSegmentAdded,
                 acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded,
@@ -321,7 +321,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
         {
             var roadSegmentAdded = acceptedRoadSegmentAdded.Changes[0].RoadSegmentAdded;
             var roadSegmentAttributesModified = change.RoadSegmentAttributesModified;
-            
+
             var geometry = GeometryTranslator.Translate(roadSegmentAdded.Geometry);
             var polyLineMShapeContent = new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(geometry));
             var statusTranslation = RoadSegmentStatus.Parse(roadSegmentAttributesModified.Status).Translation;
@@ -344,8 +344,8 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 StatusId = statusTranslation.Identifier,
                 MorphologyId = morphologyTranslation.Identifier,
                 CategoryId = categoryTranslation.Identifier,
-                LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId,
-                RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId,
+                LeftSideStreetNameId = roadSegmentAttributesModified.LeftSide?.StreetNameId,
+                RightSideStreetNameId = roadSegmentAttributesModified.RightSide?.StreetNameId,
                 MaintainerId = roadSegmentAttributesModified.MaintenanceAuthority.Code,
                 MaintainerName = OrganizationName.FromValueWithFallback(roadSegmentAttributesModified.MaintenanceAuthority.Name),
                 MethodId = geometryDrawMethodTranslation.Identifier,
@@ -370,9 +370,9 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     LBLMORF = { Value = morphologyTranslation.Name },
                     WEGCAT = { Value = categoryTranslation.Identifier },
                     LBLWEGCAT = { Value = categoryTranslation.Name },
-                    LSTRNMID = { Value = roadSegmentAdded.LeftSide.StreetNameId },
+                    LSTRNMID = { Value = roadSegmentAttributesModified.LeftSide.StreetNameId },
                     LSTRNM = { Value = null },
-                    RSTRNMID = { Value = roadSegmentAdded.RightSide.StreetNameId },
+                    RSTRNMID = { Value = roadSegmentAttributesModified.RightSide.StreetNameId },
                     RSTRNM = { Value = null },
                     BEHEER = { Value = roadSegmentAttributesModified.MaintenanceAuthority.Code },
                     LBLBEHEER = { Value = roadSegmentAttributesModified.MaintenanceAuthority.Name },
@@ -608,7 +608,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation;
             var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction).Translation;
             var transactionId = new TransactionId(acceptedRoadSegmentRemoved.TransactionId);
-            
+
             return (object)new RoadSegmentRecord
             {
                 Id = roadSegmentAdded.Id,
@@ -700,7 +700,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     ShapeRecordContent = polyLineMShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
                     ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
                     Geometry = geometry,
-                    
+
                     Version = importedRoadSegment.Version,
                     GeometryVersion = importedRoadSegment.GeometryVersion,
                     StatusId = statusTranslation.Identifier,
@@ -718,7 +718,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     BeginTime = importedRoadSegment.Origin.Since,
                     BeginOrganizationId = importedRoadSegment.Origin.OrganizationId,
                     BeginOrganizationName = importedRoadSegment.Origin.Organization,
-                    
+
                     DbaseRecord = new RoadSegmentDbaseRecord
                     {
                         WS_OIDN = { Value = importedRoadSegment.Id },

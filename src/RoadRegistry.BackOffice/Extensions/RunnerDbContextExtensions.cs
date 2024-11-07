@@ -9,7 +9,12 @@ using SqlStreamStore;
 
 public static class RunnerDbContextExtensions
 {
-    public static async Task WaitForProjectionToBeAtStoreHeadPosition<TDbContext>(this RunnerDbContext<TDbContext> dbContext, IStreamStore store, string projectionStateName, ILogger logger, CancellationToken cancellationToken)
+    public static async Task WaitForProjectionToBeAtStoreHeadPosition<TDbContext>(this RunnerDbContext<TDbContext> dbContext,
+        IStreamStore store,
+        string projectionStateName,
+        ILogger logger,
+        CancellationToken cancellationToken,
+        int waitDelayMilliseconds = 1000)
         where TDbContext : DbContext
     {
         var loggedWaitingMessage = false;
@@ -38,7 +43,7 @@ public static class RunnerDbContextExtensions
                 loggedWaitingMessage = true;
             }
 
-            await Task.Delay(1000, cancellationToken);
+            await Task.Delay(waitDelayMilliseconds, cancellationToken);
         }
     }
 }
