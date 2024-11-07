@@ -62,7 +62,6 @@ SELECT cpp.[Name]
 FROM [RoadRegistryBackOfficeCommandHost].[CommandProcessorPosition] cpp with (nolock)
 JOIN [RoadRegistry].Streams s with (nolock) ON cpp.[Name] = s.[IdOriginal]
 JOIN [RoadRegistry].Messages m with (nolock) ON s.[IdInternal] = m.[StreamIdInternal] AND cpp.[Version] = m.[StreamVersion]
-) q
 ")
                 .HasKey(x => x.Name);
         }
