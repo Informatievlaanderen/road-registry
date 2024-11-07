@@ -113,8 +113,6 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
 
     private async Task Handle(StreetNameWasRetiredBecauseOfMunicipalityMerger message, CancellationToken cancellationToken)
     {
-        //TODO-rik add unit tests for new projections and domain event handling
-
         await using var editorContext = _editorContextFactory();
         await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost, Logger, cancellationToken, waitDelayMilliseconds: 250);
 

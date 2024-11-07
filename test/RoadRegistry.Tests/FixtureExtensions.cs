@@ -813,6 +813,14 @@ public static class Customizations
                         },
                         Status = fixture.Create<RoadSegmentStatus>(),
                         AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>(),
+                        LeftSide = new RoadSegmentSideAttributes
+                        {
+                            StreetNameId = fixture.Create<StreetNameLocalId>()
+                        },
+                        RightSide = new RoadSegmentSideAttributes
+                        {
+                            StreetNameId = fixture.Create<StreetNameLocalId>()
+                        },
                         Lanes = fixture.CreateMany<RoadSegmentLaneAttributes>().ToArray(),
                         Surfaces = fixture.CreateMany<RoadSegmentSurfaceAttributes>().ToArray(),
                         Widths = fixture.CreateMany<RoadSegmentWidthAttributes>().ToArray()
