@@ -1,7 +1,6 @@
 namespace RoadRegistry.SyncHost.StreetName;
 
 using System;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,17 +9,13 @@ using BackOffice.Core;
 using BackOffice.Extensions;
 using BackOffice.Framework;
 using BackOffice.Messages;
-using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
-using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Hosts;
 using Microsoft.Extensions.Logging;
-using NetTopologySuite.Geometries;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 using AcceptedChange = BackOffice.Core.AcceptedChange;
-using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using ModifyRoadSegmentAttributes = BackOffice.Core.ModifyRoadSegmentAttributes;
 using RoadSegmentSideAttributes = BackOffice.Core.RoadSegmentSideAttributes;
 using StreetNameWasRemovedV2 = Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry.StreetNameWasRemovedV2;
@@ -56,22 +51,22 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
     protected override async Task ExecutingAsync(CancellationToken cancellationToken)
     {
         await _consumer.ConsumeContinuously(async (message, dbContext) =>
+        {
+            Logger.LogInformation("Processing {Type}", message.GetType().Name);
+
+            await (message switch
             {
-                Logger.LogInformation("Processing {Type}", message.GetType().Name);
+                StreetNameWasRemovedV2 @event => Handle(@event, cancellationToken),
+                StreetNameWasRenamed @event => Handle(@event, cancellationToken),
+                StreetNameWasRetiredBecauseOfMunicipalityMerger @event => Handle(@event, cancellationToken),
+                StreetNameWasRejectedBecauseOfMunicipalityMerger @event => Handle(@event, cancellationToken),
+                _ => Task.CompletedTask
+            });
 
-                await (message switch
-                {
-                    StreetNameWasRemovedV2 @event => Handle(@event, cancellationToken),
-                    StreetNameWasRenamed @event => Handle(@event, cancellationToken),
-                    StreetNameWasRetiredBecauseOfMunicipalityMerger @event => Handle(@event, cancellationToken),
-                    StreetNameWasRejectedBecauseOfMunicipalityMerger @event => Handle(@event, cancellationToken),
-                    _ => Task.CompletedTask
-                });
+            await dbContext.SaveChangesAsync(cancellationToken);
 
-                await dbContext.SaveChangesAsync(cancellationToken);
-
-                Logger.LogInformation("Processed {Type}", message.GetType().Name);
-            }, cancellationToken);
+            Logger.LogInformation("Processed {Type}", message.GetType().Name);
+        }, cancellationToken);
     }
 
     private async Task Handle(StreetNameWasRemovedV2 message, CancellationToken cancellationToken)
@@ -79,16 +74,12 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         await using var editorContext = _editorContextFactory();
         await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost, Logger, cancellationToken);
 
-        var roadNetworkEvent = await BuildRoadNetworkEventToLinkRoadSegmentsToDifferentStreetName(
+        await LinkRoadSegmentsToDifferentStreetName(
             message.PersistentLocalId,
             StreetNameLocalId.NotApplicable,
             $"Wegsegmenten ontkoppelen van straatnaam {message.PersistentLocalId}",
             editorContext,
             cancellationToken);
-        if (roadNetworkEvent is not null)
-        {
-            await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, ExpectedVersion.Any, roadNetworkEvent, cancellationToken);
-        }
     }
 
     private async Task Handle(StreetNameWasRenamed message, CancellationToken cancellationToken)
@@ -96,16 +87,12 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         await using var editorContext = _editorContextFactory();
         await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost, Logger, cancellationToken);
 
-        var roadNetworkEvent = await BuildRoadNetworkEventToLinkRoadSegmentsToDifferentStreetName(
+        await LinkRoadSegmentsToDifferentStreetName(
             message.PersistentLocalId,
             message.DestinationPersistentLocalId,
             $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {message.DestinationPersistentLocalId}",
             editorContext,
             cancellationToken);
-        if (roadNetworkEvent is not null)
-        {
-            await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, ExpectedVersion.Any, roadNetworkEvent, cancellationToken);
-        }
 
         var streetNameEvent = BuildStreetNameEvent(message);
         await _streetNameEventWriter.WriteAsync(streetNameEvent, cancellationToken);
@@ -120,16 +107,12 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
             ? message.NewPersistentLocalIds.First()
             : StreetNameLocalId.NotApplicable;
 
-        var roadNetworkEvent = await BuildRoadNetworkEventToLinkRoadSegmentsToDifferentStreetName(
+        await LinkRoadSegmentsToDifferentStreetName(
             message.PersistentLocalId,
             destinationStreetNameId,
             $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {destinationStreetNameId} in functie van een gemeentefusie",
             editorContext,
             cancellationToken);
-        if (roadNetworkEvent is not null)
-        {
-            await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, ExpectedVersion.Any, roadNetworkEvent, cancellationToken);
-        }
     }
 
     private async Task Handle(StreetNameWasRejectedBecauseOfMunicipalityMerger message, CancellationToken cancellationToken)
@@ -141,71 +124,76 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
             ? message.NewPersistentLocalIds.First()
             : StreetNameLocalId.NotApplicable;
 
-        var roadNetworkEvent = await BuildRoadNetworkEventToLinkRoadSegmentsToDifferentStreetName(
+        await LinkRoadSegmentsToDifferentStreetName(
             message.PersistentLocalId,
             destinationStreetNameId,
             $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {destinationStreetNameId} in functie van een gemeentefusie",
             editorContext,
             cancellationToken);
-        if (roadNetworkEvent is not null)
-        {
-            await _roadNetworkEventWriter.WriteAsync(RoadNetworkStreamNameProvider.Default, ExpectedVersion.Any, roadNetworkEvent, cancellationToken);
-        }
     }
 
-    private async Task<Event?> BuildRoadNetworkEventToLinkRoadSegmentsToDifferentStreetName(int sourceStreetNameId, int destinationStreetNameId, string reason, EditorContext editorContext, CancellationToken cancellationToken)
+    private async Task LinkRoadSegmentsToDifferentStreetName(int sourceStreetNameId, int destinationStreetNameId, string reason, EditorContext editorContext, CancellationToken cancellationToken)
     {
         var segments = await editorContext.RoadSegments
             .IncludeLocalToListAsync(q => q.Where(x => x.LeftSideStreetNameId == sourceStreetNameId || x.RightSideStreetNameId == sourceStreetNameId), cancellationToken);
         if (!segments.Any())
         {
-            return null;
+            return;
         }
 
         await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, WellKnownProjectionStateNames.RoadRegistryEditorOrganizationV2ProjectionHost, Logger, cancellationToken, waitDelayMilliseconds: 250);
         var organization = await editorContext.OrganizationsV2.IncludeLocalSingleOrDefaultAsync(x => x.OvoCode == OrganizationOvoCode.DigitaalVlaanderen, cancellationToken);
 
-        var transactionId = await _roadNetworkIdGenerator.NewTransactionId();
-        var requestedChanges = RequestedChanges.Start(transactionId);
+        var segmentsPerStreamGrouping = segments
+            .GroupBy(x => x.MethodId == RoadSegmentGeometryDrawMethod.Outlined.Translation.Identifier
+                ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(x.Id))
+                : RoadNetworkStreamNameProvider.Default);
 
-        foreach (var roadSegment in segments)
+        foreach (var segmentsPerStream in segmentsPerStreamGrouping)
         {
-            var leftSide = roadSegment.LeftSideStreetNameId == sourceStreetNameId
-                ? new RoadSegmentSideAttributes(new StreetNameLocalId(destinationStreetNameId))
-                : null;
-            var rightSide = roadSegment.RightSideStreetNameId == sourceStreetNameId
-                ? new RoadSegmentSideAttributes(new StreetNameLocalId(destinationStreetNameId))
-                : null;
+            var transactionId = await _roadNetworkIdGenerator.NewTransactionId();
 
-            requestedChanges = requestedChanges.Append(new ModifyRoadSegmentAttributes(
-                new RoadSegmentId(roadSegment.Id),
-                new RoadSegmentVersion(roadSegment.Version + 1),
-                RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegment.MethodId],
-                null, null, null, null, null, null,
-                leftSide,
-                rightSide,
-                null, null, null
-            ));
+            var requestedChanges = RequestedChanges.Start(transactionId);
 
-            Logger.LogInformation("Linking RoadSegment {Id} to StreetName {StreetNameId}s", roadSegment.Id, destinationStreetNameId);
+            foreach (var roadSegment in segmentsPerStream)
+            {
+                var leftSide = roadSegment.LeftSideStreetNameId == sourceStreetNameId
+                    ? new RoadSegmentSideAttributes(new StreetNameLocalId(destinationStreetNameId))
+                    : null;
+                var rightSide = roadSegment.RightSideStreetNameId == sourceStreetNameId
+                    ? new RoadSegmentSideAttributes(new StreetNameLocalId(destinationStreetNameId))
+                    : null;
+
+                requestedChanges = requestedChanges.Append(new ModifyRoadSegmentAttributes(
+                    new RoadSegmentId(roadSegment.Id),
+                    new RoadSegmentVersion(roadSegment.Version + 1),
+                    RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegment.MethodId],
+                    null, null, null, null, null, null,
+                    leftSide,
+                    rightSide,
+                    null, null, null
+                ));
+
+                Logger.LogInformation("Linking RoadSegment {Id} to StreetName {StreetNameId}s", roadSegment.Id, destinationStreetNameId);
+            }
+
+            var @event = new RoadNetworkChangesAccepted
+            {
+                RequestId = ChangeRequestId.FromUploadId(new UploadId(Guid.NewGuid())),
+                Reason = reason,
+                Operator = new OperatorName(organization.Code),
+                OrganizationId = organization.Code,
+                Organization = organization.Name,
+                TransactionId = requestedChanges.TransactionId,
+                Changes = requestedChanges
+                    .Select(x => new VerifiableChange(x).AsVerifiedChange())
+                    .OfType<AcceptedChange>()
+                    .Select(change => change.Translate())
+                    .ToArray()
+            };
+
+            await _roadNetworkEventWriter.WriteAsync(segmentsPerStream.Key, ExpectedVersion.Any, new Event(@event), cancellationToken);
         }
-
-        var @event = new RoadNetworkChangesAccepted
-        {
-            RequestId = ChangeRequestId.FromUploadId(new UploadId(Guid.NewGuid())),
-            Reason = reason,
-            Operator = new OperatorName(organization.Code),
-            OrganizationId = organization.Code,
-            Organization = organization.Name,
-            TransactionId = requestedChanges.TransactionId,
-            Changes = requestedChanges
-                .Select(x => new VerifiableChange(x).AsVerifiedChange())
-                .OfType<AcceptedChange>()
-                .Select(change => change.Translate())
-                .ToArray()
-        };
-
-        return new Event(@event);
     }
 
     private Event BuildStreetNameEvent(StreetNameWasRenamed message)
