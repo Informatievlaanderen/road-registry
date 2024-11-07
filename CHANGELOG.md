@@ -1,3 +1,10 @@
+## [4.15.1](https://github.com/informatievlaanderen/road-registry/compare/v4.15.0...v4.15.1) (2024-11-07)
+
+
+### Bug Fixes
+
+* commandhost processors position in projector ([#1573](https://github.com/informatievlaanderen/road-registry/issues/1573)) ([661420b](https://github.com/informatievlaanderen/road-registry/commit/661420bfba6f8434c8faa70fae7511c2368fc624))
+
 # [4.15.0](https://github.com/informatievlaanderen/road-registry/compare/v4.14.0...v4.15.0) (2024-11-07)
 
 
