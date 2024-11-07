@@ -224,11 +224,11 @@ public class ModifyRoadSegmentScenarios : RoadNetworkTestBase
                                     Code = ObjectProvider.Create<OrganizationId>(),
                                     Name = ObjectProvider.Create<OrganizationName>()
                                 },
-                                LeftSide = new RoadSegmentSideAttributes
+                                LeftSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
                                 {
                                     StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                                 },
-                                RightSide = new RoadSegmentSideAttributes
+                                RightSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
                                 {
                                     StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                                 },
@@ -338,11 +338,11 @@ public class ModifyRoadSegmentScenarios : RoadNetworkTestBase
                                     Code = ObjectProvider.Create<OrganizationId>(),
                                     Name = ObjectProvider.Create<OrganizationName>()
                                 },
-                                LeftSide = new RoadSegmentSideAttributes
+                                LeftSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
                                 {
                                     StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                                 },
-                                RightSide = new RoadSegmentSideAttributes
+                                RightSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
                                 {
                                     StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                                 },
@@ -636,11 +636,11 @@ public class ModifyRoadSegmentScenarios : RoadNetworkTestBase
                                     Code = ObjectProvider.Create<OrganizationId>(),
                                     Name = ObjectProvider.Create<OrganizationName>()
                                 },
-                                LeftSide = new RoadSegmentSideAttributes
+                                LeftSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
                                 {
                                     StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                                 },
-                                RightSide = new RoadSegmentSideAttributes
+                                RightSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
                                 {
                                     StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                                 },

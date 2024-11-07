@@ -370,11 +370,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
             Status = AddSegment1.Status,
             Category = AddSegment1.Category,
             AccessRestriction = AddSegment1.AccessRestriction,
-            LeftSide = new RoadSegmentSideAttributes
+            LeftSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
             {
                 StreetNameId = AddSegment1.LeftSideStreetNameId
             },
-            RightSide = new RoadSegmentSideAttributes
+            RightSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
             {
                 StreetNameId = AddSegment1.RightSideStreetNameId
             },
@@ -472,11 +472,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
             Status = AddSegment2.Status,
             Category = AddSegment2.Category,
             AccessRestriction = AddSegment2.AccessRestriction,
-            LeftSide = new RoadSegmentSideAttributes
+            LeftSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
             {
                 StreetNameId = AddSegment2.LeftSideStreetNameId
             },
-            RightSide = new RoadSegmentSideAttributes
+            RightSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
             {
                 StreetNameId = AddSegment2.RightSideStreetNameId
             },
@@ -574,11 +574,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
             Status = AddSegment3.Status,
             Category = AddSegment3.Category,
             AccessRestriction = AddSegment3.AccessRestriction,
-            LeftSide = new RoadSegmentSideAttributes
+            LeftSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
             {
                 StreetNameId = AddSegment3.LeftSideStreetNameId
             },
-            RightSide = new RoadSegmentSideAttributes
+            RightSide = new RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes
             {
                 StreetNameId = AddSegment3.RightSideStreetNameId
             },

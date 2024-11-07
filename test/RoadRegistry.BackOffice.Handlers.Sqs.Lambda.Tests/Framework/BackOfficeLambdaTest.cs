@@ -244,11 +244,11 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
                             Code = ObjectProvider.Create<OrganizationId>(),
                             Name = ObjectProvider.Create<OrganizationName>()
                         },
-                        LeftSide = new RoadSegmentSideAttributes
+                        LeftSide = new Messages.RoadSegmentSideAttributes
                         {
                             StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                         },
-                        RightSide = new RoadSegmentSideAttributes
+                        RightSide = new Messages.RoadSegmentSideAttributes
                         {
                             StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                         },
@@ -364,11 +364,11 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
                             Code = ObjectProvider.Create<OrganizationId>(),
                             Name = ObjectProvider.Create<OrganizationName>()
                         },
-                        LeftSide = new RoadSegmentSideAttributes
+                        LeftSide = new Messages.RoadSegmentSideAttributes
                         {
                             StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                         },
-                        RightSide = new RoadSegmentSideAttributes
+                        RightSide = new Messages.RoadSegmentSideAttributes
                         {
                             StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                         },
