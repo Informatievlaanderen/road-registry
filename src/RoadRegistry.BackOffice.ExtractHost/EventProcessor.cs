@@ -7,6 +7,7 @@ using Editor.Schema;
 using Extensions;
 using Framework;
 using Hosts;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SqlStreamStore;
 
@@ -19,6 +20,7 @@ public class EventProcessor : PositionStoreEventProcessor
     private readonly Func<EditorContext> _editorContextFactory;
 
     public EventProcessor(
+        IHostApplicationLifetime hostApplicationLifetime,
         IStreamStore streamStore,
         IEventProcessorPositionStore positionStore,
         AcceptStreamMessageFilter filter,
@@ -26,7 +28,7 @@ public class EventProcessor : PositionStoreEventProcessor
         Scheduler scheduler,
         Func<EditorContext> editorContextFactory,
         ILoggerFactory loggerFactory)
-        : base(QueueName, streamStore, positionStore, filter, dispatcher, scheduler, loggerFactory)
+        : base(hostApplicationLifetime, QueueName, streamStore, positionStore, filter, dispatcher, scheduler, loggerFactory)
     {
         _streamStore = streamStore;
         _editorContextFactory = editorContextFactory;
