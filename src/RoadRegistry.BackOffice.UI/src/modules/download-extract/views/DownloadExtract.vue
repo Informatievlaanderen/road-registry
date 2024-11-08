@@ -592,7 +592,7 @@ export default Vue.extend({
           this.municipalityFlow.nisCode
         );
 
-        this.municipalityFlow.overlapWarning = response.downloadIds.length > 0;
+        this.municipalityFlow.overlapWarning = !this.municipalityFlow.isInformative && response.downloadIds.length > 0;
       } finally {
         this.isCheckingOverlap = false;
       }
@@ -727,7 +727,7 @@ export default Vue.extend({
       this.isCheckingOverlap = true;
       try {
         let response = await PublicApi.Extracts.getOverlappingExtractRequestsByContour(this.contourFlow.wkt);
-        this.contourFlow.overlapWarning = response.downloadIds.length > 0;
+        this.contourFlow.overlapWarning = !this.contourFlow.isInformative && response.downloadIds.length > 0;
       } finally {
         this.isCheckingOverlap = false;
       }

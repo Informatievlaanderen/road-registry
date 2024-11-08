@@ -7,7 +7,7 @@ using RoadRegistry.Hosts;
 using RoadRegistry.Sync.StreetNameRegistry;
 using SqlStreamStore;
 
-public class StreetNameSnapshotProjectionContextEventProcessor : DbContextEventProcessor<StreetNameSnapshotProjectionContext>
+public class StreetNameSnapshotProjectionContextEventProcessor : RunnerDbContextEventProcessor<StreetNameSnapshotProjectionContext>
 {
     private const string ProjectionStateName = "roadregistry-sync-streetnameprojection";
 
@@ -17,8 +17,8 @@ public class StreetNameSnapshotProjectionContextEventProcessor : DbContextEventP
         EnvelopeFactory envelopeFactory,
         IDbContextFactory<StreetNameSnapshotProjectionContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<StreetNameSnapshotProjectionContextEventProcessor> logger)
-        : base(ProjectionStateName, streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, logger)
+        ILoggerFactory loggerFactory)
+        : base(ProjectionStateName, streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, loggerFactory)
     {
     }
 }

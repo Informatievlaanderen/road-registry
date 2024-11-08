@@ -16,8 +16,8 @@ public class RoadNetworkEventProcessor : EditorContextEventProcessor
         EnvelopeFactory envelopeFactory,
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<RoadNetworkEventProcessor> logger)
-        : base(WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost, streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, logger)
+        ILoggerFactory loggerFactory)
+        : base(WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost, streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, loggerFactory)
     {
     }
 }

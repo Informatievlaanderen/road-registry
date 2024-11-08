@@ -30,7 +30,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 {
     private readonly string[] _args;
     private Func<IServiceProvider, Task> _runCommandDelegate;
-    
+
     private RoadRegistryHostBuilder()
     {
         AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
@@ -234,6 +234,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
             return runCommandDelegate(sp, hostApplicationLifetime.ApplicationStopping);
         });
     }
+
     public RoadRegistryHostBuilder<T> ConfigureRunCommand(Func<IServiceProvider, Task> runCommandDelegate)
     {
         _runCommandDelegate = runCommandDelegate;

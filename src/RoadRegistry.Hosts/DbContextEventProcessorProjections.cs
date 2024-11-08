@@ -6,7 +6,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 
 public class DbContextEventProcessorProjections<TDbContextEventProcessor, TDbContext>
-    where TDbContextEventProcessor : DbContextEventProcessor<TDbContext>
+    where TDbContextEventProcessor : RunnerDbContextEventProcessor<TDbContext>
     where TDbContext : RunnerDbContext<TDbContext>
 {
     public DbContextEventProcessorProjections(ConnectedProjection<TDbContext>[] projections)
@@ -18,7 +18,7 @@ public class DbContextEventProcessorProjections<TDbContextEventProcessor, TDbCon
         }
 
         Resolver = Resolve.WhenEqualToHandlerMessageType(projections.SelectMany(projection => projection.Handlers).ToArray());
-        Filter = AcceptStreamMessage<TDbContext>.WhenEqualToMessageType(projections, DbContextEventProcessor<TDbContext>.EventMapping);
+        Filter = AcceptStreamMessage<TDbContext>.WhenEqualToMessageType(projections, RunnerDbContextEventProcessor<TDbContext>.EventMapping);
     }
 
     public ConnectedProjectionHandlerResolver<TDbContext> Resolver { get; }

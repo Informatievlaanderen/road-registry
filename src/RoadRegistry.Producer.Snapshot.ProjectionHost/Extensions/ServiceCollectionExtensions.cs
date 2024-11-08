@@ -21,7 +21,7 @@ internal static class ServiceCollectionExtensions
         Func<ConnectedProjection<TSnapshotContext>[], AcceptStreamMessage<TSnapshotContext>> buildAcceptStreamMessage
     )
         where TSnapshotContext : RunnerDbContext<TSnapshotContext>
-        where TEventProcessor : DbContextEventProcessor<TSnapshotContext>
+        where TEventProcessor : RunnerDbContextEventProcessor<TSnapshotContext>
         where TProjection : ConnectedProjection<TSnapshotContext>
     {
         return services

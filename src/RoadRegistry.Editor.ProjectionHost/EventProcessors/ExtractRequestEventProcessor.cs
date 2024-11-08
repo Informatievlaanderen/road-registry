@@ -17,8 +17,8 @@ public class ExtractRequestEventProcessor : EditorContextEventProcessor
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,
         UseExtractRequestOverlapEventProcessorFeatureToggle useExtractRequestOverlapEventProcessorFeatureToggle,
-        ILogger<ExtractRequestEventProcessor> logger)
-        : base("roadregistry-editor-extractrequest-projectionhost", streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, logger, catchUpBatchSize: useExtractRequestOverlapEventProcessorFeatureToggle.FeatureEnabled ? 500 : 1)
+        ILoggerFactory loggerFactory)
+        : base("roadregistry-editor-extractrequest-projectionhost", streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, loggerFactory, catchUpBatchSize: useExtractRequestOverlapEventProcessorFeatureToggle.FeatureEnabled ? 500 : 1)
     {
     }
 }

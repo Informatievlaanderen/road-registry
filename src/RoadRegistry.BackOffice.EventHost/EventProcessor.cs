@@ -5,7 +5,7 @@ using Hosts;
 using Microsoft.Extensions.Logging;
 using SqlStreamStore;
 
-public class EventProcessor : PositionStoreEventProcessor<SqlEventProcessorPositionStore>
+public class EventProcessor : PositionStoreEventProcessor
 {
     private const string QueueName = WellKnownQueues.EventQueue;
 
@@ -15,8 +15,8 @@ public class EventProcessor : PositionStoreEventProcessor<SqlEventProcessorPosit
         AcceptStreamMessageFilter filter,
         EventHandlerDispatcher dispatcher,
         Scheduler scheduler,
-        ILogger<EventProcessor> logger)
-        : base(QueueName, streamStore, positionStore, filter, dispatcher, scheduler, logger)
+        ILoggerFactory loggerFactory)
+        : base(QueueName, streamStore, positionStore, filter, dispatcher, scheduler, loggerFactory)
     {
     }
 }

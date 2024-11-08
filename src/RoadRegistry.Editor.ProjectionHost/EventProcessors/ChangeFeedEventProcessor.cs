@@ -15,8 +15,8 @@ public class ChangeFeedEventProcessor : EditorContextEventProcessor
         EnvelopeFactory envelopeFactory,
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<ChangeFeedEventProcessor> logger)
-        : base("roadregistry-editor-changefeed-projectionhost", streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, logger)
+        ILoggerFactory loggerFactory)
+        : base("roadregistry-editor-changefeed-projectionhost", streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, loggerFactory)
     {
     }
 }

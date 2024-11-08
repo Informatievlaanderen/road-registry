@@ -15,8 +15,8 @@ public class ExtractDownloadEventProcessor : EditorContextEventProcessor
         EnvelopeFactory envelopeFactory,
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<ExtractDownloadEventProcessor> logger)
-        : base("roadregistry-editor-extractdownload-projectionhost", streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, logger)
+        ILoggerFactory loggerFactory)
+        : base("roadregistry-editor-extractdownload-projectionhost", streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, loggerFactory)
     {
     }
 }

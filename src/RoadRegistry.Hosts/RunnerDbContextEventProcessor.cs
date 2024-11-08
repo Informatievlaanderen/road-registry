@@ -19,7 +19,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedService
+public abstract class RunnerDbContextEventProcessor<TDbContext> : RoadRegistryHostedService
     where TDbContext : RunnerDbContext<TDbContext>
 {
     private const int CatchUpBatchSize = 500;
@@ -33,7 +33,7 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
     private readonly CancellationTokenSource _messagePumpCancellation;
     private readonly Scheduler _scheduler;
 
-    protected DbContextEventProcessor(
+    protected RunnerDbContextEventProcessor(
         string projectionStateName,
         IStreamStore streamStore,
         AcceptStreamMessage<TDbContext> acceptStreamMessage,
@@ -41,15 +41,15 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
         ConnectedProjectionHandlerResolver<TDbContext> resolver,
         IDbContextFactory<TDbContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<DbContextEventProcessor<TDbContext>> logger,
+        ILoggerFactory loggerFactory,
         int catchUpBatchSize = CatchUpBatchSize,
         int catchUpThreshold = CatchUpThreshold)
-        : this(projectionStateName, streamStore, acceptStreamMessage.CreateFilter(), envelopeFactory, resolver, dbContextFactory.CreateDbContext, scheduler, logger,
+        : this(projectionStateName, streamStore, acceptStreamMessage.CreateFilter(), envelopeFactory, resolver, dbContextFactory.CreateDbContext, scheduler, loggerFactory,
             catchUpBatchSize, catchUpThreshold)
     {
     }
 
-    protected DbContextEventProcessor(
+    protected RunnerDbContextEventProcessor(
         string projectionStateName,
         IStreamStore streamStore,
         AcceptStreamMessageFilter filter,
@@ -57,15 +57,15 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
         ConnectedProjectionHandlerResolver<TDbContext> resolver,
         IDbContextFactory<TDbContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<DbContextEventProcessor<TDbContext>> logger,
+        ILoggerFactory loggerFactory,
         int catchUpBatchSize = CatchUpBatchSize,
         int catchUpThreshold = CatchUpThreshold)
-        : this(projectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory.CreateDbContext, scheduler, logger,
+        : this(projectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory.CreateDbContext, scheduler, loggerFactory,
             catchUpBatchSize, catchUpThreshold)
     {
     }
 
-    protected DbContextEventProcessor(
+    protected RunnerDbContextEventProcessor(
         string projectionStateName,
         IStreamStore streamStore,
         AcceptStreamMessageFilter filter,
@@ -73,10 +73,10 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
         ConnectedProjectionHandlerResolver<TDbContext> resolver,
         Func<TDbContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<DbContextEventProcessor<TDbContext>> logger,
+        ILoggerFactory loggerFactory,
         int catchUpBatchSize = CatchUpBatchSize,
         int catchUpThreshold = CatchUpThreshold)
-        : base(logger)
+        : base(loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(streamStore);
         ArgumentNullException.ThrowIfNull(filter);
@@ -101,7 +101,7 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
             IAllStreamSubscription subscription = null;
             try
             {
-                logger.LogInformation("{EventProcessor} Message pump entered ...", GetType().Name);
+                Logger.LogInformation("Message pump entered ...");
                 while (await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token).ConfigureAwait(false))
                 {
                     while (_messageChannel.Reader.TryRead(out var message))
@@ -109,7 +109,7 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                         switch (message)
                         {
                             case Resume:
-                                logger.LogInformation("{EventProcessor} Resuming ...", GetType().Name);
+                                Logger.LogInformation("Resuming ...");
                                 await using (var resumeContext = dbContextFactory())
                                 {
                                     var projection = await resumeContext.ProjectionStates
@@ -139,7 +139,7 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                 break;
 
                             case CatchUp catchUp:
-                                logger.LogInformation("{EventProcessor} Catching up as of {Position}", GetType().Name, catchUp.AfterPosition ?? -1L);
+                                Logger.LogInformation("Catching up as of {Position}", catchUp.AfterPosition ?? -1L);
                                 sw.Restart();
                                 var observedMessageCount = 0;
                                 var catchUpPosition = catchUp.AfterPosition ?? Position.Start;
@@ -165,8 +165,8 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
 
                                         if (filter(streamMessage))
                                         {
-                                            logger.LogInformation("{EventProcessor} Catching up on {MessageType} at {Position}",
-                                                GetType().Name, streamMessage.Type, streamMessage.Position);
+                                            Logger.LogInformation("Catching up on {MessageType} at {Position}",
+                                                streamMessage.Type, streamMessage.Position);
                                             var envelope = envelopeFactory.Create(streamMessage);
                                             var handlers = resolver(envelope);
                                             foreach (var handler in handlers)
@@ -182,9 +182,9 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
 
                                         if (observedMessageCount % catchUpBatchSize == 0)
                                         {
-                                            logger.LogInformation(
-                                                "{EventProcessor} Flushing catch up position of {CatchUpPosition} and persisting changes ...",
-                                                GetType().Name, catchUpPosition);
+                                            Logger.LogInformation(
+                                                "Flushing catch up position of {CatchUpPosition} and persisting changes ...",
+                                                catchUpPosition);
                                             await context
                                                 .UpdateProjectionState(
                                                     projectionStateName,
@@ -192,7 +192,7 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                                     _messagePumpCancellation.Token)
                                                 .ConfigureAwait(false);
                                             await UpdateEventProcessorMetricsAsync(context, page.FromPosition, catchUpPosition, sw.ElapsedMilliseconds, _messagePumpCancellation.Token).ConfigureAwait(false);
-                                            await OutputEstimatedTimeRemainingAsync(context, logger, page.FromPosition - 1, await streamStore.ReadHeadPosition(), _messagePumpCancellation.Token).ConfigureAwait(false);
+                                            await OutputEstimatedTimeRemainingAsync(context, page.FromPosition - 1, await streamStore.ReadHeadPosition(), _messagePumpCancellation.Token).ConfigureAwait(false);
                                             sw.Restart();
 
                                             context.ChangeTracker.DetectChanges();
@@ -210,9 +210,9 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
 
                                 if (observedMessageCount > 0) // case where we just read the last page and pending work in memory needs to be flushed
                                 {
-                                    logger.LogInformation(
-                                        "{EventProcessor} Flushing catch up position of {Position} and persisting changes ...",
-                                        GetType().Name, catchUpPosition);
+                                    Logger.LogInformation(
+                                        "Flushing catch up position of {Position} and persisting changes ...",
+                                        catchUpPosition);
                                     await context
                                         .UpdateProjectionState(
                                             projectionStateName,
@@ -220,7 +220,7 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                             _messagePumpCancellation.Token)
                                         .ConfigureAwait(false);
                                     await UpdateEventProcessorMetricsAsync(context, page.FromPosition, catchUpPosition, sw.ElapsedMilliseconds, _messagePumpCancellation.Token).ConfigureAwait(false);
-                                    await OutputEstimatedTimeRemainingAsync(context, logger, page.FromPosition - 1, await streamStore.ReadHeadPosition(), _messagePumpCancellation.Token).ConfigureAwait(false);
+                                    await OutputEstimatedTimeRemainingAsync(context, page.FromPosition - 1, await streamStore.ReadHeadPosition(), _messagePumpCancellation.Token).ConfigureAwait(false);
                                     sw.Restart();
 
                                     context.ChangeTracker.DetectChanges();
@@ -238,15 +238,15 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                 break;
 
                             case Subscribe subscribe:
-                                logger.LogInformation("{EventProcessor} Subscribing as of {Position}", GetType().Name, subscribe.AfterPosition ?? -1L);
+                                Logger.LogInformation("Subscribing as of {Position}", subscribe.AfterPosition ?? -1L);
                                 subscription?.Dispose();
                                 subscription = streamStore.SubscribeToAll(
                                     subscribe.AfterPosition, async (_, streamMessage, token) =>
                                     {
                                         if (filter(streamMessage))
                                         {
-                                            logger.LogInformation("{EventProcessor} Observing {MessageType} at {Position}",
-                                                GetType().Name, streamMessage.Type, streamMessage.Position);
+                                            Logger.LogInformation("Observing {MessageType} at {Position}",
+                                                streamMessage.Type, streamMessage.Position);
                                             var command = new ProcessStreamMessage(streamMessage);
                                             await _messageChannel.Writer.WriteAsync(command, token).ConfigureAwait(false);
                                             await command.Completion.ConfigureAwait(false);
@@ -277,8 +277,8 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                             case RecordPosition record:
                                 try
                                 {
-                                    logger.LogInformation("{EventProcessor} Recording position of {MessageType} at {Position}.",
-                                        GetType().Name, record.Message.Type, record.Message.Position);
+                                    Logger.LogInformation("Recording position of {MessageType} at {Position}.",
+                                        record.Message.Type, record.Message.Position);
 
                                     await using var recordContext = dbContextFactory();
                                     await recordContext
@@ -290,7 +290,9 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                 }
                                 catch (Exception exception)
                                 {
-                                    logger.LogError(exception, exception.Message);
+                                    Logger.LogError(exception, "Error while recording position of {MessageType} at {Position}",
+                                        record.Message.Type, record.Message.Position);
+                                    throw;
                                 }
 
                                 break;
@@ -298,8 +300,8 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                             case ProcessStreamMessage process:
                                 try
                                 {
-                                    logger.LogInformation("{EventProcessor} Processing {MessageType} at {Position}",
-                                        GetType().Name, process.Message.Type, process.Message.Position);
+                                    Logger.LogInformation("Processing {MessageType} at {Position}",
+                                        process.Message.Type, process.Message.Position);
                                     sw.Restart();
 
                                     var envelope = envelopeFactory.Create(process.Message);
@@ -320,7 +322,7 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                             process.Message.Position,
                                             _messagePumpCancellation.Token).ConfigureAwait(false);
                                         await UpdateEventProcessorMetricsAsync(processContext, process.Message.Position, process.Message.Position, sw.ElapsedMilliseconds, _messagePumpCancellation.Token).ConfigureAwait(false);
-                                        
+
                                         processContext.ChangeTracker.DetectChanges();
                                         await processContext.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
                                     }
@@ -329,11 +331,13 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                 }
                                 catch (Exception exception)
                                 {
-                                    logger.LogError(exception, exception.Message);
+                                    Logger.LogError(exception, "Error while processing {MessageType} at {Position}",
+                                        process.Message.Type, process.Message.Position);
 
                                     // how are we going to recover from this? do we even need to recover from this?
                                     // prediction: it's going to be a serialization error, a data quality error, or a bug
                                     process.Fault(exception);
+                                    throw;
                                 }
 
                                 break;
@@ -341,8 +345,8 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                             case SubscriptionDropped dropped:
                                 if (dropped.Reason == SubscriptionDroppedReason.StreamStoreError)
                                 {
-                                    logger.LogError(dropped.Exception,
-                                        "{EventProcessor} Subscription was dropped because of a stream store error", GetType().Name);
+                                    Logger.LogError(dropped.Exception,
+                                        "Subscription was dropped because of a stream store error");
                                     await scheduler.Schedule(async token =>
                                     {
                                         if (!_messagePumpCancellation.IsCancellationRequested)
@@ -353,8 +357,8 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                 }
                                 else if (dropped.Reason == SubscriptionDroppedReason.SubscriberError)
                                 {
-                                    logger.LogError(dropped.Exception,
-                                        "{EventProcessor} Subscription was dropped because of a subscriber error", GetType().Name);
+                                    Logger.LogError(dropped.Exception,
+                                        "Subscription was dropped because of a subscriber error");
 
                                     if (CanResumeFrom(dropped))
                                     {
@@ -375,16 +379,18 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
             }
             catch (TaskCanceledException)
             {
-                logger.LogInformation("{EventProcessor} Message pump is exiting due to cancellation", GetType().Name);
+                Logger.LogInformation("Message pump is exiting due to task cancellation");
             }
             catch (OperationCanceledException)
             {
-                logger.LogInformation("{EventProcessor} Message pump is exiting due to cancellation", GetType().Name);
+                Logger.LogInformation("Message pump is exiting due to operation cancellation");
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "{EventProcessor} Message pump is exiting due to a bug", GetType().Name);
-                throw;
+                Logger.LogError(exception, "Message pump is exiting due to a bug");
+
+                // This will mark the host as Unhealthy
+                await StopAsync(_messagePumpCancellation.Token);
             }
             finally
             {
@@ -416,7 +422,7 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
 
     public event EventHandler CatchUpCompleted;
 
-    protected virtual Task OutputEstimatedTimeRemainingAsync(TDbContext context, ILogger logger, long currentPosition, long lastPosition, CancellationToken cancellationToken)
+    protected virtual Task OutputEstimatedTimeRemainingAsync(TDbContext context, long currentPosition, long lastPosition, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }

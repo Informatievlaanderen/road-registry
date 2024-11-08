@@ -60,6 +60,8 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(ChangeRoadNetwork);
 
+        //TODO-rik move org commands to separate module and processor
+        //concreet: nieuwe stream "organizations" met eigen processor en module, de commands moeten dan ook in de juiste stream worden geregistreerd
         For<CreateOrganization>()
             .UseValidator(new CreateOrganizationValidator())
             .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)

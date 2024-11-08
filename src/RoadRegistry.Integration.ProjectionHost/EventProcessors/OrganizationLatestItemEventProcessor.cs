@@ -15,7 +15,7 @@ public class OrganizationLatestItemEventProcessor : IntegrationContextEventProce
         EnvelopeFactory envelopeFactory,
         Func<IntegrationContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<OrganizationLatestItemEventProcessor> logger)
+        ILoggerFactory loggerFactory)
         : base(
             "roadregistry-integration-organization-latestitem-projectionhost",
             streamStore,
@@ -24,7 +24,7 @@ public class OrganizationLatestItemEventProcessor : IntegrationContextEventProce
             projections.Resolver,
             dbContextFactory,
             scheduler,
-            logger)
+            loggerFactory)
     {
     }
 }

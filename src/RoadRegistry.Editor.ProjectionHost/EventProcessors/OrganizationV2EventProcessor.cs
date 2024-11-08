@@ -16,8 +16,8 @@ public class OrganizationV2EventProcessor : EditorContextEventProcessor
         EnvelopeFactory envelopeFactory,
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<OrganizationV2EventProcessor> logger)
-        : base(WellKnownProjectionStateNames.RoadRegistryEditorOrganizationV2ProjectionHost, streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, logger)
+        ILoggerFactory loggerFactory)
+        : base(WellKnownProjectionStateNames.RoadRegistryEditorOrganizationV2ProjectionHost, streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, loggerFactory)
     {
     }
 }

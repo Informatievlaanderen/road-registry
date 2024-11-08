@@ -10,7 +10,7 @@ using Hosts;
 using Microsoft.Extensions.Logging;
 using SqlStreamStore;
 
-public class EventProcessor : PositionStoreEventProcessor<SqlEventProcessorPositionStore>
+public class EventProcessor : PositionStoreEventProcessor
 {
     private const string QueueName = WellKnownQueues.ExtractQueue;
     private const string EditorContextQueueName = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
@@ -25,8 +25,8 @@ public class EventProcessor : PositionStoreEventProcessor<SqlEventProcessorPosit
         EventHandlerDispatcher dispatcher,
         Scheduler scheduler,
         Func<EditorContext> editorContextFactory,
-        ILogger<EventProcessor> logger)
-        : base(QueueName, streamStore, positionStore, filter, dispatcher, scheduler, logger)
+        ILoggerFactory loggerFactory)
+        : base(QueueName, streamStore, positionStore, filter, dispatcher, scheduler, loggerFactory)
     {
         _streamStore = streamStore;
         _editorContextFactory = editorContextFactory;

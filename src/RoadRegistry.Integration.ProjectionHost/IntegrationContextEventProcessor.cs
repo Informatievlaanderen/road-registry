@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Schema;
 using SqlStreamStore;
 
-public abstract class IntegrationContextEventProcessor : DbContextEventProcessor<IntegrationContext>
+public abstract class IntegrationContextEventProcessor : RunnerDbContextEventProcessor<IntegrationContext>
 {
     protected IntegrationContextEventProcessor(
         string projectionStateName,
@@ -19,10 +19,10 @@ public abstract class IntegrationContextEventProcessor : DbContextEventProcessor
         ConnectedProjectionHandlerResolver<IntegrationContext> resolver,
         IDbContextFactory<IntegrationContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<DbContextEventProcessor<IntegrationContext>> logger,
+        ILoggerFactory loggerFactory,
         int catchUpBatchSize = 500,
         int catchUpThreshold = 1000)
-        : base(projectionStateName, streamStore, acceptStreamMessage, envelopeFactory, resolver, dbContextFactory, scheduler, logger, catchUpBatchSize, catchUpThreshold)
+        : base(projectionStateName, streamStore, acceptStreamMessage, envelopeFactory, resolver, dbContextFactory, scheduler, loggerFactory, catchUpBatchSize, catchUpThreshold)
     {
     }
 
@@ -34,10 +34,10 @@ public abstract class IntegrationContextEventProcessor : DbContextEventProcessor
         ConnectedProjectionHandlerResolver<IntegrationContext> resolver,
         Func<IntegrationContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<DbContextEventProcessor<IntegrationContext>> logger,
+        ILoggerFactory loggerFactory,
         int catchUpBatchSize = 500,
         int catchUpThreshold = 1000)
-        : base(projectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, logger, catchUpBatchSize, catchUpThreshold)
+        : base(projectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, loggerFactory, catchUpBatchSize, catchUpThreshold)
     {
     }
 }

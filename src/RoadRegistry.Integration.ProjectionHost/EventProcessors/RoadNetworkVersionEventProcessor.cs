@@ -15,7 +15,7 @@ public class RoadNetworkVersionEventProcessor : IntegrationContextEventProcessor
         EnvelopeFactory envelopeFactory,
         Func<IntegrationContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<RoadNetworkVersionEventProcessor> logger)
+        ILoggerFactory loggerFactory)
         : base(
             "roadregistry-integration-roadnetwork-version-projectionhost",
             streamStore,
@@ -24,7 +24,7 @@ public class RoadNetworkVersionEventProcessor : IntegrationContextEventProcessor
             projections.Resolver,
             dbContextFactory,
             scheduler,
-            logger)
+            loggerFactory)
     {
     }
 }

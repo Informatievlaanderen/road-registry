@@ -17,6 +17,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 
 public class CommandProcessor : RoadRegistryHostedService
 {
@@ -35,6 +36,7 @@ public class CommandProcessor : RoadRegistryHostedService
     private DistributedStreamStoreLock _distributedStreamStoreLock;
 
     public CommandProcessor(
+        IHostApplicationLifetime hostApplicationLifetime,
         IStreamStore streamStore,
         StreamName queue,
         ICommandProcessorPositionStore positionStore,
@@ -42,8 +44,8 @@ public class CommandProcessor : RoadRegistryHostedService
         Scheduler scheduler,
         RoadRegistryApplication applicationProcessor,
         DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
-        ILogger<CommandProcessor> logger)
-        : base(logger)
+        ILoggerFactory loggerFactory)
+        : base(loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(streamStore);
         ArgumentNullException.ThrowIfNull(positionStore);
@@ -62,8 +64,6 @@ public class CommandProcessor : RoadRegistryHostedService
         });
         _messagePump = Task.Factory.StartNew(async () =>
         {
-            //TODO-rik bij failure toch blijven proberen zodat commandhost niet herstart moet worden
-
             IStreamSubscription subscription = null;
             try
             {
@@ -74,12 +74,12 @@ public class CommandProcessor : RoadRegistryHostedService
                         switch (message)
                         {
                             case Subscribe:
-                                logger.LogInformation("Subscribing ...");
+                                Logger.LogInformation("Subscribing ...");
                                 subscription?.Dispose();
                                 var version = await positionStore
                                     .ReadVersion(queue.ToString(), _messagePumpCancellation.Token)
                                     .ConfigureAwait(false);
-                                logger.LogInformation("Subscribing as of {0}", version ?? -1);
+                                Logger.LogInformation("Subscribing as of {0}", version ?? -1);
                                 subscription = streamStore.SubscribeToStream(
                                     queue.ToString(),
                                     version,
@@ -110,7 +110,7 @@ public class CommandProcessor : RoadRegistryHostedService
                             case ProcessStreamMessage process:
                                 try
                                 {
-                                    logger.LogInformation(
+                                    Logger.LogInformation(
                                         "Processing {MessageType} at {Position}",
                                         process.Message.Type, process.Message.Position);
 
@@ -131,7 +131,7 @@ public class CommandProcessor : RoadRegistryHostedService
                                     }
                                     else
                                     {
-                                        logger.LogInformation("Skipping {MessageType} at {Position} - Message Processor '{MessageProcessor}' does not match '{Processor}'", process.Message.Type, process.Message.Position, messageProcessor, _applicationProcessor);
+                                        Logger.LogInformation("Skipping {MessageType} at {Position} - Message Processor '{MessageProcessor}' does not match '{Processor}'", process.Message.Type, process.Message.Position, messageProcessor, _applicationProcessor);
                                     }
 
                                     await positionStore
@@ -141,30 +141,26 @@ public class CommandProcessor : RoadRegistryHostedService
                                         .ConfigureAwait(false);
                                     process.Complete();
 
-                                    logger.LogInformation(
+                                    Logger.LogInformation(
                                         "Processed {MessageType} at {Position}",
                                         process.Message.Type, process.Message.Position);
                                 }
                                 catch (Exception exception)
                                 {
-                                    logger.LogError(exception, exception.Message);
+                                    Logger.LogError(exception, "Error while processing {MessageType} at {Position}",
+                                        process.Message.Type, process.Message.Position);
 
                                     // how are we going to recover from this? do we even need to recover from this?
                                     // prediction: it's going to be a serialization error, a data quality error, or a bug
-                                    //                                    if (process.Message.StreamVersion == 0)
-                                    //                                    {
-                                    //                                        await positionStore.WriteVersion(RoadNetworkCommandQueue,
-                                    //                                            process.Message.StreamVersion,
-                                    //                                            _messagePumpCancellation.Token);
-                                    //                                    }
                                     process.Fault(exception);
+                                    throw;
                                 }
 
                                 break;
                             case SubscriptionDropped dropped:
                                 if (dropped.Reason == SubscriptionDroppedReason.StreamStoreError)
                                 {
-                                    logger.LogError(dropped.Exception,
+                                    Logger.LogError(dropped.Exception,
                                         "Subscription was dropped because of a stream store error.");
                                     await scheduler.Schedule(async token =>
                                     {
@@ -176,7 +172,7 @@ public class CommandProcessor : RoadRegistryHostedService
                                 }
                                 else if (dropped.Reason == SubscriptionDroppedReason.SubscriberError)
                                 {
-                                    logger.LogError(dropped.Exception,
+                                    Logger.LogError(dropped.Exception,
                                         "Subscription was dropped because of a subscriber error.");
 
                                     if (CanResumeFrom(dropped))
@@ -198,23 +194,16 @@ public class CommandProcessor : RoadRegistryHostedService
             }
             catch (TaskCanceledException)
             {
-                if (logger.IsEnabled(LogLevel.Information))
-                {
-                    logger.Log(LogLevel.Information, "CommandProcessor message pump is exiting due to cancellation.");
-                }
+                Logger.LogInformation("CommandProcessor message pump is exiting due to task cancellation.");
             }
             catch (OperationCanceledException)
             {
-                if (logger.IsEnabled(LogLevel.Information))
-                {
-                    logger.Log(LogLevel.Information, "CommandProcessor message pump is exiting due to cancellation.");
-                }
+                Logger.LogInformation("CommandProcessor message pump is exiting due to operation cancellation.");
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "CommandProcessor message pump is exiting due to a bug.");
-                await StopAsync(_messagePumpCancellation.Token);
-                throw;
+                Logger.LogError(exception, "CommandProcessor message pump is exiting due to a bug.");
+                hostApplicationLifetime.StopApplication();
             }
             finally
             {

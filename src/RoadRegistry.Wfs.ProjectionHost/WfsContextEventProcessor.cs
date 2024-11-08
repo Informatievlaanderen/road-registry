@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using Schema;
 using SqlStreamStore;
 
-public class WfsContextEventProcessor : DbContextEventProcessor<WfsContext>
+public class WfsContextEventProcessor : RunnerDbContextEventProcessor<WfsContext>
 {
     private const string ProjectionStateName = "roadregistry-wfs-projectionhost";
 
@@ -19,7 +19,7 @@ public class WfsContextEventProcessor : DbContextEventProcessor<WfsContext>
         ConnectedProjectionHandlerResolver<WfsContext> resolver,
         IDbContextFactory<WfsContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<WfsContextEventProcessor> logger)
+        ILoggerFactory loggerFactory)
         : base(
             ProjectionStateName,
             streamStore,
@@ -28,7 +28,7 @@ public class WfsContextEventProcessor : DbContextEventProcessor<WfsContext>
             resolver,
             dbContextFactory,
             scheduler,
-            logger)
+            loggerFactory)
     {
     }
 }

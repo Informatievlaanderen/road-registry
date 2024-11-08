@@ -14,9 +14,9 @@ using System.IO;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 
-public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> : RoadRegistryHostedService
-    where TEventProcessorPositionStore : IEventProcessorPositionStore
+public abstract class PositionStoreEventProcessor : RoadRegistryHostedService
 {
     private const int RecordPositionThreshold = 1;
     public static readonly EventMapping EventMapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
@@ -28,24 +28,23 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
     private readonly Scheduler _scheduler;
 
     protected PositionStoreEventProcessor(
+        IHostApplicationLifetime hostApplicationLifetime,
         string queueName,
         IStreamStore streamStore,
         IEventProcessorPositionStore positionStore,
         AcceptStreamMessageFilter filter,
         EventHandlerDispatcher dispatcher,
         Scheduler scheduler,
-        ILogger<PositionStoreEventProcessor<TEventProcessorPositionStore>> logger)
-        : base(logger)
+        ILoggerFactory loggerFactory)
+        : base(loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(streamStore);
         ArgumentNullException.ThrowIfNull(positionStore);
         ArgumentNullException.ThrowIfNull(filter);
         ArgumentNullException.ThrowIfNull(dispatcher);
         ArgumentNullException.ThrowIfNull(scheduler);
-        ArgumentNullException.ThrowIfNull(logger);
 
         _scheduler = scheduler;
-        Logger = logger;
 
         _messagePumpCancellation = new CancellationTokenSource();
         _messageChannel = Channel.CreateUnbounded<object>(new UnboundedChannelOptions
@@ -60,33 +59,27 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
             IAllStreamSubscription subscription = null;
             try
             {
-                logger.LogInformation("EventProcessor message pump entered ...");
+                Logger.LogInformation("EventProcessor message pump entered ...");
                 while (await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token).ConfigureAwait(false))
                 {
                     while (_messageChannel.Reader.TryRead(out var message))
                     {
-                        await ProcessMessage(queueName, streamStore, positionStore, filter, dispatcher, scheduler, logger, message, new Ref<IAllStreamSubscription>(subscription));
+                        await ProcessMessage(queueName, streamStore, positionStore, filter, dispatcher, scheduler, message, new Ref<IAllStreamSubscription>(subscription));
                     }
                 }
             }
             catch (TaskCanceledException)
             {
-                if (logger.IsEnabled(LogLevel.Information))
-                {
-                    logger.Log(LogLevel.Information, "EventProcessor message pump is exiting due to cancellation.");
-                }
+                Logger.LogInformation("EventProcessor message pump is exiting due to task cancellation.");
             }
             catch (OperationCanceledException)
             {
-                if (logger.IsEnabled(LogLevel.Information))
-                {
-                    logger.Log(LogLevel.Information, "EventProcessor message pump is exiting due to cancellation.");
-                }
+                Logger.LogInformation("EventProcessor message pump is exiting due to operation cancellation.");
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "EventProcessor message pump is exiting due to a bug.");
-                throw;
+                Logger.LogError(exception, "EventProcessor message pump is exiting due to a bug.");
+                hostApplicationLifetime.StopApplication();
             }
             finally
             {
@@ -94,8 +87,6 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
             }
         }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
     }
-
-    protected ILogger<PositionStoreEventProcessor<TEventProcessorPositionStore>> Logger { get; }
 
     protected override async Task StartingAsync(CancellationToken cancellationToken)
     {
@@ -130,19 +121,18 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
         AcceptStreamMessageFilter filter,
         EventHandlerDispatcher dispatcher,
         Scheduler scheduler,
-        ILogger<PositionStoreEventProcessor<TEventProcessorPositionStore>> logger,
         object message,
         Ref<IAllStreamSubscription> subscription)
     {
         switch (message)
         {
             case Subscribe:
-                logger.LogInformation("Subscribing ...");
+                Logger.LogInformation("Subscribing ...");
                 subscription.Value?.Dispose();
                 var position = await positionStore
                     .ReadPosition(queueName, _messagePumpCancellation.Token)
                     .ConfigureAwait(false);
-                logger.LogInformation("Subscribing as of {0}", position ?? -1L);
+                Logger.LogInformation("Subscribing as of {0}", position ?? -1L);
                 subscription.Value = streamStore.SubscribeToAll(
                     position, async (_, streamMessage, token) =>
                     {
@@ -160,7 +150,7 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
                         }
                         else
                         {
-                            logger.LogInformation("Skipping {MessageType} at {Position}", streamMessage.Type, streamMessage.Position);
+                            Logger.LogInformation("Skipping {MessageType} at {Position}", streamMessage.Type, streamMessage.Position);
                         }
                     }, async (_, reason, exception) =>
                     {
@@ -178,7 +168,7 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
             case RecordPosition record:
                 try
                 {
-                    logger.LogInformation("Recording position of {MessageType} at {Position}.",
+                    Logger.LogInformation("Recording position of {MessageType} at {Position}.",
                         record.Message.Type, record.Message.Position);
 
                     await positionStore
@@ -190,7 +180,9 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
                 }
                 catch (Exception exception)
                 {
-                    logger.LogError(exception, exception.Message);
+                    Logger.LogError(exception, "Error while recording position of {MessageType} at {Position}",
+                        record.Message.Type, record.Message.Position);
+                    throw;
                 }
 
                 break;
@@ -198,7 +190,7 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
             case ProcessStreamMessage process:
                 try
                 {
-                    logger.LogInformation("Processing {MessageType} at {Position}",
+                    Logger.LogInformation("Processing {MessageType} at {Position}",
                         process.Message.Type, process.Message.Position);
 
                     var body = JsonConvert.DeserializeObject(
@@ -223,12 +215,13 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
                 }
                 catch (Exception exception)
                 {
-                    logger.LogError(exception, exception.Message);
+                    Logger.LogError(exception, "Error while processing {MessageType} at {Position}",
+                        process.Message.Type, process.Message.Position);
 
                     // how are we going to recover from this? do we even need to recover from this?
                     // prediction: it's going to be a serialization error, a data quality error, or a bug
-
                     process.Fault(exception);
+                    throw;
                 }
 
                 break;
@@ -236,7 +229,7 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
             case SubscriptionDropped dropped:
                 if (dropped.Reason == SubscriptionDroppedReason.StreamStoreError)
                 {
-                    logger.LogError(dropped.Exception,
+                    Logger.LogError(dropped.Exception,
                         "Subscription was dropped because of a stream store error");
                     await scheduler.Schedule(async token =>
                         {
@@ -249,7 +242,7 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
                 }
                 else if (dropped.Reason == SubscriptionDroppedReason.SubscriberError)
                 {
-                    logger.LogError(dropped.Exception,
+                    Logger.LogError(dropped.Exception,
                         "Subscription was dropped because of a subscriber error");
 
                     if (CanResumeFrom(dropped))
