@@ -11,10 +11,6 @@ public static class RoadNetworkCommands
         typeof(AnnounceRoadNetworkExtractDownloadTimeoutOccurred),
         typeof(ChangeRoadNetwork),
         typeof(RequestRoadNetworkExtract),
-        typeof(CreateOrganization),
-        typeof(DeleteOrganization),
-        typeof(RenameOrganization),
-        typeof(ChangeOrganization),
         typeof(UploadRoadNetworkChangesArchive),
         typeof(UploadRoadNetworkExtractChangesArchive)
     };

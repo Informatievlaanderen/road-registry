@@ -10,7 +10,7 @@ using SqlStreamStore;
 
 public class RoadNetworkExtractCommandQueue : RoadRegistryCommandQueue, IRoadNetworkExtractCommandQueue
 {
-    private static readonly EventMapping CommandMapping =
+    public static readonly EventMapping CommandMapping =
         new(RoadNetworkCommands.All.ToDictionary(command => command.Name));
 
     public static readonly StreamName Stream = new(WellKnownQueues.ExtractCommandQueue);

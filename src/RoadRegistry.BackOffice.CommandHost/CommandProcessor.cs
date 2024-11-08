@@ -1,28 +1,24 @@
 namespace RoadRegistry.BackOffice.CommandHost;
 
+using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Channels;
+using System.Threading.Tasks;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Framework;
 using Hosts;
-using Messages;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 using SqlStreamStore.Subscriptions;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Channels;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
 
 public class CommandProcessor : RoadRegistryHostedService
 {
-    private static readonly EventMapping CommandMapping = new EventMapping(RoadNetworkCommands.All.ToDictionary(command => command.Name));
-
     private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
 
     private static readonly JsonSerializerSettings SerializerSettings =
@@ -33,13 +29,14 @@ public class CommandProcessor : RoadRegistryHostedService
     private readonly CancellationTokenSource _messagePumpCancellation;
     private readonly Scheduler _scheduler;
     private readonly RoadRegistryApplication _applicationProcessor;
-    private DistributedStreamStoreLock _distributedStreamStoreLock;
+    private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
 
     public CommandProcessor(
         IHostApplicationLifetime hostApplicationLifetime,
         IStreamStore streamStore,
         StreamName queue,
         ICommandProcessorPositionStore positionStore,
+        EventMapping commandMapping,
         CommandHandlerDispatcher dispatcher,
         Scheduler scheduler,
         RoadRegistryApplication applicationProcessor,
@@ -49,6 +46,7 @@ public class CommandProcessor : RoadRegistryHostedService
     {
         ArgumentNullException.ThrowIfNull(streamStore);
         ArgumentNullException.ThrowIfNull(positionStore);
+        ArgumentNullException.ThrowIfNull(commandMapping);
         ArgumentNullException.ThrowIfNull(dispatcher);
 
         _scheduler = scheduler.ThrowIfNull();
@@ -123,7 +121,7 @@ public class CommandProcessor : RoadRegistryHostedService
                                                 await process.Message
                                                     .GetJsonData(_messagePumpCancellation.Token)
                                                     .ConfigureAwait(false),
-                                                CommandMapping.GetEventType(process.Message.Type),
+                                                commandMapping.GetEventType(process.Message.Type),
                                                 SerializerSettings);
                                             var command = new Command(body).WithMessageId(process.Message.MessageId);
                                             await dispatcher(command, _messagePumpCancellation.Token).ConfigureAwait(false);

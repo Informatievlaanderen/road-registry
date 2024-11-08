@@ -38,7 +38,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
     private readonly ILifetimeScope _container;
     private readonly OrganizationConsumerOptions _options;
     private readonly IOrganizationReader _organizationReader;
-    private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
+    private readonly IOrganizationCommandQueue _organizationCommandQueue;
     private readonly IStreamStore _store;
 
     public OrganizationConsumer(
@@ -46,7 +46,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
         OrganizationConsumerOptions options,
         IOrganizationReader organizationReader,
         IStreamStore store,
-        IRoadNetworkCommandQueue roadNetworkCommandQueue,
+        IOrganizationCommandQueue organizationCommandQueue,
         ILoggerFactory loggerFactory)
         : base(loggerFactory.CreateLogger<OrganizationConsumer>())
     {
@@ -54,7 +54,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
         _options = options.ThrowIfNull();
         _organizationReader = organizationReader.ThrowIfNull();
         _store = store.ThrowIfNull();
-        _roadNetworkCommandQueue = roadNetworkCommandQueue.ThrowIfNull();
+        _organizationCommandQueue = organizationCommandQueue.ThrowIfNull();
     }
 
     protected override async Task ExecutingAsync(CancellationToken cancellationToken)
@@ -196,7 +196,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                 OvoCode = ovoCode,
                 KboNumber = kboNumber
             };
-            await _roadNetworkCommandQueue.WriteAsync(new Command(command), cancellationToken);
+            await _organizationCommandQueue.WriteAsync(new Command(command), cancellationToken);
         }
         else
         {
@@ -208,7 +208,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                 OvoCode = ovoCode,
                 KboNumber = kboNumber
             };
-            await _roadNetworkCommandQueue.WriteAsync(new Command(command), cancellationToken);
+            await _organizationCommandQueue.WriteAsync(new Command(command), cancellationToken);
         }
     }
 }

@@ -21,7 +21,6 @@ public static class CommandModules
             sp.GetService<IClock>(),
             sp.GetService<UseOvoCodeInChangeRoadNetworkFeatureToggle>(),
             sp.GetService<IExtractUploadFailedEmailClient>(),
-            sp.GetService<IRoadNetworkEventWriter>(),
             sp.GetService<ILoggerFactory>()
         );
     }

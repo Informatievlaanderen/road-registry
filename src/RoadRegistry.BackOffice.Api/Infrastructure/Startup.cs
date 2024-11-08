@@ -281,7 +281,6 @@ public class Startup
                         sp.GetService<IClock>(),
                         sp.GetRequiredService<UseOvoCodeInChangeRoadNetworkFeatureToggle>(),
                         sp.GetService<IExtractUploadFailedEmailClient>(),
-                        sp.GetService<IRoadNetworkEventWriter>(),
                         sp.GetService<ILoggerFactory>()
                     ),
                     new RoadNetworkExtractCommandModule(
@@ -328,6 +327,7 @@ public class Startup
             .AddRoadRegistrySnapshot()
             .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
             .AddRoadNetworkCommandQueue()
+            .AddOrganizationCommandQueue()
             .AddRoadNetworkSnapshotStrategyOptions()
             .AddSingleton(apiOptions)
             .Configure<ResponseOptions>(_configuration)

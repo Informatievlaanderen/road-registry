@@ -7,9 +7,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SqlStreamStore;
 
-public class RoadNetworkExtractCommandProcessor : CommandProcessor
+public class OrganizationCommandProcessor : CommandProcessor
 {
-    public RoadNetworkExtractCommandProcessor(
+    public OrganizationCommandProcessor(
         IHostApplicationLifetime hostApplicationLifetime,
         IStreamStore streamStore,
         ICommandProcessorPositionStore positionStore,
@@ -19,9 +19,9 @@ public class RoadNetworkExtractCommandProcessor : CommandProcessor
         ILoggerFactory loggerFactory)
         : base(hostApplicationLifetime,
             streamStore,
-            RoadNetworkExtractCommandQueue.Stream,
+            OrganizationCommandQueue.Stream,
             positionStore,
-            RoadNetworkExtractCommandQueue.CommandMapping,
+            OrganizationCommandQueue.CommandMapping,
             dispatcher,
             scheduler,
             RoadRegistryApplication.BackOffice,

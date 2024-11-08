@@ -96,6 +96,12 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IRoadNetworkCommandQueue, RoadNetworkCommandQueue>();
     }
 
+    public static IServiceCollection AddOrganizationCommandQueue(this IServiceCollection services)
+    {
+        return services
+            .AddSingleton<IOrganizationCommandQueue, OrganizationCommandQueue>();
+    }
+
     public static IServiceCollection AddEventEnricher(this IServiceCollection services)
     {
         return services

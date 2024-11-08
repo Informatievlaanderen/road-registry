@@ -55,10 +55,14 @@ public class Program
                 .AddFeatureCompare()
                 .AddRoadNetworkCommandQueue()
                 .AddRoadNetworkEventWriter()
+                .AddOrganizationCommandQueue()
                 .AddJobsContext()
 
+                //TODO-rik aparte processor voor system healthcheck
+                // concreet: nieuwe stream "healthcheck" met eigen processor, de checks moeten dan ook in die stream worden geregistreerd
                 .AddHostedService<RoadNetworkCommandProcessor>()
                 .AddHostedService<RoadNetworkExtractCommandProcessor>()
+                .AddHostedService<OrganizationCommandProcessor>()
 
                 .AddSingleton(new IDbContextMigratorFactory[]
                 {
@@ -94,7 +98,6 @@ public class Program
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<UseOvoCodeInChangeRoadNetworkFeatureToggle>(),
                     sp.GetService<IExtractUploadFailedEmailClient>(),
-                    sp.GetService<IRoadNetworkEventWriter>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 ),
                 new RoadNetworkExtractCommandModule(
@@ -104,6 +107,13 @@ public class Program
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     sp.GetRequiredService<IZipArchiveBeforeFeatureCompareValidator>(),
                     sp.GetService<IExtractUploadFailedEmailClient>(),
+                    sp.GetRequiredService<IClock>(),
+                    sp.GetRequiredService<ILoggerFactory>()
+                ),
+                new OrganizationCommandModule(
+                    sp.GetRequiredService<IStreamStore>(),
+                    sp.GetRequiredService<ILifetimeScope>(),
+                    sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 )

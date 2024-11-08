@@ -21,14 +21,14 @@ public partial class OrganizationsController : BackofficeApiController
     public OrganizationsController(
         IStreamStore store,
         IMediator mediator,
-        IRoadNetworkCommandQueue roadNetworkCommandQueue)
+        IOrganizationCommandQueue organizationCommandQueue)
     {
         Store = store;
         Mediator = mediator;
-        RoadNetworkCommandQueue = roadNetworkCommandQueue;
+        OrganizationCommandQueue = organizationCommandQueue;
     }
 
     protected IStreamStore Store { get; }
     protected IMediator Mediator { get; }
-    protected IRoadNetworkCommandQueue RoadNetworkCommandQueue { get; }
+    protected IOrganizationCommandQueue OrganizationCommandQueue { get; }
 }

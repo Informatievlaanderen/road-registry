@@ -172,7 +172,6 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
                     Clock,
                     new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     new FakeExtractUploadFailedEmailClient(),
-                    new RoadNetworkEventWriter(Store, EnrichEvent.WithTime(Clock)),
                     LoggerFactory),
                 new RoadNetworkExtractCommandModule(
                     new RoadNetworkExtractUploadsBlobClient(Client),
@@ -181,6 +180,12 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
                     new FakeRoadNetworkSnapshotReader(),
                     ZipArchiveBeforeFeatureCompareValidator,
                     ExtractUploadFailedEmailClient,
+                    Clock,
+                    LoggerFactory),
+                new OrganizationCommandModule(
+                    Store,
+                    ScopedContainer,
+                    new FakeRoadNetworkSnapshotReader(),
                     Clock,
                     LoggerFactory)
             }),
