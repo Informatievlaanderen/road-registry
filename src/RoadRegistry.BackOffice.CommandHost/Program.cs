@@ -53,13 +53,13 @@ public class Program
                 .AddOrganizationCache()
                 .AddStreetNameCache()
                 .AddFeatureCompare()
+                .AddHealthCommandQueue()
                 .AddRoadNetworkCommandQueue()
                 .AddRoadNetworkEventWriter()
                 .AddOrganizationCommandQueue()
                 .AddJobsContext()
 
-                //TODO-rik aparte processor voor system healthcheck
-                // concreet: nieuwe stream "healthcheck" met eigen processor, de checks moeten dan ook in die stream worden geregistreerd
+                .AddHostedService<HealthCommandProcessor>()
                 .AddHostedService<RoadNetworkCommandProcessor>()
                 .AddHostedService<RoadNetworkExtractCommandProcessor>()
                 .AddHostedService<OrganizationCommandProcessor>()

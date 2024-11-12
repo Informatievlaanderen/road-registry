@@ -326,6 +326,7 @@ public class Startup
             .AddTicketing()
             .AddRoadRegistrySnapshot()
             .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
+            .AddHealthCommandQueue()
             .AddRoadNetworkCommandQueue()
             .AddOrganizationCommandQueue()
             .AddRoadNetworkSnapshotStrategyOptions()
