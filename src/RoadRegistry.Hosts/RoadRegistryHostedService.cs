@@ -10,9 +10,9 @@ public abstract class RoadRegistryHostedService: IHostedService, IHostedServiceS
 {
     protected ILogger Logger { get; }
 
-    protected RoadRegistryHostedService(ILogger logger)
+    protected RoadRegistryHostedService(ILoggerFactory loggerFactory)
     {
-        Logger = logger.ThrowIfNull();
+        Logger = loggerFactory.CreateLogger(GetType()).ThrowIfNull();
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)

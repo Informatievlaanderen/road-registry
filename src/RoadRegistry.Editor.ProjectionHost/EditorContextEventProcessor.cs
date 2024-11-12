@@ -13,19 +13,19 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-public abstract class EditorContextEventProcessor : DbContextEventProcessor<EditorContext>
+public abstract class EditorContextEventProcessor : RunnerDbContextEventProcessor<EditorContext>
 {
-    protected EditorContextEventProcessor(string projectionStateName, IStreamStore streamStore, AcceptStreamMessage<EditorContext> acceptStreamMessage, EnvelopeFactory envelopeFactory, ConnectedProjectionHandlerResolver<EditorContext> resolver, IDbContextFactory<EditorContext> dbContextFactory, Scheduler scheduler, ILogger<DbContextEventProcessor<EditorContext>> logger, int catchUpBatchSize = 500, int catchUpThreshold = 1000)
-        : base(projectionStateName, streamStore, acceptStreamMessage, envelopeFactory, resolver, dbContextFactory, scheduler, logger, catchUpBatchSize, catchUpThreshold)
+    protected EditorContextEventProcessor(string projectionStateName, IStreamStore streamStore, AcceptStreamMessage<EditorContext> acceptStreamMessage, EnvelopeFactory envelopeFactory, ConnectedProjectionHandlerResolver<EditorContext> resolver, IDbContextFactory<EditorContext> dbContextFactory, Scheduler scheduler, ILoggerFactory loggerFactory, int catchUpBatchSize = 500, int catchUpThreshold = 1000)
+        : base(projectionStateName, streamStore, acceptStreamMessage, envelopeFactory, resolver, dbContextFactory, scheduler, loggerFactory, catchUpBatchSize, catchUpThreshold)
     {
     }
 
-    protected EditorContextEventProcessor(string projectionStateName, IStreamStore streamStore, AcceptStreamMessageFilter filter, EnvelopeFactory envelopeFactory, ConnectedProjectionHandlerResolver<EditorContext> resolver, Func<EditorContext> dbContextFactory, Scheduler scheduler, ILogger<DbContextEventProcessor<EditorContext>> logger, int catchUpBatchSize = 500, int catchUpThreshold = 1000)
-        : base(projectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, logger, catchUpBatchSize, catchUpThreshold)
+    protected EditorContextEventProcessor(string projectionStateName, IStreamStore streamStore, AcceptStreamMessageFilter filter, EnvelopeFactory envelopeFactory, ConnectedProjectionHandlerResolver<EditorContext> resolver, Func<EditorContext> dbContextFactory, Scheduler scheduler, ILoggerFactory loggerFactory, int catchUpBatchSize = 500, int catchUpThreshold = 1000)
+        : base(projectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, loggerFactory, catchUpBatchSize, catchUpThreshold)
     {
     }
 
-    protected override async Task OutputEstimatedTimeRemainingAsync(EditorContext context, ILogger logger, long currentPosition, long lastPosition, CancellationToken cancellationToken)
+    protected override async Task OutputEstimatedTimeRemainingAsync(EditorContext context, long currentPosition, long lastPosition, CancellationToken cancellationToken)
     {
         var eventProcessorMetrics = await context.EventProcessorMetrics.GetMetricsAsync(GetType().Name, currentPosition, cancellationToken);
 
@@ -33,14 +33,14 @@ public abstract class EditorContextEventProcessor : DbContextEventProcessor<Edit
         {
             var estimatedTimeRemaining = eventProcessorMetrics.ElapsedMilliseconds;
 
-            logger.LogInformation("{EventProcessor} Estimated time remaining between {CurrentPosition} and {LastPosition} is about {EstimatedTimeRemaining} milliseconds.", GetType().Name, currentPosition, lastPosition, estimatedTimeRemaining);
+            Logger.LogInformation("Estimated time remaining between {CurrentPosition} and {LastPosition} is about {EstimatedTimeRemaining} milliseconds.", currentPosition, lastPosition, estimatedTimeRemaining);
         }
     }
 
     protected override async Task UpdateEventProcessorMetricsAsync(EditorContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellationToken)
     {
         var eventProcessorMetrics = await context.EventProcessorMetrics.GetMetricsAsync(GetType().Name, toPosition, cancellationToken);
-        
+
         if (eventProcessorMetrics is null)
         {
             await AddEventProcessorMetricsAsync(cancellationToken);

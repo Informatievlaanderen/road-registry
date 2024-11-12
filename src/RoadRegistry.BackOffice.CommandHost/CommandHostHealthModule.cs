@@ -42,7 +42,7 @@ public class CommandHostHealthModule : CommandHandlerModule
 
                 try
                 {
-                    await context.RoadNetworks.Get(cancellationToken);
+                    await snapshotReader.ReadSnapshotVersionAsync(cancellationToken);
 
                     var blobClient = container.Resolve<RoadNetworkUploadsBlobClient>();
                     await blobClient.GetBlobAsync(new BlobName(command.Body.FileName), cancellationToken);

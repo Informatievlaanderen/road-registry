@@ -92,12 +92,11 @@ public class RoadRegistryHost<T>
         }
         finally
         {
+            _logger.LogInformation($"Stopped {ApplicationName}");
             await Serilog.Log.CloseAndFlushAsync();
 
             // Allow some time for flushing before shutdown.
             await Task.Delay(500, default);
         }
-
-        _logger.LogInformation($"Stopped {ApplicationName}");
     }
 }

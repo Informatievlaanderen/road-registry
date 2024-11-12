@@ -20,6 +20,6 @@ public class Organizations : EventSourcedEntityRepository<Organization, Organiza
 
     protected override Organization ConvertEntity(Organization entity)
     {
-        return entity.IsRemoved ? null : entity;
+        return entity.IsRemoved || entity.Translation is null ? null : entity;
     }
 }

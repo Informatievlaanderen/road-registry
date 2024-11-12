@@ -53,12 +53,16 @@ public class Program
                 .AddOrganizationCache()
                 .AddStreetNameCache()
                 .AddFeatureCompare()
+                .AddHealthCommandQueue()
                 .AddRoadNetworkCommandQueue()
                 .AddRoadNetworkEventWriter()
+                .AddOrganizationCommandQueue()
                 .AddJobsContext()
 
+                .AddHostedService<HealthCommandProcessor>()
                 .AddHostedService<RoadNetworkCommandProcessor>()
                 .AddHostedService<RoadNetworkExtractCommandProcessor>()
+                .AddHostedService<OrganizationCommandProcessor>()
 
                 .AddSingleton(new IDbContextMigratorFactory[]
                 {
@@ -94,7 +98,6 @@ public class Program
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<UseOvoCodeInChangeRoadNetworkFeatureToggle>(),
                     sp.GetService<IExtractUploadFailedEmailClient>(),
-                    sp.GetService<IRoadNetworkEventWriter>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 ),
                 new RoadNetworkExtractCommandModule(
@@ -104,6 +107,13 @@ public class Program
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     sp.GetRequiredService<IZipArchiveBeforeFeatureCompareValidator>(),
                     sp.GetService<IExtractUploadFailedEmailClient>(),
+                    sp.GetRequiredService<IClock>(),
+                    sp.GetRequiredService<ILoggerFactory>()
+                ),
+                new OrganizationCommandModule(
+                    sp.GetRequiredService<IStreamStore>(),
+                    sp.GetRequiredService<ILifetimeScope>(),
+                    sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 )

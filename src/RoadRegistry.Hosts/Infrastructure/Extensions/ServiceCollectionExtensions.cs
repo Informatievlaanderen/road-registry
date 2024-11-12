@@ -139,7 +139,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddDbContextEventProcessorServices<TDbContextEventProcessor, TDbContext>(this IServiceCollection services,
         Func<IServiceProvider, ConnectedProjection<TDbContext>[]> projections)
-        where TDbContextEventProcessor : DbContextEventProcessor<TDbContext>
+        where TDbContextEventProcessor : RunnerDbContextEventProcessor<TDbContext>
         where TDbContext: RunnerDbContext<TDbContext>
     {
         services

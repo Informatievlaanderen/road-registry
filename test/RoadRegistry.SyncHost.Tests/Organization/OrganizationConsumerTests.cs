@@ -87,7 +87,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
                 },
                 organizationReader,
                 store,
-                new RoadNetworkCommandQueue(store, new ApplicationMetadata(RoadRegistryApplication.BackOffice)),
+                new OrganizationCommandQueue(store, new ApplicationMetadata(RoadRegistryApplication.BackOffice)),
                 loggerFactory
             ), store);
         }

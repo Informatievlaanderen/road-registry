@@ -42,7 +42,6 @@ public abstract class LinkUnlinkStreetNameTestsBase : BackOfficeLambdaTest
                     Clock,
                     new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     new FakeExtractUploadFailedEmailClient(),
-                    new RoadNetworkEventWriter(Store, EnrichEvent.WithTime(Clock)),
                     LoggerFactory
                 )
             ]), ApplicationMetadata))

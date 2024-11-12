@@ -15,7 +15,7 @@ public class OrganizationVersionEventProcessor : IntegrationContextEventProcesso
         EnvelopeFactory envelopeFactory,
         Func<IntegrationContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<OrganizationVersionEventProcessor> logger)
+        ILoggerFactory loggerFactory)
         : base(
             "roadregistry-integration-organization-version-projectionhost",
             streamStore,
@@ -24,7 +24,7 @@ public class OrganizationVersionEventProcessor : IntegrationContextEventProcesso
             projections.Resolver,
             dbContextFactory,
             scheduler,
-            logger)
+            loggerFactory)
     {
     }
 }

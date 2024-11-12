@@ -15,8 +15,8 @@ public class ExtractUploadEventProcessor : EditorContextEventProcessor
         EnvelopeFactory envelopeFactory,
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<ExtractUploadEventProcessor> logger)
-        : base("roadregistry-editor-extractupload-projectionhost", streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, logger)
+        ILoggerFactory loggerFactory)
+        : base("roadregistry-editor-extractupload-projectionhost", streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, loggerFactory)
     {
     }
 }

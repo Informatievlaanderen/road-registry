@@ -8,19 +8,19 @@ using Framework;
 using Messages;
 using SqlStreamStore;
 
-public interface IRoadNetworkCommandQueue
+public interface IHealthCommandQueue
 {
     Task WriteAsync(Command command, CancellationToken cancellationToken);
 }
 
-public class RoadNetworkCommandQueue : RoadRegistryCommandQueue, IRoadNetworkCommandQueue
+public class HealthCommandQueue : RoadRegistryCommandQueue, IHealthCommandQueue
 {
     public static readonly EventMapping CommandMapping =
-        new (RoadNetworkCommands.All.ToDictionary(command => command.Name));
+        new (HealthCommands.All.ToDictionary(command => command.Name));
 
-    public static readonly StreamName Stream = new(WellKnownQueues.CommandQueue);
+    public static readonly StreamName Stream = new(WellKnownQueues.HealthCommandQueue);
 
-    public RoadNetworkCommandQueue(IStreamStore store, ApplicationMetadata applicationMetadata)
+    public HealthCommandQueue(IStreamStore store, ApplicationMetadata applicationMetadata)
         : base(store, CommandMapping, applicationMetadata)
     {
     }

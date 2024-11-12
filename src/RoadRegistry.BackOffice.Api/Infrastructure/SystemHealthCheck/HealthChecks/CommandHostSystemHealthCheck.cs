@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthCheck.HealthChecks;
 
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
@@ -15,18 +14,18 @@ internal class CommandHostSystemHealthCheck : ISystemHealthCheck
 {
     private readonly ITicketing _ticketing;
     private readonly RoadNetworkUploadsBlobClient _uploadsBlobClient;
-    private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
+    private readonly IHealthCommandQueue _healthCommandQueue;
     private readonly SystemHealthCheckOptions _options;
 
     public CommandHostSystemHealthCheck(
         ITicketing ticketing,
         RoadNetworkUploadsBlobClient uploadsBlobClient,
-        IRoadNetworkCommandQueue roadNetworkCommandQueue,
+        IHealthCommandQueue healthCommandQueue,
         SystemHealthCheckOptions options)
     {
         _ticketing = ticketing;
         _uploadsBlobClient = uploadsBlobClient;
-        _roadNetworkCommandQueue = roadNetworkCommandQueue;
+        _healthCommandQueue = healthCommandQueue;
         _options = options;
     }
 
@@ -46,7 +45,7 @@ internal class CommandHostSystemHealthCheck : ISystemHealthCheck
             AssemblyVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString(),
             FileName = fileName
         });
-        await _roadNetworkCommandQueue.WriteAsync(command, cancellationToken);
+        await _healthCommandQueue.WriteAsync(command, cancellationToken);
 
         return await _ticketing.WaitUntilCompleteOrTimeout(ticketId, _options.CheckTimeout, cancellationToken);
     }

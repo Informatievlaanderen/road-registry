@@ -8,7 +8,7 @@ using Schema;
 using SqlStreamStore;
 using System;
 
-public abstract class ProductContextEventProcessor : DbContextEventProcessor<ProductContext>
+public abstract class ProductContextEventProcessor : RunnerDbContextEventProcessor<ProductContext>
 {
     protected ProductContextEventProcessor(
         string projectionStateName,
@@ -18,8 +18,8 @@ public abstract class ProductContextEventProcessor : DbContextEventProcessor<Pro
         ConnectedProjectionHandlerResolver<ProductContext> resolver,
         Func<ProductContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<DbContextEventProcessor<ProductContext>> logger)
-        : base(projectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, logger)
+        ILoggerFactory loggerFactory)
+        : base(projectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, loggerFactory)
     {
     }
 }

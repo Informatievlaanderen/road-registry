@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SqlStreamStore;
 
-public class RoadSegmentSurfaceEventProcessor : DbContextEventProcessor<RoadSegmentSurfaceProducerSnapshotContext>
+public class RoadSegmentSurfaceEventProcessor : RunnerDbContextEventProcessor<RoadSegmentSurfaceProducerSnapshotContext>
 {
     private const string ProjectionStateName = "roadregistry-producer-roadsegmentsurface-snapshot-projectionhost";
 
@@ -18,7 +18,7 @@ public class RoadSegmentSurfaceEventProcessor : DbContextEventProcessor<RoadSegm
         ConnectedProjectionHandlerResolver<RoadSegmentSurfaceProducerSnapshotContext> resolver,
         IDbContextFactory<RoadSegmentSurfaceProducerSnapshotContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<DbContextEventProcessor<RoadSegmentSurfaceProducerSnapshotContext>> logger)
+        ILoggerFactory loggerFactory)
         : base(
             ProjectionStateName,
             streamStore,
@@ -27,7 +27,7 @@ public class RoadSegmentSurfaceEventProcessor : DbContextEventProcessor<RoadSegm
             resolver,
             dbContextFactory,
             scheduler,
-            logger,
+            loggerFactory,
             1,
             1)
     {

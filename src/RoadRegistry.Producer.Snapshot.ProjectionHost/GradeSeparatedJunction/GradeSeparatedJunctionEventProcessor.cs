@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SqlStreamStore;
 
-public class GradeSeparatedJunctionEventProcessor : DbContextEventProcessor<GradeSeparatedJunctionProducerSnapshotContext>
+public class GradeSeparatedJunctionEventProcessor : RunnerDbContextEventProcessor<GradeSeparatedJunctionProducerSnapshotContext>
 {
     private const string ProjectionStateName = "roadregistry-producer-gradeseparatedjunction-snapshot-projectionhost";
 
@@ -18,7 +18,7 @@ public class GradeSeparatedJunctionEventProcessor : DbContextEventProcessor<Grad
         ConnectedProjectionHandlerResolver<GradeSeparatedJunctionProducerSnapshotContext> resolver,
         IDbContextFactory<GradeSeparatedJunctionProducerSnapshotContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<DbContextEventProcessor<GradeSeparatedJunctionProducerSnapshotContext>> logger)
+        ILoggerFactory loggerFactory)
         : base(
             ProjectionStateName,
             streamStore,
@@ -27,7 +27,7 @@ public class GradeSeparatedJunctionEventProcessor : DbContextEventProcessor<Grad
             resolver,
             dbContextFactory,
             scheduler,
-            logger,
+            loggerFactory,
             1,
             1)
     {
