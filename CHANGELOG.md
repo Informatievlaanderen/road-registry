@@ -1,3 +1,10 @@
+# [4.16.0](https://github.com/informatievlaanderen/road-registry/compare/v4.15.3...v4.16.0) (2024-11-12)
+
+
+### Features
+
+* stop host with unhandled exceptions and seperate healthcheck/organization commands from RoadNetworkCommandModule ([#1576](https://github.com/informatievlaanderen/road-registry/issues/1576)) ([41aa484](https://github.com/informatievlaanderen/road-registry/commit/41aa4842186186080e2cd282035cde6523096a4c))
+
 ## [4.15.3](https://github.com/informatievlaanderen/road-registry/compare/v4.15.2...v4.15.3) (2024-11-07)
 
 
