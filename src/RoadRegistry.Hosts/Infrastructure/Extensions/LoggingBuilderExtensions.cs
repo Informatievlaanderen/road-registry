@@ -3,6 +3,7 @@ namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 using System;
 using BackOffice.Exceptions;
 using BackOffice.Framework;
+using Destructurama;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -43,6 +44,7 @@ public static class EventSourceLoggerFactoryExtensions
             .Enrich.WithMachineName()
             .Enrich.WithThreadId()
             .Enrich.WithEnvironmentUserName()
+            .Destructure.JsonNetTypes()
             .AddSlackSink<T>(configuration)
             .ExcludeCommonErrors()
             ;
