@@ -1,3 +1,10 @@
+## [4.16.2](https://github.com/informatievlaanderen/road-registry/compare/v4.16.1...v4.16.2) (2024-11-13)
+
+
+### Bug Fixes
+
+* log lines in single-line ([#1578](https://github.com/informatievlaanderen/road-registry/issues/1578)) ([c94ca13](https://github.com/informatievlaanderen/road-registry/commit/c94ca13a69abdcf637f627cb3a0fd2a88fe88135))
+
 ## [4.16.1](https://github.com/informatievlaanderen/road-registry/compare/v4.16.0...v4.16.1) (2024-11-13)
 
 
