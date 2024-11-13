@@ -9,6 +9,7 @@ namespace RoadRegistry.SyncHost.Infrastructure.Modules
         public static IServiceCollection AddOrganizationConsumerServices(this IServiceCollection services)
         {
             return services
+                .AddOrganizationCommandQueue()
                 .RegisterOptions<OrganizationConsumerOptions>()
                 .AddSingleton<IOrganizationReader, OrganizationReader>()
                 .AddDbContext<OrganizationConsumerContext>(OrganizationConsumerContext.ConfigureOptions)
