@@ -1,3 +1,10 @@
+## [4.16.1](https://github.com/informatievlaanderen/road-registry/compare/v4.16.0...v4.16.1) (2024-11-13)
+
+
+### Bug Fixes
+
+* OrganizationCommandQueue dependency in synchost ([#1577](https://github.com/informatievlaanderen/road-registry/issues/1577)) ([fbbd821](https://github.com/informatievlaanderen/road-registry/commit/fbbd821b3b82ec517f3d80ed84dc00ace5312fac))
+
 # [4.16.0](https://github.com/informatievlaanderen/road-registry/compare/v4.15.3...v4.16.0) (2024-11-12)
 
 
