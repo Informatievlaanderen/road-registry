@@ -1,3 +1,10 @@
+## [4.16.3](https://github.com/informatievlaanderen/road-registry/compare/v4.16.2...v4.16.3) (2024-11-25)
+
+
+### Bug Fixes
+
+* command queue status query ([#1579](https://github.com/informatievlaanderen/road-registry/issues/1579)) ([ec886a5](https://github.com/informatievlaanderen/road-registry/commit/ec886a54749ffff2d5b17e2b01759b1358c1ac5b))
+
 ## [4.16.2](https://github.com/informatievlaanderen/road-registry/compare/v4.16.1...v4.16.2) (2024-11-13)
 
 
