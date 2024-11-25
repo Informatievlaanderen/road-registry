@@ -54,14 +54,21 @@ SELECT [Name]
     ,null as ErrorMessage
 FROM [RoadRegistryBackOfficeExtractHost].[EventProcessorPosition] with (nolock)
 UNION ALL
-SELECT cpp.[Name]
-    ,m.Position
+SELECT q.Name
+    ,(CASE WHEN q.MaxStreamVersion = q.Version THEN q.MaxPosition ELSE q.Position END) as Position
     ,null as DesiredState
     ,null as DesiredStateChangedAt
     ,null as ErrorMessage
+FROM (
+SELECT cpp.[Name]
+    ,cpp.[Version]
+    ,m.[Position]
+    ,s.Version as MaxStreamVersion
+    ,(SELECT MAX(Position) FROM [RoadRegistry].Messages with (nolock)) as MaxPosition
 FROM [RoadRegistryBackOfficeCommandHost].[CommandProcessorPosition] cpp with (nolock)
-JOIN [RoadRegistry].Streams s with (nolock) ON cpp.[Name] = s.[IdOriginal]
+JOIN [RoadRegistry].Streams s with (nolock) ON cpp.Name = s.IdOriginal
 JOIN [RoadRegistry].Messages m with (nolock) ON s.[IdInternal] = m.[StreamIdInternal] AND cpp.[Version] = m.[StreamVersion]
+) q
 ")
                 .HasKey(x => x.Name);
         }
