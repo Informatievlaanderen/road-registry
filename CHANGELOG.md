@@ -1,3 +1,10 @@
+## [4.16.4](https://github.com/informatievlaanderen/road-registry/compare/v4.16.3...v4.16.4) (2024-11-27)
+
+
+### Bug Fixes
+
+* version bump ([#1581](https://github.com/informatievlaanderen/road-registry/issues/1581)) ([80cb3dd](https://github.com/informatievlaanderen/road-registry/commit/80cb3dd4a9a2569dbd24e0ccd25d60ebd8ae83c3))
+
 ## [4.16.3](https://github.com/informatievlaanderen/road-registry/compare/v4.16.2...v4.16.3) (2024-11-25)
 
 
