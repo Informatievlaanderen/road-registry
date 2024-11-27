@@ -16,6 +16,7 @@ using MediatR;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using Snapshot.Handlers;
@@ -40,7 +41,6 @@ public class Program
             .ConfigureServices((hostContext, services) =>
             {
                 services
-                    .AddHostedService<EventProcessor>()
                     .AddEmailClient()
                     .AddTicketing()
                     .AddRoadRegistrySnapshot()
@@ -58,10 +58,6 @@ public class Program
                     .AddFeatureCompare()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {
-                        new EventHostHealthModule(
-                            sp.GetRequiredService<ILifetimeScope>(),
-                            sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
-                            sp.GetRequiredService<ILoggerFactory>()),
                         new RoadNetworkChangesArchiveEventModule(
                             sp.GetService<ILifetimeScope>(),
                             sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
@@ -81,8 +77,33 @@ public class Program
                             sp.GetRequiredService<IClock>(),
                             sp.GetRequiredService<ILoggerFactory>())
                     })
-                    .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
-                    .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));
+                    .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), PositionStoreEventProcessor.EventMapping))
+                    .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())))
+
+                    .AddHostedService<EventProcessor>()
+                    .AddHostedService(sp =>
+                    {
+                        var modules = new EventHandlerModule[]
+                        {
+                            new EventHostHealthModule(
+                                sp.GetRequiredService<ILifetimeScope>(),
+                                sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
+                                sp.GetRequiredService<ILoggerFactory>()),
+                        };
+
+                        var acceptStreamMessageFilter = AcceptStreamMessage.WhenEqualToMessageType(modules, PositionStoreEventProcessor.EventMapping);
+                        var eventHandlerDispatcher = Dispatch.Using(Resolve.WhenEqualToMessage(modules));
+
+                        return new HealthEventProcessor(
+                            sp.GetRequiredService<IHostApplicationLifetime>(),
+                            sp.GetRequiredService<IStreamStore>(),
+                            sp.GetRequiredService<IEventProcessorPositionStore>(),
+                            acceptStreamMessageFilter,
+                            eventHandlerDispatcher,
+                            sp.GetRequiredService<Scheduler>(),
+                            sp.GetRequiredService<ILoggerFactory>()
+                        );
+                    });
             })
             .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddHostedServicesStatus()
