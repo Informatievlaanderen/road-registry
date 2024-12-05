@@ -8,10 +8,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer;
 
-public class OrganizationConsumerContext : ConsumerDbContext<OrganizationConsumerContext>, IProjectionStatesDbContext
+public class OrganizationConsumerContext : SqlServerConsumerDbContext<OrganizationConsumerContext>, IProjectionStatesDbContext
 {
     public const string ConsumerSchema = WellKnownSchemas.OrganizationConsumerSchema;
+
+    public override string ProcessedMessagesSchema => ConsumerSchema;
 
     public OrganizationConsumerContext()
     {
@@ -24,7 +27,7 @@ public class OrganizationConsumerContext : ConsumerDbContext<OrganizationConsume
     }
 
     public DbSet<ProjectionStateItem> ProjectionStates => Set<ProjectionStateItem>();
-    
+
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseRoadRegistryInMemorySqlServer();
@@ -34,7 +37,6 @@ public class OrganizationConsumerContext : ConsumerDbContext<OrganizationConsume
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.ApplyConfiguration(new ProcessedMessageConfiguration(ConsumerSchema));
         modelBuilder.ApplyConfiguration(new ProjectionStatesConfiguration(ConsumerSchema));
         modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
     }

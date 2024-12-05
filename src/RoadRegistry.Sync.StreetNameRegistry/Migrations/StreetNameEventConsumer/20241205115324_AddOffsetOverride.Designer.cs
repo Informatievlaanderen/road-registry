@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RoadRegistry.Sync.StreetNameRegistry;
 
@@ -11,9 +12,11 @@ using RoadRegistry.Sync.StreetNameRegistry;
 namespace RoadRegistry.Sync.StreetNameRegistry.Migrations.StreetNameEventConsumer
 {
     [DbContext(typeof(StreetNameEventConsumerContext))]
-    partial class StreetNameEventConsumerContextModelSnapshot : ModelSnapshot
+    [Migration("20241205115324_AddOffsetOverride")]
+    partial class AddOffsetOverride
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

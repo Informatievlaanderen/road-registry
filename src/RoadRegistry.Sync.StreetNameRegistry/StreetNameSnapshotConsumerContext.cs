@@ -7,10 +7,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer;
 
-public class StreetNameSnapshotConsumerContext : ConsumerDbContext<StreetNameSnapshotConsumerContext>
+public class StreetNameSnapshotConsumerContext : SqlServerConsumerDbContext<StreetNameSnapshotConsumerContext>, IOffsetOverrideDbSet
 {
     private const string ConsumerSchema = WellKnownSchemas.StreetNameSnapshotConsumerSchema;
+
+    public override string ProcessedMessagesSchema => ConsumerSchema;
+
+    public DbSet<OffsetOverride> OffsetOverrides => Set<OffsetOverride>();
 
     public StreetNameSnapshotConsumerContext()
     {
@@ -21,7 +26,7 @@ public class StreetNameSnapshotConsumerContext : ConsumerDbContext<StreetNameSna
         : base(options)
     {
     }
-    
+
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseRoadRegistryInMemorySqlServer();
@@ -31,7 +36,7 @@ public class StreetNameSnapshotConsumerContext : ConsumerDbContext<StreetNameSna
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.ApplyConfiguration(new ProcessedMessageConfiguration(ConsumerSchema));
+        modelBuilder.ApplyConfiguration(new OffsetOverrideConfiguration(ConsumerSchema));
     }
 
     public static void ConfigureOptions(IServiceProvider sp, DbContextOptionsBuilder options)
@@ -56,7 +61,7 @@ public class StreetNameSnapshotConsumerContextMigrationFactory : DbContextMigrat
         })
     {
     }
-    
+
     protected override StreetNameSnapshotConsumerContext CreateContext(DbContextOptions<StreetNameSnapshotConsumerContext> migrationContextOptions)
     {
         return new StreetNameSnapshotConsumerContext(migrationContextOptions);

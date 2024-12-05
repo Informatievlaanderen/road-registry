@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Sync.MunicipalityRegistry;
@@ -60,9 +61,9 @@ public class MunicipalityEventTopicConsumer : IMunicipalityEventTopicConsumer
         {
             consumerOptions.ConfigureSaslAuthentication(new SaslAuthentication(_options.SaslUserName, _options.SaslPassword));
         }
-        if (kafkaConsumerOptions.Offset is not null)
+        await using (var ctx = await _dbContextFactory.CreateDbContextAsync(cancellationToken))
         {
-            consumerOptions.ConfigureOffset(new Offset(kafkaConsumerOptions.Offset.Value));
+            ctx.OverrideConfigureOffset(consumerOptions);
         }
 
         _logger.LogInformation("Starting to consume Topic '{Topic}' with ConsumerGroupId '{ConsumerGroupId}'", consumerOptions.Topic, consumerOptions.ConsumerGroupId);

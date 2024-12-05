@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
+using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
@@ -17,6 +18,7 @@ using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Hosts;
 using RoadRegistry.StreetName;
 using SqlStreamStore;
+using Sync.StreetNameRegistry;
 using StreetNameRecord = BackOffice.Messages.StreetNameRecord;
 
 public class StreetNameSnapshotConsumer : RoadRegistryBackgroundService
@@ -49,44 +51,49 @@ public class StreetNameSnapshotConsumer : RoadRegistryBackgroundService
     protected override async Task ExecutingAsync(CancellationToken cancellationToken)
     {
         await _consumer.ConsumeContinuously(async (message, dbContext) =>
-            {
-                Logger.LogInformation("Processing streetname {Key}", message.Key);
+        {
+            await ConsumeHandler(message, dbContext);
+        }, cancellationToken);
+    }
 
-                var map = _container.Resolve<EventSourcedEntityMap>();
-                var streetNamesContext = new StreetNames(map, _store, SerializerSettings, EventMapping);
+    private async Task ConsumeHandler(SnapshotMessage message, StreetNameSnapshotConsumerContext dbContext)
+    {
+        Logger.LogInformation("Processing streetname {Key}", message.Key);
 
-                var snapshotRecord = (StreetNameSnapshotRecord)message.Value;
-                var streetNameId = new StreetNameId(message.Key);
-                var streetNameLocalId = streetNameId.ToStreetNameLocalId();
+        var map = _container.Resolve<EventSourcedEntityMap>();
+        var streetNamesContext = new StreetNames(map, _store, SerializerSettings, EventMapping);
 
-                var streetNameEventSourced = await streetNamesContext.FindAsync(streetNameLocalId, cancellationToken);
+        var snapshotRecord = (StreetNameSnapshotRecord)message.Value;
+        var streetNameId = new StreetNameId(message.Key);
+        var streetNameLocalId = streetNameId.ToStreetNameLocalId();
 
-                var streetNameDbRecord = new StreetNameRecord
-                {
-                    StreetNameId = streetNameId,
-                    PersistentLocalId = streetNameLocalId,
-                    NisCode = snapshotRecord?.Gemeente?.ObjectId,
+        var streetNameEventSourced = await streetNamesContext.FindAsync(streetNameLocalId);
 
-                    DutchName = GetSpelling(snapshotRecord?.Straatnamen, Taal.NL),
-                    FrenchName = GetSpelling(snapshotRecord?.Straatnamen, Taal.FR),
-                    GermanName = GetSpelling(snapshotRecord?.Straatnamen, Taal.DE),
-                    EnglishName = GetSpelling(snapshotRecord?.Straatnamen, Taal.EN),
+        var streetNameDbRecord = new StreetNameRecord
+        {
+            StreetNameId = streetNameId,
+            PersistentLocalId = streetNameLocalId,
+            NisCode = snapshotRecord?.Gemeente?.ObjectId,
 
-                    DutchHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.NL),
-                    FrenchHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.FR),
-                    GermanHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.DE),
-                    EnglishHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.EN),
+            DutchName = GetSpelling(snapshotRecord?.Straatnamen, Taal.NL),
+            FrenchName = GetSpelling(snapshotRecord?.Straatnamen, Taal.FR),
+            GermanName = GetSpelling(snapshotRecord?.Straatnamen, Taal.DE),
+            EnglishName = GetSpelling(snapshotRecord?.Straatnamen, Taal.EN),
 
-                    StreetNameStatus = snapshotRecord?.StraatnaamStatus
-                };
+            DutchHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.NL),
+            FrenchHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.FR),
+            GermanHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.DE),
+            EnglishHomonymAddition = GetSpelling(snapshotRecord?.HomoniemToevoegingen, Taal.EN),
 
-                var @event = DetermineEvent(streetNameEventSourced, streetNameDbRecord);
-                await _streetNameEventWriter.WriteAsync(streetNameLocalId, new Event(@event), cancellationToken);
-                
-                await dbContext.SaveChangesAsync(cancellationToken);
+            StreetNameStatus = snapshotRecord?.StraatnaamStatus
+        };
 
-                Logger.LogInformation("Processed streetname {Key}", message.Key);
-            }, cancellationToken);
+        var @event = DetermineEvent(streetNameEventSourced, streetNameDbRecord);
+        await _streetNameEventWriter.WriteAsync(streetNameLocalId, new Event(@event), CancellationToken.None);
+
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+
+        Logger.LogInformation("Processed streetname {Key}", message.Key);
     }
 
     private static object DetermineEvent(StreetName streetNameEventSourced, StreetNameRecord streetNameDbRecord)
@@ -98,7 +105,7 @@ public class StreetNameSnapshotConsumer : RoadRegistryBackgroundService
                 StreetNameId = streetNameDbRecord.StreetNameId
             };
         }
-        
+
         if (streetNameEventSourced is null)
         {
             return new StreetNameCreated
