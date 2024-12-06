@@ -89,6 +89,7 @@ public class Program
         }
         finally
         {
+            await Task.Delay(LoggerConfigurationExtensions.SlackSinkPeriod);
             await Log.CloseAndFlushAsync();
 
             // Allow some time for flushing before shutdown.
