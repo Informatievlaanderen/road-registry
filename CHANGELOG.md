@@ -1,3 +1,10 @@
+## [4.16.5](https://github.com/informatievlaanderen/road-registry/compare/v4.16.4...v4.16.5) (2024-12-06)
+
+
+### Bug Fixes
+
+* featurecompare dealing with duplicate numbered road attributes ([#1583](https://github.com/informatievlaanderen/road-registry/issues/1583)) ([f76e431](https://github.com/informatievlaanderen/road-registry/commit/f76e4313b8d4062267c7b839de2f8235b54ecbbe))
+
 ## [4.16.4](https://github.com/informatievlaanderen/road-registry/compare/v4.16.3...v4.16.4) (2024-11-27)
 
 
