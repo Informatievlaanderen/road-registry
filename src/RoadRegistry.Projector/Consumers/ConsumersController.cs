@@ -8,10 +8,12 @@ namespace RoadRegistry.Projector.Consumers
     using BackOffice;
     using Be.Vlaanderen.Basisregisters.Api;
     using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
+    using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer;
     using Dapper;
     using Infrastructure.Options;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Data.SqlClient;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
 
     [ApiVersion("1.0")]
@@ -61,7 +63,7 @@ namespace RoadRegistry.Projector.Consumers
             await using var sqlConnection = new SqlConnection(configuration.GetRequiredConnectionString(connectionStringName));
 
             var result = await sqlConnection.QueryFirstOrDefaultAsync<DateTimeOffset?>(
-                $"SELECT TOP(1) [{nameof(ProcessedMessage.DateProcessed)}] FROM [{schemaName}].[{ProcessedMessageConfiguration.TableName}] ORDER BY [{nameof(ProcessedMessage.DateProcessed)}] DESC"
+                $"SELECT TOP(1) [{nameof(ProcessedMessage.DateProcessed)}] FROM [{schemaName}].[{SqlServerConsumerDbContext<DbContext>.ProcessedMessageTable}] ORDER BY [{nameof(ProcessedMessage.DateProcessed)}] DESC"
                 , ct);
 
             return new ConsumerStatus

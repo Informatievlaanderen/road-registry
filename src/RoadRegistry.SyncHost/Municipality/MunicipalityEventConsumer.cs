@@ -29,14 +29,18 @@ public class MunicipalityEventConsumer : RoadRegistryBackgroundService
 
         await _consumer.ConsumeContinuously(async (message, dbContext) =>
         {
-            Logger.LogInformation("Processing {Type}", message.GetType().Name);
-
-            await projector.ProjectAsync(dbContext, message, cancellationToken).ConfigureAwait(false);
-
-            //CancellationToken.None to prevent halfway consumption
-            await dbContext.SaveChangesAsync(CancellationToken.None);
-
-            Logger.LogInformation("Processed {Type}", message.GetType().Name);
+            await ConsumeHandler(message, projector, dbContext);
         }, cancellationToken);
+    }
+
+    private async Task ConsumeHandler(object message, ConnectedProjector<MunicipalityEventConsumerContext> projector, MunicipalityEventConsumerContext dbContext)
+    {
+        Logger.LogInformation("Processing {Type}", message.GetType().Name);
+
+        await projector.ProjectAsync(dbContext, message).ConfigureAwait(false);
+
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+
+        Logger.LogInformation("Processed {Type}", message.GetType().Name);
     }
 }

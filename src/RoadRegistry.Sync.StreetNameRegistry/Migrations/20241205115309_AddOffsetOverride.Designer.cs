@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RoadRegistry.Sync.StreetNameRegistry;
 
 #nullable disable
 
-namespace RoadRegistry.Sync.StreetNameRegistry.Migrations.StreetNameEventConsumer
+namespace RoadRegistry.Sync.StreetNameRegistry.Migrations
 {
-    [DbContext(typeof(StreetNameEventConsumerContext))]
-    partial class StreetNameEventConsumerContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(StreetNameSnapshotConsumerContext))]
+    [Migration("20241205115309_AddOffsetOverride")]
+    partial class AddOffsetOverride
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,7 +38,7 @@ namespace RoadRegistry.Sync.StreetNameRegistry.Migrations.StreetNameEventConsume
 
                     b.HasKey("ConsumerGroupId");
 
-                    b.ToTable("OffsetOverrides", "RoadRegistryStreetNameEventConsumer");
+                    b.ToTable("OffsetOverrides", "RoadRegistryStreetNameSnapshotConsumer");
                 });
 
             modelBuilder.Entity("Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.ProcessedMessage", b =>
@@ -53,7 +56,7 @@ namespace RoadRegistry.Sync.StreetNameRegistry.Migrations.StreetNameEventConsume
 
                     b.HasIndex("DateProcessed");
 
-                    b.ToTable("ProcessedMessages", "RoadRegistryStreetNameEventConsumer");
+                    b.ToTable("ProcessedMessages", "RoadRegistryStreetNameSnapshotConsumer");
                 });
 #pragma warning restore 612, 618
         }

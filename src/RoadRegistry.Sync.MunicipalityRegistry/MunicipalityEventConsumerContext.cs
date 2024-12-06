@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
@@ -14,11 +15,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Models;
 
-public class MunicipalityEventConsumerContext : ConsumerDbContext<MunicipalityEventConsumerContext>
+public class MunicipalityEventConsumerContext : SqlServerConsumerDbContext<MunicipalityEventConsumerContext>, IOffsetOverrideDbSet
 {
     private const string ConsumerSchema = WellKnownSchemas.MunicipalityEventConsumerSchema;
 
+    public override string ProcessedMessagesSchema => ConsumerSchema;
+
     public DbSet<Municipality> Municipalities => Set<Municipality>();
+    public DbSet<OffsetOverride> OffsetOverrides => Set<OffsetOverride>();
 
     public MunicipalityEventConsumerContext()
     {
@@ -39,7 +43,7 @@ public class MunicipalityEventConsumerContext : ConsumerDbContext<MunicipalityEv
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.ApplyConfiguration(new ProcessedMessageConfiguration(ConsumerSchema));
+        modelBuilder.ApplyConfiguration(new OffsetOverrideConfiguration(ConsumerSchema));
         modelBuilder.ApplyConfiguration(new MunicipalityConfiguration());
     }
 

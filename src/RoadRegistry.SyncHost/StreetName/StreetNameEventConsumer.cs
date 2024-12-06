@@ -15,6 +15,7 @@ using Hosts;
 using Microsoft.Extensions.Logging;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
+using Sync.StreetNameRegistry;
 using AcceptedChange = BackOffice.Core.AcceptedChange;
 using ModifyRoadSegmentAttributes = BackOffice.Core.ModifyRoadSegmentAttributes;
 using RoadSegmentSideAttributes = BackOffice.Core.RoadSegmentSideAttributes;
@@ -52,56 +53,59 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
     {
         await _consumer.ConsumeContinuously(async (message, dbContext) =>
         {
-            Logger.LogInformation("Processing {Type}", message.GetType().Name);
-
-            await (message switch
-            {
-                StreetNameWasRemovedV2 @event => Handle(@event, cancellationToken),
-                StreetNameWasRenamed @event => Handle(@event, cancellationToken),
-                StreetNameWasRetiredBecauseOfMunicipalityMerger @event => Handle(@event, cancellationToken),
-                StreetNameWasRejectedBecauseOfMunicipalityMerger @event => Handle(@event, cancellationToken),
-                _ => Task.CompletedTask
-            });
-
-            await dbContext.SaveChangesAsync(cancellationToken);
-
-            Logger.LogInformation("Processed {Type}", message.GetType().Name);
+            await ConsumeHandler(message, dbContext);
         }, cancellationToken);
     }
 
-    private async Task Handle(StreetNameWasRemovedV2 message, CancellationToken cancellationToken)
+    private async Task ConsumeHandler(object message, StreetNameEventConsumerContext dbContext)
+    {
+        Logger.LogInformation("Processing {Type}", message.GetType().Name);
+
+        await (message switch
+        {
+            StreetNameWasRemovedV2 @event => Handle(@event),
+            StreetNameWasRenamed @event => Handle(@event),
+            StreetNameWasRetiredBecauseOfMunicipalityMerger @event => Handle(@event),
+            StreetNameWasRejectedBecauseOfMunicipalityMerger @event => Handle(@event),
+            _ => Task.CompletedTask
+        });
+
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+
+        Logger.LogInformation("Processed {Type}", message.GetType().Name);
+    }
+
+    private async Task Handle(StreetNameWasRemovedV2 message)
     {
         await using var editorContext = _editorContextFactory();
-        await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost, Logger, cancellationToken);
+        await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost, Logger, CancellationToken.None);
 
         await LinkRoadSegmentsToDifferentStreetName(
             message.PersistentLocalId,
             StreetNameLocalId.NotApplicable,
             $"Wegsegmenten ontkoppelen van straatnaam {message.PersistentLocalId}",
-            editorContext,
-            cancellationToken);
+            editorContext);
     }
 
-    private async Task Handle(StreetNameWasRenamed message, CancellationToken cancellationToken)
+    private async Task Handle(StreetNameWasRenamed message)
     {
         await using var editorContext = _editorContextFactory();
-        await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost, Logger, cancellationToken);
+        await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost, Logger, CancellationToken.None);
 
         await LinkRoadSegmentsToDifferentStreetName(
             message.PersistentLocalId,
             message.DestinationPersistentLocalId,
             $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {message.DestinationPersistentLocalId}",
-            editorContext,
-            cancellationToken);
+            editorContext);
 
         var streetNameEvent = BuildStreetNameEvent(message);
-        await _streetNameEventWriter.WriteAsync(streetNameEvent, cancellationToken);
+        await _streetNameEventWriter.WriteAsync(streetNameEvent, CancellationToken.None);
     }
 
-    private async Task Handle(StreetNameWasRetiredBecauseOfMunicipalityMerger message, CancellationToken cancellationToken)
+    private async Task Handle(StreetNameWasRetiredBecauseOfMunicipalityMerger message)
     {
         await using var editorContext = _editorContextFactory();
-        await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost, Logger, cancellationToken, waitDelayMilliseconds: 250);
+        await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost, Logger, CancellationToken.None, waitDelayMilliseconds: 250);
 
         var destinationStreetNameId = message.NewPersistentLocalIds.Any()
             ? message.NewPersistentLocalIds.First()
@@ -111,14 +115,13 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
             message.PersistentLocalId,
             destinationStreetNameId,
             $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {destinationStreetNameId} in functie van een gemeentefusie",
-            editorContext,
-            cancellationToken);
+            editorContext);
     }
 
-    private async Task Handle(StreetNameWasRejectedBecauseOfMunicipalityMerger message, CancellationToken cancellationToken)
+    private async Task Handle(StreetNameWasRejectedBecauseOfMunicipalityMerger message)
     {
         await using var editorContext = _editorContextFactory();
-        await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost, Logger, cancellationToken, waitDelayMilliseconds: 250);
+        await editorContext.WaitForProjectionToBeAtStoreHeadPosition(_store, WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost, Logger, CancellationToken.None, waitDelayMilliseconds: 250);
 
         var destinationStreetNameId = message.NewPersistentLocalIds.Any()
             ? message.NewPersistentLocalIds.First()
@@ -128,12 +131,13 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
             message.PersistentLocalId,
             destinationStreetNameId,
             $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {destinationStreetNameId} in functie van een gemeentefusie",
-            editorContext,
-            cancellationToken);
+            editorContext);
     }
 
-    private async Task LinkRoadSegmentsToDifferentStreetName(int sourceStreetNameId, int destinationStreetNameId, string reason, EditorContext editorContext, CancellationToken cancellationToken)
+    private async Task LinkRoadSegmentsToDifferentStreetName(int sourceStreetNameId, int destinationStreetNameId, string reason, EditorContext editorContext)
     {
+        var cancellationToken = CancellationToken.None;
+
         var segments = await editorContext.RoadSegments
             .IncludeLocalToListAsync(q => q.Where(x => x.LeftSideStreetNameId == sourceStreetNameId || x.RightSideStreetNameId == sourceStreetNameId), cancellationToken);
         if (!segments.Any())

@@ -7,10 +7,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer;
 
-public class StreetNameEventConsumerContext : ConsumerDbContext<StreetNameEventConsumerContext>
+public class StreetNameEventConsumerContext : SqlServerConsumerDbContext<StreetNameEventConsumerContext>, IOffsetOverrideDbSet
 {
     private const string ConsumerSchema = WellKnownSchemas.StreetNameEventConsumerSchema;
+
+    public override string ProcessedMessagesSchema => ConsumerSchema;
+
+    public DbSet<OffsetOverride> OffsetOverrides => Set<OffsetOverride>();
 
     public StreetNameEventConsumerContext()
     {
@@ -21,7 +26,7 @@ public class StreetNameEventConsumerContext : ConsumerDbContext<StreetNameEventC
         : base(options)
     {
     }
-    
+
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseRoadRegistryInMemorySqlServer();
@@ -31,7 +36,7 @@ public class StreetNameEventConsumerContext : ConsumerDbContext<StreetNameEventC
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.ApplyConfiguration(new ProcessedMessageConfiguration(ConsumerSchema));
+        modelBuilder.ApplyConfiguration(new OffsetOverrideConfiguration(ConsumerSchema));
     }
 
     public static void ConfigureOptions(IServiceProvider sp, DbContextOptionsBuilder options)
@@ -56,7 +61,7 @@ public class StreetNameEventConsumerContextMigrationFactory : DbContextMigratorF
         })
     {
     }
-    
+
     protected override StreetNameEventConsumerContext CreateContext(DbContextOptions<StreetNameEventConsumerContext> migrationContextOptions)
     {
         return new StreetNameEventConsumerContext(migrationContextOptions);
