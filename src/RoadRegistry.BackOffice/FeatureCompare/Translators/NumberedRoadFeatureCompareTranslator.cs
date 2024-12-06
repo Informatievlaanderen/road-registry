@@ -28,10 +28,13 @@ public class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
             }
             else
             {
-                for (var i = 0; i < leveringExtractFeatures.Count; i++)
-                {
-                    var extractFeature = leveringExtractFeatures[i];
+                var unProcessedExtractFeatures = leveringExtractFeatures
+                    .Where(x => processedRecords.All(processedRecord => processedRecord.Feature.Attributes.Id != x.Attributes.Id))
+                    .ToList();
 
+                for (var i = 0; i < unProcessedExtractFeatures.Count; i++)
+                {
+                    var extractFeature = unProcessedExtractFeatures[i];
                     if (i == 0)
                     {
                         if (changeFeature.Attributes.Ordinal != extractFeature.Attributes.Ordinal ||
@@ -84,9 +87,13 @@ public class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
             }
             else
             {
-                for (var i = 0; i < leveringExtractFeatures.Count; i++)
+                var unProcessedExtractFeatures = leveringExtractFeatures
+                    .Where(x => processedRecords.All(processedRecord => processedRecord.Feature.Attributes.Id != x.Attributes.Id))
+                    .ToList();
+
+                for (var i = 0; i < unProcessedExtractFeatures.Count; i++)
                 {
-                    var extractFeature = leveringExtractFeatures[i];
+                    var extractFeature = unProcessedExtractFeatures[i];
 
                     if (i == 0)
                     {
@@ -94,7 +101,6 @@ public class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                             changeFeature.Attributes.Direction != extractFeature.Attributes.Direction)
                         {
                             processedRecords.Add(new Record(extractFeature, RecordType.Removed));
-                            
                             processedRecords.Add(new Record(changeFeature with
                             {
                                 Attributes = changeFeature.Attributes with
@@ -126,7 +132,7 @@ public class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
             }
         }
     }
-    
+
     protected override TranslatedChanges TranslateProcessedRecords(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, List<Record> records)
     {
         foreach (var record in records)
