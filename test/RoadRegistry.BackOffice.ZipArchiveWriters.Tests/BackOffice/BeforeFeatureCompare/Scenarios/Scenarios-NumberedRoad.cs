@@ -32,7 +32,7 @@ public class NumberedRoadScenarios : FeatureCompareTranslatorScenariosBase
     }
 
     [Fact]
-    public async Task GivenDuplicateRecords_WhenSegmentIdentical_ThenOnlyOneIsKeptAndOneIsDeleted()
+    public async Task GivenDuplicateRecords_WhenSegmentIdentical_ThenOnlyOneIsDeleted()
     {
         var zipArchive = new ExtractsZipArchiveBuilder()
             .WithExtract((builder, _) =>
@@ -50,7 +50,7 @@ public class NumberedRoadScenarios : FeatureCompareTranslatorScenariosBase
     }
 
     [Fact]
-    public async Task GivenDuplicateRecords_WhenSegmentModified_ThenOnlyOneIsKeptAndOneIsDeleted()
+    public async Task GivenDuplicateRecords_WhenSegmentModified_ThenOnlyOneIsDeleted()
     {
         var zipArchive = new ExtractsZipArchiveBuilder()
             .WithExtract((builder, _) =>
