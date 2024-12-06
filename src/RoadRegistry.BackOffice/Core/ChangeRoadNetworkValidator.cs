@@ -44,12 +44,12 @@ public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
             .WithMessage("One or more permanent european road attribute identifiers are not unique.")
             .Must(OnlyHaveUniqueTemporaryNationalRoadAttributeIdentifiers)
             .WithMessage("One or more temporary national road attribute identifiers are not unique.")
-            .Must(OnlyHaveUniquePermanentNationalRoadAttributeIdentifiers)
-            .WithMessage("One or more permanent national road attribute identifiers are not unique.")
+            .Must(OnlyHaveUniqueRemovedNationalRoadAttributeIdentifiers)
+            .WithMessage("One or more removed national road attribute identifiers are not unique.")
             .Must(OnlyHaveUniqueTemporaryNumberedRoadAttributeIdentifiers)
-            .WithMessage("One or more temporary national road attribute identifiers are not unique.")
-            .Must(OnlyHaveUniquePermanentNumberedRoadAttributeIdentifiers)
-            .WithMessage("One or more permanent national road attribute identifiers are not unique.")
+            .WithMessage("One or more temporary numbered road attribute identifiers are not unique.")
+            .Must(OnlyHaveUniqueRemovedNumberedRoadAttributeIdentifiers)
+            .WithMessage("One or more removed numbered road attribute identifiers are not unique.")
             .Must(OnlyHaveUniqueLaneAttributeIdentifiers)
             .WithMessage("One or more lane attribute identifiers are not unique.")
             .Must(OnlyHaveUniqueWidthAttributeIdentifiers)
@@ -140,7 +140,7 @@ public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
         return identifiers.Length == identifiers.Distinct().Count();
     }
 
-    private static bool OnlyHaveUniquePermanentNationalRoadAttributeIdentifiers(RequestedChange[] changes)
+    private static bool OnlyHaveUniqueRemovedNationalRoadAttributeIdentifiers(RequestedChange[] changes)
     {
         if (changes == null) return true;
 
@@ -151,7 +151,7 @@ public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
         return identifiers.Length == identifiers.Distinct().Count();
     }
 
-    private static bool OnlyHaveUniquePermanentNumberedRoadAttributeIdentifiers(RequestedChange[] changes)
+    private static bool OnlyHaveUniqueRemovedNumberedRoadAttributeIdentifiers(RequestedChange[] changes)
     {
         if (changes == null) return true;
 

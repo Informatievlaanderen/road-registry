@@ -75,6 +75,7 @@ public class RoadRegistryHost<T>
                 optionsValidator.ValidateAndThrow();
             }
 
+
             await DistributedLock<T>.RunAsync(async () =>
                 {
                     await WaitFor.SqlStreamStoreToBecomeAvailable(_streamStore, _logger);
@@ -93,6 +94,8 @@ public class RoadRegistryHost<T>
         finally
         {
             _logger.LogInformation($"Stopped {ApplicationName}");
+
+            await Task.Delay(LoggerConfigurationExtensions.SlackSinkPeriod);
             await Serilog.Log.CloseAndFlushAsync();
 
             // Allow some time for flushing before shutdown.
