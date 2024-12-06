@@ -88,6 +88,7 @@ public class RoadRegistryHost<T>
         }
         catch (Exception e)
         {
+            //TODO-rik deze komen niet tot slack
             _logger.LogCritical(e, "Encountered a fatal exception, exiting program.");
         }
         finally

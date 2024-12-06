@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatu
 
 using Exceptions;
 using FeatureCompare;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Tests.BackOffice;
 using Uploads;
@@ -28,5 +29,47 @@ public class NumberedRoadScenarios : FeatureCompareTranslatorScenariosBase
 
         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, expected));
         Assert.Contains(ex.Problems, x => x.Reason == nameof(DbaseFileProblems.RoadSegmentIdOutOfRange));
+    }
+
+    [Fact]
+    public async Task GivenDuplicateRecords_WhenSegmentIdentical_ThenOnlyOneIsKeptAndOneIsDeleted()
+    {
+        var zipArchive = new ExtractsZipArchiveBuilder()
+            .WithExtract((builder, _) =>
+            {
+                builder.TestData.RoadSegment1NumberedRoadDbaseRecord2.IDENT8.Value = builder.TestData.RoadSegment1NumberedRoadDbaseRecord1.IDENT8.Value;
+                builder.TestData.RoadSegment1NumberedRoadDbaseRecord2.RICHTING.Value = builder.TestData.RoadSegment1NumberedRoadDbaseRecord1.RICHTING.Value;
+                builder.TestData.RoadSegment1NumberedRoadDbaseRecord2.VOLGNUMMER.Value = builder.TestData.RoadSegment1NumberedRoadDbaseRecord1.VOLGNUMMER.Value;
+            })
+            .Build();
+
+        var (translatedChanges, _) = await TranslateSucceeds(zipArchive);
+
+        translatedChanges.Should().HaveCount(1);
+        translatedChanges.Single().Should().BeOfType<RemoveRoadSegmentFromNumberedRoad>();
+    }
+
+    [Fact]
+    public async Task GivenDuplicateRecords_WhenSegmentModified_ThenOnlyOneIsKeptAndOneIsDeleted()
+    {
+        var zipArchive = new ExtractsZipArchiveBuilder()
+            .WithExtract((builder, _) =>
+            {
+                builder.TestData.RoadSegment1DbaseRecord.STATUS.Value = RoadSegmentStatus.Unknown.Translation.Identifier;
+                builder.TestData.RoadSegment1NumberedRoadDbaseRecord2.IDENT8.Value = builder.TestData.RoadSegment1NumberedRoadDbaseRecord1.IDENT8.Value;
+                builder.TestData.RoadSegment1NumberedRoadDbaseRecord2.RICHTING.Value = builder.TestData.RoadSegment1NumberedRoadDbaseRecord1.RICHTING.Value;
+                builder.TestData.RoadSegment1NumberedRoadDbaseRecord2.VOLGNUMMER.Value = builder.TestData.RoadSegment1NumberedRoadDbaseRecord1.VOLGNUMMER.Value;
+            })
+            .WithChange((builder, _) =>
+            {
+                builder.TestData.RoadSegment1DbaseRecord.STATUS.Value = RoadSegmentStatus.InUse.Translation.Identifier; // only to trigger a change
+            })
+            .Build();
+
+        var (translatedChanges, _) = await TranslateSucceeds(zipArchive);
+
+        translatedChanges.Should().HaveCount(2);
+        translatedChanges.ToList()[0].Should().BeOfType<ModifyRoadSegment>();
+        translatedChanges.ToList()[1].Should().BeOfType<RemoveRoadSegmentFromNumberedRoad>();
     }
 }
