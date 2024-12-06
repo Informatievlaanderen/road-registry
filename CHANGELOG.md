@@ -1,3 +1,10 @@
+## [4.16.6](https://github.com/informatievlaanderen/road-registry/compare/v4.16.5...v4.16.6) (2024-12-06)
+
+
+### Bug Fixes
+
+* use messagehandling OffsetOverride ([#1582](https://github.com/informatievlaanderen/road-registry/issues/1582)) ([673118f](https://github.com/informatievlaanderen/road-registry/commit/673118f6ab78113473107bb54d598165a0b479e9))
+
 ## [4.16.5](https://github.com/informatievlaanderen/road-registry/compare/v4.16.4...v4.16.5) (2024-12-06)
 
 
