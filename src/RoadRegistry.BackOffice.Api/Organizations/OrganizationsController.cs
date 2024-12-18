@@ -1,13 +1,10 @@
 namespace RoadRegistry.BackOffice.Api.Organizations;
 
 using Asp.Versioning;
-using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
 using Infrastructure;
-using Infrastructure.Authentication;
 using Infrastructure.Controllers;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SqlStreamStore;
 
@@ -15,7 +12,6 @@ using SqlStreamStore;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("organizations")]
 [ApiExplorerSettings(GroupName = "Organisaties")]
-[Authorize(AuthenticationSchemes = AuthenticationSchemes.AllSchemes, Policy = PolicyNames.WegenUitzonderingen.Beheerder)]
 public partial class OrganizationsController : BackofficeApiController
 {
     public OrganizationsController(

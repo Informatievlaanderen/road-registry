@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
+using Infrastructure.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 public partial class OrganizationsController
 {
@@ -23,6 +26,7 @@ public partial class OrganizationsController
     /// </param>
     /// <returns>IActionResult.</returns>
     [HttpPost(CreateRoute, Name = nameof(Create))]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllSchemes, Policy = PolicyNames.WegenUitzonderingen.Beheerder)]
     [SwaggerOperation(OperationId = nameof(Create), Description = "")]
     public async Task<IActionResult> Create(
         [FromBody] OrganizationCreateParameters parameters,
