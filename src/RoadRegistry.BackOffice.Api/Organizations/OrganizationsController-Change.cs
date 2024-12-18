@@ -2,9 +2,12 @@ namespace RoadRegistry.BackOffice.Api.Organizations;
 
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using FluentValidation;
 using Framework;
+using Infrastructure.Authentication;
 using Messages;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -24,6 +27,7 @@ public partial class OrganizationsController
     /// </param>
     /// <returns>IActionResult.</returns>
     [HttpPatch(ChangeRoute, Name = nameof(Change))]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllSchemes, Policy = PolicyNames.WegenUitzonderingen.Beheerder)]
     [SwaggerOperation(OperationId = nameof(Change), Description = "")]
     public async Task<IActionResult> Change(
         [FromBody] OrganizationChangeParameters parameters,

@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
+using Infrastructure.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 public partial class OrganizationsController
 {
@@ -24,6 +27,7 @@ public partial class OrganizationsController
     /// </param>
     /// <returns>IActionResult.</returns>
     [HttpPatch(RenameRoute, Name = nameof(Rename))]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllSchemes, Policy = PolicyNames.WegenUitzonderingen.Beheerder)]
     [SwaggerOperation(OperationId = nameof(Rename), Description = "")]
     public async Task<IActionResult> Rename(
         [FromBody] OrganizationRenameParameters parameters,

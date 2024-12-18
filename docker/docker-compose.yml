@@ -29,7 +29,6 @@ services:
   localstack:
     image: localstack/localstack
     container_name: localstack
-    restart: always
     ports:
       - 4566:4566
       - 4510-4559:4510-4559
@@ -68,7 +67,6 @@ services:
   seq:
     image: datalust/seq:latest
     container_name: seq
-    restart: always
     ports:
       - 5341:80
     environment:
@@ -79,7 +77,6 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.0.1
     container_name: kafka
-    restart: always
     ports:
       - 9092:9092
     depends_on:
@@ -96,7 +93,6 @@ services:
   kafka-admin:
     image: confluentinc/cp-zookeeper:7.0.1
     container_name: kafka-admin
-    restart: always
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -104,7 +100,6 @@ services:
   postgresql:
     build: ./postgresql
     container_name: postgresql
-    restart: always
     environment:
       POSTGRES_USER: sa
       POSTGRES_PASSWORD: E@syP@ssw0rd
@@ -114,7 +109,6 @@ services:
   postgresql-admin:
     image: adminer
     container_name: postgresql-admin
-    restart: always
     ports:
       - 8081:8080
 
