@@ -1,3 +1,10 @@
+## [4.16.7](https://github.com/informatievlaanderen/road-registry/compare/v4.16.6...v4.16.7) (2024-12-18)
+
+
+### Bug Fixes
+
+* move Organizations Authorize attributes to endpoint instead of controller ([328d9ed](https://github.com/informatievlaanderen/road-registry/commit/328d9eded90910166145abb3c377460814d1f28a))
+
 ## [4.16.6](https://github.com/informatievlaanderen/road-registry/compare/v4.16.5...v4.16.6) (2024-12-06)
 
 
