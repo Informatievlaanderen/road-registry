@@ -355,7 +355,7 @@ public class Startup
 
                 return new AmazonS3JobUploadUrlPresigner(sp.GetRequiredService<IAmazonS3Extended>(), sp.GetRequiredService<IOptions<JobsBucketOptions>>());
             })
-
+            .AddDistributedMemoryCache()
             .AddAcmIdmAuthentication(oAuth2IntrospectionOptions, openIdConnectOptions)
             .AddApiKeyAuth()
             .AddMvc(options =>
