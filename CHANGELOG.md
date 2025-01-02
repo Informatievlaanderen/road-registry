@@ -1,3 +1,10 @@
+# [4.17.0](https://github.com/informatievlaanderen/road-registry/compare/v4.16.7...v4.17.0) (2025-01-02)
+
+
+### Features
+
+* add cache introspection ([ed95cb7](https://github.com/informatievlaanderen/road-registry/commit/ed95cb74c87966637acfda862452e4b5921741bc))
+
 ## [4.16.7](https://github.com/informatievlaanderen/road-registry/compare/v4.16.6...v4.16.7) (2024-12-18)
 
 
