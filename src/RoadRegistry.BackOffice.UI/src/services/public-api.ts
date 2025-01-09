@@ -95,7 +95,8 @@ export const PublicApi = {
       }
       data.append("file", file, filename);
       
-      var uploadFileResponse = await apiClient.post(response.data.uploadUrl, data);
+      let awsHttp = axios.create();
+      var uploadFileResponse = await awsHttp.post(response.data.uploadUrl, data);
       
       let status = uploadFileResponse.status as any;
       if (status !== 204) {

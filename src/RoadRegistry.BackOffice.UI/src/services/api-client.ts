@@ -1,5 +1,5 @@
 import Vue from "vue";
-import axios, { AxiosInstance, AxiosRequestConfig, Method } from "axios";
+import axios, { AxiosInstance, Method } from "axios";
 import { AuthService } from "@/auth";
 import router from "@/router";
 import { featureToggles } from "@/environment";
