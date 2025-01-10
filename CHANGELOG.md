@@ -1,3 +1,10 @@
+## [4.17.1](https://github.com/informatievlaanderen/road-registry/compare/v4.17.0...v4.17.1) (2025-01-10)
+
+
+### Bug Fixes
+
+* don't pass authorization header when uploading using presigned url ([#1586](https://github.com/informatievlaanderen/road-registry/issues/1586)) ([a2d9152](https://github.com/informatievlaanderen/road-registry/commit/a2d91525039731fac206bca7bf9ec283e66aae51))
+
 # [4.17.0](https://github.com/informatievlaanderen/road-registry/compare/v4.16.7...v4.17.0) (2025-01-02)
 
 
