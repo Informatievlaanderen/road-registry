@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Configuration;
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using RoadRegistry.BackOffice;
 
 public class S3BlobClientOptions: IHasConfigurationKey
@@ -19,13 +20,13 @@ public class S3BlobClientOptions: IHasConfigurationKey
         return "S3BlobClientOptions";
     }
 
-    public string FindBucketName(string key)
+    public string GetBucketName(string key)
     {
         if (Buckets is not null && Buckets.TryGetValue(key, out var name))
         {
             return name;
         }
 
-        return null;
+        throw new ConfigurationErrorsException($"Missing bucket name for '{key}'");
     }
 }

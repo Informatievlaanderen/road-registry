@@ -12,6 +12,8 @@ public class S3Options : IHasConfigurationKey
     public RegionEndpoint RegionEndpoint { get; }
     public JsonSerializerSettings JsonSerializerSettings { get; }
 
+    public int ExpiresInSeconds { get; set; } = 60;
+
     public S3Options() {}
 
     public S3Options(JsonSerializerSettings jsonSerializerSettings)
@@ -38,7 +40,7 @@ public class S3Options : IHasConfigurationKey
     public S3Options(string accessKey, string secretKey, string sessionToken, RegionEndpoint regionEndpoint)
         : this(new SessionAWSCredentials(accessKey, secretKey, sessionToken), regionEndpoint)
     { }
-    
+
     public string GetConfigurationKey()
     {
         return "S3";
