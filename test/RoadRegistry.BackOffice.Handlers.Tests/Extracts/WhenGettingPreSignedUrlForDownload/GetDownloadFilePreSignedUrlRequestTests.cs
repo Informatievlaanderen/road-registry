@@ -47,8 +47,8 @@ public class GetDownloadFilePreSignedUrlRequestTests: RoadNetworkTestBase
         var preSignedUrl = ObjectProvider.Create<string>();
         var amazonS3Mock = new Mock<IAmazonS3>();
         amazonS3Mock
-            .Setup(x => x.GetPreSignedURL(It.IsAny<GetPreSignedUrlRequest>()))
-            .Returns(preSignedUrl);
+            .Setup(x => x.GetPreSignedURLAsync(It.IsAny<GetPreSignedUrlRequest>()))
+            .ReturnsAsync(preSignedUrl);
 
         var blobClientMock = new Mock<IBlobClient>();
         blobClientMock
@@ -78,7 +78,7 @@ public class GetDownloadFilePreSignedUrlRequestTests: RoadNetworkTestBase
         var response = await handler.Handle(request, CancellationToken.None);
 
         // Assert
-        response.PresignedUrl.Should().Be(preSignedUrl);
+        response.PreSignedUrl.Should().Be(preSignedUrl);
         commandHandlerDispatcher.Invocations.Should().HaveCount(1);
         commandHandlerDispatcher.Invocations.Single().Body.Should().BeOfType<DownloadRoadNetworkExtract>();
     }

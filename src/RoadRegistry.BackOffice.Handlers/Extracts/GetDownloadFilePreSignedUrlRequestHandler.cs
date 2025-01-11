@@ -80,7 +80,7 @@ public class GetDownloadFilePreSignedUrlRequestHandler : EndpointRetryableReques
 
         var bucketName = _s3BlobClientOptions.GetBucketName(WellKnownBuckets.ExtractDownloadsBucket);
 
-        var preSignedUrl = _amazonS3.GetPreSignedURL(
+        var preSignedUrl = await _amazonS3.GetPreSignedURLAsync(
             new GetPreSignedUrlRequest
             {
                 BucketName = bucketName,

@@ -16,7 +16,7 @@ public partial class ExtractsController
     private const string GetDownloadPreSignedUrlRoute = "download/{downloadId}/presignedurl";
 
     /// <summary>
-    ///     Gets the presigned url to download the extract.
+    ///     Gets the pre-signed url to download the extract.
     /// </summary>
     /// <param name="downloadId">The download identifier.</param>
     /// <param name="options">The options.</param>
@@ -36,7 +36,7 @@ public partial class ExtractsController
         {
             var request = new GetDownloadFilePreSignedUrlRequest(downloadId, options.DefaultRetryAfter, options.RetryAfterAverageWindowInDays);
             var response = await _mediator.Send(request, cancellationToken);
-            return new RedirectResult(response.PresignedUrl, false);
+            return new RedirectResult(response.PreSignedUrl, false);
         }
         catch (ExtractArchiveNotCreatedException)
         {

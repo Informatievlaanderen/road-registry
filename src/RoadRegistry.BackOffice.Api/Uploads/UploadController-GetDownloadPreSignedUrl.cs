@@ -13,35 +13,46 @@ using System.Threading.Tasks;
 
 public partial class UploadController
 {
-    private const string GetUploadRoute = "{identifier}";
+    private const string GetDownloadPreSignedUrlRoute = "{identifier}/presignedurl";
 
     /// <summary>
-    ///     Download het geupload extract
+    ///     Gets the pre-signed url to download the uploaded extract.
     /// </summary>
-    /// <param name="identifier">De identificator van het wegsegment.</param>
+    /// <param name="identifier">De identificator van de upload.</param>
     /// <param name="cancellationToken"></param>
-    /// <response code="200">Als het wegsegment gevonden is.</response>
-    /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
+    /// <response code="200">Als de upload gevonden is.</response>
+    /// <response code="404">Als de upload niet gevonden kan worden.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
-    [HttpGet(GetUploadRoute, Name = nameof(GetUpload))]
-    [ProducesResponseType(typeof(FileCallbackResult), StatusCodes.Status200OK)]
+    [HttpGet(GetDownloadPreSignedUrlRoute, Name = nameof(GetDownloadPreSignedUrl))]
+    [ProducesResponseType(typeof(GetDownloadPreSignedUrlResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(FileCallbackResultExamples))]
     [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(ExtractDownloadNotFoundException))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
-    [SwaggerOperation(OperationId = nameof(GetUpload), Description = "")]
-    public async Task<IActionResult> GetUpload(string identifier, CancellationToken cancellationToken)
+    [SwaggerOperation(OperationId = nameof(GetDownloadPreSignedUrl), Description = "")]
+    public async Task<IActionResult> GetDownloadPreSignedUrl(string identifier, CancellationToken cancellationToken)
     {
         try
         {
-            DownloadExtractRequest request = new(identifier);
+            var request = new GetUploadFilePreSignedUrlRequest(identifier);
             var response = await _mediator.Send(request, cancellationToken);
-            return new FileCallbackResult(response);
+
+            return Ok(new GetDownloadPreSignedUrlResponse
+            {
+                DownloadUrl = response.PreSignedUrl,
+                FileName = response.FileName
+            });
         }
         catch (ExtractDownloadNotFoundException)
         {
             return NotFound();
         }
+    }
+
+    public class GetDownloadPreSignedUrlResponse
+    {
+        public string DownloadUrl { get; init; }
+        public string FileName { get; init; }
     }
 }

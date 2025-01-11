@@ -13,7 +13,7 @@ public partial class ExtractsControllerTests
     [InlineData("e33d6fa8-f89a-4342-8353-6373756c4463")]
     public async Task When_requesting_presigned_upload_url_with_invalid_downloadid(string downloadId)
     {
-        await Assert.ThrowsAsync<InvalidGuidValidationException>(() => Controller.GetUploadPreSignedUrlForDownload(
+        await Assert.ThrowsAsync<InvalidGuidValidationException>(() => Controller.CreateJobForUpload(
             downloadId,
             new FakeEditorContextFactory().CreateDbContext(),
             CancellationToken.None
@@ -25,7 +25,7 @@ public partial class ExtractsControllerTests
     {
         var downloadId = Guid.NewGuid();
 
-        await Assert.ThrowsAsync<ExtractRequestNotFoundException>(() => Controller.GetUploadPreSignedUrlForDownload(
+        await Assert.ThrowsAsync<ExtractRequestNotFoundException>(() => Controller.CreateJobForUpload(
             new DownloadId(downloadId),
             new FakeEditorContextFactory().CreateDbContext(),
             CancellationToken.None
