@@ -27,6 +27,7 @@ using RoadRegistry.BackOffice.Api.Organizations;
 using RoadRegistry.Hosts.Infrastructure.Options;
 using SqlStreamStore;
 using System.Reflection;
+using Api.Grb;
 using FeatureCompare.Readers;
 using FeatureCompare.Translators;
 using Sync.MunicipalityRegistry;
@@ -100,6 +101,7 @@ public class Startup : TestStartup
             .AddScoped<ChangeFeedController>()
             .AddScoped<DownloadController>()
             .AddScoped<ExtractsController>()
+            .AddScoped<GrbController>()
             .AddScoped<InformationController>()
             .AddScoped<OrganizationsController>()
             .AddScoped<UploadController>()

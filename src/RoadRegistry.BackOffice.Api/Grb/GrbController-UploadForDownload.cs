@@ -1,6 +1,5 @@
-namespace RoadRegistry.BackOffice.Api.Extracts;
+namespace RoadRegistry.BackOffice.Api.Grb;
 
-using System;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Infrastructure;
 using Microsoft.AspNetCore.Http;
@@ -14,7 +13,7 @@ using Abstractions.Jobs;
 using Editor.Schema;
 using Exceptions;
 
-public partial class ExtractsController
+public partial class GrbController
 {
     /// <summary>
     ///     Vraag een pre-signed url aan voor een zip van een extract download te uploaden.
@@ -25,15 +24,14 @@ public partial class ExtractsController
     /// <response code="200">Als de url is aangemaakt.</response>
     /// <response code="400">Als de url is aangemaakt.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
-    [Obsolete("Use endpoint /grb/download/{downloadId}/upload instead")]
     [ProducesResponseType(typeof(GetPresignedUploadUrlResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(FileCallbackResultExamples))]
     [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
-    [SwaggerOperation(OperationId = nameof(GetUploadPreSignedUrlForDownload), Description = "")]
-    [HttpPost("download/{downloadId}/jobs", Name = nameof(GetUploadPreSignedUrlForDownload))]
-    public async Task<IActionResult> GetUploadPreSignedUrlForDownload(
+    [SwaggerOperation(OperationId = nameof(UploadForDownload), Description = "")]
+    [HttpPost("download/{downloadId}/upload", Name = nameof(UploadForDownload))]
+    public async Task<IActionResult> UploadForDownload(
         [FromRoute] string downloadId,
         [FromServices] EditorContext editorContext,
         CancellationToken cancellationToken)
