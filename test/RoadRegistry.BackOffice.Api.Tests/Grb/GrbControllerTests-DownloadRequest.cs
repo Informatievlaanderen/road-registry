@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Grb;
 
+using Abstractions.Extracts;
 using Api.Extracts;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -11,7 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Xunit.Sdk;
-using DownloadExtractRequestBody = Api.Grb.DownloadExtractRequestBody;
 using GeometryTranslator = BackOffice.GeometryTranslator;
 using Point = NetTopologySuite.Geometries.Point;
 
@@ -31,13 +31,13 @@ public partial class GrbControllerTests
             SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
             WKT = "MultiPolygon (((64699.86540096173121128 218247.15990484040230513, 91541.66608652254217304 211821.38593515567481518, 91541.66608652254217304 211821.38593515567481518, 91541.66608652254217304 211821.38593515567481518, 91523.78514424958848394 195503.55442933458834887, 88364.38692880698363297 166590.4106055349111557, 50936.49097712300135754 171639.109682597219944, 36050.97635232988977805 199580.85535924322903156, 64699.86540096173121128 218247.15990484040230513)))"
         };
-        var response = await Controller.ExtractByContour(new Api.Grb.DownloadExtractRequestBody(
+        var response = await Controller.ExtractByContour(new DownloadExtractRequestBody(
             writer.Write((Geometry)GeometryTranslator.Translate(contour)),
             externalExtractRequestId,
             false
         ), CancellationToken.None);
         var result = Assert.IsType<AcceptedResult>(response);
-        Assert.IsType<Api.Grb.DownloadExtractResponseBody>(result.Value);
+        Assert.IsType<DownloadExtractResponseBody>(result.Value);
     }
 
     [Fact]
@@ -54,13 +54,13 @@ public partial class GrbControllerTests
             SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
             WKT = "MultiPolygon (((64699.86540096173121128 218247.15990484040230513, 91541.66608652254217304 211821.38593515567481518, 91541.66608652254217304 211821.38593515567481518, 91541.66608652254217304 211821.38593515567481518, 91523.78514424958848394 195503.55442933458834887, 88364.38692880698363297 166590.4106055349111557, 50936.49097712300135754 171639.109682597219944, 36050.97635232988977805 199580.85535924322903156, 64699.86540096173121128 218247.15990484040230513)))"
         };
-        var response = await Controller.ExtractByContour(new Api.Grb.DownloadExtractRequestBody(
+        var response = await Controller.ExtractByContour(new DownloadExtractRequestBody(
             writer.Write((Geometry)GeometryTranslator.Translate(contour)),
             externalExtractRequestId,
             null
         ), CancellationToken.None);
         var result = Assert.IsType<AcceptedResult>(response);
-        var responseBody = Assert.IsType<Api.Grb.DownloadExtractResponseBody>(result.Value);
+        var responseBody = Assert.IsType<DownloadExtractResponseBody>(result.Value);
         responseBody.IsInformative.Should().BeTrue();
     }
 
@@ -75,7 +75,7 @@ public partial class GrbControllerTests
         var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
         try
         {
-            await Controller.ExtractByContour(new Api.Grb.DownloadExtractRequestBody
+            await Controller.ExtractByContour(new DownloadExtractRequestBody
             (
                 externalExtractRequestId,
                 writer.Write(new Point(1.0, 2.0)), false
@@ -93,7 +93,7 @@ public partial class GrbControllerTests
         var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
         try
         {
-            await Controller.ExtractByContour(new Api.Grb.DownloadExtractRequestBody
+            await Controller.ExtractByContour(new DownloadExtractRequestBody
             (
                 null,
                 externalExtractRequestId,

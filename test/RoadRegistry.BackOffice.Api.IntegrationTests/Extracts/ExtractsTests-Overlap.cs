@@ -9,6 +9,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Extracts
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
+    using Abstractions.Extracts;
     using Xunit;
 
     public partial class ExtractsTests

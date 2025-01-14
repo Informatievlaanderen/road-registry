@@ -25,9 +25,9 @@ public partial class ExtractsController
     ///     of cancellation.
     /// </param>
     /// <returns>ActionResult.</returns>
-    [HttpGet(GetDownloadPreSignedUrlRoute, Name = nameof(GetDownloadPreSignedUrl))]
-    [SwaggerOperation(OperationId = nameof(GetDownloadPreSignedUrl), Description = "")]
-    public async Task<ActionResult> GetDownloadPreSignedUrl(
+    [HttpGet(GetDownloadPreSignedUrlRoute, Name = nameof(GetDownloadPreSignedUrlForExtract))]
+    [SwaggerOperation(OperationId = nameof(GetDownloadPreSignedUrlForExtract), Description = "")]
+    public async Task<ActionResult> GetDownloadPreSignedUrlForExtract(
         [FromRoute] string downloadId,
         [FromServices] ExtractDownloadsOptions options,
         CancellationToken cancellationToken)
