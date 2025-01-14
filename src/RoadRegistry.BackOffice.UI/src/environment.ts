@@ -9,8 +9,6 @@ export const featureToggles = {
   useTransactionZonesTab:
     `${window.featureToggles?.useTransactionZonesTab ?? process.env.VUE_APP_FEATURETOGGLES_USETRANSACTIONZONESTAB}` ===
     "true",
-  usePresignedUpload:
-    `${window.featureToggles?.usePresignedUpload ?? process.env.VUE_APP_FEATURETOGGLES_USEPRESIGNEDUPLOAD}` === "true",
   useOverlapCheck:
     `${window.featureToggles?.useOverlapCheck ?? process.env.VUE_APP_FEATURETOGGLES_USEOVERLAPCHECK}` === "true",
 };

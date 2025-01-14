@@ -309,6 +309,7 @@ export default Vue.extend({
     async downloadUpload(activity: any): Promise<void> {
       this.isDownloading = true;
       try {
+        //TODO-rik
         await BackOfficeApi.Uploads.download(activity.changeFeedContent.content.archive.id);
       } finally {
         this.isDownloading = false;
@@ -317,6 +318,7 @@ export default Vue.extend({
     async downloadExtract(activity: any): Promise<void> {
       this.isDownloading = true;
       try {
+        //TODO-rik
         await BackOfficeApi.Extracts.download(activity.changeFeedContent.content.archive.id);
       } finally {
         this.isDownloading = false;

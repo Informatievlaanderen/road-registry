@@ -395,108 +395,96 @@ export default Vue.extend({
       }
 
       try {
-        if (featureToggles.usePresignedUpload) {
-          let presignedUploadResponse = await PublicApi.Uploads.uploadUsingPresignedUrl(file, file.name);
+        let presignedUploadResponse = await PublicApi.Uploads.uploadUsingPresignedUrl(file, file.name);
 
-          if (!presignedUploadResponse) {
+        if (!presignedUploadResponse) {
+          return {
+            uploadResponseCode: 1000,
+            fileProblems: undefined,
+            changeRequestId: undefined,
+            changes: undefined,
+            summary: undefined,
+          };
+        }
+
+        while (this.isProcessing) {
+          try {
+            var ticketResult = await axios
+              .create()
+              .get<RoadRegistry.GetTicketResponse>(presignedUploadResponse.ticketUrl, {
+                params: { t: new Date().getTime() },
+              });
+
+            switch (ticketResult.data.status) {
+              case "created":
+                this.uploadResult = {
+                  uploadResponseCode: 1100,
+                  fileProblems: undefined,
+                  changeRequestId: undefined,
+                  changes: undefined,
+                  summary: undefined,
+                };
+                break;
+              case "pending":
+                this.uploadResult = {
+                  uploadResponseCode: 1101,
+                  fileProblems: undefined,
+                  changeRequestId: undefined,
+                  changes: undefined,
+                  summary: undefined,
+                };
+                break;
+              case "complete":
+                let uploadResult = camelizeKeys(JSON.parse(ticketResult.data.result.json));
+
+                return {
+                  uploadResponseCode: uploadResult.changes.length > 0 ? 1102 : 1103,
+                  fileProblems: undefined,
+                  changeRequestId: undefined,
+                  changes: uploadResult.changes,
+                  summary: uploadResult.changes.length > 0 ? uploadResult.summary : undefined,
+                };
+              case "error":
+                let ticketError = JSON.parse(ticketResult.data.result.json);
+                let errors = [ticketError, ...(ticketError.Errors ?? [])];
+                errors = uniqBy(errors, (x) => `${x.ErrorCode}_${x.ErrorMessage}`);
+                let problems = errors.map((error) => {
+                  let codeParts = (error.ErrorCode ?? "").split("_");
+                  let file = codeParts.length > 1 ? codeParts[0] : null;
+                  let code = codeParts.length > 1 ? codeParts[1] : codeParts[0];
+                  let severity = code.startsWith("Warning") ? "Warning" : "Error";
+                  let text = error.ErrorMessage;
+                  return { file, code, severity, text };
+                });
+                let fileProblems = uniq(problems.map((x) => x.file)).map((file) => {
+                  return {
+                    file,
+                    problems: orderBy(
+                      problems.filter((p) => p.file === file),
+                      "severity"
+                    ),
+                  };
+                });
+                return {
+                  uploadResponseCode: 400,
+                  fileProblems,
+                  changeRequestId: undefined,
+                  changes: undefined,
+                  summary: undefined,
+                };
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+          } catch (err) {
+            console.error("Error getting ticket details", err);
             return {
-              uploadResponseCode: 1000,
+              uploadResponseCode: 1001,
               fileProblems: undefined,
               changeRequestId: undefined,
               changes: undefined,
               summary: undefined,
             };
           }
-
-          while (this.isProcessing) {
-            try {
-              var ticketResult = await axios
-                .create()
-                .get<RoadRegistry.GetTicketResponse>(presignedUploadResponse.ticketUrl, {
-                  params: { t: new Date().getTime() },
-                });
-
-              switch (ticketResult.data.status) {
-                case "created":
-                  this.uploadResult = {
-                    uploadResponseCode: 1100,
-                    fileProblems: undefined,
-                    changeRequestId: undefined,
-                    changes: undefined,
-                    summary: undefined,
-                  };
-                  break;
-                case "pending":
-                  this.uploadResult = {
-                    uploadResponseCode: 1101,
-                    fileProblems: undefined,
-                    changeRequestId: undefined,
-                    changes: undefined,
-                    summary: undefined,
-                  };
-                  break;
-                case "complete":
-                  let uploadResult = camelizeKeys(JSON.parse(ticketResult.data.result.json));
-
-                  return {
-                    uploadResponseCode: uploadResult.changes.length > 0 ? 1102 : 1103,
-                    fileProblems: undefined,
-                    changeRequestId: undefined,
-                    changes: uploadResult.changes,
-                    summary: uploadResult.changes.length > 0 ? uploadResult.summary : undefined,
-                  };
-                case "error":
-                  let ticketError = JSON.parse(ticketResult.data.result.json);
-                  let errors = [ticketError, ...(ticketError.Errors ?? [])];
-                  errors = uniqBy(errors, (x) => `${x.ErrorCode}_${x.ErrorMessage}`);
-                  let problems = errors.map((error) => {
-                    let codeParts = (error.ErrorCode ?? "").split("_");
-                    let file = codeParts.length > 1 ? codeParts[0] : null;
-                    let code = codeParts.length > 1 ? codeParts[1] : codeParts[0];
-                    let severity = code.startsWith("Warning") ? "Warning" : "Error";
-                    let text = error.ErrorMessage;
-                    return { file, code, severity, text };
-                  });
-                  let fileProblems = uniq(problems.map((x) => x.file)).map((file) => {
-                    return {
-                      file,
-                      problems: orderBy(
-                        problems.filter((p) => p.file === file),
-                        "severity"
-                      ),
-                    };
-                  });
-                  return {
-                    uploadResponseCode: 400,
-                    fileProblems,
-                    changeRequestId: undefined,
-                    changes: undefined,
-                    summary: undefined,
-                  };
-              }
-
-              await new Promise((resolve) => setTimeout(resolve, 3000));
-            } catch (err) {
-              console.error("Error getting ticket details", err);
-              return {
-                uploadResponseCode: 1001,
-                fileProblems: undefined,
-                changeRequestId: undefined,
-                changes: undefined,
-                summary: undefined,
-              };
-            }
-          }
-        } else {
-          let uploadResponse = await BackOfficeApi.Uploads.uploadFeatureCompare(file, file.name);
-
-          return {
-            uploadResponseCode: uploadResponse.status,
-            fileProblems: undefined,
-            changeRequestId: uploadResponse.changeRequestId,
-            changes: undefined,
-            summary: undefined,
-          };
         }
       } catch (err: any) {
         if (err?.response?.status === 400) {
