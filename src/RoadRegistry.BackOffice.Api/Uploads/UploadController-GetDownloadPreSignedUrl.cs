@@ -1,15 +1,11 @@
 namespace RoadRegistry.BackOffice.Api.Uploads;
 
-using Abstractions.Uploads;
-using Be.Vlaanderen.Basisregisters.Api.Exceptions;
-using Exceptions;
-using Infrastructure;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
-using Swashbuckle.AspNetCore.Filters;
 using System.Threading;
 using System.Threading.Tasks;
+using Abstractions.Uploads;
+using Exceptions;
+using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 public partial class UploadController
 {
@@ -24,12 +20,6 @@ public partial class UploadController
     /// <response code="404">Als de upload niet gevonden kan worden.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpGet(GetDownloadPreSignedUrlRoute, Name = nameof(GetDownloadPreSignedUrl))]
-    [ProducesResponseType(typeof(GetDownloadPreSignedUrlResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(FileCallbackResultExamples))]
-    [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(ExtractDownloadNotFoundException))]
-    [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerOperation(OperationId = nameof(GetDownloadPreSignedUrl), Description = "")]
     public async Task<IActionResult> GetDownloadPreSignedUrl(string identifier, CancellationToken cancellationToken)
     {
