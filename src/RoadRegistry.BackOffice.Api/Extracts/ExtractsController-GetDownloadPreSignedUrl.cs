@@ -36,7 +36,11 @@ public partial class ExtractsController
         {
             var request = new GetDownloadFilePreSignedUrlRequest(downloadId, options.DefaultRetryAfter, options.RetryAfterAverageWindowInDays);
             var response = await _mediator.Send(request, cancellationToken);
-            return new RedirectResult(response.PreSignedUrl, false);
+
+            return Ok(new GetExtractDownloadPreSignedUrlResponse
+            {
+                DownloadUrl = response.PreSignedUrl
+            });
         }
         catch (ExtractArchiveNotCreatedException)
         {
@@ -56,5 +60,10 @@ public partial class ExtractsController
             AddHeaderRetryAfter(exception.RetryAfterSeconds);
             return NotFound();
         }
+    }
+
+    public class GetExtractDownloadPreSignedUrlResponse
+    {
+        public string DownloadUrl { get; init; }
     }
 }
