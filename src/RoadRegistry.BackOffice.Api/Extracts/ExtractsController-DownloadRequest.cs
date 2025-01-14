@@ -34,7 +34,3 @@ public partial class ExtractsController
         return Accepted(new DownloadExtractResponseBody(response.DownloadId, response.IsInformative));
     }
 }
-
-public record DownloadExtractRequestBody(string Contour, string RequestId, bool? IsInformative);
-
-public record DownloadExtractResponseBody(string DownloadId, bool IsInformative);

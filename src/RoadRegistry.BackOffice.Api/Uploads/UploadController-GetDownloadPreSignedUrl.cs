@@ -19,9 +19,9 @@ public partial class UploadController
     /// <response code="200">Als de upload gevonden is.</response>
     /// <response code="404">Als de upload niet gevonden kan worden.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
-    [HttpGet(GetDownloadPreSignedUrlRoute, Name = nameof(GetDownloadPreSignedUrl))]
-    [SwaggerOperation(OperationId = nameof(GetDownloadPreSignedUrl), Description = "")]
-    public async Task<IActionResult> GetDownloadPreSignedUrl(string identifier, CancellationToken cancellationToken)
+    [HttpGet(GetDownloadPreSignedUrlRoute, Name = nameof(GetDownloadPreSignedUrlForUpload))]
+    [SwaggerOperation(OperationId = nameof(GetDownloadPreSignedUrlForUpload), Description = "")]
+    public async Task<IActionResult> GetDownloadPreSignedUrlForUpload(string identifier, CancellationToken cancellationToken)
     {
         try
         {
