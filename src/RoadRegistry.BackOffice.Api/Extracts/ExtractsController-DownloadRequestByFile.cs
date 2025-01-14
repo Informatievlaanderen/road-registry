@@ -38,6 +38,7 @@ public partial class ExtractsController
 
             DownloadExtractByFileRequestItem BuildRequestItem(string extension)
             {
+                //TODO-rik add deftige validatie fout voor missing file ipv 500
                 var file = body.Files.SingleOrDefault(formFile => formFile.FileName.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase)) ?? throw new InvalidOperationException($"No file ends with extension {extension}");
                 var fileStream = new MemoryStream();
                 file.CopyTo(fileStream);

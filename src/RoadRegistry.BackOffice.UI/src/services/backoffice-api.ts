@@ -51,7 +51,7 @@ export const BackOfficeApi = {
   },
   Uploads: {
     uploadFeatureCompare: async (
-      file: string | Blob,
+      file: Blob,
       filename: string
     ): Promise<RoadRegistry.UploadExtractResponseBody> => {
       const path = `${apiEndpoint}/v1/upload/fc`;
@@ -64,7 +64,7 @@ export const BackOfficeApi = {
       return response.data;
     },
     uploadUsingPresignedUrl: async (
-      file: string | Blob,
+      file: Blob,
       filename: string
     ): Promise<RoadRegistry.UploadPresignedUrlResponse | null> => {
       const path = `${apiEndpoint}/v1/upload/jobs`;

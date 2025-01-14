@@ -651,7 +651,7 @@ export default Vue.extend({
                 description: this.contourFlow.description,
                 isInformative: this.contourFlow.isInformative as Boolean,
               };
-              response = await BackOfficeApi.Extracts.postDownloadRequestByFile(requestData);
+              response = await PublicApi.Extracts.postDownloadRequestByFile(requestData);
             }
             break;
           case "wkt":

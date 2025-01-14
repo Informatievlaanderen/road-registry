@@ -46,6 +46,15 @@ export namespace RoadRegistry {
         uploadUrlFormData: any;
         ticketUrl: string;
     }
+    
+    export interface GetUploadDownloadPreSignedUrlResponse {
+        downloadUrl: string;
+        fileName: string;
+    }
+    
+    export interface GetExtractDownloadPreSignedUrlResponse {
+        downloadUrl: string;
+    }    
 
     export interface GetTicketResponse
     {
@@ -105,7 +114,7 @@ export namespace RoadRegistry {
     }
     export interface ListOverlappingExtractsResponse {
         downloadIds: string[];
-    }
+    }  
 
     export interface ValidateWktResponse {
         area: number;
