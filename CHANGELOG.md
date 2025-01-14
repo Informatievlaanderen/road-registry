@@ -1,3 +1,10 @@
+## [4.18.2](https://github.com/informatievlaanderen/road-registry/compare/v4.18.1...v4.18.2) (2025-01-14)
+
+
+### Bug Fixes
+
+* get pre-signed url for extract download response ([048f8ab](https://github.com/informatievlaanderen/road-registry/commit/048f8aba67cb949e8347347ce5723f837dddf35c))
+
 ## [4.18.1](https://github.com/informatievlaanderen/road-registry/compare/v4.18.0...v4.18.1) (2025-01-14)
 
 
