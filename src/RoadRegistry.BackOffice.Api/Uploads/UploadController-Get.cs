@@ -16,7 +16,7 @@ public partial class UploadController
     private const string GetUploadRoute = "{identifier}";
 
     /// <summary>
-    ///     Download een aangevraagd extract
+    ///     Download het geupload extract
     /// </summary>
     /// <param name="identifier">De identificator van het wegsegment.</param>
     /// <param name="cancellationToken"></param>

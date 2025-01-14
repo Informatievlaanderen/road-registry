@@ -1,15 +1,14 @@
-namespace RoadRegistry.BackOffice.Api.Extracts;
+namespace RoadRegistry.BackOffice.Api.Grb;
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Extracts;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-public partial class ExtractsController
+public partial class GrbController
 {
-    private const string PostDownloadRequestRoute = "downloadrequests";
+    private const string PostDownloadRequestRoute = "extracts/bycontour";
 
     /// <summary>
     ///     Requests the download.
@@ -20,10 +19,9 @@ public partial class ExtractsController
     ///     of cancellation.
     /// </param>
     /// <returns>IActionResult.</returns>
-    [Obsolete("Use endpoint /grb/extracts/bycontour instead")]
-    [HttpPost(PostDownloadRequestRoute, Name = nameof(RequestDownload))]
-    [SwaggerOperation(OperationId = nameof(RequestDownload), Description = "")]
-    public async Task<IActionResult> RequestDownload([FromBody] DownloadExtractRequestBody body, CancellationToken cancellationToken)
+    [HttpPost(PostDownloadRequestRoute, Name = nameof(ExtractByContour))]
+    [SwaggerOperation(OperationId = nameof(ExtractByContour), Description = "")]
+    public async Task<IActionResult> ExtractByContour([FromBody] DownloadExtractRequestBody body, CancellationToken cancellationToken)
     {
         var isInformative = body.IsInformative ??
                             body.RequestId?.StartsWith("INF_")

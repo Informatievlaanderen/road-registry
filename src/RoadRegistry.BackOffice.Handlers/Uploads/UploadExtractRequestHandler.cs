@@ -127,7 +127,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             var extractRequest = await _editorContext.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
             if (extractRequest is null)
             {
-                throw new ExtractDownloadNotFoundException(new DownloadId(downloadId));
+                throw new ExtractDownloadNotFoundException(downloadId);
             }
             if (extractRequest.IsInformative)
             {

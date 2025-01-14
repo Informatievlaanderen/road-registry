@@ -32,7 +32,7 @@ public class BlobClientFactory: IBlobClientFactory
         switch (_blobClientOptions.BlobClientType)
         {
             case nameof(S3BlobClient):
-                return new S3BlobClient(_amazonS3Client.Value, _s3BlobClientOptions.Value.Buckets[bucketKey]);
+                return new S3BlobClient(_amazonS3Client.Value, _s3BlobClientOptions.Value.GetBucketName(bucketKey));
             case nameof(FileBlobClient):
                 return _fileBlobClient.Value;
         }

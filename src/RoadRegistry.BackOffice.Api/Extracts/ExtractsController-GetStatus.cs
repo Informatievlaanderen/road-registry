@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracts;
 
+using System;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,6 +24,7 @@ public partial class ExtractsController
     ///     of cancellation.
     /// </param>
     /// <returns>IActionResult.</returns>
+    [Obsolete("Status of upload in new way is tracked using the ticketing service")]
     [HttpGet(GetStatusRoute, Name = nameof(GetStatus))]
     [SwaggerOperation(OperationId = nameof(GetStatus), Description = "")]
     public async Task<IActionResult> GetStatus(

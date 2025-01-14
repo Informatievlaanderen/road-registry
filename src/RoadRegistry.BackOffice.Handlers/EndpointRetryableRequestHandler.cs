@@ -15,14 +15,15 @@ public abstract class EndpointRetryableRequestHandler<TRequest, TResponse> : End
     where TResponse : EndpointResponse
 {
     protected EditorContext Context { get; }
+    protected IClock Clock { get; }
     private readonly IStreamStore _streamStore;
-    private readonly IClock _clock;
 
-    protected EndpointRetryableRequestHandler(CommandHandlerDispatcher dispatcher, EditorContext context, IStreamStore streamStore, IClock clock, ILogger logger) : base(dispatcher, logger)
+    protected EndpointRetryableRequestHandler(CommandHandlerDispatcher dispatcher, EditorContext context, IStreamStore streamStore, IClock clock, ILogger logger)
+        : base(dispatcher, logger)
     {
         Context = context ?? throw new ArgumentNullException(nameof(context));
+        Clock = clock ?? throw new ArgumentNullException(nameof(clock));
         _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
-        _clock = clock ?? throw new ArgumentNullException(nameof(clock));
     }
 
     protected async Task<TimeSpan> CalculateRetryAfterAsync(IEndpointRetryableRequest request, CancellationToken cancellationToken)
@@ -46,7 +47,7 @@ public abstract class EndpointRetryableRequestHandler<TRequest, TResponse> : End
         }
 
         return await Context.ExtractUploads
-            .TookAverageProcessDuration(_clock
+            .TookAverageProcessDuration(Clock
                 .GetCurrentInstant()
                 .Minus(Duration.FromDays(request.RetryAfterAverageWindowInDays)), new TimeSpan(0, 0, request.DefaultRetryAfter));
     }

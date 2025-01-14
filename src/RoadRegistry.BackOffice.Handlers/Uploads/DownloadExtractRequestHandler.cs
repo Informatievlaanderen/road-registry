@@ -42,7 +42,10 @@ public class DownloadExtractRequestHandler : EndpointRequestHandler<DownloadExtr
         var archiveId = new ArchiveId(request.Identifier);
         var blobName = new BlobName(archiveId.ToString());
 
-        if (!await _client.BlobExistsAsync(blobName, cancellationToken)) throw new ExtractDownloadNotFoundException(request.Identifier);
+        if (!await _client.BlobExistsAsync(blobName, cancellationToken))
+        {
+            throw new ExtractDownloadNotFoundException(request.Identifier);
+        }
 
         var blob = await _client.GetBlobAsync(blobName, cancellationToken);
         var metadata = blob.Metadata.Where(pair => pair.Key == new MetadataKey("filename")).ToArray();
