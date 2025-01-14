@@ -1,3 +1,10 @@
+## [4.18.1](https://github.com/informatievlaanderen/road-registry/compare/v4.18.0...v4.18.1) (2025-01-14)
+
+
+### Bug Fixes
+
+* swagger ([cd7afe4](https://github.com/informatievlaanderen/road-registry/commit/cd7afe4bbae797c1ed1e1e192e5da3b77831a574))
+
 # [4.18.0](https://github.com/informatievlaanderen/road-registry/compare/v4.17.1...v4.18.0) (2025-01-14)
 
 
