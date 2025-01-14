@@ -28,7 +28,7 @@ public partial class UploadController
             var request = new GetUploadFilePreSignedUrlRequest(identifier);
             var response = await _mediator.Send(request, cancellationToken);
 
-            return Ok(new GetDownloadPreSignedUrlResponse
+            return Ok(new GetUploadDownloadPreSignedUrlResponse
             {
                 DownloadUrl = response.PreSignedUrl,
                 FileName = response.FileName
@@ -40,7 +40,7 @@ public partial class UploadController
         }
     }
 
-    public class GetDownloadPreSignedUrlResponse
+    public class GetUploadDownloadPreSignedUrlResponse
     {
         public string DownloadUrl { get; init; }
         public string FileName { get; init; }
