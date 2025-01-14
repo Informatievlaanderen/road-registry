@@ -1,3 +1,10 @@
+# [4.18.0](https://github.com/informatievlaanderen/road-registry/compare/v4.17.1...v4.18.0) (2025-01-14)
+
+
+### Features
+
+* GAWR-5717 add pre-signed url endpoints to download files ([#1587](https://github.com/informatievlaanderen/road-registry/issues/1587)) ([7ada002](https://github.com/informatievlaanderen/road-registry/commit/7ada002a5b1cf5aa29a3594ed53e031e185d4cc3))
+
 ## [4.17.1](https://github.com/informatievlaanderen/road-registry/compare/v4.17.0...v4.17.1) (2025-01-10)
 
 
