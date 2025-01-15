@@ -175,10 +175,9 @@
 <script lang="ts">
 import Vue from "vue";
 import { orderBy, uniq, uniqBy, camelCase } from "lodash";
-import { BackOfficeApi, PublicApi } from "../../../services";
+import { PublicApi } from "../../../services";
 import ActivityProblems from "../../activity/components/ActivityProblems.vue";
 import ActivitySummary from "../../activity/components/ActivitySummary.vue";
-import { featureToggles } from "@/environment";
 import RoadRegistry from "@/types/road-registry";
 import axios from "axios";
 

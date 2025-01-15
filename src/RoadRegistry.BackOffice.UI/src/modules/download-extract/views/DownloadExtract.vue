@@ -661,7 +661,11 @@ export default Vue.extend({
                 description: this.contourFlow.description,
                 isInformative: this.contourFlow.isInformative as Boolean,
               };
-              response = await PublicApi.Extracts.postDownloadRequestByFile(requestData);
+              if (featureToggles.usePresignedEndpoints) {
+                response = await PublicApi.Extracts.postDownloadRequestByFile(requestData);
+              } else {
+                response = await BackOfficeApi.Extracts.postDownloadRequestByFile(requestData);
+              }
             }
             break;
           case "wkt":

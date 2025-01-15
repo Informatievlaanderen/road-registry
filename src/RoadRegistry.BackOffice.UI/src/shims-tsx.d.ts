@@ -14,6 +14,7 @@ declare global {
     useDirectApiCalls: boolean;
     useTransactionZonesTab: boolean;
     useOverlapCheck: boolean;
+    usePresignedEndpoints: boolean;    
   }
 
   interface Window { 
