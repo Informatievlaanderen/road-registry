@@ -98,7 +98,7 @@ export const BackOfficeApi = {
       const path = `${apiEndpoint}/v1/extracts/download/${downloadid}`;
       await apiClient.download("application/zip", `${downloadid}.zip`, path, "GET");
     },
-    upload: async (downloadid: string, file: string | Blob, filename: string) => {
+    upload: async (downloadid: string, file: Blob, filename: string) => {
       const path = `${apiEndpoint}/v1/extracts/download/${downloadid}/uploads`;
       const data = new FormData();
       data.append(downloadid, file, filename);
