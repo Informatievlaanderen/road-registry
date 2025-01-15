@@ -373,7 +373,7 @@ export default Vue.extend({
         nisCode: "",
         description: "",
         hasGenericError: false,
-        isInformative: null as Boolean | null,
+        isInformative: null as boolean | null,
         overlapWarning: false,
         overlapWarningAccepted: false,
       },
@@ -390,7 +390,7 @@ export default Vue.extend({
         hasValidationErrors: false,
         validationErrors: {} as RoadRegistry.PerContourValidationErrors,
         hasGenericError: false,
-        isInformative: null as Boolean | null,
+        isInformative: null as boolean | null,
         overlapWarning: false,
         overlapWarningAccepted: false,
       },
@@ -400,10 +400,10 @@ export default Vue.extend({
           maxLength: 250,
         },
       },
-      isCheckingOverlap: false as Boolean,
-      isCheckingWkt: false as Boolean,
-      isUploading: false as Boolean,
-      isSubmitting: false as Boolean,
+      isCheckingOverlap: false as boolean,
+      isCheckingWkt: false as boolean,
+      isUploading: false as boolean,
+      isSubmitting: false as boolean,
       debouncedCheckIfContourWktIsValid: () => {},
     };
   },
@@ -420,7 +420,7 @@ export default Vue.extend({
         headers: {},
       };
     },
-    hasAllRequiredUploadFiles(): Boolean {
+    hasAllRequiredUploadFiles(): boolean {
       const requiredFileExtensions = [".shp", ".prj"];
 
       let fileNameWithoutExt = "";
@@ -448,17 +448,17 @@ export default Vue.extend({
         }).length === requiredFileExtensions.length
       );
     },
-    contourFlowFilesAreWithSizeLimit(): Boolean {
+    contourFlowFilesAreWithSizeLimit(): boolean {
       let totalFileBytes = this.contourFlow.files.map((x) => x.size).reduce((sum, x) => sum + x, 0);
       return totalFileBytes <= 9000000; // max limit for public-api is 10MB
     },
-    municipalityFlowHasIsInformative(): Boolean {
+    municipalityFlowHasIsInformative(): boolean {
       return this.municipalityFlow.isInformative !== null;
     },
-    contourFlowHasIsInformative(): Boolean {
+    contourFlowHasIsInformative(): boolean {
       return this.contourFlow.isInformative !== null;
     },
-    contourFlowHasValidInput(): Boolean {
+    contourFlowHasValidInput(): boolean {
       switch (this.contourFlow.contourType) {
         case "wkt":
           return !!this.contourFlow.wkt && this.contourFlow.wktIsValid && !this.contourFlow.wktIsLargerThanMaximumArea;
@@ -619,7 +619,7 @@ export default Vue.extend({
         const requestData: RoadRegistry.DownloadExtractByNisCodeRequest = {
           nisCode: this.municipalityFlow.nisCode,
           description: this.municipalityFlow.description,
-          isInformative: this.municipalityFlow.isInformative as Boolean,
+          isInformative: this.municipalityFlow.isInformative as boolean,
         };
 
         await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
@@ -651,20 +651,18 @@ export default Vue.extend({
           return;
         }
 
-        let response: RoadRegistry.DownloadExtractResponse;
-
         switch (this.contourFlow.contourType) {
           case "shp":
             {
               const requestData: RoadRegistry.DownloadExtractByFileRequest = {
                 files: this.contourFlow.files,
                 description: this.contourFlow.description,
-                isInformative: this.contourFlow.isInformative as Boolean,
+                isInformative: this.contourFlow.isInformative as boolean,
               };
               if (featureToggles.usePresignedEndpoints) {
-                response = await PublicApi.Extracts.postDownloadRequestByFile(requestData);
+                await PublicApi.Extracts.postDownloadRequestByFile(requestData);
               } else {
-                response = await BackOfficeApi.Extracts.postDownloadRequestByFile(requestData);
+                await BackOfficeApi.Extracts.postDownloadRequestByFile(requestData);
               }
             }
             break;
@@ -673,10 +671,10 @@ export default Vue.extend({
               const requestData: RoadRegistry.DownloadExtractByContourRequest = {
                 contour: this.contourFlow.wkt,
                 description: this.contourFlow.description,
-                isInformative: this.contourFlow.isInformative as Boolean,
+                isInformative: this.contourFlow.isInformative as boolean,
               };
 
-              response = await PublicApi.Extracts.postDownloadRequestByContour(requestData);
+              await PublicApi.Extracts.postDownloadRequestByContour(requestData);
             }
             break;
           default:

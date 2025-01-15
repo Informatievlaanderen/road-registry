@@ -73,13 +73,13 @@ export namespace RoadRegistry {
   export interface DownloadExtractByContourRequest {
     contour: string;
     description: string;
-    isInformative: Boolean;
+    isInformative: boolean;
   }
 
   export interface DownloadExtractByFileRequest {
     files: File[];
     description: string;
-    isInformative: Boolean;
+    isInformative: boolean;
   }
 
   export interface PerContourErrorResponse {
@@ -98,7 +98,7 @@ export namespace RoadRegistry {
   export interface DownloadExtractByNisCodeRequest {
     nisCode: string;
     description: string;
-    isInformative: Boolean;
+    isInformative: boolean;
   }
 
   export interface ListOverlappingExtractsByNisCodeRequest {
