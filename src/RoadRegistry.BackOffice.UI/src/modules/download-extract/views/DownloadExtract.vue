@@ -313,6 +313,7 @@
                   isCheckingOverlap ||
                   (contourFlow.overlapWarning && !contourFlow.overlapWarningAccepted)
                 "
+                :mod-loading="isSubmitting"
               >
                 Extract aanvragen
               </vl-button>
@@ -447,6 +448,10 @@ export default Vue.extend({
         }).length === requiredFileExtensions.length
       );
     },
+    contourFlowFilesAreWithSizeLimit(): Boolean {
+      let totalFileBytes = this.contourFlow.files.map((x) => x.size).reduce((sum, x) => sum + x, 0);
+      return totalFileBytes <= 9000000; // max limit for public-api is 10MB
+    },
     municipalityFlowHasIsInformative(): Boolean {
       return this.municipalityFlow.isInformative !== null;
     },
@@ -458,7 +463,7 @@ export default Vue.extend({
         case "wkt":
           return !!this.contourFlow.wkt && this.contourFlow.wktIsValid && !this.contourFlow.wktIsLargerThanMaximumArea;
         case "shp":
-          return this.hasAllRequiredUploadFiles;
+          return this.hasAllRequiredUploadFiles && this.contourFlowFilesAreWithSizeLimit;
       }
 
       throw new Error(`Not implemented contour type: ${this.contourFlow.contourType}`);
@@ -478,28 +483,35 @@ export default Vue.extend({
           status.text =
             "Gelieve als contour een multipolygoon in WKT-formaat mee te geven die de OGC standaard respecteert.";
           status.error = true;
-        } else if (this.contourFlow.wktIsLargerThanMaximumArea) {
+          return status;
+        }
+
+        if (this.contourFlow.wktIsLargerThanMaximumArea) {
           status.title = "Ongeldige contour";
           status.text =
             "Gelieve als contour een maximum van " +
             this.contourFlow.areaMaximumSquareKilometers +
             " km² aan te houden.";
           status.error = true;
-        } else {
-          status.title = "";
-          status.error = false;
+          return status;
         }
       }
 
-      if (
-        this.contourFlow.contourType === "shp" &&
-        this.contourFlow.files.length > 0 &&
-        !this.contourFlowHasValidInput
-      ) {
-        status.title = "Ongeldige contour";
-        status.text =
-          "Gelieve precies één .shp bestand en één .prj bestand op te laden. Beide bestanden moeten dezelfde bestandsnaam hebben.";
-        status.error = true;
+      if (this.contourFlow.contourType === "shp" && this.contourFlow.files.length > 0) {
+        if (!this.hasAllRequiredUploadFiles) {
+          status.title = "Ongeldige contour";
+          status.text =
+            "Gelieve precies één .shp bestand en één .prj bestand op te laden. Beide bestanden moeten dezelfde bestandsnaam hebben.";
+          status.error = true;
+          return status;
+        }
+
+        if (!this.contourFlowFilesAreWithSizeLimit) {
+          status.title = "Ongeldige contour";
+          status.text = "De geselecteerde bestanden zijn te groot. De maximale grootte is 9 MB.";
+          status.error = true;
+          return status;
+        }
       }
 
       return status;
@@ -588,9 +600,7 @@ export default Vue.extend({
       this.isCheckingOverlap = true;
 
       try {
-        let response = await PublicApi.Extracts.getOverlappingExtractRequestsByNisCode(
-          this.municipalityFlow.nisCode
-        );
+        let response = await PublicApi.Extracts.getOverlappingExtractRequestsByNisCode(this.municipalityFlow.nisCode);
 
         this.municipalityFlow.overlapWarning = !this.municipalityFlow.isInformative && response.downloadIds.length > 0;
       } finally {

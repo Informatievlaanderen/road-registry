@@ -178,10 +178,9 @@ export const PublicApi = {
     postDownloadRequestByFile: async (
       downloadRequest: RoadRegistry.DownloadExtractByFileRequest
     ): Promise<RoadRegistry.DownloadExtractResponse> => {
-      //TODO-rik
-      // if (useBackOfficeApi) {
-      //   return BackOfficeApi.Extracts.postDownloadRequestByFile(downloadRequest);
-      // }
+      if (useBackOfficeApi) {
+        return BackOfficeApi.Extracts.postDownloadRequestByFile(downloadRequest);
+      }
 
       const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/perbestand`;
 
