@@ -1,3 +1,10 @@
+# [4.19.0](https://github.com/informatievlaanderen/road-registry/compare/v4.18.2...v4.19.0) (2025-01-17)
+
+
+### Features
+
+* GAWR-5717 use public api endpoints to download/upload files ([#1590](https://github.com/informatievlaanderen/road-registry/issues/1590)) ([4be7893](https://github.com/informatievlaanderen/road-registry/commit/4be7893643ad279f5d6d911aa14ad5e23ec4d5c4))
+
 ## [4.18.2](https://github.com/informatievlaanderen/road-registry/compare/v4.18.1...v4.18.2) (2025-01-14)
 
 
