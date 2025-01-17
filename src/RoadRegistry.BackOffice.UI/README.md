@@ -2,8 +2,11 @@
 
 ## Project setup
 ```
+nvm use {version} ## see .nvmrc file
 npm install
 ```
+
+When first installing on a Windows machine, you might have to reboot your machine to be able to perform an `npm install` and access the environment variable `NPM_TOKEN`.
 
 ### Compiles and hot-reloads for development
 ```
