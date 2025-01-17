@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracts;
 
+using System.Net;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Infrastructure;
 using Microsoft.AspNetCore.Http;
@@ -36,6 +37,8 @@ public partial class ExtractsController
         [FromServices] EditorContext editorContext,
         CancellationToken cancellationToken)
     {
+        return new StatusCodeResult((int)HttpStatusCode.ServiceUnavailable);
+
         if (!DownloadId.TryParse(downloadId, out var parsedDownloadId))
         {
             throw new InvalidGuidValidationException("DownloadId");

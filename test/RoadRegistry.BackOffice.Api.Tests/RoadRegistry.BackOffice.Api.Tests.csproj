@@ -32,6 +32,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Uploads\" />
+  </ItemGroup>
+
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 
 </Project>
