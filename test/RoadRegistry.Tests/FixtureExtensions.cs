@@ -1120,6 +1120,89 @@ public static class Customizations
         );
     }
 
+    public static void CustomizeRoadNetworkExtractGotRequested(this IFixture fixture)
+    {
+        fixture.Customize<RoadNetworkExtractGotRequested>(
+            customization =>
+                customization
+                    .FromFactory(_ =>
+                        {
+                            var externalRequestId = fixture.Create<ExternalExtractRequestId>();
+                            return new RoadNetworkExtractGotRequested
+                            {
+                                Description = fixture.Create<ExtractDescription>(),
+                                DownloadId = fixture.Create<Guid>(),
+                                ExternalRequestId = externalRequestId,
+                                RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
+                                Contour = new RoadNetworkExtractGeometry
+                                {
+                                    SpatialReferenceSystemIdentifier =
+                                        SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
+                                    MultiPolygon = [],
+                                    Polygon = null
+                                },
+                                When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant()),
+                                IsInformative = false
+                            };
+                        }
+                    )
+                    .OmitAutoProperties()
+        );
+    }
+
+    public static void CustomizeRoadNetworkExtractGotRequestedV2(this IFixture fixture)
+    {
+        fixture.Customize<RoadNetworkExtractGotRequestedV2>(
+            customization =>
+                customization
+                    .FromFactory(_ =>
+                        {
+                            var externalRequestId = fixture.Create<ExternalExtractRequestId>();
+                            return new RoadNetworkExtractGotRequestedV2
+                            {
+                                Description = fixture.Create<ExtractDescription>(),
+                                DownloadId = fixture.Create<Guid>(),
+                                ExternalRequestId = externalRequestId,
+                                RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
+                                Contour = new RoadNetworkExtractGeometry
+                                {
+                                    SpatialReferenceSystemIdentifier =
+                                        SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
+                                    MultiPolygon = [],
+                                    Polygon = null
+                                },
+                                When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant()),
+                                IsInformative = false
+                            };
+                        }
+                    )
+                    .OmitAutoProperties()
+        );
+    }
+
+    public static void CustomizeRoadNetworkExtractClosed(this IFixture fixture)
+    {
+        fixture.Customize<RoadNetworkExtractClosed>(
+            customization =>
+                customization
+                    .FromFactory(_ =>
+                        {
+                            var externalRequestId = fixture.Create<ExternalExtractRequestId>();
+                            return new RoadNetworkExtractClosed
+                            {
+                                RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
+                                ExternalRequestId = externalRequestId,
+                                DownloadIds = fixture.CreateMany<string>(Random.Shared.Next(1, 5)).ToArray(),
+                                DateRequested = DateTime.UtcNow,
+                                Reason = RoadNetworkExtractCloseReason.NoDownloadReceived,
+                                When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                            };
+                        }
+                    )
+                    .OmitAutoProperties()
+        );
+    }
+
     public static RoadSegmentWidthAttributes CreateRoadSegmentWidthAttribute(this IFixture fixture, double roadSegmentGeometryLength)
     {
         var width = fixture.Create<RoadSegmentWidthAttributes>();

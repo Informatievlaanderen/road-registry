@@ -22,77 +22,9 @@ public class ExtractRequestRecordProjectionTests
         _fixture = new Fixture();
         _fixture.CustomizeArchiveId();
         _fixture.CustomizeExternalExtractRequestId();
-        _fixture.Customize<RoadNetworkExtractGotRequested>(
-            customization =>
-                customization
-                    .FromFactory(generator =>
-                        {
-                            var externalRequestId = _fixture.Create<ExternalExtractRequestId>();
-                            return new RoadNetworkExtractGotRequested
-                            {
-                                Description = _fixture.Create<ExtractDescription>(),
-                                DownloadId = _fixture.Create<Guid>(),
-                                ExternalRequestId = externalRequestId,
-                                RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
-                                Contour = new RoadNetworkExtractGeometry
-                                {
-                                    SpatialReferenceSystemIdentifier =
-                                        SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
-                                    MultiPolygon = Array.Empty<Polygon>(),
-                                    Polygon = null
-                                },
-                                When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant()),
-                                IsInformative = false
-                            };
-                        }
-                    )
-                    .OmitAutoProperties()
-        );
-        _fixture.Customize<RoadNetworkExtractGotRequestedV2>(
-            customization =>
-                customization
-                    .FromFactory(generator =>
-                        {
-                            var externalRequestId = _fixture.Create<ExternalExtractRequestId>();
-                            return new RoadNetworkExtractGotRequestedV2
-                            {
-                                Description = _fixture.Create<ExtractDescription>(),
-                                DownloadId = _fixture.Create<Guid>(),
-                                ExternalRequestId = externalRequestId,
-                                RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
-                                Contour = new RoadNetworkExtractGeometry
-                                {
-                                    SpatialReferenceSystemIdentifier =
-                                        SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
-                                    MultiPolygon = Array.Empty<Polygon>(),
-                                    Polygon = null
-                                },
-                                When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant()),
-                                IsInformative = false
-                            };
-                        }
-                    )
-                    .OmitAutoProperties()
-        );
-        _fixture.Customize<RoadNetworkExtractClosed>(
-            customization =>
-                customization
-                    .FromFactory(generator =>
-                        {
-                            var externalRequestId = _fixture.Create<ExternalExtractRequestId>();
-                            return new RoadNetworkExtractClosed
-                            {
-                                RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
-                                ExternalRequestId = externalRequestId,
-                                DownloadIds = _fixture.CreateMany<string>(Random.Shared.Next(1, 5)).ToArray(),
-                                DateRequested = DateTime.UtcNow,
-                                Reason = RoadNetworkExtractCloseReason.NoDownloadReceived,
-                                When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
-                            };
-                        }
-                    )
-                    .OmitAutoProperties()
-        );
+        _fixture.CustomizeRoadNetworkExtractGotRequested();
+        _fixture.CustomizeRoadNetworkExtractGotRequestedV2();
+        _fixture.CustomizeRoadNetworkExtractClosed();
     }
 
     [Fact]

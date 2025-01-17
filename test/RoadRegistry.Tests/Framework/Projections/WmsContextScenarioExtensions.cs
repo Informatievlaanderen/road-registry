@@ -18,6 +18,8 @@ public static class WmsContextScenarioExtensions
         records.AddRange(await context.RoadSegments.ToArrayAsync());
         records.AddRange(await context.RoadSegmentEuropeanRoadAttributes.ToArrayAsync());
         records.AddRange(await context.RoadSegmentNationalRoadAttributes.ToArrayAsync());
+        records.AddRange(await context.TransactionZones.ToArrayAsync());
+        records.AddRange(await context.OverlappingTransactionZones.ToArrayAsync());
         return records.ToArray();
     }
 

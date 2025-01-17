@@ -27,12 +27,11 @@ public class TransactionZoneRecordProjection : ConnectedProjection<WmsContext>
 
             var record = new TransactionZoneRecord
             {
-                ExternalRequestId = message.ExternalRequestId,
                 Contour = (Geometry)GeometryTranslator.Translate(message.Contour),
                 DownloadId = message.DownloadId,
                 Description = !string.IsNullOrEmpty(message.Description) ? message.Description : "onbekend"
             };
-            await context.TransactionZones.AddAsync(record, ct);
+            context.TransactionZones.Add(record);
         });
 
         When<Envelope<RoadNetworkExtractGotRequestedV2>>(async (context, envelope, ct) =>
@@ -46,12 +45,11 @@ public class TransactionZoneRecordProjection : ConnectedProjection<WmsContext>
 
             var record = new TransactionZoneRecord
             {
-                ExternalRequestId = message.ExternalRequestId,
                 Contour = (Geometry)GeometryTranslator.Translate(message.Contour),
                 DownloadId = message.DownloadId,
                 Description = !string.IsNullOrEmpty(message.Description) ? message.Description : "onbekend"
             };
-            await context.TransactionZones.AddAsync(record, ct);
+            context.TransactionZones.Add(record);
         });
 
         When<Envelope<RoadNetworkExtractDownloaded>>((_, _, _) => Task.CompletedTask);

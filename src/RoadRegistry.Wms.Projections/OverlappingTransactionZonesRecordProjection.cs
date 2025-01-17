@@ -9,11 +9,9 @@ using BackOffice.Extensions;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using Schema;
-using Schema.EntityTypeConfigurations;
+using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public class OverlappingTransactionZonesProjection : ConnectedProjection<WmsContext>
 {
@@ -79,42 +77,32 @@ public class OverlappingTransactionZonesProjection : ConnectedProjection<WmsCont
             description = "onbekend";
         }
 
-        var overlapRecords = await context.OverlappingTransactionZones.FromSqlRaw(
-$"""
-SELECT o.*
-FROM (
-SELECT
-   0 As Id
-, r.[DownloadId] DownloadId1
-, @downloadId DownloadId2
-, r.[Description] Description1
-, @description Description2
-, r.[Contour].MakeValid().STIntersection(@contour.MakeValid()) Contour
-FROM [{WellKnownSchemas.WmsMetaSchema}].[{TransactionZoneRecordConfiguration.TableName}] r
-WHERE r.IsInformative = 0
-   AND r.[DownloadId] <> @downloadId
-AND r.[Contour].MakeValid().STIntersects(@contour.MakeValid()) = 1
-) as o
-WHERE o.Contour.STIsEmpty() = 0 AND o.Contour.STGeometryType() LIKE '%POLYGON'
-""",
-                geometry.ToSqlParameter("contour"),
-                new SqlParameter("downloadId", downloadId),
-                new SqlParameter("description", description))
-            .ToListAsync(cancellationToken);
+        var geometryBoundingBox = geometry.Envelope;
 
-        overlapRecords = overlapRecords
+        var transactionZones = await context.TransactionZones
+            .IncludeLocalToListAsync(q => q.Where(x => x.Contour.Intersects(geometryBoundingBox)), cancellationToken);
+
+        var overlappingTransactionZones = transactionZones
+            .Select(x => new OverlappingTransactionZonesRecord
+            {
+                DownloadId1 = x.DownloadId,
+                DownloadId2 = downloadId,
+                Description1 = x.Description,
+                Description2 = description,
+                Contour = x.Contour.Intersection(geometry) //TODO-rik apply makevalid op beide geometries
+            })
+            .Where(x => x.Contour is Polygon or MultiPolygon)
             .DistinctBy(x => new { x.DownloadId1, x.DownloadId2 })
             .ToList();
-
-        await context.OverlappingTransactionZones.AddRangeAsync(overlapRecords, cancellationToken);
+        context.OverlappingTransactionZones.AddRange(overlappingTransactionZones);
     }
 
     private async Task DeleteLinkedRecords(WmsContext context, Guid[] downloadIds, CancellationToken cancellationToken)
     {
-        var requestsToRemoved = await context.OverlappingTransactionZones
+        var recordsToRemove = await context.OverlappingTransactionZones
             .IncludeLocalToListAsync(q =>
                 q.Where(x => downloadIds.Contains(x.DownloadId1) || downloadIds.Contains(x.DownloadId2)), cancellationToken);
 
-        context.OverlappingTransactionZones.RemoveRange(requestsToRemoved);
+        context.OverlappingTransactionZones.RemoveRange(recordsToRemove);
     }
 }

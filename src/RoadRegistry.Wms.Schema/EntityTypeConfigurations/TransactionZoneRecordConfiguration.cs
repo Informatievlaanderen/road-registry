@@ -25,12 +25,5 @@ public class TransactionZoneRecordConfiguration : IEntityTypeConfiguration<Trans
         b.Property(p => p.Contour)
             .HasColumnType("Geometry")
             .IsRequired();
-
-        b.Property(p => p.ExternalRequestId)
-            .HasColumnName("ExternRequestId")
-            .IsRequired();
-
-        b.Property(p => p.Label)
-            .IsRequired();
     }
 }
