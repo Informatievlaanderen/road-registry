@@ -1,3 +1,11 @@
+## [4.19.1](https://github.com/informatievlaanderen/road-registry/compare/v4.19.0...v4.19.1) (2025-01-17)
+
+
+### Bug Fixes
+
+* add new endpoints to AcmIdm tests ([#1591](https://github.com/informatievlaanderen/road-registry/issues/1591)) ([2048a58](https://github.com/informatievlaanderen/road-registry/commit/2048a580321d6d08c0f320d4e42176f96c4ebe31))
+* request extract by file validation ([0782ed1](https://github.com/informatievlaanderen/road-registry/commit/0782ed18536016e6f3b5add3d89314eeb0c1ac64))
+
 # [4.19.0](https://github.com/informatievlaanderen/road-registry/compare/v4.18.2...v4.19.0) (2025-01-17)
 
 
