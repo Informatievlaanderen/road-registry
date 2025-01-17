@@ -40,7 +40,7 @@ public partial class ExtractsController
 
             DownloadExtractByFileRequestItem BuildRequestItem(string extension)
             {
-                var file = body.Files.SingleOrDefault(formFile => formFile.FileName.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))
+                var file = body.Files?.SingleOrDefault(formFile => formFile.FileName.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))
                            ?? throw new DutchValidationException([new ValidationFailure(nameof(body.Files), $"Een bestand met de extensie '{extension}' ontbreekt.")]);
                 var fileStream = new MemoryStream();
                 file.CopyTo(fileStream);
