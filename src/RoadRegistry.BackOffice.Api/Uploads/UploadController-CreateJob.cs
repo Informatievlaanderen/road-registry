@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Uploads;
 
+using System.Net;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Infrastructure;
 using Microsoft.AspNetCore.Http;
@@ -26,6 +27,8 @@ public partial class UploadController
     [HttpPost("jobs", Name = nameof(CreateJob))]
     public async Task<IActionResult> CreateJob(CancellationToken cancellationToken)
     {
+        return new StatusCodeResult((int)HttpStatusCode.ServiceUnavailable);
+
         return Ok(await _mediator.Send(GetPresignedUploadUrlRequest.ForUploads(), cancellationToken));
     }
 }

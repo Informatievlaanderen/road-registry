@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Uploads;
 
+using System.Net;
 using Abstractions.Uploads;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BlobStore;
@@ -35,6 +36,8 @@ public partial class UploadController
         IFormFile archive,
         CancellationToken cancellationToken)
     {
+        return new StatusCodeResult((int)HttpStatusCode.ServiceUnavailable);
+
         return await PostUpload(archive, async () =>
         {
             var requestArchive = new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));

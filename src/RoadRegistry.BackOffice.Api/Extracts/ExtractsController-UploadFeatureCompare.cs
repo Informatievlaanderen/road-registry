@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracts;
 
+using System.Net;
 using Abstractions.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Microsoft.AspNetCore.Http;
@@ -27,12 +28,14 @@ public partial class ExtractsController
     [HttpPost(PostFeatureCompareUploadRoute, Name = nameof(UploadFeatureCompare))]
     [SwaggerOperation(OperationId = nameof(UploadFeatureCompare), Description = "")]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public Task<IActionResult> UploadFeatureCompare(
+    public async Task<IActionResult> UploadFeatureCompare(
         [FromRoute] string downloadId,
         IFormFile archive,
         CancellationToken cancellationToken)
     {
-        return PostUpload(archive, async () =>
+        return new StatusCodeResult((int)HttpStatusCode.ServiceUnavailable);
+
+        return await PostUpload(archive, async () =>
         {
             var requestArchive = new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
             var request = new UploadExtractRequest(downloadId, requestArchive, null);

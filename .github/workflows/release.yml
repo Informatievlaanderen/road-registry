@@ -60,10 +60,9 @@ jobs:
     - name: Set Release Version
       id: set-version
       run: |
-        [ ! -f semver ] && echo none > semver
-        echo $(cat semver)
-        echo ::set-output name=version::$(cat semver)
-        echo RELEASE_VERSION=$(cat semver) >> $GITHUB_ENV
+        echo 4.16.8
+        echo ::set-output name=version::4.16.8
+        echo RELEASE_VERSION=4.16.8 >> $GITHUB_ENV
         echo SA_PASSWORD=${{ secrets.SA_PASSWORD }} >> $GITHUB_ENV
       shell: bash
 
@@ -524,10 +523,9 @@ jobs:
     - name: Set Release Version
       id: set-version
       run: |
-        [ ! -f semver ] && echo none > semver
-        echo $(cat semver)
-        echo ::set-output name=version::$(cat semver)
-        echo RELEASE_VERSION=$(cat semver) >> $GITHUB_ENV
+        echo 4.16.8
+        echo ::set-output name=version::4.16.8
+        echo RELEASE_VERSION=4.16.8 >> $GITHUB_ENV
       shell: bash
 
   upload-lambda:
