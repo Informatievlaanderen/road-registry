@@ -21,6 +21,11 @@ public class ExtractRequestRecordProjection : ConnectedProjection<WmsContext>
         {
             var message = envelope.Message;
 
+            if (message.IsInformative)
+            {
+                return;
+            }
+
             var record = new ExtractRequestRecord
             {
                 RequestedOn = DateTime.Parse(message.When),
@@ -36,6 +41,12 @@ public class ExtractRequestRecordProjection : ConnectedProjection<WmsContext>
         When<Envelope<RoadNetworkExtractGotRequestedV2>>(async (context, envelope, ct) =>
         {
             var message = envelope.Message;
+
+            if (message.IsInformative)
+            {
+                return;
+            }
+
             var record = new ExtractRequestRecord
             {
                 RequestedOn = DateTime.Parse(message.When),
@@ -50,6 +61,11 @@ public class ExtractRequestRecordProjection : ConnectedProjection<WmsContext>
 
         When<Envelope<RoadNetworkExtractDownloaded>>(async (context, envelope, ct) =>
         {
+            if (envelope.Message.IsInformative)
+            {
+                return;
+            }
+
             var record = await context.ExtractRequests
                 .IncludeLocalSingleOrDefaultAsync(record => record.DownloadId == envelope.Message.DownloadId, ct);
             if (record is null)
@@ -76,12 +92,15 @@ public class ExtractRequestRecordProjection : ConnectedProjection<WmsContext>
         });
     }
 
-    private async Task CloseExtractRequests(WmsContext editorContext, Guid[] downloadIds, CancellationToken cancellationToken)
+    private async Task CloseExtractRequests(
+        WmsContext editorContext,
+        Guid[] downloadIds,
+        CancellationToken cancellationToken)
     {
         var records = await editorContext.ExtractRequests
             .IncludeLocalToListAsync(q => q
                 .Where(record => downloadIds.Contains(record.DownloadId)), cancellationToken);
 
-        records.ForEach(record => record.IsInformative = true);
+        editorContext.ExtractRequests.RemoveRange(records);
     }
 }
