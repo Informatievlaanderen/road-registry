@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Abstractions.Exceptions;
 using Abstractions.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using Exceptions;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -38,7 +40,8 @@ public partial class ExtractsController
 
             DownloadExtractByFileRequestItem BuildRequestItem(string extension)
             {
-                var file = body.Files.SingleOrDefault(formFile => formFile.FileName.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase)) ?? throw new InvalidOperationException($"No file ends with extension {extension}");
+                var file = body.Files.SingleOrDefault(formFile => formFile.FileName.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))
+                           ?? throw new DutchValidationException([new ValidationFailure(nameof(body.Files), $"Een bestand met de extensie '{extension}' ontbreekt.")]);
                 var fileStream = new MemoryStream();
                 file.CopyTo(fileStream);
                 fileStream.Position = 0;

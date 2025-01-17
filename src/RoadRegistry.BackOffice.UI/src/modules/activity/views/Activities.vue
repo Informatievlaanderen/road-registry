@@ -198,6 +198,7 @@ import { BackOfficeApi, PublicApi } from "../../../services";
 import RoadRegistry from "../../../types/road-registry";
 import ActivityProblems from "../components/ActivityProblems.vue";
 import ActivitySummary from "../components/ActivitySummary.vue";
+import { featureToggles } from "@/environment";
 
 export default Vue.extend({
   components: {
@@ -309,7 +310,11 @@ export default Vue.extend({
     async downloadUpload(activity: any): Promise<void> {
       this.isDownloading = true;
       try {
-        await BackOfficeApi.Uploads.download(activity.changeFeedContent.content.archive.id);
+        if (featureToggles.usePresignedEndpoints) {
+          await PublicApi.Uploads.downloadUsingPresignedUrl(activity.changeFeedContent.content.archive.id);
+        } else {
+          await BackOfficeApi.Uploads.download(activity.changeFeedContent.content.archive.id);
+        }
       } finally {
         this.isDownloading = false;
       }
@@ -317,7 +322,11 @@ export default Vue.extend({
     async downloadExtract(activity: any): Promise<void> {
       this.isDownloading = true;
       try {
-        await BackOfficeApi.Extracts.download(activity.changeFeedContent.content.archive.id);
+        if (featureToggles.usePresignedEndpoints) {
+          await PublicApi.Extracts.downloadUsingPresignedUrl(activity.changeFeedContent.content.archive.id);
+        } else {
+          await BackOfficeApi.Extracts.download(activity.changeFeedContent.content.archive.id);
+        }
       } finally {
         this.isDownloading = false;
       }

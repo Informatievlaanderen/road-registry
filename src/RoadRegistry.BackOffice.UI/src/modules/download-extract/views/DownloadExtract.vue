@@ -313,6 +313,7 @@
                   isCheckingOverlap ||
                   (contourFlow.overlapWarning && !contourFlow.overlapWarningAccepted)
                 "
+                :mod-loading="isSubmitting"
               >
                 Extract aanvragen
               </vl-button>
@@ -372,7 +373,7 @@ export default Vue.extend({
         nisCode: "",
         description: "",
         hasGenericError: false,
-        isInformative: null as Boolean | null,
+        isInformative: null as boolean | null,
         overlapWarning: false,
         overlapWarningAccepted: false,
       },
@@ -389,7 +390,7 @@ export default Vue.extend({
         hasValidationErrors: false,
         validationErrors: {} as RoadRegistry.PerContourValidationErrors,
         hasGenericError: false,
-        isInformative: null as Boolean | null,
+        isInformative: null as boolean | null,
         overlapWarning: false,
         overlapWarningAccepted: false,
       },
@@ -399,10 +400,10 @@ export default Vue.extend({
           maxLength: 250,
         },
       },
-      isCheckingOverlap: false as Boolean,
-      isCheckingWkt: false as Boolean,
-      isUploading: false as Boolean,
-      isSubmitting: false as Boolean,
+      isCheckingOverlap: false as boolean,
+      isCheckingWkt: false as boolean,
+      isUploading: false as boolean,
+      isSubmitting: false as boolean,
       debouncedCheckIfContourWktIsValid: () => {},
     };
   },
@@ -419,7 +420,7 @@ export default Vue.extend({
         headers: {},
       };
     },
-    hasAllRequiredUploadFiles(): Boolean {
+    hasAllRequiredUploadFiles(): boolean {
       const requiredFileExtensions = [".shp", ".prj"];
 
       let fileNameWithoutExt = "";
@@ -447,18 +448,22 @@ export default Vue.extend({
         }).length === requiredFileExtensions.length
       );
     },
-    municipalityFlowHasIsInformative(): Boolean {
+    contourFlowFilesAreWithSizeLimit(): boolean {
+      let totalFileBytes = this.contourFlow.files.map((x) => x.size).reduce((sum, x) => sum + x, 0);
+      return totalFileBytes <= 9000000; // max limit for public-api is 10MB
+    },
+    municipalityFlowHasIsInformative(): boolean {
       return this.municipalityFlow.isInformative !== null;
     },
-    contourFlowHasIsInformative(): Boolean {
+    contourFlowHasIsInformative(): boolean {
       return this.contourFlow.isInformative !== null;
     },
-    contourFlowHasValidInput(): Boolean {
+    contourFlowHasValidInput(): boolean {
       switch (this.contourFlow.contourType) {
         case "wkt":
           return !!this.contourFlow.wkt && this.contourFlow.wktIsValid && !this.contourFlow.wktIsLargerThanMaximumArea;
         case "shp":
-          return this.hasAllRequiredUploadFiles;
+          return this.hasAllRequiredUploadFiles && this.contourFlowFilesAreWithSizeLimit;
       }
 
       throw new Error(`Not implemented contour type: ${this.contourFlow.contourType}`);
@@ -478,28 +483,35 @@ export default Vue.extend({
           status.text =
             "Gelieve als contour een multipolygoon in WKT-formaat mee te geven die de OGC standaard respecteert.";
           status.error = true;
-        } else if (this.contourFlow.wktIsLargerThanMaximumArea) {
+          return status;
+        }
+
+        if (this.contourFlow.wktIsLargerThanMaximumArea) {
           status.title = "Ongeldige contour";
           status.text =
             "Gelieve als contour een maximum van " +
             this.contourFlow.areaMaximumSquareKilometers +
             " km² aan te houden.";
           status.error = true;
-        } else {
-          status.title = "";
-          status.error = false;
+          return status;
         }
       }
 
-      if (
-        this.contourFlow.contourType === "shp" &&
-        this.contourFlow.files.length > 0 &&
-        !this.contourFlowHasValidInput
-      ) {
-        status.title = "Ongeldige contour";
-        status.text =
-          "Gelieve precies één .shp bestand en één .prj bestand op te laden. Beide bestanden moeten dezelfde bestandsnaam hebben.";
-        status.error = true;
+      if (this.contourFlow.contourType === "shp" && this.contourFlow.files.length > 0) {
+        if (!this.hasAllRequiredUploadFiles) {
+          status.title = "Ongeldige contour";
+          status.text =
+            "Gelieve precies één .shp bestand en één .prj bestand op te laden. Beide bestanden moeten dezelfde bestandsnaam hebben.";
+          status.error = true;
+          return status;
+        }
+
+        if (!this.contourFlowFilesAreWithSizeLimit) {
+          status.title = "Ongeldige contour";
+          status.text = "De geselecteerde bestanden zijn te groot. De maximale grootte is 9 MB.";
+          status.error = true;
+          return status;
+        }
       }
 
       return status;
@@ -588,9 +600,7 @@ export default Vue.extend({
       this.isCheckingOverlap = true;
 
       try {
-        let response = await PublicApi.Extracts.getOverlappingExtractRequestsByNisCode(
-          this.municipalityFlow.nisCode
-        );
+        let response = await PublicApi.Extracts.getOverlappingExtractRequestsByNisCode(this.municipalityFlow.nisCode);
 
         this.municipalityFlow.overlapWarning = !this.municipalityFlow.isInformative && response.downloadIds.length > 0;
       } finally {
@@ -609,7 +619,7 @@ export default Vue.extend({
         const requestData: RoadRegistry.DownloadExtractByNisCodeRequest = {
           nisCode: this.municipalityFlow.nisCode,
           description: this.municipalityFlow.description,
-          isInformative: this.municipalityFlow.isInformative as Boolean,
+          isInformative: this.municipalityFlow.isInformative as boolean,
         };
 
         await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
@@ -641,17 +651,19 @@ export default Vue.extend({
           return;
         }
 
-        let response: RoadRegistry.DownloadExtractResponse;
-
         switch (this.contourFlow.contourType) {
           case "shp":
             {
               const requestData: RoadRegistry.DownloadExtractByFileRequest = {
                 files: this.contourFlow.files,
                 description: this.contourFlow.description,
-                isInformative: this.contourFlow.isInformative as Boolean,
+                isInformative: this.contourFlow.isInformative as boolean,
               };
-              response = await BackOfficeApi.Extracts.postDownloadRequestByFile(requestData);
+              if (featureToggles.usePresignedEndpoints) {
+                await PublicApi.Extracts.postDownloadRequestByFile(requestData);
+              } else {
+                await BackOfficeApi.Extracts.postDownloadRequestByFile(requestData);
+              }
             }
             break;
           case "wkt":
@@ -659,10 +671,10 @@ export default Vue.extend({
               const requestData: RoadRegistry.DownloadExtractByContourRequest = {
                 contour: this.contourFlow.wkt,
                 description: this.contourFlow.description,
-                isInformative: this.contourFlow.isInformative as Boolean,
+                isInformative: this.contourFlow.isInformative as boolean,
               };
 
-              response = await PublicApi.Extracts.postDownloadRequestByContour(requestData);
+              await PublicApi.Extracts.postDownloadRequestByContour(requestData);
             }
             break;
           default:

@@ -13,18 +13,6 @@ public sealed class DutchValidationException : ValidationException
     {
     }
 
-    public DutchValidationException(string message) : base(message)
-    {
-    }
-
-    public DutchValidationException(string message, IEnumerable<ValidationFailure> errors) : base(message, errors)
-    {
-    }
-
-    public DutchValidationException(string message, IEnumerable<ValidationFailure> errors, bool appendDefaultMessage) : base(message, errors, appendDefaultMessage)
-    {
-    }
-
     public DutchValidationException(IEnumerable<ValidationFailure> errors) : base(errors)
     {
     }

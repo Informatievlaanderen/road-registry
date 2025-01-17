@@ -6,6 +6,7 @@ import axios from "axios";
 import { trimEnd } from "lodash";
 import { featureToggles, API_ENDPOINT } from "@/environment";
 import BackOfficeApi from "./backoffice-api";
+import { downloadFile } from "@/core/utils/file-utils";
 
 const directApiEndpoint = trimEnd(API_ENDPOINT, "/");
 const apiEndpoint = trimEnd(featureToggles.useDirectApiCalls ? directApiEndpoint : "/public", "/");
@@ -69,7 +70,7 @@ export const PublicApi = {
     },
   },
   Uploads: {
-    upload: async (file: string | Blob, filename: string): Promise<boolean> => {
+    upload: async (file: Blob, filename: string): Promise<boolean> => {
       const path = `${apiEndpoint}/v2/wegen/upload`;
       const data = new FormData();
       data.append("archive", file, filename);
@@ -77,7 +78,7 @@ export const PublicApi = {
       return response.status == 200 || response.status == 202;
     },
     uploadUsingPresignedUrl: async (
-      file: string | Blob,
+      file: Blob,
       filename: string
     ): Promise<RoadRegistry.UploadPresignedUrlResponse | null> => {
       if (useBackOfficeApi) {
@@ -109,13 +110,25 @@ export const PublicApi = {
       const path = `${apiEndpoint}/v2/wegen/upload/${identifier}`;
       await apiClient.download("application/zip", `${identifier}.zip`, path, "GET");
     },
+    downloadUsingPresignedUrl: async (identifier: string): Promise<void> => {
+      const path = `${apiEndpoint}/v2/wegen/upload/${identifier}/presignedurl`;
+      const response = await apiClient.get<RoadRegistry.GetUploadDownloadPreSignedUrlResponse>(path);
+
+      downloadFile(response.data.downloadUrl, response.data.fileName);
+    },
   },
   Extracts: {
     download: async (downloadid: string) => {
       const path = `${apiEndpoint}/v2/wegen/extract/download/${downloadid}`;
       await apiClient.download("application/zip", `${downloadid}.zip`, path, "GET");
     },
-    upload: async (downloadid: string, file: string | Blob, filename: string) => {
+    downloadUsingPresignedUrl: async (downloadId: string): Promise<void> => {
+      const path = `${apiEndpoint}/v2/wegen/extract/download/${downloadId}/presignedurl`;
+      const response = await apiClient.get<RoadRegistry.GetExtractDownloadPreSignedUrlResponse>(path);
+
+      downloadFile(response.data.downloadUrl, `${downloadId}.zip`);
+    },
+    upload: async (downloadid: string, file: Blob, filename: string) => {
       const path = `${apiEndpoint}/v2/wegen/extract/download/${downloadid}/uploads`;
       const data = new FormData();
       data.append(downloadid, file, filename);
@@ -148,6 +161,38 @@ export const PublicApi = {
       try {
         const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/percontour`;
         const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, downloadRequest);
+        return response.data;
+      } catch (exception) {
+        if (axios.isAxiosError(exception)) {
+          const response = exception?.response;
+          if (response && response.status === 400) {
+            // HTTP Bad Request
+            const error = response?.data as RoadRegistry.PerContourErrorResponse;
+            throw new RoadRegistryExceptions.RequestExtractPerContourError(error);
+          }
+        }
+
+        throw new Error("Unknown error");
+      }
+    },
+    postDownloadRequestByFile: async (
+      downloadRequest: RoadRegistry.DownloadExtractByFileRequest
+    ): Promise<RoadRegistry.DownloadExtractResponse> => {
+      if (useBackOfficeApi) {
+        return BackOfficeApi.Extracts.postDownloadRequestByFile(downloadRequest);
+      }
+
+      const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/perbestand`;
+
+      const data = new FormData();
+      data.append("description", downloadRequest.description);
+      data.append("isInformative", downloadRequest.isInformative.toString());
+      downloadRequest.files.forEach((file) => {
+        data.append("files", file, file.name);
+      });
+
+      try {
+        const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, data);
         return response.data;
       } catch (exception) {
         if (axios.isAxiosError(exception)) {

@@ -11,8 +11,8 @@ echo "window.featureToggles = {}" >> /usr/share/nginx/html/env.js
 echo "window.featureToggles.useAcmIdm = \"${FeatureToggles__UseAcmIdm}\"" >> /usr/share/nginx/html/env.js
 echo "window.featureToggles.useDirectApiCalls = \"${FeatureToggles__UseDirectApiCalls}\"" >> /usr/share/nginx/html/env.js
 echo "window.featureToggles.useTransactionZonesTab = \"${FeatureToggles__UseTransactionZonesTab}\"" >> /usr/share/nginx/html/env.js
-echo "window.featureToggles.usePresignedUpload = \"${FeatureToggles__UsePresignedUpload}\"" >> /usr/share/nginx/html/env.js
 echo "window.featureToggles.useOverlapCheck = \"${FeatureToggles__UseOverlapCheck}\"" >> /usr/share/nginx/html/env.js
+echo "window.featureToggles.usePresignedEndpoints = \"${FeatureToggles__UsePresignedEndpoints}\"" >> /usr/share/nginx/html/env.js
 
 export DOLLAR=$
 envsubst < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf

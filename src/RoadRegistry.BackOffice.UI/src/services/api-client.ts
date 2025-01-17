@@ -3,6 +3,7 @@ import axios, { AxiosInstance, Method } from "axios";
 import { AuthService } from "@/auth";
 import router from "@/router";
 import { featureToggles } from "@/environment";
+import { downloadFile } from "@/core/utils/file-utils";
 
 export interface IApiClient {
   get<T = any>(url: string, query?: any, headers?: any, config?: any): Promise<IApiResponse<T>>;
@@ -44,7 +45,7 @@ const createAxiosInstance = (options?: AxiosHttpApiClientOptions) => {
       if (token) {
         config.headers["Authorization"] = `JwtBearer ${token}`;
       } else {
-        console.warn('No ApiKey or Token found');
+        console.warn("No ApiKey or Token found");
       }
     }
     return config;
@@ -114,10 +115,7 @@ export class AxiosHttpApiClient implements IApiClient {
     });
     const blob = new Blob([response.data], { type: mimetype });
     const downloadUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-    link.download = filename;
-    link.click();
+    downloadFile(downloadUrl, filename);
   }
   public async postUpload<T = any>(formData: FormData, url: string, config?: any, query?: any, headers?: any) {
     return await await this.axios.post<T>(url, formData, Object.assign({}, { params: query, headers }, config));

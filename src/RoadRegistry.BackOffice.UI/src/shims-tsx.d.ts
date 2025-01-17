@@ -13,8 +13,8 @@ declare global {
     useAcmIdm: boolean;
     useDirectApiCalls: boolean;
     useTransactionZonesTab: boolean;
-    usePresignedUpload: boolean;
     useOverlapCheck: boolean;
+    usePresignedEndpoints: boolean;    
   }
 
   interface Window { 
