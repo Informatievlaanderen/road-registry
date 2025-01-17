@@ -39,6 +39,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             new(HttpMethod.Post, "v1/extracts/downloadrequests/byfile", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Post, "v1/extracts/downloadrequests/byniscode", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/extracts/download/{downloadId}", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Get, "v1/extracts/download/{downloadId}/presignedurl", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Post, "v1/extracts/download/{downloadId}/uploads/fc", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Post, "v1/extracts/download/{downloadId}/jobs", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/extracts/upload/{uploadId}/status", Scopes.DvWrIngemetenWegBeheer),
@@ -79,11 +80,15 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
 
             new(HttpMethod.Post, "v1/upload/fc", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/upload/{identifier}", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Get, "v1/upload/{identifier}/presignedurl", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Post, "v1/upload/jobs", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/upload/jobs", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/upload/jobs/active", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Get, "v1/upload/jobs/{jobId}", Scopes.DvWrIngemetenWegBeheer),
-            new(HttpMethod.Delete, "v1/upload/jobs/{jobId}", Scopes.DvWrIngemetenWegBeheer)
+            new(HttpMethod.Delete, "v1/upload/jobs/{jobId}", Scopes.DvWrIngemetenWegBeheer),
+
+            new(HttpMethod.Post, "v1/grb/extracts/bycontour", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v1/grb/download/{downloadId}/upload", Scopes.DvWrIngemetenWegBeheer),
         };
         public static IEnumerable<object[]> EndpointsMemberData() => Endpoints.Select(x => new object[] { x.Method, x.Uri, x.RequiredScopes });
 
