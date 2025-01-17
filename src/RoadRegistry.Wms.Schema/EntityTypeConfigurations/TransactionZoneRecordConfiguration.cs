@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class TransactionZoneRecordConfiguration : IEntityTypeConfiguration<TransactionZoneRecord>
 {
-    private const string TableName = "Bijwerkingszones";
+    public const string TableName = "Bijwerkingszones";
 
     public void Configure(EntityTypeBuilder<TransactionZoneRecord> b)
     {

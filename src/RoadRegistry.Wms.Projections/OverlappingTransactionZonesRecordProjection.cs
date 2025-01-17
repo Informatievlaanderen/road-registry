@@ -13,6 +13,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using Schema;
+using Schema.EntityTypeConfigurations;
 
 public class OverlappingTransactionZonesProjection : ConnectedProjection<WmsContext>
 {
@@ -67,30 +68,35 @@ public class OverlappingTransactionZonesProjection : ConnectedProjection<WmsCont
         });
     }
 
-    private async Task CreateOverlappingRecords(WmsContext context, Geometry geometry, Guid downloadId, string description, CancellationToken cancellationToken)
+    private async Task CreateOverlappingRecords(WmsContext context,
+        Geometry geometry,
+        Guid downloadId,
+        string description,
+        CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(description))
         {
             description = "onbekend";
         }
 
-        var overlapRecords = await context.OverlappingTransactionZones.FromSqlRaw(@"
+        var overlapRecords = await context.OverlappingTransactionZones.FromSqlRaw(
+$"""
 SELECT o.*
 FROM (
 SELECT
-    0 As Id
-	, r.[DownloadId] DownloadId1
-	, @downloadId DownloadId2
-	, r.[Description] Description1
-	, @description Description2
-	, r.[Contour].MakeValid().STIntersection(@contour.MakeValid()) Contour
-FROM [RoadRegistryEditor].[ExtractRequest] r
+   0 As Id
+, r.[DownloadId] DownloadId1
+, @downloadId DownloadId2
+, r.[Description] Description1
+, @description Description2
+, r.[Contour].MakeValid().STIntersection(@contour.MakeValid()) Contour
+FROM [{WellKnownSchemas.WmsMetaSchema}].[{TransactionZoneRecordConfiguration.TableName}] r
 WHERE r.IsInformative = 0
-    AND r.[DownloadId] <> @downloadId
-	AND r.[Contour].MakeValid().STIntersects(@contour.MakeValid()) = 1
+   AND r.[DownloadId] <> @downloadId
+AND r.[Contour].MakeValid().STIntersects(@contour.MakeValid()) = 1
 ) as o
 WHERE o.Contour.STIsEmpty() = 0 AND o.Contour.STGeometryType() LIKE '%POLYGON'
-",
+""",
                 geometry.ToSqlParameter("contour"),
                 new SqlParameter("downloadId", downloadId),
                 new SqlParameter("description", description))
