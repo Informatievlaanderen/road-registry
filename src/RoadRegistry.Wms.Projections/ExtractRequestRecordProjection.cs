@@ -1,21 +1,19 @@
 namespace RoadRegistry.Wms.Projections;
 
-using BackOffice;
-using BackOffice.Messages;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Geometries;
-using NodaTime.Text;
-using Schema;
-using Schema.Extracts;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice;
 using BackOffice.Extensions;
+using BackOffice.Messages;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using NetTopologySuite.Geometries;
+using NodaTime.Text;
+using Schema;
 
-public class ExtractRequestRecordProjection : ConnectedProjection<EditorContext>
+public class ExtractRequestRecordProjection : ConnectedProjection<WmsContext>
 {
     public ExtractRequestRecordProjection()
     {
@@ -78,7 +76,7 @@ public class ExtractRequestRecordProjection : ConnectedProjection<EditorContext>
         });
     }
 
-    private async Task CloseExtractRequests(EditorContext editorContext, Guid[] downloadIds, CancellationToken cancellationToken)
+    private async Task CloseExtractRequests(WmsContext editorContext, Guid[] downloadIds, CancellationToken cancellationToken)
     {
         var records = await editorContext.ExtractRequests
             .IncludeLocalToListAsync(q => q

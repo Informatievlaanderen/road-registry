@@ -1,21 +1,21 @@
 namespace RoadRegistry.Wms.Projections;
 
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using BackOffice;
+using BackOffice.Extensions;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Schema;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using BackOffice.Extensions;
-using Microsoft.Extensions.Logging;
 
-public class ExtractRequestOverlapRecordProjection : ConnectedProjection<EditorContext>
+public class ExtractRequestOverlapRecordProjection : ConnectedProjection<WmsContext>
 {
     private readonly ILogger<ExtractRequestOverlapRecordProjection> _logger;
 
@@ -72,7 +72,7 @@ public class ExtractRequestOverlapRecordProjection : ConnectedProjection<EditorC
         });
     }
 
-    private async Task CreateOverlappingRecords(EditorContext context, Geometry geometry, Guid downloadId, string description, CancellationToken cancellationToken)
+    private async Task CreateOverlappingRecords(WmsContext context, Geometry geometry, Guid downloadId, string description, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(description))
         {
@@ -110,7 +110,7 @@ WHERE o.Contour.STIsEmpty() = 0 AND o.Contour.STGeometryType() LIKE '%POLYGON'
         await context.ExtractRequestOverlaps.AddRangeAsync(overlapRecords, cancellationToken);
     }
 
-    private async Task DeleteLinkedRecords(EditorContext context, Guid[] downloadIds, CancellationToken cancellationToken)
+    private async Task DeleteLinkedRecords(WmsContext context, Guid[] downloadIds, CancellationToken cancellationToken)
     {
         var requestsToRemoved = await context.ExtractRequestOverlaps
             .IncludeLocalToListAsync(q =>
