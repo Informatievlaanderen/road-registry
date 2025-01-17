@@ -10,12 +10,11 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using NetTopologySuite.Geometries;
-using NodaTime.Text;
 using Schema;
 
-public class ExtractRequestRecordProjection : ConnectedProjection<WmsContext>
+public class TransactionZoneRecordProjection : ConnectedProjection<WmsContext>
 {
-    public ExtractRequestRecordProjection()
+    public TransactionZoneRecordProjection()
     {
         When<Envelope<RoadNetworkExtractGotRequested>>(async (context, envelope, ct) =>
         {
@@ -26,16 +25,14 @@ public class ExtractRequestRecordProjection : ConnectedProjection<WmsContext>
                 return;
             }
 
-            var record = new ExtractRequestRecord
+            var record = new TransactionZoneRecord
             {
-                RequestedOn = DateTime.Parse(message.When),
                 ExternalRequestId = message.ExternalRequestId,
                 Contour = (Geometry)GeometryTranslator.Translate(message.Contour),
                 DownloadId = message.DownloadId,
-                Description = !string.IsNullOrEmpty(message.Description) ? message.Description : "onbekend",
-                IsInformative = message.IsInformative
+                Description = !string.IsNullOrEmpty(message.Description) ? message.Description : "onbekend"
             };
-            await context.ExtractRequests.AddAsync(record, ct);
+            await context.TransactionZones.AddAsync(record, ct);
         });
 
         When<Envelope<RoadNetworkExtractGotRequestedV2>>(async (context, envelope, ct) =>
@@ -47,38 +44,21 @@ public class ExtractRequestRecordProjection : ConnectedProjection<WmsContext>
                 return;
             }
 
-            var record = new ExtractRequestRecord
+            var record = new TransactionZoneRecord
             {
-                RequestedOn = DateTime.Parse(message.When),
                 ExternalRequestId = message.ExternalRequestId,
                 Contour = (Geometry)GeometryTranslator.Translate(message.Contour),
                 DownloadId = message.DownloadId,
-                Description = !string.IsNullOrEmpty(message.Description) ? message.Description : "onbekend",
-                IsInformative = message.IsInformative
+                Description = !string.IsNullOrEmpty(message.Description) ? message.Description : "onbekend"
             };
-            await context.ExtractRequests.AddAsync(record, ct);
+            await context.TransactionZones.AddAsync(record, ct);
         });
 
-        When<Envelope<RoadNetworkExtractDownloaded>>(async (context, envelope, ct) =>
-        {
-            if (envelope.Message.IsInformative)
-            {
-                return;
-            }
-
-            var record = await context.ExtractRequests
-                .IncludeLocalSingleOrDefaultAsync(record => record.DownloadId == envelope.Message.DownloadId, ct);
-            if (record is null)
-            {
-                return;
-            }
-
-            record.DownloadedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToDateTimeOffset();
-        });
+        When<Envelope<RoadNetworkExtractDownloaded>>((_, _, _) => Task.CompletedTask);
 
         When<Envelope<RoadNetworkExtractClosed>>(async (context, envelope, ct) =>
         {
-            await CloseExtractRequests(context, envelope.Message.DownloadIds.Select(x => DownloadId.Parse(x).ToGuid()).ToArray(), ct);
+            await RemoveExtractRequests(context, envelope.Message.DownloadIds.Select(x => DownloadId.Parse(x).ToGuid()).ToArray(), ct);
         });
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, ct) =>
@@ -88,19 +68,19 @@ public class ExtractRequestRecordProjection : ConnectedProjection<WmsContext>
                 return;
             }
 
-            await CloseExtractRequests(context, [envelope.Message.DownloadId.Value], ct);
+            await RemoveExtractRequests(context, [envelope.Message.DownloadId.Value], ct);
         });
     }
 
-    private async Task CloseExtractRequests(
+    private async Task RemoveExtractRequests(
         WmsContext editorContext,
         Guid[] downloadIds,
         CancellationToken cancellationToken)
     {
-        var records = await editorContext.ExtractRequests
+        var records = await editorContext.TransactionZones
             .IncludeLocalToListAsync(q => q
                 .Where(record => downloadIds.Contains(record.DownloadId)), cancellationToken);
 
-        editorContext.ExtractRequests.RemoveRange(records);
+        editorContext.TransactionZones.RemoveRange(records);
     }
 }

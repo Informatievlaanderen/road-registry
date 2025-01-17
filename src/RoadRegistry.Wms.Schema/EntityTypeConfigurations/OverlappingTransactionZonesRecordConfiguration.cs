@@ -1,16 +1,16 @@
 namespace RoadRegistry.Wms.Schema.EntityTypeConfigurations;
 
+using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using RoadRegistry.BackOffice;
 
-public class ExtractRequestOverlapConfiguration : IEntityTypeConfiguration<ExtractRequestOverlapRecord>
+public class OverlappingTransactionZonesRecordConfiguration : IEntityTypeConfiguration<OverlappingTransactionZonesRecord>
 {
-    private const string TableName = "ExtractRequestOverlap";
+    private const string TableName = "OverlappendeBijwerkingszones";
 
-    public void Configure(EntityTypeBuilder<ExtractRequestOverlapRecord> b)
+    public void Configure(EntityTypeBuilder<OverlappingTransactionZonesRecord> b)
     {
-        b.ToTable(TableName, WellKnownSchemas.EditorSchema)
+        b.ToTable(TableName, WellKnownSchemas.WmsMetaSchema)
             .HasKey(p => p.Id)
             .IsClustered();
 
@@ -25,8 +25,12 @@ public class ExtractRequestOverlapConfiguration : IEntityTypeConfiguration<Extra
             .ValueGeneratedNever()
             .IsRequired();
 
-        b.Property(p => p.Description1).IsRequired(false);
-        b.Property(p => p.Description2).IsRequired(false);
+        b.Property(p => p.Description1)
+            .HasColumnName("Omschrijving1")
+            .IsRequired(false);
+        b.Property(p => p.Description2)
+            .HasColumnName("Omschrijving2")
+            .IsRequired(false);
 
         b.Property(p => p.Contour)
             .HasColumnType("Geometry")

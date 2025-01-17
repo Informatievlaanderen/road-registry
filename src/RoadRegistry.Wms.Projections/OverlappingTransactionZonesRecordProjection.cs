@@ -11,18 +11,13 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Schema;
 
-public class ExtractRequestOverlapRecordProjection : ConnectedProjection<WmsContext>
+public class OverlappingTransactionZonesProjection : ConnectedProjection<WmsContext>
 {
-    private readonly ILogger<ExtractRequestOverlapRecordProjection> _logger;
-
-    public ExtractRequestOverlapRecordProjection(ILogger<ExtractRequestOverlapRecordProjection> logger)
+    public OverlappingTransactionZonesProjection()
     {
-        _logger = logger.ThrowIfNull();
-
         When<Envelope<RoadNetworkExtractGotRequested>>(async (context, envelope, ct) =>
         {
             var message = envelope.Message;
@@ -79,7 +74,7 @@ public class ExtractRequestOverlapRecordProjection : ConnectedProjection<WmsCont
             description = "onbekend";
         }
 
-        var overlapRecords = await context.ExtractRequestOverlaps.FromSqlRaw(@"
+        var overlapRecords = await context.OverlappingTransactionZones.FromSqlRaw(@"
 SELECT o.*
 FROM (
 SELECT
@@ -105,19 +100,15 @@ WHERE o.Contour.STIsEmpty() = 0 AND o.Contour.STGeometryType() LIKE '%POLYGON'
             .DistinctBy(x => new { x.DownloadId1, x.DownloadId2 })
             .ToList();
 
-        _logger.LogInformation("Adding {OverlapCount} overlap records for extract [{DownloadId}: {Description}]", overlapRecords.Count, downloadId, description);
-
-        await context.ExtractRequestOverlaps.AddRangeAsync(overlapRecords, cancellationToken);
+        await context.OverlappingTransactionZones.AddRangeAsync(overlapRecords, cancellationToken);
     }
 
     private async Task DeleteLinkedRecords(WmsContext context, Guid[] downloadIds, CancellationToken cancellationToken)
     {
-        var requestsToRemoved = await context.ExtractRequestOverlaps
+        var requestsToRemoved = await context.OverlappingTransactionZones
             .IncludeLocalToListAsync(q =>
                 q.Where(x => downloadIds.Contains(x.DownloadId1) || downloadIds.Contains(x.DownloadId2)), cancellationToken);
 
-        _logger.LogInformation("Removing {OverlapCount} overlap records for extracts [{DownloadIds}]", requestsToRemoved.Count, string.Join(", ", downloadIds.Select(x => x.ToString("N"))));
-
-        context.ExtractRequestOverlaps.RemoveRange(requestsToRemoved);
+        context.OverlappingTransactionZones.RemoveRange(requestsToRemoved);
     }
 }

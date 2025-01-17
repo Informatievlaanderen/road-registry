@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
-using BackOffice.Abstractions;
 using BackOffice.FeatureToggles;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -20,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Projections;
 using Schema;
+using SqlStreamStore;
 
 public class Program
 {
@@ -32,7 +32,7 @@ public class Program
     public static async Task Main(string[] args)
     {
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
-            .ConfigureServices((hostContext, services) => services
+            .ConfigureServices((_, services) => services
                 .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(MetadataConfiguration.Section).Get<MetadataConfiguration>())
                 .AddStreetNameCache()
                 .AddScoped<IMetadataUpdater, MetadataUpdater>()
@@ -51,36 +51,68 @@ public class Program
                                 .UseNetTopologySuite()
                         );
                 })
-                .AddSingleton(sp => new ConnectedProjection<WmsContext>[]
-                {
-                    new RoadSegmentRecordProjection(sp.GetRequiredService<IStreetNameCache>(), sp.GetRequiredService<UseRoadSegmentSoftDeleteFeatureToggle>()),
-                    new RoadSegmentEuropeanRoadAttributeRecordProjection(),
-                    new RoadSegmentNationalRoadAttributeRecordProjection()
-                })
-                .AddSingleton(sp => Resolve.WhenEqualToHandlerMessageType(sp
-                    .GetRequiredService<ConnectedProjection<WmsContext>[]>()
-                    .SelectMany(projection => projection.Handlers)
-                    .ToArray())
-                )
-                .AddSingleton(sp =>
-                    new AcceptStreamMessage<WmsContext>(
-                        sp.GetRequiredService<ConnectedProjection<WmsContext>[]>()
-                        , WmsContextEventProcessor.EventMapping))
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new WmsContextMigrationFactory())
-                .AddHostedService<WmsContextEventProcessor>())
+
+                .AddHostedService(sp =>
+                {
+                   ConnectedProjection<WmsContext>[] connectedProjectionHandlers=
+                   [
+                       new RoadSegmentRecordProjection(
+                            sp.GetRequiredService<IStreetNameCache>(),
+                            sp.GetRequiredService<UseRoadSegmentSoftDeleteFeatureToggle>()),
+                        new RoadSegmentEuropeanRoadAttributeRecordProjection(),
+                        new RoadSegmentNationalRoadAttributeRecordProjection()
+                   ];
+
+                   return new WmsContextEventProcessor(
+                       sp.GetRequiredService<IStreamStore>(),
+                       new AcceptStreamMessage<WmsContext>(
+                           connectedProjectionHandlers,
+                           WmsContextEventProcessor.EventMapping),
+                       sp.GetRequiredService<EnvelopeFactory>(),
+                       Resolve.WhenEqualToHandlerMessageType(
+                           connectedProjectionHandlers
+                           .SelectMany(projection => projection.Handlers)
+                           .ToArray()),
+                       sp.GetRequiredService<IDbContextFactory<WmsContext>>(),
+                       sp.GetRequiredService<Scheduler>(),
+                       sp.GetRequiredService<ILoggerFactory>());
+                })
+                .AddHostedService(sp =>
+                {
+                   ConnectedProjection<WmsContext>[] connectedProjectionHandlers=
+                   [
+                        new TransactionZoneRecordProjection(),
+                        new OverlappingTransactionZonesProjection()
+                   ];
+
+                   return new TransactionZoneEventProcessor(
+                       sp.GetRequiredService<IStreamStore>(),
+                       new AcceptStreamMessage<WmsContext>(
+                           connectedProjectionHandlers,
+                           TransactionZoneEventProcessor.EventMapping),
+                       sp.GetRequiredService<EnvelopeFactory>(),
+                       Resolve.WhenEqualToHandlerMessageType(
+                           connectedProjectionHandlers
+                           .SelectMany(projection => projection.Handlers)
+                           .ToArray()),
+                       sp.GetRequiredService<IDbContextFactory<WmsContext>>(),
+                       sp.GetRequiredService<Scheduler>(),
+                       sp.GetRequiredService<ILoggerFactory>());
+                })
+            )
             .ConfigureHealthChecks(HostingPort,builder => builder
                 .AddHostedServicesStatus()
             )
             .Build();
 
         await roadRegistryHost
-            .LogSqlServerConnectionStrings(new[]
-            {
+            .LogSqlServerConnectionStrings([
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.WmsProjections,
                 WellKnownConnectionNames.WmsProjectionsAdmin
-            })
-            .RunAsync(async (sp, host, configuration) =>
+            ])
+            .RunAsync(async (sp, _, configuration) =>
             {
                 var migratorFactory = sp.GetRequiredService<IRunnerDbContextMigratorFactory>();
                 var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
