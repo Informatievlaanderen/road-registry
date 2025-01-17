@@ -21,6 +21,8 @@ public class WmsContext : RunnerDbContext<WmsContext>
     public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
     public DbSet<RoadSegmentEuropeanRoadAttributeRecord> RoadSegmentEuropeanRoadAttributes { get; set; }
     public DbSet<RoadSegmentNationalRoadAttributeRecord> RoadSegmentNationalRoadAttributes { get; set; }
+    public DbSet<ExtractRequestRecord> ExtractRequests { get; set; }
+    public DbSet<ExtractRequestOverlapRecord> ExtractRequestOverlaps { get; set; }
 
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
