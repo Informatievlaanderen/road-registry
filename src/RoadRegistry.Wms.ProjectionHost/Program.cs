@@ -82,8 +82,7 @@ public class Program
                 {
                    ConnectedProjection<WmsContext>[] connectedProjectionHandlers=
                    [
-                        new TransactionZoneRecordProjection(),
-                        new OverlappingTransactionZonesProjection()
+                        new TransactionZoneRecordProjection()
                    ];
 
                    return new TransactionZoneEventProcessor(

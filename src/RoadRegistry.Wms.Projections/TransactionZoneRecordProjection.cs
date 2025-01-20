@@ -11,6 +11,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using NetTopologySuite.Geometries;
 using Schema;
+using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public class TransactionZoneRecordProjection : ConnectedProjection<WmsContext>
 {
@@ -32,6 +33,12 @@ public class TransactionZoneRecordProjection : ConnectedProjection<WmsContext>
                 Description = !string.IsNullOrEmpty(message.Description) ? message.Description : "onbekend"
             };
             context.TransactionZones.Add(record);
+
+            await CreateOverlappingRecords(context,
+                (Geometry)GeometryTranslator.Translate(message.Contour),
+                message.DownloadId,
+                message.Description,
+                ct);
         });
 
         When<Envelope<RoadNetworkExtractGotRequestedV2>>(async (context, envelope, ct) =>
@@ -50,14 +57,26 @@ public class TransactionZoneRecordProjection : ConnectedProjection<WmsContext>
                 Description = !string.IsNullOrEmpty(message.Description) ? message.Description : "onbekend"
             };
             context.TransactionZones.Add(record);
+
+            await CreateOverlappingRecords(context,
+                (Geometry)GeometryTranslator.Translate(message.Contour),
+                message.DownloadId,
+                message.Description,
+                ct);
         });
 
         When<Envelope<RoadNetworkExtractDownloaded>>((_, _, _) => Task.CompletedTask);
 
         When<Envelope<RoadNetworkExtractClosed>>(async (context, envelope, ct) =>
         {
-            await RemoveExtractRequests(context, envelope.Message.DownloadIds.Select(x => DownloadId.Parse(x).ToGuid()).ToArray(), ct);
+            var downloadIds = envelope.Message.DownloadIds
+                .Select(DownloadId.Parse)
+                .Select(x => x.ToGuid())
+                .ToArray();
+            await RemoveTransactionZones(context, downloadIds, ct);
         });
+
+        When<Envelope<NoRoadNetworkChanges>>((_, _, _) => Task.CompletedTask);
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, ct) =>
         {
@@ -66,19 +85,61 @@ public class TransactionZoneRecordProjection : ConnectedProjection<WmsContext>
                 return;
             }
 
-            await RemoveExtractRequests(context, [envelope.Message.DownloadId.Value], ct);
+            await RemoveTransactionZones(context, [envelope.Message.DownloadId.Value], ct);
         });
     }
 
-    private async Task RemoveExtractRequests(
-        WmsContext editorContext,
+    private async Task CreateOverlappingRecords(
+        WmsContext context,
+        Geometry geometry,
+        Guid downloadId,
+        string description,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrEmpty(description))
+        {
+            description = "onbekend";
+        }
+
+        var geometryBoundingBox = geometry.Envelope;
+
+        var transactionZones = await context.TransactionZones
+            .IncludeLocalToListAsync(q =>
+                    q.Where(x => x.DownloadId != downloadId && x.Contour.Intersects(geometryBoundingBox)),
+                cancellationToken);
+
+        var overlappingTransactionZones = transactionZones
+            .Select(x => new OverlappingTransactionZonesRecord
+            {
+                DownloadId1 = x.DownloadId,
+                DownloadId2 = downloadId,
+                Description1 = x.Description,
+                Description2 = description,
+                Contour = x.Contour.Intersection(geometry) //TODO-rik apply makevalid op beide geometries
+            })
+            .Where(x => x.Contour is Polygon or MultiPolygon)
+            .DistinctBy(x => new { x.DownloadId1, x.DownloadId2 })
+            .ToList();
+
+        context.OverlappingTransactionZones.AddRange(overlappingTransactionZones);
+    }
+
+    private async Task RemoveTransactionZones(
+        WmsContext wmsContext,
         Guid[] downloadIds,
         CancellationToken cancellationToken)
     {
-        var records = await editorContext.TransactionZones
+        var transactionZones = await wmsContext.TransactionZones
             .IncludeLocalToListAsync(q => q
-                .Where(record => downloadIds.Contains(record.DownloadId)), cancellationToken);
+                .Where(record => downloadIds.Contains(record.DownloadId)),
+                cancellationToken);
+        wmsContext.TransactionZones.RemoveRange(transactionZones);
 
-        editorContext.TransactionZones.RemoveRange(records);
+        var overlappingTransactionZones = await wmsContext.OverlappingTransactionZones
+            .IncludeLocalToListAsync(q =>
+                q.Where(x =>
+                    downloadIds.Contains(x.DownloadId1) || downloadIds.Contains(x.DownloadId2)),
+                cancellationToken);
+        wmsContext.OverlappingTransactionZones.RemoveRange(overlappingTransactionZones);
     }
 }

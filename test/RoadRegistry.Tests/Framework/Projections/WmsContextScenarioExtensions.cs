@@ -62,11 +62,12 @@ public static class WmsContextScenarioExtensions
             var comparisonConfig = new ComparisonConfig
             {
                 MaxDifferences = 10,
-                CustomComparers = new List<BaseTypeComparer>
-                {
+                CustomComparers =
+                [
                     new GeometryLineStringComparer(RootComparerFactory.GetRootComparer()),
-                    new DateTimeComparer(RootComparerFactory.GetRootComparer())
-                }
+                    new DateTimeComparer(RootComparerFactory.GetRootComparer()),
+                    new GeometryPolygonComparer(RootComparerFactory.GetRootComparer())
+                ]
             };
             var comparer = new CompareLogic(comparisonConfig);
             var actualRecords = await context.AllRecords();

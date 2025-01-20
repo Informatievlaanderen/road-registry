@@ -11,12 +11,8 @@ public class OverlappingTransactionZonesRecordConfiguration : IEntityTypeConfigu
     public void Configure(EntityTypeBuilder<OverlappingTransactionZonesRecord> b)
     {
         b.ToTable(TableName, WellKnownSchemas.WmsMetaSchema)
-            .HasKey(p => p.Id)
+            .HasKey(p => new { p.DownloadId1, p.DownloadId2 })
             .IsClustered();
-
-        b.Property(p => p.Id)
-            .ValueGeneratedOnAdd()
-            .IsRequired();
 
         b.Property(p => p.DownloadId1)
             .ValueGeneratedNever()

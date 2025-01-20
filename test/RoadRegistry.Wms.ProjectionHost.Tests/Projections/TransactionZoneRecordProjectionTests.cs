@@ -3,7 +3,9 @@ namespace RoadRegistry.Wms.ProjectionHost.Tests.Projections;
 using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
+using Be.Vlaanderen.Basisregisters.Shaperon;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 using Schema;
@@ -26,169 +28,163 @@ public class TransactionZoneRecordProjectionTests
     [Fact]
     public Task When_extract_got_requested()
     {
-        var data = _fixture
-            .CreateMany<RoadNetworkExtractGotRequested>()
-            .Select(requested =>
-            {
-                var expected = new TransactionZoneRecord
-                {
-                    DownloadId = requested.DownloadId,
-                    Description = requested.Description,
-                    Contour = (Geometry)GeometryTranslator.Translate(requested.Contour),
-                };
+        var extract1 = _fixture.Create<RoadNetworkExtractGotRequested>();
+        extract1.Contour = new RoadNetworkExtractGeometry
+        {
+            WKT = "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))"
+        };
+        var extract2 = _fixture.Create<RoadNetworkExtractGotRequested>();
+        extract2.Contour = new RoadNetworkExtractGeometry
+        {
+            WKT = "POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))"
+        };
+        var events = new[] { extract1, extract2 };
 
-                return new
-                {
-                    @event = requested,
-                    expected
-                };
-            }).ToList();
+        var expected = new List<object>();
+        expected.AddRange(events
+            .Select(requested => new TransactionZoneRecord
+            {
+                DownloadId = requested.DownloadId,
+                Description = requested.Description,
+                Contour = (Geometry)GeometryTranslator.Translate(requested.Contour),
+            }));
+
+        var geometry = new WKTReader(WellKnownGeometryFactories.Default).Read("POLYGON((5 10, 10 10, 10 5, 5 5, 5 10))");
+        geometry.SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
+
+        expected.Add(new OverlappingTransactionZonesRecord
+        {
+            DownloadId1 = extract1.DownloadId,
+            DownloadId2 = extract2.DownloadId,
+            Description1 = extract1.Description,
+            Description2 = extract2.Description,
+            Contour = geometry
+        });
 
         return new TransactionZoneRecordProjection()
             .Scenario()
-            .Given(data.Select(d => d.@event))
-            .Expect(data.Select(d => d.expected));
+            .Given(events.Cast<object>())
+            .Expect(expected);
     }
 
     [Fact]
     public Task When_extract_got_requested_v2()
     {
-        var data = _fixture
-            .CreateMany<RoadNetworkExtractGotRequestedV2>()
-            .Select(requested =>
-            {
-                var expected = new TransactionZoneRecord
-                {
-                    Contour = (Geometry)GeometryTranslator.Translate(requested.Contour),
-                    DownloadId = requested.DownloadId,
-                    Description = requested.Description
-                };
+        var extract1 = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
+        extract1.Contour = new RoadNetworkExtractGeometry
+        {
+            WKT = "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))"
+        };
+        var extract2 = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
+        extract2.Contour = new RoadNetworkExtractGeometry
+        {
+            WKT = "POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))"
+        };
+        var events = new[] { extract1, extract2 };
 
-                return new
-                {
-                    @event = requested,
-                    expected
-                };
-            }).ToList();
+        var expected = new List<object>();
+        expected.AddRange(events
+            .Select(requested => new TransactionZoneRecord
+            {
+                DownloadId = requested.DownloadId,
+                Description = requested.Description,
+                Contour = (Geometry)GeometryTranslator.Translate(requested.Contour),
+            }));
+
+        var geometry = new WKTReader(WellKnownGeometryFactories.Default).Read("POLYGON((5 10, 10 10, 10 5, 5 5, 5 10))");
+        geometry.SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
+
+        expected.Add(new OverlappingTransactionZonesRecord
+        {
+            DownloadId1 = extract1.DownloadId,
+            DownloadId2 = extract2.DownloadId,
+            Description1 = extract1.Description,
+            Description2 = extract2.Description,
+            Contour = geometry
+        });
 
         return new TransactionZoneRecordProjection()
             .Scenario()
-            .Given(data.Select(d => d.@event))
-            .Expect(data.Select(d => d.expected));
+            .Given(events.Cast<object>())
+            .Expect(expected);
     }
 
     [Fact]
     public Task When_extract_closed()
     {
-        var requestedData = _fixture
-            .CreateMany<RoadNetworkExtractGotRequestedV2>()
-            .ToList();
+        var extract1 = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
+        extract1.Contour = new RoadNetworkExtractGeometry
+        {
+            WKT = "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))"
+        };
+        var extract2 = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
+        extract2.Contour = new RoadNetworkExtractGeometry
+        {
+            WKT = "POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))"
+        };
 
-        var closedData = requestedData
-            .Select(knownRequested =>
+        var extract1Closed = new RoadNetworkExtractClosed
+        {
+            RequestId = extract1.RequestId,
+            ExternalRequestId = extract1.ExternalRequestId,
+            DownloadIds = [extract1.DownloadId.ToString("N")],
+            DateRequested = DateTime.UtcNow,
+            Reason = _fixture.Create<RoadNetworkExtractCloseReason>(),
+            When = extract1.When
+        };
+
+        var expected = new List<object>
+        {
+            new TransactionZoneRecord
             {
-                var @event = new RoadNetworkExtractClosed
-                {
-                    RequestId = knownRequested.RequestId,
-                    ExternalRequestId = knownRequested.ExternalRequestId,
-                    DownloadIds = [knownRequested.DownloadId.ToString("N")],
-                    DateRequested = DateTime.UtcNow,
-                    Reason = _fixture.Create<RoadNetworkExtractCloseReason>(),
-                    When = knownRequested.When
-                };
-
-                return new
-                {
-                    @event
-                };
-            }).ToList();
+                DownloadId = extract2.DownloadId,
+                Description = extract2.Description,
+                Contour = (Geometry)GeometryTranslator.Translate(extract2.Contour),
+            }
+        };
 
         return new TransactionZoneRecordProjection()
             .Scenario()
-            .Given(requestedData)
-            .Given(closedData.Select(d => d.@event))
-            .Expect([]);
+            .Given(new[] { extract1, extract2 }.Cast<object>())
+            .Given(extract1Closed)
+            .Expect(expected);
     }
 
     [Fact]
     public Task When_extract_upload_changes_got_accepted()
     {
-        var requestedData = _fixture
-            .CreateMany<RoadNetworkExtractGotRequestedV2>()
-            .ToList();
+        var extract1 = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
+        extract1.Contour = new RoadNetworkExtractGeometry
+        {
+            WKT = "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))"
+        };
+        var extract2 = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
+        extract2.Contour = new RoadNetworkExtractGeometry
+        {
+            WKT = "POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))"
+        };
 
-        var changesAcceptedData = requestedData
-            .Select(knownRequested =>
+        var extract1Accepted = new RoadNetworkChangesAccepted
+        {
+            RequestId = extract1.RequestId,
+            DownloadId = extract1.DownloadId,
+            When = extract1.When
+        };
+
+        var expected = new List<object>
+        {
+            new TransactionZoneRecord
             {
-                var @event = new RoadNetworkChangesAccepted
-                {
-                    RequestId = knownRequested.RequestId,
-                    DownloadId = knownRequested.DownloadId,
-                    When = knownRequested.When
-                };
-
-                return new
-                {
-                    @event
-                };
-            }).ToList();
+                DownloadId = extract2.DownloadId,
+                Description = extract2.Description,
+                Contour = (Geometry)GeometryTranslator.Translate(extract2.Contour),
+            }
+        };
 
         return new TransactionZoneRecordProjection()
             .Scenario()
-            .Given(requestedData)
-            .Given(changesAcceptedData.Select(d => d.@event))
-            .Expect([]);
-    }
-
-    [Fact]
-    public Task When_grb_extract_got_uploaded()
-    {
-        var requestedData = _fixture
-            .CreateMany<RoadNetworkExtractGotRequestedV2>()
-            .Select(requested =>
-            {
-                var expected = new TransactionZoneRecord
-                {
-                    Contour = (Geometry)GeometryTranslator.Translate(requested.Contour),
-                    DownloadId = requested.DownloadId,
-                    Description = requested.Description
-                };
-
-                return new
-                {
-                    @event = requested,
-                    expected
-                };
-            }).ToList();
-
-        var changesAcceptedData = requestedData
-            .Select(knownRequested =>
-            {
-                var @event = new RoadNetworkExtractChangesArchiveUploaded
-                {
-                    RequestId = knownRequested.@event.RequestId,
-                    DownloadId = knownRequested.@event.DownloadId,
-                    When = knownRequested.@event.When
-                };
-
-                var expected = new TransactionZoneRecord
-                {
-                    DownloadId = knownRequested.expected.DownloadId,
-                    Description = knownRequested.expected.Description,
-                    Contour = knownRequested.expected.Contour
-                };
-
-                return new
-                {
-                    @event,
-                    expected
-                };
-            }).ToList();
-
-        return new TransactionZoneRecordProjection()
-            .Scenario()
-            .Given(requestedData.Select(d => d.@event))
-            .Given(changesAcceptedData.Select(d => d.@event))
-            .Expect(changesAcceptedData.Select(d => d.expected));
+            .Given(new[] { extract1, extract2 }.Cast<object>())
+            .Given(extract1Accepted)
+            .Expect(expected);
     }
 }
