@@ -10,7 +10,7 @@ public class TransactionZoneRecordConfiguration : IEntityTypeConfiguration<Trans
 
     public void Configure(EntityTypeBuilder<TransactionZoneRecord> b)
     {
-        b.ToTable(TableName, WellKnownSchemas.WmsMetaSchema)
+        b.ToTable(TableName, WellKnownSchemas.WmsSchema)
             .HasKey(p => p.DownloadId)
             .IsClustered();
 
