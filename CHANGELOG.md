@@ -1,3 +1,10 @@
+# [4.20.0](https://github.com/informatievlaanderen/road-registry/compare/v4.19.1...v4.20.0) (2025-01-21)
+
+
+### Features
+
+* GAWR-6711 add (overlapping) transactionzones projections for wms ([9e4b4fe](https://github.com/informatievlaanderen/road-registry/commit/9e4b4fe383cc8e9e9394f4eab5ba75af02553059))
+
 ## [4.19.1](https://github.com/informatievlaanderen/road-registry/compare/v4.19.0...v4.19.1) (2025-01-17)
 
 
