@@ -1,3 +1,10 @@
+## [4.20.2](https://github.com/informatievlaanderen/road-registry/compare/v4.20.1...v4.20.2) (2025-01-21)
+
+
+### Bug Fixes
+
+* **wms:** add spatial indexes to transactionzones ([0a979d9](https://github.com/informatievlaanderen/road-registry/commit/0a979d980a6a659e4e476d6c6c09b89c12ce8781))
+
 ## [4.20.1](https://github.com/informatievlaanderen/road-registry/compare/v4.20.0...v4.20.1) (2025-01-21)
 
 
