@@ -1,3 +1,10 @@
+## [4.20.1](https://github.com/informatievlaanderen/road-registry/compare/v4.20.0...v4.20.1) (2025-01-21)
+
+
+### Bug Fixes
+
+* **wms:** transactionzones db schema ([1d86285](https://github.com/informatievlaanderen/road-registry/commit/1d8628524dc5ebbf8848085d5abf7c9c6f6f4c7b))
+
 # [4.20.0](https://github.com/informatievlaanderen/road-registry/compare/v4.19.1...v4.20.0) (2025-01-21)
 
 
