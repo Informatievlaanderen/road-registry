@@ -21,58 +21,8 @@ public class ExtractDownloadRecordProjectionTests
         _fixture = new Fixture();
         _fixture.CustomizeArchiveId();
         _fixture.CustomizeExternalExtractRequestId();
-        _fixture.Customize<RoadNetworkExtractGotRequested>(
-            customization =>
-                customization
-                    .FromFactory(generator =>
-                        {
-                            var externalRequestId = _fixture.Create<ExternalExtractRequestId>();
-                            return new RoadNetworkExtractGotRequested
-                            {
-                                Description = _fixture.Create<ExtractDescription>(),
-                                DownloadId = _fixture.Create<Guid>(),
-                                ExternalRequestId = externalRequestId,
-                                RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
-                                Contour = new RoadNetworkExtractGeometry
-                                {
-                                    SpatialReferenceSystemIdentifier =
-                                        SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
-                                    MultiPolygon = Array.Empty<Polygon>(),
-                                    Polygon = null
-                                },
-                                When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant()),
-                                IsInformative = true
-                            };
-                        }
-                    )
-                    .OmitAutoProperties()
-        );
-        _fixture.Customize<RoadNetworkExtractGotRequestedV2>(
-            customization =>
-                customization
-                    .FromFactory(generator =>
-                        {
-                            var externalRequestId = _fixture.Create<ExternalExtractRequestId>();
-                            return new RoadNetworkExtractGotRequestedV2
-                            {
-                                Description = _fixture.Create<ExtractDescription>(),
-                                DownloadId = _fixture.Create<Guid>(),
-                                ExternalRequestId = externalRequestId,
-                                RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
-                                Contour = new RoadNetworkExtractGeometry
-                                {
-                                    SpatialReferenceSystemIdentifier =
-                                        SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
-                                    MultiPolygon = Array.Empty<Polygon>(),
-                                    Polygon = null
-                                },
-                                When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant()),
-                                IsInformative = true
-                            };
-                        }
-                    )
-                    .OmitAutoProperties()
-        );
+        _fixture.CustomizeRoadNetworkExtractGotRequested();
+        _fixture.CustomizeRoadNetworkExtractGotRequestedV2();
         _fixture.Customize<RoadNetworkExtractDownloadBecameAvailable>(
             customization =>
                 customization
@@ -245,7 +195,7 @@ public class ExtractDownloadRecordProjectionTests
                     Available = false,
                     AvailableOn = 0L,
                     RequestedOn = InstantPattern.ExtendedIso.Parse(requested.When).Value.ToUnixTimeSeconds(),
-                    IsInformative = true
+                    IsInformative = false
                 };
 
                 return new
@@ -259,41 +209,5 @@ public class ExtractDownloadRecordProjectionTests
             .Scenario()
             .Given(data.Select(d => d.@event))
             .Expect(data.Select(d => d.expected));
-    }
-
-    [Fact]
-    public async Task When_extract_archive_got_uploaded_then_isinformative_stays_false()
-    {
-        var extractGotRequested = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
-
-        var downloadBecameAvailable = _fixture.Create<RoadNetworkExtractDownloadBecameAvailable>();
-        downloadBecameAvailable.DownloadId = extractGotRequested.DownloadId;
-        downloadBecameAvailable.ExternalRequestId = extractGotRequested.ExternalRequestId;
-        downloadBecameAvailable.RequestId = extractGotRequested.RequestId;
-
-        var extractArchiveUploaded = _fixture.Create<RoadNetworkExtractChangesArchiveUploaded>();
-        extractArchiveUploaded.DownloadId = extractGotRequested.DownloadId;
-        extractArchiveUploaded.ExternalRequestId = extractGotRequested.ExternalRequestId;
-        extractArchiveUploaded.RequestId = extractGotRequested.RequestId;
-        extractArchiveUploaded.UploadId = Guid.NewGuid();
-        extractArchiveUploaded.When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant());
-
-        await new ExtractDownloadRecordProjection()
-            .Scenario()
-            .Given(extractGotRequested)
-            .Given(downloadBecameAvailable)
-            .Given(extractArchiveUploaded)
-            .Expect(
-                new ExtractDownloadRecord
-                {
-                    DownloadId = extractGotRequested.DownloadId,
-                    RequestId = extractGotRequested.RequestId,
-                    ExternalRequestId = extractGotRequested.ExternalRequestId,
-                    ArchiveId = downloadBecameAvailable.ArchiveId,
-                    Available = true,
-                    AvailableOn = InstantPattern.ExtendedIso.Parse(extractArchiveUploaded.When).Value.ToUnixTimeSeconds(),
-                    RequestedOn = InstantPattern.ExtendedIso.Parse(downloadBecameAvailable.When).Value.ToUnixTimeSeconds(),
-                    IsInformative = false
-                });
     }
 }

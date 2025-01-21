@@ -18,6 +18,8 @@ public static class WmsContextScenarioExtensions
         records.AddRange(await context.RoadSegments.ToArrayAsync());
         records.AddRange(await context.RoadSegmentEuropeanRoadAttributes.ToArrayAsync());
         records.AddRange(await context.RoadSegmentNationalRoadAttributes.ToArrayAsync());
+        records.AddRange(await context.TransactionZones.ToArrayAsync());
+        records.AddRange(await context.OverlappingTransactionZones.ToArrayAsync());
         return records.ToArray();
     }
 
@@ -60,11 +62,12 @@ public static class WmsContextScenarioExtensions
             var comparisonConfig = new ComparisonConfig
             {
                 MaxDifferences = 10,
-                CustomComparers = new List<BaseTypeComparer>
-                {
+                CustomComparers =
+                [
                     new GeometryLineStringComparer(RootComparerFactory.GetRootComparer()),
-                    new DateTimeComparer(RootComparerFactory.GetRootComparer())
-                }
+                    new DateTimeComparer(RootComparerFactory.GetRootComparer()),
+                    new GeometryPolygonComparer(RootComparerFactory.GetRootComparer())
+                ]
             };
             var comparer = new CompareLogic(comparisonConfig);
             var actualRecords = await context.AllRecords();
