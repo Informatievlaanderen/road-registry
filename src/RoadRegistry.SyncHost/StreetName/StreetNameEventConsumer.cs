@@ -98,8 +98,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
             $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {message.DestinationPersistentLocalId}",
             editorContext);
 
-        var streetNameEvent = BuildStreetNameEvent(message);
-        await _streetNameEventWriter.WriteAsync(streetNameEvent, CancellationToken.None);
+        await WriteStreetNameRenamedEvent(message.PersistentLocalId, message.DestinationPersistentLocalId);
     }
 
     private async Task Handle(StreetNameWasRetiredBecauseOfMunicipalityMerger message)
@@ -116,6 +115,8 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
             destinationStreetNameId,
             $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {destinationStreetNameId} in functie van een gemeentefusie",
             editorContext);
+
+        await WriteStreetNameRenamedEvent(message.PersistentLocalId, destinationStreetNameId);
     }
 
     private async Task Handle(StreetNameWasRejectedBecauseOfMunicipalityMerger message)
@@ -132,6 +133,8 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
             destinationStreetNameId,
             $"Wegsegmenten herkoppelen van straatnaam {message.PersistentLocalId} naar {destinationStreetNameId} in functie van een gemeentefusie",
             editorContext);
+
+        await WriteStreetNameRenamedEvent(message.PersistentLocalId, destinationStreetNameId);
     }
 
     private async Task LinkRoadSegmentsToDifferentStreetName(int sourceStreetNameId, int destinationStreetNameId, string reason, EditorContext editorContext)
@@ -200,12 +203,13 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
         }
     }
 
-    private Event BuildStreetNameEvent(StreetNameWasRenamed message)
+    private async Task WriteStreetNameRenamedEvent(int streetNameLocalId, int destinationStreetNameLocalId)
     {
-        return new Event(new StreetNameRenamed
+        var streetNameEvent = new Event(new StreetNameRenamed
         {
-            StreetNameLocalId = message.PersistentLocalId,
-            DestinationStreetNameLocalId = message.DestinationPersistentLocalId
+            StreetNameLocalId = streetNameLocalId,
+            DestinationStreetNameLocalId = destinationStreetNameLocalId
         });
+        await _streetNameEventWriter.WriteAsync(streetNameEvent, CancellationToken.None);
     }
 }
