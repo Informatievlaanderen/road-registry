@@ -10,6 +10,7 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries.Utilities;
 using Schema;
 using Polygon = NetTopologySuite.Geometries.Polygon;
 
@@ -26,16 +27,19 @@ public class TransactionZoneRecordProjection : ConnectedProjection<WmsContext>
                 return;
             }
 
+            var contour = (Geometry)GeometryTranslator.Translate(message.Contour);
+            var fixedContour = GeometryFixer.Fix(contour, isKeepMulti: true);
+
             var record = new TransactionZoneRecord
             {
-                Contour = (Geometry)GeometryTranslator.Translate(message.Contour),
+                Contour = fixedContour,
                 DownloadId = message.DownloadId,
                 Description = !string.IsNullOrEmpty(message.Description) ? message.Description : "onbekend"
             };
             context.TransactionZones.Add(record);
 
             await CreateOverlappingRecords(context,
-                (Geometry)GeometryTranslator.Translate(message.Contour),
+                fixedContour,
                 message.DownloadId,
                 message.Description,
                 ct);
@@ -50,16 +54,19 @@ public class TransactionZoneRecordProjection : ConnectedProjection<WmsContext>
                 return;
             }
 
+            var contour = (Geometry)GeometryTranslator.Translate(message.Contour);
+            var fixedContour = GeometryFixer.Fix(contour, isKeepMulti: true);
+
             var record = new TransactionZoneRecord
             {
-                Contour = (Geometry)GeometryTranslator.Translate(message.Contour),
+                Contour = fixedContour,
                 DownloadId = message.DownloadId,
                 Description = !string.IsNullOrEmpty(message.Description) ? message.Description : "onbekend"
             };
             context.TransactionZones.Add(record);
 
             await CreateOverlappingRecords(context,
-                (Geometry)GeometryTranslator.Translate(message.Contour),
+                fixedContour,
                 message.DownloadId,
                 message.Description,
                 ct);
@@ -115,7 +122,7 @@ public class TransactionZoneRecordProjection : ConnectedProjection<WmsContext>
                 DownloadId2 = downloadId,
                 Description1 = x.Description,
                 Description2 = description,
-                Contour = x.Contour.Intersection(geometry) //TODO-rik apply makevalid op beide geometries
+                Contour = x.Contour.Intersection(geometry)
             })
             .Where(x => x.Contour is Polygon or MultiPolygon)
             .DistinctBy(x => new { x.DownloadId1, x.DownloadId2 })

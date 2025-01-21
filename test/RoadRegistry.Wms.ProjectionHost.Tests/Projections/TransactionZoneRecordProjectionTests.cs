@@ -5,6 +5,7 @@ using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries.Utilities;
 using NetTopologySuite.IO;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
@@ -46,7 +47,8 @@ public class TransactionZoneRecordProjectionTests
             {
                 DownloadId = requested.DownloadId,
                 Description = requested.Description,
-                Contour = (Geometry)GeometryTranslator.Translate(requested.Contour),
+                Contour =
+                    GeometryFixer.Fix((Geometry)GeometryTranslator.Translate(requested.Contour), isKeepMulti: true)
             }));
 
         var geometry = new WKTReader(WellKnownGeometryFactories.Default).Read("POLYGON((5 10, 10 10, 10 5, 5 5, 5 10))");
@@ -88,7 +90,8 @@ public class TransactionZoneRecordProjectionTests
             {
                 DownloadId = requested.DownloadId,
                 Description = requested.Description,
-                Contour = (Geometry)GeometryTranslator.Translate(requested.Contour),
+                Contour =
+                    GeometryFixer.Fix((Geometry)GeometryTranslator.Translate(requested.Contour), isKeepMulti: true),
             }));
 
         var geometry = new WKTReader(WellKnownGeometryFactories.Default).Read("POLYGON((5 10, 10 10, 10 5, 5 5, 5 10))");
@@ -133,13 +136,15 @@ public class TransactionZoneRecordProjectionTests
             When = extract1.When
         };
 
+        var expectedContour =
+            GeometryFixer.Fix((Geometry)GeometryTranslator.Translate(extract2.Contour), isKeepMulti: true);
         var expected = new List<object>
         {
             new TransactionZoneRecord
             {
                 DownloadId = extract2.DownloadId,
                 Description = extract2.Description,
-                Contour = (Geometry)GeometryTranslator.Translate(extract2.Contour),
+                Contour = expectedContour
             }
         };
 
@@ -171,13 +176,15 @@ public class TransactionZoneRecordProjectionTests
             When = extract1.When
         };
 
+        var expectedContour =
+            GeometryFixer.Fix((Geometry)GeometryTranslator.Translate(extract2.Contour), isKeepMulti: true);
         var expected = new List<object>
         {
             new TransactionZoneRecord
             {
                 DownloadId = extract2.DownloadId,
                 Description = extract2.Description,
-                Contour = (Geometry)GeometryTranslator.Translate(extract2.Contour),
+                Contour = expectedContour
             }
         };
 
