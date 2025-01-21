@@ -10,7 +10,7 @@ public class OverlappingTransactionZonesRecordConfiguration : IEntityTypeConfigu
 
     public void Configure(EntityTypeBuilder<OverlappingTransactionZonesRecord> b)
     {
-        b.ToTable(TableName, WellKnownSchemas.WmsMetaSchema)
+        b.ToTable(TableName, WellKnownSchemas.WmsSchema)
             .HasKey(p => new { p.DownloadId1, p.DownloadId2 })
             .IsClustered();
 
