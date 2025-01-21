@@ -5,7 +5,6 @@ using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.Geometries.Utilities;
 using NetTopologySuite.IO;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
@@ -32,12 +31,12 @@ public class TransactionZoneRecordProjectionTests
         var extract1 = _fixture.Create<RoadNetworkExtractGotRequested>();
         extract1.Contour = new RoadNetworkExtractGeometry
         {
-            WKT = "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))"
+            WKT = "POLYGON((0 0, 0 10, 10 10, 10 0, 0 0))"
         };
         var extract2 = _fixture.Create<RoadNetworkExtractGotRequested>();
         extract2.Contour = new RoadNetworkExtractGeometry
         {
-            WKT = "POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))"
+            WKT = "POLYGON((5 5, 5 15, 15 15, 15 5, 5 5))"
         };
         var events = new[] { extract1, extract2 };
 
@@ -47,8 +46,7 @@ public class TransactionZoneRecordProjectionTests
             {
                 DownloadId = requested.DownloadId,
                 Description = requested.Description,
-                Contour =
-                    GeometryFixer.Fix((Geometry)GeometryTranslator.Translate(requested.Contour), isKeepMulti: true)
+                Contour = (Geometry)GeometryTranslator.Translate(requested.Contour)
             }));
 
         var geometry = new WKTReader(WellKnownGeometryFactories.Default).Read("POLYGON((5 10, 10 10, 10 5, 5 5, 5 10))");
@@ -75,12 +73,12 @@ public class TransactionZoneRecordProjectionTests
         var extract1 = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
         extract1.Contour = new RoadNetworkExtractGeometry
         {
-            WKT = "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))"
+            WKT = "POLYGON((0 0, 0 10, 10 10, 10 0, 0 0))"
         };
         var extract2 = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
         extract2.Contour = new RoadNetworkExtractGeometry
         {
-            WKT = "POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))"
+            WKT = "POLYGON((5 5, 5 15, 15 15, 15 5, 5 5))"
         };
         var events = new[] { extract1, extract2 };
 
@@ -90,8 +88,7 @@ public class TransactionZoneRecordProjectionTests
             {
                 DownloadId = requested.DownloadId,
                 Description = requested.Description,
-                Contour =
-                    GeometryFixer.Fix((Geometry)GeometryTranslator.Translate(requested.Contour), isKeepMulti: true),
+                Contour = (Geometry)GeometryTranslator.Translate(requested.Contour),
             }));
 
         var geometry = new WKTReader(WellKnownGeometryFactories.Default).Read("POLYGON((5 10, 10 10, 10 5, 5 5, 5 10))");
@@ -118,12 +115,12 @@ public class TransactionZoneRecordProjectionTests
         var extract1 = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
         extract1.Contour = new RoadNetworkExtractGeometry
         {
-            WKT = "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))"
+            WKT = "POLYGON((0 0, 0 10, 10 10, 10 0, 0 0))"
         };
         var extract2 = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
         extract2.Contour = new RoadNetworkExtractGeometry
         {
-            WKT = "POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))"
+            WKT = "POLYGON((5 5, 5 15, 15 15, 15 5, 5 5))"
         };
 
         var extract1Closed = new RoadNetworkExtractClosed
@@ -136,8 +133,7 @@ public class TransactionZoneRecordProjectionTests
             When = extract1.When
         };
 
-        var expectedContour =
-            GeometryFixer.Fix((Geometry)GeometryTranslator.Translate(extract2.Contour), isKeepMulti: true);
+        var expectedContour = (Geometry)GeometryTranslator.Translate(extract2.Contour);
         var expected = new List<object>
         {
             new TransactionZoneRecord
@@ -161,12 +157,12 @@ public class TransactionZoneRecordProjectionTests
         var extract1 = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
         extract1.Contour = new RoadNetworkExtractGeometry
         {
-            WKT = "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))"
+            WKT = "POLYGON((0 0, 0 10, 10 10, 10 0, 0 0))"
         };
         var extract2 = _fixture.Create<RoadNetworkExtractGotRequestedV2>();
         extract2.Contour = new RoadNetworkExtractGeometry
         {
-            WKT = "POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))"
+            WKT = "POLYGON((5 5, 5 15, 15 15, 15 5, 5 5))"
         };
 
         var extract1Accepted = new RoadNetworkChangesAccepted
@@ -176,8 +172,7 @@ public class TransactionZoneRecordProjectionTests
             When = extract1.When
         };
 
-        var expectedContour =
-            GeometryFixer.Fix((Geometry)GeometryTranslator.Translate(extract2.Contour), isKeepMulti: true);
+        var expectedContour = (Geometry)GeometryTranslator.Translate(extract2.Contour);
         var expected = new List<object>
         {
             new TransactionZoneRecord
