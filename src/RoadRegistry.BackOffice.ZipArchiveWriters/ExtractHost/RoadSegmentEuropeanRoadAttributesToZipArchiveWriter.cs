@@ -3,14 +3,12 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Editor.Schema;
-using Extensions;
 using Extracts;
 using Extracts.Dbase.RoadSegments;
 using FeatureCompare;
 using Microsoft.IO;
 
-public class RoadSegmentEuropeanRoadAttributesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
+public class RoadSegmentEuropeanRoadAttributesToZipArchiveWriter : IZipArchiveWriter
 {
     private readonly Encoding _encoding;
     private readonly RecyclableMemoryStreamManager _manager;
@@ -22,19 +20,19 @@ public class RoadSegmentEuropeanRoadAttributesToZipArchiveWriter : IZipArchiveWr
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
     }
 
-    public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
-        EditorContext context,
+    public async Task WriteAsync(
+        ZipArchive archive,
+        RoadNetworkExtractAssemblyRequest request,
+        IZipArchiveDataProvider zipArchiveDataProvider,
         CancellationToken cancellationToken)
     {
         if (archive == null) throw new ArgumentNullException(nameof(archive));
         if (request == null) throw new ArgumentNullException(nameof(request));
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        if (zipArchiveDataProvider == null) throw new ArgumentNullException(nameof(zipArchiveDataProvider));
 
-        var attributes = await context.RoadSegmentEuropeanRoadAttributes
-            .ToListWithPolygonials(request.Contour,
-                (dbSet, polygon) => dbSet.InsideContour(polygon),
-                x => x.Id,
-                cancellationToken);
+        var attributes = await zipArchiveDataProvider.GetRoadSegmentEuropeanRoadAttributes(
+            request.Contour,
+            cancellationToken);
 
         const ExtractFileName extractFilename = ExtractFileName.AttEuropweg;
         FeatureType[] featureTypes = [FeatureType.Extract, FeatureType.Change];

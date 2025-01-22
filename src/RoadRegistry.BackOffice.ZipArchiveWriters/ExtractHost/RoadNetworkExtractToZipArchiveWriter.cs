@@ -3,15 +3,14 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 using System.IO.Compression;
 using System.Text;
 using Abstractions;
-using Editor.Schema;
 using Extracts;
 using Extracts.Dbase.Lists;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 
-public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter<EditorContext>
+public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter
 {
-    private readonly CompositeZipArchiveWriter<EditorContext> _writer;
+    private readonly CompositeZipArchiveWriter _writer;
 
     public RoadNetworkExtractToZipArchiveWriter(
         ZipArchiveWriterOptions zipArchiveWriterOptions,
@@ -26,9 +25,9 @@ public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter<EditorCont
         ArgumentNullException.ThrowIfNull(encoding);
         ArgumentNullException.ThrowIfNull(logger);
 
-        _writer = new CompositeZipArchiveWriter<EditorContext>(logger,
-            new ReadCommittedZipArchiveWriter<EditorContext>(
-                new CompositeZipArchiveWriter<EditorContext>(logger,
+        _writer = new CompositeZipArchiveWriter(logger,
+            new ReadCommittedZipArchiveWriter(
+                new CompositeZipArchiveWriter(logger,
                     new TransactionZoneToZipArchiveWriter(encoding),
                     new OrganizationsToZipArchiveWriter(manager, encoding),
                     new RoadNodesToZipArchiveWriter(manager, encoding),
@@ -43,22 +42,25 @@ public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter<EditorCont
                     new IntegrationToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, manager, encoding)
                 )
             ),
-            new DbaseFileArchiveWriter<EditorContext>("eWegknoopLktType.dbf", RoadNodeTypeDbaseRecord.Schema, Lists.AllRoadNodeTypeDbaseRecords, encoding),
-            new DbaseFileArchiveWriter<EditorContext>("eWegverhardLktType.dbf", SurfaceTypeDbaseRecord.Schema, Lists.AllSurfaceTypeDbaseRecords, encoding),
-            new DbaseFileArchiveWriter<EditorContext>("eGenumwegLktRichting.dbf", NumberedRoadSegmentDirectionDbaseRecord.Schema, Lists.AllNumberedRoadSegmentDirectionDbaseRecords, encoding),
-            new DbaseFileArchiveWriter<EditorContext>("eWegsegmentLktWegcat.dbf", RoadSegmentCategoryDbaseRecord.Schema, Lists.AllRoadSegmentCategoryDbaseRecords, encoding),
-            new DbaseFileArchiveWriter<EditorContext>("eWegsegmentLktTgbep.dbf", RoadSegmentAccessRestrictionDbaseRecord.Schema, Lists.AllRoadSegmentAccessRestrictionDbaseRecords, encoding),
-            new DbaseFileArchiveWriter<EditorContext>("eWegsegmentLktMethode.dbf", RoadSegmentGeometryDrawMethodDbaseRecord.Schema, Lists.AllRoadSegmentGeometryDrawMethodDbaseRecords, encoding),
-            new DbaseFileArchiveWriter<EditorContext>("eWegsegmentLktMorf.dbf", RoadSegmentMorphologyDbaseRecord.Schema, Lists.AllRoadSegmentMorphologyDbaseRecords, encoding),
-            new DbaseFileArchiveWriter<EditorContext>("eWegsegmentLktStatus.dbf", RoadSegmentStatusDbaseRecord.Schema, Lists.AllRoadSegmentStatusDbaseRecords, encoding),
-            new DbaseFileArchiveWriter<EditorContext>("eOgkruisingLktType.dbf", GradeSeparatedJunctionTypeDbaseRecord.Schema, Lists.AllGradeSeparatedJunctionTypeDbaseRecords, encoding),
-            new DbaseFileArchiveWriter<EditorContext>("eRijstrokenLktRichting.dbf", LaneDirectionDbaseRecord.Schema, Lists.AllLaneDirectionDbaseRecords, encoding)
+            new DbaseFileArchiveWriter("eWegknoopLktType.dbf", RoadNodeTypeDbaseRecord.Schema, Lists.AllRoadNodeTypeDbaseRecords, encoding),
+            new DbaseFileArchiveWriter("eWegverhardLktType.dbf", SurfaceTypeDbaseRecord.Schema, Lists.AllSurfaceTypeDbaseRecords, encoding),
+            new DbaseFileArchiveWriter("eGenumwegLktRichting.dbf", NumberedRoadSegmentDirectionDbaseRecord.Schema, Lists.AllNumberedRoadSegmentDirectionDbaseRecords, encoding),
+            new DbaseFileArchiveWriter("eWegsegmentLktWegcat.dbf", RoadSegmentCategoryDbaseRecord.Schema, Lists.AllRoadSegmentCategoryDbaseRecords, encoding),
+            new DbaseFileArchiveWriter("eWegsegmentLktTgbep.dbf", RoadSegmentAccessRestrictionDbaseRecord.Schema, Lists.AllRoadSegmentAccessRestrictionDbaseRecords, encoding),
+            new DbaseFileArchiveWriter("eWegsegmentLktMethode.dbf", RoadSegmentGeometryDrawMethodDbaseRecord.Schema, Lists.AllRoadSegmentGeometryDrawMethodDbaseRecords, encoding),
+            new DbaseFileArchiveWriter("eWegsegmentLktMorf.dbf", RoadSegmentMorphologyDbaseRecord.Schema, Lists.AllRoadSegmentMorphologyDbaseRecords, encoding),
+            new DbaseFileArchiveWriter("eWegsegmentLktStatus.dbf", RoadSegmentStatusDbaseRecord.Schema, Lists.AllRoadSegmentStatusDbaseRecords, encoding),
+            new DbaseFileArchiveWriter("eOgkruisingLktType.dbf", GradeSeparatedJunctionTypeDbaseRecord.Schema, Lists.AllGradeSeparatedJunctionTypeDbaseRecords, encoding),
+            new DbaseFileArchiveWriter("eRijstrokenLktRichting.dbf", LaneDirectionDbaseRecord.Schema, Lists.AllLaneDirectionDbaseRecords, encoding)
         );
     }
 
-    public Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request, EditorContext context,
+    public Task WriteAsync(
+        ZipArchive archive,
+        RoadNetworkExtractAssemblyRequest request,
+        IZipArchiveDataProvider zipArchiveDataProvider,
         CancellationToken cancellationToken)
     {
-        return _writer.WriteAsync(archive, request, context, cancellationToken);
+        return _writer.WriteAsync(archive, request, zipArchiveDataProvider, cancellationToken);
     }
 }

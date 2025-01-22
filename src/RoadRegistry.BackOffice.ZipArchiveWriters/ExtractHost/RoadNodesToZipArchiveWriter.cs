@@ -4,13 +4,15 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
+using Editor.Schema.RoadNodes;
 using Extensions;
 using Extracts;
 using Extracts.Dbase.RoadNodes;
 using FeatureCompare;
 using Microsoft.IO;
+using NetTopologySuite.Geometries;
 
-public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
+public class RoadNodesToZipArchiveWriter : IZipArchiveWriter
 {
     private readonly Encoding _encoding;
     private readonly RecyclableMemoryStreamManager _manager;
@@ -21,19 +23,17 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
     }
 
-    public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
-        EditorContext context,
+    public async Task WriteAsync(
+        ZipArchive archive,
+        RoadNetworkExtractAssemblyRequest request,
+        IZipArchiveDataProvider zipArchiveDataProvider,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
 
-        var nodes = await context.RoadNodes
-            .ToListWithPolygonials(request.Contour,
-                (dbSet, polygon) => dbSet.InsideContour(polygon),
-                x => x.Id,
-                cancellationToken);
+        var nodes = await zipArchiveDataProvider.GetRoadNodes(request.Contour, cancellationToken);
 
         const ExtractFileName extractFilename = ExtractFileName.Wegknoop;
         FeatureType[] featureTypes = [FeatureType.Extract, FeatureType.Change];

@@ -1,22 +1,19 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 
+using System.IO.Compression;
+using System.Text;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Editor.Schema;
 using Editor.Schema.RoadNodes;
 using Editor.Schema.RoadSegments;
 using Extensions;
 using Extracts;
 using Extracts.Dbase.RoadNodes;
 using Extracts.Dbase.RoadSegments;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IO;
-using NetTopologySuite.Geometries;
-using System.IO.Compression;
-using System.Text;
 using FeatureCompare;
+using Microsoft.IO;
 
-public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
+public class IntegrationToZipArchiveWriter : IZipArchiveWriter
 {
     private readonly Encoding _encoding;
     private readonly RecyclableMemoryStreamManager _manager;
@@ -37,24 +34,18 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
     }
 
-    public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
-        EditorContext context,
+    public async Task WriteAsync(
+        ZipArchive archive,
+        RoadNetworkExtractAssemblyRequest request,
+        IZipArchiveDataProvider zipArchiveDataProvider,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
 
-        var segmentsInContour = await context.RoadSegments
-            .ToListWithPolygonials(request.Contour,
-                (dbSet, polygon) => dbSet.InsideContour(polygon),
-                x => x.Id,
-                cancellationToken);
-        var nodesInContour = await context.RoadNodes
-            .ToListWithPolygonials(request.Contour,
-                (dbSet, polygon) => dbSet.InsideContour(polygon),
-                x => x.Id,
-                cancellationToken);
+        var segmentsInContour = await zipArchiveDataProvider.GetRoadSegments(request.Contour, cancellationToken);
+        var nodesInContour = await zipArchiveDataProvider.GetRoadNodes(request.Contour, cancellationToken);
 
         // segments integration
         var integrationBufferedSegmentsGeometries = segmentsInContour.Select(x => x.Geometry.Buffer(IntegrationBufferInMeters)).ToList();
@@ -64,23 +55,18 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 
         if (integrationBufferedSegmentsGeometries.Any())
         {
-            var integrationBufferedContourGeometry = WellKnownGeometryFactories.Default
-                .BuildGeometry(integrationBufferedSegmentsGeometries)
-                .ConvexHull();
-
-            var segmentsInIntegrationBuffer = await context.RoadSegments
-                .InsideContour((IPolygonal)integrationBufferedContourGeometry)
-                .ToListAsync(cancellationToken);
+            var segmentsInIntegrationBuffer = await zipArchiveDataProvider.GetRoadSegmentsInIntegrationBuffer(
+                integrationBufferedSegmentsGeometries,
+                cancellationToken);
 
             integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentRecordEqualityComparerById()).ToList();
             integrationSegments = integrationSegments.Where(integrationSegment => { return integrationBufferedSegmentsGeometries.Any(segmentBufferedGeometry => segmentBufferedGeometry.Intersects(integrationSegment.Geometry)); })
                 .ToList();
 
             // nodes integration
-            var nodesInIntegrationBuffer = await context.RoadNodes
-                .InsideContour((IPolygonal)integrationBufferedContourGeometry)
-                .ToListAsync(cancellationToken);
-
+            var nodesInIntegrationBuffer = await zipArchiveDataProvider.GetRoadNodesInIntegrationBuffer(
+                    integrationBufferedSegmentsGeometries,
+                    cancellationToken);
 
             var integrationNodeIds = integrationSegments.SelectMany(segment => new[] { segment.StartNodeId, segment.EndNodeId }).Distinct().ToList();
             integrationNodes = nodesInIntegrationBuffer.Where(integrationNode => integrationNodeIds.Contains(integrationNode.Id))

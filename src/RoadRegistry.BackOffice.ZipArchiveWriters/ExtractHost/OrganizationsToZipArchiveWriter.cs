@@ -6,13 +6,11 @@ using Abstractions.Organizations;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
 using Dbase;
-using Editor.Schema;
 using Extracts;
 using Extracts.Dbase.Organizations.V2;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 
-public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
+public class OrganizationsToZipArchiveWriter : IZipArchiveWriter
 {
     private readonly Encoding _encoding;
     private readonly IVersionedDbaseRecordReader<OrganizationDetail> _recordReader;
@@ -23,19 +21,21 @@ public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         _recordReader = new OrganizationDbaseRecordReader(manager.ThrowIfNull(), encoding);
     }
 
-    public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
-        EditorContext context,
+    public async Task WriteAsync(
+        ZipArchive archive,
+        RoadNetworkExtractAssemblyRequest request,
+        IZipArchiveDataProvider zipArchiveDataProvider,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
 
         var dbfEntry = archive.CreateEntry("eLstOrg.dbf");
         var dbfHeader = new DbaseFileHeader(
             DateTime.Now,
             DbaseCodePage.Western_European_ANSI,
-            new DbaseRecordCount(await context.Organizations.CountAsync(cancellationToken) + Organization.PredefinedTranslations.All.Length),
+            new DbaseRecordCount(await zipArchiveDataProvider.GetOrganizationsCount(cancellationToken) + Organization.PredefinedTranslations.All.Length),
             OrganizationDbaseRecord.Schema
         );
         await using (var dbfEntryStream = dbfEntry.Open())
@@ -52,14 +52,14 @@ public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                 dbfRecord.LBLORG.Value = predefined.Name;
                 dbfWriter.Write(dbfRecord);
             }
-            
-            foreach (var record in context.Organizations.OrderBy(_ => _.SortableCode))
+
+            foreach (var record in await zipArchiveDataProvider.GetOrganizations(cancellationToken))
             {
                 var organization = _recordReader.Read(record.DbaseRecord, record.DbaseSchemaVersion);
 
                 dbfRecord.ORG.Value = organization.Code;
                 dbfRecord.LBLORG.Value = organization.Name;
-                dbfRecord.OVOCODE.Value = organization.OvoCode;
+                dbfRecord.OVOCODE.Value = organization.OvoCode!;
 
                 dbfWriter.Write(dbfRecord);
             }

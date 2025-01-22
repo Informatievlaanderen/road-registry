@@ -3,27 +3,30 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 using System.Data;
 using System.IO.Compression;
 using Extracts;
-using Microsoft.EntityFrameworkCore;
 
-public class ReadCommittedZipArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext : DbContext
+public class ReadCommittedZipArchiveWriter : IZipArchiveWriter
 {
-    private readonly IZipArchiveWriter<TContext> _writer;
+    private readonly IZipArchiveWriter _writer;
 
-    public ReadCommittedZipArchiveWriter(IZipArchiveWriter<TContext> writer)
+    public ReadCommittedZipArchiveWriter(IZipArchiveWriter writer)
     {
         _writer = writer ?? throw new ArgumentNullException(nameof(writer));
     }
 
-    public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request, TContext context,
+    public async Task WriteAsync(
+        ZipArchive archive,
+        RoadNetworkExtractAssemblyRequest request,
+        IZipArchiveDataProvider zipArchiveDataProvider,
         CancellationToken cancellationToken)
     {
         if (archive == null) throw new ArgumentNullException(nameof(archive));
         if (request == null) throw new ArgumentNullException(nameof(request));
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        if (zipArchiveDataProvider == null) throw new ArgumentNullException(nameof(zipArchiveDataProvider));
 
-        await using (await context.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken))
+        // todo-rik niet 100% overtuigd van deze manier
+        await using (await zipArchiveDataProvider.BeginTransaction(IsolationLevel.ReadCommitted, cancellationToken))
         {
-            await _writer.WriteAsync(archive, request, context, cancellationToken);
+            await _writer.WriteAsync(archive, request, zipArchiveDataProvider, cancellationToken);
         }
     }
 }
