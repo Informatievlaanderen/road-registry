@@ -1,3 +1,10 @@
+## [4.20.3](https://github.com/informatievlaanderen/road-registry/compare/v4.20.2...v4.20.3) (2025-01-22)
+
+
+### Bug Fixes
+
+* register StreetNameRenamed event when handling fusie events ([d512b9c](https://github.com/informatievlaanderen/road-registry/commit/d512b9c8847dbb702a911494ee23dae4ee7162ec))
+
 ## [4.20.2](https://github.com/informatievlaanderen/road-registry/compare/v4.20.1...v4.20.2) (2025-01-21)
 
 
