@@ -9,15 +9,22 @@ using BackOffice.Extensions;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Utilities;
+using NetTopologySuite.Operation.Overlay;
+using NetTopologySuite.Operation.OverlayNG;
 using Schema;
 using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public class TransactionZoneRecordProjection : ConnectedProjection<WmsContext>
 {
-    public TransactionZoneRecordProjection()
+    private readonly ILogger _logger;
+
+    public TransactionZoneRecordProjection(ILoggerFactory loggerFactory)
     {
+        _logger = loggerFactory.CreateLogger(GetType());
+
         When<Envelope<RoadNetworkExtractGotRequested>>(async (context, envelope, ct) =>
         {
             var message = envelope.Message;
@@ -116,13 +123,24 @@ public class TransactionZoneRecordProjection : ConnectedProjection<WmsContext>
                 cancellationToken);
 
         var overlappingTransactionZones = transactionZones
-            .Select(x => new OverlappingTransactionZonesRecord
+            .Select(x =>
             {
-                DownloadId1 = x.DownloadId,
-                DownloadId2 = downloadId,
-                Description1 = x.Description,
-                Description2 = description,
-                Contour = x.Contour.Intersection(geometry)
+                try
+                {
+                    return new OverlappingTransactionZonesRecord
+                    {
+                        DownloadId1 = x.DownloadId,
+                        DownloadId2 = downloadId,
+                        Description1 = x.Description,
+                        Description2 = description,
+                        Contour = OverlayNGRobust.Overlay(x.Contour, geometry, SpatialFunction.Intersection)
+                    };
+                }
+                catch (TopologyException)
+                {
+                    _logger.LogError("An error occurred during overlay calculation between geometries [{Wkt1}] and [{Wkt2}]", x.Contour.AsText(), geometry.AsText());
+                    throw;
+                }
             })
             .Where(x => x.Contour is Polygon or MultiPolygon)
             .DistinctBy(x => new { x.DownloadId1, x.DownloadId2 })

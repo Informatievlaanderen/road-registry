@@ -82,7 +82,7 @@ public class Program
                 {
                    ConnectedProjection<WmsContext>[] connectedProjectionHandlers=
                    [
-                        new TransactionZoneRecordProjection()
+                        new TransactionZoneRecordProjection(sp.GetRequiredService<ILoggerFactory>())
                    ];
 
                    return new TransactionZoneEventProcessor(

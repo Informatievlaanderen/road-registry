@@ -4,6 +4,7 @@ using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.Tests.BackOffice;
@@ -49,7 +50,7 @@ public class TransactionZoneRecordProjectionTests
                 Contour = (Geometry)GeometryTranslator.Translate(requested.Contour)
             }));
 
-        var geometry = new WKTReader(WellKnownGeometryFactories.Default).Read("POLYGON((5 10, 10 10, 10 5, 5 5, 5 10))");
+        var geometry = new WKTReader(WellKnownGeometryFactories.Default).Read("POLYGON((10 10, 10 5, 5 5, 5 10, 10 10))");
         geometry.SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
 
         expected.Add(new OverlappingTransactionZonesRecord
@@ -61,7 +62,7 @@ public class TransactionZoneRecordProjectionTests
             Contour = geometry
         });
 
-        return new TransactionZoneRecordProjection()
+        return new TransactionZoneRecordProjection(new NullLoggerFactory())
             .Scenario()
             .Given(events.Cast<object>())
             .Expect(expected);
@@ -91,7 +92,7 @@ public class TransactionZoneRecordProjectionTests
                 Contour = (Geometry)GeometryTranslator.Translate(requested.Contour),
             }));
 
-        var geometry = new WKTReader(WellKnownGeometryFactories.Default).Read("POLYGON((5 10, 10 10, 10 5, 5 5, 5 10))");
+        var geometry = new WKTReader(WellKnownGeometryFactories.Default).Read("POLYGON((10 10, 10 5, 5 5, 5 10, 10 10))");
         geometry.SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
 
         expected.Add(new OverlappingTransactionZonesRecord
@@ -103,7 +104,7 @@ public class TransactionZoneRecordProjectionTests
             Contour = geometry
         });
 
-        return new TransactionZoneRecordProjection()
+        return new TransactionZoneRecordProjection(new NullLoggerFactory())
             .Scenario()
             .Given(events.Cast<object>())
             .Expect(expected);
@@ -144,7 +145,7 @@ public class TransactionZoneRecordProjectionTests
             }
         };
 
-        return new TransactionZoneRecordProjection()
+        return new TransactionZoneRecordProjection(new NullLoggerFactory())
             .Scenario()
             .Given(new[] { extract1, extract2 }.Cast<object>())
             .Given(extract1Closed)
@@ -183,7 +184,7 @@ public class TransactionZoneRecordProjectionTests
             }
         };
 
-        return new TransactionZoneRecordProjection()
+        return new TransactionZoneRecordProjection(new NullLoggerFactory())
             .Scenario()
             .Given(new[] { extract1, extract2 }.Cast<object>())
             .Given(extract1Accepted)
