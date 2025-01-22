@@ -14,6 +14,7 @@ using Microsoft.IO;
 using NetTopologySuite.Geometries;
 using System.IO.Compression;
 using System.Text;
+using FeatureCompare;
 
 public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
@@ -196,6 +197,7 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
             }
 
             await archive.CreateCpgEntry("iWegsegment.cpg", _encoding, cancellationToken);
+            await archive.CreateProjectionEntry(FeatureType.Integration.ToProjectionFileName(ExtractFileName.Wegsegment), _encoding, cancellationToken);
         }
 
         async Task WriteRoadNodes()
@@ -281,6 +283,7 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
             }
 
             await archive.CreateCpgEntry("iWegknoop.cpg", _encoding, cancellationToken);
+            await archive.CreateProjectionEntry(FeatureType.Integration.ToProjectionFileName(ExtractFileName.Wegknoop), _encoding, cancellationToken);
         }
     }
 }

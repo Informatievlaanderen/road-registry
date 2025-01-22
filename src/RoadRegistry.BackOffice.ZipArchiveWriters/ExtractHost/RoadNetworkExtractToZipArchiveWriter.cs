@@ -11,7 +11,7 @@ using Microsoft.IO;
 
 public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
-    private readonly IZipArchiveWriter<EditorContext> _writer;
+    private readonly CompositeZipArchiveWriter<EditorContext> _writer;
 
     public RoadNetworkExtractToZipArchiveWriter(
         ZipArchiveWriterOptions zipArchiveWriterOptions,
@@ -28,8 +28,8 @@ public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter<EditorCont
 
         _writer = new CompositeZipArchiveWriter<EditorContext>(logger,
             new ReadCommittedZipArchiveWriter<EditorContext>(
-                new CompositeZipArchiveWriter<EditorContext>(logger, 
-                     new TransactionZoneToZipArchiveWriter(encoding),
+                new CompositeZipArchiveWriter<EditorContext>(logger,
+                    new TransactionZoneToZipArchiveWriter(encoding),
                     new OrganizationsToZipArchiveWriter(manager, encoding),
                     new RoadNodesToZipArchiveWriter(manager, encoding),
                     new RoadSegmentsToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, manager, encoding),
@@ -52,12 +52,7 @@ public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter<EditorCont
             new DbaseFileArchiveWriter<EditorContext>("eWegsegmentLktMorf.dbf", RoadSegmentMorphologyDbaseRecord.Schema, Lists.AllRoadSegmentMorphologyDbaseRecords, encoding),
             new DbaseFileArchiveWriter<EditorContext>("eWegsegmentLktStatus.dbf", RoadSegmentStatusDbaseRecord.Schema, Lists.AllRoadSegmentStatusDbaseRecords, encoding),
             new DbaseFileArchiveWriter<EditorContext>("eOgkruisingLktType.dbf", GradeSeparatedJunctionTypeDbaseRecord.Schema, Lists.AllGradeSeparatedJunctionTypeDbaseRecords, encoding),
-            new DbaseFileArchiveWriter<EditorContext>("eRijstrokenLktRichting.dbf", LaneDirectionDbaseRecord.Schema, Lists.AllLaneDirectionDbaseRecords, encoding),
-            new ProjectionFormatFileZipArchiveWriter<EditorContext>("eWegsegment.prj", encoding),
-            new ProjectionFormatFileZipArchiveWriter<EditorContext>("eWegknoop.prj", encoding),
-            new ProjectionFormatFileZipArchiveWriter<EditorContext>("Transactiezones.prj", encoding),
-            new ProjectionFormatFileZipArchiveWriter<EditorContext>("iWegknoop.prj", encoding),
-            new ProjectionFormatFileZipArchiveWriter<EditorContext>("iWegsegment.prj", encoding)
+            new DbaseFileArchiveWriter<EditorContext>("eRijstrokenLktRichting.dbf", LaneDirectionDbaseRecord.Schema, Lists.AllLaneDirectionDbaseRecords, encoding)
         );
     }
 

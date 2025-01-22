@@ -7,6 +7,7 @@ using Editor.Schema;
 using Extensions;
 using Extracts;
 using Extracts.Dbase.RoadSegments;
+using FeatureCompare;
 using Microsoft.IO;
 
 public class RoadSegmentLaneAttributesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
@@ -34,28 +35,34 @@ public class RoadSegmentLaneAttributesToZipArchiveWriter : IZipArchiveWriter<Edi
                 x => x.Id,
                 cancellationToken);
 
-        var dbfEntry = archive.CreateEntry("eAttRijstroken.dbf");
-        var dbfHeader = new DbaseFileHeader(
-            DateTime.Now,
-            DbaseCodePage.Western_European_ANSI,
-            new DbaseRecordCount(attributes.Count),
-            RoadSegmentLaneAttributeDbaseRecord.Schema
-        );
-        await using (var dbfEntryStream = dbfEntry.Open())
-        using (var dbfWriter =
-               new DbaseBinaryWriter(
-                   dbfHeader,
-                   new BinaryWriter(dbfEntryStream, _encoding, true)))
-        {
-            var dbfRecord = new RoadSegmentLaneAttributeDbaseRecord();
-            foreach (var data in attributes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
-            {
-                dbfRecord.FromBytes(data, _manager, _encoding);
-                dbfWriter.Write(dbfRecord);
-            }
+        const ExtractFileName extractFilename = ExtractFileName.AttRijstroken;
+        FeatureType[] featureTypes = [FeatureType.Extract, FeatureType.Change];
 
-            dbfWriter.Writer.Flush();
-            await dbfEntryStream.FlushAsync(cancellationToken);
+        foreach (var featureType in featureTypes)
+        {
+            var dbfEntry = archive.CreateEntry(featureType.ToDbaseFileName(extractFilename));
+            var dbfHeader = new DbaseFileHeader(
+                DateTime.Now,
+                DbaseCodePage.Western_European_ANSI,
+                new DbaseRecordCount(attributes.Count),
+                RoadSegmentLaneAttributeDbaseRecord.Schema
+            );
+            await using (var dbfEntryStream = dbfEntry.Open())
+            using (var dbfWriter =
+                   new DbaseBinaryWriter(
+                       dbfHeader,
+                       new BinaryWriter(dbfEntryStream, _encoding, true)))
+            {
+                var dbfRecord = new RoadSegmentLaneAttributeDbaseRecord();
+                foreach (var data in attributes.OrderBy(x => x.Id).Select(x => x.DbaseRecord))
+                {
+                    dbfRecord.FromBytes(data, _manager, _encoding);
+                    dbfWriter.Write(dbfRecord);
+                }
+
+                dbfWriter.Writer.Flush();
+                await dbfEntryStream.FlushAsync(cancellationToken);
+            }
         }
     }
 }

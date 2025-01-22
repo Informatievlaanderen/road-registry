@@ -7,7 +7,7 @@ using Editor.Schema;
 using Extensions;
 using Extracts;
 using Extracts.Dbase.RoadNodes;
-using Microsoft.EntityFrameworkCore;
+using FeatureCompare;
 using Microsoft.IO;
 
 public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
@@ -28,93 +28,100 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(context);
-        
+
         var nodes = await context.RoadNodes
             .ToListWithPolygonials(request.Contour,
                 (dbSet, polygon) => dbSet.InsideContour(polygon),
                 x => x.Id,
                 cancellationToken);
 
-        var dbfEntry = archive.CreateEntry("eWegknoop.dbf");
-        var dbfHeader = new DbaseFileHeader(
-            DateTime.Now,
-            DbaseCodePage.Western_European_ANSI,
-            new DbaseRecordCount(nodes.Count),
-            RoadNodeDbaseRecord.Schema
-        );
-        await using (var dbfEntryStream = dbfEntry.Open())
-        using (var dbfWriter =
-               new DbaseBinaryWriter(
-                   dbfHeader,
-                   new BinaryWriter(dbfEntryStream, _encoding, true)))
+        const ExtractFileName extractFilename = ExtractFileName.Wegknoop;
+        FeatureType[] featureTypes = [FeatureType.Extract, FeatureType.Change];
+
+        foreach (var featureType in featureTypes)
         {
-            var dbfRecord = new RoadNodeDbaseRecord();
-            foreach (var data in nodes.OrderBy(record => record.Id).Select(record => record.DbaseRecord))
+            var dbfEntry = archive.CreateEntry(featureType.ToDbaseFileName(extractFilename));
+            var dbfHeader = new DbaseFileHeader(
+                DateTime.Now,
+                DbaseCodePage.Western_European_ANSI,
+                new DbaseRecordCount(nodes.Count),
+                RoadNodeDbaseRecord.Schema
+            );
+            await using (var dbfEntryStream = dbfEntry.Open())
+            using (var dbfWriter =
+                   new DbaseBinaryWriter(
+                       dbfHeader,
+                       new BinaryWriter(dbfEntryStream, _encoding, true)))
             {
-                dbfRecord.FromBytes(data, _manager, _encoding);
-                dbfWriter.Write(dbfRecord);
+                var dbfRecord = new RoadNodeDbaseRecord();
+                foreach (var data in nodes.OrderBy(record => record.Id).Select(record => record.DbaseRecord))
+                {
+                    dbfRecord.FromBytes(data, _manager, _encoding);
+                    dbfWriter.Write(dbfRecord);
+                }
+
+                dbfWriter.Writer.Flush();
+                await dbfEntryStream.FlushAsync(cancellationToken);
             }
 
-            dbfWriter.Writer.Flush();
-            await dbfEntryStream.FlushAsync(cancellationToken);
-        }
+            var shpBoundingBox =
+                nodes.Aggregate(
+                    BoundingBox3D.Empty,
+                    (box, record) => box.ExpandWith(record.GetBoundingBox().ToBoundingBox3D()));
 
-        var shpBoundingBox =
-            nodes.Aggregate(
-                BoundingBox3D.Empty,
-                (box, record) => box.ExpandWith(record.GetBoundingBox().ToBoundingBox3D()));
-
-        var shpEntry = archive.CreateEntry("eWegknoop.shp");
-        var shpHeader = new ShapeFileHeader(
-            new WordLength(
-                nodes.Aggregate(0, (length, record) => length + record.ShapeRecordContentLength)),
-            ShapeType.Point,
-            shpBoundingBox);
-        await using (var shpEntryStream = shpEntry.Open())
-        using (var shpWriter =
-               new ShapeBinaryWriter(
-                   shpHeader,
-                   new BinaryWriter(shpEntryStream, _encoding, true)))
-        {
-            var number = RecordNumber.Initial;
-            foreach (var data in nodes.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
+            var shpEntry = archive.CreateEntry(featureType.ToShapeFileName(extractFilename));
+            var shpHeader = new ShapeFileHeader(
+                new WordLength(
+                    nodes.Aggregate(0, (length, record) => length + record.ShapeRecordContentLength)),
+                ShapeType.Point,
+                shpBoundingBox);
+            await using (var shpEntryStream = shpEntry.Open())
+            using (var shpWriter =
+                   new ShapeBinaryWriter(
+                       shpHeader,
+                       new BinaryWriter(shpEntryStream, _encoding, true)))
             {
-                shpWriter.Write(
-                    ShapeContentFactory
+                var number = RecordNumber.Initial;
+                foreach (var data in nodes.OrderBy(x => x.Id).Select(x => x.ShapeRecordContent))
+                {
+                    shpWriter.Write(
+                        ShapeContentFactory
+                            .FromBytes(data, _manager, _encoding)
+                            .RecordAs(number)
+                    );
+                    number = number.Next();
+                }
+
+                shpWriter.Writer.Flush();
+                await shpEntryStream.FlushAsync(cancellationToken);
+            }
+
+            var shxEntry = archive.CreateEntry(featureType.ToShapeIndexFileName(extractFilename));
+            var shxHeader = shpHeader.ForIndex(new ShapeRecordCount(nodes.Count));
+            await using (var shxEntryStream = shxEntry.Open())
+            using (var shxWriter =
+                   new ShapeIndexBinaryWriter(
+                       shxHeader,
+                       new BinaryWriter(shxEntryStream, _encoding, true)))
+            {
+                var offset = ShapeIndexRecord.InitialOffset;
+                var number = RecordNumber.Initial;
+                foreach (var data in nodes.OrderBy(x => x.Id).Select(x => x.ShapeRecordContent))
+                {
+                    var shpRecord = ShapeContentFactory
                         .FromBytes(data, _manager, _encoding)
-                        .RecordAs(number)
-                );
-                number = number.Next();
+                        .RecordAs(number);
+                    shxWriter.Write(shpRecord.IndexAt(offset));
+                    number = number.Next();
+                    offset = offset.Plus(shpRecord.Length);
+                }
+
+                shxWriter.Writer.Flush();
+                await shxEntryStream.FlushAsync(cancellationToken);
             }
 
-            shpWriter.Writer.Flush();
-            await shpEntryStream.FlushAsync(cancellationToken);
+            await archive.CreateCpgEntry(featureType.ToCpgFileName(extractFilename), _encoding, cancellationToken);
+            await archive.CreateProjectionEntry(featureType.ToProjectionFileName(extractFilename), _encoding, cancellationToken);
         }
-
-        var shxEntry = archive.CreateEntry("eWegknoop.shx");
-        var shxHeader = shpHeader.ForIndex(new ShapeRecordCount(nodes.Count));
-        await using (var shxEntryStream = shxEntry.Open())
-        using (var shxWriter =
-               new ShapeIndexBinaryWriter(
-                   shxHeader,
-                   new BinaryWriter(shxEntryStream, _encoding, true)))
-        {
-            var offset = ShapeIndexRecord.InitialOffset;
-            var number = RecordNumber.Initial;
-            foreach (var data in nodes.OrderBy(_ => _.Id).Select(_ => _.ShapeRecordContent))
-            {
-                var shpRecord = ShapeContentFactory
-                    .FromBytes(data, _manager, _encoding)
-                    .RecordAs(number);
-                shxWriter.Write(shpRecord.IndexAt(offset));
-                number = number.Next();
-                offset = offset.Plus(shpRecord.Length);
-            }
-
-            shxWriter.Writer.Flush();
-            await shxEntryStream.FlushAsync(cancellationToken);
-        }
-
-        await archive.CreateCpgEntry("eWegknoop.cpg", _encoding, cancellationToken);
     }
 }

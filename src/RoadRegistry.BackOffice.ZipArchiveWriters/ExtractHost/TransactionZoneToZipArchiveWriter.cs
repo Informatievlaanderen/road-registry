@@ -8,6 +8,7 @@ using Editor.Schema;
 using Extensions;
 using Extracts;
 using Extracts.Dbase;
+using FeatureCompare;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using DbaseFileHeader = Be.Vlaanderen.Basisregisters.Shaperon.DbaseFileHeader;
@@ -54,6 +55,7 @@ public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter<EditorContext
 
         await archive.CreateShapeEntry(FileName, _encoding, features, WellKnownGeometryFactories.WithoutMAndZ, cancellationToken);
         await archive.CreateCpgEntry(FileName, _encoding, cancellationToken);
+        await archive.CreateProjectionEntry(FeatureType.Change.ToProjectionFileName(FileName), _encoding, cancellationToken);
     }
 
     private async Task CreateDbaseEntry(ZipArchive archive, ExtractFileName fileName, ICollection<TransactionZoneDbaseRecord> dbfRecords, CancellationToken cancellationToken)
