@@ -1,3 +1,10 @@
+## [4.20.4](https://github.com/informatievlaanderen/road-registry/compare/v4.20.3...v4.20.4) (2025-01-22)
+
+
+### Bug Fixes
+
+* use other overlay calculation logic for WMS overlapping transactionzones ([0edc8e0](https://github.com/informatievlaanderen/road-registry/commit/0edc8e0b3ed3c3655076264582501d6d8c866756))
+
 ## [4.20.3](https://github.com/informatievlaanderen/road-registry/compare/v4.20.2...v4.20.3) (2025-01-22)
 
 
