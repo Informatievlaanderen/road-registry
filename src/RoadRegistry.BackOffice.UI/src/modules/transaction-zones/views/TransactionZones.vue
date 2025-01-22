@@ -10,19 +10,9 @@
             <vl-map-tile-wms-source url="https://geo.api.vlaanderen.be/GRB-basiskaart/wms" />
           </vl-map-tile-layer>
 
-          <vl-map-vector-layer>
-            <vl-map-vector-source :url="transactionZonesGeoJsonUrl" />
-            <vl-map-icon-style color="rgba(183, 171, 31, 1)" color-stroke="rgba(183, 171, 31, 1)" />
-            <vl-map-layer-style data-vl-text-feature-attribute-name="description" />
-          </vl-map-vector-layer>
-          <!-- <vl-map-select-interaction @select="onSelectTransactionZone">
-                <vl-map-icon-style mod-highlight />
-              </vl-map-select-interaction> -->
-
-          <vl-map-vector-layer>
-            <vl-map-vector-source :url="overlappingTransactionZonesGeoJsonUrl" />
-            <vl-map-icon-style color="rgba(230, 49, 31, 1)" color-stroke="rgba(230, 49, 31, 1)" />
-          </vl-map-vector-layer>
+          <vl-map-tile-layer>
+            <vl-map-tile-wms-source :url="transactionZonesWmsUrl" />
+          </vl-map-tile-layer>
         </vl-ol-map>
       </vl-column>
     </vl-grid>
@@ -32,26 +22,16 @@
 <script lang="ts">
 import Vue from "vue";
 import Map from "ol/Map";
-import { BackOfficeApi } from "@/services";
+import { WMS_TRANSACTIONZONES } from "@/environment";
 
 export default Vue.extend({
   computed: {
     olMap(): Map {
       return (this.$refs.map as any).olMap as Map;
     },
-    transactionZonesGeoJsonUrl() {
-      // Do not use PublicApi to avoid response size limit error
-      return BackOfficeApi.Extracts.getTransactionZonesGeoJsonUrl();
-    },
-    overlappingTransactionZonesGeoJsonUrl() {
-      // Do not use PublicApi to avoid response size limit error
-      return BackOfficeApi.Extracts.getOverlappingTransactionZonesGeoJsonUrl();
-    },
-  },
-  methods: {
-    onSelectTransactionZone() {
-      //console.log("onSelectTransactionZone", arguments);
-    },
+    transactionZonesWmsUrl(): string {
+      return WMS_TRANSACTIONZONES;
+    }
   }
 });
 </script>

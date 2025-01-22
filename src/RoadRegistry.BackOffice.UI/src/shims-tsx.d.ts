@@ -22,6 +22,7 @@ declare global {
     API_VERSION: string;
     API_ENDPOINT: string;
     API_OLDENDPOINT: string;
+    WMS_TRANSACTIONZONES: string;
     featureToggles: FeatureToggles;
   }
 
@@ -32,4 +33,5 @@ window.WR_ENV = window.WR_ENV || "development";
 window.API_VERSION = window.API_VERSION || "";
 window.API_ENDPOINT = window.API_ENDPOINT || "";
 window.API_OLDENDPOINT = window.API_OLDENDPOINT || "";
+window.WMS_TRANSACTIONZONES = window.WMS_TRANSACTIONZONES || "";
 window.featureToggles = window.featureToggles || {};
