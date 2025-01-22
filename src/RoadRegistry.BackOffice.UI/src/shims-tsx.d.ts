@@ -22,7 +22,9 @@ declare global {
     API_VERSION: string;
     API_ENDPOINT: string;
     API_OLDENDPOINT: string;
-    WMS_TRANSACTIONZONES: string;
+    WMS_TRANSACTIONZONES_URL: string;
+    WMS_LAYER_TRANSACTIONZONES: string;
+    WMS_LAYER_OVERLAPPINGTRANSACTIONZONES: string;
     featureToggles: FeatureToggles;
   }
 
@@ -33,5 +35,7 @@ window.WR_ENV = window.WR_ENV || "development";
 window.API_VERSION = window.API_VERSION || "";
 window.API_ENDPOINT = window.API_ENDPOINT || "";
 window.API_OLDENDPOINT = window.API_OLDENDPOINT || "";
-window.WMS_TRANSACTIONZONES = window.WMS_TRANSACTIONZONES || "";
+window.WMS_TRANSACTIONZONES_URL = window.WMS_TRANSACTIONZONES_URL || "";
+window.WMS_LAYER_TRANSACTIONZONES = window.WMS_LAYER_TRANSACTIONZONES || "";
+window.WMS_LAYER_OVERLAPPINGTRANSACTIONZONES = window.WMS_LAYER_OVERLAPPINGTRANSACTIONZONES || "";
 window.featureToggles = window.featureToggles || {};

@@ -10,8 +10,12 @@
             <vl-map-tile-wms-source url="https://geo.api.vlaanderen.be/GRB-basiskaart/wms" />
           </vl-map-tile-layer>
 
-          <vl-map-tile-layer>
-            <vl-map-tile-wms-source :url="transactionZonesWmsUrl" />
+          <vl-map-tile-layer :opacity="0.8">
+            <vl-map-tile-wms-source :url="transactionZonesWmsUrl" :layers="[layerTransactionZones]" />
+          </vl-map-tile-layer>
+          
+          <vl-map-tile-layer :opacity="0.4">
+            <vl-map-tile-wms-source :url="transactionZonesWmsUrl" :layers="[layerOverlappingTransactionZones]" />
           </vl-map-tile-layer>
         </vl-ol-map>
       </vl-column>
@@ -22,7 +26,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Map from "ol/Map";
-import { WMS_TRANSACTIONZONES } from "@/environment";
+import { WMS_TRANSACTIONZONES_URL, WMS_LAYER_OVERLAPPINGTRANSACTIONZONES, WMS_LAYER_TRANSACTIONZONES } from "@/environment";
 
 export default Vue.extend({
   computed: {
@@ -30,7 +34,13 @@ export default Vue.extend({
       return (this.$refs.map as any).olMap as Map;
     },
     transactionZonesWmsUrl(): string {
-      return WMS_TRANSACTIONZONES;
+      return WMS_TRANSACTIONZONES_URL;
+    },
+    layerOverlappingTransactionZones(): string {
+      return WMS_LAYER_OVERLAPPINGTRANSACTIONZONES;
+    },
+    layerTransactionZones(): string {
+      return WMS_LAYER_TRANSACTIONZONES;
     }
   }
 });
