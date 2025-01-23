@@ -1,6 +1,4 @@
-namespace RoadRegistry.BackOffice.FeatureCompare;
-
-using Extracts;
+namespace RoadRegistry.BackOffice.Extracts;
 
 public static class FeatureTypeExtensions
 {
