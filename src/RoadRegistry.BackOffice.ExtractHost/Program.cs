@@ -33,7 +33,7 @@ public class Program
     public static async Task Main(string[] args)
     {
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
-            .ConfigureServices((hostContext, services) =>
+            .ConfigureServices((_, services) =>
             {
                 services
                     .RegisterOptions<ZipArchiveWriterOptions>()
@@ -48,7 +48,7 @@ public class Program
                                 sp.GetService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.ExtractHost)
                             ),
                             WellKnownSchemas.ExtractHostSchema))
-                    .AddSingleton<IZipArchiveWriter<EditorContext>>(sp =>
+                    .AddSingleton<IZipArchiveWriter>(sp =>
                         new RoadNetworkExtractToZipArchiveWriter(
                             sp.GetService<ZipArchiveWriterOptions>(),
                             sp.GetService<IStreetNameCache>(),
@@ -60,7 +60,7 @@ public class Program
                         new RoadNetworkExtractArchiveAssembler(
                             sp.GetService<RecyclableMemoryStreamManager>(),
                             sp.GetService<Func<EditorContext>>(),
-                            sp.GetService<IZipArchiveWriter<EditorContext>>()))
+                            sp.GetService<IZipArchiveWriter>()))
                     .AddEditorContext()
                     .AddOrganizationCache()
                     .AddStreetNameCache()
@@ -110,7 +110,7 @@ public class Program
             .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddHostedServicesStatus()
             )
-            .ConfigureContainer((context, builder) =>
+            .ConfigureContainer((_, builder) =>
             {
                 builder
                     .RegisterModule<ContextModule>();
@@ -129,6 +129,6 @@ public class Program
                 var blobClientOptions = sp.GetService<BlobClientOptions>();
                 logger.LogBlobClientCredentials(blobClientOptions);
             })
-            .RunAsync(async (sp, host, configuration) => { await new SqlEventProcessorPositionStoreSchema(new SqlConnectionStringBuilder(configuration.GetRequiredConnectionString(WellKnownConnectionNames.ExtractHostAdmin))).CreateSchemaIfNotExists(WellKnownSchemas.ExtractHostSchema).ConfigureAwait(false); });
+            .RunAsync(async (_, _, configuration) => { await new SqlEventProcessorPositionStoreSchema(new SqlConnectionStringBuilder(configuration.GetRequiredConnectionString(WellKnownConnectionNames.ExtractHostAdmin))).CreateSchemaIfNotExists(WellKnownSchemas.ExtractHostSchema).ConfigureAwait(false); });
     }
 }

@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.FeatureCompare;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extracts;
 using Translators;
 using Uploads;
 

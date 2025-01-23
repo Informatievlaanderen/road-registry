@@ -1,21 +1,19 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 
+using System.IO.Compression;
+using System.Text;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Editor.Schema;
 using Editor.Schema.RoadNodes;
 using Editor.Schema.RoadSegments;
 using Extensions;
 using Extracts;
 using Extracts.Dbase.RoadNodes;
 using Extracts.Dbase.RoadSegments;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
-using System.IO.Compression;
-using System.Text;
 
-public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
+public class IntegrationToZipArchiveWriter : IZipArchiveWriter
 {
     private readonly Encoding _encoding;
     private readonly RecyclableMemoryStreamManager _manager;
@@ -36,24 +34,18 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
     }
 
-    public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
-        EditorContext context,
+    public async Task WriteAsync(
+        ZipArchive archive,
+        RoadNetworkExtractAssemblyRequest request,
+        IZipArchiveDataProvider zipArchiveDataProvider,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
 
-        var segmentsInContour = await context.RoadSegments
-            .ToListWithPolygonials(request.Contour,
-                (dbSet, polygon) => dbSet.InsideContour(polygon),
-                x => x.Id,
-                cancellationToken);
-        var nodesInContour = await context.RoadNodes
-            .ToListWithPolygonials(request.Contour,
-                (dbSet, polygon) => dbSet.InsideContour(polygon),
-                x => x.Id,
-                cancellationToken);
+        var segmentsInContour = await zipArchiveDataProvider.GetRoadSegments(request.Contour, cancellationToken);
+        var nodesInContour = await zipArchiveDataProvider.GetRoadNodes(request.Contour, cancellationToken);
 
         // segments integration
         var integrationBufferedSegmentsGeometries = segmentsInContour.Select(x => x.Geometry.Buffer(IntegrationBufferInMeters)).ToList();
@@ -63,23 +55,22 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 
         if (integrationBufferedSegmentsGeometries.Any())
         {
-            var integrationBufferedContourGeometry = WellKnownGeometryFactories.Default
+            var integrationBufferedContourGeometry =  (IPolygonal)WellKnownGeometryFactories.Default
                 .BuildGeometry(integrationBufferedSegmentsGeometries)
                 .ConvexHull();
 
-            var segmentsInIntegrationBuffer = await context.RoadSegments
-                .InsideContour((IPolygonal)integrationBufferedContourGeometry)
-                .ToListAsync(cancellationToken);
+            var segmentsInIntegrationBuffer = await zipArchiveDataProvider.GetRoadSegments(
+                integrationBufferedContourGeometry,
+                cancellationToken);
 
             integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentRecordEqualityComparerById()).ToList();
             integrationSegments = integrationSegments.Where(integrationSegment => { return integrationBufferedSegmentsGeometries.Any(segmentBufferedGeometry => segmentBufferedGeometry.Intersects(integrationSegment.Geometry)); })
                 .ToList();
 
             // nodes integration
-            var nodesInIntegrationBuffer = await context.RoadNodes
-                .InsideContour((IPolygonal)integrationBufferedContourGeometry)
-                .ToListAsync(cancellationToken);
-
+            var nodesInIntegrationBuffer = await zipArchiveDataProvider.GetRoadNodes(
+                integrationBufferedContourGeometry,
+                cancellationToken);
 
             var integrationNodeIds = integrationSegments.SelectMany(segment => new[] { segment.StartNodeId, segment.EndNodeId }).Distinct().ToList();
             integrationNodes = nodesInIntegrationBuffer.Where(integrationNode => integrationNodeIds.Contains(integrationNode.Id))
@@ -91,7 +82,9 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 
         async Task WriteRoadSegments()
         {
-            var dbfEntry = archive.CreateEntry("iWegsegment.dbf");
+            const ExtractFileName filename = ExtractFileName.Wegsegment;
+
+            var dbfEntry = archive.CreateEntry(filename.ToDbaseFileName(FeatureType.Integration));
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
@@ -144,7 +137,7 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                 BoundingBox3D.Empty,
                 (box, record) => box.ExpandWith(record.GetBoundingBox().ToBoundingBox3D()));
 
-            var shpEntry = archive.CreateEntry("iWegsegment.shp");
+            var shpEntry = archive.CreateEntry(filename.ToShapeFileName(FeatureType.Integration));
             var shpHeader = new ShapeFileHeader(
                 new WordLength(
                     integrationSegments.Aggregate(0, (length, record) => length + record.ShapeRecordContentLength)),
@@ -171,7 +164,7 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                 await shpEntryStream.FlushAsync(cancellationToken);
             }
 
-            var shxEntry = archive.CreateEntry("iWegsegment.shx");
+            var shxEntry = archive.CreateEntry(filename.ToShapeIndexFileName(FeatureType.Integration));
             var shxHeader = shpHeader.ForIndex(new ShapeRecordCount(integrationSegments.Count));
             await using (var shxEntryStream = shxEntry.Open())
             using (var shxWriter =
@@ -195,12 +188,15 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                 await shxEntryStream.FlushAsync(cancellationToken);
             }
 
-            await archive.CreateCpgEntry("iWegsegment.cpg", _encoding, cancellationToken);
+            await archive.CreateCpgEntry(filename.ToCpgFileName(FeatureType.Integration), _encoding, cancellationToken);
+            await archive.CreateProjectionEntry(filename.ToProjectionFileName(FeatureType.Integration), _encoding, cancellationToken);
         }
 
         async Task WriteRoadNodes()
         {
-            var dbfEntry = archive.CreateEntry("iWegknoop.dbf");
+            const ExtractFileName filename = ExtractFileName.Wegknoop;
+
+            var dbfEntry = archive.CreateEntry(filename.ToDbaseFileName(FeatureType.Integration));
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
@@ -229,7 +225,7 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                     BoundingBox3D.Empty,
                     (box, record) => box.ExpandWith(record.GetBoundingBox().ToBoundingBox3D()));
 
-            var shpEntry = archive.CreateEntry("iWegknoop.shp");
+            var shpEntry = archive.CreateEntry(filename.ToShapeFileName(FeatureType.Integration));
             var shpHeader = new ShapeFileHeader(
                 new WordLength(
                     integrationNodes.Aggregate(0, (length, record) => length + record.ShapeRecordContentLength)),
@@ -256,7 +252,7 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                 await shpEntryStream.FlushAsync(cancellationToken);
             }
 
-            var shxEntry = archive.CreateEntry("iWegknoop.shx");
+            var shxEntry = archive.CreateEntry(filename.ToShapeIndexFileName(FeatureType.Integration));
             var shxHeader = shpHeader.ForIndex(new ShapeRecordCount(integrationNodes.Count));
             await using (var shxEntryStream = shxEntry.Open())
             using (var shxWriter =
@@ -280,7 +276,8 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                 await shxEntryStream.FlushAsync(cancellationToken);
             }
 
-            await archive.CreateCpgEntry("iWegknoop.cpg", _encoding, cancellationToken);
+            await archive.CreateCpgEntry(filename.ToCpgFileName(FeatureType.Integration), _encoding, cancellationToken);
+            await archive.CreateProjectionEntry(filename.ToProjectionFileName(FeatureType.Integration), _encoding, cancellationToken);
         }
     }
 }

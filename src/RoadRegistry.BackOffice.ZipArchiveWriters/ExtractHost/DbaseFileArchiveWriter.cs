@@ -1,12 +1,11 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 
-using Be.Vlaanderen.Basisregisters.Shaperon;
-using Extracts;
-using Microsoft.EntityFrameworkCore;
 using System.IO.Compression;
 using System.Text;
+using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extracts;
 
-public class DbaseFileArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext : DbContext
+public class DbaseFileArchiveWriter : IZipArchiveWriter
 {
     private readonly Encoding _encoding;
     private readonly string _filename;
@@ -21,12 +20,15 @@ public class DbaseFileArchiveWriter<TContext> : IZipArchiveWriter<TContext> wher
         _encoding = encoding.ThrowIfNull();
     }
 
-    public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request, TContext context,
+    public async Task WriteAsync(
+        ZipArchive archive,
+        RoadNetworkExtractAssemblyRequest request,
+        IZipArchiveDataProvider zipArchiveDataProvider,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
 
         var dbfEntry = archive.CreateEntry(_filename);
         var dbfHeader = new DbaseFileHeader(

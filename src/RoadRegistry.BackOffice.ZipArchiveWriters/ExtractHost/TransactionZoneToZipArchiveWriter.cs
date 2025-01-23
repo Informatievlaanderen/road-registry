@@ -2,17 +2,16 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 
 using System.IO.Compression;
 using System.Text;
-using System.Threading;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Editor.Schema;
 using Extensions;
 using Extracts;
 using Extracts.Dbase;
+using FeatureCompare;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using DbaseFileHeader = Be.Vlaanderen.Basisregisters.Shaperon.DbaseFileHeader;
 
-public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter<EditorContext>
+public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter
 {
     private readonly Encoding _encoding;
     private const ExtractFileName FileName = ExtractFileName.Transactiezones;
@@ -22,16 +21,17 @@ public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter<EditorContext
         _encoding = encoding.ThrowIfNull();
     }
 
-    public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
-        EditorContext context,
+    public async Task WriteAsync(
+        ZipArchive archive,
+        RoadNetworkExtractAssemblyRequest request,
+        IZipArchiveDataProvider zipArchiveDataProvider,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(zipArchiveDataProvider);
 
-        await CreateDbaseEntry(archive, FileName, new[]
-        {
+        await CreateDbaseEntry(archive, FileName, [
             new TransactionZoneDbaseRecord
             {
                 SOURCEID = { Value = 1 },
@@ -45,7 +45,7 @@ public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter<EditorContext
                 APPLICATIE = { Value = "Wegenregister" },
                 DOWNLOADID = { Value = request.DownloadId.ToGuid().ToString("N") }
             }
-        }, cancellationToken);
+        ], cancellationToken);
 
         var features = new List<IFeature>
         {
@@ -54,6 +54,7 @@ public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter<EditorContext
 
         await archive.CreateShapeEntry(FileName, _encoding, features, WellKnownGeometryFactories.WithoutMAndZ, cancellationToken);
         await archive.CreateCpgEntry(FileName, _encoding, cancellationToken);
+        await archive.CreateProjectionEntry(FeatureType.Change.ToProjectionFileName(FileName), _encoding, cancellationToken);
     }
 
     private async Task CreateDbaseEntry(ZipArchive archive, ExtractFileName fileName, ICollection<TransactionZoneDbaseRecord> dbfRecords, CancellationToken cancellationToken)

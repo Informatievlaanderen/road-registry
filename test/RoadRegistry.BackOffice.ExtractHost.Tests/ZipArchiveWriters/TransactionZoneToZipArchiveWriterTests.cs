@@ -2,10 +2,8 @@ namespace RoadRegistry.BackOffice.ExtractHost.Tests.ZipArchiveWriters;
 
 using System.IO.Compression;
 using System.Text;
-using Abstractions.Extracts;
 using AutoFixture;
 using BackOffice.ZipArchiveWriters.ExtractHost;
-using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Extracts;
@@ -15,17 +13,15 @@ using Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO.Streams;
-using RoadRegistry.BackOffice.Handlers.Extracts;
-using RoadRegistry.BackOffice.ShapeFile;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
+using ShapeFile;
 using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public class TransactionZoneToZipArchiveWriterTests
 {
     private readonly Fixture _fixture;
-    private readonly IZipArchiveWriter<EditorContext> _sut;
+    private readonly IZipArchiveWriter _sut;
 
     public TransactionZoneToZipArchiveWriterTests()
     {
@@ -67,7 +63,7 @@ public class TransactionZoneToZipArchiveWriterTests
         var geometry = fixture.Create<RoadNetworkExtractGeometry>();
 
         fixture.Customize<RoadNetworkExtractAssemblyRequest>(customization =>
-            customization.FromFactory(composer => new RoadNetworkExtractAssemblyRequest(
+            customization.FromFactory(_ => new RoadNetworkExtractAssemblyRequest(
                 fixture.Create<ExternalExtractRequestId>(),
                 fixture.Create<DownloadId>(),
                 fixture.Create<ExtractDescription>(),
@@ -96,14 +92,14 @@ public class TransactionZoneToZipArchiveWriterTests
     {
         var archiveFileEntry = archive.GetEntry(fileName);
         Assert.NotNull(archiveFileEntry);
-        
+
         using (var entryStream = archiveFileEntry.Open())
         {
             var ms = new MemoryStream();
             entryStream.CopyTo(ms);
 
             ms.Position = 0;
-            
+
             var (_, geometry) = new ExtractGeometryShapeFileReader().Read(ms, WellKnownGeometryFactories.Default);
             return (Polygon)geometry;
         }
@@ -116,7 +112,7 @@ public class TransactionZoneToZipArchiveWriterTests
         var editorContext = CreateContextFor(nameof(WriteAsyncWritesExpectedDownloadId));
         var request = CreateRoadNetworkExtractAssemblyRequest(extractDescription, externalRequestId);
 
-        return new ZipArchiveScenarioWithWriter<EditorContext>(new RecyclableMemoryStreamManager(), _sut)
+        return new ZipArchiveScenarioWithWriter(new RecyclableMemoryStreamManager(), _sut)
             .WithContext(editorContext)
             .WithRequest(request)
             .Assert(readArchive =>
@@ -157,7 +153,7 @@ public class TransactionZoneToZipArchiveWriterTests
         var editorContext = CreateContextFor(nameof(WriteAsyncWritesExpectedDownloadId));
         var request = _fixture.Create<RoadNetworkExtractAssemblyRequest>();
 
-        return new ZipArchiveScenarioWithWriter<EditorContext>(new RecyclableMemoryStreamManager(), _sut)
+        return new ZipArchiveScenarioWithWriter(new RecyclableMemoryStreamManager(), _sut)
             .WithContext(editorContext)
             .WithRequest(request)
             .Assert(readArchive =>
@@ -186,7 +182,7 @@ public class TransactionZoneToZipArchiveWriterTests
 
         Assert.IsType<CoordinateZM>(contour.Coordinate);
 
-        return new ZipArchiveScenarioWithWriter<EditorContext>(new RecyclableMemoryStreamManager(), _sut)
+        return new ZipArchiveScenarioWithWriter(new RecyclableMemoryStreamManager(), _sut)
             .WithContext(editorContext)
             .WithRequest(request)
             .Assert(readArchive =>
