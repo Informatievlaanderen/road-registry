@@ -1,3 +1,10 @@
+# [4.21.0](https://github.com/informatievlaanderen/road-registry/compare/v4.20.4...v4.21.0) (2025-01-23)
+
+
+### Features
+
+* add change files to extract ([ffa20ae](https://github.com/informatievlaanderen/road-registry/commit/ffa20aef13eab00306ff1c4bd332bda38b2023a2))
+
 ## [4.20.4](https://github.com/informatievlaanderen/road-registry/compare/v4.20.3...v4.20.4) (2025-01-22)
 
 
