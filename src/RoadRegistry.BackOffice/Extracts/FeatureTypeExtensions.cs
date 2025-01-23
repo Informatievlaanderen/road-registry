@@ -4,35 +4,32 @@ public static class FeatureTypeExtensions
 {
     public static string ToDbaseFileName(this FeatureType featureType, ExtractFileName fileName)
     {
-        return $"{GetFileNamePrefix(featureType)}{fileName.ToDbaseFileName()}";
+        return $"{GetFileNamePrefix(featureType)}{fileName}.dbf";
     }
     public static string ToShapeFileName(this FeatureType featureType, ExtractFileName fileName)
     {
-        return $"{GetFileNamePrefix(featureType)}{fileName.ToShapeFileName()}";
+        return $"{GetFileNamePrefix(featureType)}{fileName}.shp";
     }
     public static string ToShapeIndexFileName(this FeatureType featureType, ExtractFileName fileName)
     {
-        return $"{GetFileNamePrefix(featureType)}{fileName.ToShapeIndexFileName()}";
+        return $"{GetFileNamePrefix(featureType)}{fileName}.shx";
     }
     public static string ToProjectionFileName(this FeatureType featureType, ExtractFileName fileName)
     {
-        return $"{GetFileNamePrefix(featureType)}{fileName.ToProjectionFileName()}";
+        return $"{GetFileNamePrefix(featureType)}{fileName}.prj";
     }
     public static string ToCpgFileName(this FeatureType featureType, ExtractFileName fileName)
     {
-        return $"{GetFileNamePrefix(featureType)}{fileName.ToCpgFileName()}";
+        return $"{GetFileNamePrefix(featureType)}{fileName}.cpg";
     }
 
     private static string GetFileNamePrefix(FeatureType featureType)
     {
-        switch (featureType)
+        return featureType switch
         {
-            case FeatureType.Extract:
-                return "e";
-            case FeatureType.Integration:
-                return "i";
-        }
-
-        return string.Empty;
+            FeatureType.Extract => "e",
+            FeatureType.Integration => "i",
+            _ => string.Empty
+        };
     }
 }
