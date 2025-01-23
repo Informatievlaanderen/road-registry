@@ -3,7 +3,6 @@ namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.WhenCreat
 using Abstractions.Fixtures;
 using BackOffice;
 using BackOffice.Abstractions.RoadNetworks;
-using BackOffice.Configuration;
 using BackOffice.Core;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
@@ -34,11 +33,6 @@ public class WhenCreateRoadNetworkSnapshotWithValidRequestFixture : WhenCreateRo
     {
         StreamVersion = 3
     };
-
-    protected override RoadNetworkSnapshotStrategyOptions BuildSnapshotStrategyOptions()
-    {
-        return new RoadNetworkSnapshotStrategyOptions { EventCount = 3 };
-    }
 
     protected override Mock<IRoadNetworkSnapshotReader> CreateSnapshotReaderMock(IRoadNetworkSnapshotReader snapshotReader)
     {

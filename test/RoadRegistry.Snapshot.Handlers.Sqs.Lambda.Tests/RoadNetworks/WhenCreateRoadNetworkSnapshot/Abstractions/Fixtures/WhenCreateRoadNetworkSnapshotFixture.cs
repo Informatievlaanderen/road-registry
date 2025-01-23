@@ -3,7 +3,6 @@ namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.WhenCreat
 using AutoFixture;
 using BackOffice;
 using BackOffice.Abstractions.RoadNetworks;
-using BackOffice.Configuration;
 using BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
@@ -21,7 +20,6 @@ using Sqs.RoadNetworks;
 public abstract class WhenCreateRoadNetworkSnapshotFixture : SqsLambdaHandlerFixture<CreateRoadNetworkSnapshotSqsLambdaRequestHandler, CreateRoadNetworkSnapshotSqsLambdaRequest, CreateRoadNetworkSnapshotSqsRequest>
 {
     protected readonly Mock<IRoadNetworkSnapshotReader> SnapshotReader;
-    protected readonly RoadNetworkSnapshotStrategyOptions SnapshotStrategyOptions;
     protected readonly Mock<IRoadNetworkSnapshotWriter> SnapshotWriter;
 
     protected WhenCreateRoadNetworkSnapshotFixture(
@@ -38,7 +36,6 @@ public abstract class WhenCreateRoadNetworkSnapshotFixture : SqsLambdaHandlerFix
         Organisation = ObjectProvider.Create<Organisation>();
         SnapshotReader = CreateSnapshotReaderMock(snapshotReader);
         SnapshotWriter = CreateSnapshotWriterMock(snapshotWriter);
-        SnapshotStrategyOptions = BuildSnapshotStrategyOptions();
     }
 
     protected Organisation Organisation { get; }
@@ -61,11 +58,9 @@ public abstract class WhenCreateRoadNetworkSnapshotFixture : SqsLambdaHandlerFix
         RoadRegistryContext,
         SnapshotReader.Object,
         SnapshotWriter.Object,
-        SnapshotStrategyOptions,
         LoggerFactory.CreateLogger<CreateRoadNetworkSnapshotSqsLambdaRequestHandler>()
     );
 
-    protected abstract RoadNetworkSnapshotStrategyOptions BuildSnapshotStrategyOptions();
     protected abstract Mock<IRoadNetworkSnapshotReader> CreateSnapshotReaderMock(IRoadNetworkSnapshotReader snapshotReader);
     protected abstract Mock<IRoadNetworkSnapshotWriter> CreateSnapshotWriterMock(IRoadNetworkSnapshotWriter snapshotWriter);
 }

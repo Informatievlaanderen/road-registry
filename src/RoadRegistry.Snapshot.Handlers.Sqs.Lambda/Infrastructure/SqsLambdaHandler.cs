@@ -16,10 +16,9 @@ public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambd
         SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
-        IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         ILogger logger)
-        : base(options, retryPolicy, ticketing, idempotentCommandHandler, roadRegistryContext, logger)
+        : base(options, retryPolicy, ticketing, null, roadRegistryContext, logger)
     {
     }
 

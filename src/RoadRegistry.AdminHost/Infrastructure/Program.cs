@@ -28,7 +28,7 @@ public class Program
     public static async Task Main(string[] args)
     {
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
-            .ConfigureServices((hostContext, services) => services
+            .ConfigureServices((_, services) => services
                 .AddTicketing()
                 .AddEmailClient()
                 .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
@@ -58,11 +58,10 @@ public class Program
                 .AddRoadNetworkCommandQueue()
                 .AddRoadNetworkEventWriter()
                 .AddRoadRegistrySnapshot()
-                .AddRoadNetworkSnapshotStrategyOptions()
                 .AddEditorContext()
                 .AddProductContext()
             )
-            .ConfigureContainer((hostContext, builder) =>
+            .ConfigureContainer((_, builder) =>
             {
                 builder.RegisterModule<MediatorModule>();
                 builder.RegisterModule<BackOffice.Handlers.MediatorModule>();
