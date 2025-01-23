@@ -59,7 +59,7 @@ public class OrganizationsToZipArchiveWriter : IZipArchiveWriter
 
                 dbfRecord.ORG.Value = organization.Code;
                 dbfRecord.LBLORG.Value = organization.Name;
-                dbfRecord.OVOCODE.Value = organization.OvoCode!;
+                dbfRecord.OVOCODE.Value = organization.OvoCode;
 
                 dbfWriter.Write(dbfRecord);
             }
