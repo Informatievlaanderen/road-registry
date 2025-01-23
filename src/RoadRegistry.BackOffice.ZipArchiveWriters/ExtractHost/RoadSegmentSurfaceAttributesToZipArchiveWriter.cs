@@ -38,7 +38,7 @@ public class RoadSegmentSurfaceAttributesToZipArchiveWriter : IZipArchiveWriter
 
         foreach (var featureType in featureTypes)
         {
-            var dbfEntry = archive.CreateEntry(featureType.ToDbaseFileName(extractFilename));
+            var dbfEntry = archive.CreateEntry(extractFilename.ToDbaseFileName(featureType));
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,

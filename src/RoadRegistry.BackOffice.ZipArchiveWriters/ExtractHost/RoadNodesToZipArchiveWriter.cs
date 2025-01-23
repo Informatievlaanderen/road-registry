@@ -3,14 +3,10 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Editor.Schema;
-using Editor.Schema.RoadNodes;
 using Extensions;
 using Extracts;
 using Extracts.Dbase.RoadNodes;
-using FeatureCompare;
 using Microsoft.IO;
-using NetTopologySuite.Geometries;
 
 public class RoadNodesToZipArchiveWriter : IZipArchiveWriter
 {
@@ -40,7 +36,7 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter
 
         foreach (var featureType in featureTypes)
         {
-            var dbfEntry = archive.CreateEntry(featureType.ToDbaseFileName(extractFilename));
+            var dbfEntry = archive.CreateEntry(extractFilename.ToDbaseFileName(featureType));
             var dbfHeader = new DbaseFileHeader(
                 DateTime.Now,
                 DbaseCodePage.Western_European_ANSI,
@@ -69,7 +65,7 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter
                     BoundingBox3D.Empty,
                     (box, record) => box.ExpandWith(record.GetBoundingBox().ToBoundingBox3D()));
 
-            var shpEntry = archive.CreateEntry(featureType.ToShapeFileName(extractFilename));
+            var shpEntry = archive.CreateEntry(extractFilename.ToShapeFileName(featureType));
             var shpHeader = new ShapeFileHeader(
                 new WordLength(
                     nodes.Aggregate(0, (length, record) => length + record.ShapeRecordContentLength)),
@@ -96,7 +92,7 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter
                 await shpEntryStream.FlushAsync(cancellationToken);
             }
 
-            var shxEntry = archive.CreateEntry(featureType.ToShapeIndexFileName(extractFilename));
+            var shxEntry = archive.CreateEntry(extractFilename.ToShapeIndexFileName(featureType));
             var shxHeader = shpHeader.ForIndex(new ShapeRecordCount(nodes.Count));
             await using (var shxEntryStream = shxEntry.Open())
             using (var shxWriter =
@@ -120,8 +116,8 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter
                 await shxEntryStream.FlushAsync(cancellationToken);
             }
 
-            await archive.CreateCpgEntry(featureType.ToCpgFileName(extractFilename), _encoding, cancellationToken);
-            await archive.CreateProjectionEntry(featureType.ToProjectionFileName(extractFilename), _encoding, cancellationToken);
+            await archive.CreateCpgEntry(extractFilename.ToCpgFileName(featureType), _encoding, cancellationToken);
+            await archive.CreateProjectionEntry(extractFilename.ToProjectionFileName(featureType), _encoding, cancellationToken);
         }
     }
 }
