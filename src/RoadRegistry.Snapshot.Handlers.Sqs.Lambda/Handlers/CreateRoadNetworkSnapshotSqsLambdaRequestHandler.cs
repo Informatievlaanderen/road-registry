@@ -47,7 +47,6 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
                 return new CreateRoadNetworkSnapshotResponse(null);
             }
 
-            // todo-rik add test
             var (roadnetwork, roadnetworkVersion) = await RoadRegistryContext.RoadNetworks.GetWithVersion(
                 true,
                 cancelMessageProcessing: (_, _) => _stopwatch.Elapsed.Minutes >= 10,

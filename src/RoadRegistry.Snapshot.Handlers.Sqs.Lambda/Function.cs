@@ -9,21 +9,19 @@ using BackOffice;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
 using Hosts;
 using Microsoft.Extensions.Hosting;
-using DomainAssemblyMarker = DomainAssemblyMarker;
 
 public class Function : RoadRegistryLambdaFunction<MessageHandler>
 {
     protected override string ApplicationName => "RoadRegistry.Snapshot.Handlers.Sqs.Lambda";
 
-    public Function() : base(new[] { typeof(DomainAssemblyMarker).Assembly })
+    public Function() : base([typeof(SnapshotHandlersSqsAssemblyMarker).Assembly])
     {
     }
 
     protected override void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
     {
         builder
-            .RegisterModule(new EventHandlingModule(typeof(DomainAssemblyMarker).Assembly, EventSerializerSettings))
-            .RegisterModule<ContextModule>()
-            ;
+            .RegisterModule(new EventHandlingModule(typeof(SnapshotHandlersSqsAssemblyMarker).Assembly, EventSerializerSettings))
+            .RegisterModule<ContextModule>();
     }
 }

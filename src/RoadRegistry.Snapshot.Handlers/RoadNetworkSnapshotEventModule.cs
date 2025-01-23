@@ -42,7 +42,6 @@ public class RoadNetworkSnapshotEventModule : EventHandlerModule
 
                 if (message.StreamId != RoadNetworkStreamNameProvider.Default)
                 {
-                    // todo-rik add test
                     return;
                 }
 
