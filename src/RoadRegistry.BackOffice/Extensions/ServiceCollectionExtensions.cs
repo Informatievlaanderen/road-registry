@@ -1,8 +1,11 @@
 namespace RoadRegistry.BackOffice.Extensions;
 
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
 using Amazon.SimpleEmailV2;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
-using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Configuration;
 using Core;
 using FeatureCompare;
@@ -11,16 +14,11 @@ using FeatureCompare.Translators;
 using FeatureCompare.Validation;
 using FeatureToggle;
 using Framework;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NodaTime;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
 using Uploads;
 
 public static class ServiceCollectionExtensions
@@ -111,7 +109,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddEventEnricher(this IServiceCollection services)
     {
         return services
-            .AddSingleton<EventEnricher>(sp => EnrichEvent.WithTime(sp.GetRequiredService<IClock>()));
+            .AddSingleton(sp => EnrichEvent.WithTime(sp.GetRequiredService<IClock>()));
     }
 
     public static IServiceCollection AddRoadNetworkEventWriter(this IServiceCollection services)
@@ -174,18 +172,6 @@ public static class ServiceCollectionExtensions
         }
 
         return services.AddSingleton(sp => sp.GetRequiredService<IConfiguration>().GetOptions<TOptions>(configurationSectionKey));
-    }
-
-    public static IServiceCollection AddRoadNetworkSnapshotStrategyOptions(this IServiceCollection services)
-    {
-        return services
-            .RegisterOptions<RoadNetworkSnapshotStrategyOptions>(options =>
-            {
-                if (options.EventCount <= 0)
-                {
-                    throw new ConfigurationErrorsException($"{nameof(options.EventCount)} must be greater than zero");
-                }
-            });
     }
 
     public static IServiceCollection AddFeatureCompare(this IServiceCollection services)

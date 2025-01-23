@@ -25,7 +25,7 @@ public sealed class SnapshotLambdaHealthCheckSqsLambdaRequestHandler : SqsLambda
         IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter,
         ILogger<SnapshotLambdaHealthCheckSqsLambdaRequestHandler> logger)
-        : base(options, retryPolicy, ticketing, null, context, logger)
+        : base(options, retryPolicy, ticketing, context, logger)
     {
         _snapshotReader = snapshotReader;
         _snapshotWriter = snapshotWriter;

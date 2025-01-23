@@ -3,7 +3,6 @@ namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Handlers;
 using System.Diagnostics;
 using BackOffice;
 using BackOffice.Abstractions.RoadNetworks;
-using BackOffice.Configuration;
 using BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Hosts;
@@ -16,7 +15,6 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
 {
     private readonly IRoadNetworkSnapshotReader _snapshotReader;
     private readonly IRoadNetworkSnapshotWriter _snapshotWriter;
-    private readonly RoadNetworkSnapshotStrategyOptions _snapshotStrategyOptions;
     private readonly Stopwatch _stopwatch;
 
     public CreateRoadNetworkSnapshotSqsLambdaRequestHandler(
@@ -26,14 +24,12 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
         IRoadRegistryContext context,
         IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter,
-        RoadNetworkSnapshotStrategyOptions snapshotStrategyOptions,
-        ILogger<CreateRoadNetworkSnapshotSqsLambdaRequestHandler> logger)
-        : base(options, retryPolicy, ticketing, null, context, logger)
+        ILoggerFactory loggerFactory)
+        : base(options, retryPolicy, ticketing, context, loggerFactory.CreateLogger<CreateRoadNetworkSnapshotSqsLambdaRequestHandler>())
     {
         _stopwatch = new Stopwatch();
         _snapshotReader = snapshotReader;
         _snapshotWriter = snapshotWriter;
-        _snapshotStrategyOptions = snapshotStrategyOptions;
     }
 
     protected override async Task<object> InnerHandle(CreateRoadNetworkSnapshotSqsLambdaRequest request, CancellationToken cancellationToken)
@@ -42,38 +38,26 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
 
         try
         {
-            var streamVersion = request.Request.StreamVersion;
-            var streamMaxVersion = _snapshotStrategyOptions.GetLastAllowedStreamVersionToTakeSnapshot(streamVersion);
+            var requestStreamVersion = request.Request.StreamVersion;
+            var snapshotStreamVersion = await _snapshotReader.ReadSnapshotVersionAsync(cancellationToken);
 
-            // Check if snapshot should be taken
-            if (streamVersion.Equals(streamMaxVersion))
+            if (snapshotStreamVersion >= requestStreamVersion)
             {
-                var snapshotVersion = await _snapshotReader.ReadSnapshotVersionAsync(cancellationToken);
-
-                // Check if current snapshot is already further that stream version
-                if (streamMaxVersion > 0 && snapshotVersion >= streamMaxVersion)
-                {
-                    Logger.LogWarning("Create snapshot skipped for new message received from SQS with snapshot version {SnapshotVersion} and stream version {StreamVersion}", snapshotVersion, streamVersion);
-                }
-                else
-                {
-                    var (roadnetwork, roadnetworkVersion) = await RoadRegistryContext.RoadNetworks.GetWithVersion(true,
-                        (messageStreamVersion, _) => streamMaxVersion > 0 && messageStreamVersion > streamMaxVersion, cancellationToken);
-                    var snapshot = roadnetwork.TakeSnapshot();
-
-                    Logger.LogInformation("Create snapshot started for new message received from SQS with snapshot version {SnapshotVersion}", roadnetworkVersion);
-                    await _snapshotWriter.WriteSnapshot(snapshot, roadnetworkVersion, cancellationToken);
-                    Logger.LogInformation("Create snapshot completed for version {SnapshotVersion} in {TotalElapsedTimespan}", roadnetworkVersion, _stopwatch.Elapsed);
-
-                    return new CreateRoadNetworkSnapshotResponse(roadnetworkVersion);
-                }
-            }
-            else
-            {
-                Logger.LogInformation("Snapshot strategy determined that the strategy limit had not been reached");
+                Logger.LogWarning("Create snapshot skipped for new message received from SQS with snapshot version {SnapshotVersion} and stream version {StreamVersion}", snapshotStreamVersion, requestStreamVersion);
+                return new CreateRoadNetworkSnapshotResponse(null);
             }
 
-            return new CreateRoadNetworkSnapshotResponse(null);
+            var (roadnetwork, roadnetworkVersion) = await RoadRegistryContext.RoadNetworks.GetWithVersion(
+                true,
+                cancelMessageProcessing: (_, _) => _stopwatch.Elapsed.Minutes >= 10,
+                cancellationToken);
+            var snapshot = roadnetwork.TakeSnapshot();
+
+            Logger.LogInformation("Create snapshot started for new message received from SQS with snapshot version {SnapshotVersion}", roadnetworkVersion);
+            await _snapshotWriter.WriteSnapshot(snapshot, roadnetworkVersion, cancellationToken);
+            Logger.LogInformation("Create snapshot completed for version {SnapshotVersion} in {TotalElapsedTimespan}", roadnetworkVersion, _stopwatch.Elapsed);
+
+            return new CreateRoadNetworkSnapshotResponse(roadnetworkVersion);
         }
         catch (Exception ex)
         {

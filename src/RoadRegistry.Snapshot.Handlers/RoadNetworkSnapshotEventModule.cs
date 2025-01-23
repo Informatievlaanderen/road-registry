@@ -36,9 +36,14 @@ public class RoadNetworkSnapshotEventModule : EventHandlerModule
 
         For<RoadNetworkChangesAccepted>()
             .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
-            .Handle(async (context, message, ct) =>
+            .Handle(async (_, message, ct) =>
             {
                 logger.LogInformation("Event handler started for {EventName}", nameof(RoadNetworkChangesAccepted));
+
+                if (message.StreamId != RoadNetworkStreamNameProvider.Default)
+                {
+                    return;
+                }
 
                 await mediator.Send(new CreateRoadNetworkSnapshotSqsRequest
                 {

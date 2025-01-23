@@ -64,26 +64,17 @@ public class RoadNetworks : IRoadNetworks
             Version = version;
         }
     }
-    
+
     public async Task<RoadNetwork> Get(CancellationToken cancellationToken)
     {
-        var (roadNetwork, _) = await GetWithVersion(cancellationToken);
+        var (roadNetwork, _) = await GetWithVersion(true, null, cancellationToken);
         return roadNetwork;
     }
+
     public async Task<RoadNetwork> Get(StreamName streamName, CancellationToken cancellationToken)
     {
         var (roadNetwork, _) = await GetWithVersion(streamName, true, null, cancellationToken);
         return roadNetwork;
-    }
-    public async Task<RoadNetwork> Get(bool restoreSnapshot, ProcessMessageHandler cancelMessageProcessing, CancellationToken cancellationToken)
-    {
-        var (roadNetwork, _) = await GetWithVersion(restoreSnapshot, cancelMessageProcessing, cancellationToken);
-        return roadNetwork;
-    }
-
-    public Task<(RoadNetwork, int)> GetWithVersion(CancellationToken cancellationToken)
-    {
-        return GetWithVersion(true, null, cancellationToken);
     }
 
     public Task<(RoadNetwork, int)> GetWithVersion(bool restoreSnapshot, ProcessMessageHandler cancelMessageProcessing, CancellationToken cancellationToken)
@@ -124,7 +115,7 @@ public class RoadNetworks : IRoadNetworks
         var roadNetwork = RoadNetwork.Factory(view.ToImmutable());
         _map.Attach(new EventSourcedEntityMapEntry(roadNetwork, streamName, ExpectedVersion.Any));
 
-        return (roadNetwork, snapshotContext.Version.Value);
+        return (roadNetwork, snapshotContext.Version!.Value);
     }
 
     private (RoadNetwork, int) EmptyRoadNetwork(StreamName streamName)
@@ -137,7 +128,7 @@ public class RoadNetworks : IRoadNetworks
     private async Task<IRoadNetworkView> ProcessPages(StreamName streamName, IRoadNetworkView view, ProcessSnapshotContext snapshotContext, ReadStreamPage page, ProcessMessageHandler cancelMessageProcessing, CancellationToken cancellationToken)
     {
         view = await ProcessPage(view, snapshotContext, page, cancelMessageProcessing, cancellationToken);
-        
+
         var sw = Stopwatch.StartNew();
         while (!page.IsEnd && !snapshotContext.ProcessingCancelled)
         {
@@ -160,7 +151,7 @@ public class RoadNetworks : IRoadNetworks
     private async Task<IRoadNetworkView> ProcessPage(IRoadNetworkView view, ProcessSnapshotContext snapshotContext, ReadStreamPage page, ProcessMessageHandler cancelMessageProcessing, CancellationToken cancellationToken)
     {
         var messages = new List<object>(page.Messages.Length);
-        
+
         foreach (var message in page.Messages)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -204,12 +195,12 @@ public class RoadNetworks : IRoadNetworks
         var sw = Stopwatch.StartNew();
 
         int version;
-        
+
         if (restoreSnapshot && streamName.SupportsSnapshot)
         {
             _logger.LogInformation("Read started for RoadNetwork snapshot");
             var (snapshot, snapshotVersion) = await _snapshotReader.ReadSnapshotAsync(cancellationToken);
-            
+
             _logger.LogInformation("Read finished for RoadNetwork snapshot version {SnapshotVersion} in {StopwatchElapsedMilliseconds}ms", snapshotVersion, sw.ElapsedMilliseconds);
 
             if (snapshot != null && snapshotVersion != ExpectedVersion.NoStream)
