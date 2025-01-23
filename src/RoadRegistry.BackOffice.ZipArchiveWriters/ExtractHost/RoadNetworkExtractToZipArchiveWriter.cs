@@ -26,21 +26,19 @@ public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter
         ArgumentNullException.ThrowIfNull(logger);
 
         _writer = new CompositeZipArchiveWriter(logger,
-            new ReadCommittedZipArchiveWriter(
-                new CompositeZipArchiveWriter(logger,
-                    new TransactionZoneToZipArchiveWriter(encoding),
-                    new OrganizationsToZipArchiveWriter(manager, encoding),
-                    new RoadNodesToZipArchiveWriter(manager, encoding),
-                    new RoadSegmentsToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, manager, encoding),
-                    new RoadSegmentLaneAttributesToZipArchiveWriter(manager, encoding),
-                    new RoadSegmentWidthAttributesToZipArchiveWriter(manager, encoding),
-                    new RoadSegmentSurfaceAttributesToZipArchiveWriter(manager, encoding),
-                    new RoadSegmentNationalRoadAttributesToZipArchiveWriter(manager, encoding),
-                    new RoadSegmentEuropeanRoadAttributesToZipArchiveWriter(manager, encoding),
-                    new RoadSegmentNumberedRoadAttributesToZipArchiveWriter(manager, encoding),
-                    new GradeSeparatedJunctionArchiveWriter(manager, encoding),
-                    new IntegrationToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, manager, encoding)
-                )
+            new CompositeZipArchiveWriter(logger,
+                new TransactionZoneToZipArchiveWriter(encoding),
+                new OrganizationsToZipArchiveWriter(manager, encoding),
+                new RoadNodesToZipArchiveWriter(manager, encoding),
+                new RoadSegmentsToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, manager, encoding),
+                new RoadSegmentLaneAttributesToZipArchiveWriter(manager, encoding),
+                new RoadSegmentWidthAttributesToZipArchiveWriter(manager, encoding),
+                new RoadSegmentSurfaceAttributesToZipArchiveWriter(manager, encoding),
+                new RoadSegmentNationalRoadAttributesToZipArchiveWriter(manager, encoding),
+                new RoadSegmentEuropeanRoadAttributesToZipArchiveWriter(manager, encoding),
+                new RoadSegmentNumberedRoadAttributesToZipArchiveWriter(manager, encoding),
+                new GradeSeparatedJunctionArchiveWriter(manager, encoding),
+                new IntegrationToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, manager, encoding)
             ),
             new DbaseFileArchiveWriter("eWegknoopLktType.dbf", RoadNodeTypeDbaseRecord.Schema, Lists.AllRoadNodeTypeDbaseRecords, encoding),
             new DbaseFileArchiveWriter("eWegverhardLktType.dbf", SurfaceTypeDbaseRecord.Schema, Lists.AllSurfaceTypeDbaseRecords, encoding),

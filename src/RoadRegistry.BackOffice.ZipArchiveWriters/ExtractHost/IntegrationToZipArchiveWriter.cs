@@ -12,6 +12,7 @@ using Extracts.Dbase.RoadNodes;
 using Extracts.Dbase.RoadSegments;
 using FeatureCompare;
 using Microsoft.IO;
+using NetTopologySuite.Geometries;
 
 public class IntegrationToZipArchiveWriter : IZipArchiveWriter
 {
@@ -55,8 +56,12 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter
 
         if (integrationBufferedSegmentsGeometries.Any())
         {
-            var segmentsInIntegrationBuffer = await zipArchiveDataProvider.GetRoadSegmentsInIntegrationBuffer(
-                integrationBufferedSegmentsGeometries,
+            var integrationBufferedContourGeometry =  (IPolygonal)WellKnownGeometryFactories.Default
+                .BuildGeometry(integrationBufferedSegmentsGeometries)
+                .ConvexHull();
+
+            var segmentsInIntegrationBuffer = await zipArchiveDataProvider.GetRoadSegments(
+                integrationBufferedContourGeometry,
                 cancellationToken);
 
             integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentRecordEqualityComparerById()).ToList();
@@ -64,9 +69,9 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter
                 .ToList();
 
             // nodes integration
-            var nodesInIntegrationBuffer = await zipArchiveDataProvider.GetRoadNodesInIntegrationBuffer(
-                    integrationBufferedSegmentsGeometries,
-                    cancellationToken);
+            var nodesInIntegrationBuffer = await zipArchiveDataProvider.GetRoadNodes(
+                integrationBufferedContourGeometry,
+                cancellationToken);
 
             var integrationNodeIds = integrationSegments.SelectMany(segment => new[] { segment.StartNodeId, segment.EndNodeId }).Distinct().ToList();
             integrationNodes = nodesInIntegrationBuffer.Where(integrationNode => integrationNodeIds.Contains(integrationNode.Id))

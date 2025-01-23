@@ -14,24 +14,12 @@
 
     public interface IZipArchiveDataProvider
     {
-        Task<IDbContextTransaction> BeginTransaction(
-            IsolationLevel isolationLevel,
-            CancellationToken cancellationToken);
-
         Task<IReadOnlyList<RoadNodeRecord>> GetRoadNodes(
             IPolygonal contour,
             CancellationToken cancellationToken);
 
-        Task<IReadOnlyList<RoadNodeRecord>> GetRoadNodesInIntegrationBuffer(
-            IEnumerable<Geometry> integrationBufferedSegmentsGeometries,
-            CancellationToken cancellationToken);
-
         Task<IReadOnlyList<RoadSegmentRecord>> GetRoadSegments(
             IPolygonal contour,
-            CancellationToken cancellationToken);
-
-        Task<IReadOnlyList<RoadSegmentRecord>> GetRoadSegmentsInIntegrationBuffer(
-            IEnumerable<Geometry> integrationBufferedSegmentsGeometries,
             CancellationToken cancellationToken);
 
         Task<IReadOnlyList<GradeSeparatedJunctionRecord>> GetGradeSeparatedJunctions(
@@ -70,7 +58,6 @@
     {
         private readonly EditorContext _editorContext;
 
-        // todo-Rik do we want inject the editor context or editor context factory?
         public ZipArchiveDataProvider(EditorContext editorContext)
         {
             _editorContext = editorContext;
@@ -92,20 +79,6 @@
                     cancellationToken);
         }
 
-        public async Task<IReadOnlyList<RoadNodeRecord>> GetRoadNodesInIntegrationBuffer(
-            IEnumerable<Geometry> integrationBufferedSegmentsGeometries,
-            CancellationToken cancellationToken)
-        {
-            // todo-rik perform below in calling method?
-            var integrationBufferedContourGeometry = WellKnownGeometryFactories.Default
-                .BuildGeometry(integrationBufferedSegmentsGeometries)
-                .ConvexHull();
-
-            return await _editorContext.RoadNodes
-                .InsideContour((IPolygonal)integrationBufferedContourGeometry)
-                .ToListAsync(cancellationToken);
-        }
-
         public async Task<IReadOnlyList<RoadSegmentRecord>> GetRoadSegments(
             IPolygonal contour,
             CancellationToken cancellationToken)
@@ -115,19 +88,6 @@
                     (dbSet, polygon) => dbSet.InsideContour(polygon),
                     x => x.Id,
                     cancellationToken);
-        }
-
-        public async Task<IReadOnlyList<RoadSegmentRecord>> GetRoadSegmentsInIntegrationBuffer(
-            IEnumerable<Geometry> integrationBufferedSegmentsGeometries,
-            CancellationToken cancellationToken)
-        {
-            var integrationBufferedContourGeometry = WellKnownGeometryFactories.Default
-                .BuildGeometry(integrationBufferedSegmentsGeometries)
-                .ConvexHull();
-
-            return await _editorContext.RoadSegments
-                .InsideContour((IPolygonal)integrationBufferedContourGeometry)
-                .ToListAsync(cancellationToken);
         }
 
         public async Task<IReadOnlyList<GradeSeparatedJunctionRecord>> GetGradeSeparatedJunctions(
