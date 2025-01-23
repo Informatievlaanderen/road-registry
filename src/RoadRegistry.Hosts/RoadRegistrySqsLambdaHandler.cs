@@ -81,7 +81,6 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
             }
         }
 
-
         return ticketError;
     }
 }

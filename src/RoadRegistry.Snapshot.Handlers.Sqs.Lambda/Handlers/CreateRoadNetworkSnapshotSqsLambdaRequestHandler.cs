@@ -24,8 +24,8 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
         IRoadRegistryContext context,
         IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter,
-        ILogger<CreateRoadNetworkSnapshotSqsLambdaRequestHandler> logger)
-        : base(options, retryPolicy, ticketing, context, logger)
+        ILoggerFactory loggerFactory)
+        : base(options, retryPolicy, ticketing, context, loggerFactory.CreateLogger<CreateRoadNetworkSnapshotSqsLambdaRequestHandler>())
     {
         _stopwatch = new Stopwatch();
         _snapshotReader = snapshotReader;
@@ -44,24 +44,21 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
             if (snapshotStreamVersion >= requestStreamVersion)
             {
                 Logger.LogWarning("Create snapshot skipped for new message received from SQS with snapshot version {SnapshotVersion} and stream version {StreamVersion}", snapshotStreamVersion, requestStreamVersion);
-            }
-            else
-            {
-                // todo-rik add test
-                var (roadnetwork, roadnetworkVersion) = await RoadRegistryContext.RoadNetworks.GetWithVersion(
-                    true,
-                    cancelMessageProcessing: (_, _) => _stopwatch.Elapsed.Minutes >= 10,
-                    cancellationToken);
-                var snapshot = roadnetwork.TakeSnapshot();
-
-                Logger.LogInformation("Create snapshot started for new message received from SQS with snapshot version {SnapshotVersion}", roadnetworkVersion);
-                await _snapshotWriter.WriteSnapshot(snapshot, roadnetworkVersion, cancellationToken);
-                Logger.LogInformation("Create snapshot completed for version {SnapshotVersion} in {TotalElapsedTimespan}", roadnetworkVersion, _stopwatch.Elapsed);
-
-                return new CreateRoadNetworkSnapshotResponse(roadnetworkVersion);
+                return new CreateRoadNetworkSnapshotResponse(null);
             }
 
-            return new CreateRoadNetworkSnapshotResponse(null);
+            // todo-rik add test
+            var (roadnetwork, roadnetworkVersion) = await RoadRegistryContext.RoadNetworks.GetWithVersion(
+                true,
+                cancelMessageProcessing: (_, _) => _stopwatch.Elapsed.Minutes >= 10,
+                cancellationToken);
+            var snapshot = roadnetwork.TakeSnapshot();
+
+            Logger.LogInformation("Create snapshot started for new message received from SQS with snapshot version {SnapshotVersion}", roadnetworkVersion);
+            await _snapshotWriter.WriteSnapshot(snapshot, roadnetworkVersion, cancellationToken);
+            Logger.LogInformation("Create snapshot completed for version {SnapshotVersion} in {TotalElapsedTimespan}", roadnetworkVersion, _stopwatch.Elapsed);
+
+            return new CreateRoadNetworkSnapshotResponse(roadnetworkVersion);
         }
         catch (Exception ex)
         {
