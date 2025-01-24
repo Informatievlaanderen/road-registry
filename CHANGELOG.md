@@ -1,3 +1,10 @@
+## [4.21.2](https://github.com/informatievlaanderen/road-registry/compare/v4.21.1...v4.21.2) (2025-01-24)
+
+
+### Bug Fixes
+
+* only add change files when extract request is not informative ([e8cc75e](https://github.com/informatievlaanderen/road-registry/commit/e8cc75ea0bc6e814323133876c6c96b5efccf5ab))
+
 ## [4.21.1](https://github.com/informatievlaanderen/road-registry/compare/v4.21.0...v4.21.1) (2025-01-23)
 
 # [4.21.0](https://github.com/informatievlaanderen/road-registry/compare/v4.20.4...v4.21.0) (2025-01-23)
