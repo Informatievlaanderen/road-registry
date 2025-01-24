@@ -1004,6 +1004,105 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
 
+    [Fact]
+    public async Task GivenTwoIdenticalRoadSegments_WhenFirstRoadSegmentIsRemovedAndSecondRoadSegmentIsModified_ThenSecondIdIsUsed()
+    {
+        var zipArchive = new ExtractsZipArchiveBuilder()
+            .WithExtract((builder, _) =>
+            {
+                // ensure geometries of roadsegment 1 and 2 are equal
+                var geometry = builder.TestData.RoadSegment2ShapeRecord.Geometry;
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = geometry;
+                builder.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = geometry.Length;
+                builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = geometry.Length;
+                builder.TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value = geometry.Length;
+            })
+            .WithChange((builder, context) =>
+            {
+                var roadSegment1Id = builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
+                builder.DataSet.RemoveRoadSegment(roadSegment1Id);
+
+                // change roadsegment 2
+                builder.TestData.RoadSegment2DbaseRecord.CATEGORIE.Value = context.Fixture.CreateWhichIsDifferentThan(
+                    RoadSegmentCategory.ByIdentifier[builder.TestData.RoadSegment1DbaseRecord.CATEGORIE.Value],
+                    RoadSegmentCategory.ByIdentifier[builder.TestData.RoadSegment2DbaseRecord.CATEGORIE.Value]
+                ).Translation.Identifier;
+            })
+            .Build();
+
+        var (translatedChanges, problems) = await TranslateSucceeds(zipArchive);
+        problems.HasError().Should().BeFalse();
+        var modifyRoadSegment2 = (ModifyRoadSegment)translatedChanges.First();
+        modifyRoadSegment2.OriginalId.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GivenTwoIdenticalRoadSegments_WhenFirstRoadSegmentIsRemovedAndSecondRoadSegmentGeometryIsSlightlyChanged_ThenSecondIdIsUsed()
+    {
+        var zipArchive = new ExtractsZipArchiveBuilder()
+            .WithExtract((builder, _) =>
+            {
+                // ensure geometries of roadsegment 1 and 2 are equal
+                var geometry = builder.TestData.RoadSegment2ShapeRecord.Geometry;
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = geometry;
+                builder.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = geometry.Length;
+                builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = geometry.Length;
+                builder.TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value = geometry.Length;
+            })
+            .WithChange((builder, context) =>
+            {
+                var roadSegment1Id = builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
+                builder.DataSet.RemoveRoadSegment(roadSegment1Id);
+
+                var lineString = builder.TestData.RoadSegment2ShapeRecord.Geometry.GetSingleLineString();
+                lineString = new LineString(new[]
+                {
+                    lineString.Coordinates[0],
+                    new CoordinateM(lineString.Coordinates[1].X + 1, lineString.Coordinates[1].Y, lineString.Coordinates[1].M + 1)
+                });
+                builder.TestData.RoadSegment2ShapeRecord.Geometry = lineString.ToMultiLineString();
+                builder.TestData.RoadSegment2LaneDbaseRecord.TOTPOS.Value = lineString.Length;
+                builder.TestData.RoadSegment2SurfaceDbaseRecord.TOTPOS.Value = lineString.Length;
+                builder.TestData.RoadSegment2WidthDbaseRecord.TOTPOS.Value = lineString.Length;
+            })
+            .Build();
+
+        var (translatedChanges, problems) = await TranslateSucceeds(zipArchive);
+        problems.HasError().Should().BeFalse();
+        var modifyRoadSegment2 = (ModifyRoadSegment)translatedChanges.First();
+        modifyRoadSegment2.OriginalId.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GivenTwoIdenticalRoadSegments_WhenFirstRoadSegmentIsRemovedAndSecondRoadSegmentIsUnchanged_ThenSecondIdIsUsed()
+    {
+        var zipArchive = new ExtractsZipArchiveBuilder()
+            .WithExtract((builder, _) =>
+            {
+                // ensure geometries of roadsegment 1 and 2 are equal
+                var geometry = builder.TestData.RoadSegment2ShapeRecord.Geometry;
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = geometry;
+                builder.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = geometry.Length;
+                builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = geometry.Length;
+                builder.TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value = geometry.Length;
+            })
+            .WithChange((builder, context) =>
+            {
+                var roadSegment1Id = builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
+                builder.DataSet.RemoveRoadSegment(roadSegment1Id);
+
+                builder.TestData.RoadSegment2LaneDbaseRecord.AANTAL.Value = context.Fixture.CreateWhichIsDifferentThan(
+                    new RoadSegmentLaneCount(builder.TestData.RoadSegment2LaneDbaseRecord.AANTAL.Value)
+                );
+            })
+            .Build();
+
+        var (translatedChanges, problems) = await TranslateSucceeds(zipArchive);
+        problems.HasError().Should().BeFalse();
+        var modifyRoadSegment2 = (ModifyRoadSegment)translatedChanges.ToList()[1];
+        modifyRoadSegment2.OriginalId.Should().BeNull();
+    }
+
     private static void FillStreetNameCache(ExtractsZipArchiveExtractDataSetBuilder builder, FakeStreetNameCache streetNameCache)
     {
         var streetNameIds = builder.DataSet.RoadSegmentDbaseRecords
