@@ -63,7 +63,7 @@
         }
 
         [Fact]
-        public async Task Test()
+        public async Task InformativeExtractRequest_ThenOnlyContainsExtractAndIntegrationFiles()
         {
             var fixture = new RoadNetworkTestData().ObjectProvider;
             fixture.CustomizeNtsPolygon();
@@ -78,7 +78,91 @@
             var stream = _memoryStreamManager.GetStream();
 
             using var archive = new ZipArchive(stream, ZipArchiveMode.Update, true, Encoding.UTF8);
-            var request = fixture.Create<RoadNetworkExtractAssemblyRequest>();
+            var request = new RoadNetworkExtractAssemblyRequest(
+                    fixture.Create<ExternalExtractRequestId>(),
+                    fixture.Create<DownloadId>(),
+                    fixture.Create<ExtractDescription>(),
+                    fixture.Create<IPolygonal>(),
+                    isInformative: true);
+            await zipArchiveWriter.WriteAsync(archive, request, _zipArchiveDataProvider.Object, CancellationToken.None);
+
+           var fileNames =  archive.Entries.Select(x => x.FullName).ToList();
+
+           var expectedFileNames = new[] {
+               "Transactiezones.dbf",
+               "Transactiezones.shp",
+               "Transactiezones.shx",
+               "Transactiezones.cpg",
+               "Transactiezones.prj",
+               "eLstOrg.dbf",
+               "eWegknoop.dbf",
+               "eWegknoop.shp",
+               "eWegknoop.shx",
+               "eWegknoop.cpg",
+               "eWegknoop.prj",
+               "eWegsegment.dbf",
+               "eWegsegment.shp",
+               "eWegsegment.shx",
+               "eWegsegment.cpg",
+               "eWegsegment.prj",
+               "eAttRijstroken.dbf",
+               "eAttWegbreedte.dbf",
+               "eAttWegverharding.dbf",
+               "eAttNationweg.dbf",
+               "eAttEuropweg.dbf",
+               "eAttGenumweg.dbf",
+               "eRltOgkruising.dbf",
+               "iWegsegment.dbf",
+               "iWegsegment.shp",
+               "iWegsegment.shx",
+               "iWegsegment.cpg",
+               "iWegsegment.prj",
+               "iWegknoop.dbf",
+               "iWegknoop.shp",
+               "iWegknoop.shx",
+               "iWegknoop.cpg",
+               "iWegknoop.prj",
+               "eWegknoopLktType.dbf",
+               "eWegverhardLktType.dbf",
+               "eGenumwegLktRichting.dbf",
+               "eWegsegmentLktWegcat.dbf",
+               "eWegsegmentLktTgbep.dbf",
+               "eWegsegmentLktMethode.dbf",
+               "eWegsegmentLktMorf.dbf",
+               "eWegsegmentLktStatus.dbf",
+               "eOgkruisingLktType.dbf",
+               "eRijstrokenLktRichting.dbf"
+           };
+
+           fileNames.Should().HaveCount(expectedFileNames.Length);
+           foreach (var fileName in expectedFileNames)
+           {
+               fileNames.Should().Contain(fileName);
+           }
+        }
+
+        [Fact]
+        public async Task NotInformativeExtractRequest_ThenAlsoContainsChangeFiles()
+        {
+            var fixture = new RoadNetworkTestData().ObjectProvider;
+            fixture.CustomizeNtsPolygon();
+
+            var zipArchiveWriter = new RoadNetworkExtractToZipArchiveWriter(
+                _zipArchiveWriterOptions,
+                _streetNameCache,
+                _memoryStreamManager,
+                Encoding.UTF8,
+                NullLogger<RoadNetworkExtractToZipArchiveWriter>.Instance);
+
+            var stream = _memoryStreamManager.GetStream();
+
+            using var archive = new ZipArchive(stream, ZipArchiveMode.Update, true, Encoding.UTF8);
+            var request = new RoadNetworkExtractAssemblyRequest(
+                    fixture.Create<ExternalExtractRequestId>(),
+                    fixture.Create<DownloadId>(),
+                    fixture.Create<ExtractDescription>(),
+                    fixture.Create<IPolygonal>(),
+                    isInformative: false);
             await zipArchiveWriter.WriteAsync(archive, request, _zipArchiveDataProvider.Object, CancellationToken.None);
 
            var fileNames =  archive.Entries.Select(x => x.FullName).ToList();

@@ -184,7 +184,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                 new ExternalExtractRequestId(message.Body.ExternalRequestId),
                 new DownloadId(message.Body.DownloadId),
                 new ExtractDescription(extractDescription),
-                GeometryTranslator.Translate(message.Body.Contour));
+                GeometryTranslator.Translate(message.Body.Contour),
+                message.Body.IsInformative);
 
             try
             {

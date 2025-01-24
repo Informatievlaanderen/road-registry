@@ -5,7 +5,6 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extracts;
 using Extracts.Dbase.RoadSegments;
-using FeatureCompare;
 using Microsoft.IO;
 
 public class RoadSegmentSurfaceAttributesToZipArchiveWriter : IZipArchiveWriter
@@ -34,7 +33,9 @@ public class RoadSegmentSurfaceAttributesToZipArchiveWriter : IZipArchiveWriter
             cancellationToken);
 
         const ExtractFileName extractFilename = ExtractFileName.AttWegverharding;
-        FeatureType[] featureTypes = [FeatureType.Extract, FeatureType.Change];
+        FeatureType[] featureTypes = request.IsInformative
+            ? [FeatureType.Extract]
+            : [FeatureType.Extract, FeatureType.Change];
 
         foreach (var featureType in featureTypes)
         {
