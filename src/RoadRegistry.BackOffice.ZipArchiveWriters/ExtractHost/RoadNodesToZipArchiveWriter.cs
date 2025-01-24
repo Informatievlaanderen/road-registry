@@ -32,7 +32,9 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter
         var nodes = await zipArchiveDataProvider.GetRoadNodes(request.Contour, cancellationToken);
 
         const ExtractFileName extractFilename = ExtractFileName.Wegknoop;
-        FeatureType[] featureTypes = [FeatureType.Extract, FeatureType.Change];
+        FeatureType[] featureTypes = request.IsInformative
+            ? [FeatureType.Extract]
+            : [FeatureType.Extract, FeatureType.Change];
 
         foreach (var featureType in featureTypes)
         {

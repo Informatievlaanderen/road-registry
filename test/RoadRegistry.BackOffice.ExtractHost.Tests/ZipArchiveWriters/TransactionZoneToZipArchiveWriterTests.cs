@@ -49,7 +49,8 @@ public class TransactionZoneToZipArchiveWriterTests
             externalRequestId,
             fixture.DownloadId,
             extractDescription,
-            fixture.Contour);
+            fixture.Contour,
+            isInformative: false);
     }
 
     private static void CustomizeRoadNetworkExtractAssemblyRequestFixture(IFixture fixture)
@@ -67,7 +68,8 @@ public class TransactionZoneToZipArchiveWriterTests
                 fixture.Create<ExternalExtractRequestId>(),
                 fixture.Create<DownloadId>(),
                 fixture.Create<ExtractDescription>(),
-                GeometryTranslator.Translate(geometry))));
+                GeometryTranslator.Translate(geometry),
+                isInformative: false)));
     }
 
     private static IEnumerable<(RecordNumber, TDbaseRecord)> ReadFromArchive<TDbaseRecord>(ZipArchive archive, string fileName) where TDbaseRecord : DbaseRecord, new()
@@ -178,7 +180,7 @@ public class TransactionZoneToZipArchiveWriterTests
             new CoordinateZM(0, 1),
             new CoordinateZM(0, 0)
         }));
-        request = new RoadNetworkExtractAssemblyRequest(request.ExternalRequestId, request.DownloadId, request.ExtractDescription, contour);
+        request = new RoadNetworkExtractAssemblyRequest(request.ExternalRequestId, request.DownloadId, request.ExtractDescription, contour, isInformative: false);
 
         Assert.IsType<CoordinateZM>(contour.Coordinate);
 

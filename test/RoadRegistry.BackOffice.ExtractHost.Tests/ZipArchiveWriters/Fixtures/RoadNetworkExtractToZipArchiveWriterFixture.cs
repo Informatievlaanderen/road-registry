@@ -44,7 +44,8 @@ public class RoadNetworkExtractToZipArchiveWriterFixture : ZipArchiveWriterFixtu
         new ExternalExtractRequestId("TEST"),
         new DownloadId(),
         new ExtractDescription("TEST"),
-        (IPolygonal)Result.Single());
+        (IPolygonal)Result.Single(),
+        isInformative: false);
 
     public Task DisposeAsync()
     {
