@@ -8,7 +8,6 @@ import { downloadFile } from "@/core/utils/file-utils";
 export interface IApiClient {
   get<T = any>(url: string, query?: any, headers?: any, config?: any): Promise<IApiResponse<T>>;
   delete(url: string, headers?: any): Promise<IApiResponse>;
-  head(url: string, query?: any, headers?: any): Promise<IApiResponse>;
   post<T = any>(url: string, data?: any, headers?: any, config?: any, query?: any): Promise<IApiResponse<T>>;
   put<T = any>(url: string, data?: any, headers?: any): Promise<IApiResponse<T>>;
   patch<T = any>(url: string, data?: any, headers?: any): Promise<IApiResponse<T>>;
@@ -95,8 +94,8 @@ export class AxiosHttpApiClient implements IApiClient {
     this.axios = createAxiosInstance(options);
   }
 
-  public async get<T = any>(url: string, query?: any, headers?: any, config?: any): Promise<IApiResponse<T>> {
-    return await this.axios.get<T>(url, Object.assign({}, { params: query, headers }, config));
+  public async get<T = any>(url: string, query?: any, headers?: any): Promise<IApiResponse<T>> {
+    return await this.axios.get<T>(url, Object.assign({}, { params: query, headers }));
   }
   public async download(
     mimetype: string,
@@ -117,23 +116,16 @@ export class AxiosHttpApiClient implements IApiClient {
     const downloadUrl = window.URL.createObjectURL(blob);
     downloadFile(downloadUrl, filename);
   }
-  public async postUpload<T = any>(formData: FormData, url: string, config?: any, query?: any, headers?: any) {
-    return await await this.axios.post<T>(url, formData, Object.assign({}, { params: query, headers }, config));
-  }
   public async delete(url: string, headers?: any): Promise<IApiResponse> {
     return await this.axios.delete(url, { headers });
-  }
-  public async head(url: string, query?: any, headers?: any): Promise<IApiResponse> {
-    return await this.axios.head(url, { headers });
   }
   public async post<T = any>(
     url: string,
     data?: any,
     headers?: any,
-    config?: any,
     query?: any
   ): Promise<IApiResponse<T>> {
-    return await this.axios.post<T>(url, data, Object.assign({}, { params: query, headers }, config));
+    return await this.axios.post<T>(url, data, Object.assign({}, { params: query, headers }));
   }
   public async put<T = any>(url: string, data?: any, headers?: any): Promise<IApiResponse<T>> {
     return await this.axios.put<T>(url, data, { headers });

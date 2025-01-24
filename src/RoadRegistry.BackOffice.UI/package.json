@@ -10,9 +10,6 @@
     "serve-prd": "NODE_ENV=production vue-cli-service serve --mode production",
     "build": "vue-cli-service build",
     "postbuild": "rimraf dist/**/*.map",
-    "build-dev": "NODE_ENV=development vue-cli-service build --mode development",
-    "build-tst": "NODE_ENV=test vue-cli-service build --mode test",
-    "build-stg": "NODE_ENV=staging vue-cli-service build --mode staging",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
