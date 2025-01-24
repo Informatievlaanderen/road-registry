@@ -245,12 +245,6 @@ export const PublicApi = {
       const path = `${apiEndpoint}/v2/wegen/extract/overlapping/percontour`;
       const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
       return response.data;
-    },
-    getOverlappingTransactionZonesGeoJsonUrl() : String {
-      return `${directApiEndpoint}/v2/wegen/extract/overlappingtransactionzones.geojson`;
-    },
-    getTransactionZonesGeoJsonUrl() : String {
-      return `${directApiEndpoint}/v2/wegen/extract/transactionzones.geojson`;
     }
   },
   Information: {

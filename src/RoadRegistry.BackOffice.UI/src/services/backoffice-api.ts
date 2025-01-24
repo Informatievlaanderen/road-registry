@@ -178,12 +178,6 @@ export const BackOfficeApi = {
       const path = `${apiEndpoint}/v1/extracts/overlapping/bycontour`;
       const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
       return response.data;
-    },
-    getOverlappingTransactionZonesGeoJsonUrl() : String {
-      return `${directApiEndpoint}/v1/extracts/overlappingtransactionzones.geojson`;
-    },
-    getTransactionZonesGeoJsonUrl() : String {
-      return `${directApiEndpoint}/v1/extracts/transactionzones.geojson`;
     }
   },
   Information: {
