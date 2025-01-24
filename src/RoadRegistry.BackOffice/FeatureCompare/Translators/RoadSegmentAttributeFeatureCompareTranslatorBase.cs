@@ -107,15 +107,18 @@ public abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttribut
 
             var wegsegmentExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId());
             var wegsegmentChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId());
+            var wegsegmentIdChanged = wegsegment.GetOriginalId() != wegsegment.GetActualId();
 
-            var removeAndAddLanes = wegsegment.GeometryChanged || wegsegmentExtractFeatures.Count != wegsegmentChangeFeatures.Count;
+            var removeAndAddLanes = wegsegment.GeometryChanged
+                                    || wegsegmentExtractFeatures.Count != wegsegmentChangeFeatures.Count
+									|| wegsegmentIdChanged;
             if (removeAndAddLanes)
             {
                 var removeExtractFeatures = wegsegmentExtractFeatures
                     .Where(feature => processedRecords.All(record => record.Feature.Attributes.Id != feature.Attributes.Id))
                     .ToArray();
                 processedRecords.AddRange(removeExtractFeatures.Select(feature => new Record(feature, RecordType.Removed)));
-                
+
                 processedRecords.AddRange(wegsegmentChangeFeatures.Select(feature => new Record(feature with
                 {
                     Attributes = feature.Attributes with
@@ -141,7 +144,7 @@ public abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttribut
                     else
                     {
                         processedRecords.Add(new Record(extractFeature, RecordType.Removed));
-                        
+
                         processedRecords.Add(new Record(changeFeature with
                         {
                             Attributes = changeFeature.Attributes with
