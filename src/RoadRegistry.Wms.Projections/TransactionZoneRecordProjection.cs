@@ -142,7 +142,9 @@ public class TransactionZoneRecordProjection : ConnectedProjection<WmsContext>
                     throw;
                 }
             })
-            .Where(x => x.Contour is Polygon or MultiPolygon)
+            .Where(x =>
+                (x.Contour is Polygon polygon && polygon.Area > 0)
+                ||(x.Contour is MultiPolygon multiPolygon && multiPolygon.Area > 0))
             .DistinctBy(x => new { x.DownloadId1, x.DownloadId2 })
             .ToList();
 
