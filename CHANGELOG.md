@@ -1,3 +1,10 @@
+## [4.21.4](https://github.com/informatievlaanderen/road-registry/compare/v4.21.3...v4.21.4) (2025-01-30)
+
+
+### Bug Fixes
+
+* **wms:** only register overlapping transactionzones which have area of 0 (rounded) ([40d23e1](https://github.com/informatievlaanderen/road-registry/commit/40d23e13acfe1b1b062046deca3f22152f2db440))
+
 ## [4.21.3](https://github.com/informatievlaanderen/road-registry/compare/v4.21.2...v4.21.3) (2025-01-29)
 
 
