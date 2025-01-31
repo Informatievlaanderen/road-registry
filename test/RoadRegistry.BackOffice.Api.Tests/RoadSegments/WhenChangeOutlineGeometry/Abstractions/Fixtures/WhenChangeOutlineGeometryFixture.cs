@@ -28,7 +28,7 @@ public abstract class WhenChangeOutlineGeometryFixture : ControllerActionFixture
         TestData = new RoadNetworkTestData(fixture => { fixture.CustomizeRoadSegmentOutlineGeometryDrawMethod(); }).CopyCustomizationsTo(ObjectProvider);
     }
 
-    public RoadNetworkTestData TestData { get; protected set; }
+    protected RoadNetworkTestData TestData { get; init; }
 
     protected override async Task<IActionResult> GetResultAsync(PostChangeOutlineGeometryParameters request)
     {
@@ -52,7 +52,7 @@ public abstract class WhenChangeOutlineGeometryFixture : ControllerActionFixture
             Code = TestData.ChangedByOrganization,
             SortableCode = TestData.ChangedByOrganization,
             DbaseSchemaVersion = WellKnownDbaseSchemaVersions.V2,
-            DbaseRecord = Array.Empty<byte>()
+            DbaseRecord = []
         }, CancellationToken.None);
 
         var message = ObjectProvider

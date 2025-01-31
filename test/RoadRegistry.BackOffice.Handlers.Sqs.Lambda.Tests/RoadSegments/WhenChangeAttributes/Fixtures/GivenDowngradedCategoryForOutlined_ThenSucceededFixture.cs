@@ -65,7 +65,7 @@ public class GivenDowngradedCategoryForOutlined_ThenSucceededFixture : WhenChang
             ],
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
-        ;
+
         await EditorContext.RoadSegments.AddAsync(TestData.Segment1Added.ToRoadSegmentRecord(TestData.ChangedByOrganization, Clock));
         await EditorContext.SaveChangesAsync();
     }

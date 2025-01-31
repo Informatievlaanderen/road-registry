@@ -1,10 +1,5 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenCreatingOutline;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.RoadSegmentsOutline;
 using Autofac;
 using AutoFixture;
@@ -24,12 +19,10 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using Requests;
-using RoadRegistry.Tests;
 using RoadRegistry.Tests.BackOffice;
 using Sqs.RoadSegments;
-using Xunit;
 using Xunit.Abstractions;
-using GeometryTranslator = BackOffice.GeometryTranslator;
+using GeometryTranslator = GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 
 public class GivenOrganizationExists: BackOfficeLambdaTest

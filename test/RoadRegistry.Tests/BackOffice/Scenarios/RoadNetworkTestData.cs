@@ -126,39 +126,36 @@ public class RoadNetworkTestData
         MiddlePoint1 = new Point(new CoordinateM(50.0, 50.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         EndPoint1 = new Point(new CoordinateM(100.0, 100.0, 100.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MultiLineString1 = new MultiLineString(
-                new[]
-                {
-                    new LineString(
-                        new CoordinateArraySequence(new[] { StartPoint1.Coordinate, MiddlePoint1.Coordinate, EndPoint1.Coordinate }),
+            [
+                new LineString(
+                        new CoordinateArraySequence([StartPoint1.Coordinate, MiddlePoint1.Coordinate, EndPoint1.Coordinate]),
                         GeometryConfiguration.GeometryFactory
                     )
-                })
+            ])
             { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
         StartPoint2 = new Point(new CoordinateM(0.0, 200.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MiddlePoint2 = new Point(new CoordinateM(50.0, 250.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         EndPoint2 = new Point(new CoordinateM(100.0, 300.0, 100.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MultiLineString2 = new MultiLineString(
-                new[]
-                {
-                    new LineString(
-                        new CoordinateArraySequence(new[] { StartPoint2.Coordinate, MiddlePoint2.Coordinate, EndPoint2.Coordinate }),
+            [
+                new LineString(
+                        new CoordinateArraySequence([StartPoint2.Coordinate, MiddlePoint2.Coordinate, EndPoint2.Coordinate]),
                         GeometryConfiguration.GeometryFactory
                     )
-                })
+            ])
             { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
         StartPoint3 = new Point(new CoordinateM(0.0, 500.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MiddlePoint3 = new Point(new CoordinateM(50.0, 550.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         EndPoint3 = new Point(new CoordinateM(100.0, 600.0, 100.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MultiLineString3 = new MultiLineString(
-                new[]
-                {
-                    new LineString(
-                        new CoordinateArraySequence(new[] { StartPoint3.Coordinate, MiddlePoint3.Coordinate, EndPoint3.Coordinate }),
+            [
+                new LineString(
+                        new CoordinateArraySequence([StartPoint3.Coordinate, MiddlePoint3.Coordinate, EndPoint3.Coordinate]),
                         GeometryConfiguration.GeometryFactory
                     )
-                })
+            ])
             { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
         AddStartNode1 = new AddRoadNode
@@ -1209,19 +1206,18 @@ public class RoadNetworkTestData
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
             var multiLineString1 = new MultiLineString(
-                new[]
-                {
-                    new LineString(
-                        new CoordinateArraySequence(new[] { startPoint1.Coordinate, middlePoint1.Coordinate, endPoint1.Coordinate }),
+            [
+                new LineString(
+                        new CoordinateArraySequence([startPoint1.Coordinate, middlePoint1.Coordinate, endPoint1.Coordinate]),
                         GeometryConfiguration.GeometryFactory
                     )
-                })
+            ])
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             };
 
             //covers itself
-            yield return new object[] { startPoint1, endPoint1, multiLineString1 };
+            yield return [startPoint1, endPoint1, multiLineString1];
 
             var startPoint2 = new Point(new CoordinateM(5.0, 0.0, 0.0))
             {
@@ -1260,7 +1256,7 @@ public class RoadNetworkTestData
             };
 
             //overlaps itself
-            yield return new object[] { startPoint2, endPoint2, multiLineString2 };
+            yield return [startPoint2, endPoint2, multiLineString2];
         }
     }
 

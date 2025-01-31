@@ -47,8 +47,8 @@ public class WhenChangeAttributesWithOnlyEuropeanRoadsFixture : WhenChangeAttrib
             Operator = TestData.ChangedByOperator,
             OrganizationId = TestData.ChangedByOrganization,
             Organization = TestData.ChangedByOrganizationName,
-            Changes = new[]
-            {
+            Changes =
+            [
                 new AcceptedChange
                 {
                     RoadSegmentAdded = TestData.Segment1Added
@@ -63,10 +63,10 @@ public class WhenChangeAttributesWithOnlyEuropeanRoadsFixture : WhenChangeAttrib
                         Number = ObjectProvider.CreateWhichIsDifferentThan(Request.ChangeRequests.Single().EuropeanRoads!.Single())
                     }
                 }
-            },
+            ],
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
-;
+
         await EditorContext.RoadSegments.AddAsync(TestData.Segment1Added.ToRoadSegmentRecord(TestData.ChangedByOrganization, Clock));
         await EditorContext.SaveChangesAsync();
     }
@@ -89,10 +89,10 @@ public class WhenChangeAttributesWithOnlyEuropeanRoadsFixture : WhenChangeAttrib
 
         var command = await Store.GetLastMessage<RoadNetworkChangesAccepted>();
         Assert.Equal(2, command.Changes.Length);
-        
+
         var europeanRoadsIsCorrect = command.Changes[0].RoadSegmentAddedToEuropeanRoad.Number == change.EuropeanRoads!.Single()
                                      && command.Changes[1].RoadSegmentRemovedFromEuropeanRoad.SegmentId == change.Id;
-        
+
         return europeanRoadsIsCorrect;
     }
 }

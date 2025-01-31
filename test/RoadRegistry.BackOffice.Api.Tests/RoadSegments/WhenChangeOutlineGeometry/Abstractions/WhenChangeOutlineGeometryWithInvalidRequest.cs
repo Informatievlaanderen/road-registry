@@ -4,18 +4,15 @@ using Extensions;
 using Fixtures;
 using FluentValidation;
 using FluentValidation.Results;
-using Xunit.Abstractions;
 
 public abstract class WhenChangeOutlineGeometryWithInvalidRequest<TFixture> : IClassFixture<TFixture>
     where TFixture : WhenChangeOutlineGeometryFixture
 {
-    protected readonly TFixture Fixture;
-    protected readonly ITestOutputHelper OutputHelper;
+    private readonly TFixture _fixture;
 
-    protected WhenChangeOutlineGeometryWithInvalidRequest(TFixture fixture, ITestOutputHelper outputHelper)
+    protected WhenChangeOutlineGeometryWithInvalidRequest(TFixture fixture)
     {
-        Fixture = fixture;
-        OutputHelper = outputHelper;
+        _fixture = fixture;
     }
 
     protected abstract string ExpectedErrorCode { get; }
@@ -41,7 +38,7 @@ public abstract class WhenChangeOutlineGeometryWithInvalidRequest<TFixture> : IC
 
     private IEnumerable<ValidationFailure> ItShouldHaveValidationException()
     {
-        var ex = Assert.IsType<ValidationException>(Fixture.Exception);
+        var ex = Assert.IsType<ValidationException>(_fixture.Exception);
         var err = Assert.IsAssignableFrom<IEnumerable<ValidationFailure>>(ex.Errors);
         return err.TranslateToDutch();
     }
@@ -49,8 +46,8 @@ public abstract class WhenChangeOutlineGeometryWithInvalidRequest<TFixture> : IC
     [Fact]
     public void ItShouldThrow()
     {
-        Assert.True(Fixture.HasException);
-        Assert.NotNull(Fixture.Exception);
-        Assert.Null(Fixture.Result);
+        Assert.True(_fixture.HasException);
+        Assert.NotNull(_fixture.Exception);
+        Assert.Null(_fixture.Result);
     }
 }

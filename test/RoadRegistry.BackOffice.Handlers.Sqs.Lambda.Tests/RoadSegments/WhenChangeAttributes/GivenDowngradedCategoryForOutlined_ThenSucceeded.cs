@@ -6,7 +6,8 @@ using Xunit.Abstractions;
 
 public class GivenDowngradedCategoryForOutlined_ThenSucceeded : WhenChangeAttributes<GivenDowngradedCategoryForOutlined_ThenSucceededFixture>
 {
-    public GivenDowngradedCategoryForOutlined_ThenSucceeded(GivenDowngradedCategoryForOutlined_ThenSucceededFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public GivenDowngradedCategoryForOutlined_ThenSucceeded(GivenDowngradedCategoryForOutlined_ThenSucceededFixture fixture, ITestOutputHelper outputHelper)
+        : base(fixture, outputHelper)
     {
     }
 

@@ -46,13 +46,13 @@ public class WhenDeleteOutlineWithValidRequestFixture : WhenDeleteOutlineFixture
             Operator = TestData.ChangedByOperator,
             OrganizationId = TestData.ChangedByOrganization,
             Organization = TestData.ChangedByOrganizationName,
-            Changes = new[]
-            {
+            Changes =
+            [
                 new AcceptedChange
                 {
                     RoadSegmentAdded = TestData.Segment1Added
                 }
-            },
+            ],
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
     }
