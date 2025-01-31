@@ -1,34 +1,25 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments
 {
-    using BackOffice.Extracts.Dbase.RoadSegments;
-    using Editor.Schema;
-    using Editor.Schema.Extensions;
-    using Microsoft.IO;
     using System.Threading;
     using System.Threading.Tasks;
+    using Editor.Schema;
 
     public interface IRoadSegmentRepository
     {
         Task<RoadSegmentRecord> FindAsync(RoadSegmentId id, CancellationToken cancellationToken);
     }
 
-    public class RoadSegmentRepository: IRoadSegmentRepository
+    public class RoadSegmentRepository : IRoadSegmentRepository
     {
         private readonly IRoadRegistryContext _roadRegistryContext;
         private readonly EditorContext _editorContext;
-        private readonly RecyclableMemoryStreamManager _manager;
-        private readonly FileEncoding _fileEncoding;
 
         public RoadSegmentRepository(
             IRoadRegistryContext roadRegistryContext,
-            EditorContext editorContext,
-            RecyclableMemoryStreamManager manager,
-            FileEncoding fileEncoding)
+            EditorContext editorContext)
         {
             _roadRegistryContext = roadRegistryContext;
             _editorContext = editorContext;
-            _manager = manager;
-            _fileEncoding = fileEncoding;
         }
 
         public async Task<RoadSegmentRecord> FindAsync(RoadSegmentId id, CancellationToken cancellationToken)
@@ -43,11 +34,10 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments
             }
 
             {
-                var roadSegment = await _editorContext.RoadSegments.FindAsync(new object[] { id.ToInt32() }, cancellationToken);
+                var roadSegment = await _editorContext.RoadSegments.FindAsync([id.ToInt32()], cancellationToken);
                 if (roadSegment is not null)
                 {
-                    var roadSegmentDbaseRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegment.DbaseRecord, _manager, _fileEncoding);
-                    return new RoadSegmentRecord(id, RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord.METHODE.Value], roadSegment.LastEventHash);
+                    return new RoadSegmentRecord(id, RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegment.MethodId], roadSegment.LastEventHash);
                 }
             }
 
