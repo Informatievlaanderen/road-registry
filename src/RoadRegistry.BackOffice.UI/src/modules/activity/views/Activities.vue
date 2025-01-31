@@ -233,6 +233,7 @@ export default Vue.extend({
   },
   methods: {
     startAutoRefresh() {
+      this.stopAutoRefresh();
       this.autoRefreshInterval = setInterval(this.loadToTop, 10000);
     },
     stopAutoRefresh() {
