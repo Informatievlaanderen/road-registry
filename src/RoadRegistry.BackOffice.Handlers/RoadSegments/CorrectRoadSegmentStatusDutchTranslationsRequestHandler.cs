@@ -1,36 +1,30 @@
 namespace RoadRegistry.BackOffice.Handlers.RoadSegments;
 
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using System.Diagnostics;
+using Abstractions.RoadSegments;
+using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
+using Editor.Schema;
 using FluentValidation;
+using Framework;
 using MediatR;
+using Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
-using RoadRegistry.BackOffice.Abstractions.RoadSegments;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
-using RoadRegistry.BackOffice.Framework;
-using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.Editor.Projections;
-using RoadRegistry.Editor.Schema;
-using System;
-using System.Diagnostics;
-using Editor.Schema.Extensions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
-using Reason = BackOffice.Reason;
+using Reason = Reason;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
 using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
 
-public sealed class CorrectRoadSegmentStatusDutchTranslationsRequestHandler : IRequestHandler<CorrectRoadSegmentStatusDutchTranslationsRequest, CorrectRoadSegmentStatusDutchTranslationsResponse>
+public sealed class CorrectRoadSegmentStatusDutchTranslationsRequestHandler
+    : IRequestHandler<CorrectRoadSegmentStatusDutchTranslationsRequest, CorrectRoadSegmentStatusDutchTranslationsResponse>
 {
     private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
     private readonly IRoadRegistryContext _roadRegistryContext;
     private readonly Func<EditorContext> _editorContextFactory;
-    private readonly RecyclableMemoryStreamManager _manager;
-    private readonly FileEncoding _fileEncoding;
     private readonly ILogger<CorrectRoadSegmentStatusDutchTranslationsRequestHandler> _logger;
 
     public CorrectRoadSegmentStatusDutchTranslationsRequestHandler(
@@ -44,8 +38,6 @@ public sealed class CorrectRoadSegmentStatusDutchTranslationsRequestHandler : IR
         _roadNetworkCommandQueue = roadNetworkCommandQueue;
         _roadRegistryContext = roadRegistryContext;
         _editorContextFactory = editorContextFactory;
-        _manager = manager;
-        _fileEncoding = fileEncoding;
         _logger = logger;
     }
 
@@ -161,9 +153,8 @@ public sealed class CorrectRoadSegmentStatusDutchTranslationsRequestHandler : IR
         _logger.LogInformation("Add DbaseRecord temp collection started for {EntityName} from EditorContext (Page {PageIndex}, Size {PageSize})", nameof(context.RoadSegments), pageIndex, pageSize);
 
         roadSegmentIds.AddRange(roadSegments
-            .Select(x => new RoadSegmentDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
-            .Where(x => x.STATUS.Value == statusIdentifier)
-            .Select(x => x.WS_OIDN.Value));
+            .Where(x => x.StatusId == statusIdentifier)
+            .Select(x => x.Id));
         _logger.LogInformation("Add DbaseRecord temp collection finished for {EntityName} from EditorContext in {StopwatchElapsedMilliseconds}ms", nameof(context.RoadSegments), sw.ElapsedMilliseconds);
 
         return roadSegments.Any();
