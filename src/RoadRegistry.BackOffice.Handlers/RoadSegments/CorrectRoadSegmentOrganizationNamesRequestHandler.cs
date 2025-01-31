@@ -1,30 +1,30 @@
 namespace RoadRegistry.BackOffice.Handlers.RoadSegments;
 
+using System.Diagnostics;
+using Abstractions.RoadSegments;
 using BackOffice.Extensions;
+using BackOffice.Extracts.Dbase.RoadSegments;
+using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
+using Editor.Schema;
 using Editor.Schema.Extensions;
 using FluentValidation;
+using Framework;
 using MediatR;
+using Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Product.Schema;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Abstractions.RoadSegments;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
-using RoadRegistry.BackOffice.Framework;
-using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.Editor.Schema;
-using System.Diagnostics;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using Reason = Reason;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
 using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
 
-public sealed class CorrectRoadSegmentOrganizationNamesRequestHandler : IRequestHandler<CorrectRoadSegmentOrganizationNamesRequest, CorrectRoadSegmentOrganizationNamesResponse>
+public sealed class CorrectRoadSegmentOrganizationNamesRequestHandler
+    : IRequestHandler<CorrectRoadSegmentOrganizationNamesRequest, CorrectRoadSegmentOrganizationNamesResponse>
 {
     private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
     private readonly IRoadRegistryContext _roadRegistryContext;
@@ -115,7 +115,7 @@ public sealed class CorrectRoadSegmentOrganizationNamesRequestHandler : IRequest
             change.TranslateTo(requestedChange);
             return requestedChange;
         }).ToList();
-        
+
         var changeRoadNetwork = new ChangeRoadNetwork
         {
             RequestId = ChangeRequestId.FromUploadId(new UploadId(Guid.NewGuid())),
@@ -172,9 +172,8 @@ public sealed class CorrectRoadSegmentOrganizationNamesRequestHandler : IRequest
         _logger.LogInformation("Add DbaseRecord temp collection started for {EntityName} from EditorContext (Page {PageIndex}, Size {PageSize})", nameof(_editorContext.RoadSegments), pageIndex, pageSize);
 
         roadSegmentIds.AddRange(roadSegments
-            .Select(x => new RoadSegmentDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
-            .Where(x => string.IsNullOrEmpty(x.LBLBEHEER.GetValue()))
-            .Select(x => x.WS_OIDN.Value));
+            .Where(x => string.IsNullOrEmpty(x.MaintainerName))
+            .Select(x => x.Id));
         _logger.LogInformation("Add DbaseRecord temp collection finished for {EntityName} from EditorContext in {StopwatchElapsedMilliseconds}ms", nameof(_editorContext.RoadSegments), sw.ElapsedMilliseconds);
 
         return roadSegments.Any();
