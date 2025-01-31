@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Extracts;
 using System.IO.Compression;
 using Autofac;
 using BackOffice.Extracts;
+using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Core;
 using Editor.Schema;
@@ -72,33 +73,45 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                 {
                     var featureCompareTranslator = container.Resolve<IZipArchiveFeatureCompareTranslator>();
 
-                    await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
-                    using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
+                    await using var archiveBlobStream = await archiveBlob.OpenAsync(ct);
+                    using var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false);
+
+                    var requestedChanges = new List<RequestedChange>();
+                    var translatedChanges = await featureCompareTranslator.TranslateAsync(archive, ct);
+                    foreach (var change in translatedChanges)
                     {
-                        var requestedChanges = new List<RequestedChange>();
-                        var translatedChanges = await featureCompareTranslator.TranslateAsync(archive, ct);
-                        foreach (var change in translatedChanges)
-                        {
-                            var requestedChange = new RequestedChange();
-                            change.TranslateTo(requestedChange);
-                            requestedChanges.Add(requestedChange);
-                        }
-
-                        var command = new Command(new ChangeRoadNetwork
-                            {
-                                ExtractRequestId = extractRequestId,
-                                RequestId = changeRequestId,
-                                DownloadId = downloadId,
-                                Changes = requestedChanges.ToArray(),
-                                Reason = translatedChanges.Reason,
-                                Operator = translatedChanges.Operator,
-                                OrganizationId = translatedChanges.Organization,
-                                TicketId = message.Body.TicketId
-                            })
-                            .WithMessageId(message.MessageId);
-
-                        await queue.WriteAsync(command, ct);
+                        var requestedChange = new RequestedChange();
+                        change.TranslateTo(requestedChange);
+                        requestedChanges.Add(requestedChange);
                     }
+
+                    var changeRoadNetwork = new ChangeRoadNetwork
+                    {
+                        ExtractRequestId = extractRequestId,
+                        RequestId = changeRequestId,
+                        DownloadId = downloadId,
+                        Changes = requestedChanges.ToArray(),
+                        Reason = translatedChanges.Reason,
+                        Operator = translatedChanges.Operator,
+                        OrganizationId = translatedChanges.Organization,
+                        TicketId = message.Body.TicketId
+                    };
+
+                    var validator = new ChangeRoadNetworkValidator();
+                    var result = await validator.ValidateAsync(changeRoadNetwork, ct);
+
+                    if (!result.IsValid)
+                    {
+                        var zipArchiveProblems = result.Errors
+                            .Aggregate(
+                                ZipArchiveProblems.None,
+                                (current, error) => current.Add(new FileError(string.Empty, error.ErrorMessage)));
+                        throw new ZipArchiveValidationException(zipArchiveProblems);
+                    }
+
+                    var command = new Command(changeRoadNetwork)
+                        .WithMessageId(message.MessageId);
+                    await queue.WriteAsync(command, ct);
                 }
                 catch (ZipArchiveValidationException ex)
                 {

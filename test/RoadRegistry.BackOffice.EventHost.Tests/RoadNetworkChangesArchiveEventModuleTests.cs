@@ -1,62 +1,79 @@
 ﻿namespace RoadRegistry.BackOffice.EventHost.Tests;
 
+using System.IO.Compression;
 using AutoFixture;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Core;
+using FeatureCompare;
 using FeatureCompare.Readers;
+using FluentAssertions;
 using Handlers.Uploads;
-using MediatR;
 using Messages;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
-using Snapshot.Handlers.Sqs.RoadNetworks;
 using Uploads;
 using Xunit.Abstractions;
 
 public class RoadNetworkChangesArchiveEventModuleTests : RoadNetworkTestBase
 {
-    private readonly Mock<IMediator> _mediator;
+    private readonly Mock<IRoadNetworkEventWriter> _roadNetworkEventWriterMock;
 
     public RoadNetworkChangesArchiveEventModuleTests(ITestOutputHelper testOutputHelper)
         : base(testOutputHelper)
     {
-        _mediator = new Mock<IMediator>();
+        _roadNetworkEventWriterMock = new Mock<IRoadNetworkEventWriter>();
+
+        ObjectProvider.Customize<RoadNetworkChangesArchiveAccepted>(customizer =>
+            customizer.FromFactory(_ => new RoadNetworkChangesArchiveAccepted
+            {
+                ArchiveId = ObjectProvider.Create<ArchiveId>(),
+                ExtractRequestId = ObjectProvider.Create<ExtractRequestId>(),
+                Description = ObjectProvider.Create<string>(),
+                Problems = []
+            }).OmitAutoProperties());
     }
 
     [Fact]
-    public async Task WhenRoadNetworkChangesAccepted_ThenRequestSnapshot()
+    public async Task WhenRoadNetworkChangesArchiveAcceptedWithEmptyChanges_ThenRoadNetworkChangesArchiveRejected()
     {
-        var streamId = RoadNetworkStreamNameProvider.Default;
-        var @event = new Event(TestData.ObjectProvider.Create<RoadNetworkChangesAccepted>())
-            .WithStream(streamId, TestData.ObjectProvider.Create<int>());
+        var @event = new Event(ObjectProvider.Create<RoadNetworkChangesArchiveAccepted>());
 
         await DispatchEvent(@event);
 
-        _mediator.Verify(
-            x => x.Send(It.IsAny<CreateRoadNetworkSnapshotSqsRequest>(), It.IsAny<CancellationToken>()),
-            Times.Once);
+        var producedEvent = (Event)_roadNetworkEventWriterMock.Invocations.Single().Arguments[2];
+        producedEvent.Body.Should().BeOfType<RoadNetworkChangesArchiveRejected>();
     }
 
-    [Fact]
-    public async Task WhenOutlinedRoadNetworkChangesAccepted_ThenNone()
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        var streamId = TestData.ObjectProvider.Create<string>();
-        var @event = new Event(TestData.ObjectProvider.Create<RoadNetworkChangesAccepted>())
-            .WithStream(streamId, TestData.ObjectProvider.Create<int>());
+        services
+            .AddSingleton<IZipArchiveFeatureCompareTranslator>(_ =>
+            {
+                var translator = new Mock<IZipArchiveFeatureCompareTranslator>();
+                translator
+                    .Setup(x => x.TranslateAsync(It.IsAny<ZipArchive>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => TranslatedChanges.Empty);
 
-        await DispatchEvent(@event);
-
-        _mediator.Verify(
-            x => x.Send(It.IsAny<CreateRoadNetworkSnapshotSqsRequest>(), It.IsAny<CancellationToken>()),
-            Times.Never);
+                return translator.Object;
+            });
     }
 
     private async Task DispatchEvent(Event @event)
     {
         var blobClient = new Mock<IBlobClient>();
-        // blobClient
-        //     .Setup()
+        blobClient
+            .Setup(x => x.GetBlobAsync(It.IsAny<BlobName>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                return new BlobObject(new BlobName("archive.zip"), Metadata.None, new ContentType(), _ =>
+                {
+                    var archiveStream = new MemoryStream();
+                    new ExtractsZipArchiveBuilder().Build(archiveStream);
+                    return Task.FromResult<Stream>(archiveStream);
+                });
+            });
 
         var dispatcher = Dispatch.Using(Resolve.WhenEqualToMessage([
             new RoadNetworkChangesArchiveEventModule(
@@ -64,8 +81,8 @@ public class RoadNetworkChangesArchiveEventModuleTests : RoadNetworkTestBase
                 new RoadNetworkUploadsBlobClient(blobClient.Object),
                 Store,
                 new ApplicationMetadata(RoadRegistryApplication.BackOffice),
-                Mock.Of<ITransactionZoneFeatureCompareFeatureReader>(),
-                Mock.Of<IRoadNetworkEventWriter>(),
+                new TransactionZoneFeatureCompareFeatureReader(FileEncoding.UTF8),
+                _roadNetworkEventWriterMock.Object,
                 Mock.Of<IExtractUploadFailedEmailClient>(),
                 LoggerFactory
             )

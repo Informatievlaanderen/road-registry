@@ -50,7 +50,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
         Clock = new FakeClock(NodaConstants.UnixEpoch);
         ZipArchiveBeforeFeatureCompareValidator = new FakeZipArchiveBeforeFeatureCompareValidator();
         ExtractUploadFailedEmailClient = new FakeExtractUploadFailedEmailClient();
-        LoggerFactory = new LoggerFactory();
+        LoggerFactory = Container.Resolve<ILoggerFactory>();
 
         WithStore(new InMemoryStreamStore(), comparisonConfig);
         RoadRegistryContext = new RoadRegistryContext(
@@ -60,7 +60,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
             Settings,
             Mapping,
             EnrichEvent.WithTime(Clock),
-            new NullLoggerFactory());
+            LoggerFactory);
         Organizations = new Organizations(
             ScopedContainer.Resolve<EventSourcedEntityMap>(),
             Store,
@@ -86,7 +86,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     public IExtractUploadFailedEmailClient ExtractUploadFailedEmailClient { get; set; }
     protected IRoadRegistryContext RoadRegistryContext { get; }
     protected Organizations Organizations { get; }
-    protected LoggerFactory LoggerFactory { get; }
+    protected ILoggerFactory LoggerFactory { get; }
     protected Mock<ITicketing> TicketingMock { get; } = new();
 
     public void Dispose()

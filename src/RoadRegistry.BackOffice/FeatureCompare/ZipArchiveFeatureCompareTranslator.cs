@@ -1,13 +1,12 @@
 namespace RoadRegistry.BackOffice.FeatureCompare;
 
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Compression;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Translators;
 using Uploads;
 
@@ -32,7 +31,7 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
         NationalRoadFeatureCompareTranslator nationalRoadTranslator,
         NumberedRoadFeatureCompareTranslator numberedRoadTranslator,
         GradeSeparatedJunctionFeatureCompareTranslator gradeSeparatedJunctionTranslator,
-        ILogger<ZipArchiveFeatureCompareTranslator> logger
+        ILoggerFactory loggerFactory
     )
         : this([
                 transactionZoneTranslator.ThrowIfNull(),
@@ -46,23 +45,23 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
                 numberedRoadTranslator.ThrowIfNull(),
                 gradeSeparatedJunctionTranslator.ThrowIfNull()
             ],
-            logger)
+            loggerFactory)
     {
     }
 
     private ZipArchiveFeatureCompareTranslator(
         ICollection<IZipArchiveEntryFeatureCompareTranslator> translators,
-        ILogger<ZipArchiveFeatureCompareTranslator> logger)
+        ILoggerFactory loggerFactory)
     {
-        _logger = logger.ThrowIfNull();
+        _logger = loggerFactory.ThrowIfNull().CreateLogger(GetType());
         _translators = translators.ThrowIfNull();
     }
 
     public static IZipArchiveFeatureCompareTranslator Create(
         ICollection<IZipArchiveEntryFeatureCompareTranslator> translators,
-        ILogger<ZipArchiveFeatureCompareTranslator> logger)
+        ILoggerFactory loggerFactory)
     {
-        return new ZipArchiveFeatureCompareTranslator(translators, logger);
+        return new ZipArchiveFeatureCompareTranslator(translators, loggerFactory);
     }
 
     public async Task<TranslatedChanges> TranslateAsync(ZipArchive archive, CancellationToken cancellationToken)
