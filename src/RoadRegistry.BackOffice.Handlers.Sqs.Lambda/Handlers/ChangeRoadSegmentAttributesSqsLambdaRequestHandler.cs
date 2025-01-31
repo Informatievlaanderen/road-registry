@@ -2,14 +2,12 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
 using Abstractions.RoadSegments;
 using BackOffice.Extensions;
-using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
 using Editor.Schema;
-using Editor.Schema.Extensions;
 using Exceptions;
 using Hosts;
 using Infrastructure;
@@ -30,8 +28,6 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
 {
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
     private readonly EditorContext _editorContext;
-    private readonly RecyclableMemoryStreamManager _manager;
-    private readonly FileEncoding _fileEncoding;
     private readonly IOrganizationCache _organizationCache;
 
     public ChangeRoadSegmentAttributesSqsLambdaRequestHandler(
@@ -56,8 +52,6 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
     {
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
         _editorContext = editorContext;
-        _manager = manager;
-        _fileEncoding = fileEncoding;
         _organizationCache = organizationCache;
     }
 
@@ -80,8 +74,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                     continue;
                 }
 
-                var roadSegmentDbaseRecord = new RoadSegmentDbaseRecord().FromBytes(editorRoadSegment.DbaseRecord, _manager, _fileEncoding);
-                var geometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord.METHODE.Value];
+                var geometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[editorRoadSegment.MethodId];
 
                 var networkRoadSegment = await RoadRegistryContext.RoadNetworks.FindRoadSegment(roadSegmentId, geometryDrawMethod, cancellationToken);
                 if (networkRoadSegment is null)
@@ -197,7 +190,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         return changes;
     }
 
-    private TranslatedChanges AppendChange(TranslatedChanges changes, RoadSegment roadSegment, ICollection<NationalRoadNumber>? nationalRoadNumbers)
+    private static TranslatedChanges AppendChange(TranslatedChanges changes, RoadSegment roadSegment, ICollection<NationalRoadNumber>? nationalRoadNumbers)
     {
         if (nationalRoadNumbers is null)
         {
