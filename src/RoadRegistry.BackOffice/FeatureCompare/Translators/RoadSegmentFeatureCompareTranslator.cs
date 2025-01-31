@@ -165,17 +165,21 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     );
                     if (identicalFeatures.Any())
                     {
+                        var extractFeature = identicalFeatures.FirstOrDefault(x => x.Attributes.Id == changeFeatureAttributes.Id)
+                                             ?? identicalFeatures.First();
+
                         processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                             FeatureType.Change,
                             changeFeature.RecordNumber,
                             changeFeatureAttributes,
-                            identicalFeatures.First().Attributes.Id,
+                            extractFeature.Attributes.Id,
                             RecordType.Identical));
                     }
                     else
                     {
                         //update because geometries differ (slightly)
-                        var extractFeature = nonCriticalAttributesUnchanged.First();
+                        var extractFeature = nonCriticalAttributesUnchanged.FirstOrDefault(x => x.Attributes.Id == changeFeatureAttributes.Id)
+                                             ?? nonCriticalAttributesUnchanged.First();
 
                         processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                             FeatureType.Change,
@@ -194,7 +198,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     var identicalGeometries = matchingExtractFeatures.FindAll(f =>
                         changeFeatureAttributes.Geometry.IsReasonablyEqualTo(f.Attributes.Geometry, context.Tolerances)
                     );
-                    var extractFeature = matchingExtractFeatures.First();
+                    var extractFeature = matchingExtractFeatures.FirstOrDefault(x => x.Attributes.Id == changeFeatureAttributes.Id)
+                        ?? matchingExtractFeatures.First();
 
                     processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                         FeatureType.Change,
