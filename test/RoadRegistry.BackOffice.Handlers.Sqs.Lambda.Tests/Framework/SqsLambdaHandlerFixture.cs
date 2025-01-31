@@ -3,10 +3,10 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using Autofac;
 using AutoFixture;
 using BackOffice.Extracts.Dbase.Organizations;
+using BackOffice.Extracts.Dbase.Organizations.V1;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.EventHandling;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
@@ -128,8 +128,8 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
                 {
                     Code = "AGIV",
                     SortableCode = "AGIV",
-                    DbaseSchemaVersion = BackOffice.Extracts.Dbase.Organizations.V1.OrganizationDbaseRecord.DbaseSchemaVersion,
-                    DbaseRecord = new BackOffice.Extracts.Dbase.Organizations.V1.OrganizationDbaseRecord
+                    DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion,
+                    DbaseRecord = new OrganizationDbaseRecord
                     {
                         ORG = { Value = "AGIV" },
                         LBLORG = { Value = "Agentschap voor Geografische Informatie Vlaanderen" }

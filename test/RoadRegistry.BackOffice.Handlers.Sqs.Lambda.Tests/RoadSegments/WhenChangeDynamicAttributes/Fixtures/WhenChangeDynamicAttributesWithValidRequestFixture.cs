@@ -2,14 +2,14 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenCha
 
 using Abstractions.Fixtures;
 using AutoFixture;
+using BackOffice.Abstractions.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Core;
+using Hosts;
+using Messages;
 using Microsoft.Extensions.Configuration;
 using NodaTime;
 using NodaTime.Text;
-using RoadRegistry.BackOffice.Abstractions.RoadSegments;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Hosts;
 using RoadRegistry.Tests.BackOffice.Extracts;
 using AcceptedChange = Messages.AcceptedChange;
 
@@ -76,16 +76,16 @@ public class WhenChangeDynamicAttributesWithValidRequestFixture : WhenChangeDyna
             Operator = TestData.ChangedByOperator,
             OrganizationId = TestData.ChangedByOrganization,
             Organization = TestData.ChangedByOrganizationName,
-            Changes = new[]
-            {
+            Changes =
+            [
                 new AcceptedChange
                 {
                     RoadSegmentAdded = TestData.Segment1Added
                 }
-            },
+            ],
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
-        
+
         await EditorContext.RoadSegments.AddAsync(TestData.Segment1Added.ToRoadSegmentRecord(TestData.ChangedByOrganization, Clock));
         await EditorContext.SaveChangesAsync();
     }

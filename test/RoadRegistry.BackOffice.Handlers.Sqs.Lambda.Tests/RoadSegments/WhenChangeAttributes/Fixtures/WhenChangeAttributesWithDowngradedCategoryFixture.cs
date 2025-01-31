@@ -59,7 +59,7 @@ public class WhenChangeAttributesWithDowngradedCategoryFixture : WhenChangeAttri
             ],
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
-;
+
         await EditorContext.RoadSegments.AddAsync(TestData.Segment1Added.ToRoadSegmentRecord(TestData.ChangedByOrganization, Clock));
         await EditorContext.SaveChangesAsync();
     }
@@ -71,10 +71,9 @@ public class WhenChangeAttributesWithDowngradedCategoryFixture : WhenChangeAttri
             throw Exception;
         }
 
-        var ticketError = new TicketError(new[]
-        {
+        var ticketError = new TicketError([
             new TicketError("Wegcategorie werd niet gewijzigd voor wegsegment 1 omdat het record reeds een recentere versie bevat.", "WegcategorieNietVeranderdHuidigeBevatRecentereVersie")
-        });
+        ]);
 
         TicketingMock.Verify(x =>
             x.Error(It.IsAny<Guid>(),
