@@ -49,7 +49,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         var enricher = EnrichEvent.WithTime(clock);
 
         For<ChangeRoadNetwork>()
-            .UseValidator(new ChangeRoadNetworkValidator())
             .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(ChangeRoadNetwork);
     }

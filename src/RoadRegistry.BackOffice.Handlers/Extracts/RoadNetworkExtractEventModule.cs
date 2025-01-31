@@ -72,33 +72,15 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                 {
                     var featureCompareTranslator = container.Resolve<IZipArchiveFeatureCompareTranslator>();
 
-                    await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
-                    using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
-                    {
-                        var requestedChanges = new List<RequestedChange>();
-                        var translatedChanges = await featureCompareTranslator.TranslateAsync(archive, ct);
-                        foreach (var change in translatedChanges)
-                        {
-                            var requestedChange = new RequestedChange();
-                            change.TranslateTo(requestedChange);
-                            requestedChanges.Add(requestedChange);
-                        }
+                    await using var archiveBlobStream = await archiveBlob.OpenAsync(ct);
+                    using var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false);
+                    var translatedChanges = await featureCompareTranslator.TranslateAsync(archive, ct);
 
-                        var command = new Command(new ChangeRoadNetwork
-                            {
-                                ExtractRequestId = extractRequestId,
-                                RequestId = changeRequestId,
-                                DownloadId = downloadId,
-                                Changes = requestedChanges.ToArray(),
-                                Reason = translatedChanges.Reason,
-                                Operator = translatedChanges.Operator,
-                                OrganizationId = translatedChanges.Organization,
-                                TicketId = message.Body.TicketId
-                            })
-                            .WithMessageId(message.MessageId);
+                    var changeRoadNetwork = await translatedChanges.ToChangeRoadNetworkCommand(extractRequestId, changeRequestId, downloadId, message.Body.TicketId, ct);
 
-                        await queue.WriteAsync(command, ct);
-                    }
+                    var command = new Command(changeRoadNetwork)
+                        .WithMessageId(message.MessageId);
+                    await queue.WriteAsync(command, ct);
                 }
                 catch (ZipArchiveValidationException ex)
                 {

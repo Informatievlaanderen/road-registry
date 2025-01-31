@@ -1,13 +1,17 @@
 namespace RoadRegistry.Tests.Framework.Testing;
 
 using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac;
 using Be.Vlaanderen.Basisregisters.AggregateSource.Testing;
 using Be.Vlaanderen.Basisregisters.AggregateSource.Testing.Comparers;
 using Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofac;
 using KellermanSoftware.CompareNetObjects;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Framework;
 using LogExtensions = Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing.LogExtensions;
 
 public abstract class AutofacBasedTestBase
@@ -19,7 +23,11 @@ public abstract class AutofacBasedTestBase
         _container = new Lazy<IContainer>(() =>
         {
             var containerBuilder = new ContainerBuilder();
+            containerBuilder.Register(_ => new EventSourcedEntityMap());
 
+            var services = new ServiceCollection();
+            ConfigureServices(services);
+            containerBuilder.Populate(services);
             ConfigureEventHandling(containerBuilder);
             ConfigureCommandHandling(containerBuilder);
             ConfigureContainer(containerBuilder);
@@ -29,6 +37,7 @@ public abstract class AutofacBasedTestBase
 
             containerBuilder.RegisterInstance(testOutputHelper);
             containerBuilder.RegisterType<XUnitLogger>().AsImplementedInterfaces();
+            containerBuilder.RegisterInstance(new NullLoggerFactory()).As<ILoggerFactory>();
 
             return containerBuilder.Build();
         });
@@ -56,6 +65,9 @@ public abstract class AutofacBasedTestBase
         builder.Assert(EventCentricTestSpecificationRunner, FactComparer, Logger);
     }
 
+    protected virtual void ConfigureServices(IServiceCollection services)
+    {
+    }
     protected virtual void ConfigureContainer(ContainerBuilder containerBuilder)
     {
     }
