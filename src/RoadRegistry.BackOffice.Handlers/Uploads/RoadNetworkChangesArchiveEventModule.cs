@@ -5,7 +5,6 @@ using Autofac;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Core;
 using Exceptions;
 using FeatureCompare;
 using FeatureCompare.Readers;
@@ -59,42 +58,13 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
 
                     await using var archiveBlobStream = await archiveBlob.OpenAsync(ct);
                     using var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false);
-                    var requestedChanges = new List<RequestedChange>();
                     var translatedChanges = await featureCompareTranslator.TranslateAsync(archive, ct);
-                    foreach (var change in translatedChanges)
-                    {
-                        var requestedChange = new RequestedChange();
-                        change.TranslateTo(requestedChange);
-                        requestedChanges.Add(requestedChange);
-                    }
 
                     var readerContext = new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);
                     var transactionZoneFeatures = transactionZoneFeatureReader.Read(archive, FeatureType.Change, ExtractFileName.Transactiezones, readerContext).Item1;
                     var downloadId = transactionZoneFeatures.Single().Attributes.DownloadId;
 
-                    var changeRoadNetwork = new ChangeRoadNetwork
-                    {
-                        ExtractRequestId = extractRequestId,
-                        RequestId = requestId,
-                        DownloadId = downloadId,
-                        Changes = requestedChanges.ToArray(),
-                        Reason = translatedChanges.Reason,
-                        Operator = translatedChanges.Operator,
-                        OrganizationId = translatedChanges.Organization,
-                        TicketId = message.Body.TicketId
-                    };
-
-                    var validator = new ChangeRoadNetworkValidator();
-                    var result = await validator.ValidateAsync(changeRoadNetwork, ct);
-
-                    if (!result.IsValid)
-                    {
-                        var zipArchiveProblems = result.Errors
-                            .Aggregate(
-                                ZipArchiveProblems.None,
-                                (current, error) => current.Add(new FileError(string.Empty, error.ErrorMessage)));
-                        throw new ZipArchiveValidationException(zipArchiveProblems);
-                    }
+                    var changeRoadNetwork = await translatedChanges.ToChangeRoadNetworkCommand(extractRequestId, requestId, downloadId, message.Body.TicketId, ct);
 
                     var command = new Command(changeRoadNetwork)
                         .WithMessageId(message.MessageId);

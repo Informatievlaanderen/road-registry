@@ -5,7 +5,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Core;
+using Exceptions;
+using Messages;
 
 public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
 {
@@ -247,5 +252,43 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
     public TranslatedChanges WithReason(Reason value)
     {
         return new TranslatedChanges(value, Operator, Organization, _changes, _provisionalChanges);
+    }
+
+    public async Task<ChangeRoadNetwork> ToChangeRoadNetworkCommand(ExtractRequestId extractRequestId, ChangeRequestId requestId, DownloadId downloadId, Guid? ticketId, CancellationToken cancellationToken)
+    {
+        var requestedChanges = new List<RequestedChange>();
+
+        foreach (var change in this)
+        {
+            var requestedChange = new RequestedChange();
+            change.TranslateTo(requestedChange);
+            requestedChanges.Add(requestedChange);
+        }
+
+        var changeRoadNetwork = new ChangeRoadNetwork
+        {
+            ExtractRequestId = extractRequestId,
+            RequestId = requestId,
+            DownloadId = downloadId,
+            Changes = requestedChanges.ToArray(),
+            Reason = Reason,
+            Operator = Operator,
+            OrganizationId = Organization,
+            TicketId = ticketId
+        };
+
+        var validator = new ChangeRoadNetworkValidator();
+        var result = await validator.ValidateAsync(changeRoadNetwork, cancellationToken);
+
+        if (!result.IsValid)
+        {
+            var zipArchiveProblems = result.Errors
+                .Aggregate(
+                    ZipArchiveProblems.None,
+                    (current, error) => current.Add(new FileError(string.Empty, error.ErrorMessage)));
+            throw new ZipArchiveValidationException(zipArchiveProblems);
+        }
+
+        return changeRoadNetwork;
     }
 }
