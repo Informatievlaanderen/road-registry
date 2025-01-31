@@ -233,6 +233,7 @@ export default Vue.extend({
   },
   methods: {
     startAutoRefresh() {
+      this.stopAutoRefresh();
       this.autoRefreshInterval = setInterval(this.loadToTop, 10000);
     },
     stopAutoRefresh() {
@@ -264,26 +265,15 @@ export default Vue.extend({
       this.stopAutoRefresh();
       this.pagination.isLoadingTop = true;
       try {
-        let response = await PublicApi.ChangeFeed.getHead(this.pagination.pageSize, this.filter);
+        let lastPosition = this.activities[0]?.id;
+        
+        let response = lastPosition
+          ? await PublicApi.ChangeFeed.getNext(lastPosition, this.pagination.pageSize, this.filter)
+          : await PublicApi.ChangeFeed.getHead(this.pagination.pageSize, this.filter);
+
         let activities = response.entries.map((entry) => new Activity(entry));
-
-        if (this.activities.length) {
-          let firstActivityId = this.activities[0].id;
-
-          let firstActivityInReceivedData = activities.find((x) => x.id === firstActivityId);
-          if (firstActivityInReceivedData) {
-            let index = activities.indexOf(firstActivityInReceivedData);
-            activities = activities.slice(0, index);
-            if (!activities.length) {
-              return;
-            }
-          } else {
-            // current data is too old, do a refresh
-            this.activities = [];
-          }
-        }
-
         this.activities = [...activities, ...this.activities];
+
         this.firstLoadCompleted = true;
       } finally {
         this.pagination.isLoadingTop = false;
