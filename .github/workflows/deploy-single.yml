@@ -192,7 +192,7 @@ jobs:
 
     - name: Promote BackOffice Lambda
       if: github.event.inputs.environment != 'prd'
-      uses: Informatievlaanderen/build-pipeline/.github/actions/deploy-lambda@main
+      uses: Informatievlaanderen/build-pipeline/.github/actions/deploy-lambda-v4@main
       with:
         function-name: rr-sqsbackofficefunction
         deploy-url: ${{ vars.VBR_AWS_DEPLOY_LAMBDA_DEVOPS_BASEURL }}
@@ -204,7 +204,7 @@ jobs:
 
     - name: Promote Snapshot Lambda
       if: github.event.inputs.environment != 'prd'
-      uses: Informatievlaanderen/build-pipeline/.github/actions/deploy-lambda@main
+      uses: Informatievlaanderen/build-pipeline/.github/actions/deploy-lambda-v4@main
       with:
         function-name: rr-sqssnapshotfunction
         deploy-url: ${{ vars.VBR_AWS_DEPLOY_LAMBDA_DEVOPS_BASEURL }}
