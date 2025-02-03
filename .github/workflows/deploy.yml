@@ -135,7 +135,7 @@ jobs:
 
     steps:
     - name: Promote Lambda
-      uses: Informatievlaanderen/build-pipeline/.github/actions/deploy-lambda@main
+      uses: Informatievlaanderen/build-pipeline/.github/actions/deploy-lambda-v4@main
       with:
         function-name: ${{ matrix.functions }}
         deploy-url: ${{ vars.VBR_AWS_DEPLOY_LAMBDA_DEVOPS_BASEURL }}
