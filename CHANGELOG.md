@@ -1,3 +1,10 @@
+## [4.21.7](https://github.com/informatievlaanderen/road-registry/compare/v4.21.6...v4.21.7) (2025-02-03)
+
+
+### Bug Fixes
+
+* translation for OutlinedRoadSegmentRemoved ([3b6f459](https://github.com/informatievlaanderen/road-registry/commit/3b6f45908f28c8a4df8ddd1f4b1d166890f74b9d))
+
 ## [4.21.6](https://github.com/informatievlaanderen/road-registry/compare/v4.21.5...v4.21.6) (2025-02-03)
 
 
