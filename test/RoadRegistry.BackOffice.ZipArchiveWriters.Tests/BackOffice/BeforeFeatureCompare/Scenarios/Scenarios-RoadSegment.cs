@@ -828,9 +828,15 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
                 builder.DataSet.RoadSegmentDbaseRecords.Add(builder.TestData.RoadSegment1DbaseRecord);
                 builder.DataSet.RoadSegmentShapeRecords.Add(builder.TestData.RoadSegment1ShapeRecord);
+                builder.DataSet.LaneDbaseRecords.Add(builder.TestData.RoadSegment1LaneDbaseRecord);
+                builder.DataSet.SurfaceDbaseRecords.Add(builder.TestData.RoadSegment1SurfaceDbaseRecord);
+                builder.DataSet.WidthDbaseRecords.Add(builder.TestData.RoadSegment1WidthDbaseRecord);
 
                 builder.DataSet.RoadSegmentDbaseRecords.Add(builder.TestData.RoadSegment2DbaseRecord);
                 builder.DataSet.RoadSegmentShapeRecords.Add(builder.TestData.RoadSegment2ShapeRecord);
+                builder.DataSet.LaneDbaseRecords.Add(builder.TestData.RoadSegment2LaneDbaseRecord);
+                builder.DataSet.SurfaceDbaseRecords.Add(builder.TestData.RoadSegment2SurfaceDbaseRecord);
+                builder.DataSet.WidthDbaseRecords.Add(builder.TestData.RoadSegment2WidthDbaseRecord);
             })
             .WithChange((builder, context) =>
             {
@@ -838,9 +844,15 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
                 builder.DataSet.RoadSegmentDbaseRecords.Add(builder.TestData.RoadSegment1DbaseRecord);
                 builder.DataSet.RoadSegmentShapeRecords.Add(builder.TestData.RoadSegment1ShapeRecord);
+                builder.DataSet.LaneDbaseRecords.Add(builder.TestData.RoadSegment1LaneDbaseRecord);
+                builder.DataSet.SurfaceDbaseRecords.Add(builder.TestData.RoadSegment1SurfaceDbaseRecord);
+                builder.DataSet.WidthDbaseRecords.Add(builder.TestData.RoadSegment1WidthDbaseRecord);
 
                 builder.DataSet.RoadSegmentDbaseRecords.Add(builder.TestData.RoadSegment2DbaseRecord);
                 builder.DataSet.RoadSegmentShapeRecords.Add(builder.TestData.RoadSegment2ShapeRecord);
+                builder.DataSet.LaneDbaseRecords.Add(builder.TestData.RoadSegment2LaneDbaseRecord);
+                builder.DataSet.SurfaceDbaseRecords.Add(builder.TestData.RoadSegment2SurfaceDbaseRecord);
+                builder.DataSet.WidthDbaseRecords.Add(builder.TestData.RoadSegment2WidthDbaseRecord);
             })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
@@ -869,8 +881,18 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                 builder.DataSet.Clear();
                 builder.DataSet.RoadSegmentDbaseRecords.Add(builder.TestData.RoadSegment1DbaseRecord);
                 builder.DataSet.RoadSegmentShapeRecords.Add(builder.TestData.RoadSegment1ShapeRecord);
+                builder.DataSet.LaneDbaseRecords.Add(builder.TestData.RoadSegment1LaneDbaseRecord);
+                builder.DataSet.SurfaceDbaseRecords.Add(builder.TestData.RoadSegment1SurfaceDbaseRecord);
+                builder.DataSet.WidthDbaseRecords.Add(builder.TestData.RoadSegment1WidthDbaseRecord);
+
                 builder.DataSet.RoadSegmentDbaseRecords.Add(builder.TestData.RoadSegment2DbaseRecord);
                 builder.DataSet.RoadSegmentShapeRecords.Add(builder.TestData.RoadSegment2ShapeRecord);
+                builder.TestData.RoadSegment2LaneDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment2ShapeRecord.Geometry.Length;
+                builder.TestData.RoadSegment2SurfaceDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment2ShapeRecord.Geometry.Length;
+                builder.TestData.RoadSegment2WidthDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment2ShapeRecord.Geometry.Length;
+                builder.DataSet.LaneDbaseRecords.Add(builder.TestData.RoadSegment2LaneDbaseRecord);
+                builder.DataSet.SurfaceDbaseRecords.Add(builder.TestData.RoadSegment2SurfaceDbaseRecord);
+                builder.DataSet.WidthDbaseRecords.Add(builder.TestData.RoadSegment2WidthDbaseRecord);
             })
             .WithChange((builder, context) =>
             {
@@ -885,8 +907,19 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                 builder.DataSet.Clear();
                 builder.DataSet.RoadSegmentDbaseRecords.Add(builder.TestData.RoadSegment1DbaseRecord);
                 builder.DataSet.RoadSegmentShapeRecords.Add(builder.TestData.RoadSegment1ShapeRecord);
+
+                builder.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = lineString.Length;
+                builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = lineString.Length;
+                builder.TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value = lineString.Length;
+                builder.DataSet.LaneDbaseRecords.Add(builder.TestData.RoadSegment1LaneDbaseRecord);
+                builder.DataSet.SurfaceDbaseRecords.Add(builder.TestData.RoadSegment1SurfaceDbaseRecord);
+                builder.DataSet.WidthDbaseRecords.Add(builder.TestData.RoadSegment1WidthDbaseRecord);
+
                 builder.DataSet.RoadSegmentDbaseRecords.Add(builder.TestData.RoadSegment2DbaseRecord);
                 builder.DataSet.RoadSegmentShapeRecords.Add(builder.TestData.RoadSegment2ShapeRecord);
+                builder.DataSet.LaneDbaseRecords.Add(builder.TestData.RoadSegment2LaneDbaseRecord);
+                builder.DataSet.SurfaceDbaseRecords.Add(builder.TestData.RoadSegment2SurfaceDbaseRecord);
+                builder.DataSet.WidthDbaseRecords.Add(builder.TestData.RoadSegment2WidthDbaseRecord);
             })
             .BuildWithResult(context => TranslatedChanges.Empty
                 .AppendChange(
@@ -905,6 +938,31 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                             StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
                         )
                         .WithGeometry(context.Change.TestData.RoadSegment1ShapeRecord.Geometry)
+                            .WithLane(
+                                new RoadSegmentLaneAttribute(
+                                    new AttributeId(context.Change.TestData.RoadSegment1LaneDbaseRecord.RS_OIDN.Value),
+                                    new RoadSegmentLaneCount(context.Change.TestData.RoadSegment1LaneDbaseRecord.AANTAL.Value),
+                                    RoadSegmentLaneDirection.ByIdentifier[context.Change.TestData.RoadSegment1LaneDbaseRecord.RICHTING.Value],
+                                    new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1LaneDbaseRecord.VANPOS.Value)),
+                                    new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value))
+                                )
+                            )
+                            .WithWidth(
+                                new RoadSegmentWidthAttribute(
+                                    new AttributeId(context.Change.TestData.RoadSegment1WidthDbaseRecord.WB_OIDN.Value),
+                                    new RoadSegmentWidth(context.Change.TestData.RoadSegment1WidthDbaseRecord.BREEDTE.Value),
+                                    new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1WidthDbaseRecord.VANPOS.Value)),
+                                    new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value))
+                                )
+                            )
+                            .WithSurface(
+                                new RoadSegmentSurfaceAttribute(
+                                    new AttributeId(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.WV_OIDN.Value),
+                                    RoadSegmentSurfaceType.ByIdentifier[context.Change.TestData.RoadSegment1SurfaceDbaseRecord.TYPE.Value],
+                                    new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.VANPOS.Value)),
+                                    new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value))
+                                )
+                            )
                 )
             );
 

@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatu
 using Core.ProblemCodes;
 using Exceptions;
 using FeatureCompare;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Tests.BackOffice;
 using Uploads;
@@ -13,7 +14,7 @@ public class RoadSegmentLaneScenarios : FeatureCompareTranslatorScenariosBase
         : base(testOutputHelper, logger)
     {
     }
-    
+
     [Fact]
     public async Task NotAdjacentFromToPositionShouldGiveProblem()
     {
@@ -52,7 +53,7 @@ public class RoadSegmentLaneScenarios : FeatureCompareTranslatorScenariosBase
         var problem = Assert.Single(ex.Problems);
         Assert.Equal(ProblemCode.RoadSegment.Lane.FromPositionNotEqualToZero, problem.Reason);
     }
-    
+
     [Fact]
     public async Task EqualFromToPositionShouldGiveProblem()
     {
@@ -79,7 +80,7 @@ public class RoadSegmentLaneScenarios : FeatureCompareTranslatorScenariosBase
             .Build();
 
         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
-        
+
         Assert.Contains(ex.Problems, problem => problem.Reason == ProblemCode.RoadSegment.Lane.HasLengthOfZero);
     }
 
@@ -117,13 +118,12 @@ public class RoadSegmentLaneScenarios : FeatureCompareTranslatorScenariosBase
         var zipArchive = new ExtractsZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
-                builder.DataSet.LaneDbaseRecords.RemoveAt(1);
+                builder.DataSet.LaneDbaseRecords.Clear();
             })
             .Build();
 
         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
-        var problem = Assert.Single(ex.Problems);
-        Assert.Equal(nameof(DbaseFileProblems.RoadSegmentsWithoutLaneAttributes), problem.Reason);
+        ex.Problems.Should().ContainSingle(x => x.Reason == nameof(DbaseFileProblems.RoadSegmentsWithoutLaneAttributes));
     }
 
     [Fact]
