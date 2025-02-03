@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatu
 
 using Exceptions;
 using FeatureCompare;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Tests.BackOffice;
 using Scenarios;
@@ -75,7 +76,7 @@ public class ExtractRequiredFilesTests : FeatureCompareTranslatorScenariosBase
             if (isRequired)
             {
                 var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
-                Assert.Single(ex.Problems, x => x.File == fileName && x.Reason == nameof(ZipArchiveProblems.RequiredFileMissing));
+                ex.Problems.Should().ContainSingle(x => x.File == fileName && x.Reason == nameof(ZipArchiveProblems.RequiredFileMissing));
             }
             else
             {
