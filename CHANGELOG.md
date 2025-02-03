@@ -1,3 +1,11 @@
+## [4.21.6](https://github.com/informatievlaanderen/road-registry/compare/v4.21.5...v4.21.6) (2025-02-03)
+
+
+### Bug Fixes
+
+* **ci:** update pipelines ([fcda88e](https://github.com/informatievlaanderen/road-registry/commit/fcda88e77243a47f457763f77bbe273e6163eae5))
+* **feature-compare:** validate missing lanes/surfaces/widths when the dbf file is empty ([4c1a94c](https://github.com/informatievlaanderen/road-registry/commit/4c1a94cb556eb1d05a165725c279125b4cfeb4fe))
+
 ## [4.21.5](https://github.com/informatievlaanderen/road-registry/compare/v4.21.4...v4.21.5) (2025-01-31)
 
 ## [4.21.4](https://github.com/informatievlaanderen/road-registry/compare/v4.21.3...v4.21.4) (2025-01-30)
