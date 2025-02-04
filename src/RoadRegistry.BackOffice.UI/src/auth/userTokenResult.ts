@@ -1,4 +1,4 @@
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import RoadRegistry from '@/types/road-registry';
 
 const convertUserInfoToToken = (userInfo: RoadRegistry.UserInfo) => {
