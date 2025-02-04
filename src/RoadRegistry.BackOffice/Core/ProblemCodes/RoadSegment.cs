@@ -184,12 +184,14 @@ public sealed partial record ProblemCode
             {
                 public static readonly ProblemCode NotLinked = new("RoadSegmentStreetNameLeftNotLinked");
                 public static readonly ProblemCode NotUnlinked = new("RoadSegmentStreetNameLeftNotUnlinked");
+                public static readonly ProblemCode NotValid = new("RoadSegmentStreetNameLeftNotValid");
             }
 
             public static class Right
             {
                 public static readonly ProblemCode NotLinked = new("RoadSegmentStreetNameRightNotLinked");
                 public static readonly ProblemCode NotUnlinked = new("RoadSegmentStreetNameRightNotUnlinked");
+                public static readonly ProblemCode NotValid = new("RoadSegmentStreetNameRightNotValid");
             }
         }
 

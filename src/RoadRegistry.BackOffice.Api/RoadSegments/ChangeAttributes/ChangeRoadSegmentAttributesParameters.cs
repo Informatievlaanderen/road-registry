@@ -19,38 +19,40 @@ public class ChangeRoadSegmentAttributesParametersExamples : IExamplesProvider<C
         {
             new()
             {
-                Wegsegmenten = new[] { 481110, 481111 },
+                Wegsegmenten = [481110, 481111],
                 Wegbeheerder = "AWV112"
             },
             new()
             {
-                Wegsegmenten = new[] { 481111 },
+                Wegsegmenten = [481111],
                 Wegsegmentstatus = RoadSegmentStatus.OutOfUse.ToDutchString(),
                 MorfologischeWegklasse = RoadSegmentMorphology.PrimitiveRoad.ToDutchString(),
                 Wegbeheerder = "AWV114",
-                EuropeseWegen = new[]
-                {
+                EuropeseWegen =
+                [
                     new ChangeAttributeEuropeanRoad
                     {
                         EuNummer = "E40"
                     }
-                },
-                NationaleWegen = new[]
-                {
+                ],
+                NationaleWegen =
+                [
                     new ChangeAttributeNationalRoad
                     {
                         Ident2 = "N180"
                     }
-                },
-                GenummerdeWegen = new[]
-                {
+                ],
+                GenummerdeWegen =
+                [
                     new ChangeAttributeNumberedRoad
                     {
                         Ident8 = "N0080001",
                         Richting = RoadSegmentNumberedRoadDirection.Forward.ToDutchString(),
                         Volgnummer = new RoadSegmentNumberedRoadOrdinal(2686).ToDutchString()
                     }
-                }
+                ],
+                LinkerstraatnaamId = "https://data.vlaanderen.be/id/straatnaam/1",
+                RechterstraatnaamId = StreetNameLocalId.NotApplicable.ToDutchString() // todo-rik valideren met Erik
             }
         };
     }

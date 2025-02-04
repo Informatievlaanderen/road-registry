@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.RoadSegments;
+using BackOffice.Handlers.Extensions;
 using BackOffice.Handlers.Sqs.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
@@ -137,6 +138,18 @@ public partial class RoadSegmentsController
                             Direction = RoadSegmentNumberedRoadDirection.ParseUsingDutchName(numberedRoad.Richting),
                             Ordinal = RoadSegmentNumberedRoadOrdinal.ParseUsingDutchName(numberedRoad.Volgnummer)
                         }).ToArray();
+                    }
+
+                    if (attributesChange.LinkerstraatnaamId is not null)
+                    {
+                        var identifier = attributesChange.LinkerstraatnaamId.GetIdentifierPartFromPuri();
+                        roadSegment.LeftSideStreetNameId = StreetNameLocalId.ParseUsingDutchName(identifier);
+                    }
+
+                    if (attributesChange.RechterstraatnaamId is not null)
+                    {
+                        var identifier = attributesChange.RechterstraatnaamId.GetIdentifierPartFromPuri();
+                        roadSegment.RightSideStreetNameId = StreetNameLocalId.ParseUsingDutchName(identifier);
                     }
                 });
             }

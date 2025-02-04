@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using RoadRegistry.BackOffice.Handlers.Extensions;
 
 public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttributeParameters>
 {
@@ -28,6 +29,8 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
             && context.InstanceToValidate.EuropeseWegen is null
             && context.InstanceToValidate.NationaleWegen is null
             && context.InstanceToValidate.GenummerdeWegen is null
+            && context.InstanceToValidate.LinkerstraatnaamId is null
+            && context.InstanceToValidate.RechterstraatnaamId is null
            )
         {
             context.AddFailure(new ValidationFailure
@@ -126,6 +129,22 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
 
             RuleForEach(x => x.GenummerdeWegen)
                 .SetValidator(new ChangeAttributeNumberedRoadValidator());
+        });
+
+        When(x => x.LinkerstraatnaamId is not null, () =>
+        {
+            RuleFor(x => x.LinkerstraatnaamId)
+                .Cascade(CascadeMode.Stop)
+                .MustBeValidStreetNameId(allowSystemValues: true)
+                .WithProblemCode(ProblemCode.RoadSegment.StreetName.Left.NotValid);
+        });
+
+        When(x => x.RechterstraatnaamId is not null, () =>
+        {
+            RuleFor(x => x.RechterstraatnaamId)
+                .Cascade(CascadeMode.Stop)
+                .MustBeValidStreetNameId(allowSystemValues: true)
+                .WithProblemCode(ProblemCode.RoadSegment.StreetName.Right.NotValid);
         });
     }
 
