@@ -8,9 +8,11 @@ using Core;
 using Hosts;
 using Messages;
 using Microsoft.Extensions.Configuration;
+using Moq;
 using NodaTime;
 using NodaTime.Text;
 using RoadRegistry.Tests.BackOffice.Extracts;
+using TicketingService.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 
 public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesFixture

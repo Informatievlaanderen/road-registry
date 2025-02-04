@@ -6,6 +6,7 @@ using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
+using FeatureToggles;
 using Framework;
 using Handlers;
 using Hosts;
@@ -14,8 +15,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IO;
 using NodaTime;
 using Requests;
-using RoadRegistry.BackOffice.FeatureToggles;
-using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.StreetName;
 using Sqs.RoadSegments;
 
 public abstract class WhenChangeAttributesFixture : SqsLambdaHandlerFixture<ChangeRoadSegmentAttributesSqsLambdaRequestHandler, ChangeRoadSegmentAttributesSqsLambdaRequest, ChangeRoadSegmentAttributesSqsRequest>
@@ -52,6 +52,12 @@ public abstract class WhenChangeAttributesFixture : SqsLambdaHandlerFixture<Chan
         new RecyclableMemoryStreamManager(),
         FileEncoding.UTF8,
         new FakeOrganizationCache(),
+        new StreetNameCacheClient(new FakeStreetNameCache()
+            .AddStreetName(WellKnownStreetNameIds.Proposed, "Proposed street", "voorgesteld")
+            .AddStreetName(WellKnownStreetNameIds.Current, "Current street", "inGebruik")
+            .AddStreetName(WellKnownStreetNameIds.Retired, "Retired street", "gehistoreerd")
+            .AddStreetName(WellKnownStreetNameIds.Null, "Not found street", null)
+        ),
         new NullLogger<ChangeRoadSegmentAttributesSqsLambdaRequestHandler>()
     );
 
@@ -70,5 +76,13 @@ public abstract class WhenChangeAttributesFixture : SqsLambdaHandlerFixture<Chan
                     LoggerFactory
                 )
             }), ApplicationMetadata);
+    }
+
+    protected static class WellKnownStreetNameIds
+    {
+        public const int Proposed = 1;
+        public const int Current = 2;
+        public const int Retired = 3;
+        public const int Null = 4;
     }
 }
