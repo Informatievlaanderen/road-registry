@@ -15,6 +15,7 @@ using Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Requests;
+using StreetName;
 using TicketingService.Abstractions;
 using AddRoadSegmentToEuropeanRoad = BackOffice.Uploads.AddRoadSegmentToEuropeanRoad;
 using AddRoadSegmentToNationalRoad = BackOffice.Uploads.AddRoadSegmentToNationalRoad;
@@ -29,6 +30,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
     private readonly EditorContext _editorContext;
     private readonly IOrganizationCache _organizationCache;
+    private readonly IStreetNameClient _streetNameClient;
 
     public ChangeRoadSegmentAttributesSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -41,6 +43,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         RecyclableMemoryStreamManager manager,
         FileEncoding fileEncoding,
         IOrganizationCache organizationCache,
+        IStreetNameClient streetNameClient,
         ILogger<ChangeRoadSegmentAttributesSqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -53,6 +56,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
         _editorContext = editorContext;
         _organizationCache = organizationCache;
+        _streetNameClient = streetNameClient;
     }
 
     protected override async Task<object> InnerHandle(ChangeRoadSegmentAttributesSqsLambdaRequest request, CancellationToken cancellationToken)
@@ -65,9 +69,9 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
 
             foreach (var change in request.Request.ChangeRequests)
             {
-                var roadSegmentId = new RoadSegmentId(change.Id);
+                var roadSegmentId = change.Id;
 
-                var editorRoadSegment = await _editorContext.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == change.Id, cancellationToken);
+                var editorRoadSegment = await _editorContext.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentId, cancellationToken);
                 if (editorRoadSegment is null)
                 {
                     problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));
@@ -97,7 +101,28 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         return new ChangeRoadSegmentAttributesResponse();
     }
 
-    private async Task<(TranslatedChanges, Problems)> AppendChange(TranslatedChanges changes, Problems problems, RoadSegment roadSegment, ChangeRoadSegmentAttributeRequest change, CancellationToken cancellationToken)
+    private async Task<(TranslatedChanges, Problems)> AppendChange(
+        TranslatedChanges changes,
+        Problems problems,
+        RoadSegment roadSegment,
+        ChangeRoadSegmentAttributeRequest change,
+        CancellationToken cancellationToken)
+    {
+        (changes, problems) = await AppendAttributeChanges(changes, problems, roadSegment, change, cancellationToken);
+
+        changes = AppendEuropeanRoadChanges(changes, roadSegment, change.EuropeanRoads);
+        changes = AppendNationalRoadChanges(changes, roadSegment, change.NationalRoads);
+        changes = AppendNumberedRoadChanges(changes, roadSegment, change.NumberedRoads);
+
+        return (changes, problems);
+    }
+
+    private async Task<(TranslatedChanges changes, Problems problems)> AppendAttributeChanges(
+        TranslatedChanges changes,
+        Problems problems,
+        RoadSegment roadSegment,
+        ChangeRoadSegmentAttributeRequest change,
+        CancellationToken cancellationToken)
     {
         var maintenanceAuthority = change.MaintenanceAuthority;
         if (maintenanceAuthority is not null)
@@ -106,37 +131,51 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
             problems += maintenanceAuthorityProblems;
         }
 
-        if (new object?[] { maintenanceAuthority, change.Morphology, change.Status, change.Category, change.AccessRestriction }.Any(x => x is not null))
+        if (new object?[]
+            {
+                maintenanceAuthority, change.Morphology, change.Status, change.Category, change.AccessRestriction,
+                change.LeftSideStreetNameId, change.RightSideStreetNameId,
+            }.All(x => x is null))
         {
-            if (change.Category is not null
-                && roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Measured
-                && RoadSegmentCategory.IsUpgraded(roadSegment.AttributeHash.Category))
-            {
-                var allowedCategories = RoadSegmentCategory.All.Except(RoadSegmentCategory.Obsolete).ToArray();
-                if (!allowedCategories.Contains(change.Category))
-                {
-                    problems += new RoadSegmentCategoryNotChangedBecauseCurrentIsNewerVersion(roadSegment.Id);
-                }
-            }
-
-            changes = changes.AppendChange(new ModifyRoadSegmentAttributes(RecordNumber.Initial, roadSegment.Id, roadSegment.AttributeHash.GeometryDrawMethod)
-            {
-                MaintenanceAuthority = maintenanceAuthority,
-                Morphology = change.Morphology,
-                Status = change.Status,
-                Category = change.Category,
-                AccessRestriction = change.AccessRestriction
-            });
+            return (changes, problems);
         }
 
-        changes = AppendChange(changes, roadSegment, change.EuropeanRoads);
-        changes = AppendChange(changes, roadSegment, change.NationalRoads);
-        changes = AppendChange(changes, roadSegment, change.NumberedRoads);
+        if (change.Category is not null
+            && roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Measured
+            && RoadSegmentCategory.IsUpgraded(roadSegment.AttributeHash.Category))
+        {
+            var allowedCategories = RoadSegmentCategory.All.Except(RoadSegmentCategory.Obsolete).ToArray();
+            if (!allowedCategories.Contains(change.Category))
+            {
+                problems += new RoadSegmentCategoryNotChangedBecauseCurrentIsNewerVersion(roadSegment.Id);
+            }
+        }
+
+        if (change.LeftSideStreetNameId is not null)
+        {
+            problems = await ValidateStreetName(change.Id, change.LeftSideStreetNameId.Value, problems, cancellationToken);
+        }
+
+        if (change.RightSideStreetNameId is not null)
+        {
+            problems = await ValidateStreetName(change.Id, change.RightSideStreetNameId.Value, problems, cancellationToken);
+        }
+
+        changes = changes.AppendChange(new ModifyRoadSegmentAttributes(RecordNumber.Initial, roadSegment.Id, roadSegment.AttributeHash.GeometryDrawMethod)
+        {
+            MaintenanceAuthority = maintenanceAuthority,
+            Morphology = change.Morphology,
+            Status = change.Status,
+            Category = change.Category,
+            AccessRestriction = change.AccessRestriction,
+            LeftSideStreetNameId = change.LeftSideStreetNameId,
+            RightSideStreetNameId = change.RightSideStreetNameId
+        });
 
         return (changes, problems);
     }
 
-    private TranslatedChanges AppendChange(TranslatedChanges changes, RoadSegment roadSegment, ICollection<EuropeanRoadNumber>? europeanRoadNumbers)
+    private TranslatedChanges AppendEuropeanRoadChanges(TranslatedChanges changes, RoadSegment roadSegment, ICollection<EuropeanRoadNumber>? europeanRoadNumbers)
     {
         if (europeanRoadNumbers is null)
         {
@@ -190,7 +229,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         return changes;
     }
 
-    private static TranslatedChanges AppendChange(TranslatedChanges changes, RoadSegment roadSegment, ICollection<NationalRoadNumber>? nationalRoadNumbers)
+    private static TranslatedChanges AppendNationalRoadChanges(TranslatedChanges changes, RoadSegment roadSegment, ICollection<NationalRoadNumber>? nationalRoadNumbers)
     {
         if (nationalRoadNumbers is null)
         {
@@ -244,7 +283,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         return changes;
     }
 
-    private TranslatedChanges AppendChange(TranslatedChanges changes, RoadSegment roadSegment, ICollection<ChangeRoadSegmentNumberedRoadAttribute>? numberedRoads)
+    private TranslatedChanges AppendNumberedRoadChanges(TranslatedChanges changes, RoadSegment roadSegment, ICollection<ChangeRoadSegmentNumberedRoadAttribute>? numberedRoads)
     {
         if (numberedRoads is null)
         {
@@ -328,5 +367,35 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         }
 
         return (organizationId, problems);
+    }
+
+    private async Task<Problems> ValidateStreetName(
+        RoadSegmentId roadSegmentId,
+        StreetNameLocalId streetNameId,
+        Problems problems,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var streetName = await _streetNameClient.GetAsync(streetNameId, cancellationToken);
+            if (streetName is null)
+            {
+                return problems.Add(new StreetNameNotFound(roadSegmentId));
+            }
+
+            string[] activeStreetNameStatus = [StreetNameStatus.Current, StreetNameStatus.Proposed];
+            if (activeStreetNameStatus.All(status => !string.Equals(streetName.Status, status, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                return problems.Add(new RoadSegmentStreetNameNotProposedOrCurrent(roadSegmentId));
+            }
+        }
+        catch (StreetNameRegistryUnexpectedStatusCodeException ex)
+        {
+            Logger.LogError(ex.Message);
+
+            problems += new StreetNameRegistryUnexpectedError((int)ex.StatusCode);
+        }
+
+        return problems;
     }
 }

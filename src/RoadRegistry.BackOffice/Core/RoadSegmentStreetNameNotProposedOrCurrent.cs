@@ -8,4 +8,8 @@ public class RoadSegmentStreetNameNotProposedOrCurrent : Error
         : base(ProblemCode.RoadSegment.StreetName.NotProposedOrCurrent)
     {
     }
+    public RoadSegmentStreetNameNotProposedOrCurrent(RoadSegmentId roadSegmentId)
+        : base(ProblemCode.RoadSegment.StreetName.NotProposedOrCurrent, new ProblemParameter("SegmentId", roadSegmentId.ToString()))
+    {
+    }
 }

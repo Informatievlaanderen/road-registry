@@ -8,4 +8,9 @@ public class StreetNameNotFound : Error
         : base(ProblemCode.StreetName.NotFound)
     {
     }
+
+    public StreetNameNotFound(RoadSegmentId roadSegmentId)
+        : base(ProblemCode.StreetName.NotFound, new ProblemParameter("SegmentId", roadSegmentId.ToString()))
+    {
+    }
 }

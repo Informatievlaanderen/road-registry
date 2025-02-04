@@ -230,8 +230,9 @@ public static class ProblemTranslator
             $"Wegsegment status is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.") },
         {ProblemCode.RoadSegment.Status.IsRequired, problem => new(problem.Severity, "WegsegmentStatusVerplicht",
             "Wegsegment status is verplicht.") },
-        {ProblemCode.RoadSegment.StreetName.NotProposedOrCurrent, problem => new(problem.Severity, "WegsegmentStraatnaamNietVoorgesteldOfInGebruik",
-            "Deze actie is enkel toegelaten voor straatnamen met status 'voorgesteld' of 'in gebruik'.") },
+        {ProblemCode.RoadSegment.StreetName.NotProposedOrCurrent, problem => new(problem.Severity, "WegsegmentStraatnaamNietVoorgesteldOfInGebruik", problem.HasParameter("SegmentId")
+            ? $"De straatnaam voor wegsegment met id {problem.GetParameterValue("Identifier")} moet status 'voorgesteld' of 'in gebruik' hebben."
+            : "Deze actie is enkel toegelaten voor straatnamen met status 'voorgesteld' of 'in gebruik'.") },
         {ProblemCode.RoadSegment.StreetName.Left.NotLinked, problem => new(problem.Severity, "LinkerstraatnaamNietGekoppeld",
             $"Het wegsegment met id {problem.Parameters[0].Value} is niet gekoppeld aan de linkerstraatnaam '{problem.Parameters[1].Value}'") },
         {ProblemCode.RoadSegment.StreetName.Left.NotUnlinked, problem => new(problem.Severity, "LinkerstraatnaamNietOntkoppeld",
@@ -292,8 +293,9 @@ public static class ProblemTranslator
         {ProblemCode.ShapeFile.InvalidPolygonShellOrientation, problem => new(problem.Severity, problem.Reason,
             "De orientatie van de polygoon moet in wijzerzin zijn.")},
 
-        {ProblemCode.StreetName.NotFound, problem => new(problem.Severity, "StraatnaamNietGekend",
-            "De straatnaam is niet gekend in het Straatnamenregister.")},
+        {ProblemCode.StreetName.NotFound, problem => new(problem.Severity, "StraatnaamNietGekend", problem.HasParameter("SegmentId")
+            ? $"De straatnaam voor het wegsegment met id {problem.GetParameterValue("SegmentId")} is niet gekend in het Straatnamenregister."
+            : "De straatnaam is niet gekend in het Straatnamenregister.")},
         {ProblemCode.StreetName.RegistryUnexpectedError, problem => new(problem.Severity, "StraatnamenregisterOnverwachteFout",
             $"Het Straatnamenregister gaf een onverwachte fout {problem.GetParameterValue("StatusCode")}.")},
 
