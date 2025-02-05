@@ -185,6 +185,8 @@ public sealed partial record ProblemCode
                 public static readonly ProblemCode NotLinked = new("RoadSegmentStreetNameLeftNotLinked");
                 public static readonly ProblemCode NotUnlinked = new("RoadSegmentStreetNameLeftNotUnlinked");
                 public static readonly ProblemCode NotValid = new("RoadSegmentStreetNameLeftNotValid");
+                public static readonly ProblemCode NotProposedOrCurrent = new("RoadSegmentStreetNameLeftNotProposedOrCurrent");
+                public static readonly ProblemCode NotFound = new("RoadSegmentStreetNameLeftNotFound");
             }
 
             public static class Right
@@ -192,6 +194,8 @@ public sealed partial record ProblemCode
                 public static readonly ProblemCode NotLinked = new("RoadSegmentStreetNameRightNotLinked");
                 public static readonly ProblemCode NotUnlinked = new("RoadSegmentStreetNameRightNotUnlinked");
                 public static readonly ProblemCode NotValid = new("RoadSegmentStreetNameRightNotValid");
+                public static readonly ProblemCode NotProposedOrCurrent = new("RoadSegmentStreetNameRightNotProposedOrCurrent");
+                public static readonly ProblemCode NotFound = new("RoadSegmentStreetNameRightNotFound");
             }
         }
 

@@ -8,8 +8,22 @@ public class RoadSegmentStreetNameNotProposedOrCurrent : Error
         : base(ProblemCode.RoadSegment.StreetName.NotProposedOrCurrent)
     {
     }
-    public RoadSegmentStreetNameNotProposedOrCurrent(RoadSegmentId roadSegmentId)
-        : base(ProblemCode.RoadSegment.StreetName.NotProposedOrCurrent, new ProblemParameter("SegmentId", roadSegmentId.ToString()))
+}
+
+public class RoadSegmentLeftStreetNameNotProposedOrCurrent : Error
+{
+    public RoadSegmentLeftStreetNameNotProposedOrCurrent(RoadSegmentId roadSegmentId)
+        : base(ProblemCode.RoadSegment.StreetName.Left.NotProposedOrCurrent, new ProblemParameter("SegmentId", roadSegmentId.ToString()))
     {
     }
 }
+
+public class RoadSegmentRightStreetNameNotProposedOrCurrent : Error
+{
+    public RoadSegmentRightStreetNameNotProposedOrCurrent(RoadSegmentId roadSegmentId)
+        : base(ProblemCode.RoadSegment.StreetName.Right.NotProposedOrCurrent, new ProblemParameter("SegmentId", roadSegmentId.ToString()))
+    {
+    }
+}
+
+

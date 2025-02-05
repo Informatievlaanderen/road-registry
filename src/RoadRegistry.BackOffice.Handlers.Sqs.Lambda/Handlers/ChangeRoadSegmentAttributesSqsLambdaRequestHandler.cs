@@ -151,15 +151,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
             }
         }
 
-        if (change.LeftSideStreetNameId is not null)
-        {
-            problems = await ValidateStreetName(change.Id, change.LeftSideStreetNameId.Value, problems, cancellationToken);
-        }
-
-        if (change.RightSideStreetNameId is not null)
-        {
-            problems = await ValidateStreetName(change.Id, change.RightSideStreetNameId.Value, problems, cancellationToken);
-        }
+        problems = await ValidateStreetNames(change, problems, cancellationToken);
 
         changes = changes.AppendChange(new ModifyRoadSegmentAttributes(RecordNumber.Initial, roadSegment.Id, roadSegment.AttributeHash.GeometryDrawMethod)
         {
@@ -369,24 +361,41 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         return (organizationId, problems);
     }
 
-    private async Task<Problems> ValidateStreetName(
-        RoadSegmentId roadSegmentId,
-        StreetNameLocalId streetNameId,
+    private async Task<Problems> ValidateStreetNames(
+        ChangeRoadSegmentAttributeRequest change,
         Problems problems,
         CancellationToken cancellationToken)
     {
         try
         {
-            var streetName = await _streetNameClient.GetAsync(streetNameId, cancellationToken);
-            if (streetName is null)
+            string[] activeStreetNameStatus = [StreetNameStatus.Current, StreetNameStatus.Proposed];
+
+            if (change.LeftSideStreetNameId is not null)
             {
-                return problems.Add(new StreetNameNotFound(roadSegmentId));
+                var streetName = await _streetNameClient.GetAsync(change.LeftSideStreetNameId.Value, cancellationToken);
+                if (streetName is null)
+                {
+                    return problems.Add(new LeftStreetNameNotFound(change.Id));
+                }
+
+                if (activeStreetNameStatus.All(status => !string.Equals(streetName.Status, status, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    return problems.Add(new RoadSegmentLeftStreetNameNotProposedOrCurrent(change.Id));
+                }
             }
 
-            string[] activeStreetNameStatus = [StreetNameStatus.Current, StreetNameStatus.Proposed];
-            if (activeStreetNameStatus.All(status => !string.Equals(streetName.Status, status, StringComparison.InvariantCultureIgnoreCase)))
+            if (change.RightSideStreetNameId is not null)
             {
-                return problems.Add(new RoadSegmentStreetNameNotProposedOrCurrent(roadSegmentId));
+                var streetName = await _streetNameClient.GetAsync(change.RightSideStreetNameId.Value, cancellationToken);
+                if (streetName is null)
+                {
+                    return problems.Add(new RightStreetNameNotFound(change.Id));
+                }
+
+                if (activeStreetNameStatus.All(status => !string.Equals(streetName.Status, status, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    return problems.Add(new RoadSegmentRightStreetNameNotProposedOrCurrent(change.Id));
+                }
             }
         }
         catch (StreetNameRegistryUnexpectedStatusCodeException ex)

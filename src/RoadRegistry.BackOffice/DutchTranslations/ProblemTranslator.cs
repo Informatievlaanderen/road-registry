@@ -230,17 +230,27 @@ public static class ProblemTranslator
             $"Wegsegment status is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.") },
         {ProblemCode.RoadSegment.Status.IsRequired, problem => new(problem.Severity, "WegsegmentStatusVerplicht",
             "Wegsegment status is verplicht.") },
-        {ProblemCode.RoadSegment.StreetName.NotProposedOrCurrent, problem => new(problem.Severity, "WegsegmentStraatnaamNietVoorgesteldOfInGebruik", problem.HasParameter("SegmentId")
-            ? $"De straatnaam voor wegsegment met id {problem.GetParameterValue("Identifier")} moet status 'voorgesteld' of 'in gebruik' hebben."
-            : "Deze actie is enkel toegelaten voor straatnamen met status 'voorgesteld' of 'in gebruik'.") },
+        {ProblemCode.RoadSegment.StreetName.NotProposedOrCurrent, problem => new(problem.Severity, "WegsegmentStraatnaamNietVoorgesteldOfInGebruik",
+            "Deze actie is enkel toegelaten voor straatnamen met status 'voorgesteld' of 'in gebruik'.") },
+
         {ProblemCode.RoadSegment.StreetName.Left.NotLinked, problem => new(problem.Severity, "LinkerstraatnaamNietGekoppeld",
             $"Het wegsegment met id {problem.Parameters[0].Value} is niet gekoppeld aan de linkerstraatnaam '{problem.Parameters[1].Value}'") },
         {ProblemCode.RoadSegment.StreetName.Left.NotUnlinked, problem => new(problem.Severity, "LinkerstraatnaamNietOntkoppeld",
             $"Het wegsegment met id {problem.Parameters[0].Value} heeft reeds een linkerstraatnaam. Gelieve deze eerst te ontkoppelen.") },
+        {ProblemCode.RoadSegment.StreetName.Left.NotProposedOrCurrent, problem => new(problem.Severity, "LinkerstraatnaamNietVoorgesteldOfInGebruik",
+            $"De linkerstraatnaam voor wegsegment met id {problem.GetParameterValue("SegmentId")} moet status 'voorgesteld' of 'in gebruik' hebben.") },
+        {ProblemCode.RoadSegment.StreetName.Left.NotFound, problem => new(problem.Severity, "LinkerstraatnaamNietGekend",
+            $"De linkerstraatnaam voor het wegsegment met id {problem.GetParameterValue("SegmentId")} is niet gekend in het Straatnamenregister.")},
+
         {ProblemCode.RoadSegment.StreetName.Right.NotLinked, problem => new(problem.Severity, "RechterstraatnaamNietGekoppeld",
             $"Het wegsegment met id {problem.Parameters[0].Value} is niet gekoppeld aan de rechterstraatnaam '{problem.Parameters[1].Value}'") },
         {ProblemCode.RoadSegment.StreetName.Right.NotUnlinked, problem => new(problem.Severity, "RechterstraatnaamNietOntkoppeld",
             $"Het wegsegment met id {problem.Parameters[0].Value} heeft reeds een rechterstraatnaam. Gelieve deze eerst te ontkoppelen.") },
+        {ProblemCode.RoadSegment.StreetName.Right.NotProposedOrCurrent, problem => new(problem.Severity, "RechterstraatnaamNietVoorgesteldOfInGebruik",
+            $"De rechterstraatnaam voor wegsegment met id {problem.GetParameterValue("SegmentId")} moet status 'voorgesteld' of 'in gebruik' hebben.") },
+        {ProblemCode.RoadSegment.StreetName.Right.NotFound, problem => new(problem.Severity, "RechterstraatnaamNietGekend",
+            $"De rechterstraatnaam voor het wegsegment met id {problem.GetParameterValue("SegmentId")} is niet gekend in het Straatnamenregister.")},
+
         {ProblemCode.RoadSegment.Surface.FromPositionNotEqualToZero, problem => new(problem.Severity, problem.Reason,
             $"De van positie ({problem.Parameters[1].Value}) van het eerste wegverharding attribuut met id {problem.Parameters[0].Value} is niet 0.0.") },
         {ProblemCode.RoadSegment.Surface.HasLengthOfZero, problem => new(problem.Severity, problem.Reason,
@@ -293,9 +303,7 @@ public static class ProblemTranslator
         {ProblemCode.ShapeFile.InvalidPolygonShellOrientation, problem => new(problem.Severity, problem.Reason,
             "De orientatie van de polygoon moet in wijzerzin zijn.")},
 
-        {ProblemCode.StreetName.NotFound, problem => new(problem.Severity, "StraatnaamNietGekend", problem.HasParameter("SegmentId")
-            ? $"De straatnaam voor het wegsegment met id {problem.GetParameterValue("SegmentId")} is niet gekend in het Straatnamenregister."
-            : "De straatnaam is niet gekend in het Straatnamenregister.")},
+        {ProblemCode.StreetName.NotFound, problem => new(problem.Severity, "StraatnaamNietGekend", "De straatnaam is niet gekend in het Straatnamenregister.")},
         {ProblemCode.StreetName.RegistryUnexpectedError, problem => new(problem.Severity, "StraatnamenregisterOnverwachteFout",
             $"Het Straatnamenregister gaf een onverwachte fout {problem.GetParameterValue("StatusCode")}.")},
 

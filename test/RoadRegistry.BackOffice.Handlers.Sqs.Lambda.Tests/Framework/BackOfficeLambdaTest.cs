@@ -476,10 +476,12 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
                 new TicketError(message, code),
                 CancellationToken.None));
     }
+
     protected void VerifyThatTicketHasErrorList(string code, string message)
     {
         VerifyThatTicketHasErrorList(TicketingMock, code, message);
     }
+
     protected void VerifyThatTicketHasErrorList(Mock<ITicketing> ticketing, string code, string message)
     {
         ticketing.Verify(x =>

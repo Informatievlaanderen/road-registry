@@ -8,9 +8,20 @@ public class StreetNameNotFound : Error
         : base(ProblemCode.StreetName.NotFound)
     {
     }
+}
 
-    public StreetNameNotFound(RoadSegmentId roadSegmentId)
-        : base(ProblemCode.StreetName.NotFound, new ProblemParameter("SegmentId", roadSegmentId.ToString()))
+public class LeftStreetNameNotFound : Error
+{
+    public LeftStreetNameNotFound(RoadSegmentId roadSegmentId)
+        : base(ProblemCode.RoadSegment.StreetName.Left.NotFound, new ProblemParameter("SegmentId", roadSegmentId.ToString()))
+    {
+    }
+}
+
+public class RightStreetNameNotFound : Error
+{
+    public RightStreetNameNotFound(RoadSegmentId roadSegmentId)
+        : base(ProblemCode.RoadSegment.StreetName.Right.NotFound, new ProblemParameter("SegmentId", roadSegmentId.ToString()))
     {
     }
 }
