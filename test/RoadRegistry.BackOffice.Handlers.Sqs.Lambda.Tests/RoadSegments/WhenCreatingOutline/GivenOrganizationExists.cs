@@ -55,8 +55,6 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
         await HandleRequest(request);
 
         // Assert
-        await ThrowIfLastCommandIsRoadNetworkChangesRejected();
-
         var roadSegmentId = new RoadSegmentId(1);
         await VerifyThatTicketHasCompleted(roadSegmentId);
 

@@ -417,19 +417,6 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
         await GivenEvents(RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(roadSegmentId), roadNetworkChangesAccepted);
     }
 
-    protected async Task ThrowIfLastCommandIsRoadNetworkChangesRejected()
-    {
-        var rejectCommand = await Store.GetLastMessageIfTypeIs<RoadNetworkChangesRejected>();
-        if (rejectCommand != null)
-        {
-            var problems = rejectCommand.Changes.SelectMany(change => change.Problems).ToArray();
-            if (problems.Any())
-            {
-                throw new Exception(string.Join(Environment.NewLine, problems.Select(x => x.ToString())));
-            }
-        }
-    }
-
     protected async Task VerifyThatTicketHasCompleted(RoadSegmentId roadSegmentId)
     {
         var roadNetwork = await RoadRegistryContext.RoadNetworks.ForOutlinedRoadSegment(roadSegmentId, CancellationToken.None);

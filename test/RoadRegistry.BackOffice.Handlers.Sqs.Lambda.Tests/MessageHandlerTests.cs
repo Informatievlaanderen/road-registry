@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests;
 
 using Abstractions;
 using Autofac;
@@ -20,6 +20,7 @@ public sealed class MessageHandlerTests : RoadRegistryTestBase
     {
     }
 
+    // todo-rik why is this method not called?
     private async Task WhenProcessing_SqsRequest_Then_SqsLambdaRequest_IsSent<TSqsRequest, TSqsLambdaRequest, TBackOfficeRequest>()
         where TSqsRequest : SqsRequest, IHasBackOfficeRequest<TBackOfficeRequest>
         where TSqsLambdaRequest : SqsLambdaRequest, IHasBackOfficeRequest<TBackOfficeRequest>
