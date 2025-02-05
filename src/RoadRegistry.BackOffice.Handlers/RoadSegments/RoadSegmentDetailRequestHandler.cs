@@ -44,10 +44,8 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
             throw new RoadSegmentNotFoundException();
         }
 
-        var dbfRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegment.DbaseRecord, _manager, _fileEncoding);
-
-        var streetNameIds = new[] { dbfRecord.LSTRNMID?.Value, dbfRecord.RSTRNMID?.Value }
-            .Where(x => x != null)
+        var streetNameIds = new[] { roadSegment.LeftSideStreetNameId, roadSegment.RightSideStreetNameId }
+            .Where(x => x.HasValue)
             .Select(x => x.Value)
             .Distinct()
             .ToArray();
@@ -101,27 +99,27 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
 
         return new RoadSegmentDetailResponse(
             roadSegment.Id,
-            dbfRecord.BEGINTIJD.Value,
-            UIDN.Parse(dbfRecord.WS_UIDN.Value).Version,
+            roadSegment.BeginTime,
+            roadSegment.Version,
             roadSegment.LastEventHash
         ) {
             Geometry = GeometryTranslator.Translate((MultiLineString)roadSegment.Geometry),
-            GeometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[dbfRecord.METHODE.Value],
-            StartNodeId = dbfRecord.B_WK_OIDN.Value,
-            EndNodeId = dbfRecord.E_WK_OIDN.Value,
-            LeftStreetNameId = dbfRecord.LSTRNMID?.Value,
-            LeftStreetName = GetStreetName(dbfRecord.LSTRNMID?.Value),
-            RightStreetNameId = dbfRecord.RSTRNMID?.Value,
-            RightStreetName = GetStreetName(dbfRecord.RSTRNMID?.Value),
-            Status = RoadSegmentStatus.ByIdentifier[dbfRecord.STATUS.Value],
-            Morphology = RoadSegmentMorphology.ByIdentifier[dbfRecord.MORFOLOGIE.Value],
-            AccessRestriction = RoadSegmentAccessRestriction.ByIdentifier[dbfRecord.TGBEP.Value],
+            GeometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegment.MethodId],
+            StartNodeId = roadSegment.StartNodeId,
+            EndNodeId = roadSegment.EndNodeId,
+            LeftStreetNameId = roadSegment.LeftSideStreetNameId,
+            LeftStreetName = GetStreetName(roadSegment.LeftSideStreetNameId),
+            RightStreetNameId = roadSegment.RightSideStreetNameId,
+            RightStreetName = GetStreetName(roadSegment.RightSideStreetNameId),
+            Status = RoadSegmentStatus.ByIdentifier[roadSegment.StatusId],
+            Morphology = RoadSegmentMorphology.ByIdentifier[roadSegment.MorphologyId],
+            AccessRestriction = RoadSegmentAccessRestriction.ByIdentifier[roadSegment.AccessRestrictionId],
             MaintenanceAuthority = new MaintenanceAuthority
             {
-                Code = dbfRecord.BEHEER.Value,
-                Name = dbfRecord.LBLBEHEER.Value
+                Code = roadSegment.MaintainerId,
+                Name = roadSegment.MaintainerName
             },
-            Category = RoadSegmentCategory.ByIdentifier[dbfRecord.CATEGORIE.Value],
+            Category = RoadSegmentCategory.ByIdentifier[roadSegment.CategoryId],
             SurfaceTypes = surfaceTypes.Select(x => new RoadSegmentSurfaceTypeDetailResponse
             {
                 FromPosition = x.VANPOS.Value!.Value,

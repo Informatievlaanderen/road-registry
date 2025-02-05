@@ -71,7 +71,7 @@ namespace RoadRegistry.Tests.BackOffice
             {
                 WithExtract((_, _) => { });
             }
-            
+
             _change ??= new ExtractsZipArchiveChangeDataSetBuilder(Fixture, _extract, _integration);
             _change.ConfigureChange(configure);
             _changeStreams = _change.Build();
@@ -141,7 +141,7 @@ namespace RoadRegistry.Tests.BackOffice
             {
                 WithChange((_, _) => { });
             }
-            
+
             return Fixture.CreateUploadZipArchive(_testData,
                 roadSegmentProjectionFormatStream: Fixture.CreateProjectionFormatFileWithOneRecord(),
                 roadNodeProjectionFormatStream: Fixture.CreateProjectionFormatFileWithOneRecord(),
@@ -150,7 +150,7 @@ namespace RoadRegistry.Tests.BackOffice
                 roadNodeShapeIntegrationStream: _integrationStreams.RoadNodeShapeRecords,
                 roadSegmentDbaseIntegrationStream: _integrationStreams.RoadSegmentDbaseRecords,
                 roadSegmentShapeIntegrationStream: _integrationStreams.RoadSegmentShapeRecords,
-                
+
                 roadNodeDbaseExtractStream: _extractStreams!.RoadNodeDbaseRecords,
                 roadNodeShapeExtractStream: _extractStreams.RoadNodeShapeRecords,
                 roadSegmentDbaseExtractStream: _extractStreams.RoadSegmentDbaseRecords,
@@ -321,7 +321,7 @@ namespace RoadRegistry.Tests.BackOffice
         {
             _fixture = fixture;
         }
-        
+
         public ExtractsZipArchiveIntegrationDataSetBuilder ConfigureIntegration(Action<ExtractsZipArchiveIntegrationDataSetBuilder, ExtractsZipArchiveDataSetBuilderContext> configure)
         {
             DataSet ??= new ZipArchiveIntegrationDataSet
@@ -331,7 +331,7 @@ namespace RoadRegistry.Tests.BackOffice
                 RoadSegmentDbaseRecords = new[] { _fixture.Create<RoadSegmentDbaseRecord>() }.ToList(),
                 RoadSegmentShapeRecords = new[] { _fixture.Create<RoadSegmentShapeRecord>() }.ToList()
             };
-            
+
             configure(this, new ExtractsZipArchiveDataSetBuilderContext(_fixture));
             return this;
         }
@@ -358,7 +358,7 @@ namespace RoadRegistry.Tests.BackOffice
             TestData.RoadNode2DbaseRecord = CreateRoadNodeDbaseRecord();
             TestData.RoadNode3DbaseRecord = CreateRoadNodeDbaseRecord();
             TestData.RoadNode4DbaseRecord = CreateRoadNodeDbaseRecord();
-            
+
             TestData.RoadSegment1DbaseRecord = CreateRoadSegmentDbaseRecord();
             TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value = TestData.RoadNode1DbaseRecord.WK_OIDN.Value;
             TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value = TestData.RoadNode2DbaseRecord.WK_OIDN.Value;
@@ -366,7 +366,7 @@ namespace RoadRegistry.Tests.BackOffice
             TestData.RoadNode1ShapeRecord = CreateRoadNodeShapeRecord(roadSegment1LineString.StartPoint);
             TestData.RoadNode2ShapeRecord = CreateRoadNodeShapeRecord(roadSegment1LineString.EndPoint);
             TestData.RoadSegment1ShapeRecord = CreateRoadSegmentShapeRecord(roadSegment1LineString);
-            
+
             TestData.RoadSegment2DbaseRecord = CreateRoadSegmentDbaseRecord();
             TestData.RoadSegment2DbaseRecord.B_WK_OIDN.Value = TestData.RoadNode3DbaseRecord.WK_OIDN.Value;
             TestData.RoadSegment2DbaseRecord.E_WK_OIDN.Value = TestData.RoadNode4DbaseRecord.WK_OIDN.Value;
@@ -378,13 +378,13 @@ namespace RoadRegistry.Tests.BackOffice
             TestData.RoadNode3ShapeRecord = CreateRoadNodeShapeRecord(roadSegment2LineString.StartPoint);
             TestData.RoadNode4ShapeRecord = CreateRoadNodeShapeRecord(roadSegment2LineString.EndPoint);
             TestData.RoadSegment2ShapeRecord = CreateRoadSegmentShapeRecord(roadSegment2LineString);
-        
+
             TestData.RoadSegment1EuropeanRoadDbaseRecord1 = CreateRoadSegmentEuropeanRoadDbaseRecord();
             TestData.RoadSegment1EuropeanRoadDbaseRecord1.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
             TestData.RoadSegment1EuropeanRoadDbaseRecord2 = CreateRoadSegmentEuropeanRoadDbaseRecord();
             TestData.RoadSegment1EuropeanRoadDbaseRecord2.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
             TestData.RoadSegment1EuropeanRoadDbaseRecord2.EUNUMMER.Value = fixture.CreateWhichIsDifferentThan(EuropeanRoadNumber.Parse(TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value));
-            
+
             TestData.RoadSegment1NationalRoadDbaseRecord1 = CreateRoadSegmentNationalRoadDbaseRecord();
             TestData.RoadSegment1NationalRoadDbaseRecord1.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
             TestData.RoadSegment1NationalRoadDbaseRecord2 = CreateRoadSegmentNationalRoadDbaseRecord();
@@ -433,7 +433,7 @@ namespace RoadRegistry.Tests.BackOffice
 
             TestData.TransactionZoneDbaseRecord = CreateTransactionZoneDbaseRecord();
         }
-        
+
         public ExtractsZipArchiveExtractDataSetBuilder ConfigureExtract(Action<ExtractsZipArchiveExtractDataSetBuilder, ExtractsZipArchiveDataSetBuilderContext> configure)
         {
             DataSet ??= new ZipArchiveDataSet
@@ -723,6 +723,20 @@ namespace RoadRegistry.Tests.BackOffice
             SurfaceDbaseRecords.Clear();
             WidthDbaseRecords.Clear();
             GradeSeparatedJunctionDbaseRecords.Clear();
+        }
+
+        public void RemoveRoadSegment(int id)
+        {
+            var roadSegmentDbaseRecordIndex = RoadSegmentDbaseRecords.FindIndex(x => x.WS_OIDN.Value == id);
+            RoadSegmentDbaseRecords.RemoveAt(roadSegmentDbaseRecordIndex);
+            RoadSegmentShapeRecords.RemoveAt(roadSegmentDbaseRecordIndex);
+            LaneDbaseRecords.RemoveAll(x => x.WS_OIDN.Value == id);
+            SurfaceDbaseRecords.RemoveAll(x => x.WS_OIDN.Value == id);
+            WidthDbaseRecords.RemoveAll(x => x.WS_OIDN.Value == id);
+            EuropeanRoadDbaseRecords.RemoveAll(x => x.WS_OIDN.Value == id);
+            NationalRoadDbaseRecords.RemoveAll(x => x.WS_OIDN.Value == id);
+            NumberedRoadDbaseRecords.RemoveAll(x => x.WS_OIDN.Value == id);
+            GradeSeparatedJunctionDbaseRecords.RemoveAll(x => x.BO_WS_OIDN.Value == id || x.ON_WS_OIDN.Value == id);
         }
     }
 

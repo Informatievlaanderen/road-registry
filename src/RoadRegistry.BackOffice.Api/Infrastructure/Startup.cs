@@ -18,8 +18,6 @@ using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
-using Be.Vlaanderen.Basisregisters.BlobStore;
-using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Behaviors;
 using Configuration;
@@ -27,6 +25,7 @@ using Controllers.Attributes;
 using Core;
 using Editor.Schema;
 using Extensions;
+using FeatureCompare.Readers;
 using FeatureToggles;
 using FluentValidation;
 using Framework;
@@ -38,7 +37,6 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,14 +55,8 @@ using RoadSegments;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
-using SystemHealthCheck;
-using System;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using FeatureCompare.Readers;
 using Sync.MunicipalityRegistry;
+using SystemHealthCheck;
 using SystemHealthCheck.HealthChecks;
 using ZipArchiveWriters.Cleaning;
 using DomainAssemblyMarker = BackOffice.Handlers.Sqs.DomainAssemblyMarker;
@@ -75,12 +67,10 @@ public class Startup
 {
     private const string DatabaseTag = "db";
     private readonly IConfiguration _configuration;
-    private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public Startup(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
+    public Startup(IConfiguration configuration)
     {
         _configuration = configuration;
-        _webHostEnvironment = webHostEnvironment;
     }
 
     public void Configure(
@@ -329,7 +319,6 @@ public class Startup
             .AddHealthCommandQueue()
             .AddRoadNetworkCommandQueue()
             .AddOrganizationCommandQueue()
-            .AddRoadNetworkSnapshotStrategyOptions()
             .AddSingleton(apiOptions)
             .Configure<ResponseOptions>(_configuration)
 

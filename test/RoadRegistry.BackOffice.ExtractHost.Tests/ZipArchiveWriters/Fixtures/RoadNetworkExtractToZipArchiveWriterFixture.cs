@@ -6,7 +6,6 @@ using Abstractions;
 using BackOffice.ZipArchiveWriters.ExtractHost;
 using Editor.Schema;
 using Extracts;
-using FeatureToggles;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
@@ -45,7 +44,8 @@ public class RoadNetworkExtractToZipArchiveWriterFixture : ZipArchiveWriterFixtu
         new ExternalExtractRequestId("TEST"),
         new DownloadId(),
         new ExtractDescription("TEST"),
-        (IPolygonal)Result.Single());
+        (IPolygonal)Result.Single(),
+        isInformative: false);
 
     public Task DisposeAsync()
     {
@@ -56,15 +56,13 @@ public class RoadNetworkExtractToZipArchiveWriterFixture : ZipArchiveWriterFixtu
     {
         var sw = new Stopwatch();
         sw.Start();
-        using (var content = await _assembler.AssembleArchive(Request, CancellationToken.None))
-        {
-            sw.Stop();
+        using var content = await _assembler.AssembleArchive(Request, CancellationToken.None);
+        sw.Stop();
 
-            ElapsedTimeSpan = sw.Elapsed;
-            content.Position = 0L;
-            var fileBytes = content.ToArray();
+        ElapsedTimeSpan = sw.Elapsed;
+        content.Position = 0L;
+        var fileBytes = content.ToArray();
 
-            File.WriteAllBytes(Path.ChangeExtension(FileInfo.FullName, ".zip"), fileBytes);
-        }
+        await File.WriteAllBytesAsync(Path.ChangeExtension(FileInfo.FullName, ".zip"), fileBytes);
     }
 }

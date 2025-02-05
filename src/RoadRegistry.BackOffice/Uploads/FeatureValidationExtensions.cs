@@ -163,12 +163,17 @@ public static class FeatureValidationExtensions
     {
         var problems = ZipArchiveProblems.None;
 
-        if (!features.Any())
+        if (!features.Any() && !context.ChangedRoadSegments.Any())
         {
             return problems;
         }
 
         var featureType = FeatureType.Change;
+        var dbfEntry = archive.FindEntry(featureType.ToDbaseFileName(fileName));
+        if (dbfEntry is null)
+        {
+            return problems;
+        }
 
         var segmentsWithoutAttributes = context.ChangedRoadSegments.Values
             .Where(roadSegment => features.All(attribute => attribute.Attributes.RoadSegmentId != roadSegment.Attributes.Id))
@@ -177,7 +182,6 @@ public static class FeatureValidationExtensions
 
         if (segmentsWithoutAttributes.Any())
         {
-            var dbfEntry = archive.FindEntry(featureType.ToDbaseFileName(fileName));
             problems += problemBuilder(dbfEntry, segmentsWithoutAttributes);
         }
 

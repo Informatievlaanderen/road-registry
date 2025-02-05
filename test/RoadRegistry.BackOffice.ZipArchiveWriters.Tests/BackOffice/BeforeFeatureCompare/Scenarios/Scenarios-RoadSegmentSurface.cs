@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatu
 using Core.ProblemCodes;
 using Exceptions;
 using FeatureCompare;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Tests.BackOffice;
 using Uploads;
@@ -52,7 +53,7 @@ public class RoadSegmentSurfaceScenarios : FeatureCompareTranslatorScenariosBase
         var problem = Assert.Single(ex.Problems);
         Assert.Equal(ProblemCode.RoadSegment.Surface.FromPositionNotEqualToZero, problem.Reason);
     }
-    
+
     [Fact]
     public async Task EqualFromToPositionShouldGiveProblem()
     {
@@ -116,13 +117,12 @@ public class RoadSegmentSurfaceScenarios : FeatureCompareTranslatorScenariosBase
         var zipArchive = new ExtractsZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
-                builder.DataSet.SurfaceDbaseRecords.RemoveAt(1);
+                builder.DataSet.SurfaceDbaseRecords.Clear();
             })
             .Build();
 
         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
-        var problem = Assert.Single(ex.Problems);
-        Assert.Equal(nameof(DbaseFileProblems.RoadSegmentsWithoutSurfaceAttributes), problem.Reason);
+        ex.Problems.Should().ContainSingle(x => x.Reason == nameof(DbaseFileProblems.RoadSegmentsWithoutSurfaceAttributes));
     }
 
     [Fact]

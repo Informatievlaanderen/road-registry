@@ -2,11 +2,10 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeOutlineGeomet
 
 using Abstractions;
 using Fixtures;
-using Xunit.Abstractions;
 
 public class WhenChangeOutlineGeometryWithInvalidGeometrySrid : WhenChangeOutlineGeometryWithInvalidRequest<WhenChangeOutlineGeometryWithInvalidGeometrySridFixture>
 {
-    public WhenChangeOutlineGeometryWithInvalidGeometrySrid(WhenChangeOutlineGeometryWithInvalidGeometrySridFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public WhenChangeOutlineGeometryWithInvalidGeometrySrid(WhenChangeOutlineGeometryWithInvalidGeometrySridFixture fixture) : base(fixture)
     {
     }
 

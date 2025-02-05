@@ -34,8 +34,8 @@ public class WhenDeleteOutlineWithInvalidGeometryMethodFixture : WhenDeleteOutli
             Operator = TestData.ChangedByOperator,
             OrganizationId = TestData.ChangedByOrganization,
             Organization = TestData.ChangedByOrganizationName,
-            Changes = new[]
-            {
+            Changes =
+            [
                 new AcceptedChange
                 {
                     RoadNodeAdded = TestData.StartNode1Added
@@ -48,7 +48,7 @@ public class WhenDeleteOutlineWithInvalidGeometryMethodFixture : WhenDeleteOutli
                 {
                     RoadSegmentAdded = TestData.Segment1Added
                 }
-            },
+            ],
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
     }

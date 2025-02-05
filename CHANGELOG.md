@@ -1,3 +1,65 @@
+## [4.21.7](https://github.com/informatievlaanderen/road-registry/compare/v4.21.6...v4.21.7) (2025-02-03)
+
+
+### Bug Fixes
+
+* translation for OutlinedRoadSegmentRemoved ([3b6f459](https://github.com/informatievlaanderen/road-registry/commit/3b6f45908f28c8a4df8ddd1f4b1d166890f74b9d))
+
+## [4.21.6](https://github.com/informatievlaanderen/road-registry/compare/v4.21.5...v4.21.6) (2025-02-03)
+
+
+### Bug Fixes
+
+* **ci:** update pipelines ([fcda88e](https://github.com/informatievlaanderen/road-registry/commit/fcda88e77243a47f457763f77bbe273e6163eae5))
+* **feature-compare:** validate missing lanes/surfaces/widths when the dbf file is empty ([4c1a94c](https://github.com/informatievlaanderen/road-registry/commit/4c1a94cb556eb1d05a165725c279125b4cfeb4fe))
+
+## [4.21.5](https://github.com/informatievlaanderen/road-registry/compare/v4.21.4...v4.21.5) (2025-01-31)
+
+## [4.21.4](https://github.com/informatievlaanderen/road-registry/compare/v4.21.3...v4.21.4) (2025-01-30)
+
+
+### Bug Fixes
+
+* **wms:** only register overlapping transactionzones which have area of 0 (rounded) ([40d23e1](https://github.com/informatievlaanderen/road-registry/commit/40d23e13acfe1b1b062046deca3f22152f2db440))
+
+## [4.21.3](https://github.com/informatievlaanderen/road-registry/compare/v4.21.2...v4.21.3) (2025-01-29)
+
+
+### Bug Fixes
+
+* feature-compare to prioritise current roadsegment record id instead of taking first available ([a7e13e2](https://github.com/informatievlaanderen/road-registry/commit/a7e13e2f3d9e324d3f6917abf869745899448acf))
+* overlappingtransactionzones only those with area > 0 ([cbfbb4b](https://github.com/informatievlaanderen/road-registry/commit/cbfbb4ba5d62f6eb0115089e70c1fea356e5dbd2))
+
+## [4.21.2](https://github.com/informatievlaanderen/road-registry/compare/v4.21.1...v4.21.2) (2025-01-24)
+
+
+### Bug Fixes
+
+* only add change files when extract request is not informative ([e8cc75e](https://github.com/informatievlaanderen/road-registry/commit/e8cc75ea0bc6e814323133876c6c96b5efccf5ab))
+
+## [4.21.1](https://github.com/informatievlaanderen/road-registry/compare/v4.21.0...v4.21.1) (2025-01-23)
+
+# [4.21.0](https://github.com/informatievlaanderen/road-registry/compare/v4.20.4...v4.21.0) (2025-01-23)
+
+
+### Features
+
+* add change files to extract ([ffa20ae](https://github.com/informatievlaanderen/road-registry/commit/ffa20aef13eab00306ff1c4bd332bda38b2023a2))
+
+## [4.20.4](https://github.com/informatievlaanderen/road-registry/compare/v4.20.3...v4.20.4) (2025-01-22)
+
+
+### Bug Fixes
+
+* use other overlay calculation logic for WMS overlapping transactionzones ([0edc8e0](https://github.com/informatievlaanderen/road-registry/commit/0edc8e0b3ed3c3655076264582501d6d8c866756))
+
+## [4.20.3](https://github.com/informatievlaanderen/road-registry/compare/v4.20.2...v4.20.3) (2025-01-22)
+
+
+### Bug Fixes
+
+* register StreetNameRenamed event when handling fusie events ([d512b9c](https://github.com/informatievlaanderen/road-registry/commit/d512b9c8847dbb702a911494ee23dae4ee7162ec))
+
 ## [4.20.2](https://github.com/informatievlaanderen/road-registry/compare/v4.20.1...v4.20.2) (2025-01-21)
 
 

@@ -66,7 +66,7 @@ public class Program
                             sp.GetRequiredService<ITransactionZoneFeatureCompareFeatureReader>(),
                             sp.GetRequiredService<IRoadNetworkEventWriter>(),
                             sp.GetService<IExtractUploadFailedEmailClient>(),
-                            sp.GetRequiredService<ILogger<RoadNetworkChangesArchiveEventModule>>()
+                            sp.GetRequiredService<ILoggerFactory>()
                         ),
                         new RoadNetworkSnapshotEventModule(
                             sp.GetRequiredService<IStreamStore>(),

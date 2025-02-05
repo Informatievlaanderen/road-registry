@@ -29,7 +29,7 @@ namespace RoadRegistry.Tests
                 new NationalRoadFeatureCompareTranslator(new NationalRoadFeatureCompareFeatureReader(Encoding)),
                 new NumberedRoadFeatureCompareTranslator(new NumberedRoadFeatureCompareFeatureReader(Encoding)),
                 new GradeSeparatedJunctionFeatureCompareTranslator(new GradeSeparatedJunctionFeatureCompareFeatureReader(Encoding)),
-                new NullLogger<ZipArchiveFeatureCompareTranslator>()
+                new NullLoggerFactory()
             );
         }
     }

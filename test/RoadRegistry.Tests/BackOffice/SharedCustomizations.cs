@@ -5,7 +5,6 @@ using AutoFixture.Dsl;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NodaTime;
@@ -15,8 +14,6 @@ using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
-using System.Linq;
-using NodaTime.Text;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = RoadRegistry.BackOffice.Messages.Point;
 using Polygon = RoadRegistry.BackOffice.Messages.Polygon;
@@ -376,6 +373,29 @@ public static class SharedCustomizations
                     GeometryConfiguration.GeometryFactory)
             ).OmitAutoProperties()
         );
+    }
+
+    public static void CustomizeNtsPolygon(this IFixture fixture)
+    {
+        fixture.Customize<NetTopologySuite.Geometries.Polygon>(customization => customization
+            .FromFactory(generator =>
+            {
+                var point = fixture.Create<CoordinateM>();
+                var width = generator.Next(1, 100);
+
+                return new NetTopologySuite.Geometries.Polygon(new LinearRing([
+                    new Coordinate(point.X, point.Y),
+                    new Coordinate(point.X, point.Y + width),
+                    new Coordinate(point.X + width, point.Y + width),
+                    new Coordinate(point.X + width, point.Y),
+                    new Coordinate(point.X, point.Y),
+                ]));
+            })
+            .OmitAutoProperties());
+
+        fixture.Customize<IPolygonal>(customization => customization
+            .FromFactory(generator => fixture.Create<NetTopologySuite.Geometries.Polygon>())
+            .OmitAutoProperties());
     }
 
     public static void CustomizeProvenanceData(this IFixture fixture)

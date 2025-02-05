@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatu
 using Core.ProblemCodes;
 using Exceptions;
 using FeatureCompare;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Tests.BackOffice;
 using Uploads;
@@ -53,7 +54,7 @@ public class RoadSegmentWidthScenarios : FeatureCompareTranslatorScenariosBase
         var problem = Assert.Single(ex.Problems);
         Assert.Equal(ProblemCode.RoadSegment.Width.FromPositionNotEqualToZero, problem.Reason);
     }
-    
+
     [Fact]
     public async Task EqualFromToPositionShouldGiveProblem()
     {
@@ -117,13 +118,12 @@ public class RoadSegmentWidthScenarios : FeatureCompareTranslatorScenariosBase
         var zipArchive = new ExtractsZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
-                builder.DataSet.WidthDbaseRecords.RemoveAt(1);
+                builder.DataSet.WidthDbaseRecords.Clear();
             })
             .Build();
 
         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
-        var problem = Assert.Single(ex.Problems);
-        Assert.Equal(nameof(DbaseFileProblems.RoadSegmentsWithoutWidthAttributes), problem.Reason);
+        ex.Problems.Should().ContainSingle(x => x.Reason == nameof(DbaseFileProblems.RoadSegmentsWithoutWidthAttributes));
     }
 
     [Fact]

@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.FeatureCompare;
+namespace RoadRegistry.BackOffice.Extracts;
 
 public enum FeatureType
 {

@@ -15,12 +15,12 @@ public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAsse
 {
     private readonly Func<EditorContext> _contextFactory;
     private readonly RecyclableMemoryStreamManager _manager;
-    private readonly IZipArchiveWriter<EditorContext> _writer;
+    private readonly IZipArchiveWriter _writer;
 
     public RoadNetworkExtractArchiveAssembler(
         RecyclableMemoryStreamManager manager,
         Func<EditorContext> contextFactory,
-        IZipArchiveWriter<EditorContext> writer)
+        IZipArchiveWriter writer)
     {
         _manager = manager ?? throw new ArgumentNullException(nameof(manager));
         _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
@@ -32,11 +32,9 @@ public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAsse
         if (request == null) throw new ArgumentNullException(nameof(request));
 
         var stream = _manager.GetStream();
-        await using (var context = _contextFactory())
-        using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8))
-        {
-            await _writer.WriteAsync(archive, request, context, cancellationToken);
-        }
+        await using var context = _contextFactory();
+        using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
+        await _writer.WriteAsync(archive, request, new ZipArchiveDataProvider(context), cancellationToken);
 
         return stream;
     }

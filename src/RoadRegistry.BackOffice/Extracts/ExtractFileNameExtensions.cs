@@ -2,24 +2,24 @@ namespace RoadRegistry.BackOffice.Extracts;
 
 public static class ExtractFileNameExtensions
 {
-    public static string ToCpgFileName(this ExtractFileName fileName)
+    public static string ToCpgFileName(this ExtractFileName fileName, FeatureType featureType = FeatureType.Change)
     {
-        return $"{fileName}.cpg";
+        return featureType.ToCpgFileName(fileName);
     }
-    public static string ToDbaseFileName(this ExtractFileName fileName)
+    public static string ToDbaseFileName(this ExtractFileName fileName, FeatureType featureType = FeatureType.Change)
     {
-        return $"{fileName}.dbf";
+        return featureType.ToDbaseFileName(fileName);
     }
-    public static string ToShapeFileName(this ExtractFileName fileName)
+    public static string ToShapeFileName(this ExtractFileName fileName, FeatureType featureType = FeatureType.Change)
     {
-        return $"{fileName}.shp";
+        return featureType.ToShapeFileName(fileName);
     }
-    public static string ToShapeIndexFileName(this ExtractFileName fileName)
+    public static string ToShapeIndexFileName(this ExtractFileName fileName, FeatureType featureType = FeatureType.Change)
     {
-        return $"{fileName}.shx";
+        return featureType.ToShapeIndexFileName(fileName);
     }
-    public static string ToProjectionFileName(this ExtractFileName fileName)
+    public static string ToProjectionFileName(this ExtractFileName fileName, FeatureType featureType = FeatureType.Change)
     {
-        return $"{fileName}.prj";
+        return featureType.ToProjectionFileName(fileName);
     }
 }

@@ -2,11 +2,10 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeOutlineGeomet
 
 using Abstractions;
 using Fixtures;
-using Xunit.Abstractions;
 
 public class WhenChangeOutlineGeometryWithTooLongGeometry : WhenChangeOutlineGeometryWithInvalidRequest<WhenChangeOutlineGeometryWithTooLongGeometryFixture>
 {
-    public WhenChangeOutlineGeometryWithTooLongGeometry(WhenChangeOutlineGeometryWithTooLongGeometryFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public WhenChangeOutlineGeometryWithTooLongGeometry(WhenChangeOutlineGeometryWithTooLongGeometryFixture fixture) : base(fixture)
     {
     }
 

@@ -2,28 +2,28 @@ namespace RoadRegistry.BackOffice.ExtractHost.Tests.ZipArchiveWriters;
 
 using System.IO.Compression;
 using BackOffice.ZipArchiveWriters.ExtractHost;
+using Editor.Schema;
 using Extracts;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 
-public class ZipArchiveScenarioWithWriter<TContext> : ZipArchiveScenario where TContext : DbContext
+public class ZipArchiveScenarioWithWriter : ZipArchiveScenario
 {
-    private readonly IZipArchiveWriter<TContext> _writer;
-    private TContext _context;
+    private readonly IZipArchiveWriter _writer;
+    private EditorContext _context;
     private RoadNetworkExtractAssemblyRequest _request;
 
-    public ZipArchiveScenarioWithWriter(RecyclableMemoryStreamManager manager, IZipArchiveWriter<TContext> writer) : base(manager)
+    public ZipArchiveScenarioWithWriter(RecyclableMemoryStreamManager manager, IZipArchiveWriter writer) : base(manager)
     {
         _writer = writer;
     }
 
-    public ZipArchiveScenarioWithWriter<TContext> WithContext(TContext context)
+    public ZipArchiveScenarioWithWriter WithContext(EditorContext context)
     {
         _context = context;
         return this;
     }
 
-    public ZipArchiveScenarioWithWriter<TContext> WithRequest(RoadNetworkExtractAssemblyRequest request)
+    public ZipArchiveScenarioWithWriter WithRequest(RoadNetworkExtractAssemblyRequest request)
     {
         _request = request;
         return this;
@@ -31,6 +31,6 @@ public class ZipArchiveScenarioWithWriter<TContext> : ZipArchiveScenario where T
 
     protected override Task Write(ZipArchive archive, CancellationToken ct)
     {
-        return _writer.WriteAsync(archive, _request, _context, ct);
+        return _writer.WriteAsync(archive, _request, new ZipArchiveDataProvider(_context), ct);
     }
 }

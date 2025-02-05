@@ -62,8 +62,8 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
             Operator = TestData.ChangedByOperator,
             OrganizationId = TestData.ChangedByOrganization,
             Organization = TestData.ChangedByOrganizationName,
-            Changes = new[]
-            {
+            Changes =
+            [
                 new AcceptedChange
                 {
                     RoadSegmentAdded = TestData.Segment1Added
@@ -112,10 +112,10 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
                         Ordinal = ObjectProvider.Create<RoadSegmentNumberedRoadOrdinal>()
                     }
                 }
-            },
+            ],
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
-;
+
         await EditorContext.RoadSegments.AddAsync(TestData.Segment1Added.ToRoadSegmentRecord(TestData.ChangedByOrganization, Clock));
         await EditorContext.SaveChangesAsync();
     }
@@ -145,7 +145,7 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
         var attributesModifiedIsCorrect = attributesModified.Id == roadSegmentId
                                           && attributesModified.AccessRestriction == change.AccessRestriction
                                           && attributesModified.Category == change.Category
-                                          && attributesModified.MaintenanceAuthority.Code == change.MaintenanceAuthority
+                                          && attributesModified.MaintenanceAuthority?.Code == change.MaintenanceAuthority
                                           && attributesModified.Morphology == change.Morphology
                                           && attributesModified.Status == change.Status;
 

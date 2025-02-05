@@ -3,13 +3,11 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Editor.Schema;
-using Extensions;
 using Extracts;
 using Extracts.Dbase.GradeSeparatedJuntions;
 using Microsoft.IO;
 
-public class GradeSeparatedJunctionArchiveWriter : IZipArchiveWriter<EditorContext>
+public class GradeSeparatedJunctionArchiveWriter : IZipArchiveWriter
 {
     private readonly Encoding _encoding;
     private readonly RecyclableMemoryStreamManager _manager;
@@ -20,42 +18,49 @@ public class GradeSeparatedJunctionArchiveWriter : IZipArchiveWriter<EditorConte
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
     }
 
-    public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
-        EditorContext context,
+    public async Task WriteAsync(
+        ZipArchive archive,
+        RoadNetworkExtractAssemblyRequest request,
+        IZipArchiveDataProvider zipArchiveDataProvider,
         CancellationToken cancellationToken)
     {
         if (archive == null) throw new ArgumentNullException(nameof(archive));
         if (request == null) throw new ArgumentNullException(nameof(request));
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        if (zipArchiveDataProvider == null) throw new ArgumentNullException(nameof(zipArchiveDataProvider));
 
-        var junctions = await context.GradeSeparatedJunctions
-            .ToListWithPolygonials(request.Contour,
-                (dbSet, polygon) => dbSet.InsideContour(polygon),
-                x => x.Id,
-                cancellationToken);
+        var junctions = await zipArchiveDataProvider.GetGradeSeparatedJunctions(
+            request.Contour, cancellationToken);
 
-        var dbfEntry = archive.CreateEntry("eRltOgkruising.dbf");
-        var dbfHeader = new DbaseFileHeader(
-            DateTime.Now,
-            DbaseCodePage.Western_European_ANSI,
-            new DbaseRecordCount(junctions.Count),
-            GradeSeparatedJunctionDbaseRecord.Schema
-        );
-        await using (var dbfEntryStream = dbfEntry.Open())
-        using (var dbfWriter =
-               new DbaseBinaryWriter(
-                   dbfHeader,
-                   new BinaryWriter(dbfEntryStream, _encoding, true)))
+        const ExtractFileName extractFilename = ExtractFileName.RltOgkruising;
+        FeatureType[] featureTypes = request.IsInformative
+            ? [FeatureType.Extract]
+            : [FeatureType.Extract, FeatureType.Change];
+
+        foreach (var featureType in featureTypes)
         {
-            var dbfRecord = new GradeSeparatedJunctionDbaseRecord();
-            foreach (var data in junctions.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
+            var dbfEntry = archive.CreateEntry(extractFilename.ToDbaseFileName(featureType));
+            var dbfHeader = new DbaseFileHeader(
+                DateTime.Now,
+                DbaseCodePage.Western_European_ANSI,
+                new DbaseRecordCount(junctions.Count),
+                GradeSeparatedJunctionDbaseRecord.Schema
+            );
+            await using (var dbfEntryStream = dbfEntry.Open())
+            using (var dbfWriter =
+                   new DbaseBinaryWriter(
+                       dbfHeader,
+                       new BinaryWriter(dbfEntryStream, _encoding, true)))
             {
-                dbfRecord.FromBytes(data, _manager, _encoding);
-                dbfWriter.Write(dbfRecord);
-            }
+                var dbfRecord = new GradeSeparatedJunctionDbaseRecord();
+                foreach (var data in junctions.OrderBy(x => x.Id).Select(x => x.DbaseRecord))
+                {
+                    dbfRecord.FromBytes(data, _manager, _encoding);
+                    dbfWriter.Write(dbfRecord);
+                }
 
-            dbfWriter.Writer.Flush();
-            await dbfEntryStream.FlushAsync(cancellationToken);
+                dbfWriter.Writer.Flush();
+                await dbfEntryStream.FlushAsync(cancellationToken);
+            }
         }
     }
 }

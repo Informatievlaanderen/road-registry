@@ -561,8 +561,8 @@ jobs:
       shell: bash
       run: |
         echo Push Lambda functions to S3 DevOps
-        aws s3 cp ~/backoffice/lambda.zip s3://s3-vbr-lam-rr-sqsbackofficefunction-362233117987/$SEMVER/lambda.zip
-        aws s3 cp ~/snapshot/lambda.zip s3://s3-vbr-lam-rr-sqssnapshotfunction-362233117987/$SEMVER/lambda.zip
+        aws s3 cp ~/backoffice/lambda.zip s3://devops-api-deploy-v4-lambda-362233117987/rr-sqsbackofficefunction/$SEMVER/lambda.zip
+        aws s3 cp ~/snapshot/lambda.zip s3://devops-api-deploy-v4-lambda-362233117987/rr-sqssnapshotfunction/$SEMVER/lambda.zip
       env:
         SEMVER: ${{ needs.release.outputs.version }}
 
@@ -868,7 +868,7 @@ jobs:
 
     steps:
     - name: Promote Lambda(s)
-      uses: Informatievlaanderen/build-pipeline/.github/actions/deploy-lambda@main
+      uses: Informatievlaanderen/build-pipeline/.github/actions/deploy-lambda-v4@main
       with:
         function-name: ${{ matrix.functions }}
         deploy-url: ${{ vars.VBR_AWS_DEPLOY_LAMBDA_DEVOPS_BASEURL }}
@@ -971,7 +971,7 @@ jobs:
   deploy_to_test_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
     needs: [ release, system_healthcheck ]
-    name: Deploy to test finished
+    name: Notify deployment succeeded
     runs-on: ubuntu-latest
 
     steps:
@@ -979,7 +979,7 @@ jobs:
       run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
       shell: bash
 
-    - name: Notify deployment finished
+    - name: Notify deployment succeeded
       uses: slackapi/slack-github-action@v1.25.0
       with:
         channel-id: '#team-wegenregister-dev'
@@ -991,16 +991,16 @@ jobs:
 
   build_notify_skipped:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version == 'none') }}
-    name: Notify release skipped
+    name: Notify build skipped
     needs: [ set-release-version ]
     runs-on: ubuntu-latest
     steps:
-      - name: Notify release skipped
+      - name: Notify build skipped
         id: slack
         uses: slackapi/slack-github-action@v1.25.0
         with:
           channel-id: '#team-wegenregister-dev'
-          slack-message: ":x: Release of road-registry has been skipped. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          slack-message: ":x: Build of road-registry has been skipped. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
           SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
