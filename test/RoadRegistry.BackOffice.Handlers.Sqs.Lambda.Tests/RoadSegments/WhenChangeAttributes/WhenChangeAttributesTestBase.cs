@@ -70,7 +70,7 @@ public class WhenChangeAttributesTestBase : BackOfficeLambdaTest
         return translatedChanges.ToList();
     }
 
-    private static class WellKnownStreetNameIds
+    protected static class WellKnownStreetNameIds
     {
         public const int Proposed = 1;
         public const int Current = 2;

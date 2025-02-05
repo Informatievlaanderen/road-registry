@@ -19,16 +19,9 @@ using RemoveRoadSegmentFromNumberedRoad = BackOffice.Uploads.RemoveRoadSegmentFr
 public class WhenChangeAttributesWithValidRequest : WhenChangeAttributesTestBase
 {
     [Fact]
-    public async Task ThenRoadNetworkChangesAccepted()
+    public async Task ThenSucceeded()
     {
         // Arrange
-        await Given(Organizations.ToStreamName(new OrganizationId(OrganizationDbaseRecord.ORG.Value)), new ImportedOrganization
-        {
-            Code = OrganizationDbaseRecord.ORG.Value,
-            Name = OrganizationDbaseRecord.ORG.Value,
-            When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-        });
-
         var request = new ChangeRoadSegmentAttributesRequest()
             .Add(new RoadSegmentId(TestData.Segment1Added.Id), change =>
             {
@@ -37,6 +30,8 @@ public class WhenChangeAttributesWithValidRequest : WhenChangeAttributesTestBase
                 change.MaintenanceAuthority = TestData.ChangedByOrganization;
                 change.Morphology = ObjectProvider.CreateWhichIsDifferentThan(RoadSegmentMorphology.Parse(TestData.Segment1Added.Morphology));
                 change.Status = ObjectProvider.CreateWhichIsDifferentThan(RoadSegmentStatus.Parse(TestData.Segment1Added.Status));
+                change.LeftSideStreetNameId = new StreetNameLocalId(WellKnownStreetNameIds.Proposed);
+                change.RightSideStreetNameId = new StreetNameLocalId(WellKnownStreetNameIds.Current);
 
                 change.EuropeanRoads = ObjectProvider.CreateMany<EuropeanRoadNumber>(1).ToArray();
                 change.NationalRoads = ObjectProvider.CreateMany<NationalRoadNumber>(1).ToArray();
@@ -50,6 +45,16 @@ public class WhenChangeAttributesWithValidRequest : WhenChangeAttributesTestBase
                     .ToArray();
             });
         var change = request.ChangeRequests.Single();
+
+        await Given(Organizations.ToStreamName(new OrganizationId(OrganizationDbaseRecord.ORG.Value)), new ImportedOrganization
+        {
+            Code = OrganizationDbaseRecord.ORG.Value,
+            Name = OrganizationDbaseRecord.ORG.Value,
+            When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+        });
+
+        TestData.Segment1Added.LeftSide.StreetNameId = null;
+        TestData.Segment1Added.RightSide.StreetNameId = null;
 
         await Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
         {
@@ -131,6 +136,8 @@ public class WhenChangeAttributesWithValidRequest : WhenChangeAttributesTestBase
         modifyRoadSegmentAttributes.MaintenanceAuthority.Should().Be(change.MaintenanceAuthority);
         modifyRoadSegmentAttributes.Morphology.Should().Be(change.Morphology);
         modifyRoadSegmentAttributes.Status.Should().Be(change.Status);
+        modifyRoadSegmentAttributes.LeftSideStreetNameId.Should().Be(change.LeftSideStreetNameId);
+        modifyRoadSegmentAttributes.RightSideStreetNameId.Should().Be(change.RightSideStreetNameId);
 
         var addRoadSegmentToEuropeanRoad = Xunit.Assert.IsType<AddRoadSegmentToEuropeanRoad>(translatedChanges[1]);
         addRoadSegmentToEuropeanRoad.Number.Should().Be(change.EuropeanRoads!.Single());
