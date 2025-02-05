@@ -21,7 +21,6 @@ using NetTopologySuite.Geometries.Implementation;
 using Requests;
 using RoadRegistry.Tests.BackOffice;
 using Sqs.RoadSegments;
-using Xunit.Abstractions;
 using GeometryTranslator = GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 
@@ -30,9 +29,7 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
     public ICustomRetryPolicy CustomRetryPolicy { get; }
 
     public GivenOrganizationExists(
-        ITestOutputHelper testOutputHelper,
         ICustomRetryPolicy customRetryPolicy)
-        : base(testOutputHelper)
     {
         CustomRetryPolicy = customRetryPolicy;
 
