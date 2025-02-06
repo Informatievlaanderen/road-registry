@@ -45,6 +45,10 @@ public class ModifyRoadSegmentAttributes : ITranslatedChange
             Status = Status,
             Category = Category,
             AccessRestriction = AccessRestriction,
+            LeftSide = LeftSideStreetNameId is not null
+                ? new RoadSegmentSideAttributes { StreetNameId = LeftSideStreetNameId } : null,
+            RightSide = RightSideStreetNameId is not null
+                ? new RoadSegmentSideAttributes { StreetNameId = RightSideStreetNameId } : null,
             Lanes = Lanes?
                 .Select(item => new RequestedRoadSegmentLaneAttribute
                 {
