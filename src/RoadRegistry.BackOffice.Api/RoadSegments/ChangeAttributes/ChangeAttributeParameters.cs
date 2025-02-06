@@ -75,14 +75,14 @@ public record ChangeAttributeParameters
     public ChangeAttributeNumberedRoad[] GenummerdeWegen { get; set; }
 
     /// <summary>
-    ///     De unieke en persistente identificator van de straatnaam aan de linkerzijde van het wegsegment of "niet gekend" of "niet van toepassing".
+    ///     De unieke en persistente identificator van de straatnaam aan de linkerzijde van het wegsegment of "niet van toepassing".
     /// </summary>
     [DataMember(Name = "LinkerstraatnaamId", Order = 10)]
     [JsonProperty("linkerstraatnaamId")]
     public string? LinkerstraatnaamId { get; set; }
 
     /// <summary>
-    ///     De unieke en persistente identificator van de straatnaam aan de rechterzijde van het wegsegment of "niet gekend" of "niet van toepassing".
+    ///     De unieke en persistente identificator van de straatnaam aan de rechterzijde van het wegsegment of "niet van toepassing".
     /// </summary>
     [DataMember(Name = "RechterstraatnaamId", Order = 11)]
     [JsonProperty("rechterstraatnaamId")]

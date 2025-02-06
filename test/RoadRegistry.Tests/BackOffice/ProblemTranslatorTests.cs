@@ -92,6 +92,36 @@ public class ProblemTranslatorTests
                     new ProblemParameter("Identifier", "1")
                 ]
             },
+            {
+                ProblemCode.RoadSegment.StreetName.Left.NotProposedOrCurrent, [
+                    new ProblemParameter("SegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.StreetName.Left.NotFound, [
+                    new ProblemParameter("SegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.StreetName.Left.NotValid, [
+                    new ProblemParameter("SegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.StreetName.Right.NotProposedOrCurrent, [
+                    new ProblemParameter("SegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.StreetName.Right.NotFound, [
+                    new ProblemParameter("SegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.RoadSegment.StreetName.Right.NotValid, [
+                    new ProblemParameter("SegmentId", "1")
+                ]
+            },
         };
 
         var allValues = ProblemCode.GetValues();
@@ -134,7 +164,7 @@ public class ProblemTranslatorTests
         var problemCodeType = typeof(ProblemCode);
         var subClassTypes = problemCodeType.Assembly
             .GetTypes()
-            .Where(x => x.IsNested && x.FullName.StartsWith($"{problemCodeType}+"))
+            .Where(x => x.IsNested && x.FullName!.StartsWith($"{problemCodeType}+"))
             .ToArray();
 
         foreach (var subClassType in subClassTypes)

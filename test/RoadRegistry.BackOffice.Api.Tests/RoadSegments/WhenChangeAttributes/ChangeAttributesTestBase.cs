@@ -30,18 +30,18 @@ public abstract class ChangeAttributesTestBase
 
     protected ChangeAttributesTestBase()
     {
+        TestData = new RoadNetworkTestData(x =>
+        {
+            x.CustomizeRoadSegmentOutlineMorphology();
+            x.CustomizeRoadSegmentOutlineStatus();
+        });
+
         _mediator = new Mock<IMediator>();
         _mediator
             .Setup(x => x.Send(It.IsAny<ChangeRoadSegmentAttributesSqsRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Fixture.Create<LocationResult>());
         _editorContext = new FakeEditorContextFactory().CreateDbContext();
         OrganizationCache = new FakeOrganizationCache();
-
-        TestData = new RoadNetworkTestData(x =>
-        {
-            x.CustomizeRoadSegmentOutlineMorphology();
-            x.CustomizeRoadSegmentOutlineStatus();
-        });
     }
 
     protected async Task ItShouldHaveExpectedError(

@@ -52,7 +52,7 @@ public class ChangeRoadSegmentAttributesParametersExamples : IExamplesProvider<C
                     }
                 ],
                 LinkerstraatnaamId = "https://data.vlaanderen.be/id/straatnaam/1",
-                RechterstraatnaamId = StreetNameLocalId.NotApplicable.ToDutchString() // todo-rik valideren met Erik
+                RechterstraatnaamId = StreetNameLocalId.NotApplicable.ToDutchString()
             }
         };
     }

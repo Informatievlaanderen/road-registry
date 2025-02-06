@@ -135,7 +135,7 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
         {
             RuleFor(x => x.LinkerstraatnaamId)
                 .Cascade(CascadeMode.Stop)
-                .MustBeValidStreetNameId(allowSystemValues: true)
+                .MustBeValidStreetNameId(allowNotApplicable: true)
                 .WithProblemCode(ProblemCode.RoadSegment.StreetName.Left.NotValid);
         });
 
@@ -143,7 +143,7 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
         {
             RuleFor(x => x.RechterstraatnaamId)
                 .Cascade(CascadeMode.Stop)
-                .MustBeValidStreetNameId(allowSystemValues: true)
+                .MustBeValidStreetNameId(allowNotApplicable: true)
                 .WithProblemCode(ProblemCode.RoadSegment.StreetName.Right.NotValid);
         });
     }

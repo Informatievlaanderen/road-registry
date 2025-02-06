@@ -6,7 +6,8 @@ public static class RuleBuilderExtensions
 {
     private const string StreetNameIdPrefix = "https://data.vlaanderen.be/id/straatnaam/";
 
-    public static IRuleBuilderOptions<T, string> MustBeValidStreetNameId<T>(this IRuleBuilder<T, string> ruleBuilder, bool allowSystemValues = false)
+    public static IRuleBuilderOptions<T, string> MustBeValidStreetNameId<T>(this IRuleBuilder<T, string> ruleBuilder
+        , bool allowNotApplicable = false)
     {
         return ruleBuilder.Must(value =>
         {
@@ -15,7 +16,9 @@ public static class RuleBuilderExtensions
                 return true;
             }
 
-            if (allowSystemValues && StreetNameLocalId.TryParseUsingDutchName(value, out _))
+            if (allowNotApplicable
+                && StreetNameLocalId.TryParseUsingDutchName(value, out var streetNameLocalId)
+                && streetNameLocalId == StreetNameLocalId.NotApplicable)
             {
                 return true;
             }
