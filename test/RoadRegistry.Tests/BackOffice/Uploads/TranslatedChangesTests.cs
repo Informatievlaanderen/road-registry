@@ -2,6 +2,7 @@
 
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Uploads;
@@ -16,6 +17,7 @@ public class TranslatedChangesTests
         var translatedChanges = TranslatedChanges.Empty;
 
         var sut = () => translatedChanges.ToChangeRoadNetworkCommand(
+            NullLogger.Instance, 
             fixture.Create<ExtractRequestId>(),
             fixture.Create<ChangeRequestId>(),
             fixture.Create<DownloadId>(),

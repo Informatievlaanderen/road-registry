@@ -1,41 +1,32 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenChangingOutlineGeometry;
 
 using Abstractions.RoadSegmentsOutline;
-using Autofac;
 using AutoFixture;
-using BackOffice.Framework;
+using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using Core;
-using FeatureToggles;
+using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using FluentAssertions;
 using Framework;
 using Handlers;
 using Hosts;
-using Messages;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using Requests;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
-using Xunit.Abstractions;
 using GeometryTranslator = GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
+using ModifyRoadSegmentGeometry = BackOffice.Uploads.ModifyRoadSegmentGeometry;
 
-public class GivenOrganizationExists: BackOfficeLambdaTest
+public class GivenOrganizationExists : BackOfficeLambdaTest
 {
-    public ICustomRetryPolicy CustomRetryPolicy { get; }
-
-    public GivenOrganizationExists(
-        ITestOutputHelper testOutputHelper,
-        ICustomRetryPolicy customRetryPolicy)
-        : base(testOutputHelper)
+    public GivenOrganizationExists()
     {
-        CustomRetryPolicy = customRetryPolicy;
-
         ObjectProvider.CustomizeRoadSegmentOutlineGeometryDrawMethod();
     }
 
@@ -43,7 +34,7 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
     [InlineData(2)]
     [InlineData(10)]
     [InlineData(99999.99)]
-    public async Task WhenValidRequest_ThenChangeRoadNetwork(double length)
+    public async Task WhenValidRequest_ThenSucceeded(double length)
     {
         // Arrange
         await GivenOrganization();
@@ -51,7 +42,6 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
         var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
         await AddOutlinedRoadSegment(roadSegmentId);
 
-        // Act
         var lineString = new LineString(
             new CoordinateArraySequence([new CoordinateM(0, 0, 0), new CoordinateM(length, 0, length)]),
             GeometryConfiguration.GeometryFactory);
@@ -60,16 +50,17 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
             roadSegmentId,
             GeometryTranslator.Translate(lineString.ToMultiLineString())
         );
-        await HandleRequest(request);
+
+        // Act
+        var translatedChanges = await HandleRequest(request);
 
         // Assert
-        await ThrowIfLastCommandIsRoadNetworkChangesRejected();
-
         await VerifyThatTicketHasCompleted(roadSegmentId);
 
-        var command = await Store.GetLastMessage<RoadNetworkChangesAccepted>();
-        command.Changes.Length.Should().Be(1);
-        command.Changes.Single().RoadSegmentGeometryModified.Id.Should().Be(roadSegmentId);
+        translatedChanges.Should().HaveCount(1);
+
+        var modifyRoadSegmentGeometry = Xunit.Assert.IsType<ModifyRoadSegmentGeometry>(translatedChanges[0]);
+        modifyRoadSegmentGeometry.Id.Should().Be(roadSegmentId);
     }
 
     [Fact]
@@ -81,7 +72,6 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
         var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
         await AddOutlinedRoadSegment(roadSegmentId);
 
-        // Act
         var tooLongLineString = new LineString(
             new CoordinateArraySequence([new CoordinateM(0, 0, 0), new CoordinateM(100000, 0, 100000)]),
             GeometryConfiguration.GeometryFactory);
@@ -90,10 +80,14 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
             roadSegmentId,
             GeometryTranslator.Translate(tooLongLineString.ToMultiLineString())
         );
+
+        // Act
         await HandleRequest(request);
 
         // Assert
-        VerifyThatTicketHasErrorList("MiddellijnGeometrieTeLang", "De opgegeven geometrie van wegsegment met id 1 zijn lengte is groter of gelijk dan 100000 meter.");
+        VerifyThatTicketHasErrorList(
+            "MiddellijnGeometrieTeLang",
+            "De opgegeven geometrie van wegsegment met id 1 zijn lengte is groter of gelijk dan 100000 meter.");
     }
 
     [Fact]
@@ -105,7 +99,6 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
         var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
         await AddOutlinedRoadSegment(roadSegmentId);
 
-        // Act
         var tooLongLineString = new LineString(
             new CoordinateArraySequence([new CoordinateM(0, 0, 0), new CoordinateM(1.99, 0, 1.99)]),
             GeometryConfiguration.GeometryFactory);
@@ -114,13 +107,17 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
             roadSegmentId,
             GeometryTranslator.Translate(tooLongLineString.ToMultiLineString())
         );
+
+        // Act
         await HandleRequest(request);
 
         // Assert
-        VerifyThatTicketHasErrorList("MiddellijnGeometrieKorterDanMinimum", "De opgegeven geometrie van wegsegment met id 1 heeft niet de minimale lengte van 2 meter.");
+        VerifyThatTicketHasErrorList(
+            "MiddellijnGeometrieKorterDanMinimum",
+            "De opgegeven geometrie van wegsegment met id 1 heeft niet de minimale lengte van 2 meter.");
     }
 
-    private async Task HandleRequest(ChangeRoadSegmentOutlineGeometryRequest request)
+    private async Task<IReadOnlyList<ITranslatedChange>> HandleRequest(ChangeRoadSegmentOutlineGeometryRequest request)
     {
         var sqsRequest = new ChangeRoadSegmentOutlineGeometrySqsRequest
         {
@@ -132,35 +129,32 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
 
         var sqsLambdaRequest = new ChangeRoadSegmentOutlineGeometrySqsLambdaRequest(Guid.NewGuid().ToString(), sqsRequest);
 
+        var translatedChanges = TranslatedChanges.Empty;
+        var changeRoadNetworkDispatcherMock = new Mock<IChangeRoadNetworkDispatcher>();
+        changeRoadNetworkDispatcherMock
+            .Setup(x => x.DispatchAsync(
+                It.IsAny<SqsLambdaRequest>(),
+                It.IsAny<string>(),
+                It.IsAny<Func<TranslatedChanges, Task<TranslatedChanges>>>(),
+                It.IsAny<CancellationToken>()))
+            .Callback(
+                (SqsLambdaRequest _, string _, Func<TranslatedChanges, Task<TranslatedChanges>> builder, CancellationToken _) =>
+                {
+                    translatedChanges = builder(translatedChanges).GetAwaiter().GetResult();
+                });
+
         var handler = new ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler(
             SqsLambdaHandlerOptions,
-            CustomRetryPolicy,
+            new FakeRetryPolicy(),
             TicketingMock.Object,
-            ScopedContainer.Resolve<IIdempotentCommandHandler>(),
+            Mock.Of<IIdempotentCommandHandler>(),
             RoadRegistryContext,
-            ScopedContainer.Resolve<IChangeRoadNetworkDispatcher>(),
+            changeRoadNetworkDispatcherMock.Object,
             new NullLogger<ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler>()
         );
+
         await handler.Handle(sqsLambdaRequest, CancellationToken.None);
-    }
 
-    protected override void ConfigureContainer(ContainerBuilder containerBuilder)
-    {
-        base.ConfigureContainer(containerBuilder);
-
-        containerBuilder
-            .Register(_ => Dispatch.Using(Resolve.WhenEqualToMessage(
-            [
-                new RoadNetworkCommandModule(
-                    Store,
-                    ScopedContainer,
-                    new FakeRoadNetworkSnapshotReader(),
-                    Clock,
-                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
-                    new FakeExtractUploadFailedEmailClient(),
-                    LoggerFactory
-                )
-            ]), ApplicationMetadata))
-            .SingleInstance();
+        return translatedChanges.ToList();
     }
 }

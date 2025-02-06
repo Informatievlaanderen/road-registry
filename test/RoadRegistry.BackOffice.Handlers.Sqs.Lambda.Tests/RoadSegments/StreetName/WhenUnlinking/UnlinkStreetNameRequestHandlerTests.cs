@@ -18,15 +18,9 @@ using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
 using TicketingService.Abstractions;
-using Xunit.Abstractions;
 
 public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 {
-    public UnlinkStreetNameRequestHandlerTests(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
-    {
-    }
-
     private async Task HandleRequest(ITicketing ticketing, UnlinkStreetNameRequest request)
     {
         var handler = new UnlinkStreetNameSqsLambdaRequestHandler(

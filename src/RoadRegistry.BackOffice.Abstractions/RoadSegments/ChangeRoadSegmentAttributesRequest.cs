@@ -38,6 +38,8 @@ public class ChangeRoadSegmentAttributeRequest
     public ICollection<EuropeanRoadNumber>? EuropeanRoads { get; set; }
     public ICollection<NationalRoadNumber>? NationalRoads { get; set; }
     public ICollection<ChangeRoadSegmentNumberedRoadAttribute>? NumberedRoads { get; set; }
+    public StreetNameLocalId? LeftSideStreetNameId { get; set; }
+    public StreetNameLocalId? RightSideStreetNameId { get; set; }
 }
 
 public class ChangeRoadSegmentNumberedRoadAttribute

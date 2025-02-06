@@ -76,7 +76,9 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                     using var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false);
                     var translatedChanges = await featureCompareTranslator.TranslateAsync(archive, ct);
 
-                    var changeRoadNetwork = await translatedChanges.ToChangeRoadNetworkCommand(extractRequestId, changeRequestId, downloadId, message.Body.TicketId, ct);
+                    var changeRoadNetwork = await translatedChanges.ToChangeRoadNetworkCommand(
+                        logger,
+                        extractRequestId, changeRequestId, downloadId, message.Body.TicketId, ct);
 
                     var command = new Command(changeRoadNetwork)
                         .WithMessageId(message.MessageId);

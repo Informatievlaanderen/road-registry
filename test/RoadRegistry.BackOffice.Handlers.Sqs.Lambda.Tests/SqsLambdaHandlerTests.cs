@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests;
 
 using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Core;
+using Framework;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
@@ -18,15 +19,9 @@ using Requests;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
 using TicketingService.Abstractions;
-using Xunit.Abstractions;
 
 public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 {
-    public SqsLambdaHandlerTests(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
-    {
-    }
-
     [Fact]
     public async Task TicketShouldBeUpdatedToPendingAndCompleted()
     {

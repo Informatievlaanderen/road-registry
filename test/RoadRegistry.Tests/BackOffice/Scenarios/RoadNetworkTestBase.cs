@@ -2,11 +2,12 @@ namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
 public class RoadNetworkTestBase : RoadRegistryTestBase
 {
-    protected readonly RoadNetworkTestData TestData = new();
+    protected readonly RoadNetworkTestData TestData;
 
-    public RoadNetworkTestBase(ITestOutputHelper testOutputHelper)
+    protected RoadNetworkTestBase(ITestOutputHelper testOutputHelper)
         : base(testOutputHelper)
     {
+        TestData = new RoadNetworkTestData();
         TestData.CopyCustomizationsTo(ObjectProvider);
     }
 

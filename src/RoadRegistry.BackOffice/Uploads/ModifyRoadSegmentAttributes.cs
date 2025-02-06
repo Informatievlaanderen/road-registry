@@ -16,7 +16,7 @@ public class ModifyRoadSegmentAttributes : ITranslatedChange
         Id = id;
         GeometryDrawMethod = geometryDrawMethod;
     }
-    
+
     public RecordNumber RecordNumber { get; }
     public RoadSegmentId Id { get; }
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
@@ -29,6 +29,8 @@ public class ModifyRoadSegmentAttributes : ITranslatedChange
     public RoadSegmentLaneAttribute[] Lanes { get; init; }
     public RoadSegmentSurfaceAttribute[] Surfaces { get; init; }
     public RoadSegmentWidthAttribute[] Widths { get; init; }
+    public StreetNameLocalId? LeftSideStreetNameId { get; init; }
+    public StreetNameLocalId? RightSideStreetNameId { get; init; }
 
     public void TranslateTo(RequestedChange message)
     {
@@ -43,6 +45,10 @@ public class ModifyRoadSegmentAttributes : ITranslatedChange
             Status = Status,
             Category = Category,
             AccessRestriction = AccessRestriction,
+            LeftSide = LeftSideStreetNameId is not null
+                ? new RoadSegmentSideAttributes { StreetNameId = LeftSideStreetNameId } : null,
+            RightSide = RightSideStreetNameId is not null
+                ? new RoadSegmentSideAttributes { StreetNameId = RightSideStreetNameId } : null,
             Lanes = Lanes?
                 .Select(item => new RequestedRoadSegmentLaneAttribute
                 {

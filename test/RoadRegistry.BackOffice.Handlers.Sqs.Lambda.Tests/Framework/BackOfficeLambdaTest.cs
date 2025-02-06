@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 
 using Abstractions;
 using Autofac;
-using Autofac.Core.Lifetime;
 using AutoFixture;
 using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Extracts.Dbase.Organizations.V1;
@@ -32,14 +31,15 @@ using NodaTime.Text;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using TicketingService.Abstractions;
-using Xunit.Abstractions;
+using Xunit.Sdk;
 using AcceptedChange = Messages.AcceptedChange;
-using GeometryTranslator = BackOffice.GeometryTranslator;
+using GeometryTranslator = GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 using MessageMetadata = Be.Vlaanderen.Basisregisters.Aws.Lambda.MessageMetadata;
 using Point = NetTopologySuite.Geometries.Point;
 using Problem = Messages.Problem;
 using RoadSegmentLaneAttributes = Messages.RoadSegmentLaneAttributes;
+using RoadSegmentSideAttributes = Messages.RoadSegmentSideAttributes;
 using RoadSegmentSurfaceAttributes = Messages.RoadSegmentSurfaceAttributes;
 using RoadSegmentWidthAttributes = Messages.RoadSegmentWidthAttributes;
 
@@ -64,8 +64,7 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
 
     protected SqsLambdaHandlerOptions SqsLambdaHandlerOptions { get; }
 
-    protected BackOfficeLambdaTest(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
+    protected BackOfficeLambdaTest() : base(new TestOutputHelper())
     {
         SqsLambdaHandlerOptions = new FakeSqsLambdaHandlerOptions();
         RecyclableMemoryStreamManager = new RecyclableMemoryStreamManager();
@@ -244,11 +243,11 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
                             Code = ObjectProvider.Create<OrganizationId>(),
                             Name = ObjectProvider.Create<OrganizationName>()
                         },
-                        LeftSide = new Messages.RoadSegmentSideAttributes
+                        LeftSide = new RoadSegmentSideAttributes
                         {
                             StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                         },
-                        RightSide = new Messages.RoadSegmentSideAttributes
+                        RightSide = new RoadSegmentSideAttributes
                         {
                             StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                         },
@@ -364,11 +363,11 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
                             Code = ObjectProvider.Create<OrganizationId>(),
                             Name = ObjectProvider.Create<OrganizationName>()
                         },
-                        LeftSide = new Messages.RoadSegmentSideAttributes
+                        LeftSide = new RoadSegmentSideAttributes
                         {
                             StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                         },
-                        RightSide = new Messages.RoadSegmentSideAttributes
+                        RightSide = new RoadSegmentSideAttributes
                         {
                             StreetNameId = ObjectProvider.Create<StreetNameLocalId?>()
                         },
@@ -418,19 +417,6 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
         await GivenEvents(RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(roadSegmentId), roadNetworkChangesAccepted);
     }
 
-    protected async Task ThrowIfLastCommandIsRoadNetworkChangesRejected()
-    {
-        var rejectCommand = await Store.GetLastMessageIfTypeIs<RoadNetworkChangesRejected>();
-        if (rejectCommand != null)
-        {
-            var problems = rejectCommand.Changes.SelectMany(change => change.Problems).ToArray();
-            if (problems.Any())
-            {
-                throw new Exception(string.Join(Environment.NewLine, problems.Select(x => x.ToString())));
-            }
-        }
-    }
-
     protected async Task VerifyThatTicketHasCompleted(RoadSegmentId roadSegmentId)
     {
         var roadNetwork = await RoadRegistryContext.RoadNetworks.ForOutlinedRoadSegment(roadSegmentId, CancellationToken.None);
@@ -439,10 +425,11 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
         VerifyThatTicketHasCompleted(string.Format(ConfigurationDetailUrl, roadSegmentId), roadSegment?.LastEventHash ?? string.Empty);
     }
 
-    protected void VerifyThatTicketHasCompleted(string location, string eTag)
+    private void VerifyThatTicketHasCompleted(string location, string eTag)
     {
         VerifyThatTicketHasCompleted(TicketingMock, location, eTag);
     }
+
     protected void VerifyThatTicketHasCompleted(object response)
     {
         VerifyThatTicketHasCompleted(TicketingMock, response);
@@ -452,7 +439,8 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
     {
         VerifyThatTicketHasCompleted(ticketing, new ETagResponse(location, eTag));
     }
-    protected void VerifyThatTicketHasCompleted(Mock<ITicketing> ticketing, object response)
+
+    private void VerifyThatTicketHasCompleted(Mock<ITicketing> ticketing, object response)
     {
         ticketing.Verify(x =>
             x.Complete(
@@ -475,10 +463,12 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
                 new TicketError(message, code),
                 CancellationToken.None));
     }
+
     protected void VerifyThatTicketHasErrorList(string code, string message)
     {
         VerifyThatTicketHasErrorList(TicketingMock, code, message);
     }
+
     protected void VerifyThatTicketHasErrorList(Mock<ITicketing> ticketing, string code, string message)
     {
         ticketing.Verify(x =>

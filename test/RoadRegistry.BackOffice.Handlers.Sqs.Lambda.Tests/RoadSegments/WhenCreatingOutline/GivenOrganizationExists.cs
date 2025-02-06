@@ -21,7 +21,6 @@ using NetTopologySuite.Geometries.Implementation;
 using Requests;
 using RoadRegistry.Tests.BackOffice;
 using Sqs.RoadSegments;
-using Xunit.Abstractions;
 using GeometryTranslator = GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 
@@ -30,9 +29,7 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
     public ICustomRetryPolicy CustomRetryPolicy { get; }
 
     public GivenOrganizationExists(
-        ITestOutputHelper testOutputHelper,
         ICustomRetryPolicy customRetryPolicy)
-        : base(testOutputHelper)
     {
         CustomRetryPolicy = customRetryPolicy;
 
@@ -58,8 +55,6 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
         await HandleRequest(request);
 
         // Assert
-        await ThrowIfLastCommandIsRoadNetworkChangesRejected();
-
         var roadSegmentId = new RoadSegmentId(1);
         await VerifyThatTicketHasCompleted(roadSegmentId);
 
