@@ -11,6 +11,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
 using Exceptions;
 using Messages;
+using Microsoft.Extensions.Logging;
 
 public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
 {
@@ -254,7 +255,13 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
         return new TranslatedChanges(value, Operator, Organization, _changes, _provisionalChanges);
     }
 
-    public async Task<ChangeRoadNetwork> ToChangeRoadNetworkCommand(ExtractRequestId extractRequestId, ChangeRequestId requestId, DownloadId downloadId, Guid? ticketId, CancellationToken cancellationToken)
+    public async Task<ChangeRoadNetwork> ToChangeRoadNetworkCommand(
+        ILogger logger,
+        ExtractRequestId extractRequestId,
+        ChangeRequestId requestId,
+        DownloadId downloadId,
+        Guid? ticketId,
+        CancellationToken cancellationToken)
     {
         var requestedChanges = new List<RequestedChange>();
 
@@ -286,7 +293,11 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
                 .Aggregate(
                     ZipArchiveProblems.None,
                     (current, error) => current.Add(new FileError(string.Empty, error.ErrorMessage)));
-            throw new ZipArchiveValidationException(zipArchiveProblems);
+            var exception = new ZipArchiveValidationException(zipArchiveProblems);
+
+            logger.LogError(exception, "BUG: ChangeRoadNetwork validation failed");
+
+            throw exception;
         }
 
         return changeRoadNetwork;
