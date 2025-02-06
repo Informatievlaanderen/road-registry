@@ -206,7 +206,7 @@ jobs:
         aws configure set role_arn arn:aws:iam::$ACCOUNT_ID:role/bastion-ssm-send-command --profile cross-account
         aws configure set source_profile default --profile cross-account
 
-        CALLER_IDENTITY=$(aws sts get-caller-identity --profile cross-account --instance-id $INSTANCE_ID --output text)
+        CALLER_IDENTITY=$(aws sts get-caller-identity --profile cross-account --output text)
         echo "CallerIdentity: $CALLER_IDENTITY"
 
         echo $URL
