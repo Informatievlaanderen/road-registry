@@ -37,6 +37,8 @@ files
 
   RoadRegistry.BackOffice.Abstractions.dll => lib\net8.0
   RoadRegistry.BackOffice.Abstractions.pdb => lib\net8.0
+  RoadRegistry.BackOffice.Abstractions.xml => lib\net8.0
+  RoadRegistry.BackOffice.Abstractions.xml => content
 
   RoadRegistry.BackOffice.Handlers.dll => lib\net8.0
   RoadRegistry.BackOffice.Handlers.pdb => lib\net8.0
