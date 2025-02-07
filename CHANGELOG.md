@@ -1,3 +1,15 @@
+# [4.22.0](https://github.com/informatievlaanderen/road-registry/compare/v4.21.7...v4.22.0) (2025-02-07)
+
+
+### Bug Fixes
+
+* pipeline ([f2de261](https://github.com/informatievlaanderen/road-registry/commit/f2de26118cf017f4d53514acc7d271aaa38534dc))
+
+
+### Features
+
+* bulk relink roadsegment streetname GAWR-6752 ([377afff](https://github.com/informatievlaanderen/road-registry/commit/377affffc466c31a6928ca3382c68ec2c13aeb47))
+
 ## [4.21.7](https://github.com/informatievlaanderen/road-registry/compare/v4.21.6...v4.21.7) (2025-02-03)
 
 
