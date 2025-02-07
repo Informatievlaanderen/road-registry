@@ -1,3 +1,10 @@
+## [4.22.1](https://github.com/informatievlaanderen/road-registry/compare/v4.22.0...v4.22.1) (2025-02-07)
+
+
+### Bug Fixes
+
+* pipeline ([48e7982](https://github.com/informatievlaanderen/road-registry/commit/48e798246f5d46bca3d08ab37b3bb3522a2cf303))
+
 # [4.22.0](https://github.com/informatievlaanderen/road-registry/compare/v4.21.7...v4.22.0) (2025-02-07)
 
 
