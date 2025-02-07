@@ -24,7 +24,6 @@ using GeometryTranslator = GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 using ModifyRoadSegmentGeometry = BackOffice.Uploads.ModifyRoadSegmentGeometry;
 
-[Collection("runsequential")]
 public class GivenOrganizationExists : BackOfficeLambdaTest
 {
     public GivenOrganizationExists(ITestOutputHelper outputHelper) : base(outputHelper)

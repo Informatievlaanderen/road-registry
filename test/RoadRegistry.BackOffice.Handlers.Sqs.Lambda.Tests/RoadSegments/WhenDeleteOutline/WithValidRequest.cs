@@ -8,7 +8,6 @@ using NodaTime.Text;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 
-[Collection("runsequential")]
 public class WithValidRequest : WhenDeleteOutlineTestBase
 {
     public WithValidRequest(ITestOutputHelper outputHelper) : base(outputHelper)

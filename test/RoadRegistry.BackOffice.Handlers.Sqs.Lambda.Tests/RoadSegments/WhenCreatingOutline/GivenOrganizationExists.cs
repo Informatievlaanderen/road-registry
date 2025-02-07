@@ -25,7 +25,6 @@ using Xunit.Abstractions;
 using GeometryTranslator = GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 
-[Collection("runsequential")]
 public class GivenOrganizationExists: BackOfficeLambdaTest
 {
     public GivenOrganizationExists(
