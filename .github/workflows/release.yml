@@ -416,39 +416,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install requests markdown argparse
 
-    - name: Download NuGet BackOffice
-      uses: actions/download-artifact@v4
-      continue-on-error: false
-      with:
-        name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice-${{ needs.set-release-version.outputs.version }}
-        path: dist/nuget/
-
-    - name: Download NuGet BackOffice Abstractions
-      uses: actions/download-artifact@v4
-      continue-on-error: false
-      with:
-        name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Abstractions-${{ needs.set-release-version.outputs.version }}
-        path: dist/nuget/
-
     - name: Download NuGet BackOffice Api
       uses: actions/download-artifact@v4
       continue-on-error: false
       with:
         name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api-${{ needs.set-release-version.outputs.version }}
-        path: dist/nuget/
-
-    - name: Download NuGet BackOffice ZipArchiveWriters
-      uses: actions/download-artifact@v4
-      continue-on-error: false
-      with:
-        name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.ZipArchiveWriters-${{ needs.set-release-version.outputs.version }}
-        path: dist/nuget/
-
-    - name: Download NuGet Projector
-      uses: actions/download-artifact@v4
-      continue-on-error: false
-      with:
-        name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.Projector-${{ needs.set-release-version.outputs.version }}
         path: dist/nuget/
 
     - name: Run Semantic Release
@@ -547,34 +519,10 @@ jobs:
       shell: bash
       run: dotnet --info
 
-    - name: Download NuGet package 'backoffice'
-      uses: actions/download-artifact@v4
-      with:
-        name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice-${{ needs.release.outputs.version }}
-        path: ~/
-
-    - name: Download NuGet package 'backoffice-abstractions'
-      uses: actions/download-artifact@v4
-      with:
-        name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Abstractions-${{ needs.release.outputs.version }}
-        path: ~/
-
     - name: Download NuGet package 'backoffice-api'
       uses: actions/download-artifact@v4
       with:
         name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api-${{ needs.release.outputs.version }}
-        path: ~/
-
-    - name: Download NuGet package 'backoffice-ziparchivewriters'
-      uses: actions/download-artifact@v4
-      with:
-        name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.ZipArchiveWriters-${{ needs.release.outputs.version }}
-        path: ~/
-
-    - name: Download NuGet package 'projector'
-      uses: actions/download-artifact@v4
-      with:
-        name: nuget-Be.Vlaanderen.Basisregisters.RoadRegistry.Projector-${{ needs.release.outputs.version }}
         path: ~/
 
     - name: Publish packages to NuGet
