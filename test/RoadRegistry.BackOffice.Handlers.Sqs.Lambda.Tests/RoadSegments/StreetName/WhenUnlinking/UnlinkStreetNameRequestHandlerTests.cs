@@ -20,7 +20,6 @@ using Sqs.RoadSegments;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 
-[Collection("runsequential")]
 public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 {
     public UnlinkStreetNameRequestHandlerTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)

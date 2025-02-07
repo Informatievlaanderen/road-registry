@@ -7,7 +7,6 @@ using NodaTime.Text;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 
-[Collection("runsequential")]
 public class WithInvalidGeometryMethod : WhenDeleteOutlineTestBase
 {
     public WithInvalidGeometryMethod(ITestOutputHelper outputHelper) : base(outputHelper)

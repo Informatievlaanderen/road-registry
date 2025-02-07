@@ -8,7 +8,6 @@ using RoadRegistry.Tests.BackOffice.Extracts;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 
-[Collection("runsequential")]
 public class WhenLinkingStreetName : WhenChangeAttributesTestBase
 {
     public WhenLinkingStreetName(ITestOutputHelper testOutputHelper) : base(testOutputHelper)

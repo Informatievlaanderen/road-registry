@@ -43,6 +43,7 @@ using RoadSegmentSideAttributes = Messages.RoadSegmentSideAttributes;
 using RoadSegmentSurfaceAttributes = Messages.RoadSegmentSurfaceAttributes;
 using RoadSegmentWidthAttributes = Messages.RoadSegmentWidthAttributes;
 
+[Collection("runsequential")]
 public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
 {
     private const string ConfigurationDetailUrl = "http://base/{0}";

@@ -17,7 +17,6 @@ using RemoveRoadSegmentFromEuropeanRoad = BackOffice.Uploads.RemoveRoadSegmentFr
 using RemoveRoadSegmentFromNationalRoad = BackOffice.Uploads.RemoveRoadSegmentFromNationalRoad;
 using RemoveRoadSegmentFromNumberedRoad = BackOffice.Uploads.RemoveRoadSegmentFromNumberedRoad;
 
-[Collection("runsequential")]
 public class WhenChangeAttributesWithValidRequest : WhenChangeAttributesTestBase
 {
     public WhenChangeAttributesWithValidRequest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)

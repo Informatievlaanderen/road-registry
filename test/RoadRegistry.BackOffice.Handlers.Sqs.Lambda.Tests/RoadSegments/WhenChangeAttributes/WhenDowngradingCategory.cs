@@ -1,18 +1,15 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenChangeAttributes;
 
-using BackOffice.Abstractions.RoadSegments;
+using Abstractions.RoadSegments;
 using Core;
 using FluentAssertions;
 using Messages;
-using Moq;
 using NodaTime.Text;
 using RoadRegistry.Tests.BackOffice.Extracts;
-using TicketingService.Abstractions;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
 
-[Collection("runsequential")]
 public class WhenDowngradingCategory : WhenChangeAttributesTestBase
 {
     public WhenDowngradingCategory(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
