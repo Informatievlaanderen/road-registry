@@ -117,15 +117,6 @@ public class WhenDowngradingCategory : WhenChangeAttributesTestBase
         await HandleRequest(request);
 
         // Assert
-        var ticketError = new TicketError([
-            new TicketError(
-                "Wegcategorie werd niet gewijzigd voor wegsegment 1 omdat het record reeds een recentere versie bevat.",
-                "WegcategorieNietVeranderdHuidigeBevatRecentereVersie")
-        ]);
-
-        TicketingMock.Verify(x =>
-            x.Error(It.IsAny<Guid>(),
-                ticketError,
-                CancellationToken.None));
+        VerifyThatTicketHasErrorList("WegcategorieNietVeranderdHuidigeBevatRecentereVersie", "Wegcategorie werd niet gewijzigd voor wegsegment 1 omdat het record reeds een recentere versie bevat.");
     }
 }
