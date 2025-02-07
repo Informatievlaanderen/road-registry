@@ -8,11 +8,16 @@ using Moq;
 using NodaTime.Text;
 using RoadRegistry.Tests.BackOffice.Extracts;
 using TicketingService.Abstractions;
+using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
 
 public class WhenDowngradingCategory : WhenChangeAttributesTestBase
 {
+    public WhenDowngradingCategory(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    {
+    }
+
     [Fact]
     public async Task GivenOutlinedRoadSegment_ThenSucceeded()
     {

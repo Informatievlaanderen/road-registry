@@ -7,6 +7,7 @@ using FluentAssertions;
 using Messages;
 using NodaTime.Text;
 using RoadRegistry.Tests.BackOffice.Extracts;
+using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 using AddRoadSegmentToEuropeanRoad = BackOffice.Uploads.AddRoadSegmentToEuropeanRoad;
 using AddRoadSegmentToNationalRoad = BackOffice.Uploads.AddRoadSegmentToNationalRoad;
@@ -18,6 +19,10 @@ using RemoveRoadSegmentFromNumberedRoad = BackOffice.Uploads.RemoveRoadSegmentFr
 
 public class WhenChangeAttributesWithValidRequest : WhenChangeAttributesTestBase
 {
+    public WhenChangeAttributesWithValidRequest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    {
+    }
+
     [Fact]
     public async Task ThenSucceeded()
     {

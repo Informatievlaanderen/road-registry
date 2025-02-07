@@ -43,7 +43,6 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
 
     private static readonly StreamNameConverter StreamNameConverter = StreamNameConversions.PassThru;
     protected readonly IChangeRoadNetworkDispatcher ChangeRoadNetworkDispatcher;
-    protected readonly IConfiguration Configuration;
     protected readonly ICustomRetryPolicy CustomRetryPolicy;
     protected readonly IIdempotentCommandHandler IdempotentCommandHandler;
     protected readonly ILifetimeScope LifetimeScope;
@@ -62,7 +61,6 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         TestData = new RoadNetworkTestData(CustomizeTestData);
         TestData.CopyCustomizationsTo(ObjectProvider);
 
-        Configuration = configuration;
         CustomRetryPolicy = customRetryPolicy;
         Store = new InMemoryStreamStore();
 
@@ -83,7 +81,7 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
             Mapping,
             EnrichEvent.WithTime(clock),
             new NullLoggerFactory());
-        EditorContext = new FakeEditorContextFactory().CreateDbContext(Array.Empty<string>());
+        EditorContext = new FakeEditorContextFactory().CreateDbContext();
 
         Clock = clock;
         Options = options;
@@ -109,7 +107,6 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
     public IClock Clock { get; }
     protected abstract TSqsLambdaRequestHandler SqsLambdaRequestHandler { get; }
     protected abstract TSqsLambdaRequest SqsLambdaRequest { get; }
-    protected abstract TSqsRequest SqsRequest { get; }
     protected Mock<ITicketing> TicketingMock { get; }
     public bool Result { get; private set; }
     public Exception? Exception { get; private set; }

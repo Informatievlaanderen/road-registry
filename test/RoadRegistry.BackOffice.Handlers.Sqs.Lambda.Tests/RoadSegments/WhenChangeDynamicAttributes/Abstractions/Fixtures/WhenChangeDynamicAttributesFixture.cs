@@ -1,23 +1,22 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenChangeDynamicAttributes.Abstractions.Fixtures;
 
 using AutoFixture;
+using BackOffice.Abstractions.RoadSegments;
+using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Core;
+using FeatureToggles;
+using Framework;
+using Handlers;
+using Hosts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IO;
 using NodaTime;
-using RoadRegistry.BackOffice.Abstractions.RoadSegments;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.FeatureToggles;
-using RoadRegistry.BackOffice.Framework;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
-using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
-using RoadRegistry.Editor.Schema;
-using RoadRegistry.Hosts;
+using Requests;
 using RoadRegistry.Tests.BackOffice;
+using Sqs.RoadSegments;
 
 public abstract class WhenChangeDynamicAttributesFixture : SqsLambdaHandlerFixture<ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler, ChangeRoadSegmentsDynamicAttributesSqsLambdaRequest, ChangeRoadSegmentsDynamicAttributesSqsRequest>
 {
@@ -41,7 +40,7 @@ public abstract class WhenChangeDynamicAttributesFixture : SqsLambdaHandlerFixtu
     protected Organisation Organisation { get; }
     protected abstract ChangeRoadSegmentsDynamicAttributesRequest Request { get; }
 
-    protected override ChangeRoadSegmentsDynamicAttributesSqsRequest SqsRequest => new()
+    protected virtual ChangeRoadSegmentsDynamicAttributesSqsRequest SqsRequest => new()
     {
         Request = Request,
         TicketId = Guid.NewGuid(),

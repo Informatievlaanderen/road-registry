@@ -33,7 +33,7 @@ public abstract class WhenDeleteOutlineFixture : SqsLambdaHandlerFixture<DeleteR
     protected Organisation Organisation { get; }
     protected abstract DeleteRoadSegmentOutlineRequest Request { get; }
 
-    protected override DeleteRoadSegmentOutlineSqsRequest SqsRequest => new()
+    protected virtual DeleteRoadSegmentOutlineSqsRequest SqsRequest => new()
     {
         Request = Request,
         TicketId = Guid.NewGuid(),
