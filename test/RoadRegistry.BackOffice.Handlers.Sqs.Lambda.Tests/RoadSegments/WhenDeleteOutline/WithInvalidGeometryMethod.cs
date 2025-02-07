@@ -3,12 +3,11 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenDel
 using Abstractions.RoadSegmentsOutline;
 using Core;
 using Messages;
-using Moq;
 using NodaTime.Text;
-using TicketingService.Abstractions;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 
+[Collection("runsequential")]
 public class WithInvalidGeometryMethod : WhenDeleteOutlineTestBase
 {
     public WithInvalidGeometryMethod(ITestOutputHelper outputHelper) : base(outputHelper)
