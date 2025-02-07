@@ -24,6 +24,7 @@ using Sqs.RoadSegments;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 
+[Collection("runsequential")]
 public class WithValidRequest : BackOfficeLambdaTest
 {
     public WithValidRequest(ITestOutputHelper outputHelper) : base(outputHelper)
