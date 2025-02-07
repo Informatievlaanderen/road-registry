@@ -12,6 +12,7 @@ using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
 
+[Collection("runsequential")]
 public class WhenDowngradingCategory : WhenChangeAttributesTestBase
 {
     public WhenDowngradingCategory(ITestOutputHelper testOutputHelper) : base(testOutputHelper)

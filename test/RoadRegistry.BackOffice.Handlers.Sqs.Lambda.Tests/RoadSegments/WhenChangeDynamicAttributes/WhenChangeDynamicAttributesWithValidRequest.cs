@@ -4,6 +4,7 @@ using Abstractions;
 using Fixtures;
 using Xunit.Abstractions;
 
+[Collection("runsequential")]
 public class WhenChangeDynamicAttributesWithValidRequest : WhenChangeDynamicAttributes<WhenChangeDynamicAttributesWithValidRequestFixture>
 {
     public WhenChangeDynamicAttributesWithValidRequest(WhenChangeDynamicAttributesWithValidRequestFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)

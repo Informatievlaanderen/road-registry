@@ -4,6 +4,7 @@ using Abstractions;
 using Fixtures;
 using Xunit.Abstractions;
 
+[Collection("runsequential")]
 public class WhenDeleteOutlineWithValidRequest : WhenDeleteOutline<WhenDeleteOutlineWithValidRequestFixture>
 {
     public WhenDeleteOutlineWithValidRequest(WhenDeleteOutlineWithValidRequestFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)

@@ -4,6 +4,7 @@ using Abstractions;
 using Fixtures;
 using Xunit.Abstractions;
 
+[Collection("runsequential")]
 public class WhenDeleteOutlineWithInvalidGeometryMethod : WhenDeleteOutline<WhenDeleteOutlineWithInvalidGeometryMethodFixture>
 {
     public WhenDeleteOutlineWithInvalidGeometryMethod(WhenDeleteOutlineWithInvalidGeometryMethodFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)

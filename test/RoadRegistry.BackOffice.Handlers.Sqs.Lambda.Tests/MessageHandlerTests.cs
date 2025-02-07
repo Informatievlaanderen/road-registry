@@ -11,6 +11,7 @@ using Moq;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using Xunit.Abstractions;
 
+[Collection("runsequential")]
 public sealed class MessageHandlerTests : RoadRegistryTestBase
 {
     public MessageHandlerTests(ITestOutputHelper testOutputHelper)
