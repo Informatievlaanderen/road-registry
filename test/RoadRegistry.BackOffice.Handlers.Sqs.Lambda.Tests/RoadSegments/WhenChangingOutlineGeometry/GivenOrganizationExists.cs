@@ -19,13 +19,14 @@ using Requests;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
+using Xunit.Abstractions;
 using GeometryTranslator = GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 using ModifyRoadSegmentGeometry = BackOffice.Uploads.ModifyRoadSegmentGeometry;
 
 public class GivenOrganizationExists : BackOfficeLambdaTest
 {
-    public GivenOrganizationExists()
+    public GivenOrganizationExists(ITestOutputHelper outputHelper) : base(outputHelper)
     {
         ObjectProvider.CustomizeRoadSegmentOutlineGeometryDrawMethod();
     }

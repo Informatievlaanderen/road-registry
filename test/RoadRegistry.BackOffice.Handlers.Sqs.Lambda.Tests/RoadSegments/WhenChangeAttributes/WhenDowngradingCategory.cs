@@ -1,18 +1,21 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenChangeAttributes;
 
-using BackOffice.Abstractions.RoadSegments;
+using Abstractions.RoadSegments;
 using Core;
 using FluentAssertions;
 using Messages;
-using Moq;
 using NodaTime.Text;
 using RoadRegistry.Tests.BackOffice.Extracts;
-using TicketingService.Abstractions;
+using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
 
 public class WhenDowngradingCategory : WhenChangeAttributesTestBase
 {
+    public WhenDowngradingCategory(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    {
+    }
+
     [Fact]
     public async Task GivenOutlinedRoadSegment_ThenSucceeded()
     {
@@ -111,15 +114,6 @@ public class WhenDowngradingCategory : WhenChangeAttributesTestBase
         await HandleRequest(request);
 
         // Assert
-        var ticketError = new TicketError([
-            new TicketError(
-                "Wegcategorie werd niet gewijzigd voor wegsegment 1 omdat het record reeds een recentere versie bevat.",
-                "WegcategorieNietVeranderdHuidigeBevatRecentereVersie")
-        ]);
-
-        TicketingMock.Verify(x =>
-            x.Error(It.IsAny<Guid>(),
-                ticketError,
-                CancellationToken.None));
+        VerifyThatTicketHasErrorList("WegcategorieNietVeranderdHuidigeBevatRecentereVersie", "Wegcategorie werd niet gewijzigd voor wegsegment 1 omdat het record reeds een recentere versie bevat.");
     }
 }

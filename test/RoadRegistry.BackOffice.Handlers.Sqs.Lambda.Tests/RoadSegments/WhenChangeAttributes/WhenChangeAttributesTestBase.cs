@@ -17,9 +17,14 @@ using Requests;
 using RoadRegistry.StreetName;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
+using Xunit.Abstractions;
 
 public class WhenChangeAttributesTestBase : BackOfficeLambdaTest
 {
+    public WhenChangeAttributesTestBase(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    {
+    }
+
     protected async Task<IReadOnlyList<ITranslatedChange>> HandleRequest(ChangeRoadSegmentAttributesRequest request)
     {
         var sqsRequest = new ChangeRoadSegmentAttributesSqsRequest

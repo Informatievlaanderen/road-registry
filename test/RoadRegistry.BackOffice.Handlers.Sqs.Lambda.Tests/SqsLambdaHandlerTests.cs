@@ -19,9 +19,15 @@ using Requests;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
 using TicketingService.Abstractions;
+using Xunit.Abstractions;
 
+[Collection("runsequential")]
 public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 {
+    public SqsLambdaHandlerTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    {
+    }
+
     [Fact]
     public async Task TicketShouldBeUpdatedToPendingAndCompleted()
     {

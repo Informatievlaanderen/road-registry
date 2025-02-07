@@ -5,10 +5,15 @@ using Core;
 using Messages;
 using NodaTime.Text;
 using RoadRegistry.Tests.BackOffice.Extracts;
+using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 
 public class WhenLinkingStreetName : WhenChangeAttributesTestBase
 {
+    public WhenLinkingStreetName(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    {
+    }
+
     [Fact]
     public async Task WhenLeftStreetNameHasNotActiveStatus_ThenFailure()
     {

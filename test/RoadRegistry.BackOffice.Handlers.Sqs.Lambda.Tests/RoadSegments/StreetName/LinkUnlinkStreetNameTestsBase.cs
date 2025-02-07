@@ -8,11 +8,12 @@ using Framework;
 using Messages;
 using NodaTime.Text;
 using RoadRegistry.StreetName;
+using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 
 public abstract class LinkUnlinkStreetNameTestsBase : BackOfficeLambdaTest
 {
-    protected LinkUnlinkStreetNameTestsBase()
+    protected LinkUnlinkStreetNameTestsBase(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
         StreetNameClient = new StreetNameCacheClient(new FakeStreetNameCache()
             .AddStreetName(WellKnownStreetNameIds.Proposed, "Proposed street", "voorgesteld")

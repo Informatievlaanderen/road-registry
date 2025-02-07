@@ -18,9 +18,13 @@ using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
 using TicketingService.Abstractions;
+using Xunit.Abstractions;
 
 public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 {
+    public LinkStreetNameRequestHandlerTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    { }
+
     private async Task HandleRequest(ITicketing ticketing, LinkStreetNameRequest request)
     {
         var handler = new LinkStreetNameSqsLambdaRequestHandler(

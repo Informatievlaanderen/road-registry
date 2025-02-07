@@ -31,7 +31,7 @@ using NodaTime.Text;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using TicketingService.Abstractions;
-using Xunit.Sdk;
+using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 using GeometryTranslator = GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
@@ -43,6 +43,7 @@ using RoadSegmentSideAttributes = Messages.RoadSegmentSideAttributes;
 using RoadSegmentSurfaceAttributes = Messages.RoadSegmentSurfaceAttributes;
 using RoadSegmentWidthAttributes = Messages.RoadSegmentWidthAttributes;
 
+[Collection("runsequential")]
 public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
 {
     private const string ConfigurationDetailUrl = "http://base/{0}";
@@ -64,7 +65,7 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
 
     protected SqsLambdaHandlerOptions SqsLambdaHandlerOptions { get; }
 
-    protected BackOfficeLambdaTest() : base(new TestOutputHelper())
+    protected BackOfficeLambdaTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
         SqsLambdaHandlerOptions = new FakeSqsLambdaHandlerOptions();
         RecyclableMemoryStreamManager = new RecyclableMemoryStreamManager();
