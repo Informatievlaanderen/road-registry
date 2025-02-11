@@ -40,11 +40,11 @@ public static class SqsJsonSerializerSettingsProvider
         settings.Converters.Add(new NumberedRoadNumberConverter());
         settings.Converters.Add(new RoadSegmentNumberedRoadDirectionConverter());
         settings.Converters.Add(new RoadSegmentNumberedRoadOrdinalConverter());
+        settings.Converters.Add(new StreetNameLocalIdConverter());
 
         foreach (var converter in WellKnownJsonConverters.Converters)
         {
             settings.Converters.Add(converter);
-
         }
 
         return settings;
