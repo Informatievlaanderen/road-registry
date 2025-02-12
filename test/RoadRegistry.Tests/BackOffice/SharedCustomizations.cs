@@ -133,7 +133,7 @@ public static class SharedCustomizations
             composer.FromFactory(generator =>
                 new ExternalExtractRequestId(new string(
                     (char)generator.Next(97, 123), // a-z
-                    generator.Next(1, ExternalExtractRequestId.MaxLength))))
+                    generator.Next(1, ExternalExtractRequestId.MaxLength - "INF_".Length))))
         );
     }
 
