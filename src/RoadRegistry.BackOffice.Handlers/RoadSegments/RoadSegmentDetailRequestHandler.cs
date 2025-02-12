@@ -61,39 +61,53 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
             return null;
         }
 
-        var surfaceTypes = (await _editorContext.RoadSegmentSurfaceAttributes
+        var surfaceTask = _editorContext.RoadSegmentSurfaceAttributes
             .Where(x => x.RoadSegmentId == roadSegment.Id)
-            .ToListAsync(cancellationToken: cancellationToken))
+            .ToListAsync(cancellationToken);
+
+        var widthTask = _editorContext.RoadSegmentWidthAttributes
+            .Where(x => x.RoadSegmentId == roadSegment.Id)
+            .ToListAsync(cancellationToken);
+
+        var laneTask = _editorContext.RoadSegmentLaneAttributes
+            .Where(x => x.RoadSegmentId == roadSegment.Id)
+            .ToListAsync(cancellationToken);
+
+        var europeanRoadTask = _editorContext.RoadSegmentEuropeanRoadAttributes
+            .Where(x => x.RoadSegmentId == roadSegment.Id)
+            .ToListAsync(cancellationToken);
+
+        var nationalRoadTask = _editorContext.RoadSegmentNationalRoadAttributes
+            .Where(x => x.RoadSegmentId == roadSegment.Id)
+            .ToListAsync(cancellationToken);
+
+        var numberedRoadTask = _editorContext.RoadSegmentNumberedRoadAttributes
+            .Where(x => x.RoadSegmentId == roadSegment.Id)
+            .ToListAsync(cancellationToken);
+
+        await Task.WhenAll(surfaceTask, widthTask, laneTask, europeanRoadTask, nationalRoadTask, numberedRoadTask);
+
+        var surfaceTypes = surfaceTask.Result
             .Select(x => new RoadSegmentSurfaceAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .ToList();
 
-        var widths = (await _editorContext.RoadSegmentWidthAttributes
-            .Where(x => x.RoadSegmentId == roadSegment.Id)
-            .ToListAsync(cancellationToken: cancellationToken))
+        var widths = widthTask.Result
             .Select(x => new RoadSegmentWidthAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .ToList();
 
-        var lanes = (await _editorContext.RoadSegmentLaneAttributes
-            .Where(x => x.RoadSegmentId == roadSegment.Id)
-            .ToListAsync(cancellationToken: cancellationToken))
+        var lanes = laneTask.Result
             .Select(x => new RoadSegmentLaneAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .ToList();
 
-        var europeanRoads = (await _editorContext.RoadSegmentEuropeanRoadAttributes
-            .Where(x => x.RoadSegmentId == roadSegment.Id)
-            .ToListAsync(cancellationToken: cancellationToken))
+        var europeanRoads = europeanRoadTask.Result
             .Select(x => new RoadSegmentEuropeanRoadAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .ToList();
 
-        var nationalRoads = (await _editorContext.RoadSegmentNationalRoadAttributes
-            .Where(x => x.RoadSegmentId == roadSegment.Id)
-            .ToListAsync(cancellationToken: cancellationToken))
+        var nationalRoads = nationalRoadTask.Result
             .Select(x => new RoadSegmentNationalRoadAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .ToList();
 
-        var numberedRoads = (await _editorContext.RoadSegmentNumberedRoadAttributes
-            .Where(x => x.RoadSegmentId == roadSegment.Id)
-            .ToListAsync(cancellationToken: cancellationToken))
+        var numberedRoads = numberedRoadTask.Result
             .Select(x => new RoadSegmentNumberedRoadAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .ToList();
 
@@ -102,7 +116,8 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
             roadSegment.BeginTime,
             roadSegment.Version,
             roadSegment.LastEventHash
-        ) {
+        )
+        {
             Geometry = GeometryTranslator.Translate((MultiLineString)roadSegment.Geometry),
             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegment.MethodId],
             StartNodeId = roadSegment.StartNodeId,
