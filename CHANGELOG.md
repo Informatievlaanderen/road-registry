@@ -1,3 +1,10 @@
+## [4.22.2](https://github.com/informatievlaanderen/road-registry/compare/v4.22.1...v4.22.2) (2025-02-12)
+
+
+### Bug Fixes
+
+* serialize streetnamelocalid ([38f99b8](https://github.com/informatievlaanderen/road-registry/commit/38f99b82e9bae7b008e62b98db8f55e34a7a4d66))
+
 ## [4.22.1](https://github.com/informatievlaanderen/road-registry/compare/v4.22.0...v4.22.1) (2025-02-07)
 
 
