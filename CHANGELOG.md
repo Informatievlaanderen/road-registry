@@ -1,3 +1,10 @@
+## [4.22.4](https://github.com/informatievlaanderen/road-registry/compare/v4.22.3...v4.22.4) (2025-02-12)
+
+
+### Bug Fixes
+
+* concurrent dbcontext invocations ([97af66f](https://github.com/informatievlaanderen/road-registry/commit/97af66f5e4c162d5a226e0136b7d19f15dd7a5f3))
+
 ## [4.22.3](https://github.com/informatievlaanderen/road-registry/compare/v4.22.2...v4.22.3) (2025-02-12)
 
 ## [4.22.2](https://github.com/informatievlaanderen/road-registry/compare/v4.22.1...v4.22.2) (2025-02-12)
