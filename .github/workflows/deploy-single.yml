@@ -191,7 +191,7 @@ jobs:
         FUNCTION_SNAPSHOT: ${{ github.event.inputs.environment == 'tst' && 'rr-sqssnapshotfunction' || github.event.inputs.environment == 'stg' && 'wr-sqssnapshothandlerfunction' || github.event.inputs.environment == 'prd' && 'rr-sqssnapshotfunction' || '' }}
 
     - name: Promote BackOffice Lambda
-      if: github.event.inputs.environment != 'prd'
+      if: github.event.inputs.environment
       uses: Informatievlaanderen/build-pipeline/.github/actions/deploy-lambda-v4@main
       with:
         function-name: rr-sqsbackofficefunction
@@ -203,7 +203,7 @@ jobs:
         environment: ${{ github.event.inputs.environment }}
 
     - name: Promote Snapshot Lambda
-      if: github.event.inputs.environment != 'prd'
+      if: github.event.inputs.environment
       uses: Informatievlaanderen/build-pipeline/.github/actions/deploy-lambda-v4@main
       with:
         function-name: rr-sqssnapshotfunction

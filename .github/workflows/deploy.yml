@@ -122,7 +122,7 @@ jobs:
         echo ${{ steps.awscurl-polling-action.outputs.final-message }}
 
   deploy_lambda:
-    if: github.repository_owner == 'Informatievlaanderen' && github.event.inputs.environment != 'prd'
+    if: github.repository_owner == 'Informatievlaanderen'
     needs: [deploy_services, deploy_tasks]
     name: Deploy lambda(s)
     runs-on: ubuntu-latest
