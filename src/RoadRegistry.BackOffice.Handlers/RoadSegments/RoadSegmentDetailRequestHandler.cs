@@ -15,20 +15,20 @@ using NetTopologySuite.Geometries;
 
 public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmentDetailRequest, RoadSegmentDetailResponse>
 {
-    private readonly EditorContext _editorContext;
+    private readonly IDbContextFactory<EditorContext> _editorContextFactory;
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly FileEncoding _fileEncoding;
     private readonly IStreetNameCache _streetNameCache;
 
     public RoadSegmentDetailRequestHandler(CommandHandlerDispatcher dispatcher,
         ILogger<RoadSegmentDetailRequestHandler> logger,
-        EditorContext editorContext,
+        IDbContextFactory<EditorContext> editorContextFactory,
         RecyclableMemoryStreamManager manager,
         FileEncoding fileEncoding,
         IStreetNameCache streetNameCache)
         : base(dispatcher, logger)
     {
-        _editorContext = editorContext;
+        _editorContextFactory = editorContextFactory;
         _manager = manager;
         _fileEncoding = fileEncoding;
         _streetNameCache = streetNameCache;
@@ -36,7 +36,7 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
 
     protected override async Task<RoadSegmentDetailResponse> InnerHandleAsync(RoadSegmentDetailRequest request, CancellationToken cancellationToken)
     {
-        var roadSegment = await _editorContext.RoadSegments
+        var roadSegment = await (await _editorContextFactory.CreateDbContextAsync(cancellationToken)).RoadSegments
             .IgnoreQueryFilters()
             .SingleOrDefaultAsync(x => x.Id == request.WegsegmentId, cancellationToken);
         if (roadSegment == null)
@@ -61,39 +61,77 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
             return null;
         }
 
-        var surfaceTypes = (await _editorContext.RoadSegmentSurfaceAttributes
-            .Where(x => x.RoadSegmentId == roadSegment.Id)
-            .ToListAsync(cancellationToken: cancellationToken))
+        var surfaceTask = Task.Run(async () =>
+        {
+            await using var dbContext = await _editorContextFactory.CreateDbContextAsync(cancellationToken);
+            return await dbContext.RoadSegmentSurfaceAttributes
+                .Where(x => x.RoadSegmentId == roadSegment.Id)
+                .ToListAsync(cancellationToken);
+        }, cancellationToken);
+
+        var widthTask = Task.Run(async () =>
+        {
+            await using var dbContext = await _editorContextFactory.CreateDbContextAsync(cancellationToken);
+            return await dbContext.RoadSegmentWidthAttributes
+                .Where(x => x.RoadSegmentId == roadSegment.Id)
+                .ToListAsync(cancellationToken);
+        }, cancellationToken);
+
+        var laneTask = Task.Run(async () =>
+        {
+            await using var dbContext = await _editorContextFactory.CreateDbContextAsync(cancellationToken);
+            return await dbContext.RoadSegmentLaneAttributes
+                .Where(x => x.RoadSegmentId == roadSegment.Id)
+                .ToListAsync(cancellationToken);
+        }, cancellationToken);
+
+        var europeanRoadTask = Task.Run(async () =>
+        {
+            await using var dbContext = await _editorContextFactory.CreateDbContextAsync(cancellationToken);
+            return await dbContext.RoadSegmentEuropeanRoadAttributes
+                .Where(x => x.RoadSegmentId == roadSegment.Id)
+                .ToListAsync(cancellationToken);
+        }, cancellationToken);
+
+        var nationalRoadTask = Task.Run(async () =>
+        {
+            await using var dbContext = await _editorContextFactory.CreateDbContextAsync(cancellationToken);
+            return await dbContext.RoadSegmentNationalRoadAttributes
+                .Where(x => x.RoadSegmentId == roadSegment.Id)
+                .ToListAsync(cancellationToken);
+        }, cancellationToken);
+
+        var numberedRoadTask = Task.Run(async () =>
+        {
+            await using var dbContext = await _editorContextFactory.CreateDbContextAsync(cancellationToken);
+            return await dbContext.RoadSegmentNumberedRoadAttributes
+                .Where(x => x.RoadSegmentId == roadSegment.Id)
+                .ToListAsync(cancellationToken);
+        }, cancellationToken);
+
+        await Task.WhenAll(surfaceTask, widthTask, laneTask, europeanRoadTask, nationalRoadTask, numberedRoadTask);
+
+        var surfaceTypes = surfaceTask.Result
             .Select(x => new RoadSegmentSurfaceAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .ToList();
 
-        var widths = (await _editorContext.RoadSegmentWidthAttributes
-            .Where(x => x.RoadSegmentId == roadSegment.Id)
-            .ToListAsync(cancellationToken: cancellationToken))
+        var widths = widthTask.Result
             .Select(x => new RoadSegmentWidthAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .ToList();
 
-        var lanes = (await _editorContext.RoadSegmentLaneAttributes
-            .Where(x => x.RoadSegmentId == roadSegment.Id)
-            .ToListAsync(cancellationToken: cancellationToken))
+        var lanes = laneTask.Result
             .Select(x => new RoadSegmentLaneAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .ToList();
 
-        var europeanRoads = (await _editorContext.RoadSegmentEuropeanRoadAttributes
-            .Where(x => x.RoadSegmentId == roadSegment.Id)
-            .ToListAsync(cancellationToken: cancellationToken))
+        var europeanRoads = europeanRoadTask.Result
             .Select(x => new RoadSegmentEuropeanRoadAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .ToList();
 
-        var nationalRoads = (await _editorContext.RoadSegmentNationalRoadAttributes
-            .Where(x => x.RoadSegmentId == roadSegment.Id)
-            .ToListAsync(cancellationToken: cancellationToken))
+        var nationalRoads = nationalRoadTask.Result
             .Select(x => new RoadSegmentNationalRoadAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .ToList();
 
-        var numberedRoads = (await _editorContext.RoadSegmentNumberedRoadAttributes
-            .Where(x => x.RoadSegmentId == roadSegment.Id)
-            .ToListAsync(cancellationToken: cancellationToken))
+        var numberedRoads = numberedRoadTask.Result
             .Select(x => new RoadSegmentNumberedRoadAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .ToList();
 
@@ -102,7 +140,8 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
             roadSegment.BeginTime,
             roadSegment.Version,
             roadSegment.LastEventHash
-        ) {
+        )
+        {
             Geometry = GeometryTranslator.Translate((MultiLineString)roadSegment.Geometry),
             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegment.MethodId],
             StartNodeId = roadSegment.StartNodeId,

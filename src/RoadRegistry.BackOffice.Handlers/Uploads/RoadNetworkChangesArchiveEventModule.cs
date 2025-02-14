@@ -64,7 +64,9 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                     var transactionZoneFeatures = transactionZoneFeatureReader.Read(archive, FeatureType.Change, ExtractFileName.Transactiezones, readerContext).Item1;
                     var downloadId = transactionZoneFeatures.Single().Attributes.DownloadId;
 
-                    var changeRoadNetwork = await translatedChanges.ToChangeRoadNetworkCommand(extractRequestId, requestId, downloadId, message.Body.TicketId, ct);
+                    var changeRoadNetwork = await translatedChanges.ToChangeRoadNetworkCommand(
+                        logger,
+                        extractRequestId, requestId, downloadId, message.Body.TicketId, ct);
 
                     var command = new Command(changeRoadNetwork)
                         .WithMessageId(message.MessageId);

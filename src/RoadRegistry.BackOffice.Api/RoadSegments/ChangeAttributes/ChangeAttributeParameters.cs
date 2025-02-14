@@ -1,9 +1,9 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeAttributes;
 
+using System.Runtime.Serialization;
+using Infrastructure;
 using Infrastructure.Controllers.Attributes;
 using Newtonsoft.Json;
-using RoadRegistry.BackOffice.Api.Infrastructure;
-using System.Runtime.Serialization;
 
 public record ChangeAttributeParameters
 {
@@ -73,6 +73,20 @@ public record ChangeAttributeParameters
     [DataMember(Name = "GenummerdeWegen", Order = 9)]
     [JsonProperty("genummerdeWegen")]
     public ChangeAttributeNumberedRoad[] GenummerdeWegen { get; set; }
+
+    /// <summary>
+    ///     De unieke en persistente identificator van de straatnaam aan de linkerzijde van het wegsegment of "niet van toepassing".
+    /// </summary>
+    [DataMember(Name = "LinkerstraatnaamId", Order = 10)]
+    [JsonProperty("linkerstraatnaamId")]
+    public string? LinkerstraatnaamId { get; set; }
+
+    /// <summary>
+    ///     De unieke en persistente identificator van de straatnaam aan de rechterzijde van het wegsegment of "niet van toepassing".
+    /// </summary>
+    [DataMember(Name = "RechterstraatnaamId", Order = 11)]
+    [JsonProperty("rechterstraatnaamId")]
+    public string? RechterstraatnaamId { get; set; }
 }
 
 [DataContract(Name = "EuropeseWeg", Namespace = "")]

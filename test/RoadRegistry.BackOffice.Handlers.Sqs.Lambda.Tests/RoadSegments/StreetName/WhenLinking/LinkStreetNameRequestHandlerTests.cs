@@ -22,10 +22,8 @@ using Xunit.Abstractions;
 
 public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 {
-    public LinkStreetNameRequestHandlerTests(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
-    {
-    }
+    public LinkStreetNameRequestHandlerTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    { }
 
     private async Task HandleRequest(ITicketing ticketing, LinkStreetNameRequest request)
     {

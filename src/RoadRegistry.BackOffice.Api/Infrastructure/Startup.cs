@@ -284,7 +284,7 @@ public class Startup
                         sp.GetService<ILoggerFactory>()
                     )
                 })))
-            .AddDbContext<EditorContext>((sp, options) => options
+            .AddDbContextFactory<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 .UseSqlServer(

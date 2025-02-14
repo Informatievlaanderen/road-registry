@@ -22,8 +22,7 @@ using Xunit.Abstractions;
 
 public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 {
-    public UnlinkStreetNameRequestHandlerTests(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
+    public UnlinkStreetNameRequestHandlerTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
     }
 

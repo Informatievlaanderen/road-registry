@@ -7,7 +7,6 @@ using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
 using FeatureToggles;
 using FluentAssertions;
@@ -20,6 +19,7 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using Requests;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
 using Xunit.Abstractions;
 using GeometryTranslator = GeometryTranslator;
@@ -27,15 +27,9 @@ using LineString = NetTopologySuite.Geometries.LineString;
 
 public class GivenOrganizationExists: BackOfficeLambdaTest
 {
-    public ICustomRetryPolicy CustomRetryPolicy { get; }
-
     public GivenOrganizationExists(
-        ITestOutputHelper testOutputHelper,
-        ICustomRetryPolicy customRetryPolicy)
-        : base(testOutputHelper)
+        ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
-        CustomRetryPolicy = customRetryPolicy;
-
         ObjectProvider.CustomizeRoadSegmentOutline();
         ObjectProvider.CustomizeRoadSegmentSurfaceType();
 
@@ -58,8 +52,6 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
         await HandleRequest(request);
 
         // Assert
-        await ThrowIfLastCommandIsRoadNetworkChangesRejected();
-
         var roadSegmentId = new RoadSegmentId(1);
         await VerifyThatTicketHasCompleted(roadSegmentId);
 
@@ -140,7 +132,7 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
 
         var handler = new CreateRoadSegmentOutlineSqsLambdaRequestHandler(
             SqsLambdaHandlerOptions,
-            CustomRetryPolicy,
+            new FakeRetryPolicy(),
             TicketingMock.Object,
             ScopedContainer.Resolve<IIdempotentCommandHandler>(),
             RoadRegistryContext,

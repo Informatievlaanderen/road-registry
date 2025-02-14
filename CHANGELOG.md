@@ -1,3 +1,38 @@
+## [4.22.4](https://github.com/informatievlaanderen/road-registry/compare/v4.22.3...v4.22.4) (2025-02-12)
+
+
+### Bug Fixes
+
+* concurrent dbcontext invocations ([97af66f](https://github.com/informatievlaanderen/road-registry/commit/97af66f5e4c162d5a226e0136b7d19f15dd7a5f3))
+
+## [4.22.3](https://github.com/informatievlaanderen/road-registry/compare/v4.22.2...v4.22.3) (2025-02-12)
+
+## [4.22.2](https://github.com/informatievlaanderen/road-registry/compare/v4.22.1...v4.22.2) (2025-02-12)
+
+
+### Bug Fixes
+
+* serialize streetnamelocalid ([38f99b8](https://github.com/informatievlaanderen/road-registry/commit/38f99b82e9bae7b008e62b98db8f55e34a7a4d66))
+
+## [4.22.1](https://github.com/informatievlaanderen/road-registry/compare/v4.22.0...v4.22.1) (2025-02-07)
+
+
+### Bug Fixes
+
+* pipeline ([48e7982](https://github.com/informatievlaanderen/road-registry/commit/48e798246f5d46bca3d08ab37b3bb3522a2cf303))
+
+# [4.22.0](https://github.com/informatievlaanderen/road-registry/compare/v4.21.7...v4.22.0) (2025-02-07)
+
+
+### Bug Fixes
+
+* pipeline ([f2de261](https://github.com/informatievlaanderen/road-registry/commit/f2de26118cf017f4d53514acc7d271aaa38534dc))
+
+
+### Features
+
+* bulk relink roadsegment streetname GAWR-6752 ([377afff](https://github.com/informatievlaanderen/road-registry/commit/377affffc466c31a6928ca3382c68ec2c13aeb47))
+
 ## [4.21.7](https://github.com/informatievlaanderen/road-registry/compare/v4.21.6...v4.21.7) (2025-02-03)
 
 

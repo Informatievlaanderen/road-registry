@@ -1,11 +1,12 @@
 namespace RoadRegistry.BackOffice;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Globalization;
 using Framework;
 
-public readonly struct StreetNameLocalId : IEquatable<StreetNameLocalId>
+public readonly struct StreetNameLocalId : IEquatable<StreetNameLocalId>, IDutchToString
 {
     private const int UnknownValue = -8;
     private const int NotApplicableValue = -9;
@@ -30,7 +31,7 @@ public readonly struct StreetNameLocalId : IEquatable<StreetNameLocalId>
 
     public static bool Accepts(int value)
     {
-        return value == UnknownValue || value == NotApplicableValue || value > 0;
+        return value is UnknownValue or NotApplicableValue or > 0;
     }
 
     public static StreetNameLocalId? FromValue(int? value)
@@ -40,10 +41,52 @@ public readonly struct StreetNameLocalId : IEquatable<StreetNameLocalId>
             : new StreetNameLocalId?();
     }
 
+    private static readonly IDictionary<string, StreetNameLocalId> DutchNameMapping = new Dictionary<string, StreetNameLocalId>()
+    {
+        { "niet gekend", Unknown },
+        { "niet van toepassing", NotApplicable }
+    };
+
     [Pure]
     public int ToInt32()
     {
         return _value;
+    }
+
+    public static StreetNameLocalId ParseUsingDutchName(string value)
+    {
+        if (!TryParseUsingDutchName(value.ThrowIfNull(), out var parsed))
+            throw new FormatException($"The value {value} is not a well known street name local id.");
+        return parsed;
+    }
+
+    public static bool TryParseUsingDutchName(string value, out StreetNameLocalId parsed)
+    {
+        if (DutchNameMapping.TryGetValue(value, out parsed))
+        {
+            return true;
+        }
+
+        if (int.TryParse(value, out var valueAsInt) && Accepts(valueAsInt))
+        {
+            parsed = new StreetNameLocalId(valueAsInt);
+            return true;
+        }
+
+        return false;
+    }
+
+    public string ToDutchString()
+    {
+        foreach (var item in DutchNameMapping)
+        {
+            if (item.Value == this)
+            {
+                return item.Key;
+            }
+        }
+
+        return ToString();
     }
 
     public bool Equals(StreetNameLocalId other)

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+[Collection("runsequential")]
 public class FunctionTests
 {
     [Fact]

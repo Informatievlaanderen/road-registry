@@ -15,4 +15,9 @@ public static class StringExtensions
 
         return 0;
     }
+
+    public static string GetIdentifierPartFromPuri(this string puri)
+    {
+        return puri.Split('/').Last();
+    }
 }

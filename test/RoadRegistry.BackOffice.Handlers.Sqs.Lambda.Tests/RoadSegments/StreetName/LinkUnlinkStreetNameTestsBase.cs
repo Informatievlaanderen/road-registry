@@ -13,10 +13,7 @@ using AcceptedChange = Messages.AcceptedChange;
 
 public abstract class LinkUnlinkStreetNameTestsBase : BackOfficeLambdaTest
 {
-    protected readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.Lambda);
-
-    protected LinkUnlinkStreetNameTestsBase(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
+    protected LinkUnlinkStreetNameTestsBase(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
         StreetNameClient = new StreetNameCacheClient(new FakeStreetNameCache()
             .AddStreetName(WellKnownStreetNameIds.Proposed, "Proposed street", "voorgesteld")
