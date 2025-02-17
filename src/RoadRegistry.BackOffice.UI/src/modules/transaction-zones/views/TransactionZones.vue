@@ -10,19 +10,13 @@
             <vl-map-tile-wms-source url="https://geo.api.vlaanderen.be/GRB-basiskaart/wms" />
           </vl-map-tile-layer>
 
-          <vl-map-vector-layer>
-            <vl-map-vector-source :url="transactionZonesGeoJsonUrl" />
-            <vl-map-icon-style color="rgba(183, 171, 31, 1)" color-stroke="rgba(183, 171, 31, 1)" />
-            <vl-map-layer-style data-vl-text-feature-attribute-name="description" />
-          </vl-map-vector-layer>
-          <!-- <vl-map-select-interaction @select="onSelectTransactionZone">
-                <vl-map-icon-style mod-highlight />
-              </vl-map-select-interaction> -->
-
-          <vl-map-vector-layer>
-            <vl-map-vector-source :url="overlappingTransactionZonesGeoJsonUrl" />
-            <vl-map-icon-style color="rgba(230, 49, 31, 1)" color-stroke="rgba(230, 49, 31, 1)" />
-          </vl-map-vector-layer>
+          <vl-map-tile-layer :opacity="0.8">
+            <vl-map-tile-wms-source :url="roadRegistryWmsUrl" :layers="[layerTransactionZones]" />
+          </vl-map-tile-layer>
+          
+          <vl-map-tile-layer :opacity="0.4">
+            <vl-map-tile-wms-source :url="roadRegistryWmsUrl" :layers="[layerOverlappingTransactionZones]" />
+          </vl-map-tile-layer>
         </vl-ol-map>
       </vl-column>
     </vl-grid>
@@ -32,26 +26,22 @@
 <script lang="ts">
 import Vue from "vue";
 import Map from "ol/Map";
-import { BackOfficeApi } from "@/services";
+import { WMS_URL, WMS_LAYER_OVERLAPPINGTRANSACTIONZONES, WMS_LAYER_TRANSACTIONZONES } from "@/environment";
 
 export default Vue.extend({
   computed: {
     olMap(): Map {
       return (this.$refs.map as any).olMap as Map;
     },
-    transactionZonesGeoJsonUrl() {
-      // Do not use PublicApi to avoid response size limit error
-      return BackOfficeApi.Extracts.getTransactionZonesGeoJsonUrl();
+    roadRegistryWmsUrl(): string {
+      return WMS_URL;
     },
-    overlappingTransactionZonesGeoJsonUrl() {
-      // Do not use PublicApi to avoid response size limit error
-      return BackOfficeApi.Extracts.getOverlappingTransactionZonesGeoJsonUrl();
+    layerOverlappingTransactionZones(): string {
+      return WMS_LAYER_OVERLAPPINGTRANSACTIONZONES;
     },
-  },
-  methods: {
-    onSelectTransactionZone() {
-      //console.log("onSelectTransactionZone", arguments);
-    },
+    layerTransactionZones(): string {
+      return WMS_LAYER_TRANSACTIONZONES;
+    }
   }
 });
 </script>
