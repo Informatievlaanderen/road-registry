@@ -26,23 +26,22 @@ public abstract class BlobMessageHandler : IMessageHandler
             var sw = Stopwatch.StartNew();
             messageMetadata.Logger?.LogInformation($"Downloading blob '{blobName}'");
             var blobMessageData = await _blobClient.GetBlobMessageAsync(blobName, cancellationToken);
-            if (blobMessageData is not null)
-            {
-                messageMetadata.Logger?.LogInformation($"Downloaded blob '{blobName}'");
-                messageMetadata.Logger?.LogInformation($"TIMETRACKING blobmessagehandler: loading blobmessage took {sw.Elapsed}");
-
-                await HandleMessageDataAsync(blobMessageData, messageMetadata, cancellationToken);
-
-                sw.Restart();
-                messageMetadata.Logger?.LogInformation($"Deleting blob '{blobName}'");
-                await _blobClient.DeleteBlobAsync(blobName, cancellationToken);
-                messageMetadata.Logger?.LogInformation($"TIMETRACKING blobmessagehandler: deleting blobmessage took {sw.Elapsed}");
-                messageMetadata.Logger?.LogInformation($"Deleted blob '{blobName}'");
-            }
-            else
+            if (blobMessageData is null)
             {
                 messageMetadata.Logger?.LogError($"Blob '{blobName}' not found");
+                throw new BlobNotFoundException(blobName);
             }
+
+            messageMetadata.Logger?.LogInformation($"Downloaded blob '{blobName}'");
+            messageMetadata.Logger?.LogInformation($"TIMETRACKING blobmessagehandler: loading blobmessage took {sw.Elapsed}");
+
+            await HandleMessageDataAsync(blobMessageData, messageMetadata, cancellationToken);
+
+            sw.Restart();
+            messageMetadata.Logger?.LogInformation($"Deleting blob '{blobName}'");
+            await _blobClient.DeleteBlobAsync(blobName, cancellationToken);
+            messageMetadata.Logger?.LogInformation($"TIMETRACKING blobmessagehandler: deleting blobmessage took {sw.Elapsed}");
+            messageMetadata.Logger?.LogInformation($"Deleted blob '{blobName}'");
         }
         else
         {
