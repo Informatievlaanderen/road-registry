@@ -1,3 +1,10 @@
+## [4.23.1](https://github.com/informatievlaanderen/road-registry/compare/v4.23.0...v4.23.1) (2025-02-17)
+
+
+### Bug Fixes
+
+* **lambda:** throw when blob message is not found GAWR-6772 ([2518c43](https://github.com/informatievlaanderen/road-registry/commit/2518c43cde8a4fbf766d51be17804fd12f486c33))
+
 # [4.23.0](https://github.com/informatievlaanderen/road-registry/compare/v4.22.4...v4.23.0) (2025-02-17)
 
 
