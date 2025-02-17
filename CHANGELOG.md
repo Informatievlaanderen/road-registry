@@ -1,3 +1,10 @@
+# [4.23.0](https://github.com/informatievlaanderen/road-registry/compare/v4.22.4...v4.23.0) (2025-02-17)
+
+
+### Features
+
+* use TransactionZones wms GAWR-6711 ([764ab4d](https://github.com/informatievlaanderen/road-registry/commit/764ab4d00b3107ae6af1a8e809139caaac1658ff))
+
 ## [4.22.4](https://github.com/informatievlaanderen/road-registry/compare/v4.22.3...v4.22.4) (2025-02-12)
 
 
