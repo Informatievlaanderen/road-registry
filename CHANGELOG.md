@@ -1,3 +1,16 @@
+# [4.24.0](https://github.com/informatievlaanderen/road-registry/compare/v4.23.1...v4.24.0) (2025-02-18)
+
+
+### Bug Fixes
+
+* add kboNumber to create/change organization endpoints ([a4563ea](https://github.com/informatievlaanderen/road-registry/commit/a4563eabf536f00ecb4a9f8d3e0d92fd01cafd1c))
+* ProductContext migrations ([809ac80](https://github.com/informatievlaanderen/road-registry/commit/809ac80a1fead264c74717dd521f90984ff64a71))
+
+
+### Features
+
+* add OrganizationsV2 to Product ([45afd0e](https://github.com/informatievlaanderen/road-registry/commit/45afd0ef4a9599a48dc8eb461facac68517e7fe1))
+
 ## [4.23.1](https://github.com/informatievlaanderen/road-registry/compare/v4.23.0...v4.23.1) (2025-02-17)
 
 
