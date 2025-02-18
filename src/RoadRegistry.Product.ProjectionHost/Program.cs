@@ -1,9 +1,9 @@
 namespace RoadRegistry.Product.ProjectionHost;
 
+using System.Threading;
+using System.Threading.Tasks;
 using BackOffice;
-using BackOffice.FeatureToggles;
 using Be.Vlaanderen.Basisregisters.EventHandling;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using EventProcessors;
@@ -16,11 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Newtonsoft.Json;
 using Projections;
-using RoadRegistry.BackOffice.Extensions;
 using Schema;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 public class Program
 {
@@ -35,12 +31,11 @@ public class Program
         var roadRegistryHost = CreateHostBuilder(args).Build();
 
         await roadRegistryHost
-            .LogSqlServerConnectionStrings(new[]
-            {
+            .LogSqlServerConnectionStrings([
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.ProductProjections,
                 WellKnownConnectionNames.ProductProjectionsAdmin
-            })
+            ])
             .RunAsync(async (sp, host, configuration) =>
             {
                 var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
@@ -71,8 +66,8 @@ public class Program
                             ).Options)
                 )
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new ProductContextMigrationFactory())
-                .AddProductContextEventProcessor<RoadNetworkEventProcessor>(sp => new ConnectedProjection<ProductContext>[]
-                {
+                .AddProductContextEventProcessor<RoadNetworkEventProcessor>(sp =>
+                [
                     new OrganizationRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadNetworkInfoProjection(),
                     new RoadNodeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
@@ -84,7 +79,12 @@ public class Program
                     new RoadSegmentSurfaceAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentWidthAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new GradeSeparatedJunctionRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>())
-                });
+                ])
+                .AddProductContextEventProcessor<OrganizationV2EventProcessor>(sp =>
+                [
+                    new OrganizationRecordV2Projection()
+                ])
+                ;
         })
         .ConfigureHealthChecks(HostingPort, builder => builder
             .AddHostedServicesStatus()

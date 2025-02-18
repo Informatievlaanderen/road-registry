@@ -67,6 +67,7 @@ public static class ProductContextScenarioExtensions
         records.AddRange(await context.RoadSegmentNumberedRoadAttributes.ToArrayAsync());
         records.AddRange(await context.GradeSeparatedJunctions.ToArrayAsync());
         records.AddRange(await context.Organizations.ToArrayAsync());
+        records.AddRange(await context.OrganizationsV2.ToArrayAsync());
         records.AddRange(await context.RoadNetworkInfo.ToArrayAsync());
         return records.ToArray();
     }
@@ -98,7 +99,7 @@ public static class ProductContextScenarioExtensions
     {
         return scenario.Expect(records.ToArray());
     }
-    
+
     public static async Task Expect(
         this ConnectedProjectionScenario<ProductContext> scenario,
         params object[] records)

@@ -1,13 +1,13 @@
 namespace RoadRegistry.Editor.ProjectionHost;
 
-using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Autofac;
 using BackOffice;
 using BackOffice.Configuration;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.EventHandling;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using EventProcessors;
@@ -21,10 +21,6 @@ using Microsoft.IO;
 using Newtonsoft.Json;
 using Projections;
 using Schema;
-using System.Threading;
-using System.Threading.Tasks;
-using BackOffice.Extensions;
-using BackOffice.FeatureToggles;
 
 public class Program
 {
@@ -39,12 +35,11 @@ public class Program
         var roadRegistryHost = CreateHostBuilder(args).Build();
 
         await roadRegistryHost
-            .LogSqlServerConnectionStrings(new[]
-            {
+            .LogSqlServerConnectionStrings([
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.EditorProjections,
                 WellKnownConnectionNames.EditorProjectionsAdmin
-            })
+            ])
             .Log((sp, logger) =>
             {
                 var blobClientOptions = sp.GetRequiredService<BlobClientOptions>();
@@ -63,8 +58,6 @@ public class Program
     public static RoadRegistryHostBuilder<Program> CreateHostBuilder(string[] args) => new RoadRegistryHostBuilder<Program>(args)
         .ConfigureServices((hostContext, services) =>
         {
-            var featureToggles = hostContext.Configuration.GetFeatureToggles<ApplicationFeatureToggle>();
-
             services
                 .AddSingleton(new EnvelopeFactory(
                     EditorContextEventProcessor.EventMapping,

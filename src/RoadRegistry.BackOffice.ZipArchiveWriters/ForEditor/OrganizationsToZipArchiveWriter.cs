@@ -26,7 +26,7 @@ public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         var dbfHeader = new DbaseFileHeader(
             DateTime.Now,
             DbaseCodePage.Western_European_ANSI,
-            new DbaseRecordCount(await context.OrganizationsV2.CountAsync(cancellationToken) + Organization.PredefinedTranslations.All.Length),
+            new DbaseRecordCount(await context.OrganizationsV2.Where(x => x.IsMaintainer).CountAsync(cancellationToken) + Organization.PredefinedTranslations.All.Length),
             OrganizationDbaseRecord.Schema
         );
         await using (var dbfEntryStream = dbfEntry.Open())
@@ -44,7 +44,7 @@ public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                 dbfWriter.Write(dbfRecord);
             }
 
-            foreach (var record in context.OrganizationsV2.OrderBy(x => x.Code))
+            foreach (var record in context.OrganizationsV2.Where(x => x.IsMaintainer).OrderBy(x => x.Code))
             {
                 dbfRecord.ORG.Value = record.Code;
                 dbfRecord.LBLORG.Value = record.Name;
