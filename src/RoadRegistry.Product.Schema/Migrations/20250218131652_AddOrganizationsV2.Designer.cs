@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using NetTopologySuite.Geometries;
 using RoadRegistry.Product.Schema;
 
 #nullable disable
@@ -13,7 +12,7 @@ using RoadRegistry.Product.Schema;
 namespace RoadRegistry.Product.Schema.Migrations
 {
     [DbContext(typeof(ProductContext))]
-    [Migration("20250218115245_AddOrganizationsV2")]
+    [Migration("20250218131652_AddOrganizationsV2")]
     partial class AddOrganizationsV2
     {
         /// <inheritdoc />
@@ -317,156 +316,6 @@ namespace RoadRegistry.Product.Schema.Migrations
                     b.ToTable("RoadNetworkInfo", "RoadRegistryProduct");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Product.Schema.Extracts.ExtractDownloadRecord", b =>
-                {
-                    b.Property<Guid>("DownloadId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ArchiveId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Available")
-                        .HasColumnType("bit");
-
-                    b.Property<long>("AvailableOn")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTimeOffset?>("DownloadedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ExternalRequestId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsInformative")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("RequestId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("RequestedOn")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("DownloadId");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("DownloadId"), false);
-
-                    b.HasIndex("Available");
-
-                    b.ToTable("ExtractDownload", "RoadRegistryProduct");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Product.Schema.Extracts.ExtractRequestOverlapRecord", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<Geometry>("Contour")
-                        .IsRequired()
-                        .HasColumnType("Geometry");
-
-                    b.Property<string>("Description1")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description2")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("DownloadId1")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("DownloadId2")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
-
-                    b.HasIndex("DownloadId1");
-
-                    b.HasIndex("DownloadId2");
-
-                    b.ToTable("ExtractRequestOverlap", "RoadRegistryProduct");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Product.Schema.Extracts.ExtractRequestRecord", b =>
-                {
-                    b.Property<Guid>("DownloadId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Geometry>("Contour")
-                        .IsRequired()
-                        .HasColumnType("Geometry");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DownloadedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ExternalRequestId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsInformative")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset>("RequestedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("DownloadId");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("DownloadId"));
-
-                    b.ToTable("ExtractRequest", "RoadRegistryProduct");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Product.Schema.Extracts.ExtractUploadRecord", b =>
-                {
-                    b.Property<Guid>("UploadId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ArchiveId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ChangeRequestId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<long>("CompletedOn")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid>("DownloadId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ExternalRequestId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("ReceivedOn")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("RequestId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("UploadId");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("UploadId"), false);
-
-                    b.HasIndex("ChangeRequestId")
-                        .IsUnique();
-
-                    b.ToTable("ExtractUpload", "RoadRegistryProduct");
-                });
-
             modelBuilder.Entity("RoadRegistry.Product.Schema.GradeSeparatedJunctions.GradeSeparatedJunctionRecord", b =>
                 {
                     b.Property<int>("Id")
@@ -476,35 +325,11 @@ namespace RoadRegistry.Product.Schema.Migrations
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<int>("LowerRoadSegmentId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UpperRoadSegmentId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
 
                     b.ToTable("GradeSeparatedJunction", "RoadRegistryProduct");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Product.Schema.MunicipalityGeometry", b =>
-                {
-                    b.Property<string>("NisCode")
-                        .HasMaxLength(5)
-                        .HasColumnType("nchar(5)")
-                        .IsFixedLength();
-
-                    b.Property<Geometry>("Geometry")
-                        .IsRequired()
-                        .HasColumnType("Geometry");
-
-                    b.HasKey("NisCode");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("NisCode"));
-
-                    b.ToTable("MunicipalityGeometry", "RoadRegistryProduct");
                 });
 
             modelBuilder.Entity("RoadRegistry.Product.Schema.Organizations.OrganizationRecordV2", b =>
@@ -547,53 +372,6 @@ namespace RoadRegistry.Product.Schema.Migrations
                     b.HasIndex("OvoCode");
 
                     b.ToTable("OrganizationV2", "RoadRegistryProduct");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Product.Schema.RoadNetworkChanges.RoadNetworkChange", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("When")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Id");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Id"), false);
-
-                    b.ToTable("RoadNetworkChange", "RoadRegistryProduct");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Product.Schema.RoadNetworkChanges.RoadNetworkChangeRequestBasedOnArchive", b =>
-                {
-                    b.Property<byte[]>("ChangeRequestId")
-                        .HasMaxLength(32)
-                        .HasColumnType("varbinary(32)");
-
-                    b.Property<string>("ArchiveId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ChangeRequestId");
-
-                    b.HasIndex("ChangeRequestId");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("ChangeRequestId"), false);
-
-                    b.ToTable("RoadNetworkChangeRequestBasedOnArchive", "RoadRegistryProduct");
                 });
 
             modelBuilder.Entity("RoadRegistry.Product.Schema.RoadNetworkInfoSegmentCache", b =>
@@ -655,29 +433,9 @@ namespace RoadRegistry.Product.Schema.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
-                    b.Property<double?>("BoundingBoxMaximumX")
-                        .HasColumnType("float")
-                        .HasColumnName("BoundingBox_MaximumX");
-
-                    b.Property<double?>("BoundingBoxMaximumY")
-                        .HasColumnType("float")
-                        .HasColumnName("BoundingBox_MaximumY");
-
-                    b.Property<double?>("BoundingBoxMinimumX")
-                        .HasColumnType("float")
-                        .HasColumnName("BoundingBox_MinimumX");
-
-                    b.Property<double?>("BoundingBoxMinimumY")
-                        .HasColumnType("float")
-                        .HasColumnName("BoundingBox_MinimumY");
-
                     b.Property<byte[]>("DbaseRecord")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
-
-                    b.Property<Geometry>("Geometry")
-                        .IsRequired()
-                        .HasColumnType("Geometry");
 
                     b.Property<byte[]>("ShapeRecordContent")
                         .IsRequired()
@@ -688,7 +446,7 @@ namespace RoadRegistry.Product.Schema.Migrations
 
                     b.HasKey("Id");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
 
                     b.ToTable("RoadNode", "RoadRegistryProduct");
                 });
@@ -769,17 +527,8 @@ namespace RoadRegistry.Product.Schema.Migrations
                     b.Property<int>("EndNodeId")
                         .HasColumnType("int");
 
-                    b.Property<Geometry>("Geometry")
-                        .IsRequired()
-                        .HasColumnType("Geometry");
-
                     b.Property<int>("GeometryVersion")
                         .HasColumnType("int");
-
-                    b.Property<bool>("IsRemoved")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
 
                     b.Property<string>("LastEventHash")
                         .HasColumnType("nvarchar(max)");
@@ -828,10 +577,6 @@ namespace RoadRegistry.Product.Schema.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
 
-                    b.HasIndex("IsRemoved");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("IsRemoved"), false);
-
                     b.HasIndex("LeftSideStreetNameId");
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("LeftSideStreetNameId"), false);
@@ -840,10 +585,6 @@ namespace RoadRegistry.Product.Schema.Migrations
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("MaintainerId"), false);
 
-                    b.HasIndex("MethodId");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("MethodId"), false);
-
                     b.HasIndex("RightSideStreetNameId");
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("RightSideStreetNameId"), false);
@@ -851,50 +592,34 @@ namespace RoadRegistry.Product.Schema.Migrations
                     b.ToTable("RoadSegment", "RoadRegistryProduct");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Product.Schema.RoadSegments.RoadSegmentVersionRecord", b =>
+            modelBuilder.Entity("RoadRegistry.Product.Schema.RoadNodes.RoadNodeRecord", b =>
                 {
-                    b.Property<string>("StreamId")
-                        .HasColumnType("nvarchar(450)");
+                    b.OwnsOne("RoadRegistry.Product.Schema.RoadNodes.RoadNodeBoundingBox", "BoundingBox", b1 =>
+                        {
+                            b1.Property<int>("RoadNodeRecordId")
+                                .HasColumnType("int");
 
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
+                            b1.Property<double>("MaximumX")
+                                .HasColumnType("float");
 
-                    b.Property<int>("Method")
-                        .HasColumnType("int");
+                            b1.Property<double>("MaximumY")
+                                .HasColumnType("float");
 
-                    b.Property<int>("GeometryVersion")
-                        .HasColumnType("int");
+                            b1.Property<double>("MinimumX")
+                                .HasColumnType("float");
 
-                    b.Property<bool>("IsRemoved")
-                        .HasColumnType("bit");
+                            b1.Property<double>("MinimumY")
+                                .HasColumnType("float");
 
-                    b.Property<DateTime>("RecordingDate")
-                        .HasColumnType("datetime2");
+                            b1.HasKey("RoadNodeRecordId");
 
-                    b.Property<int>("Version")
-                        .HasColumnType("int");
+                            b1.ToTable("RoadNode", "RoadRegistryProduct");
 
-                    b.HasKey("StreamId", "Id", "Method");
+                            b1.WithOwner()
+                                .HasForeignKey("RoadNodeRecordId");
+                        });
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("StreamId", "Id", "Method"));
-
-                    b.HasIndex("Id");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Id"), false);
-
-                    b.HasIndex("IsRemoved");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("IsRemoved"), false);
-
-                    b.HasIndex("Method");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Method"), false);
-
-                    b.HasIndex("StreamId");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("StreamId"), false);
-
-                    b.ToTable("RoadSegmentVersion", "RoadRegistryProduct");
+                    b.Navigation("BoundingBox");
                 });
 #pragma warning restore 612, 618
         }
