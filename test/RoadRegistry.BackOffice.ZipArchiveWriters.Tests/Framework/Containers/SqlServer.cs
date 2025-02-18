@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.Framework.Containers;
 
-using Abstractions;
 using Editor.Schema;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -48,48 +47,6 @@ public class SqlServer : ISqlServerDatabase
 
         var context = new EditorContext(options);
         await context.Database.MigrateAsync();
-        return context;
-    }
-
-    public async Task<EditorContext> CreateEmptyEditorContextAsync(SqlConnectionStringBuilder builder)
-    {
-        var context = await CreateEditorContextAsync(builder);
-
-        context.Organizations.RemoveRange(context.Organizations);
-        context.RoadNodes.RemoveRange(context.RoadNodes);
-        context.RoadSegments.RemoveRange(context.RoadSegments);
-        context.RoadSegmentEuropeanRoadAttributes.RemoveRange(context.RoadSegmentEuropeanRoadAttributes);
-        context.RoadSegmentNationalRoadAttributes.RemoveRange(context.RoadSegmentNationalRoadAttributes);
-        context.RoadSegmentNumberedRoadAttributes.RemoveRange(context.RoadSegmentNumberedRoadAttributes);
-        context.RoadSegmentLaneAttributes.RemoveRange(context.RoadSegmentLaneAttributes);
-        context.RoadSegmentWidthAttributes.RemoveRange(context.RoadSegmentWidthAttributes);
-        context.RoadSegmentSurfaceAttributes.RemoveRange(context.RoadSegmentSurfaceAttributes);
-        context.GradeSeparatedJunctions.RemoveRange(context.GradeSeparatedJunctions);
-        context.RoadNetworkInfo.RemoveRange(context.RoadNetworkInfo);
-        context.ProjectionStates.RemoveRange(context.ProjectionStates);
-        await context.SaveChangesAsync();
-
-        return context;
-    }
-
-    public async Task<ProductContext> CreateEmptyProductContextAsync(SqlConnectionStringBuilder builder)
-    {
-        var context = await CreateProductContextAsync(builder);
-
-        context.Organizations.RemoveRange(context.Organizations);
-        context.RoadNodes.RemoveRange(context.RoadNodes);
-        context.RoadSegments.RemoveRange(context.RoadSegments);
-        context.RoadSegmentEuropeanRoadAttributes.RemoveRange(context.RoadSegmentEuropeanRoadAttributes);
-        context.RoadSegmentNationalRoadAttributes.RemoveRange(context.RoadSegmentNationalRoadAttributes);
-        context.RoadSegmentNumberedRoadAttributes.RemoveRange(context.RoadSegmentNumberedRoadAttributes);
-        context.RoadSegmentLaneAttributes.RemoveRange(context.RoadSegmentLaneAttributes);
-        context.RoadSegmentWidthAttributes.RemoveRange(context.RoadSegmentWidthAttributes);
-        context.RoadSegmentSurfaceAttributes.RemoveRange(context.RoadSegmentSurfaceAttributes);
-        context.GradeSeparatedJunctions.RemoveRange(context.GradeSeparatedJunctions);
-        context.RoadNetworkInfo.RemoveRange(context.RoadNetworkInfo);
-        context.ProjectionStates.RemoveRange(context.ProjectionStates);
-        await context.SaveChangesAsync();
-
         return context;
     }
 

@@ -176,7 +176,8 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
             .ToList();
         if (classicOrganizationIds.Count > 1)
         {
-            Logger.LogError($"Multiple Organizations found with a link to {organization.OvoNumber}, not proceeding with automatic rename to '{organization.Name}' (Ids: {string.Join(", ", classicOrganizationIds)}");
+            //TODO-pr Multiple Organizations found with a link to OVO047131, not proceeding with automatic rename to 'Polder Ettenhoven en Muisbroek' (Ids: P1.05, P1.11
+            Logger.LogError($"Multiple Organizations found with a link to {organization.OvoNumber}, not proceeding with automatic rename to '{organization.Name}' (Ids: {string.Join(", ", classicOrganizationIds)})");
             return;
         }
 

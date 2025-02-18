@@ -29,7 +29,7 @@ public class ProductContext : RunnerDbContext<ProductContext>
     public override string ProjectionStateSchema => WellKnownSchemas.ProductMetaSchema;
 
     public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
-    public DbSet<OrganizationRecord> Organizations { get; set; }
+    public DbSet<OrganizationRecord> Organizations { get; set; } //TODO-pr add V2 variant, dan wnr projectie op 100% alles van V1 verwijderen
     public DbSet<RoadNetworkInfo> RoadNetworkInfo { get; set; }
     public DbSet<RoadNetworkInfoSegmentCache> RoadNetworkInfoSegmentCache { get; set; }
     public DbSet<RoadNodeBoundingBox2D> RoadNodeBoundingBox { get; set; }
@@ -49,7 +49,7 @@ public class ProductContext : RunnerDbContext<ProductContext>
             RoadNetworkInfo.Local.SingleOrDefault() ??
             await RoadNetworkInfo.SingleAsync(candidate => candidate.Id == BackOffice.RoadNetworkInfo.Identifier, token);
     }
-    
+
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseRoadRegistryInMemorySqlServer();

@@ -169,7 +169,6 @@ public class WithValidRequest : BackOfficeLambdaTest
                     ScopedContainer,
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
-                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     new FakeExtractUploadFailedEmailClient(),
                     LoggerFactory
                 )

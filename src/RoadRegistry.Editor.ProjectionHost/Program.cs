@@ -64,7 +64,6 @@ public class Program
         .ConfigureServices((hostContext, services) =>
         {
             var featureToggles = hostContext.Configuration.GetFeatureToggles<ApplicationFeatureToggle>();
-            var useExtractRequestOverlapEventProcessorFeatureToggle = featureToggles.OfType<UseExtractRequestOverlapEventProcessorFeatureToggle>().Single();
 
             services
                 .AddSingleton(new EnvelopeFactory(
@@ -96,13 +95,6 @@ public class Program
                     new RoadSegmentWidthAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new GradeSeparatedJunctionRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>())
                 ])
-                .AddEditorContextEventProcessor<OrganizationEventProcessor>(sp =>
-                [
-                    new OrganizationRecordProjection(
-                        sp.GetRequiredService<RecyclableMemoryStreamManager>(),
-                        sp.GetRequiredService<FileEncoding>(),
-                        sp.GetRequiredService<ILogger<OrganizationRecordProjection>>())
-                ])
                 .AddEditorContextEventProcessor<OrganizationV2EventProcessor>(sp =>
                 [
                     new OrganizationRecordV2Projection()
@@ -118,7 +110,7 @@ public class Program
                 .AddEditorContextEventProcessor<ExtractRequestEventProcessor>(sp =>
                 [
                     new ExtractRequestRecordProjection(),
-                    !useExtractRequestOverlapEventProcessorFeatureToggle.FeatureEnabled ? new ExtractRequestOverlapRecordProjection(sp.GetRequiredService<ILogger<ExtractRequestOverlapRecordProjection>>()) : null
+                    new ExtractRequestOverlapRecordProjection(sp.GetRequiredService<ILogger<ExtractRequestOverlapRecordProjection>>())
                 ])
                 .AddEditorContextEventProcessor<ExtractUploadEventProcessor>(sp =>
                 [
@@ -129,15 +121,6 @@ public class Program
                     new RoadSegmentVersionRecordProjection(sp.GetRequiredService<ILogger<RoadSegmentVersionRecordProjection>>())
                 ])
                 ;
-
-            if (useExtractRequestOverlapEventProcessorFeatureToggle.FeatureEnabled)
-            {
-                services
-                    .AddEditorContextEventProcessor<ExtractRequestOverlapEventProcessor>(sp =>
-                    [
-                        new ExtractRequestOverlapRecordProjection(sp.GetRequiredService<ILogger<ExtractRequestOverlapRecordProjection>>())
-                    ]);
-            }
         })
         .ConfigureHealthChecks(HostingPort, builder => builder
             .AddHostedServicesStatus()

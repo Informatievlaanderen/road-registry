@@ -12,7 +12,6 @@ namespace RoadRegistry.Tests.BackOffice
     using NodaTime.Testing;
     using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Core;
-    using RoadRegistry.BackOffice.FeatureToggles;
     using RoadRegistry.BackOffice.Framework;
     using RoadRegistry.BackOffice.Messages;
     using SqlStreamStore;
@@ -48,6 +47,7 @@ namespace RoadRegistry.Tests.BackOffice
             Assert.Equal(organizationId, organization.Code);
             Assert.Equal(organizationName, organization.Name);
         }
+
         [Theory]
         [InlineData("0123456789", "DV")]
         public async Task ShouldFindByKboNumber(string kboNumber, string organizationNameValue)
@@ -84,7 +84,7 @@ namespace RoadRegistry.Tests.BackOffice
         }
 
         [Fact]
-        public async Task ShouldFindByOvoCodeAsIdWithFeatureFlagEnabled()
+        public async Task ShouldFindByOvoCodeAsId()
         {
             var organizationName = new OrganizationName("DV");
             var ovoCode = new OrganizationOvoCode(1);
@@ -98,8 +98,7 @@ namespace RoadRegistry.Tests.BackOffice
                         Code = ovoCode,
                         Name = organizationName
                     });
-                },
-                useOvoCodeInChangeRoadNetworkFeatureToggle: true
+                }
             );
 
             Assert.Equal(ovoCode.ToString(), ovoCodeAsOrganizationId.ToString());
@@ -111,42 +110,18 @@ namespace RoadRegistry.Tests.BackOffice
         }
 
         [Fact]
-        public async Task ShouldNotFindByOvoCodeAsIdWithFeatureFlagDisabled()
-        {
-            var organizationName = new OrganizationName("DV");
-            var ovoCode = new OrganizationOvoCode(1);
-            var ovoCodeAsOrganizationId = new OrganizationId(ovoCode);
-
-            var sut = await BuildOrganizationCache(
-                configureStore: async store =>
-                {
-                    await store.Given(Mapping, Settings, StreamNameConverter, Organizations.ToStreamName(ovoCodeAsOrganizationId), new ImportedOrganization
-                    {
-                        Code = ovoCode,
-                        Name = organizationName
-                    });
-                },
-                useOvoCodeInChangeRoadNetworkFeatureToggle: false
-            );
-
-            Assert.Equal(ovoCode.ToString(), ovoCodeAsOrganizationId.ToString());
-
-            var organization = await sut.FindByIdOrOvoCodeOrKboNumberAsync(ovoCodeAsOrganizationId, CancellationToken.None);
-            Assert.Null(organization);
-        }
-
-        [Fact]
-        public async Task ShouldFindByOvoCodeAsMappedFromOldId()
+        public async Task GivenOldIdWithOvoCodeMapping_WhenFindByOvoCode_ThenShouldFindOldId()
         {
             var organizationId = new OrganizationId("ABC");
             var organizationName = new OrganizationName("DV");
             var ovoCode = new OrganizationOvoCode(1);
 
-            var sut = await BuildOrganizationCache(configureStore: async store =>
+            var sut = await BuildOrganizationCache(
+                configureStore: async store =>
                 {
                     await store.Given(Mapping, Settings, StreamNameConverter, Organizations.ToStreamName(organizationId), new CreateOrganizationAccepted
                     {
-                        Code = ovoCode,
+                        Code = organizationId,
                         Name = organizationName,
                         OvoCode = ovoCode
                     });
@@ -185,8 +160,7 @@ namespace RoadRegistry.Tests.BackOffice
 
         private async Task<IOrganizationCache> BuildOrganizationCache(
             Func<IStreamStore, Task> configureStore = null,
-            Func<EditorContext, Task> configureEditorContext = null,
-            bool useOvoCodeInChangeRoadNetworkFeatureToggle = false)
+            Func<EditorContext, Task> configureEditorContext = null)
         {
             var store = new InMemoryStreamStore();
             if (configureStore is not null)
@@ -212,7 +186,6 @@ namespace RoadRegistry.Tests.BackOffice
 
             return new OrganizationCache(
                 editorContext,
-                new UseOvoCodeInChangeRoadNetworkFeatureToggle(useOvoCodeInChangeRoadNetworkFeatureToggle),
                 roadRegistryContext,
                 new NullLogger<OrganizationCache>());
         }

@@ -19,7 +19,6 @@ public static class CommandModules
             sp.GetService<ILifetimeScope>(),
             sp.GetService<IRoadNetworkSnapshotReader>(),
             sp.GetService<IClock>(),
-            sp.GetService<UseOvoCodeInChangeRoadNetworkFeatureToggle>(),
             sp.GetService<IExtractUploadFailedEmailClient>(),
             sp.GetService<ILoggerFactory>()
         );

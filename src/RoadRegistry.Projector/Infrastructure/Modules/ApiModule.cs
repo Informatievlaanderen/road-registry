@@ -155,7 +155,61 @@ public class ApiModule : Module
         {
             Id = "roadregistry-editor-projectionhost",
             Description = "",
-            Name = "Editor",
+            Name = "Editor RoadNetwork",
+            WellKnownConnectionName = WellKnownConnectionNames.EditorProjections,
+            FallbackDesiredState = "subscribed"
+        });
+
+        RegisterProjection<EditorContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-editor-changefeed-projectionhost",
+            Description = "",
+            Name = "Editor Change Feed",
+            WellKnownConnectionName = WellKnownConnectionNames.EditorProjections,
+            FallbackDesiredState = "subscribed"
+        });
+
+        RegisterProjection<EditorContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-editor-extractdownload-projectionhost",
+            Description = "",
+            Name = "Editor Extract Download",
+            WellKnownConnectionName = WellKnownConnectionNames.EditorProjections,
+            FallbackDesiredState = "subscribed"
+        });
+
+        RegisterProjection<EditorContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-editor-extractrequest-projectionhost",
+            Description = "",
+            Name = "Editor Extract Request",
+            WellKnownConnectionName = WellKnownConnectionNames.EditorProjections,
+            FallbackDesiredState = "subscribed"
+        });
+
+        RegisterProjection<EditorContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-editor-extractupload-projectionhost",
+            Description = "",
+            Name = "Editor Extract Upload",
+            WellKnownConnectionName = WellKnownConnectionNames.EditorProjections,
+            FallbackDesiredState = "subscribed"
+        });
+
+        RegisterProjection<EditorContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-editor-organization-v2-projectionhost",
+            Description = "",
+            Name = "Editor Organization",
+            WellKnownConnectionName = WellKnownConnectionNames.EditorProjections,
+            FallbackDesiredState = "subscribed"
+        });
+
+        RegisterProjection<EditorContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-editor-roadsegmentversion-projectionhost",
+            Description = "",
+            Name = "Editor RoadSegment Version",
             WellKnownConnectionName = WellKnownConnectionNames.EditorProjections,
             FallbackDesiredState = "subscribed"
         });

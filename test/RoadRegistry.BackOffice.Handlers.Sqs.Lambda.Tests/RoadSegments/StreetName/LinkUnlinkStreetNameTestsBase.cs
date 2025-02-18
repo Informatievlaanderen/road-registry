@@ -37,7 +37,6 @@ public abstract class LinkUnlinkStreetNameTestsBase : BackOfficeLambdaTest
                     ScopedContainer,
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
-                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     new FakeExtractUploadFailedEmailClient(),
                     LoggerFactory
                 )

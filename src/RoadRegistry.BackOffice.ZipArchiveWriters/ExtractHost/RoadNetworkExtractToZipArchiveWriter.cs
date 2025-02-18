@@ -28,7 +28,7 @@ public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter
         _writer = new CompositeZipArchiveWriter(logger,
             new CompositeZipArchiveWriter(logger,
                 new TransactionZoneToZipArchiveWriter(encoding),
-                new OrganizationsToZipArchiveWriter(manager, encoding),
+                new OrganizationsToZipArchiveWriter(encoding),
                 new RoadNodesToZipArchiveWriter(manager, encoding),
                 new RoadSegmentsToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, manager, encoding),
                 new RoadSegmentLaneAttributesToZipArchiveWriter(manager, encoding),

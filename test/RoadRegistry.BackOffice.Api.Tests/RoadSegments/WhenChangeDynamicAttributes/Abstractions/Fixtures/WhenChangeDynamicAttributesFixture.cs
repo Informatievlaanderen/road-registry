@@ -1,26 +1,19 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeDynamicAttributes.Abstractions.Fixtures;
 
-using System.Text;
+using Api.RoadSegments;
 using Api.RoadSegments.ChangeDynamicAttributes;
 using AutoFixture;
-using Be.Vlaanderen.Basisregisters.Shaperon;
-using Editor.Schema.Extensions;
+using Editor.Schema;
+using Editor.Schema.Organizations;
+using Infrastructure;
 using MediatR;
+using Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IO;
-using RoadRegistry.BackOffice.Api.RoadSegments;
-using RoadRegistry.BackOffice.Api.Tests.Infrastructure;
-using RoadRegistry.BackOffice.Extracts.Dbase.Organizations;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
-using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Editor.Projections;
-using RoadRegistry.Editor.Schema;
-using RoadRegistry.Editor.Schema.RoadSegments;
-using RoadRegistry.Hosts.Infrastructure.Options;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts;
 using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadRegistry.Tests.Framework.Projections;
 
 public abstract class WhenChangeDynamicAttributesFixture : ControllerActionFixture<ChangeRoadSegmentsDynamicAttributesParameters>
 {
@@ -60,13 +53,7 @@ public abstract class WhenChangeDynamicAttributesFixture : ControllerActionFixtu
 
     protected override async Task SetupAsync()
     {
-        await _editorContext.Organizations.AddAsync(new OrganizationRecord
-        {
-            Code = TestData.ChangedByOrganization,
-            SortableCode = TestData.ChangedByOrganization,
-            DbaseSchemaVersion = WellKnownDbaseSchemaVersions.V2,
-            DbaseRecord = Array.Empty<byte>()
-        }, CancellationToken.None);
+        await _editorContext.AddOrganization(TestData.ChangedByOrganization, TestData.ChangedByOrganizationName);
 
         var message = ObjectProvider
             .Create<RoadNetworkChangesAccepted>()

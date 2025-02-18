@@ -2,17 +2,16 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ForProduct;
 
 using System.IO.Compression;
 using System.Text;
+using Abstractions.Organizations;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
 using Dbase;
-using ExtractHost;
+using Extracts.Dbase.Organizations.V2;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Product.Schema;
-using RoadRegistry.BackOffice.Abstractions.Organizations;
-using RoadRegistry.BackOffice.Extracts.Dbase.Organizations.V2;
 
-public class OrganizationsToZipArchiveWriter : ZipArchiveWriters.IZipArchiveWriter<ProductContext>
+public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
 {
     private readonly Encoding _encoding;
     private readonly string _entryFormat;
@@ -30,6 +29,7 @@ public class OrganizationsToZipArchiveWriter : ZipArchiveWriters.IZipArchiveWrit
         if (archive == null) throw new ArgumentNullException(nameof(archive));
         if (context == null) throw new ArgumentNullException(nameof(context));
 
+        //TODO-pr filter isMaintainer when V2 is available
         var dbfEntry = archive.CreateEntry(string.Format(_entryFormat, "LstOrg.dbf"));
         var dbfHeader = new DbaseFileHeader(
             DateTime.Now,

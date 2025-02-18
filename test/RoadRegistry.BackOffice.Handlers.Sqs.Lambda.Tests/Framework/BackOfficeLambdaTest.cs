@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using Abstractions;
 using Autofac;
 using AutoFixture;
-using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Extracts.Dbase.Organizations.V1;
 using BackOffice.Framework;
 using BackOffice.Uploads;
@@ -17,7 +16,7 @@ using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Core;
 using Editor.Schema;
-using Editor.Schema.Extensions;
+using Editor.Schema.Organizations;
 using Hosts;
 using MediatR;
 using Messages;
@@ -30,6 +29,7 @@ using Newtonsoft.Json;
 using NodaTime.Text;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadRegistry.Tests.Framework.Projections;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
@@ -70,7 +70,7 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
         SqsLambdaHandlerOptions = new FakeSqsLambdaHandlerOptions();
         RecyclableMemoryStreamManager = new RecyclableMemoryStreamManager();
         FileEncoding = FileEncoding.UTF8;
-        EditorContext = new FakeEditorContextFactory().CreateDbContext([]);
+        EditorContext = new FakeEditorContextFactory().CreateDbContext();
         OrganizationDbaseRecord = new OrganizationDbaseRecord
         {
             ORG = { Value = "AGIV" },
@@ -115,13 +115,7 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             });
 
-        await EditorContext.Organizations.AddAsync(new OrganizationRecord
-        {
-            Code = OrganizationDbaseRecord.ORG.Value,
-            SortableCode = OrganizationDbaseRecord.ORG.Value,
-            DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion,
-            DbaseRecord = OrganizationDbaseRecord.ToBytes(RecyclableMemoryStreamManager, FileEncoding)
-        });
+        await EditorContext.AddOrganization(OrganizationDbaseRecord.ORG.Value, OrganizationDbaseRecord.LBLORG.Value);
         await EditorContext.SaveChangesAsync();
     }
 

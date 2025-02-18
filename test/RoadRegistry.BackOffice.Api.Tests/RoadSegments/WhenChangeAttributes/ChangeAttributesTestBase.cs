@@ -3,10 +3,10 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes;
 using Api.RoadSegments;
 using Api.RoadSegments.ChangeAttributes;
 using AutoFixture;
-using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Handlers.Sqs.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Editor.Schema;
+using Editor.Schema.Organizations;
 using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -18,6 +18,7 @@ using Moq;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts;
 using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadRegistry.Tests.Framework.Projections;
 
 public abstract class ChangeAttributesTestBase
 {
@@ -82,13 +83,7 @@ public abstract class ChangeAttributesTestBase
 
     protected async Task GivenRoadNetwork()
     {
-        await _editorContext.Organizations.AddAsync(new OrganizationRecord
-        {
-            Code = TestData.ChangedByOrganization,
-            SortableCode = TestData.ChangedByOrganization,
-            DbaseRecord = [],
-            DbaseSchemaVersion = WellKnownDbaseSchemaVersions.V2
-        }, CancellationToken.None);
+        await _editorContext.AddOrganization(TestData.ChangedByOrganization, TestData.ChangedByOrganizationName);
 
         var roadNetworkChangesAccepted = Fixture
             .Create<RoadNetworkChangesAccepted>()

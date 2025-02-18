@@ -155,7 +155,6 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
                     ScopedContainer,
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
-                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     new FakeExtractUploadFailedEmailClient(),
                     LoggerFactory
                 )
