@@ -52,7 +52,6 @@ public class Startup : TestStartup
                     c.Resolve<ILifetimeScope>(),
                     new FakeRoadNetworkSnapshotReader(),
                     c.Resolve<IClock>(),
-                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     new FakeExtractUploadFailedEmailClient(),
                     c.Resolve<ILoggerFactory>()
                 )

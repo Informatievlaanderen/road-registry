@@ -2,8 +2,8 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenDeleteOutline.Abstr
 
 using Api.RoadSegments;
 using AutoFixture;
-using BackOffice.Extracts.Dbase.Organizations;
 using Editor.Schema;
+using Editor.Schema.Organizations;
 using Infrastructure;
 using MediatR;
 using Messages;
@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts;
 using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadRegistry.Tests.Framework.Projections;
 
 public abstract class WhenDeleteOutlineFixture : ControllerActionFixture<int>
 {
@@ -55,13 +56,7 @@ public abstract class WhenDeleteOutlineFixture : ControllerActionFixture<int>
 
     protected override async Task SetupAsync()
     {
-        await _editorContext.Organizations.AddAsync(new OrganizationRecord
-        {
-            Code = TestData.ChangedByOrganization,
-            SortableCode = TestData.ChangedByOrganization,
-            DbaseSchemaVersion = WellKnownDbaseSchemaVersions.V2,
-            DbaseRecord = Array.Empty<byte>()
-        }, CancellationToken.None);
+        await _editorContext.AddOrganization(TestData.ChangedByOrganization, TestData.ChangedByOrganizationName);
 
         var message = ObjectProvider
             .Create<RoadNetworkChangesAccepted>()

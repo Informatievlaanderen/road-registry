@@ -170,7 +170,6 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
                     ScopedContainer,
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
-                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     new FakeExtractUploadFailedEmailClient(),
                     LoggerFactory),
                 new RoadNetworkExtractCommandModule(

@@ -1,15 +1,13 @@
 ﻿namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost
 {
-    using System.Data;
     using Editor.Schema;
     using Editor.Schema.GradeSeparatedJunctions;
+    using Editor.Schema.Organizations;
     using Editor.Schema.RoadNodes;
     using Editor.Schema.RoadSegments;
     using Extensions;
-    using Extracts.Dbase.Organizations;
     using Extracts.Dbase.RoadSegments;
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Storage;
     using NetTopologySuite.Geometries;
 
     public interface IZipArchiveDataProvider
@@ -51,7 +49,7 @@
             CancellationToken cancellationToken);
 
         Task<int> GetOrganizationsCount(CancellationToken cancellationToken);
-        Task<IReadOnlyList<OrganizationRecord>> GetOrganizations(CancellationToken cancellationToken);
+        Task<IReadOnlyList<OrganizationRecordV2>> GetOrganizations(CancellationToken cancellationToken);
     }
 
     public class ZipArchiveDataProvider : IZipArchiveDataProvider
@@ -61,11 +59,6 @@
         public ZipArchiveDataProvider(EditorContext editorContext)
         {
             _editorContext = editorContext;
-        }
-
-        public async Task<IDbContextTransaction> BeginTransaction(IsolationLevel isolationLevel, CancellationToken cancellationToken)
-        {
-            return await _editorContext.Database.BeginTransactionAsync(isolationLevel, cancellationToken);
         }
 
         public async Task<IReadOnlyList<RoadNodeRecord>> GetRoadNodes(
@@ -169,13 +162,16 @@
 
         public async Task<int> GetOrganizationsCount(CancellationToken cancellationToken)
         {
-            return await _editorContext.Organizations.CountAsync(cancellationToken);
+            return await _editorContext.OrganizationsV2
+                .Where(x => x.IsMaintainer)
+                .CountAsync(cancellationToken);
         }
 
-        public async Task<IReadOnlyList<OrganizationRecord>> GetOrganizations(CancellationToken cancellationToken)
+        public async Task<IReadOnlyList<OrganizationRecordV2>> GetOrganizations(CancellationToken cancellationToken)
         {
-            return await _editorContext.Organizations
-                .OrderBy(x => x.SortableCode)
+            return await _editorContext.OrganizationsV2
+                .Where(x => x.IsMaintainer)
+                .OrderBy(x => x.Code)
                 .ToListAsync(cancellationToken);
         }
     }

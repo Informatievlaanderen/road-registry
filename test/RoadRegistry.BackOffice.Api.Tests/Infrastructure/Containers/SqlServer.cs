@@ -56,7 +56,7 @@ public class SqlServer : ISqlServerDatabase
     {
         var context = await CreateEditorContextAsync(builder);
 
-        context.Organizations.RemoveRange(context.Organizations);
+        context.OrganizationsV2.RemoveRange(context.OrganizationsV2);
         context.RoadNodes.RemoveRange(context.RoadNodes);
         context.RoadSegments.RemoveRange(context.RoadSegments);
         context.RoadSegmentEuropeanRoadAttributes.RemoveRange(context.RoadSegmentEuropeanRoadAttributes);

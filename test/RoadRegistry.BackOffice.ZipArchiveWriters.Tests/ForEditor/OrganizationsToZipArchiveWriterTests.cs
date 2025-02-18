@@ -5,8 +5,8 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
 using Editor.Schema;
+using Extracts.Dbase.Organizations.V2;
 using Framework.Containers;
-using RoadRegistry.BackOffice.Extracts.Dbase.Organizations.V2;
 using ZipArchiveWriters.ForEditor;
 
 [Collection(nameof(SqlServerCollection))]
@@ -22,7 +22,7 @@ public class OrganizationsToZipArchiveWriterTests
     [Fact]
     public Task ArchiveCanNotBeNull()
     {
-        var sut = new OrganizationsToZipArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
+        var sut = new OrganizationsToZipArchiveWriter(Encoding.UTF8);
         return Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.WriteAsync(null, new EditorContext(), default));
     }
@@ -30,7 +30,7 @@ public class OrganizationsToZipArchiveWriterTests
     [Fact]
     public Task ContextCanNotBeNull()
     {
-        var sut = new OrganizationsToZipArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
+        var sut = new OrganizationsToZipArchiveWriter(Encoding.UTF8);
         return Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null, default));
     }
@@ -38,7 +38,7 @@ public class OrganizationsToZipArchiveWriterTests
     [Fact]
     public async Task WithEmptyDatabaseWritesArchiveWithExpectedEntries()
     {
-        var sut = new OrganizationsToZipArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
+        var sut = new OrganizationsToZipArchiveWriter(Encoding.UTF8);
 
         var db = await _fixture.CreateDatabaseAsync();
         var context = await _fixture.CreateEditorContextAsync(db);

@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using DutchTranslations;
-using FeatureToggles;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
@@ -21,7 +20,6 @@ using TicketingService.Abstractions;
 public class RoadNetworkCommandModule : CommandHandlerModule
 {
     private readonly ILifetimeScope _lifetimeScope;
-    private readonly UseOvoCodeInChangeRoadNetworkFeatureToggle _useOvoCodeInChangeRoadNetworkFeatureToggle;
     private readonly IExtractUploadFailedEmailClient _emailClient;
     private readonly ILogger _logger;
 
@@ -30,7 +28,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         ILifetimeScope lifetimeScope,
         IRoadNetworkSnapshotReader snapshotReader,
         IClock clock,
-        UseOvoCodeInChangeRoadNetworkFeatureToggle useOvoCodeInChangeRoadNetworkFeatureToggle,
         IExtractUploadFailedEmailClient emailClient,
         ILoggerFactory loggerFactory)
     {
@@ -42,7 +39,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
         _lifetimeScope = lifetimeScope;
-        _useOvoCodeInChangeRoadNetworkFeatureToggle = useOvoCodeInChangeRoadNetworkFeatureToggle;
         _emailClient = emailClient;
         _logger = loggerFactory.CreateLogger<RoadNetworkCommandModule>();
 
@@ -223,7 +219,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             return Organization.PredefinedTranslations.FromSystemValue(organizationId);
         }
 
-        if (_useOvoCodeInChangeRoadNetworkFeatureToggle.FeatureEnabled && organization.OvoCode is not null)
+        if (organization.OvoCode is not null)
         {
             return new Organization.DutchTranslation(new OrganizationId(organization.OvoCode.Value), organization.Translation.Name);
         }

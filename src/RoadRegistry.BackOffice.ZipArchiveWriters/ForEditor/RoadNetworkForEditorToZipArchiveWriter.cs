@@ -28,7 +28,7 @@ public class RoadNetworkForEditorToZipArchiveWriter : IZipArchiveWriter<EditorCo
         _writer = new CompositeZipArchiveWriter<EditorContext>(
             new ReadCommittedZipArchiveWriter<EditorContext>(
                 new CompositeZipArchiveWriter<EditorContext>(
-                    new OrganizationsToZipArchiveWriter(manager, encoding),
+                    new OrganizationsToZipArchiveWriter(encoding),
                     new RoadNodesToZipArchiveWriter(manager, encoding),
                     new RoadSegmentsToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, manager, encoding),
                     new RoadSegmentLaneAttributesToZipArchiveWriter(manager, encoding),

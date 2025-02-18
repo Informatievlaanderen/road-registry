@@ -4,6 +4,7 @@ using Api.RoadSegments;
 using AutoFixture;
 using BackOffice.Extracts.Dbase.Organizations;
 using Editor.Schema;
+using Editor.Schema.Organizations;
 using Infrastructure;
 using MediatR;
 using Messages;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts;
 using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadRegistry.Tests.Framework.Projections;
 
 public abstract class WhenChangeOutlineGeometryFixture : ControllerActionFixture<PostChangeOutlineGeometryParameters>
 {
@@ -47,13 +49,7 @@ public abstract class WhenChangeOutlineGeometryFixture : ControllerActionFixture
 
     protected override async Task SetupAsync()
     {
-        await _editorContext.Organizations.AddAsync(new OrganizationRecord
-        {
-            Code = TestData.ChangedByOrganization,
-            SortableCode = TestData.ChangedByOrganization,
-            DbaseSchemaVersion = WellKnownDbaseSchemaVersions.V2,
-            DbaseRecord = []
-        }, CancellationToken.None);
+        await _editorContext.AddOrganization(TestData.ChangedByOrganization, TestData.ChangedByOrganizationName);
 
         var message = ObjectProvider
             .Create<RoadNetworkChangesAccepted>()

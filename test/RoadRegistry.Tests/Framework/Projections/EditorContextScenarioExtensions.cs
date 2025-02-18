@@ -5,6 +5,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Editor.Schema;
+using Editor.Schema.Organizations;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Microsoft.EntityFrameworkCore;
@@ -71,7 +72,6 @@ public static class EditorContextScenarioExtensions
         records.AddRange(await context.RoadSegmentNationalRoadAttributes.ToArrayAsync());
         records.AddRange(await context.RoadSegmentNumberedRoadAttributes.ToArrayAsync());
         records.AddRange(await context.GradeSeparatedJunctions.ToArrayAsync());
-        records.AddRange(await context.Organizations.ToArrayAsync());
         records.AddRange(await context.OrganizationsV2.ToArrayAsync());
         records.AddRange(await context.RoadNetworkInfo.ToArrayAsync());
         records.AddRange(await context.RoadNetworkChanges.ToArrayAsync());
@@ -81,6 +81,15 @@ public static class EditorContextScenarioExtensions
         records.AddRange(await context.ExtractUploads.ToArrayAsync());
 
         return records.ToArray();
+    }
+
+    public static async Task AddOrganization(this EditorContext editorContext, string code, string? name = null)
+    {
+        await editorContext.OrganizationsV2.AddAsync(new OrganizationRecordV2
+        {
+            Code = code,
+            Name = name ?? code
+        });
     }
 
     private static EditorContext CreateContextFor(string database)

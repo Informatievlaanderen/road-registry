@@ -96,7 +96,6 @@ public class Program
                     sp.GetRequiredService<ILifetimeScope>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     sp.GetRequiredService<IClock>(),
-                    sp.GetRequiredService<UseOvoCodeInChangeRoadNetworkFeatureToggle>(),
                     sp.GetService<IExtractUploadFailedEmailClient>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 ),

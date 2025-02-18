@@ -1,3 +1,0 @@
-namespace RoadRegistry.BackOffice.FeatureToggles;
-
-public sealed record UseExtractRequestOverlapEventProcessorFeatureToggle(bool FeatureEnabled) : ApplicationFeatureToggle(FeatureEnabled);

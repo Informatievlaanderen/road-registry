@@ -3,11 +3,13 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenCreateOutline.Abstr
 using Api.RoadSegments;
 using BackOffice.Extracts.Dbase.Organizations;
 using Editor.Schema;
+using Editor.Schema.Organizations;
 using Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadRegistry.Tests.Framework.Projections;
 
 public abstract class WhenCreateOutlineFixture : ControllerActionFixture<PostRoadSegmentOutlineParameters>
 {
@@ -33,14 +35,7 @@ public abstract class WhenCreateOutlineFixture : ControllerActionFixture<PostRoa
 
     protected override async Task<IActionResult> GetResultAsync(PostRoadSegmentOutlineParameters request)
     {
-        await _editorContext.Organizations.AddAsync(new OrganizationRecord
-        {
-            Id = 0,
-            Code = "TEST",
-            SortableCode = "TEST",
-            DbaseSchemaVersion = WellKnownDbaseSchemaVersions.V2,
-            DbaseRecord = Array.Empty<byte>()
-        }, CancellationToken.None);
+        await _editorContext.AddOrganization("TEST");
 
         await _editorContext.SaveChangesAsync(CancellationToken.None);
 

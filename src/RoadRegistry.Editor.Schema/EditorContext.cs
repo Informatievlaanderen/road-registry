@@ -3,7 +3,6 @@ namespace RoadRegistry.Editor.Schema;
 using System;
 using System.Collections.Generic;
 using BackOffice;
-using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Metrics;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
@@ -48,7 +47,6 @@ public class EditorContext : RunnerDbContext<EditorContext>
     public DbSet<ExtractDownloadRecord> ExtractDownloads { get; set; }
     public DbSet<ExtractUploadRecord> ExtractUploads { get; set; }
     public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
-    public DbSet<OrganizationRecord> Organizations { get; set; }
     public DbSet<OrganizationRecordV2> OrganizationsV2 { get; set; }
     public DbSet<RoadNetworkChangeRequestBasedOnArchive> RoadNetworkChangeRequestsBasedOnArchive { get; set; }
     public DbSet<RoadNetworkChange> RoadNetworkChanges { get; set; }

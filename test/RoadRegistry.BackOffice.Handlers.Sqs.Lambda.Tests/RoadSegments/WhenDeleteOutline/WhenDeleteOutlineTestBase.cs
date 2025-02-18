@@ -62,7 +62,6 @@ public abstract class WhenDeleteOutlineTestBase : BackOfficeLambdaTest
                     ScopedContainer,
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
-                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     new FakeExtractUploadFailedEmailClient(),
                     LoggerFactory
                 )
