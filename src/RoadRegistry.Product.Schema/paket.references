@@ -8,6 +8,5 @@ Microsoft.IdentityModel.Abstractions
 Microsoft.IdentityModel.JsonWebTokens
 Microsoft.IdentityModel.Logging
 Microsoft.IdentityModel.Tokens
-Microsoft.EntityFrameworkCore.Design
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
 NetTopologySuite

@@ -52,11 +52,6 @@ public class ProductContext : RunnerDbContext<ProductContext>
             await RoadNetworkInfo.SingleAsync(candidate => candidate.Id == BackOffice.RoadNetworkInfo.Identifier, token);
     }
 
-    protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseRoadRegistryInMemorySqlServer();
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
