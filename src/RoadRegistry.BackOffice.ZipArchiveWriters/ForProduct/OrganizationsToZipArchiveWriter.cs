@@ -26,15 +26,17 @@ public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
 
     public async Task WriteAsync(ZipArchive archive, ProductContext context, CancellationToken cancellationToken)
     {
-        if (archive == null) throw new ArgumentNullException(nameof(archive));
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(archive);
+        ArgumentNullException.ThrowIfNull(context);
 
-        //TODO-pr filter isMaintainer when V2 is available
+        //TODO-pr filter IsMaintainer when V2 is available
+        var organizationsQuery = context.Organizations.AsQueryable();
+
         var dbfEntry = archive.CreateEntry(string.Format(_entryFormat, "LstOrg.dbf"));
         var dbfHeader = new DbaseFileHeader(
             DateTime.Now,
             DbaseCodePage.Western_European_ANSI,
-            new DbaseRecordCount(await context.Organizations.CountAsync(cancellationToken) + Organization.PredefinedTranslations.All.Length),
+            new DbaseRecordCount(await organizationsQuery.CountAsync(cancellationToken) + Organization.PredefinedTranslations.All.Length),
             OrganizationDbaseRecord.Schema
         );
         await using (var dbfEntryStream = dbfEntry.Open())
@@ -52,7 +54,7 @@ public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
                 dbfWriter.Write(dbfRecord);
             }
 
-            foreach (var record in context.Organizations.OrderBy(_ => _.SortableCode))
+            foreach (var record in organizationsQuery.OrderBy(x => x.Code))
             {
                 var organization = _recordReader.Read(record.DbaseRecord, record.DbaseSchemaVersion);
 

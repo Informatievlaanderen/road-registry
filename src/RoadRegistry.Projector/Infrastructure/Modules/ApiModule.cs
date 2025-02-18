@@ -143,7 +143,16 @@ public class ApiModule : Module
         {
             Id = "roadregistry-product-projectionhost",
             Description = "",
-            Name = "Product",
+            Name = "Product - RoadNetwork",
+            WellKnownConnectionName = WellKnownConnectionNames.ProductProjections,
+            FallbackDesiredState = "subscribed"
+        });
+
+        RegisterProjection<ProductContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-product-organization-v2-projectionhost",
+            Description = "",
+            Name = "Product - Organization",
             WellKnownConnectionName = WellKnownConnectionNames.ProductProjections,
             FallbackDesiredState = "subscribed"
         });
@@ -155,7 +164,7 @@ public class ApiModule : Module
         {
             Id = "roadregistry-editor-projectionhost",
             Description = "",
-            Name = "Editor RoadNetwork",
+            Name = "Editor - RoadNetwork",
             WellKnownConnectionName = WellKnownConnectionNames.EditorProjections,
             FallbackDesiredState = "subscribed"
         });
@@ -164,7 +173,7 @@ public class ApiModule : Module
         {
             Id = "roadregistry-editor-changefeed-projectionhost",
             Description = "",
-            Name = "Editor Change Feed",
+            Name = "Editor - Change Feed",
             WellKnownConnectionName = WellKnownConnectionNames.EditorProjections,
             FallbackDesiredState = "subscribed"
         });
@@ -173,7 +182,7 @@ public class ApiModule : Module
         {
             Id = "roadregistry-editor-extractdownload-projectionhost",
             Description = "",
-            Name = "Editor Extract Download",
+            Name = "Editor - Extract Download",
             WellKnownConnectionName = WellKnownConnectionNames.EditorProjections,
             FallbackDesiredState = "subscribed"
         });
@@ -182,7 +191,7 @@ public class ApiModule : Module
         {
             Id = "roadregistry-editor-extractrequest-projectionhost",
             Description = "",
-            Name = "Editor Extract Request",
+            Name = "Editor - Extract Request",
             WellKnownConnectionName = WellKnownConnectionNames.EditorProjections,
             FallbackDesiredState = "subscribed"
         });
@@ -191,7 +200,7 @@ public class ApiModule : Module
         {
             Id = "roadregistry-editor-extractupload-projectionhost",
             Description = "",
-            Name = "Editor Extract Upload",
+            Name = "Editor - Extract Upload",
             WellKnownConnectionName = WellKnownConnectionNames.EditorProjections,
             FallbackDesiredState = "subscribed"
         });
@@ -200,7 +209,7 @@ public class ApiModule : Module
         {
             Id = "roadregistry-editor-organization-v2-projectionhost",
             Description = "",
-            Name = "Editor Organization",
+            Name = "Editor - Organization",
             WellKnownConnectionName = WellKnownConnectionNames.EditorProjections,
             FallbackDesiredState = "subscribed"
         });
@@ -209,7 +218,7 @@ public class ApiModule : Module
         {
             Id = "roadregistry-editor-roadsegmentversion-projectionhost",
             Description = "",
-            Name = "Editor RoadSegment Version",
+            Name = "Editor - RoadSegment Version",
             WellKnownConnectionName = WellKnownConnectionNames.EditorProjections,
             FallbackDesiredState = "subscribed"
         });
