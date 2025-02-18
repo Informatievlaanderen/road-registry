@@ -37,7 +37,8 @@ public partial class OrganizationsController
         {
             Code = parameters?.Code,
             Name = parameters?.Name,
-            OvoCode = parameters?.OvoCode
+            OvoCode = parameters?.OvoCode,
+            KboNumber = parameters?.KboNumber
         };
         await validator.ValidateAndThrowAsync(command, cancellationToken);
 
@@ -48,4 +49,4 @@ public partial class OrganizationsController
     }
 }
 
-public sealed record OrganizationCreateParameters(string Code, string Name, string OvoCode);
+public sealed record OrganizationCreateParameters(string Code, string Name, string OvoCode, string KboNumber);

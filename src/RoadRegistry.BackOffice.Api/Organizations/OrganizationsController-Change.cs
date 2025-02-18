@@ -40,6 +40,7 @@ public partial class OrganizationsController
             Code = id,
             Name = parameters?.Name,
             OvoCode = parameters?.OvoCode,
+            KboNumber = parameters?.KboNumber,
             IsMaintainer = parameters?.IsMaintainer
         };
         await validator.ValidateAndThrowAsync(command, cancellationToken);
@@ -55,5 +56,6 @@ public sealed class OrganizationChangeParameters
 {
     public string? Name { get; set; }
     public string? OvoCode { get; set; }
+    public string? KboNumber { get; set; }
     public bool? IsMaintainer { get; set; }
 };
