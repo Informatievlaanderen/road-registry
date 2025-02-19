@@ -36,7 +36,7 @@ public class WhenChangeAttributesWithValidRequest : WhenChangeAttributesTestBase
                 change.Morphology = ObjectProvider.CreateWhichIsDifferentThan(RoadSegmentMorphology.Parse(TestData.Segment1Added.Morphology));
                 change.Status = ObjectProvider.CreateWhichIsDifferentThan(RoadSegmentStatus.Parse(TestData.Segment1Added.Status));
                 change.LeftSideStreetNameId = new StreetNameLocalId(WellKnownStreetNameIds.Proposed);
-                change.RightSideStreetNameId = new StreetNameLocalId(WellKnownStreetNameIds.Current);
+                change.RightSideStreetNameId = StreetNameLocalId.NotApplicable;
 
                 change.EuropeanRoads = ObjectProvider.CreateMany<EuropeanRoadNumber>(1).ToArray();
                 change.NationalRoads = ObjectProvider.CreateMany<NationalRoadNumber>(1).ToArray();
