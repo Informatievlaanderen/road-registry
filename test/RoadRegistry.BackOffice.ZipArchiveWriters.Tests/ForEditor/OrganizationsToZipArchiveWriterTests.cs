@@ -5,7 +5,7 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
 using Editor.Schema;
-using Extracts.Dbase.Organizations.V2;
+using Extracts.Dbase.Organizations;
 using Framework.Containers;
 using ZipArchiveWriters.ForEditor;
 

@@ -5,7 +5,7 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
 using Editor.Schema;
-using Extracts.Dbase.Organizations.V2;
+using Extracts.Dbase.Organizations;
 using Microsoft.EntityFrameworkCore;
 
 public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
@@ -44,11 +44,11 @@ public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                 dbfWriter.Write(dbfRecord);
             }
 
-            foreach (var record in context.OrganizationsV2.Where(x => x.IsMaintainer).OrderBy(x => x.Code))
+            foreach (var organization in context.OrganizationsV2.Where(x => x.IsMaintainer).OrderBy(x => x.Code))
             {
-                dbfRecord.ORG.Value = record.Code;
-                dbfRecord.LBLORG.Value = record.Name;
-                dbfRecord.OVOCODE.Value = record.OvoCode;
+                dbfRecord.ORG.Value = organization.Code;
+                dbfRecord.LBLORG.Value = organization.Name;
+                dbfRecord.OVOCODE.Value = organization.OvoCode;
 
                 dbfWriter.Write(dbfRecord);
             }

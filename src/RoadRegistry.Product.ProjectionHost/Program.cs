@@ -68,7 +68,6 @@ public class Program
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new ProductContextMigrationFactory())
                 .AddProductContextEventProcessor<RoadNetworkEventProcessor>(sp =>
                 [
-                    new OrganizationRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadNetworkInfoProjection(),
                     new RoadNodeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<RoadSegmentRecordProjection>>()),

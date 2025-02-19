@@ -30,7 +30,6 @@ public class ProductContext : RunnerDbContext<ProductContext>
     public override string ProjectionStateSchema => WellKnownSchemas.ProductMetaSchema;
 
     public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
-    public DbSet<OrganizationRecord> Organizations { get; set; } //TODO-pr remove once V2 is on 100% in PRD
     public DbSet<OrganizationRecordV2> OrganizationsV2 { get; set; }
     public DbSet<RoadNetworkInfo> RoadNetworkInfo { get; set; }
     public DbSet<RoadNetworkInfoSegmentCache> RoadNetworkInfoSegmentCache { get; set; }

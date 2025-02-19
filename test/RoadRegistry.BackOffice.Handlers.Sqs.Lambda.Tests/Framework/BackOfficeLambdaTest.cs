@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using Abstractions;
 using Autofac;
 using AutoFixture;
-using BackOffice.Extracts.Dbase.Organizations.V1;
+using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Framework;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;

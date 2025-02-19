@@ -5,7 +5,7 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
 using Extracts;
-using Extracts.Dbase.Organizations.V2;
+using Extracts.Dbase.Organizations;
 
 public class OrganizationsToZipArchiveWriter : IZipArchiveWriter
 {
@@ -48,11 +48,11 @@ public class OrganizationsToZipArchiveWriter : IZipArchiveWriter
                 dbfWriter.Write(dbfRecord);
             }
 
-            foreach (var record in await zipArchiveDataProvider.GetOrganizations(cancellationToken))
+            foreach (var organization in await zipArchiveDataProvider.GetOrganizations(cancellationToken))
             {
-                dbfRecord.ORG.Value = record.Code;
-                dbfRecord.LBLORG.Value = record.Name;
-                dbfRecord.OVOCODE.Value = record.OvoCode;
+                dbfRecord.ORG.Value = organization.Code;
+                dbfRecord.LBLORG.Value = organization.Name;
+                dbfRecord.OVOCODE.Value = organization.OvoCode;
 
                 dbfWriter.Write(dbfRecord);
             }
