@@ -26,6 +26,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Behaviors
             switch (request)
             {
                 case EndpointRequest endpointRequest:
+                    //TODO-rik confirm: als er extract wordt aangevraagd, zit die ProvenanceData al in de DB bij het command? zou moeten
                     endpointRequest.Metadata = GetMetadata();
                     endpointRequest.ProvenanceData = CreateProvenanceData();
                     break;
@@ -40,6 +41,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Behaviors
 
         private ProvenanceData CreateProvenanceData()
         {
+            //TODO-pr read safe api-key
             return new RoadRegistryProvenanceData(Modification.Insert, _httpContextAccessor.HttpContext.User.FindFirst(AcmIdmClaimTypes.VoOrgCode)?.Value);
         }
 
