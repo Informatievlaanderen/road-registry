@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Extracts.Dbase.Organizations.V2;
+namespace RoadRegistry.BackOffice.Extracts.Dbase.Organizations;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
@@ -6,8 +6,8 @@ public class OrganizationDbaseSchema : DbaseSchema
 {
     public OrganizationDbaseSchema()
     {
-        Fields = new[]
-        {
+        Fields =
+        [
             DbaseField.CreateCharacterField(
                 new DbaseFieldName(nameof(ORG)),
                 new DbaseFieldLength(18)),
@@ -21,7 +21,7 @@ public class OrganizationDbaseSchema : DbaseSchema
                 .CreateCharacterField(
                     new DbaseFieldName(nameof(OVOCODE)),
                     new DbaseFieldLength(9))
-        };
+        ];
     }
 
     public DbaseField ORG => Fields[0];

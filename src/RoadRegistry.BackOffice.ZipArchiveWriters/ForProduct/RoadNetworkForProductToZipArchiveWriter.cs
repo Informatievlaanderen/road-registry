@@ -20,13 +20,10 @@ public class RoadNetworkForProductToZipArchiveWriter : IZipArchiveWriter<Product
         RecyclableMemoryStreamManager manager,
         Encoding encoding)
     {
-        if (zipArchiveWriterOptions == null) throw new ArgumentNullException(nameof(zipArchiveWriterOptions));
-
-        if (streetNameCache == null) throw new ArgumentNullException(nameof(streetNameCache));
-
-        if (manager == null) throw new ArgumentNullException(nameof(manager));
-
-        if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+        ArgumentNullException.ThrowIfNull(zipArchiveWriterOptions);
+        ArgumentNullException.ThrowIfNull(streetNameCache);
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(encoding);
 
         var versionDirectory = $"Wegenregister_SHAPE_{date.ToString("yyyyMMdd", CultureInfo.InvariantCulture)}";
         var extraFileEntryFormat = versionDirectory + "/Shapefile/extra/{0}";
@@ -38,7 +35,7 @@ public class RoadNetworkForProductToZipArchiveWriter : IZipArchiveWriter<Product
         _writer = new CompositeZipArchiveWriter<ProductContext>(
             new ReadCommittedZipArchiveWriter<ProductContext>(
                 new CompositeZipArchiveWriter<ProductContext>(
-                    new OrganizationsToZipArchiveWriter(extraFileEntryFormat, manager, encoding),
+                    new OrganizationsToZipArchiveWriter(extraFileEntryFormat, encoding),
                     new RoadNodesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
                     new RoadSegmentsToZipArchiveWriter(shapeFileEntryFormat, zipArchiveWriterOptions, streetNameCache, manager, encoding),
                     new RoadSegmentLaneAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
