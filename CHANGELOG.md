@@ -1,3 +1,10 @@
+## [4.24.1](https://github.com/informatievlaanderen/road-registry/compare/v4.24.0...v4.24.1) (2025-02-19)
+
+
+### Bug Fixes
+
+* allow linking not applicable streetnamelocalid ([3c0f5a8](https://github.com/informatievlaanderen/road-registry/commit/3c0f5a86b980a3cccd390268d3b4c72dcda3b62e))
+
 # [4.24.0](https://github.com/informatievlaanderen/road-registry/compare/v4.23.1...v4.24.0) (2025-02-18)
 
 
