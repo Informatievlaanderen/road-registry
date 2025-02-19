@@ -370,7 +370,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         {
             string[] activeStreetNameStatus = [StreetNameStatus.Current, StreetNameStatus.Proposed];
 
-            if (change.LeftSideStreetNameId is not null)
+            if (change.LeftSideStreetNameId is not null && change.LeftSideStreetNameId != StreetNameLocalId.NotApplicable)
             {
                 var streetName = await _streetNameClient.GetAsync(change.LeftSideStreetNameId.Value, cancellationToken);
                 if (streetName is null)
@@ -384,7 +384,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                 }
             }
 
-            if (change.RightSideStreetNameId is not null)
+            if (change.RightSideStreetNameId is not null && change.RightSideStreetNameId != StreetNameLocalId.NotApplicable)
             {
                 var streetName = await _streetNameClient.GetAsync(change.RightSideStreetNameId.Value, cancellationToken);
                 if (streetName is null)
