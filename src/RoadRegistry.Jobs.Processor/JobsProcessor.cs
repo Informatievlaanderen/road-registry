@@ -20,6 +20,7 @@ namespace RoadRegistry.Jobs.Processor
     using System.Threading;
     using System.Threading.Tasks;
     using BackOffice;
+    using BackOffice.Abstractions;
     using BackOffice.Abstractions.Jobs;
     using BackOffice.Core;
     using Microsoft.Extensions.Hosting;
@@ -94,7 +95,7 @@ namespace RoadRegistry.Jobs.Processor
                             await CancelJob(job, stoppingToken);
                             continue;
                         }
-                        
+
                         var blob = await GetBlobObject(job, stoppingToken);
                         if (blob is null)
                         {
@@ -111,6 +112,9 @@ namespace RoadRegistry.Jobs.Processor
                             var readStream = await blobStream.CopyToNewMemoryStream(stoppingToken);
 
                             var request = BuildRequest(job, blob, readStream);
+                            //TODO-pr add ProvenanceData to EndpointRequest from ticket metadata
+                            //request is type EndpointRequest
+
                             await _mediator.Send(request, stoppingToken);
 
                             await UpdateJobStatus(job, JobStatus.Completed, stoppingToken);

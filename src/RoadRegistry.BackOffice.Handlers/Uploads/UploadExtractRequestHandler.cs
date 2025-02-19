@@ -181,6 +181,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             ArchiveId = archiveId,
             TicketId = request.TicketId
         });
+        //TODO-pr command.WithProvenanceData()
         await Queue(command, cancellationToken);
 
         Logger.LogInformation("Command queued {Command} for archive {ArchiveId}", nameof(UploadRoadNetworkChangesArchive), archiveId);

@@ -47,7 +47,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                     var job = await CreateJob(request.UploadType, request.DownloadId, cancellationToken);
 
                     var preSignedUrl = _urlPresigner.CreatePresignedUploadUrl(job);
-                    
+
                     var ticketId = await _ticketing.CreateTicket(
                         new Dictionary<string, string>
                         {
@@ -56,11 +56,12 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                             { "UploadType", request.UploadType.ToString() },
                             { "DownloadId", request.DownloadId?.ToString() },
                             { "JobId", job.Id.ToString("D") }
+                            //TODO-pr add "Operator" (read first vo_orgcode, safe api-key fallback), read in JobsProcessor and pass through until ChangeRoadNetwork is created
                         },
                         cancellationToken);
 
                     var ticketUrl = _ticketingUrl.For(ticketId).ToString().Replace(_ticketingOptions.InternalBaseUrl, _ticketingOptions.PublicBaseUrl);
-                    
+
                     await UpdateJobWithTicketId(job, ticketId, cancellationToken);
                     await transaction.CommitAsync(cancellationToken);
 
@@ -73,7 +74,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                 }
             }, null, cancellationToken);
         }
-        
+
         private async Task<Job> CreateJob(UploadType uploadType, DownloadId? downloadId, CancellationToken cancellationToken)
         {
             var job = new Job(

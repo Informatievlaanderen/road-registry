@@ -50,6 +50,7 @@ internal class ApiKeyAuthenticator : IApiKeyAuthenticator
                 new("active", true.ToString()),
                 new(AcmIdmClaimTypes.VoApplicatieNaam, token.ClientName),
                 new(RoadRegistryClaim.ClaimType, RoadRegistryClaim.ConvertRoleToClaimValue(role))
+                //TODO-pr add claim with safe api key ("operator"?)
             }.Concat(
                 scopes.Select(scope => new Claim(AcmIdmClaimTypes.Scope, scope))
             ), AuthenticationSchemes.ApiKey);

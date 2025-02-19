@@ -59,6 +59,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                     await using var archiveBlobStream = await archiveBlob.OpenAsync(ct);
                     using var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false);
                     var translatedChanges = await featureCompareTranslator.TranslateAsync(archive, ct);
+                    //TODO-pr set operator from RoadNetworkChangesArchiveAccepted
 
                     var readerContext = new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);
                     var transactionZoneFeatures = transactionZoneFeatureReader.Read(archive, FeatureType.Change, ExtractFileName.Transactiezones, readerContext).Item1;
