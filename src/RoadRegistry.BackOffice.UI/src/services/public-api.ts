@@ -326,6 +326,13 @@ export const PublicApi = {
 
       return municipalities;
     },
-  },
+  },  
+  Ticketing: {
+    get: async (id: string): Promise<RoadRegistry.TicketDetails> => {
+      const path = `${apiEndpoint}/v2/tickets/${id}`;
+      const response = await apiClient.get<RoadRegistry.TicketDetails>(path, { params: { t: new Date().getTime() } });
+      return response.data;
+    }
+  }
 };
 export default PublicApi;

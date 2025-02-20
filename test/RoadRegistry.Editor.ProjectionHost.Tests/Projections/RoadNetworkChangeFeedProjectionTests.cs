@@ -576,6 +576,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         var description = _fixture.Create<ExtractDescription>();
         var archiveId = _fixture.Create<ArchiveId>();
         var filename = _fixture.Create<string>();
+        var ticketId = _fixture.Create<Guid>();
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
             Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
             ContentType.Parse("application/zip"), Stream.Null);
@@ -588,7 +589,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Given(new RoadNetworkChangesArchiveUploaded
             {
                 Description = description,
-                ArchiveId = archiveId
+                ArchiveId = archiveId,
+                TicketId = ticketId
             })
             .Expect(new RoadNetworkChange
             {
@@ -602,7 +604,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                         Id = archiveId,
                         Available = true,
                         Filename = filename
-                    }
+                    },
+                    TicketId = ticketId
                 })
             }, new RoadNetworkChangeRequestBasedOnArchive
             {
@@ -621,6 +624,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         var uploadId = _fixture.Create<UploadId>();
         var archiveId = _fixture.Create<ArchiveId>();
         var filename = _fixture.Create<string>();
+        var ticketId = _fixture.Create<Guid>();
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
             Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
             ContentType.Parse("application/zip"), Stream.Null);
@@ -637,7 +641,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 RequestId = extractRequestId,
                 DownloadId = downloadId,
                 UploadId = uploadId,
-                ArchiveId = archiveId
+                ArchiveId = archiveId,
+                TicketId = ticketId
             })
             .Expect(new RoadNetworkChange
             {
@@ -646,7 +651,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 Type = nameof(RoadNetworkExtractChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractChangesArchiveUploadedEntry
                 {
-                    Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename }
+                    Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename },
+                    TicketId = ticketId
                 })
             }, new RoadNetworkChangeRequestBasedOnArchive
             {

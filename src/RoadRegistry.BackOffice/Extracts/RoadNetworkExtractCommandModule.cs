@@ -143,7 +143,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 {
                     try
                     {
-                        var upload = extract.Upload(downloadId, uploadId, archiveId);
+                        var upload = extract.Upload(downloadId, uploadId, archiveId, command.Body.TicketId);
 
                         var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
                         await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))

@@ -146,7 +146,7 @@ public class RoadNetworkExtract : EventSourcedEntity
             });
     }
 
-    public RoadNetworkExtractUpload Upload(DownloadId downloadId, UploadId uploadId, ArchiveId archiveId)
+    public RoadNetworkExtractUpload Upload(DownloadId downloadId, UploadId uploadId, ArchiveId archiveId, Guid? ticketId)
     {
         if (!_requestedDownloads.Contains(downloadId))
             throw new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException(
@@ -166,7 +166,8 @@ public class RoadNetworkExtract : EventSourcedEntity
             ExternalRequestId = _externalExtractRequestId,
             DownloadId = downloadId,
             UploadId = uploadId,
-            ArchiveId = archiveId
+            ArchiveId = archiveId,
+            TicketId = ticketId
         });
 
         return new RoadNetworkExtractUpload(

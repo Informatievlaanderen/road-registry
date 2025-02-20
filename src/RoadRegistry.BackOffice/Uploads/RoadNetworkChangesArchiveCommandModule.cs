@@ -64,7 +64,7 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
 
                         var extractDescription = ReadExtractDescriptionSafely(archive);
 
-                        var upload = RoadNetworkChangesArchive.Upload(archiveId, extractDescription);
+                        var upload = RoadNetworkChangesArchive.Upload(archiveId, extractDescription, message.Body.TicketId);
                         upload.AcceptOrReject(problems, extractRequestId, message.Body.TicketId);
 
                         if (problems.HasError() && message.Body.TicketId is not null)
