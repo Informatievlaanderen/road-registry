@@ -488,6 +488,7 @@ public class ExtractScenarios : RoadRegistryTestBase
                     DownloadId = downloadId,
                     UploadId = uploadId,
                     ArchiveId = archiveId,
+                    TicketId = ticketId,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 },
                 new RoadNetworkExtractChangesArchiveAccepted
@@ -552,6 +553,7 @@ public class ExtractScenarios : RoadRegistryTestBase
                     DownloadId = downloadId,
                     UploadId = uploadId,
                     ArchiveId = archiveId,
+                    TicketId = ticketId,
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 },
                 new RoadNetworkExtractChangesArchiveRejected

@@ -23,14 +23,15 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
     public ArchiveId Id { get; private set; }
     public ExtractDescription Description { get; private set; }
 
-    public static RoadNetworkChangesArchive Upload(ArchiveId id, ExtractDescription extractDescription)
+    public static RoadNetworkChangesArchive Upload(ArchiveId id, ExtractDescription extractDescription, Guid? ticketId)
     {
         var instance = new RoadNetworkChangesArchive();
 
         instance.Apply(new RoadNetworkChangesArchiveUploaded
         {
             ArchiveId = id,
-            Description = extractDescription
+            Description = extractDescription,
+            TicketId = ticketId
         });
 
         return instance;

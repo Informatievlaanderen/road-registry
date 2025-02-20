@@ -144,5 +144,14 @@ export namespace RoadRegistry {
     Editeerder = "editeerder",
     Admin = "admin",
   }
+
+  export interface TicketDetails {
+    status: string;
+    result: TicketResult;
+  }
+
+  export interface TicketResult {
+    json: string;
+  }
 }
 export default RoadRegistry;

@@ -70,7 +70,6 @@
                       <br />
                       <div
                         v-if="
-                          activity.changeFeedContent.content.archive.id &&
                           [
                             'RoadNetworkChangesArchiveUploaded',
                             'RoadNetworkExtractChangesArchiveUploaded',
@@ -78,9 +77,28 @@
                           ].some((x) => x === activity.changeFeedEntry.type)
                         "
                       >
-                        <vl-button v-if="isDownloading" mod-loading> Download... </vl-button>
-                        <vl-button v-else @click="downloadUpload(activity)"> Download </vl-button>
+                        <span v-if="activity.changeFeedContent.content.archive.id">
+                          <vl-button v-if="isDownloading" mod-loading> Download... </vl-button>
+                          <vl-button v-else @click="downloadUpload(activity)"> Download </vl-button>
+                        </span>
+
+                        <span
+                          style="margin-left: 1rem"
+                          v-if="
+                            activity.changeFeedContent.content.ticketId &&
+                            ['RoadNetworkChangesArchiveUploaded', 'RoadNetworkExtractChangesArchiveUploaded'].some(
+                              (x) => x === activity.changeFeedEntry.type
+                            )
+                          "
+                        >
+                          <vl-button
+                            @click="redirectToUploadStatusPage(activity.changeFeedContent.content.ticketId)"
+                          >
+                            Status
+                          </vl-button>
+                        </span>
                       </div>
+
                       <div
                         v-else-if="
                           activity.changeFeedContent.content.archive.id &&
@@ -266,7 +284,7 @@ export default Vue.extend({
       this.pagination.isLoadingTop = true;
       try {
         let lastPosition = this.activities[0]?.id;
-        
+
         let response = lastPosition
           ? await PublicApi.ChangeFeed.getNext(lastPosition, this.pagination.pageSize, this.filter)
           : await PublicApi.ChangeFeed.getHead(this.pagination.pageSize, this.filter);
@@ -334,6 +352,9 @@ export default Vue.extend({
             })
             .join("&")
       );
+    },
+    redirectToUploadStatusPage(ticketId: string) {
+      this.$router.push({ name: "uploadStatus", params: { ticketId: ticketId } });
     },
   },
 });

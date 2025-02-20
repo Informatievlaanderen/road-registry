@@ -115,7 +115,8 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
         {
             var content = new RoadNetworkChangesArchiveUploadedEntry
             {
-                Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId }
+                Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId },
+                TicketId = envelope.Message.TicketId
             };
 
             await EnrichWithArchiveInformation(envelope.Message.ArchiveId, content.Archive, client, ct);
@@ -148,6 +149,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             var content = new RoadNetworkExtractChangesArchiveUploadedEntry
             {
                 Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId },
+                TicketId = envelope.Message.TicketId
             };
 
             await EnrichWithArchiveInformation(envelope.Message.ArchiveId, content.Archive, client, ct);
