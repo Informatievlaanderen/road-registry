@@ -1,3 +1,10 @@
+# [4.25.0](https://github.com/informatievlaanderen/road-registry/compare/v4.24.1...v4.25.0) (2025-02-20)
+
+
+### Features
+
+* status tracking after upload GAWR-6757 ([0814351](https://github.com/informatievlaanderen/road-registry/commit/08143510121f5ba425457c9caa602ae4f7e4eaa7))
+
 ## [4.24.1](https://github.com/informatievlaanderen/road-registry/compare/v4.24.0...v4.24.1) (2025-02-19)
 
 
