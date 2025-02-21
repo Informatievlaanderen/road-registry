@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36" version="26.0.15">
   <diagram id="2f404044-711c-603c-8f00-f6bb4c023d3c" name="Page-1">
-    <mxGraphModel dx="3080" dy="1962" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="none" math="0" shadow="0">
+    <mxGraphModel dx="6137" dy="3779" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="none" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -310,10 +310,19 @@
             <mxPoint x="520" y="260" as="sourcePoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="gTOA-dJBkkTu89NCAGRS-11" value="AWS upload&lt;br&gt;presigned URL" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="-100" y="626" width="180" height="170" as="geometry" />
+        <mxCell id="gTOA-dJBkkTu89NCAGRS-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;jumpStyle=arc;exitX=0.25;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="2yRAqLaV34eYclMR8U12-86" target="2yRAqLaV34eYclMR8U12-108">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="720" y="770" as="sourcePoint" />
+            <Array as="points">
+              <mxPoint x="740" y="770" />
+              <mxPoint x="205" y="770" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="gTOA-dJBkkTu89NCAGRS-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.875;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="gTOA-dJBkkTu89NCAGRS-11" target="2yRAqLaV34eYclMR8U12-108">
+        <mxCell id="gTOA-dJBkkTu89NCAGRS-14" value="AWS upload&lt;br&gt;presigned URL" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="950" y="785" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="gTOA-dJBkkTu89NCAGRS-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="gTOA-dJBkkTu89NCAGRS-14" target="2yRAqLaV34eYclMR8U12-106">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>
