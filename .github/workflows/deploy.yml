@@ -145,47 +145,6 @@ jobs:
         version: ${{ github.event.inputs.version }}
         environment: ${{ github.event.inputs.environment }}
 
-  deploy_lambda_prd:
-    if: github.repository_owner == 'Informatievlaanderen' && github.event.inputs.environment == 'prd'
-    needs: [deploy_services, deploy_tasks]
-    name: Deploy lambda(s) prd
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: CD Lambda(s) Configure credentials
-      uses: aws-actions/configure-aws-credentials@v4.0.2
-      with:
-        aws-access-key-id: ${{ github.event.inputs.environment == 'tst' && secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS || github.event.inputs.environment == 'stg' && secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS || github.event.inputs.environment == 'prd' && secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD || ''}}
-        aws-secret-access-key: ${{ github.event.inputs.environment == 'tst' && secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS || github.event.inputs.environment == 'stg' && secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS || github.event.inputs.environment == 'prd' && secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD || ''}}
-        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-
-    - name: Prepare Lambda(s)
-      shell: bash
-      run: |
-        aws s3 cp $S3_BASEURL-$FUNCTION_BACKOFFICE/$VERSION/lambda.zip $S3_BASEURL-$FUNCTION_BACKOFFICE/lambda.zip --copy-props none
-        aws s3 cp $S3_BASEURL-$FUNCTION_SNAPSHOT/$VERSION/lambda.zip $S3_BASEURL-$FUNCTION_SNAPSHOT/lambda.zip --copy-props none
-      env:
-        VERSION: ${{ github.event.inputs.version }}
-        S3_BASEURL: ${{ github.event.inputs.environment == 'tst' && 's3://s3-vbr-tst-basisregisters-lam' || github.event.inputs.environment == 'stg' && 's3://s3-vbr-stg-basisregisters-lam' || github.event.inputs.environment == 'prd' && 's3://077849980894-vbr-prd-lam' || '' }}
-        FUNCTION_BACKOFFICE: ${{ github.event.inputs.environment == 'tst' && 'rr-sqsbackofficefunction' || github.event.inputs.environment == 'stg' && 'rr-sqsbackofficefunction' || github.event.inputs.environment == 'prd' && 'rr-sqsbackoffice' || '' }}
-        FUNCTION_SNAPSHOT: ${{ github.event.inputs.environment == 'tst' && 'rr-sqssnapshotfunction' || github.event.inputs.environment == 'stg' && 'rr-sqssnapshotfunction' || github.event.inputs.environment == 'prd' && 'rr-sqssnapshot' || '' }}
-        
-    - name: Promote Lambda(s)
-      shell: bash
-      run: |
-        docker pull ghcr.io/okigan/awscurl:latest
-        
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "'$FUNCTION_BACKOFFICE'", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "'$FUNCTION_SNAPSHOT'", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
-      env:
-        ACCESS_KEY_ID: ${{ github.event.inputs.environment == 'tst' && secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS || github.event.inputs.environment == 'stg' && secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS  || secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
-        SECRET_ACCESS_KEY_ID: ${{ github.event.inputs.environment == 'tst' && secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS || github.event.inputs.environment == 'stg' && secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS || secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
-        ENVIRONMENT: ${{ github.event.inputs.environment == 'tst' && 'tst' || github.event.inputs.environment == 'prd' && 'acc' || github.event.inputs.environment }}
-        REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
-        PROMOTEURL: ${{ github.event.inputs.environment == 'tst' && vars.VBR_AWS_PROMOTE_LAMBDA_DEVOPS_BASEURL || github.event.inputs.environment == 'stg' && vars.VBR_AWS_PROMOTE_LAMBDA_DEVOPS_BASEURL || secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
-        FUNCTION_BACKOFFICE: ${{ github.event.inputs.environment == 'tst' && 'rr-sqsbackofficefunction' || github.event.inputs.environment == 'stg' && 'rr-sqsbackofficefunction' || github.event.inputs.environment == 'prd' && 'rr-sqsbackofficefunction' || '' }}
-        FUNCTION_SNAPSHOT: ${{ github.event.inputs.environment == 'tst' && 'rr-sqssnapshotfunction' || github.event.inputs.environment == 'stg' && 'rr-sqssnapshotfunction' || github.event.inputs.environment == 'prd' && 'rr-sqssnapshotfunction' || '' }}
-
   system_healthcheck:
     needs: [ deploy_lambda, deploy_lambda_prd ]
     if: ${{ github.repository_owner == 'Informatievlaanderen' && always() && (needs.deploy_lambda.result == 'success' || needs.deploy_lambda.result == 'skipped') && (needs.deploy_lambda_prd.result == 'success' || needs.deploy_lambda_prd.result == 'skipped') }}
