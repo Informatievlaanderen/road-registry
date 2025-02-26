@@ -1,19 +1,18 @@
 namespace RoadRegistry.Editor.Projections;
 
-using BackOffice;
-using BackOffice.Messages;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Geometries;
-using NodaTime.Text;
-using Schema;
-using Schema.Extracts;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice;
 using BackOffice.Extensions;
+using BackOffice.Messages;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using NetTopologySuite.Geometries;
+using NodaTime.Text;
+using Schema;
+using Schema.Extracts;
 
 public class ExtractRequestRecordProjection : ConnectedProjection<EditorContext>
 {

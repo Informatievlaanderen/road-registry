@@ -1,5 +1,8 @@
 namespace RoadRegistry.BackOffice.Extensions;
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
@@ -14,33 +17,56 @@ public static class RunnerDbContextExtensions
         string projectionStateName,
         ILogger logger,
         CancellationToken cancellationToken,
-        int waitDelayMilliseconds = 1000)
+        int waitDelayMilliseconds = 500)
         where TDbContext : DbContext
     {
-        var loggedWaitingMessage = false;
+        ArgumentNullException.ThrowIfNull(projectionStateName);
+
+        await WaitForProjectionsToBeAtStoreHeadPosition(dbContext, store, [projectionStateName], logger, cancellationToken, waitDelayMilliseconds);
+    }
+
+    public static async Task WaitForProjectionsToBeAtStoreHeadPosition<TDbContext>(this RunnerDbContext<TDbContext> dbContext,
+        IStreamStore store,
+        ICollection<string> projectionStateNames,
+        ILogger logger,
+        CancellationToken cancellationToken,
+        int waitDelayMilliseconds = 500)
+        where TDbContext : DbContext
+    {
+        ArgumentNullException.ThrowIfNull(projectionStateNames);
+
+        var loggedWaitingMessages = new Dictionary<string, bool>();
 
         while (!cancellationToken.IsCancellationRequested)
         {
-            var projection = await dbContext.ProjectionStates
-                .IncludeLocalSingleOrDefaultAsync(item => item.Name == projectionStateName, cancellationToken)
-                .ConfigureAwait(false);
-            var projectionPosition = projection?.Position;
             var headPosition = await store.ReadHeadPosition(cancellationToken);
 
-            var editorProjectionIsUpToDate = projectionPosition == headPosition;
-            if (editorProjectionIsUpToDate)
-            {
-                if (loggedWaitingMessage)
-                {
-                    logger.LogInformation("{DbContext} projection queue {ProjectionStateName}: is up-to-date", dbContext.GetType().Name, projectionStateName);
-                }
-                return;
-            }
+            var projections = await dbContext.ProjectionStates
+                .IncludeLocalToListAsync(q => q.Where(item => projectionStateNames.Contains(item.Name)), cancellationToken)
+                .ConfigureAwait(false);
 
-            if (!loggedWaitingMessage)
+            foreach (var projectionStateName in projectionStateNames.Distinct())
             {
-                logger.LogInformation("{DbContext} projection queue {ProjectionStateName}: waiting to be up-to-date ...", dbContext.GetType().Name, projectionStateName);
-                loggedWaitingMessage = true;
+                var projection = projections.SingleOrDefault(x => x.Name == projectionStateName);
+                var projectionPosition = projection?.Position;
+
+                loggedWaitingMessages.TryGetValue(projectionStateName, out var loggedWaitingMessage);
+
+                var editorProjectionIsUpToDate = projectionPosition == headPosition;
+                if (editorProjectionIsUpToDate)
+                {
+                    if (loggedWaitingMessage)
+                    {
+                        logger.LogInformation("{DbContext} projection queue {ProjectionStateName}: is up-to-date", dbContext.GetType().Name, projectionStateName);
+                    }
+                    return;
+                }
+
+                if (!loggedWaitingMessage)
+                {
+                    logger.LogInformation("{DbContext} projection queue {ProjectionStateName}: waiting to be up-to-date ...", dbContext.GetType().Name, projectionStateName);
+                    loggedWaitingMessages[projectionStateName] = true;
+                }
             }
 
             await Task.Delay(waitDelayMilliseconds, cancellationToken);
