@@ -10,6 +10,7 @@ using NetTopologySuite.IO.GML2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NetTopologySuite.Geometries.Utilities;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = Be.Vlaanderen.Basisregisters.Shaperon.Polygon;
@@ -115,32 +116,11 @@ public static class GeometryTranslator
             .WithMeasureOrdinates();
     }
 
-    public static MultiPolygon ToMultiPolygon(Polygon polygon)
-    {
-        try
-        {
-            return ShaperonGeometryTranslator.ToGeometryMultiPolygon(polygon);
-        }
-        catch (InvalidOperationException ex)
-        {
-            if (ex.Message == "The shell of a polygon must have a clockwise orientation.")
-            {
-                return ShaperonGeometryTranslator.ToGeometryMultiPolygon(new Polygon(polygon.BoundingBox, polygon.Parts, polygon.Points.Reverse().ToArray()));
-            }
-            throw;
-        }
-    }
-
     public static Point ToPoint(Be.Vlaanderen.Basisregisters.Shaperon.Point point)
     {
         return ShaperonGeometryTranslator.ToGeometryPoint(point);
     }
 
-    public static NetTopologySuite.Geometries.Polygon ToPolygon(Polygon polygon)
-    {
-        return ShaperonGeometryTranslator.ToGeometryPolygon(polygon);
-    }
-    
     public static Point Translate(RoadNodeGeometry geometry)
     {
         ArgumentNullException.ThrowIfNull(geometry);
@@ -226,22 +206,6 @@ public static class GeometryTranslator
         };
     }
 
-    public static MultiPolygon Translate(MunicipalityGeometry geometry)
-    {
-        if (geometry == null) throw new ArgumentNullException(nameof(geometry));
-
-        return new MultiPolygon(
-            Array.ConvertAll(geometry.MultiPolygon, polygon => new NetTopologySuite.Geometries.Polygon(
-                new LinearRing(
-                    WellKnownGeometryFactories.Default.CoordinateSequenceFactory.Create(Array.ConvertAll(polygon.Shell.Points, point => new Coordinate(point.X, point.Y)))
-                    , WellKnownGeometryFactories.Default),
-                Array.ConvertAll(polygon.Holes, hole => new LinearRing(
-                    WellKnownGeometryFactories.Default.CoordinateSequenceFactory.Create(Array.ConvertAll(hole.Points, point => new Coordinate(point.X, point.Y)))
-                    , WellKnownGeometryFactories.Default))
-                , WellKnownGeometryFactories.Default))
-            , WellKnownGeometryFactories.Default);
-    }
-
     public static IPolygonal Translate(RoadNetworkExtractGeometry geometry)
     {
         ArgumentNullException.ThrowIfNull(geometry);
@@ -251,13 +215,13 @@ public static class GeometryTranslator
         if (geometry.WKT != null)
         {
             var geometryServices = new NtsGeometryServices(geometryFactory.CoordinateSequenceFactory, geometryFactory.PrecisionModel, geometryFactory.SRID);
-            return (IPolygonal)new WKTReader(geometryServices).Read(geometry.WKT);
+            return (IPolygonal)GeometryFixer.Fix(new WKTReader(geometryServices).Read(geometry.WKT), isKeepMulti: true);
         }
 
         switch (geometry.Flatten())
         {
             case Messages.Polygon[] multiPolygon:
-                return new MultiPolygon(
+                return (IPolygonal)GeometryFixer.Fix(new MultiPolygon(
                     Array.ConvertAll(multiPolygon, polygon =>
                         new NetTopologySuite.Geometries.Polygon(
                             new LinearRing(
@@ -271,9 +235,9 @@ public static class GeometryTranslator
                                         point => new Coordinate(point.X, point.Y)))
                                 , geometryFactory))
                             , geometryFactory))
-                    , geometryFactory);
+                    , geometryFactory), isKeepMulti: true);
             case Messages.Polygon polygon:
-                return new NetTopologySuite.Geometries.Polygon(
+                return (IPolygonal)GeometryFixer.Fix(new NetTopologySuite.Geometries.Polygon(
                     new LinearRing(
                         geometryFactory.CoordinateSequenceFactory.Create(
                             Array.ConvertAll(polygon.Shell.Points,
@@ -284,7 +248,7 @@ public static class GeometryTranslator
                             Array.ConvertAll(hole.Points,
                                 point => new Coordinate(point.X, point.Y)))
                         , geometryFactory))
-                    , geometryFactory);
+                    , geometryFactory), isKeepMulti: true);
             default:
                 throw new InvalidOperationException(
                     "The road network extract geometry must have either its Polygon or MultiPolygon property set (but not both) to be able to translate it to a road network extract geometry.");
@@ -294,6 +258,8 @@ public static class GeometryTranslator
     public static RoadNetworkExtractGeometry TranslateToRoadNetworkExtractGeometry(IPolygonal geometry, double buffer = 0)
     {
         ArgumentNullException.ThrowIfNull(geometry);
+
+        geometry = (IPolygonal)GeometryFixer.Fix((Geometry)geometry, isKeepMulti: true);
 
         var geometryWithBuffer = buffer != 0
             ? ApplyBuffer(geometry, buffer) as IPolygonal
@@ -396,20 +362,6 @@ public static class GeometryTranslator
             default:
                 throw new InvalidOperationException(
                     $"The geometry must be either a polygon or a multipolygon to be able to translate it to a road network extract geometry. The geometry was a {geometry.GetType().Name}");
-        }
-    }
-
-    public static Polygon FromPolygonal(IPolygonal polygonal)
-    {
-        switch (polygonal)
-        {
-            case MultiPolygon multiPolygon:
-                return ShaperonGeometryTranslator.FromGeometryMultiPolygon(multiPolygon);
-            case NetTopologySuite.Geometries.Polygon polygon:
-                return ShaperonGeometryTranslator.FromGeometryPolygon(polygon);
-            default:
-                throw new InvalidOperationException(
-                    $"The polygonal was expected to be either a Polygon or MultiPolygon. The polygonal was {polygonal.GetType().Name}.");
         }
     }
 }

@@ -35,18 +35,17 @@ public class TransactionZoneRecordProjection : ConnectedProjection<WmsContext>
             }
 
             var contour = (Geometry)GeometryTranslator.Translate(message.Contour);
-            var fixedContour = GeometryFixer.Fix(contour, isKeepMulti: true);
 
             var record = new TransactionZoneRecord
             {
-                Contour = fixedContour,
+                Contour = contour,
                 DownloadId = message.DownloadId,
                 Description = !string.IsNullOrEmpty(message.Description) ? message.Description : "onbekend"
             };
             context.TransactionZones.Add(record);
 
             await CreateOverlappingRecords(context,
-                fixedContour,
+                contour,
                 message.DownloadId,
                 message.Description,
                 ct);
@@ -62,18 +61,17 @@ public class TransactionZoneRecordProjection : ConnectedProjection<WmsContext>
             }
 
             var contour = (Geometry)GeometryTranslator.Translate(message.Contour);
-            var fixedContour = GeometryFixer.Fix(contour, isKeepMulti: true);
 
             var record = new TransactionZoneRecord
             {
-                Contour = fixedContour,
+                Contour = contour,
                 DownloadId = message.DownloadId,
                 Description = !string.IsNullOrEmpty(message.Description) ? message.Description : "onbekend"
             };
             context.TransactionZones.Add(record);
 
             await CreateOverlappingRecords(context,
-                fixedContour,
+                contour,
                 message.DownloadId,
                 message.Description,
                 ct);
