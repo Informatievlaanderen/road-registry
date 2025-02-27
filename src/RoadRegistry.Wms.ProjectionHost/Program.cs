@@ -52,55 +52,34 @@ public class Program
                         );
                 })
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new WmsContextMigrationFactory())
-
                 .AddHostedService(sp =>
                 {
-                   ConnectedProjection<WmsContext>[] connectedProjectionHandlers=
-                   [
-                       new RoadSegmentRecordProjection(
+                    ConnectedProjection<WmsContext>[] connectedProjectionHandlers =
+                    [
+                        new RoadSegmentRecordProjection(
                             sp.GetRequiredService<IStreetNameCache>(),
                             sp.GetRequiredService<UseRoadSegmentSoftDeleteFeatureToggle>()),
                         new RoadSegmentEuropeanRoadAttributeRecordProjection(),
-                        new RoadSegmentNationalRoadAttributeRecordProjection()
-                   ];
-
-                   return new WmsContextEventProcessor(
-                       sp.GetRequiredService<IStreamStore>(),
-                       new AcceptStreamMessage<WmsContext>(
-                           connectedProjectionHandlers,
-                           WmsContextEventProcessor.EventMapping),
-                       sp.GetRequiredService<EnvelopeFactory>(),
-                       Resolve.WhenEqualToHandlerMessageType(
-                           connectedProjectionHandlers
-                           .SelectMany(projection => projection.Handlers)
-                           .ToArray()),
-                       sp.GetRequiredService<IDbContextFactory<WmsContext>>(),
-                       sp.GetRequiredService<Scheduler>(),
-                       sp.GetRequiredService<ILoggerFactory>());
-                })
-                .AddHostedService(sp =>
-                {
-                   ConnectedProjection<WmsContext>[] connectedProjectionHandlers=
-                   [
+                        new RoadSegmentNationalRoadAttributeRecordProjection(),
                         new TransactionZoneRecordProjection(sp.GetRequiredService<ILoggerFactory>())
-                   ];
+                    ];
 
-                   return new TransactionZoneEventProcessor(
-                       sp.GetRequiredService<IStreamStore>(),
-                       new AcceptStreamMessage<WmsContext>(
-                           connectedProjectionHandlers,
-                           TransactionZoneEventProcessor.EventMapping),
-                       sp.GetRequiredService<EnvelopeFactory>(),
-                       Resolve.WhenEqualToHandlerMessageType(
-                           connectedProjectionHandlers
-                           .SelectMany(projection => projection.Handlers)
-                           .ToArray()),
-                       sp.GetRequiredService<IDbContextFactory<WmsContext>>(),
-                       sp.GetRequiredService<Scheduler>(),
-                       sp.GetRequiredService<ILoggerFactory>());
+                    return new WmsContextEventProcessor(
+                        sp.GetRequiredService<IStreamStore>(),
+                        new AcceptStreamMessage<WmsContext>(
+                            connectedProjectionHandlers,
+                            WmsContextEventProcessor.EventMapping),
+                        sp.GetRequiredService<EnvelopeFactory>(),
+                        Resolve.WhenEqualToHandlerMessageType(
+                            connectedProjectionHandlers
+                                .SelectMany(projection => projection.Handlers)
+                                .ToArray()),
+                        sp.GetRequiredService<IDbContextFactory<WmsContext>>(),
+                        sp.GetRequiredService<Scheduler>(),
+                        sp.GetRequiredService<ILoggerFactory>());
                 })
             )
-            .ConfigureHealthChecks(HostingPort,builder => builder
+            .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddHostedServicesStatus()
             )
             .Build();
