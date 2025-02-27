@@ -1,3 +1,11 @@
+## [4.25.1](https://github.com/informatievlaanderen/road-registry/compare/v4.25.0...v4.25.1) (2025-02-27)
+
+
+### Bug Fixes
+
+* extracthost wait for all needed editor projections ([bcf446d](https://github.com/informatievlaanderen/road-registry/commit/bcf446d28707f3c4dd1dcc545fb283b25cee1f36))
+* use fix geometry in GeometryTranslator ([5880960](https://github.com/informatievlaanderen/road-registry/commit/58809605cbe298d270be2f2e9a0996447feb5827))
+
 # [4.25.0](https://github.com/informatievlaanderen/road-registry/compare/v4.24.1...v4.25.0) (2025-02-20)
 
 
