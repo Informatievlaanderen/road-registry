@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 
 using System.Threading.Tasks;
 
-internal interface IApiTokenReader
+public interface IApiTokenReader
 {
     Task<ApiToken> ReadAsync(string apiKey);
 }
