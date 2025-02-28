@@ -1,3 +1,10 @@
+## [4.25.2](https://github.com/informatievlaanderen/road-registry/compare/v4.25.1...v4.25.2) (2025-02-28)
+
+
+### Bug Fixes
+
+* when adding record in projection check for deleted state + override CatchUpBatchSize and CatchUpThreshold through configuration ([#1636](https://github.com/informatievlaanderen/road-registry/issues/1636)) ([12fd0e2](https://github.com/informatievlaanderen/road-registry/commit/12fd0e207bb3397a2e0f92f0bcc36c9fd582e844))
+
 ## [4.25.1](https://github.com/informatievlaanderen/road-registry/compare/v4.25.0...v4.25.1) (2025-02-27)
 
 
