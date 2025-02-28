@@ -5,11 +5,11 @@ using NodaTime;
 
 public class RoadRegistryProvenanceData : ProvenanceData
 {
-    public RoadRegistryProvenanceData(Modification modification = Modification.Unknown, string ovoCode = null) : base(new Provenance(
+    public RoadRegistryProvenanceData(Modification modification = Modification.Unknown, string? operatorName = null) : base(new Provenance(
         SystemClock.Instance.GetCurrentInstant(),
         Application.RoadRegistry,
         new Be.Vlaanderen.Basisregisters.GrAr.Provenance.Reason(string.Empty),
-        new Operator(ovoCode ?? OperatorName.Unknown),
+        new Operator(operatorName ?? OperatorName.Unknown),
         modification,
         Organisation.Agiv
     ))

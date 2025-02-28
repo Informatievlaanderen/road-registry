@@ -1,21 +1,21 @@
 namespace RoadRegistry.BackOffice.Handlers.Uploads;
 
+using System.IO.Compression;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
 using BackOffice.Extensions;
 using BackOffice.Extracts;
-using BackOffice.FeatureCompare;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Editor.Schema;
 using Exceptions;
+using FeatureCompare;
+using FeatureCompare.Readers;
+using FeatureCompare.Translators;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.BackOffice.FeatureCompare.Readers;
-using System.IO.Compression;
-using FeatureCompare.Translators;
 using ZipArchiveWriters;
 using ZipArchiveWriters.Cleaning;
 using ContentType = Be.Vlaanderen.Basisregisters.BlobStore.ContentType;
@@ -180,8 +180,8 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             ExtractRequestId = extractRequestId,
             ArchiveId = archiveId,
             TicketId = request.TicketId
-        });
-        //TODO-pr command.WithProvenanceData()
+        }).WithProvenanceData(request.ProvenanceData);
+
         await Queue(command, cancellationToken);
 
         Logger.LogInformation("Command queued {Command} for archive {ArchiveId}", nameof(UploadRoadNetworkChangesArchive), archiveId);

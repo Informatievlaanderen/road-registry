@@ -1,18 +1,5 @@
 namespace RoadRegistry.Jobs.Processor
 {
-    using BackOffice.Abstractions.Exceptions;
-    using BackOffice.Abstractions.Uploads;
-    using BackOffice.Core.ProblemCodes;
-    using BackOffice.Exceptions;
-    using BackOffice.Extensions;
-    using BackOffice.Extracts;
-    using BackOffice.Uploads;
-    using Be.Vlaanderen.Basisregisters.BlobStore;
-    using FluentValidation;
-    using FluentValidation.Results;
-    using MediatR;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Logging;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -21,9 +8,23 @@ namespace RoadRegistry.Jobs.Processor
     using System.Threading.Tasks;
     using BackOffice;
     using BackOffice.Abstractions;
+    using BackOffice.Abstractions.Exceptions;
     using BackOffice.Abstractions.Jobs;
+    using BackOffice.Abstractions.Uploads;
     using BackOffice.Core;
+    using BackOffice.Core.ProblemCodes;
+    using BackOffice.Exceptions;
+    using BackOffice.Extensions;
+    using BackOffice.Extracts;
+    using BackOffice.Uploads;
+    using Be.Vlaanderen.Basisregisters.BlobStore;
+    using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+    using FluentValidation;
+    using FluentValidation.Results;
+    using MediatR;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
     using TicketingService.Abstractions;
     using JobsProcessorOptions = Infrastructure.Options.JobsProcessorOptions;
     using Task = System.Threading.Tasks.Task;
@@ -112,8 +113,12 @@ namespace RoadRegistry.Jobs.Processor
                             var readStream = await blobStream.CopyToNewMemoryStream(stoppingToken);
 
                             var request = BuildRequest(job, blob, readStream);
-                            //TODO-pr add ProvenanceData to EndpointRequest from ticket metadata
-                            //request is type EndpointRequest
+
+                            if (request is EndpointRequest endpointRequest)
+                            {
+                                endpointRequest.ProvenanceData =
+                                    new RoadRegistryProvenanceData(Modification.Unknown, job.OperatorName);
+                            }
 
                             await _mediator.Send(request, stoppingToken);
 
@@ -209,7 +214,7 @@ namespace RoadRegistry.Jobs.Processor
             {
                 case UploadType.Uploads:
                     {
-                        return new BackOffice.Abstractions.Uploads.UploadExtractRequest(new UploadExtractArchiveRequest(blob.Name, blobStream, blob.ContentType), job.TicketId);
+                        return new UploadExtractRequest(new UploadExtractArchiveRequest(blob.Name, blobStream, blob.ContentType), job.TicketId);
                     }
                 case UploadType.Extracts:
                     {

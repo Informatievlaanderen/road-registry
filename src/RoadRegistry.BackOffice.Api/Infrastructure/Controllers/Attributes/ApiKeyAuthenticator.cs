@@ -49,10 +49,20 @@ internal class ApiKeyAuthenticator : IApiKeyAuthenticator
                 new("sub", apiKey),
                 new("active", true.ToString()),
                 new(AcmIdmClaimTypes.VoApplicatieNaam, token.ClientName),
-                new(RoadRegistryClaim.ClaimType, RoadRegistryClaim.ConvertRoleToClaimValue(role))
-                //TODO-pr add claim with safe api key ("operator"?)
+                new(RoadRegistryClaim.ClaimType, RoadRegistryClaim.ConvertRoleToClaimValue(role)),
+                new("operator", AnonymizeApiKey(apiKey))
             }.Concat(
                 scopes.Select(scope => new Claim(AcmIdmClaimTypes.Scope, scope))
             ), AuthenticationSchemes.ApiKey);
+    }
+
+    private string AnonymizeApiKey(string apiKey)
+    {
+        var sanitized =apiKey.Replace("-", string.Empty);
+
+        var part1 = sanitized[..8];
+        var part2 = sanitized[^8..];
+
+        return $"{part1}****{part2}";
     }
 }

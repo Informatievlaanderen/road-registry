@@ -1,9 +1,8 @@
 namespace RoadRegistry.BackOffice.Framework;
 
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using System;
-using System.Collections.Generic;
 using System.Security.Claims;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 
 public class Command: IRoadRegistryMessage
 {
@@ -33,14 +32,14 @@ public class Command: IRoadRegistryMessage
     {
         return new Command(value, Principal, ProvenanceData, Body);
     }
-    
+
     public Command WithPrincipal(ClaimsPrincipal value)
     {
         ArgumentNullException.ThrowIfNull(value);
         return new Command(MessageId, value, ProvenanceData, Body);
     }
 
-    public Command WithProvenanceData(ProvenanceData value)
+    public Command WithProvenanceData(ProvenanceData? value)
     {
         return value is not null
             ? new Command(MessageId, Principal, value, Body)

@@ -14,10 +14,10 @@ namespace RoadRegistry.Jobs
         public Guid TicketId { get; set; }
         public UploadType UploadType { get; set; }
         public Guid? DownloadId { get; set; }
+        public string? OperatorName { get; set; }
 
         public string UploadBlobName => $"upload_{Id:D}";
         public string ReceivedBlobName => $"received/{Id:D}";
-        
         private Job() { }
 
         public Job(DateTimeOffset created, JobStatus status, UploadType uploadType, Guid ticketId)
@@ -54,6 +54,7 @@ namespace RoadRegistry.Jobs
             builder.Property(x => x.LastChanged);
             builder.Property(x => x.Status);
             builder.Property(x => x.TicketId);
+            builder.Property(x => x.OperatorName).HasMaxLength(20);
 
             builder.HasIndex(x => x.Status);
         }

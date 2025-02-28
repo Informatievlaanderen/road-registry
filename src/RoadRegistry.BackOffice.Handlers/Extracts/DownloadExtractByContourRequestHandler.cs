@@ -32,7 +32,7 @@ public class DownloadExtractByContourRequestHandler : ExtractRequestHandler<Down
             IsInformative = request.IsInformative
         };
 
-        var command = new Command(message);
+        var command = new Command(message).WithProvenanceData(request.ProvenanceData);
         await Dispatch(command, cancellationToken);
 
         return new DownloadExtractByContourResponse(downloadId, request.IsInformative);

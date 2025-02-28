@@ -46,13 +46,13 @@ public class OperatorNameTests
     [Fact]
     public void NoneGetHashCodeReturnsExpectedResult()
     {
-        Assert.Equal(0, OperatorName.None.GetHashCode());
+        Assert.Equal(0, OperatorName.Unknown.GetHashCode());
     }
 
     [Fact]
     public void NoneToStringReturnsExpectedResult()
     {
-        Assert.Null(OperatorName.None.ToString());
+        Assert.Null(OperatorName.Unknown.ToString());
     }
 
     [Fact]

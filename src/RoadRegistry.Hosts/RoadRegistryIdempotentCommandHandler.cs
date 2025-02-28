@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 
 public class RoadRegistryIdempotentCommandHandler : IIdempotentCommandHandler
 {
@@ -19,6 +18,12 @@ public class RoadRegistryIdempotentCommandHandler : IIdempotentCommandHandler
 
     public async Task<long> Dispatch(Guid? commandId, object command, IDictionary<string, object> metadata, CancellationToken cancellationToken)
     {
+        if (command is Command c)
+        {
+            await _dispatcher(c, cancellationToken);
+            return 0;
+        }
+
         await _dispatcher(new Command(command), cancellationToken);
         return 0;
     }

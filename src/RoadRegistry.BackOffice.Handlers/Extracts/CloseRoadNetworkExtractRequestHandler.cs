@@ -35,7 +35,7 @@ public class CloseRoadNetworkExtractRequestHandler : EndpointRequestHandler<Clos
             Reason = request.Reason
         };
 
-        var command = new Command(message);
+        var command = new Command(message).WithProvenanceData(request.ProvenanceData);
         await Dispatch(command, cancellationToken);
 
         return new CloseRoadNetworkExtractResponse();

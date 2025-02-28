@@ -67,7 +67,7 @@ public class DownloadFileContentRequestHandler : EndpointRetryableRequestHandler
         {
             DownloadId = downloadId,
             ExternalRequestId = new ExternalExtractRequestId(record.ExternalRequestId)
-        });
+        }).WithProvenanceData(request.ProvenanceData);
         await Dispatch(command, cancellationToken);
 
         return new DownloadFileContentResponse(

@@ -37,7 +37,7 @@ public class DownloadExtractByNisCodeRequestHandler : ExtractRequestHandler<Down
             IsInformative = request.IsInformative
         };
 
-        var command = new Command(message);
+        var command = new Command(message).WithProvenanceData(request.ProvenanceData);
         await Dispatch(command, cancellationToken);
 
         return new DownloadExtractByNisCodeResponse(downloadId, request.IsInformative);

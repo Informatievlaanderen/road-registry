@@ -1,20 +1,16 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Handlers
 {
+    using Abstractions.Jobs;
     using Api.Handlers;
     using Api.Infrastructure;
     using AutoFixture;
     using FluentAssertions;
     using Hosts.Infrastructure.Modules;
     using Jobs;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.EntityFrameworkCore;
     using Moq;
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Abstractions.Jobs;
     using TicketingService.Abstractions;
-    using Xunit;
 
     public class GivenUploadPreSignedUrlRequest
     {
@@ -23,6 +19,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
         private readonly Mock<ITicketingUrl> _ticketingUrl;
         private readonly Mock<ITicketing> _ticketing;
         private readonly Mock<IJobUploadUrlPresigner> _uploadUrlPresigner;
+        private readonly Mock<IHttpContextAccessor> _httpContextAccessor;
 
         public GivenUploadPreSignedUrlRequest()
         {
@@ -31,6 +28,9 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
             _ticketingUrl = new Mock<ITicketingUrl>();
             _ticketing = new Mock<ITicketing>();
             _uploadUrlPresigner = new Mock<IJobUploadUrlPresigner>();
+            _httpContextAccessor = new Mock<IHttpContextAccessor>();
+
+            _httpContextAccessor.Setup(x => x.HttpContext).Returns(new DefaultHttpContext());
         }
 
         private GetPresignedUploadUrlRequestHandler CreatePreSignedUrlRequestHandler(JobsContext jobsContext)
@@ -40,7 +40,8 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
                 _ticketing.Object,
                 new FakeTicketingOptions(),
                 _ticketingUrl.Object,
-                _uploadUrlPresigner.Object
+                _uploadUrlPresigner.Object,
+                _httpContextAccessor.Object
             );
         }
 
@@ -134,6 +135,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
             }
             catch
             {
+                // ignored
             }
 
             var transaction = (FakeDbContextTransaction)jobsContext.Database.CurrentTransaction;
