@@ -118,7 +118,7 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         var latestItem = await context.RoadSegments
             .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentAdded.Id, token)
             .ConfigureAwait(false);
-        if (latestItem is null)
+        if (context.IsNullOrDeleted(latestItem))
         {
             latestItem = new RoadSegmentLatestItem
             {
@@ -170,7 +170,7 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         var latestItem = await context.RoadSegments
             .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentModified.Id, token)
             .ConfigureAwait(false);
-        if (latestItem is null)
+        if (context.IsNullOrDeleted(latestItem))
         {
             latestItem = new RoadSegmentLatestItem
             {

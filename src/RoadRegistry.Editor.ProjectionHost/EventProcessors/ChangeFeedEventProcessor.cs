@@ -3,6 +3,7 @@ namespace RoadRegistry.Editor.ProjectionHost.EventProcessors;
 using System;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Schema;
 using SqlStreamStore;
@@ -15,8 +16,9 @@ public class ChangeFeedEventProcessor : EditorContextEventProcessor
         EnvelopeFactory envelopeFactory,
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,
-        ILoggerFactory loggerFactory)
-        : base("roadregistry-editor-changefeed-projectionhost", streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, loggerFactory)
+        ILoggerFactory loggerFactory,
+        IConfiguration configuration)
+        : base("roadregistry-editor-changefeed-projectionhost", streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, loggerFactory, configuration)
     {
     }
 }

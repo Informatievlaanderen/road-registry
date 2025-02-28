@@ -161,7 +161,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         var dbRecord = await context.RoadSegments
             .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentAdded.Id, token)
             .ConfigureAwait(false);
-        if (dbRecord is null)
+        if (context.IsNullOrDeleted(dbRecord))
         {
             dbRecord = new RoadSegmentRecord
             {
@@ -239,7 +239,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         var dbRecord = await context.RoadSegments
             .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentModified.Id, token)
             .ConfigureAwait(false);
-        if (dbRecord is null)
+        if (context.IsNullOrDeleted(dbRecord))
         {
             dbRecord = new RoadSegmentRecord
             {

@@ -18,12 +18,11 @@ using System.IO;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 public abstract class RunnerDbContextEventProcessor<TDbContext> : RoadRegistryHostedService
     where TDbContext : RunnerDbContext<TDbContext>
 {
-    private const int CatchUpBatchSize = 500;
-    private const int CatchUpThreshold = 1000;
     private const int RecordPositionThreshold = 1;
     public static readonly EventMapping EventMapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
     private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
@@ -42,9 +41,10 @@ public abstract class RunnerDbContextEventProcessor<TDbContext> : RoadRegistryHo
         IDbContextFactory<TDbContext> dbContextFactory,
         Scheduler scheduler,
         ILoggerFactory loggerFactory,
-        int catchUpBatchSize = CatchUpBatchSize,
-        int catchUpThreshold = CatchUpThreshold)
-        : this(projectionStateName, streamStore, acceptStreamMessage.CreateFilter(), envelopeFactory, resolver, dbContextFactory.CreateDbContext, scheduler, loggerFactory,
+        IConfiguration configuration,
+        int? catchUpBatchSize = null,
+        int? catchUpThreshold = null)
+        : this(projectionStateName, streamStore, acceptStreamMessage.CreateFilter(), envelopeFactory, resolver, dbContextFactory.CreateDbContext, scheduler, loggerFactory, configuration,
             catchUpBatchSize, catchUpThreshold)
     {
     }
@@ -58,9 +58,10 @@ public abstract class RunnerDbContextEventProcessor<TDbContext> : RoadRegistryHo
         IDbContextFactory<TDbContext> dbContextFactory,
         Scheduler scheduler,
         ILoggerFactory loggerFactory,
-        int catchUpBatchSize = CatchUpBatchSize,
-        int catchUpThreshold = CatchUpThreshold)
-        : this(projectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory.CreateDbContext, scheduler, loggerFactory,
+        IConfiguration configuration,
+        int? catchUpBatchSize = null,
+        int? catchUpThreshold = null)
+        : this(projectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory.CreateDbContext, scheduler, loggerFactory, configuration,
             catchUpBatchSize, catchUpThreshold)
     {
     }
@@ -74,8 +75,9 @@ public abstract class RunnerDbContextEventProcessor<TDbContext> : RoadRegistryHo
         Func<TDbContext> dbContextFactory,
         Scheduler scheduler,
         ILoggerFactory loggerFactory,
-        int catchUpBatchSize = CatchUpBatchSize,
-        int catchUpThreshold = CatchUpThreshold)
+        IConfiguration configuration,
+        int? catchUpBatchSize = null,
+        int? catchUpThreshold = null)
         : base(loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(streamStore);
@@ -84,6 +86,22 @@ public abstract class RunnerDbContextEventProcessor<TDbContext> : RoadRegistryHo
         ArgumentNullException.ThrowIfNull(resolver);
         ArgumentNullException.ThrowIfNull(dbContextFactory);
         ArgumentNullException.ThrowIfNull(scheduler);
+
+        catchUpBatchSize ??= 500;
+        var catchUpBatchSizeOverride = configuration.GetValue<int?>($"EventProcessorOptions:{projectionStateName}:CatchUpBatchSizeOverride");
+        if (catchUpBatchSizeOverride is not null)
+        {
+            catchUpBatchSize = catchUpBatchSizeOverride.Value;
+            Logger.LogInformation("Overriding CatchUpBatchSize for projection '{StateName}' to {CatchUpBatchSize}", projectionStateName, catchUpBatchSize);
+        }
+
+        catchUpThreshold ??= 1000;
+        var catchUpTresholdOverride = configuration.GetValue<int?>($"EventProcessorOptions:{projectionStateName}:CatchUpTresholdOverride");
+        if (catchUpTresholdOverride is not null)
+        {
+            catchUpThreshold = catchUpTresholdOverride.Value;
+            Logger.LogInformation("Overriding CatchUpTreshold for projection '{StateName}' to {CatchUpThreshold}", projectionStateName, catchUpThreshold);
+        }
 
         _scheduler = scheduler;
 
@@ -131,7 +149,7 @@ public abstract class RunnerDbContextEventProcessor<TDbContext> : RoadRegistryHo
                                     else
                                     {
                                         await _messageChannel.Writer
-                                            .WriteAsync(new CatchUp(after, catchUpBatchSize), _messagePumpCancellation.Token)
+                                            .WriteAsync(new CatchUp(after, catchUpBatchSize.Value), _messagePumpCancellation.Token)
                                             .ConfigureAwait(false);
                                     }
                                 }

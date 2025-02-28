@@ -258,7 +258,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         CancellationToken token)
     {
         var dbRecord = await context.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentModified.Id, token).ConfigureAwait(false);
-        if (dbRecord is null)
+        if (context.IsNullOrDeleted(dbRecord))
         {
             dbRecord = new RoadSegmentRecord
             {

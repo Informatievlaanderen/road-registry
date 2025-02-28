@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Schema;
 using SqlStreamStore;
 using System;
+using Microsoft.Extensions.Configuration;
 
 public abstract class ProductContextEventProcessor : RunnerDbContextEventProcessor<ProductContext>
 {
@@ -18,8 +19,9 @@ public abstract class ProductContextEventProcessor : RunnerDbContextEventProcess
         ConnectedProjectionHandlerResolver<ProductContext> resolver,
         Func<ProductContext> dbContextFactory,
         Scheduler scheduler,
-        ILoggerFactory loggerFactory)
-        : base(projectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, loggerFactory)
+        ILoggerFactory loggerFactory,
+        IConfiguration configuration)
+        : base(projectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, loggerFactory, configuration)
     {
     }
 }

@@ -12,6 +12,12 @@ using SqlStreamStore;
 
 public static class RunnerDbContextExtensions
 {
+    public static bool IsNullOrDeleted<TDbContext>(this RunnerDbContext<TDbContext> dbContext, object item)
+        where TDbContext : DbContext
+    {
+        return item is null || dbContext.Entry(item).State == EntityState.Deleted;
+    }
+    
     public static async Task WaitForProjectionToBeAtStoreHeadPosition<TDbContext>(this RunnerDbContext<TDbContext> dbContext,
         IStreamStore store,
         string projectionStateName,

@@ -2,6 +2,7 @@ namespace RoadRegistry.SyncHost.StreetName;
 
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Hosts;
 using RoadRegistry.Sync.StreetNameRegistry;
@@ -17,8 +18,9 @@ public class StreetNameSnapshotProjectionContextEventProcessor : RunnerDbContext
         EnvelopeFactory envelopeFactory,
         IDbContextFactory<StreetNameSnapshotProjectionContext> dbContextFactory,
         Scheduler scheduler,
-        ILoggerFactory loggerFactory)
-        : base(ProjectionStateName, streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, loggerFactory)
+        ILoggerFactory loggerFactory,
+        IConfiguration configuration)
+        : base(ProjectionStateName, streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, loggerFactory, configuration)
     {
     }
 }

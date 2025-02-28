@@ -180,7 +180,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         var dbRecord = await context.RoadSegments
             .IncludeLocalWithoutQueryFiltersSingleOrDefaultAsync(x => x.Id == roadSegmentAdded.Id, token)
             .ConfigureAwait(false);
-        if (dbRecord is null)
+        if (context.IsNullOrDeleted(dbRecord))
         {
             dbRecord = new RoadSegmentRecord
             {
@@ -276,7 +276,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         var dbRecord = await context.RoadSegments
             .IncludeLocalWithoutQueryFiltersSingleOrDefaultAsync(x => x.Id == roadSegmentModified.Id, token)
             .ConfigureAwait(false);
-        if (dbRecord is null)
+        if (context.IsNullOrDeleted(dbRecord))
         {
             dbRecord = new RoadSegmentRecord
             {
