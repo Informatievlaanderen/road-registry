@@ -11,6 +11,7 @@ using BackOffice.Framework;
 using BackOffice.Messages;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using FluentValidation;
 using FluentValidation.Results;
@@ -88,14 +89,18 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
         _logger.LogInformation("TIMETRACKING dispatcher: validating ChangeRoadNetwork took {Elapsed}", sw.Elapsed);
 
         var commandId = changeRoadNetwork.CreateCommandId();
-        await _commandQueue.WriteAsync(new Command(changeRoadNetwork).WithMessageId(commandId), cancellationToken);
+        var command = new Command(changeRoadNetwork)
+            .WithMessageId(commandId)
+            .WithProvenanceData(new ProvenanceData(lambdaRequest.Provenance));
+
+        await _commandQueue.WriteAsync(command, cancellationToken);
 
         try
         {
             sw.Restart();
             await _idempotentCommandHandler.Dispatch(
                 commandId,
-                changeRoadNetwork,
+                command,
                 lambdaRequest.Metadata,
                 cancellationToken);
             _logger.LogInformation("TIMETRACKING dispatcher: dispatching ChangeRoadNetwork took {Elapsed}", sw.Elapsed);

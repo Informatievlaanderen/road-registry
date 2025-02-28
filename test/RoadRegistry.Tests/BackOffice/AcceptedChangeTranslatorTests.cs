@@ -1,6 +1,7 @@
 namespace RoadRegistry.Tests.BackOffice;
 
 using AutoFixture;
+using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;
 using Scenarios;
 using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
@@ -12,6 +13,7 @@ public class AcceptedChangeTranslatorTests
     public AcceptedChangeTranslatorTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
+        var x = OperatorName.Unknown;
     }
 
     [Fact]

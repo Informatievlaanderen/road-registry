@@ -75,13 +75,15 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                     await using var archiveBlobStream = await archiveBlob.OpenAsync(ct);
                     using var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false);
                     var translatedChanges = await featureCompareTranslator.TranslateAsync(archive, ct);
+                    translatedChanges = translatedChanges.WithOperatorName(new OperatorName(message.ProvenanceData.Operator));
 
                     var changeRoadNetwork = await translatedChanges.ToChangeRoadNetworkCommand(
                         logger,
                         extractRequestId, changeRequestId, downloadId, message.Body.TicketId, ct);
 
                     var command = new Command(changeRoadNetwork)
-                        .WithMessageId(message.MessageId);
+                        .WithMessageId(message.MessageId)
+                        .WithProvenanceData(message.ProvenanceData);
                     await queue.WriteAsync(command, ct);
                 }
                 catch (ZipArchiveValidationException ex)

@@ -1,10 +1,10 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
-using Extracts;
-using RoadRegistry.BackOffice.FeatureCompare.Readers;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Extracts;
+using Readers;
 using Uploads;
 
 public class TransactionZoneFeatureCompareTranslator : FeatureCompareTranslatorBase<TransactionZoneFeatureCompareAttributes>

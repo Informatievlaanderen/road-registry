@@ -17,7 +17,7 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
 {
     public static readonly TranslatedChanges Empty = new(
         Reason.None,
-        OperatorName.None,
+        OperatorName.Unknown,
         OrganizationId.Unknown,
         ImmutableList<ITranslatedChange>.Empty,
         ImmutableList<ITranslatedChange>.Empty);

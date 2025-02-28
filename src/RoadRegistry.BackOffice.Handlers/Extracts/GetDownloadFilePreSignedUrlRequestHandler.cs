@@ -75,7 +75,7 @@ public class GetDownloadFilePreSignedUrlRequestHandler : EndpointRetryableReques
         {
             DownloadId = downloadId,
             ExternalRequestId = new ExternalExtractRequestId(record.ExternalRequestId)
-        });
+        }).WithProvenanceData(request.ProvenanceData);
         await Dispatch(command, cancellationToken);
 
         var bucketName = _s3BlobClientOptions.GetBucketName(WellKnownBuckets.ExtractDownloadsBucket);

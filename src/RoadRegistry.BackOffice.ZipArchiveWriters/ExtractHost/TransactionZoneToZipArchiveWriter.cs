@@ -6,7 +6,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Extracts;
 using Extracts.Dbase;
-using FeatureCompare;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using DbaseFileHeader = Be.Vlaanderen.Basisregisters.Shaperon.DbaseFileHeader;

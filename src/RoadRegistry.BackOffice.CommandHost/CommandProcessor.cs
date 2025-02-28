@@ -112,7 +112,8 @@ public class CommandProcessor : RoadRegistryHostedService
                                         "Processing {MessageType} at {Position}",
                                         process.Message.Type, process.Message.Position);
 
-                                    var messageProcessor = JsonConvert.DeserializeObject<MessageMetadata>(process.Message.JsonMetadata, SerializerSettings)?.Processor ?? RoadRegistryApplication.BackOffice;
+                                    var messageMetadata = JsonConvert.DeserializeObject<MessageMetadata>(process.Message.JsonMetadata, SerializerSettings);
+                                    var messageProcessor = messageMetadata?.Processor ?? RoadRegistryApplication.BackOffice;
                                     if (messageProcessor == _applicationProcessor)
                                     {
                                         await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
@@ -123,7 +124,10 @@ public class CommandProcessor : RoadRegistryHostedService
                                                     .ConfigureAwait(false),
                                                 commandMapping.GetEventType(process.Message.Type),
                                                 SerializerSettings);
-                                            var command = new Command(body).WithMessageId(process.Message.MessageId);
+                                            var command = new Command(body)
+                                                .WithMessageId(process.Message.MessageId)
+                                                .WithProvenanceData(messageMetadata?.ProvenanceData);
+
                                             await dispatcher(command, _messagePumpCancellation.Token).ConfigureAwait(false);
                                         }, _messagePumpCancellation.Token);
                                     }

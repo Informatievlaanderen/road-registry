@@ -38,7 +38,8 @@ public class RoadNetworkChangesArchiveEventModuleTests : RoadNetworkTestBase
     [Fact]
     public async Task WhenRoadNetworkChangesArchiveAcceptedWithEmptyChanges_ThenRoadNetworkChangesArchiveRejected()
     {
-        var @event = new Event(ObjectProvider.Create<RoadNetworkChangesArchiveAccepted>());
+        var @event = new Event(ObjectProvider.Create<RoadNetworkChangesArchiveAccepted>())
+            .WithProvenanceData(new RoadRegistryProvenanceData());
 
         await DispatchEvent(@event);
 

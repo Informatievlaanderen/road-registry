@@ -30,7 +30,7 @@ public class DownloadExtractRequestHandler : ExtractRequestHandler<DownloadExtra
             IsInformative = request.IsInformative
         };
 
-        var command = new Command(message);
+        var command = new Command(message).WithProvenanceData(request.ProvenanceData);
         await Dispatch(command, cancellationToken);
 
         return new DownloadExtractResponse(downloadId, request.IsInformative);

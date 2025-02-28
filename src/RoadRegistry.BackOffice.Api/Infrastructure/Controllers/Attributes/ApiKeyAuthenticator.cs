@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Authentication;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 
-internal class ApiKeyAuthenticator : IApiKeyAuthenticator
+public class ApiKeyAuthenticator : IApiKeyAuthenticator
 {
     private readonly IApiTokenReader _apiKeyReader;
 
@@ -45,13 +45,34 @@ internal class ApiKeyAuthenticator : IApiKeyAuthenticator
         var scopes = RoadRegistryRoles.GetScopes(role);
 
         return new ClaimsIdentity(new Claim[]
-            {
-                new("sub", apiKey),
-                new("active", true.ToString()),
-                new(AcmIdmClaimTypes.VoApplicatieNaam, token.ClientName),
-                new(RoadRegistryClaim.ClaimType, RoadRegistryClaim.ConvertRoleToClaimValue(role))
-            }.Concat(
-                scopes.Select(scope => new Claim(AcmIdmClaimTypes.Scope, scope))
-            ), AuthenticationSchemes.ApiKey);
+        {
+            new("sub", apiKey),
+            new("active", true.ToString()),
+            new(AcmIdmClaimTypes.VoApplicatieNaam, token.ClientName),
+            new(RoadRegistryClaim.ClaimType, RoadRegistryClaim.ConvertRoleToClaimValue(role)),
+            new("operator", AnonymizeApiKey(apiKey))
+        }.Concat(
+            scopes.Select(scope => new Claim(AcmIdmClaimTypes.Scope, scope))
+        ), AuthenticationSchemes.ApiKey);
+    }
+
+    private string AnonymizeApiKey(string apiKey)
+    {
+        var sanitized = apiKey
+            .Replace(" ", string.Empty)
+            .Replace(".", string.Empty)
+            .Replace("-", string.Empty);
+
+        var partsLength = sanitized.Length / 4;
+
+        if (partsLength * 2 > 16)
+        {
+            partsLength = 8;
+        }
+
+        var part1 = sanitized[..partsLength];
+        var part2 = sanitized[^partsLength..];
+
+        return $"{part1}***{part2}";
     }
 }

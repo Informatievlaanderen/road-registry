@@ -112,7 +112,8 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                 UploadId = uploadId,
                 ArchiveId = archiveId,
                 TicketId = request.TicketId
-            });
+            })
+            .WithProvenanceData(request.ProvenanceData);
 
         await Dispatch(message, cancellationToken);
 
