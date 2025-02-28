@@ -4,6 +4,7 @@ using System;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Schema;
 using SqlStreamStore;
@@ -16,7 +17,8 @@ public class RoadNetworkLatestItemEventProcessor : IntegrationContextEventProces
         EnvelopeFactory envelopeFactory,
         Func<IntegrationContext> dbContextFactory,
         Scheduler scheduler,
-        ILoggerFactory loggerFactory)
+        ILoggerFactory loggerFactory,
+        IConfiguration configuration)
         : base(
             "roadregistry-integration-roadnetwork-latestitem-projectionhost",
             streamStore,
@@ -25,7 +27,8 @@ public class RoadNetworkLatestItemEventProcessor : IntegrationContextEventProces
             projections.Resolver,
             dbContextFactory,
             scheduler,
-            loggerFactory)
+            loggerFactory,
+            configuration)
     {
     }
 }

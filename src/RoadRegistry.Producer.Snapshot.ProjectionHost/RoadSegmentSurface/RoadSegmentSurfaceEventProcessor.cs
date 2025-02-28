@@ -4,6 +4,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SqlStreamStore;
 
@@ -18,7 +19,8 @@ public class RoadSegmentSurfaceEventProcessor : RunnerDbContextEventProcessor<Ro
         ConnectedProjectionHandlerResolver<RoadSegmentSurfaceProducerSnapshotContext> resolver,
         IDbContextFactory<RoadSegmentSurfaceProducerSnapshotContext> dbContextFactory,
         Scheduler scheduler,
-        ILoggerFactory loggerFactory)
+        ILoggerFactory loggerFactory,
+        IConfiguration configuration)
         : base(
             ProjectionStateName,
             streamStore,
@@ -28,6 +30,7 @@ public class RoadSegmentSurfaceEventProcessor : RunnerDbContextEventProcessor<Ro
             dbContextFactory,
             scheduler,
             loggerFactory,
+            configuration,
             1,
             1)
     {

@@ -4,6 +4,7 @@ using System;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Schema;
 using SqlStreamStore;
@@ -16,8 +17,9 @@ public class OrganizationV2EventProcessor : EditorContextEventProcessor
         EnvelopeFactory envelopeFactory,
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,
-        ILoggerFactory loggerFactory)
-        : base(WellKnownProjectionStateNames.RoadRegistryEditorOrganizationV2ProjectionHost, streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, loggerFactory)
+        ILoggerFactory loggerFactory,
+        IConfiguration configuration)
+        : base(WellKnownProjectionStateNames.RoadRegistryEditorOrganizationV2ProjectionHost, streamStore, projections.Filter, envelopeFactory, projections.Resolver, dbContextFactory, scheduler, loggerFactory, configuration)
     {
     }
 }

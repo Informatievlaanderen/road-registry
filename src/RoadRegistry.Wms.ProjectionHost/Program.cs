@@ -76,7 +76,8 @@ public class Program
                                 .ToArray()),
                         sp.GetRequiredService<IDbContextFactory<WmsContext>>(),
                         sp.GetRequiredService<Scheduler>(),
-                        sp.GetRequiredService<ILoggerFactory>());
+                        sp.GetRequiredService<ILoggerFactory>(),
+                        sp.GetRequiredService<IConfiguration>());
                 })
             )
             .ConfigureHealthChecks(HostingPort, builder => builder

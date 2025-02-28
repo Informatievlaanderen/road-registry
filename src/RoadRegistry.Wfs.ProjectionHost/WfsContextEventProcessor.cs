@@ -4,6 +4,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Schema;
 using SqlStreamStore;
@@ -19,7 +20,8 @@ public class WfsContextEventProcessor : RunnerDbContextEventProcessor<WfsContext
         ConnectedProjectionHandlerResolver<WfsContext> resolver,
         IDbContextFactory<WfsContext> dbContextFactory,
         Scheduler scheduler,
-        ILoggerFactory loggerFactory)
+        ILoggerFactory loggerFactory,
+        IConfiguration configuration)
         : base(
             ProjectionStateName,
             streamStore,
@@ -28,7 +30,8 @@ public class WfsContextEventProcessor : RunnerDbContextEventProcessor<WfsContext
             resolver,
             dbContextFactory,
             scheduler,
-            loggerFactory)
+            loggerFactory,
+            configuration)
     {
     }
 }

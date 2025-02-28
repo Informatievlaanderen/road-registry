@@ -12,16 +12,17 @@ using SqlStreamStore;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 public abstract class EditorContextEventProcessor : RunnerDbContextEventProcessor<EditorContext>
 {
-    protected EditorContextEventProcessor(string projectionStateName, IStreamStore streamStore, AcceptStreamMessage<EditorContext> acceptStreamMessage, EnvelopeFactory envelopeFactory, ConnectedProjectionHandlerResolver<EditorContext> resolver, IDbContextFactory<EditorContext> dbContextFactory, Scheduler scheduler, ILoggerFactory loggerFactory, int catchUpBatchSize = 500, int catchUpThreshold = 1000)
-        : base(projectionStateName, streamStore, acceptStreamMessage, envelopeFactory, resolver, dbContextFactory, scheduler, loggerFactory, catchUpBatchSize, catchUpThreshold)
+    protected EditorContextEventProcessor(string projectionStateName, IStreamStore streamStore, AcceptStreamMessage<EditorContext> acceptStreamMessage, EnvelopeFactory envelopeFactory, ConnectedProjectionHandlerResolver<EditorContext> resolver, IDbContextFactory<EditorContext> dbContextFactory, Scheduler scheduler, ILoggerFactory loggerFactory, IConfiguration configuration, int catchUpBatchSize = 500, int catchUpThreshold = 1000)
+        : base(projectionStateName, streamStore, acceptStreamMessage, envelopeFactory, resolver, dbContextFactory, scheduler, loggerFactory, configuration, catchUpBatchSize, catchUpThreshold)
     {
     }
 
-    protected EditorContextEventProcessor(string projectionStateName, IStreamStore streamStore, AcceptStreamMessageFilter filter, EnvelopeFactory envelopeFactory, ConnectedProjectionHandlerResolver<EditorContext> resolver, Func<EditorContext> dbContextFactory, Scheduler scheduler, ILoggerFactory loggerFactory, int catchUpBatchSize = 500, int catchUpThreshold = 1000)
-        : base(projectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, loggerFactory, catchUpBatchSize, catchUpThreshold)
+    protected EditorContextEventProcessor(string projectionStateName, IStreamStore streamStore, AcceptStreamMessageFilter filter, EnvelopeFactory envelopeFactory, ConnectedProjectionHandlerResolver<EditorContext> resolver, Func<EditorContext> dbContextFactory, Scheduler scheduler, ILoggerFactory loggerFactory, IConfiguration configuration, int catchUpBatchSize = 500, int catchUpThreshold = 1000)
+        : base(projectionStateName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, loggerFactory, configuration, catchUpBatchSize, catchUpThreshold)
     {
     }
 

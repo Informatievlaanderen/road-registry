@@ -4,6 +4,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SqlStreamStore;
 
@@ -18,7 +19,7 @@ public class GradeSeparatedJunctionEventProcessor : RunnerDbContextEventProcesso
         ConnectedProjectionHandlerResolver<GradeSeparatedJunctionProducerSnapshotContext> resolver,
         IDbContextFactory<GradeSeparatedJunctionProducerSnapshotContext> dbContextFactory,
         Scheduler scheduler,
-        ILoggerFactory loggerFactory)
+        ILoggerFactory loggerFactory, IConfiguration configuration)
         : base(
             ProjectionStateName,
             streamStore,
@@ -28,6 +29,7 @@ public class GradeSeparatedJunctionEventProcessor : RunnerDbContextEventProcesso
             dbContextFactory,
             scheduler,
             loggerFactory,
+            configuration,
             1,
             1)
     {

@@ -1,17 +1,16 @@
 namespace RoadRegistry.Wfs.Projections;
 
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using BackOffice;
-using BackOffice.Abstractions;
 using BackOffice.Extensions;
 using BackOffice.FeatureToggles;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Schema;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
 {
@@ -112,7 +111,8 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         var dbRecord = await context.RoadSegments
             .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentAdded.Id, token)
             .ConfigureAwait(false);
-        if (dbRecord is null)
+
+        if (context.IsNullOrDeleted(dbRecord))
         {
             dbRecord = new RoadSegmentRecord
             {
@@ -161,7 +161,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         var dbRecord = await context.RoadSegments
             .IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentModified.Id, token)
             .ConfigureAwait(false);
-        if (dbRecord is null)
+        if (context.IsNullOrDeleted(dbRecord))
         {
             dbRecord = new RoadSegmentRecord
             {

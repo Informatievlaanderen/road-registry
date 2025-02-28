@@ -3,6 +3,7 @@ namespace RoadRegistry.Integration.ProjectionHost.EventProcessors;
 using System;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Schema;
 using SqlStreamStore;
@@ -15,7 +16,8 @@ public class OrganizationVersionEventProcessor : IntegrationContextEventProcesso
         EnvelopeFactory envelopeFactory,
         Func<IntegrationContext> dbContextFactory,
         Scheduler scheduler,
-        ILoggerFactory loggerFactory)
+        ILoggerFactory loggerFactory,
+        IConfiguration configuration)
         : base(
             "roadregistry-integration-organization-version-projectionhost",
             streamStore,
@@ -24,7 +26,8 @@ public class OrganizationVersionEventProcessor : IntegrationContextEventProcesso
             projections.Resolver,
             dbContextFactory,
             scheduler,
-            loggerFactory)
+            loggerFactory,
+            configuration)
     {
     }
 }
