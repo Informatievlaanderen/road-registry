@@ -24,7 +24,7 @@ public class GivenOrganization : RoadNetworkTestBase
         var command = new ChangeOrganization
         {
             Code = TestData.ChangedByOrganization,
-            Name = ObjectProvider.Create<OrganizationName>(),
+            Name = $"{TestData.ChangedByOrganizationName}_2",
             OvoCode = ObjectProvider.Create<OrganizationOvoCode>(),
             KboNumber = ObjectProvider.Create<OrganizationKboNumber>(),
             IsMaintainer = true,
@@ -61,7 +61,7 @@ public class GivenOrganization : RoadNetworkTestBase
         var command = new ChangeOrganization
         {
             Code = TestData.ChangedByOrganization,
-            Name = ObjectProvider.Create<OrganizationName>(),
+            Name = $"{TestData.ChangedByOrganizationName}_2",
             OvoCode = ObjectProvider.Create<OrganizationOvoCode>(),
             KboNumber = ObjectProvider.Create<OrganizationKboNumber>(),
             IsMaintainer = true,
