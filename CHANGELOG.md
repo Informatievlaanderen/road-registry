@@ -1,3 +1,15 @@
+# [4.26.0](https://github.com/informatievlaanderen/road-registry/compare/v4.25.2...v4.26.0) (2025-02-28)
+
+
+### Bug Fixes
+
+* slack sink overflow on closeandflush ([d0b8dbb](https://github.com/informatievlaanderen/road-registry/commit/d0b8dbbbc2c750ebee5464958b79416b5131be04))
+
+
+### Features
+
+* record OperatorName when requesting or uploading an extract ([b7d4144](https://github.com/informatievlaanderen/road-registry/commit/b7d41448b7e932568f5c42a054c45e091b224410))
+
 ## [4.25.2](https://github.com/informatievlaanderen/road-registry/compare/v4.25.1...v4.25.2) (2025-02-28)
 
 
