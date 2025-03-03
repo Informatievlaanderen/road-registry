@@ -1,3 +1,10 @@
+## [4.26.2](https://github.com/informatievlaanderen/road-registry/compare/v4.26.1...v4.26.2) (2025-03-03)
+
+
+### Bug Fixes
+
+* read event ProvenanceData when processing + remove unused Principal in messagemetadata ([dc211b1](https://github.com/informatievlaanderen/road-registry/commit/dc211b19cc70b9a4302ad57f2e34d4883f1773fb))
+
 ## [4.26.1](https://github.com/informatievlaanderen/road-registry/compare/v4.26.0...v4.26.1) (2025-03-03)
 
 
