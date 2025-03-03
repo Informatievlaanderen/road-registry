@@ -193,13 +193,15 @@ public abstract class PositionStoreEventProcessor : RoadRegistryHostedService
                     Logger.LogInformation("Processing {MessageType} at {Position}",
                         process.Message.Type, process.Message.Position);
 
+                    var messageMetadata = JsonConvert.DeserializeObject<MessageMetadata>(process.Message.JsonMetadata, SerializerSettings);
                     var body = JsonConvert.DeserializeObject(
                         await process.Message.GetJsonData(_messagePumpCancellation.Token).ConfigureAwait(false),
                         EventMapping.GetEventType(process.Message.Type),
                         SerializerSettings);
                     var @event = new Event(body)
                         .WithMessageId(process.Message.MessageId)
-                        .WithStream(process.Message.StreamId, process.Message.StreamVersion);
+                        .WithStream(process.Message.StreamId, process.Message.StreamVersion)
+                        .WithProvenanceData(messageMetadata?.ProvenanceData);
 
                     await BeforeDispatchEvent(@event, _messagePumpCancellation.Token).ConfigureAwait(false);
                     _messagePumpCancellation.Token.ThrowIfCancellationRequested();
