@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice;
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.EventHandling;
@@ -31,21 +30,16 @@ public abstract class RoadRegistryCommandQueue
         var jsonMetadata = JsonConvert.SerializeObject(
             new MessageMetadata
             {
-                Principal = command
-                    .Principal
-                    .Claims
-                    .Select(claim => new Claim { Type = claim.Type, Value = claim.Value })
-                    .ToArray(),
-                Processor = _applicationMetadata?.MessageProcessor ?? RoadRegistryApplication.BackOffice
+                Processor = _applicationMetadata?.MessageProcessor ?? RoadRegistryApplication.BackOffice,
+                ProvenanceData = command.ProvenanceData
             },
             SerializerSettings);
-        await _store.AppendToStream(streamName, ExpectedVersion.Any, new[]
-        {
+        await _store.AppendToStream(streamName, ExpectedVersion.Any, [
             new NewStreamMessage(
                 command.MessageId,
                 _commandMapping.GetEventName(command.Body.GetType()),
                 JsonConvert.SerializeObject(command.Body, SerializerSettings),
                 jsonMetadata)
-        }, cancellationToken);
+        ], cancellationToken);
     }
 }

@@ -18,19 +18,19 @@ public class StreetNameEventWriter : RoadRegistryEventWriter, IStreetNameEventWr
 {
     private static readonly EventMapping EventMapping =
         new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
-    
+
     public StreetNameEventWriter(IStreamStore store, EventEnricher enricher)
         : base(store, enricher, EventMapping)
     {
     }
-    
+
     public Task WriteAsync(StreetNameLocalId id, Event @event, CancellationToken cancellationToken)
     {
-        return AppendToStoreStream(StreetNameLocalId.ToStreamName(id), @event.MessageId, ExpectedVersion.Any, new [] { @event.Body }, null, null, cancellationToken);
+        return AppendToStoreStream(StreetNameLocalId.ToStreamName(id), @event.MessageId, ExpectedVersion.Any, [@event.Body], null, cancellationToken);
     }
-    
+
     public Task WriteAsync(Event @event, CancellationToken cancellationToken)
     {
-        return AppendToStoreStream(new StreamName("streetnames"), @event.MessageId, ExpectedVersion.Any, new [] { @event.Body }, null, null, cancellationToken);
+        return AppendToStoreStream(new StreamName("streetnames"), @event.MessageId, ExpectedVersion.Any, [@event.Body], null, cancellationToken);
     }
 }
