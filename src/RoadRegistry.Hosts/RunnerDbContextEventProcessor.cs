@@ -88,7 +88,8 @@ public abstract class RunnerDbContextEventProcessor<TDbContext> : RoadRegistryHo
         ArgumentNullException.ThrowIfNull(scheduler);
 
         catchUpBatchSize ??= 500;
-        var catchUpBatchSizeOverride = configuration.GetValue<int?>($"EventProcessorOptions:{projectionStateName}:CatchUpBatchSizeOverride");
+        var projectionStateNameInConfiguration = projectionStateName.Replace("-", "");
+        var catchUpBatchSizeOverride = configuration.GetValue<int?>($"EventProcessorOptions:{projectionStateNameInConfiguration}:CatchUpBatchSizeOverride");
         if (catchUpBatchSizeOverride is not null)
         {
             catchUpBatchSize = catchUpBatchSizeOverride.Value;
@@ -96,7 +97,7 @@ public abstract class RunnerDbContextEventProcessor<TDbContext> : RoadRegistryHo
         }
 
         catchUpThreshold ??= 1000;
-        var catchUpTresholdOverride = configuration.GetValue<int?>($"EventProcessorOptions:{projectionStateName}:CatchUpTresholdOverride");
+        var catchUpTresholdOverride = configuration.GetValue<int?>($"EventProcessorOptions:{projectionStateNameInConfiguration}:CatchUpTresholdOverride");
         if (catchUpTresholdOverride is not null)
         {
             catchUpThreshold = catchUpTresholdOverride.Value;
