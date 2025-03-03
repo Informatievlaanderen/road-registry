@@ -1,3 +1,10 @@
+## [4.26.1](https://github.com/informatievlaanderen/road-registry/compare/v4.26.0...v4.26.1) (2025-03-03)
+
+
+### Bug Fixes
+
+* don't use dashes in configuration keys ([920f21f](https://github.com/informatievlaanderen/road-registry/commit/920f21f5d9841863e647baef14034f40d2492f06))
+
 # [4.26.0](https://github.com/informatievlaanderen/road-registry/compare/v4.25.2...v4.26.0) (2025-02-28)
 
 
