@@ -146,8 +146,8 @@ jobs:
         environment: ${{ github.event.inputs.environment }}
 
   system_healthcheck:
-    needs: [ deploy_lambda, deploy_lambda_prd ]
-    if: ${{ github.repository_owner == 'Informatievlaanderen' && always() && (needs.deploy_lambda.result == 'success' || needs.deploy_lambda.result == 'skipped') && (needs.deploy_lambda_prd.result == 'success' || needs.deploy_lambda_prd.result == 'skipped') }}
+    needs: [ deploy_lambda ]
+    if: ${{ github.repository_owner == 'Informatievlaanderen' && always() && (needs.deploy_lambda.result == 'success' || needs.deploy_lambda.result == 'skipped') }}
     name: System healthcheck
     runs-on: ubuntu-latest
 
