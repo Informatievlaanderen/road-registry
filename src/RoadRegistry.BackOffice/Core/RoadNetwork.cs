@@ -33,13 +33,6 @@ public class RoadNetwork : EventSourcedEntity
         On<RoadNetworkChangesAccepted>(e => { _view = _view.RestoreFromEvent(e); });
     }
 
-    private void BuildGraph()
-    {
-        var graph   = new AdjacencyGraph<Coordinate, IEdge<Coordinate>>(true);
-
-
-    }
-
     public async Task<IMessage> Change(
         ChangeRequestId requestId,
         DownloadId? downloadId,

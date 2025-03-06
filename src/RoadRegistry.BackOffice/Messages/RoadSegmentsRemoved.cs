@@ -12,6 +12,8 @@ public class RoadSegmentsRemoved: IHaveHash
     // todo-pr add removed roadnodes
     // todo-pr add roadnodes with changed type
 
+    // todo-pr add removed junctions
+
     public System.Collections.Generic.IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
     public string GetHash() => this.ToEventHash(EventName);
 }

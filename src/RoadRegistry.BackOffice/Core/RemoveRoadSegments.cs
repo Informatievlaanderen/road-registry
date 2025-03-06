@@ -41,17 +41,6 @@ public class RemoveRoadSegments : IRequestedChange
 
         // todo-pr: did we create islands?
 
-
-
-
-        foreach (var id in Ids)
-        {
-            if (context.BeforeView.View.Segments.ContainsKey(id))
-            {
-                //problems += // roadsegment kon niet worden verwijderd
-            }
-        }
-
         // todo-pr: add private variable which noded were changed or deleted
 
         return problems;

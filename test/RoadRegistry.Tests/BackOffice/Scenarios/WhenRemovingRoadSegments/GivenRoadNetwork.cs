@@ -13,7 +13,7 @@ public class GivenRoadNetwork: RoadNetworkTestBase
     }
 
     [Fact]
-    public Task WhenRemovingSegmentWithEndNode()
+    public async Task WhenRemovingSegmentWithEndNode()
     {
         //TODO-pr scenario invullen
 
@@ -77,7 +77,7 @@ public class GivenRoadNetwork: RoadNetworkTestBase
             .WithTransactionId(2)
             .Build();
 
-        return Run(scenario =>
+        await Run(scenario =>
             scenario
                 .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
                 .Given(RoadNetworks.Stream, initial)

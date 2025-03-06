@@ -1383,6 +1383,43 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
 
     private ImmutableRoadNetworkView With(RemoveRoadSegments command)
     {
+        var segments = _segments;
+        var nodes = _nodes;
+        var junctions = _gradeSeparatedJunctions;
+
+        foreach (var roadSegmentId in command.Ids)
+        {
+            segments.TryGetValue(roadSegmentId, out var segment);
+            segments = segments.Remove(roadSegmentId);
+
+            if (segment!.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+            {
+                continue;
+            }
+
+            nodes = nodes
+                .TryReplace(segment.Start, node => node.DisconnectFrom(roadSegmentId))
+                .TryReplace(segment.End, node => node.DisconnectFrom(roadSegmentId));
+
+            nodes.TryGetValue(segment.Start, out var startNode);
+            nodes.TryGetValue(segment.End, out var endNode);
+
+            if (endNode!.Type == RoadNodeType.FakeNode && endNode.Segments.Count == 1)
+            {
+            }
+
+            /*
+             * Scenario 1:
+             * 
+             */
+
+
+            // todo-pr ontkoppel knopen van wegsegment
+            // todo-pr verwijder knoop met type eindknoop
+            // todo-pr controleer of schijnknoop eindknoop moet worden
+        }
+
+
         // return new ImmutableRoadNetworkView(
         //     _segments.TryGetValue(command.Id, out var segment)
         //         ? _nodes

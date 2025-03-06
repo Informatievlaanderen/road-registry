@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Tests.BackOffice.Scenarios
+﻿namespace RoadRegistry.Tests.BackOffice.Scenarios.WhenRemovingRoadSegments
 {
     using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
     using FluentAssertions;
