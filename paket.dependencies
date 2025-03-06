@@ -188,3 +188,5 @@ nuget Npgsql 8.0.2
 nuget Npgsql.EntityFrameworkCore.PostgreSQL 8.0.2
 nuget Npgsql.EntityFrameworkCore.PostgreSQL.Design 2.0.0-preview1
 nuget Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite 8.0.2
+
+nuget QuikGraph 2.5.0

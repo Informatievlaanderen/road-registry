@@ -41,3 +41,4 @@ NetTopologySuite.IO.ShapeFile
 Polly
 SqlStreamStore
 System.IdentityModel.Tokens.Jwt
+QuikGraph

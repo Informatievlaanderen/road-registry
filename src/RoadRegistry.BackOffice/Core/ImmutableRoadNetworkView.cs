@@ -6,9 +6,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using Messages;
 using NetTopologySuite.Geometries;
-using RoadSegmentEuropeanRoadAttribute = BackOffice.RoadSegmentEuropeanRoadAttribute;
-using RoadSegmentNationalRoadAttribute = BackOffice.RoadSegmentNationalRoadAttribute;
-using RoadSegmentNumberedRoadAttribute = BackOffice.RoadSegmentNumberedRoadAttribute;
 
 public class ImmutableRoadNetworkView : IRoadNetworkView
 {
@@ -361,6 +358,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     break;
                 case RemoveRoadSegment removeRoadSegment:
                     result = result.With(removeRoadSegment);
+                    break;
+                case RemoveRoadSegments removeRoadSegments:
+                    result = result.With(removeRoadSegments);
                     break;
                 case AddRoadSegmentToEuropeanRoad addRoadSegmentToEuropeanRoad:
                     result = result.With(addRoadSegmentToEuropeanRoad);
@@ -1381,6 +1381,23 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         );
     }
 
+    private ImmutableRoadNetworkView With(RemoveRoadSegments command)
+    {
+        // return new ImmutableRoadNetworkView(
+        //     _segments.TryGetValue(command.Id, out var segment)
+        //         ? _nodes
+        //             .TryReplace(segment.Start, node => node.DisconnectFrom(command.Id))
+        //             .TryReplace(segment.End, node => node.DisconnectFrom(command.Id))
+        //         : _nodes,
+        //     _segments.Remove(command.Id),
+        //     _gradeSeparatedJunctions,
+        //     SegmentReusableLaneAttributeIdentifiers,
+        //     SegmentReusableWidthAttributeIdentifiers,
+        //     SegmentReusableSurfaceAttributeIdentifiers
+        // );
+        return null;
+    }
+
     private ImmutableRoadNetworkView With(AddGradeSeparatedJunction command)
     {
         return new ImmutableRoadNetworkView(
@@ -1886,6 +1903,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                         break;
                     case RemoveRoadSegment removeRoadSegment:
                         With(removeRoadSegment);
+                        break;
+                    case RemoveRoadSegments removeRoadSegments:
+                        With(removeRoadSegments);
                         break;
                     case AddRoadSegmentToEuropeanRoad addRoadSegmentToEuropeanRoad:
                         With(addRoadSegmentToEuropeanRoad);
@@ -2751,6 +2771,17 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             }
 
             _segments.Remove(command.Id);
+        }
+
+        private void With(RemoveRoadSegments command)
+        {
+            // if (_segments.TryGetValue(command.Id, out var segment))
+            // {
+            //     _nodes.TryReplace(segment.Start, node => node.DisconnectFrom(command.Id));
+            //     _nodes.TryReplace(segment.End, node => node.DisconnectFrom(command.Id));
+            // }
+            //
+            // _segments.Remove(command.Id);
         }
 
         private void With(AddGradeSeparatedJunction command)

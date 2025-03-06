@@ -12,6 +12,7 @@ using Framework;
 using Messages;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
+using QuikGraph;
 
 public class RoadNetwork : EventSourcedEntity
 {
@@ -30,6 +31,13 @@ public class RoadNetwork : EventSourcedEntity
         On<ImportedGradeSeparatedJunction>(e => { _view = _view.RestoreFromEvent(e); });
         On<ImportedRoadSegment>(e => { _view = _view.RestoreFromEvent(e); });
         On<RoadNetworkChangesAccepted>(e => { _view = _view.RestoreFromEvent(e); });
+    }
+
+    private void BuildGraph()
+    {
+        var graph   = new AdjacencyGraph<Coordinate, IEdge<Coordinate>>(true);
+
+
     }
 
     public async Task<IMessage> Change(
@@ -132,7 +140,7 @@ public class RoadNetwork : EventSourcedEntity
         {
             return segment;
         }
-        
+
         return null;
     }
 
@@ -204,7 +212,7 @@ public class RoadNetwork : EventSourcedEntity
             return new NextRoadSegmentVersionProvider().Next();
         };
     }
-    
+
     public void RestoreFromSnapshot(RoadNetworkSnapshot snapshot)
     {
         if (snapshot == null)
