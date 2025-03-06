@@ -1,23 +1,15 @@
 ﻿namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
 using AutoFixture;
-using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.Geometries.Implementation;
 using NodaTime;
 using NodaTime.Text;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;
-using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
-using LineString = NetTopologySuite.Geometries.LineString;
-using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadNetworkChangesAcceptedBuilder
 {
     private readonly Fixture _fixture;
-    private List<AcceptedChange> _acceptedChanges = [];
-    private int _idCounter;
+    private readonly List<AcceptedChange> _acceptedChanges = [];
 
     private string _requestId;
     private string _reasonForChange;
@@ -27,7 +19,7 @@ public class RoadNetworkChangesAcceptedBuilder
     private TransactionId _transactionId;
     private string _when;
 
-    public RoadNetworkChangesAcceptedBuilder(Fixture fixture)
+    private RoadNetworkChangesAcceptedBuilder(Fixture fixture)
     {
         _fixture = fixture;
 
