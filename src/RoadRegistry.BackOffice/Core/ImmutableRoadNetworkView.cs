@@ -1401,6 +1401,16 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 .TryReplace(segment.Start, node => node.DisconnectFrom(roadSegmentId))
                 .TryReplace(segment.End, node => node.DisconnectFrom(roadSegmentId));
 
+            var linkedJunctions = junctions
+                .Where(x => x.Value.LowerSegment == roadSegmentId || x.Value.UpperSegment == roadSegmentId)
+                .Select(x => x.Value)
+                .ToList();
+            foreach (var junction in linkedJunctions)
+            {
+                junctions = junctions
+                    .Remove(junction.Id);
+            }
+
             nodes.TryGetValue(segment.Start, out var startNode);
             nodes.TryGetValue(segment.End, out var endNode);
 
@@ -1410,13 +1420,50 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
 
             /*
              * Scenario 1:
-             * 
+             *
              */
 
 
             // todo-pr ontkoppel knopen van wegsegment
             // todo-pr verwijder knoop met type eindknoop
             // todo-pr controleer of schijnknoop eindknoop moet worden
+
+            //TODO-pr wat te doen per knoop type combinatie:
+            /*
+1 echte knoop:  Punt waar 2 wegsegmenten elkaar snijden; minstens drie aansluitende wegsegmenten.
+2 schijnknoop:  Punt waar 2 wegsegmenten elkaar raken; slechts twee aansluitende wegsegmenten.
+3 eindknoop:    Het einde van een doodlopende wegcorridor, slechts één aansluitend wegsegment.
+4 minirotonde:  Kruispunt dat zich in de realiteit voordoet als een rotonde maar niet voldoet aan de geometrische specificaties om opgenomen te worden als een echte rotonde (ringvormige geometrie).
+5 keerlusknoop: Juist twee aansluitende wegsegmenten; wegsegmenten die aan beide zijden begrensd worden door dezelfde wegknoop worden met behulp van een extra wegknoop (= keerlusknoop) opgesplitst.
+
+knoop_1				knoop_2
+1	echte knoop		1	echte knoop
+echte knoop -> nakijken hoeveel wegsegmenten er nog aan gekoppeld zijn:
+bij 1 -> onmogelijk
+bij 2 -> schijnknoop
+bij 3+ -> echte knoop
+
+1	echte knoop		2	schijnknoop
+echte knoop -> nakijken hoeveel wegsegmenten er nog aan gekoppeld zijn:
+bij 1 -> onmogelijk
+bij 2 -> schijnknoop
+bij 3+ -> echte knoop
+schijnknoop -> eindknoop
+
+1	echte knoop		3	eindknoop
+1	echte knoop		4	minirotonde
+1	echte knoop		5	keerlusknoop
+2	schijnknoop		2	schijnknoop
+2	schijnknoop		3	eindknoop
+2	schijnknoop		4	minirotonde
+2	schijnknoop		5	keerlusknoop
+3	eindknoop		3	eindknoop
+3	eindknoop		4	minirotonde
+3	eindknoop		5	keerlusknoop
+4	minirotonde		4	minirotonde
+4	minirotonde		5	keerlusknoop
+5	keerlusknoop	5	keerlusknoop
+             */
         }
 
 
