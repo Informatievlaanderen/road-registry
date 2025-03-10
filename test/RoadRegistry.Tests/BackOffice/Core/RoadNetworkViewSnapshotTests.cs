@@ -190,7 +190,7 @@ public class RoadNetworkViewSnapshotTests
             SegmentReusableSurfaceAttributeIdentifiers = _fixture.CreateMany<RoadNetworkSnapshotSegmentReusableAttributeIdentifiers>(10).ToArray(),
             SegmentReusableWidthAttributeIdentifiers = _fixture.CreateMany<RoadNetworkSnapshotSegmentReusableAttributeIdentifiers>(10).ToArray()
         };
-        var sut = ImmutableRoadNetworkView.Empty.ToBuilder();
+        var sut = ImmutableRoadNetworkView.Empty;
         var restored = sut.RestoreFromSnapshot(snapshotBefore);
 
         var snapshotAfter = restored.TakeSnapshot();
