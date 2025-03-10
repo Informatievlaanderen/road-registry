@@ -33,6 +33,10 @@ public class RemoveRoadSegments : IRequestedChange
         return problems;
     }
 
+    private List<RoadNodeId> _removedRoadNodeIds = [];
+    private List<RoadNodeTypeChanged> _changedRoadNodes = [];
+    private List<GradeSeparatedJunctionId> _removedJunctionIds = [];
+
     public Problems VerifyAfter(AfterVerificationContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -42,6 +46,17 @@ public class RemoveRoadSegments : IRequestedChange
         // todo-pr: did we create islands?
 
         // todo-pr: add private variable which noded were changed or deleted
+        var nodes = new List<RoadNodeId>();
+        foreach (var id in Ids)
+        {
+            context.BeforeView.View.Segments.TryGetValue(id, out var segment);
+            nodes.Add(segment!.Start);
+            nodes.Add(segment!.End);
+        }
+
+        nodes = nodes.Distinct().ToList();
+
+        _removedRoadNodeIds.AddRange(nodes.Where(x => !context.AfterView.Nodes.ContainsKey(x)));
 
         return problems;
     }
@@ -52,8 +67,11 @@ public class RemoveRoadSegments : IRequestedChange
 
         message.RoadSegmentsRemoved = new RoadSegmentsRemoved
         {
-            Ids = Ids.Select(x => x.ToInt32()).ToArray(),
-            GeometryDrawMethod = GeometryDrawMethod
+            GeometryDrawMethod = GeometryDrawMethod,
+            RemovedRoadSegmentIds = Ids.Select(x => x.ToInt32()).ToArray(),
+            RemovedRoadNodeIds = _removedRoadNodeIds.Select(x => x.ToInt32()).ToArray(),
+            ChangedRoadNodes = _changedRoadNodes.ToArray(),
+            RemovedGradeSeparatedJunctionIds = _removedJunctionIds.Select(x => x.ToInt32()).ToArray(),
         };
     }
 

@@ -8,26 +8,23 @@ using RoadRegistry.BackOffice.Messages;
 
 public class RoadNetworkChangesAcceptedBuilder
 {
-    private readonly Fixture _fixture;
     private readonly List<AcceptedChange> _acceptedChanges = [];
 
-    private string _requestId;
-    private string _reasonForChange;
-    private string _operator;
-    private string _organizationId;
-    private string _organizationName;
+    private readonly string _requestId;
+    private readonly string _reasonForChange;
+    private readonly string _operator;
+    private readonly string _organizationId;
+    private readonly string _organizationName;
     private TransactionId _transactionId;
     private string _when;
 
     private RoadNetworkChangesAcceptedBuilder(Fixture fixture)
     {
-        _fixture = fixture;
-
-        _requestId = ChangeRequestId.FromArchiveId(_fixture.Create<ArchiveId>());
-        _reasonForChange = _fixture.Create<Reason>();
-        _operator = _fixture.Create<OperatorName>();
-        _organizationId = _fixture.Create<OrganizationId>();
-        _organizationName = _fixture.Create<OrganizationName>();
+        _requestId = ChangeRequestId.FromArchiveId(fixture.Create<ArchiveId>());
+        _reasonForChange = fixture.Create<Reason>();
+        _operator = fixture.Create<OperatorName>();
+        _organizationId = fixture.Create<OrganizationId>();
+        _organizationName = fixture.Create<OrganizationName>();
         WithTransactionId(1);
         WithClock(SystemClock.Instance);
     }
@@ -112,6 +109,15 @@ public class RoadNetworkChangesAcceptedBuilder
         {
             RoadSegmentModified = roadSegment,
             Problems = problems ?? []
+        });
+    }
+
+    public RoadNetworkChangesAcceptedBuilder WithRoadSegmentsRemoved(
+        RoadSegmentsRemoved roadSegmentsRemoved)
+    {
+        return WithChange(new AcceptedChange
+        {
+            RoadSegmentsRemoved = roadSegmentsRemoved
         });
     }
 

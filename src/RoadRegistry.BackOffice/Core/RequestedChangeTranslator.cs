@@ -60,6 +60,9 @@ internal class RequestedChangeTranslator
                 case Messages.RemoveRoadSegment command:
                     translated = translated.Append(Translate(command));
                     break;
+                case Messages.RemoveRoadSegments command:
+                    translated = translated.Append(Translate(command));
+                    break;
                 case Messages.RemoveOutlinedRoadSegment command:
                     translated = translated.Append(Translate(command));
                     break;
@@ -457,6 +460,15 @@ internal class RequestedChangeTranslator
             command.GeometryDrawMethod is not null
                 ? RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod)
                 : null
+        );
+    }
+
+    private RemoveRoadSegments Translate(Messages.RemoveRoadSegments command)
+    {
+        return new RemoveRoadSegments
+        (
+            command.Ids.Select(x => new RoadSegmentId(x)).ToArray(),
+            RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod)
         );
     }
 

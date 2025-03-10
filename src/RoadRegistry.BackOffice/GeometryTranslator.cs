@@ -1,19 +1,19 @@
 namespace RoadRegistry.BackOffice;
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Messages;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
+using NetTopologySuite.Geometries.Utilities;
 using NetTopologySuite.IO;
 using NetTopologySuite.IO.GML2;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using NetTopologySuite.Geometries.Utilities;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
-using Polygon = Be.Vlaanderen.Basisregisters.Shaperon.Polygon;
+using Polygon = NetTopologySuite.Geometries.Polygon;
 using ShaperonGeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 
 public static class GeometryTranslator
@@ -24,7 +24,7 @@ public static class GeometryTranslator
         {
             case MultiPolygon multiPolygon:
                 return multiPolygon.Buffer(buffer);
-            case NetTopologySuite.Geometries.Polygon polygon:
+            case Polygon polygon:
                 return polygon.Buffer(buffer);
             default:
                 throw new InvalidOperationException(
@@ -223,7 +223,7 @@ public static class GeometryTranslator
             case Messages.Polygon[] multiPolygon:
                 return (IPolygonal)GeometryFixer.Fix(new MultiPolygon(
                     Array.ConvertAll(multiPolygon, polygon =>
-                        new NetTopologySuite.Geometries.Polygon(
+                        new Polygon(
                             new LinearRing(
                                 geometryFactory.CoordinateSequenceFactory.Create(
                                     Array.ConvertAll(polygon.Shell.Points,
@@ -237,7 +237,7 @@ public static class GeometryTranslator
                             , geometryFactory))
                     , geometryFactory), isKeepMulti: true);
             case Messages.Polygon polygon:
-                return (IPolygonal)GeometryFixer.Fix(new NetTopologySuite.Geometries.Polygon(
+                return (IPolygonal)GeometryFixer.Fix(new Polygon(
                     new LinearRing(
                         geometryFactory.CoordinateSequenceFactory.Create(
                             Array.ConvertAll(polygon.Shell.Points,
@@ -271,7 +271,7 @@ public static class GeometryTranslator
                 {
                     var polygons = new Messages.Polygon[multiPolygon.NumGeometries];
                     var polygonIndex = 0;
-                    foreach (var fromPolygon in multiPolygon.Geometries.OfType<NetTopologySuite.Geometries.Polygon>())
+                    foreach (var fromPolygon in multiPolygon.Geometries.OfType<Polygon>())
                     {
                         var toShell = new Ring
                         {
@@ -317,7 +317,7 @@ public static class GeometryTranslator
                         Polygon = null
                     };
                 }
-            case NetTopologySuite.Geometries.Polygon polygon:
+            case Polygon polygon:
                 {
                     var toShell = new Ring
                     {
