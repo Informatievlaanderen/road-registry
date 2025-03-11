@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 public partial class ImmutableRoadNetworkView
@@ -310,17 +312,10 @@ public partial class ImmutableRoadNetworkView
                     segments.TryGetValue(node.Segments.Last(), out var segmentTwo);
 
                     //TODO-pr wegsegmenten proberen samen te voegen
-                    // segmentOne.AttributeHash.Category;
-                    // segmentOne.AttributeHash.Morphology;
-                    // segmentOne.AttributeHash.GeometryDrawMethod;
-                    // segmentOne.AttributeHash.OrganizationId; // Maintainer
-                    // segmentOne.AttributeHash.Status;
-                    // segmentOne.AttributeHash.AccessRestriction;
-                    // segmentOne.AttributeHash.LeftStreetNameId;
-                    // segmentOne.AttributeHash.RightStreetNameId;
-                    // segmentOne.EuropeanRoadAttributes;
-                    // segmentOne.NationalRoadAttributes;
-                    // segmentOne.NumberedRoadAttributes;
+                    if (SegmentAttributesAreEqual(segmentOne, segmentTwo))
+                    {
+
+                    }
                 }
 
                 if (node.Type == RoadNodeType.TurningLoopNode)
@@ -338,6 +333,70 @@ public partial class ImmutableRoadNetworkView
             SegmentReusableWidthAttributeIdentifiers,
             SegmentReusableSurfaceAttributeIdentifiers
         );
+    }
+
+    private static bool SegmentAttributesAreEqual(RoadSegment segment1, RoadSegment segment2)
+    {
+        if (segment1.AttributeHash.Category != segment2.AttributeHash.Category
+            || segment1.AttributeHash.Morphology != segment2.AttributeHash.Morphology
+            || segment1.AttributeHash.GeometryDrawMethod != segment2.AttributeHash.GeometryDrawMethod
+            || segment1.AttributeHash.OrganizationId != segment2.AttributeHash.OrganizationId
+            || segment1.AttributeHash.Status != segment2.AttributeHash.Status
+            || segment1.AttributeHash.AccessRestriction != segment2.AttributeHash.AccessRestriction
+            || !segment1.EuropeanRoadAttributes.Values.SequenceEqual(segment2.EuropeanRoadAttributes.Values, new EuropeanRoadAttributeEqualityComparer())
+            || !segment1.NationalRoadAttributes.Values.SequenceEqual(segment2.NationalRoadAttributes.Values, new NationalRoadAttributeEqualityComparer())
+            || !segment1.NumberedRoadAttributes.Values.SequenceEqual(segment2.NumberedRoadAttributes.Values, new NumberedRoadAttributeEqualityComparer())
+        )
+        {
+            return false;
+        }
+
+        //TODO-pr compare straatnaam ids
+        // segmentOne.AttributeHash.LeftStreetNameId;
+        // segmentOne.AttributeHash.RightStreetNameId;
+        if (segment1.Start == segment2.Start)
+        {
+
+        }
+    }
+
+    private sealed class EuropeanRoadAttributeEqualityComparer : IEqualityComparer<RoadSegmentEuropeanRoadAttribute>
+    {
+        public bool Equals(RoadSegmentEuropeanRoadAttribute left, RoadSegmentEuropeanRoadAttribute right)
+        {
+            return left.Number.Equals(right.Number);
+        }
+
+        public int GetHashCode(RoadSegmentEuropeanRoadAttribute instance)
+        {
+            throw new NotSupportedException();
+        }
+    }
+    private sealed class NationalRoadAttributeEqualityComparer : IEqualityComparer<RoadSegmentNationalRoadAttribute>
+    {
+        public bool Equals(RoadSegmentNationalRoadAttribute left, RoadSegmentNationalRoadAttribute right)
+        {
+            return left.Number.Equals(right.Number);
+        }
+
+        public int GetHashCode(RoadSegmentNationalRoadAttribute instance)
+        {
+            throw new NotSupportedException();
+        }
+    }
+    private sealed class NumberedRoadAttributeEqualityComparer : IEqualityComparer<RoadSegmentNumberedRoadAttribute>
+    {
+        public bool Equals(RoadSegmentNumberedRoadAttribute left, RoadSegmentNumberedRoadAttribute right)
+        {
+            return left.Number.Equals(right.Number)
+                   && left.Direction.Equals(right.Direction)
+                   && left.Ordinal.Equals(right.Ordinal);
+        }
+
+        public int GetHashCode(RoadSegmentNumberedRoadAttribute instance)
+        {
+            throw new NotSupportedException();
+        }
     }
 
     private ImmutableRoadNetworkView With(AddRoadSegmentToEuropeanRoad command)
