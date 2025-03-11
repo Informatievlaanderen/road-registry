@@ -32,6 +32,7 @@ public abstract class RemoveRoadSegmentsTestBase : RoadNetworkTestBase
     protected readonly RoadSegmentAdded W8;
     protected readonly RoadSegmentAdded W9;
     protected readonly RoadSegmentAdded W10;
+    protected readonly GradeSeparatedJunctionAdded J1;
 
     protected readonly RoadNetworkChangesAccepted InitialRoadNetwork;
 
@@ -58,6 +59,15 @@ public abstract class RemoveRoadSegmentsTestBase : RoadNetworkTestBase
         W9 = CreateRoadSegment(9, K5, K6);
         W10 = CreateRoadSegment(10, K6, K7);
 
+        J1 = new GradeSeparatedJunctionAdded
+        {
+            Id = 1,
+            TemporaryId = 1,
+            Type = GradeSeparatedJunctionType.Unknown,
+            LowerRoadSegmentId = W1.Id,
+            UpperRoadSegmentId = W2.Id
+        };
+
         InitialRoadNetwork = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithRoadNodeAdded(K1)
             .WithRoadNodeAdded(K2)
@@ -76,6 +86,7 @@ public abstract class RemoveRoadSegmentsTestBase : RoadNetworkTestBase
             .WithRoadSegmentAdded(W8)
             .WithRoadSegmentAdded(W9)
             .WithRoadSegmentAdded(W10)
+            .WithGradeSeparatedJunctionAdded(J1)
             .Build();
     }
 

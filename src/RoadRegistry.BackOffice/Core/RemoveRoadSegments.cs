@@ -82,6 +82,9 @@ public class RemoveRoadSegments : IRequestedChange
                     Version = _roadNetworkVersionProvider.NextRoadNodeVersion(roadNodeId)
                 });
             }
+
+            var beforeJunctionIds = context.BeforeView.GradeSeparatedJunctions.Keys;
+            _removedJunctionIds.AddRange(beforeJunctionIds.Where(x => !context.AfterView.GradeSeparatedJunctions.ContainsKey(x)));
         }
 
         return problems;
@@ -89,7 +92,7 @@ public class RemoveRoadSegments : IRequestedChange
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
-        if (message == null) throw new ArgumentNullException(nameof(message));
+        ArgumentNullException.ThrowIfNull(message);
 
         message.RoadSegmentsRemoved = new RoadSegmentsRemoved
         {

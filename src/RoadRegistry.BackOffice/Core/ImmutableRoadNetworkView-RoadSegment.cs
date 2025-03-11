@@ -287,8 +287,6 @@ public partial class ImmutableRoadNetworkView
             DisconnectAndUpdateNode(segment.End);
             continue;
 
-            //TODO-pr wanneer andere wegsegmenten proberen samen te voegen?
-
             void DisconnectAndUpdateNode(RoadNodeId nodeId)
             {
                 nodes = nodes.TryReplace(nodeId, x => x.DisconnectFrom(roadSegmentId));
@@ -311,6 +309,7 @@ public partial class ImmutableRoadNetworkView
                     segments.TryGetValue(node.Segments.First(), out var segmentOne);
                     segments.TryGetValue(node.Segments.Last(), out var segmentTwo);
 
+                    //TODO-pr wegsegmenten proberen samen te voegen
                     // segmentOne.AttributeHash.Category;
                     // segmentOne.AttributeHash.Morphology;
                     // segmentOne.AttributeHash.GeometryDrawMethod;
@@ -328,22 +327,6 @@ public partial class ImmutableRoadNetworkView
                 {
                     nodes = nodes.TryReplace(nodeId, x => x.WithType(RoadNodeType.EndNode));
                 }
-                /*
-Wegknoop types
-1 echte knoop:  Punt waar 2 wegsegmenten elkaar snijden; minstens drie aansluitende wegsegmenten.
-2 schijnknoop:  Punt waar 2 wegsegmenten elkaar raken; slechts twee aansluitende wegsegmenten.
-3 eindknoop:    Het einde van een doodlopende wegcorridor, slechts één aansluitend wegsegment.
-4 minirotonde:  Kruispunt dat zich in de realiteit voordoet als een rotonde maar niet voldoet aan de geometrische specificaties om opgenomen te worden als een echte rotonde (ringvormige geometrie).
-                Minstens 3 wegsegmenten.
-5 keerlusknoop: Juist twee aansluitende wegsegmenten; wegsegmenten die aan beide zijden begrensd worden door dezelfde wegknoop worden met behulp van een extra wegknoop (= keerlusknoop) opgesplitst.
-                Exact 2 wegsegmenten.
-
-//TODO-pr business rules wat te doen met de wegknoop NA ontkoppelen van huidig wegsegment:
-indien schijnknoop wordt -> dan samenvoegen?
-junctions
-ingeschetst
-eilanden
-                 */
             }
         }
 

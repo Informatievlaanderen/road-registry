@@ -121,6 +121,15 @@ public class RoadNetworkChangesAcceptedBuilder
         });
     }
 
+    public RoadNetworkChangesAcceptedBuilder WithGradeSeparatedJunctionAdded(
+        GradeSeparatedJunctionAdded gradeSeparatedJunctionAdded)
+    {
+        return WithChange(new AcceptedChange
+        {
+            GradeSeparatedJunctionAdded = gradeSeparatedJunctionAdded
+        });
+    }
+
     public RoadNetworkChangesAccepted Build()
     {
         return new RoadNetworkChangesAccepted
