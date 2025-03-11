@@ -43,6 +43,8 @@ namespace RoadRegistry.BackOffice.CommandHost.Tests
             });
         }
 
+        //TODO-pr extra test voor wanneer meerdere outlined IDs in RemoveRoadSegments wordt gesplitst?
+
         private static void CheckIfRequestedChangesAreCorrectlySplitByStream(Type[] changeTypesThatAlwaysBelongInDefaultRoadNetwork)
         {
             var fixture = new RoadNetworkTestData().ObjectProvider;
@@ -65,6 +67,7 @@ namespace RoadRegistry.BackOffice.CommandHost.Tests
             fixture.CustomizeRemoveGradeSeparatedJunction();
             fixture.CustomizeRemoveRoadNode();
             fixture.CustomizeRemoveRoadSegment();
+            fixture.CustomizeRemoveRoadSegments();
             fixture.CustomizeRemoveOutlinedRoadSegment();
             fixture.CustomizeRemoveOutlinedRoadSegmentFromRoadNetwork();
             fixture.CustomizeRemoveRoadSegmentFromEuropeanRoad();

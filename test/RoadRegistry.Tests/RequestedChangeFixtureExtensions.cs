@@ -254,6 +254,20 @@ public static class RequestedChangeFixtureExtensions
         );
     }
 
+    public static void CustomizeRemoveRoadSegments(this IFixture fixture)
+    {
+        fixture.Customize<RemoveRoadSegments>(
+            composer =>
+                composer.FromFactory(random =>
+                    new RemoveRoadSegments
+                    {
+                        Ids = fixture.CreateMany<RoadSegmentId>(1).Select(x => x.ToInt32()).ToArray(),
+                        GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>()
+                    }
+                ).OmitAutoProperties()
+        );
+    }
+
     public static void CustomizeRemoveOutlinedRoadSegment(this IFixture fixture)
     {
         fixture.Customize<RemoveOutlinedRoadSegment>(

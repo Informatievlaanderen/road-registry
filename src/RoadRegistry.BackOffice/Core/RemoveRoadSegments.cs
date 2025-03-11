@@ -51,33 +51,37 @@ public class RemoveRoadSegments : IRequestedChange
 
         // todo-pr: did we create islands?
 
-        var relatedRoadNodes = new List<RoadNodeId>();
-        foreach (var id in Ids)
+        if (GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined)
         {
-            context.BeforeView.View.Segments.TryGetValue(id, out var segment);
-            relatedRoadNodes.Add(segment!.Start);
-            relatedRoadNodes.Add(segment!.End);
-        }
-        relatedRoadNodes = relatedRoadNodes.Distinct().ToList();
-
-        _removedRoadNodeIds.AddRange(relatedRoadNodes.Where(x => !context.AfterView.Nodes.ContainsKey(x)));
-
-        foreach (var roadNodeId in relatedRoadNodes.Except(_removedRoadNodeIds))
-        {
-            context.BeforeView.Nodes.TryGetValue(roadNodeId, out var roadNodeBefore);
-            context.AfterView.Nodes.TryGetValue(roadNodeId, out var roadNodeAfter);
-
-            if (roadNodeBefore!.Type == roadNodeAfter!.Type)
+            var relatedRoadNodes = new List<RoadNodeId>();
+            foreach (var id in Ids)
             {
-                continue;
+                context.BeforeView.View.Segments.TryGetValue(id, out var segment);
+                relatedRoadNodes.Add(segment!.Start);
+                relatedRoadNodes.Add(segment!.End);
             }
 
-            _changedRoadNodes.Add(new RoadNodeTypeChanged
+            relatedRoadNodes = relatedRoadNodes.Distinct().ToList();
+
+            _removedRoadNodeIds.AddRange(relatedRoadNodes.Where(x => !context.AfterView.Nodes.ContainsKey(x)));
+
+            foreach (var roadNodeId in relatedRoadNodes.Except(_removedRoadNodeIds))
             {
-                Id = roadNodeId,
-                Type = roadNodeAfter.Type,
-                Version = _roadNetworkVersionProvider.NextRoadNodeVersion(roadNodeId)
-            });
+                context.BeforeView.Nodes.TryGetValue(roadNodeId, out var roadNodeBefore);
+                context.AfterView.Nodes.TryGetValue(roadNodeId, out var roadNodeAfter);
+
+                if (roadNodeBefore!.Type == roadNodeAfter!.Type)
+                {
+                    continue;
+                }
+
+                _changedRoadNodes.Add(new RoadNodeTypeChanged
+                {
+                    Id = roadNodeId,
+                    Type = roadNodeAfter.Type,
+                    Version = _roadNetworkVersionProvider.NextRoadNodeVersion(roadNodeId)
+                });
+            }
         }
 
         return problems;
