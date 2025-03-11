@@ -61,7 +61,7 @@ public class RequestedChangeTranslator
                     translated = translated.Append(Translate(command));
                     break;
                 case Messages.RemoveRoadSegments command:
-                    translated = translated.Append(Translate(command));
+                    translated = translated.Append(Translate(command, organizations));
                     break;
                 case Messages.RemoveOutlinedRoadSegment command:
                     translated = translated.Append(Translate(command));
@@ -464,13 +464,15 @@ public class RequestedChangeTranslator
         );
     }
 
-    private RemoveRoadSegments Translate(Messages.RemoveRoadSegments command)
+    private RemoveRoadSegments Translate(Messages.RemoveRoadSegments command, IOrganizations organizations)
     {
         return new RemoveRoadSegments
         (
             command.Ids.Select(x => new RoadSegmentId(x)).ToArray(),
             RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod),
-            _roadNetworkVersionProvider
+            _roadNetworkVersionProvider,
+            _roadNetworkIdProvider,
+            organizations
         );
     }
 

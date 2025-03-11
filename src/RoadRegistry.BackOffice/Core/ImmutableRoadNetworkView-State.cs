@@ -360,7 +360,7 @@ public partial class ImmutableRoadNetworkView
             _nodes.TryReplace(id, node => node
                 .WithGeometry(GeometryTranslator.Translate(@event.Geometry))
                 .WithType(RoadNodeType.Parse(@event.Type))
-                .WithVersion(new RoadNodeVersion(@event.Version)) // todo-pr how to calculate roadnodeversion?
+                .WithVersion(new RoadNodeVersion(@event.Version))
             ),
             _segments,
             _gradeSeparatedJunctions,

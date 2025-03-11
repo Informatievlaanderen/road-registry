@@ -311,7 +311,6 @@ public partial class ImmutableRoadNetworkView
                     segments.TryGetValue(node.Segments.First(), out var segmentOne);
                     segments.TryGetValue(node.Segments.Last(), out var segmentTwo);
 
-                    //TODO-pr wegsegmenten proberen samen te voegen
                     if (SegmentAttributesAreEqual(segmentOne, segmentTwo))
                     {
 
@@ -351,13 +350,21 @@ public partial class ImmutableRoadNetworkView
             return false;
         }
 
-        //TODO-pr compare straatnaam ids
-        // segmentOne.AttributeHash.LeftStreetNameId;
-        // segmentOne.AttributeHash.RightStreetNameId;
-        if (segment1.Start == segment2.Start)
+        if ((segment1.Start == segment2.End || segment1.End == segment2.Start)
+            && (segment1.AttributeHash.LeftStreetNameId != segment2.AttributeHash.LeftStreetNameId
+                || segment1.AttributeHash.RightStreetNameId != segment2.AttributeHash.RightStreetNameId))
         {
-
+            return false;
         }
+
+        if ((segment1.Start == segment2.Start || segment1.End == segment2.End)
+            && (segment1.AttributeHash.LeftStreetNameId != segment2.AttributeHash.RightStreetNameId
+                || segment1.AttributeHash.RightStreetNameId != segment2.AttributeHash.LeftStreetNameId))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private sealed class EuropeanRoadAttributeEqualityComparer : IEqualityComparer<RoadSegmentEuropeanRoadAttribute>

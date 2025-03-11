@@ -299,19 +299,12 @@ public static class RequestedChangesConverter
                     return [];
                 }
 
-                if (geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
-                {
-                    return [new
-                    {
-                        Change = change,
-                        StreamName = RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(id.Value))
-                    }];
-                }
-
                 return [new
                 {
                     Change = change,
-                    StreamName = RoadNetworkStreamNameProvider.Default
+                    StreamName = geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
+                        ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(id.Value))
+                        : RoadNetworkStreamNameProvider.Default
                 }];
             })
             .GroupBy(x => x.StreamName, x => x.Change)
