@@ -31,9 +31,7 @@ public class GivenEndNode : RemoveRoadSegmentsTestBase
             {
                 GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
                 RemovedRoadSegmentIds = [W1.Id],
-                RemovedRoadNodeIds = [K1.Id],
-                ChangedRoadNodes = [],
-                RemovedGradeSeparatedJunctionIds = []
+                RemovedRoadNodeIds = [K1.Id]
             })
             .Build();
 

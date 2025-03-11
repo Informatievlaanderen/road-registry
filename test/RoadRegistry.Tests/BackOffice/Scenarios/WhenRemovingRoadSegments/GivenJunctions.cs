@@ -8,8 +8,24 @@ using RemoveRoadSegments = RoadRegistry.BackOffice.Messages.RemoveRoadSegments;
 
 public class GivenJunctions : RemoveRoadSegmentsTestBase
 {
+    private readonly GradeSeparatedJunctionAdded _j1;
+    private readonly RoadNetworkChangesAccepted _initialRoadNetworkWithJunction;
+
     public GivenJunctions(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
+        _j1 = new GradeSeparatedJunctionAdded
+        {
+            Id = 1,
+            TemporaryId = 1,
+            Type = GradeSeparatedJunctionType.Unknown,
+            LowerRoadSegmentId = W1.Id,
+            UpperRoadSegmentId = W2.Id
+        };
+
+        _initialRoadNetworkWithJunction = new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithGradeSeparatedJunctionAdded(_j1)
+            .WithTransactionId(2)
+            .Build();
     }
 
     [Fact]
@@ -27,14 +43,13 @@ public class GivenJunctions : RemoveRoadSegmentsTestBase
 
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
-            .WithTransactionId(2)
+            .WithTransactionId(3)
             .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
             {
                 GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
                 RemovedRoadSegmentIds = [W1.Id],
                 RemovedRoadNodeIds = [K1.Id],
-                ChangedRoadNodes = [],
-                RemovedGradeSeparatedJunctionIds = [J1.Id]
+                RemovedGradeSeparatedJunctionIds = [_j1.Id]
             })
             .Build();
 
@@ -42,6 +57,7 @@ public class GivenJunctions : RemoveRoadSegmentsTestBase
             scenario
                 .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
                 .Given(RoadNetworks.Stream, InitialRoadNetwork)
+                .Given(RoadNetworks.Stream, _initialRoadNetworkWithJunction)
                 .When(command)
                 .Then(RoadNetworks.Stream, expected)
         );
@@ -62,14 +78,12 @@ public class GivenJunctions : RemoveRoadSegmentsTestBase
 
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
-            .WithTransactionId(2)
+            .WithTransactionId(3)
             .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
             {
                 GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
                 RemovedRoadSegmentIds = [W2.Id],
-                RemovedRoadNodeIds = [],
-                ChangedRoadNodes = [],
-                RemovedGradeSeparatedJunctionIds = [J1.Id]
+                RemovedGradeSeparatedJunctionIds = [_j1.Id]
             })
             .Build();
 
@@ -77,6 +91,7 @@ public class GivenJunctions : RemoveRoadSegmentsTestBase
             scenario
                 .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
                 .Given(RoadNetworks.Stream, InitialRoadNetwork)
+                .Given(RoadNetworks.Stream, _initialRoadNetworkWithJunction)
                 .When(command)
                 .Then(RoadNetworks.Stream, expected)
         );

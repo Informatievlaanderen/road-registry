@@ -115,10 +115,7 @@ public class GivenOutlinedSegment : RoadNetworkTestBase
             .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
             {
                 GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined,
-                RemovedRoadSegmentIds = [_outlinedSegment.Id],
-                RemovedRoadNodeIds = [],
-                ChangedRoadNodes = [],
-                RemovedGradeSeparatedJunctionIds = []
+                RemovedRoadSegmentIds = [_outlinedSegment.Id]
             })
             .Build();
 

@@ -31,10 +31,7 @@ public class GivenMiniRoundabout : RemoveRoadSegmentsTestBase
             .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
             {
                 GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-                RemovedRoadSegmentIds = [W6.Id],
-                RemovedRoadNodeIds = [],
-                ChangedRoadNodes = [],
-                RemovedGradeSeparatedJunctionIds = []
+                RemovedRoadSegmentIds = [W6.Id]
             })
             .Build();
 
@@ -67,7 +64,6 @@ public class GivenMiniRoundabout : RemoveRoadSegmentsTestBase
             {
                 GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
                 RemovedRoadSegmentIds = [W6.Id, W7.Id],
-                RemovedRoadNodeIds = [],
                 ChangedRoadNodes =
                 [
                     new RoadNodeTypeChanged
@@ -76,8 +72,7 @@ public class GivenMiniRoundabout : RemoveRoadSegmentsTestBase
                         Type = RoadNodeType.FakeNode,
                         Version = K6.Version + 1
                     }
-                ],
-                RemovedGradeSeparatedJunctionIds = []
+                ]
             })
             .Build();
 
@@ -110,7 +105,6 @@ public class GivenMiniRoundabout : RemoveRoadSegmentsTestBase
             {
                 GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
                 RemovedRoadSegmentIds = [W6.Id, W7.Id, W9.Id],
-                RemovedRoadNodeIds = [],
                 ChangedRoadNodes =
                 [
                     new RoadNodeTypeChanged
@@ -125,8 +119,7 @@ public class GivenMiniRoundabout : RemoveRoadSegmentsTestBase
                         Type = RoadNodeType.EndNode,
                         Version = K5.Version + 1
                     }
-                ],
-                RemovedGradeSeparatedJunctionIds = []
+                ]
             })
             .Build();
 
@@ -174,8 +167,7 @@ public class GivenMiniRoundabout : RemoveRoadSegmentsTestBase
                         Type = RoadNodeType.EndNode,
                         Version = K7.Version + 1
                     }
-                ],
-                RemovedGradeSeparatedJunctionIds = []
+                ]
             })
             .Build();
 

@@ -31,14 +31,12 @@ public class GivenFakeNode : RemoveRoadSegmentsTestBase
             {
                 GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
                 RemovedRoadSegmentIds = [W5.Id],
-                RemovedRoadNodeIds = [],
                 ChangedRoadNodes = [new RoadNodeTypeChanged
                 {
                     Id = K5.Id,
                     Type = RoadNodeType.EndNode,
                     Version = K5.Version + 1
-                }],
-                RemovedGradeSeparatedJunctionIds = []
+                }]
             })
             .Build();
 
@@ -71,9 +69,7 @@ public class GivenFakeNode : RemoveRoadSegmentsTestBase
             {
                 GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
                 RemovedRoadSegmentIds = [W5.Id, W9.Id],
-                RemovedRoadNodeIds = [K5.Id],
-                ChangedRoadNodes = [],
-                RemovedGradeSeparatedJunctionIds = []
+                RemovedRoadNodeIds = [K5.Id]
             })
             .Build();
 

@@ -31,15 +31,13 @@ public class GivenTurningLoopNode : RemoveRoadSegmentsTestBase
             {
                 GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
                 RemovedRoadSegmentIds = [W3.Id],
-                RemovedRoadNodeIds = [],
                 ChangedRoadNodes = [
                 new RoadNodeTypeChanged
                 {
                     Id = K4.Id,
                     Type = RoadNodeType.EndNode,
                     Version = K4.Version + 1
-                }],
-                RemovedGradeSeparatedJunctionIds = []
+                }]
             })
             .Build();
 
@@ -72,9 +70,7 @@ public class GivenTurningLoopNode : RemoveRoadSegmentsTestBase
             {
                 GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
                 RemovedRoadSegmentIds = [W3.Id, W4.Id],
-                RemovedRoadNodeIds = [K4.Id],
-                ChangedRoadNodes = [],
-                RemovedGradeSeparatedJunctionIds = []
+                RemovedRoadNodeIds = [K4.Id]
             })
             .Build();
 
