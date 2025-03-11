@@ -7,8 +7,14 @@ using Messages;
 
 public class RemoveRoadSegments : IRequestedChange
 {
-    public RemoveRoadSegments(IReadOnlyList<RoadSegmentId> ids, RoadSegmentGeometryDrawMethod geometryDrawMethod)
+    private readonly RoadNetworkVersionProvider _roadNetworkVersionProvider;
+
+    public RemoveRoadSegments(
+        IReadOnlyList<RoadSegmentId> ids,
+        RoadSegmentGeometryDrawMethod geometryDrawMethod,
+        RoadNetworkVersionProvider roadNetworkVersionProvider)
     {
+        _roadNetworkVersionProvider = roadNetworkVersionProvider;
         Ids = ids;
         GeometryDrawMethod = geometryDrawMethod;
     }
@@ -33,9 +39,9 @@ public class RemoveRoadSegments : IRequestedChange
         return problems;
     }
 
-    private List<RoadNodeId> _removedRoadNodeIds = [];
-    private List<RoadNodeTypeChanged> _changedRoadNodes = [];
-    private List<GradeSeparatedJunctionId> _removedJunctionIds = [];
+    private readonly List<RoadNodeId> _removedRoadNodeIds = [];
+    private readonly List<RoadNodeTypeChanged> _changedRoadNodes = [];
+    private readonly List<GradeSeparatedJunctionId> _removedJunctionIds = [];
 
     public Problems VerifyAfter(AfterVerificationContext context)
     {
@@ -45,18 +51,34 @@ public class RemoveRoadSegments : IRequestedChange
 
         // todo-pr: did we create islands?
 
-        // todo-pr: add private variable which noded were changed or deleted
-        var nodes = new List<RoadNodeId>();
+        var relatedRoadNodes = new List<RoadNodeId>();
         foreach (var id in Ids)
         {
             context.BeforeView.View.Segments.TryGetValue(id, out var segment);
-            nodes.Add(segment!.Start);
-            nodes.Add(segment!.End);
+            relatedRoadNodes.Add(segment!.Start);
+            relatedRoadNodes.Add(segment!.End);
         }
+        relatedRoadNodes = relatedRoadNodes.Distinct().ToList();
 
-        nodes = nodes.Distinct().ToList();
+        _removedRoadNodeIds.AddRange(relatedRoadNodes.Where(x => !context.AfterView.Nodes.ContainsKey(x)));
 
-        _removedRoadNodeIds.AddRange(nodes.Where(x => !context.AfterView.Nodes.ContainsKey(x)));
+        foreach (var roadNodeId in relatedRoadNodes.Except(_removedRoadNodeIds))
+        {
+            context.BeforeView.Nodes.TryGetValue(roadNodeId, out var roadNodeBefore);
+            context.AfterView.Nodes.TryGetValue(roadNodeId, out var roadNodeAfter);
+
+            if (roadNodeBefore!.Type == roadNodeAfter!.Type)
+            {
+                continue;
+            }
+
+            _changedRoadNodes.Add(new RoadNodeTypeChanged
+            {
+                Id = roadNodeId,
+                Type = roadNodeAfter.Type,
+                Version = _roadNetworkVersionProvider.NextRoadNodeVersion(roadNodeId)
+            });
+        }
 
         return problems;
     }

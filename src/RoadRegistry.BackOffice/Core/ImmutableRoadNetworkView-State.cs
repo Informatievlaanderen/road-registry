@@ -360,7 +360,7 @@ public partial class ImmutableRoadNetworkView
             _nodes.TryReplace(id, node => node
                 .WithGeometry(GeometryTranslator.Translate(@event.Geometry))
                 .WithType(RoadNodeType.Parse(@event.Type))
-                .WithVersion(new RoadNodeVersion(@event.Version))
+                .WithVersion(new RoadNodeVersion(@event.Version)) // todo-pr how to calculate roadnodeversion?
             ),
             _segments,
             _gradeSeparatedJunctions,
@@ -674,8 +674,44 @@ public partial class ImmutableRoadNetworkView
 
     private ImmutableRoadNetworkView Given(RoadSegmentsRemoved @event)
     {
-        //TODO-pr implement
-        throw new NotImplementedException();
+        var segments = _segments;
+        var nodes = _nodes;
+        foreach (var roadSegmentId in @event.RemovedRoadSegmentIds.Select(x => new RoadSegmentId(x)))
+        {
+            _segments.TryGetValue(roadSegmentId, out var segment);
+
+            segments = _segments.Remove(roadSegmentId);
+            nodes = nodes.TryReplace(segment!.Start, node => node.DisconnectFrom(roadSegmentId));
+            nodes = nodes.TryReplace(segment.End, node => node.DisconnectFrom(roadSegmentId));
+        }
+
+        foreach (var roadNodeId in @event.RemovedRoadNodeIds.Select(x => new RoadNodeId(x)))
+        {
+            nodes = nodes.Remove(roadNodeId);
+        }
+
+        foreach (var changedRoadNode in @event.ChangedRoadNodes)
+        {
+           nodes = nodes.TryReplace(new RoadNodeId(changedRoadNode.Id), node => node
+                .WithType(RoadNodeType.Parse(changedRoadNode.Type))
+                .WithVersion(new RoadNodeVersion(changedRoadNode.Version))
+            );
+        }
+
+        var junctions = _gradeSeparatedJunctions;
+        foreach (var gradeSeparatedJunctionId in @event.RemovedGradeSeparatedJunctionIds.Select(x => new GradeSeparatedJunctionId(x)))
+        {
+            junctions = junctions.Remove(gradeSeparatedJunctionId);
+        }
+
+        return new ImmutableRoadNetworkView(
+            nodes,
+            segments,
+            junctions,
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers
+        );
     }
 
     private ImmutableRoadNetworkView Given(OutlinedRoadSegmentRemoved @event)

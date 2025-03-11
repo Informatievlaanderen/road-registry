@@ -114,10 +114,10 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             if (failedChangedMessages.Any() && successChangedMessages.Any())
             {
                 foreach (var item in successChangedMessages)
-                    foreach (var @event in item.Value)
-                    {
-                        context.EventFilter.Exclude(item.Key, @event);
-                    }
+                foreach (var @event in item.Value)
+                {
+                    context.EventFilter.Exclude(item.Key, @event);
+                }
             }
 
             if (!failedChangedMessages.Any() && command.Body.ExtractRequestId is not null)
@@ -233,48 +233,69 @@ public class RequestedChangesConverter
 {
     public static Dictionary<StreamName, RequestedChange[]> SplitChangesByRoadNetworkStream(RequestedChange[] changes)
     {
-        var roadNetworkStreamChanges = changes
-        .Select(change => new
-        {
-            RoadSegmentId = change.AddRoadSegment?.PermanentId
-                            ?? change.ModifyRoadSegment?.Id
-                            ?? change.RemoveRoadSegment?.Id
-                            ?? change.ModifyRoadSegmentAttributes?.Id
-                            ?? change.ModifyRoadSegmentGeometry?.Id
-                            ?? change.RemoveOutlinedRoadSegment?.Id
-                            ?? change.RemoveOutlinedRoadSegmentFromRoadNetwork?.Id
-                            ?? change.AddRoadSegmentToEuropeanRoad?.SegmentId
-                            ?? change.AddRoadSegmentToNationalRoad?.SegmentId
-                            ?? change.AddRoadSegmentToNumberedRoad?.SegmentId
-                            ?? change.RemoveRoadSegmentFromEuropeanRoad?.SegmentId
-                            ?? change.RemoveRoadSegmentFromNationalRoad?.SegmentId
-                            ?? change.RemoveRoadSegmentFromNumberedRoad?.SegmentId,
-            GeometryDrawMethod = change.AddRoadSegment?.GeometryDrawMethod
-                                 ?? change.ModifyRoadSegment?.GeometryDrawMethod
-                                 ?? change.RemoveRoadSegment?.GeometryDrawMethod
-                                 ?? change.ModifyRoadSegmentAttributes?.GeometryDrawMethod
-                                 ?? change.ModifyRoadSegmentGeometry?.GeometryDrawMethod
-                                 ?? (change.RemoveOutlinedRoadSegment is not null ? RoadSegmentGeometryDrawMethod.Outlined.ToString() : null)
-                                 ?? (change.RemoveOutlinedRoadSegmentFromRoadNetwork is not null ? RoadSegmentGeometryDrawMethod.Measured.ToString() : null)
-                                 ?? change.AddRoadSegmentToEuropeanRoad?.SegmentGeometryDrawMethod
-                                 ?? change.AddRoadSegmentToNationalRoad?.SegmentGeometryDrawMethod
-                                 ?? change.AddRoadSegmentToNumberedRoad?.SegmentGeometryDrawMethod
-                                 ?? change.RemoveRoadSegmentFromEuropeanRoad?.SegmentGeometryDrawMethod
-                                 ?? change.RemoveRoadSegmentFromNationalRoad?.SegmentGeometryDrawMethod
-                                 ?? change.RemoveRoadSegmentFromNumberedRoad?.SegmentGeometryDrawMethod,
-            Change = change
-        })
-        .GroupBy(x =>
-            x.RoadSegmentId is not null && x.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
-                ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(x.RoadSegmentId.Value))
-                : RoadNetworkStreamNameProvider.Default, x => x.Change)
-        .ToDictionary(x => x.Key, x => x.ToArray());
+        var parsedChanges = changes
+            .Select(change =>
+            {
+                var id =
+                    change.AddRoadSegment?.PermanentId
+                    ?? change.ModifyRoadSegment?.Id
+                    ?? change.RemoveRoadSegment?.Id
+                    ?? change.ModifyRoadSegmentAttributes?.Id
+                    ?? change.ModifyRoadSegmentGeometry?.Id
+                    ?? change.RemoveOutlinedRoadSegment?.Id
+                    ?? change.RemoveOutlinedRoadSegmentFromRoadNetwork?.Id
+                    ?? change.AddRoadSegmentToEuropeanRoad?.SegmentId
+                    ?? change.AddRoadSegmentToNationalRoad?.SegmentId
+                    ?? change.AddRoadSegmentToNumberedRoad?.SegmentId
+                    ?? change.RemoveRoadSegmentFromEuropeanRoad?.SegmentId
+                    ?? change.RemoveRoadSegmentFromNationalRoad?.SegmentId
+                    ?? change.RemoveRoadSegmentFromNumberedRoad?.SegmentId;
 
-        if (!roadNetworkStreamChanges.Any())
+                return new
+                {
+                    RoadSegmentIds = change.RemoveRoadSegments?.Ids ?? (id is not null ? [id.Value] : []),
+                    GeometryDrawMethod = change.AddRoadSegment?.GeometryDrawMethod
+                                         ?? change.ModifyRoadSegment?.GeometryDrawMethod
+                                         ?? change.RemoveRoadSegment?.GeometryDrawMethod
+                                         ?? change.RemoveRoadSegments?.GeometryDrawMethod
+                                         ?? change.ModifyRoadSegmentAttributes?.GeometryDrawMethod
+                                         ?? change.ModifyRoadSegmentGeometry?.GeometryDrawMethod
+                                         ?? (change.RemoveOutlinedRoadSegment is not null ? RoadSegmentGeometryDrawMethod.Outlined.ToString() : null)
+                                         ?? (change.RemoveOutlinedRoadSegmentFromRoadNetwork is not null ? RoadSegmentGeometryDrawMethod.Measured.ToString() : null)
+                                         ?? change.AddRoadSegmentToEuropeanRoad?.SegmentGeometryDrawMethod
+                                         ?? change.AddRoadSegmentToNationalRoad?.SegmentGeometryDrawMethod
+                                         ?? change.AddRoadSegmentToNumberedRoad?.SegmentGeometryDrawMethod
+                                         ?? change.RemoveRoadSegmentFromEuropeanRoad?.SegmentGeometryDrawMethod
+                                         ?? change.RemoveRoadSegmentFromNationalRoad?.SegmentGeometryDrawMethod
+                                         ?? change.RemoveRoadSegmentFromNumberedRoad?.SegmentGeometryDrawMethod,
+                    Change = change
+                };
+            })
+            .Where(x => x.RoadSegmentIds.Any())
+            .ToList();
+
+        var dictionary = new Dictionary<StreamName, List<RequestedChange>>();
+        foreach (var change in parsedChanges)
         {
-            roadNetworkStreamChanges.Add(RoadNetworkStreamNameProvider.Default, changes);
+            if (change.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+            {
+                var roadSegmentId = change.RoadSegmentIds.Select(x => new RoadSegmentId(x)).Single();
+
+                dictionary.Add(
+                    RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(roadSegmentId), [change.Change]);
+            }
         }
 
-        return roadNetworkStreamChanges;
+        // .GroupBy(x => x.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
+        //     ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(x.RoadSegmentIds.Single()))
+        //     : RoadNetworkStreamNameProvider.Default, x => x.Change)
+        // .ToDictionary(x => x.Key, x => x.ToArray());
+
+        if (!parsedChanges.Any())
+        {
+            parsedChanges.Add(RoadNetworkStreamNameProvider.Default, changes);
+        }
+
+        return parsedChanges;
     }
 }

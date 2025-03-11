@@ -55,13 +55,13 @@ public class ChangeRoadNetworkBuilder
         return WithModifyRoadSegment(change, configure);
     }
 
-    public ChangeRoadNetworkBuilder WithRemoveRoadSegments(ICollection<int> ids)
+    public ChangeRoadNetworkBuilder WithRemoveRoadSegments(ICollection<int> ids, RoadSegmentGeometryDrawMethod? drawMethod = null)
     {
         _changes.Add(new RequestedChange
         {
             RemoveRoadSegments = new RemoveRoadSegments
             {
-                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
+                GeometryDrawMethod = drawMethod ?? RoadSegmentGeometryDrawMethod.Measured,
                 Ids = ids.ToArray()
             }
         });

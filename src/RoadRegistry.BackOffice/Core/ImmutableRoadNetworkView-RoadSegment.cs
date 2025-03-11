@@ -280,8 +280,7 @@ public partial class ImmutableRoadNetworkView
                 .ToList();
             foreach (var junction in linkedJunctions)
             {
-                junctions = junctions
-                    .Remove(junction.Id);
+                junctions = junctions.Remove(junction.Id);
             }
 
             DisconnectAndUpdateNode(segment.Start);
@@ -300,6 +299,35 @@ public partial class ImmutableRoadNetworkView
                     nodes = nodes.Remove(nodeId);
                 }
 
+                if (node.Type == RoadNodeType.FakeNode)
+                {
+                    nodes = nodes.TryReplace(nodeId, x => x.WithType(RoadNodeType.EndNode));
+                }
+
+                if ((node.Type == RoadNodeType.RealNode || node.Type == RoadNodeType.MiniRoundabout) && node.Segments.Count == 2)
+                {
+                    nodes = nodes.TryReplace(nodeId, x => x.WithType(RoadNodeType.FakeNode));
+
+                    segments.TryGetValue(node.Segments.First(), out var segmentOne);
+                    segments.TryGetValue(node.Segments.Last(), out var segmentTwo);
+
+                    // segmentOne.AttributeHash.Category;
+                    // segmentOne.AttributeHash.Morphology;
+                    // segmentOne.AttributeHash.GeometryDrawMethod;
+                    // segmentOne.AttributeHash.OrganizationId; // Maintainer
+                    // segmentOne.AttributeHash.Status;
+                    // segmentOne.AttributeHash.AccessRestriction;
+                    // segmentOne.AttributeHash.LeftStreetNameId;
+                    // segmentOne.AttributeHash.RightStreetNameId;
+                    // segmentOne.EuropeanRoadAttributes;
+                    // segmentOne.NationalRoadAttributes;
+                    // segmentOne.NumberedRoadAttributes;
+                }
+
+                if (node.Type == RoadNodeType.TurningLoopNode)
+                {
+                    nodes = nodes.TryReplace(nodeId, x => x.WithType(RoadNodeType.EndNode));
+                }
                 /*
 Wegknoop types
 1 echte knoop:  Punt waar 2 wegsegmenten elkaar snijden; minstens drie aansluitende wegsegmenten.
@@ -311,15 +339,10 @@ Wegknoop types
                 Exact 2 wegsegmenten.
 
 //TODO-pr business rules wat te doen met de wegknoop NA ontkoppelen van huidig wegsegment:
-eindknoop -> Verwijder wegknoop
-schijnknoop -> eindknoop
-echte knoop -> Indien er nog 3 of meer wegsegmenten zijn gekoppeld, dan blijft het een `echte knoop`, anders wordt het een `schijnknoop` en proberen we de 2 wegsegmenten samen te voegen.
-               Indien de samenvoeging mogelijk is mag de wegknoop verwijderd worden.
-minirotonde -> Wanneer er 3 wegsegmenten zijn gekoppeld, blijft het type `minirotonde`.
-               Wanneer er maar 2 wegsegmenten overblijven, dan wordt het een `schijnknoop` en proberen we de 2 wegsegmenten samen te voegen.
-               Indien de samenvoeging mogelijk is mag de wegknoop verwijderd worden.
-keerlusknoop -> eindknoop
-
+indien schijnknoop wordt -> dan samenvoegen?
+junctions
+ingeschetst
+eilanden
                  */
             }
         }
