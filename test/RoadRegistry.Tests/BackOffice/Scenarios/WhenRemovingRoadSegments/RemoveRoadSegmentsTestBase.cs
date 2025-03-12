@@ -113,7 +113,7 @@ public abstract class RemoveRoadSegmentsTestBase : RoadNetworkTestBase
             GeometryVersion = 1,
             MaintenanceAuthority = new MaintenanceAuthority
             {
-                Code = TestData.ChangedByOrganization,
+                Code = new OrganizationId(id.ToString()), // to force uniqueness
                 Name = TestData.ChangedByOrganizationName
             },
             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,

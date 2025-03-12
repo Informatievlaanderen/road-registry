@@ -14,7 +14,6 @@ public class RoadSegmentsRemoved : IHaveHash
     public RoadNodeTypeChanged[] ChangedRoadNodes { get; set; } = [];
     public int[] RemovedGradeSeparatedJunctionIds { get; set; } = [];
 
-
     public IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
     public string GetHash() => this.ToEventHash(EventName);
 }

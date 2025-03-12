@@ -73,7 +73,7 @@ public class RoadSegment
         string lastEventHash)
     {
         ArgumentNullException.ThrowIfNull(geometry);
-        
+
         if (attributeHash.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined && start == end)
         {
             throw new ArgumentException($"The start and end can not be the same road node ({start}) for road segment with ID {id}.", nameof(start));
@@ -114,7 +114,7 @@ public class RoadSegment
             yield return End;
         }
     }
-    
+
     public ImmutableDictionary<AttributeId, RoadSegmentEuropeanRoadAttribute> EuropeanRoadAttributes { get; }
     public ImmutableDictionary<AttributeId, RoadSegmentNationalRoadAttribute> NationalRoadAttributes { get; }
     public ImmutableDictionary<AttributeId, RoadSegmentNumberedRoadAttribute> NumberedRoadAttributes { get; }
@@ -150,18 +150,6 @@ public class RoadSegment
         return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes.SetItem(attribute.AttributeId, attribute), Lanes, Surfaces, Widths, LastEventHash);
     }
 
-    public IEnumerable<RoadNodeId> SelectOppositeNode(RoadNodeId id)
-    {
-        if (Start == id)
-        {
-            yield return End;
-        }
-        else if (End == id)
-        {
-            yield return Start;
-        }
-    }
-
     public RoadSegment WithAttributeHash(AttributeHash hash)
     {
         return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, hash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, Surfaces, Widths, LastEventHash);
@@ -187,24 +175,54 @@ public class RoadSegment
     {
         return new RoadSegment(Id, Version, Geometry, GeometryVersion, start, end, attributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, Surfaces, Widths, LastEventHash);
     }
-    
+
     public RoadSegment WithVersion(RoadSegmentVersion version)
     {
         return new RoadSegment(Id, version, Geometry, GeometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, Surfaces, Widths, LastEventHash);
     }
-    
+
     public RoadSegment WithLanes(IReadOnlyCollection<BackOffice.RoadSegmentLaneAttribute> lanes)
     {
         return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, lanes, Surfaces, Widths, LastEventHash);
     }
-    
+
     public RoadSegment WithSurfaces(IReadOnlyCollection<BackOffice.RoadSegmentSurfaceAttribute> surfaces)
     {
         return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, surfaces, Widths, LastEventHash);
     }
-    
+
     public RoadSegment WithWidths(IReadOnlyCollection<BackOffice.RoadSegmentWidthAttribute> widths)
     {
         return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, Surfaces, widths, LastEventHash);
+    }
+
+    public RoadNodeId? GetOppositeNode(RoadNodeId id)
+    {
+        if (Start == id)
+        {
+            return End;
+        }
+
+        if (End == id)
+        {
+            return Start;
+        }
+
+        return null;
+    }
+
+    public RoadNodeId? GetCommonNode(RoadSegment other)
+    {
+        if (Start == other.Start || Start == other.End)
+        {
+            return Start;
+        }
+
+        if (End == other.Start || End == other.End)
+        {
+            return End;
+        }
+
+        return null;
     }
 }

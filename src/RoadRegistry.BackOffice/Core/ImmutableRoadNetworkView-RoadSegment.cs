@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NetTopologySuite.Geometries;
 
 public partial class ImmutableRoadNetworkView
 {
@@ -266,12 +267,19 @@ public partial class ImmutableRoadNetworkView
         var nodes = _nodes;
         var junctions = _gradeSeparatedJunctions;
 
+        var lastEventHash = command.GetHash();
+
         foreach (var roadSegmentId in command.Ids)
         {
             segments.TryGetValue(roadSegmentId, out var segment);
+            if (segment is null)
+            {
+                throw new NullReferenceException($"Segment with ID {roadSegmentId} was not found");
+            }
+
             segments = segments.Remove(roadSegmentId);
 
-            if (segment!.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+            if (segment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
             {
                 continue;
             }
@@ -311,15 +319,25 @@ public partial class ImmutableRoadNetworkView
                     segments.TryGetValue(node.Segments.First(), out var segmentOne);
                     segments.TryGetValue(node.Segments.Last(), out var segmentTwo);
 
-                    //TODO-pr add tests for segment merging
-                    if (SegmentAttributesAreEqual(segmentOne, segmentTwo))
+                    var anyConnectedSegmentIsMarkedForRemoval = command.Ids.Contains(segmentOne!.Id) || command.Ids.Contains(segmentTwo!.Id);
+                    if (!anyConnectedSegmentIsMarkedForRemoval && SegmentAttributesAreEqual(segmentOne, segmentTwo))
                     {
-                        //TODO-pr merge segments
+                        var mergedSegment = MergeSegments(segmentOne, segmentTwo)
+                            .WithLastEventHash(lastEventHash);
 
+                        segments = segments
+                            .Remove(segmentOne!.Id)
+                            .Remove(segmentTwo!.Id)
+                            .Add(mergedSegment.Id, mergedSegment);
 
-
-
-
+                        nodes = nodes
+                            .Remove(nodeId)
+                            .TryReplace(mergedSegment.Start, x => x
+                                .ConnectWith(mergedSegment.Id)
+                                .DisconnectFrom(segmentOne.Id))
+                            .TryReplace(mergedSegment.End, x => x
+                                .ConnectWith(mergedSegment.Id)
+                                .DisconnectFrom(segmentTwo.Id));
                     }
                 }
 
@@ -338,6 +356,159 @@ public partial class ImmutableRoadNetworkView
             SegmentReusableWidthAttributeIdentifiers,
             SegmentReusableSurfaceAttributeIdentifiers
         );
+    }
+
+    private RoadSegment MergeSegments(RoadSegment segment1, RoadSegment segment2)
+    {
+        //TODO-pr TBD: nieuwe ID generaten, hoe? tijdelijke ID (int max) gebruiken om bij de VerifyAfter een echte ID te genereren?
+        //of segmentOne.Id gebruiken en achteraf deze kunnen detecteren dat die een nieuwe moet krijgen? -> nee, is probleem voor node connections
+        var id = new RoadSegmentId(int.MaxValue);
+
+        var commonNode = segment1.GetCommonNode(segment2)!.Value;
+        var startNode = segment1.GetOppositeNode(commonNode)!.Value;
+        var endNode = segment2.GetOppositeNode(commonNode)!.Value;
+
+        var segment1HasIdealDirection = startNode == segment1.Start;
+        var segment2HasIdealDirection = endNode == segment2.End;
+
+        var leftStreetNameId = segment1HasIdealDirection
+            ? segment1.AttributeHash.LeftStreetNameId
+            : segment1.AttributeHash.RightStreetNameId;
+        var rightStreetNameId = segment1HasIdealDirection
+            ? segment1.AttributeHash.LeftStreetNameId
+            : segment1.AttributeHash.RightStreetNameId;
+
+        var geometry = MergeGeometries(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection);
+        var lanes = BuildLanes(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection);
+        var surfaces = BuildSurfaces(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection);
+        var widths = BuildWidths(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection);
+
+        var mergedSegment = new RoadSegment(
+            id,
+            RoadSegmentVersion.Initial,
+            geometry,
+            GeometryVersion.Initial,
+            startNode,
+            endNode,
+            new AttributeHash(
+                segment1.AttributeHash.AccessRestriction,
+                segment1.AttributeHash.Category,
+                segment1.AttributeHash.Morphology,
+                segment1.AttributeHash.Status,
+                leftStreetNameId,
+                rightStreetNameId,
+                segment1.AttributeHash.OrganizationId,
+                segment1.AttributeHash.GeometryDrawMethod
+            ),
+            lanes,
+            surfaces,
+            widths,
+            segment1.LastEventHash
+        );
+
+        foreach (var europeanRoad in segment1.EuropeanRoadAttributes)
+        {
+            mergedSegment = mergedSegment.PartOfEuropeanRoad(europeanRoad.Value);
+        }
+        foreach (var nationalRoad in segment1.NationalRoadAttributes)
+        {
+            mergedSegment = mergedSegment.PartOfNationalRoad(nationalRoad.Value);
+        }
+        foreach (var numberedRoad in segment1.NumberedRoadAttributes)
+        {
+            mergedSegment = mergedSegment.PartOfNumberedRoad(numberedRoad.Value);
+        }
+
+        return mergedSegment;
+    }
+
+    private static MultiLineString MergeGeometries(RoadSegment segment1, RoadSegment segment2, bool segment1HasIdealDirection, bool segment2HasIdealDirection)
+    {
+        var geometry1Coordinates = segment1.Geometry.GetSingleLineString().Coordinates;
+        var geometry2Coordinates = segment2.Geometry.GetSingleLineString().Coordinates;
+
+        var coordinates = Enumerable.Empty<Coordinate>()
+            .Concat(segment1HasIdealDirection ? geometry1Coordinates : geometry1Coordinates.Reverse())
+            .Concat(segment2HasIdealDirection ? geometry2Coordinates.Skip(1) : geometry1Coordinates.Reverse().Skip(1))
+            .ToArray();
+
+        return new MultiLineString([new LineString(coordinates)])
+            .WithSrid(segment1.Geometry.SRID);
+    }
+
+    private static List<BackOffice.RoadSegmentLaneAttribute> BuildLanes(RoadSegment segment1, RoadSegment segment2, bool segment1HasIdealDirection, bool segment2HasIdealDirection)
+    {
+        var lanes = new List<BackOffice.RoadSegmentLaneAttribute>();
+
+        var fromPosition = 0.0M;
+
+        var itemsToAdd = Enumerable.Empty<BackOffice.RoadSegmentLaneAttribute>()
+            .Concat(segment1HasIdealDirection ? segment1.Lanes : segment1.Lanes.Reverse())
+            .Concat(segment2HasIdealDirection ? segment2.Lanes : segment2.Lanes.Reverse());
+
+        //TODO-pr merge lanes that are equal
+        foreach (var item in itemsToAdd)
+        {
+            var laneDistance = item.To.ToDecimal() - item.From.ToDecimal();
+            lanes.Add(new BackOffice.RoadSegmentLaneAttribute(
+                new RoadSegmentPosition(fromPosition),
+                new RoadSegmentPosition(fromPosition + laneDistance),
+                item.Count,
+                item.Direction,
+                GeometryVersion.Initial
+            ));
+            fromPosition += laneDistance;
+        }
+
+        return lanes;
+    }
+    private static List<BackOffice.RoadSegmentSurfaceAttribute> BuildSurfaces(RoadSegment segment1, RoadSegment segment2, bool segment1HasIdealDirection, bool segment2HasIdealDirection)
+    {
+        var lanes = new List<BackOffice.RoadSegmentSurfaceAttribute>();
+
+        var fromPosition = 0.0M;
+
+        var itemsToAdd = Enumerable.Empty<BackOffice.RoadSegmentSurfaceAttribute>()
+            .Concat(segment1HasIdealDirection ? segment1.Surfaces : segment1.Surfaces.Reverse())
+            .Concat(segment2HasIdealDirection ? segment2.Surfaces : segment2.Surfaces.Reverse());
+
+        foreach (var item in itemsToAdd)
+        {
+            var laneDistance = item.To.ToDecimal() - item.From.ToDecimal();
+            lanes.Add(new BackOffice.RoadSegmentSurfaceAttribute(
+                new RoadSegmentPosition(fromPosition),
+                new RoadSegmentPosition(fromPosition + laneDistance),
+                item.Type,
+                GeometryVersion.Initial
+            ));
+            fromPosition += laneDistance;
+        }
+
+        return lanes;
+    }
+    private static List<BackOffice.RoadSegmentWidthAttribute> BuildWidths(RoadSegment segment1, RoadSegment segment2, bool segment1HasIdealDirection, bool segment2HasIdealDirection)
+    {
+        var lanes = new List<BackOffice.RoadSegmentWidthAttribute>();
+
+        var fromPosition = 0.0M;
+
+        var itemsToAdd = Enumerable.Empty<BackOffice.RoadSegmentWidthAttribute>()
+            .Concat(segment1HasIdealDirection ? segment1.Widths : segment1.Widths.Reverse())
+            .Concat(segment2HasIdealDirection ? segment2.Widths : segment2.Widths.Reverse());
+
+        foreach (var item in itemsToAdd)
+        {
+            var laneDistance = item.To.ToDecimal() - item.From.ToDecimal();
+            lanes.Add(new BackOffice.RoadSegmentWidthAttribute(
+                new RoadSegmentPosition(fromPosition),
+                new RoadSegmentPosition(fromPosition + laneDistance),
+                item.Width,
+                GeometryVersion.Initial
+            ));
+            fromPosition += laneDistance;
+        }
+
+        return lanes;
     }
 
     private static bool SegmentAttributesAreEqual(RoadSegment segment1, RoadSegment segment2)

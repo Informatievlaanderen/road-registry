@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Framework;
 using Messages;
 
 public partial class ImmutableRoadNetworkView
@@ -676,6 +677,14 @@ public partial class ImmutableRoadNetworkView
     {
         var segments = _segments;
         var nodes = _nodes;
+        var junctions = _gradeSeparatedJunctions;
+
+        //TODO-pr opinion Q: hier bestaande Given() methods hergebruiken? GradeSeparatedJunctionRemoved, RoadSegmentRemoved, RoadNodeRemoved
+        foreach (var gradeSeparatedJunctionId in @event.RemovedGradeSeparatedJunctionIds.Select(x => new GradeSeparatedJunctionId(x)))
+        {
+            junctions = junctions.Remove(gradeSeparatedJunctionId);
+        }
+
         foreach (var roadSegmentId in @event.RemovedRoadSegmentIds.Select(x => new RoadSegmentId(x)))
         {
             _segments.TryGetValue(roadSegmentId, out var segment);
@@ -698,19 +707,84 @@ public partial class ImmutableRoadNetworkView
             );
         }
 
-        var junctions = _gradeSeparatedJunctions;
-        foreach (var gradeSeparatedJunctionId in @event.RemovedGradeSeparatedJunctionIds.Select(x => new GradeSeparatedJunctionId(x)))
-        {
-            junctions = junctions.Remove(gradeSeparatedJunctionId);
-        }
-
-        return new ImmutableRoadNetworkView(
+        var view = new ImmutableRoadNetworkView(
             nodes,
             segments,
             junctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
             SegmentReusableSurfaceAttributeIdentifiers
+        );
+
+        var lastEventHash = @event.GetHash();
+
+        foreach (var mergedRoadSegment in @event.MergedRoadSegments)
+        {
+            view = view.Given(mergedRoadSegment, lastEventHash);
+        }
+
+        return view;
+    }
+
+    private ImmutableRoadNetworkView Given(RoadSegmentMerged @event, string lastEventHash)
+    {
+        var id = new RoadSegmentId(@event.Id);
+        var version = new RoadSegmentVersion(@event.Version);
+        var start = new RoadNodeId(@event.StartNodeId);
+        var end = new RoadNodeId(@event.EndNodeId);
+        var geometryVersion = new GeometryVersion(@event.GeometryVersion);
+
+        var attributeHash = new AttributeHash(
+            RoadSegmentAccessRestriction.Parse(@event.AccessRestriction),
+            RoadSegmentCategory.Parse(@event.Category),
+            RoadSegmentMorphology.Parse(@event.Morphology),
+            RoadSegmentStatus.Parse(@event.Status),
+            StreetNameLocalId.FromValue(@event.LeftSide.StreetNameId),
+            StreetNameLocalId.FromValue(@event.RightSide.StreetNameId),
+            new OrganizationId(@event.MaintenanceAuthority.Code),
+            RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod)
+        );
+
+        var segment = new RoadSegment(
+            id,
+            version,
+            GeometryTranslator.Translate(@event.Geometry),
+            geometryVersion,
+            start,
+            end,
+            attributeHash,
+            @event.Lanes.Select(lane => new BackOffice.RoadSegmentLaneAttribute(
+                new RoadSegmentPosition(lane.FromPosition),
+                new RoadSegmentPosition(lane.ToPosition),
+                new RoadSegmentLaneCount(lane.Count),
+                RoadSegmentLaneDirection.Parse(lane.Direction),
+                new GeometryVersion(lane.AsOfGeometryVersion))).ToArray(),
+            @event.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
+                new RoadSegmentPosition(surface.FromPosition),
+                new RoadSegmentPosition(surface.ToPosition),
+                RoadSegmentSurfaceType.Parse(surface.Type),
+                new GeometryVersion(surface.AsOfGeometryVersion))).ToArray(),
+            @event.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(
+                new RoadSegmentPosition(width.FromPosition),
+                new RoadSegmentPosition(width.ToPosition),
+                new RoadSegmentWidth(width.Width),
+                new GeometryVersion(width.AsOfGeometryVersion))).ToArray(),
+            lastEventHash);
+            
+        //TODO-pr implement adding europeanroads, nationalroads, numberedroads    
+
+        return new ImmutableRoadNetworkView(
+            _nodes
+                .TryReplace(start, node => node.ConnectWith(id))
+                .TryReplace(end, node => node.ConnectWith(id)),
+            _segments.Add(id, segment),
+            _gradeSeparatedJunctions,
+            SegmentReusableLaneAttributeIdentifiers.Merge(id,
+                @event.Lanes.Select(lane => new AttributeId(lane.AttributeId))),
+            SegmentReusableWidthAttributeIdentifiers.Merge(id,
+                @event.Widths.Select(width => new AttributeId(width.AttributeId))),
+            SegmentReusableSurfaceAttributeIdentifiers.Merge(id,
+                @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)))
         );
     }
 

@@ -3,10 +3,13 @@ namespace RoadRegistry.BackOffice.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
 
-public class RemoveRoadSegments : IRequestedChange
+public class RemoveRoadSegments : IRequestedChange, IHaveHash
 {
+    public const string EventName = "RemoveRoadSegments";
+
     private readonly RoadNetworkVersionProvider _roadNetworkVersionProvider;
     private readonly IRoadNetworkIdProvider _roadNetworkIdProvider;
     private readonly IOrganizations _organizations;
@@ -17,11 +20,11 @@ public class RemoveRoadSegments : IRequestedChange
         IRoadNetworkIdProvider roadNetworkIdProvider,
         IOrganizations organizations)
     {
+        Ids = ids;
+        GeometryDrawMethod = geometryDrawMethod;
         _roadNetworkVersionProvider = roadNetworkVersionProvider;
         _roadNetworkIdProvider = roadNetworkIdProvider;
         _organizations = organizations;
-        Ids = ids;
-        GeometryDrawMethod = geometryDrawMethod;
     }
 
     public IReadOnlyList<RoadSegmentId> Ids { get; }
@@ -159,6 +162,11 @@ public class RemoveRoadSegments : IRequestedChange
             {
                 context.AfterView.View.Segments.TryGetValue(roadSegmentId, out var segment);
 
+                //TODO-pr add to event RoadSegmentMerged
+                //segment.EuropeanRoadAttributes
+                //segment.NationalRoadAttributes
+                //segment.NumberedRoadAttributes
+
                 return new RoadSegmentMerged
                 {
                     Id = roadSegmentId,
@@ -211,4 +219,7 @@ public class RemoveRoadSegments : IRequestedChange
             })
             .ToArray();
     }
+
+    public System.Collections.Generic.IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
+    public string GetHash() => this.ToEventHash(EventName);
 }
