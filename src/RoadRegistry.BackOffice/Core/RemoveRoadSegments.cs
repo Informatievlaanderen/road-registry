@@ -64,6 +64,7 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
     {
         ArgumentNullException.ThrowIfNull(message);
 
+        //TODO-pr: change infra to be able to return multiple AcceptedChange instances, then prop `RoadSegmentsRemoved` can be removed
         message.RoadSegmentsRemoved = _acceptedChange;
     }
 
@@ -102,7 +103,7 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
         return new RoadSegmentsRemoved
         {
             GeometryDrawMethod = GeometryDrawMethod,
-            RemovedRoadSegmentIds = Ids.Select(x => x.ToInt32()).ToArray(),
+            RemovedRoadSegmentIds = Ids.Select(x => x.ToInt32()).ToArray(), //TODO-pr add mergedsegmentids
             RemovedRoadNodeIds = removedRoadNodeIds.Select(x => x.ToInt32()).ToArray(),
             ChangedRoadNodes = changedRoadNodes,
             RemovedGradeSeparatedJunctionIds = removedJunctionIds.Select(x => x.ToInt32()).ToArray(),
@@ -162,43 +163,44 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
             {
                 context.AfterView.View.Segments.TryGetValue(roadSegmentId, out var segment);
 
-                //TODO-pr add to event RoadSegmentMerged
-                //segment.EuropeanRoadAttributes
-                //segment.NationalRoadAttributes
-                //segment.NumberedRoadAttributes
+                //TODO-pr generate new ID
+
+                var laneAttributeIdProvider = _roadNetworkIdProvider.NextRoadSegmentLaneAttributeIdProvider(roadSegmentId);
+                var surfaceAttributeIdProvider = _roadNetworkIdProvider.NextRoadSegmentSurfaceAttributeIdProvider(roadSegmentId);
+                var widthAttributeIdProvider = _roadNetworkIdProvider.NextRoadSegmentWidthAttributeIdProvider(roadSegmentId);
 
                 return new RoadSegmentMerged
                 {
                     Id = roadSegmentId,
                     Version = RoadSegmentVersion.Initial,
-                    AccessRestriction = segment!.AttributeHash.AccessRestriction,
-                    Category = segment.AttributeHash.Category,
+                    Geometry = GeometryTranslator.Translate(segment.Geometry),
+                    GeometryVersion = GeometryVersion.Initial,
                     StartNodeId = segment.Start,
                     EndNodeId = segment.End,
-                    Geometry = GeometryTranslator.Translate(segment.Geometry),
                     GeometryDrawMethod = segment.AttributeHash.GeometryDrawMethod,
-                    GeometryVersion = GeometryVersion.Initial,
+                    AccessRestriction = segment!.AttributeHash.AccessRestriction,
+                    Category = segment.AttributeHash.Category,
+                    Morphology = segment.AttributeHash.Category,
+                    Status = segment.AttributeHash.Category,
+                    MaintenanceAuthority = new MaintenanceAuthority
+                    {
+                        Code = segment.AttributeHash.OrganizationId,
+                        Name = _organizations.FindAsync(segment.AttributeHash.OrganizationId).GetAwaiter().GetResult()?.Translation.Name
+                    },
+                    LeftSide = new Messages.RoadSegmentSideAttributes { StreetNameId = segment.AttributeHash.LeftStreetNameId },
+                    RightSide = new Messages.RoadSegmentSideAttributes { StreetNameId = segment.AttributeHash.RightStreetNameId },
                     Lanes = segment!.Lanes.Select(x => new Messages.RoadSegmentLaneAttributes
                     {
-                        AttributeId = _roadNetworkIdProvider.NextRoadSegmentLaneAttributeIdProvider(roadSegmentId)().GetAwaiter().GetResult(),
+                        AttributeId = laneAttributeIdProvider().GetAwaiter().GetResult(),
                         Count = x.Count,
                         Direction = x.Direction,
                         FromPosition = x.From,
                         ToPosition = x.To,
                         AsOfGeometryVersion = x.AsOfGeometryVersion
                     }).ToArray(),
-                    LeftSide = new Messages.RoadSegmentSideAttributes { StreetNameId = segment.AttributeHash.LeftStreetNameId },
-                    RightSide = new Messages.RoadSegmentSideAttributes { StreetNameId = segment.AttributeHash.RightStreetNameId },
-                    MaintenanceAuthority = new MaintenanceAuthority
-                    {
-                        Code = segment.AttributeHash.OrganizationId,
-                        Name = _organizations.FindAsync(segment.AttributeHash.OrganizationId).GetAwaiter().GetResult()?.Translation.Name
-                    },
-                    Morphology = segment.AttributeHash.Category,
-                    Status = segment.AttributeHash.Category,
                     Surfaces = segment.Surfaces.Select(x => new Messages.RoadSegmentSurfaceAttributes
                         {
-                            AttributeId = _roadNetworkIdProvider.NextRoadSegmentSurfaceAttributeIdProvider(roadSegmentId)().GetAwaiter().GetResult(),
+                            AttributeId = surfaceAttributeIdProvider().GetAwaiter().GetResult(),
                             Type = x.Type,
                             FromPosition = x.From,
                             ToPosition = x.To,
@@ -208,11 +210,18 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
                     Widths = segment.Widths
                         .Select(x => new Messages.RoadSegmentWidthAttributes
                         {
-                            AttributeId = _roadNetworkIdProvider.NextRoadSegmentWidthAttributeIdProvider(roadSegmentId)().GetAwaiter().GetResult(),
+                            AttributeId = widthAttributeIdProvider().GetAwaiter().GetResult(),
                             Width = x.Width,
                             FromPosition = x.From,
                             ToPosition = x.To,
                             AsOfGeometryVersion = x.AsOfGeometryVersion
+                        })
+                        .ToArray(),
+                    EuropeanRoads = segment.EuropeanRoadAttributes
+                        .Select(x => new Messages.RoadSegmentEuropeanRoad
+                        {
+                            AttributeId = x.Value.AttributeId,
+                            Number = x.Value.Number
                         })
                         .ToArray()
                 };
