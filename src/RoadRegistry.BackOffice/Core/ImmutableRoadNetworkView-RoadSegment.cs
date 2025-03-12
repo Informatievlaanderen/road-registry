@@ -311,8 +311,14 @@ public partial class ImmutableRoadNetworkView
                     segments.TryGetValue(node.Segments.First(), out var segmentOne);
                     segments.TryGetValue(node.Segments.Last(), out var segmentTwo);
 
+                    //TODO-pr add tests for segment merging
                     if (SegmentAttributesAreEqual(segmentOne, segmentTwo))
                     {
+                        //TODO-pr merge segments
+
+
+
+
 
                     }
                 }
