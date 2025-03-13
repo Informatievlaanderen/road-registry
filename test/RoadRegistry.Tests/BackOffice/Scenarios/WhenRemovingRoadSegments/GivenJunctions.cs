@@ -44,13 +44,9 @@ public class GivenJunctions : RemoveRoadSegmentsTestBase
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
             .WithTransactionId(3)
-            .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
-            {
-                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-                RemovedRoadSegmentIds = [W1.Id],
-                RemovedRoadNodeIds = [K1.Id],
-                RemovedGradeSeparatedJunctionIds = [_j1.Id]
-            })
+            .WithGradeSeparatedJunctionRemoved(_j1.Id)
+            .WithRoadSegmentRemoved(W1.Id)
+            .WithRoadNodeRemoved(K1.Id)
             .Build();
 
         await Run(scenario =>
@@ -79,12 +75,8 @@ public class GivenJunctions : RemoveRoadSegmentsTestBase
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
             .WithTransactionId(3)
-            .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
-            {
-                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-                RemovedRoadSegmentIds = [W2.Id],
-                RemovedGradeSeparatedJunctionIds = [_j1.Id]
-            })
+            .WithRoadSegmentRemoved(W2.Id)
+            .WithGradeSeparatedJunctionRemoved(_j1.Id)
             .Build();
 
         await Run(scenario =>

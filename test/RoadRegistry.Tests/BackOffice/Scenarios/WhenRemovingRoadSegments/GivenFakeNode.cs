@@ -27,16 +27,13 @@ public class GivenFakeNode : RemoveRoadSegmentsTestBase
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
             .WithTransactionId(2)
-            .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
+            .WithRoadSegmentRemoved(W5.Id)
+            .WithRoadNodeModified(new RoadNodeModified
             {
-                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-                RemovedRoadSegmentIds = [W5.Id],
-                ChangedRoadNodes = [new RoadNodeTypeChanged
-                {
-                    Id = K5.Id,
-                    Type = RoadNodeType.EndNode,
-                    Version = K5.Version + 1
-                }]
+                Id = K5.Id,
+                Type = RoadNodeType.EndNode,
+                Version = K5.Version + 1,
+                Geometry = K5.Geometry
             })
             .Build();
 
@@ -65,12 +62,9 @@ public class GivenFakeNode : RemoveRoadSegmentsTestBase
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
             .WithTransactionId(2)
-            .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
-            {
-                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-                RemovedRoadSegmentIds = [W5.Id, W9.Id],
-                RemovedRoadNodeIds = [K5.Id]
-            })
+            .WithRoadSegmentRemoved(W5.Id)
+            .WithRoadSegmentRemoved(W9.Id)
+            .WithRoadNodeRemoved(K5.Id)
             .Build();
 
         await Run(scenario =>

@@ -112,11 +112,7 @@ public class GivenOutlinedSegment : RoadNetworkTestBase
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
             .WithTransactionId(2)
-            .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
-            {
-                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined,
-                RemovedRoadSegmentIds = [_outlinedSegment.Id]
-            })
+            .WithRoadSegmentRemoved(_outlinedSegment.Id, RoadSegmentGeometryDrawMethod.Outlined)
             .Build();
 
         await Run(scenario =>

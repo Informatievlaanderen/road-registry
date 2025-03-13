@@ -3,7 +3,6 @@
 using Framework.Testing;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Messages;
 using RemoveRoadSegments = RoadRegistry.BackOffice.Messages.RemoveRoadSegments;
 
 public class GivenEndNode : RemoveRoadSegmentsTestBase
@@ -27,12 +26,8 @@ public class GivenEndNode : RemoveRoadSegmentsTestBase
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
             .WithTransactionId(2)
-            .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
-            {
-                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-                RemovedRoadSegmentIds = [W1.Id],
-                RemovedRoadNodeIds = [K1.Id]
-            })
+            .WithRoadSegmentRemoved(W1.Id)
+            .WithRoadNodeRemoved(K1.Id)
             .Build();
 
         await Run(scenario =>

@@ -76,6 +76,7 @@ public class RoadNetworkChangesAcceptedBuilder
 
         return WithRoadSegmentAdded(roadSegmentAdded, configure);
     }
+
     public RoadNetworkChangesAcceptedBuilder WithRoadSegmentAdded(
         RoadSegmentAdded roadSegmentAdded,
         Action<RoadSegmentAdded> configure = null)
@@ -85,6 +86,38 @@ public class RoadNetworkChangesAcceptedBuilder
         return WithChange(new AcceptedChange
         {
             RoadSegmentAdded = roadSegmentAdded
+        });
+    }
+
+    public RoadNetworkChangesAcceptedBuilder WithRoadSegmentRemoved(int id,
+        RoadSegmentGeometryDrawMethod? geometryDrawMethod = null)
+    {
+        return WithChange(new AcceptedChange
+        {
+            RoadSegmentRemoved = new()
+            {
+                GeometryDrawMethod = geometryDrawMethod ?? RoadSegmentGeometryDrawMethod.Measured,
+                Id = id
+            }
+        });
+    }
+
+    public RoadNetworkChangesAcceptedBuilder WithRoadNodeRemoved(int id)
+    {
+        return WithChange(new AcceptedChange
+        {
+            RoadNodeRemoved = new()
+            {
+                Id = id
+            }
+        });
+    }
+
+    public RoadNetworkChangesAcceptedBuilder WithRoadNodeModified(RoadNodeModified roadNodeModified)
+    {
+        return WithChange(new AcceptedChange
+        {
+            RoadNodeModified = roadNodeModified
         });
     }
 
@@ -112,21 +145,23 @@ public class RoadNetworkChangesAcceptedBuilder
         });
     }
 
-    public RoadNetworkChangesAcceptedBuilder WithRoadSegmentsRemoved(
-        RoadSegmentsRemoved roadSegmentsRemoved)
-    {
-        return WithChange(new AcceptedChange
-        {
-            RoadSegmentsRemoved = roadSegmentsRemoved
-        });
-    }
-
     public RoadNetworkChangesAcceptedBuilder WithGradeSeparatedJunctionAdded(
         GradeSeparatedJunctionAdded gradeSeparatedJunctionAdded)
     {
         return WithChange(new AcceptedChange
         {
             GradeSeparatedJunctionAdded = gradeSeparatedJunctionAdded
+        });
+    }
+
+    public RoadNetworkChangesAcceptedBuilder WithGradeSeparatedJunctionRemoved(int id)
+    {
+        return WithChange(new AcceptedChange
+        {
+            GradeSeparatedJunctionRemoved = new()
+            {
+                Id = id
+            }
         });
     }
 

@@ -28,12 +28,8 @@ public class GivenRealNode : RemoveRoadSegmentsTestBase
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
             .WithTransactionId(2)
-            .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
-            {
-                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-                RemovedRoadSegmentIds = [W1.Id],
-                RemovedRoadNodeIds = [K1.Id]
-            })
+            .WithRoadSegmentRemoved(W1.Id)
+            .WithRoadNodeRemoved(K1.Id)
             .Build();
 
         await Run(scenario =>
@@ -61,20 +57,15 @@ public class GivenRealNode : RemoveRoadSegmentsTestBase
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
             .WithTransactionId(2)
-            .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
+            .WithRoadSegmentRemoved(W1.Id)
+            .WithRoadSegmentRemoved(W2.Id)
+            .WithRoadNodeRemoved(K1.Id)
+            .WithRoadNodeModified(new()
             {
-                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-                RemovedRoadSegmentIds = [W1.Id, W2.Id],
-                RemovedRoadNodeIds = [K1.Id],
-                ChangedRoadNodes =
-                [
-                    new RoadNodeTypeChanged
-                    {
-                        Id = K2.Id,
-                        Type = RoadNodeType.FakeNode,
-                        Version = K2.Version + 1
-                    }
-                ]
+                Id = K2.Id,
+                Type = RoadNodeType.FakeNode,
+                Version = K2.Version + 1,
+                Geometry = K2.Geometry
             })
             .Build();
 
@@ -103,26 +94,23 @@ public class GivenRealNode : RemoveRoadSegmentsTestBase
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
             .WithTransactionId(2)
-            .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
+            .WithRoadSegmentRemoved(W1.Id)
+            .WithRoadSegmentRemoved(W2.Id)
+            .WithRoadSegmentRemoved(W5.Id)
+            .WithRoadNodeRemoved(K1.Id)
+            .WithRoadNodeModified(new()
             {
-                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-                RemovedRoadSegmentIds = [W1.Id, W2.Id, W5.Id],
-                RemovedRoadNodeIds = [K1.Id],
-                ChangedRoadNodes =
-                [
-                    new RoadNodeTypeChanged
-                    {
-                        Id = K2.Id,
-                        Type = RoadNodeType.EndNode,
-                        Version = K2.Version + 1
-                    },
-                    new RoadNodeTypeChanged
-                    {
-                        Id = K5.Id,
-                        Type = RoadNodeType.EndNode,
-                        Version = K5.Version + 1
-                    },
-                ]
+                Id = K2.Id,
+                Type = RoadNodeType.EndNode,
+                Version = K2.Version + 1,
+                Geometry = K2.Geometry
+            })
+            .WithRoadNodeModified(new()
+            {
+                Id = K5.Id,
+                Type = RoadNodeType.EndNode,
+                Version = K5.Version + 1,
+                Geometry = K5.Geometry
             })
             .Build();
 
@@ -151,20 +139,18 @@ public class GivenRealNode : RemoveRoadSegmentsTestBase
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
             .WithTransactionId(2)
-            .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
+            .WithRoadSegmentRemoved(W1.Id)
+            .WithRoadSegmentRemoved(W2.Id)
+            .WithRoadSegmentRemoved(W5.Id)
+            .WithRoadSegmentRemoved(W6.Id)
+            .WithRoadNodeRemoved(K1.Id)
+            .WithRoadNodeRemoved(K2.Id)
+            .WithRoadNodeModified(new()
             {
-                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-                RemovedRoadSegmentIds = [W1.Id, W2.Id, W5.Id, W6.Id],
-                RemovedRoadNodeIds = [K1.Id, K2.Id],
-                ChangedRoadNodes =
-                [
-                    new RoadNodeTypeChanged
-                    {
-                        Id = K5.Id,
-                        Type = RoadNodeType.EndNode,
-                        Version = K5.Version + 1
-                    }
-                ]
+                Id = K5.Id,
+                Type = RoadNodeType.EndNode,
+                Version = K5.Version + 1,
+                Geometry = K5.Geometry
             })
             .Build();
 

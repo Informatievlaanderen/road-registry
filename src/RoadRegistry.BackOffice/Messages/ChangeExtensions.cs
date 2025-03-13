@@ -55,7 +55,6 @@ public static class ChangeExtensions
                 change.RoadSegmentAttributesModified,
                 change.RoadSegmentGeometryModified,
                 change.RoadSegmentRemoved,
-                change.RoadSegmentsRemoved,
                 change.OutlinedRoadSegmentRemoved,
                 change.RoadSegmentAddedToEuropeanRoad,
                 change.RoadSegmentRemovedFromEuropeanRoad,

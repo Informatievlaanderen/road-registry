@@ -28,11 +28,7 @@ public class GivenMiniRoundabout : RemoveRoadSegmentsTestBase
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
             .WithTransactionId(2)
-            .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
-            {
-                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-                RemovedRoadSegmentIds = [W6.Id]
-            })
+            .WithRoadSegmentRemoved(W6.Id)
             .Build();
 
         await Run(scenario =>
@@ -60,19 +56,14 @@ public class GivenMiniRoundabout : RemoveRoadSegmentsTestBase
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
             .WithTransactionId(2)
-            .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
+            .WithRoadSegmentRemoved(W6.Id)
+            .WithRoadSegmentRemoved(W7.Id)
+            .WithRoadNodeModified(new()
             {
-                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-                RemovedRoadSegmentIds = [W6.Id, W7.Id],
-                ChangedRoadNodes =
-                [
-                    new RoadNodeTypeChanged
-                    {
-                        Id = K6.Id,
-                        Type = RoadNodeType.FakeNode,
-                        Version = K6.Version + 1
-                    }
-                ]
+                Id = K6.Id,
+                Type = RoadNodeType.FakeNode,
+                Version = K6.Version + 1,
+                Geometry = K6.Geometry
             })
             .Build();
 
@@ -101,25 +92,22 @@ public class GivenMiniRoundabout : RemoveRoadSegmentsTestBase
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
             .WithTransactionId(2)
-            .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
+            .WithRoadSegmentRemoved(W6.Id)
+            .WithRoadSegmentRemoved(W7.Id)
+            .WithRoadSegmentRemoved(W9.Id)
+            .WithRoadNodeModified(new()
             {
-                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-                RemovedRoadSegmentIds = [W6.Id, W7.Id, W9.Id],
-                ChangedRoadNodes =
-                [
-                    new RoadNodeTypeChanged
-                    {
-                        Id = K6.Id,
-                        Type = RoadNodeType.EndNode,
-                        Version = K6.Version + 1
-                    },
-                    new RoadNodeTypeChanged
-                    {
-                        Id = K5.Id,
-                        Type = RoadNodeType.EndNode,
-                        Version = K5.Version + 1
-                    }
-                ]
+                Id = K6.Id,
+                Type = RoadNodeType.EndNode,
+                Version = K6.Version + 1,
+                Geometry = K6.Geometry
+            })
+            .WithRoadNodeModified(new()
+            {
+                Id = K5.Id,
+                Type = RoadNodeType.EndNode,
+                Version = K5.Version + 1,
+                Geometry = K5.Geometry
             })
             .Build();
 
@@ -148,26 +136,24 @@ public class GivenMiniRoundabout : RemoveRoadSegmentsTestBase
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
             .WithTransactionId(2)
-            .WithRoadSegmentsRemoved(new RoadSegmentsRemoved
+            .WithRoadSegmentRemoved(W6.Id)
+            .WithRoadSegmentRemoved(W7.Id)
+            .WithRoadSegmentRemoved(W9.Id)
+            .WithRoadSegmentRemoved(W10.Id)
+            .WithRoadNodeRemoved(K6.Id)
+            .WithRoadNodeModified(new()
             {
-                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-                RemovedRoadSegmentIds = [W6.Id, W7.Id, W9.Id, W10.Id],
-                RemovedRoadNodeIds = [K6.Id],
-                ChangedRoadNodes =
-                [
-                    new RoadNodeTypeChanged
-                    {
-                        Id = K5.Id,
-                        Type = RoadNodeType.EndNode,
-                        Version = K5.Version + 1
-                    },
-                    new RoadNodeTypeChanged
-                    {
-                        Id = K7.Id,
-                        Type = RoadNodeType.EndNode,
-                        Version = K7.Version + 1
-                    }
-                ]
+                Id = K5.Id,
+                Type = RoadNodeType.EndNode,
+                Version = K5.Version + 1,
+                Geometry = K5.Geometry
+            })
+            .WithRoadNodeModified(new()
+            {
+                Id = K7.Id,
+                Type = RoadNodeType.EndNode,
+                Version = K7.Version + 1,
+                Geometry = K7.Geometry
             })
             .Build();
 
