@@ -199,7 +199,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
     {
         foreach (var change in changes
                      .Where(x => x.AddRoadSegment?.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
-                                 && x.AddRoadSegment.PermanentId is null))
+                                 && x.AddRoadSegment!.PermanentId is null))
         {
             change.AddRoadSegment.PermanentId = await idGenerator.NewRoadSegmentId();
         }
@@ -276,10 +276,6 @@ public static class RequestedChangesConverter
                     ?? change.RemoveRoadSegmentFromEuropeanRoad?.SegmentId
                     ?? change.RemoveRoadSegmentFromNationalRoad?.SegmentId
                     ?? change.RemoveRoadSegmentFromNumberedRoad?.SegmentId;
-                if (id is null)
-                {
-                    return [];
-                }
 
                 var geometryDrawMethod = change.AddRoadSegment?.GeometryDrawMethod
                                          ?? change.ModifyRoadSegment?.GeometryDrawMethod
@@ -294,16 +290,13 @@ public static class RequestedChangesConverter
                                          ?? change.RemoveRoadSegmentFromEuropeanRoad?.SegmentGeometryDrawMethod
                                          ?? change.RemoveRoadSegmentFromNationalRoad?.SegmentGeometryDrawMethod
                                          ?? change.RemoveRoadSegmentFromNumberedRoad?.SegmentGeometryDrawMethod;
-                if (geometryDrawMethod is null)
-                {
-                    return [];
-                }
 
                 return [new
                 {
                     Change = change,
                     StreamName = geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
-                        ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(id.Value))
+                        ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(
+                            new RoadSegmentId(id ?? throw new ArgumentNullException(nameof(id))))
                         : RoadNetworkStreamNameProvider.Default
                 }];
             })
