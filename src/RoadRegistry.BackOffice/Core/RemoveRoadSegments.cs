@@ -9,7 +9,6 @@ using Messages;
 public class RemoveRoadSegments : IRequestedChange, IHaveHash
 {
     public const string EventName = "RemoveRoadSegments";
-
     private readonly RoadNetworkVersionProvider _roadNetworkVersionProvider;
     private readonly IRoadNetworkIdProvider _roadNetworkIdProvider;
     private readonly IOrganizations _organizations;
@@ -48,6 +47,7 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
     }
 
     private RoadSegmentsRemoved _acceptedChange;
+
     public Problems VerifyAfter(AfterVerificationContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -60,12 +60,14 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
         return problems;
     }
 
-    public void TranslateTo(Messages.AcceptedChange message)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings)
     {
-        ArgumentNullException.ThrowIfNull(message);
-
-        //TODO-pr: change infra to be able to return multiple AcceptedChange instances, then prop `RoadSegmentsRemoved` can be removed
-        message.RoadSegmentsRemoved = _acceptedChange;
+        yield return new Messages.AcceptedChange
+        {
+            Problems = warnings,
+            //TODO-pr: change infra to be able to return multiple AcceptedChange instances, then prop `RoadSegmentsRemoved` can be removed
+            RoadSegmentsRemoved = _acceptedChange
+        };
     }
 
     public void TranslateTo(Messages.RejectedChange message)
@@ -120,6 +122,7 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
             segmentRoadNodeIds.Add(segment!.Start);
             segmentRoadNodeIds.Add(segment!.End);
         }
+
         segmentRoadNodeIds = segmentRoadNodeIds.Distinct().ToList();
         return segmentRoadNodeIds;
     }

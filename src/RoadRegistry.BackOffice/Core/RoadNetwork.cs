@@ -117,7 +117,7 @@ public class RoadNetwork : EventSourcedEntity
                 TransactionId = requestedChanges.TransactionId,
                 Changes = verifiedChanges
                     .OfType<AcceptedChange>()
-                    .Select(change => change.Translate())
+                    .SelectMany(change => change.Translate())
                     .ToArray(),
                 TicketId = ticketId
             };

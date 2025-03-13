@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using System.Collections.Generic;
 using Messages;
 
 public class RemoveRoadSegment : IRequestedChange
@@ -14,14 +15,16 @@ public class RemoveRoadSegment : IRequestedChange
     public RoadSegmentId Id { get; }
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
 
-    public void TranslateTo(Messages.AcceptedChange message)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings)
     {
-        if (message == null) throw new ArgumentNullException(nameof(message));
-
-        message.RoadSegmentRemoved = new RoadSegmentRemoved
+        yield return new Messages.AcceptedChange
         {
-            Id = Id,
-            GeometryDrawMethod = GeometryDrawMethod
+            Problems = warnings,
+            RoadSegmentRemoved = new RoadSegmentRemoved
+            {
+                Id = Id,
+                GeometryDrawMethod = GeometryDrawMethod
+            }
         };
     }
 

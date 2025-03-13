@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
 
@@ -39,19 +40,21 @@ public class AddRoadSegmentToNumberedRoad : IRequestedChange, IHaveHash
     public RoadSegmentId? TemporarySegmentId { get; }
     public RoadSegmentVersion SegmentVersion { get; }
 
-    public void TranslateTo(Messages.AcceptedChange message)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings)
     {
-        if (message == null) throw new ArgumentNullException(nameof(message));
-
-        message.RoadSegmentAddedToNumberedRoad = new RoadSegmentAddedToNumberedRoad
+        yield return new Messages.AcceptedChange
         {
-            AttributeId = AttributeId,
-            Number = Number,
-            Direction = Direction,
-            Ordinal = Ordinal,
-            SegmentId = SegmentId,
-            TemporaryAttributeId = TemporaryAttributeId,
-            SegmentVersion = SegmentVersion
+            Problems = warnings,
+            RoadSegmentAddedToNumberedRoad = new RoadSegmentAddedToNumberedRoad
+            {
+                AttributeId = AttributeId,
+                Number = Number,
+                Direction = Direction,
+                Ordinal = Ordinal,
+                SegmentId = SegmentId,
+                TemporaryAttributeId = TemporaryAttributeId,
+                SegmentVersion = SegmentVersion
+            }
         };
     }
 

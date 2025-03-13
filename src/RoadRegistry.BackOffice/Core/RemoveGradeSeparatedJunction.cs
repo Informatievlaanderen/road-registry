@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using System.Collections.Generic;
 using Messages;
 
 public class RemoveGradeSeparatedJunction : IRequestedChange
@@ -12,13 +13,15 @@ public class RemoveGradeSeparatedJunction : IRequestedChange
 
     public GradeSeparatedJunctionId Id { get; }
 
-    public void TranslateTo(Messages.AcceptedChange message)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings)
     {
-        if (message == null) throw new ArgumentNullException(nameof(message));
-
-        message.GradeSeparatedJunctionRemoved = new GradeSeparatedJunctionRemoved
+        yield return new Messages.AcceptedChange
         {
-            Id = Id
+            Problems = warnings,
+            GradeSeparatedJunctionRemoved = new GradeSeparatedJunctionRemoved
+            {
+                Id = Id
+            }
         };
     }
 

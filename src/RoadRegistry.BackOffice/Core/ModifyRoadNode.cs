@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Messages;
 using Point = NetTopologySuite.Geometries.Point;
@@ -20,22 +21,24 @@ public class ModifyRoadNode : IRequestedChange
     public RoadNodeVersion Version { get; }
     public RoadNodeType Type { get; }
 
-    public void TranslateTo(Messages.AcceptedChange message)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings)
     {
-        if (message == null) throw new ArgumentNullException(nameof(message));
-
-        message.RoadNodeModified = new RoadNodeModified
+        yield return new Messages.AcceptedChange
         {
-            Id = Id,
-            Version = Version,
-            Type = Type.ToString(),
-            Geometry = new RoadNodeGeometry
+            Problems = warnings,
+            RoadNodeModified = new RoadNodeModified
             {
-                SpatialReferenceSystemIdentifier = Geometry.SRID,
-                Point = new Messages.Point
+                Id = Id,
+                Version = Version,
+                Type = Type.ToString(),
+                Geometry = new RoadNodeGeometry
                 {
-                    X = Geometry.X,
-                    Y = Geometry.Y
+                    SpatialReferenceSystemIdentifier = Geometry.SRID,
+                    Point = new Messages.Point
+                    {
+                        X = Geometry.X,
+                        Y = Geometry.Y
+                    }
                 }
             }
         };
