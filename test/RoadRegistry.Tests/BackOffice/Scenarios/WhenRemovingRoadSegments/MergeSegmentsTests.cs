@@ -14,6 +14,8 @@ public class MergeSegmentsTests : RemoveRoadSegmentsTestBase
     }
 
     //TODO-pr test cases
+    //TODO-pr test cases merge geometrie
+    //TODO-pr test cases merge lane/... attributes
 
     [Fact]
     public async Task WhenEndingUpWithFakeNodeAndIdenticalConnectedSegments_ThenNodeIsRemovedAndSegmentsMerged()
