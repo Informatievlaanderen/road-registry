@@ -290,84 +290,92 @@ public partial class ImmutableRoadNetworkView
                 view = view.WithRemovedGradeSeparatedJunction(junctionId);
             }
 
-            view = view.WithFixedNodeType(command, segment.Start);
-            view = view.WithFixedNodeType(command, segment.End);
+            view = view.TryFixNodeType(command, segment.Start);
+            view = view.TryFixNodeType(command, segment.End);
         }
 
         return view;
     }
 
-    private ImmutableRoadNetworkView WithFixedNodeType(RemoveRoadSegments command, RoadNodeId nodeId)
+    private ImmutableRoadNetworkView TryFixNodeType(RemoveRoadSegments command, RoadNodeId nodeId)
     {
-        var nodes = _nodes;
-        var segments = _segments;
-        var laneAttributeIdentifiers = SegmentReusableLaneAttributeIdentifiers;
-        var surfaceAttributeIdentifiers = SegmentReusableSurfaceAttributeIdentifiers;
-        var widthAttributeIdentifiers = SegmentReusableWidthAttributeIdentifiers;
+        _nodes.TryGetValue(nodeId, out var node);
 
-        var lastEventHash = command.GetHash();
-
-        nodes.TryGetValue(nodeId, out var node);
         if (node!.Type == RoadNodeType.EndNode)
         {
-            nodes = nodes.Remove(nodeId);
+            return WithRemovedRoadNode(nodeId);
         }
 
         if (node.Type == RoadNodeType.FakeNode)
         {
-            nodes = nodes.TryReplace(nodeId, x => x.WithType(RoadNodeType.EndNode));
+            return WithChangedRoadNodeType(nodeId, RoadNodeType.EndNode);
         }
 
         if ((node.Type == RoadNodeType.RealNode || node.Type == RoadNodeType.MiniRoundabout) && node.Segments.Count == 2)
         {
-            nodes = nodes.TryReplace(nodeId, x => x.WithType(RoadNodeType.FakeNode));
-
-            segments.TryGetValue(node.Segments.First(), out var segmentOne);
-            segments.TryGetValue(node.Segments.Last(), out var segmentTwo);
-
-            var anyConnectedSegmentIsMarkedForRemoval = command.Ids.Contains(segmentOne!.Id) || command.Ids.Contains(segmentTwo!.Id);
-            if (!anyConnectedSegmentIsMarkedForRemoval && SegmentAttributesAreEqual(segmentOne, segmentTwo))
-            {
-                var mergedSegment = MergeSegments(segmentOne, segmentTwo)
-                    .WithLastEventHash(lastEventHash);
-
-                segments = segments
-                    .Remove(segmentOne!.Id)
-                    .Remove(segmentTwo!.Id)
-                    .Add(mergedSegment.Id, mergedSegment);
-
-                nodes = nodes
-                    .Remove(nodeId)
-                    .TryReplace(mergedSegment.Start, x => x
-                        .ConnectWith(mergedSegment.Id)
-                        .DisconnectFrom(segmentOne.Id))
-                    .TryReplace(mergedSegment.End, x => x
-                        .ConnectWith(mergedSegment.Id)
-                        .DisconnectFrom(segmentTwo.Id));
-
-                laneAttributeIdentifiers = laneAttributeIdentifiers
-                    .Remove(segmentOne.Id)
-                    .Add(mergedSegment.Id, laneAttributeIdentifiers[segmentOne.Id].Concat(laneAttributeIdentifiers[segmentTwo.Id]).ToList());
-
-                surfaceAttributeIdentifiers = surfaceAttributeIdentifiers
-                    .Remove(segmentOne.Id)
-                    .Add(mergedSegment.Id, surfaceAttributeIdentifiers[segmentOne.Id].Concat(surfaceAttributeIdentifiers[segmentTwo.Id]).ToList());
-
-                widthAttributeIdentifiers = widthAttributeIdentifiers
-                    .Remove(segmentOne.Id)
-                    .Add(mergedSegment.Id, widthAttributeIdentifiers[segmentOne.Id].Concat(widthAttributeIdentifiers[segmentTwo.Id]).ToList());
-            }
+            return WithChangedRoadNodeType(nodeId, RoadNodeType.FakeNode)
+                .TryMergeFakeNodeSegments(command, nodeId);
         }
 
         if (node.Type == RoadNodeType.TurningLoopNode)
         {
-            nodes = nodes.TryReplace(nodeId, x => x.WithType(RoadNodeType.EndNode));
+            return WithChangedRoadNodeType(nodeId, RoadNodeType.EndNode);
         }
+
+        return this;
+    }
+
+    private ImmutableRoadNetworkView TryMergeFakeNodeSegments(RemoveRoadSegments command, RoadNodeId nodeId)
+    {
+        var node = _nodes[nodeId];
+
+        _segments.TryGetValue(node.Segments.First(), out var segmentOne);
+        _segments.TryGetValue(node.Segments.Last(), out var segmentTwo);
+
+        var anyConnectedSegmentIsMarkedForRemoval = command.Ids.Contains(segmentOne!.Id) || command.Ids.Contains(segmentTwo!.Id);
+        if (anyConnectedSegmentIsMarkedForRemoval || !SegmentAttributesAreEqual(segmentOne, segmentTwo))
+        {
+            return this;
+        }
+
+        var mergedSegment = MergeSegments(segmentOne, segmentTwo)
+            .WithLastEventHash(command.GetHash());
+
+        var segments = _segments
+            .Remove(segmentOne!.Id)
+            .Remove(segmentTwo!.Id)
+            .Add(mergedSegment.Id, mergedSegment);
+
+        var nodes = _nodes
+            .Remove(nodeId)
+            .TryReplace(mergedSegment.Start, x => x
+                .ConnectWith(mergedSegment.Id)
+                .DisconnectFrom(segmentOne.Id))
+            .TryReplace(mergedSegment.End, x => x
+                .ConnectWith(mergedSegment.Id)
+                .DisconnectFrom(segmentTwo.Id));
+
+        var laneAttributeIdentifiers = SegmentReusableLaneAttributeIdentifiers
+            .Remove(segmentOne.Id)
+            .Add(mergedSegment.Id, SegmentReusableLaneAttributeIdentifiers[segmentOne.Id].Concat(SegmentReusableLaneAttributeIdentifiers[segmentTwo.Id]).ToList());
+
+        var surfaceAttributeIdentifiers = SegmentReusableSurfaceAttributeIdentifiers
+            .Remove(segmentOne.Id)
+            .Add(mergedSegment.Id, SegmentReusableSurfaceAttributeIdentifiers[segmentOne.Id].Concat(SegmentReusableSurfaceAttributeIdentifiers[segmentTwo.Id]).ToList());
+
+        var widthAttributeIdentifiers = SegmentReusableWidthAttributeIdentifiers
+            .Remove(segmentOne.Id)
+            .Add(mergedSegment.Id, SegmentReusableWidthAttributeIdentifiers[segmentOne.Id].Concat(SegmentReusableWidthAttributeIdentifiers[segmentTwo.Id]).ToList());
+
+        //TODO-pr re-connect existing junctions
+        var junctions = _gradeSeparatedJunctions;
+
+
 
         return new ImmutableRoadNetworkView(
             nodes,
             segments,
-            _gradeSeparatedJunctions,
+            junctions,
             laneAttributeIdentifiers,
             widthAttributeIdentifiers,
             surfaceAttributeIdentifiers
@@ -402,9 +410,34 @@ public partial class ImmutableRoadNetworkView
         );
     }
 
+    private ImmutableRoadNetworkView WithRemovedRoadNode(RoadNodeId id)
+    {
+        return new ImmutableRoadNetworkView(
+            _nodes.Remove(id),
+            _segments,
+            _gradeSeparatedJunctions,
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers
+        );
+    }
+
+    private ImmutableRoadNetworkView WithChangedRoadNodeType(RoadNodeId id, RoadNodeType type)
+    {
+        return new ImmutableRoadNetworkView(
+            _nodes.TryReplace(id, x => x.WithType(type)),
+            _segments,
+            _gradeSeparatedJunctions,
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers
+        );
+    }
+
     private RoadSegment MergeSegments(RoadSegment segment1, RoadSegment segment2)
     {
         //TODO-pr TBD: nieuwe ID generaten, hoe? tijdelijke ID (int max) gebruiken om bij de VerifyAfter een echte ID te genereren -> YES
+        //_segments.Keys.Max()
         var id = new RoadSegmentId(int.MaxValue);
 
         var commonNode = segment1.GetCommonNode(segment2)!.Value;
@@ -421,7 +454,7 @@ public partial class ImmutableRoadNetworkView
             ? segment1.AttributeHash.LeftStreetNameId
             : segment1.AttributeHash.RightStreetNameId;
 
-        var geometry = MergeGeometries(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection);
+        var geometry = MergeGeometries(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection, startNode, endNode, commonNode);
         var lanes = BuildLanes(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection, geometry.Length);
         var surfaces = BuildSurfaces(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection, geometry.Length);
         var widths = BuildWidths(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection, geometry.Length);
@@ -453,10 +486,12 @@ public partial class ImmutableRoadNetworkView
         {
             mergedSegment = mergedSegment.PartOfEuropeanRoad(europeanRoad.Value);
         }
+
         foreach (var nationalRoad in segment1.NationalRoadAttributes)
         {
             mergedSegment = mergedSegment.PartOfNationalRoad(nationalRoad.Value);
         }
+
         foreach (var numberedRoad in segment1.NumberedRoadAttributes)
         {
             mergedSegment = mergedSegment.PartOfNumberedRoad(numberedRoad.Value);
@@ -465,20 +500,24 @@ public partial class ImmutableRoadNetworkView
         return mergedSegment;
     }
 
-    private static MultiLineString MergeGeometries(
+    private MultiLineString MergeGeometries(
         RoadSegment segment1, RoadSegment segment2,
-        bool segment1HasIdealDirection, bool segment2HasIdealDirection)
+        bool segment1HasIdealDirection, bool segment2HasIdealDirection,
+        RoadNodeId startNode, RoadNodeId endNode, RoadNodeId commonNode)
     {
         var geometry1Coordinates = segment1.Geometry.GetSingleLineString().Coordinates;
         var geometry2Coordinates = segment2.Geometry.GetSingleLineString().Coordinates;
 
-        //TODO-pr use common node geometry as coordinate
-        //TODO-pr use start/end node geometries as start/end coordinates
-        //indien te ver af (hoever?) dan fout geven of wat doen? RoadNodeFeatureCompare gebruikt 5cm als cluster tolerance
+        var startNodeCoordinate = _nodes[startNode].Geometry.Coordinate;
+        var endNodeCoordinate = _nodes[endNode].Geometry.Coordinate;
+        var commonNodeCoordinate = _nodes[commonNode].Geometry.Coordinate;
 
         var coordinates = Enumerable.Empty<Coordinate>()
-            .Concat(segment1HasIdealDirection ? geometry1Coordinates : geometry1Coordinates.Reverse())
-            .Concat(segment2HasIdealDirection ? geometry2Coordinates.Skip(1) : geometry1Coordinates.Reverse().Skip(1))
+            .Concat([startNodeCoordinate])
+            .Concat((segment1HasIdealDirection ? geometry1Coordinates : geometry1Coordinates.Reverse()).ExcludeFirstAndLast())
+            .Concat([commonNodeCoordinate])
+            .Concat((segment2HasIdealDirection ? geometry2Coordinates : geometry2Coordinates.Reverse()).ExcludeFirstAndLast())
+            .Concat([endNodeCoordinate])
             .ToArray();
 
         return new MultiLineString([new LineString(coordinates)])
@@ -500,7 +539,7 @@ public partial class ImmutableRoadNetworkView
         var fromPosition = 0.0M;
         var toPosition = 0.0M;
 
-        foreach(var item in itemsToAdd)
+        foreach (var item in itemsToAdd)
         {
             var itemData = new RoadSegmentLaneAttributeData(item.Count, item.Direction);
 
@@ -534,6 +573,7 @@ public partial class ImmutableRoadNetworkView
 
         return mergedItems;
     }
+
     private sealed record RoadSegmentLaneAttributeData(RoadSegmentLaneCount Count, RoadSegmentLaneDirection Direction);
 
     private static List<BackOffice.RoadSegmentSurfaceAttribute> BuildSurfaces(
@@ -551,7 +591,7 @@ public partial class ImmutableRoadNetworkView
         var fromPosition = 0.0M;
         var toPosition = 0.0M;
 
-        foreach(var item in itemsToAdd)
+        foreach (var item in itemsToAdd)
         {
             var itemData = new RoadSegmentSurfaceAttributeData(item.Type);
 
@@ -583,6 +623,7 @@ public partial class ImmutableRoadNetworkView
 
         return mergedItems;
     }
+
     private sealed record RoadSegmentSurfaceAttributeData(RoadSegmentSurfaceType Type);
 
     private static List<BackOffice.RoadSegmentWidthAttribute> BuildWidths(
@@ -600,7 +641,7 @@ public partial class ImmutableRoadNetworkView
         var fromPosition = 0.0M;
         var toPosition = 0.0M;
 
-        foreach(var item in itemsToAdd)
+        foreach (var item in itemsToAdd)
         {
             var itemData = new RoadSegmentWidthAttributeData(item.Width);
 
@@ -632,6 +673,7 @@ public partial class ImmutableRoadNetworkView
 
         return mergedItems;
     }
+
     private sealed record RoadSegmentWidthAttributeData(RoadSegmentWidth Width);
 
     private static bool SegmentAttributesAreEqual(RoadSegment segment1, RoadSegment segment2)
@@ -645,7 +687,7 @@ public partial class ImmutableRoadNetworkView
             || !segment1.EuropeanRoadAttributes.Values.SequenceEqual(segment2.EuropeanRoadAttributes.Values, new EuropeanRoadAttributeEqualityComparer())
             || !segment1.NationalRoadAttributes.Values.SequenceEqual(segment2.NationalRoadAttributes.Values, new NationalRoadAttributeEqualityComparer())
             || !segment1.NumberedRoadAttributes.Values.SequenceEqual(segment2.NumberedRoadAttributes.Values, new NumberedRoadAttributeEqualityComparer())
-        )
+           )
         {
             return false;
         }
@@ -679,6 +721,7 @@ public partial class ImmutableRoadNetworkView
             throw new NotSupportedException();
         }
     }
+
     private sealed class NationalRoadAttributeEqualityComparer : IEqualityComparer<RoadSegmentNationalRoadAttribute>
     {
         public bool Equals(RoadSegmentNationalRoadAttribute left, RoadSegmentNationalRoadAttribute right)
@@ -691,6 +734,7 @@ public partial class ImmutableRoadNetworkView
             throw new NotSupportedException();
         }
     }
+
     private sealed class NumberedRoadAttributeEqualityComparer : IEqualityComparer<RoadSegmentNumberedRoadAttribute>
     {
         public bool Equals(RoadSegmentNumberedRoadAttribute left, RoadSegmentNumberedRoadAttribute right)

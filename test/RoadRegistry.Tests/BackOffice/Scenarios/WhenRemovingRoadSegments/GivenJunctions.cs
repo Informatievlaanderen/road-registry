@@ -75,8 +75,8 @@ public class GivenJunctions : RemoveRoadSegmentsTestBase
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
             .WithTransactionId(3)
-            .WithRoadSegmentRemoved(W2.Id)
             .WithGradeSeparatedJunctionRemoved(_j1.Id)
+            .WithRoadSegmentRemoved(W2.Id)
             .Build();
 
         await Run(scenario =>

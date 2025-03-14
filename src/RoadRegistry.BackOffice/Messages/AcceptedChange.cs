@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.Messages;
 
 public class AcceptedChange
 {
-    public Problem[] Problems { get; set; }
+    public Problem[] Problems { get; set; } = [];
 
     // grade separated junction related
     public GradeSeparatedJunctionAdded GradeSeparatedJunctionAdded { get; set; }
