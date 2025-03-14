@@ -146,7 +146,7 @@ public abstract class RemoveRoadSegmentsTestBase : RoadNetworkTestBase
                 new RoadSegmentWidthAttributes
                 {
                     AttributeId = 1,
-                    Width = _fixture.Create<RoadSegmentWidth>(),
+                    Width = RoadSegmentWidth.Unknown,
                     FromPosition = 0,
                     ToPosition = (decimal)lineString.Length,
                     AsOfGeometryVersion = 1
@@ -157,7 +157,7 @@ public abstract class RemoveRoadSegmentsTestBase : RoadNetworkTestBase
                 new RoadSegmentSurfaceAttributes
                 {
                     AttributeId = 1,
-                    Type = _fixture.Create<RoadSegmentSurfaceType>(),
+                    Type = RoadSegmentSurfaceType.Unknown,
                     FromPosition = 0,
                     ToPosition = (decimal)lineString.Length,
                     AsOfGeometryVersion = 1

@@ -1,9 +1,11 @@
 ﻿namespace RoadRegistry.Tests.BackOffice.Scenarios.WhenRemovingRoadSegments;
 
 using Framework.Testing;
+using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
+using LineString = NetTopologySuite.Geometries.LineString;
 using RemoveRoadSegments = RoadRegistry.BackOffice.Messages.RemoveRoadSegments;
 using RoadSegmentSideAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes;
 
@@ -38,11 +40,14 @@ public class MergeSegmentsTests : RemoveRoadSegmentsTestBase
             .WithTransactionId(2)
             .WithRoadSegmentRemoved(W1.Id)
             .WithRoadSegmentRemoved(W2.Id)
+            .WithRoadSegmentRemoved(W5.Id)
+            .WithRoadSegmentRemoved(W6.Id)
             .WithRoadNodeRemoved(K1.Id)
             .WithRoadNodeRemoved(K2.Id)
             .WithRoadSegmentAdded(new()
             {
-                Id = 2147483647,
+                Id = 11,
+                TemporaryId = 11,
                 Version = 1,
                 StartNodeId = K5.Id,
                 EndNodeId = K6.Id,
@@ -55,42 +60,42 @@ public class MergeSegmentsTests : RemoveRoadSegmentsTestBase
                 {
                     Code = W5.MaintenanceAuthority.Code
                 },
-                Geometry = null,
-                    /*"MultiLineString": [
-            {
-              "Measures": [
-                0.0,
-                1.4142135623730951,
-                2.414213562373095
-              ],
-              "Points": [
-                {
-                  "X": 0.0,
-                  "Y": 0.0
-                },
-                {
-                  "X": 1.0,
-                  "Y": 1.0
-                },
-                {
-                  "X": 1.0,
-                  "Y": 0.0
-                }
-              ]
-            }
-          ],
-          "SpatialReferenceSystemIdentifier": 31370*/
+                Geometry = GeometryTranslator.Translate(new MultiLineString([new LineString([
+                    new(0, 0), new(1, 1), new(1, 0)
+                ])])),
                 GeometryVersion = 1,
-                Lanes = [],
-                Surfaces = [],
-                Widths = [],
+                Lanes = [new()
+                {
+                    AttributeId = 2,
+                    AsOfGeometryVersion = 1,
+                    FromPosition = 0,
+                    ToPosition = 2.4142135623731M,
+                    Direction = RoadSegmentLaneDirection.Unknown,
+                    Count = 1
+                }],
+                Surfaces = [new()
+                {
+                    AttributeId = 2,
+                    AsOfGeometryVersion = 1,
+                    FromPosition = 0,
+                    ToPosition = 2.4142135623731M,
+                    Type = RoadSegmentSurfaceType.Unknown
+                }],
+                Widths = [new()
+                {
+                    AttributeId = 2,
+                    AsOfGeometryVersion = 1,
+                    FromPosition = 0,
+                    ToPosition = 2.4142135623731M,
+                    Width = RoadSegmentWidth.Unknown
+                }],
                 LeftSide = new RoadSegmentSideAttributes
                 {
-                    StreetNameId = null
+                    StreetNameId = W5.LeftSide.StreetNameId
                 },
                 RightSide = new RoadSegmentSideAttributes
                 {
-                    StreetNameId = null
+                    StreetNameId = W5.RightSide.StreetNameId
                 }
             })
             .Build();
