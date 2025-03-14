@@ -96,7 +96,7 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
         var segmentRoadNodeIds = GetSegmentRoadNodeIds(context);
         var removedRoadNodeIds = segmentRoadNodeIds.Where(x => !context.AfterView.Nodes.ContainsKey(x)).ToArray();
         var changedRoadNodes = GetModifiedRoadNodes(context, segmentRoadNodeIds.Except(removedRoadNodeIds));
-        var mergedRoadSegments = GetMergedRoadSegments(context);
+        var mergedRoadSegmentsChanges = GetMergedRoadSegmentsChanges(context);
 
         var acceptedChanges = new List<Messages.AcceptedChange>();
         acceptedChanges.AddRange(removedJunctionIds.Select(x => new Messages.AcceptedChange
@@ -121,12 +121,11 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
                 Id = x
             }
         }));
-        acceptedChanges.AddRange(mergedRoadSegments);
+        acceptedChanges.AddRange(mergedRoadSegmentsChanges);
         acceptedChanges.AddRange(changedRoadNodes.Select(x => new Messages.AcceptedChange
         {
             RoadNodeModified = x
         }));
-        //TODO-pr added gradeseparatedjunctions, from merged roadsegments
 
         return acceptedChanges;
     }
@@ -183,7 +182,7 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
             .ToArray();
     }
 
-    private Messages.AcceptedChange[] GetMergedRoadSegments(AfterVerificationContext context)
+    private Messages.AcceptedChange[] GetMergedRoadSegmentsChanges(AfterVerificationContext context)
     {
         return context.AfterView.Segments.Keys
             .Except(context.BeforeView.Segments.Keys)
@@ -191,11 +190,16 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
             {
                 context.AfterView.View.Segments.TryGetValue(roadSegmentId, out var segment);
 
-                //TODO-pr generate new ID na logica afterview
+                //TODO-pr generate new ID na logica afterview, nieuwe ID gebruiken voor events (ook in junctions)
 
                 var laneAttributeIdProvider = _roadNetworkIdProvider.NextRoadSegmentLaneAttributeIdProvider(roadSegmentId);
                 var surfaceAttributeIdProvider = _roadNetworkIdProvider.NextRoadSegmentSurfaceAttributeIdProvider(roadSegmentId);
                 var widthAttributeIdProvider = _roadNetworkIdProvider.NextRoadSegmentWidthAttributeIdProvider(roadSegmentId);
+
+                var modifiedJunctions = context.AfterView.View.GradeSeparatedJunctions
+                    .Where(x => x.Value.LowerSegment == roadSegmentId
+                                || x.Value.UpperSegment == roadSegmentId)
+                    .Select(x => x.Value);
 
                 return Enumerable.Empty<Messages.AcceptedChange>()
                     .Concat([
@@ -289,6 +293,17 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
                                 Number = road.Value.Number,
                                 Direction = road.Value.Direction,
                                 Ordinal = road.Value.Ordinal
+                            }
+                        }))
+                    .Concat(modifiedJunctions.Select(junction =>
+                        new Messages.AcceptedChange
+                        {
+                            GradeSeparatedJunctionModified = new()
+                            {
+                                Id = junction.Id,
+                                Type = junction.Type,
+                                LowerRoadSegmentId = junction.LowerSegment,
+                                UpperRoadSegmentId = junction.UpperSegment
                             }
                         }));
             })

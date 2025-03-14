@@ -329,6 +329,11 @@ public partial class ImmutableRoadNetworkView
     {
         var node = _nodes[nodeId];
 
+        if (node.Type != RoadNodeType.FakeNode || node.Segments.Count != 2)
+        {
+            throw new InvalidOperationException($"Node {nodeId} should be of type {nameof(RoadNodeType.FakeNode)} and have exactly 2 connecting road segments.");
+        }
+
         _segments.TryGetValue(node.Segments.First(), out var segmentOne);
         _segments.TryGetValue(node.Segments.Last(), out var segmentTwo);
 
@@ -357,20 +362,41 @@ public partial class ImmutableRoadNetworkView
 
         var laneAttributeIdentifiers = SegmentReusableLaneAttributeIdentifiers
             .Remove(segmentOne.Id)
+            .Remove(segmentTwo.Id)
             .Add(mergedSegment.Id, SegmentReusableLaneAttributeIdentifiers[segmentOne.Id].Concat(SegmentReusableLaneAttributeIdentifiers[segmentTwo.Id]).ToList());
 
         var surfaceAttributeIdentifiers = SegmentReusableSurfaceAttributeIdentifiers
             .Remove(segmentOne.Id)
+            .Remove(segmentTwo.Id)
             .Add(mergedSegment.Id, SegmentReusableSurfaceAttributeIdentifiers[segmentOne.Id].Concat(SegmentReusableSurfaceAttributeIdentifiers[segmentTwo.Id]).ToList());
 
         var widthAttributeIdentifiers = SegmentReusableWidthAttributeIdentifiers
             .Remove(segmentOne.Id)
+            .Remove(segmentTwo.Id)
             .Add(mergedSegment.Id, SegmentReusableWidthAttributeIdentifiers[segmentOne.Id].Concat(SegmentReusableWidthAttributeIdentifiers[segmentTwo.Id]).ToList());
 
-        //TODO-pr re-connect existing junctions
         var junctions = _gradeSeparatedJunctions;
+        var connectedJunctions = junctions
+            .Where(x =>
+                node.Segments.Contains(x.Value.LowerSegment)
+                || node.Segments.Contains(x.Value.UpperSegment));
+        foreach (var junction in connectedJunctions)
+        {
+            junctions = junctions.TryReplace(junction.Key, j =>
+            {
+                if (node.Segments.Contains(j.LowerSegment))
+                {
+                    j = j.WithLowerSegment(mergedSegment.Id);
+                }
 
+                if (node.Segments.Contains(j.UpperSegment))
+                {
+                    j = j.WithUpperSegment(mergedSegment.Id);
+                }
 
+                return j;
+            });
+        }
 
         return new ImmutableRoadNetworkView(
             nodes,
