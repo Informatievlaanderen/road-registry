@@ -360,21 +360,6 @@ public partial class ImmutableRoadNetworkView
                 .ConnectWith(mergedSegment.Id)
                 .DisconnectFrom(segmentTwo.Id));
 
-        var laneAttributeIdentifiers = SegmentReusableLaneAttributeIdentifiers
-            .Remove(segmentOne.Id)
-            .Remove(segmentTwo.Id)
-            .Add(mergedSegment.Id, SegmentReusableLaneAttributeIdentifiers[segmentOne.Id].Concat(SegmentReusableLaneAttributeIdentifiers[segmentTwo.Id]).ToList());
-
-        var surfaceAttributeIdentifiers = SegmentReusableSurfaceAttributeIdentifiers
-            .Remove(segmentOne.Id)
-            .Remove(segmentTwo.Id)
-            .Add(mergedSegment.Id, SegmentReusableSurfaceAttributeIdentifiers[segmentOne.Id].Concat(SegmentReusableSurfaceAttributeIdentifiers[segmentTwo.Id]).ToList());
-
-        var widthAttributeIdentifiers = SegmentReusableWidthAttributeIdentifiers
-            .Remove(segmentOne.Id)
-            .Remove(segmentTwo.Id)
-            .Add(mergedSegment.Id, SegmentReusableWidthAttributeIdentifiers[segmentOne.Id].Concat(SegmentReusableWidthAttributeIdentifiers[segmentTwo.Id]).ToList());
-
         var junctions = _gradeSeparatedJunctions;
         var connectedJunctions = junctions
             .Where(x =>
@@ -402,9 +387,9 @@ public partial class ImmutableRoadNetworkView
             nodes,
             segments,
             junctions,
-            laneAttributeIdentifiers,
-            widthAttributeIdentifiers,
-            surfaceAttributeIdentifiers
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers
         );
     }
 
@@ -462,9 +447,7 @@ public partial class ImmutableRoadNetworkView
 
     private RoadSegment MergeSegments(RoadSegment segment1, RoadSegment segment2)
     {
-        //TODO-pr TBD: nieuwe ID generaten, hoe? tijdelijke ID (int max) gebruiken om bij de VerifyAfter een echte ID te genereren -> YES
-        //_segments.Keys.Max()
-        var id = new RoadSegmentId(int.MaxValue);
+        var id = _segments.Keys.Max().Next();
 
         var commonNode = segment1.GetCommonNode(segment2)!.Value;
         var startNode = segment1.GetOppositeNode(commonNode)!.Value;

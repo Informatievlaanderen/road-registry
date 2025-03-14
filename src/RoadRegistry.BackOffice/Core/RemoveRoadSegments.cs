@@ -186,19 +186,19 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
     {
         return context.AfterView.Segments.Keys
             .Except(context.BeforeView.Segments.Keys)
-            .SelectMany(roadSegmentId =>
+            .SelectMany(temporaryRoadSegmentId =>
             {
-                context.AfterView.View.Segments.TryGetValue(roadSegmentId, out var segment);
+                context.AfterView.View.Segments.TryGetValue(temporaryRoadSegmentId, out var segment);
 
-                //TODO-pr generate new ID na logica afterview, nieuwe ID gebruiken voor events (ook in junctions)
+                var permanentRoadSegmentId = _roadNetworkIdProvider.NextRoadSegmentId().GetAwaiter().GetResult();
 
-                var laneAttributeIdProvider = _roadNetworkIdProvider.NextRoadSegmentLaneAttributeIdProvider(roadSegmentId);
-                var surfaceAttributeIdProvider = _roadNetworkIdProvider.NextRoadSegmentSurfaceAttributeIdProvider(roadSegmentId);
-                var widthAttributeIdProvider = _roadNetworkIdProvider.NextRoadSegmentWidthAttributeIdProvider(roadSegmentId);
+                var laneAttributeIdProvider = _roadNetworkIdProvider.NextRoadSegmentLaneAttributeIdProvider(permanentRoadSegmentId);
+                var surfaceAttributeIdProvider = _roadNetworkIdProvider.NextRoadSegmentSurfaceAttributeIdProvider(permanentRoadSegmentId);
+                var widthAttributeIdProvider = _roadNetworkIdProvider.NextRoadSegmentWidthAttributeIdProvider(permanentRoadSegmentId);
 
                 var modifiedJunctions = context.AfterView.View.GradeSeparatedJunctions
-                    .Where(x => x.Value.LowerSegment == roadSegmentId
-                                || x.Value.UpperSegment == roadSegmentId)
+                    .Where(x => x.Value.LowerSegment == temporaryRoadSegmentId
+                                || x.Value.UpperSegment == temporaryRoadSegmentId)
                     .Select(x => x.Value);
 
                 return Enumerable.Empty<Messages.AcceptedChange>()
@@ -207,15 +207,15 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
                         {
                             RoadSegmentAdded = new RoadSegmentAdded
                             {
-                                Id = roadSegmentId,
-                                TemporaryId = roadSegmentId,
-                                Version = RoadSegmentVersion.Initial,
+                                Id = permanentRoadSegmentId,
+                                TemporaryId = segment!.Id,
+                                Version = segment.Version,
                                 Geometry = GeometryTranslator.Translate(segment.Geometry),
-                                GeometryVersion = GeometryVersion.Initial,
+                                GeometryVersion = segment.GeometryVersion,
                                 StartNodeId = segment.Start,
                                 EndNodeId = segment.End,
                                 GeometryDrawMethod = segment.AttributeHash.GeometryDrawMethod,
-                                AccessRestriction = segment!.AttributeHash.AccessRestriction,
+                                AccessRestriction = segment.AttributeHash.AccessRestriction,
                                 Category = segment.AttributeHash.Category,
                                 Morphology = segment.AttributeHash.Category,
                                 Status = segment.AttributeHash.Category,
@@ -264,8 +264,8 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
                             {
                                 AttributeId = road.Value.AttributeId,
                                 TemporaryAttributeId = road.Value.AttributeId,
-                                SegmentId = roadSegmentId,
-                                SegmentVersion = RoadSegmentVersion.Initial,
+                                SegmentId = permanentRoadSegmentId,
+                                SegmentVersion = segment.Version,
                                 Number = road.Value.Number
                             }
                         }))
@@ -276,8 +276,8 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
                             {
                                 AttributeId = road.Value.AttributeId,
                                 TemporaryAttributeId = road.Value.AttributeId,
-                                SegmentId = roadSegmentId,
-                                SegmentVersion = RoadSegmentVersion.Initial,
+                                SegmentId = permanentRoadSegmentId,
+                                SegmentVersion = segment.Version,
                                 Number = road.Value.Number
                             }
                         }))
@@ -288,8 +288,8 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
                             {
                                 AttributeId = road.Value.AttributeId,
                                 TemporaryAttributeId = road.Value.AttributeId,
-                                SegmentId = roadSegmentId,
-                                SegmentVersion = RoadSegmentVersion.Initial,
+                                SegmentId = permanentRoadSegmentId,
+                                SegmentVersion = segment.Version,
                                 Number = road.Value.Number,
                                 Direction = road.Value.Direction,
                                 Ordinal = road.Value.Ordinal
@@ -302,8 +302,12 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
                             {
                                 Id = junction.Id,
                                 Type = junction.Type,
-                                LowerRoadSegmentId = junction.LowerSegment,
-                                UpperRoadSegmentId = junction.UpperSegment
+                                LowerRoadSegmentId = junction.LowerSegment == temporaryRoadSegmentId
+                                    ? permanentRoadSegmentId
+                                    : junction.LowerSegment,
+                                UpperRoadSegmentId = junction.UpperSegment == temporaryRoadSegmentId
+                                    ? permanentRoadSegmentId
+                                    : junction.UpperSegment
                             }
                         }));
             })
