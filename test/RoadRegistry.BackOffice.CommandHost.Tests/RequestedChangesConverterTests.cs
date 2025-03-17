@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.CommandHost.Tests
 {
     using System.Linq;
     using AutoFixture;
+    using FluentAssertions;
     using Messages;
     using RoadRegistry.BackOffice.Core;
     using RoadRegistry.Tests.BackOffice;
@@ -14,6 +15,7 @@ namespace RoadRegistry.BackOffice.CommandHost.Tests
     using RemoveGradeSeparatedJunction = Messages.RemoveGradeSeparatedJunction;
     using RemoveOutlinedRoadSegmentFromRoadNetwork = Messages.RemoveOutlinedRoadSegmentFromRoadNetwork;
     using RemoveRoadNode = Messages.RemoveRoadNode;
+    using RemoveRoadSegments = Messages.RemoveRoadSegments;
 
     public class RequestedChangesConverterTests
     {
@@ -43,7 +45,40 @@ namespace RoadRegistry.BackOffice.CommandHost.Tests
             });
         }
 
-        //TODO-pr extra test voor wanneer meerdere outlined IDs in RemoveRoadSegments wordt gesplitst
+        [Fact]
+        public void WhenRemoveRoadSegmentsWithMultipleOutlinedIds_ThenSplitPerId()
+        {
+            var requestedChanges = new []
+            {
+                new RequestedChange
+                {
+                    RemoveRoadSegments = new RemoveRoadSegments
+                    {
+                        GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
+                        Ids = [1,2]
+                    }
+                },
+                new RequestedChange
+                {
+                    RemoveRoadSegments = new RemoveRoadSegments
+                    {
+                        GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined,
+                        Ids = [3,4]
+                    }
+                }
+            };
+
+            var streamChanges = RequestedChangesConverter.SplitChangesByRoadNetworkStream(requestedChanges);
+            streamChanges.Keys.Should().HaveCount(3);
+
+            var change1 = (RemoveRoadSegments)streamChanges.Values.ToList()[0].Flatten().Single();
+            var change2 = (RemoveRoadSegments)streamChanges.Values.ToList()[1].Flatten().Single();
+            var change3 = (RemoveRoadSegments)streamChanges.Values.ToList()[2].Flatten().Single();
+
+            change1.Ids.Should().BeEquivalentTo([1, 2]);
+            change2.Ids.Should().BeEquivalentTo([3]);
+            change3.Ids.Should().BeEquivalentTo([4]);
+        }
 
         private static void CheckIfRequestedChangesAreCorrectlySplitByStream(Type[] changeTypesThatAlwaysBelongInDefaultRoadNetwork)
         {
