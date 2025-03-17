@@ -1,47 +1,43 @@
 ﻿namespace RoadRegistry.Tests.BackOffice.Scenarios.WhenRemovingRoadSegments.WhenMergingFakeNodeSegments;
 
+using Framework.Testing;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Tests.Framework.Testing;
 using LineString = NetTopologySuite.Geometries.LineString;
-using RemoveRoadSegments = RoadRegistry.BackOffice.Messages.RemoveRoadSegments;
 using RoadSegmentSideAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes;
 
-public partial class GivenRoadNetwork : RemoveRoadSegmentsTestBase
+public partial class GivenIdenticalSegments
 {
-    private readonly Command _command;
-
-    public GivenRoadNetwork(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
-    {
-        W5.MaintenanceAuthority.Code = "A";
-        W6.MaintenanceAuthority.Code = "A";
-
-        var removeRoadSegments = new RemoveRoadSegments
-        {
-            GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-            Ids = [W1.Id, W2.Id]
-        };
-        _command = new ChangeRoadNetworkBuilder(TestData)
-            .WithRemoveRoadSegments(removeRoadSegments.Ids)
-            .Build();
-    }
-
-    //TODO-pr add test: merge conditions
-    /*
-     * - alleen mergen wanneer beide identiek zijn
-     *      speciale logica: straatnaam koppelingen
-     * - alleen mergen wanneer geen van de 2 gemarkeerd is om verwijderd te worden
-     */
-
     [Fact]
-    public async Task ThenNodeIsRemovedAndSegmentsMerged()
+    public async Task WithJunctions_ThenJunctionsAreLinkedToMergedSegment()
     {
+        var j1 = new GradeSeparatedJunctionAdded
+        {
+            Id = 1,
+            TemporaryId = 1,
+            Type = GradeSeparatedJunctionType.Unknown,
+            LowerRoadSegmentId = W5.Id,
+            UpperRoadSegmentId = W9.Id
+        };
+        var j2 = new GradeSeparatedJunctionAdded
+        {
+            Id = 2,
+            TemporaryId = 2,
+            Type = GradeSeparatedJunctionType.Unknown,
+            LowerRoadSegmentId = W9.Id,
+            UpperRoadSegmentId = W6.Id
+        };
+        var initialJunctions = new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithGradeSeparatedJunctionAdded(j1)
+            .WithGradeSeparatedJunctionAdded(j2)
+            .WithTransactionId(2)
+            .Build();
+
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
-            .WithTransactionId(2)
+            .WithTransactionId(3)
             .WithRoadSegmentRemoved(W1.Id)
             .WithRoadSegmentRemoved(W2.Id)
             .WithRoadSegmentRemoved(W5.Id)
@@ -102,12 +98,27 @@ public partial class GivenRoadNetwork : RemoveRoadSegmentsTestBase
                     StreetNameId = W5.RightSide.StreetNameId
                 }
             })
+            .WithGradeSeparatedJunctionModified(new()
+            {
+                Id = j1.Id,
+                Type = j1.Type,
+                LowerRoadSegmentId = 11,
+                UpperRoadSegmentId = W9.Id
+            })
+            .WithGradeSeparatedJunctionModified(new()
+            {
+                Id = j2.Id,
+                Type = j2.Type,
+                LowerRoadSegmentId = W9.Id,
+                UpperRoadSegmentId = 11
+            })
             .Build();
 
         await Run(scenario =>
             scenario
                 .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
                 .Given(RoadNetworks.Stream, InitialRoadNetwork)
+                .Given(RoadNetworks.Stream, initialJunctions)
                 .When(_command)
                 .Then(RoadNetworks.Stream, expected)
         );

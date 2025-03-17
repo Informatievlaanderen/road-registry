@@ -1,59 +1,58 @@
 ﻿namespace RoadRegistry.Tests.BackOffice.Scenarios.WhenRemovingRoadSegments.WhenMergingFakeNodeSegments;
 
-using AutoFixture;
 using Framework.Testing;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using LineString = NetTopologySuite.Geometries.LineString;
+using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes;
 using RoadSegmentSideAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes;
 
-public partial class GivenRoadNetwork
+public partial class GivenIdenticalSegments
 {
     [Fact]
-    public async Task WithEuropeanRoads_ThenEuropeanRoadsAreLinkedToMergedSegment()
+    public async Task WithDifferentWidths_ThenWidthsAreNotMerged()
     {
-        var attributeId1 = Fixture.Create<AttributeId>();
-        var attributeId2 = attributeId1.Next();
+        var w5LineString = GeometryTranslator.Translate(W5.Geometry);
+        W5.Widths =
+        [
+            new RoadSegmentWidthAttributes
+            {
+                AttributeId = 1,
+                Width = RoadSegmentWidth.Unknown,
+                FromPosition = 0,
+                ToPosition = (decimal)w5LineString.Length,
+                AsOfGeometryVersion = 1
+            },
+        ];
 
-        var initialRoads = new RoadNetworkChangesAcceptedBuilder(TestData)
-            .WithRoadSegmentAddedToEuropeanRoad(new()
+        var w6LineString = GeometryTranslator.Translate(W6.Geometry);
+        W6.Widths =
+        [
+            new RoadSegmentWidthAttributes
             {
-                AttributeId = attributeId1,
-                SegmentId = W5.Id,
-                SegmentVersion = Fixture.Create<RoadSegmentVersion>(),
-                Number = "E40"
-            })
-            .WithRoadSegmentAddedToEuropeanRoad(new()
+                AttributeId = 1,
+                Width = new RoadSegmentWidth(1),
+                FromPosition = 0,
+                ToPosition = 0.5M,
+                AsOfGeometryVersion = 1
+            },
+            new RoadSegmentWidthAttributes
             {
-                AttributeId = attributeId2,
-                SegmentId = W5.Id,
-                SegmentVersion = Fixture.Create<RoadSegmentVersion>(),
-                Number = "E19"
-            })
-            .WithRoadSegmentAddedToEuropeanRoad(new()
-            {
-                AttributeId = Fixture.Create<AttributeId>(),
-                SegmentId = W6.Id,
-                SegmentVersion = Fixture.Create<RoadSegmentVersion>(),
-                Number = "E40"
-            })
-            .WithRoadSegmentAddedToEuropeanRoad(new()
-            {
-                AttributeId = Fixture.Create<AttributeId>(),
-                SegmentId = W6.Id,
-                SegmentVersion = Fixture.Create<RoadSegmentVersion>(),
-                Number = "E19"
-            })
-            .WithTransactionId(2)
-            .Build();
+                AttributeId = 2,
+                Width = new RoadSegmentWidth(2),
+                FromPosition = 0.5M,
+                ToPosition = (decimal)w6LineString.Length,
+                AsOfGeometryVersion = 1
+            },
+        ];
 
         var mergedSegmentId = 11;
 
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
-            .WithTransactionId(3)
+            .WithTransactionId(2)
             .WithRoadSegmentRemoved(W1.Id)
             .WithRoadSegmentRemoved(W2.Id)
             .WithRoadSegmentRemoved(W5.Id)
@@ -97,14 +96,33 @@ public partial class GivenRoadNetwork
                     ToPosition = 2.4142135623731M,
                     Type = RoadSegmentSurfaceType.Unknown
                 }],
-                Widths = [new()
-                {
-                    AttributeId = 2,
-                    AsOfGeometryVersion = 1,
-                    FromPosition = 0,
-                    ToPosition = 2.4142135623731M,
-                    Width = RoadSegmentWidth.Unknown
-                }],
+                Widths =
+                [
+                    new()
+                    {
+                        AttributeId = 3,
+                        AsOfGeometryVersion = 1,
+                        FromPosition = 0,
+                        ToPosition = 1.4142135623731M,
+                        Width = RoadSegmentWidth.Unknown
+                    },
+                    new()
+                    {
+                        AttributeId = 4,
+                        AsOfGeometryVersion = 1,
+                        FromPosition = 1.4142135623731M,
+                        ToPosition = 1.9142135623731M,
+                        Width = new RoadSegmentWidth(1)
+                    },
+                    new()
+                    {
+                        AttributeId = 5,
+                        AsOfGeometryVersion = 1,
+                        FromPosition = 1.9142135623731M,
+                        ToPosition = 2.4142135623731M,
+                        Width = new RoadSegmentWidth(2)
+                    }
+                ],
                 LeftSide = new RoadSegmentSideAttributes
                 {
                     StreetNameId = W5.LeftSide.StreetNameId
@@ -114,29 +132,12 @@ public partial class GivenRoadNetwork
                     StreetNameId = W5.RightSide.StreetNameId
                 }
             })
-            .WithRoadSegmentAddedToEuropeanRoad(new()
-            {
-                AttributeId = attributeId1,
-                TemporaryAttributeId = attributeId1,
-                SegmentId = mergedSegmentId,
-                SegmentVersion = 1,
-                Number = "E40"
-            })
-            .WithRoadSegmentAddedToEuropeanRoad(new()
-            {
-                AttributeId = attributeId2,
-                TemporaryAttributeId = attributeId2,
-                SegmentId = mergedSegmentId,
-                SegmentVersion = 1,
-                Number = "E19"
-            })
             .Build();
 
         await Run(scenario =>
             scenario
                 .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
                 .Given(RoadNetworks.Stream, InitialRoadNetwork)
-                .Given(RoadNetworks.Stream, initialRoads)
                 .When(_command)
                 .Then(RoadNetworks.Stream, expected)
         );

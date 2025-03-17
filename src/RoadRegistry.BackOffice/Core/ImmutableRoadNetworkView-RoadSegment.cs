@@ -460,8 +460,8 @@ public partial class ImmutableRoadNetworkView
             ? segment1.AttributeHash.LeftStreetNameId
             : segment1.AttributeHash.RightStreetNameId;
         var rightStreetNameId = segment1HasIdealDirection
-            ? segment1.AttributeHash.LeftStreetNameId
-            : segment1.AttributeHash.RightStreetNameId;
+            ? segment1.AttributeHash.RightStreetNameId
+            : segment1.AttributeHash.LeftStreetNameId;
 
         var geometry = MergeGeometries(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection, startNode, endNode, commonNode);
         var lanes = BuildLanes(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection);

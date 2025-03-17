@@ -6,21 +6,21 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using LineString = NetTopologySuite.Geometries.LineString;
-using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes;
+using RoadSegmentSurfaceAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes;
 using RoadSegmentSideAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes;
 
-public partial class GivenRoadNetwork
+public partial class GivenIdenticalSegments
 {
     [Fact]
-    public async Task WithDifferentWidths_ThenWidthsAreNotMerged()
+    public async Task WithDifferentSurfaces_ThenSurfacesAreNotMerged()
     {
         var w5LineString = GeometryTranslator.Translate(W5.Geometry);
-        W5.Widths =
+        W5.Surfaces =
         [
-            new RoadSegmentWidthAttributes
+            new RoadSegmentSurfaceAttributes
             {
                 AttributeId = 1,
-                Width = RoadSegmentWidth.Unknown,
+                Type = RoadSegmentSurfaceType.Unknown,
                 FromPosition = 0,
                 ToPosition = (decimal)w5LineString.Length,
                 AsOfGeometryVersion = 1
@@ -28,20 +28,20 @@ public partial class GivenRoadNetwork
         ];
 
         var w6LineString = GeometryTranslator.Translate(W6.Geometry);
-        W6.Widths =
+        W6.Surfaces =
         [
-            new RoadSegmentWidthAttributes
+            new RoadSegmentSurfaceAttributes
             {
                 AttributeId = 1,
-                Width = new RoadSegmentWidth(1),
+                Type = RoadSegmentSurfaceType.LooseSurface,
                 FromPosition = 0,
                 ToPosition = 0.5M,
                 AsOfGeometryVersion = 1
             },
-            new RoadSegmentWidthAttributes
+            new RoadSegmentSurfaceAttributes
             {
                 AttributeId = 2,
-                Width = new RoadSegmentWidth(2),
+                Type = RoadSegmentSurfaceType.SolidSurface,
                 FromPosition = 0.5M,
                 ToPosition = (decimal)w6LineString.Length,
                 AsOfGeometryVersion = 1
@@ -88,15 +88,7 @@ public partial class GivenRoadNetwork
                     Direction = RoadSegmentLaneDirection.Unknown,
                     Count = 1
                 }],
-                Surfaces = [new()
-                {
-                    AttributeId = 2,
-                    AsOfGeometryVersion = 1,
-                    FromPosition = 0,
-                    ToPosition = 2.4142135623731M,
-                    Type = RoadSegmentSurfaceType.Unknown
-                }],
-                Widths =
+                Surfaces =
                 [
                     new()
                     {
@@ -104,7 +96,7 @@ public partial class GivenRoadNetwork
                         AsOfGeometryVersion = 1,
                         FromPosition = 0,
                         ToPosition = 1.4142135623731M,
-                        Width = RoadSegmentWidth.Unknown
+                        Type = RoadSegmentSurfaceType.Unknown
                     },
                     new()
                     {
@@ -112,7 +104,7 @@ public partial class GivenRoadNetwork
                         AsOfGeometryVersion = 1,
                         FromPosition = 1.4142135623731M,
                         ToPosition = 1.9142135623731M,
-                        Width = new RoadSegmentWidth(1)
+                        Type = RoadSegmentSurfaceType.LooseSurface
                     },
                     new()
                     {
@@ -120,9 +112,17 @@ public partial class GivenRoadNetwork
                         AsOfGeometryVersion = 1,
                         FromPosition = 1.9142135623731M,
                         ToPosition = 2.4142135623731M,
-                        Width = new RoadSegmentWidth(2)
+                        Type = RoadSegmentSurfaceType.SolidSurface
                     }
                 ],
+                Widths = [new()
+                {
+                    AttributeId = 2,
+                    AsOfGeometryVersion = 1,
+                    FromPosition = 0,
+                    ToPosition = 2.4142135623731M,
+                    Width = RoadSegmentWidth.Unknown
+                }],
                 LeftSide = new RoadSegmentSideAttributes
                 {
                     StreetNameId = W5.LeftSide.StreetNameId

@@ -9,8 +9,56 @@ using RoadRegistry.BackOffice.Messages;
 using LineString = NetTopologySuite.Geometries.LineString;
 using RoadSegmentSideAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes;
 
-public partial class GivenRoadNetwork
+public partial class GivenIdenticalSegments
 {
+    [Fact]
+    public async Task WhenSegmentsHaveDifferentAttribute_NationalRoads_ThenNoMerge()
+    {
+        var attributeId1 = Fixture.Create<AttributeId>();
+
+        var initialRoads = new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithRoadSegmentAddedToNationalRoad(new()
+            {
+                AttributeId = attributeId1,
+                SegmentId = W5.Id,
+                SegmentVersion = Fixture.Create<RoadSegmentVersion>(),
+                Number = "N1"
+            })
+            .WithRoadSegmentAddedToNationalRoad(new()
+            {
+                AttributeId = Fixture.Create<AttributeId>(),
+                SegmentId = W6.Id,
+                SegmentVersion = Fixture.Create<RoadSegmentVersion>(),
+                Number = "N2"
+            })
+            .WithTransactionId(2)
+            .Build();
+
+        var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithClock(Clock)
+            .WithTransactionId(3)
+            .WithRoadSegmentRemoved(W1.Id)
+            .WithRoadSegmentRemoved(W2.Id)
+            .WithRoadNodeRemoved(K1.Id)
+            .WithRoadNodeModified(new()
+            {
+                Id = K2.Id,
+                Type = RoadNodeType.FakeNode,
+                Version = K2.Version + 1,
+                Geometry = K2.Geometry
+            })
+            .Build();
+
+        await Run(scenario =>
+            scenario
+                .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
+                .Given(RoadNetworks.Stream, InitialRoadNetwork)
+                .Given(RoadNetworks.Stream, initialRoads)
+                .When(_command)
+                .Then(RoadNetworks.Stream, expected)
+        );
+    }
+
     [Fact]
     public async Task WithNationalRoads_ThenNationalRoadsAreLinkedToMergedSegment()
     {

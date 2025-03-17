@@ -9,50 +9,90 @@ using RoadRegistry.BackOffice.Messages;
 using LineString = NetTopologySuite.Geometries.LineString;
 using RoadSegmentSideAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes;
 
-public partial class GivenRoadNetwork
+public partial class GivenIdenticalSegments
 {
     [Fact]
-    public async Task WithNumberedRoads_ThenNumberedRoadsAreLinkedToMergedSegment()
+    public async Task WhenSegmentsHaveDifferentAttribute_EuropeanRoads_ThenNoMerge()
+    {
+        var attributeId1 = Fixture.Create<AttributeId>();
+
+        var initialRoads = new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithRoadSegmentAddedToEuropeanRoad(new()
+            {
+                AttributeId = attributeId1,
+                SegmentId = W5.Id,
+                SegmentVersion = Fixture.Create<RoadSegmentVersion>(),
+                Number = "E40"
+            })
+            .WithRoadSegmentAddedToEuropeanRoad(new()
+            {
+                AttributeId = Fixture.Create<AttributeId>(),
+                SegmentId = W6.Id,
+                SegmentVersion = Fixture.Create<RoadSegmentVersion>(),
+                Number = "E19"
+            })
+            .WithTransactionId(2)
+            .Build();
+
+        var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithClock(Clock)
+            .WithTransactionId(3)
+            .WithRoadSegmentRemoved(W1.Id)
+            .WithRoadSegmentRemoved(W2.Id)
+            .WithRoadNodeRemoved(K1.Id)
+            .WithRoadNodeModified(new()
+            {
+                Id = K2.Id,
+                Type = RoadNodeType.FakeNode,
+                Version = K2.Version + 1,
+                Geometry = K2.Geometry
+            })
+            .Build();
+
+        await Run(scenario =>
+            scenario
+                .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
+                .Given(RoadNetworks.Stream, InitialRoadNetwork)
+                .Given(RoadNetworks.Stream, initialRoads)
+                .When(_command)
+                .Then(RoadNetworks.Stream, expected)
+        );
+    }
+
+    [Fact]
+    public async Task WithEuropeanRoads_ThenEuropeanRoadsAreLinkedToMergedSegment()
     {
         var attributeId1 = Fixture.Create<AttributeId>();
         var attributeId2 = attributeId1.Next();
 
         var initialRoads = new RoadNetworkChangesAcceptedBuilder(TestData)
-            .WithRoadSegmentAddedToNumberedRoad(new()
+            .WithRoadSegmentAddedToEuropeanRoad(new()
             {
                 AttributeId = attributeId1,
                 SegmentId = W5.Id,
                 SegmentVersion = Fixture.Create<RoadSegmentVersion>(),
-                Number = "N0000001",
-                Direction = RoadSegmentNumberedRoadDirection.Unknown,
-                Ordinal = RoadSegmentNumberedRoadOrdinal.Unknown
+                Number = "E40"
             })
-            .WithRoadSegmentAddedToNumberedRoad(new()
+            .WithRoadSegmentAddedToEuropeanRoad(new()
             {
                 AttributeId = attributeId2,
                 SegmentId = W5.Id,
                 SegmentVersion = Fixture.Create<RoadSegmentVersion>(),
-                Number = "N0000002",
-                Direction = RoadSegmentNumberedRoadDirection.Unknown,
-                Ordinal = RoadSegmentNumberedRoadOrdinal.Unknown
+                Number = "E19"
             })
-            .WithRoadSegmentAddedToNumberedRoad(new()
+            .WithRoadSegmentAddedToEuropeanRoad(new()
             {
                 AttributeId = Fixture.Create<AttributeId>(),
                 SegmentId = W6.Id,
                 SegmentVersion = Fixture.Create<RoadSegmentVersion>(),
-                Number = "N0000001",
-                Direction = RoadSegmentNumberedRoadDirection.Unknown,
-                Ordinal = RoadSegmentNumberedRoadOrdinal.Unknown
+                Number = "E40"
             })
-            .WithRoadSegmentAddedToNumberedRoad(new()
+            .WithRoadSegmentAddedToEuropeanRoad(new()
             {
                 AttributeId = Fixture.Create<AttributeId>(),
                 SegmentId = W6.Id,
                 SegmentVersion = Fixture.Create<RoadSegmentVersion>(),
-                Number = "N0000002",
-                Direction = RoadSegmentNumberedRoadDirection.Unknown,
-                Ordinal = RoadSegmentNumberedRoadOrdinal.Unknown
+                Number = "E19"
             })
             .WithTransactionId(2)
             .Build();
@@ -122,25 +162,21 @@ public partial class GivenRoadNetwork
                     StreetNameId = W5.RightSide.StreetNameId
                 }
             })
-            .WithRoadSegmentAddedToNumberedRoad(new()
+            .WithRoadSegmentAddedToEuropeanRoad(new()
             {
                 AttributeId = attributeId1,
                 TemporaryAttributeId = attributeId1,
                 SegmentId = mergedSegmentId,
                 SegmentVersion = 1,
-                Number = "N0000001",
-                Direction = RoadSegmentNumberedRoadDirection.Unknown,
-                Ordinal = RoadSegmentNumberedRoadOrdinal.Unknown
+                Number = "E40"
             })
-            .WithRoadSegmentAddedToNumberedRoad(new()
+            .WithRoadSegmentAddedToEuropeanRoad(new()
             {
                 AttributeId = attributeId2,
                 TemporaryAttributeId = attributeId2,
                 SegmentId = mergedSegmentId,
                 SegmentVersion = 1,
-                Number = "N0000002",
-                Direction = RoadSegmentNumberedRoadDirection.Unknown,
-                Ordinal = RoadSegmentNumberedRoadOrdinal.Unknown
+                Number = "E19"
             })
             .Build();
 

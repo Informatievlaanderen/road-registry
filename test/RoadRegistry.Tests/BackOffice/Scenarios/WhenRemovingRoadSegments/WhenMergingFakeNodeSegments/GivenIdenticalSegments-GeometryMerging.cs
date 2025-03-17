@@ -8,7 +8,7 @@ using RoadRegistry.BackOffice.Messages;
 using LineString = NetTopologySuite.Geometries.LineString;
 using RoadSegmentSideAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes;
 
-public partial class GivenRoadNetwork
+public partial class GivenIdenticalSegments
 {
     [Fact]
     public async Task WithSegmentStartEndCoordinatesNotOnNodeGeometries_ThenNodeGeometryIsUsed()

@@ -6,21 +6,22 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using LineString = NetTopologySuite.Geometries.LineString;
-using RoadSegmentSurfaceAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes;
+using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLaneAttributes;
 using RoadSegmentSideAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes;
 
-public partial class GivenRoadNetwork
+public partial class GivenIdenticalSegments
 {
     [Fact]
-    public async Task WithDifferentSurfaces_ThenSurfacesAreNotMerged()
+    public async Task WithDifferentLanes_ThenLanesAreNotMerged()
     {
         var w5LineString = GeometryTranslator.Translate(W5.Geometry);
-        W5.Surfaces =
+        W5.Lanes =
         [
-            new RoadSegmentSurfaceAttributes
+            new RoadSegmentLaneAttributes
             {
                 AttributeId = 1,
-                Type = RoadSegmentSurfaceType.Unknown,
+                Direction = RoadSegmentLaneDirection.Unknown,
+                Count = 1,
                 FromPosition = 0,
                 ToPosition = (decimal)w5LineString.Length,
                 AsOfGeometryVersion = 1
@@ -28,20 +29,22 @@ public partial class GivenRoadNetwork
         ];
 
         var w6LineString = GeometryTranslator.Translate(W6.Geometry);
-        W6.Surfaces =
+        W6.Lanes =
         [
-            new RoadSegmentSurfaceAttributes
+            new RoadSegmentLaneAttributes
             {
                 AttributeId = 1,
-                Type = RoadSegmentSurfaceType.LooseSurface,
+                Direction = RoadSegmentLaneDirection.Forward,
+                Count = 2,
                 FromPosition = 0,
                 ToPosition = 0.5M,
                 AsOfGeometryVersion = 1
             },
-            new RoadSegmentSurfaceAttributes
+            new RoadSegmentLaneAttributes
             {
                 AttributeId = 2,
-                Type = RoadSegmentSurfaceType.SolidSurface,
+                Direction = RoadSegmentLaneDirection.Backward,
+                Count = 3,
                 FromPosition = 0.5M,
                 ToPosition = (decimal)w6LineString.Length,
                 AsOfGeometryVersion = 1
@@ -79,16 +82,7 @@ public partial class GivenRoadNetwork
                     new(0, 0), new(1, 1), new(1, 0)
                 ])])),
                 GeometryVersion = 1,
-                Lanes = [new()
-                {
-                    AttributeId = 2,
-                    AsOfGeometryVersion = 1,
-                    FromPosition = 0,
-                    ToPosition = 2.4142135623731M,
-                    Direction = RoadSegmentLaneDirection.Unknown,
-                    Count = 1
-                }],
-                Surfaces =
+                Lanes =
                 [
                     new()
                     {
@@ -96,7 +90,8 @@ public partial class GivenRoadNetwork
                         AsOfGeometryVersion = 1,
                         FromPosition = 0,
                         ToPosition = 1.4142135623731M,
-                        Type = RoadSegmentSurfaceType.Unknown
+                        Direction = RoadSegmentLaneDirection.Unknown,
+                        Count = 1
                     },
                     new()
                     {
@@ -104,7 +99,8 @@ public partial class GivenRoadNetwork
                         AsOfGeometryVersion = 1,
                         FromPosition = 1.4142135623731M,
                         ToPosition = 1.9142135623731M,
-                        Type = RoadSegmentSurfaceType.LooseSurface
+                        Direction = RoadSegmentLaneDirection.Forward,
+                        Count = 2
                     },
                     new()
                     {
@@ -112,9 +108,18 @@ public partial class GivenRoadNetwork
                         AsOfGeometryVersion = 1,
                         FromPosition = 1.9142135623731M,
                         ToPosition = 2.4142135623731M,
-                        Type = RoadSegmentSurfaceType.SolidSurface
+                        Direction = RoadSegmentLaneDirection.Backward,
+                        Count = 3
                     }
                 ],
+                Surfaces = [new()
+                {
+                    AttributeId = 2,
+                    AsOfGeometryVersion = 1,
+                    FromPosition = 0,
+                    ToPosition = 2.4142135623731M,
+                    Type = RoadSegmentSurfaceType.Unknown
+                }],
                 Widths = [new()
                 {
                     AttributeId = 2,
