@@ -13,7 +13,7 @@ using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentW
 
 public abstract class RemoveRoadSegmentsTestBase : RoadNetworkTestBase
 {
-    private readonly Fixture _fixture;
+    protected readonly Fixture Fixture;
 
     protected readonly RoadNodeAdded K1;
     protected readonly RoadNodeAdded K2;
@@ -37,7 +37,7 @@ public abstract class RemoveRoadSegmentsTestBase : RoadNetworkTestBase
 
     protected RemoveRoadSegmentsTestBase(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
-        _fixture = TestData.ObjectProvider;
+        Fixture = TestData.ObjectProvider;
 
         K1 = CreateRoadNode(1, RoadNodeType.EndNode, 0, 1);
         K2 = CreateRoadNode(2, RoadNodeType.RealNode, 1, 1);

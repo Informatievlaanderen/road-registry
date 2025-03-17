@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice;
 using System;
 using System.Linq;
 
-public struct NumberedRoadNumber : IEquatable<NumberedRoadNumber>
+public struct NumberedRoadNumber : IEquatable<NumberedRoadNumber>, IComparable<NumberedRoadNumber>
 {
     private readonly char[] _value;
 
@@ -72,6 +72,11 @@ public struct NumberedRoadNumber : IEquatable<NumberedRoadNumber>
     public bool Equals(NumberedRoadNumber other)
     {
         return (other._value ?? Array.Empty<char>()).SequenceEqual(_value ?? Array.Empty<char>());
+    }
+
+    public int CompareTo(NumberedRoadNumber other)
+    {
+        return string.CompareOrdinal(ToString(), other.ToString());
     }
 
     public override bool Equals(object obj)

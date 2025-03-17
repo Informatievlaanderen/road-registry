@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice;
 
 using System;
 
-public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>, IDutchToString
+public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>, IDutchToString, IComparable<EuropeanRoadNumber>
 {
     public static readonly EuropeanRoadNumber E17 = new(nameof(E17));
     public static readonly EuropeanRoadNumber E19 = new(nameof(E19));
@@ -76,6 +76,11 @@ public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>, IDutchT
     public override string ToString()
     {
         return _value;
+    }
+
+    public int CompareTo(EuropeanRoadNumber other)
+    {
+        return string.CompareOrdinal(_value, other._value);
     }
 
     public string ToDutchString()

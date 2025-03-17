@@ -464,9 +464,9 @@ public partial class ImmutableRoadNetworkView
             : segment1.AttributeHash.RightStreetNameId;
 
         var geometry = MergeGeometries(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection, startNode, endNode, commonNode);
-        var lanes = BuildLanes(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection, geometry.Length);
-        var surfaces = BuildSurfaces(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection, geometry.Length);
-        var widths = BuildWidths(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection, geometry.Length);
+        var lanes = BuildLanes(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection);
+        var surfaces = BuildSurfaces(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection);
+        var widths = BuildWidths(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection);
 
         var mergedSegment = new RoadSegment(
             id,
@@ -535,8 +535,7 @@ public partial class ImmutableRoadNetworkView
 
     private static List<BackOffice.RoadSegmentLaneAttribute> BuildLanes(
         RoadSegment segment1, RoadSegment segment2,
-        bool segment1HasIdealDirection, bool segment2HasIdealDirection,
-        double mergedGeometryLength)
+        bool segment1HasIdealDirection, bool segment2HasIdealDirection)
     {
         var itemsToAdd = Enumerable.Empty<BackOffice.RoadSegmentLaneAttribute>()
             .Concat(segment1HasIdealDirection ? segment1.Lanes : segment1.Lanes.Reverse())
@@ -551,44 +550,42 @@ public partial class ImmutableRoadNetworkView
         foreach (var item in itemsToAdd)
         {
             var itemData = new RoadSegmentLaneAttributeData(item.Count, item.Direction);
-
             var laneDistance = item.To.ToDecimal() - item.From.ToDecimal();
-            toPosition += laneDistance;
 
             if (previousItemData is null || previousItemData == itemData)
             {
+                toPosition += laneDistance;
                 previousItemData = itemData;
                 continue;
             }
 
-            mergedItems.Add(new BackOffice.RoadSegmentLaneAttribute(
-                new RoadSegmentPosition(fromPosition),
-                new RoadSegmentPosition(toPosition),
-                item.Count,
-                item.Direction,
-                GeometryVersion.Initial
-            ));
+            AddCurrentItemToMergedItems();
+
             fromPosition = toPosition;
+            toPosition += laneDistance;
             previousItemData = itemData;
         }
 
-        mergedItems.Add(new BackOffice.RoadSegmentLaneAttribute(
-            new RoadSegmentPosition(fromPosition),
-            RoadSegmentPosition.FromDouble(mergedGeometryLength),
-            previousItemData!.Count,
-            previousItemData.Direction,
-            GeometryVersion.Initial
-        ));
+        AddCurrentItemToMergedItems();
 
         return mergedItems;
-    }
 
+        void AddCurrentItemToMergedItems()
+        {
+            mergedItems.Add(new BackOffice.RoadSegmentLaneAttribute(
+                new RoadSegmentPosition(fromPosition),
+                new RoadSegmentPosition(toPosition),
+                previousItemData!.Count,
+                previousItemData.Direction,
+                GeometryVersion.Initial
+            ));
+        }
+    }
     private sealed record RoadSegmentLaneAttributeData(RoadSegmentLaneCount Count, RoadSegmentLaneDirection Direction);
 
     private static List<BackOffice.RoadSegmentSurfaceAttribute> BuildSurfaces(
         RoadSegment segment1, RoadSegment segment2,
-        bool segment1HasIdealDirection, bool segment2HasIdealDirection,
-        double mergedGeometryLength)
+        bool segment1HasIdealDirection, bool segment2HasIdealDirection)
     {
         var itemsToAdd = Enumerable.Empty<BackOffice.RoadSegmentSurfaceAttribute>()
             .Concat(segment1HasIdealDirection ? segment1.Surfaces : segment1.Surfaces.Reverse())
@@ -603,42 +600,41 @@ public partial class ImmutableRoadNetworkView
         foreach (var item in itemsToAdd)
         {
             var itemData = new RoadSegmentSurfaceAttributeData(item.Type);
-
             var laneDistance = item.To.ToDecimal() - item.From.ToDecimal();
-            toPosition += laneDistance;
 
             if (previousItemData is null || previousItemData == itemData)
             {
+                toPosition += laneDistance;
                 previousItemData = itemData;
                 continue;
             }
 
-            mergedItems.Add(new BackOffice.RoadSegmentSurfaceAttribute(
-                new RoadSegmentPosition(fromPosition),
-                new RoadSegmentPosition(toPosition),
-                itemData.Type,
-                GeometryVersion.Initial
-            ));
+            AddCurrentItemToMergedItems();
+
             fromPosition = toPosition;
+            toPosition += laneDistance;
             previousItemData = itemData;
         }
 
-        mergedItems.Add(new BackOffice.RoadSegmentSurfaceAttribute(
-            new RoadSegmentPosition(fromPosition),
-            RoadSegmentPosition.FromDouble(mergedGeometryLength),
-            previousItemData!.Type,
-            GeometryVersion.Initial
-        ));
+        AddCurrentItemToMergedItems();
 
         return mergedItems;
-    }
 
+        void AddCurrentItemToMergedItems()
+        {
+            mergedItems.Add(new BackOffice.RoadSegmentSurfaceAttribute(
+                new RoadSegmentPosition(fromPosition),
+                new RoadSegmentPosition(toPosition),
+                previousItemData!.Type,
+                GeometryVersion.Initial
+            ));
+        }
+    }
     private sealed record RoadSegmentSurfaceAttributeData(RoadSegmentSurfaceType Type);
 
     private static List<BackOffice.RoadSegmentWidthAttribute> BuildWidths(
         RoadSegment segment1, RoadSegment segment2,
-        bool segment1HasIdealDirection, bool segment2HasIdealDirection,
-        double mergedGeometryLength)
+        bool segment1HasIdealDirection, bool segment2HasIdealDirection)
     {
         var itemsToAdd = Enumerable.Empty<BackOffice.RoadSegmentWidthAttribute>()
             .Concat(segment1HasIdealDirection ? segment1.Widths : segment1.Widths.Reverse())
@@ -653,36 +649,36 @@ public partial class ImmutableRoadNetworkView
         foreach (var item in itemsToAdd)
         {
             var itemData = new RoadSegmentWidthAttributeData(item.Width);
-
             var laneDistance = item.To.ToDecimal() - item.From.ToDecimal();
-            toPosition += laneDistance;
 
             if (previousItemData is null || previousItemData == itemData)
             {
+                toPosition += laneDistance;
                 previousItemData = itemData;
                 continue;
             }
 
-            mergedItems.Add(new BackOffice.RoadSegmentWidthAttribute(
-                new RoadSegmentPosition(fromPosition),
-                new RoadSegmentPosition(toPosition),
-                itemData.Width,
-                GeometryVersion.Initial
-            ));
+            AddCurrentItemToMergedItems();
+
             fromPosition = toPosition;
+            toPosition += laneDistance;
             previousItemData = itemData;
         }
 
-        mergedItems.Add(new BackOffice.RoadSegmentWidthAttribute(
-            new RoadSegmentPosition(fromPosition),
-            RoadSegmentPosition.FromDouble(mergedGeometryLength),
-            previousItemData!.Width,
-            GeometryVersion.Initial
-        ));
+        AddCurrentItemToMergedItems();
 
         return mergedItems;
-    }
 
+        void AddCurrentItemToMergedItems()
+        {
+            mergedItems.Add(new BackOffice.RoadSegmentWidthAttribute(
+                new RoadSegmentPosition(fromPosition),
+                new RoadSegmentPosition(toPosition),
+                previousItemData!.Width,
+                GeometryVersion.Initial
+            ));
+        }
+    }
     private sealed record RoadSegmentWidthAttributeData(RoadSegmentWidth Width);
 
     private static bool SegmentAttributesAreEqual(RoadSegment segment1, RoadSegment segment2)
@@ -693,9 +689,12 @@ public partial class ImmutableRoadNetworkView
             || segment1.AttributeHash.OrganizationId != segment2.AttributeHash.OrganizationId
             || segment1.AttributeHash.Status != segment2.AttributeHash.Status
             || segment1.AttributeHash.AccessRestriction != segment2.AttributeHash.AccessRestriction
-            || !segment1.EuropeanRoadAttributes.Values.SequenceEqual(segment2.EuropeanRoadAttributes.Values, new EuropeanRoadAttributeEqualityComparer())
-            || !segment1.NationalRoadAttributes.Values.SequenceEqual(segment2.NationalRoadAttributes.Values, new NationalRoadAttributeEqualityComparer())
-            || !segment1.NumberedRoadAttributes.Values.SequenceEqual(segment2.NumberedRoadAttributes.Values, new NumberedRoadAttributeEqualityComparer())
+            || !segment1.EuropeanRoadAttributes.Values.OrderBy(x => x.Number)
+                .SequenceEqual(segment2.EuropeanRoadAttributes.Values.OrderBy(x => x.Number), new EuropeanRoadAttributeEqualityComparer())
+            || !segment1.NationalRoadAttributes.Values.OrderBy(x => x.Number)
+                .SequenceEqual(segment2.NationalRoadAttributes.Values.OrderBy(x => x.Number), new NationalRoadAttributeEqualityComparer())
+            || !segment1.NumberedRoadAttributes.Values.OrderBy(x => x.Number)
+                .SequenceEqual(segment2.NumberedRoadAttributes.Values.OrderBy(x => x.Number), new NumberedRoadAttributeEqualityComparer())
            )
         {
             return false;

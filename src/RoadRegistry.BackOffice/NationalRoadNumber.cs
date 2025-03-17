@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice;
 using System;
 using System.Linq;
 
-public readonly struct NationalRoadNumber : IEquatable<NationalRoadNumber>
+public readonly struct NationalRoadNumber : IEquatable<NationalRoadNumber>, IComparable<NationalRoadNumber>
 {
     public const int MinimumLength = 2;
     public const int MaximumLength = 5;
@@ -128,6 +128,11 @@ public readonly struct NationalRoadNumber : IEquatable<NationalRoadNumber>
         return (other._value ?? Array.Empty<char>()).SequenceEqual(_value ?? Array.Empty<char>());
     }
 
+    public int CompareTo(NationalRoadNumber other)
+    {
+        return string.CompareOrdinal(ToString(), other.ToString());
+    }
+
     public override bool Equals(object obj)
     {
         return obj is NationalRoadNumber type && Equals(type);
@@ -135,12 +140,12 @@ public readonly struct NationalRoadNumber : IEquatable<NationalRoadNumber>
 
     public override int GetHashCode()
     {
-        return new string(_value ?? Array.Empty<char>()).GetHashCode();
+        return new string(_value ?? []).GetHashCode();
     }
 
     public override string ToString()
     {
-        return new string(_value ?? Array.Empty<char>());
+        return new string(_value ?? []);
     }
 
     public static implicit operator string(NationalRoadNumber instance)

@@ -165,6 +165,38 @@ public class RoadNetworkChangesAcceptedBuilder
         });
     }
 
+    public RoadNetworkChangesAcceptedBuilder WithGradeSeparatedJunctionModified(GradeSeparatedJunctionModified change)
+    {
+        return WithChange(new AcceptedChange
+        {
+            GradeSeparatedJunctionModified = change
+        });
+    }
+
+    public RoadNetworkChangesAcceptedBuilder WithRoadSegmentAddedToEuropeanRoad(RoadSegmentAddedToEuropeanRoad change)
+    {
+        return WithChange(new AcceptedChange
+        {
+            RoadSegmentAddedToEuropeanRoad = change
+        });
+    }
+
+    public RoadNetworkChangesAcceptedBuilder WithRoadSegmentAddedToNationalRoad(RoadSegmentAddedToNationalRoad change)
+    {
+        return WithChange(new AcceptedChange
+        {
+            RoadSegmentAddedToNationalRoad = change
+        });
+    }
+
+    public RoadNetworkChangesAcceptedBuilder WithRoadSegmentAddedToNumberedRoad(RoadSegmentAddedToNumberedRoad change)
+    {
+        return WithChange(new AcceptedChange
+        {
+            RoadSegmentAddedToNumberedRoad = change
+        });
+    }
+
     public RoadNetworkChangesAccepted Build()
     {
         return new RoadNetworkChangesAccepted
