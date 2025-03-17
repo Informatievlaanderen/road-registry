@@ -263,6 +263,7 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
         var tolerances = VerificationContextTolerances.Default;
 
         return new BeforeVerificationContext(
+            view,
             view.CreateScopedView(DeriveScopeFromChanges(view)),
             this,
             tolerances);

@@ -3,8 +3,11 @@ namespace RoadRegistry.BackOffice.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
+using DotSpatial.Projections.ProjectedCategories;
 using Messages;
+using ProblemCodes;
 
 public class RemoveRoadSegments : IRequestedChange, IHaveHash
 {
@@ -52,12 +55,11 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var problems = Problems.None;
-
-        // todo-pr: did we create islands?
-
         _acceptedChanges = BuildAcceptedChanges(context);
 
+        //TODO-pr validation: alleen bestaande segmenten mogen verwijderd worden op API niveau, error zoals bij deleteoutline
+
+        var problems = context.ValidateRoadNetworkConnections(_acceptedChanges.ToArray(), Ids);
         return problems;
     }
 
