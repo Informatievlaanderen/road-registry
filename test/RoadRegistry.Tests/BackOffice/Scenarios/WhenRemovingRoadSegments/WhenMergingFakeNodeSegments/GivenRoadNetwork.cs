@@ -36,8 +36,6 @@ public partial class GivenRoadNetwork : RemoveRoadSegmentsTestBase
      * - alleen mergen wanneer geen van de 2 gemarkeerd is om verwijderd te worden
      */
 
-     //TODO-pr add test: geometry merging
-
     [Fact]
     public async Task ThenNodeIsRemovedAndSegmentsMerged()
     {
