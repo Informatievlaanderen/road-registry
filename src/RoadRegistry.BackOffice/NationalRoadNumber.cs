@@ -123,11 +123,6 @@ public readonly struct NationalRoadNumber : IEquatable<NationalRoadNumber>, ICom
         return new NationalRoadNumber(value.ToCharArray());
     }
 
-    public bool Equals(NationalRoadNumber other)
-    {
-        return (other._value ?? Array.Empty<char>()).SequenceEqual(_value ?? Array.Empty<char>());
-    }
-
     public int CompareTo(NationalRoadNumber other)
     {
         return string.CompareOrdinal(ToString(), other.ToString());
@@ -136,6 +131,11 @@ public readonly struct NationalRoadNumber : IEquatable<NationalRoadNumber>, ICom
     public override bool Equals(object obj)
     {
         return obj is NationalRoadNumber type && Equals(type);
+    }
+
+    public bool Equals(NationalRoadNumber other)
+    {
+        return (other._value ?? []).SequenceEqual(_value ?? []);
     }
 
     public override int GetHashCode()

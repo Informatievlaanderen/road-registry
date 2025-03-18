@@ -293,12 +293,17 @@ public static class RequestedChangesConverter
                                          ?? change.RemoveRoadSegmentFromNationalRoad?.SegmentGeometryDrawMethod
                                          ?? change.RemoveRoadSegmentFromNumberedRoad?.SegmentGeometryDrawMethod;
 
+                if (geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined && id is null)
+                {
+                    throw new InvalidOperationException($"No outlined road segment ID found for change {change.Flatten().GetType().Name}");
+                }
+
                 return [new
                 {
                     Change = change,
                     StreamName = geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
                         ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(
-                            new RoadSegmentId(id!.Value))
+                            new RoadSegmentId(id.Value))
                         : RoadNetworkStreamNameProvider.Default
                 }];
             })

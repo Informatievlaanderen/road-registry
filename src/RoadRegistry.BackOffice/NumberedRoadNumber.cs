@@ -69,11 +69,6 @@ public struct NumberedRoadNumber : IEquatable<NumberedRoadNumber>, IComparable<N
         return new NumberedRoadNumber(value.ToCharArray());
     }
 
-    public bool Equals(NumberedRoadNumber other)
-    {
-        return (other._value ?? []).SequenceEqual(_value ?? []);
-    }
-
     public int CompareTo(NumberedRoadNumber other)
     {
         return string.CompareOrdinal(ToString(), other.ToString());
@@ -82,6 +77,11 @@ public struct NumberedRoadNumber : IEquatable<NumberedRoadNumber>, IComparable<N
     public override bool Equals(object obj)
     {
         return obj is NumberedRoadNumber type && Equals(type);
+    }
+
+    public bool Equals(NumberedRoadNumber other)
+    {
+        return (other._value ?? []).SequenceEqual(_value ?? []);
     }
 
     public override int GetHashCode()
