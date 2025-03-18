@@ -52,6 +52,8 @@ public static class ProblemTranslator
 
         {ProblemCode.RoadNetwork.NotFound, problem => new(problem.Severity, "NotFound",
             "Onbestaand wegen netwerk.")},
+        {ProblemCode.RoadNetwork.Disconnected, problem => new(problem.Severity, "WegenNetwerkNietVerbonden",
+            $"De wegknoop {problem.GetParameterValue("StartNodeId")} heeft geen verbinding meer met wegknoop {problem.GetParameterValue("EndNodeId")}.")},
 
         {ProblemCode.RoadNode.NotConnectedToAnySegment, problem => new(problem.Severity, problem.Reason,
             $"De wegknoop {problem.Parameters[0].Value} is met geen enkel wegsegment verbonden.") },
@@ -70,6 +72,8 @@ public static class ProblemTranslator
             $"De waarde '{problem.Parameters[0].Value}' komt niet overeen met een attribuut uit het Wegenregister dat via dit endpoint gewijzigd kan worden.") },
         {ProblemCode.RoadSegment.ChangeAttributesRequestNull, problem => new(problem.Severity, "NotFound",
             "Ten minste één attribuut moet opgegeven worden.") },
+        {ProblemCode.RoadSegment.IdsNotUnique, problem => new(problem.Severity, "WegsegmentenNietUniek",
+            "De wegsegmenten moeten uniek zijn.") },
         {ProblemCode.RoadSegment.IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction, problem => new(problem.Severity, problem.Reason,
             $"Het wegsegment {problem.Parameters[0].Value} mag niet kruisen met wegsegment {problem.Parameters[1].Value}.") },
         {ProblemCode.RoadSegment.LowerMissing, problem => new(problem.Severity, problem.Reason,
@@ -85,6 +89,9 @@ public static class ProblemTranslator
             "Het bovenste en onderste wegsegment kruisen elkaar niet.") },
         {ProblemCode.RoadSegment.UpperMissing, problem => new(problem.Severity, problem.Reason,
             "Het bovenste wegsegment ontbreekt.") },
+        {ProblemCode.RoadSegment.NotRemovedBecauseCategoryIsInvalid, problem => new(problem.Severity, "WegsegmentOngeldigeCategorie",
+            $"Wegsegment {problem.GetParameterValue("Identifier")} mag niet verwijderd worden omwille van zijn categorie '{problem.GetParameterValue("Category")}'.") },
+
         {ProblemCode.RoadSegment.AccessRestriction.IsRequired, problem => new(problem.Severity, "ToegangsbeperkingVerplicht",
             "Toegangsbeperking is verplicht.") },
         {ProblemCode.RoadSegment.AccessRestriction.NotValid, problem => new(problem.Severity, "ToegangsbeperkingNietCorrect",
@@ -294,7 +301,7 @@ public static class ProblemTranslator
             ? $"Wegsegment met id {problem.GetParameterValue("Identifier")} heeft geen enkele wegbreedte."
             : "Wegsegment heeft geen enkele wegbreedte.")},
         {ProblemCode.RoadSegments.NotFound, problem => new(problem.Severity, "NotFound",
-            $"Onbestaande of verwijderde wegsegmenten gevonden '{problem.Parameters[0].Value}'.") },
+            $"Onbestaande of verwijderde wegsegmenten gevonden: {problem.Parameters[0].Value}") },
 
         {ProblemCode.ShapeFile.GeometrySridMustBeEqual, problem => new(problem.Severity, problem.Reason,
             "SRID van alle geometrieën moeten dezelfde zijn.")},

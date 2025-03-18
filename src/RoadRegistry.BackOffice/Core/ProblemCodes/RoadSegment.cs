@@ -13,6 +13,8 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode Missing = new("RoadSegmentMissing");
         public static readonly ProblemCode UpperMissing = new("UpperRoadSegmentMissing");
         public static readonly ProblemCode UpperAndLowerDoNotIntersect = new("UpperAndLowerRoadSegmentDoNotIntersect");
+        public static readonly ProblemCode IdsNotUnique = new("RoadSegmentIdsNotUnique");
+        public static readonly ProblemCode NotRemovedBecauseCategoryIsInvalid = new("RoadSegmentNotRemovedBecauseCategoryIsInvalid");
 
         public static class AccessRestriction
         {

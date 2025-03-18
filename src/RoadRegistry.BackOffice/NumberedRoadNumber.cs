@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice;
 using System;
 using System.Linq;
 
-public struct NumberedRoadNumber : IEquatable<NumberedRoadNumber>
+public struct NumberedRoadNumber : IEquatable<NumberedRoadNumber>, IComparable<NumberedRoadNumber>
 {
     private readonly char[] _value;
 
@@ -69,9 +69,9 @@ public struct NumberedRoadNumber : IEquatable<NumberedRoadNumber>
         return new NumberedRoadNumber(value.ToCharArray());
     }
 
-    public bool Equals(NumberedRoadNumber other)
+    public int CompareTo(NumberedRoadNumber other)
     {
-        return (other._value ?? Array.Empty<char>()).SequenceEqual(_value ?? Array.Empty<char>());
+        return string.CompareOrdinal(ToString(), other.ToString());
     }
 
     public override bool Equals(object obj)
@@ -79,14 +79,19 @@ public struct NumberedRoadNumber : IEquatable<NumberedRoadNumber>
         return obj is NumberedRoadNumber type && Equals(type);
     }
 
+    public bool Equals(NumberedRoadNumber other)
+    {
+        return (other._value ?? []).SequenceEqual(_value ?? []);
+    }
+
     public override int GetHashCode()
     {
-        return new string(_value ?? Array.Empty<char>()).GetHashCode();
+        return new string(_value ?? []).GetHashCode();
     }
 
     public override string ToString()
     {
-        return new string(_value ?? Array.Empty<char>());
+        return new string(_value ?? []);
     }
 
     public static implicit operator string(NumberedRoadNumber instance)
@@ -102,5 +107,25 @@ public struct NumberedRoadNumber : IEquatable<NumberedRoadNumber>
     public static bool operator !=(NumberedRoadNumber left, NumberedRoadNumber right)
     {
         return !Equals(left, right);
+    }
+
+    public static bool operator <(NumberedRoadNumber left, NumberedRoadNumber right)
+    {
+        return left.CompareTo(right) < 0;
+    }
+
+    public static bool operator <=(NumberedRoadNumber left, NumberedRoadNumber right)
+    {
+        return left.CompareTo(right) <= 0;
+    }
+
+    public static bool operator >(NumberedRoadNumber left, NumberedRoadNumber right)
+    {
+        return left.CompareTo(right) > 0;
+    }
+
+    public static bool operator >=(NumberedRoadNumber left, NumberedRoadNumber right)
+    {
+        return left.CompareTo(right) >= 0;
     }
 }

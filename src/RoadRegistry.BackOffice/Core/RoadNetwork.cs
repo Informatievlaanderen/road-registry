@@ -117,7 +117,7 @@ public class RoadNetwork : EventSourcedEntity
                 TransactionId = requestedChanges.TransactionId,
                 Changes = verifiedChanges
                     .OfType<AcceptedChange>()
-                    .Select(change => change.Translate())
+                    .SelectMany(change => change.Translate())
                     .ToArray(),
                 TicketId = ticketId
             };
@@ -132,7 +132,7 @@ public class RoadNetwork : EventSourcedEntity
         {
             return segment;
         }
-        
+
         return null;
     }
 
@@ -204,7 +204,7 @@ public class RoadNetwork : EventSourcedEntity
             return new NextRoadSegmentVersionProvider().Next();
         };
     }
-    
+
     public void RestoreFromSnapshot(RoadNetworkSnapshot snapshot)
     {
         if (snapshot == null)

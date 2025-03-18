@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using System.Collections.Generic;
 using Messages;
 
 public class RemoveRoadNode : IRequestedChange
@@ -12,13 +13,15 @@ public class RemoveRoadNode : IRequestedChange
 
     public RoadNodeId Id { get; }
 
-    public void TranslateTo(Messages.AcceptedChange message)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings)
     {
-        if (message == null) throw new ArgumentNullException(nameof(message));
-
-        message.RoadNodeRemoved = new RoadNodeRemoved
+        yield return new Messages.AcceptedChange
         {
-            Id = Id
+            Problems = warnings,
+            RoadNodeRemoved = new RoadNodeRemoved
+            {
+                Id = Id
+            }
         };
     }
 

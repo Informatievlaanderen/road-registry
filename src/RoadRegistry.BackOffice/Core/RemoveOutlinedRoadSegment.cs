@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using System.Collections.Generic;
 using Messages;
 
 public class RemoveOutlinedRoadSegment : IRequestedChange
@@ -12,13 +13,15 @@ public class RemoveOutlinedRoadSegment : IRequestedChange
 
     public RoadSegmentId Id { get; }
 
-    public void TranslateTo(Messages.AcceptedChange message)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings)
     {
-        ArgumentNullException.ThrowIfNull(message);
-
-        message.OutlinedRoadSegmentRemoved = new OutlinedRoadSegmentRemoved
+        yield return new Messages.AcceptedChange
         {
-            Id = Id
+            Problems = warnings,
+            OutlinedRoadSegmentRemoved = new OutlinedRoadSegmentRemoved
+            {
+                Id = Id
+            }
         };
     }
 
@@ -44,7 +47,7 @@ public class RemoveOutlinedRoadSegment : IRequestedChange
         ArgumentNullException.ThrowIfNull(context);
 
         var problems = Problems.None;
-        
+
         if (!context.BeforeView.View.Segments.ContainsKey(Id))
         {
             problems = problems.Add(new RoadSegmentNotFound(Id));

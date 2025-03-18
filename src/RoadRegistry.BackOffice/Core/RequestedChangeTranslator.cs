@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Messages;
 using NetTopologySuite.Geometries;
 
-internal class RequestedChangeTranslator
+public class RequestedChangeTranslator
 {
     private readonly IRoadNetworkIdProvider _roadNetworkIdProvider;
     private readonly RoadNetworkVersionProvider _roadNetworkVersionProvider;
@@ -59,6 +59,9 @@ internal class RequestedChangeTranslator
                     break;
                 case Messages.RemoveRoadSegment command:
                     translated = translated.Append(Translate(command));
+                    break;
+                case Messages.RemoveRoadSegments command:
+                    translated = translated.Append(Translate(command, organizations));
                     break;
                 case Messages.RemoveOutlinedRoadSegment command:
                     translated = translated.Append(Translate(command));
@@ -190,6 +193,7 @@ internal class RequestedChangeTranslator
 
         return result.ToArray();
     }
+
     private async Task<RoadSegmentSurfaceAttribute[]> Translate(RequestedRoadSegmentSurfaceAttribute[] attributes, RoadSegmentId roadSegmentId)
     {
         if (attributes is null)
@@ -457,6 +461,18 @@ internal class RequestedChangeTranslator
             command.GeometryDrawMethod is not null
                 ? RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod)
                 : null
+        );
+    }
+
+    private RemoveRoadSegments Translate(Messages.RemoveRoadSegments command, IOrganizations organizations)
+    {
+        return new RemoveRoadSegments
+        (
+            command.Ids.Select(x => new RoadSegmentId(x)).ToArray(),
+            RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod),
+            _roadNetworkVersionProvider,
+            _roadNetworkIdProvider,
+            organizations
         );
     }
 
@@ -795,49 +811,49 @@ internal class RequestedChangeTranslator
         public object Change { get; }
         public int Ordinal { get; }
     }
+}
 
-    private sealed class RoadNetworkVersionProvider
+public sealed class RoadNetworkVersionProvider
+{
+    private readonly Func<RoadNodeId, RoadNodeVersion> _nextRoadNodeVersion;
+    private readonly Func<NextRoadSegmentVersionArgs, CancellationToken, Task<RoadSegmentVersion>> _nextRoadSegmentVersion;
+    private readonly Func<NextRoadSegmentVersionArgs, MultiLineString, CancellationToken, Task<GeometryVersion>> _nextRoadSegmentGeometryVersion;
+    private readonly Dictionary<RoadSegmentId, RoadSegmentVersion> _roadSegmentVersions = [];
+
+    public RoadNetworkVersionProvider(
+        Func<RoadNodeId, RoadNodeVersion> nextRoadNodeVersion,
+        Func<NextRoadSegmentVersionArgs, CancellationToken, Task<RoadSegmentVersion>> nextRoadSegmentVersion,
+        Func<NextRoadSegmentVersionArgs, MultiLineString, CancellationToken, Task<GeometryVersion>> nextRoadSegmentGeometryVersion)
     {
-        private readonly Func<RoadNodeId, RoadNodeVersion> _nextRoadNodeVersion;
-        private readonly Func<NextRoadSegmentVersionArgs, CancellationToken, Task<RoadSegmentVersion>> _nextRoadSegmentVersion;
-        private readonly Func<NextRoadSegmentVersionArgs, MultiLineString, CancellationToken, Task<GeometryVersion>> _nextRoadSegmentGeometryVersion;
-        private readonly Dictionary<RoadSegmentId, RoadSegmentVersion> _roadSegmentVersions = [];
+        _nextRoadNodeVersion = nextRoadNodeVersion;
+        _nextRoadSegmentVersion = nextRoadSegmentVersion;
+        _nextRoadSegmentGeometryVersion = nextRoadSegmentGeometryVersion;
+    }
 
-        public RoadNetworkVersionProvider(
-            Func<RoadNodeId, RoadNodeVersion> nextRoadNodeVersion,
-            Func<NextRoadSegmentVersionArgs, CancellationToken, Task<RoadSegmentVersion>> nextRoadSegmentVersion,
-            Func<NextRoadSegmentVersionArgs, MultiLineString, CancellationToken, Task<GeometryVersion>> nextRoadSegmentGeometryVersion)
-        {
-            _nextRoadNodeVersion = nextRoadNodeVersion;
-            _nextRoadSegmentVersion = nextRoadSegmentVersion;
-            _nextRoadSegmentGeometryVersion = nextRoadSegmentGeometryVersion;
-        }
+    public RoadNodeVersion NextRoadNodeVersion(RoadNodeId roadNodeId)
+    {
+        return _nextRoadNodeVersion(roadNodeId);
+    }
 
-        public RoadNodeVersion NextRoadNodeVersion(RoadNodeId roadNodeId)
-        {
-            return _nextRoadNodeVersion(roadNodeId);
-        }
+    public async Task<RoadSegmentVersion> NextRoadSegmentVersion(NextRoadSegmentVersionArgs args, CancellationToken cancellationToken)
+    {
+        var version = await _nextRoadSegmentVersion(args, cancellationToken);
+        _roadSegmentVersions[args.Id] = version;
+        return version;
+    }
 
-        public async Task<RoadSegmentVersion> NextRoadSegmentVersion(NextRoadSegmentVersionArgs args, CancellationToken cancellationToken)
+    public async Task<GeometryVersion> NextRoadSegmentGeometryVersion(NextRoadSegmentVersionArgs args, MultiLineString geometry, CancellationToken cancellationToken)
+    {
+        return await _nextRoadSegmentGeometryVersion(args, geometry, cancellationToken);
+    }
+
+    public RoadSegmentVersion? GetLastProvidedRoadSegmentVersion(RoadSegmentId roadSegmentId)
+    {
+        if (_roadSegmentVersions.TryGetValue(roadSegmentId, out var version))
         {
-            var version = await _nextRoadSegmentVersion(args, cancellationToken);
-            _roadSegmentVersions[args.Id] = version;
             return version;
         }
 
-        public async Task<GeometryVersion> NextRoadSegmentGeometryVersion(NextRoadSegmentVersionArgs args, MultiLineString geometry, CancellationToken cancellationToken)
-        {
-            return await _nextRoadSegmentGeometryVersion(args, geometry, cancellationToken);
-        }
-
-        public RoadSegmentVersion? GetLastProvidedRoadSegmentVersion(RoadSegmentId roadSegmentId)
-        {
-            if (_roadSegmentVersions.TryGetValue(roadSegmentId, out var version))
-            {
-                return version;
-            }
-
-            return null;
-        }
+        return null;
     }
 }

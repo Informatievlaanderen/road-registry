@@ -1,41 +1,30 @@
 ﻿namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
 using AutoFixture;
-using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.Geometries.Implementation;
 using NodaTime;
 using NodaTime.Text;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;
-using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
-using LineString = NetTopologySuite.Geometries.LineString;
-using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadNetworkChangesAcceptedBuilder
 {
-    private readonly Fixture _fixture;
-    private List<AcceptedChange> _acceptedChanges = [];
-    private int _idCounter;
+    private readonly List<AcceptedChange> _acceptedChanges = [];
 
-    private string _requestId;
-    private string _reasonForChange;
-    private string _operator;
-    private string _organizationId;
-    private string _organizationName;
+    private readonly string _requestId;
+    private readonly string _reasonForChange;
+    private readonly string _operator;
+    private readonly string _organizationId;
+    private readonly string _organizationName;
     private TransactionId _transactionId;
     private string _when;
 
-    public RoadNetworkChangesAcceptedBuilder(Fixture fixture)
+    private RoadNetworkChangesAcceptedBuilder(Fixture fixture)
     {
-        _fixture = fixture;
-
-        _requestId = ChangeRequestId.FromArchiveId(_fixture.Create<ArchiveId>());
-        _reasonForChange = _fixture.Create<Reason>();
-        _operator = _fixture.Create<OperatorName>();
-        _organizationId = _fixture.Create<OrganizationId>();
-        _organizationName = _fixture.Create<OrganizationName>();
+        _requestId = ChangeRequestId.FromArchiveId(fixture.Create<ArchiveId>());
+        _reasonForChange = fixture.Create<Reason>();
+        _operator = fixture.Create<OperatorName>();
+        _organizationId = fixture.Create<OrganizationId>();
+        _organizationName = fixture.Create<OrganizationName>();
         WithTransactionId(1);
         WithClock(SystemClock.Instance);
     }
@@ -87,6 +76,7 @@ public class RoadNetworkChangesAcceptedBuilder
 
         return WithRoadSegmentAdded(roadSegmentAdded, configure);
     }
+
     public RoadNetworkChangesAcceptedBuilder WithRoadSegmentAdded(
         RoadSegmentAdded roadSegmentAdded,
         Action<RoadSegmentAdded> configure = null)
@@ -96,6 +86,38 @@ public class RoadNetworkChangesAcceptedBuilder
         return WithChange(new AcceptedChange
         {
             RoadSegmentAdded = roadSegmentAdded
+        });
+    }
+
+    public RoadNetworkChangesAcceptedBuilder WithRoadSegmentRemoved(int id,
+        RoadSegmentGeometryDrawMethod? geometryDrawMethod = null)
+    {
+        return WithChange(new AcceptedChange
+        {
+            RoadSegmentRemoved = new()
+            {
+                GeometryDrawMethod = geometryDrawMethod ?? RoadSegmentGeometryDrawMethod.Measured,
+                Id = id
+            }
+        });
+    }
+
+    public RoadNetworkChangesAcceptedBuilder WithRoadNodeRemoved(int id)
+    {
+        return WithChange(new AcceptedChange
+        {
+            RoadNodeRemoved = new()
+            {
+                Id = id
+            }
+        });
+    }
+
+    public RoadNetworkChangesAcceptedBuilder WithRoadNodeModified(RoadNodeModified roadNodeModified)
+    {
+        return WithChange(new AcceptedChange
+        {
+            RoadNodeModified = roadNodeModified
         });
     }
 
@@ -120,6 +142,58 @@ public class RoadNetworkChangesAcceptedBuilder
         {
             RoadSegmentModified = roadSegment,
             Problems = problems ?? []
+        });
+    }
+
+    public RoadNetworkChangesAcceptedBuilder WithGradeSeparatedJunctionAdded(
+        GradeSeparatedJunctionAdded gradeSeparatedJunctionAdded)
+    {
+        return WithChange(new AcceptedChange
+        {
+            GradeSeparatedJunctionAdded = gradeSeparatedJunctionAdded
+        });
+    }
+
+    public RoadNetworkChangesAcceptedBuilder WithGradeSeparatedJunctionRemoved(int id)
+    {
+        return WithChange(new AcceptedChange
+        {
+            GradeSeparatedJunctionRemoved = new()
+            {
+                Id = id
+            }
+        });
+    }
+
+    public RoadNetworkChangesAcceptedBuilder WithGradeSeparatedJunctionModified(GradeSeparatedJunctionModified change)
+    {
+        return WithChange(new AcceptedChange
+        {
+            GradeSeparatedJunctionModified = change
+        });
+    }
+
+    public RoadNetworkChangesAcceptedBuilder WithRoadSegmentAddedToEuropeanRoad(RoadSegmentAddedToEuropeanRoad change)
+    {
+        return WithChange(new AcceptedChange
+        {
+            RoadSegmentAddedToEuropeanRoad = change
+        });
+    }
+
+    public RoadNetworkChangesAcceptedBuilder WithRoadSegmentAddedToNationalRoad(RoadSegmentAddedToNationalRoad change)
+    {
+        return WithChange(new AcceptedChange
+        {
+            RoadSegmentAddedToNationalRoad = change
+        });
+    }
+
+    public RoadNetworkChangesAcceptedBuilder WithRoadSegmentAddedToNumberedRoad(RoadSegmentAddedToNumberedRoad change)
+    {
+        return WithChange(new AcceptedChange
+        {
+            RoadSegmentAddedToNumberedRoad = change
         });
     }
 

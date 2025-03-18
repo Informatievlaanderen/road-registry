@@ -195,7 +195,7 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
                 Changes = requestedChanges
                     .Select(x => new VerifiableChange(x).AsVerifiedChange())
                     .OfType<AcceptedChange>()
-                    .Select(change => change.Translate())
+                    .SelectMany(change => change.Translate())
                     .ToArray()
             };
 

@@ -1,6 +1,7 @@
 namespace RoadRegistry.Tests.BackOffice.Core;
 
 using AutoFixture;
+using FluentAssertions;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
@@ -77,14 +78,14 @@ public class RoadSegmentTests
     }
 
     [Theory]
-    [InlineData(1, 2, 1, new[] { 2 })]
-    [InlineData(1, 2, 2, new[] { 1 })]
-    [InlineData(1, 2, 3, new int[0])]
-    public void SelectOppositeNodeReturnsExpectedResult(
+    [InlineData(1, 2, 1, 2)]
+    [InlineData(1, 2, 2, 1)]
+    [InlineData(1, 2, 3, null)]
+    public void GetOppositeNodeReturnsExpectedResult(
         int start,
         int end,
         int node,
-        int[] opposite
+        int? opposite
     )
     {
         var sut = new RoadSegment(
@@ -97,10 +98,55 @@ public class RoadSegmentTests
             _attributeHash,
             null);
 
-        var result = sut.SelectOppositeNode(new RoadNodeId(node)).ToArray();
+        var result = sut.GetOppositeNode(new RoadNodeId(node));
 
-        var expected = Array.ConvertAll(opposite, value => new RoadNodeId(value));
-        Assert.Equal(expected, result);
+        RoadNodeId? expected = opposite is not null
+            ? new RoadNodeId(opposite.Value)
+            : null;
+
+        result.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(1, 2, 2, 3, 2)]
+    [InlineData(1, 2, 3, 2, 2)]
+    [InlineData(2, 1, 2, 3, 2)]
+    [InlineData(2, 1, 3, 2, 2)]
+    [InlineData(1, 2, 3, 4, null)]
+    public void GetCommonNodeReturnsExpectedResult(
+        int segment1Start,
+        int segment1End,
+        int segment2Start,
+        int segment2End,
+        int? expectedCommonNode
+    )
+    {
+        var segment1 = new RoadSegment(
+            _id,
+            _version,
+            _geometry,
+            _geometryVersion,
+            new RoadNodeId(segment1Start),
+            new RoadNodeId(segment1End),
+            _attributeHash,
+            null);
+        var segment2 = new RoadSegment(
+            _id,
+            _version,
+            _geometry,
+            _geometryVersion,
+            new RoadNodeId(segment2Start),
+            new RoadNodeId(segment2End),
+            _attributeHash,
+            null);
+
+        var commonNode = segment1.GetCommonNode(segment2);
+
+        RoadNodeId? expected = expectedCommonNode is not null
+            ? new RoadNodeId(expectedCommonNode.Value)
+            : null;
+
+        commonNode.Should().Be(expected);
     }
 
     [Fact]

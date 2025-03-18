@@ -7,14 +7,13 @@ using NetTopologySuite.Geometries;
 
 public interface IRoadNetworkView
 {
-    IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; }
-
     // data
     IReadOnlyDictionary<RoadNodeId, RoadNode> Nodes { get; }
     ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> SegmentReusableLaneAttributeIdentifiers { get; }
     ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> SegmentReusableSurfaceAttributeIdentifiers { get; }
     ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> SegmentReusableWidthAttributeIdentifiers { get; }
     IReadOnlyDictionary<RoadSegmentId, RoadSegment> Segments { get; }
+    IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; }
 
     // scoping
     IScopedRoadNetworkView CreateScopedView(Envelope envelope);
@@ -26,10 +25,6 @@ public interface IRoadNetworkView
 
     // snapshot support
     RoadNetworkSnapshot TakeSnapshot();
-
-    // im-/mutable support
-    IRoadNetworkView ToBuilder();
-    IRoadNetworkView ToImmutable();
 
     // based on command
     IRoadNetworkView With(IReadOnlyCollection<IRequestedChange> changes);

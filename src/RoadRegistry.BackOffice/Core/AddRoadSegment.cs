@@ -79,69 +79,71 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
     public RoadNodeId? TemporaryStartNodeId { get; }
     public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
 
-    public void TranslateTo(Messages.AcceptedChange message)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings)
     {
-        if (message == null) throw new ArgumentNullException(nameof(message));
-
-        message.RoadSegmentAdded = new RoadSegmentAdded
+        yield return new Messages.AcceptedChange
         {
-            Id = Id,
-            Version = RoadSegmentVersion.Initial,
-            TemporaryId = TemporaryId,
-            OriginalId = OriginalId,
-            StartNodeId = StartNodeId,
-            EndNodeId = EndNodeId,
-            Geometry = GeometryTranslator.Translate(Geometry),
-            GeometryVersion = GeometryVersion.Initial,
-            MaintenanceAuthority = new MaintenanceAuthority
+            Problems = warnings,
+            RoadSegmentAdded = new RoadSegmentAdded
             {
-                Code = MaintenanceAuthorityId,
-                Name = OrganizationName.FromValueWithFallback(MaintenanceAuthorityName)
-            },
-            GeometryDrawMethod = GeometryDrawMethod,
-            Morphology = Morphology,
-            Status = Status,
-            Category = Category,
-            AccessRestriction = AccessRestriction,
-            LeftSide = new Messages.RoadSegmentSideAttributes
-            {
-                StreetNameId = LeftSideStreetNameId
-            },
-            RightSide = new Messages.RoadSegmentSideAttributes
-            {
-                StreetNameId = RightSideStreetNameId
-            },
-            Lanes = Lanes
-                .Select(item => new Messages.RoadSegmentLaneAttributes
+                Id = Id,
+                Version = RoadSegmentVersion.Initial,
+                TemporaryId = TemporaryId,
+                OriginalId = OriginalId,
+                StartNodeId = StartNodeId,
+                EndNodeId = EndNodeId,
+                Geometry = GeometryTranslator.Translate(Geometry),
+                GeometryVersion = GeometryVersion.Initial,
+                MaintenanceAuthority = new MaintenanceAuthority
                 {
-                    AttributeId = item.Id,
-                    AsOfGeometryVersion = 1,
-                    Count = item.Count,
-                    Direction = item.Direction,
-                    FromPosition = item.From,
-                    ToPosition = item.To
-                })
-                .ToArray(),
-            Widths = Widths
-                .Select(item => new Messages.RoadSegmentWidthAttributes
+                    Code = MaintenanceAuthorityId,
+                    Name = OrganizationName.FromValueWithFallback(MaintenanceAuthorityName)
+                },
+                GeometryDrawMethod = GeometryDrawMethod,
+                Morphology = Morphology,
+                Status = Status,
+                Category = Category,
+                AccessRestriction = AccessRestriction,
+                LeftSide = new Messages.RoadSegmentSideAttributes
                 {
-                    AttributeId = item.Id,
-                    AsOfGeometryVersion = 1,
-                    Width = item.Width,
-                    FromPosition = item.From,
-                    ToPosition = item.To
-                })
-                .ToArray(),
-            Surfaces = Surfaces
-                .Select(item => new Messages.RoadSegmentSurfaceAttributes
+                    StreetNameId = LeftSideStreetNameId
+                },
+                RightSide = new Messages.RoadSegmentSideAttributes
                 {
-                    AttributeId = item.Id,
-                    AsOfGeometryVersion = 1,
-                    Type = item.Type,
-                    FromPosition = item.From,
-                    ToPosition = item.To
-                })
-                .ToArray()
+                    StreetNameId = RightSideStreetNameId
+                },
+                Lanes = Lanes
+                    .Select(item => new Messages.RoadSegmentLaneAttributes
+                    {
+                        AttributeId = item.Id,
+                        AsOfGeometryVersion = 1,
+                        Count = item.Count,
+                        Direction = item.Direction,
+                        FromPosition = item.From,
+                        ToPosition = item.To
+                    })
+                    .ToArray(),
+                Widths = Widths
+                    .Select(item => new Messages.RoadSegmentWidthAttributes
+                    {
+                        AttributeId = item.Id,
+                        AsOfGeometryVersion = 1,
+                        Width = item.Width,
+                        FromPosition = item.From,
+                        ToPosition = item.To
+                    })
+                    .ToArray(),
+                Surfaces = Surfaces
+                    .Select(item => new Messages.RoadSegmentSurfaceAttributes
+                    {
+                        AttributeId = item.Id,
+                        AsOfGeometryVersion = 1,
+                        Type = item.Type,
+                        FromPosition = item.From,
+                        ToPosition = item.To
+                    })
+                    .ToArray()
+            }
         };
     }
 

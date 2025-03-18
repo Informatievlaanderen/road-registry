@@ -45,6 +45,7 @@ public class ChangeRoadNetworkBuilder
 
         return this;
     }
+
     public ChangeRoadNetworkBuilder WithModifyOutlinedRoadSegment(ModifyRoadSegment change, Action<ModifyRoadSegment> configure = null)
     {
         change.GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined;
@@ -52,6 +53,20 @@ public class ChangeRoadNetworkBuilder
         change.EndNodeId = 0;
 
         return WithModifyRoadSegment(change, configure);
+    }
+
+    public ChangeRoadNetworkBuilder WithRemoveRoadSegments(ICollection<int> ids, RoadSegmentGeometryDrawMethod? drawMethod = null)
+    {
+        _changes.Add(new RequestedChange
+        {
+            RemoveRoadSegments = new RemoveRoadSegments
+            {
+                GeometryDrawMethod = drawMethod ?? RoadSegmentGeometryDrawMethod.Measured,
+                Ids = ids.ToArray()
+            }
+        });
+
+        return this;
     }
 
     public Command Build()

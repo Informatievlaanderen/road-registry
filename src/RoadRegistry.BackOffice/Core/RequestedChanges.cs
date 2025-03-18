@@ -184,6 +184,11 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
         return AppendChange(change);
     }
 
+    public RequestedChanges Append(RemoveRoadSegments change)
+    {
+        return AppendChange(change);
+    }
+
     public RequestedChanges Append(RemoveOutlinedRoadSegment change)
     {
         return AppendChange(change);
@@ -258,6 +263,7 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
         var tolerances = VerificationContextTolerances.Default;
 
         return new BeforeVerificationContext(
+            view,
             view.CreateScopedView(DeriveScopeFromChanges(view)),
             this,
             tolerances);
@@ -310,6 +316,17 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
                 case RemoveRoadSegment removeRoadSegment:
                     // if we still know this segment, include the geometry as we know it now
                     if (view.Segments.TryGetValue(removeRoadSegment.Id, out var segmentToRemove)) envelope.ExpandToInclude(segmentToRemove.Geometry.EnvelopeInternal);
+
+                    break;
+                case RemoveRoadSegments removeRoadSegments:
+                    // if we still know this segment, include the geometry as we know it now
+                    foreach (var roadSegmentId in removeRoadSegments.Ids)
+                    {
+                        if (view.Segments.TryGetValue(roadSegmentId, out var roadSegmentToRemove))
+                        {
+                            envelope.ExpandToInclude(roadSegmentToRemove.Geometry.EnvelopeInternal);
+                        }
+                    }
 
                     break;
             }

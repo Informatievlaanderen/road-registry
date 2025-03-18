@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 public class AcceptedChange : IVerifiedChange
@@ -14,13 +15,9 @@ public class AcceptedChange : IVerifiedChange
         _problems = problems ?? throw new ArgumentNullException(nameof(problems));
     }
 
-    public Messages.AcceptedChange Translate()
+    public IEnumerable<Messages.AcceptedChange> Translate()
     {
-        var message = new Messages.AcceptedChange
-        {
-            Problems = _problems.Select(warning => warning.Translate()).ToArray()
-        };
-        _requestedChange.TranslateTo(message);
-        return message;
+        var warnings = _problems.Select(warning => warning.Translate()).ToArray();
+        return _requestedChange.TranslateTo(warnings);
     }
 }

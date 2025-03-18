@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
@@ -29,16 +30,18 @@ public class RemoveRoadSegmentFromEuropeanRoad : IRequestedChange, IHaveHash
     public RoadSegmentId SegmentId { get; }
     public RoadSegmentVersion SegmentVersion { get; }
 
-    public void TranslateTo(Messages.AcceptedChange message)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings)
     {
-        if (message == null) throw new ArgumentNullException(nameof(message));
-
-        message.RoadSegmentRemovedFromEuropeanRoad = new RoadSegmentRemovedFromEuropeanRoad
+        yield return new Messages.AcceptedChange
         {
-            AttributeId = AttributeId,
-            Number = Number,
-            SegmentId = SegmentId,
-            SegmentVersion = SegmentVersion
+            Problems = warnings,
+            RoadSegmentRemovedFromEuropeanRoad = new RoadSegmentRemovedFromEuropeanRoad
+            {
+                AttributeId = AttributeId,
+                Number = Number,
+                SegmentId = SegmentId,
+                SegmentVersion = SegmentVersion
+            }
         };
     }
 

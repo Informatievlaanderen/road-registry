@@ -4,16 +4,18 @@ using System;
 
 public class AfterVerificationContext
 {
-    internal AfterVerificationContext(IScopedRoadNetworkView beforeView, IScopedRoadNetworkView afterView, IRequestedChangeIdentityTranslator translator, VerificationContextTolerances tolerances)
+    internal AfterVerificationContext(IRoadNetworkView rootView, IScopedRoadNetworkView beforeView, IScopedRoadNetworkView afterView, IRequestedChangeIdentityTranslator translator, VerificationContextTolerances tolerances)
     {
+        RootView = rootView ?? throw new ArgumentNullException(nameof(rootView));
         BeforeView = beforeView ?? throw new ArgumentNullException(nameof(beforeView));
         AfterView = afterView ?? throw new ArgumentNullException(nameof(afterView));
         Translator = translator ?? throw new ArgumentNullException(nameof(translator));
         Tolerances = tolerances ?? throw new ArgumentNullException(nameof(tolerances));
     }
 
-    public IScopedRoadNetworkView AfterView { get; }
+    public IRoadNetworkView RootView { get; }
     public IScopedRoadNetworkView BeforeView { get; }
-    public VerificationContextTolerances Tolerances { get; }
+    public IScopedRoadNetworkView AfterView { get; }
     public IRequestedChangeIdentityTranslator Translator { get; }
+    public VerificationContextTolerances Tolerances { get; }
 }

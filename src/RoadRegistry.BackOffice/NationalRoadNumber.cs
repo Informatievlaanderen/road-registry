@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice;
 using System;
 using System.Linq;
 
-public readonly struct NationalRoadNumber : IEquatable<NationalRoadNumber>
+public readonly struct NationalRoadNumber : IEquatable<NationalRoadNumber>, IComparable<NationalRoadNumber>
 {
     public const int MinimumLength = 2;
     public const int MaximumLength = 5;
@@ -123,9 +123,9 @@ public readonly struct NationalRoadNumber : IEquatable<NationalRoadNumber>
         return new NationalRoadNumber(value.ToCharArray());
     }
 
-    public bool Equals(NationalRoadNumber other)
+    public int CompareTo(NationalRoadNumber other)
     {
-        return (other._value ?? Array.Empty<char>()).SequenceEqual(_value ?? Array.Empty<char>());
+        return string.CompareOrdinal(ToString(), other.ToString());
     }
 
     public override bool Equals(object obj)
@@ -133,14 +133,19 @@ public readonly struct NationalRoadNumber : IEquatable<NationalRoadNumber>
         return obj is NationalRoadNumber type && Equals(type);
     }
 
+    public bool Equals(NationalRoadNumber other)
+    {
+        return (other._value ?? []).SequenceEqual(_value ?? []);
+    }
+
     public override int GetHashCode()
     {
-        return new string(_value ?? Array.Empty<char>()).GetHashCode();
+        return new string(_value ?? []).GetHashCode();
     }
 
     public override string ToString()
     {
-        return new string(_value ?? Array.Empty<char>());
+        return new string(_value ?? []);
     }
 
     public static implicit operator string(NationalRoadNumber instance)
@@ -156,5 +161,25 @@ public readonly struct NationalRoadNumber : IEquatable<NationalRoadNumber>
     public static bool operator !=(NationalRoadNumber left, NationalRoadNumber right)
     {
         return !Equals(left, right);
+    }
+
+    public static bool operator <(NationalRoadNumber left, NationalRoadNumber right)
+    {
+        return left.CompareTo(right) < 0;
+    }
+
+    public static bool operator <=(NationalRoadNumber left, NationalRoadNumber right)
+    {
+        return left.CompareTo(right) <= 0;
+    }
+
+    public static bool operator >(NationalRoadNumber left, NationalRoadNumber right)
+    {
+        return left.CompareTo(right) > 0;
+    }
+
+    public static bool operator >=(NationalRoadNumber left, NationalRoadNumber right)
+    {
+        return left.CompareTo(right) >= 0;
     }
 }
