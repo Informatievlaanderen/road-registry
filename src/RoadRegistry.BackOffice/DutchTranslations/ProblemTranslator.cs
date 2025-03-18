@@ -52,6 +52,8 @@ public static class ProblemTranslator
 
         {ProblemCode.RoadNetwork.NotFound, problem => new(problem.Severity, "NotFound",
             "Onbestaand wegen netwerk.")},
+        {ProblemCode.RoadNetwork.Disconnected, problem => new(problem.Severity, "WegenNetwerkNietVerbonden",
+            $"De wegknoop {problem.GetParameterValue("StartNodeId")} heeft geen verbinding meer met wegknoop {problem.GetParameterValue("EndNodeId")}.")},
 
         {ProblemCode.RoadNode.NotConnectedToAnySegment, problem => new(problem.Severity, problem.Reason,
             $"De wegknoop {problem.Parameters[0].Value} is met geen enkel wegsegment verbonden.") },
@@ -87,6 +89,9 @@ public static class ProblemTranslator
             "Het bovenste en onderste wegsegment kruisen elkaar niet.") },
         {ProblemCode.RoadSegment.UpperMissing, problem => new(problem.Severity, problem.Reason,
             "Het bovenste wegsegment ontbreekt.") },
+        {ProblemCode.RoadSegment.NotRemovedBecauseCategoryIsInvalid, problem => new(problem.Severity, "WegsegmentOngeldigeCategorie",
+            $"Wegsegment {problem.GetParameterValue("Identifier")} mag niet verwijderd worden omwille van zijn categorie '{problem.GetParameterValue("Category")}'.") },
+
         {ProblemCode.RoadSegment.AccessRestriction.IsRequired, problem => new(problem.Severity, "ToegangsbeperkingVerplicht",
             "Toegangsbeperking is verplicht.") },
         {ProblemCode.RoadSegment.AccessRestriction.NotValid, problem => new(problem.Severity, "ToegangsbeperkingNietCorrect",

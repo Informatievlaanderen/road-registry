@@ -25,7 +25,7 @@ using Swashbuckle.AspNetCore.Filters;
 
 public partial class RoadSegmentsController
 {
-    private const string DeleteRoute = "acties/verwijderen";
+    private const string DeleteRoadSegmentsRoute = "acties/verwijderen";
 
     /// <summary>
     ///     Verwijder wegsegmenten.
@@ -36,15 +36,15 @@ public partial class RoadSegmentsController
     /// <response code="202">Als de wegsegmenten gevonden zijn.</response>
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
-    [HttpPost(DeleteRoute, Name = nameof(Delete))]
+    [HttpPost(DeleteRoadSegmentsRoute, Name = nameof(DeleteRoadSegments))]
     [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.WegenUitzonderingen.Beheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
-    [SwaggerOperation(OperationId = nameof(Delete), Description = "Verwijder wegsegmenten")]
-    public async Task<IActionResult> Delete(
+    [SwaggerOperation(OperationId = nameof(DeleteRoadSegments), Description = "Verwijder wegsegmenten")]
+    public async Task<IActionResult> DeleteRoadSegments(
         [FromBody] DeleteRoadSegmentsParameters parameters,
         [FromServices] DeleteRoadSegmentsParametersValidator validator,
         CancellationToken cancellationToken)

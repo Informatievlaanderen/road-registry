@@ -15,6 +15,7 @@ public static class RejectedChange
         ModifyRoadSegmentAttributes m => $"Wijzig wegsegment attributen {m.Id}.",
         ModifyRoadSegmentGeometry m => $"Wijzig wegsegment geometrie {m.Id}.",
         RemoveRoadSegment m => $"Verwijder wegsegment {m.Id}.",
+        RemoveRoadSegments m => $"Verwijder wegsegmenten: {string.Join(",", m.Ids)}.",
         RemoveOutlinedRoadSegment m => $"Verwijder ingeschetst wegsegment {m.Id}.",
         RemoveOutlinedRoadSegmentFromRoadNetwork m => $"Verwijder ingeschetst wegsegment {m.Id} uit het wegennetwerk.",
         AddRoadSegmentToEuropeanRoad m => $"Voeg wegsegment {m.SegmentId} toe aan europese weg {m.Number}.",

@@ -3,11 +3,8 @@ namespace RoadRegistry.BackOffice.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
-using DotSpatial.Projections.ProjectedCategories;
 using Messages;
-using ProblemCodes;
 
 public class RemoveRoadSegments : IRequestedChange, IHaveHash
 {
@@ -38,11 +35,24 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
 
         var problems = Problems.None;
 
+        var invalidCategories = new[]
+        {
+            RoadSegmentCategory.EuropeanMainRoad,
+            RoadSegmentCategory.FlemishMainRoad,
+            RoadSegmentCategory.MainRoad,
+            RoadSegmentCategory.PrimaryRoadI,
+            RoadSegmentCategory.PrimaryRoadII
+        };
+
         foreach (var id in Ids)
         {
-            if (!context.BeforeView.View.Segments.ContainsKey(id))
+            if (!context.BeforeView.View.Segments.TryGetValue(id, out var segment))
             {
                 problems += new RoadSegmentNotFound(id);
+            }
+            else if (invalidCategories.Contains(segment.AttributeHash.Category))
+            {
+                problems += new RoadSegmentNotRemovedBecauseCategoryIsInvalid(id, segment.AttributeHash.Category);
             }
         }
 
@@ -57,13 +67,11 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
 
         _acceptedChanges = BuildAcceptedChanges(context);
 
-        //TODO-pr validation: alleen bestaande segmenten mogen verwijderd worden op API niveau, error zoals bij deleteoutline
-
         var problems = context.ValidateRoadNetworkConnections(_acceptedChanges.ToArray(), Ids);
         return problems;
     }
 
-    public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] _)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(Messages.Problem[] _)
     {
         return _acceptedChanges;
     }

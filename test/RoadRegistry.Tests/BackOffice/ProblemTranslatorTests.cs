@@ -39,6 +39,18 @@ public class ProblemTranslatorTests
                 ]
             },
             {
+                ProblemCode.RoadSegment.NotRemovedBecauseCategoryIsInvalid, [
+                    new ProblemParameter { Name = "Identifier", Value = "1" },
+                    new ProblemParameter { Name = "Category", Value = "abc" }
+                ]
+            },
+            {
+                ProblemCode.RoadNetwork.Disconnected, [
+                    new ProblemParameter { Name = "StartNodeId", Value = "1" },
+                    new ProblemParameter { Name = "EndNodeId", Value = "1" }
+                ]
+            },
+            {
                 ProblemCode.RoadSegment.StartPoint.MeasureValueNotEqualToZero, [
                     new ProblemParameter("Identifier", "1"),
                     new ProblemParameter("PointX", "1.0"),

@@ -83,7 +83,7 @@ public abstract class RemoveRoadSegmentsTestBase
             }
         };
 
-        return await controller.Delete(
+        return await controller.DeleteRoadSegments(
             parameters,
             new DeleteRoadSegmentsParametersValidator(),
             CancellationToken.None

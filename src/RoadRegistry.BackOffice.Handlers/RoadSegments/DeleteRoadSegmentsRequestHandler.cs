@@ -62,7 +62,7 @@ public sealed class DeleteRoadSegmentsRequestHandler : EndpointRequestHandler<De
         {
             RequestId = ChangeRequestId.FromUploadId(new UploadId(Guid.NewGuid())),
             Changes = requestedChanges,
-            Reason = "Verwijder wegsegmenten in bulk",
+            Reason = "Verwijdering wegsegmenten in bulk",
             Operator = request.ProvenanceData.Operator,
             OrganizationId = OrganizationId.DigitaalVlaanderen
         };
