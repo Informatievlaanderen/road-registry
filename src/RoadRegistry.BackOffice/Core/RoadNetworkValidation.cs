@@ -83,14 +83,14 @@ internal static class RoadNetworkValidation
 
     private static IEnumerable<RoadNodeId> FindNodesToConnectTo(RoadNodeId startNodeId, IReadOnlyCollection<RoadSegmentId> removedRoadSegmentIds, AfterVerificationContext context)
     {
-        var startNode = context.BeforeView.Nodes[startNodeId];
+        var startNode = context.RootView.Nodes[startNodeId];
 
         var processedSegmentIds = new List<RoadSegmentId>();
         var processedNodeIds = new List<RoadNodeId> { startNodeId };
 
         return startNode.Segments
             .Where(removedRoadSegmentIds.Contains)
-            .Select(id => context.BeforeView.Segments[id])
+            .Select(id => context.RootView.Segments[id])
             .SelectMany(segment => GetConnectedOffspringNodes(startNodeId, segment, processedNodeIds, processedSegmentIds, context))
             .Distinct()
             .ToList();
@@ -122,10 +122,10 @@ internal static class RoadNetworkValidation
             yield break;
         }
 
-        var otherNode = context.BeforeView.Nodes[otherNodeId];
+        var otherNode = context.RootView.Nodes[otherNodeId];
 
         foreach (var endNodeId in otherNode.Segments
-                     .Select(id => context.BeforeView.Segments[id])
+                     .Select(id => context.RootView.Segments[id])
                      .SelectMany(segment => GetConnectedOffspringNodes(otherNodeId, segment, processedNodeIds, processedSegmentIds, context)))
         {
             yield return endNodeId;
