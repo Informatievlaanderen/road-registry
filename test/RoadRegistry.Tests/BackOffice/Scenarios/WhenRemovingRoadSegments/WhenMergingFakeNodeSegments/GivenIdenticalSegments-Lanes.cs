@@ -118,7 +118,7 @@ public partial class GivenIdenticalSegments
                     AsOfGeometryVersion = 1,
                     FromPosition = 0,
                     ToPosition = 2.4142135623731M,
-                    Type = RoadSegmentSurfaceType.Unknown
+                    Type = RoadSegmentSurfaceType.SolidSurface
                 }],
                 Widths = [new()
                 {
@@ -126,7 +126,7 @@ public partial class GivenIdenticalSegments
                     AsOfGeometryVersion = 1,
                     FromPosition = 0,
                     ToPosition = 2.4142135623731M,
-                    Width = RoadSegmentWidth.Unknown
+                    Width = new RoadSegmentWidth(3)
                 }],
                 LeftSide = new RoadSegmentSideAttributes
                 {

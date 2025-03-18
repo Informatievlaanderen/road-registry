@@ -117,9 +117,9 @@ public abstract class RemoveRoadSegmentsTestBase : RoadNetworkTestBase
                 Name = TestData.ChangedByOrganizationName
             },
             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-            Morphology = RoadSegmentMorphology.Unknown,
-            Status = RoadSegmentStatus.Unknown,
-            Category = RoadSegmentCategory.Unknown,
+            Morphology = RoadSegmentMorphology.Entry_or_exit_of_a_car_park,
+            Status = RoadSegmentStatus.InUse,
+            Category = RoadSegmentCategory.SecondaryRoad,
             AccessRestriction = RoadSegmentAccessRestriction.PublicRoad,
             LeftSide = new RoadSegmentSideAttributes
             {
@@ -134,7 +134,7 @@ public abstract class RemoveRoadSegmentsTestBase : RoadNetworkTestBase
                 new RoadSegmentLaneAttributes
                 {
                     AttributeId = 1,
-                    Direction = RoadSegmentLaneDirection.Unknown,
+                    Direction = RoadSegmentLaneDirection.Forward,
                     Count = 1,
                     FromPosition = 0,
                     ToPosition = (decimal)lineString.Length,
@@ -146,7 +146,7 @@ public abstract class RemoveRoadSegmentsTestBase : RoadNetworkTestBase
                 new RoadSegmentWidthAttributes
                 {
                     AttributeId = 1,
-                    Width = RoadSegmentWidth.Unknown,
+                    Width = new RoadSegmentWidth(3),
                     FromPosition = 0,
                     ToPosition = (decimal)lineString.Length,
                     AsOfGeometryVersion = 1
@@ -157,7 +157,7 @@ public abstract class RemoveRoadSegmentsTestBase : RoadNetworkTestBase
                 new RoadSegmentSurfaceAttributes
                 {
                     AttributeId = 1,
-                    Type = RoadSegmentSurfaceType.Unknown,
+                    Type = RoadSegmentSurfaceType.SolidSurface,
                     FromPosition = 0,
                     ToPosition = (decimal)lineString.Length,
                     AsOfGeometryVersion = 1

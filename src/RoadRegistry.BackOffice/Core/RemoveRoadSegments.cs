@@ -227,8 +227,8 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
                                 GeometryDrawMethod = segment.AttributeHash.GeometryDrawMethod,
                                 AccessRestriction = segment.AttributeHash.AccessRestriction,
                                 Category = segment.AttributeHash.Category,
-                                Morphology = segment.AttributeHash.Category,
-                                Status = segment.AttributeHash.Category,
+                                Morphology = segment.AttributeHash.Morphology,
+                                Status = segment.AttributeHash.Status,
                                 MaintenanceAuthority = new MaintenanceAuthority
                                 {
                                     Code = segment.AttributeHash.OrganizationId,
