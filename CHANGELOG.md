@@ -1,3 +1,15 @@
+# [4.27.0](https://github.com/informatievlaanderen/road-registry/compare/v4.26.2...v4.27.0) (2025-03-18)
+
+
+### Bug Fixes
+
+* deploy pipeline dependency on lambda_prd ([18ce189](https://github.com/informatievlaanderen/road-registry/commit/18ce189a76b68d55946df20133f70ca985b0b64b))
+
+
+### Features
+
+* GAWR-6721 bulk remove roadsegments ([a338c60](https://github.com/informatievlaanderen/road-registry/commit/a338c6062f301fbc8c0aca210a66539fa30eae6e))
+
 ## [4.26.2](https://github.com/informatievlaanderen/road-registry/compare/v4.26.1...v4.26.2) (2025-03-03)
 
 
