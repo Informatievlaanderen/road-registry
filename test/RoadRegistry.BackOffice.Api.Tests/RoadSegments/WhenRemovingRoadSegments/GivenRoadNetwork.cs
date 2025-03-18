@@ -1,7 +1,10 @@
 ﻿namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenRemovingRoadSegments;
 
+using Abstractions.Exceptions;
+using Abstractions.RoadSegments;
 using Api.RoadSegments;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
 
 public class GivenRoadNetwork : RemoveRoadSegmentsTestBase
 {
@@ -9,8 +12,6 @@ public class GivenRoadNetwork : RemoveRoadSegmentsTestBase
     public async Task ThenAcceptedResult()
     {
         // Arrange
-        await GivenRoadNetwork();
-
         var request = new DeleteRoadSegmentsParameters
         {
             Wegsegmenten = [TestData.Segment1Added.Id]
@@ -55,9 +56,13 @@ public class GivenRoadNetwork : RemoveRoadSegmentsTestBase
     [Fact]
     public async Task WithNonExistingWegsegmenten_ThenBadRequest()
     {
+        Mediator
+            .Setup(x => x.Send(It.IsAny<DeleteRoadSegmentsRequest>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new RoadSegmentsNotFoundException([new RoadSegmentId(1)]));
+
         await ItShouldHaveExpectedError(new DeleteRoadSegmentsParameters
         {
-            Wegsegmenten = [999]
+            Wegsegmenten = [1]
         }, "NotFound", null);
     }
 }

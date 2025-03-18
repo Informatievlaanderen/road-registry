@@ -1,20 +1,21 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Core.ProblemCodes;
-using Editor.Schema;
 using Extensions;
 using FluentValidation;
+using FluentValidation.Results;
 using Infrastructure;
 using Infrastructure.Authentication;
+using Messages;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -29,7 +30,7 @@ public partial class RoadSegmentsController
     /// <summary>
     ///     Verwijder wegsegmenten.
     /// </summary>
-    /// <param name="request"></param>
+    /// <param name="parameters"></param>
     /// <param name="validator"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="202">Als de wegsegmenten gevonden zijn.</response>
@@ -44,15 +45,33 @@ public partial class RoadSegmentsController
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerOperation(OperationId = nameof(Delete), Description = "Verwijder wegsegmenten")]
     public async Task<IActionResult> Delete(
-        [FromBody] DeleteRoadSegmentsParameters request,
+        [FromBody] DeleteRoadSegmentsParameters parameters,
         [FromServices] DeleteRoadSegmentsParametersValidator validator,
         CancellationToken cancellationToken)
     {
-        await validator.ValidateAndThrowAsync(request, cancellationToken);
+        try
+        {
+            await validator.ValidateAndThrowAsync(parameters, cancellationToken);
 
-        var response = await _mediator.Send(new DeleteRoadSegmentsRequest(request.Wegsegmenten), cancellationToken);
+            var request = new DeleteRoadSegmentsRequest(parameters.Wegsegmenten.Select(x => new RoadSegmentId(x)).ToArray());
+            var response = await _mediator.Send(request, cancellationToken);
 
-        return Accepted(new LocationResult(response.TicketUrl));
+            return Accepted(new LocationResult(response.TicketUrl));
+        }
+        catch (RoadSegmentsNotFoundException ex)
+        {
+            throw new ValidationException([
+                new ValidationFailure
+                {
+                    PropertyName = nameof(parameters.Wegsegmenten),
+                    ErrorCode = ProblemCode.RoadSegments.NotFound,
+                    CustomState = new[]
+                    {
+                        new ProblemParameter("RoadSegmentIds", string.Join(",", ex.RoadSegmentIds))
+                    }
+                }
+            ]);
+        }
     }
 }
 
@@ -70,12 +89,8 @@ public class DeleteRoadSegmentsParameters
 
 public class DeleteRoadSegmentsParametersValidator : AbstractValidator<DeleteRoadSegmentsParameters>
 {
-    private readonly EditorContext _editorContext;
-
-    public DeleteRoadSegmentsParametersValidator(EditorContext editorContext)
+    public DeleteRoadSegmentsParametersValidator()
     {
-        _editorContext = editorContext;
-
         RuleFor(x => x.Wegsegmenten)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
@@ -83,23 +98,6 @@ public class DeleteRoadSegmentsParametersValidator : AbstractValidator<DeleteRoa
             .Must(wegsegmenten => wegsegmenten.All(RoadSegmentId.Accepts))
             .WithProblemCode(ProblemCode.Common.JsonInvalid)
             .Must(x => x.Length == x.Distinct().Count())
-            .WithProblemCode(ProblemCode.RoadSegment.IdsNotUnique)
-            .MustAsync(BeExistingNonRemovedRoadSegment)
-            .WithProblemCode(ProblemCode.RoadSegments.NotFound, wegsegmenten => string.Join(", ", FindNonExistingOrRemovedRoadSegmentIds(wegsegmenten)));
-    }
-
-    private Task<bool> BeExistingNonRemovedRoadSegment(int[] ids, CancellationToken cancellationToken)
-    {
-        return Task.FromResult(!FindNonExistingOrRemovedRoadSegmentIds(ids).Any());
-    }
-
-    private IEnumerable<int> FindNonExistingOrRemovedRoadSegmentIds(ICollection<int> ids)
-    {
-        return ids.Except(FindExistingAndNonRemovedRoadSegmentIds(ids));
-    }
-
-    private IEnumerable<int> FindExistingAndNonRemovedRoadSegmentIds(IEnumerable<int> ids)
-    {
-        return _editorContext.RoadSegments.Select(s => s.Id).Where(w => ids.Contains(w));
+            .WithProblemCode(ProblemCode.RoadSegment.IdsNotUnique);
     }
 }

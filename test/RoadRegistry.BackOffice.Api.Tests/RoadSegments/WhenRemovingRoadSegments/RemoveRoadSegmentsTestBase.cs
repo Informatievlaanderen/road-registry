@@ -25,18 +25,16 @@ public abstract class RemoveRoadSegmentsTestBase
     protected readonly RoadNetworkTestData TestData;
     protected IFixture Fixture => TestData.ObjectProvider;
 
-    private readonly Mock<IMediator> _mediator;
-    private readonly EditorContext _editorContext;
+    protected readonly Mock<IMediator> Mediator;
 
     protected RemoveRoadSegmentsTestBase()
     {
         TestData = new RoadNetworkTestData();
 
-        _mediator = new Mock<IMediator>();
-        _mediator
+        Mediator = new Mock<IMediator>();
+        Mediator
             .Setup(x => x.Send(It.IsAny<DeleteRoadSegmentsRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Fixture.Create<DeleteRoadSegmentsResponse>());
-        _editorContext = new FakeEditorContextFactory().CreateDbContext();
     }
 
     protected async Task ItShouldHaveExpectedError(
@@ -75,22 +73,9 @@ public abstract class RemoveRoadSegmentsTestBase
         return err.TranslateToDutch();
     }
 
-    protected async Task GivenRoadNetwork()
-    {
-        await _editorContext.AddOrganization(TestData.ChangedByOrganization, TestData.ChangedByOrganizationName);
-
-        var roadNetworkChangesAccepted = Fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(TestData.Segment1Added);
-
-        await _editorContext.RoadSegments
-            .AddAsync(TestData.Segment1Added.ToRoadSegmentRecord(TestData.ChangedByOrganization, roadNetworkChangesAccepted.When));
-        await _editorContext.SaveChangesAsync(CancellationToken.None);
-    }
-
     protected async Task<IActionResult> GetResultAsync(DeleteRoadSegmentsParameters parameters)
     {
-        var controller = new RoadSegmentsController(new FakeTicketingOptions(), _mediator.Object)
+        var controller = new RoadSegmentsController(new FakeTicketingOptions(), Mediator.Object)
         {
             ControllerContext = new ControllerContext
             {
@@ -100,7 +85,7 @@ public abstract class RemoveRoadSegmentsTestBase
 
         return await controller.Delete(
             parameters,
-            new DeleteRoadSegmentsParametersValidator(_editorContext),
+            new DeleteRoadSegmentsParametersValidator(),
             CancellationToken.None
         );
     }

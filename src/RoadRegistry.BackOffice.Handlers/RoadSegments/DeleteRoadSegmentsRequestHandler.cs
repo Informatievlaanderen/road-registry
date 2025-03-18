@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.RoadSegments;
 
 using Abstractions;
+using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
 using Core;
 using Editor.Schema;
@@ -23,8 +24,8 @@ public sealed class DeleteRoadSegmentsRequestHandler : EndpointRequestHandler<De
         EditorContext editorContext,
         ITicketing ticketing,
         ITicketingUrl ticketingUrl,
-        ILogger<DeleteRoadSegmentsRequestHandler> logger)
-        : base(roadNetworkCommandQueue, logger)
+        ILoggerFactory loggerFactory)
+        : base(roadNetworkCommandQueue, loggerFactory.CreateLogger<DeleteRoadSegmentsRequestHandler>())
     {
         _editorContext = editorContext;
         _ticketing = ticketing;
@@ -33,11 +34,17 @@ public sealed class DeleteRoadSegmentsRequestHandler : EndpointRequestHandler<De
 
     protected override async Task<DeleteRoadSegmentsResponse> InnerHandleAsync(DeleteRoadSegmentsRequest request, CancellationToken cancellationToken)
     {
-        //TODO-pr add tests
+        var ids = request.RoadSegmentIds.Select(x => x.ToInt32()).ToArray();
 
         var roadSegments = await _editorContext.RoadSegments
-            .Where(x => request.RoadSegmentIds.Contains(x.Id))
+            .Where(x => ids.Contains(x.Id))
             .ToListAsync(cancellationToken);
+
+        var nonExistingIds = request.RoadSegmentIds.Except(roadSegments.Select(x => new RoadSegmentId(x.Id))).ToArray();
+        if (nonExistingIds.Any())
+        {
+            throw new RoadSegmentsNotFoundException(nonExistingIds);
+        }
 
         var requestedChanges = roadSegments
             .GroupBy(x => x.MethodId)

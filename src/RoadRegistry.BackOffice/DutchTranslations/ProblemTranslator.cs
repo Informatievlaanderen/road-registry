@@ -296,7 +296,7 @@ public static class ProblemTranslator
             ? $"Wegsegment met id {problem.GetParameterValue("Identifier")} heeft geen enkele wegbreedte."
             : "Wegsegment heeft geen enkele wegbreedte.")},
         {ProblemCode.RoadSegments.NotFound, problem => new(problem.Severity, "NotFound",
-            $"Onbestaande of verwijderde wegsegmenten gevonden '{problem.Parameters[0].Value}'.") },
+            $"Onbestaande of verwijderde wegsegmenten gevonden: {problem.Parameters[0].Value}") },
 
         {ProblemCode.ShapeFile.GeometrySridMustBeEqual, problem => new(problem.Severity, problem.Reason,
             "SRID van alle geometrieën moeten dezelfde zijn.")},
