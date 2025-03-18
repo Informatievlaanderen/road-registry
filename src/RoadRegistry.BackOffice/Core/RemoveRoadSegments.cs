@@ -71,7 +71,7 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
         return problems;
     }
 
-    public IEnumerable<Messages.AcceptedChange> TranslateTo(Messages.Problem[] _)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(Messages.Problem[] warnings)
     {
         return _acceptedChanges;
     }

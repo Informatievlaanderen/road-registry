@@ -241,4 +241,56 @@ public partial class ImmutableRoadNetworkView : IRoadNetworkView
 
         return result;
     }
+
+    private ImmutableRoadNetworkView WithRemovedRoadSegment(RoadSegmentId id)
+    {
+        return new ImmutableRoadNetworkView(
+            _segments.TryGetValue(id, out var segment)
+                ? _nodes
+                    .TryReplace(segment.Start, node => node.DisconnectFrom(id))
+                    .TryReplace(segment.End, node => node.DisconnectFrom(id))
+                : _nodes,
+            _segments.Remove(id),
+            _gradeSeparatedJunctions,
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers
+        );
+    }
+
+    private ImmutableRoadNetworkView WithRemovedGradeSeparatedJunction(GradeSeparatedJunctionId id)
+    {
+        return new ImmutableRoadNetworkView(
+            _nodes,
+            _segments,
+            _gradeSeparatedJunctions.Remove(id),
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers
+        );
+    }
+
+    private ImmutableRoadNetworkView WithRemovedRoadNode(RoadNodeId id)
+    {
+        return new ImmutableRoadNetworkView(
+            _nodes.Remove(id),
+            _segments,
+            _gradeSeparatedJunctions,
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers
+        );
+    }
+
+    private ImmutableRoadNetworkView WithChangedRoadNodeType(RoadNodeId id, RoadNodeType type)
+    {
+        return new ImmutableRoadNetworkView(
+            _nodes.TryReplace(id, x => x.WithType(type)),
+            _segments,
+            _gradeSeparatedJunctions,
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers
+        );
+    }
 }

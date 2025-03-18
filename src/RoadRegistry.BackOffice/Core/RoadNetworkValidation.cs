@@ -47,10 +47,10 @@ internal static class RoadNetworkValidation
             graph.AddVertex(nodeId);
         }
 
-        foreach (var segment in view.Segments)
+        foreach (var segment in view.Segments.Select(x => x.Value))
         {
-            var startVertex = segment.Value.Start;
-            var endVertex = segment.Value.End;
+            var startVertex = segment.Start;
+            var endVertex = segment.End;
 
             graph.AddEdge(Comparer<int>.Default.Compare(startVertex, endVertex) > 0
                 ? new UndirectedEdge<int>(endVertex, startVertex)

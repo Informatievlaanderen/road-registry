@@ -114,9 +114,11 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             if (failedChangedMessages.Any() && successChangedMessages.Any())
             {
                 foreach (var item in successChangedMessages)
-                foreach (var @event in item.Value)
                 {
-                    context.EventFilter.Exclude(item.Key, @event);
+                    foreach (var @event in item.Value)
+                    {
+                        context.EventFilter.Exclude(item.Key, @event);
+                    }
                 }
             }
 
@@ -296,7 +298,7 @@ public static class RequestedChangesConverter
                     Change = change,
                     StreamName = geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
                         ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(
-                            new RoadSegmentId(id ?? throw new ArgumentNullException(nameof(id))))
+                            new RoadSegmentId(id!.Value))
                         : RoadNetworkStreamNameProvider.Default
                 }];
             })

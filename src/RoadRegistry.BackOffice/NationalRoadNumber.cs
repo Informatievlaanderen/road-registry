@@ -162,4 +162,24 @@ public readonly struct NationalRoadNumber : IEquatable<NationalRoadNumber>, ICom
     {
         return !Equals(left, right);
     }
+
+    public static bool operator <(NationalRoadNumber left, NationalRoadNumber right)
+    {
+        return left.CompareTo(right) < 0;
+    }
+
+    public static bool operator <=(NationalRoadNumber left, NationalRoadNumber right)
+    {
+        return left.CompareTo(right) <= 0;
+    }
+
+    public static bool operator >(NationalRoadNumber left, NationalRoadNumber right)
+    {
+        return left.CompareTo(right) > 0;
+    }
+
+    public static bool operator >=(NationalRoadNumber left, NationalRoadNumber right)
+    {
+        return left.CompareTo(right) >= 0;
+    }
 }

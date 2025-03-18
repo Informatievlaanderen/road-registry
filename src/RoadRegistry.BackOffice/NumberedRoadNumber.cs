@@ -71,7 +71,7 @@ public struct NumberedRoadNumber : IEquatable<NumberedRoadNumber>, IComparable<N
 
     public bool Equals(NumberedRoadNumber other)
     {
-        return (other._value ?? Array.Empty<char>()).SequenceEqual(_value ?? Array.Empty<char>());
+        return (other._value ?? []).SequenceEqual(_value ?? []);
     }
 
     public int CompareTo(NumberedRoadNumber other)
@@ -86,12 +86,12 @@ public struct NumberedRoadNumber : IEquatable<NumberedRoadNumber>, IComparable<N
 
     public override int GetHashCode()
     {
-        return new string(_value ?? Array.Empty<char>()).GetHashCode();
+        return new string(_value ?? []).GetHashCode();
     }
 
     public override string ToString()
     {
-        return new string(_value ?? Array.Empty<char>());
+        return new string(_value ?? []);
     }
 
     public static implicit operator string(NumberedRoadNumber instance)
@@ -107,5 +107,25 @@ public struct NumberedRoadNumber : IEquatable<NumberedRoadNumber>, IComparable<N
     public static bool operator !=(NumberedRoadNumber left, NumberedRoadNumber right)
     {
         return !Equals(left, right);
+    }
+
+    public static bool operator <(NumberedRoadNumber left, NumberedRoadNumber right)
+    {
+        return left.CompareTo(right) < 0;
+    }
+
+    public static bool operator <=(NumberedRoadNumber left, NumberedRoadNumber right)
+    {
+        return left.CompareTo(right) <= 0;
+    }
+
+    public static bool operator >(NumberedRoadNumber left, NumberedRoadNumber right)
+    {
+        return left.CompareTo(right) > 0;
+    }
+
+    public static bool operator >=(NumberedRoadNumber left, NumberedRoadNumber right)
+    {
+        return left.CompareTo(right) >= 0;
     }
 }

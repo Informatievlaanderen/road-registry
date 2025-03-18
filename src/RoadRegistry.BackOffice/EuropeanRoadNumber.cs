@@ -50,21 +50,6 @@ public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>, IDutchT
         return _value.GetHashCode();
     }
 
-    public static bool operator ==(EuropeanRoadNumber left, EuropeanRoadNumber right)
-    {
-        return Equals(left, right);
-    }
-
-    public static implicit operator string(EuropeanRoadNumber instance)
-    {
-        return instance.ToString();
-    }
-
-    public static bool operator !=(EuropeanRoadNumber left, EuropeanRoadNumber right)
-    {
-        return !Equals(left, right);
-    }
-
     public static EuropeanRoadNumber Parse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -78,14 +63,19 @@ public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>, IDutchT
         return _value;
     }
 
-    public int CompareTo(EuropeanRoadNumber other)
-    {
-        return string.CompareOrdinal(_value, other._value);
-    }
-
     public string ToDutchString()
     {
         return _value;
+    }
+
+    public static implicit operator string(EuropeanRoadNumber instance)
+    {
+        return instance.ToString();
+    }
+
+    public int CompareTo(EuropeanRoadNumber other)
+    {
+        return string.CompareOrdinal(_value, other._value);
     }
 
     public static bool TryParse(string value, out EuropeanRoadNumber parsed)
@@ -94,5 +84,35 @@ public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>, IDutchT
 
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;
+    }
+
+    public static bool operator ==(EuropeanRoadNumber left, EuropeanRoadNumber right)
+    {
+        return Equals(left, right);
+    }
+
+    public static bool operator !=(EuropeanRoadNumber left, EuropeanRoadNumber right)
+    {
+        return !Equals(left, right);
+    }
+
+    public static bool operator <(EuropeanRoadNumber left, EuropeanRoadNumber right)
+    {
+        return left.CompareTo(right) < 0;
+    }
+
+    public static bool operator <=(EuropeanRoadNumber left, EuropeanRoadNumber right)
+    {
+        return left.CompareTo(right) <= 0;
+    }
+
+    public static bool operator >(EuropeanRoadNumber left, EuropeanRoadNumber right)
+    {
+        return left.CompareTo(right) > 0;
+    }
+
+    public static bool operator >=(EuropeanRoadNumber left, EuropeanRoadNumber right)
+    {
+        return left.CompareTo(right) >= 0;
     }
 }
