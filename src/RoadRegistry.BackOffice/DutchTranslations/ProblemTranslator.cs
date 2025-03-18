@@ -70,6 +70,8 @@ public static class ProblemTranslator
             $"De waarde '{problem.Parameters[0].Value}' komt niet overeen met een attribuut uit het Wegenregister dat via dit endpoint gewijzigd kan worden.") },
         {ProblemCode.RoadSegment.ChangeAttributesRequestNull, problem => new(problem.Severity, "NotFound",
             "Ten minste één attribuut moet opgegeven worden.") },
+        {ProblemCode.RoadSegment.IdsNotUnique, problem => new(problem.Severity, "WegsegmentenNietUniek",
+            "De wegsegmenten moeten uniek zijn.") },
         {ProblemCode.RoadSegment.IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction, problem => new(problem.Severity, problem.Reason,
             $"Het wegsegment {problem.Parameters[0].Value} mag niet kruisen met wegsegment {problem.Parameters[1].Value}.") },
         {ProblemCode.RoadSegment.LowerMissing, problem => new(problem.Severity, problem.Reason,
