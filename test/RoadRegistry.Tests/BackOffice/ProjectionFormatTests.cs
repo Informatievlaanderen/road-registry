@@ -29,6 +29,14 @@ public class ProjectionFormatTests
         Assert.False(sut.IsBelgeLambert1972());
     }
 
+    [Fact]
+    public void IsBelgeLambert1972DoesNotThrowGivenValidContentButUnknownFormat()
+    {
+        var sut = new ProjectionFormat("GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_WGS_1984\",SPHEROID[\"WGS_1984\",6378137.0,298.257223563]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]]");
+
+        Assert.False(sut.IsBelgeLambert1972());
+    }
+
     [Theory]
     [MemberData(nameof(ProjectionFormatCases))]
     public void IsBelgeLambert1972ReturnsExpectedResult(bool expected, string content)
