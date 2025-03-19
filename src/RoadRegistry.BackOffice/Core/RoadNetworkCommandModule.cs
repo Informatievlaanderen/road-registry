@@ -59,20 +59,30 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         var reason = new Reason(command.Body.Reason);
         var ticketId = TicketId.FromValue(command.Body.TicketId);
 
-        var sw = Stopwatch.StartNew();
-        var organizationId = new OrganizationId(command.Body.OrganizationId);
-        var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
-        _logger.LogInformation("TIMETRACKING changeroadnetwork: finding organization took {Elapsed}", sw.Elapsed);
-
-        var organizationTranslation = ToDutchTranslation(organization, organizationId);
-
-        sw.Restart();
-
-        var successChangedMessages = new Dictionary<IEventSourcedEntity, List<IMessage>>();
-        var failedChangedMessages = new Dictionary<IEventSourcedEntity, List<RoadNetworkChangesRejected>>();
-
         await using (var container = _lifetimeScope.BeginLifetimeScope())
         {
+            if (ticketId is not null)
+            {
+                var ticketing = container.Resolve<ITicketing>();
+                var ticket = await ticketing.Get(ticketId.Value, cancellationToken);
+                if (ticket?.Status == TicketStatus.Created)
+                {
+                    await ticketing.Pending(ticketId.Value, cancellationToken);
+                }
+            }
+
+            var sw = Stopwatch.StartNew();
+            var organizationId = new OrganizationId(command.Body.OrganizationId);
+            var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
+            _logger.LogInformation("TIMETRACKING changeroadnetwork: finding organization took {Elapsed}", sw.Elapsed);
+
+            var organizationTranslation = ToDutchTranslation(organization, organizationId);
+
+            sw.Restart();
+
+            var successChangedMessages = new Dictionary<IEventSourcedEntity, List<IMessage>>();
+            var failedChangedMessages = new Dictionary<IEventSourcedEntity, List<RoadNetworkChangesRejected>>();
+
             var idGenerator = container.Resolve<IRoadNetworkIdGenerator>();
 
             var roadNetworkStreamChanges = await SplitChangesByRoadNetworkStream(idGenerator, command.Body.Changes);
@@ -257,11 +267,14 @@ public static class RequestedChangesConverter
                             });
                     }
 
-                    return [new
-                    {
-                        Change = change,
-                        StreamName = RoadNetworkStreamNameProvider.Default
-                    }];
+                    return
+                    [
+                        new
+                        {
+                            Change = change,
+                            StreamName = RoadNetworkStreamNameProvider.Default
+                        }
+                    ];
                 }
 
                 var id =
@@ -298,14 +311,17 @@ public static class RequestedChangesConverter
                     throw new InvalidOperationException($"No outlined road segment ID found for change {change.Flatten().GetType().Name}");
                 }
 
-                return [new
-                {
-                    Change = change,
-                    StreamName = geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
-                        ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(
-                            new RoadSegmentId(id.Value))
-                        : RoadNetworkStreamNameProvider.Default
-                }];
+                return
+                [
+                    new
+                    {
+                        Change = change,
+                        StreamName = geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
+                            ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(
+                                new RoadSegmentId(id.Value))
+                            : RoadNetworkStreamNameProvider.Default
+                    }
+                ];
             })
             .GroupBy(x => x.StreamName, x => x.Change)
             .ToDictionary(x => x.Key, x => x.ToArray());

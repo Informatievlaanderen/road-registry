@@ -143,11 +143,7 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
     private RoadNodeId[] GetSegmentRoadNodeIds(AfterVerificationContext context)
     {
         return Ids
-            .SelectMany(id =>
-            {
-                context.BeforeView.View.Segments.TryGetValue(id, out var segment);
-                return segment!.Nodes;
-            })
+            .SelectMany(id => context.BeforeView.View.Segments[id].Nodes)
             .Distinct()
             .ToArray();
     }
