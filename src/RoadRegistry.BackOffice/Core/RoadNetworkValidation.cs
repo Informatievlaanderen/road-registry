@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Core;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Messages;
@@ -12,10 +13,12 @@ internal static class RoadNetworkValidation
     {
         var problems = Problems.None;
 
-        var view = context.RootView.RestoreFromEvents([new RoadNetworkChangesAccepted
-        {
-            Changes = acceptedChanges
-        }]);
+        var view = context.RootView.RestoreFromEvents([
+            new RoadNetworkChangesAccepted
+            {
+                Changes = acceptedChanges
+            }
+        ]);
 
         var nodesWithRequiredConnections = context.GetPossibleConnectionsForRemovedSegments(removedRoadSegmentIds);
         var graph = BuildGraph(view);
@@ -52,9 +55,16 @@ internal static class RoadNetworkValidation
             var startVertex = segment.Start;
             var endVertex = segment.End;
 
-            graph.AddEdge(Comparer<int>.Default.Compare(startVertex, endVertex) > 0
-                ? new UndirectedEdge<int>(endVertex, startVertex)
-                : new UndirectedEdge<int>(startVertex, endVertex));
+            try
+            {
+                graph.AddEdge(Comparer<int>.Default.Compare(startVertex, endVertex) > 0
+                    ? new UndirectedEdge<int>(endVertex, startVertex)
+                    : new UndirectedEdge<int>(startVertex, endVertex));
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error trying to create an edge between vertices {startVertex} and {endVertex}", ex);
+            }
         }
 
         return graph;
@@ -70,15 +80,11 @@ internal static class RoadNetworkValidation
             })
             .Distinct()
             .Where(x => context.AfterView.Nodes.ContainsKey(x))
-            .SelectMany(startNodeId =>
-            {
-                return FindNodesToConnectTo(startNodeId, removedRoadSegmentIds, context).Select(endNodeId => new NodeConnection(startNodeId, endNodeId));
-            })
-            .DistinctBy(x => new { x.Source, x.Destination})
+            .SelectMany(startNodeId => { return FindNodesToConnectTo(startNodeId, removedRoadSegmentIds, context).Select(endNodeId => new NodeConnection(startNodeId, endNodeId)); })
+            .DistinctBy(x => new { x.Source, x.Destination })
             .GroupBy(x => x.Source)
             .Where(x => x.Count() > 1)
             .ToDictionary(x => x.Key, g => g.Select(nodeConnection => nodeConnection.Destination));
-
     }
 
     private static IEnumerable<RoadNodeId> FindNodesToConnectTo(RoadNodeId startNodeId, IReadOnlyCollection<RoadSegmentId> removedRoadSegmentIds, AfterVerificationContext context)
@@ -107,6 +113,7 @@ internal static class RoadNetworkValidation
         {
             yield break;
         }
+
         processedSegmentIds.Add(currentSegment.Id);
 
         var otherNodeId = currentSegment.GetOppositeNode(currentNodeId)!.Value;
@@ -114,6 +121,7 @@ internal static class RoadNetworkValidation
         {
             yield break;
         }
+
         processedNodeIds.Add(otherNodeId);
 
         if (context.AfterView.Nodes.ContainsKey(otherNodeId))

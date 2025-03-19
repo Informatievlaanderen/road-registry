@@ -40,9 +40,9 @@ public partial class ImmutableRoadNetworkView
 
     private ImmutableRoadNetworkView TryFixNodeType(RemoveRoadSegments command, RoadNodeId nodeId)
     {
-        _nodes.TryGetValue(nodeId, out var node);
+        var node = _nodes[nodeId];
 
-        if (node!.Type == RoadNodeType.EndNode)
+        if (node.Type == RoadNodeType.EndNode)
         {
             return WithRemovedRoadNode(nodeId);
         }

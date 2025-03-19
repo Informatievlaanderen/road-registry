@@ -3,6 +3,7 @@
     using Framework.Testing;
     using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Core;
+    using RoadRegistry.BackOffice.Messages;
     using Problem = RoadRegistry.BackOffice.Messages.Problem;
     using ProblemSeverity = RoadRegistry.BackOffice.Messages.ProblemSeverity;
     using RemoveRoadSegments = RoadRegistry.BackOffice.Messages.RemoveRoadSegments;
@@ -158,6 +159,44 @@
                         ]
                     }
                 ])
+                .Build();
+
+            await Run(scenario =>
+                scenario
+                    .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
+                    .Given(RoadNetworks.Stream, InitialRoadNetwork)
+                    .When(command)
+                    .Then(RoadNetworks.Stream, expected)
+            );
+        }
+
+        [Fact]
+        public async Task WhenNodesAreOutsideSegmentBoundingBox_ThenIncludedInScopedView()
+        {
+            K5.Geometry.Point.X = int.MinValue;
+            K5.Geometry.Point.Y = int.MinValue;
+
+            var removeRoadSegments = new RemoveRoadSegments
+            {
+                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
+                Ids = [W5.Id]
+            };
+
+            var command = new ChangeRoadNetworkBuilder(TestData)
+                .WithRemoveRoadSegments(removeRoadSegments.Ids)
+                .Build();
+
+            var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
+                .WithClock(Clock)
+                .WithTransactionId(2)
+                .WithRoadSegmentRemoved(W5.Id)
+                .WithRoadNodeModified(new RoadNodeModified
+                {
+                    Id = K5.Id,
+                    Type = RoadNodeType.EndNode,
+                    Version = K5.Version + 1,
+                    Geometry = K5.Geometry
+                })
                 .Build();
 
             await Run(scenario =>

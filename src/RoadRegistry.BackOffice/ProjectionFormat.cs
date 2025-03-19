@@ -20,9 +20,12 @@ public class ProjectionFormat
         try
         {
             var projectionInfo = ProjectionInfo.FromEsriString(Content);
-            if (!projectionInfo.IsValid) return false;
+            if (!projectionInfo.IsValid)
+            {
+                return false;
+            }
 
-            return projectionInfo.Name.Equals("Belge_Lambert_1972", StringComparison.OrdinalIgnoreCase);
+            return string.Equals(projectionInfo.Name, "Belge_Lambert_1972", StringComparison.OrdinalIgnoreCase);
         }
         catch (InvalidEsriFormatException)
         {

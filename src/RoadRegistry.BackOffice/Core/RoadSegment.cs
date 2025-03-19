@@ -110,8 +110,15 @@ public class RoadSegment
     {
         get
         {
-            yield return Start;
-            yield return End;
+            if (Start > 0)
+            {
+                yield return Start;
+            }
+
+            if (End > 0)
+            {
+                yield return End;
+            }
         }
     }
 

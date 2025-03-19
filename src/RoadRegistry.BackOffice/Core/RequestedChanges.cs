@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using NetTopologySuite.Geometries;
 
 public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequestedChangeIdentityTranslator
@@ -315,7 +316,10 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
                     break;
                 case RemoveRoadSegment removeRoadSegment:
                     // if we still know this segment, include the geometry as we know it now
-                    if (view.Segments.TryGetValue(removeRoadSegment.Id, out var segmentToRemove)) envelope.ExpandToInclude(segmentToRemove.Geometry.EnvelopeInternal);
+                    if (view.Segments.TryGetValue(removeRoadSegment.Id, out var segmentToRemove))
+                    {
+                        envelope.ExpandToInclude(segmentToRemove.Geometry.EnvelopeInternal);
+                    }
 
                     break;
                 case RemoveRoadSegments removeRoadSegments:
@@ -325,6 +329,20 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
                         if (view.Segments.TryGetValue(roadSegmentId, out var roadSegmentToRemove))
                         {
                             envelope.ExpandToInclude(roadSegmentToRemove.Geometry.EnvelopeInternal);
+
+                            var nodes = roadSegmentToRemove.Nodes.Select(nodeId => view.Nodes[nodeId]).ToArray();
+                            foreach (var coordinate in nodes.Select(node => node.Geometry.Coordinate))
+                            {
+                                envelope.ExpandToInclude(coordinate);
+                            }
+
+                            foreach (var segment in nodes
+                                         .SelectMany(node => node.Segments
+                                             .Where(x => x != roadSegmentId)
+                                             .Select(segmentId => view.Segments[segmentId])))
+                            {
+                                envelope.ExpandToInclude(segment.Geometry.EnvelopeInternal);
+                            }
                         }
                     }
 
