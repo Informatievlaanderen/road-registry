@@ -1,3 +1,10 @@
+## [4.27.1](https://github.com/informatievlaanderen/road-registry/compare/v4.27.0...v4.27.1) (2025-03-19)
+
+
+### Bug Fixes
+
+* include linked nodes and their segments when determining the scope of the scoped view ([7a35728](https://github.com/informatievlaanderen/road-registry/commit/7a35728f69ce6622842f6599cd7710b6cbb51227))
+
 # [4.27.0](https://github.com/informatievlaanderen/road-registry/compare/v4.26.2...v4.27.0) (2025-03-18)
 
 
