@@ -46,16 +46,19 @@ public partial class ImmutableRoadNetworkView : IRoadNetworkView
 
     public IScopedRoadNetworkView CreateScopedView(Envelope envelope)
     {
-        if (envelope == null) throw new ArgumentNullException(nameof(envelope));
+        ArgumentNullException.ThrowIfNull(envelope);
 
-        // Any nodes that the envelope contains
-        var nodes = Nodes
-            .Where(pair => envelope.Contains(pair.Value.Geometry.Coordinate))
-            .ToDictionary(pair => pair.Key, pair => pair.Value);
         // Any segments that intersect the envelope
         var segments = Segments
             .Where(pair => envelope.Intersects(pair.Value.Geometry.EnvelopeInternal))
             .ToDictionary(pair => pair.Key, pair => pair.Value);
+        var segmentNodes = segments.SelectMany(segment => segment.Value.Nodes).ToList();
+
+        // Any nodes that the envelope contains or are linked to previously found segments
+        var nodes = Nodes
+            .Where(pair => envelope.Contains(pair.Value.Geometry.Coordinate) || segmentNodes.Contains(pair.Key))
+            .ToDictionary(pair => pair.Key, pair => pair.Value);
+
         // Any junctions for which either the lower or the upper segment intersects the envelope
         var junctions = GradeSeparatedJunctions
             .Where(pair =>

@@ -10,7 +10,7 @@ public class BeforeVerificationContext
         IRequestedChangeIdentityTranslator translator,
         VerificationContextTolerances tolerances)
     {
-        RootView = rootView ?? throw new ArgumentNullException(nameof(view));
+        RootView = rootView ?? throw new ArgumentNullException(nameof(rootView));
         BeforeView = view ?? throw new ArgumentNullException(nameof(view));
         Translator = translator ?? throw new ArgumentNullException(nameof(translator));
         Tolerances = tolerances ?? throw new ArgumentNullException(nameof(tolerances));

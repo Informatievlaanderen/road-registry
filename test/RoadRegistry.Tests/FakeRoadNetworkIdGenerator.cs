@@ -11,21 +11,29 @@ namespace RoadRegistry.Tests
 
         private int GetNextValue([CallerMemberName] string name = "")
         {
-            _idCounters.TryAdd(name, 0);
+            InitializeIdCounter(name);
 
             _idCounters[name]++;
             return _idCounters[name];
         }
+
         private int GetCurrentValue(string name)
         {
-            _idCounters.TryAdd(name, 0);
+            InitializeIdCounter(name);
 
             return _idCounters[name];
         }
+
         private void SetCurrentValue(string name, int value)
         {
             _idCounters[name] = value;
         }
+
+        private void InitializeIdCounter(string name)
+        {
+            _idCounters.TryAdd(name, 0);
+        }
+
         private void SetNextValueIfGreaterThanCurrent(string name, int value)
         {
             if (value > GetCurrentValue(name))
