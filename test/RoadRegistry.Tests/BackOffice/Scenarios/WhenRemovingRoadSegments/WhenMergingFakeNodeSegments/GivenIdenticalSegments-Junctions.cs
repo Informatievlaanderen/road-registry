@@ -35,6 +35,8 @@ public partial class GivenIdenticalSegments
             .WithTransactionId(2)
             .Build();
 
+        var command = BuildRemoveRoadSegmentsCommand(W1.Id, W2.Id);
+
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
             .WithTransactionId(3)
@@ -119,7 +121,7 @@ public partial class GivenIdenticalSegments
                 .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
                 .Given(RoadNetworks.Stream, InitialRoadNetwork)
                 .Given(RoadNetworks.Stream, initialJunctions)
-                .When(_command)
+                .When(command)
                 .Then(RoadNetworks.Stream, expected)
         );
     }

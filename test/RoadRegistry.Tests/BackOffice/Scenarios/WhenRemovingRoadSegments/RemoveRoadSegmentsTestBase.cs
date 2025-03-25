@@ -79,7 +79,7 @@ public abstract class RemoveRoadSegmentsTestBase : RoadNetworkTestBase
             .Build();
     }
 
-    private RoadNodeAdded CreateRoadNode(int id, RoadNodeType roadNodeType, int x, int y)
+    protected RoadNodeAdded CreateRoadNode(int id, RoadNodeType roadNodeType, int x, int y)
     {
         return new RoadNodeAdded
         {
@@ -91,7 +91,7 @@ public abstract class RemoveRoadSegmentsTestBase : RoadNetworkTestBase
         };
     }
 
-    private RoadSegmentAdded CreateRoadSegment(
+    protected RoadSegmentAdded CreateRoadSegment(
         int id,
         RoadNodeAdded startNode,
         RoadNodeAdded endNode)

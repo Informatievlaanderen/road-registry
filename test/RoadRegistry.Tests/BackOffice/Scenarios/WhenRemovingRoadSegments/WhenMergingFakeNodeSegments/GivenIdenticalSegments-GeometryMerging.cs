@@ -20,6 +20,8 @@ public partial class GivenIdenticalSegments
             new Coordinate(k2Geometry.X + 0.01, k2Geometry.Y + 0.01)]);
         W5.Geometry = GeometryTranslator.Translate(w5Geometry.ToMultiLineString());
 
+        var command = BuildRemoveRoadSegmentsCommand(W1.Id, W2.Id);
+
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
             .WithTransactionId(2)
@@ -89,7 +91,7 @@ public partial class GivenIdenticalSegments
             scenario
                 .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
                 .Given(RoadNetworks.Stream, InitialRoadNetwork)
-                .When(_command)
+                .When(command)
                 .Then(RoadNetworks.Stream, expected)
         );
     }
@@ -103,6 +105,8 @@ public partial class GivenIdenticalSegments
         W5.Geometry = GeometryTranslator.Translate(w5Geometry.ToMultiLineString());
         W5.StartNodeId = K2.Id;
         W5.EndNodeId = K5.Id;
+
+        var command = BuildRemoveRoadSegmentsCommand(W1.Id, W2.Id);
 
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
@@ -173,7 +177,7 @@ public partial class GivenIdenticalSegments
             scenario
                 .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
                 .Given(RoadNetworks.Stream, InitialRoadNetwork)
-                .When(_command)
+                .When(command)
                 .Then(RoadNetworks.Stream, expected)
         );
     }
@@ -187,6 +191,8 @@ public partial class GivenIdenticalSegments
         W6.Geometry = GeometryTranslator.Translate(w6Geometry.ToMultiLineString());
         W6.StartNodeId = K6.Id;
         W6.EndNodeId = K2.Id;
+
+        var command = BuildRemoveRoadSegmentsCommand(W1.Id, W2.Id);
 
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithClock(Clock)
@@ -257,7 +263,7 @@ public partial class GivenIdenticalSegments
             scenario
                 .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
                 .Given(RoadNetworks.Stream, InitialRoadNetwork)
-                .When(_command)
+                .When(command)
                 .Then(RoadNetworks.Stream, expected)
         );
     }

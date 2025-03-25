@@ -51,6 +51,8 @@ public partial class GivenIdenticalSegments
             },
         ];
 
+        var command = BuildRemoveRoadSegmentsCommand(W1.Id, W2.Id);
+
         var mergedSegmentId = 11;
 
         var expected = new RoadNetworkChangesAcceptedBuilder(TestData)
@@ -143,7 +145,7 @@ public partial class GivenIdenticalSegments
             scenario
                 .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
                 .Given(RoadNetworks.Stream, InitialRoadNetwork)
-                .When(_command)
+                .When(command)
                 .Then(RoadNetworks.Stream, expected)
         );
     }

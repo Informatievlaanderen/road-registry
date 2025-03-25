@@ -75,13 +75,18 @@ public partial class ImmutableRoadNetworkView
             throw new InvalidOperationException($"Node {nodeId} should be of type {nameof(RoadNodeType.FakeNode)} and have exactly 2 connecting road segments.");
         }
 
-        _segments.TryGetValue(node.Segments.First(), out var segmentOne);
-        _segments.TryGetValue(node.Segments.Last(), out var segmentTwo);
+        var segmentOne = _segments[node.Segments.First()];
+        var segmentTwo = _segments[node.Segments.Last()];
 
-        var anyConnectedSegmentIsMarkedForRemoval = command.Ids.Contains(segmentOne!.Id) || command.Ids.Contains(segmentTwo!.Id);
+        var anyConnectedSegmentIsMarkedForRemoval = command.Ids.Contains(segmentOne.Id) || command.Ids.Contains(segmentTwo.Id);
         if (anyConnectedSegmentIsMarkedForRemoval || !SegmentAttributesAreEqual(segmentOne, segmentTwo))
         {
             return this;
+        }
+
+        if (segmentOne.GetOppositeNode(nodeId) == segmentTwo.GetOppositeNode(nodeId))
+        {
+            return WithChangedRoadNodeType(nodeId, RoadNodeType.TurningLoopNode);
         }
 
         var mergedSegment = MergeSegments(segmentOne, segmentTwo)
