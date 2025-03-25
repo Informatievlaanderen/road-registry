@@ -1,3 +1,10 @@
+## [4.27.3](https://github.com/informatievlaanderen/road-registry/compare/v4.27.2...v4.27.3) (2025-03-25)
+
+
+### Bug Fixes
+
+* change node to turningloopnode when merging and both segments have the same opposite node ([14167e8](https://github.com/informatievlaanderen/road-registry/commit/14167e8d78c2cf8025bce7dd92b80c2eb88d516f))
+
 ## [4.27.2](https://github.com/informatievlaanderen/road-registry/compare/v4.27.1...v4.27.2) (2025-03-25)
 
 
