@@ -4,7 +4,7 @@ using System;
 
 public class AfterVerificationContext
 {
-    internal AfterVerificationContext(IRoadNetworkView rootView, IScopedRoadNetworkView beforeView, IScopedRoadNetworkView afterView, IRequestedChangeIdentityTranslator translator, VerificationContextTolerances tolerances)
+    public AfterVerificationContext(IRoadNetworkView rootView, IScopedRoadNetworkView beforeView, IScopedRoadNetworkView afterView, IRequestedChangeIdentityTranslator translator, VerificationContextTolerances tolerances)
     {
         RootView = rootView ?? throw new ArgumentNullException(nameof(rootView));
         BeforeView = beforeView ?? throw new ArgumentNullException(nameof(beforeView));

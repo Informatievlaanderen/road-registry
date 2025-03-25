@@ -97,6 +97,11 @@ public class RoadNetworks : IRoadNetworks
 
         var (view, version) = await BuildInitialRoadNetworkView(streamName, restoreSnapshot, cancellationToken);
 
+		// For debugging purposes
+        /*{
+            return (RoadNetwork.Factory(view), 1);
+        }*/
+
         var sw = Stopwatch.StartNew();
 
         var readStreamFromVersion = version == StreamVersion.Start ? version : version + 1;

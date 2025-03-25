@@ -7,7 +7,7 @@ using Messages;
 using QuikGraph;
 using QuikGraph.Algorithms;
 
-internal static class RoadNetworkValidation
+public static class RoadNetworkValidation
 {
     public static Problems ValidateRoadNetworkConnections(this AfterVerificationContext context, Messages.AcceptedChange[] acceptedChanges, IReadOnlyCollection<RoadSegmentId> removedRoadSegmentIds)
     {
@@ -70,20 +70,17 @@ internal static class RoadNetworkValidation
         return graph;
     }
 
-    private static Dictionary<RoadNodeId, IEnumerable<RoadNodeId>> GetPossibleConnectionsForRemovedSegments(this AfterVerificationContext context, IReadOnlyCollection<RoadSegmentId> removedRoadSegmentIds)
+    public static Dictionary<RoadNodeId, IEnumerable<RoadNodeId>> GetPossibleConnectionsForRemovedSegments(this AfterVerificationContext context, IReadOnlyCollection<RoadSegmentId> removedRoadSegmentIds)
     {
-        return removedRoadSegmentIds
-            .SelectMany(id =>
-            {
-                context.BeforeView.View.Segments.TryGetValue(id, out var segment);
-                return segment!.Nodes;
-            })
+        var existingNodesAfterRemoval = removedRoadSegmentIds
+            .SelectMany(id => context.BeforeView.View.Segments[id].Nodes)
             .Distinct()
-            .Where(x => context.AfterView.Nodes.ContainsKey(x))
+            .Where(x => context.AfterView.Nodes.ContainsKey(x));
+
+        return existingNodesAfterRemoval
             .SelectMany(startNodeId => { return FindNodesToConnectTo(startNodeId, removedRoadSegmentIds, context).Select(endNodeId => new NodeConnection(startNodeId, endNodeId)); })
             .DistinctBy(x => new { x.Source, x.Destination })
             .GroupBy(x => x.Source)
-            .Where(x => x.Count() > 1)
             .ToDictionary(x => x.Key, g => g.Select(nodeConnection => nodeConnection.Destination));
     }
 
