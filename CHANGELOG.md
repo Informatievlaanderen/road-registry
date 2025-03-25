@@ -1,3 +1,11 @@
+## [4.27.2](https://github.com/informatievlaanderen/road-registry/compare/v4.27.1...v4.27.2) (2025-03-25)
+
+
+### Bug Fixes
+
+* add unit test for unknown projectionformat ([df79dcc](https://github.com/informatievlaanderen/road-registry/commit/df79dcc6ff8bd49b0e742901997913b964321116))
+* include nodes in scoped view no matter the location ([2133624](https://github.com/informatievlaanderen/road-registry/commit/2133624a5a4a2e9bf01e886f0fddb6ac3854e56f))
+
 ## [4.27.1](https://github.com/informatievlaanderen/road-registry/compare/v4.27.0...v4.27.1) (2025-03-19)
 
 
