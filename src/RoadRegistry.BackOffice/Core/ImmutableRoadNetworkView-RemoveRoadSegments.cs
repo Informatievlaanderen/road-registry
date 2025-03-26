@@ -442,8 +442,8 @@ public partial class ImmutableRoadNetworkView
         public bool Equals(RoadSegmentNumberedRoadAttribute left, RoadSegmentNumberedRoadAttribute right)
         {
             return left.Number.Equals(right.Number)
-                   && left.Direction.Equals(right.Direction)
-                   && left.Ordinal.Equals(right.Ordinal);
+                   && left.Direction.Equals(right.Direction);
+                   // Ordinal must be ignored
         }
 
         public int GetHashCode(RoadSegmentNumberedRoadAttribute instance)

@@ -97,10 +97,8 @@ public class RoadNetworks : IRoadNetworks
 
         var (view, version) = await BuildInitialRoadNetworkView(streamName, restoreSnapshot, cancellationToken);
 
-		// For debugging purposes
-        /*{
-            return (RoadNetwork.Factory(view), 1);
-        }*/
+		// For debugging purposes when loading snapshot in unit test
+        //return (RoadNetwork.Factory(view), 1);
 
         var sw = Stopwatch.StartNew();
 

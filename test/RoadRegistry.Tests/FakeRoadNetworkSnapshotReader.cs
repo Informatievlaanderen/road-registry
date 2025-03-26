@@ -8,7 +8,7 @@ public class FakeRoadNetworkSnapshotReader : IRoadNetworkSnapshotReader
 {
     public Task<(RoadNetworkSnapshot snapshot, int? version)> ReadSnapshotAsync(CancellationToken cancellationToken)
     {
-        // For debugging purposes
+        // For debugging purposes to load a snapshot
         var path = @"snapshot";
         if (path is not null && File.Exists(path))
         {
