@@ -1,13 +1,12 @@
 ﻿namespace RoadRegistry.Tests.BackOffice.Scenarios.WhenRemovingRoadSegments.WhenMergingFakeNodeSegments;
 
+using Framework.Testing;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Tests.Framework.Testing;
 using LineString = NetTopologySuite.Geometries.LineString;
-using RemoveRoadSegments = RoadRegistry.BackOffice.Messages.RemoveRoadSegments;
 using RoadSegmentSideAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes;
 
 public partial class GivenIdenticalSegments : RemoveRoadSegmentsTestBase
@@ -46,7 +45,8 @@ public partial class GivenIdenticalSegments : RemoveRoadSegmentsTestBase
                 Morphology = W5.Morphology,
                 MaintenanceAuthority = new MaintenanceAuthority
                 {
-                    Code = W5.MaintenanceAuthority.Code
+                    Code = W5.MaintenanceAuthority.Code,
+                    Name = W5.MaintenanceAuthority.Name
                 },
                 Geometry = GeometryTranslator.Translate(new MultiLineString([new LineString([
                     new(0, 0), new(1, 1), new(1, 0)
@@ -91,6 +91,7 @@ public partial class GivenIdenticalSegments : RemoveRoadSegmentsTestBase
         await Run(scenario =>
             scenario
                 .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
+                .GivenOrganization(W5.MaintenanceAuthority)
                 .Given(RoadNetworks.Stream, InitialRoadNetwork)
                 .When(command)
                 .Then(RoadNetworks.Stream, expected)
@@ -279,7 +280,8 @@ public partial class GivenIdenticalSegments : RemoveRoadSegmentsTestBase
                 Morphology = W5.Morphology,
                 MaintenanceAuthority = new MaintenanceAuthority
                 {
-                    Code = W5.MaintenanceAuthority.Code
+                    Code = W5.MaintenanceAuthority.Code,
+                    Name = W5.MaintenanceAuthority.Name
                 },
                 Geometry = GeometryTranslator.Translate(new MultiLineString([new LineString([
                     new(0, 0), new(1, 1), new(1, 0)
@@ -324,6 +326,7 @@ public partial class GivenIdenticalSegments : RemoveRoadSegmentsTestBase
         await Run(scenario =>
             scenario
                 .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
+                .GivenOrganization(W5.MaintenanceAuthority)
                 .Given(RoadNetworks.Stream, InitialRoadNetwork)
                 .When(command)
                 .Then(RoadNetworks.Stream, expected)
@@ -383,7 +386,8 @@ public partial class GivenIdenticalSegments : RemoveRoadSegmentsTestBase
                 Morphology = W5.Morphology,
                 MaintenanceAuthority = new MaintenanceAuthority
                 {
-                    Code = W5.MaintenanceAuthority.Code
+                    Code = W5.MaintenanceAuthority.Code,
+                    Name = W5.MaintenanceAuthority.Name
                 },
                 Geometry = GeometryTranslator.Translate(new MultiLineString([new LineString([
                     new(0, 0), new(1, 1), new(1, 0)
@@ -428,6 +432,7 @@ public partial class GivenIdenticalSegments : RemoveRoadSegmentsTestBase
         await Run(scenario =>
             scenario
                 .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
+                .GivenOrganization(W5.MaintenanceAuthority)
                 .Given(RoadNetworks.Stream, InitialRoadNetwork)
                 .When(command)
                 .Then(RoadNetworks.Stream, expected)

@@ -76,7 +76,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
             _logger.LogInformation("TIMETRACKING changeroadnetwork: finding organization took {Elapsed}", sw.Elapsed);
 
-            var organizationTranslation = ToDutchTranslation(organization, organizationId);
+            var organizationTranslation = Organization.ToDutchTranslation(organization, organizationId);
 
             sw.Restart();
 
@@ -222,22 +222,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         await FillMissingPermanentIdsForAddedOutlineRoadSegments(idGenerator, changes);
 
         return RequestedChangesConverter.SplitChangesByRoadNetworkStream(changes);
-    }
-
-    private Organization.DutchTranslation ToDutchTranslation(Organization organization, OrganizationId organizationId)
-    {
-        if (organization is null)
-        {
-            return Organization.PredefinedTranslations.FromSystemValue(organizationId);
-        }
-
-        if (organization.OvoCode is not null)
-        {
-            return new Organization.DutchTranslation(new OrganizationId(organization.OvoCode.Value), organization.Translation.Name);
-        }
-
-        return organization.Translation
-               ?? ToDutchTranslation(null, organizationId);
     }
 }
 

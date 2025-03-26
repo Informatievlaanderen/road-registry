@@ -100,4 +100,20 @@ public class Organization : EventSourcedEntity
             Code = Translation.Identifier
         });
     }
+
+    public static DutchTranslation ToDutchTranslation(Organization organization, OrganizationId organizationId)
+    {
+        if (organization is null)
+        {
+            return PredefinedTranslations.FromSystemValue(organizationId);
+        }
+
+        if (organization.OvoCode is not null)
+        {
+            return new DutchTranslation(new OrganizationId(organization.OvoCode.Value), organization.Translation.Name);
+        }
+
+        return organization.Translation
+               ?? ToDutchTranslation(null, organizationId);
+    }
 }

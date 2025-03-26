@@ -225,11 +225,7 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
                                 Category = segment.AttributeHash.Category,
                                 Morphology = segment.AttributeHash.Morphology,
                                 Status = segment.AttributeHash.Status,
-                                MaintenanceAuthority = new MaintenanceAuthority
-                                {
-                                    Code = segment.AttributeHash.OrganizationId,
-                                    Name = _organizations.FindAsync(segment.AttributeHash.OrganizationId).GetAwaiter().GetResult()?.Translation.Name
-                                },
+                                MaintenanceAuthority = GetMaintenanceAuthority(segment.AttributeHash.OrganizationId),
                                 LeftSide = new Messages.RoadSegmentSideAttributes { StreetNameId = segment.AttributeHash.LeftStreetNameId },
                                 RightSide = new Messages.RoadSegmentSideAttributes { StreetNameId = segment.AttributeHash.RightStreetNameId },
                                 Lanes = segment!.Lanes.Select(x => new Messages.RoadSegmentLaneAttributes
@@ -318,6 +314,18 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
                         }));
             })
             .ToArray();
+    }
+
+    private MaintenanceAuthority GetMaintenanceAuthority(OrganizationId organizationId)
+    {
+        var organization = _organizations.FindAsync(organizationId).GetAwaiter().GetResult();
+
+        var translation = Organization.ToDutchTranslation(organization, organizationId);
+        return new MaintenanceAuthority
+        {
+            Code = translation.Identifier,
+            Name = translation.Name
+        };
     }
 
     public IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
