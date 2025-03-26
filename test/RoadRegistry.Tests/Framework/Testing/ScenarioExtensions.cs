@@ -2,7 +2,7 @@
 
 using RoadRegistry.BackOffice.Framework;
 
-public static class ScenarioExtensions
+public static partial class ScenarioExtensions
 {
     public static IScenarioGivenStateBuilder Given(
         this IScenarioInitialStateBuilder builder,

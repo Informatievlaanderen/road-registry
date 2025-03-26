@@ -57,6 +57,7 @@ public class GivenRoadNetwork: RoadNetworkTestBase
         var sut = new DeleteRoadSegmentsRequestHandler(
             commandQueueMock.Object,
             editorContext,
+            new FakeOrganizationCache(),
             Mock.Of<ITicketing>(),
             ticketingUrlMock.Object,
             LoggerFactory
@@ -83,6 +84,7 @@ public class GivenRoadNetwork: RoadNetworkTestBase
         var sut = new DeleteRoadSegmentsRequestHandler(
             Mock.Of<IRoadNetworkCommandQueue>(),
             editorContext,
+            new FakeOrganizationCache(),
             Mock.Of<ITicketing>(),
             Mock.Of<ITicketingUrl>(),
             LoggerFactory

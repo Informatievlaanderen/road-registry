@@ -16,18 +16,21 @@ using RemoveRoadSegments = Messages.RemoveRoadSegments;
 public sealed class DeleteRoadSegmentsRequestHandler : EndpointRequestHandler<DeleteRoadSegmentsRequest, DeleteRoadSegmentsResponse>
 {
     private readonly EditorContext _editorContext;
+    private readonly IOrganizationCache _organizationCache;
     private readonly ITicketing _ticketing;
     private readonly ITicketingUrl _ticketingUrl;
 
     public DeleteRoadSegmentsRequestHandler(
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
         EditorContext editorContext,
+        IOrganizationCache organizationCache,
         ITicketing ticketing,
         ITicketingUrl ticketingUrl,
         ILoggerFactory loggerFactory)
         : base(roadNetworkCommandQueue, loggerFactory.CreateLogger<DeleteRoadSegmentsRequestHandler>())
     {
         _editorContext = editorContext;
+        _organizationCache = organizationCache;
         _ticketing = ticketing;
         _ticketingUrl = ticketingUrl;
     }
@@ -58,13 +61,15 @@ public sealed class DeleteRoadSegmentsRequestHandler : EndpointRequestHandler<De
             })
             .ToArray();
 
+        var organization = await FindOrganization(request.ProvenanceData.Operator, cancellationToken);
+
         var changeRoadNetwork = new ChangeRoadNetwork
         {
             RequestId = ChangeRequestId.FromUploadId(new UploadId(Guid.NewGuid())),
             Changes = requestedChanges,
             Reason = "Verwijdering wegsegmenten in bulk",
-            Operator = request.ProvenanceData.Operator,
-            OrganizationId = OrganizationId.DigitaalVlaanderen
+            OrganizationId = organization.Code,
+            Operator = organization.Name,
         };
         await new ChangeRoadNetworkValidator().ValidateAndThrowAsync(changeRoadNetwork, cancellationToken);
 
@@ -78,5 +83,15 @@ public sealed class DeleteRoadSegmentsRequestHandler : EndpointRequestHandler<De
         await Queue(new Command(changeRoadNetwork), cancellationToken);
 
         return new DeleteRoadSegmentsResponse(_ticketingUrl.For(ticketId));
+    }
+
+    private async Task<OrganizationDetail> FindOrganization(string operatorName, CancellationToken cancellationToken)
+    {
+        var organizationId = new OrganizationId(operatorName);
+
+        var organization = await _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(organizationId, cancellationToken)
+            ?? OrganizationDetail.FromCode(organizationId);
+
+        return organization;
     }
 }

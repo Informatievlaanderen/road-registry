@@ -78,7 +78,8 @@ public partial class GivenIdenticalSegments
                 Morphology = W5.Morphology,
                 MaintenanceAuthority = new MaintenanceAuthority
                 {
-                    Code = W5.MaintenanceAuthority.Code
+                    Code = W5.MaintenanceAuthority.Code,
+                    Name = W5.MaintenanceAuthority.Name
                 },
                 Geometry = GeometryTranslator.Translate(new MultiLineString([new LineString([
                     new(0, 0), new(1, 1), new(1, 0)
@@ -144,6 +145,7 @@ public partial class GivenIdenticalSegments
         await Run(scenario =>
             scenario
                 .Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization)
+                .GivenOrganization(W5.MaintenanceAuthority)
                 .Given(RoadNetworks.Stream, InitialRoadNetwork)
                 .When(command)
                 .Then(RoadNetworks.Stream, expected)
