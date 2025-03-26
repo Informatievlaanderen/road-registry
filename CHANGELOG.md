@@ -1,3 +1,10 @@
+## [4.27.4](https://github.com/informatievlaanderen/road-registry/compare/v4.27.3...v4.27.4) (2025-03-26)
+
+
+### Bug Fixes
+
+* read operator from authenticated user when deleting bulk segments + fill MaintenanceAuthority name ([c848bb8](https://github.com/informatievlaanderen/road-registry/commit/c848bb8664b37d730d67317f7082f8f1750bcd6c))
+
 ## [4.27.3](https://github.com/informatievlaanderen/road-registry/compare/v4.27.2...v4.27.3) (2025-03-25)
 
 
