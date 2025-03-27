@@ -20,11 +20,15 @@ public class RoadNetworkInfoProjection : ConnectedProjection<ProductContext>
         When<Envelope<CompletedRoadNetworkImport>>(async (context, envelope, token) =>
         {
             var info = await context.GetRoadNetworkInfo(token);
+            info.LastChangedTimestamp = envelope.CreatedUtc;
+
             info.CompletedImport = true;
         });
         When<Envelope<ImportedRoadNode>>(async (context, envelope, token) =>
         {
             var info = await context.GetRoadNetworkInfo(token);
+            info.LastChangedTimestamp = envelope.CreatedUtc;
+
             info.RoadNodeCount += 1;
             info.TotalRoadNodeShapeLength +=
                 PointShapeContent.Length.Plus(ShapeRecord.HeaderLength).ToInt32();
@@ -32,6 +36,8 @@ public class RoadNetworkInfoProjection : ConnectedProjection<ProductContext>
         When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
         {
             var info = await context.GetRoadNetworkInfo(token);
+            info.LastChangedTimestamp = envelope.CreatedUtc;
+
             info.RoadSegmentCount += 1;
 
             var roadNetworkInfoSegmentCache = new RoadNetworkInfoSegmentCache
@@ -65,17 +71,23 @@ public class RoadNetworkInfoProjection : ConnectedProjection<ProductContext>
         When<Envelope<ImportedGradeSeparatedJunction>>(async (context, envelope, token) =>
         {
             var info = await context.GetRoadNetworkInfo(token);
+            info.LastChangedTimestamp = envelope.CreatedUtc;
+
             info.GradeSeparatedJunctionCount += 1;
         });
         When<Envelope<ImportedOrganization>>(async (context, envelope, token) =>
         {
             var info = await context.GetRoadNetworkInfo(token);
+            info.LastChangedTimestamp = envelope.CreatedUtc;
+
             info.OrganizationCount += 1;
         });
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
         {
             var info = await context.GetRoadNetworkInfo(token);
+            info.LastChangedTimestamp = envelope.CreatedUtc;
+
             foreach (var change in envelope.Message.Changes.Flatten())
                 switch (change)
                 {
