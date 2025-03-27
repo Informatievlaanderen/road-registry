@@ -1,3 +1,10 @@
+## [4.27.5](https://github.com/informatievlaanderen/road-registry/compare/v4.27.4...v4.27.5) (2025-03-27)
+
+
+### Bug Fixes
+
+* ignore numbered road Ordinal when comparing equality when merging segments during remove roadsegments ([2e7a6df](https://github.com/informatievlaanderen/road-registry/commit/2e7a6df9ee03ec30ee0f114921b4022c0a1ed689))
+
 ## [4.27.4](https://github.com/informatievlaanderen/road-registry/compare/v4.27.3...v4.27.4) (2025-03-26)
 
 
