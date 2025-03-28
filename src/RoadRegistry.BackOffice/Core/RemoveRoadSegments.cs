@@ -264,7 +264,7 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
                         {
                             RoadSegmentAddedToEuropeanRoad = new()
                             {
-                                AttributeId = road.Value.AttributeId,
+                                AttributeId = _roadNetworkIdProvider.NextEuropeanRoadAttributeId().GetAwaiter().GetResult(),
                                 TemporaryAttributeId = road.Value.AttributeId,
                                 SegmentId = permanentRoadSegmentId,
                                 SegmentVersion = segment.Version,
@@ -276,7 +276,7 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
                         {
                             RoadSegmentAddedToNationalRoad = new()
                             {
-                                AttributeId = road.Value.AttributeId,
+                                AttributeId = _roadNetworkIdProvider.NextNationalRoadAttributeId().GetAwaiter().GetResult(),
                                 TemporaryAttributeId = road.Value.AttributeId,
                                 SegmentId = permanentRoadSegmentId,
                                 SegmentVersion = segment.Version,
@@ -288,7 +288,7 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
                         {
                             RoadSegmentAddedToNumberedRoad = new()
                             {
-                                AttributeId = road.Value.AttributeId,
+                                AttributeId = _roadNetworkIdProvider.NextNumberedRoadAttributeId().GetAwaiter().GetResult(),
                                 TemporaryAttributeId = road.Value.AttributeId,
                                 SegmentId = permanentRoadSegmentId,
                                 SegmentVersion = segment.Version,

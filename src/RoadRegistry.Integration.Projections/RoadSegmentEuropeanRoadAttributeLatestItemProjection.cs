@@ -1,7 +1,7 @@
 namespace RoadRegistry.Integration.Projections;
 
-using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BackOffice.Extensions;
 using BackOffice.Messages;
@@ -41,48 +41,65 @@ public class RoadSegmentEuropeanRoadAttributeLatestItemProjection : ConnectedPro
                 switch (change)
                 {
                     case RoadSegmentAddedToEuropeanRoad europeanRoad:
-                        await context.RoadSegmentEuropeanRoadAttributes.AddAsync(new RoadSegmentEuropeanRoadAttributeLatestItem
-                        {
-                            Id = europeanRoad.AttributeId,
-                            RoadSegmentId = europeanRoad.SegmentId,
-                            Number = europeanRoad.Number,
-                            OrganizationId = envelope.Message.OrganizationId,
-                            OrganizationName = envelope.Message.Organization,
-                            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
-                            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
-                        });
+                        await RoadSegmentAddedToEuropeanRoad(context, envelope, europeanRoad, token);
                         break;
                     case RoadSegmentRemovedFromEuropeanRoad europeanRoad:
-                        var latestItem =
-                            await context.RoadSegmentEuropeanRoadAttributes
-                                .FindAsync(europeanRoad.AttributeId, cancellationToken: token)
-                                .ConfigureAwait(false);
-
-                        if (latestItem is not null && !latestItem.IsRemoved)
-                        {
-                            latestItem.IsRemoved = true;
-                            latestItem.OrganizationId = envelope.Message.OrganizationId;
-                            latestItem.OrganizationName = envelope.Message.Organization;
-                            latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-                        }
+                        await RoadSegmentRemovedFromEuropeanRoad(context, envelope, europeanRoad, token);
                         break;
-
                     case RoadSegmentRemoved roadSegmentRemoved:
-                        var latestItemsToRemove =
-                            await context.RoadSegmentEuropeanRoadAttributes.IncludeLocalToListAsync(
-                                q => q.Where(x =>
-                                    x.RoadSegmentId == roadSegmentRemoved.Id && !x.IsRemoved),
-                                token);
-
-                        foreach (var latestItemToRemove in latestItemsToRemove)
-                        {
-                            latestItemToRemove.IsRemoved = true;
-                            latestItemToRemove.OrganizationId = envelope.Message.OrganizationId;
-                            latestItemToRemove.OrganizationName = envelope.Message.Organization;
-                            latestItemToRemove.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-                        }
+                        await RoadSegmentRemoved(context, envelope, roadSegmentRemoved, token);
                         break;
                 }
         });
+    }
+
+    private static async Task RoadSegmentAddedToEuropeanRoad(
+        IntegrationContext context,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        RoadSegmentAddedToEuropeanRoad europeanRoad,
+        CancellationToken token)
+    {
+        await context.RoadSegmentEuropeanRoadAttributes.AddAsync(new RoadSegmentEuropeanRoadAttributeLatestItem
+        {
+            Id = europeanRoad.AttributeId,
+            RoadSegmentId = europeanRoad.SegmentId,
+            Number = europeanRoad.Number,
+            OrganizationId = envelope.Message.OrganizationId,
+            OrganizationName = envelope.Message.Organization,
+            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
+            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
+        }, token);
+    }
+
+    private static async Task RoadSegmentRemovedFromEuropeanRoad(IntegrationContext context, Envelope<RoadNetworkChangesAccepted> envelope, RoadSegmentRemovedFromEuropeanRoad europeanRoad, CancellationToken token)
+    {
+        var item = await context.RoadSegmentEuropeanRoadAttributes
+            .FindAsync(europeanRoad.AttributeId, cancellationToken: token)
+            .ConfigureAwait(false);
+
+        if (item is not null && !item.IsRemoved)
+        {
+            item.IsRemoved = true;
+            item.OrganizationId = envelope.Message.OrganizationId;
+            item.OrganizationName = envelope.Message.Organization;
+            item.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        }
+    }
+
+    private static async Task RoadSegmentRemoved(IntegrationContext context, Envelope<RoadNetworkChangesAccepted> envelope, RoadSegmentRemoved roadSegmentRemoved, CancellationToken token)
+    {
+        var itemsToRemove =
+            await context.RoadSegmentEuropeanRoadAttributes.IncludeLocalToListAsync(
+                q => q.Where(x =>
+                    x.RoadSegmentId == roadSegmentRemoved.Id && !x.IsRemoved),
+                token);
+
+        foreach (var item in itemsToRemove)
+        {
+            item.IsRemoved = true;
+            item.OrganizationId = envelope.Message.OrganizationId;
+            item.OrganizationName = envelope.Message.Organization;
+            item.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        }
     }
 }
