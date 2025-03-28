@@ -27,9 +27,9 @@ namespace RoadRegistry.Product.PublishHost.CloudStorageClients
         private string GetBlobName()
         {
             var isTest = _options.IsTest;
-            var blobName = "Wegenregister.zip"; //TODO-pr update
+            var blobName = "Wegenregister.zip";
 
-            return isTest ? $"31086/{blobName}" : $"10142/{blobName}"; //TODO-pr update IDs
+            return isTest ? $"9449/{blobName}" : $"1373/{blobName}";
         }
 
         public async Task UploadBlobAsync(
@@ -49,47 +49,5 @@ namespace RoadRegistry.Product.PublishHost.CloudStorageClients
                     }
                 }, cancellationToken);
         }
-
-        // public async Task<IEnumerable<Tuple<string, string, long?>>> ListBlobsAsync(
-        //     CancellationToken cancellationToken = default)
-        // {
-        //     var blobItems = new List<Tuple<string, string, long?>>();
-        //     try
-        //     {
-        //         await foreach (var blobItem in _containerClient.GetBlobsAsync(cancellationToken: cancellationToken))
-        //         {
-        //             _logger.LogDebug($"Blob name: {blobItem.Name}, Blob type: {blobItem.Properties.BlobType}");
-        //             var name = blobItem.Name;
-        //             var type = blobItem.Properties.ContentType;
-        //             var size = blobItem.Properties.ContentLength;
-        //
-        //             blobItems.Add(Tuple.Create(name, type, size));
-        //         }
-        //     }
-        //     catch (RequestFailedException ex)
-        //     {
-        //         _logger.LogError($"Error listing blobs: {ex.Status}:{ex.ErrorCode} - {ex.Message}", ex);
-        //     }
-        //
-        //     return blobItems;
-        // }
-        //
-        //
-        // public async Task<byte[]?> DownloadBlobAsync(string blobName, CancellationToken cancellationToken = default)
-        // {
-        //     try
-        //     {
-        //         var blobClient = _containerClient.GetBlobClient(blobName);
-        //         var response = await blobClient.DownloadContentAsync(cancellationToken);
-        //         var zipAsBytes = response.Value.Content.ToArray();
-        //         return zipAsBytes;
-        //     }
-        //     catch (RequestFailedException ex)
-        //     {
-        //         _logger.LogError($"Error listing blobs: {ex.Status}:{ex.ErrorCode} - {ex.Message}", ex);
-        //     }
-        //
-        //     return null;
-        // }
     }
 }

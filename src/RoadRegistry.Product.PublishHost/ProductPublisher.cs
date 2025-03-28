@@ -76,7 +76,7 @@ namespace RoadRegistry.Product.PublishHost
             _logger.LogInformation("Upload to S3 completed.");
             stoppingToken.ThrowIfCancellationRequested();
 
-            await UploadToDownload(archiveDate, archiveStream, stoppingToken);
+            await UploadToDownload(archiveStream, stoppingToken);
             _logger.LogInformation("Upload to Download completed.");
             stoppingToken.ThrowIfCancellationRequested();
 
@@ -104,20 +104,22 @@ namespace RoadRegistry.Product.PublishHost
                 cancellationToken);
         }
 
-        private async Task UploadToDownload(DateTimeOffset archiveDate, MemoryStream archiveStream, CancellationToken cancellationToken)
+        private async Task UploadToDownload(MemoryStream archiveStream, CancellationToken cancellationToken)
         {
             archiveStream.Position = 0;
 
-            //TODO-pr implement
             await _azureBlobClient.UploadBlobAsync(archiveStream, cancellationToken);
-            throw new NotImplementedException();
         }
 
         private async Task UpdateMetadata(DateTimeOffset archiveDate, CancellationToken cancellationToken)
         {
-            //TODO-pr implement
-            //_metaDataCenterHttpClient.UpdateCswPublication()
-            throw new NotImplementedException();
+            var results = await _metaDataCenterHttpClient.UpdateCswPublication(
+                archiveDate.DateTime,
+                cancellationToken);
+            if (results == null)
+            {
+                _logger.LogCritical("Failed to update metadata to date {archiveDate}", archiveDate);
+            }
         }
     }
 }

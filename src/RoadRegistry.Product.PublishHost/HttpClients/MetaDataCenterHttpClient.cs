@@ -6,13 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Infrastructure.Configurations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using RoadRegistry.Product.PublishHost.Infrastructure.Configurations;
 
 public sealed class MetaDataCenterHttpClient
 {
@@ -46,11 +47,11 @@ public sealed class MetaDataCenterHttpClient
 	<csw:Update>
         <csw:RecordProperty>
             <csw:Name>gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:date/gmd:CI_Date/gmd:date/gco:Date[../../gmd:dateType/gmd:CI_DateTypeCode/@codeListValue=""publication""]</csw:Name>
-            <csw:Value>{dateStamp.ToString("O")}</csw:Value>
+            <csw:Value>{dateStamp:O}</csw:Value>
         </csw:RecordProperty>
         <csw:RecordProperty>
             <csw:Name>gmd:dateStamp/gco:Date</csw:Name>
-            <csw:Value>{dateStamp.ToString("O")}</csw:Value>
+            <csw:Value>{dateStamp:O}</csw:Value>
         </csw:RecordProperty>
 		<csw:Constraint version=""1.1.0"">
 			<ogc:Filter>
@@ -63,7 +64,7 @@ public sealed class MetaDataCenterHttpClient
 	</csw:Update>
 </csw:Transaction>
 "));
-        body.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/xml");
+        body.Headers.ContentType = MediaTypeHeaderValue.Parse("application/xml");
         return body;
     }
 
@@ -86,12 +87,13 @@ public sealed class MetaDataCenterHttpClient
         string? xsrfToken = null;
         try
         {
-            using var httpClient = new HttpClient(new HttpClientHandler() { UseCookies = false });
+            using var httpClient = new HttpClient(new HttpClientHandler { UseCookies = false });
+
             var response = await httpClient.SendAsync(requestMessage, cancellationToken);
             if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.OK &&
                 response.Headers.TryGetValues("Set-Cookie", out var cookieValues))
             {
-                string cookieHeader = "XSRF-TOKEN=";
+                var cookieHeader = "XSRF-TOKEN=";
                 xsrfToken = cookieValues.FirstOrDefault(i => i.Contains(cookieHeader))
                     ?.Split(";")
                     .First(i => i.Contains(cookieHeader))
@@ -105,7 +107,7 @@ public sealed class MetaDataCenterHttpClient
         }
         catch (Exception ex)
         {
-            _logger?.LogCritical("Unable to retrieve XSRF-TOKEN", ex);
+            _logger?.LogCritical(ex, "Unable to retrieve XSRF-TOKEN");
         }
 
         return xsrfToken;
@@ -115,35 +117,33 @@ public sealed class MetaDataCenterHttpClient
         DateTime dateStamp,
         CancellationToken cancellationToken = default)
     {
-        string? xsrfToken = await GetXsrfToken(cancellationToken);
+        var xsrfToken = await GetXsrfToken(cancellationToken);
         if (string.IsNullOrWhiteSpace(xsrfToken))
         {
             return null;
         }
 
-        var requestMessage =
-            new HttpRequestMessage(HttpMethod.Post, new Uri(_baseUrl, "/srv/dut/csw-publication"));
+        var requestMessage = new HttpRequestMessage(HttpMethod.Post, new Uri(_baseUrl, "/srv/dut/csw-publication"));
         foreach (var header in DefaultHeaders)
         {
             requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value);
         }
 
         requestMessage.Headers.TryAddWithoutValidation("Authorization", $"Bearer {await _tokenProvider.GetAccessToken()}");
-
         requestMessage.Headers.TryAddWithoutValidation("X-XSRF-TOKEN", xsrfToken);
 
         var identifierValue = GetIdentifierValue();
         requestMessage.Content = GenerateCswPublicationBody(identifierValue, dateStamp);
 
-        using var httpClient = new HttpClient(new HttpClientHandler() { UseCookies = false });
+        using var httpClient = new HttpClient(new HttpClientHandler { UseCookies = false });
 
         HttpResponseMessage response;
-        int retry = 0;
+        var retry = 0;
         while(true) {
             response = await httpClient.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                _logger?.LogCritical("Unable to update CswPublication", response);
+                _logger?.LogCritical("Unable to update CswPublication");
                 await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken);
                 retry++;
                 if(retry == 10) {
@@ -158,56 +158,4 @@ public sealed class MetaDataCenterHttpClient
         var xmlResponse = await XDocument.LoadAsync(xmlResponseContent, LoadOptions.None, cancellationToken);
         return xmlResponse;
     }
-
-    public async Task<string> GetXmlAsString(CancellationToken cancellationToken = default)
-    {
-        var requestMessage =
-            new HttpRequestMessage(HttpMethod.Get,
-                new Uri(_baseUrl, $"/srv/api/records/{GetIdentifierValue()}/formatters/xml"));
-        foreach (var header in DefaultHeaders)
-        {
-            requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value);
-        }
-
-        requestMessage.Headers.TryAddWithoutValidation("Authorization", $"Bearer {await _tokenProvider.GetAccessToken()}");
-
-        using var httpClient = new HttpClient(new HttpClientHandler() { UseCookies = false });
-        var response = await httpClient.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
-        if (response.StatusCode != HttpStatusCode.OK)
-        {
-            _logger?.LogCritical("Unable to get XML");
-            throw new ArgumentNullException("Unable to get XML");
-        }
-
-        return await response.Content.ReadAsStringAsync(cancellationToken);
-    }
-
-    public async Task<byte[]> GetPdfAsByteArray(CancellationToken cancellationToken = default)
-    {
-        var requestMessage =
-            new HttpRequestMessage(
-                HttpMethod.Get,
-                new Uri(
-                    _baseUrl,
-                    $"/srv/api/records/{GetIdentifierValue()}/formatters/xsl-view?output=pdf&language=dut&attachment=true"));
-        foreach (var header in DefaultHeaders)
-        {
-            requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value);
-        }
-
-        requestMessage.Headers.TryAddWithoutValidation("Authorization", $"Bearer {await _tokenProvider.GetAccessToken()}");
-
-        using var httpClient = new HttpClient(new HttpClientHandler { UseCookies = false });
-        var response = await httpClient.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
-        if (response.StatusCode != HttpStatusCode.OK)
-        {
-            _logger?.LogCritical("Unable to get pdf");
-            throw new ArgumentNullException("MetaDataCenterHttpClient.GetPdfAsByteArray", "Unable to get pdf");
-        }
-
-        var pdf = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-        return pdf;
-    }
-
-
 }

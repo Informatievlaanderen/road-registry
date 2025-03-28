@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Autofac;
 using Azure.Identity;
 using Azure.Storage.Blobs;
+using BackOffice.Abstractions;
 using BackOffice.Extensions;
 using BackOffice.Framework;
 using CloudStorageClients;
@@ -13,9 +14,9 @@ using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
 using HttpClients;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using BlobClientOptions = BackOffice.Configuration.BlobClientOptions;
 
 public class Program
 {
@@ -31,6 +32,8 @@ public class Program
                     services
                         .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
                         .AddProductContext()
+                        .RegisterOptions<ZipArchiveWriterOptions>()
+                        .AddStreetNameCache()
 
                         .Configure<AzureBlobOptions>(hostContext.Configuration.GetSection(nameof(AzureBlobOptions)))
                         .AddAzureBlobServiceClient()
@@ -59,7 +62,7 @@ public class Program
             .Log((sp, logger) => {
                 logger.LogKnownSqlServerConnectionStrings(roadRegistryHost.Configuration);
 
-                var blobClientOptions = sp.GetRequiredService<RoadRegistry.BackOffice.Configuration.BlobClientOptions>();
+                var blobClientOptions = sp.GetRequiredService<BlobClientOptions>();
                 logger.LogBlobClientCredentials(blobClientOptions);
             })
             .RunAsync();
@@ -78,13 +81,13 @@ internal static class InternalServiceCollectionExtensions
             {
                 return new BlobServiceClient(
                     options.ConnectionString,
-                    new BlobClientOptions(BlobClientOptions.ServiceVersion.V2020_04_08));
+                    new Azure.Storage.Blobs.BlobClientOptions(Azure.Storage.Blobs.BlobClientOptions.ServiceVersion.V2020_04_08));
             }
 
             return new BlobServiceClient(
                 new Uri(options.BaseUrl),
                 new ClientSecretCredential(options.TenantId, options.ClientKey, options.ClientSecret),
-                new BlobClientOptions(BlobClientOptions.ServiceVersion.V2020_04_08));
+                new Azure.Storage.Blobs.BlobClientOptions(Azure.Storage.Blobs.BlobClientOptions.ServiceVersion.V2020_04_08));
         });
     }
 }

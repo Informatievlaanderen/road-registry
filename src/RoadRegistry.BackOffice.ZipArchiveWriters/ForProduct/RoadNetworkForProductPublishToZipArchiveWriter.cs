@@ -29,25 +29,18 @@ public class RoadNetworkForProductPublishToZipArchiveWriter : IZipArchiveWriter<
         var assembly = typeof(RoadNetworkForProductPublishToZipArchiveWriter).Assembly;
         var resourceNameFormat = typeof(RoadNetworkForProductPublishToZipArchiveWriter).Namespace + ".StaticData.{0}";
 
-        //TODO-pr extra files: worden die generiek of blijven datum based?
-        //- Meta_Wegenregister_20_03_2025.pdf
-        //- Meta_Wegenregister_20_03_2025.xml
-
         _writer = new CompositeZipArchiveWriter<ProductContext>(
-            //new SnapshotTransactionZipArchiveWriter<ProductContext>( //TODO-pr note: niet nodig want dit gebeurd in de ProductPublisher
-            new CompositeZipArchiveWriter<ProductContext>(
-                new OrganizationsToZipArchiveWriter(extraFileEntryFormat, encoding),
-                new RoadNodesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
-                new RoadSegmentsToZipArchiveWriter(shapeFileEntryFormat, zipArchiveWriterOptions, streetNameCache, manager, encoding),
-                new RoadSegmentLaneAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
-                new RoadSegmentWidthAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
-                new RoadSegmentSurfaceAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
-                new RoadSegmentNationalRoadAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
-                new RoadSegmentEuropeanRoadAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
-                new RoadSegmentNumberedRoadAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
-                new GradeSeparatedJunctionArchiveWriter(shapeFileEntryFormat, manager, encoding)
-            ),
-            //),
+            new OrganizationsToZipArchiveWriter(extraFileEntryFormat, encoding),
+            new RoadNodesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
+            new RoadSegmentsToZipArchiveWriter(shapeFileEntryFormat, zipArchiveWriterOptions, streetNameCache, manager, encoding),
+            new RoadSegmentLaneAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
+            new RoadSegmentWidthAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
+            new RoadSegmentSurfaceAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
+            new RoadSegmentNationalRoadAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
+            new RoadSegmentEuropeanRoadAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
+            new RoadSegmentNumberedRoadAttributesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),
+            new GradeSeparatedJunctionArchiveWriter(shapeFileEntryFormat, manager, encoding),
+
             new DbaseFileArchiveWriter<ProductContext>(string.Format(extraFileEntryFormat, "WegknoopLktType.dbf"), RoadNodeTypeDbaseRecord.Schema, Lists.AllRoadNodeTypeDbaseRecords, encoding),
             new DbaseFileArchiveWriter<ProductContext>(string.Format(extraFileEntryFormat, "WegverhardLktType.dbf"), SurfaceTypeDbaseRecord.Schema, Lists.AllSurfaceTypeDbaseRecords, encoding),
             new DbaseFileArchiveWriter<ProductContext>(string.Format(extraFileEntryFormat, "GenumwegLktRichting.dbf"), NumberedRoadSegmentDirectionDbaseRecord.Schema, Lists.AllNumberedRoadSegmentDirectionDbaseRecords, encoding),
@@ -58,11 +51,16 @@ public class RoadNetworkForProductPublishToZipArchiveWriter : IZipArchiveWriter<
             new DbaseFileArchiveWriter<ProductContext>(string.Format(extraFileEntryFormat, "WegsegmentLktStatus.dbf"), RoadSegmentStatusDbaseRecord.Schema, Lists.AllRoadSegmentStatusDbaseRecords, encoding),
             new DbaseFileArchiveWriter<ProductContext>(string.Format(extraFileEntryFormat, "OgkruisingLktType.dbf"), GradeSeparatedJunctionTypeDbaseRecord.Schema, Lists.AllGradeSeparatedJunctionTypeDbaseRecords, encoding),
             new DbaseFileArchiveWriter<ProductContext>(string.Format(extraFileEntryFormat, "RijstrokenLktRichting.dbf"), LaneDirectionDbaseRecord.Schema, Lists.AllLaneDirectionDbaseRecords, encoding),
+
             new ProjectionFormatFileZipArchiveWriter<ProductContext>(string.Format(shapeFileEntryFormat, "Wegsegment.prj"), encoding),
             new ProjectionFormatFileZipArchiveWriter<ProductContext>(string.Format(shapeFileEntryFormat, "Wegknoop.prj"), encoding),
-            new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "Objectcataloog_WR.pdf"), string.Format(staticFileEntryFormat, "Objectcataloog_WR.pdf")),
-            new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "Leesmij_WR.pdf"), string.Format(staticFileEntryFormat, "Leesmij_WR.pdf")),
+
             new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "HandleidingZipPakketten.pdf"), string.Format(staticFileEntryFormat, "HandleidingZipPakketten.pdf")),
+            new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "Leesmij_WR.pdf"), string.Format(staticFileEntryFormat, "Leesmij_WR.pdf")),
+            new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "Objectcataloog_WR.pdf"), string.Format(staticFileEntryFormat, "Objectcataloog_WR.pdf")),
+            new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "Meta_Wegenregister.pdf"), string.Format(staticFileEntryFormat, "Meta_Wegenregister.pdf")),
+            new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "Meta_Wegenregister.xml"), string.Format(staticFileEntryFormat, "Meta_Wegenregister.xml")),
+
             new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "Wegknoop.lyr"), string.Format(shapeFileEntryFormat, "Wegknoop.lyr")),
             new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "Wegknoop.sld"), string.Format(shapeFileEntryFormat, "Wegknoop.sld")),
             new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "Wegknoop.WOR"), string.Format(shapeFileEntryFormat, "Wegknoop.WOR")),
