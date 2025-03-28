@@ -128,8 +128,8 @@ public partial class GivenIdenticalSegments
     [Fact]
     public async Task WithNumberedRoads_ThenNumberedRoadsAreLinkedToMergedSegment()
     {
-        var attributeId1 = Fixture.Create<AttributeId>();
-        var attributeId2 = attributeId1.Next();
+        var attributeId1 = new AttributeId(1);
+        var attributeId2 = new AttributeId(2);
 
         var segment5Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>();
         var segment6Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>();
@@ -155,7 +155,7 @@ public partial class GivenIdenticalSegments
             })
             .WithRoadSegmentAddedToNumberedRoad(new()
             {
-                AttributeId = Fixture.Create<AttributeId>(),
+                AttributeId = new AttributeId(3),
                 SegmentId = W6.Id,
                 SegmentVersion = Fixture.Create<RoadSegmentVersion>(),
                 Number = "N0000001",
@@ -164,7 +164,7 @@ public partial class GivenIdenticalSegments
             })
             .WithRoadSegmentAddedToNumberedRoad(new()
             {
-                AttributeId = Fixture.Create<AttributeId>(),
+                AttributeId = new AttributeId(4),
                 SegmentId = W6.Id,
                 SegmentVersion = Fixture.Create<RoadSegmentVersion>(),
                 Number = "N0000002",
@@ -244,7 +244,7 @@ public partial class GivenIdenticalSegments
             })
             .WithRoadSegmentAddedToNumberedRoad(new()
             {
-                AttributeId = attributeId1,
+                AttributeId = 5,
                 TemporaryAttributeId = attributeId1,
                 SegmentId = mergedSegmentId,
                 SegmentVersion = 1,
@@ -254,7 +254,7 @@ public partial class GivenIdenticalSegments
             })
             .WithRoadSegmentAddedToNumberedRoad(new()
             {
-                AttributeId = attributeId2,
+                AttributeId = 6,
                 TemporaryAttributeId = attributeId2,
                 SegmentId = mergedSegmentId,
                 SegmentVersion = 1,

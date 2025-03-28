@@ -64,8 +64,8 @@ public partial class GivenIdenticalSegments
     [Fact]
     public async Task WithEuropeanRoads_ThenEuropeanRoadsAreLinkedToMergedSegment()
     {
-        var attributeId1 = Fixture.Create<AttributeId>();
-        var attributeId2 = attributeId1.Next();
+        var attributeId1 = new AttributeId(1);
+        var attributeId2 = new AttributeId(2);
 
         var initialRoads = new RoadNetworkChangesAcceptedBuilder(TestData)
             .WithRoadSegmentAddedToEuropeanRoad(new()
@@ -84,14 +84,14 @@ public partial class GivenIdenticalSegments
             })
             .WithRoadSegmentAddedToEuropeanRoad(new()
             {
-                AttributeId = Fixture.Create<AttributeId>(),
+                AttributeId = new AttributeId(3),
                 SegmentId = W6.Id,
                 SegmentVersion = Fixture.Create<RoadSegmentVersion>(),
                 Number = "E40"
             })
             .WithRoadSegmentAddedToEuropeanRoad(new()
             {
-                AttributeId = Fixture.Create<AttributeId>(),
+                AttributeId = new AttributeId(4),
                 SegmentId = W6.Id,
                 SegmentVersion = Fixture.Create<RoadSegmentVersion>(),
                 Number = "E19"
@@ -169,7 +169,7 @@ public partial class GivenIdenticalSegments
             })
             .WithRoadSegmentAddedToEuropeanRoad(new()
             {
-                AttributeId = attributeId1,
+                AttributeId = 5,
                 TemporaryAttributeId = attributeId1,
                 SegmentId = mergedSegmentId,
                 SegmentVersion = 1,
@@ -177,7 +177,7 @@ public partial class GivenIdenticalSegments
             })
             .WithRoadSegmentAddedToEuropeanRoad(new()
             {
-                AttributeId = attributeId2,
+                AttributeId = 6,
                 TemporaryAttributeId = attributeId2,
                 SegmentId = mergedSegmentId,
                 SegmentVersion = 1,
