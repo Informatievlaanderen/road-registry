@@ -16,7 +16,10 @@ public class RoadNetworkInfoProjection : ConnectedProjection<EditorContext>
     public RoadNetworkInfoProjection()
     {
         When<Envelope<BeganRoadNetworkImport>>(async (context, envelope, token) =>
-            await context.RoadNetworkInfo.AddAsync(new RoadNetworkInfo(), token)
+            await context.RoadNetworkInfo.AddAsync(new RoadNetworkInfo
+            {
+                LastChangedTimestamp = envelope.CreatedUtc
+            }, token)
         );
         When<Envelope<CompletedRoadNetworkImport>>(async (context, envelope, token) =>
         {
