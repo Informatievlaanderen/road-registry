@@ -1322,7 +1322,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                     RoadSegmentNationalRoadAttributeCount = 0,
                     RoadSegmentNumberedRoadAttributeCount = 0,
                     TotalRoadSegmentShapeLength = 0,
-                    GradeSeparatedJunctionCount = 0
+                    GradeSeparatedJunctionCount = 0,
+                    LastChangedTimestamp = Moment.EnvelopeCreatedUtc
                 }
             );
     }
