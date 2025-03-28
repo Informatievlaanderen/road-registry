@@ -1,5 +1,6 @@
 namespace RoadRegistry.Tests.Framework.Projections;
 
+using System.Globalization;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
@@ -176,7 +177,8 @@ public static class EditorContextScenarioExtensions
                 var envelope = new Envelope(message, new Dictionary<string, object>
                 {
                     { "Position", position },
-                    { "StreamId", RoadNetworkStreamNameProvider.Default.ToString() }
+                    { "StreamId", RoadNetworkStreamNameProvider.Default.ToString() },
+                    { "CreatedUtc", Moment.EnvelopeCreatedUtc.ToUniversalTime() }
                 }).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
                 position++;
@@ -195,66 +197,6 @@ public static class EditorContextScenarioExtensions
             }
         }
     }
-
-    // public static Task ExpectInAnyOrder(
-    //     this ConnectedProjectionScenario<EditorContext> scenario,
-    //     IEnumerable<object> records)
-    // {
-    //     return scenario.ExpectInAnyOrder(records.ToArray());
-    // }
-    //
-    // public static async Task ExpectInAnyOrder(
-    //     this ConnectedProjectionScenario<EditorContext> scenario,
-    //     params object[] records)
-    // {
-    //     var database = Guid.NewGuid().ToString("N");
-    //
-    //     var specification = scenario.Verify(async context =>
-    //     {
-    //         var comparisonConfig = new ComparisonConfig
-    //         {
-    //             IgnoreCollectionOrder = true,
-    //             MaxDifferences = 10,
-    //             CustomComparers = new List<BaseTypeComparer>
-    //             {
-    //                 new GeometryLineStringComparer(RootComparerFactory.GetRootComparer())
-    //             }
-    //         };
-    //
-    //         var comparer = new CompareLogic(comparisonConfig);
-    //         var actualRecords = await context.AllRecords();
-    //         var result = comparer.Compare(
-    //             actualRecords,
-    //             records
-    //         );
-    //
-    //         return result.AreEqual
-    //             ? VerificationResult.Pass()
-    //             : VerificationResult.Fail(result.CreateDifferenceMessage(actualRecords, records));
-    //     });
-    //
-    //     using (var context = CreateContextFor(database))
-    //     {
-    //         var projector = new ConnectedProjector<EditorContext>(specification.Resolver);
-    //         var position = 0L;
-    //         foreach (var message in specification.Messages)
-    //         {
-    //             var envelope = new Envelope(message, new Dictionary<string, object> { { "Position", position }}).ToGenericEnvelope();
-    //             await projector.ProjectAsync(context, envelope);
-    //             position++;
-    //         }
-    //
-    //         await context.SaveChangesAsync();
-    //     }
-    //
-    //     using (var context = CreateContextFor(database))
-    //     {
-    //         var result = await specification.Verification(context, CancellationToken.None);
-    //
-    //         if (result.Failed)
-    //             throw specification.CreateFailedScenarioExceptionFor(result);
-    //     }
-    // }
 
     public static Task ExpectInAnyOrder(
         this ConnectedProjectionScenario<EditorContext> scenario,

@@ -1,13 +1,11 @@
 namespace RoadRegistry.Tests.BackOffice.Scenarios.Organization.WhenChangingOrganization;
 
 using AutoFixture;
-using Be.Vlaanderen.Basisregisters.EventHandling;
 using FluentAssertions;
 using Framework.Testing;
 using NodaTime.Text;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using Command = RoadRegistry.BackOffice.Framework.Command;
 
@@ -24,7 +22,7 @@ public class GivenOrganization : RoadNetworkTestBase
         var command = new ChangeOrganization
         {
             Code = TestData.ChangedByOrganization,
-            Name = $"{TestData.ChangedByOrganizationName}_2",
+            Name = "abc_changed",
             OvoCode = ObjectProvider.Create<OrganizationOvoCode>(),
             KboNumber = ObjectProvider.Create<OrganizationKboNumber>(),
             IsMaintainer = true,
@@ -61,7 +59,7 @@ public class GivenOrganization : RoadNetworkTestBase
         var command = new ChangeOrganization
         {
             Code = TestData.ChangedByOrganization,
-            Name = $"{TestData.ChangedByOrganizationName}_2",
+            Name = "abc_changed",
             OvoCode = ObjectProvider.Create<OrganizationOvoCode>(),
             KboNumber = ObjectProvider.Create<OrganizationKboNumber>(),
             IsMaintainer = true,
