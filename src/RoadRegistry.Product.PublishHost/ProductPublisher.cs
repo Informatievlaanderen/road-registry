@@ -15,8 +15,10 @@ namespace RoadRegistry.Product.PublishHost
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using CloudStorageClients;
     using HttpClients;
+    using Infrastructure.Configurations;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
     using Microsoft.IO;
     using Schema;
 
@@ -25,6 +27,7 @@ namespace RoadRegistry.Product.PublishHost
         private readonly IStreetNameCache _cache;
         private readonly RoadNetworkProductBlobClient _productBlobClient;
         private readonly AzureBlobClient _azureBlobClient;
+        private readonly AzureBlobOptions _azureBlobOptions;
         private readonly MetaDataCenterHttpClient _metaDataCenterHttpClient;
         private readonly ProductContext _context;
         private readonly RecyclableMemoryStreamManager _streamManager;
@@ -40,6 +43,7 @@ namespace RoadRegistry.Product.PublishHost
             IStreetNameCache cache,
             RoadNetworkProductBlobClient productBlobClient,
             AzureBlobClient azureBlobClient,
+            IOptions<AzureBlobOptions> azureBlobOptions,
             MetaDataCenterHttpClient metaDataCenterHttpClient,
             ILoggerFactory loggerFactory)
         {
@@ -50,13 +54,14 @@ namespace RoadRegistry.Product.PublishHost
             _cache = cache;
             _productBlobClient = productBlobClient;
             _azureBlobClient = azureBlobClient;
+            _azureBlobOptions = azureBlobOptions.Value;
             _metaDataCenterHttpClient = metaDataCenterHttpClient;
             _logger = loggerFactory.CreateLogger(GetType());
         }
 
         public async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await using (await _context.Database.BeginTransactionAsync(IsolationLevel.Snapshot, stoppingToken));
+            await using (await _context.Database.BeginTransactionAsync(IsolationLevel.Snapshot, stoppingToken)) ;
 
             var info = await _context.RoadNetworkInfo.SingleOrDefaultAsync(stoppingToken);
             if (info is null || !info.CompletedImport)
@@ -76,13 +81,20 @@ namespace RoadRegistry.Product.PublishHost
             _logger.LogInformation("Upload to S3 completed.");
             stoppingToken.ThrowIfCancellationRequested();
 
-            await UploadToDownload(archiveStream, stoppingToken);
-            _logger.LogInformation("Upload to Download completed.");
-            stoppingToken.ThrowIfCancellationRequested();
+            if (_azureBlobOptions.Enabled)
+            {
+                await UploadToDownload(archiveStream, stoppingToken);
+                _logger.LogInformation("Upload to Download completed.");
+                stoppingToken.ThrowIfCancellationRequested();
 
-            await UpdateMetadata(archiveDate, stoppingToken);
-            _logger.LogInformation("Metadata updated.");
-            stoppingToken.ThrowIfCancellationRequested();
+                await UpdateMetadata(archiveDate, stoppingToken);
+                _logger.LogInformation("Metadata updated.");
+                stoppingToken.ThrowIfCancellationRequested();
+            }
+            else
+            {
+                _logger.LogInformation("Azure blob is disabled.");
+            }
         }
 
         private async Task BuildArchive(MemoryStream archiveStream, CancellationToken cancellationToken)
