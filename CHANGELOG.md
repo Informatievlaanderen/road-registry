@@ -1,3 +1,10 @@
+## [4.27.6](https://github.com/informatievlaanderen/road-registry/compare/v4.27.5...v4.27.6) (2025-03-28)
+
+
+### Bug Fixes
+
+* generate new attribute ids when merging segments during bulk segment delete ([df8bf7a](https://github.com/informatievlaanderen/road-registry/commit/df8bf7a5bf08fd3f95f641c072308adf2dfcaf8b))
+
 ## [4.27.5](https://github.com/informatievlaanderen/road-registry/compare/v4.27.4...v4.27.5) (2025-03-27)
 
 
