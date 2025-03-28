@@ -230,6 +230,21 @@ jobs:
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
     secrets: inherit
 
+  build-publishhost-product:
+    name: Build Product Publish Host
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    needs: [ set-release-version ]
+    if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
+    with:
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      image-file: rr-product-publishhost-image.tar
+      image-name: product-publishhost
+      test-project: RoadRegistry.Empty.Tests
+      build-project: RoadRegistry.Product.PublishHost
+      semver: ${{ needs.set-release-version.outputs.version }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+    secrets: inherit
+
   build-projectionhost-producersnapshot:
     name: Build Producer Snapshot Projection Host
     uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
@@ -614,6 +629,7 @@ jobs:
           'integration-projectionhost',
           'producer-snapshot-projectionhost',
           'product-projectionhost',
+          'product-publishhost',
           'projector', 
           'synchost',
           'wfs-projectionhost', 
@@ -674,6 +690,7 @@ jobs:
           'road-editor-projectionhost',
           'road-producer-snapshot-projectionhost',
           'road-product-projectionhost',
+          'road-product-publishhost',
           'road-projector',
           'road-synchost',
           'road-wfs-projectionhost',

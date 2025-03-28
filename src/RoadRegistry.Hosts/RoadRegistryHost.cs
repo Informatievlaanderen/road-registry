@@ -75,7 +75,6 @@ public class RoadRegistryHost<T>
                 optionsValidator.ValidateAndThrow();
             }
 
-
             await DistributedLock<T>.RunAsync(async () =>
                 {
                     await WaitFor.SqlStreamStoreToBecomeAvailable(_streamStore, _logger);

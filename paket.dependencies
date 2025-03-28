@@ -32,6 +32,8 @@ nuget AWSSDK.SimpleNotificationService 3.7.301.7
 nuget AWSSDK.SQS 3.7.300.59
 nuget AWSSDK.Lambda 3.7.304.8
 
+nuget Azure.Storage.Blobs 12.19.1
+
 nuget Datadog.Trace.Bundle 2.49.0
 
 nuget Confluent.Kafka 2.3.0

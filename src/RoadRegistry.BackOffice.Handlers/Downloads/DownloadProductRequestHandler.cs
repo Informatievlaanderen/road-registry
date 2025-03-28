@@ -44,7 +44,7 @@ public class DownloadProductRequestHandler : EndpointRequestHandler<DownloadProd
     {
         var info = await _context.RoadNetworkInfo.SingleOrDefaultAsync(cancellationToken);
         if (info is null || !info.CompletedImport)
-            throw new DownloadProductNotFoundException("");
+            throw new DownloadProductNotFoundException();
 
         var result = LocalDatePattern.CreateWithInvariantCulture("yyyyMMdd").Parse(request.Date);
         if (!result.Success)

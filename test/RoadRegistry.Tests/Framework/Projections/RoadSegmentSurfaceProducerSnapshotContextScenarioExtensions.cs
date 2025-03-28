@@ -97,7 +97,11 @@ public static class RoadSegmentSurfaceProducerSnapshotContextScenarioExtensions
             var position = 0L;
             foreach (var message in specification.Messages)
             {
-                var envelope = new Envelope(message, new Dictionary<string, object> { { "Position", position }, { "CreatedUtc", created.ToUniversalTime() } }).ToGenericEnvelope();
+                var envelope = new Envelope(message, new Dictionary<string, object>
+                {
+                    { "Position", position },
+                    { "CreatedUtc", created.ToUniversalTime() }
+                }).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
                 position++;
             }

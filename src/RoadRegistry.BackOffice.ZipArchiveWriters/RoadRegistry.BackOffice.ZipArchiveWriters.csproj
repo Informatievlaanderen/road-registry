@@ -15,25 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="ForProduct\StaticData\Leesmij_WR.pdf" />
-    <None Remove="ForProduct\StaticData\Objectcataloog_WR.pdf" />
-    <None Remove="ForProduct\StaticData\Wegknoop.lyr" />
-    <None Remove="ForProduct\StaticData\Wegknoop.sld" />
-    <None Remove="ForProduct\StaticData\Wegknoop.WOR" />
-    <None Remove="ForProduct\StaticData\Wegsegment.lyr" />
-    <None Remove="ForProduct\StaticData\Wegsegment.sld" />
-    <None Remove="ForProduct\StaticData\Wegsegment.WOR" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="ForProduct\StaticData\Leesmij_WR.pdf" />
-    <EmbeddedResource Include="ForProduct\StaticData\Objectcataloog_WR.pdf" />
-    <EmbeddedResource Include="ForProduct\StaticData\Wegknoop.lyr" />
-    <EmbeddedResource Include="ForProduct\StaticData\Wegknoop.sld" />
-    <EmbeddedResource Include="ForProduct\StaticData\Wegknoop.WOR" />
-    <EmbeddedResource Include="ForProduct\StaticData\Wegsegment.lyr" />
-    <EmbeddedResource Include="ForProduct\StaticData\Wegsegment.sld" />
-    <EmbeddedResource Include="ForProduct\StaticData\Wegsegment.WOR" />
+    <EmbeddedResource Include="ForProduct\StaticData\**\*" />
   </ItemGroup>
 
   <ItemGroup>

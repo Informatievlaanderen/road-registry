@@ -1,13 +1,15 @@
 namespace RoadRegistry.BackOffice;
 
-using RoadRegistry.BackOffice.Core;
+using System;
+using Core;
 
 public class RoadNetworkInfo
 {
     public const int Identifier = RoadNetwork.Identifier;
+
+    public int Id { get; set; } = Identifier;
     public bool CompletedImport { get; set; }
     public int GradeSeparatedJunctionCount { get; set; }
-    public int Id { get; set; } = Identifier;
     public int OrganizationCount { get; set; }
     public int RoadNodeCount { get; set; }
     public int RoadSegmentCount { get; set; }
@@ -19,4 +21,6 @@ public class RoadNetworkInfo
     public int RoadSegmentWidthAttributeCount { get; set; }
     public int TotalRoadNodeShapeLength { get; set; }
     public int TotalRoadSegmentShapeLength { get; set; }
+
+    public DateTimeOffset LastChangedTimestamp { get; set; }
 }

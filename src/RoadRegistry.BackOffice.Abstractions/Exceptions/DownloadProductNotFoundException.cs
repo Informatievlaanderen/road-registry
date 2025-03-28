@@ -5,8 +5,8 @@ using System.Runtime.Serialization;
 [Serializable]
 public sealed class DownloadProductNotFoundException : ApplicationException
 {
-    public DownloadProductNotFoundException(string? message)
-        : base(message)
+    public DownloadProductNotFoundException()
+        : base(string.Empty)
     {
     }
 

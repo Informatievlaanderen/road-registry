@@ -1,5 +1,6 @@
 namespace RoadRegistry.Editor.Schema;
 
+using System;
 using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -26,5 +27,6 @@ public class RoadNetworkInfoConfiguration : IEntityTypeConfiguration<RoadNetwork
         b.Property(p => p.RoadSegmentNationalRoadAttributeCount).HasDefaultValue(0).IsRequired();
         b.Property(p => p.RoadSegmentNumberedRoadAttributeCount).HasDefaultValue(0).IsRequired();
         b.Property(p => p.GradeSeparatedJunctionCount).HasDefaultValue(0).IsRequired();
+        b.Property(p => p.LastChangedTimestamp).HasDefaultValue(DateTimeOffset.UtcNow).IsRequired();
     }
 }

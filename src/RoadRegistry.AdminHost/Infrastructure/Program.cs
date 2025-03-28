@@ -54,7 +54,6 @@ public class Program
                 .AddFeatureCompare()
                 .AddScoped(_ => new EventSourcedEntityMap())
                 .AddStreamStore()
-                .AddSingleton<IClock>(SystemClock.Instance)
                 .AddRoadNetworkCommandQueue()
                 .AddRoadNetworkEventWriter()
                 .AddRoadRegistrySnapshot()

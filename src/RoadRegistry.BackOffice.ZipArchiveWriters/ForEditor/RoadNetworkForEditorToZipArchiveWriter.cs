@@ -26,7 +26,7 @@ public class RoadNetworkForEditorToZipArchiveWriter : IZipArchiveWriter<EditorCo
         if (encoding == null) throw new ArgumentNullException(nameof(encoding));
 
         _writer = new CompositeZipArchiveWriter<EditorContext>(
-            new ReadCommittedZipArchiveWriter<EditorContext>(
+            new SnapshotTransactionZipArchiveWriter<EditorContext>(
                 new CompositeZipArchiveWriter<EditorContext>(
                     new OrganizationsToZipArchiveWriter(encoding),
                     new RoadNodesToZipArchiveWriter(manager, encoding),
