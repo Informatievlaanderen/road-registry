@@ -61,7 +61,7 @@ namespace RoadRegistry.Product.PublishHost
 
         public async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await using (await _context.Database.BeginTransactionAsync(IsolationLevel.Snapshot, stoppingToken)) ;
+            await using var tr = await _context.Database.BeginTransactionAsync(IsolationLevel.Snapshot, stoppingToken);
 
             var info = await _context.RoadNetworkInfo.SingleOrDefaultAsync(stoppingToken);
             if (info is null || !info.CompletedImport)

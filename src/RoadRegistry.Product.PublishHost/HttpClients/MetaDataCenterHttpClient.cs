@@ -22,7 +22,6 @@ public sealed class MetaDataCenterHttpClient
     private readonly ConcurrentDictionary<string, IEnumerable<string>> _defaultHeaders;
     private readonly ILogger<MetaDataCenterHttpClient>? _logger;
     private readonly ITokenProvider _tokenProvider;
-
     private IDictionary<string, IEnumerable<string>> DefaultHeaders => _defaultHeaders;
 
     public MetaDataCenterHttpClient(
@@ -139,18 +138,22 @@ public sealed class MetaDataCenterHttpClient
 
         HttpResponseMessage response;
         var retry = 0;
-        while(true) {
+        while (true)
+        {
             response = await httpClient.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 _logger?.LogCritical("Unable to update CswPublication");
                 await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken);
                 retry++;
-                if(retry == 10) {
-                    throw new ArgumentNullException("Unable to update CswPublication");
+                if (retry == 10)
+                {
+                    throw new InvalidOperationException($"Unable to update CswPublication, response: {(int)response.StatusCode}");
                 }
+
                 continue;
             }
+
             break;
         }
 
