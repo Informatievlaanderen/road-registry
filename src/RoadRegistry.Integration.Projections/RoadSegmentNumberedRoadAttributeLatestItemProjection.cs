@@ -1,6 +1,5 @@
 namespace RoadRegistry.Integration.Projections;
 
-using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,10 +48,10 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjection : ConnectedPro
                 switch (change)
                 {
                     case RoadSegmentAddedToNumberedRoad numberedRoad:
-                        await RoadSegmentAdded(context, envelope, numberedRoad);
+                        await RoadSegmentAddedToNumberedRoad(context, envelope, numberedRoad, token);
                         break;
                     case RoadSegmentRemovedFromNumberedRoad numberedRoad:
-                        await RoadSegmentRemoved(context, envelope, numberedRoad, token);
+                        await RoadSegmentRemovedFromNumberedRoad(context, envelope, numberedRoad, token);
                         break;
                     case RoadSegmentRemoved roadSegmentRemoved:
                         await RoadSegmentRemoved(context, envelope, roadSegmentRemoved, token);
@@ -61,12 +60,14 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjection : ConnectedPro
         });
     }
 
-    private static async Task RoadSegmentAdded(
+    private static async Task RoadSegmentAddedToNumberedRoad(
         IntegrationContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
-        RoadSegmentAddedToNumberedRoad numberedRoad)
+        RoadSegmentAddedToNumberedRoad numberedRoad,
+        CancellationToken token)
     {
         var directionTranslation = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
+
         await context.RoadSegmentNumberedRoadAttributes.AddAsync(new RoadSegmentNumberedRoadAttributeLatestItem
         {
             Id = numberedRoad.AttributeId,
@@ -79,25 +80,25 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjection : ConnectedPro
             OrganizationName = envelope.Message.Organization,
             CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
             VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
-        });
+        }, token);
     }
 
-    private static async Task RoadSegmentRemoved(
+    private static async Task RoadSegmentRemovedFromNumberedRoad(
         IntegrationContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
         RoadSegmentRemovedFromNumberedRoad numberedRoad,
         CancellationToken token)
     {
-        var latestItem = await context.RoadSegmentNumberedRoadAttributes
+        var item = await context.RoadSegmentNumberedRoadAttributes
             .FindAsync(numberedRoad.AttributeId, cancellationToken: token)
             .ConfigureAwait(false);
 
-        if (latestItem is not null && !latestItem.IsRemoved)
+        if (item is not null && !item.IsRemoved)
         {
-            latestItem.IsRemoved = true;
-            latestItem.OrganizationId = envelope.Message.OrganizationId;
-            latestItem.OrganizationName = envelope.Message.Organization;
-            latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+            item.IsRemoved = true;
+            item.OrganizationId = envelope.Message.OrganizationId;
+            item.OrganizationName = envelope.Message.Organization;
+            item.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         }
     }
 
@@ -107,19 +108,18 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjection : ConnectedPro
         RoadSegmentRemoved roadSegmentRemoved,
         CancellationToken token)
     {
-
-        var latestItemsToRemove =
+        var itemsToRemove =
             await context.RoadSegmentNumberedRoadAttributes.IncludeLocalToListAsync(
                 q => q.Where(x =>
                     x.RoadSegmentId == roadSegmentRemoved.Id && !x.IsRemoved),
                 token);
 
-        foreach (var latestItemToRemove in latestItemsToRemove)
+        foreach (var item in itemsToRemove)
         {
-            latestItemToRemove.IsRemoved = true;
-            latestItemToRemove.OrganizationId = envelope.Message.OrganizationId;
-            latestItemToRemove.OrganizationName = envelope.Message.Organization;
-            latestItemToRemove.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+            item.IsRemoved = true;
+            item.OrganizationId = envelope.Message.OrganizationId;
+            item.OrganizationName = envelope.Message.Organization;
+            item.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         }
     }
 }
