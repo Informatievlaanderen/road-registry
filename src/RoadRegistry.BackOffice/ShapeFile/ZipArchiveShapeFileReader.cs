@@ -2,14 +2,16 @@ namespace RoadRegistry.BackOffice.ShapeFile;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO.Streams;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
+using NetTopologySuite.IO.Esri.Shapefiles.Readers;
+using NetTopologySuite.IO.Esri.Shp;
 
 public class ZipArchiveShapeFileReader
 {
-    public IEnumerable<(Geometry, RecordNumber)> Read(ZipArchiveEntry entry, GeometryFactory geometryFactory = null)
+    public IEnumerable<(Geometry, RecordNumber)> Read(ZipArchiveEntry entry)
     {
         var recordNumber = RecordNumber.Initial;
 
@@ -19,11 +21,12 @@ public class ZipArchiveShapeFileReader
         fileStream.CopyTo(memoryStream);
         memoryStream.Position = 0;
 
-        var streamProvider = new ExternallyManagedStreamProvider(StreamTypes.Shape, memoryStream);
-        var streamProviderRegistry = new ShapefileStreamProviderRegistry(streamProvider, null);
-        var shpReader = new NetTopologySuite.IO.ShapeFile.Extended.ShapeReader(streamProviderRegistry);
+        var geometries = Shp.OpenRead(memoryStream, new ShapefileReaderOptions
+        {
+            Factory = WellKnownGeometryFactories.WithoutMAndZ
+        }).ToArray();
 
-        foreach (var geometry in shpReader.ReadAllShapes(geometryFactory ?? WellKnownGeometryFactories.Default))
+        foreach (var geometry in geometries)
         {
             yield return (geometry, recordNumber);
             recordNumber = recordNumber.Next();

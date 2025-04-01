@@ -104,7 +104,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
                         }
                         else
                         {
-                            problems += recordContext.ShapeRecordShapeGeometryTypeMismatch(ShapeGeometryType.Point, geometry.GeometryType);
+                            problems += recordContext.ShapeRecordShapeGeometryTypeMismatch(NetTopologySuite.IO.Esri.ShapeType.Point, geometry.GeometryType);
                         }
                     }
                 }

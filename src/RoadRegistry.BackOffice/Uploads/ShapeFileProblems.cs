@@ -84,7 +84,7 @@ public static class ShapeFileProblems
     }
 
     public static FileError ShapeRecordShapeGeometryTypeMismatch(this IShapeFileRecordProblemBuilder builder,
-        ShapeGeometryType expectedGeometryType, string geometryType)
+        NetTopologySuite.IO.Esri.ShapeType expectedGeometryType, string geometryType)
     {
         return builder
             .Error(nameof(ShapeRecordShapeGeometryTypeMismatch))

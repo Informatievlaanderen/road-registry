@@ -3,21 +3,23 @@ namespace RoadRegistry.BackOffice.ShapeFile;
 using System.IO;
 using System.Linq;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
-using NetTopologySuite.IO.Streams;
+using NetTopologySuite.IO.Esri;
+using NetTopologySuite.IO.Esri.Shapefiles.Readers;
+using NetTopologySuite.IO.Esri.Shp;
 
 public class ExtractGeometryShapeFileReader
 {
-    public (ShapefileHeader, Geometry) Read(Stream stream, GeometryFactory geometryFactory = null)
+    public (ShapeType, Geometry) Read(Stream stream)
     {
         stream.Position = 0;
 
-        var streamProvider = new ExternallyManagedStreamProvider(StreamTypes.Shape, stream);
-        var streamProviderRegistry = new ShapefileStreamProviderRegistry(streamProvider, null);
+        var shp = Shp.OpenRead(stream, new ShapefileReaderOptions
+        {
+            Factory = WellKnownGeometryFactories.WithoutMAndZ
+        });
 
-        var shpReader = new NetTopologySuite.IO.ShapeFile.Extended.ShapeReader(streamProviderRegistry);
-        var geometry = shpReader.ReadAllShapes(geometryFactory ?? WellKnownGeometryFactories.WithoutMAndZ).FirstOrDefault();
+        var geometry = shp.FirstOrDefault();
 
-        return (shpReader.ShapefileHeader, geometry);
+        return (shp.ShapeType, geometry);
     }
 }

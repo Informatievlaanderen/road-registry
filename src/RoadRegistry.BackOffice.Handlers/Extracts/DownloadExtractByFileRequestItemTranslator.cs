@@ -7,7 +7,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using Messages;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
+using NetTopologySuite.IO.Esri;
 using ShapeFile;
 using GeometryTranslator = BackOffice.GeometryTranslator;
 using Polygon = NetTopologySuite.Geometries.Polygon;
@@ -24,11 +24,11 @@ public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFile
     {
         var problems = new List<Problem>();
 
-        ShapefileHeader header = null;
+        ShapeType? shapeType = null;
         Geometry geometry = null;
         try
         {
-            (header, geometry) = new ExtractGeometryShapeFileReader().Read(shapeFile.ReadStream);
+            (shapeType, geometry) = new ExtractGeometryShapeFileReader().Read(shapeFile.ReadStream);
         }
         catch (Exception ex)
         {
@@ -37,9 +37,9 @@ public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFile
 
         var polygons = new List<Polygon>();
 
-        if (header is not null)
+        if (shapeType is not null)
         {
-            if (new[] { ShapeGeometryType.Polygon, ShapeGeometryType.PolygonM, ShapeGeometryType.PolygonZ, ShapeGeometryType.PolygonZM }.Contains(header.ShapeType))
+            if (new[] { ShapeType.Polygon, ShapeType.PolygonM, ShapeType.PolygonZM }.Contains(shapeType.Value))
             {
                 if (geometry is Polygon || geometry is MultiPolygon)
                 {

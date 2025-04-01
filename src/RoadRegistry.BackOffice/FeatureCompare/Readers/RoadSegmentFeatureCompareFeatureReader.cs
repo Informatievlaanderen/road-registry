@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using NetTopologySuite.IO.Esri;
 using Translators;
 using Uploads;
 
@@ -132,7 +133,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                         catch (InvalidCastException)
                         {
                             problems += recordContext.ShapeRecordShapeGeometryTypeMismatch(
-                                ShapeGeometryType.LineStringM,
+                                NetTopologySuite.IO.Esri.ShapeType.PolyLineM,
                                 geometry.GeometryType);
                         }
                     }

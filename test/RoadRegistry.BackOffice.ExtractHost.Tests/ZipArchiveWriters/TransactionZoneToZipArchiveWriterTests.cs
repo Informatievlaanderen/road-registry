@@ -102,8 +102,9 @@ public class TransactionZoneToZipArchiveWriterTests
 
             ms.Position = 0;
 
-            var (_, geometry) = new ExtractGeometryShapeFileReader().Read(ms, WellKnownGeometryFactories.Default);
-            return (Polygon)geometry;
+            var (_, geometry) = new ExtractGeometryShapeFileReader().Read(ms);
+
+            return (Polygon)geometry.ToMultiPolygon().Geometries.Single();
         }
     }
 
@@ -191,7 +192,7 @@ public class TransactionZoneToZipArchiveWriterTests
             {
                 var polygon = ReadGeometryFromArchive(readArchive, "Transactiezones.shp");
 
-                var coordinate = Assert.IsType<CoordinateZ>(polygon.Coordinate);
+                var coordinate = Assert.IsType<Coordinate>(polygon.Coordinate);
                 Assert.Equal(double.NaN, coordinate.M);
                 Assert.Equal(double.NaN, coordinate.Z);
             });
