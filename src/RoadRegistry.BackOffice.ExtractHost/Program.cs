@@ -49,13 +49,22 @@ public class Program
                             ),
                             WellKnownSchemas.ExtractHostSchema))
                     .AddSingleton<IZipArchiveWriter>(sp =>
-                        new RoadNetworkExtractToZipArchiveWriter(
+                        //TODO-pr add featuretoggle
+                        new RoadNetworkExtractNetTopologySuiteZipArchiveWriter(
                             sp.GetService<ZipArchiveWriterOptions>(),
                             sp.GetService<IStreetNameCache>(),
                             sp.GetService<RecyclableMemoryStreamManager>(),
                             sp.GetRequiredService<FileEncoding>(),
-                            sp.GetRequiredService<ILogger<RoadNetworkExtractToZipArchiveWriter>>()
-                        ))
+                            sp.GetRequiredService<ILogger<RoadNetworkExtractNetTopologySuiteZipArchiveWriter>>()
+                        )
+                        // new RoadNetworkExtractToZipArchiveWriter(
+                        //     sp.GetService<ZipArchiveWriterOptions>(),
+                        //     sp.GetService<IStreetNameCache>(),
+                        //     sp.GetService<RecyclableMemoryStreamManager>(),
+                        //     sp.GetRequiredService<FileEncoding>(),
+                        //     sp.GetRequiredService<ILogger<RoadNetworkExtractToZipArchiveWriter>>()
+                        // )
+                    )
                     .AddSingleton<IRoadNetworkExtractArchiveAssembler>(sp =>
                         new RoadNetworkExtractArchiveAssembler(
                             sp.GetService<RecyclableMemoryStreamManager>(),

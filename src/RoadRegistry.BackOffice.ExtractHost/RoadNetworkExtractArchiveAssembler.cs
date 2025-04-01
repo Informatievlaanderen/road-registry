@@ -33,6 +33,7 @@ public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAsse
 
         var stream = _manager.GetStream();
         await using var context = _contextFactory();
+        //TODO-pr start snapshot transaction?
         using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
         await _writer.WriteAsync(archive, request, new ZipArchiveDataProvider(context), cancellationToken);
 
