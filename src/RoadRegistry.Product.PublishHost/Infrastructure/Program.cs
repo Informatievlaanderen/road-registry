@@ -76,6 +76,13 @@ internal static class InternalServiceCollectionExtensions
         return services.AddSingleton(sp =>
         {
             var options = sp.GetRequiredService<IOptions<AzureBlobOptions>>().Value;
+            if (!options.Enabled)
+            {
+                return new BlobServiceClient(
+                    new Uri("https://dummy.local"),
+                    new ClientSecretCredential(options.TenantId, options.ClientKey, options.ClientSecret),
+                    new Azure.Storage.Blobs.BlobClientOptions(Azure.Storage.Blobs.BlobClientOptions.ServiceVersion.V2020_04_08));
+            }
 
             if (options.IsAzurite)
             {
