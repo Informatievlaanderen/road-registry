@@ -6,7 +6,8 @@ using BackOffice.Extracts;
 using BackOffice.Framework;
 using BackOffice.Uploads;
 using Core;
-using FeatureCompare.Readers;
+using FeatureCompare;
+using FeatureCompare.V1.Readers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -27,8 +28,8 @@ public class Startup : TestStartup
                     sp.GetService<IStreamStore>(),
                     sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
-                    sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
-                    sp.GetService<ITransactionZoneFeatureCompareFeatureReader>(),
+                    sp.GetService<IZipArchiveBeforeFeatureCompareValidatorFactory>(),
+                    sp.GetService<ITransactionZoneZipArchiveReader>(),
                     sp.GetService<IClock>(),
                     sp.GetService<ILoggerFactory>()
                 ),
@@ -45,7 +46,7 @@ public class Startup : TestStartup
                     sp.GetService<IStreamStore>(),
                     sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
-                    sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
+                    sp.GetService<IZipArchiveBeforeFeatureCompareValidatorFactory>(),
                     sp.GetService<IExtractUploadFailedEmailClient>(),
                     sp.GetService<IClock>(),
                     sp.GetService<ILoggerFactory>()

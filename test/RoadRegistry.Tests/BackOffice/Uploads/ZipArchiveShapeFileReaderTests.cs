@@ -8,6 +8,7 @@ using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.FeatureCompare;
+using RoadRegistry.BackOffice.FeatureCompare.V1;
 using RoadRegistry.BackOffice.ShapeFile;
 using RoadRegistry.BackOffice.Uploads;
 
@@ -17,7 +18,7 @@ public class ZipArchiveShapeFileReaderTests
     [InlineData("eWegknoop.zip", ExtractFileName.Wegknoop)]
     public async Task RoadNodeShapeFileShouldHaveSameAmountOfRecordsAsDbaseFile(string resourceName, ExtractFileName entryFileName)
     {
-        var sut = new ZipArchiveShapeFileReader();
+        var sut = new ZipArchiveShapeFileReaderV2();
 
         using var beforeFcArchiveStream = new MemoryStream();
         await using (var embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"RoadRegistry.Tests.Resources.ZipArchiveShapeFileReaderTests.{resourceName}"))
@@ -43,7 +44,7 @@ public class ZipArchiveShapeFileReaderTests
     [InlineData("eWegsegment.zip", ExtractFileName.Wegsegment)]
     public async Task RoadSegmentShapeFileShouldHaveSameAmountOfRecordsAsDbaseFile(string resourceName, ExtractFileName entryFileName)
     {
-        var sut = new ZipArchiveShapeFileReader();
+        var sut = new ZipArchiveShapeFileReaderV2();
 
         using var beforeFcArchiveStream = new MemoryStream();
         await using (var embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"RoadRegistry.Tests.Resources.ZipArchiveShapeFileReaderTests.{resourceName}"))

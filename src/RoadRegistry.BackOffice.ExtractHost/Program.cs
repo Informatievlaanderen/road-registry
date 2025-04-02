@@ -21,6 +21,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using SqlStreamStore;
 using ZipArchiveWriters.ExtractHost;
+using ZipArchiveWriters.ExtractHost.V1;
+using ZipArchiveWriters.ExtractHost.V2;
 
 public class Program
 {
@@ -51,12 +53,12 @@ public class Program
                             WellKnownSchemas.ExtractHostSchema))
                     .AddSingleton<IZipArchiveWriter>(sp =>
                         sp.GetRequiredService<UseNetTopologySuiteForExtractFeatureToggle>().FeatureEnabled
-                            ? new RoadNetworkExtractNetTopologySuiteZipArchiveWriter(
+                            ? new RoadNetworkExtractZipArchiveWriter(
                                 sp.GetService<ZipArchiveWriterOptions>(),
                                 sp.GetService<IStreetNameCache>(),
                                 sp.GetService<RecyclableMemoryStreamManager>(),
                                 sp.GetRequiredService<FileEncoding>(),
-                                sp.GetRequiredService<ILogger<RoadNetworkExtractNetTopologySuiteZipArchiveWriter>>()
+                                sp.GetRequiredService<ILogger<RoadNetworkExtractZipArchiveWriter>>()
                             )
                             : new RoadNetworkExtractToZipArchiveWriter(
                                 sp.GetService<ZipArchiveWriterOptions>(),

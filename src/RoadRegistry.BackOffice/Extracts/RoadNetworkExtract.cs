@@ -52,6 +52,7 @@ public class RoadNetworkExtract : EventSourcedEntity
         On<RoadNetworkExtractDownloadBecameAvailable>(e =>
         {
             _announcedDownloads.Add(new DownloadId(e.DownloadId));
+            ZipArchiveWriterVersion = e.ZipArchiveWriterVersion ?? WellKnownZipArchiveWriterVersions.V1;
         });
         On<RoadNetworkExtractChangesArchiveUploaded>(e =>
         {
@@ -71,8 +72,9 @@ public class RoadNetworkExtract : EventSourcedEntity
     public ExtractDescription Description { get; private set; }
     public DateTime DateRequested { get; private set; }
     public bool IsInformative { get; private set; }
+    public string ZipArchiveWriterVersion { get; private set; }
 
-    public void AnnounceAvailable(DownloadId downloadId, ArchiveId archiveId, ICollection<DownloadId> overlapsWithDownloadIds)
+    public void AnnounceAvailable(DownloadId downloadId, ArchiveId archiveId, ICollection<DownloadId> overlapsWithDownloadIds, string zipArchiveWriterVersion)
     {
         if (_requestedDownloads.Contains(downloadId) && !_announcedDownloads.Contains(downloadId))
             Apply(new RoadNetworkExtractDownloadBecameAvailable
@@ -83,7 +85,8 @@ public class RoadNetworkExtract : EventSourcedEntity
                 DownloadId = downloadId,
                 ArchiveId = archiveId,
                 IsInformative = IsInformative,
-                OverlapsWithDownloadIds = overlapsWithDownloadIds?.Select(x => x.ToGuid()).ToList() ?? []
+                OverlapsWithDownloadIds = overlapsWithDownloadIds?.Select(x => x.ToGuid()).ToList() ?? [],
+                ZipArchiveWriterVersion = zipArchiveWriterVersion
             });
     }
 

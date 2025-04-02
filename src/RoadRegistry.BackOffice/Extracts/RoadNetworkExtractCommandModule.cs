@@ -11,8 +11,8 @@ using SqlStreamStore;
 using System;
 using System.IO.Compression;
 using System.Linq;
+using FeatureCompare;
 using TicketingService.Abstractions;
-using Uploads;
 
 public class RoadNetworkExtractCommandModule : CommandHandlerModule
 {
@@ -21,7 +21,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
         IStreamStore store,
         ILifetimeScope lifetimeScope,
         IRoadNetworkSnapshotReader snapshotReader,
-        IZipArchiveBeforeFeatureCompareValidator beforeFeatureCompareValidator,
+        IZipArchiveBeforeFeatureCompareValidatorFactory beforeFeatureCompareValidatorFactory,
         IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
         IClock clock,
         ILoggerFactory loggerFactory)
@@ -29,7 +29,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
         ArgumentNullException.ThrowIfNull(uploadsBlobClient);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
-        ArgumentNullException.ThrowIfNull(beforeFeatureCompareValidator);
+        ArgumentNullException.ThrowIfNull(beforeFeatureCompareValidatorFactory);
         ArgumentNullException.ThrowIfNull(clock);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
@@ -106,7 +106,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 var extractRequestId = ExtractRequestId.FromString(message.Body.RequestId);
                 var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
 
-                extract.AnnounceAvailable(downloadId, archiveId, overlapsWithDownloadIds);
+                extract.AnnounceAvailable(downloadId, archiveId, overlapsWithDownloadIds, message.Body.ZipArchiveWriterVersion);
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(AnnounceRoadNetworkExtractDownloadBecameAvailable));
             });
@@ -146,12 +146,13 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                         var upload = extract.Upload(downloadId, uploadId, archiveId, command.Body.TicketId);
 
                         var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
-                        await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
-                        using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
-                        {
-                            var ticketing = container.Resolve<ITicketing>();
-                            await upload.ValidateArchiveUsing(archive, command.Body.TicketId, beforeFeatureCompareValidator, extractUploadFailedEmailClient, ticketing, ct);
-                        }
+                        await using var archiveBlobStream = await archiveBlob.OpenAsync(ct);
+                        using var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false);
+
+                        var ticketing = container.Resolve<ITicketing>();
+                        var beforeFeatureCompareValidator = beforeFeatureCompareValidatorFactory.Create(extract.ZipArchiveWriterVersion);
+
+                        await upload.ValidateArchiveUsing(archive, command.Body.TicketId, beforeFeatureCompareValidator, extractUploadFailedEmailClient, ticketing, ct);
                     }
                     catch (Exception ex)
                     {

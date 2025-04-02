@@ -17,6 +17,7 @@ using NodaTime;
 using Options;
 using SqlStreamStore;
 using System.Threading.Tasks;
+using BackOffice.FeatureCompare;
 
 public class Program
 {
@@ -52,7 +53,7 @@ public class Program
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<ILifetimeScope>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
-                                sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
+                                sp.GetService<IZipArchiveBeforeFeatureCompareValidatorFactory>(),
                                 sp.GetService<IExtractUploadFailedEmailClient>(),
                                 sp.GetService<IClock>(),
                                 sp.GetService<ILoggerFactory>()

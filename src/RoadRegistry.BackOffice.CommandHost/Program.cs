@@ -7,7 +7,8 @@ using Autofac;
 using Core;
 using Extensions;
 using Extracts;
-using FeatureCompare.Readers;
+using FeatureCompare;
+using FeatureCompare.V1.Readers;
 using FeatureToggles;
 using Framework;
 using Handlers.Sqs;
@@ -86,8 +87,8 @@ public class Program
                     sp.GetRequiredService<IStreamStore>(),
                     sp.GetRequiredService<ILifetimeScope>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
-                    sp.GetRequiredService<IZipArchiveBeforeFeatureCompareValidator>(),
-                    sp.GetRequiredService<ITransactionZoneFeatureCompareFeatureReader>(),
+                    sp.GetRequiredService<IZipArchiveBeforeFeatureCompareValidatorFactory>(),
+                    sp.GetRequiredService<ITransactionZoneZipArchiveReader>(),
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 ),
@@ -104,7 +105,7 @@ public class Program
                     sp.GetRequiredService<IStreamStore>(),
                     sp.GetRequiredService<ILifetimeScope>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
-                    sp.GetRequiredService<IZipArchiveBeforeFeatureCompareValidator>(),
+                    sp.GetRequiredService<IZipArchiveBeforeFeatureCompareValidatorFactory>(),
                     sp.GetService<IExtractUploadFailedEmailClient>(),
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<ILoggerFactory>()

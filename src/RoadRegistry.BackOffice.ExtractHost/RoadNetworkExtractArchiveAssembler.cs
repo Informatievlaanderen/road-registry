@@ -31,11 +31,11 @@ public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAsse
 
     public async Task<MemoryStream> AssembleArchive(RoadNetworkExtractAssemblyRequest request, CancellationToken cancellationToken)
     {
-        if (request == null) throw new ArgumentNullException(nameof(request));
+        ArgumentNullException.ThrowIfNull(request);
 
         var stream = _manager.GetStream();
         await using var context = _contextFactory();
-        
+
         await using var tr = await context.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
         using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);

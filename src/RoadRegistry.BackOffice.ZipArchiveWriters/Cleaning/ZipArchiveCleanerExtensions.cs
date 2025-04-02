@@ -4,8 +4,9 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core.ProblemCodes;
 using Extracts;
 using FeatureCompare;
-using FeatureCompare.Readers;
 using System.IO.Compression;
+using FeatureCompare.V1;
+using FeatureCompare.V1.Readers;
 using Uploads;
 
 public static class ZipArchiveCleanerExtensions

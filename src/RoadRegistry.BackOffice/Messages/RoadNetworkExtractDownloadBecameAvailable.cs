@@ -16,4 +16,5 @@ public class RoadNetworkExtractDownloadBecameAvailable : IMessage
     public string When { get; set; }
     public bool IsInformative { get; set; }
     public ICollection<Guid> OverlapsWithDownloadIds { get; set; }
+    public string? ZipArchiveWriterVersion { get; set; }
 }

@@ -12,7 +12,6 @@ using Hosts;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Newtonsoft.Json;
 using NodaTime;
@@ -20,11 +19,10 @@ using NodaTime.Testing;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.FeatureToggles;
+using RoadRegistry.BackOffice.FeatureCompare;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Infrastructure.Modules;
 using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.BackOffice.Uploads;
 using SqlStreamStore;
 using TicketingService.Abstractions;
 
@@ -162,6 +160,11 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     {
         Store = store.ThrowIfNull();
 
+        var zipArchiveBeforeFeatureCompareValidatorFactoryMock = new Mock<IZipArchiveBeforeFeatureCompareValidatorFactory>();
+        zipArchiveBeforeFeatureCompareValidatorFactoryMock
+            .Setup(x => x.Create(It.IsAny<string>()))
+            .Returns(ZipArchiveBeforeFeatureCompareValidator);
+
         _runner = new ScenarioRunner(
             Resolve.WhenEqualToMessage(new CommandHandlerModule[]
             {
@@ -177,7 +180,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
                     Store,
                     ScopedContainer,
                     new FakeRoadNetworkSnapshotReader(),
-                    ZipArchiveBeforeFeatureCompareValidator,
+                    zipArchiveBeforeFeatureCompareValidatorFactoryMock.Object,
                     ExtractUploadFailedEmailClient,
                     Clock,
                     LoggerFactory),

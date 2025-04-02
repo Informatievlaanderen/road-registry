@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 public interface IRoadNetworkExtractArchiveAssembler
 {
-    Task<MemoryStream> AssembleArchive(RoadNetworkExtractAssemblyRequest request, CancellationToken cancellationToken); //Task<(MemoryStream, RoadNetworkRevision)>
+    Task<MemoryStream> AssembleArchive(RoadNetworkExtractAssemblyRequest request, CancellationToken cancellationToken);
 }

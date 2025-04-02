@@ -2,12 +2,10 @@ namespace RoadRegistry.BackOffice.Handlers.Uploads;
 
 using System.IO.Compression;
 using Autofac;
-using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Exceptions;
 using FeatureCompare;
-using FeatureCompare.Readers;
 using FluentValidation;
 using Framework;
 using Messages;
@@ -23,7 +21,6 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
         RoadNetworkUploadsBlobClient uploadsBlobClient,
         IStreamStore store,
         ApplicationMetadata applicationMetadata,
-        ITransactionZoneFeatureCompareFeatureReader transactionZoneFeatureReader,
         IRoadNetworkEventWriter roadNetworkEventWriter,
         IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
         ILoggerFactory loggerFactory)
@@ -32,7 +29,6 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
         ArgumentNullException.ThrowIfNull(uploadsBlobClient);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(applicationMetadata);
-        ArgumentNullException.ThrowIfNull(transactionZoneFeatureReader);
         ArgumentNullException.ThrowIfNull(roadNetworkEventWriter);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
@@ -46,24 +42,26 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
 
                 logger.LogInformation("Event handler started for {EventName}", message.Body.GetType().Name);
 
+                var downloadId = new DownloadId(message.Body.DownloadId!.Value);
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
                 var extractRequestId = ExtractRequestId.FromString(message.Body.ExtractRequestId);
                 var requestId = ChangeRequestId.FromArchiveId(archiveId);
 
                 var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
 
+                var roadRegistryContext = container.Resolve<IRoadRegistryContext>();
+                var extract = await roadRegistryContext.RoadNetworkExtracts.Get(extractRequestId, ct);
+
                 try
                 {
-                    var featureCompareTranslator = container.Resolve<IZipArchiveFeatureCompareTranslator>();
-
                     await using var archiveBlobStream = await archiveBlob.OpenAsync(ct);
                     using var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false);
+
+                    var featureCompareTranslatorFactory = container.Resolve<IZipArchiveFeatureCompareTranslatorFactory>();
+                    var featureCompareTranslator = featureCompareTranslatorFactory.Create(extract.ZipArchiveWriterVersion); //TODO-pr test of deze wel is ingevuld voor de uploads flow
+
                     var translatedChanges = await featureCompareTranslator.TranslateAsync(archive, ct);
                     translatedChanges = translatedChanges.WithOperatorName(new OperatorName(message.ProvenanceData.Operator));
-
-                    var readerContext = new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);
-                    var transactionZoneFeatures = transactionZoneFeatureReader.Read(archive, FeatureType.Change, ExtractFileName.Transactiezones, readerContext).Item1;
-                    var downloadId = transactionZoneFeatures.Single().Attributes.DownloadId;
 
                     var changeRoadNetwork = await translatedChanges.ToChangeRoadNetworkCommand(
                         logger,

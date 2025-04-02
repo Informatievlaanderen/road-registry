@@ -5,6 +5,7 @@
     using Abstractions;
     using AutoFixture;
     using ExtractHost;
+    using ExtractHost.V1;
     using Extracts;
     using FluentAssertions;
     using Microsoft.Extensions.Logging.Abstractions;

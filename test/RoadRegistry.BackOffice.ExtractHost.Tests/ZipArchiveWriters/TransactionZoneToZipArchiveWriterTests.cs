@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Text;
 using AutoFixture;
 using BackOffice.ZipArchiveWriters.ExtractHost;
+using BackOffice.ZipArchiveWriters.ExtractHost.V1;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Extracts;

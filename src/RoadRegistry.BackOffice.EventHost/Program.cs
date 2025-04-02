@@ -6,7 +6,8 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Configuration;
 using Core;
 using Extensions;
-using FeatureCompare.Readers;
+using FeatureCompare;
+using FeatureCompare.V1.Readers;
 using Framework;
 using Handlers.Sqs;
 using Handlers.Uploads;
@@ -63,7 +64,6 @@ public class Program
                             sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
                             sp.GetRequiredService<IStreamStore>(),
                             ApplicationMetadata,
-                            sp.GetRequiredService<ITransactionZoneFeatureCompareFeatureReader>(),
                             sp.GetRequiredService<IRoadNetworkEventWriter>(),
                             sp.GetService<IExtractUploadFailedEmailClient>(),
                             sp.GetRequiredService<ILoggerFactory>()

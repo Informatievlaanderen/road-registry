@@ -2,11 +2,10 @@ namespace RoadRegistry.BackOffice.Handlers.Tests.Uploads
 {
     using Abstractions.Exceptions;
     using Abstractions.Uploads;
-    using Amazon.Runtime.Internal.Util;
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Editor.Schema;
-    using FeatureCompare.Readers;
+    using FeatureCompare;
     using Handlers.Uploads;
     using Microsoft.Extensions.Logging;
     using Moq;
@@ -23,9 +22,9 @@ namespace RoadRegistry.BackOffice.Handlers.Tests.Uploads
             // Act
             var sut = new UploadExtractRequestHandler(
                 new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
-                new TransactionZoneFeatureCompareFeatureReader(FileEncoding.UTF8),
+                new TransactionZoneZipArchiveReader(new(FileEncoding.UTF8), new (FileEncoding.UTF8)),
                 new FakeEditorContext(),
-                Mock.Of<IZipArchiveBeforeFeatureCompareValidator>(),
+                Mock.Of<IZipArchiveBeforeFeatureCompareValidatorFactory>(),
                 Mock.Of<IRoadNetworkCommandQueue>(),
                 Mock.Of<IBeforeFeatureCompareZipArchiveCleaner>(),
                 Mock.Of<ILogger<UploadExtractRequestHandler>>()

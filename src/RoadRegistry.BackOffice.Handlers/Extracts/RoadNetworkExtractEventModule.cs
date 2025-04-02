@@ -70,10 +70,15 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
 
                 try
                 {
-                    var featureCompareTranslator = container.Resolve<IZipArchiveFeatureCompareTranslator>();
+                    var roadRegistryContext = container.Resolve<IRoadRegistryContext>();
+                    var extract = await roadRegistryContext.RoadNetworkExtracts.Get(extractRequestId, ct);
+
+                    var featureCompareTranslatorFactory = container.Resolve<IZipArchiveFeatureCompareTranslatorFactory>();
+                    var featureCompareTranslator = featureCompareTranslatorFactory.Create(extract.ZipArchiveWriterVersion);
 
                     await using var archiveBlobStream = await archiveBlob.OpenAsync(ct);
                     using var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false);
+
                     var translatedChanges = await featureCompareTranslator.TranslateAsync(archive, ct);
                     translatedChanges = translatedChanges.WithOperatorName(new OperatorName(message.ProvenanceData.Operator));
 
@@ -143,12 +148,11 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
 
         var policy = Policy
             .HandleResult<bool>(exists => !exists)
-            .WaitAndRetryAsync(new[]
-            {
+            .WaitAndRetryAsync([
                 TimeSpan.FromSeconds(1),
                 TimeSpan.FromSeconds(3),
                 TimeSpan.FromSeconds(5)
-            });
+            ]);
         var blobExists = await policy.ExecuteAsync(() => downloadsBlobClient.BlobExistsAsync(blobName, ct));
 
         if (blobExists)
@@ -160,7 +164,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                     DownloadId = message.Body.DownloadId,
                     ArchiveId = archiveId,
                     IsInformative = message.Body.IsInformative,
-                    OverlapsWithDownloadIds = overlappingDownloadIds
+                    OverlapsWithDownloadIds = overlappingDownloadIds,
+                    ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.V2
                 })
                 .WithMessageId(message.MessageId), ct);
         }
@@ -194,7 +199,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                             DownloadId = message.Body.DownloadId,
                             ArchiveId = archiveId,
                             IsInformative = message.Body.IsInformative,
-                            OverlapsWithDownloadIds = overlappingDownloadIds
+                            OverlapsWithDownloadIds = overlappingDownloadIds,
+                            ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.V2
                         })
                     .WithMessageId(message.MessageId), ct);
             }

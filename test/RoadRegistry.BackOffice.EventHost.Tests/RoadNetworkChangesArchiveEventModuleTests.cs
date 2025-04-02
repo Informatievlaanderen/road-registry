@@ -5,7 +5,8 @@ using AutoFixture;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using FeatureCompare;
-using FeatureCompare.Readers;
+using FeatureCompare.V1;
+using FeatureCompare.V1.Readers;
 using FluentAssertions;
 using Handlers.Uploads;
 using Messages;
@@ -82,7 +83,6 @@ public class RoadNetworkChangesArchiveEventModuleTests : RoadNetworkTestBase
                 new RoadNetworkUploadsBlobClient(blobClient.Object),
                 Store,
                 new ApplicationMetadata(RoadRegistryApplication.BackOffice),
-                new TransactionZoneFeatureCompareFeatureReader(FileEncoding.UTF8),
                 _roadNetworkEventWriterMock.Object,
                 Mock.Of<IExtractUploadFailedEmailClient>(),
                 LoggerFactory

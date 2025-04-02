@@ -10,7 +10,13 @@ using NetTopologySuite.IO.Esri.Shapefiles.Readers;
 using NetTopologySuite.IO.Esri.Shp;
 using NetTopologySuite.IO.Streams;
 
-public class ZipArchiveShapeFileReader
+public interface IZipArchiveShapeFileReader
+{
+    IEnumerable<(Geometry, RecordNumber)> Read(ZipArchiveEntry entry);
+}
+
+//TODO-pr versioning?
+public class ZipArchiveShapeFileReaderV2: IZipArchiveShapeFileReader
 {
     public IEnumerable<(Geometry, RecordNumber)> Read(ZipArchiveEntry entry)
     {
@@ -35,7 +41,7 @@ public class ZipArchiveShapeFileReader
     }
 }
 
-public class ZipArchiveShapeFileReaderV1
+public class ZipArchiveShapeFileReaderV1: IZipArchiveShapeFileReader
 {
     public IEnumerable<(Geometry, RecordNumber)> Read(ZipArchiveEntry entry)
     {

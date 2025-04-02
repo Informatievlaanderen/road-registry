@@ -21,7 +21,7 @@ internal static class ZipArchiveExtensions
 
         var streamWriter = new StreamWriter(cpgEntryStream);
         await streamWriter.WriteAsync(encoding.CodePage.ToString());
-        await streamWriter.FlushAsync();
+        await streamWriter.FlushAsync(cancellationToken);
 
         await cpgEntryStream.FlushAsync(cancellationToken);
 
