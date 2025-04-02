@@ -37,7 +37,8 @@ Microsoft.IO.RecyclableMemoryStream
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
 NetTopologySuite
 NetTopologySuite.IO.GeoJSON
-NetTopologySuite.IO.Esri.ShapeFile
+NetTopologySuite.IO.Esri.Shapefile
+NetTopologySuite.IO.ShapeFile
 Polly
 SqlStreamStore
 System.IdentityModel.Tokens.Jwt

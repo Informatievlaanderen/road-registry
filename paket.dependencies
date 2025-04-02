@@ -53,6 +53,7 @@ nuget Moq 4.20.70
 nuget NetTopologySuite 2.5.0
 nuget NetTopologySuite.IO.GeoJSON 4.0.0
 nuget NetTopologySuite.IO.Esri.Shapefile 1.2.0
+nuget NetTopologySuite.IO.ShapeFile 2.1.0
 nuget NodaTime 3.1.11
 nuget NodaTime.Testing 3.1.11
 
