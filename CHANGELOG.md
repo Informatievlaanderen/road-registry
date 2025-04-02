@@ -1,3 +1,11 @@
+## [4.28.2](https://github.com/informatievlaanderen/road-registry/compare/v4.28.1...v4.28.2) (2025-04-02)
+
+
+### Bug Fixes
+
+* resolve BlobServiceClient when disabled ([3fae2fc](https://github.com/informatievlaanderen/road-registry/commit/3fae2fc1a76776ade6d7d05d290a2b521419a877))
+* update jetbrains dotcover ([a5353fe](https://github.com/informatievlaanderen/road-registry/commit/a5353fed5fbb458ea3c30e7f69d878bcf9a842d2))
+
 ## [4.28.1](https://github.com/informatievlaanderen/road-registry/compare/v4.28.0...v4.28.1) (2025-04-02)
 
 
