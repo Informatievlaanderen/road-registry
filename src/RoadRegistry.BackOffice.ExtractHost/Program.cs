@@ -8,6 +8,7 @@ using Configuration;
 using Editor.Schema;
 using Extensions;
 using Extracts;
+using FeatureToggles;
 using Framework;
 using Handlers.Extracts;
 using Hosts;
@@ -49,21 +50,21 @@ public class Program
                             ),
                             WellKnownSchemas.ExtractHostSchema))
                     .AddSingleton<IZipArchiveWriter>(sp =>
-                        //TODO-pr add featuretoggle
-                        new RoadNetworkExtractNetTopologySuiteZipArchiveWriter(
-                            sp.GetService<ZipArchiveWriterOptions>(),
-                            sp.GetService<IStreetNameCache>(),
-                            sp.GetService<RecyclableMemoryStreamManager>(),
-                            sp.GetRequiredService<FileEncoding>(),
-                            sp.GetRequiredService<ILogger<RoadNetworkExtractNetTopologySuiteZipArchiveWriter>>()
-                        )
-                        // new RoadNetworkExtractToZipArchiveWriter(
-                        //     sp.GetService<ZipArchiveWriterOptions>(),
-                        //     sp.GetService<IStreetNameCache>(),
-                        //     sp.GetService<RecyclableMemoryStreamManager>(),
-                        //     sp.GetRequiredService<FileEncoding>(),
-                        //     sp.GetRequiredService<ILogger<RoadNetworkExtractToZipArchiveWriter>>()
-                        // )
+                        sp.GetRequiredService<UseNetTopologySuiteForExtractFeatureToggle>().FeatureEnabled
+                            ? new RoadNetworkExtractNetTopologySuiteZipArchiveWriter(
+                                sp.GetService<ZipArchiveWriterOptions>(),
+                                sp.GetService<IStreetNameCache>(),
+                                sp.GetService<RecyclableMemoryStreamManager>(),
+                                sp.GetRequiredService<FileEncoding>(),
+                                sp.GetRequiredService<ILogger<RoadNetworkExtractNetTopologySuiteZipArchiveWriter>>()
+                            )
+                            : new RoadNetworkExtractToZipArchiveWriter(
+                                sp.GetService<ZipArchiveWriterOptions>(),
+                                sp.GetService<IStreetNameCache>(),
+                                sp.GetService<RecyclableMemoryStreamManager>(),
+                                sp.GetRequiredService<FileEncoding>(),
+                                sp.GetRequiredService<ILogger<RoadNetworkExtractToZipArchiveWriter>>()
+                            )
                     )
                     .AddSingleton<IRoadNetworkExtractArchiveAssembler>(sp =>
                         new RoadNetworkExtractArchiveAssembler(
@@ -89,7 +90,6 @@ public class Program
                     })
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), PositionStoreEventProcessor.EventMapping))
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())))
-
                     .AddHostedService<EventProcessor>()
                     .AddHostedService(sp =>
                     {
