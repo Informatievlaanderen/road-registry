@@ -1,3 +1,10 @@
+## [4.28.3](https://github.com/informatievlaanderen/road-registry/compare/v4.28.2...v4.28.3) (2025-04-02)
+
+
+### Bug Fixes
+
+* **publishhost:** only resolve azure/metadata client when needed ([0d92dc9](https://github.com/informatievlaanderen/road-registry/commit/0d92dc9573de1cf6440d5e4798ee8f9085c436dc))
+
 ## [4.28.2](https://github.com/informatievlaanderen/road-registry/compare/v4.28.1...v4.28.2) (2025-04-02)
 
 
