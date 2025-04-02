@@ -23,7 +23,7 @@ public class ZipArchiveShapeFileReader
 
         var geometries = Shp.OpenRead(memoryStream, new ShapefileReaderOptions
         {
-            Factory = WellKnownGeometryFactories.WithoutMAndZ
+            Factory = WellKnownGeometryFactories.Default
         }).ToArray();
 
         foreach (var geometry in geometries)
