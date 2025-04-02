@@ -7,6 +7,7 @@ namespace RoadRegistry.Product.PublishHost
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Autofac;
     using BackOffice;
     using BackOffice.Abstractions;
     using BackOffice.Abstractions.Exceptions;
@@ -26,9 +27,8 @@ namespace RoadRegistry.Product.PublishHost
     {
         private readonly IStreetNameCache _cache;
         private readonly RoadNetworkProductBlobClient _productBlobClient;
-        private readonly AzureBlobClient _azureBlobClient;
         private readonly AzureBlobOptions _azureBlobOptions;
-        private readonly MetaDataCenterHttpClient _metaDataCenterHttpClient;
+        private readonly ILifetimeScope _container;
         private readonly ProductContext _context;
         private readonly RecyclableMemoryStreamManager _streamManager;
         private readonly FileEncoding _fileEncoding;
@@ -42,9 +42,8 @@ namespace RoadRegistry.Product.PublishHost
             FileEncoding fileEncoding,
             IStreetNameCache cache,
             RoadNetworkProductBlobClient productBlobClient,
-            AzureBlobClient azureBlobClient,
             IOptions<AzureBlobOptions> azureBlobOptions,
-            MetaDataCenterHttpClient metaDataCenterHttpClient,
+            ILifetimeScope container,
             ILoggerFactory loggerFactory)
         {
             _context = context;
@@ -53,9 +52,8 @@ namespace RoadRegistry.Product.PublishHost
             _fileEncoding = fileEncoding;
             _cache = cache;
             _productBlobClient = productBlobClient;
-            _azureBlobClient = azureBlobClient;
             _azureBlobOptions = azureBlobOptions.Value;
-            _metaDataCenterHttpClient = metaDataCenterHttpClient;
+            _container = container;
             _logger = loggerFactory.CreateLogger(GetType());
         }
 
@@ -120,12 +118,18 @@ namespace RoadRegistry.Product.PublishHost
         {
             archiveStream.Position = 0;
 
-            await _azureBlobClient.UploadBlobAsync(archiveStream, cancellationToken);
+            await using var sp = _container.BeginLifetimeScope();
+            var client = sp.Resolve<AzureBlobClient>();
+
+            await client.UploadBlobAsync(archiveStream, cancellationToken);
         }
 
         private async Task UpdateMetadata(DateTimeOffset archiveDate, CancellationToken cancellationToken)
         {
-            var results = await _metaDataCenterHttpClient.UpdateCswPublication(
+            await using var sp = _container.BeginLifetimeScope();
+            var client = sp.Resolve<MetaDataCenterHttpClient>();
+
+            var results = await client.UpdateCswPublication(
                 archiveDate.DateTime,
                 cancellationToken);
             if (results == null)
