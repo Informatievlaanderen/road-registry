@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+	<Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.App.props" />
+
+	<PropertyGroup>
+		<RootNamespace>RoadRegistry.Product.PublishHost</RootNamespace>
+		<AssemblyName>RoadRegistry.Product.PublishHost</AssemblyName>
+		<ServerGarbageCollection>true</ServerGarbageCollection>
+		<Nullable>enable</Nullable>
+		<Platforms>AnyCPU;x64;x86</Platforms>
+		<NoWarn>CS8618</NoWarn>
+		<EnableDefaultContentItems>false</EnableDefaultContentItems>
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
+		<ProjectReference Include="..\RoadRegistry.BackOffice.Handlers\RoadRegistry.BackOffice.Handlers.csproj" />
+		<ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
+		<ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
+		<ProjectReference Include="..\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="Dockerfile" CopyToOutputDirectory="Always" />
+		<Content Include="init.sh" CopyToOutputDirectory="Always" />
+		<Content Include="appsettings.json" CopyToOutputDirectory="Always" />
+		<Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
+	</ItemGroup>
+
+	<Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>

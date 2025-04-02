@@ -1,3 +1,17 @@
+## [4.28.1](https://github.com/informatievlaanderen/road-registry/compare/v4.28.0...v4.28.1) (2025-04-02)
+
+
+### Bug Fixes
+
+* pipelines ([7a0977c](https://github.com/informatievlaanderen/road-registry/commit/7a0977c0face17407f365f64cb72ab128df5f2d4))
+
+# [4.28.0](https://github.com/informatievlaanderen/road-registry/compare/v4.27.6...v4.28.0) (2025-04-02)
+
+
+### Features
+
+* GAWR-5799 add product publisher ([b4be5f0](https://github.com/informatievlaanderen/road-registry/commit/b4be5f0fa41ea1ef205362e614c9898247864119))
+
 ## [4.27.6](https://github.com/informatievlaanderen/road-registry/compare/v4.27.5...v4.27.6) (2025-03-28)
 
 

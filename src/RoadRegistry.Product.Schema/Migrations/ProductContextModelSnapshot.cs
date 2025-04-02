@@ -218,6 +218,11 @@ namespace RoadRegistry.Product.Schema.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
+                    b.Property<DateTimeOffset>("LastChangedTimestamp")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValue(new DateTimeOffset(new DateTime(2025, 3, 28, 10, 24, 52, 812, DateTimeKind.Unspecified).AddTicks(1768), new TimeSpan(0, 0, 0, 0, 0)));
+
                     b.Property<int>("OrganizationCount")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")

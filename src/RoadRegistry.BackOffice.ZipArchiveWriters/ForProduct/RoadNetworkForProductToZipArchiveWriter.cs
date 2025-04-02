@@ -33,7 +33,7 @@ public class RoadNetworkForProductToZipArchiveWriter : IZipArchiveWriter<Product
         var resourceNameFormat = typeof(RoadNetworkForProductToZipArchiveWriter).Namespace + ".StaticData.{0}";
 
         _writer = new CompositeZipArchiveWriter<ProductContext>(
-            new ReadCommittedZipArchiveWriter<ProductContext>(
+            new SnapshotTransactionZipArchiveWriter<ProductContext>(
                 new CompositeZipArchiveWriter<ProductContext>(
                     new OrganizationsToZipArchiveWriter(extraFileEntryFormat, encoding),
                     new RoadNodesToZipArchiveWriter(shapeFileEntryFormat, manager, encoding),

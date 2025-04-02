@@ -105,7 +105,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                     RoadSegmentNationalRoadAttributeCount = 0,
                     RoadSegmentNumberedRoadAttributeCount = 0,
                     TotalRoadSegmentShapeLength = 0,
-                    GradeSeparatedJunctionCount = 1
+                    GradeSeparatedJunctionCount = 1,
+                    LastChangedTimestamp = Moment.EnvelopeCreatedUtc
                 }
             );
     }
@@ -143,7 +144,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                     RoadSegmentNationalRoadAttributeCount = 0,
                     RoadSegmentNumberedRoadAttributeCount = 0,
                     TotalRoadSegmentShapeLength = 0,
-                    GradeSeparatedJunctionCount = 0
+                    GradeSeparatedJunctionCount = 0,
+                    LastChangedTimestamp = Moment.EnvelopeCreatedUtc
                 }
             );
     }
@@ -205,7 +207,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                     RoadSegmentNationalRoadAttributeCount = nationalRoads.Length,
                     RoadSegmentNumberedRoadAttributeCount = numberedRoads.Length,
                     TotalRoadSegmentShapeLength = ShapeRecord.HeaderLength.Plus(content.ContentLength).ToInt32(),
-                    GradeSeparatedJunctionCount = 0
+                    GradeSeparatedJunctionCount = 0,
+                    LastChangedTimestamp = Moment.EnvelopeCreatedUtc
                 }
             );
     }
@@ -240,7 +243,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
             RoadSegmentNationalRoadAttributeCount = 0,
             RoadSegmentNumberedRoadAttributeCount = 0,
             TotalRoadSegmentShapeLength = 0,
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -278,7 +282,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
             RoadSegmentNationalRoadAttributeCount = 0,
             RoadSegmentNumberedRoadAttributeCount = 0,
             TotalRoadSegmentShapeLength = 0,
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -334,7 +339,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                         GeometryTranslator.Translate(unrelatedRoadSegmentAdded.Geometry)))
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32(),
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -388,7 +394,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                         GeometryTranslator.Translate(unrelatedRoadSegmentAdded.Geometry)))
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32(),
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -431,7 +438,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                     RoadSegmentNationalRoadAttributeCount = 0,
                     RoadSegmentNumberedRoadAttributeCount = 0,
                     TotalRoadSegmentShapeLength = 0,
-                    GradeSeparatedJunctionCount = 0
+                    GradeSeparatedJunctionCount = 0,
+                    LastChangedTimestamp = Moment.EnvelopeCreatedUtc
                 }
             );
     }
@@ -458,7 +466,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
             RoadSegmentNationalRoadAttributeCount = 0,
             RoadSegmentNumberedRoadAttributeCount = 0,
             TotalRoadSegmentShapeLength = 0,
-            GradeSeparatedJunctionCount = 1
+            GradeSeparatedJunctionCount = 1,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -506,7 +515,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                     RoadSegmentNationalRoadAttributeCount = 0,
                     RoadSegmentNumberedRoadAttributeCount = 0,
                     TotalRoadSegmentShapeLength = 0,
-                    GradeSeparatedJunctionCount = importedJunctions.Length
+                    GradeSeparatedJunctionCount = importedJunctions.Length,
+                    LastChangedTimestamp = Moment.EnvelopeCreatedUtc
                 }
             );
     }
@@ -537,7 +547,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
             RoadSegmentNationalRoadAttributeCount = 0,
             RoadSegmentNumberedRoadAttributeCount = 0,
             TotalRoadSegmentShapeLength = 0,
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -591,7 +602,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                     RoadSegmentNationalRoadAttributeCount = 0,
                     RoadSegmentNumberedRoadAttributeCount = 0,
                     TotalRoadSegmentShapeLength = 0,
-                    GradeSeparatedJunctionCount = 0
+                    GradeSeparatedJunctionCount = 0,
+                    LastChangedTimestamp = Moment.EnvelopeCreatedUtc
                 }
             );
     }
@@ -623,7 +635,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
             RoadSegmentNationalRoadAttributeCount = 0,
             RoadSegmentNumberedRoadAttributeCount = 0,
             TotalRoadSegmentShapeLength = 0,
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -667,7 +680,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
             RoadSegmentNationalRoadAttributeCount = 0,
             RoadSegmentNumberedRoadAttributeCount = 0,
             TotalRoadSegmentShapeLength = 0,
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -708,7 +722,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
             RoadSegmentNationalRoadAttributeCount = 0,
             RoadSegmentNumberedRoadAttributeCount = 0,
             TotalRoadSegmentShapeLength = 0,
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -764,7 +779,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                     RoadSegmentNationalRoadAttributeCount = 0,
                     RoadSegmentNumberedRoadAttributeCount = 0,
                     TotalRoadSegmentShapeLength = 0,
-                    GradeSeparatedJunctionCount = 0
+                    GradeSeparatedJunctionCount = 0,
+                    LastChangedTimestamp = Moment.EnvelopeCreatedUtc
                 }
             );
     }
@@ -816,7 +832,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                         GeometryTranslator.Translate(unrelatedRoadSegmentAdded.Geometry)))
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32(),
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -856,7 +873,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                 )
                 .ContentLength.Plus(ShapeRecord.HeaderLength)
                 .ToInt32(),
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -914,7 +932,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                         GeometryTranslator.Translate(unrelatedRoadSegmentAdded.Geometry)))
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32(),
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -971,7 +990,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                         GeometryTranslator.Translate(unrelatedRoadSegmentAdded.Geometry)))
                     .ContentLength.Plus(ShapeRecord.HeaderLength)
                     .ToInt32(),
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -1007,7 +1027,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
             RoadSegmentNationalRoadAttributeCount = 0,
             RoadSegmentNumberedRoadAttributeCount = 0,
             TotalRoadSegmentShapeLength = 0,
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -1040,7 +1061,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
             RoadSegmentNationalRoadAttributeCount = 1,
             RoadSegmentNumberedRoadAttributeCount = 0,
             TotalRoadSegmentShapeLength = 0,
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -1073,7 +1095,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
             RoadSegmentNationalRoadAttributeCount = 0,
             RoadSegmentNumberedRoadAttributeCount = 1,
             TotalRoadSegmentShapeLength = 0,
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -1156,7 +1179,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                                 )
                         )
                         .ToInt32(),
-                    GradeSeparatedJunctionCount = 0
+                    GradeSeparatedJunctionCount = 0,
+                    LastChangedTimestamp = Moment.EnvelopeCreatedUtc
                 }
             );
     }
@@ -1187,7 +1211,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
             RoadSegmentNationalRoadAttributeCount = 0,
             RoadSegmentNumberedRoadAttributeCount = 0,
             TotalRoadSegmentShapeLength = 0,
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -1226,7 +1251,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
             RoadSegmentNationalRoadAttributeCount = 0,
             RoadSegmentNumberedRoadAttributeCount = 0,
             TotalRoadSegmentShapeLength = 0,
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -1264,7 +1290,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
             RoadSegmentNationalRoadAttributeCount = 0,
             RoadSegmentNumberedRoadAttributeCount = 0,
             TotalRoadSegmentShapeLength = 0,
-            GradeSeparatedJunctionCount = 0
+            GradeSeparatedJunctionCount = 0,
+            LastChangedTimestamp = Moment.EnvelopeCreatedUtc
         };
 
         return new RoadNetworkInfoProjection()
@@ -1298,7 +1325,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                     RoadSegmentNationalRoadAttributeCount = 0,
                     RoadSegmentNumberedRoadAttributeCount = 0,
                     TotalRoadSegmentShapeLength = 0,
-                    GradeSeparatedJunctionCount = 0
+                    GradeSeparatedJunctionCount = 0,
+                    LastChangedTimestamp = Moment.EnvelopeCreatedUtc
                 }
             );
     }
@@ -1328,7 +1356,8 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                     RoadSegmentNationalRoadAttributeCount = 0,
                     RoadSegmentNumberedRoadAttributeCount = 0,
                     TotalRoadSegmentShapeLength = 0,
-                    GradeSeparatedJunctionCount = 0
+                    GradeSeparatedJunctionCount = 0,
+                    LastChangedTimestamp = Moment.EnvelopeCreatedUtc
                 }
             );
     }

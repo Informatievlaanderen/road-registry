@@ -93,7 +93,8 @@ jobs:
        matrix: 
          services: [
           'road-adminhost',
-          'road-jobs-processor'
+          'road-jobs-processor',
+          'road-product-publishhost',
          ]
 
     steps:
