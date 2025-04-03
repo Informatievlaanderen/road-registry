@@ -1,3 +1,10 @@
+## [4.28.4](https://github.com/informatievlaanderen/road-registry/compare/v4.28.3...v4.28.4) (2025-04-03)
+
+
+### Bug Fixes
+
+* product s3 filename + stop execution when already exists ([0b8867e](https://github.com/informatievlaanderen/road-registry/commit/0b8867e493a705bffc48d7c802ef0cccc7c2d3ea))
+
 ## [4.28.3](https://github.com/informatievlaanderen/road-registry/compare/v4.28.2...v4.28.3) (2025-04-02)
 
 
