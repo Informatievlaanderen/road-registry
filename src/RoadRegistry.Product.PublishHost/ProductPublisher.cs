@@ -71,6 +71,12 @@ namespace RoadRegistry.Product.PublishHost
             _logger.LogInformation("Creating archive using date {Date:yyyy-MM-dd}", archiveDate);
             stoppingToken.ThrowIfCancellationRequested();
 
+            if (await BlobExistsInS3(archiveDate, stoppingToken))
+            {
+                _logger.LogInformation("Blob already exists on S3, stopping execution.");
+                return;
+            }
+
             var archiveStream = new MemoryStream();
             await BuildArchive(archiveStream, stoppingToken);
             stoppingToken.ThrowIfCancellationRequested();
@@ -102,16 +108,28 @@ namespace RoadRegistry.Product.PublishHost
             await writer.WriteAsync(archive, _context, cancellationToken);
         }
 
+        private async Task<bool> BlobExistsInS3(DateTimeOffset archiveDate, CancellationToken cancellationToken)
+        {
+            return await _productBlobClient.BlobExistsAsync(
+                GetBlobName(archiveDate),
+                cancellationToken);
+        }
+
         private async Task UploadToS3(DateTimeOffset archiveDate, MemoryStream archiveStream, CancellationToken cancellationToken)
         {
             archiveStream.Position = 0;
 
             await _productBlobClient.CreateBlobAsync(
-                new BlobName($"{archiveDate:yyyyMMdd}-DownloadBestand-Wegenregister"),
+                GetBlobName(archiveDate),
                 Metadata.None,
                 ContentType.Parse("application/octet-stream"),
                 archiveStream,
                 cancellationToken);
+        }
+
+        private static BlobName GetBlobName(DateTimeOffset archiveDate)
+        {
+            return new BlobName($"{archiveDate:yyyyMMdd}-DownloadBestand-Wegenregister.zip");
         }
 
         private async Task UploadToDownload(MemoryStream archiveStream, CancellationToken cancellationToken)
