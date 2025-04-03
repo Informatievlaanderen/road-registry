@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using FeatureCompare.V1.Translators;
+using Models;
 using Uploads;
 
 public static class FeatureValidationExtensions

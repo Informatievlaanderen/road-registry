@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.FeatureCompare.V1;
 
 using System.Collections.Generic;
 using System.IO.Compression;
+using Models;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.FeatureCompare.V1.Translators;

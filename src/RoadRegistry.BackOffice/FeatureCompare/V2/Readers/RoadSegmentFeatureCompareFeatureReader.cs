@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Models;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Extracts;

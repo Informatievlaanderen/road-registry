@@ -8,6 +8,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Extracts;
 using Extracts.Dbase.RoadSegments;
+using Models;
 using NetTopologySuite.Geometries;
 using Translators;
 using Uploads;

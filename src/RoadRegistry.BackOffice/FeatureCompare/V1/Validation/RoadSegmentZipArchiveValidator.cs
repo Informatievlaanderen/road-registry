@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Models;
 using Readers;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;

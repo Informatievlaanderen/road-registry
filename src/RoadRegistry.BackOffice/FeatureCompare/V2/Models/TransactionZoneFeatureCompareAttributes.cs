@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.FeatureCompare.V2.Translators;
+namespace RoadRegistry.BackOffice.FeatureCompare.V2.Models;
 
 public record TransactionZoneFeatureCompareAttributes
 {

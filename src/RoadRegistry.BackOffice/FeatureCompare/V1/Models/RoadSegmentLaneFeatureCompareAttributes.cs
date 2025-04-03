@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.FeatureCompare.V1.Translators;
+namespace RoadRegistry.BackOffice.FeatureCompare.V1.Models;
 
 public record RoadSegmentLaneFeatureCompareAttributes : RoadSegmentAttributeFeatureCompareAttributes
 {

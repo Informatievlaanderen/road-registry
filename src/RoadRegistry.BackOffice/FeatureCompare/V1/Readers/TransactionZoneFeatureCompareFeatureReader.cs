@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Models;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase;

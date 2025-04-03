@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.FeatureCompare.V1.Translators;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Models;
 using Readers;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Uploads;

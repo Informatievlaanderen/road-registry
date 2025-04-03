@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.V2.Validation;
 
+using Models;
 using Readers;
 using RoadRegistry.BackOffice.Extracts;
 using Translators;

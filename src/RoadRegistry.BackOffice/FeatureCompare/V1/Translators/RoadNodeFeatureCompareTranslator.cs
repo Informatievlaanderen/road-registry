@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Models;
 using Readers;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
