@@ -15,7 +15,7 @@ public class CommonScenarios: FeatureCompareTranslatorScenariosBase
     [Fact]
     public void IsZipArchiveFeatureCompareTranslator()
     {
-        var sut = ZipArchiveFeatureCompareTranslatorBuilder.Create();
+        var sut = ZipArchiveFeatureCompareTranslatorV1Builder.Create();
 
         Assert.IsAssignableFrom<IZipArchiveFeatureCompareTranslator>(sut);
     }
@@ -23,7 +23,7 @@ public class CommonScenarios: FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task TranslateArchiveCanNotBeNull()
     {
-        var sut = ZipArchiveFeatureCompareTranslatorBuilder.Create();
+        var sut = ZipArchiveFeatureCompareTranslatorV1Builder.Create();
 
         await Assert.ThrowsAsync<ArgumentNullException>(() => sut.TranslateAsync(null, CancellationToken.None));
     }

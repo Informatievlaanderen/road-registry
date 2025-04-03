@@ -10,6 +10,7 @@ using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.Editor.Schema.RoadNodes;
 using RoadRegistry.Editor.Schema.RoadSegments;
+using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public class IntegrationZipArchiveWriter : IZipArchiveWriter
 {
@@ -111,7 +112,7 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
                 })
                 .ToList();
 
-            await dbaseRecordWriter.WriteToArchive(archive, extractFilename, featureType, RoadSegmentDbaseRecord.Schema, records, cancellationToken);
+            await dbaseRecordWriter.WriteToArchive(archive, extractFilename, featureType, RoadSegmentDbaseRecord.Schema, ShapeType.PolyLine, records, cancellationToken);
         }
 
         async Task WriteRoadNodes()
@@ -130,7 +131,7 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
                     return ((DbaseRecord)dbfRecord, node.Geometry);
                 });
 
-            await dbaseRecordWriter.WriteToArchive(archive, extractFilename, featureType, RoadNodeDbaseRecord.Schema, records, cancellationToken);
+            await dbaseRecordWriter.WriteToArchive(archive, extractFilename, featureType, RoadNodeDbaseRecord.Schema, ShapeType.Point, records, cancellationToken);
         }
     }
 }

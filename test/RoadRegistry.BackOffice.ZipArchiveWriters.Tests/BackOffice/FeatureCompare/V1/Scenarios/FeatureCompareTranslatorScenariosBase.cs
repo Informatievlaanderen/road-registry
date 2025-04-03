@@ -29,8 +29,8 @@ public abstract class FeatureCompareTranslatorScenariosBase
     {
         using (archive)
         {
-            validator ??= ZipArchiveBeforeFeatureCompareValidatorBuilder.Create();
-            var sut = translator ?? ZipArchiveFeatureCompareTranslatorBuilder.Create();
+            validator ??= ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create();
+            var sut = translator ?? ZipArchiveFeatureCompareTranslatorV1Builder.Create();
 
             try
             {

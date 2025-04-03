@@ -82,7 +82,7 @@ public class Startup : TestStartup
             .RegisterInstance(new FakeBackOfficeS3SqsQueue())
             .As<IBackOfficeS3SqsQueue>();
         builder
-            .RegisterInstance(new FakeRoadSegmentFeatureCompareStreetNameContextFactory())
+            .RegisterInstance(new FakeRoadSegmentFeatureCompareStreetNameContextFactoryV1())
             .As<IRoadSegmentFeatureCompareStreetNameContextFactory>();
     }
 

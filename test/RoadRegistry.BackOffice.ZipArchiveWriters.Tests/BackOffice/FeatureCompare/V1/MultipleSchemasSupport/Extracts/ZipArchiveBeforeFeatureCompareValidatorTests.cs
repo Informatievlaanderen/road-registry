@@ -325,7 +325,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
     [Fact]
     public void IsZipArchiveBeforeFeatureCompareValidator()
     {
-        var sut = ZipArchiveBeforeFeatureCompareValidatorBuilder.Create();
+        var sut = ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create();
 
         Assert.IsAssignableFrom<IZipArchiveBeforeFeatureCompareValidator>(sut);
     }
@@ -336,7 +336,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
         using (var fileStream = File.OpenRead(@""))
         using (var archive = new ZipArchive(fileStream))
         {
-            var sut = ZipArchiveBeforeFeatureCompareValidatorBuilder.Create();
+            var sut = ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create();
 
             var result = await sut.ValidateAsync(archive, ZipArchiveMetadata.Empty, CancellationToken.None);
 
@@ -347,7 +347,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
     [Fact]
     public async Task ValidateArchiveCanNotBeNull()
     {
-        var sut = ZipArchiveBeforeFeatureCompareValidatorBuilder.Create();
+        var sut = ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create();
 
         await Assert.ThrowsAsync<ArgumentNullException>(() => sut.ValidateAsync(null, ZipArchiveMetadata.Empty, CancellationToken.None));
     }
@@ -355,7 +355,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
     [Fact]
     public async Task ValidateMetadataCanNotBeNull()
     {
-        var sut = ZipArchiveBeforeFeatureCompareValidatorBuilder.Create();
+        var sut = ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create();
 
         using (var ms = new MemoryStream())
         using (var archive = new ZipArchive(ms, ZipArchiveMode.Create))
@@ -381,7 +381,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
 
         using (var archive = CreateArchiveWithEmptyFiles())
         {
-            var sut = ZipArchiveBeforeFeatureCompareValidatorBuilder.Create();
+            var sut = ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create();
 
             var result = await sut.ValidateAsync(archive, ZipArchiveMetadata.Empty, CancellationToken.None);
 

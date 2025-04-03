@@ -69,7 +69,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             throw new ExtractRequestMarkedInformativeException(downloadId);
         }
 
-        await using var readStream = await request.Archive.ReadStream.CopyToNewMemoryStream(cancellationToken);
+        await using var readStream = await request.Archive.ReadStream.CopyToNewMemoryStreamAsync(cancellationToken);
 
         try
         {

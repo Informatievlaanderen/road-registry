@@ -3,12 +3,12 @@
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.FeatureCompare.V1.Models;
 using RoadRegistry.BackOffice.FeatureCompare.V1.Translators;
-//TODO-pr create V2 variant
-public class FakeRoadSegmentFeatureCompareStreetNameContextFactory: IRoadSegmentFeatureCompareStreetNameContextFactory
+
+public class FakeRoadSegmentFeatureCompareStreetNameContextFactoryV1: IRoadSegmentFeatureCompareStreetNameContextFactory
 {
     private readonly IRoadSegmentFeatureCompareStreetNameContext _context;
 
-    public FakeRoadSegmentFeatureCompareStreetNameContextFactory()
+    public FakeRoadSegmentFeatureCompareStreetNameContextFactoryV1()
     {
         _context = new FakeRoadSegmentFeatureCompareStreetNameContext();
     }

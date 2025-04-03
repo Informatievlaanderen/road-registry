@@ -32,7 +32,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
-        var translator = ZipArchiveFeatureCompareTranslatorBuilder.Create(organizationCache);
+        var translator = ZipArchiveFeatureCompareTranslatorV1Builder.Create(organizationCache);
         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateSucceeds(zipArchive, translator));
         Assert.NotEmpty(ex.Problems);
         Assert.True(ex.Problems.All(x => x.Reason == "RoadSegmentMaintenanceAuthorityNotKnown"));
@@ -54,7 +54,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
-        var translator = ZipArchiveFeatureCompareTranslatorBuilder.Create();
+        var translator = ZipArchiveFeatureCompareTranslatorV1Builder.Create();
         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateSucceeds(zipArchive, translator));
         Assert.NotEmpty(ex.Problems);
         var problem = ex.Problems.First();
@@ -140,8 +140,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
-        var translator = ZipArchiveFeatureCompareTranslatorBuilder.Create(streetNameContextFactory: streetNameContextFactory);
-        var validator = ZipArchiveBeforeFeatureCompareValidatorBuilder.Create(streetNameContextFactory: streetNameContextFactory);
+        var translator = ZipArchiveFeatureCompareTranslatorV1Builder.Create(streetNameContextFactory: streetNameContextFactory);
+        var validator = ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create(streetNameContextFactory: streetNameContextFactory);
         var (result, problems) = await TranslateSucceeds(zipArchive, translator, validator);
 
         var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
@@ -170,8 +170,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
-        var translator = ZipArchiveFeatureCompareTranslatorBuilder.Create(streetNameContextFactory: streetNameContextFactory);
-        var validator = ZipArchiveBeforeFeatureCompareValidatorBuilder.Create(streetNameContextFactory: streetNameContextFactory);
+        var translator = ZipArchiveFeatureCompareTranslatorV1Builder.Create(streetNameContextFactory: streetNameContextFactory);
+        var validator = ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create(streetNameContextFactory: streetNameContextFactory);
         var (result, problems) = await TranslateSucceeds(zipArchive, translator, validator);
 
         var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
@@ -202,8 +202,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
-        var translator = ZipArchiveFeatureCompareTranslatorBuilder.Create(streetNameContextFactory: streetNameContextFactory);
-        var validator = ZipArchiveBeforeFeatureCompareValidatorBuilder.Create(streetNameContextFactory: streetNameContextFactory);
+        var translator = ZipArchiveFeatureCompareTranslatorV1Builder.Create(streetNameContextFactory: streetNameContextFactory);
+        var validator = ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create(streetNameContextFactory: streetNameContextFactory);
         var (result, problems) = await TranslateSucceeds(zipArchive, translator, validator);
 
         var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
@@ -234,8 +234,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
-        var translator = ZipArchiveFeatureCompareTranslatorBuilder.Create(streetNameContextFactory: streetNameContextFactory);
-        var validator = ZipArchiveBeforeFeatureCompareValidatorBuilder.Create(streetNameContextFactory: streetNameContextFactory);
+        var translator = ZipArchiveFeatureCompareTranslatorV1Builder.Create(streetNameContextFactory: streetNameContextFactory);
+        var validator = ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create(streetNameContextFactory: streetNameContextFactory);
         var (result, problems) = await TranslateSucceeds(zipArchive, translator, validator);
 
         var modifyRoadSegment = Assert.IsType<ModifyRoadSegment>(Assert.Single(result));
@@ -259,8 +259,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
-        var translator = ZipArchiveFeatureCompareTranslatorBuilder.Create(streetNameContextFactory: streetNameContextFactory);
-        var validator = ZipArchiveBeforeFeatureCompareValidatorBuilder.Create(streetNameContextFactory: streetNameContextFactory);
+        var translator = ZipArchiveFeatureCompareTranslatorV1Builder.Create(streetNameContextFactory: streetNameContextFactory);
+        var validator = ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create(streetNameContextFactory: streetNameContextFactory);
         var act = () => TranslateSucceeds(zipArchive, translator, validator);
         var assert = await act.Should().ThrowAsync<ZipArchiveValidationException>();
         assert.Where(ex => ex.Problems.Any(x => x.Reason == "LeftStreetNameIdOutOfRange"));
@@ -280,8 +280,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
-        var translator = ZipArchiveFeatureCompareTranslatorBuilder.Create(streetNameContextFactory: streetNameContextFactory);
-        var validator = ZipArchiveBeforeFeatureCompareValidatorBuilder.Create(streetNameContextFactory: streetNameContextFactory);
+        var translator = ZipArchiveFeatureCompareTranslatorV1Builder.Create(streetNameContextFactory: streetNameContextFactory);
+        var validator = ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create(streetNameContextFactory: streetNameContextFactory);
         var act = () => TranslateSucceeds(zipArchive, translator, validator);
         var assert = await act.Should().ThrowAsync<ZipArchiveValidationException>();
         assert.Where(ex => ex.Problems.Any(x => x.Reason == "RightStreetNameIdOutOfRange"));

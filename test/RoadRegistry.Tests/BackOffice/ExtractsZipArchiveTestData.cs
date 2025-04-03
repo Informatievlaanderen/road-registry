@@ -622,7 +622,7 @@ public class ExtractsZipArchiveTestData : IDisposable
     [Fact]
     public async Task ExtractsZipArchiveTestDataIsValid()
     {
-        var sut = ZipArchiveBeforeFeatureCompareValidatorBuilder.Create();
+        var sut = ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create();
         var result = await sut.ValidateAsync(ZipArchive, ZipArchiveMetadata.Empty, CancellationToken.None);
 
         Assert.Equal(ZipArchiveProblems.None, result);

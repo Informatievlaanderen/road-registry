@@ -80,8 +80,8 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
             if (dbfEntry is not null)
             {
                 RecordNumber? currentRecordNumber = null;
-                //TODO-pr get version from extract
-                var shpReader = new ZipArchiveShapeFileReaderV2();
+
+                var shpReader = new ZipArchiveShapeFileReaderV1();
 
                 try
                 {

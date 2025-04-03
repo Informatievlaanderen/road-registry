@@ -73,7 +73,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
     private async Task<Stream> CleanArchive(Stream readStream, CancellationToken cancellationToken)
     {
-        var writeStream = await readStream.CopyToNewMemoryStream(cancellationToken);
+        var writeStream = await readStream.CopyToNewMemoryStreamAsync(cancellationToken);
 
         try
         {

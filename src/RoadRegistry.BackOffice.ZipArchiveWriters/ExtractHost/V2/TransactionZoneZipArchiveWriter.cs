@@ -5,6 +5,7 @@ using System.Text;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase;
+using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public class TransactionZoneZipArchiveWriter : IZipArchiveWriter
 {
@@ -43,7 +44,7 @@ public class TransactionZoneZipArchiveWriter : IZipArchiveWriter
         //TODO-pr hoe wegschrijven gebruik makende van WellKnownGeometryFactories.WithoutMAndZ? -> op voorhand cleanup doen
 
         var dbaseRecordWriter = new DbaseRecordWriter(_encoding);
-        await dbaseRecordWriter.WriteToArchive(archive, FileName, FeatureType.Change, TransactionZoneDbaseRecord.Schema, [
+        await dbaseRecordWriter.WriteToArchive(archive, FileName, FeatureType.Change, TransactionZoneDbaseRecord.Schema, ShapeType.Polygon, [
             (dbaseRecord, (Geometry)request.Contour)
         ], cancellationToken);
     }

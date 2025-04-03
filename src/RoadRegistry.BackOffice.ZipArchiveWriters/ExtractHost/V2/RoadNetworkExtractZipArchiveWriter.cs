@@ -17,15 +17,15 @@ public class RoadNetworkExtractZipArchiveWriter : IZipArchiveWriter
         IStreetNameCache streetNameCache,
         RecyclableMemoryStreamManager manager,
         Encoding encoding,
-        ILogger<RoadNetworkExtractZipArchiveWriter> logger)
+        ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(zipArchiveWriterOptions);
         ArgumentNullException.ThrowIfNull(streetNameCache);
         ArgumentNullException.ThrowIfNull(manager);
         ArgumentNullException.ThrowIfNull(encoding);
-        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(loggerFactory);
 
-        _writer = new CompositeZipArchiveWriter(logger,
+        _writer = new CompositeZipArchiveWriter(loggerFactory.CreateLogger(GetType()),
             new TransactionZoneZipArchiveWriter(encoding),
             new OrganizationsZipArchiveWriter(encoding),
             new RoadNodesZipArchiveWriter(manager, encoding),

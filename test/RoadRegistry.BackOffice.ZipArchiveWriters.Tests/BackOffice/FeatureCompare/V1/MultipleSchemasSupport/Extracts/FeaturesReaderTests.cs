@@ -263,7 +263,7 @@ public class FeaturesReaderTests
 
         using (zipArchive)
         {
-            var sut = ZipArchiveFeatureCompareTranslatorBuilder.Create();
+            var sut = ZipArchiveFeatureCompareTranslatorV1Builder.Create();
 
             try
             {

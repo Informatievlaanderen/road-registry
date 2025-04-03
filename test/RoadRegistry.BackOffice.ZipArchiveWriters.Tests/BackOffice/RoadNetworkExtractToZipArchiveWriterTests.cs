@@ -15,6 +15,8 @@
     using RoadRegistry.Tests.BackOffice;
     using RoadRegistry.Tests.BackOffice.Scenarios;
 
+    //TODO-pr add v2 tests?
+
     public class RoadNetworkExtractToZipArchiveWriterTests
     {
         private readonly RecyclableMemoryStreamManager _memoryStreamManager;
@@ -74,7 +76,7 @@
                 _streetNameCache,
                 _memoryStreamManager,
                 Encoding.UTF8,
-                NullLogger<RoadNetworkExtractToZipArchiveWriter>.Instance);
+                NullLoggerFactory.Instance);
 
             var stream = _memoryStreamManager.GetStream();
 
@@ -153,7 +155,7 @@
                 _streetNameCache,
                 _memoryStreamManager,
                 Encoding.UTF8,
-                NullLogger<RoadNetworkExtractToZipArchiveWriter>.Instance);
+                NullLoggerFactory.Instance);
 
             var stream = _memoryStreamManager.GetStream();
 

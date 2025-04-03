@@ -15,7 +15,7 @@ public interface IZipArchiveShapeFileReader
     IEnumerable<(Geometry, RecordNumber)> Read(ZipArchiveEntry entry);
 }
 
-//TODO-pr versioning?
+//TODO-pr obsolete?
 public class ZipArchiveShapeFileReaderV2: IZipArchiveShapeFileReader
 {
     public IEnumerable<(Geometry, RecordNumber)> Read(ZipArchiveEntry entry)

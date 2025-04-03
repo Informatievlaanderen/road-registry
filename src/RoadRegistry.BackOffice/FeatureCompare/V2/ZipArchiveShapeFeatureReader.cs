@@ -9,17 +9,18 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Dbase;
 using Extensions;
 using Extracts;
+using NetTopologySuite.IO.Esri;
 using NetTopologySuite.IO.Esri.Dbf;
 using Uploads;
 
-public abstract class ZipArchiveDbaseFeatureReader<TDbaseRecord, TFeature> : IZipArchiveFeatureReader<TFeature>
+public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZipArchiveFeatureReader<TFeature>
     where TDbaseRecord : DbaseRecord, new()
 {
     private readonly Encoding _encoding;
     private readonly DbaseSchema _dbaseSchema;
     private readonly bool _treatHasNoDbaseRecordsAsError;
 
-    protected ZipArchiveDbaseFeatureReader(Encoding encoding, DbaseSchema dbaseSchema, bool treatHasNoDbaseRecordsAsError = false)
+    protected ZipArchiveShapeFeatureReader(Encoding encoding, DbaseSchema dbaseSchema, bool treatHasNoDbaseRecordsAsError = false)
     {
         _encoding = encoding;
         _dbaseSchema = dbaseSchema;
@@ -41,8 +42,18 @@ public abstract class ZipArchiveDbaseFeatureReader<TDbaseRecord, TFeature> : IZi
             return ([], problems);
         }
 
+        var shpFileName = featureType.ToShapeFileName(fileName);
+        var shpEntry = archive.FindEntry(shpFileName);
+        if (shpEntry is null)
+        {
+            problems += problems.RequiredFileMissing(shpFileName);
+        }
+
         using var entryStream = entry.Open();
         using var stream = entryStream.CopyToNewMemoryStream();
+
+        //TODO-pr implement shp reading
+        Shapefile.OpenRead()
         using var reader = new DbfReader(stream, _encoding);
 
         try
@@ -64,6 +75,8 @@ public abstract class ZipArchiveDbaseFeatureReader<TDbaseRecord, TFeature> : IZi
         {
             problems += entry.HasDbaseSchemaMismatch(ex.ExpectedSchema, ex.ActualSchema);
         }
+
+        problems += archive.ValidateProjectionFile(featureType, fileName, _encoding);
 
         return ([], problems);
     }

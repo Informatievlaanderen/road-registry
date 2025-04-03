@@ -21,8 +21,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using SqlStreamStore;
 using ZipArchiveWriters.ExtractHost;
-using ZipArchiveWriters.ExtractHost.V1;
-using ZipArchiveWriters.ExtractHost.V2;
 
 public class Program
 {
@@ -51,21 +49,22 @@ public class Program
                                 sp.GetService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.ExtractHost)
                             ),
                             WellKnownSchemas.ExtractHostSchema))
+
                     .AddSingleton<IZipArchiveWriter>(sp =>
-                        sp.GetRequiredService<UseNetTopologySuiteForExtractFeatureToggle>().FeatureEnabled
-                            ? new RoadNetworkExtractZipArchiveWriter(
+                        sp.GetRequiredService<UseExtractZipArchiveWriterV2FeatureToggle>().FeatureEnabled
+                            ? new ZipArchiveWriters.ExtractHost.V2.RoadNetworkExtractZipArchiveWriter(
                                 sp.GetService<ZipArchiveWriterOptions>(),
                                 sp.GetService<IStreetNameCache>(),
                                 sp.GetService<RecyclableMemoryStreamManager>(),
                                 sp.GetRequiredService<FileEncoding>(),
-                                sp.GetRequiredService<ILogger<RoadNetworkExtractZipArchiveWriter>>()
+                                sp.GetRequiredService<ILoggerFactory>()
                             )
-                            : new RoadNetworkExtractToZipArchiveWriter(
+                            : new ZipArchiveWriters.ExtractHost.V1.RoadNetworkExtractToZipArchiveWriter(
                                 sp.GetService<ZipArchiveWriterOptions>(),
                                 sp.GetService<IStreetNameCache>(),
                                 sp.GetService<RecyclableMemoryStreamManager>(),
                                 sp.GetRequiredService<FileEncoding>(),
-                                sp.GetRequiredService<ILogger<RoadNetworkExtractToZipArchiveWriter>>()
+                                sp.GetRequiredService<ILoggerFactory>()
                             )
                     )
                     .AddSingleton<IRoadNetworkExtractArchiveAssembler>(sp =>

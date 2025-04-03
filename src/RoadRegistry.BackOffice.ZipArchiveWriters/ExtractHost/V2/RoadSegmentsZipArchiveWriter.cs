@@ -3,9 +3,10 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.V2;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extracts;
+using Extracts.Dbase.RoadSegments;
 using Microsoft.IO;
-using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
+using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
 {
@@ -72,7 +73,7 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
                 })
                 .ToList();
 
-            await dbaseRecordWriter.WriteToArchive(archive, extractFilename, featureType, RoadSegmentDbaseRecord.Schema, records, cancellationToken);
+            await dbaseRecordWriter.WriteToArchive(archive, extractFilename, featureType, RoadSegmentDbaseRecord.Schema, ShapeType.PolyLine, records, cancellationToken);
         }
     }
 }

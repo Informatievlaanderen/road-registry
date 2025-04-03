@@ -2,11 +2,11 @@ namespace RoadRegistry.Tests
 {
     using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.FeatureCompare;
-    using RoadRegistry.BackOffice.FeatureCompare.V1.Readers;
-    using RoadRegistry.BackOffice.FeatureCompare.V1.Translators;
-    using RoadRegistry.BackOffice.FeatureCompare.V1.Validation;
-    //TODO-pr create V2 variant
-    public static class ZipArchiveBeforeFeatureCompareValidatorBuilder
+    using RoadRegistry.BackOffice.FeatureCompare.V2.Readers;
+    using RoadRegistry.BackOffice.FeatureCompare.V2.Translators;
+    using RoadRegistry.BackOffice.FeatureCompare.V2.Validation;
+
+    public static class ZipArchiveBeforeFeatureCompareValidatorV2Builder
     {
         private static readonly FileEncoding Encoding = FileEncoding.UTF8;
 
@@ -17,7 +17,7 @@ namespace RoadRegistry.Tests
                 new RoadNodeZipArchiveValidator(new RoadNodeFeatureCompareFeatureReader(Encoding)),
                 new RoadSegmentZipArchiveValidator(
                     new RoadSegmentFeatureCompareFeatureReader(Encoding),
-                    streetNameContextFactory ?? new FakeRoadSegmentFeatureCompareStreetNameContextFactory()),
+                    streetNameContextFactory ?? new FakeRoadSegmentFeatureCompareStreetNameContextFactoryV2()),
                 new RoadSegmentLaneZipArchiveValidator(new RoadSegmentLaneFeatureCompareFeatureReader(Encoding)),
                 new RoadSegmentWidthZipArchiveValidator(new RoadSegmentWidthFeatureCompareFeatureReader(Encoding)),
                 new RoadSegmentSurfaceZipArchiveValidator(new RoadSegmentSurfaceFeatureCompareFeatureReader(Encoding)),

@@ -110,7 +110,7 @@ namespace RoadRegistry.Jobs.Processor
 
                             // Send archive to be further processed
                             await using var blobStream = await blob.OpenAsync(stoppingToken);
-                            var readStream = await blobStream.CopyToNewMemoryStream(stoppingToken);
+                            var readStream = await blobStream.CopyToNewMemoryStreamAsync(stoppingToken);
 
                             var request = BuildRequest(job, blob, readStream);
 
