@@ -193,6 +193,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                 { WellKnownZipArchiveWriterVersions.V2, ZipArchiveFeatureCompareTranslatorV2Builder.Create() }
             };
 
+            var sw = Stopwatch.StartNew();
+
             foreach (var transactionZoneGeometry in transactionZoneGeometries)
             {
                 _outputHelper.WriteLine($"Transaction Zone: {transactionZoneGeometry}");
@@ -215,12 +217,20 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                             options.UseNetTopologySuite()
                         ).Options);
 
-                    var sw = Stopwatch.StartNew();
-
                     {
-                        using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
-                        await writer.Value.WriteAsync(archive, request, new ZipArchiveDataProvider(context), CancellationToken.None);
-                        _outputHelper.WriteLine($"{zipArchiveWriterVersion} ZArchiveWriter: {sw.Elapsed}");
+                        //warmup db
+                        {
+                            using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
+                            await writer.Value.WriteAsync(archive, request, new ZipArchiveDataProvider(context), CancellationToken.None);
+                        }
+
+                        //actual run
+                        {
+                            sw.Restart();
+                            using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
+                            await writer.Value.WriteAsync(archive, request, new ZipArchiveDataProvider(context), CancellationToken.None);
+                            _outputHelper.WriteLine($"{zipArchiveWriterVersion} ZArchiveWriter: {sw.Elapsed}");
+                        }
                     }
 
                     sw.Restart();

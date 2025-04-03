@@ -81,7 +81,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
             {
                 RecordNumber? currentRecordNumber = null;
 
-                var shpReader = new ZipArchiveShapeFileReaderV1();
+                var shpReader = new ZipArchiveShapeFileReader();
 
                 try
                 {

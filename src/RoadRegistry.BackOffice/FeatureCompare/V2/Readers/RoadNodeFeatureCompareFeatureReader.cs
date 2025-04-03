@@ -10,6 +10,7 @@ using Extensions;
 using Extracts;
 using Extracts.Dbase.RoadNodes;
 using Models;
+using NetTopologySuite.Geometries;
 using ShapeFile;
 using Translators;
 using Uploads;
@@ -58,83 +59,6 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
         return (features, problems);
     }
 
-    private ZipArchiveProblems ReadShapeFile(List<Feature<RoadNodeFeatureCompareAttributes>> features, ZipArchive archive, FeatureType featureType, ExtractFileName fileName)
-    {
-        var problems = ZipArchiveProblems.None;
-
-        var shpFileName = featureType.ToShapeFileName(fileName);
-        var shpEntry = archive.FindEntry(shpFileName);
-        if (shpEntry is null)
-        {
-            problems += problems.RequiredFileMissing(shpFileName);
-        }
-        else
-        {
-            var dbfFileName = featureType.ToDbaseFileName(fileName);
-            var dbfEntry = archive.FindEntry(dbfFileName);
-            if (dbfEntry is not null)
-            {
-                var shpReader = new ZipArchiveShapeFileReaderV2();
-                RecordNumber? currentRecordNumber = null;
-
-                try
-                {
-                    foreach (var (geometry, recordNumber) in shpReader.Read(shpEntry))
-                    {
-                        var recordContext = shpEntry.AtShapeRecord(recordNumber);
-                        currentRecordNumber = recordNumber;
-
-                        var index = features.FindIndex(x => x.RecordNumber.Equals(recordNumber));
-                        if (index == -1)
-                        {
-                            problems += recordContext.DbaseRecordMissing();
-                            continue;
-                        }
-
-                        //TODO-pr move to ConvertToFeature
-                        if (geometry is Point point)
-                        {
-                            features[index] = features[index] with
-                            {
-                                Attributes = features[index].Attributes with
-                                {
-                                    Geometry = point
-                                }
-                            };
-                        }
-                        else
-                        {
-                            problems += recordContext.ShapeRecordShapeGeometryTypeMismatch(ShapeType.Point, geometry.GeometryType);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    problems += shpEntry
-                        .AtShapeRecord(currentRecordNumber ?? RecordNumber.Initial)
-                        .HasShapeRecordFormatError(ex);
-                }
-
-                var featuresWithoutGeometry = features.Where(x => x.Attributes.Geometry is null).ToArray();
-                if (featuresWithoutGeometry.Any())
-                {
-                    foreach (var feature in featuresWithoutGeometry)
-                    {
-                        var recordContext = dbfEntry.AtDbaseRecord(feature.RecordNumber);
-                        problems += recordContext.RoadNodeGeometryMissing(feature.Attributes.Id);
-                    }
-                }
-
-                if (currentRecordNumber is null)
-                {
-                    problems += shpEntry.HasNoShapeRecords();
-                }
-            }
-        }
-
-        return problems;
-    }
-
     private void AddToContext(List<Feature<RoadNodeFeatureCompareAttributes>> features, FeatureType featureType, ZipArchiveFeatureReaderContext context)
     {
         if (featureType != FeatureType.Change)
@@ -160,12 +84,13 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
         {
         }
 
-        protected override (Feature<RoadNodeFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, RoadNodeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<RoadNodeFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, RoadNodeDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
         {
-            return new DbaseRecordData
+            return new RecordData
             {
                 WK_OIDN = dbaseRecord.WK_OIDN.GetValue(),
-                TYPE = dbaseRecord.TYPE.GetValue()
+                TYPE = dbaseRecord.TYPE.GetValue(),
+                Geometry = geometry
             }.ToFeature(featureType, fileName, recordNumber);
         }
     }
@@ -177,20 +102,22 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
         {
         }
 
-        protected override (Feature<RoadNodeFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadNodeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<RoadNodeFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadNodeDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
         {
-            return new DbaseRecordData
+            return new RecordData
             {
                 WK_OIDN = dbaseRecord.WK_OIDN.GetValue(),
-                TYPE = dbaseRecord.TYPE.GetValue()
+                TYPE = dbaseRecord.TYPE.GetValue(),
+                Geometry = geometry
             }.ToFeature(featureType, fileName, recordNumber);
         }
     }
 
-    private sealed record DbaseRecordData
+    private sealed record RecordData
     {
-        public int? WK_OIDN { get; init; }
-        public int? TYPE { get; init; }
+        public required int? WK_OIDN { get; init; }
+        public required int? TYPE { get; init; }
+        public required Geometry? Geometry { get; init; }
 
         public (Feature<RoadNodeFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
         {
@@ -236,10 +163,25 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
                 return default;
             }
 
+            Point ReadGeometry()
+            {
+                if (Geometry is Point point)
+                {
+                    return point;
+                }
+
+                var recordContext = fileName
+                    .AtShapeRecord(featureType, recordNumber);
+
+                problems += recordContext.ShapeRecordShapeGeometryTypeMismatch(ShapeType.Point, Geometry?.GeometryType);
+                return null;
+            }
+
             var feature = Feature.New(recordNumber, new RoadNodeFeatureCompareAttributes
             {
                 Id = ReadId(),
-                Type = ReadType()
+                Type = ReadType(),
+                Geometry = ReadGeometry()
             });
             return (feature, problems);
         }

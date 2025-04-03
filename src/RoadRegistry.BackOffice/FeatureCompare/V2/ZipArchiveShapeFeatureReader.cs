@@ -9,8 +9,11 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Dbase;
 using Extensions;
 using Extracts;
+using NetTopologySuite.Geometries;
 using NetTopologySuite.IO.Esri;
 using NetTopologySuite.IO.Esri.Dbf;
+using NetTopologySuite.IO.Esri.Shapefiles.Readers;
+using ShapeFile;
 using Uploads;
 
 public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZipArchiveFeatureReader<TFeature>
@@ -27,34 +30,44 @@ public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZi
         _treatHasNoDbaseRecordsAsError = treatHasNoDbaseRecordsAsError;
     }
 
-    protected abstract (TFeature, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, TDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context);
+    protected abstract (TFeature, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, TDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context);
 
     public (List<TFeature>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
     {
         var problems = ZipArchiveProblems.None;
 
         var dbfFileName = featureType.ToDbaseFileName(fileName);
-        var entry = archive.FindEntry(dbfFileName);
-        if (entry is null)
+        var shpFileName = featureType.ToShapeFileName(fileName);
+
+        var dbfEntry = archive.FindEntry(dbfFileName);
+        var shpEntry = archive.FindEntry(shpFileName);
+
+        if (dbfEntry is null || shpEntry is null)
         {
-            problems += problems.RequiredFileMissing(dbfFileName);
+            if (dbfEntry is null)
+            {
+                problems += problems.RequiredFileMissing(dbfFileName);
+            }
+
+            if (shpEntry is null)
+            {
+                problems += problems.RequiredFileMissing(shpFileName);
+            }
 
             return ([], problems);
         }
 
-        var shpFileName = featureType.ToShapeFileName(fileName);
-        var shpEntry = archive.FindEntry(shpFileName);
-        if (shpEntry is null)
+        using var dbfEntryStream = dbfEntry.Open();
+        using var dbfStream = dbfEntryStream.CopyToNewMemoryStream();
+
+        using var shpEntryStream = shpEntry.Open();
+        using var shpStream = shpEntryStream.CopyToNewMemoryStream();
+
+        using var reader = Shapefile.OpenRead(shpStream, dbfStream, new ShapefileReaderOptions
         {
-            problems += problems.RequiredFileMissing(shpFileName);
-        }
-
-        using var entryStream = entry.Open();
-        using var stream = entryStream.CopyToNewMemoryStream();
-
-        //TODO-pr implement shp reading
-        Shapefile.OpenRead()
-        using var reader = new DbfReader(stream, _encoding);
+            Encoding = _encoding,
+            Factory = WellKnownGeometryFactories.WithoutMAndZ
+        });
 
         try
         {
@@ -65,15 +78,15 @@ public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZi
                 throw new DbaseSchemaMismatchException(dbfFileName, _dbaseSchema, schema);
             }
 
-            return ReadFeatures(featureType, fileName, entry, reader.CreateDbaseRecordEnumerator<TDbaseRecord>(), context);
+            return ReadFeatures(featureType, fileName, dbfEntry, reader.CreateShapefileRecordEnumerator<TDbaseRecord>(), context);
         }
         catch (DbaseHeaderFormatException ex)
         {
-            problems += entry.HasDbaseHeaderFormatError(ex.InnerException);
+            problems += dbfEntry.HasDbaseHeaderFormatError(ex.InnerException);
         }
         catch (DbaseSchemaMismatchException ex)
         {
-            problems += entry.HasDbaseSchemaMismatch(ex.ExpectedSchema, ex.ActualSchema);
+            problems += dbfEntry.HasDbaseSchemaMismatch(ex.ExpectedSchema, ex.ActualSchema);
         }
 
         problems += archive.ValidateProjectionFile(featureType, fileName, _encoding);
@@ -85,7 +98,7 @@ public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZi
         FeatureType featureType,
         ExtractFileName fileName,
         ZipArchiveEntry entry,
-        IDbaseRecordEnumerator<TDbaseRecord> records,
+        IShapefileRecordEnumerator<TDbaseRecord> records,
         ZipArchiveFeatureReaderContext context)
     {
         var problems = ZipArchiveProblems.None;
@@ -99,13 +112,10 @@ public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZi
                 while (moved)
                 {
                     var record = records.Current;
-                    if (record != null)
-                    {
-                        var (feature, recordProblems) = ConvertToFeature(featureType, fileName, records.CurrentRecordNumber, record, context);
+                    var (feature, recordProblems) = ConvertToFeature(featureType, fileName, records.CurrentRecordNumber, record.Item1, record.Item2, context);
 
-                        problems += recordProblems;
-                        features.Add(feature);
-                    }
+                    problems += recordProblems;
+                    features.Add(feature);
 
                     moved = records.MoveNext();
                 }
@@ -123,7 +133,7 @@ public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZi
         return (features, problems);
     }
 
-    private DbaseSchema ReadSchema(DbfReader reader)
+    private DbaseSchema ReadSchema(ShapefileReader reader)
     {
         try
         {

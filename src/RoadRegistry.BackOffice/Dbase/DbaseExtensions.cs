@@ -1,7 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Dbase;
 
 using System;
-using System.Collections;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using NetTopologySuite.Features;
@@ -78,7 +77,7 @@ public static class DbaseExtensions
         throw new NotImplementedException($"Unknown field type: {field.FieldType}");
     }
 
-    private static object GetValue(this DbaseFieldValue dbaseFieldValue)
+    internal static object GetValue(this DbaseFieldValue dbaseFieldValue)
     {
         if (dbaseFieldValue is DbaseInt32 intField)
         {
@@ -108,7 +107,7 @@ public static class DbaseExtensions
         throw new NotImplementedException($"Unknown field type: {dbaseFieldValue.Field.FieldType}");
     }
 
-    private static void SetValue(this DbaseFieldValue dbaseFieldValue, object value)
+    internal static void SetValue(this DbaseFieldValue dbaseFieldValue, object value)
     {
         if (dbaseFieldValue is DbaseInt32 intField)
         {
@@ -152,10 +151,10 @@ public static class DbaseExtensions
         where TDbaseRecord : DbaseRecord, new()
     {
         ArgumentNullException.ThrowIfNull(reader);
-        return new DbfDbaseRecordEnumerator<TDbaseRecord>(reader);
+        return new DbfRecordEnumerator<TDbaseRecord>(reader);
     }
 
-    private class DbfDbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumerator<TDbaseRecord>
+    private class DbfRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumerator<TDbaseRecord>
         where TDbaseRecord : DbaseRecord, new()
         {
             private enum State { Initial, Started, Ended }
@@ -165,7 +164,7 @@ public static class DbaseExtensions
             private TDbaseRecord _current;
             private State _state;
 
-            public DbfDbaseRecordEnumerator(DbfReader reader)
+            public DbfRecordEnumerator(DbfReader reader)
             {
                 _reader = reader.ThrowIfNull();
                 _current = null;
@@ -229,6 +228,8 @@ public static class DbaseExtensions
                 throw new NotSupportedException("Reset is not supported. Enumeration can only be performed once.");
             }
 
+            object System.Collections.IEnumerator.Current => Current;
+
             public TDbaseRecord Current
             {
                 get
@@ -248,8 +249,6 @@ public static class DbaseExtensions
             }
 
             public RecordNumber CurrentRecordNumber => _number;
-
-            object IEnumerator.Current => Current;
 
             public void Dispose()
             {

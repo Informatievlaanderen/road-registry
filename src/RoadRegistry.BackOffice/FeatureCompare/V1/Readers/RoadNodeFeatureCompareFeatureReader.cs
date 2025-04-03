@@ -77,7 +77,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
             var dbfEntry = archive.FindEntry(dbfFileName);
             if (dbfEntry is not null)
             {
-                var shpReader = new ZipArchiveShapeFileReaderV1();
+                var shpReader = new ZipArchiveShapeFileReader();
                 RecordNumber? currentRecordNumber = null;
 
                 try

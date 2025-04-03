@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Core;
 using Models;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Extensions;
@@ -60,111 +61,6 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         return (features, problems);
     }
 
-    private ZipArchiveProblems ReadShapeFile(List<Feature<RoadSegmentFeatureCompareAttributes>> features, ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
-    {
-        var problems = ZipArchiveProblems.None;
-
-        var shpFileName = featureType.ToShapeFileName(fileName);
-        var shpEntry = archive.FindEntry(shpFileName);
-        if (shpEntry is null)
-        {
-            problems += problems.RequiredFileMissing(shpFileName);
-        }
-        else
-        {
-            var dbfFileName = featureType.ToDbaseFileName(fileName);
-            var dbfEntry = archive.FindEntry(dbfFileName);
-            if (dbfEntry is not null)
-            {
-                RecordNumber? currentRecordNumber = null;
-
-                var shpReader = new ZipArchiveShapeFileReaderV2();
-
-                try
-                {
-                    foreach (var (geometry, recordNumber) in shpReader.Read(shpEntry))
-                    {
-                        var recordContext = shpEntry.AtShapeRecord(recordNumber);
-                        currentRecordNumber = recordNumber;
-
-                        var index = features.FindIndex(x => x.RecordNumber.Equals(recordNumber));
-                        if (index == -1)
-                        {
-                            problems += recordContext.DbaseRecordMissing();
-                            continue;
-                        }
-
-                        try
-                        {
-                            //TODO-pr move to ConvertToFeature
-                            var multiLineString = geometry.ToMultiLineString();
-
-                            var lines = multiLineString
-                                .WithMeasureOrdinates()
-                                .Geometries
-                                .OfType<LineString>()
-                                .ToArray();
-                            if (lines.Length != 1)
-                            {
-                                problems += recordContext.ShapeRecordGeometryLineCountMismatch(
-                                    1,
-                                    lines.Length);
-                            }
-                            else
-                            {
-                                var line = lines[0];
-
-                                var lineProblems = line.GetProblemsForRoadSegmentGeometry(features[index].Attributes.Id, context.Tolerances);
-
-                                problems += lineProblems.Select(problem => recordContext
-                                    .Error(problem.Reason)
-                                    .WithParameters(problem.Parameters.ToArray())
-                                    .Build());
-                            }
-
-                            features[index] = features[index] with
-                            {
-                                Attributes = features[index].Attributes with
-                                {
-                                    Geometry = multiLineString
-                                }
-                            };
-                        }
-                        catch (InvalidCastException)
-                        {
-                            problems += recordContext.ShapeRecordShapeGeometryTypeMismatch(
-                                NetTopologySuite.IO.Esri.ShapeType.PolyLineM,
-                                geometry.GeometryType);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    problems += shpEntry
-                        .AtShapeRecord(currentRecordNumber ?? RecordNumber.Initial)
-                        .HasShapeRecordFormatError(ex);
-                }
-
-                var featuresWithoutGeometry = features.Where(x => x.Attributes.Geometry is null).ToArray();
-                if (featuresWithoutGeometry.Any())
-                {
-                    foreach (var feature in featuresWithoutGeometry)
-                    {
-                        var recordContext = dbfEntry.AtDbaseRecord(feature.RecordNumber);
-                        problems += recordContext.RoadSegmentGeometryMissing(feature.Attributes.Id);
-                    }
-                }
-
-                if (currentRecordNumber is null)
-                {
-                    problems += shpEntry.HasNoShapeRecords();
-                }
-            }
-        }
-
-        return problems;
-    }
-
     private void AddToContext(List<Feature<RoadSegmentFeatureCompareAttributes>> features, FeatureType featureType, ZipArchiveFeatureReaderContext context)
     {
         if (featureType != FeatureType.Change)
@@ -190,9 +86,9 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         {
         }
 
-        protected override (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, RoadSegmentDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, RoadSegmentDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
         {
-            return new DbaseRecordData
+            return new RecordData
             {
                 B_WK_OIDN = dbaseRecord.B_WK_OIDN.GetValue(),
                 BEHEER = dbaseRecord.BEHEER.GetValue(),
@@ -204,8 +100,9 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 STATUS = dbaseRecord.STATUS.GetValue(),
                 TGBEP = dbaseRecord.TGBEP.GetValue(),
                 WEGCAT = dbaseRecord.WEGCAT.GetValue(),
-                WS_OIDN = dbaseRecord.WS_OIDN.GetValue()
-            }.ToFeature(featureType, fileName, recordNumber);
+                WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
+                Geometry = geometry
+            }.ToFeature(featureType, fileName, recordNumber, context.Tolerances);
         }
     }
 
@@ -216,9 +113,9 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         {
         }
 
-        protected override (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
         {
-            return new DbaseRecordData
+            return new RecordData
             {
                 B_WK_OIDN = dbaseRecord.B_WK_OIDN.GetValue(),
                 BEHEER = dbaseRecord.BEHEER.GetValue(),
@@ -230,12 +127,13 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 STATUS = dbaseRecord.STATUS.GetValue(),
                 TGBEP = dbaseRecord.TGBEP.GetValue(),
                 WEGCAT = dbaseRecord.WEGCAT.GetValue(),
-                WS_OIDN = dbaseRecord.WS_OIDN.GetValue()
-            }.ToFeature(featureType, fileName, recordNumber);
+                WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
+                Geometry = geometry
+            }.ToFeature(featureType, fileName, recordNumber, context.Tolerances);
         }
     }
 
-    private sealed record DbaseRecordData
+    private sealed record RecordData
     {
         public int? WS_OIDN { get; init; }
         public int? B_WK_OIDN { get; init; }
@@ -248,14 +146,17 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         public int? STATUS { get; init; }
         public int? TGBEP { get; init; }
         public string WEGCAT { get; init; }
+        public Geometry Geometry { get; init; }
 
-        public (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
+        public (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, VerificationContextTolerances contextTolerances)
         {
             var problemBuilder = fileName
                 .AtDbaseRecord(featureType, recordNumber)
                 .WithIdentifier(nameof(WS_OIDN), WS_OIDN);
 
             var problems = ZipArchiveProblems.None;
+
+            var roadSegmentId = ReadId();
 
             RoadSegmentId ReadId()
             {
@@ -501,11 +402,53 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 return default;
             }
 
+            MultiLineString ReadGeometry()
+            {
+                var recordContext = fileName
+                    .AtShapeRecord(featureType, recordNumber);
+
+                try
+                {
+                    var multiLineString = Geometry.ToMultiLineString();
+
+                    var lines = multiLineString
+                        .WithMeasureOrdinates()
+                        .Geometries
+                        .OfType<LineString>()
+                        .ToArray();
+                    if (lines.Length != 1)
+                    {
+                        problems += recordContext.ShapeRecordGeometryLineCountMismatch(1, lines.Length);
+                    }
+                    else
+                    {
+                        var line = lines[0];
+
+                        var lineProblems = line.GetProblemsForRoadSegmentGeometry(roadSegmentId, contextTolerances);
+
+                        problems += lineProblems.Select(problem => recordContext
+                            .Error(problem.Reason)
+                            .WithParameters(problem.Parameters.ToArray())
+                            .Build());
+                    }
+
+                    return multiLineString;
+                }
+                catch (InvalidCastException)
+                {
+                    problems += recordContext.ShapeRecordShapeGeometryTypeMismatch(
+                        NetTopologySuite.IO.Esri.ShapeType.PolyLineM,
+                        Geometry?.GeometryType);
+                }
+
+                return null;
+            }
+
             var method = ReadMethod();
 
             var feature = Feature.New(recordNumber, new RoadSegmentFeatureCompareAttributes
             {
-                Id = ReadId(),
+                Id = roadSegmentId,
                 Method = method,
                 Category = ReadCategory(),
                 AccessRestriction = ReadAccessRestriction(),
@@ -515,7 +458,8 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 Status = ReadStatus(method),
                 Morphology = ReadMorphology(method),
                 StartNodeId = ReadStartNodeId(method),
-                EndNodeId = ReadEndNodeId(method)
+                EndNodeId = ReadEndNodeId(method),
+                Geometry = ReadGeometry()
             });
             return (feature, problems);
         }

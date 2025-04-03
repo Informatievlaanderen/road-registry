@@ -18,7 +18,7 @@ public class ZipArchiveShapeFileReaderTests
     [InlineData("eWegknoop.zip", ExtractFileName.Wegknoop)]
     public async Task RoadNodeShapeFileShouldHaveSameAmountOfRecordsAsDbaseFile(string resourceName, ExtractFileName entryFileName)
     {
-        var sut = new ZipArchiveShapeFileReaderV1();
+        var sut = new ZipArchiveShapeFileReader();
 
         using var beforeFcArchiveStream = new MemoryStream();
         await using (var embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"RoadRegistry.Tests.Resources.ZipArchiveShapeFileReaderTests.{resourceName}"))
@@ -44,7 +44,7 @@ public class ZipArchiveShapeFileReaderTests
     [InlineData("eWegsegment.zip", ExtractFileName.Wegsegment)]
     public async Task RoadSegmentShapeFileShouldHaveSameAmountOfRecordsAsDbaseFile(string resourceName, ExtractFileName entryFileName)
     {
-        var sut = new ZipArchiveShapeFileReaderV1();
+        var sut = new ZipArchiveShapeFileReader();
 
         using var beforeFcArchiveStream = new MemoryStream();
         await using (var embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"RoadRegistry.Tests.Resources.ZipArchiveShapeFileReaderTests.{resourceName}"))
