@@ -27,6 +27,6 @@ public class RoadNetworkInfoConfiguration : IEntityTypeConfiguration<RoadNetwork
         b.Property(p => p.RoadSegmentNationalRoadAttributeCount).HasDefaultValue(0).IsRequired();
         b.Property(p => p.RoadSegmentNumberedRoadAttributeCount).HasDefaultValue(0).IsRequired();
         b.Property(p => p.GradeSeparatedJunctionCount).HasDefaultValue(0).IsRequired();
-        b.Property(p => p.LastChangedTimestamp).HasDefaultValue(DateTimeOffset.UtcNow).IsRequired();
+        b.Property(p => p.LastChangedTimestamp).HasDefaultValue(new DateTimeOffset(new DateTime(2025, 3, 28, 10, 21, 31, 66, DateTimeKind.Unspecified).AddTicks(1895), new TimeSpan(0, 0, 0, 0, 0))).IsRequired();
     }
 }

@@ -258,6 +258,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
 
                     _outputHelper.WriteLine($"{zipArchiveWriterVersion} FeatureCompare: {sw.Elapsed}");
                 }
+
+                _outputHelper.WriteLine(string.Empty);
             }
         }
 

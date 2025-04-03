@@ -17,7 +17,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
                 table: "RoadNetworkInfo",
                 type: "datetimeoffset",
                 nullable: false,
-                defaultValue: DateTimeOffset.UtcNow);
+                defaultValue: new DateTimeOffset(new DateTime(2025, 3, 28, 10, 21, 31, 66, DateTimeKind.Unspecified).AddTicks(1895), new TimeSpan(0, 0, 0, 0, 0)));
         }
 
         /// <inheritdoc />

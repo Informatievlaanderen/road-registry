@@ -10,9 +10,6 @@ using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.FeatureCompare.V2.Translators;
 using RoadRegistry.BackOffice.Uploads;
 
-//TODO-pr !!! use updated dbf/shp readers like ziparchivewriter v2
-//transactionzone DONE
-
 public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTranslator
 {
     private readonly ILogger _logger;
