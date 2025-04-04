@@ -1,3 +1,10 @@
+## [4.28.5](https://github.com/informatievlaanderen/road-registry/compare/v4.28.4...v4.28.5) (2025-04-04)
+
+
+### Bug Fixes
+
+* **publisher:** download pdf and xml from metadata before uploading to azure ([6379ebd](https://github.com/informatievlaanderen/road-registry/commit/6379ebde6cef707fcbcdaff5e49b285271edf5fe))
+
 ## [4.28.4](https://github.com/informatievlaanderen/road-registry/compare/v4.28.3...v4.28.4) (2025-04-03)
 
 
