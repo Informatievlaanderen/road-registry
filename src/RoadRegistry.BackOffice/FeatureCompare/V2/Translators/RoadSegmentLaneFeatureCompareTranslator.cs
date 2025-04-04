@@ -3,13 +3,12 @@ namespace RoadRegistry.BackOffice.FeatureCompare.V2.Translators;
 using System.Collections.Generic;
 using Models;
 using Readers;
-using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Uploads;
+using Uploads;
 
 public class RoadSegmentLaneFeatureCompareTranslator : RoadSegmentAttributeFeatureCompareTranslatorBase<RoadSegmentLaneFeatureCompareAttributes>
 {
     public RoadSegmentLaneFeatureCompareTranslator(RoadSegmentLaneFeatureCompareFeatureReader featureReader)
-        : base(featureReader, ExtractFileName.AttRijstroken)
+        : base(featureReader)
     {
     }
 
@@ -20,7 +19,7 @@ public class RoadSegmentLaneFeatureCompareTranslator : RoadSegmentAttributeFeatu
                && feature1.Attributes.Count == feature2.Attributes.Count
                && feature1.Attributes.Direction == feature2.Attributes.Direction;
     }
-    
+
     protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)
     {
         foreach (var record in records)

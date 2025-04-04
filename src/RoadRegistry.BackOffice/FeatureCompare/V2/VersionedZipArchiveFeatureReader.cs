@@ -22,18 +22,17 @@ public class VersionedZipArchiveFeatureReader<TFeature> : IZipArchiveFeatureRead
         _versionedReaders = readers;
     }
 
-    public virtual (List<TFeature>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    public virtual (List<TFeature>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context)
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(featureType);
-        ArgumentNullException.ThrowIfNull(fileName);
         ArgumentNullException.ThrowIfNull(context);
 
         var readerProblems = new List<ZipArchiveProblems>();
 
         foreach (var reader in _versionedReaders)
         {
-            var (features, featuresProblems) = reader.Read(archive, featureType, fileName, context);
+            var (features, featuresProblems) = reader.Read(archive, featureType, context);
 
             var requiredFileMissing = featuresProblems.Any(x => x.Reason == nameof(ZipArchiveProblems.RequiredFileMissing));
             if (requiredFileMissing)

@@ -17,7 +17,7 @@ public class TransactionZoneFeatureCompareTranslator : FeatureCompareTranslatorB
 
     public override Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
     {
-        var (features, problems) = ReadFeatures(context.Archive, FeatureType.Change, ExtractFileName.Transactiezones, context);
+        var (features, problems) = ReadFeatures(context.Archive, FeatureType.Change, context);
 
         problems.ThrowIfError();
 

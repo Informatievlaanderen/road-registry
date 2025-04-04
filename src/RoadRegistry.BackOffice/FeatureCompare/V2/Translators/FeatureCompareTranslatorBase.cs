@@ -29,23 +29,23 @@ public abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveEnt
         _featureReader = featureReader;
     }
 
-    protected (List<Feature<TAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    protected (List<Feature<TAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context)
     {
-        return _featureReader.Read(archive, featureType, fileName, context);
+        return _featureReader.Read(archive, featureType, context);
     }
 
-    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>, ZipArchiveProblems) ReadExtractAndChangeFeatures(ZipArchive archive, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>, ZipArchiveProblems) ReadExtractAndChangeFeatures(ZipArchive archive, ZipArchiveFeatureReaderContext context)
     {
-        var (extractFeatures, extractFeaturesProblems) = ReadFeatures(archive, FeatureType.Extract, fileName, context);
-        var (changeFeatures, changeFeaturesProblems) = ReadFeatures(archive, FeatureType.Change, fileName, context);
+        var (extractFeatures, extractFeaturesProblems) = ReadFeatures(archive, FeatureType.Extract, context);
+        var (changeFeatures, changeFeaturesProblems) = ReadFeatures(archive, FeatureType.Change, context);
         return (extractFeatures, changeFeatures, extractFeaturesProblems + changeFeaturesProblems);
     }
 
-    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>, List<Feature<TAttributes>>, ZipArchiveProblems) ReadExtractAndChangeAndIntegrationFeatures(ZipArchive archive, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>, List<Feature<TAttributes>>, ZipArchiveProblems) ReadExtractAndChangeAndIntegrationFeatures(ZipArchive archive, ZipArchiveFeatureReaderContext context)
     {
-        var (extractFeatures, extractFeaturesProblems) = ReadFeatures(archive, FeatureType.Extract, fileName, context);
-        var (changeFeatures, changeFeaturesProblems) = ReadFeatures(archive, FeatureType.Change, fileName, context);
-        var (integrationFeatures, integrationFeaturesProblems) = ReadFeatures(archive, FeatureType.Integration, fileName, context);
+        var (extractFeatures, extractFeaturesProblems) = ReadFeatures(archive, FeatureType.Extract, context);
+        var (changeFeatures, changeFeaturesProblems) = ReadFeatures(archive, FeatureType.Change, context);
+        var (integrationFeatures, integrationFeaturesProblems) = ReadFeatures(archive, FeatureType.Integration, context);
 
         var problems = extractFeaturesProblems + changeFeaturesProblems + integrationFeaturesProblems;
 

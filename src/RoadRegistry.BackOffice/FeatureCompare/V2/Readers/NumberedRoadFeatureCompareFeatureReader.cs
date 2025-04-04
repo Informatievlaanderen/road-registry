@@ -14,17 +14,19 @@ using Validation;
 
 public class NumberedRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<NumberedRoadFeatureCompareAttributes>>
 {
+    private const ExtractFileName FileName = ExtractFileName.AttGenumweg;
+
     public NumberedRoadFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
             new UploadsV2FeatureReader(encoding))
     {
     }
 
-    public override (List<Feature<NumberedRoadFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    public override (List<Feature<NumberedRoadFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context)
     {
-        var (features, problems) = base.Read(archive, featureType, fileName, context);
+        var (features, problems) = base.Read(archive, featureType, context);
 
-        problems += archive.ValidateUniqueIdentifiers(features, featureType, fileName, feature => feature.Attributes.Id);
+        problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, feature => feature.Attributes.Id);
 
         return (features, problems);
     }
@@ -32,11 +34,11 @@ public class NumberedRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
     private sealed class ExtractsFeatureReader : ZipArchiveDbaseFeatureReader<RoadSegmentNumberedRoadAttributeDbaseRecord, Feature<NumberedRoadFeatureCompareAttributes>>
     {
         public ExtractsFeatureReader(Encoding encoding)
-            : base(encoding, RoadSegmentNumberedRoadAttributeDbaseRecord.Schema)
+            : base(encoding, NumberedRoadFeatureCompareFeatureReader.FileName, RoadSegmentNumberedRoadAttributeDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<NumberedRoadFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, RoadSegmentNumberedRoadAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<NumberedRoadFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, RoadSegmentNumberedRoadAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {
@@ -45,18 +47,18 @@ public class NumberedRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
                 IDENT8 = dbaseRecord.IDENT8.GetValue(),
                 RICHTING = dbaseRecord.RICHTING.GetValue(),
                 VOLGNUMMER = dbaseRecord.VOLGNUMMER.GetValue()
-            }.ToFeature(featureType, fileName, recordNumber);
+            }.ToFeature(featureType, FileName, recordNumber);
         }
     }
 
     private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord, Feature<NumberedRoadFeatureCompareAttributes>>
     {
         public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema)
+            : base(encoding, NumberedRoadFeatureCompareFeatureReader.FileName, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<NumberedRoadFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<NumberedRoadFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {
@@ -65,7 +67,7 @@ public class NumberedRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
                 IDENT8 = dbaseRecord.IDENT8.GetValue(),
                 RICHTING = dbaseRecord.RICHTING.GetValue(),
                 VOLGNUMMER = dbaseRecord.VOLGNUMMER.GetValue()
-            }.ToFeature(featureType, fileName, recordNumber);
+            }.ToFeature(featureType, FileName, recordNumber);
         }
     }
 

@@ -17,31 +17,33 @@ using RoadSegmentSurfaceAttribute = Core.RoadSegmentSurfaceAttribute;
 
 public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentSurfaceFeatureCompareAttributes>>
 {
+    private const ExtractFileName FileName = ExtractFileName.AttWegverharding;
+
     public RoadSegmentSurfaceFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
             new UploadsV2FeatureReader(encoding))
     {
     }
 
-    public override (List<Feature<RoadSegmentSurfaceFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    public override (List<Feature<RoadSegmentSurfaceFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context)
     {
-        var (features, problems) = base.Read(archive, featureType, fileName, context);
+        var (features, problems) = base.Read(archive, featureType, context);
 
-        problems += archive.ValidateUniqueIdentifiers(features, featureType, fileName, feature => feature.Attributes.Id);
+        problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, feature => feature.Attributes.Id);
 
         if (featureType == FeatureType.Change)
         {
-            problems = problems.TryToFillMissingFromAndToPositions(features, fileName, context);
+            problems = problems.TryToFillMissingFromAndToPositions(features, FileName, context);
 
-            problems += ValidateSurfacesPerRoadSegment(features, fileName, context);
-            problems += archive.ValidateRoadSegmentsWithoutAttributes(features, fileName, ZipArchiveEntryProblems.RoadSegmentsWithoutSurfaceAttributes, context);
-            problems += archive.ValidateMissingRoadSegments(features, fileName, context);
+            problems += ValidateSurfacesPerRoadSegment(features, context);
+            problems += archive.ValidateRoadSegmentsWithoutAttributes(features, FileName, ZipArchiveEntryProblems.RoadSegmentsWithoutSurfaceAttributes, context);
+            problems += archive.ValidateMissingRoadSegments(features, FileName, context);
         }
 
         return (features, problems);
     }
 
-    private ZipArchiveProblems ValidateSurfacesPerRoadSegment(List<Feature<RoadSegmentSurfaceFeatureCompareAttributes>> features, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    private ZipArchiveProblems ValidateSurfacesPerRoadSegment(List<Feature<RoadSegmentSurfaceFeatureCompareAttributes>> features, ZipArchiveFeatureReaderContext context)
     {
         var problems = ZipArchiveProblems.None;
         var featureType = FeatureType.Change;
@@ -73,7 +75,7 @@ public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchive
 
                     var surfaceProblems = roadSegmentLine.GetProblemsForRoadSegmentSurfaces(surfaces, context.Tolerances);
 
-                    var recordContext = fileName.AtDbaseRecord(featureType, roadSegmentGroup.First().RecordNumber);
+                    var recordContext = FileName.AtDbaseRecord(featureType, roadSegmentGroup.First().RecordNumber);
                     foreach (var problem in surfaceProblems)
                     {
                         problems += recordContext
@@ -91,11 +93,11 @@ public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchive
     private sealed class ExtractsFeatureReader : ZipArchiveDbaseFeatureReader<RoadSegmentSurfaceAttributeDbaseRecord, Feature<RoadSegmentSurfaceFeatureCompareAttributes>>
     {
         public ExtractsFeatureReader(Encoding encoding)
-            : base(encoding, RoadSegmentSurfaceAttributeDbaseRecord.Schema)
+            : base(encoding, RoadSegmentSurfaceFeatureCompareFeatureReader.FileName, RoadSegmentSurfaceAttributeDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<RoadSegmentSurfaceFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, RoadSegmentSurfaceAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<RoadSegmentSurfaceFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, RoadSegmentSurfaceAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {
@@ -104,18 +106,18 @@ public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchive
                 VANPOS = dbaseRecord.VANPOS.GetValue(),
                 TOTPOS = dbaseRecord.TOTPOS.GetValue(),
                 TYPE = dbaseRecord.TYPE.GetValue()
-            }.ToFeature(featureType, fileName, recordNumber);
+            }.ToFeature(featureType, FileName, recordNumber);
         }
     }
 
     private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentSurfaceAttributeDbaseRecord, Feature<RoadSegmentSurfaceFeatureCompareAttributes>>
     {
         public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentSurfaceAttributeDbaseRecord.Schema)
+            : base(encoding, RoadSegmentSurfaceFeatureCompareFeatureReader.FileName, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentSurfaceAttributeDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<RoadSegmentSurfaceFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentSurfaceAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<RoadSegmentSurfaceFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentSurfaceAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {
@@ -124,7 +126,7 @@ public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchive
                 VANPOS = dbaseRecord.VANPOS.GetValue(),
                 TOTPOS = dbaseRecord.TOTPOS.GetValue(),
                 TYPE = dbaseRecord.TYPE.GetValue()
-            }.ToFeature(featureType, fileName, recordNumber);
+            }.ToFeature(featureType, FileName, recordNumber);
         }
     }
 

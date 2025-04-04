@@ -3,9 +3,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core.ProblemCodes;
 using Extracts;
-using FeatureCompare;
 using System.IO.Compression;
-using FeatureCompare.V1;
+using FeatureCompare.V1; //TODO-pr when use V2?
 using FeatureCompare.V1.Readers;
 using Uploads;
 

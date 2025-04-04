@@ -11,6 +11,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
     using ExtractHost.V2;
     using Extracts;
     using Extracts.Dbase;
+    using FluentAssertions;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging.Abstractions;
     using Microsoft.IO;
@@ -158,7 +159,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
 
             var connectionString = "Data Source=tcp:localhost,21433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True";
 
-            var encoding = Encoding.UTF8;
+            var encoding = FileEncoding.UTF8;
             var manager = new RecyclableMemoryStreamManager();
             var fixture = new RoadNetworkTestData().ObjectProvider;
 
@@ -192,12 +193,19 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                 { WellKnownZipArchiveWriterVersions.V1, ZipArchiveFeatureCompareTranslatorV1Builder.Create() },
                 { WellKnownZipArchiveWriterVersions.V2, ZipArchiveFeatureCompareTranslatorV2Builder.Create() }
             };
+            var readers = new Dictionary<string, Func<ZipArchive, Dictionary<ExtractFileName, int>>>
+            {
+                { WellKnownZipArchiveWriterVersions.V1, ReadV1 },
+                { WellKnownZipArchiveWriterVersions.V2, ReadV2 }
+            };
 
             var sw = Stopwatch.StartNew();
 
             foreach (var transactionZoneGeometry in transactionZoneGeometries)
             {
                 _outputHelper.WriteLine($"Transaction Zone: {transactionZoneGeometry}");
+
+                var readResults = new Dictionary<string, Dictionary<ExtractFileName, int>>();
 
                 foreach (var writer in writers)
                 {
@@ -243,9 +251,9 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                         using var archive = new ZipArchive(stream, ZipArchiveMode.Read, true, Encoding.UTF8);
                         await validator.ValidateAsync(archive, ZipArchiveMetadata.Empty, CancellationToken.None);
 
-                        var changes = await translator.TranslateAsync(archive, CancellationToken.None);
+                        readResults[zipArchiveWriterVersion] = readers[zipArchiveWriterVersion](archive);
 
-                        //TODO-pr hoe resultaat vergelijken? de readers gebruiken?
+                        var changes = await translator.TranslateAsync(archive, CancellationToken.None);
                     }
                     catch (ZipArchiveValidationException ex)
                     {
@@ -259,8 +267,96 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                     _outputHelper.WriteLine($"{zipArchiveWriterVersion} FeatureCompare: {sw.Elapsed}");
                 }
 
+                var v1Result = readResults[WellKnownZipArchiveWriterVersions.V1];
+                var v2Result = readResults[WellKnownZipArchiveWriterVersions.V2];
+
+                foreach (var v1 in v1Result)
+                {
+                    v2Result[v1.Key].Should().Be(v1.Value);
+                }
+
                 _outputHelper.WriteLine(string.Empty);
             }
+        }
+
+        private Dictionary<ExtractFileName, int> ReadV1(ZipArchive archive)
+        {
+            var encoding = FileEncoding.UTF8;
+
+            var transactionZones = new RoadRegistry.BackOffice.FeatureCompare.V1.Readers.TransactionZoneFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, ExtractFileName.Transactiezones, new RoadRegistry.BackOffice.FeatureCompare.V1.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var nodes = new RoadRegistry.BackOffice.FeatureCompare.V1.Readers.RoadNodeFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, ExtractFileName.Wegknoop, new RoadRegistry.BackOffice.FeatureCompare.V1.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var segments = new RoadRegistry.BackOffice.FeatureCompare.V1.Readers.RoadSegmentFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, ExtractFileName.Wegsegment, new RoadRegistry.BackOffice.FeatureCompare.V1.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var lanes = new RoadRegistry.BackOffice.FeatureCompare.V1.Readers.RoadSegmentLaneFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, ExtractFileName.AttRijstroken, new RoadRegistry.BackOffice.FeatureCompare.V1.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var widths = new RoadRegistry.BackOffice.FeatureCompare.V1.Readers.RoadSegmentWidthFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, ExtractFileName.AttWegbreedte, new RoadRegistry.BackOffice.FeatureCompare.V1.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var surfaces = new RoadRegistry.BackOffice.FeatureCompare.V1.Readers.RoadSegmentSurfaceFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, ExtractFileName.AttWegverharding, new RoadRegistry.BackOffice.FeatureCompare.V1.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var europeanRoads = new RoadRegistry.BackOffice.FeatureCompare.V1.Readers.EuropeanRoadFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, ExtractFileName.AttEuropweg, new RoadRegistry.BackOffice.FeatureCompare.V1.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var nationalRoads = new RoadRegistry.BackOffice.FeatureCompare.V1.Readers.NationalRoadFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, ExtractFileName.AttNationweg, new RoadRegistry.BackOffice.FeatureCompare.V1.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var numberedRoads = new RoadRegistry.BackOffice.FeatureCompare.V1.Readers.NumberedRoadFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, ExtractFileName.AttGenumweg, new RoadRegistry.BackOffice.FeatureCompare.V1.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var junctions = new RoadRegistry.BackOffice.FeatureCompare.V1.Readers.GradeSeparatedJunctionFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, ExtractFileName.RltOgkruising, new RoadRegistry.BackOffice.FeatureCompare.V1.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+
+            return new Dictionary<ExtractFileName, int>
+            {
+                { ExtractFileName.Transactiezones, transactionZones.Item1.Count},
+                { ExtractFileName.Wegknoop, nodes.Item1.Count},
+                { ExtractFileName.Wegsegment, segments.Item1.Count},
+                { ExtractFileName.AttRijstroken, lanes.Item1.Count},
+                { ExtractFileName.AttWegbreedte, widths.Item1.Count},
+                { ExtractFileName.AttWegverharding, surfaces.Item1.Count},
+                { ExtractFileName.AttEuropweg, europeanRoads.Item1.Count},
+                { ExtractFileName.AttNationweg, nationalRoads.Item1.Count},
+                { ExtractFileName.AttGenumweg, numberedRoads.Item1.Count},
+                { ExtractFileName.RltOgkruising, junctions.Item1.Count}
+            };
+        }
+
+        private Dictionary<ExtractFileName, int> ReadV2(ZipArchive archive)
+        {
+            var encoding = FileEncoding.UTF8;
+
+            var transactionZones = new RoadRegistry.BackOffice.FeatureCompare.V2.Readers.TransactionZoneFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, new RoadRegistry.BackOffice.FeatureCompare.V2.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var nodes = new RoadRegistry.BackOffice.FeatureCompare.V2.Readers.RoadNodeFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, new RoadRegistry.BackOffice.FeatureCompare.V2.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var segments = new RoadRegistry.BackOffice.FeatureCompare.V2.Readers.RoadSegmentFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, new RoadRegistry.BackOffice.FeatureCompare.V2.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var lanes = new RoadRegistry.BackOffice.FeatureCompare.V2.Readers.RoadSegmentLaneFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, new RoadRegistry.BackOffice.FeatureCompare.V2.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var widths = new RoadRegistry.BackOffice.FeatureCompare.V2.Readers.RoadSegmentWidthFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, new RoadRegistry.BackOffice.FeatureCompare.V2.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var surfaces = new RoadRegistry.BackOffice.FeatureCompare.V2.Readers.RoadSegmentSurfaceFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, new RoadRegistry.BackOffice.FeatureCompare.V2.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var europeanRoads = new RoadRegistry.BackOffice.FeatureCompare.V2.Readers.EuropeanRoadFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, new RoadRegistry.BackOffice.FeatureCompare.V2.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var nationalRoads = new RoadRegistry.BackOffice.FeatureCompare.V2.Readers.NationalRoadFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, new RoadRegistry.BackOffice.FeatureCompare.V2.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var numberedRoads = new RoadRegistry.BackOffice.FeatureCompare.V2.Readers.NumberedRoadFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, new RoadRegistry.BackOffice.FeatureCompare.V2.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            var junctions = new RoadRegistry.BackOffice.FeatureCompare.V2.Readers.GradeSeparatedJunctionFeatureCompareFeatureReader(encoding)
+                .Read(archive, FeatureType.Extract, new RoadRegistry.BackOffice.FeatureCompare.V2.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+
+            return new Dictionary<ExtractFileName, int>
+            {
+                { ExtractFileName.Transactiezones, transactionZones.Item1.Count},
+                { ExtractFileName.Wegknoop, nodes.Item1.Count},
+                { ExtractFileName.Wegsegment, segments.Item1.Count},
+                { ExtractFileName.AttRijstroken, lanes.Item1.Count},
+                { ExtractFileName.AttWegbreedte, widths.Item1.Count},
+                { ExtractFileName.AttWegverharding, surfaces.Item1.Count},
+                { ExtractFileName.AttEuropweg, europeanRoads.Item1.Count},
+                { ExtractFileName.AttNationweg, nationalRoads.Item1.Count},
+                { ExtractFileName.AttGenumweg, numberedRoads.Item1.Count},
+                { ExtractFileName.RltOgkruising, junctions.Item1.Count}
+            };
         }
 
         private static MultiPolygon BuildTransactionZoneGeometry(int x, int y, int width)
@@ -269,6 +365,89 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
             var geometry = new WKTReader().Read(wkt);
             geometry.SRID = 31370;
             return geometry.ToMultiPolygon();
+        }
+
+        //TODO-pr maandag: schema validatie in v2 bij grb upload failed, te bekijken
+        [Fact]
+        public async Task TestGrbUploads()
+        {
+            var archiveIds = new[]
+            {
+                "7034c4b386c64e3aba0602a03d53b6b6",
+                "ddd9e8dc570e4f8e89c6c5a3843e0f8e",
+                "2e7942d2dd4244aea3e691301f28ea41",
+                "fdcfb3652d6248628ef29c686f77c140",
+                "daa3da2ffe2f4ae9a469806018a2931e",
+                "4f19090f16e2479087bc1666e16d48ed",
+                "fe6a00a25c6c4ccaa298522de36ad462",
+                "ce7ee4430e4b49c18055301fd81e0117",
+                "31622e7ff8644788b6a8944320bd1b84",
+                "550102c0d47047418501628b5aaff090"
+            };
+
+            var versions = new[] { WellKnownZipArchiveWriterVersions.V1, WellKnownZipArchiveWriterVersions.V2 };
+            var validators = new Dictionary<string, IZipArchiveBeforeFeatureCompareValidator>
+            {
+                { WellKnownZipArchiveWriterVersions.V1, ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create() },
+                { WellKnownZipArchiveWriterVersions.V2, ZipArchiveBeforeFeatureCompareValidatorV2Builder.Create() }
+            };
+            var translators = new Dictionary<string, IZipArchiveFeatureCompareTranslator>
+            {
+                { WellKnownZipArchiveWriterVersions.V1, ZipArchiveFeatureCompareTranslatorV1Builder.Create() },
+                { WellKnownZipArchiveWriterVersions.V2, ZipArchiveFeatureCompareTranslatorV2Builder.Create() }
+            };
+            var readers = new Dictionary<string, Func<ZipArchive, Dictionary<ExtractFileName, int>>>
+            {
+                { WellKnownZipArchiveWriterVersions.V1, ReadV1 },
+                { WellKnownZipArchiveWriterVersions.V2, ReadV2 }
+            };
+
+            foreach (var archiveId in archiveIds)
+            {
+                var sw = Stopwatch.StartNew();
+                _outputHelper.WriteLine($"Archive: {archiveId}");
+
+                var readResults = new Dictionary<string, Dictionary<ExtractFileName, int>>();
+
+                foreach (var zipArchiveWriterVersion in versions)
+                {
+                    sw.Restart();
+                    try
+                    {
+                        var validator = validators[zipArchiveWriterVersion];
+                        var translator = translators[zipArchiveWriterVersion];
+
+                        await using var stream = File.OpenRead($@"C:\Users\RikDePeuter\Downloads\{archiveId}.zip");
+                        using var archive = new ZipArchive(stream, ZipArchiveMode.Read, true, Encoding.UTF8);
+                        await validator.ValidateAsync(archive, ZipArchiveMetadata.Empty, CancellationToken.None);
+
+                        readResults[zipArchiveWriterVersion] = readers[zipArchiveWriterVersion](archive);
+
+                        var changes = await translator.TranslateAsync(archive, CancellationToken.None);
+                    }
+                    catch (ZipArchiveValidationException ex)
+                    {
+                        _outputHelper.WriteLine($"{zipArchiveWriterVersion} FeatureCompare validation failed:");
+                        foreach (var problem in ex.Problems)
+                        {
+                            _outputHelper.WriteLine($"  {problem.Describe()}");
+                        }
+                        throw;
+                    }
+
+                    _outputHelper.WriteLine($"{zipArchiveWriterVersion} FeatureCompare: {sw.Elapsed}");
+                }
+
+                var v1Result = readResults[WellKnownZipArchiveWriterVersions.V1];
+                var v2Result = readResults[WellKnownZipArchiveWriterVersions.V2];
+
+                foreach (var v1 in v1Result)
+                {
+                    v2Result[v1.Key].Should().Be(v1.Value);
+                }
+
+                _outputHelper.WriteLine(string.Empty);
+            }
         }
     }
 }

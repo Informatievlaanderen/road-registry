@@ -13,6 +13,8 @@ using Uploads;
 
 public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<TransactionZoneFeatureCompareAttributes>>
 {
+    private const ExtractFileName FileName = ExtractFileName.Transactiezones;
+
     public TransactionZoneFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding))
     {
@@ -21,11 +23,11 @@ public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFea
     private sealed class ExtractsFeatureReader : ZipArchiveDbaseFeatureReader<TransactionZoneDbaseRecord, Feature<TransactionZoneFeatureCompareAttributes>>
     {
         public ExtractsFeatureReader(Encoding encoding)
-            : base(encoding, TransactionZoneDbaseRecord.Schema, treatHasNoDbaseRecordsAsError: true)
+            : base(encoding, TransactionZoneFeatureCompareFeatureReader.FileName, TransactionZoneDbaseRecord.Schema, treatHasNoDbaseRecordsAsError: true)
         {
         }
 
-        protected override (Feature<TransactionZoneFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, TransactionZoneDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<TransactionZoneFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, TransactionZoneDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {
@@ -33,12 +35,12 @@ public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFea
                 DOWNLOADID = dbaseRecord.DOWNLOADID.GetValue(),
                 OPERATOR = dbaseRecord.OPERATOR.GetValue(),
                 ORG = dbaseRecord.ORG.GetValue()
-            }.ToFeature(featureType, fileName, recordNumber, context);
+            }.ToFeature(featureType, FileName, recordNumber, context);
         }
 
-        protected override (List<Feature<TransactionZoneFeatureCompareAttributes>>, ZipArchiveProblems) ReadFeatures(FeatureType featureType, ExtractFileName fileName, ZipArchiveEntry entry, IDbaseRecordEnumerator<TransactionZoneDbaseRecord> records, ZipArchiveFeatureReaderContext context)
+        protected override (List<Feature<TransactionZoneFeatureCompareAttributes>>, ZipArchiveProblems) ReadFeatures(FeatureType featureType, ZipArchiveEntry entry, IDbaseRecordEnumerator<TransactionZoneDbaseRecord> records, ZipArchiveFeatureReaderContext context)
         {
-            var (features, problems) = base.ReadFeatures(featureType, fileName, entry, records, context);
+            var (features, problems) = base.ReadFeatures(featureType, entry, records, context);
 
             if (features.Count > 1)
             {

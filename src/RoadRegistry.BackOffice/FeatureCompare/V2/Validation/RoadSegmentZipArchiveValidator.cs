@@ -20,7 +20,7 @@ public class RoadSegmentZipArchiveValidator : FeatureReaderZipArchiveValidator<R
     public RoadSegmentZipArchiveValidator(
         RoadSegmentFeatureCompareFeatureReader featureReader,
         IRoadSegmentFeatureCompareStreetNameContextFactory streetNameContextFactory)
-        : base(FileName, [FeatureType.Extract, FeatureType.Change, FeatureType.Integration],
+        : base([FeatureType.Extract, FeatureType.Change, FeatureType.Integration],
             featureReader)
     {
         _streetNameContextFactory = streetNameContextFactory.ThrowIfNull();

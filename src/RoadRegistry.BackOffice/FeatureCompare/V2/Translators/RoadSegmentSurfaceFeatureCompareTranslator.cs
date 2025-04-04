@@ -3,13 +3,12 @@ namespace RoadRegistry.BackOffice.FeatureCompare.V2.Translators;
 using System.Collections.Generic;
 using Models;
 using Readers;
-using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Uploads;
+using Uploads;
 
 public class RoadSegmentSurfaceFeatureCompareTranslator : RoadSegmentAttributeFeatureCompareTranslatorBase<RoadSegmentSurfaceFeatureCompareAttributes>
 {
     public RoadSegmentSurfaceFeatureCompareTranslator(RoadSegmentSurfaceFeatureCompareFeatureReader featureReader)
-        : base(featureReader, ExtractFileName.AttWegverharding)
+        : base(featureReader)
     {
     }
 
@@ -19,7 +18,7 @@ public class RoadSegmentSurfaceFeatureCompareTranslator : RoadSegmentAttributeFe
                && feature1.Attributes.ToPosition == feature2.Attributes.ToPosition
                && feature1.Attributes.Type == feature2.Attributes.Type;
     }
-    
+
     protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)
     {
         foreach (var record in records)

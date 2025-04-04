@@ -14,17 +14,19 @@ using Validation;
 
 public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
 {
+    private const ExtractFileName FileName = ExtractFileName.RltOgkruising;
+
     public GradeSeparatedJunctionFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
             new UploadsV2FeatureReader(encoding))
     {
     }
 
-    public override (List<Feature<GradeSeparatedJunctionFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    public override (List<Feature<GradeSeparatedJunctionFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context)
     {
-        var (features, problems) = base.Read(archive, featureType, fileName, context);
+        var (features, problems) = base.Read(archive, featureType, context);
 
-        problems += archive.ValidateUniqueIdentifiers(features, featureType, fileName, feature => feature.Attributes.Id);
+        problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, feature => feature.Attributes.Id);
 
         return (features, problems);
     }
@@ -32,11 +34,11 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
     private sealed class ExtractsFeatureReader : ZipArchiveDbaseFeatureReader<GradeSeparatedJunctionDbaseRecord, Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
     {
         public ExtractsFeatureReader(Encoding encoding)
-            : base(encoding, GradeSeparatedJunctionDbaseRecord.Schema)
+            : base(encoding, ExtractFileName.RltOgkruising, GradeSeparatedJunctionDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<GradeSeparatedJunctionFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, GradeSeparatedJunctionDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<GradeSeparatedJunctionFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, GradeSeparatedJunctionDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {
@@ -44,18 +46,18 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
                 BO_WS_OIDN = dbaseRecord.BO_WS_OIDN.GetValue(),
                 ON_WS_OIDN = dbaseRecord.ON_WS_OIDN.GetValue(),
                 TYPE = dbaseRecord.TYPE.GetValue()
-            }.ToFeature(featureType, fileName, recordNumber);
+            }.ToFeature(featureType, FileName, recordNumber);
         }
     }
 
     private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.GradeSeparatedJunctionDbaseRecord, Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
     {
         public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.GradeSeparatedJunctionDbaseRecord.Schema)
+            : base(encoding, ExtractFileName.RltOgkruising, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.GradeSeparatedJunctionDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<GradeSeparatedJunctionFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.GradeSeparatedJunctionDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<GradeSeparatedJunctionFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.GradeSeparatedJunctionDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {
@@ -63,7 +65,7 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
                 BO_WS_OIDN = dbaseRecord.BO_WS_OIDN.GetValue(),
                 ON_WS_OIDN = dbaseRecord.ON_WS_OIDN.GetValue(),
                 TYPE = dbaseRecord.TYPE.GetValue()
-            }.ToFeature(featureType, fileName, recordNumber);
+            }.ToFeature(featureType, FileName, recordNumber);
         }
     }
 

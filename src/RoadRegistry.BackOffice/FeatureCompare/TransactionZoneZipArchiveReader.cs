@@ -30,7 +30,7 @@ public class TransactionZoneZipArchiveReader: ITransactionZoneZipArchiveReader
         //TODO-pr test met oud en nieuwe zips
         {
             var context = new V2.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);
-            var (transactionZones, problems) = _v2.Read(archive, featureType, extractFileName, context);
+            var (transactionZones, problems) = _v2.Read(archive, featureType, context);
             problems.ThrowIfError();
 
             var transactionZone = transactionZones.SingleOrDefault()?.Attributes;

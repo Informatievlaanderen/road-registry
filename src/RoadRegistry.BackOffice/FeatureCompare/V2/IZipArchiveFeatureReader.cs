@@ -10,7 +10,7 @@ using RoadRegistry.BackOffice.Uploads;
 
 public interface IZipArchiveFeatureReader<TFeature>
 {
-    (List<TFeature>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context);
+    (List<TFeature>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context);
 }
 
 public class ZipArchiveFeatureReaderContext

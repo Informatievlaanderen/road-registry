@@ -12,7 +12,6 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
-using RoadRegistry.BackOffice.ShapeFile;
 using RoadRegistry.BackOffice.Uploads;
 using Translators;
 using V2;
@@ -20,38 +19,37 @@ using Validation;
 
 public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentFeatureCompareAttributes>>
 {
-    private readonly Encoding _encoding;
+    private const ExtractFileName FileName = ExtractFileName.Wegsegment;
 
     public RoadSegmentFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
             new UploadsV2FeatureReader(encoding))
     {
-        _encoding = encoding;
     }
 
-    public override (List<Feature<RoadSegmentFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    public override (List<Feature<RoadSegmentFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context)
     {
-        var (features, problems) = base.Read(archive, featureType, fileName, context);
+        var (features, problems) = base.Read(archive, featureType, context);
 
-        problems += archive.ValidateUniqueIdentifiers(features, featureType, fileName, feature => feature.Attributes.Id);
+        problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, feature => feature.Attributes.Id);
 
         switch (featureType)
         {
             case FeatureType.Change:
-                problems += archive.ValidateMissingRoadNodes(features, featureType, fileName, context);
+                problems += archive.ValidateMissingRoadNodes(features, featureType, FileName, context);
 
                 AddToContext(features, featureType, context);
                 break;
             case FeatureType.Integration:
                 problems = ZipArchiveProblems.None + problems
                     .GetMissingOrInvalidFileProblems()
-                    .Where(x => !x.File.Equals(featureType.ToProjectionFileName(fileName), StringComparison.InvariantCultureIgnoreCase));
+                    .Where(x => !x.File.Equals(featureType.ToProjectionFileName(FileName), StringComparison.InvariantCultureIgnoreCase));
 
                 foreach (var feature in features)
                 {
                     if (context.ChangedRoadSegments.TryGetValue(feature.Attributes.Id, out var knownRoadSegment))
                     {
-                        var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
+                        var recordContext = FileName.AtDbaseRecord(featureType, feature.RecordNumber);
                         problems += recordContext.RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange(feature.Attributes.Id, knownRoadSegment.RecordNumber);
                     }
                 }
@@ -82,11 +80,11 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
     private sealed class ExtractsFeatureReader : ZipArchiveShapeFeatureReader<RoadSegmentDbaseRecord, Feature<RoadSegmentFeatureCompareAttributes>>
     {
         public ExtractsFeatureReader(Encoding encoding)
-            : base(encoding, RoadSegmentDbaseRecord.Schema)
+            : base(encoding, RoadSegmentFeatureCompareFeatureReader.FileName, RoadSegmentDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, RoadSegmentDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, RoadSegmentDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
         {
             return new RecordData
             {
@@ -102,18 +100,18 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 WEGCAT = dbaseRecord.WEGCAT.GetValue(),
                 WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
                 Geometry = geometry
-            }.ToFeature(featureType, fileName, recordNumber, context.Tolerances);
+            }.ToFeature(featureType, FileName, recordNumber, context.Tolerances);
         }
     }
 
     private sealed class UploadsV2FeatureReader : ZipArchiveShapeFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord, Feature<RoadSegmentFeatureCompareAttributes>>
     {
         public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord.Schema)
+            : base(encoding, RoadSegmentFeatureCompareFeatureReader.FileName, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
         {
             return new RecordData
             {
@@ -129,7 +127,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 WEGCAT = dbaseRecord.WEGCAT.GetValue(),
                 WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
                 Geometry = geometry
-            }.ToFeature(featureType, fileName, recordNumber, context.Tolerances);
+            }.ToFeature(featureType, FileName, recordNumber, context.Tolerances);
         }
     }
 

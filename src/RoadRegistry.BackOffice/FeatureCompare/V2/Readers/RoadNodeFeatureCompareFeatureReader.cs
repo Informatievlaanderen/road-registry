@@ -11,7 +11,6 @@ using Extracts;
 using Extracts.Dbase.RoadNodes;
 using Models;
 using NetTopologySuite.Geometries;
-using ShapeFile;
 using Translators;
 using Uploads;
 using Validation;
@@ -20,20 +19,19 @@ using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadNodeFeatureCompareAttributes>>
 {
-    private readonly Encoding _encoding;
+    private const ExtractFileName FileName = ExtractFileName.Wegknoop;
 
     public RoadNodeFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
             new UploadsV2FeatureReader(encoding))
     {
-        _encoding = encoding;
     }
 
-    public override (List<Feature<RoadNodeFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    public override (List<Feature<RoadNodeFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context)
     {
-        var (features, problems) = base.Read(archive, featureType, fileName, context);
+        var (features, problems) = base.Read(archive, featureType, context);
 
-        problems += archive.ValidateUniqueIdentifiers(features, featureType, fileName, feature => feature.Attributes.Id);
+        problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, feature => feature.Attributes.Id);
 
         switch (featureType)
         {
@@ -43,13 +41,13 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
             case FeatureType.Integration:
                 problems = ZipArchiveProblems.None + problems
                     .GetMissingOrInvalidFileProblems()
-                    .Where(x => !x.File.Equals(featureType.ToProjectionFileName(fileName), StringComparison.InvariantCultureIgnoreCase));
+                    .Where(x => !x.File.Equals(featureType.ToProjectionFileName(FileName), StringComparison.InvariantCultureIgnoreCase));
 
                 foreach (var feature in features)
                 {
                     if (context.ChangedRoadNodes.TryGetValue(feature.Attributes.Id, out var knownRoadNode))
                     {
-                        var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
+                        var recordContext = FileName.AtDbaseRecord(featureType, feature.RecordNumber);
                         problems += recordContext.RoadNodeIdentifierNotUniqueAcrossIntegrationAndChange(feature.Attributes.Id, knownRoadNode.RecordNumber);
                     }
                 }
@@ -80,36 +78,36 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
     private sealed class ExtractsFeatureReader : ZipArchiveShapeFeatureReader<RoadNodeDbaseRecord, Feature<RoadNodeFeatureCompareAttributes>>
     {
         public ExtractsFeatureReader(Encoding encoding)
-            : base(encoding, RoadNodeDbaseRecord.Schema)
+            : base(encoding, RoadNodeFeatureCompareFeatureReader.FileName, RoadNodeDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<RoadNodeFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, RoadNodeDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<RoadNodeFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, RoadNodeDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
         {
             return new RecordData
             {
                 WK_OIDN = dbaseRecord.WK_OIDN.GetValue(),
                 TYPE = dbaseRecord.TYPE.GetValue(),
                 Geometry = geometry
-            }.ToFeature(featureType, fileName, recordNumber);
+            }.ToFeature(featureType, FileName, recordNumber);
         }
     }
 
     private sealed class UploadsV2FeatureReader : ZipArchiveShapeFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadNodeDbaseRecord, Feature<RoadNodeFeatureCompareAttributes>>
     {
         public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadNodeDbaseRecord.Schema)
+            : base(encoding, RoadNodeFeatureCompareFeatureReader.FileName, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadNodeDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<RoadNodeFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadNodeDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<RoadNodeFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadNodeDbaseRecord dbaseRecord, Geometry geometry, ZipArchiveFeatureReaderContext context)
         {
             return new RecordData
             {
                 WK_OIDN = dbaseRecord.WK_OIDN.GetValue(),
                 TYPE = dbaseRecord.TYPE.GetValue(),
                 Geometry = geometry
-            }.ToFeature(featureType, fileName, recordNumber);
+            }.ToFeature(featureType, FileName, recordNumber);
         }
     }
 

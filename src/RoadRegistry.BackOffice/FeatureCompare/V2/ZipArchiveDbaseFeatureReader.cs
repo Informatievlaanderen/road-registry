@@ -15,24 +15,26 @@ using Uploads;
 public abstract class ZipArchiveDbaseFeatureReader<TDbaseRecord, TFeature> : IZipArchiveFeatureReader<TFeature>
     where TDbaseRecord : DbaseRecord, new()
 {
+    protected readonly ExtractFileName FileName;
     private readonly Encoding _encoding;
     private readonly DbaseSchema _dbaseSchema;
     private readonly bool _treatHasNoDbaseRecordsAsError;
 
-    protected ZipArchiveDbaseFeatureReader(Encoding encoding, DbaseSchema dbaseSchema, bool treatHasNoDbaseRecordsAsError = false)
+    protected ZipArchiveDbaseFeatureReader(Encoding encoding, ExtractFileName fileName, DbaseSchema dbaseSchema, bool treatHasNoDbaseRecordsAsError = false)
     {
+        FileName = fileName;
         _encoding = encoding;
         _dbaseSchema = dbaseSchema;
         _treatHasNoDbaseRecordsAsError = treatHasNoDbaseRecordsAsError;
     }
 
-    protected abstract (TFeature, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, TDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context);
+    protected abstract (TFeature, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, TDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context);
 
-    public (List<TFeature>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    public (List<TFeature>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context)
     {
         var problems = ZipArchiveProblems.None;
 
-        var dbfFileName = featureType.ToDbaseFileName(fileName);
+        var dbfFileName = featureType.ToDbaseFileName(FileName);
         var entry = archive.FindEntry(dbfFileName);
         if (entry is null)
         {
@@ -54,7 +56,7 @@ public abstract class ZipArchiveDbaseFeatureReader<TDbaseRecord, TFeature> : IZi
                 throw new DbaseSchemaMismatchException(dbfFileName, _dbaseSchema, schema);
             }
 
-            return ReadFeatures(featureType, fileName, entry, reader.CreateDbaseRecordEnumerator<TDbaseRecord>(), context);
+            return ReadFeatures(featureType, entry, reader.CreateDbaseRecordEnumerator<TDbaseRecord>(), context);
         }
         catch (DbaseHeaderFormatException ex)
         {
@@ -70,7 +72,6 @@ public abstract class ZipArchiveDbaseFeatureReader<TDbaseRecord, TFeature> : IZi
 
     protected virtual (List<TFeature>, ZipArchiveProblems) ReadFeatures(
         FeatureType featureType,
-        ExtractFileName fileName,
         ZipArchiveEntry entry,
         IDbaseRecordEnumerator<TDbaseRecord> records,
         ZipArchiveFeatureReaderContext context)
@@ -88,7 +89,7 @@ public abstract class ZipArchiveDbaseFeatureReader<TDbaseRecord, TFeature> : IZi
                     var record = records.Current;
                     if (record != null)
                     {
-                        var (feature, recordProblems) = ConvertToFeature(featureType, fileName, records.CurrentRecordNumber, record, context);
+                        var (feature, recordProblems) = ConvertToFeature(featureType, records.CurrentRecordNumber, record, context);
 
                         problems += recordProblems;
                         features.Add(feature);
