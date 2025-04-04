@@ -26,7 +26,7 @@ namespace RoadRegistry.Product.PublishHost.CloudStorageClients
 
         public async Task UploadBlobAsync(
             MemoryStream sourceStream,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken)
         {
             sourceStream.Seek(0, SeekOrigin.Begin);
             var blobName = GetBlobName();

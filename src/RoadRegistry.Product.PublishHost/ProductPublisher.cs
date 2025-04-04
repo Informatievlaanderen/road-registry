@@ -11,11 +11,13 @@ namespace RoadRegistry.Product.PublishHost
     using BackOffice;
     using BackOffice.Abstractions;
     using BackOffice.Abstractions.Exceptions;
+    using BackOffice.Extensions;
     using BackOffice.Uploads;
     using BackOffice.ZipArchiveWriters.ForProduct;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using CloudStorageClients;
     using HttpClients;
+    using Infrastructure;
     using Infrastructure.Configurations;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
@@ -87,12 +89,8 @@ namespace RoadRegistry.Product.PublishHost
 
             if (_azureBlobOptions.Enabled)
             {
-                await UploadToDownload(archiveStream, stoppingToken);
-                _logger.LogInformation("Upload to Download completed.");
-                stoppingToken.ThrowIfCancellationRequested();
-
-                await UpdateMetadata(archiveDate, stoppingToken);
-                _logger.LogInformation("Metadata updated.");
+                await UpdateMetadataAndUploadToAzure(archiveDate, archiveStream, stoppingToken);
+                _logger.LogInformation("Upload to Metadata completed.");
                 stoppingToken.ThrowIfCancellationRequested();
             }
             else
@@ -132,28 +130,37 @@ namespace RoadRegistry.Product.PublishHost
             return new BlobName($"{archiveDate:yyyyMMdd}-DownloadBestand-Wegenregister.zip");
         }
 
-        private async Task UploadToDownload(MemoryStream archiveStream, CancellationToken cancellationToken)
-        {
-            archiveStream.Position = 0;
-
-            await using var sp = _container.BeginLifetimeScope();
-            var client = sp.Resolve<AzureBlobClient>();
-
-            await client.UploadBlobAsync(archiveStream, cancellationToken);
-        }
-
-        private async Task UpdateMetadata(DateTimeOffset archiveDate, CancellationToken cancellationToken)
+        private async Task UpdateMetadataAndUploadToAzure(DateTimeOffset archiveDate, MemoryStream archiveStream, CancellationToken cancellationToken)
         {
             await using var sp = _container.BeginLifetimeScope();
-            var client = sp.Resolve<MetaDataCenterHttpClient>();
+            var metadataClient = sp.Resolve<MetaDataCenterHttpClient>();
 
-            var results = await client.UpdateCswPublication(
+            var results = await metadataClient.UpdateCswPublication(
                 archiveDate.DateTime,
                 cancellationToken);
             if (results == null)
             {
-                _logger.LogCritical("Failed to update metadata to date {archiveDate}", archiveDate);
+                throw new InvalidOperationException($"Failed to update metadata to date {archiveDate}");
             }
+
+            var pdfAsBytes = await metadataClient.GetPdfAsByteArray(cancellationToken);
+            var xmlAsString = await metadataClient.GetXmlAsString(cancellationToken);
+
+            archiveStream.Position = 0;
+            await using var azureZipArchiveStream = await archiveStream.CopyToNewMemoryStream(cancellationToken);
+            using var azureZipArchive = new ZipArchive(azureZipArchiveStream, ZipArchiveMode.Create, true);
+
+            await azureZipArchive.AddToZipArchive(
+                "Meta_Wegenregister.pdf",
+                pdfAsBytes,
+                cancellationToken);
+            await azureZipArchive.AddToZipArchive(
+                "Meta_Wegenregister.xml",
+                xmlAsString,
+                cancellationToken);
+
+            var azureBlobClient = sp.Resolve<AzureBlobClient>();
+            await azureBlobClient.UploadBlobAsync(azureZipArchiveStream, cancellationToken);
         }
     }
 }
