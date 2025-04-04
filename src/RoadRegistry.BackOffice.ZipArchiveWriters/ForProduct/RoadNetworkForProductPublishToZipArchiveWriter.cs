@@ -57,8 +57,7 @@ public class RoadNetworkForProductPublishToZipArchiveWriter : IZipArchiveWriter<
 
             new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "Leesmij_WR.pdf"), string.Format(staticFileEntryFormat, "Leesmij_WR.pdf")),
             new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "Objectcataloog_WR.pdf"), string.Format(staticFileEntryFormat, "Objectcataloog_WR.pdf")),
-            new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "Meta_Wegenregister.pdf"), string.Format(staticFileEntryFormat, "Meta_Wegenregister.pdf")),
-            new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "Meta_Wegenregister.xml"), string.Format(staticFileEntryFormat, "Meta_Wegenregister.xml")),
+            new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "HandleidingZipPakketten.pdf"), string.Format(staticFileEntryFormat, "HandleidingZipPakketten.pdf")),
 
             new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "Wegknoop.lyr"), string.Format(shapeFileEntryFormat, "Wegknoop.lyr")),
             new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "Wegknoop.sld"), string.Format(shapeFileEntryFormat, "Wegknoop.sld")),

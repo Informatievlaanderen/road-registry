@@ -67,12 +67,7 @@ public sealed class MetaDataCenterHttpClient
         return body;
     }
 
-    private string GetIdentifierValue()
-    {
-        return _options.FullIdentifier;
-    }
-
-    private async Task<string?> GetXsrfToken(CancellationToken cancellationToken = default)
+    private async Task<string?> GetXsrfToken(CancellationToken cancellationToken)
     {
         var requestMessage =
             new HttpRequestMessage(HttpMethod.Get, new Uri(_baseUrl, "/srv/eng/info?type=me"));
@@ -114,7 +109,7 @@ public sealed class MetaDataCenterHttpClient
 
     public async Task<XDocument?> UpdateCswPublication(
         DateTime dateStamp,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         var xsrfToken = await GetXsrfToken(cancellationToken);
         if (string.IsNullOrWhiteSpace(xsrfToken))
@@ -131,8 +126,7 @@ public sealed class MetaDataCenterHttpClient
         requestMessage.Headers.TryAddWithoutValidation("Authorization", $"Bearer {await _tokenProvider.GetAccessToken()}");
         requestMessage.Headers.TryAddWithoutValidation("X-XSRF-TOKEN", xsrfToken);
 
-        var identifierValue = GetIdentifierValue();
-        requestMessage.Content = GenerateCswPublicationBody(identifierValue, dateStamp);
+        requestMessage.Content = GenerateCswPublicationBody(_options.FullIdentifier, dateStamp);
 
         using var httpClient = new HttpClient(new HttpClientHandler { UseCookies = false });
 
@@ -160,5 +154,54 @@ public sealed class MetaDataCenterHttpClient
         var xmlResponseContent = await response.Content.ReadAsStreamAsync(cancellationToken);
         var xmlResponse = await XDocument.LoadAsync(xmlResponseContent, LoadOptions.None, cancellationToken);
         return xmlResponse;
+    }
+
+    public async Task<string> GetXmlAsString(CancellationToken cancellationToken)
+    {
+        var requestMessage =
+            new HttpRequestMessage(
+                HttpMethod.Get,
+                new Uri(_baseUrl, $"/srv/api/records/{_options.FullIdentifier}/formatters/xml"));
+        foreach (var header in DefaultHeaders)
+        {
+            requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value);
+        }
+
+        requestMessage.Headers.TryAddWithoutValidation("Authorization", $"Bearer {await _tokenProvider.GetAccessToken()}");
+
+        using var httpClient = new HttpClient(new HttpClientHandler() { UseCookies = false });
+        var response = await httpClient.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            _logger?.LogCritical("Unable to get XML");
+            throw new InvalidOperationException($"Unable to get XML, response: {(int)response.StatusCode}");
+        }
+
+        return await response.Content.ReadAsStringAsync(cancellationToken);
+    }
+
+    public async Task<byte[]> GetPdfAsByteArray(CancellationToken cancellationToken)
+    {
+        var requestMessage =
+            new HttpRequestMessage(
+                HttpMethod.Get,
+                new Uri(_baseUrl, $"/srv/api/records/{_options.FullIdentifier}/formatters/xsl-view?output=pdf&language=dut&attachment=true"));
+        foreach (var header in DefaultHeaders)
+        {
+            requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value);
+        }
+
+        requestMessage.Headers.TryAddWithoutValidation("Authorization", $"Bearer {await _tokenProvider.GetAccessToken()}");
+
+        using var httpClient = new HttpClient(new HttpClientHandler { UseCookies = false });
+        var response = await httpClient.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            _logger?.LogCritical("Unable to get pdf");
+            throw new InvalidOperationException($"Unable to get pdf, response: {(int)response.StatusCode}");
+        }
+
+        var pdf = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+        return pdf;
     }
 }
