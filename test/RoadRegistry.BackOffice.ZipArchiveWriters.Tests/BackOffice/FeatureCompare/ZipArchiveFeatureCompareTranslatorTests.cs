@@ -367,8 +367,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
             return geometry.ToMultiPolygon();
         }
 
-        //TODO-pr maandag: schema validatie in v2 bij grb upload failed, te bekijken
-        [Fact]
+        //[Fact]
+        [Fact(Skip = "For debugging purposes")]
         public async Task TestGrbUploads()
         {
             var archiveIds = new[]
@@ -408,6 +408,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                 _outputHelper.WriteLine($"Archive: {archiveId}");
 
                 var readResults = new Dictionary<string, Dictionary<ExtractFileName, int>>();
+                var validationResults = new Dictionary<string, ZipArchiveProblems>();
+                var changes = new Dictionary<string, TranslatedChanges>();
 
                 foreach (var zipArchiveWriterVersion in versions)
                 {
@@ -420,19 +422,17 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                         await using var stream = File.OpenRead($@"C:\Users\RikDePeuter\Downloads\{archiveId}.zip");
                         using var archive = new ZipArchive(stream, ZipArchiveMode.Read, true, Encoding.UTF8);
                         await validator.ValidateAsync(archive, ZipArchiveMetadata.Empty, CancellationToken.None);
+                        validationResults[zipArchiveWriterVersion] = ZipArchiveProblems.None;
 
                         readResults[zipArchiveWriterVersion] = readers[zipArchiveWriterVersion](archive);
 
-                        var changes = await translator.TranslateAsync(archive, CancellationToken.None);
+                        changes[zipArchiveWriterVersion] = await translator.TranslateAsync(archive, CancellationToken.None);
                     }
                     catch (ZipArchiveValidationException ex)
                     {
-                        _outputHelper.WriteLine($"{zipArchiveWriterVersion} FeatureCompare validation failed:");
-                        foreach (var problem in ex.Problems)
-                        {
-                            _outputHelper.WriteLine($"  {problem.Describe()}");
-                        }
-                        throw;
+                        validationResults[zipArchiveWriterVersion] = ex.Problems;
+                        changes[zipArchiveWriterVersion] = TranslatedChanges.Empty;
+                        continue;
                     }
 
                     _outputHelper.WriteLine($"{zipArchiveWriterVersion} FeatureCompare: {sw.Elapsed}");
@@ -445,6 +445,14 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                 {
                     v2Result[v1.Key].Should().Be(v1.Value);
                 }
+
+                var v1ValidationResult = validationResults[WellKnownZipArchiveWriterVersions.V1];
+                var v2ValidationResult = validationResults[WellKnownZipArchiveWriterVersions.V2];
+                v2ValidationResult.Should().BeEquivalentTo(v1ValidationResult);
+
+                var v1Changes = changes[WellKnownZipArchiveWriterVersions.V1];
+                var v2Changes = changes[WellKnownZipArchiveWriterVersions.V2];
+                v2Changes.Count.Should().Be(v1Changes.Count);
 
                 _outputHelper.WriteLine(string.Empty);
             }

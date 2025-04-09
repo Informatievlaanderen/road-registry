@@ -19,18 +19,21 @@ using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadNodeFeatureCompareAttributes>>
 {
+    private readonly FileEncoding _encoding;
     private const ExtractFileName FileName = ExtractFileName.Wegknoop;
 
     public RoadNodeFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
             new UploadsV2FeatureReader(encoding))
     {
+        _encoding = encoding;
     }
 
     public override (List<Feature<RoadNodeFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context)
     {
         var (features, problems) = base.Read(archive, featureType, context);
 
+        problems += archive.ValidateProjectionFile(featureType, FileName, _encoding);
         problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, feature => feature.Attributes.Id);
 
         switch (featureType)

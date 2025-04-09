@@ -89,8 +89,6 @@ public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZi
             problems += dbfEntry.HasDbaseSchemaMismatch(ex.ExpectedSchema, ex.ActualSchema);
         }
 
-        problems += archive.ValidateProjectionFile(featureType, FileName, _encoding);
-
         return ([], problems);
     }
 

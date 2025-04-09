@@ -19,18 +19,21 @@ using Validation;
 
 public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentFeatureCompareAttributes>>
 {
+    private readonly FileEncoding _encoding;
     private const ExtractFileName FileName = ExtractFileName.Wegsegment;
 
     public RoadSegmentFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
             new UploadsV2FeatureReader(encoding))
     {
+        _encoding = encoding;
     }
 
     public override (List<Feature<RoadSegmentFeatureCompareAttributes>>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context)
     {
         var (features, problems) = base.Read(archive, featureType, context);
 
+        problems += archive.ValidateProjectionFile(featureType, FileName, _encoding);
         problems += archive.ValidateUniqueIdentifiers(features, featureType, FileName, feature => feature.Attributes.Id);
 
         switch (featureType)
