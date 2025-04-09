@@ -27,7 +27,7 @@ public class RoadSegmentSurfaceAttributeZipArchiveCleaner : VersionedZipArchiveC
         protected override bool FixDataInArchive(ZipArchive archive,
             IReadOnlyCollection<RoadSegmentSurfaceAttributeDbaseRecord> dbfRecords)
         {
-            return archive.UpdateRoadSegmentAttributeMissingFromOrToPositions(dbfRecords,
+            return archive.UpdateRoadSegmentAttributeMissingFromOrToPositionsOnZipArchiveV1(dbfRecords,
                 Encoding,
                 record => record.WS_OIDN.Value,
                 record => record.VANPOS.Value,
@@ -47,7 +47,7 @@ public class RoadSegmentSurfaceAttributeZipArchiveCleaner : VersionedZipArchiveC
         protected override bool FixDataInArchive(ZipArchive archive,
             IReadOnlyCollection<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentSurfaceAttributeDbaseRecord> dbfRecords)
         {
-            return archive.UpdateRoadSegmentAttributeMissingFromOrToPositions(dbfRecords,
+            return archive.UpdateRoadSegmentAttributeMissingFromOrToPositionsOnZipArchiveV1(dbfRecords,
                 Encoding,
                 record => record.WS_OIDN.Value,
                 record => record.VANPOS.Value,
@@ -67,7 +67,7 @@ public class RoadSegmentSurfaceAttributeZipArchiveCleaner : VersionedZipArchiveC
         protected override bool FixDataInArchive(ZipArchive archive,
             IReadOnlyCollection<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentSurfaceAttributeDbaseRecord> dbfRecords)
         {
-            return archive.UpdateRoadSegmentAttributeMissingFromOrToPositions(dbfRecords,
+            return archive.UpdateRoadSegmentAttributeMissingFromOrToPositionsOnZipArchiveV1(dbfRecords,
                 Encoding,
                 record => record.WS_OIDN.Value,
                 record => record.VANPOS.Value,

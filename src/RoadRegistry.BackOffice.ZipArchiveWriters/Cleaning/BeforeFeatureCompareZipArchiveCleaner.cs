@@ -4,6 +4,7 @@ public interface IBeforeFeatureCompareZipArchiveCleaner: IZipArchiveCleaner
 {
 }
 
+//TODO-pr create V2 variant
 public class BeforeFeatureCompareZipArchiveCleaner : CompositeZipArchiveCleaner, IBeforeFeatureCompareZipArchiveCleaner
 {
     public BeforeFeatureCompareZipArchiveCleaner(FileEncoding encoding)

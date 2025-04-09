@@ -4,13 +4,13 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core.ProblemCodes;
 using Extracts;
 using System.IO.Compression;
-using FeatureCompare.V1; //TODO-pr when use V2?
-using FeatureCompare.V1.Readers;
+using FeatureCompare.V2;
+using FeatureCompare.V2.Readers;
 using Uploads;
 
-public static class ZipArchiveCleanerExtensions
+public static class ZipArchiveV2CleanerExtensions
 {
-    public static bool UpdateRoadSegmentAttributeMissingFromOrToPositions<TDbaseRecord>(this ZipArchive archive,
+    public static bool UpdateRoadSegmentAttributeMissingFromOrToPositionsOnZipArchiveV2<TDbaseRecord>(this ZipArchive archive,
         IReadOnlyCollection<TDbaseRecord> dbfRecords,
         FileEncoding encoding,
         Func<TDbaseRecord, int?> getRoadSegmentId = null,
@@ -33,7 +33,7 @@ public static class ZipArchiveCleanerExtensions
         var dataChanged = false;
 
         var (roadSegmentFeatures, problems) = new RoadSegmentFeatureCompareFeatureReader(encoding)
-            .Read(archive, FeatureType.Change, ExtractFileName.Wegsegment, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            .Read(archive, FeatureType.Change, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
 
         var hasRoadSegmentError = problems
             .Where(x => x.Reason != ProblemCode.RoadSegment.StartNode.Missing && x.Reason != ProblemCode.RoadSegment.EndNode.Missing)

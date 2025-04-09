@@ -58,7 +58,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                     using var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false);
 
                     var featureCompareTranslatorFactory = container.Resolve<IZipArchiveFeatureCompareTranslatorFactory>();
-                    var featureCompareTranslator = featureCompareTranslatorFactory.Create(extract.ZipArchiveWriterVersion); //TODO-pr test of deze wel is ingevuld voor de uploads flow
+                    var featureCompareTranslator = featureCompareTranslatorFactory.Create(extract.ZipArchiveWriterVersion);
 
                     var translatedChanges = await featureCompareTranslator.TranslateAsync(archive, ct);
                     translatedChanges = translatedChanges.WithOperatorName(new OperatorName(message.ProvenanceData.Operator));

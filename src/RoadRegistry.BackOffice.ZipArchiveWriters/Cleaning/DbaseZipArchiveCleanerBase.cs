@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
 using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extracts;
-using FeatureCompare;
 using System.IO.Compression;
 
 public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveCleaner
@@ -95,7 +94,7 @@ public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveClea
             return CleanResult.NotApplicable;
         }
     }
-    
+
     private async Task Save(ZipArchive archive, IReadOnlyCollection<TDbaseRecord> dbfRecords, CancellationToken cancellationToken)
     {
         var fileName = FeatureType.Change.ToDbaseFileName(_fileName);

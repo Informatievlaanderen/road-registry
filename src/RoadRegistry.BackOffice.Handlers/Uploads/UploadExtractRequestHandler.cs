@@ -71,7 +71,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         return new UploadExtractResponse(archiveId);
     }
 
-    private async Task<Stream> CleanArchive(Stream readStream, CancellationToken cancellationToken)
+    private async Task<Stream> CleanArchive(Stream readStream, string zipArchiveWriterVersion, CancellationToken cancellationToken)
     {
         var writeStream = await readStream.CopyToNewMemoryStreamAsync(cancellationToken);
 
@@ -82,6 +82,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             CleanResult cleanResult;
             try
             {
+                //TODO-pr use zipArchiveWriterVersion to determine which cleaner to use
                 cleanResult = await _beforeFeatureCompareZipArchiveCleaner.CleanAsync(archive, cancellationToken);
             }
             catch

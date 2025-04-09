@@ -226,19 +226,10 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                         ).Options);
 
                     {
-                        //warmup db
-                        {
-                            using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
-                            await writer.Value.WriteAsync(archive, request, new ZipArchiveDataProvider(context), CancellationToken.None);
-                        }
-
-                        //actual run
-                        {
-                            sw.Restart();
-                            using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
-                            await writer.Value.WriteAsync(archive, request, new ZipArchiveDataProvider(context), CancellationToken.None);
-                            _outputHelper.WriteLine($"{zipArchiveWriterVersion} ZArchiveWriter: {sw.Elapsed}");
-                        }
+                        sw.Restart();
+                        using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
+                        await writer.Value.WriteAsync(archive, request, new ZipArchiveDataProvider(context), CancellationToken.None);
+                        _outputHelper.WriteLine($"{zipArchiveWriterVersion} ZArchiveWriter: {sw.Elapsed}");
                     }
 
                     sw.Restart();

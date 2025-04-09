@@ -27,7 +27,6 @@ public class TransactionZoneZipArchiveReader: ITransactionZoneZipArchiveReader
         const ExtractFileName extractFileName = ExtractFileName.Transactiezones;
         const FeatureType featureType = FeatureType.Change;
 
-        //TODO-pr test met oud en nieuwe zips
         {
             var context = new V2.ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);
             var (transactionZones, problems) = _v2.Read(archive, featureType, context);
