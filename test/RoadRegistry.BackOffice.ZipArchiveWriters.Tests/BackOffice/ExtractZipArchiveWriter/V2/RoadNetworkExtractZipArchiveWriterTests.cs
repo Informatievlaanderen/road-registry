@@ -1,30 +1,28 @@
-﻿namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice
+﻿namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.ExtractZipArchiveWriter.V2
 {
     using System.IO.Compression;
     using System.Text;
-    using Abstractions;
     using AutoFixture;
-    using ExtractHost;
-    using ExtractHost.V1;
-    using Extracts;
     using FluentAssertions;
     using Microsoft.Extensions.Logging.Abstractions;
     using Microsoft.IO;
     using Moq;
     using NetTopologySuite.Geometries;
+    using RoadRegistry.BackOffice.Abstractions;
+    using RoadRegistry.BackOffice.Extracts;
+    using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
+    using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.V2;
     using RoadRegistry.Tests.BackOffice;
     using RoadRegistry.Tests.BackOffice.Scenarios;
 
-    //TODO-pr add v2 tests?
-
-    public class RoadNetworkExtractToZipArchiveWriterTests
+    public class RoadNetworkExtractZipArchiveWriterTests
     {
         private readonly RecyclableMemoryStreamManager _memoryStreamManager;
         private readonly ZipArchiveWriterOptions _zipArchiveWriterOptions;
         private readonly IStreetNameCache _streetNameCache;
         private readonly Mock<IZipArchiveDataProvider> _zipArchiveDataProvider;
 
-        public RoadNetworkExtractToZipArchiveWriterTests(
+        public RoadNetworkExtractZipArchiveWriterTests(
             ZipArchiveWriterOptions zipArchiveWriterOptions,
             IStreetNameCache streetNameCache)
         {
@@ -71,7 +69,7 @@
             var fixture = new RoadNetworkTestData().ObjectProvider;
             fixture.CustomizeNtsPolygon();
 
-            var zipArchiveWriter = new RoadNetworkExtractToZipArchiveWriter(
+            var zipArchiveWriter = new RoadNetworkExtractZipArchiveWriter(
                 _zipArchiveWriterOptions,
                 _streetNameCache,
                 _memoryStreamManager,
@@ -150,7 +148,7 @@
             var fixture = new RoadNetworkTestData().ObjectProvider;
             fixture.CustomizeNtsPolygon();
 
-            var zipArchiveWriter = new RoadNetworkExtractToZipArchiveWriter(
+            var zipArchiveWriter = new RoadNetworkExtractZipArchiveWriter(
                 _zipArchiveWriterOptions,
                 _streetNameCache,
                 _memoryStreamManager,

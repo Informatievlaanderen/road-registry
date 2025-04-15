@@ -1,9 +1,9 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.V1;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.V2;
 
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.Exceptions;
-using RoadRegistry.BackOffice.FeatureCompare.V1;
+using RoadRegistry.BackOffice.FeatureCompare.V2;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Tests.BackOffice;
 using Scenarios;

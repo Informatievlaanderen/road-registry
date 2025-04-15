@@ -78,7 +78,7 @@ public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZi
                 throw new DbaseSchemaMismatchException(dbfFileName, _dbaseSchema, schema);
             }
 
-            return ReadFeatures(featureType, FileName, dbfEntry, reader.CreateShapefileRecordEnumerator<TDbaseRecord>(), context);
+            return ReadFeatures(featureType, dbfEntry, shpEntry, reader.CreateShapefileRecordEnumerator<TDbaseRecord>(), context);
         }
         catch (DbaseHeaderFormatException ex)
         {
@@ -92,10 +92,10 @@ public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZi
         return ([], problems);
     }
 
-    protected virtual (List<TFeature>, ZipArchiveProblems) ReadFeatures(
+    private (List<TFeature>, ZipArchiveProblems) ReadFeatures(
         FeatureType featureType,
-        ExtractFileName fileName,
-        ZipArchiveEntry entry,
+        ZipArchiveEntry dbfEntry,
+        ZipArchiveEntry shpEntry,
         IShapefileRecordEnumerator<TDbaseRecord> records,
         ZipArchiveFeatureReaderContext context)
     {
@@ -120,12 +120,13 @@ public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZi
             }
             else
             {
-                problems += entry.HasNoDbaseRecords(_treatHasNoDbaseRecordsAsError);
+                problems += dbfEntry.HasNoDbaseRecords(_treatHasNoDbaseRecordsAsError);
+                problems += shpEntry.HasNoShapeRecords();
             }
         }
         catch (Exception exception)
         {
-            problems += entry.AtDbaseRecord(records.CurrentRecordNumber).HasDbaseRecordFormatError(exception);
+            problems += dbfEntry.AtDbaseRecord(records.CurrentRecordNumber).HasDbaseRecordFormatError(exception);
         }
 
         return (features, problems);
