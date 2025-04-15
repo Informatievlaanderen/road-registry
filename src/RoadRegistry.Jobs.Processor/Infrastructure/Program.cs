@@ -18,6 +18,7 @@ using Options;
 using SqlStreamStore;
 using System.Threading.Tasks;
 using BackOffice.FeatureCompare;
+using BackOffice.ZipArchiveWriters.Cleaning.V1;
 
 public class Program
 {
@@ -40,7 +41,7 @@ public class Program
                     .AddStreetNameCache()
                     .AddJobsContext()
                     .AddFeatureCompare()
-                    .AddSingleton<IBeforeFeatureCompareZipArchiveCleaner, BeforeFeatureCompareZipArchiveCleaner>()
+                    .AddSingleton<IBeforeFeatureCompareZipArchiveCleanerFactory, BeforeFeatureCompareZipArchiveCleanerFactory>()
                     .AddRoadNetworkCommandQueue()
                     .RegisterOptions<JobsProcessorOptions>()
                     .AddRoadRegistrySnapshot()

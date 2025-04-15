@@ -29,7 +29,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     private readonly RoadNetworkUploadsBlobClient _client;
     private readonly EditorContext _editorContext;
     private readonly IZipArchiveBeforeFeatureCompareValidatorFactory _beforeFeatureCompareValidatorFactory;
-    private readonly IBeforeFeatureCompareZipArchiveCleaner _beforeFeatureCompareZipArchiveCleaner;
+    private readonly IBeforeFeatureCompareZipArchiveCleanerFactory _beforeFeatureCompareZipArchiveCleanerFactory;
     private readonly ITransactionZoneZipArchiveReader _transactionZoneZipArchiveReader;
 
     public UploadExtractRequestHandler(
@@ -38,14 +38,14 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         EditorContext editorContext,
         IZipArchiveBeforeFeatureCompareValidatorFactory beforeFeatureCompareValidatorFactory,
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
-        IBeforeFeatureCompareZipArchiveCleaner beforeFeatureCompareZipArchiveCleaner,
+        IBeforeFeatureCompareZipArchiveCleanerFactory beforeFeatureCompareZipArchiveCleanerFactory,
         ILogger<UploadExtractRequestHandler> logger) : base(roadNetworkCommandQueue, logger)
     {
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
         _transactionZoneZipArchiveReader = transactionZoneZipArchiveReader.ThrowIfNull();
         _editorContext = editorContext ?? throw new EditorContextNotFoundException(nameof(editorContext));
         _beforeFeatureCompareValidatorFactory = beforeFeatureCompareValidatorFactory ?? throw new ValidatorNotFoundException(nameof(beforeFeatureCompareValidatorFactory));
-        _beforeFeatureCompareZipArchiveCleaner = beforeFeatureCompareZipArchiveCleaner.ThrowIfNull();
+        _beforeFeatureCompareZipArchiveCleanerFactory = beforeFeatureCompareZipArchiveCleanerFactory.ThrowIfNull();
     }
 
     protected override async Task<UploadExtractResponse> InnerHandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
@@ -54,8 +54,6 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         {
             throw new UnsupportedMediaTypeException(request.Archive.ContentType);
         }
-
-        await using var readStream = await CleanArchive(request.Archive.ReadStream, cancellationToken);
 
         var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
 
@@ -66,7 +64,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                     : request.Archive.FileName)
         );
 
-        await ValidateAndUploadAndQueueCommand(request, readStream, archiveId, metadata, cancellationToken);
+        await ValidateAndUploadAndQueueCommand(request, archiveId, metadata, cancellationToken);
 
         return new UploadExtractResponse(archiveId);
     }
@@ -82,8 +80,8 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             CleanResult cleanResult;
             try
             {
-                //TODO-pr use zipArchiveWriterVersion to determine which cleaner to use
-                cleanResult = await _beforeFeatureCompareZipArchiveCleaner.CleanAsync(archive, cancellationToken);
+                var cleaner = _beforeFeatureCompareZipArchiveCleanerFactory.Create(zipArchiveWriterVersion);
+                cleanResult = await cleaner.CleanAsync(archive, cancellationToken);
             }
             catch
             {
@@ -106,24 +104,27 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         return writeStream;
     }
 
-    private async Task ValidateAndUploadAndQueueCommand(UploadExtractRequest request, Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
+    private async Task ValidateAndUploadAndQueueCommand(UploadExtractRequest request, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
     {
         try
         {
-            using var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false);
-
-            var transactionZone = _transactionZoneZipArchiveReader.Read(archive);
+            var transactionZone = ReadTransactionZone(request.Archive.ReadStream);
             var downloadId = transactionZone.DownloadId;
 
-            var download = await _editorContext.ExtractDownloads.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
+            var download = await _editorContext.ExtractDownloads.FindAsync([downloadId.ToGuid()], cancellationToken);
             if (download is null)
             {
                 throw new ExtractDownloadNotFoundException(downloadId);
             }
+
             if (download.IsInformative)
             {
                 throw new ExtractRequestMarkedInformativeException(downloadId);
             }
+
+            await using var readStream = await CleanArchive(request.Archive.ReadStream, download.ZipArchiveWriterVersion, cancellationToken);
+
+            using var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false);
 
             var beforeFeatureCompareValidator = _beforeFeatureCompareValidatorFactory.Create(download.ZipArchiveWriterVersion);
             var problems = await beforeFeatureCompareValidator.ValidateAsync(archive, ZipArchiveMetadata.Empty, cancellationToken);
@@ -137,6 +138,13 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         {
             throw new UnsupportedMediaTypeException();
         }
+    }
+
+    private TransactionZoneDetails ReadTransactionZone(Stream readStream)
+    {
+        using var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false);
+
+        return _transactionZoneZipArchiveReader.Read(archive);
     }
 
     private async Task UploadAndQueueCommand(

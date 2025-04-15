@@ -26,7 +26,7 @@ namespace RoadRegistry.BackOffice.Handlers.Tests.Uploads
                 new FakeEditorContext(),
                 Mock.Of<IZipArchiveBeforeFeatureCompareValidatorFactory>(),
                 Mock.Of<IRoadNetworkCommandQueue>(),
-                Mock.Of<IBeforeFeatureCompareZipArchiveCleaner>(),
+                Mock.Of<IBeforeFeatureCompareZipArchiveCleanerFactory>(),
                 Mock.Of<ILogger<UploadExtractRequestHandler>>()
             );
 

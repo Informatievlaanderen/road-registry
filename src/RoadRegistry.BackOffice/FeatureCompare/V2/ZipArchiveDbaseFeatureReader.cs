@@ -50,7 +50,6 @@ public abstract class ZipArchiveDbaseFeatureReader<TDbaseRecord, TFeature> : IZi
         try
         {
             var schema = ReadSchema(reader);
-
             if (!schema.Equals(_dbaseSchema))
             {
                 throw new DbaseSchemaMismatchException(dbfFileName, _dbaseSchema, schema);

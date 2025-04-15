@@ -1,16 +1,16 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning.V1;
 
-using Be.Vlaanderen.Basisregisters.Shaperon;
-using Core.ProblemCodes;
-using Extracts;
 using System.IO.Compression;
-using FeatureCompare.V2;
-using FeatureCompare.V2.Readers;
-using Uploads;
+using Be.Vlaanderen.Basisregisters.Shaperon;
+using RoadRegistry.BackOffice.Core.ProblemCodes;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.FeatureCompare.V1;
+using RoadRegistry.BackOffice.FeatureCompare.V1.Readers;
+using RoadRegistry.BackOffice.Uploads;
 
-public static class ZipArchiveV2CleanerExtensions
+internal static class ZipArchiveV1CleanerExtensions
 {
-    public static bool UpdateRoadSegmentAttributeMissingFromOrToPositionsOnZipArchiveV2<TDbaseRecord>(this ZipArchive archive,
+    public static bool UpdateRoadSegmentAttributeMissingFromOrToPositions<TDbaseRecord>(this ZipArchive archive,
         IReadOnlyCollection<TDbaseRecord> dbfRecords,
         FileEncoding encoding,
         Func<TDbaseRecord, int?> getRoadSegmentId = null,
@@ -33,7 +33,7 @@ public static class ZipArchiveV2CleanerExtensions
         var dataChanged = false;
 
         var (roadSegmentFeatures, problems) = new RoadSegmentFeatureCompareFeatureReader(encoding)
-            .Read(archive, FeatureType.Change, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
+            .Read(archive, FeatureType.Change, ExtractFileName.Wegsegment, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
 
         var hasRoadSegmentError = problems
             .Where(x => x.Reason != ProblemCode.RoadSegment.StartNode.Missing && x.Reason != ProblemCode.RoadSegment.EndNode.Missing)

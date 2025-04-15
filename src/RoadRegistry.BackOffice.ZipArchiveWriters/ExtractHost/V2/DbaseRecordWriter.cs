@@ -41,22 +41,28 @@ public class DbaseRecordWriter
         IEnumerable<DbaseRecord> dbaseRecords,
         CancellationToken cancellationToken)
     {
-        var dbfFields = dbaseSchema.ToDbfFields();
-
-        var dbfStream = new MemoryStream();
-        using (var dbfWriter = new DbfWriter(dbfStream, dbfFields, _encoding))
-        {
-            foreach (var dbaseRecord in dbaseRecords)
-            {
-                var attributes = dbaseRecord
-                    .ToAttributesTable()
-                    .ToDictionary(x => x.Key, x => x.Value);
-                dbfWriter.Write(attributes);
-            }
-        }
+        var dbfStream = WriteToDbfStream(dbaseSchema, dbaseRecords);
 
         var dbfEntry = archive.CreateEntry(fileName);
         await CopyToEntry(dbfStream, dbfEntry, cancellationToken);
+    }
+
+    public MemoryStream WriteToDbfStream(DbaseSchema dbaseSchema, IEnumerable<DbaseRecord> dbaseRecords)
+    {
+        var dbfFields = dbaseSchema.ToDbfFields();
+
+        var dbfStream = new MemoryStream();
+        using var dbfWriter = new DbfWriter(dbfStream, dbfFields, _encoding);
+
+        foreach (var dbaseRecord in dbaseRecords)
+        {
+            var attributes = dbaseRecord
+                .ToAttributesTable()
+                .ToDictionary(x => x.Key, x => x.Value);
+            dbfWriter.Write(attributes);
+        }
+
+        return dbfStream;
     }
 
     public async Task WriteToArchive(
@@ -74,17 +80,16 @@ public class DbaseRecordWriter
             .Select(record => record.Item1.ToFeature(record.Item2))
             .ToList();
 
-        await WriteToArchive(archive, fileName, featureType, dbfFields, shapeType, features, _encoding, cancellationToken);
+        await WriteToArchive(archive, fileName, featureType, dbfFields, shapeType, features, cancellationToken);
     }
 
-    private static async Task WriteToArchive(
+    public async Task WriteToArchive(
         ZipArchive archive,
         ExtractFileName fileName,
         FeatureType featureType,
         DbfField[] dbfFields,
         ShapeType shapeType,
         ICollection<IFeature> features,
-        Encoding encoding,
         CancellationToken cancellationToken)
     {
         const string projection = """PROJCS["Belge_Lambert_1972",GEOGCS["GCS_Belge_1972",DATUM["D_Belge_1972",SPHEROID["International_1924",6378388.0,297.0]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Lambert_Conformal_Conic"],PARAMETER["False_Easting",150000.01256],PARAMETER["False_Northing",5400088.4378],PARAMETER["Central_Meridian",4.367486666666666],PARAMETER["Standard_Parallel_1",49.8333339],PARAMETER["Standard_Parallel_2",51.16666723333333],PARAMETER["Latitude_Of_Origin",90.0],UNIT["Meter",1.0]]""";
@@ -97,7 +102,7 @@ public class DbaseRecordWriter
         var options = new ShapefileWriterOptions(shapeType, dbfFields)
         {
             Projection = projection,
-            Encoding = encoding
+            Encoding = _encoding
         };
 
         using (var shpWriter = OpenWrite(shpStream, shxStream, dbfStream, prjStream, options))
@@ -117,7 +122,7 @@ public class DbaseRecordWriter
         var prjEntry = archive.CreateEntry(fileName.ToProjectionFileName(featureType));
         await CopyToEntry(prjStream, prjEntry, cancellationToken);
 
-        await archive.CreateCpgEntry(fileName.ToCpgFileName(featureType), encoding, cancellationToken);
+        await archive.CreateCpgEntry(fileName.ToCpgFileName(featureType), _encoding, cancellationToken);
     }
 
     private static async Task CopyToEntry(MemoryStream stream, ZipArchiveEntry entry, CancellationToken cancellationToken)

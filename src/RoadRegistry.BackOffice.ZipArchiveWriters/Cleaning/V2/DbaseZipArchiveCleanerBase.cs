@@ -1,9 +1,11 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning.V2;
 
-using BackOffice.Extensions;
-using Be.Vlaanderen.Basisregisters.Shaperon;
-using Extracts;
 using System.IO.Compression;
+using Be.Vlaanderen.Basisregisters.Shaperon;
+using Dbase;
+using NetTopologySuite.IO.Esri.Dbf;
+using RoadRegistry.BackOffice.Extensions;
+using RoadRegistry.BackOffice.Extracts;
 
 public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveCleaner
     where TDbaseRecord : DbaseRecord, new()
@@ -33,36 +35,34 @@ public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveClea
 
         var records = new List<TDbaseRecord>();
 
-        using (var stream = entry.Open())
-        using (var reader = new BinaryReader(stream, Encoding))
-        {
-            var header = ReadHeader(reader);
-            if (!header.Schema.Equals(_dbaseSchema))
-            {
-                throw new OperationCanceledException();
-            }
+        using var stream = entry.Open();
+        using var copiedStream = stream.CopyToNewMemoryStream();
+        using var reader = new DbfReader(copiedStream, Encoding);
 
-            using (var enumerator = header.CreateDbaseRecordEnumerator<TDbaseRecord>(reader))
+        var schema = ReadSchema(reader);
+        if (!schema.Equals(_dbaseSchema))
+        {
+            throw new OperationCanceledException();
+        }
+
+        using var enumerator = reader.CreateDbaseRecordEnumerator<TDbaseRecord>();
+        while (enumerator.MoveNext())
+        {
+            var record = enumerator.Current;
+            if (record != null)
             {
-                while (enumerator.MoveNext())
-                {
-                    var record = enumerator.Current;
-                    if (record != null)
-                    {
-                        records.Add(record);
-                    }
-                }
+                records.Add(record);
             }
         }
 
         return records.AsReadOnly();
     }
 
-    private DbaseFileHeader ReadHeader(BinaryReader reader)
+    private DbaseSchema ReadSchema(DbfReader reader)
     {
         try
         {
-            return DbaseFileHeader.Read(reader, new DbaseFileHeaderReadBehavior(true));
+            return reader.Fields.ToDbaseSchema();
         }
         catch
         {
@@ -99,42 +99,10 @@ public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveClea
     {
         var fileName = FeatureType.Change.ToDbaseFileName(_fileName);
 
-        var entry = archive.FindEntry(FeatureType.Change.ToDbaseFileName(_fileName));
+        var entry = archive.FindEntry(fileName);
         entry?.Delete();
 
-        await SaveDbaseRecords(archive, fileName, dbfRecords, cancellationToken);
-    }
-
-    private async Task SaveDbaseRecords(ZipArchive archive,
-        string fileName,
-        IReadOnlyCollection<TDbaseRecord> records,
-        CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(archive);
-        ArgumentNullException.ThrowIfNull(fileName);
-        ArgumentNullException.ThrowIfNull(records);
-
-        var dbfEntry = archive.CreateEntry(fileName);
-        var dbfHeader = new DbaseFileHeader(
-            DateTime.Now,
-            DbaseCodePage.Western_European_ANSI,
-            new DbaseRecordCount(records.Count),
-            _dbaseSchema
-        );
-
-        await using (var dbfEntryStream = dbfEntry.Open())
-        using (var dbfWriter =
-               new DbaseBinaryWriter(
-                   dbfHeader,
-                   new BinaryWriter(dbfEntryStream, Encoding, true)))
-        {
-            foreach (var dbfRecord in records)
-            {
-                dbfWriter.Write(dbfRecord);
-            }
-
-            dbfWriter.Writer.Flush();
-            await dbfEntryStream.FlushAsync(cancellationToken);
-        }
+        var writer = new RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.V2.DbaseRecordWriter(Encoding);
+        await writer.WriteToArchive(archive, fileName, _dbaseSchema, dbfRecords, cancellationToken);
     }
 }

@@ -26,8 +26,6 @@ using Core;
 using Editor.Schema;
 using Extensions;
 using FeatureCompare;
-using FeatureCompare.V1.Readers;
-using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Hosts.Infrastructure.Extensions;
@@ -233,7 +231,7 @@ public class Startup
             .AddSingleton(FileEncoding.WindowsAnsi)
             .AddStreetNameCache()
             .AddFeatureCompare()
-            .AddSingleton<IBeforeFeatureCompareZipArchiveCleaner, BeforeFeatureCompareZipArchiveCleaner>()
+            .AddSingleton<IBeforeFeatureCompareZipArchiveCleanerFactory, BeforeFeatureCompareZipArchiveCleanerFactory>()
             .AddSingleton<ProblemDetailsHelper>()
             .RegisterOptions<ZipArchiveWriterOptions>()
             .RegisterOptions<ExtractDownloadsOptions>()

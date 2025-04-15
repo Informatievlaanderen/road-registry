@@ -589,10 +589,9 @@ public class ExtractsZipArchiveTestData : IDisposable
         var gradeSeparatedJunctionChangeStream = Fixture.CreateDbfFileWithOneRecord(GradeSeparatedJunctionDbaseRecord.Schema, gradeSeparatedJunctionDbaseRecord);
 
         var transactionZoneProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
-        var transactionZoneShapeStream = Fixture.CreateTransactionZoneShapeFile(new[]
-        {
+        var transactionZoneShapeStream = Fixture.CreateTransactionZoneShapeFile([
             Fixture.Create<PolygonShapeContent>()
-        });
+        ]);
         var transactionZoneDbaseStream = Fixture.CreateDbfFileWithOneRecord<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema);
 
         return CreateZipArchive(

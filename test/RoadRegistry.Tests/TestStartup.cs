@@ -26,6 +26,7 @@ using RoadRegistry.BackOffice.FeatureCompare.V1.Validation;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
+using RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning.V1;
 using SqlStreamStore;
 
 public abstract class TestStartup
@@ -91,7 +92,7 @@ public abstract class TestStartup
                     .AddSingleton(FileEncoding.UTF8)
                     .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
                     .AddTransient<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
-                    .AddSingleton<IBeforeFeatureCompareZipArchiveCleaner, BeforeFeatureCompareZipArchiveCleaner>()
+                    .AddSingleton<IBeforeFeatureCompareZipArchiveCleanerFactory, BeforeFeatureCompareZipArchiveCleanerFactory>()
                     .AddFeatureCompare()
                     .AddValidatorsFromAssemblies(availableModuleAssemblyCollection)
                     .AddFeatureToggles<ApplicationFeatureToggle>(context.Configuration)

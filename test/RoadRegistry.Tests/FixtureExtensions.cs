@@ -5,14 +5,18 @@ using System.Text;
 using AutoFixture;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NodaTime;
 using NodaTime.Text;
 using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Extensions;
+using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.V2;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = NetTopologySuite.Geometries.Polygon;
@@ -29,32 +33,13 @@ public static class Customizations
     public static MemoryStream CreateDbfFile<T>(this IFixture fixture, DbaseSchema schema, ICollection<T> records, Action<T> updateRecord = null)
         where T : DbaseRecord
     {
-        var dbaseChangeStream = new MemoryStream();
-
-        using (var writer = new DbaseBinaryWriter(
-                   new DbaseFileHeader(
-                       fixture.Create<DateTime>(),
-                       DbaseCodePage.Western_European_ANSI,
-                       new DbaseRecordCount(records.Count),
-                       schema),
-                   new BinaryWriter(
-                       dbaseChangeStream,
-                       Encoding.UTF8,
-                       true)))
+        foreach (var record in records)
         {
-            if (records.Any())
-            {
-                foreach (var record in records)
-                {
-                    updateRecord?.Invoke(record);
-                    writer.Write(record);
-                }
-            }
-            else
-            {
-                writer.Write(Array.Empty<T>());
-            }
+            updateRecord?.Invoke(record);
         }
+
+        var writer = new DbaseRecordWriter(Encoding.UTF8);
+        var dbaseChangeStream = writer.WriteToDbfStream(schema, records);
 
         return dbaseChangeStream;
     }
@@ -68,7 +53,7 @@ public static class Customizations
     public static MemoryStream CreateDbfFileWithOneRecord<T>(this IFixture fixture, DbaseSchema schema, T record, Action<T> updateRecord = null)
         where T : DbaseRecord
     {
-        return CreateDbfFile(fixture, schema, new[] { record }, updateRecord);
+        return CreateDbfFile(fixture, schema, [record], updateRecord);
     }
 
     public static MemoryStream CreateEmptyDbfFile<T>(this IFixture fixture, DbaseSchema schema)
@@ -80,13 +65,8 @@ public static class Customizations
     public static MemoryStream CreateEmptyProjectionFormatFile(this IFixture fixture)
     {
         var projectionFormatStream = new MemoryStream();
-        using (var writer = new StreamWriter(
-                   projectionFormatStream,
-                   Encoding.UTF8,
-                   leaveOpen: true))
-        {
-            writer.Write(string.Empty);
-        }
+        using var writer = new StreamWriter(projectionFormatStream, Encoding.UTF8, leaveOpen: true);
+        writer.Write(string.Empty);
 
         return projectionFormatStream;
     }
@@ -121,35 +101,36 @@ public static class Customizations
     public static MemoryStream CreateProjectionFormatFileWithOneRecord(this IFixture fixture)
     {
         var projectionFormatStream = new MemoryStream();
-        using (var writer = new StreamWriter(
-                   projectionFormatStream,
-                   Encoding.UTF8,
-                   leaveOpen: true))
-        {
-            writer.Write(ProjectionFormat.BelgeLambert1972.Content);
-        }
+        using var writer = new StreamWriter(
+            projectionFormatStream,
+            Encoding.UTF8,
+            leaveOpen: true);
+        writer.Write(ProjectionFormat.BelgeLambert1972.Content);
 
         return projectionFormatStream;
     }
 
     public static MemoryStream CreateRoadNodeShapeFile(this IFixture fixture, ICollection<PointShapeContent> shapes)
     {
-        return CreateShapeFile(fixture, ShapeType.Point, shapes, shape => BoundingBox3D.FromGeometry(shape.Shape));
+        return CreateShapeFile(NetTopologySuite.IO.Esri.ShapeType.Point, shapes
+            .Select(x => Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPoint(x.Shape)));
     }
 
     public static MemoryStream CreateRoadNodeShapeFileWithOneRecord(this IFixture fixture)
     {
-        return CreateRoadNodeShapeFile(fixture, new[] { fixture.Create<PointShapeContent>() });
+        return CreateRoadNodeShapeFile(fixture, [fixture.Create<PointShapeContent>()]);
     }
 
     public static MemoryStream CreateRoadSegmentShapeFile(this IFixture fixture, ICollection<PolyLineMShapeContent> shapes)
     {
-        return CreateShapeFile(fixture, ShapeType.PolyLineM, shapes, shape => shape.Shape.NumberOfPoints > 0 ? BoundingBox3D.FromGeometry(shape.Shape) : BoundingBox3D.Empty);
+        return CreateShapeFile(NetTopologySuite.IO.Esri.ShapeType.PolyLineM, shapes
+            .Select(x => Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiLineString(x.Shape)));
     }
 
     public static MemoryStream CreateTransactionZoneShapeFile(this IFixture fixture, ICollection<PolygonShapeContent> shapes)
     {
-        return CreateShapeFile(fixture, ShapeType.Polygon, shapes, shape => shape.Shape.NumberOfPoints > 0 ? BoundingBox3D.FromGeometry(shape.Shape) : BoundingBox3D.Empty);
+        return CreateShapeFile(NetTopologySuite.IO.Esri.ShapeType.Polygon, shapes
+            .Select(x => Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPolygon(x.Shape)));
     }
 
     public static MemoryStream CreateRoadSegmentShapeFileWithOneRecord(this IFixture fixture, PolyLineMShapeContent polyLineMShapeContent = null)
@@ -159,58 +140,33 @@ public static class Customizations
             polyLineMShapeContent = fixture.Create<PolyLineMShapeContent>();
         }
 
-        return CreateRoadSegmentShapeFile(fixture, new[] { polyLineMShapeContent });
+        return CreateRoadSegmentShapeFile(fixture, [polyLineMShapeContent]);
     }
 
-    public static MemoryStream CreateShapeFile<TShapeContent>(this IFixture fixture, ShapeType shapeType, ICollection<TShapeContent> shapes, Func<TShapeContent, BoundingBox3D> getBoundingBox3D)
-        where TShapeContent : ShapeContent
+    private static MemoryStream CreateShapeFile(NetTopologySuite.IO.Esri.ShapeType shapeType, IEnumerable<Geometry> geometries)
     {
-        ArgumentNullException.ThrowIfNull(shapes);
+        ArgumentNullException.ThrowIfNull(geometries);
 
-        var roadNodeShapeChangeStream = new MemoryStream();
+        var fileName = ExtractFileName.Transactiezones;
+        var featureType = FeatureType.Change;
 
-        var shapeRecords = new List<ShapeRecord>();
-        var fileWordLength = ShapeFileHeader.Length;
-        var boundingBox3D = BoundingBox3D.Empty;
-        var recordNumber = RecordNumber.Initial;
-        foreach (var shape in shapes)
-        {
-            boundingBox3D = boundingBox3D.ExpandWith(getBoundingBox3D(shape));
+        var writer = new DbaseRecordWriter(Encoding.UTF8);
+        var archiveStream = new MemoryStream();
+        var archive = new ZipArchive(archiveStream, ZipArchiveMode.Update);
 
-            var shapeRecord = shape.RecordAs(recordNumber);
-            fileWordLength = fileWordLength.Plus(shapeRecord.Length);
-            shapeRecords.Add(shapeRecord);
+        var features = geometries
+            .Select(x => (IFeature)new Feature(x, new AttributesTable()))
+            .ToList();
+        writer.WriteToArchive(archive, fileName, featureType, [], shapeType, features, CancellationToken.None).GetAwaiter().GetResult();
 
-            recordNumber = recordNumber.Next();
-        }
+        var entry = archive.FindEntry(fileName.ToShapeFileName(featureType));
 
-        using (var writer = new ShapeBinaryWriter(
-                   new ShapeFileHeader(
-                       fileWordLength,
-                       shapeType,
-                       boundingBox3D),
-                   new BinaryWriter(
-                       roadNodeShapeChangeStream,
-                       Encoding.UTF8,
-                       true)))
-        {
-            if (shapeRecords.Any())
-            {
-                foreach (var shapeRecord in shapeRecords)
-                {
-                    writer.Write(shapeRecord);
-                }
-            }
-            else
-            {
-                writer.Write(Array.Empty<ShapeRecord>());
-            }
-        }
-
-        return roadNodeShapeChangeStream;
+        using var entryStream = entry.Open();
+        return entryStream.CopyToNewMemoryStream();
     }
 
-    public static ZipArchive CreateUploadZipArchive(this Fixture fixture, ExtractsZipArchiveTestData testData,
+    public static ZipArchive CreateUploadZipArchive(this Fixture fixture,
+        ExtractsZipArchiveTestData testData,
         MemoryStream roadSegmentShapeChangeStream = null,
         MemoryStream roadSegmentProjectionFormatStream = null,
         MemoryStream roadSegmentDbaseChangeStream = null,
@@ -323,7 +279,7 @@ public static class Customizations
 
         archiveStream.Position = 0;
 
-        return new ZipArchive(archiveStream, ZipArchiveMode.Read, false, Encoding.UTF8);
+        return new ZipArchive(archiveStream, ZipArchiveMode.Update, false, Encoding.UTF8);
     }
 
     public static T CreateWhichIsDifferentThan<T>(this IFixture fixture, params T[] illegalValues)

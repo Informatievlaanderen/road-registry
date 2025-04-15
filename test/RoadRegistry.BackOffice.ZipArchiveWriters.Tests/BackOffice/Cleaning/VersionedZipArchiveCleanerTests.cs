@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.Cleaning;
 
 using System.IO.Compression;
 using Moq;

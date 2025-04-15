@@ -1,8 +1,8 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning.V2;
 
-using Extracts;
-using Extracts.Dbase.RoadSegments;
 using System.IO.Compression;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 
 public class RoadSegmentLaneAttributeZipArchiveCleaner : VersionedZipArchiveCleaner
 {
@@ -27,7 +27,7 @@ public class RoadSegmentLaneAttributeZipArchiveCleaner : VersionedZipArchiveClea
         protected override bool FixDataInArchive(ZipArchive archive,
             IReadOnlyCollection<RoadSegmentLaneAttributeDbaseRecord> dbfRecords)
         {
-            return archive.UpdateRoadSegmentAttributeMissingFromOrToPositionsOnZipArchiveV1(dbfRecords,
+            return archive.UpdateRoadSegmentAttributeMissingFromOrToPositions(dbfRecords,
                 Encoding,
                 record => record.WS_OIDN.Value,
                 record => record.VANPOS.Value,
@@ -47,7 +47,7 @@ public class RoadSegmentLaneAttributeZipArchiveCleaner : VersionedZipArchiveClea
         protected override bool FixDataInArchive(ZipArchive archive,
             IReadOnlyCollection<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentLaneAttributeDbaseRecord> dbfRecords)
         {
-            return archive.UpdateRoadSegmentAttributeMissingFromOrToPositionsOnZipArchiveV1(dbfRecords,
+            return archive.UpdateRoadSegmentAttributeMissingFromOrToPositions(dbfRecords,
                 Encoding,
                 record => record.WS_OIDN.Value,
                 record => record.VANPOS.Value,
@@ -67,7 +67,7 @@ public class RoadSegmentLaneAttributeZipArchiveCleaner : VersionedZipArchiveClea
         protected override bool FixDataInArchive(ZipArchive archive,
             IReadOnlyCollection<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentLaneAttributeDbaseRecord> dbfRecords)
         {
-            return archive.UpdateRoadSegmentAttributeMissingFromOrToPositionsOnZipArchiveV1(dbfRecords,
+            return archive.UpdateRoadSegmentAttributeMissingFromOrToPositions(dbfRecords,
                 Encoding,
                 record => record.WS_OIDN.Value,
                 record => record.VANPOS.Value,
