@@ -7,9 +7,9 @@ using NetTopologySuite.IO.Esri;
 using NetTopologySuite.IO.Esri.Shapefiles.Readers;
 using NetTopologySuite.IO.Esri.Shp;
 
-public class ExtractGeometryShapeFileReader
+public class ExtractGeometryShapeFileReaderV2
 {
-    public (ShapeType, Geometry) Read(Stream stream)
+    public (ShapeType, Geometry?) Read(Stream stream)
     {
         stream.Position = 0;
 

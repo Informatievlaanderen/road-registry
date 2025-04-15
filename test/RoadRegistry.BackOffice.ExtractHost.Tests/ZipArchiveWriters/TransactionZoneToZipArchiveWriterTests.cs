@@ -103,7 +103,7 @@ public class TransactionZoneToZipArchiveWriterTests
 
             ms.Position = 0;
 
-            var (_, geometry) = new ExtractGeometryShapeFileReader().Read(ms);
+            var (_, geometry) = new ExtractGeometryShapeFileReaderV1().Read(ms);
 
             return (Polygon)geometry.ToMultiPolygon().Geometries.Single();
         }
