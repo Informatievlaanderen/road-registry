@@ -1,11 +1,11 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning.V2;
 
 using System.IO.Compression;
+using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase;
-using NetTopologySuite.IO.Esri.Dbf;
-using RoadRegistry.BackOffice.Extensions;
-using RoadRegistry.BackOffice.Extracts;
+using Dbase.V2;
+using Exceptions;
+using Extracts;
 
 public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveCleaner
     where TDbaseRecord : DbaseRecord, new()
@@ -26,45 +26,26 @@ public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveClea
 
     private IReadOnlyCollection<TDbaseRecord> ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName)
     {
-        var dbfFileName = featureType.ToDbaseFileName(fileName);
-        var entry = archive.FindEntry(dbfFileName);
-        if (entry is null)
-        {
-            throw new OperationCanceledException();
-        }
-
-        var records = new List<TDbaseRecord>();
-
-        using var stream = entry.Open();
-        using var copiedStream = stream.CopyToNewMemoryStream();
-        using var reader = new DbfReader(copiedStream, Encoding);
-
-        var schema = ReadSchema(reader);
-        if (!schema.Equals(_dbaseSchema))
-        {
-            throw new OperationCanceledException();
-        }
-
-        using var enumerator = reader.CreateDbaseRecordEnumerator<TDbaseRecord>();
-        while (enumerator.MoveNext())
-        {
-            var record = enumerator.Current;
-            if (record != null)
-            {
-                records.Add(record);
-            }
-        }
-
-        return records.AsReadOnly();
-    }
-
-    private DbaseSchema ReadSchema(DbfReader reader)
-    {
         try
         {
-            return reader.Fields.ToDbaseSchema();
+            using var dbase = new DbaseRecordReader(Encoding)
+                .ReadFromArchive<TDbaseRecord>(archive, fileName, featureType, _dbaseSchema);
+
+            var records = new List<TDbaseRecord>();
+
+            using var enumerator = dbase.RecordEnumerator;
+            while (enumerator.MoveNext())
+            {
+                var record = enumerator.Current;
+                if (record != null)
+                {
+                    records.Add(record);
+                }
+            }
+
+            return records.AsReadOnly();
         }
-        catch
+        catch (ZipArchiveValidationException)
         {
             throw new OperationCanceledException();
         }
@@ -102,7 +83,7 @@ public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveClea
         var entry = archive.FindEntry(fileName);
         entry?.Delete();
 
-        var writer = new RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.V2.DbaseRecordWriter(Encoding);
+        var writer = new DbaseRecordWriter(Encoding);
         await writer.WriteToArchive(archive, fileName, _dbaseSchema, dbfRecords, cancellationToken);
     }
 }

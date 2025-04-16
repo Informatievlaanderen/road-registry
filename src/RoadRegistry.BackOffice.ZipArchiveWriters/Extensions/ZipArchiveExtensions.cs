@@ -6,6 +6,7 @@ using Extracts;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using ShapeFile;
+using ShapeFile.V1;
 
 internal static class ZipArchiveExtensions
 {

@@ -17,6 +17,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 using ShapeFile;
+using ShapeFile.V1;
 using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public class TransactionZoneToZipArchiveWriterTests

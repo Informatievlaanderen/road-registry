@@ -1,25 +1,23 @@
-﻿namespace RoadRegistry.BackOffice.ShapeFile;
+﻿namespace RoadRegistry.BackOffice.ShapeFile.V2;
 
 using System;
+using System.Collections;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase;
-using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO.Esri.Dbf;
-using NetTopologySuite.IO.Esri.Dbf.Fields;
 using NetTopologySuite.IO.Esri.Shapefiles.Readers;
+using RoadRegistry.BackOffice.Dbase.V2;
 
 public static class ShapefileExtensions
 {
-    public static IShapefileRecordEnumerator<TDbaseRecord> CreateShapefileRecordEnumerator<TDbaseRecord>(this ShapefileReader reader)
+    internal static IShapeFileRecordEnumerator<TDbaseRecord> CreateShapefileRecordEnumerator<TDbaseRecord>(this ShapefileReader reader)
         where TDbaseRecord : DbaseRecord, new()
     {
         ArgumentNullException.ThrowIfNull(reader);
-        return new ShapefileRecordEnumerator<TDbaseRecord>(reader);
+        return new ShapeFileRecordEnumerator<TDbaseRecord>(reader);
     }
 
-    private class ShapefileRecordEnumerator<TDbaseRecord> : IShapefileRecordEnumerator<TDbaseRecord>
+    private class ShapeFileRecordEnumerator<TDbaseRecord> : IShapeFileRecordEnumerator<TDbaseRecord>
         where TDbaseRecord : DbaseRecord, new()
         {
             private enum State { Initial, Started, Ended }
@@ -29,7 +27,7 @@ public static class ShapefileExtensions
             private (TDbaseRecord, Geometry) _current;
             private State _state;
 
-            public ShapefileRecordEnumerator(ShapefileReader reader)
+            public ShapeFileRecordEnumerator(ShapefileReader reader)
             {
                 _reader = reader.ThrowIfNull();
                 _current = default;
@@ -93,7 +91,7 @@ public static class ShapefileExtensions
                 throw new NotSupportedException("Reset is not supported. Enumeration can only be performed once.");
             }
 
-            object System.Collections.IEnumerator.Current => Current;
+            object IEnumerator.Current => Current;
 
             public (TDbaseRecord, Geometry) Current
             {

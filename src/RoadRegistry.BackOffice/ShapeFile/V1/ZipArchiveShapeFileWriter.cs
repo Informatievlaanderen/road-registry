@@ -1,11 +1,11 @@
-namespace RoadRegistry.BackOffice.ShapeFile;
+namespace RoadRegistry.BackOffice.ShapeFile.V1;
 
-using NetTopologySuite.Features;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using NetTopologySuite.IO.Streams;

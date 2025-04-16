@@ -12,6 +12,7 @@ using Extracts.Dbase.RoadSegments;
 using Models;
 using NetTopologySuite.Geometries;
 using ShapeFile;
+using ShapeFile.V1;
 using Translators;
 using Uploads;
 using Validation;

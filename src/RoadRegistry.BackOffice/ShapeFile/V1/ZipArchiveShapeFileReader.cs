@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.ShapeFile;
+namespace RoadRegistry.BackOffice.ShapeFile.V1;
 
 using System.Collections.Generic;
 using System.IO;

@@ -10,6 +10,8 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using NetTopologySuite.IO.Esri;
 using ShapeFile;
+using ShapeFile.V1;
+using ShapeFile.V2;
 using GeometryTranslator = BackOffice.GeometryTranslator;
 using Polygon = NetTopologySuite.Geometries.Polygon;
 using Problem = Core.Problem;

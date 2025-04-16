@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.ShapeFile;
+namespace RoadRegistry.BackOffice.ShapeFile.V2;
 
 using System.IO;
 using System.Linq;

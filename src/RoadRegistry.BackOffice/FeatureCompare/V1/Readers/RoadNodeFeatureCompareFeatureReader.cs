@@ -11,6 +11,7 @@ using Extracts;
 using Extracts.Dbase.RoadNodes;
 using Models;
 using ShapeFile;
+using ShapeFile.V1;
 using Translators;
 using Uploads;
 using Validation;

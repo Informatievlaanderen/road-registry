@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.Dbase;
+﻿namespace RoadRegistry.BackOffice.Dbase.V2;
 
 using System;
 using System.Linq;
@@ -147,7 +147,7 @@ public static class DbaseExtensions
         throw new NotImplementedException($"Unknown field type: {dbaseFieldValue.Field.FieldType}");
     }
 
-    public static IDbaseRecordEnumerator<TDbaseRecord> CreateDbaseRecordEnumerator<TDbaseRecord>(this DbfReader reader)
+    internal static IDbaseRecordEnumerator<TDbaseRecord> CreateDbaseRecordEnumerator<TDbaseRecord>(this DbfReader reader)
         where TDbaseRecord : DbaseRecord, new()
     {
         ArgumentNullException.ThrowIfNull(reader);

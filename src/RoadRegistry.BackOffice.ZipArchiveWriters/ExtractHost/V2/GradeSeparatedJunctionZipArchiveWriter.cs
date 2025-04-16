@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.V2;
 
 using System.IO.Compression;
 using System.Text;
+using Dbase.V2;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.GradeSeparatedJuntions;

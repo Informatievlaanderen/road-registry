@@ -4,12 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Text;
-using System.Threading;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase;
-using Extensions;
+using Dbase.V2;
+using Exceptions;
 using Extracts;
-using NetTopologySuite.IO.Esri.Dbf;
 using Uploads;
 
 public abstract class ZipArchiveDbaseFeatureReader<TDbaseRecord, TFeature> : IZipArchiveFeatureReader<TFeature>
@@ -32,41 +30,17 @@ public abstract class ZipArchiveDbaseFeatureReader<TDbaseRecord, TFeature> : IZi
 
     public (List<TFeature>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ZipArchiveFeatureReaderContext context)
     {
-        var problems = ZipArchiveProblems.None;
-
-        var dbfFileName = featureType.ToDbaseFileName(FileName);
-        var entry = archive.FindEntry(dbfFileName);
-        if (entry is null)
-        {
-            problems += problems.RequiredFileMissing(dbfFileName);
-
-            return ([], problems);
-        }
-
-        using var entryStream = entry.Open();
-        using var stream = entryStream.CopyToNewMemoryStream();
-        using var reader = new DbfReader(stream, _encoding);
-
         try
         {
-            var schema = ReadSchema(reader);
-            if (!schema.Equals(_dbaseSchema))
-            {
-                throw new DbaseSchemaMismatchException(dbfFileName, _dbaseSchema, schema);
-            }
+            using var dbase = new DbaseRecordReader(_encoding)
+                .ReadFromArchive<TDbaseRecord>(archive, FileName, featureType, _dbaseSchema);
 
-            return ReadFeatures(featureType, entry, reader.CreateDbaseRecordEnumerator<TDbaseRecord>(), context);
+            return ReadFeatures(featureType, dbase.DbaseEntry, dbase.RecordEnumerator, context);
         }
-        catch (DbaseHeaderFormatException ex)
+        catch (ZipArchiveValidationException ex)
         {
-            problems += entry.HasDbaseHeaderFormatError(ex.InnerException);
+            return ([], ex.Problems);
         }
-        catch (DbaseSchemaMismatchException ex)
-        {
-            problems += entry.HasDbaseSchemaMismatch(ex.ExpectedSchema, ex.ActualSchema);
-        }
-
-        return ([], problems);
     }
 
     protected virtual (List<TFeature>, ZipArchiveProblems) ReadFeatures(
@@ -108,17 +82,5 @@ public abstract class ZipArchiveDbaseFeatureReader<TDbaseRecord, TFeature> : IZi
         }
 
         return (features, problems);
-    }
-
-    private DbaseSchema ReadSchema(DbfReader reader)
-    {
-        try
-        {
-            return reader.Fields.ToDbaseSchema();
-        }
-        catch (Exception exception)
-        {
-            throw new DbaseHeaderFormatException(exception);
-        }
     }
 }

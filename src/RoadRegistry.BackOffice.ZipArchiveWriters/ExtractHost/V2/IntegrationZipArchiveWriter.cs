@@ -10,6 +10,7 @@ using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.Editor.Schema.RoadNodes;
 using RoadRegistry.Editor.Schema.RoadSegments;
+using ShapeFile.V2;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public class IntegrationZipArchiveWriter : IZipArchiveWriter
@@ -92,7 +93,7 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
                 .ToList();
             var cachedStreetNames = await _streetNameCache.GetStreetNamesById(cachedStreetNameIds, cancellationToken);
 
-            var dbaseRecordWriter = new DbaseRecordWriter(_encoding);
+            var writer = new ShapeFileRecordWriter(_encoding);
 
             //TODO-pr in de oude writer werd het wegschrijven van de dbase in batches gedaan, is dit nog nodig? mss voor memory?
             var records = integrationSegments
@@ -112,14 +113,14 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
                 })
                 .ToList();
 
-            await dbaseRecordWriter.WriteToArchive(archive, extractFilename, featureType, RoadSegmentDbaseRecord.Schema, ShapeType.PolyLine, records, cancellationToken);
+            await writer.WriteToArchive(archive, extractFilename, featureType, ShapeType.PolyLine, RoadSegmentDbaseRecord.Schema, records, cancellationToken);
         }
 
         async Task WriteRoadNodes()
         {
             const ExtractFileName extractFilename = ExtractFileName.Wegknoop;
 
-            var dbaseRecordWriter = new DbaseRecordWriter(_encoding);
+            var writer = new ShapeFileRecordWriter(_encoding);
 
             var records = integrationNodes
                 .OrderBy(record => record.Id)
@@ -131,7 +132,7 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
                     return ((DbaseRecord)dbfRecord, node.Geometry);
                 });
 
-            await dbaseRecordWriter.WriteToArchive(archive, extractFilename, featureType, RoadNodeDbaseRecord.Schema, ShapeType.Point, records, cancellationToken);
+            await writer.WriteToArchive(archive, extractFilename, featureType, ShapeType.Point, RoadNodeDbaseRecord.Schema, records, cancellationToken);
         }
     }
 }

@@ -10,12 +10,14 @@ using NetTopologySuite.Geometries;
 using NodaTime;
 using NodaTime.Text;
 using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Dbase.V2;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.BackOffice.ShapeFile.V2;
 using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.V2;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
@@ -150,14 +152,14 @@ public static class Customizations
         var fileName = ExtractFileName.Transactiezones;
         var featureType = FeatureType.Change;
 
-        var writer = new DbaseRecordWriter(Encoding.UTF8);
+        var writer = new ShapeFileRecordWriter(Encoding.UTF8);
         var archiveStream = new MemoryStream();
         var archive = new ZipArchive(archiveStream, ZipArchiveMode.Update);
 
         var features = geometries
             .Select(x => (IFeature)new Feature(x, new AttributesTable()))
             .ToList();
-        writer.WriteToArchive(archive, fileName, featureType, [], shapeType, features, CancellationToken.None).GetAwaiter().GetResult();
+        writer.WriteToArchive(archive, fileName, featureType, shapeType, [], features, CancellationToken.None).GetAwaiter().GetResult();
 
         var entry = archive.FindEntry(fileName.ToShapeFileName(featureType));
 
