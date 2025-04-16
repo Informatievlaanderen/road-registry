@@ -24,6 +24,7 @@ public abstract class AutofacBasedTestBase
         {
             var containerBuilder = new ContainerBuilder();
             containerBuilder.Register(_ => new EventSourcedEntityMap());
+            containerBuilder.RegisterModule(new SqlStreamStoreModule());
 
             var services = new ServiceCollection();
             ConfigureServices(services);
@@ -31,7 +32,6 @@ public abstract class AutofacBasedTestBase
             ConfigureEventHandling(containerBuilder);
             ConfigureCommandHandling(containerBuilder);
             ConfigureContainer(containerBuilder);
-            containerBuilder.RegisterModule(new SqlStreamStoreModule());
 
             containerBuilder.UseAggregateSourceTesting(CreateFactComparer(), CreateExceptionComparer());
 
@@ -54,16 +54,6 @@ public abstract class AutofacBasedTestBase
     protected IFactComparer FactComparer => Container.Resolve<IFactComparer>();
     protected IExceptionComparer ExceptionComparer => Container.Resolve<IExceptionComparer>();
     protected ILogger Logger => Container.Resolve<ILogger>();
-
-    protected void Assert(IExceptionCentricTestSpecificationBuilder builder)
-    {
-        builder.Assert(ExceptionCentricTestSpecificationRunner, ExceptionComparer, Logger);
-    }
-
-    protected void Assert(IEventCentricTestSpecificationBuilder builder)
-    {
-        builder.Assert(EventCentricTestSpecificationRunner, FactComparer, Logger);
-    }
 
     protected virtual void ConfigureServices(IServiceCollection services)
     {

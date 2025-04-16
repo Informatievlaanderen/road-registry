@@ -12,6 +12,7 @@ using Hosts;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Newtonsoft.Json;
 using NodaTime;
@@ -34,13 +35,13 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     private static readonly JsonSerializerSettings Settings =
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
-    private ScenarioRunner _runner;
+    private ScenarioRunner? _runner;
+    private Func<ScenarioRunner> _runnerFactory;
+    private ScenarioRunner Runner => _runner ??= _runnerFactory();
 
     protected RoadRegistryTestBase(ITestOutputHelper testOutputHelper, ComparisonConfig comparisonConfig = null)
         : base(testOutputHelper)
     {
-        ScopedContainer = Container.BeginLifetimeScope();
-
         ObjectProvider = new Fixture();
         ObjectProvider.Register(() => (ISnapshotStrategy)NoSnapshotStrategy.Instance);
 
@@ -48,34 +49,28 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
         Clock = new FakeClock(NodaConstants.UnixEpoch);
         ZipArchiveBeforeFeatureCompareValidator = new FakeZipArchiveBeforeFeatureCompareValidator();
         ExtractUploadFailedEmailClient = new FakeExtractUploadFailedEmailClient();
-        LoggerFactory = Container.Resolve<ILoggerFactory>();
+        SetStore(new InMemoryStreamStore(), comparisonConfig);
 
-        WithStore(new InMemoryStreamStore(), comparisonConfig);
-        RoadRegistryContext = new RoadRegistryContext(
-            ScopedContainer.Resolve<EventSourcedEntityMap>(),
-            Store,
-            new FakeRoadNetworkSnapshotReader(),
-            Settings,
-            Mapping,
-            EnrichEvent.WithTime(Clock),
-            LoggerFactory);
-        Organizations = new Organizations(
-            ScopedContainer.Resolve<EventSourcedEntityMap>(),
-            Store,
-            Settings,
-            Mapping);
+        RoadRegistryContext = ScopedContainer.Resolve<IRoadRegistryContext>();
     }
 
     protected override void ConfigureContainer(ContainerBuilder containerBuilder)
     {
         base.ConfigureContainer(containerBuilder);
 
+        containerBuilder.RegisterModule<ContextModule>();
+
         containerBuilder.RegisterInstance(new EventSourcedEntityMap());
         containerBuilder.RegisterInstance(new FakeRoadNetworkIdGenerator()).As<IRoadNetworkIdGenerator>();
         containerBuilder.RegisterInstance(TicketingMock.Object);
+        containerBuilder.RegisterInstance(Store);
+        containerBuilder.RegisterInstance(LoggerFactory);
+        containerBuilder.RegisterInstance(EnrichEvent.WithTime(Clock));
+        containerBuilder.RegisterInstance(new FakeRoadNetworkSnapshotReader()).As<IRoadNetworkSnapshotReader>();
     }
 
-    protected ILifetimeScope ScopedContainer { get; }
+    private ILifetimeScope? _scopedContainer;
+    protected ILifetimeScope ScopedContainer => _scopedContainer ??= Container.BeginLifetimeScope();
     public MemoryBlobClient Client { get; }
     public FakeClock Clock { get; }
     public Fixture ObjectProvider { get; }
@@ -83,8 +78,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     public IZipArchiveBeforeFeatureCompareValidator ZipArchiveBeforeFeatureCompareValidator { get; set; }
     public IExtractUploadFailedEmailClient ExtractUploadFailedEmailClient { get; set; }
     protected IRoadRegistryContext RoadRegistryContext { get; }
-    protected Organizations Organizations { get; }
-    protected ILoggerFactory LoggerFactory { get; }
+    protected ILoggerFactory LoggerFactory { get; } = new NullLoggerFactory();
     protected Mock<ITicketing> TicketingMock { get; } = new();
 
     public void Dispose()
@@ -103,7 +97,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
             })
             .Build();
 
-        builder.Register(a => (IConfiguration)configuration);
+        builder.Register(_ => (IConfiguration)configuration);
         builder.RegisterInstance<SqsLambdaHandlerOptions>(new FakeSqsLambdaHandlerOptions());
 
         builder
@@ -125,7 +119,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
 
     public Task Given(RecordedEvent[] events)
     {
-        return _runner.WriteGivens(events);
+        return Runner.WriteGivens(events);
     }
 
     public Task Run(Func<Scenario, IExpectExceptionScenarioBuilder> builder)
@@ -135,7 +129,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
             throw new ArgumentNullException(nameof(builder));
         }
 
-        return builder(new Scenario()).AssertAsync(_runner);
+        return builder(new Scenario()).AssertAsync(Runner);
     }
 
     public Task Run(Func<Scenario, IExpectEventsScenarioBuilder> builder)
@@ -153,10 +147,10 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
             .Select(x => x.Event)
             .ToList());
 
-        return scenarioBuilder.AssertAsync(_runner);
+        return scenarioBuilder.AssertAsync(Runner);
     }
 
-    public RoadRegistryTestBase WithStore(IStreamStore store, ComparisonConfig comparisonConfig = null)
+    private void SetStore(IStreamStore store, ComparisonConfig? comparisonConfig)
     {
         Store = store.ThrowIfNull();
 
@@ -165,13 +159,12 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
             .Setup(x => x.Create(It.IsAny<string>()))
             .Returns(ZipArchiveBeforeFeatureCompareValidator);
 
-        _runner = new ScenarioRunner(
-            Resolve.WhenEqualToMessage(new CommandHandlerModule[]
-            {
+        _runnerFactory = () => new ScenarioRunner(
+            Resolve.WhenEqualToMessage([
                 new RoadNetworkCommandModule(
                     Store,
                     ScopedContainer,
-                    new FakeRoadNetworkSnapshotReader(),
+                    Container.Resolve<IRoadNetworkSnapshotReader>(),
                     Clock,
                     new FakeExtractUploadFailedEmailClient(),
                     LoggerFactory),
@@ -179,7 +172,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
                     new RoadNetworkExtractUploadsBlobClient(Client),
                     Store,
                     ScopedContainer,
-                    new FakeRoadNetworkSnapshotReader(),
+                    Container.Resolve<IRoadNetworkSnapshotReader>(),
                     zipArchiveBeforeFeatureCompareValidatorFactoryMock.Object,
                     ExtractUploadFailedEmailClient,
                     Clock,
@@ -187,10 +180,10 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
                 new OrganizationCommandModule(
                     Store,
                     ScopedContainer,
-                    new FakeRoadNetworkSnapshotReader(),
+                    Container.Resolve<IRoadNetworkSnapshotReader>(),
                     Clock,
                     LoggerFactory)
-            }),
+            ]),
             Store,
             Settings,
             Mapping,
@@ -199,7 +192,5 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
         {
             ComparisonConfig = comparisonConfig
         };
-
-        return this;
     }
 }

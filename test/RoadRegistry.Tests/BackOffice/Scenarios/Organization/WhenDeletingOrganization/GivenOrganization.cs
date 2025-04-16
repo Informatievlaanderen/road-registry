@@ -63,7 +63,7 @@ public class GivenOrganization : RoadNetworkTestBase
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             }));
 
-        var organization = await Organizations.FindAsync(TestData.ChangedByOrganization);
+        var organization = await RoadRegistryContext.Organizations.FindAsync(TestData.ChangedByOrganization);
 
         organization.Should().BeNull();
     }

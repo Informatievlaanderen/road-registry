@@ -57,7 +57,6 @@ public class RoadSegmentsZipArchiveWriter : IZipArchiveWriter
 
         foreach (var featureType in featureTypes)
         {
-            //TODO-pr in de oude writer werd het wegschrijven van de dbase in batches gedaan, is dit nog nodig? mss voor memory?
             var records = segments
                 .OrderBy(x => x.Id)
                 .Select(x =>

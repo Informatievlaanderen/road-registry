@@ -95,7 +95,6 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
 
             var writer = new ShapeFileRecordWriter(_encoding);
 
-            //TODO-pr in de oude writer werd het wegschrijven van de dbase in batches gedaan, is dit nog nodig? mss voor memory?
             var records = integrationSegments
                 .OrderBy(x => x.Id)
                 .Select(x =>

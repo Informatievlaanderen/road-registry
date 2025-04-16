@@ -42,8 +42,6 @@ public class TransactionZoneZipArchiveWriter : IZipArchiveWriter
             DOWNLOADID = { Value = request.DownloadId.ToGuid().ToString("N") }
         };
 
-        //TODO-pr hoe wegschrijven gebruik makende van WellKnownGeometryFactories.WithoutMAndZ? -> op voorhand cleanup doen
-
         var writer = new ShapeFileRecordWriter(_encoding);
         await writer.WriteToArchive(archive, FileName, FeatureType.Change, ShapeType.Polygon, TransactionZoneDbaseRecord.Schema, [
             (dbaseRecord, (Geometry)request.Contour)

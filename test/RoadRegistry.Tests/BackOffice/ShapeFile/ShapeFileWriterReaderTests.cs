@@ -10,7 +10,6 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase;
 using RoadRegistry.BackOffice.ShapeFile.V2;
-using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public class ShapeFileWriterReaderTests
 {

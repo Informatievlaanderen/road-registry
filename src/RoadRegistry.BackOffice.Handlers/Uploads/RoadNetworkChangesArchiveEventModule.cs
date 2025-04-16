@@ -83,7 +83,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                         TicketId = message.Body.TicketId
                     };
 
-                    await roadNetworkEventWriter.WriteAsync(RoadNetworkChangesArchives.GetStreamName(archiveId), message.StreamVersion, new Event(
+                    await roadNetworkEventWriter.WriteAsync(RoadNetworkChangesArchives.ToStreamName(archiveId), message.StreamVersion, new Event(
                         rejectedChangeEvent
                     ).WithMessageId(message.MessageId), ct);
 
