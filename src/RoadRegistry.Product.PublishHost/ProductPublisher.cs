@@ -7,14 +7,17 @@ namespace RoadRegistry.Product.PublishHost
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Autofac;
     using BackOffice;
     using BackOffice.Abstractions;
     using BackOffice.Abstractions.Exceptions;
+    using BackOffice.Extensions;
     using BackOffice.Uploads;
     using BackOffice.ZipArchiveWriters.ForProduct;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using CloudStorageClients;
     using HttpClients;
+    using Infrastructure;
     using Infrastructure.Configurations;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
@@ -26,9 +29,8 @@ namespace RoadRegistry.Product.PublishHost
     {
         private readonly IStreetNameCache _cache;
         private readonly RoadNetworkProductBlobClient _productBlobClient;
-        private readonly AzureBlobClient _azureBlobClient;
         private readonly AzureBlobOptions _azureBlobOptions;
-        private readonly MetaDataCenterHttpClient _metaDataCenterHttpClient;
+        private readonly ILifetimeScope _container;
         private readonly ProductContext _context;
         private readonly RecyclableMemoryStreamManager _streamManager;
         private readonly FileEncoding _fileEncoding;
@@ -42,9 +44,8 @@ namespace RoadRegistry.Product.PublishHost
             FileEncoding fileEncoding,
             IStreetNameCache cache,
             RoadNetworkProductBlobClient productBlobClient,
-            AzureBlobClient azureBlobClient,
             IOptions<AzureBlobOptions> azureBlobOptions,
-            MetaDataCenterHttpClient metaDataCenterHttpClient,
+            ILifetimeScope container,
             ILoggerFactory loggerFactory)
         {
             _context = context;
@@ -53,9 +54,8 @@ namespace RoadRegistry.Product.PublishHost
             _fileEncoding = fileEncoding;
             _cache = cache;
             _productBlobClient = productBlobClient;
-            _azureBlobClient = azureBlobClient;
             _azureBlobOptions = azureBlobOptions.Value;
-            _metaDataCenterHttpClient = metaDataCenterHttpClient;
+            _container = container;
             _logger = loggerFactory.CreateLogger(GetType());
         }
 
@@ -73,6 +73,12 @@ namespace RoadRegistry.Product.PublishHost
             _logger.LogInformation("Creating archive using date {Date:yyyy-MM-dd}", archiveDate);
             stoppingToken.ThrowIfCancellationRequested();
 
+            if (await BlobExistsInS3(archiveDate, stoppingToken))
+            {
+                _logger.LogInformation("Blob already exists on S3, stopping execution.");
+                return;
+            }
+
             var archiveStream = new MemoryStream();
             await BuildArchive(archiveStream, stoppingToken);
             stoppingToken.ThrowIfCancellationRequested();
@@ -83,12 +89,8 @@ namespace RoadRegistry.Product.PublishHost
 
             if (_azureBlobOptions.Enabled)
             {
-                await UploadToDownload(archiveStream, stoppingToken);
-                _logger.LogInformation("Upload to Download completed.");
-                stoppingToken.ThrowIfCancellationRequested();
-
-                await UpdateMetadata(archiveDate, stoppingToken);
-                _logger.LogInformation("Metadata updated.");
+                await UpdateMetadataAndUploadToAzure(archiveDate, archiveStream, stoppingToken);
+                _logger.LogInformation("Upload to Metadata completed.");
                 stoppingToken.ThrowIfCancellationRequested();
             }
             else
@@ -104,34 +106,61 @@ namespace RoadRegistry.Product.PublishHost
             await writer.WriteAsync(archive, _context, cancellationToken);
         }
 
+        private async Task<bool> BlobExistsInS3(DateTimeOffset archiveDate, CancellationToken cancellationToken)
+        {
+            return await _productBlobClient.BlobExistsAsync(
+                GetBlobName(archiveDate),
+                cancellationToken);
+        }
+
         private async Task UploadToS3(DateTimeOffset archiveDate, MemoryStream archiveStream, CancellationToken cancellationToken)
         {
             archiveStream.Position = 0;
 
             await _productBlobClient.CreateBlobAsync(
-                new BlobName($"{archiveDate:yyyyMMdd}-DownloadBestand-Wegenregister"),
+                GetBlobName(archiveDate),
                 Metadata.None,
                 ContentType.Parse("application/octet-stream"),
                 archiveStream,
                 cancellationToken);
         }
 
-        private async Task UploadToDownload(MemoryStream archiveStream, CancellationToken cancellationToken)
+        private static BlobName GetBlobName(DateTimeOffset archiveDate)
         {
-            archiveStream.Position = 0;
-
-            await _azureBlobClient.UploadBlobAsync(archiveStream, cancellationToken);
+            return new BlobName($"{archiveDate:yyyyMMdd}-DownloadBestand-Wegenregister.zip");
         }
 
-        private async Task UpdateMetadata(DateTimeOffset archiveDate, CancellationToken cancellationToken)
+        private async Task UpdateMetadataAndUploadToAzure(DateTimeOffset archiveDate, MemoryStream archiveStream, CancellationToken cancellationToken)
         {
-            var results = await _metaDataCenterHttpClient.UpdateCswPublication(
+            await using var sp = _container.BeginLifetimeScope();
+            var metadataClient = sp.Resolve<MetaDataCenterHttpClient>();
+
+            var results = await metadataClient.UpdateCswPublication(
                 archiveDate.DateTime,
                 cancellationToken);
             if (results == null)
             {
-                _logger.LogCritical("Failed to update metadata to date {archiveDate}", archiveDate);
+                throw new InvalidOperationException($"Failed to update metadata to date {archiveDate}");
             }
+
+            var pdfAsBytes = await metadataClient.GetPdfAsByteArray(cancellationToken);
+            var xmlAsString = await metadataClient.GetXmlAsString(cancellationToken);
+
+            archiveStream.Position = 0;
+            await using var azureZipArchiveStream = await archiveStream.CopyToNewMemoryStream(cancellationToken);
+            using var azureZipArchive = new ZipArchive(azureZipArchiveStream, ZipArchiveMode.Create, true);
+
+            await azureZipArchive.AddToZipArchive(
+                "Meta_Wegenregister.pdf",
+                pdfAsBytes,
+                cancellationToken);
+            await azureZipArchive.AddToZipArchive(
+                "Meta_Wegenregister.xml",
+                xmlAsString,
+                cancellationToken);
+
+            var azureBlobClient = sp.Resolve<AzureBlobClient>();
+            await azureBlobClient.UploadBlobAsync(azureZipArchiveStream, cancellationToken);
         }
     }
 }

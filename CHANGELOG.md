@@ -1,3 +1,32 @@
+## [4.28.5](https://github.com/informatievlaanderen/road-registry/compare/v4.28.4...v4.28.5) (2025-04-04)
+
+
+### Bug Fixes
+
+* **publisher:** download pdf and xml from metadata before uploading to azure ([6379ebd](https://github.com/informatievlaanderen/road-registry/commit/6379ebde6cef707fcbcdaff5e49b285271edf5fe))
+
+## [4.28.4](https://github.com/informatievlaanderen/road-registry/compare/v4.28.3...v4.28.4) (2025-04-03)
+
+
+### Bug Fixes
+
+* product s3 filename + stop execution when already exists ([0b8867e](https://github.com/informatievlaanderen/road-registry/commit/0b8867e493a705bffc48d7c802ef0cccc7c2d3ea))
+
+## [4.28.3](https://github.com/informatievlaanderen/road-registry/compare/v4.28.2...v4.28.3) (2025-04-02)
+
+
+### Bug Fixes
+
+* **publishhost:** only resolve azure/metadata client when needed ([0d92dc9](https://github.com/informatievlaanderen/road-registry/commit/0d92dc9573de1cf6440d5e4798ee8f9085c436dc))
+
+## [4.28.2](https://github.com/informatievlaanderen/road-registry/compare/v4.28.1...v4.28.2) (2025-04-02)
+
+
+### Bug Fixes
+
+* resolve BlobServiceClient when disabled ([3fae2fc](https://github.com/informatievlaanderen/road-registry/commit/3fae2fc1a76776ade6d7d05d290a2b521419a877))
+* update jetbrains dotcover ([a5353fe](https://github.com/informatievlaanderen/road-registry/commit/a5353fed5fbb458ea3c30e7f69d878bcf9a842d2))
+
 ## [4.28.1](https://github.com/informatievlaanderen/road-registry/compare/v4.28.0...v4.28.1) (2025-04-02)
 
 

@@ -24,17 +24,9 @@ namespace RoadRegistry.Product.PublishHost.CloudStorageClients
             }
         }
 
-        private string GetBlobName()
-        {
-            var isTest = _options.IsTest;
-            var blobName = "Wegenregister.zip";
-
-            return isTest ? $"9449/{blobName}" : $"1373/{blobName}";
-        }
-
         public async Task UploadBlobAsync(
             MemoryStream sourceStream,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken)
         {
             sourceStream.Seek(0, SeekOrigin.Begin);
             var blobName = GetBlobName();
@@ -48,6 +40,14 @@ namespace RoadRegistry.Product.PublishHost.CloudStorageClients
                         ContentType = "application/octet-stream"
                     }
                 }, cancellationToken);
+        }
+
+        private string GetBlobName()
+        {
+            var isTest = _options.IsTest;
+            var blobName = "Wegenregister.zip";
+
+            return isTest ? $"9449/{blobName}" : $"1373/{blobName}";
         }
     }
 }
