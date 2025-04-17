@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.ShapeFile.V1;
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -8,12 +9,8 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.IO.ShapeFile.Extended;
 using NetTopologySuite.IO.Streams;
 
-public interface IZipArchiveShapeFileReader
-{
-    IEnumerable<(Geometry, RecordNumber)> Read(ZipArchiveEntry entry);
-}
-
-public class ZipArchiveShapeFileReader: IZipArchiveShapeFileReader
+[Obsolete("Use V2 ShapeFileRecordReader instead")]
+public class ZipArchiveShapeFileReader
 {
     public IEnumerable<(Geometry, RecordNumber)> Read(ZipArchiveEntry entry)
     {

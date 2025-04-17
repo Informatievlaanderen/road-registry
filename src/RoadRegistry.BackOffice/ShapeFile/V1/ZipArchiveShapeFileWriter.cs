@@ -10,7 +10,7 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using NetTopologySuite.IO.Streams;
 
-[Obsolete("Use DbaseRecordWriter instead")]
+[Obsolete("Use V2 ShapeFileRecordWriter instead")]
 public class ZipArchiveShapeFileWriter
 {
     private readonly Encoding _encoding;
