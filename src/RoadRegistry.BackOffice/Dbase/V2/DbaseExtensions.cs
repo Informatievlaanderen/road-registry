@@ -50,12 +50,6 @@ public static class DbaseExtensions
                 return new DbfCharacterField(field.Name, field.Length.ToInt32());
             case DbaseFieldType.Number:
                 return new DbfNumericDoubleField(field.Name, field.Length.ToInt32(), field.DecimalCount.ToInt32());
-            // case DbaseFieldType.Float:
-            //     return new DbfFloatField(field.Name, field.Length.ToInt32(), field.DecimalCount.ToInt32());
-            // case DbaseFieldType.Date:
-            //     return new DbfDateField(field.Name, field.Length.ToInt32());
-            // case DbaseFieldType.Logical:
-            //     return new DbfLogicalField(field.Name);
         }
 
         throw new NotImplementedException($"Unknown field type: {field.FieldType}");
@@ -69,9 +63,6 @@ public static class DbaseExtensions
                 return new DbaseField(new DbaseFieldName(field.Name), DbaseFieldType.Character, ByteOffset.Initial, new DbaseFieldLength(field.Length), new DbaseDecimalCount(field.NumericScale));
             case DbfType.Numeric:
                 return new DbaseField(new DbaseFieldName(field.Name), DbaseFieldType.Number, ByteOffset.Initial, new DbaseFieldLength(field.Length), new DbaseDecimalCount(field.NumericScale));
-            // case DbfType.Float:
-            // case DbfType.Date:
-            // case DbfType.Logical:
         }
 
         throw new NotImplementedException($"Unknown field type: {field.FieldType}");
@@ -154,7 +145,7 @@ public static class DbaseExtensions
         return new DbfRecordEnumerator<TDbaseRecord>(reader);
     }
 
-    private class DbfRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumerator<TDbaseRecord>
+    private sealed class DbfRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumerator<TDbaseRecord>
         where TDbaseRecord : DbaseRecord, new()
         {
             private enum State { Initial, Started, Ended }

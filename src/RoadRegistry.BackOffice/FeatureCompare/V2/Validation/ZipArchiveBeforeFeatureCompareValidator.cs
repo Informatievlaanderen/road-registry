@@ -38,13 +38,13 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
         ];
     }
 
-    public async Task<ZipArchiveProblems> ValidateAsync(ZipArchive archive, ZipArchiveMetadata metadata, CancellationToken cancellationToken)
+    public async Task<ZipArchiveProblems> ValidateAsync(ZipArchive archive, ZipArchiveMetadata zipArchiveMetadata, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
-        ArgumentNullException.ThrowIfNull(metadata);
+        ArgumentNullException.ThrowIfNull(zipArchiveMetadata);
 
         var problems = ZipArchiveProblems.None;
-        var context = new ZipArchiveValidatorContext(metadata);
+        var context = new ZipArchiveValidatorContext(zipArchiveMetadata);
 
         foreach (var validator in _validators)
         {

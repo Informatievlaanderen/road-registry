@@ -40,7 +40,7 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                 }
             }
         }
-        
+
         foreach (var extractFeature in wegsegmentExtractFeatures)
         {
             var extractChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId == extractFeature.Attributes.RoadSegmentId
@@ -76,21 +76,19 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
                 processedRecords.Add(new Record(leveringExtractFeatures.First(), RecordType.Identical));
             }
         }
-        
+
         foreach (var extractFeature in wegsegmentExtractFeatures)
         {
-            {
-                var extractChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId()
-                                                                            && x.Attributes.Number == extractFeature.Attributes.Number);
+            var extractChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId()
+                                                                        && x.Attributes.Number == extractFeature.Attributes.Number);
 
-                if (!extractChangeFeatures.Any())
-                {
-                    processedRecords.Add(new Record(extractFeature, RecordType.Removed));
-                }
+            if (!extractChangeFeatures.Any())
+            {
+                processedRecords.Add(new Record(extractFeature, RecordType.Removed));
             }
         }
     }
-    
+
     protected override TranslatedChanges TranslateProcessedRecords(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, List<Record> records)
     {
         foreach (var record in records)
