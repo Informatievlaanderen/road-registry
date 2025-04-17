@@ -65,7 +65,7 @@ namespace RoadRegistry.Tests.BackOffice
             return this;
         }
 
-        public ExtractsZipArchiveBuilder WithChange(Action<ExtractsZipArchiveExtractDataSetBuilder, ExtractsZipArchiveChangeDataSetBuilderContext> configure)
+        public ExtractsZipArchiveBuilder WithChange(Action<ExtractsZipArchiveChangeDataSetBuilder, ExtractsZipArchiveChangeDataSetBuilderContext> configure)
         {
             if (_extractStreams is null)
             {

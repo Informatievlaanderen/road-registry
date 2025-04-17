@@ -122,19 +122,17 @@ public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveClea
             _dbaseSchema
         );
 
-        await using (var dbfEntryStream = dbfEntry.Open())
-        using (var dbfWriter =
-               new DbaseBinaryWriter(
-                   dbfHeader,
-                   new BinaryWriter(dbfEntryStream, Encoding, true)))
+        await using var dbfEntryStream = dbfEntry.Open();
+        using var dbfWriter =
+            new DbaseBinaryWriter(
+                dbfHeader,
+                new BinaryWriter(dbfEntryStream, Encoding, true));
+        foreach (var dbfRecord in records)
         {
-            foreach (var dbfRecord in records)
-            {
-                dbfWriter.Write(dbfRecord);
-            }
-
-            dbfWriter.Writer.Flush();
-            await dbfEntryStream.FlushAsync(cancellationToken);
+            dbfWriter.Write(dbfRecord);
         }
+
+        dbfWriter.Writer.Flush();
+        await dbfEntryStream.FlushAsync(cancellationToken);
     }
 }

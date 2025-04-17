@@ -35,7 +35,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
 
         var request = new UploadExtractRequest(
             ObjectProvider.Create<DownloadId>(),
-            new UploadExtractArchiveRequest("test.zip", null, ContentType.Parse("application/invalid_contenttype")),
+            new UploadExtractArchiveRequest("archive.zip", null!, ContentType.Parse("application/invalid_contenttype")),
             null);
 
         // Act
@@ -59,7 +59,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
 
         var request = new UploadExtractRequest(
             null,
-            new UploadExtractArchiveRequest("test.zip", null, ContentType.Parse("binary/octet-stream")),
+            new UploadExtractArchiveRequest("archive.zip", null!, ContentType.Parse("binary/octet-stream")),
             null);
 
         // Act
@@ -83,7 +83,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
 
         var request = new UploadExtractRequest(
             "abc",
-            new UploadExtractArchiveRequest("test.zip", null, ContentType.Parse("binary/octet-stream")),
+            new UploadExtractArchiveRequest("archive.zip", null!, ContentType.Parse("binary/octet-stream")),
             null);
 
         // Act
@@ -109,7 +109,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
 
         var request = new UploadExtractRequest(
             downloadId,
-            new UploadExtractArchiveRequest("test.zip", null, ContentType.Parse("binary/octet-stream")),
+            new UploadExtractArchiveRequest("archive.zip", null!, ContentType.Parse("binary/octet-stream")),
             null);
 
         // Act
@@ -153,7 +153,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
 
         var request = new UploadExtractRequest(
             downloadId,
-            new UploadExtractArchiveRequest("test.zip", null, ContentType.Parse("binary/octet-stream")),
+            new UploadExtractArchiveRequest("archive.zip", null!, ContentType.Parse("binary/octet-stream")),
             null);
 
         // Act
@@ -189,7 +189,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
 
         var request = new UploadExtractRequest(
             downloadId,
-            new UploadExtractArchiveRequest("test.zip", null, ContentType.Parse("binary/octet-stream")),
+            new UploadExtractArchiveRequest("archive.zip", null!, ContentType.Parse("binary/octet-stream")),
             null);
 
         // Act
@@ -206,7 +206,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
     }
 
     [Fact]
-    public async Task GivenArchiveIsNotValid_ThenUnsupportedMediaTypeException()
+    public async Task WhenArchiveIsNotAnArchiveFile_ThenUnsupportedMediaTypeException()
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
@@ -225,7 +225,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
 
         var request = new UploadExtractRequest(
             downloadId,
-            new UploadExtractArchiveRequest("test.zip", EmbeddedResourceReader.Read("test.txt"), ContentType.Parse("binary/octet-stream")),
+            new UploadExtractArchiveRequest("archive.zip", await EmbeddedResourceReader.ReadAsync("test.txt"), ContentType.Parse("binary/octet-stream")),
             null);
 
         // Act
@@ -242,7 +242,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
     }
 
     [Fact]
-    public async Task GivenUpload_WhenValid_ThenUploadRoadNetworkExtractChangesArchive()
+    public async Task GivenDownload_WhenValidUpload_ThenUploadRoadNetworkExtractChangesArchive()
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
@@ -262,7 +262,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
 
         var request = new UploadExtractRequest(
             downloadId,
-            new UploadExtractArchiveRequest("test.zip", EmbeddedResourceReader.Read("empty.zip"), ContentType.Parse("binary/octet-stream")),
+            new UploadExtractArchiveRequest("archive.zip", await EmbeddedResourceReader.ReadAsync("empty.zip"), ContentType.Parse("binary/octet-stream")),
             ticketId);
 
         // Act

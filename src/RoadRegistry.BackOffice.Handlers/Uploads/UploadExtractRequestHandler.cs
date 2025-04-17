@@ -13,7 +13,6 @@ using FeatureCompare;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
-using ZipArchiveWriters;
 using ZipArchiveWriters.Cleaning;
 using ContentType = Be.Vlaanderen.Basisregisters.BlobStore.ContentType;
 
@@ -69,46 +68,35 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         return new UploadExtractResponse(archiveId);
     }
 
-    private async Task<Stream> CleanArchive(Stream readStream, string zipArchiveWriterVersion, CancellationToken cancellationToken)
+    private async Task CleanArchive(Stream archiveStream, string zipArchiveWriterVersion, CancellationToken cancellationToken)
     {
-        var writeStream = await readStream.CopyToNewMemoryStreamAsync(cancellationToken);
-
         try
         {
-            using var archive = new ZipArchive(writeStream, ZipArchiveMode.Update, true);
+            using var archive = new ZipArchive(archiveStream, ZipArchiveMode.Update, true);
 
-            CleanResult cleanResult;
             try
             {
                 var cleaner = _beforeFeatureCompareZipArchiveCleanerFactory.Create(zipArchiveWriterVersion);
-                cleanResult = await cleaner.CleanAsync(archive, cancellationToken);
+                await cleaner.CleanAsync(archive, cancellationToken);
             }
             catch
             {
                 // ignore exceptions, let the validation handle it
-                cleanResult = CleanResult.NotApplicable;
-            }
-
-            if (cleanResult != CleanResult.Changed)
-            {
-                readStream.Position = 0;
-                return readStream;
             }
         }
         catch (InvalidDataException)
         {
             throw new UnsupportedMediaTypeException();
         }
-
-        writeStream.Position = 0;
-        return writeStream;
     }
 
     private async Task ValidateAndUploadAndQueueCommand(UploadExtractRequest request, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
     {
         try
         {
-            var transactionZone = ReadTransactionZone(request.Archive.ReadStream);
+            await using var archiveStream = await request.Archive.ReadStream.CopyToNewMemoryStreamAsync(cancellationToken);
+
+            var transactionZone = ReadTransactionZone(archiveStream);
             var downloadId = transactionZone.DownloadId;
 
             var download = await _editorContext.ExtractDownloads.FindAsync([downloadId.ToGuid()], cancellationToken);
@@ -122,9 +110,10 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                 throw new ExtractRequestMarkedInformativeException(downloadId);
             }
 
-            await using var readStream = await CleanArchive(request.Archive.ReadStream, download.ZipArchiveWriterVersion, cancellationToken);
+            await CleanArchive(archiveStream, download.ZipArchiveWriterVersion, cancellationToken);
 
-            using var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false);
+            archiveStream.Position = 0;
+            using var archive = new ZipArchive(archiveStream, ZipArchiveMode.Read, true);
 
             var beforeFeatureCompareValidator = _beforeFeatureCompareValidatorFactory.Create(download.ZipArchiveWriterVersion);
             var problems = await beforeFeatureCompareValidator.ValidateAsync(archive, ZipArchiveMetadata.Empty, cancellationToken);
@@ -132,7 +121,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
             var externalExtractRequestId = new ExternalExtractRequestId(download.ExternalRequestId);
             var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
-            await UploadAndQueueCommand(request, readStream, extractRequestId, downloadId, archiveId, download.ZipArchiveWriterVersion, metadata, cancellationToken);
+            await UploadAndQueueCommand(request, archiveStream, extractRequestId, downloadId, archiveId, download.ZipArchiveWriterVersion, metadata, cancellationToken);
         }
         catch (InvalidDataException)
         {
@@ -140,16 +129,16 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         }
     }
 
-    private TransactionZoneDetails ReadTransactionZone(Stream readStream)
+    private TransactionZoneDetails ReadTransactionZone(Stream archiveStream)
     {
-        using var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false);
+        using var archive = new ZipArchive(archiveStream, ZipArchiveMode.Read, true);
 
         return _transactionZoneZipArchiveReader.Read(archive);
     }
 
     private async Task UploadAndQueueCommand(
         UploadExtractRequest request,
-        Stream readStream,
+        Stream archiveStream,
         ExtractRequestId extractRequestId,
         DownloadId downloadId,
         ArchiveId archiveId,
@@ -157,13 +146,13 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         Metadata metadata,
         CancellationToken cancellationToken)
     {
-        readStream.Position = 0;
+        archiveStream.Position = 0;
 
         await _client.CreateBlobAsync(
             new BlobName(archiveId.ToString()),
             metadata,
             ContentType.Parse("application/zip"),
-            readStream,
+            archiveStream,
             cancellationToken
         );
 

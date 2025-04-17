@@ -247,41 +247,36 @@ public static class Customizations
         }
         var writeOrder = fileNames.OrderBy(_ => random.Next()).ToArray();
 
+        var leaveArchiveStreamOpen = archiveStream is not null;
         archiveStream ??= new MemoryStream();
 
-        using (var createArchive = new ZipArchive(archiveStream, ZipArchiveMode.Create, true, Encoding.UTF8))
+        var archive = new ZipArchive(archiveStream, ZipArchiveMode.Update, leaveArchiveStreamOpen, Encoding.UTF8);
+        foreach (var file in writeOrder)
         {
-            foreach (var file in writeOrder)
+            var stream = files[file];
+            if (stream is not null)
             {
-                var stream = files[file];
-                if (stream is not null)
+                stream.Position = 0;
+                using var entryStream = archive.CreateEntry(file).Open();
+                stream.CopyTo(entryStream);
+            }
+            else
+            {
+                var extractFileEntry = testData.ZipArchiveWithEmptyFiles.Entries.SingleOrDefault(x => string.Equals(x.Name, file, StringComparison.InvariantCultureIgnoreCase));
+                if (extractFileEntry is null)
                 {
-                    stream.Position = 0;
-                    using (var entryStream = createArchive.CreateEntry(file).Open())
-                    {
-                        stream.CopyTo(entryStream);
-                    }
+                    throw new Exception($"No file found in {nameof(testData.ZipArchiveWithEmptyFiles)} with name {file}");
                 }
-                else
-                {
-                    var extractFileEntry = testData.ZipArchiveWithEmptyFiles.Entries.SingleOrDefault(x => string.Equals(x.Name, file, StringComparison.InvariantCultureIgnoreCase));
-                    if (extractFileEntry is null)
-                    {
-                        throw new Exception($"No file found in {nameof(testData.ZipArchiveWithEmptyFiles)} with name {file}");
-                    }
 
-                    using (var extractFileEntryStream = extractFileEntry.Open())
-                    using (var entryStream = createArchive.CreateEntry(file).Open())
-                    {
-                        extractFileEntryStream.CopyTo(entryStream);
-                    }
-                }
+                using var extractFileEntryStream = extractFileEntry.Open();
+                using var entryStream = archive.CreateEntry(file).Open();
+                extractFileEntryStream.CopyTo(entryStream);
             }
         }
 
         archiveStream.Position = 0;
 
-        return new ZipArchive(archiveStream, ZipArchiveMode.Update, false, Encoding.UTF8);
+        return archive;
     }
 
     public static T CreateWhichIsDifferentThan<T>(this IFixture fixture, params T[] illegalValues)
