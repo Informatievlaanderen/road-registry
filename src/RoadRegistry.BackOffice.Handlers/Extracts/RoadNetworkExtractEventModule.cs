@@ -8,6 +8,7 @@ using Core;
 using Editor.Schema;
 using Exceptions;
 using FeatureCompare;
+using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Messages;
@@ -21,6 +22,7 @@ using TicketingService.Abstractions;
 
 public class RoadNetworkExtractEventModule : EventHandlerModule
 {
+    private readonly UseExtractZipArchiveWriterV2FeatureToggle _useExtractZipArchiveWriterV2FeatureToggle;
     private readonly ILifetimeScope _lifetimeScope;
 
     public RoadNetworkExtractEventModule(
@@ -32,9 +34,11 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         ApplicationMetadata applicationMetadata,
         IRoadNetworkEventWriter roadNetworkEventWriter,
         IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
+        UseExtractZipArchiveWriterV2FeatureToggle useExtractZipArchiveWriterV2FeatureToggle,
         ILogger<RoadNetworkExtractEventModule> logger)
     {
         _lifetimeScope = lifetimeScope.ThrowIfNull();
+        _useExtractZipArchiveWriterV2FeatureToggle = useExtractZipArchiveWriterV2FeatureToggle.ThrowIfNull();
 
         ArgumentNullException.ThrowIfNull(downloadsBlobClient);
         ArgumentNullException.ThrowIfNull(uploadsBlobClient);
@@ -165,7 +169,9 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                     ArchiveId = archiveId,
                     IsInformative = message.Body.IsInformative,
                     OverlapsWithDownloadIds = overlappingDownloadIds,
-                    ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.V2
+                    ZipArchiveWriterVersion = _useExtractZipArchiveWriterV2FeatureToggle.FeatureEnabled
+                        ? WellKnownZipArchiveWriterVersions.V2
+                        : WellKnownZipArchiveWriterVersions.V1
                 })
                 .WithMessageId(message.MessageId), ct);
         }
@@ -200,7 +206,9 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                             ArchiveId = archiveId,
                             IsInformative = message.Body.IsInformative,
                             OverlapsWithDownloadIds = overlappingDownloadIds,
-                            ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.V2
+                            ZipArchiveWriterVersion = _useExtractZipArchiveWriterV2FeatureToggle.FeatureEnabled
+                                ? WellKnownZipArchiveWriterVersions.V2
+                                : WellKnownZipArchiveWriterVersions.V1
                         })
                     .WithMessageId(message.MessageId), ct);
             }

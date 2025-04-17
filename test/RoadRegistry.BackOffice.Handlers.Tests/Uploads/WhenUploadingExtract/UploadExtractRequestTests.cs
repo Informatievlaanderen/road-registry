@@ -54,11 +54,12 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
         });
         await editorContext.SaveChangesAsync();
 
-        using var archiveStream = BuildArchiveStream(new ExtractsZipArchiveBuilder()
+        using var archiveStream = new ExtractsZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.TestData.TransactionZoneDbaseRecord.DOWNLOADID.Value = downloadId;
-            }));
+            })
+            .BuildArchiveStream();
 
         var request = new UploadExtractRequest(
             new UploadExtractArchiveRequest("archive.zip", archiveStream, ContentType.Parse("binary/octet-stream")),
@@ -121,11 +122,12 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
         // Arrange
         await using var editorContext = Container.Resolve<EditorContext>();
 
-        using var archiveStream = BuildArchiveStream(new ExtractsZipArchiveBuilder()
+        using var archiveStream = new ExtractsZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.TestData.TransactionZoneDbaseRecord.DOWNLOADID.Value = ObjectProvider.Create<DownloadId>();
-            }));
+            })
+            .BuildArchiveStream();
 
         var request = new UploadExtractRequest(
             new UploadExtractArchiveRequest("archive.zip", archiveStream, ContentType.Parse("binary/octet-stream")),
@@ -153,11 +155,12 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
         // Arrange
         await using var editorContext = Container.Resolve<EditorContext>();
 
-        using var archiveStream = BuildArchiveStream(new ExtractsZipArchiveBuilder()
+        using var archiveStream = new ExtractsZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.TestData.TransactionZoneDbaseRecord.DOWNLOADID.Value = "abc";
-            }));
+            })
+            .BuildArchiveStream();
 
         var request = new UploadExtractRequest(
             new UploadExtractArchiveRequest("archive.zip", archiveStream, ContentType.Parse("binary/octet-stream")),
@@ -198,11 +201,12 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
         });
         await editorContext.SaveChangesAsync();
 
-        using var archiveStream = BuildArchiveStream(new ExtractsZipArchiveBuilder()
+        using var archiveStream = new ExtractsZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.TestData.TransactionZoneDbaseRecord.DOWNLOADID.Value = downloadId;
-            }));
+            })
+            .BuildArchiveStream();
 
         var request = new UploadExtractRequest(
             new UploadExtractArchiveRequest("archive.zip", archiveStream, ContentType.Parse("binary/octet-stream")),
@@ -366,13 +370,14 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
         });
         await editorContext.SaveChangesAsync();
 
-        using var archiveStream = BuildArchiveStream(new ExtractsZipArchiveBuilder()
+        using var archiveStream = new ExtractsZipArchiveBuilder()
             .WithChange((builder, _) =>
             {
                 builder.TestData.TransactionZoneDbaseRecord.DOWNLOADID.Value = downloadId;
 
                 configureChange?.Invoke(builder);
-            }));
+            })
+            .BuildArchiveStream();
 
         var request = new UploadExtractRequest(
             new UploadExtractArchiveRequest("archive.zip", archiveStream, ContentType.Parse("binary/octet-stream")),
@@ -409,17 +414,5 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
         return new EditorContext(options);
-    }
-
-    private MemoryStream BuildArchiveStream(ExtractsZipArchiveBuilder builder)
-    {
-        var archiveStream = new MemoryStream();
-
-        var archive = builder
-            .Build(archiveStream);
-        archive.Dispose();
-
-        archiveStream.Position = 0;
-        return archiveStream;
     }
 }

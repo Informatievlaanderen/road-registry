@@ -87,6 +87,7 @@ public class Program
                             ApplicationMetadata,
                             sp.GetService<IRoadNetworkEventWriter>(),
                             sp.GetService<IExtractUploadFailedEmailClient>(),
+                            sp.GetService<UseExtractZipArchiveWriterV2FeatureToggle>(),
                             sp.GetService<ILogger<RoadNetworkExtractEventModule>>())
                     })
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), PositionStoreEventProcessor.EventMapping))

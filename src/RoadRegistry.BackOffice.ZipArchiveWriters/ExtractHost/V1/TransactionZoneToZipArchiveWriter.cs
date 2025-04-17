@@ -52,7 +52,7 @@ public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter
         };
 
         await archive.CreateShapeEntry(FileName, _encoding, features, WellKnownGeometryFactories.WithoutMAndZ, cancellationToken);
-        await archive.CreateCpgEntry(FileName, _encoding, cancellationToken);
+        await archive.CreateCpgEntry(FeatureType.Change.ToCpgFileName(FileName), _encoding, cancellationToken);
         await archive.CreateProjectionEntry(FeatureType.Change.ToProjectionFileName(FileName), _encoding, cancellationToken);
     }
 

@@ -8,8 +8,6 @@ using Core;
 using Extensions;
 using Extracts;
 using FeatureCompare;
-using FeatureCompare.V1.Readers;
-using FeatureToggles;
 using Framework;
 using Handlers.Sqs;
 using Hosts;

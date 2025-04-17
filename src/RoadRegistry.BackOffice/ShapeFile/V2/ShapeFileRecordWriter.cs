@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Dbase.V2;
+using Extensions;
 using Extracts;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
@@ -73,16 +74,16 @@ public class ShapeFileRecordWriter
         }
 
         var shpEntry = archive.CreateEntry(fileName.ToShapeFileName(featureType));
-        await CopyToEntry(shpStream, shpEntry, cancellationToken);
+        await shpEntry.CopyFrom(shpStream, cancellationToken);
 
         var shxEntry = archive.CreateEntry(fileName.ToShapeIndexFileName(featureType));
-        await CopyToEntry(shxStream, shxEntry, cancellationToken);
+        await shxEntry.CopyFrom(shxStream, cancellationToken);
 
         var dbfEntry = archive.CreateEntry(fileName.ToDbaseFileName(featureType));
-        await CopyToEntry(dbfStream, dbfEntry, cancellationToken);
+        await dbfEntry.CopyFrom(dbfStream, cancellationToken);
 
         var prjEntry = archive.CreateEntry(fileName.ToProjectionFileName(featureType));
-        await CopyToEntry(prjStream, prjEntry, cancellationToken);
+        await prjEntry.CopyFrom(prjStream, cancellationToken);
 
         await CreateCpgEntry(archive, fileName.ToCpgFileName(featureType), _encoding, cancellationToken);
     }
@@ -97,16 +98,6 @@ public class ShapeFileRecordWriter
         await streamWriter.FlushAsync(cancellationToken);
 
         await cpgEntryStream.FlushAsync(cancellationToken);
-    }
-
-    private static async Task CopyToEntry(MemoryStream stream, ZipArchiveEntry entry, CancellationToken cancellationToken)
-    {
-        await using var entryStream = entry.Open();
-
-        stream.Position = 0;
-        await stream.CopyToAsync(entryStream, cancellationToken);
-
-        await entryStream.FlushAsync(cancellationToken);
     }
 
     private static ShapefileWriter OpenWrite(Stream shpStream, Stream shxStream, Stream dbfStream, Stream prjStream, ShapefileWriterOptions options)

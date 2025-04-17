@@ -135,6 +135,17 @@ namespace RoadRegistry.Tests.BackOffice
             }));
         }
 
+        public MemoryStream BuildArchiveStream()
+        {
+            var archiveStream = new MemoryStream();
+
+            var archive = Build(archiveStream);
+            archive.Dispose();
+
+            archiveStream.Position = 0;
+            return archiveStream;
+        }
+
         public ZipArchive Build(MemoryStream archiveStream = null)
         {
             if (_changeStreams is null)

@@ -88,8 +88,8 @@ public class RoadNetworkChangesArchiveEventModuleTests : RoadNetworkTestBase
             {
                 return new BlobObject(new BlobName("archive.zip"), Metadata.None, new ContentType(), _ =>
                 {
-                    var archiveStream = new MemoryStream();
-                    new ExtractsZipArchiveBuilder().Build(archiveStream);
+                    var archiveStream = new ExtractsZipArchiveBuilder()
+                        .BuildArchiveStream();
                     return Task.FromResult<Stream>(archiveStream);
                 });
             });

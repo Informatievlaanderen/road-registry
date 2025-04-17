@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extensions;
 using Extracts;
 using NetTopologySuite.IO.Esri.Dbf;
 
@@ -42,7 +43,7 @@ public class DbaseRecordWriter
         var dbfStream = WriteToDbfStream(dbaseSchema, dbaseRecords);
 
         var dbfEntry = archive.CreateEntry(fileName);
-        await CopyToEntry(dbfStream, dbfEntry, cancellationToken);
+        await dbfEntry.CopyFrom(dbfStream, cancellationToken);
     }
 
     public MemoryStream WriteToDbfStream(DbaseSchema dbaseSchema, IEnumerable<DbaseRecord> dbaseRecords)
@@ -61,15 +62,5 @@ public class DbaseRecordWriter
         }
 
         return dbfStream;
-    }
-
-    private static async Task CopyToEntry(MemoryStream stream, ZipArchiveEntry entry, CancellationToken cancellationToken)
-    {
-        await using var entryStream = entry.Open();
-
-        stream.Position = 0;
-        await stream.CopyToAsync(entryStream, cancellationToken);
-
-        await entryStream.FlushAsync(cancellationToken);
     }
 }

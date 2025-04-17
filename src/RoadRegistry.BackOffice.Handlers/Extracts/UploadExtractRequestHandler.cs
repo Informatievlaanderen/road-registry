@@ -69,14 +69,14 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             throw new ExtractRequestMarkedInformativeException(downloadId);
         }
 
-        await using var readStream = await request.Archive.ReadStream.CopyToNewMemoryStreamAsync(cancellationToken);
+        await using var archiveStream = await request.Archive.ReadStream.CopyToNewMemoryStreamAsync(cancellationToken);
 
         try
         {
-            using (new ZipArchive(readStream, ZipArchiveMode.Read, true))
+            using (new ZipArchive(archiveStream, ZipArchiveMode.Read, true))
             {
             }
-            readStream.Position = 0;
+            archiveStream.Position = 0;
         }
         catch (InvalidDataException)
         {
@@ -91,7 +91,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             new BlobName(archiveId.ToString()),
             metadata,
             ContentType.Parse("application/zip"),
-            readStream,
+            archiveStream,
             cancellationToken
         );
 

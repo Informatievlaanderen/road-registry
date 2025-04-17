@@ -6,8 +6,6 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Configuration;
 using Core;
 using Extensions;
-using FeatureCompare;
-using FeatureCompare.V1.Readers;
 using Framework;
 using Handlers.Sqs;
 using Handlers.Uploads;
