@@ -111,7 +111,7 @@ jobs:
 
     - name: Test
       shell: bash
-      run: dotnet dotcover test --dcReportType=HTML --nologo --no-build --filter 'FullyQualifiedName!~IntegrationTests' RoadRegistry.sln
+      run: dotCover cover-dotnet --ReportType=HTML --Output=dotCover.Output.html -- test --nologo --no-build --filter 'FullyQualifiedName!~IntegrationTests' RoadRegistry.sln
       env:
         SA_PASSWORD: E@syP@ssw0rd
         
