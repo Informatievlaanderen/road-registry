@@ -167,7 +167,8 @@ public class ExtractDownloadRecordProjectionTests
                     ArchiveId = download1BecameAvailable.ArchiveId,
                     Available = true,
                     AvailableOn = InstantPattern.ExtendedIso.Parse(download1BecameAvailable.When).Value.ToUnixTimeSeconds(),
-                    RequestedOn = InstantPattern.ExtendedIso.Parse(download1GotRequested.When).Value.ToUnixTimeSeconds()
+                    RequestedOn = InstantPattern.ExtendedIso.Parse(download1GotRequested.When).Value.ToUnixTimeSeconds(),
+                    ZipArchiveWriterVersion = download1BecameAvailable.ZipArchiveWriterVersion
                 },
                 new ExtractDownloadRecord
                 {
