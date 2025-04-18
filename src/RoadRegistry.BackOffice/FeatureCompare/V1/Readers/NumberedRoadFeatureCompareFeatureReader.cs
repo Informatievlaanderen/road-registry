@@ -16,8 +16,7 @@ public class NumberedRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
 {
     public NumberedRoadFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
-            new UploadsV2FeatureReader(encoding),
-            new UploadsV1FeatureReader(encoding))
+            new UploadsV2FeatureReader(encoding))
     {
     }
 
@@ -58,26 +57,6 @@ public class NumberedRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
         }
 
         protected override (Feature<NumberedRoadFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
-        {
-            return new DbaseRecordData
-            {
-                GW_OIDN = dbaseRecord.GW_OIDN.GetValue(),
-                WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
-                IDENT8 = dbaseRecord.IDENT8.GetValue(),
-                RICHTING = dbaseRecord.RICHTING.GetValue(),
-                VOLGNUMMER = dbaseRecord.VOLGNUMMER.GetValue()
-            }.ToFeature(featureType, fileName, recordNumber);
-        }
-    }
-
-    private sealed class UploadsV1FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord, Feature<NumberedRoadFeatureCompareAttributes>>
-    {
-        public UploadsV1FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema)
-        {
-        }
-
-        protected override (Feature<NumberedRoadFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {

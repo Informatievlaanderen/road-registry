@@ -16,8 +16,7 @@ public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
 {
     public EuropeanRoadFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
-            new UploadsV2FeatureReader(encoding),
-            new UploadsV1FeatureReader(encoding))
+            new UploadsV2FeatureReader(encoding))
     {
     }
 
@@ -63,24 +62,6 @@ public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
         }
 
         protected override (Feature<EuropeanRoadFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
-        {
-            return new DbaseRecordData
-            {
-                EU_OIDN = dbaseRecord.EU_OIDN.GetValue(),
-                EUNUMMER = dbaseRecord.EUNUMMER.GetValue(),
-                WS_OIDN = dbaseRecord.WS_OIDN.GetValue()
-            }.ToFeature(featureType, fileName, recordNumber);
-        }
-    }
-
-    private sealed class UploadsV1FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord, Feature<EuropeanRoadFeatureCompareAttributes>>
-    {
-        public UploadsV1FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema)
-        {
-        }
-
-        protected override (Feature<EuropeanRoadFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {

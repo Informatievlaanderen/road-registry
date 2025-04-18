@@ -24,8 +24,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
 
     public RoadNodeFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
-            new UploadsV2FeatureReader(encoding),
-            new UploadsV1FeatureReader(encoding))
+            new UploadsV2FeatureReader(encoding))
     {
         _encoding = encoding;
     }
@@ -181,23 +180,6 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
         }
 
         protected override (Feature<RoadNodeFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadNodeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
-        {
-            return new DbaseRecordData
-            {
-                WK_OIDN = dbaseRecord.WK_OIDN.GetValue(),
-                TYPE = dbaseRecord.TYPE.GetValue()
-            }.ToFeature(featureType, fileName, recordNumber);
-        }
-    }
-
-    private sealed class UploadsV1FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadNodeDbaseRecord, Feature<RoadNodeFeatureCompareAttributes>>
-    {
-        public UploadsV1FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadNodeDbaseRecord.Schema)
-        {
-        }
-
-        protected override (Feature<RoadNodeFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadNodeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {

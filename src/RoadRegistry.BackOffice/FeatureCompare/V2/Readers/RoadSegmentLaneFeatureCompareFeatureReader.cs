@@ -21,8 +21,7 @@ public class RoadSegmentLaneFeatureCompareFeatureReader : VersionedZipArchiveFea
 
     public RoadSegmentLaneFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
-            new UploadsV2FeatureReader(encoding),
-            new UploadsV1FeatureReader(encoding))
+            new UploadsV2FeatureReader(encoding))
     {
     }
 
@@ -121,27 +120,6 @@ public class RoadSegmentLaneFeatureCompareFeatureReader : VersionedZipArchiveFea
         }
 
         protected override (Feature<RoadSegmentLaneFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentLaneAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
-        {
-            return new DbaseRecordData
-            {
-                RS_OIDN = dbaseRecord.RS_OIDN.GetValue(),
-                WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
-                VANPOS = dbaseRecord.VANPOS.GetValue(),
-                TOTPOS = dbaseRecord.TOTPOS.GetValue(),
-                AANTAL = dbaseRecord.AANTAL.GetValue(),
-                RICHTING = dbaseRecord.RICHTING.GetValue()
-            }.ToFeature(featureType, FileName, recordNumber);
-        }
-    }
-
-    public sealed class UploadsV1FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentLaneAttributeDbaseRecord, Feature<RoadSegmentLaneFeatureCompareAttributes>>
-    {
-        public UploadsV1FeatureReader(Encoding encoding)
-            : base(encoding, RoadSegmentLaneFeatureCompareFeatureReader.FileName, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentLaneAttributeDbaseRecord.Schema)
-        {
-        }
-
-        protected override (Feature<RoadSegmentLaneFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentLaneAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {
