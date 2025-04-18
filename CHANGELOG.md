@@ -1,3 +1,10 @@
+## [4.29.1](https://github.com/informatievlaanderen/road-registry/compare/v4.29.0...v4.29.1) (2025-04-18)
+
+
+### Bug Fixes
+
+* write/read dbf DateTime fields in specific format ([7e5e5a5](https://github.com/informatievlaanderen/road-registry/commit/7e5e5a593b5068367c9a46ebc299520d8b684173))
+
 # [4.29.0](https://github.com/informatievlaanderen/road-registry/compare/v4.28.5...v4.29.0) (2025-04-18)
 
 
