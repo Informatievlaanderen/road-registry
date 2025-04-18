@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.BackOffice.Dbase.V2;
 
 using System;
+using System.Globalization;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using NetTopologySuite.Features;
@@ -10,6 +11,8 @@ using NetTopologySuite.IO.Esri.Dbf.Fields;
 
 public static class DbaseExtensions
 {
+    private const string DateTimeFormat = "yyyyMMddTHHmmss";
+
     public static DbfField[] ToDbfFields(this DbaseSchema dbaseSchema)
     {
         return dbaseSchema.Fields
@@ -68,7 +71,7 @@ public static class DbaseExtensions
         throw new NotImplementedException($"Unknown field type: {field.FieldType}");
     }
 
-    internal static object GetValue(this DbaseFieldValue dbaseFieldValue)
+    private static object GetValue(this DbaseFieldValue dbaseFieldValue)
     {
         if (dbaseFieldValue is DbaseInt32 intField)
         {
@@ -84,7 +87,7 @@ public static class DbaseExtensions
         }
         if (dbaseFieldValue is DbaseDateTime dateTimeField)
         {
-            return dateTimeField.HasValue ? dateTimeField.Value : null;
+            return dateTimeField.HasValue ? dateTimeField.Value.ToString(DateTimeFormat) : null;
         }
         if (dbaseFieldValue is DbaseDouble doubleField)
         {
@@ -102,7 +105,10 @@ public static class DbaseExtensions
     {
         if (dbaseFieldValue is DbaseInt32 intField)
         {
-            intField.Value = Convert.ToInt32(value);
+            if (value is not null)
+            {
+                intField.Value = Convert.ToInt32(value);
+            }
             return;
         }
         if (dbaseFieldValue is DbaseNullableInt32 nullableIntField)
@@ -119,12 +125,23 @@ public static class DbaseExtensions
         }
         if (dbaseFieldValue is DbaseDateTime dateTimeField)
         {
-            dateTimeField.Value = Convert.ToDateTime(value);
+            if (!string.IsNullOrWhiteSpace(value?.ToString()))
+            {
+                if (!DateTime.TryParseExact(value.ToString(), DateTimeFormat, null, DateTimeStyles.None, out var dateTimeValue))
+                {
+                    throw new ArgumentException($"Invalid date time '{value}'");
+                }
+
+                dateTimeField.Value = dateTimeValue;
+            }
             return;
         }
         if (dbaseFieldValue is DbaseDouble doubleField)
         {
-            doubleField.Value = Convert.ToDouble(value);
+            if (value is not null)
+            {
+                doubleField.Value = Convert.ToDouble(value);
+            }
             return;
         }
         if (dbaseFieldValue is DbaseNullableDouble nullableDoubleField)
