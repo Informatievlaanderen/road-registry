@@ -1,3 +1,10 @@
+## [4.29.3](https://github.com/informatievlaanderen/road-registry/compare/v4.29.2...v4.29.3) (2025-04-18)
+
+
+### Bug Fixes
+
+* remove UploadsV1 dbase schema ([c86fb83](https://github.com/informatievlaanderen/road-registry/commit/c86fb83cf761947b9a29f21fb7304fff9560119a))
+
 ## [4.29.2](https://github.com/informatievlaanderen/road-registry/compare/v4.29.1...v4.29.2) (2025-04-18)
 
 
