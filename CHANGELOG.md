@@ -1,3 +1,10 @@
+## [4.29.2](https://github.com/informatievlaanderen/road-registry/compare/v4.29.1...v4.29.2) (2025-04-18)
+
+
+### Bug Fixes
+
+* keep support for schema UploadsV1 in FeatureCompare V2 ([f03c606](https://github.com/informatievlaanderen/road-registry/commit/f03c606984b8bd5d7921a361127264154383e306))
+
 ## [4.29.1](https://github.com/informatievlaanderen/road-registry/compare/v4.29.0...v4.29.1) (2025-04-18)
 
 
