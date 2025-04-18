@@ -13,23 +13,14 @@ using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
 
-/// <summary>
-///     Post upload extract controller
-/// </summary>
-/// <exception cref="BlobClientNotFoundException"></exception>
-/// <exception cref="EditorContextNotFoundException"></exception>
-/// <exception cref="DownloadExtractNotFoundException"></exception>
-/// <exception cref="UnsupportedMediaTypeException"></exception>
-/// <exception cref="ExtractDownloadNotFoundException"></exception>
-/// <exception cref="ExtractDownloadNotFoundException"></exception>
 public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractRequest, UploadExtractResponse>
 {
     private static readonly ContentType[] SupportedContentTypes =
-    {
+    [
         ContentType.Parse("binary/octet-stream"),
         ContentType.Parse("application/zip"),
         ContentType.Parse("application/x-zip-compressed")
-    };
+    ];
 
     private readonly RoadNetworkExtractUploadsBlobClient _client;
     private readonly EditorContext _context;
@@ -78,14 +69,14 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             throw new ExtractRequestMarkedInformativeException(downloadId);
         }
 
-        await using var readStream = await request.Archive.ReadStream.CopyToNewMemoryStream(cancellationToken);
+        await using var archiveStream = await request.Archive.ReadStream.CopyToNewMemoryStreamAsync(cancellationToken);
 
         try
         {
-            using (new ZipArchive(readStream, ZipArchiveMode.Read, true))
+            using (new ZipArchive(archiveStream, ZipArchiveMode.Read, true))
             {
             }
-            readStream.Position = 0;
+            archiveStream.Position = 0;
         }
         catch (InvalidDataException)
         {
@@ -100,7 +91,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             new BlobName(archiveId.ToString()),
             metadata,
             ContentType.Parse("application/zip"),
-            readStream,
+            archiveStream,
             cancellationToken
         );
 
@@ -111,7 +102,8 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                 DownloadId = download.DownloadId,
                 UploadId = uploadId,
                 ArchiveId = archiveId,
-                TicketId = request.TicketId
+                TicketId = request.TicketId,
+                ZipArchiveWriterVersion = download.ZipArchiveWriterVersion
             })
             .WithProvenanceData(request.ProvenanceData);
 

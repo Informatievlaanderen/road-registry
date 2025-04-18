@@ -25,8 +25,7 @@ using Controllers.Attributes;
 using Core;
 using Editor.Schema;
 using Extensions;
-using FeatureCompare.Readers;
-using FeatureToggles;
+using FeatureCompare;
 using FluentValidation;
 using Framework;
 using Hosts.Infrastructure.Extensions;
@@ -232,7 +231,7 @@ public class Startup
             .AddSingleton(FileEncoding.WindowsAnsi)
             .AddStreetNameCache()
             .AddFeatureCompare()
-            .AddSingleton<IBeforeFeatureCompareZipArchiveCleaner, BeforeFeatureCompareZipArchiveCleaner>()
+            .AddSingleton<IBeforeFeatureCompareZipArchiveCleanerFactory, BeforeFeatureCompareZipArchiveCleanerFactory>()
             .AddSingleton<ProblemDetailsHelper>()
             .RegisterOptions<ZipArchiveWriterOptions>()
             .RegisterOptions<ExtractDownloadsOptions>()
@@ -259,8 +258,8 @@ public class Startup
                         sp.GetService<IStreamStore>(),
                         sp.GetService<ILifetimeScope>(),
                         sp.GetService<IRoadNetworkSnapshotReader>(),
-                        sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
-                        sp.GetService<ITransactionZoneFeatureCompareFeatureReader>(),
+                        sp.GetService<IZipArchiveBeforeFeatureCompareValidatorFactory>(),
+                        sp.GetService<ITransactionZoneZipArchiveReader>(),
                         sp.GetService<IClock>(),
                         sp.GetService<ILoggerFactory>()
                     ),
@@ -277,7 +276,7 @@ public class Startup
                         sp.GetService<IStreamStore>(),
                         sp.GetService<ILifetimeScope>(),
                         sp.GetService<IRoadNetworkSnapshotReader>(),
-                        sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
+                        sp.GetService<IZipArchiveBeforeFeatureCompareValidatorFactory>(),
                         sp.GetService<IExtractUploadFailedEmailClient>(),
                         sp.GetService<IClock>(),
                         sp.GetService<ILoggerFactory>()

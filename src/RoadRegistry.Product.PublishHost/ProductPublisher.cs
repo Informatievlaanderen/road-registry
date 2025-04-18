@@ -147,7 +147,7 @@ namespace RoadRegistry.Product.PublishHost
             var xmlAsString = await metadataClient.GetXmlAsString(cancellationToken);
 
             archiveStream.Position = 0;
-            await using var azureZipArchiveStream = await archiveStream.CopyToNewMemoryStream(cancellationToken);
+            await using var azureZipArchiveStream = await archiveStream.CopyToNewMemoryStreamAsync(cancellationToken);
             using var azureZipArchive = new ZipArchive(azureZipArchiveStream, ZipArchiveMode.Create, true);
 
             await azureZipArchive.AddToZipArchive(

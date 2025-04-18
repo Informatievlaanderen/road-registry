@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.ExtractHost;
 
 using System;
+using System.Data;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
@@ -8,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Editor.Schema;
 using Extracts;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using ZipArchiveWriters.ExtractHost;
 
@@ -29,10 +31,13 @@ public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAsse
 
     public async Task<MemoryStream> AssembleArchive(RoadNetworkExtractAssemblyRequest request, CancellationToken cancellationToken)
     {
-        if (request == null) throw new ArgumentNullException(nameof(request));
+        ArgumentNullException.ThrowIfNull(request);
 
         var stream = _manager.GetStream();
         await using var context = _contextFactory();
+
+        await using var tr = await context.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+
         using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
         await _writer.WriteAsync(archive, request, new ZipArchiveDataProvider(context), cancellationToken);
 

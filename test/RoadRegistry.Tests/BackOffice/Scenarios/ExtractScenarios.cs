@@ -94,6 +94,7 @@ public class ExtractScenarios : RoadRegistryTestBase
         var downloadId = ObjectProvider.Create<DownloadId>();
         var archiveId = ObjectProvider.Create<ArchiveId>();
         var contour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
+        var zipArchiveWriterVersion = ObjectProvider.Create<string>();
 
         return Run(scenario => scenario
             .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
@@ -106,7 +107,7 @@ public class ExtractScenarios : RoadRegistryTestBase
                 IsInformative = true,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             })
-            .When(OurSystem.AnnouncesRoadNetworkExtractDownloadBecameAvailable(extractRequestId, downloadId, archiveId))
+            .When(OurSystem.AnnouncesRoadNetworkExtractDownloadBecameAvailable(extractRequestId, downloadId, archiveId, zipArchiveWriterVersion: zipArchiveWriterVersion))
             .Then(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractDownloadBecameAvailable
             {
                 RequestId = extractRequestId,
@@ -116,6 +117,7 @@ public class ExtractScenarios : RoadRegistryTestBase
                 Description = extractDescription,
                 IsInformative = true,
                 OverlapsWithDownloadIds = [],
+                ZipArchiveWriterVersion = zipArchiveWriterVersion,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             })
         );

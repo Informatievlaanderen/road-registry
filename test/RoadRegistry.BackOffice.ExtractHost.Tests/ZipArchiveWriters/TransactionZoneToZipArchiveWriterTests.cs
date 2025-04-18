@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Text;
 using AutoFixture;
 using BackOffice.ZipArchiveWriters.ExtractHost;
+using BackOffice.ZipArchiveWriters.ExtractHost.V1;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Extracts;
@@ -16,6 +17,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 using ShapeFile;
+using ShapeFile.V1;
 using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public class TransactionZoneToZipArchiveWriterTests
@@ -102,8 +104,9 @@ public class TransactionZoneToZipArchiveWriterTests
 
             ms.Position = 0;
 
-            var (_, geometry) = new ExtractGeometryShapeFileReader().Read(ms, WellKnownGeometryFactories.Default);
-            return (Polygon)geometry;
+            var (_, geometry) = new ExtractGeometryShapeFileReaderV1().Read(ms);
+
+            return (Polygon)geometry.ToMultiPolygon().Geometries.Single();
         }
     }
 
@@ -191,7 +194,7 @@ public class TransactionZoneToZipArchiveWriterTests
             {
                 var polygon = ReadGeometryFromArchive(readArchive, "Transactiezones.shp");
 
-                var coordinate = Assert.IsType<CoordinateZ>(polygon.Coordinate);
+                var coordinate = Assert.IsType<Coordinate>(polygon.Coordinate);
                 Assert.Equal(double.NaN, coordinate.M);
                 Assert.Equal(double.NaN, coordinate.Z);
             });

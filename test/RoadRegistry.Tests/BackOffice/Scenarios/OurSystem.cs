@@ -10,14 +10,16 @@ public static class OurSystem
         ExtractRequestId requestId,
         DownloadId downloadId,
         ArchiveId archiveId,
-        ICollection<Guid> overlapsWithDownloadIds = null)
+        ICollection<Guid> overlapsWithDownloadIds = null,
+        string zipArchiveWriterVersion = null)
     {
         return new Command(new AnnounceRoadNetworkExtractDownloadBecameAvailable
         {
             RequestId = requestId,
             DownloadId = downloadId,
             ArchiveId = archiveId,
-            OverlapsWithDownloadIds = overlapsWithDownloadIds ?? []
+            OverlapsWithDownloadIds = overlapsWithDownloadIds ?? [],
+            ZipArchiveWriterVersion = zipArchiveWriterVersion
         });
     }
 

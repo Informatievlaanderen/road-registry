@@ -23,6 +23,7 @@ public class ExtractDownloadConfiguration : IEntityTypeConfiguration<ExtractDown
         b.Property(p => p.AvailableOn).IsRequired();
         b.Property(p => p.IsInformative).IsRequired();
         b.Property(p => p.DownloadedOn).IsRequired(false);
+        b.Property(p => p.ZipArchiveWriterVersion).IsRequired(false);
 
         b.HasIndex(p => p.Available);
     }

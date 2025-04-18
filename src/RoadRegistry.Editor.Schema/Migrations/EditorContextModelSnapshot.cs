@@ -315,6 +315,9 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.Property<long>("RequestedOn")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("ZipArchiveWriterVersion")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("DownloadId");
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("DownloadId"), false);

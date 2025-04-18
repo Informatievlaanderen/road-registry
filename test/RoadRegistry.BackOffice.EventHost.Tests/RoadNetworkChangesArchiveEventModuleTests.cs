@@ -4,8 +4,8 @@ using System.IO.Compression;
 using AutoFixture;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using Extracts;
 using FeatureCompare;
-using FeatureCompare.Readers;
 using FluentAssertions;
 using Handlers.Uploads;
 using Messages;
@@ -31,6 +31,7 @@ public class RoadNetworkChangesArchiveEventModuleTests : RoadNetworkTestBase
                 ArchiveId = ObjectProvider.Create<ArchiveId>(),
                 ExtractRequestId = ObjectProvider.Create<ExtractRequestId>(),
                 Description = ObjectProvider.Create<string>(),
+                DownloadId = ObjectProvider.Create<DownloadId>(),
                 Problems = []
             }).OmitAutoProperties());
     }
@@ -38,9 +39,17 @@ public class RoadNetworkChangesArchiveEventModuleTests : RoadNetworkTestBase
     [Fact]
     public async Task WhenRoadNetworkChangesArchiveAcceptedWithEmptyChanges_ThenRoadNetworkChangesArchiveRejected()
     {
-        var @event = new Event(ObjectProvider.Create<RoadNetworkChangesArchiveAccepted>())
-            .WithProvenanceData(new RoadRegistryProvenanceData());
+        var archiveAccepted = ObjectProvider.Create<RoadNetworkChangesArchiveAccepted>();
 
+        await Given(RoadNetworkExtracts.ToStreamName(ExtractRequestId.FromString(archiveAccepted.ExtractRequestId)),
+            new RoadNetworkExtractDownloadBecameAvailable
+            {
+                DownloadId = archiveAccepted.DownloadId!.Value,
+                ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.V2
+            });
+
+        var @event = new Event(archiveAccepted)
+            .WithProvenanceData(new RoadRegistryProvenanceData());
         await DispatchEvent(@event);
 
         var producedEvent = (Event)_roadNetworkEventWriterMock.Invocations.Single().Arguments[2];
@@ -50,12 +59,21 @@ public class RoadNetworkChangesArchiveEventModuleTests : RoadNetworkTestBase
     protected override void ConfigureServices(IServiceCollection services)
     {
         services
-            .AddSingleton<IZipArchiveFeatureCompareTranslator>(_ =>
+            .AddSingleton(_ =>
             {
                 var translator = new Mock<IZipArchiveFeatureCompareTranslator>();
                 translator
                     .Setup(x => x.TranslateAsync(It.IsAny<ZipArchive>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(() => TranslatedChanges.Empty);
+
+                return translator.Object;
+            })
+            .AddSingleton(sp =>
+            {
+                var translator = new Mock<IZipArchiveFeatureCompareTranslatorFactory>();
+                translator
+                    .Setup(x => x.Create(It.IsAny<string>()))
+                    .Returns(sp.GetRequiredService<IZipArchiveFeatureCompareTranslator>);
 
                 return translator.Object;
             });
@@ -70,8 +88,8 @@ public class RoadNetworkChangesArchiveEventModuleTests : RoadNetworkTestBase
             {
                 return new BlobObject(new BlobName("archive.zip"), Metadata.None, new ContentType(), _ =>
                 {
-                    var archiveStream = new MemoryStream();
-                    new ExtractsZipArchiveBuilder().Build(archiveStream);
+                    var archiveStream = new ExtractsZipArchiveBuilder()
+                        .BuildArchiveStream();
                     return Task.FromResult<Stream>(archiveStream);
                 });
             });
@@ -82,7 +100,6 @@ public class RoadNetworkChangesArchiveEventModuleTests : RoadNetworkTestBase
                 new RoadNetworkUploadsBlobClient(blobClient.Object),
                 Store,
                 new ApplicationMetadata(RoadRegistryApplication.BackOffice),
-                new TransactionZoneFeatureCompareFeatureReader(FileEncoding.UTF8),
                 _roadNetworkEventWriterMock.Object,
                 Mock.Of<IExtractUploadFailedEmailClient>(),
                 LoggerFactory

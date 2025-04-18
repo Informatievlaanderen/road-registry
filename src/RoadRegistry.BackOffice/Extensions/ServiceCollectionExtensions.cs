@@ -9,9 +9,6 @@ using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 using Configuration;
 using Core;
 using FeatureCompare;
-using FeatureCompare.Readers;
-using FeatureCompare.Translators;
-using FeatureCompare.Validation;
 using FeatureToggle;
 using Framework;
 using Microsoft.Extensions.Configuration;
@@ -177,41 +174,95 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddFeatureCompare(this IServiceCollection services)
     {
         return services
-            .AddSingleton<ITransactionZoneFeatureCompareFeatureReader, TransactionZoneFeatureCompareFeatureReader>()
-            .AddSingleton<RoadNodeFeatureCompareFeatureReader>()
-            .AddSingleton<RoadSegmentFeatureCompareFeatureReader>()
-            .AddSingleton<RoadSegmentLaneFeatureCompareFeatureReader>()
-            .AddSingleton<RoadSegmentWidthFeatureCompareFeatureReader>()
-            .AddSingleton<RoadSegmentSurfaceFeatureCompareFeatureReader>()
-            .AddSingleton<EuropeanRoadFeatureCompareFeatureReader>()
-            .AddSingleton<NationalRoadFeatureCompareFeatureReader>()
-            .AddSingleton<NumberedRoadFeatureCompareFeatureReader>()
-            .AddSingleton<GradeSeparatedJunctionFeatureCompareFeatureReader>()
+            .AddFeatureCompareV1()
+            .AddFeatureCompareV2()
+            .AddSingleton<ITransactionZoneZipArchiveReader, TransactionZoneZipArchiveReader>()
+            .AddSingleton<IZipArchiveBeforeFeatureCompareValidatorFactory, ZipArchiveBeforeFeatureCompareValidatorFactory>()
+            .AddSingleton<IZipArchiveFeatureCompareTranslatorFactory, ZipArchiveFeatureCompareTranslatorFactory>()
+            ;
+    }
 
-            .AddSingleton<TransactionZoneFeatureCompareTranslator>()
-            .AddSingleton<RoadNodeFeatureCompareTranslator>()
-            .AddSingleton<IRoadSegmentFeatureCompareStreetNameContextFactory, RoadSegmentFeatureCompareStreetNameContextFactory>()
-            .AddSingleton<RoadSegmentFeatureCompareTranslator>()
-            .AddSingleton<RoadSegmentLaneFeatureCompareTranslator>()
-            .AddSingleton<RoadSegmentWidthFeatureCompareTranslator>()
-            .AddSingleton<RoadSegmentSurfaceFeatureCompareTranslator>()
-            .AddSingleton<EuropeanRoadFeatureCompareTranslator>()
-            .AddSingleton<NationalRoadFeatureCompareTranslator>()
-            .AddSingleton<NumberedRoadFeatureCompareTranslator>()
-            .AddSingleton<GradeSeparatedJunctionFeatureCompareTranslator>()
-            .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
+    private static IServiceCollection AddFeatureCompareV1(this IServiceCollection services)
+    {
+        return services
+            .AddSingleton<FeatureCompare.V1.Readers.TransactionZoneFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V1.Readers.RoadNodeFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V1.Readers.RoadSegmentFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V1.Readers.RoadSegmentLaneFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V1.Readers.RoadSegmentWidthFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V1.Readers.RoadSegmentSurfaceFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V1.Readers.EuropeanRoadFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V1.Readers.NationalRoadFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V1.Readers.NumberedRoadFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V1.Readers.GradeSeparatedJunctionFeatureCompareFeatureReader>()
 
-            .AddSingleton<TransactionZoneZipArchiveValidator>()
-            .AddSingleton<RoadNodeZipArchiveValidator>()
-            .AddSingleton<RoadSegmentZipArchiveValidator>()
-            .AddSingleton<RoadSegmentLaneZipArchiveValidator>()
-            .AddSingleton<RoadSegmentWidthZipArchiveValidator>()
-            .AddSingleton<RoadSegmentSurfaceZipArchiveValidator>()
-            .AddSingleton<EuropeanRoadZipArchiveValidator>()
-            .AddSingleton<NationalRoadZipArchiveValidator>()
-            .AddSingleton<NumberedRoadZipArchiveValidator>()
-            .AddSingleton<GradeSeparatedJunctionZipArchiveValidator>()
-            .AddSingleton<IZipArchiveFeatureCompareTranslator, ZipArchiveFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V1.Translators.TransactionZoneFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V1.Translators.RoadNodeFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V1.Translators.IRoadSegmentFeatureCompareStreetNameContextFactory, FeatureCompare.V1.Translators.RoadSegmentFeatureCompareStreetNameContextFactory>()
+            .AddSingleton<FeatureCompare.V1.Translators.RoadSegmentFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V1.Translators.RoadSegmentLaneFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V1.Translators.RoadSegmentWidthFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V1.Translators.RoadSegmentSurfaceFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V1.Translators.EuropeanRoadFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V1.Translators.NationalRoadFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V1.Translators.NumberedRoadFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V1.Translators.GradeSeparatedJunctionFeatureCompareTranslator>()
+
+            .AddSingleton<FeatureCompare.V1.Validation.TransactionZoneZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V1.Validation.RoadNodeZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V1.Validation.RoadSegmentZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V1.Validation.RoadSegmentLaneZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V1.Validation.RoadSegmentWidthZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V1.Validation.RoadSegmentSurfaceZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V1.Validation.EuropeanRoadZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V1.Validation.NationalRoadZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V1.Validation.NumberedRoadZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V1.Validation.GradeSeparatedJunctionZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V1.Validation.ZipArchiveBeforeFeatureCompareValidator>()
+
+            .AddSingleton<FeatureCompare.V1.ZipArchiveFeatureCompareTranslator>()
+            ;
+    }
+
+    private static IServiceCollection AddFeatureCompareV2(this IServiceCollection services)
+    {
+        return services
+            .AddSingleton<FeatureCompare.V2.Readers.TransactionZoneFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V2.Readers.RoadNodeFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V2.Readers.RoadSegmentFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V2.Readers.RoadSegmentLaneFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V2.Readers.RoadSegmentWidthFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V2.Readers.RoadSegmentSurfaceFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V2.Readers.EuropeanRoadFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V2.Readers.NationalRoadFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V2.Readers.NumberedRoadFeatureCompareFeatureReader>()
+            .AddSingleton<FeatureCompare.V2.Readers.GradeSeparatedJunctionFeatureCompareFeatureReader>()
+
+            .AddSingleton<FeatureCompare.V2.Translators.TransactionZoneFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V2.Translators.RoadNodeFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V2.Translators.IRoadSegmentFeatureCompareStreetNameContextFactory, FeatureCompare.V2.Translators.RoadSegmentFeatureCompareStreetNameContextFactory>()
+            .AddSingleton<FeatureCompare.V2.Translators.RoadSegmentFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V2.Translators.RoadSegmentLaneFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V2.Translators.RoadSegmentWidthFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V2.Translators.RoadSegmentSurfaceFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V2.Translators.EuropeanRoadFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V2.Translators.NationalRoadFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V2.Translators.NumberedRoadFeatureCompareTranslator>()
+            .AddSingleton<FeatureCompare.V2.Translators.GradeSeparatedJunctionFeatureCompareTranslator>()
+
+            .AddSingleton<FeatureCompare.V2.Validation.TransactionZoneZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V2.Validation.RoadNodeZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V2.Validation.RoadSegmentZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V2.Validation.RoadSegmentLaneZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V2.Validation.RoadSegmentWidthZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V2.Validation.RoadSegmentSurfaceZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V2.Validation.EuropeanRoadZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V2.Validation.NationalRoadZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V2.Validation.NumberedRoadZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V2.Validation.GradeSeparatedJunctionZipArchiveValidator>()
+            .AddSingleton<FeatureCompare.V2.Validation.ZipArchiveBeforeFeatureCompareValidator>()
+
+            .AddSingleton<FeatureCompare.V2.ZipArchiveFeatureCompareTranslator>()
             ;
     }
 }

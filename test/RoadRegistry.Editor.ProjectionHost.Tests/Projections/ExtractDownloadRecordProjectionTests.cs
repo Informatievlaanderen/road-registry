@@ -36,6 +36,7 @@ public class ExtractDownloadRecordProjectionTests
                                 ExternalRequestId = externalRequestId,
                                 RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
                                 ArchiveId = _fixture.Create<ArchiveId>(),
+                                ZipArchiveWriterVersion = _fixture.Create<string>(),
                                 When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
                             };
                         }
@@ -75,6 +76,7 @@ public class ExtractDownloadRecordProjectionTests
                     ExternalRequestId = available.ExternalRequestId,
                     ArchiveId = available.ArchiveId,
                     Available = true,
+                    ZipArchiveWriterVersion = available.ZipArchiveWriterVersion,
                     AvailableOn = InstantPattern.ExtendedIso.Parse(available.When).Value.ToUnixTimeSeconds(),
                     RequestedOn = InstantPattern.ExtendedIso.Parse(available.When).Value.ToUnixTimeSeconds()
                 };
@@ -165,7 +167,8 @@ public class ExtractDownloadRecordProjectionTests
                     ArchiveId = download1BecameAvailable.ArchiveId,
                     Available = true,
                     AvailableOn = InstantPattern.ExtendedIso.Parse(download1BecameAvailable.When).Value.ToUnixTimeSeconds(),
-                    RequestedOn = InstantPattern.ExtendedIso.Parse(download1GotRequested.When).Value.ToUnixTimeSeconds()
+                    RequestedOn = InstantPattern.ExtendedIso.Parse(download1GotRequested.When).Value.ToUnixTimeSeconds(),
+                    ZipArchiveWriterVersion = download1BecameAvailable.ZipArchiveWriterVersion
                 },
                 new ExtractDownloadRecord
                 {

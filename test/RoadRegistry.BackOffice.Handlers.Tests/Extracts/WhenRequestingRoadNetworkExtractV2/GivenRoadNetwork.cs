@@ -6,6 +6,7 @@ using BackOffice.Extracts;
 using BackOffice.Framework;
 using Editor.Schema;
 using Editor.Schema.Extracts;
+using FeatureToggles;
 using FluentAssertions;
 using Handlers.Extracts;
 using Messages;
@@ -71,6 +72,7 @@ public class GivenRoadNetwork: RoadNetworkTestBase
                 new ApplicationMetadata(RoadRegistryApplication.BackOffice),
                 Mock.Of<IRoadNetworkEventWriter>(),
                 Mock.Of<IExtractUploadFailedEmailClient>(),
+                new UseExtractZipArchiveWriterV2FeatureToggle(true),
                 LoggerFactory.CreateLogger<RoadNetworkExtractEventModule>())
         };
 

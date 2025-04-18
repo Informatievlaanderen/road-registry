@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using Abstractions;
 using BackOffice.ZipArchiveWriters.ExtractHost;
+using BackOffice.ZipArchiveWriters.ExtractHost.V1;
 using Editor.Schema;
 using Extracts;
 using Microsoft.IO;

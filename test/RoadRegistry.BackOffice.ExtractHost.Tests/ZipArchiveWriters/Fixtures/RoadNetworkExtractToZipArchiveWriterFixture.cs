@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using Abstractions;
 using BackOffice.ZipArchiveWriters.ExtractHost;
+using BackOffice.ZipArchiveWriters.ExtractHost.V1;
 using Editor.Schema;
 using Extracts;
 using Microsoft.Extensions.Logging;
@@ -29,7 +30,7 @@ public class RoadNetworkExtractToZipArchiveWriterFixture : ZipArchiveWriterFixtu
             streetNameCache,
             memoryStreamManager,
             Encoding.UTF8,
-            loggerFactory.CreateLogger<RoadNetworkExtractToZipArchiveWriter>());
+            loggerFactory);
 
         _assembler = new RoadNetworkExtractArchiveAssembler(
             memoryStreamManager,

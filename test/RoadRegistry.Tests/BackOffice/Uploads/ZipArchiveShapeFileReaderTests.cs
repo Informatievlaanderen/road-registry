@@ -8,7 +8,9 @@ using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.FeatureCompare;
+using RoadRegistry.BackOffice.FeatureCompare.V1;
 using RoadRegistry.BackOffice.ShapeFile;
+using RoadRegistry.BackOffice.ShapeFile.V1;
 using RoadRegistry.BackOffice.Uploads;
 
 public class ZipArchiveShapeFileReaderTests

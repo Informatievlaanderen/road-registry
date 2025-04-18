@@ -1,8 +1,11 @@
 namespace RoadRegistry.BackOffice.Extensions;
 
 using System;
+using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 public static class ZipArchiveExtensions
 {
@@ -17,5 +20,15 @@ public static class ZipArchiveExtensions
         }
 
         return null;
+    }
+
+    public static async Task CopyFrom(this ZipArchiveEntry entry, MemoryStream stream, CancellationToken cancellationToken)
+    {
+        await using var entryStream = entry.Open();
+
+        stream.Position = 0;
+        await stream.CopyToAsync(entryStream, cancellationToken);
+
+        await entryStream.FlushAsync(cancellationToken);
     }
 }

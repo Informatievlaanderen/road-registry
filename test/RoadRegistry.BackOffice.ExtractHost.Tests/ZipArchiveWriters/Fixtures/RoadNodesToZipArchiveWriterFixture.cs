@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.Tests.ZipArchiveWriters.Fixtures;
 using System.Diagnostics;
 using System.Text;
 using BackOffice.ZipArchiveWriters.ExtractHost;
+using BackOffice.ZipArchiveWriters.ExtractHost.V1;
 using Editor.Schema;
 using Extracts;
 using Microsoft.IO;

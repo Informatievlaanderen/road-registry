@@ -8,6 +8,7 @@ using Core;
 using Editor.Schema;
 using Exceptions;
 using FeatureCompare;
+using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Messages;
@@ -21,6 +22,7 @@ using TicketingService.Abstractions;
 
 public class RoadNetworkExtractEventModule : EventHandlerModule
 {
+    private readonly UseExtractZipArchiveWriterV2FeatureToggle _useExtractZipArchiveWriterV2FeatureToggle;
     private readonly ILifetimeScope _lifetimeScope;
 
     public RoadNetworkExtractEventModule(
@@ -32,9 +34,11 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         ApplicationMetadata applicationMetadata,
         IRoadNetworkEventWriter roadNetworkEventWriter,
         IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
+        UseExtractZipArchiveWriterV2FeatureToggle useExtractZipArchiveWriterV2FeatureToggle,
         ILogger<RoadNetworkExtractEventModule> logger)
     {
         _lifetimeScope = lifetimeScope.ThrowIfNull();
+        _useExtractZipArchiveWriterV2FeatureToggle = useExtractZipArchiveWriterV2FeatureToggle.ThrowIfNull();
 
         ArgumentNullException.ThrowIfNull(downloadsBlobClient);
         ArgumentNullException.ThrowIfNull(uploadsBlobClient);
@@ -70,10 +74,15 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
 
                 try
                 {
-                    var featureCompareTranslator = container.Resolve<IZipArchiveFeatureCompareTranslator>();
+                    var roadRegistryContext = container.Resolve<IRoadRegistryContext>();
+                    var extract = await roadRegistryContext.RoadNetworkExtracts.Get(extractRequestId, ct);
+
+                    var featureCompareTranslatorFactory = container.Resolve<IZipArchiveFeatureCompareTranslatorFactory>();
+                    var featureCompareTranslator = featureCompareTranslatorFactory.Create(extract.ZipArchiveWriterVersion);
 
                     await using var archiveBlobStream = await archiveBlob.OpenAsync(ct);
                     using var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false);
+
                     var translatedChanges = await featureCompareTranslator.TranslateAsync(archive, ct);
                     translatedChanges = translatedChanges.WithOperatorName(new OperatorName(message.ProvenanceData.Operator));
 
@@ -143,12 +152,11 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
 
         var policy = Policy
             .HandleResult<bool>(exists => !exists)
-            .WaitAndRetryAsync(new[]
-            {
+            .WaitAndRetryAsync([
                 TimeSpan.FromSeconds(1),
                 TimeSpan.FromSeconds(3),
                 TimeSpan.FromSeconds(5)
-            });
+            ]);
         var blobExists = await policy.ExecuteAsync(() => downloadsBlobClient.BlobExistsAsync(blobName, ct));
 
         if (blobExists)
@@ -160,7 +168,10 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                     DownloadId = message.Body.DownloadId,
                     ArchiveId = archiveId,
                     IsInformative = message.Body.IsInformative,
-                    OverlapsWithDownloadIds = overlappingDownloadIds
+                    OverlapsWithDownloadIds = overlappingDownloadIds,
+                    ZipArchiveWriterVersion = _useExtractZipArchiveWriterV2FeatureToggle.FeatureEnabled
+                        ? WellKnownZipArchiveWriterVersions.V2
+                        : WellKnownZipArchiveWriterVersions.V1
                 })
                 .WithMessageId(message.MessageId), ct);
         }
@@ -194,7 +205,10 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                             DownloadId = message.Body.DownloadId,
                             ArchiveId = archiveId,
                             IsInformative = message.Body.IsInformative,
-                            OverlapsWithDownloadIds = overlappingDownloadIds
+                            OverlapsWithDownloadIds = overlappingDownloadIds,
+                            ZipArchiveWriterVersion = _useExtractZipArchiveWriterV2FeatureToggle.FeatureEnabled
+                                ? WellKnownZipArchiveWriterVersions.V2
+                                : WellKnownZipArchiveWriterVersions.V1
                         })
                     .WithMessageId(message.MessageId), ct);
             }

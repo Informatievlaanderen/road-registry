@@ -38,7 +38,14 @@ public abstract class EventSourcedEntityRepository<TEntity, TIdentifier>
         _entityFactory = entityFactory.ThrowIfNull();
     }
 
-    public async Task<TEntity> FindAsync(TIdentifier id, CancellationToken ct = default)
+    protected void Add(TIdentifier id, TEntity entity)
+    {
+        ArgumentNullException.ThrowIfNull(entity);
+
+        _map.Attach(new EventSourcedEntityMapEntry(entity, _getStreamName(id), ExpectedVersion.NoStream));
+    }
+
+    public async Task<TEntity> FindAsync(TIdentifier id, CancellationToken cancellationToken = default)
     {
         var stream = _getStreamName(id);
         if (_map.TryGet(stream, out var entry))
@@ -47,25 +54,28 @@ public abstract class EventSourcedEntityRepository<TEntity, TIdentifier>
             return ConvertEntity(cachedEntity);
         }
 
-        var page = await _store.ReadStreamForwards(stream, StreamVersion.Start, 100, ct);
+        var page = await _store.ReadStreamForwards(stream, StreamVersion.Start, 100, cancellationToken);
         if (page.Status == PageReadStatus.StreamNotFound || !page.Messages.Any())
         {
             return null;
         }
 
         var entity = _entityFactory();
+
         var messages = new List<object>(page.Messages.Length);
         foreach (var message in page.Messages)
             messages.Add(
                 JsonConvert.DeserializeObject(
-                    await message.GetJsonData(ct),
+                    await message.GetJsonData(cancellationToken),
                     _mapping.GetEventType(message.Type),
                     _settings));
+
         entity.RestoreFromEvents(messages.ToArray());
+
         while (!page.IsEnd)
         {
             messages.Clear();
-            page = await page.ReadNext(ct);
+            page = await page.ReadNext(cancellationToken);
             if (page.Status == PageReadStatus.StreamNotFound)
             {
                 return null;
@@ -74,7 +84,7 @@ public abstract class EventSourcedEntityRepository<TEntity, TIdentifier>
             foreach (var message in page.Messages)
                 messages.Add(
                     JsonConvert.DeserializeObject(
-                        await message.GetJsonData(ct),
+                        await message.GetJsonData(cancellationToken),
                         _mapping.GetEventType(message.Type),
                         _settings));
             entity.RestoreFromEvents(messages.ToArray());

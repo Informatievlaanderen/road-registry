@@ -65,7 +65,7 @@ namespace RoadRegistry.Tests.BackOffice
             return this;
         }
 
-        public ExtractsZipArchiveBuilder WithChange(Action<ExtractsZipArchiveExtractDataSetBuilder, ExtractsZipArchiveChangeDataSetBuilderContext> configure)
+        public ExtractsZipArchiveBuilder WithChange(Action<ExtractsZipArchiveChangeDataSetBuilder, ExtractsZipArchiveChangeDataSetBuilderContext> configure)
         {
             if (_extractStreams is null)
             {
@@ -133,6 +133,17 @@ namespace RoadRegistry.Tests.BackOffice
                     DataSet = _change.DataSet
                 }
             }));
+        }
+
+        public MemoryStream BuildArchiveStream()
+        {
+            var archiveStream = new MemoryStream();
+
+            var archive = Build(archiveStream);
+            archive.Dispose();
+
+            archiveStream.Position = 0;
+            return archiveStream;
         }
 
         public ZipArchive Build(MemoryStream archiveStream = null)
@@ -761,14 +772,14 @@ namespace RoadRegistry.Tests.BackOffice
         public ZipArchiveDataSetStreams(Fixture fixture, ZipArchiveDataSet set)
             : base(fixture, set)
         {
-            EuropeanRoadDbaseRecords = fixture.CreateDbfFile(RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema, set.EuropeanRoadDbaseRecords ?? new List<RoadSegmentEuropeanRoadAttributeDbaseRecord>());
-            NationalRoadDbaseRecords = fixture.CreateDbfFile(RoadSegmentNationalRoadAttributeDbaseRecord.Schema, set.NationalRoadDbaseRecords ?? new List<RoadSegmentNationalRoadAttributeDbaseRecord>());
-            NumberedRoadDbaseRecords = fixture.CreateDbfFile(RoadSegmentNumberedRoadAttributeDbaseRecord.Schema, set.NumberedRoadDbaseRecords ?? new List<RoadSegmentNumberedRoadAttributeDbaseRecord>());
-            LaneDbaseRecords = fixture.CreateDbfFile(RoadSegmentLaneAttributeDbaseRecord.Schema, set.LaneDbaseRecords ?? new List<RoadSegmentLaneAttributeDbaseRecord>());
-            SurfaceDbaseRecords = fixture.CreateDbfFile(RoadSegmentSurfaceAttributeDbaseRecord.Schema, set.SurfaceDbaseRecords ?? new List<RoadSegmentSurfaceAttributeDbaseRecord>());
-            WidthDbaseRecords = fixture.CreateDbfFile(RoadSegmentWidthAttributeDbaseRecord.Schema, set.WidthDbaseRecords ?? new List<RoadSegmentWidthAttributeDbaseRecord>());
-            GradeSeparatedJunctionDbaseRecords = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, set.GradeSeparatedJunctionDbaseRecords ?? new List<GradeSeparatedJunctionDbaseRecord>());
-            TransactionZoneDbaseRecords = fixture.CreateDbfFile(TransactionZoneDbaseRecord.Schema, set.TransactionZoneDbaseRecords ?? new List<TransactionZoneDbaseRecord>());
+            EuropeanRoadDbaseRecords = fixture.CreateDbfFile(RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema, set.EuropeanRoadDbaseRecords ?? []);
+            NationalRoadDbaseRecords = fixture.CreateDbfFile(RoadSegmentNationalRoadAttributeDbaseRecord.Schema, set.NationalRoadDbaseRecords ?? []);
+            NumberedRoadDbaseRecords = fixture.CreateDbfFile(RoadSegmentNumberedRoadAttributeDbaseRecord.Schema, set.NumberedRoadDbaseRecords ?? []);
+            LaneDbaseRecords = fixture.CreateDbfFile(RoadSegmentLaneAttributeDbaseRecord.Schema, set.LaneDbaseRecords ?? []);
+            SurfaceDbaseRecords = fixture.CreateDbfFile(RoadSegmentSurfaceAttributeDbaseRecord.Schema, set.SurfaceDbaseRecords ?? []);
+            WidthDbaseRecords = fixture.CreateDbfFile(RoadSegmentWidthAttributeDbaseRecord.Schema, set.WidthDbaseRecords ?? []);
+            GradeSeparatedJunctionDbaseRecords = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, set.GradeSeparatedJunctionDbaseRecords ?? []);
+            TransactionZoneDbaseRecords = fixture.CreateDbfFile(TransactionZoneDbaseRecord.Schema, set.TransactionZoneDbaseRecords ?? []);
         }
 
         public MemoryStream EuropeanRoadDbaseRecords { get; }

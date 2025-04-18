@@ -11,30 +11,26 @@ using System;
 using System.IO.Compression;
 using System.Linq;
 using Autofac;
-using Extracts;
 using FeatureCompare;
-using FeatureCompare.Readers;
 using TicketingService.Abstractions;
 
 public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
 {
-    private readonly ITransactionZoneFeatureCompareFeatureReader _transactionZoneFeatureReader;
-
     public RoadNetworkChangesArchiveCommandModule(
         RoadNetworkUploadsBlobClient blobClient,
         IStreamStore store,
         ILifetimeScope lifetimeScope,
         IRoadNetworkSnapshotReader snapshotReader,
-        IZipArchiveBeforeFeatureCompareValidator beforeFeatureCompareValidator,
-        ITransactionZoneFeatureCompareFeatureReader transactionZoneFeatureReader,
+        IZipArchiveBeforeFeatureCompareValidatorFactory beforeFeatureCompareValidatorFactory,
+        ITransactionZoneZipArchiveReader transactionZoneFeatureReader,
         IClock clock,
         ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(blobClient);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
-        ArgumentNullException.ThrowIfNull(beforeFeatureCompareValidator);
-        _transactionZoneFeatureReader = transactionZoneFeatureReader.ThrowIfNull();
+        ArgumentNullException.ThrowIfNull(beforeFeatureCompareValidatorFactory);
+        ArgumentNullException.ThrowIfNull(transactionZoneFeatureReader);
         ArgumentNullException.ThrowIfNull(clock);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
@@ -49,6 +45,7 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
                 logger.LogInformation("Command handler started for {Command}", nameof(UploadRoadNetworkChangesArchive));
 
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
+                var downloadId = new DownloadId(message.Body.DownloadId);
                 var extractRequestId = ExtractRequestId.FromString(message.Body.ExtractRequestId);
 
                 logger.LogInformation("Download started for S3 blob {BlobName}", archiveId);
@@ -60,12 +57,13 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
                         logger.LogInformation("Validation started for archive");
-                        var problems = await beforeFeatureCompareValidator.ValidateAsync(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty), ct);
+                        var beforeFeatureCompareValidator = beforeFeatureCompareValidatorFactory.Create(message.Body.ZipArchiveWriterVersion);
+                        var problems = await beforeFeatureCompareValidator.ValidateAsync(archive, ZipArchiveMetadata.Empty, ct);
 
-                        var extractDescription = ReadExtractDescriptionSafely(archive);
+                        var extractDescription = transactionZoneFeatureReader.Read(archive).Description;
 
                         var upload = RoadNetworkChangesArchive.Upload(archiveId, extractDescription, message.Body.TicketId);
-                        upload.AcceptOrReject(problems, extractRequestId, message.Body.TicketId);
+                        upload.AcceptOrReject(problems, extractRequestId, downloadId, message.Body.TicketId);
 
                         if (problems.HasError() && message.Body.TicketId is not null)
                         {
@@ -82,27 +80,5 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(UploadRoadNetworkChangesArchive));
             });
-    }
-
-    private ExtractDescription ReadExtractDescriptionSafely(ZipArchive archive)
-    {
-        try
-        {
-            return _transactionZoneFeatureReader
-                .Read(
-                    archive,
-                    FeatureType.Change,
-                    ExtractFileName.Transactiezones,
-                    new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty)
-                )
-                .Item1
-                .Single()
-                .Attributes
-                .Description;
-        }
-        catch
-        {
-            return new ExtractDescription();
-        }
     }
 }

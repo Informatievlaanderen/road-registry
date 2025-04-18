@@ -28,8 +28,9 @@ using RoadRegistry.Hosts.Infrastructure.Options;
 using SqlStreamStore;
 using System.Reflection;
 using Api.Grb;
-using FeatureCompare.Readers;
-using FeatureCompare.Translators;
+using FeatureCompare;
+using FeatureCompare.V1.Readers;
+using FeatureCompare.V1.Translators;
 using Sync.MunicipalityRegistry;
 using MediatorModule = BackOffice.MediatorModule;
 
@@ -45,8 +46,8 @@ public class Startup : TestStartup
                     sp.GetService<IStreamStore>(),
                     sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
-                    sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
-                    sp.GetService<ITransactionZoneFeatureCompareFeatureReader>(),
+                    sp.GetService<IZipArchiveBeforeFeatureCompareValidatorFactory>(),
+                    sp.GetService<ITransactionZoneZipArchiveReader>(),
                     sp.GetService<IClock>(),
                     sp.GetService<ILoggerFactory>()
                 ),
@@ -63,7 +64,7 @@ public class Startup : TestStartup
                     sp.GetService<IStreamStore>(),
                     sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
-                    sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
+                    sp.GetService<IZipArchiveBeforeFeatureCompareValidatorFactory>(),
                     sp.GetService<IExtractUploadFailedEmailClient>(),
                     sp.GetService<IClock>(),
                     sp.GetService<ILoggerFactory>()
@@ -81,7 +82,7 @@ public class Startup : TestStartup
             .RegisterInstance(new FakeBackOfficeS3SqsQueue())
             .As<IBackOfficeS3SqsQueue>();
         builder
-            .RegisterInstance(new FakeRoadSegmentFeatureCompareStreetNameContextFactory())
+            .RegisterInstance(new FakeRoadSegmentFeatureCompareStreetNameContextFactoryV1())
             .As<IRoadSegmentFeatureCompareStreetNameContextFactory>();
     }
 

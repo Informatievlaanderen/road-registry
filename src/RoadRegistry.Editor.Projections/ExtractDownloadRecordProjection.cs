@@ -70,6 +70,7 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
             record.Available = true;
             record.AvailableOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds();
             record.IsInformative = envelope.Message.IsInformative;
+            record.ZipArchiveWriterVersion = envelope.Message.ZipArchiveWriterVersion;
         });
 
         When<Envelope<RoadNetworkExtractDownloadTimeoutOccurred>>(async (context, envelope, ct) =>

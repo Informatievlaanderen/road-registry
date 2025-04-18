@@ -1,11 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Infrastructure.Containers;
 
-using Abstractions;
 using Editor.Schema;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IO;
-using Product.Schema;
 using RoadRegistry.Tests.Framework.Containers;
 using Sync.MunicipalityRegistry;
 
@@ -16,13 +13,7 @@ public class SqlServer : ISqlServerDatabase
     public SqlServer()
     {
         _inner = SqlServerDatabaseFactory.Create(RoadRegistryAssembly.BackOfficeApi);
-
-        MemoryStreamManager = new RecyclableMemoryStreamManager();
-        StreetNameCache = new FakeStreetNameCache();
     }
-
-    public RecyclableMemoryStreamManager MemoryStreamManager { get; }
-    public IStreetNameCache StreetNameCache { get; }
 
     public Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
     {

@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice;
 
-using System;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Core;

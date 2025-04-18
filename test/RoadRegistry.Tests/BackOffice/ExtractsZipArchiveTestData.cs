@@ -12,7 +12,7 @@ using RoadRegistry.BackOffice.Extracts.Dbase;
 using RoadRegistry.BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
-using RoadRegistry.BackOffice.FeatureCompare.Translators;
+using RoadRegistry.BackOffice.FeatureCompare;
 using RoadRegistry.BackOffice.Uploads;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
@@ -589,10 +589,9 @@ public class ExtractsZipArchiveTestData : IDisposable
         var gradeSeparatedJunctionChangeStream = Fixture.CreateDbfFileWithOneRecord(GradeSeparatedJunctionDbaseRecord.Schema, gradeSeparatedJunctionDbaseRecord);
 
         var transactionZoneProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
-        var transactionZoneShapeStream = Fixture.CreateTransactionZoneShapeFile(new[]
-        {
+        var transactionZoneShapeStream = Fixture.CreateTransactionZoneShapeFile([
             Fixture.Create<PolygonShapeContent>()
-        });
+        ]);
         var transactionZoneDbaseStream = Fixture.CreateDbfFileWithOneRecord<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema);
 
         return CreateZipArchive(
@@ -622,8 +621,8 @@ public class ExtractsZipArchiveTestData : IDisposable
     [Fact]
     public async Task ExtractsZipArchiveTestDataIsValid()
     {
-        var sut = ZipArchiveBeforeFeatureCompareValidatorFactory.Create();
-        var result = await sut.ValidateAsync(ZipArchive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty), CancellationToken.None);
+        var sut = ZipArchiveBeforeFeatureCompareValidatorV1Builder.Create();
+        var result = await sut.ValidateAsync(ZipArchive, ZipArchiveMetadata.Empty, CancellationToken.None);
 
         Assert.Equal(ZipArchiveProblems.None, result);
     }

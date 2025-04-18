@@ -1,0 +1,10 @@
+namespace RoadRegistry.BackOffice.FeatureCompare.V2;
+
+using System.Threading;
+using System.Threading.Tasks;
+using RoadRegistry.BackOffice.Uploads;
+
+public interface IZipArchiveEntryFeatureCompareTranslator
+{
+    Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken);
+}
