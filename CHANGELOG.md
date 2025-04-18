@@ -1,3 +1,10 @@
+# [4.29.0](https://github.com/informatievlaanderen/road-registry/compare/v4.28.5...v4.29.0) (2025-04-18)
+
+
+### Features
+
+* GAWR-6833 write/read shp/dbf files using NetTopologySuite ([c58804f](https://github.com/informatievlaanderen/road-registry/commit/c58804f695d4b23ba28a56c3f9aa4f8dcfd94d21))
+
 ## [4.28.5](https://github.com/informatievlaanderen/road-registry/compare/v4.28.4...v4.28.5) (2025-04-04)
 
 
