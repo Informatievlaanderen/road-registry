@@ -21,8 +21,7 @@ public class RoadSegmentWidthFeatureCompareFeatureReader : VersionedZipArchiveFe
 
     public RoadSegmentWidthFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
-            new UploadsV2FeatureReader(encoding),
-            new UploadsV1FeatureReader(encoding))
+            new UploadsV2FeatureReader(encoding))
     {
     }
 
@@ -118,26 +117,6 @@ public class RoadSegmentWidthFeatureCompareFeatureReader : VersionedZipArchiveFe
         }
 
         protected override (Feature<RoadSegmentWidthFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentWidthAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
-        {
-            return new DbaseRecordData
-            {
-                WB_OIDN = dbaseRecord.WB_OIDN.GetValue(),
-                WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
-                VANPOS = dbaseRecord.VANPOS.GetValue(),
-                TOTPOS = dbaseRecord.TOTPOS.GetValue(),
-                BREEDTE = dbaseRecord.BREEDTE.GetValue()
-            }.ToFeature(featureType, FileName, recordNumber);
-        }
-    }
-
-    private sealed class UploadsV1FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentWidthAttributeDbaseRecord, Feature<RoadSegmentWidthFeatureCompareAttributes>>
-    {
-        public UploadsV1FeatureReader(Encoding encoding)
-            : base(encoding, RoadSegmentWidthFeatureCompareFeatureReader.FileName, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentWidthAttributeDbaseRecord.Schema)
-        {
-        }
-
-        protected override (Feature<RoadSegmentWidthFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentWidthAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {
