@@ -31,7 +31,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20.x'
+        node-version: '22.x'
 
     - name: Node version
       shell: bash
@@ -62,8 +62,7 @@ jobs:
       run: |
         [ ! -f semver ] && echo none > semver
         echo $(cat semver)
-        echo ::set-output name=version::$(cat semver)
-        echo RELEASE_VERSION=$(cat semver) >> $GITHUB_ENV
+        echo "version=$(cat semver)" >> "$GITHUB_OUTPUT"
         echo SA_PASSWORD=${{ secrets.SA_PASSWORD }} >> $GITHUB_ENV
       shell: bash
 
@@ -79,7 +78,8 @@ jobs:
       test-project: RoadRegistry.BackOffice.Api.Tests
       build-project: RoadRegistry.BackOffice.Api
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
     secrets: inherit
 
   build-backoffice-ui:
@@ -107,12 +107,13 @@ jobs:
       test-project: RoadRegistry.BackOffice.EventHost.Tests
       build-project: RoadRegistry.BackOffice.EventHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
     secrets: inherit
 
   build-backoffice-extracthost:
     name: Build BackOffice Extract Host
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -122,7 +123,8 @@ jobs:
       test-project: RoadRegistry.BackOffice.ExtractHost.Tests
       build-project: RoadRegistry.BackOffice.ExtractHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
     secrets: inherit
 
   build-backoffice-commandhost:
@@ -137,12 +139,13 @@ jobs:
         test-project: RoadRegistry.BackOffice.CommandHost.Tests
         build-project: RoadRegistry.BackOffice.CommandHost
         semver: ${{ needs.set-release-version.outputs.version }}
-        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
-      secrets: inherit
+        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
+    secrets: inherit
   
   build-adminhost:
       name: Build Admin Host
-      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
       needs: [ set-release-version ]
       if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
       with:
@@ -152,12 +155,13 @@ jobs:
         test-project: RoadRegistry.AdminHost.Tests
         build-project: RoadRegistry.AdminHost
         semver: ${{ needs.set-release-version.outputs.version }}
-        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
-      secrets: inherit
+        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
+    secrets: inherit
   
   build-jobs-processor:
       name: Build Jobs Processor
-      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
       needs: [ set-release-version ]
       if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
       with:
@@ -167,12 +171,13 @@ jobs:
         test-project: RoadRegistry.Jobs.Processor.Tests
         build-project: RoadRegistry.Jobs.Processor
         semver: ${{ needs.set-release-version.outputs.version }}
-        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
-      secrets: inherit
+        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
+    secrets: inherit
 
   build-projector:
     name: Build Projector
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -182,12 +187,13 @@ jobs:
       test-project: RoadRegistry.Projector.Tests
       build-project: RoadRegistry.Projector
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
     secrets: inherit
 
   build-projectionhost-editor:
     name: Build Editor Projection Host
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -197,12 +203,13 @@ jobs:
       test-project: RoadRegistry.Editor.ProjectionHost.Tests
       build-project: RoadRegistry.Editor.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
     secrets: inherit
   
   build-projectionhost-integration:
       name: Build Integration Projection Host
-      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
       needs: [ set-release-version ]
       if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
       with:
@@ -212,12 +219,13 @@ jobs:
         test-project: RoadRegistry.Integration.ProjectionHost.Tests
         build-project: RoadRegistry.Integration.ProjectionHost
         semver: ${{ needs.set-release-version.outputs.version }}
-        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
-      secrets: inherit
+        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
+    secrets: inherit
 
   build-projectionhost-product:
     name: Build Product Projection Host
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -227,12 +235,13 @@ jobs:
       test-project: RoadRegistry.Product.ProjectionHost.Tests
       build-project: RoadRegistry.Product.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
     secrets: inherit
 
   build-publishhost-product:
     name: Build Product Publish Host
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -242,12 +251,13 @@ jobs:
       test-project: RoadRegistry.Empty.Tests
       build-project: RoadRegistry.Product.PublishHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
     secrets: inherit
 
   build-projectionhost-producersnapshot:
     name: Build Producer Snapshot Projection Host
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -257,12 +267,13 @@ jobs:
       test-project: RoadRegistry.Producer.Snapshot.ProjectionHost.Tests
       build-project: RoadRegistry.Producer.Snapshot.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
     secrets: inherit
 
   build-synchost:
     name: Build Sync Host
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -272,12 +283,13 @@ jobs:
       test-project: RoadRegistry.SyncHost.Tests
       build-project: RoadRegistry.SyncHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
     secrets: inherit
 
   build-projectionhost-wms:
     name: Build WMS Projection Host
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -287,12 +299,13 @@ jobs:
       test-project: RoadRegistry.Wms.ProjectionHost.Tests
       build-project: RoadRegistry.Wms.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
     secrets: inherit
 
   build-projectionhost-wfs:
     name: Build WFS Projection Host
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -302,12 +315,13 @@ jobs:
       test-project: RoadRegistry.Wfs.ProjectionHost.Tests
       build-project: RoadRegistry.Wfs.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
     secrets: inherit
 
   pack-backoffice-api:
     name: Pack BackOffice Api
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/pack.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/pack-v2.yml@main
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -315,7 +329,8 @@ jobs:
       test-project: RoadRegistry.Empty.Tests
       build-project: RoadRegistry.BackOffice.Api
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
     secrets: inherit
   
   build-lambda-backoffice:
@@ -328,7 +343,8 @@ jobs:
       test-project: RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests
       build-project: RoadRegistry.BackOffice.Handlers.Sqs.Lambda
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
     secrets: inherit
 
   build-lambda-snapshot:
@@ -341,7 +357,8 @@ jobs:
       test-project: RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests
       build-project: RoadRegistry.Snapshot.Handlers.Sqs.Lambda
       semver: ${{ needs.set-release-version.outputs.version }}
-      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+      prerestore-script: ./pre-restore.sh
     secrets: inherit
 
   release:
@@ -396,13 +413,15 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
+        cache: true
+        cache-dependency-path: "**/packages.lock.json"
           8.0.202
-          ${{ vars.VBR_DOTNET_VERSION_8 }}
+          ${{ vars.VBR_DOTNET_VERSION_9 }}
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20.x'
+        node-version: '22.x'
 
     - name: Setup Python
       uses: actions/setup-python@v5
@@ -457,8 +476,7 @@ jobs:
       run: |
         [ ! -f semver ] && echo none > semver
         echo $(cat semver)
-        echo ::set-output name=version::$(cat semver)
-        echo RELEASE_VERSION=$(cat semver) >> $GITHUB_ENV
+        echo "version=$(cat semver)" >> "$GITHUB_OUTPUT"
       shell: bash
 
   upload-lambda:
@@ -482,7 +500,7 @@ jobs:
         path: ~/snapshot/
 
     - name: Configure AWS credentials (DevOps)
-      uses: aws-actions/configure-aws-credentials@v4.0.2
+      uses: aws-actions/configure-aws-credentials@v4.1.0
       with:
         aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
         aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
@@ -498,7 +516,7 @@ jobs:
         SEMVER: ${{ needs.release.outputs.version }}
 
     - name: Configure AWS credentials (Production)
-      uses: aws-actions/configure-aws-credentials@v4.0.2
+      uses: aws-actions/configure-aws-credentials@v4.1.0
       with:
         aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD }}
         aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD }}
@@ -528,7 +546,9 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_8 }}
+        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+        cache: true
+        cache-dependency-path: "**/packages.lock.json"
 
     - name: .NET version
       shell: bash
@@ -562,16 +582,6 @@ jobs:
         run: echo REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//") >> $GITHUB_ENV
         shell: bash
 
-      - name: Cache Paket
-        uses: actions/cache@v4
-        env:
-          cache-name: cache-paket
-        with:
-          path: packages
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('paket.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-
       - name: Cache Python
         uses: actions/cache@v4
         env:
@@ -591,9 +601,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests markdown argparse
 
+      - name: Restore build-pipeline
+        shell: bash
+        run: ./pre-restore.sh
+
       - name: Publish to Confluence
         shell: bash
-        run: ./packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-confluence.sh
+        run: bash ./.build/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-confluence.sh
         env:
           CONFLUENCE_TITLE: ${{ env.REPOSITORY_NAME }}
           CONFLUENCE_USERNAME: ${{ secrets.VBR_CONFLUENCE_USER }}
@@ -637,7 +651,7 @@ jobs:
         ]
     steps:
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
           aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
           aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
@@ -796,7 +810,7 @@ jobs:
       shell: bash
 
     - name: Notify deployment started
-      uses: slackapi/slack-github-action@v1.25.0
+      uses: slackapi/slack-github-action@v2
       with:
         channel-id: '#team-wegenregister-dev'
         slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to tst has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -885,7 +899,7 @@ jobs:
       shell: bash
 
     - name: Notify deployment succeeded
-      uses: slackapi/slack-github-action@v1.25.0
+      uses: slackapi/slack-github-action@v2
       with:
         channel-id: '#team-wegenregister-dev'
         slack-message: ":white_check_mark: Deployment of road-registry ${{ needs.release.outputs.version }} to tst has finished."
@@ -902,7 +916,7 @@ jobs:
     steps:
       - name: Notify build skipped
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v2
         with:
           channel-id: '#team-wegenregister-dev'
           slack-message: ":x: Build of road-registry has been skipped. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
@@ -920,7 +934,7 @@ jobs:
     steps:
       - name: Notify release skipped
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v2
         with:
           channel-id: '#team-wegenregister-dev'
           slack-message: ":x: Release of road-registry has been skipped. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
@@ -938,7 +952,7 @@ jobs:
     steps:
       - name: Notify release failed
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v2
         with:
           channel-id: '#team-wegenregister-dev'
           slack-message: ":x: Release of road-registry has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
@@ -954,7 +968,7 @@ jobs:
     steps:
       - name: Notify deployment failed
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v2
         with:
           channel-id: '#team-wegenregister-dev'
           slack-message: ":x: Deployment of road-registry ${{ needs.release.outputs.version }} to tst has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
