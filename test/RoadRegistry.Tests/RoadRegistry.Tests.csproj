@@ -47,6 +47,4 @@
   <ItemGroup>
     <Folder Include="TestResults\" />
   </ItemGroup>
-
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

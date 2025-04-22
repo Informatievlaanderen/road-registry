@@ -40,6 +40,4 @@
     <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
     <ProjectReference Include="..\RoadRegistry.StreetName\RoadRegistry.StreetName.csproj" />
   </ItemGroup>
-
-	<Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

@@ -20,7 +20,4 @@
     <Using Include="Xunit" />
     <Using Include="RoadRegistry.Tests" />
   </ItemGroup>
-
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
-
 </Project>
