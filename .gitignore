@@ -92,3 +92,9 @@ override.tf.json
 healthcheck.bin
 
 .db
+
+.build/**/*
+!.build
+!.build/Be.Vlaanderen.Basisregisters.Build.Pipeline
+!.build/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content
+!.build/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/*.props
