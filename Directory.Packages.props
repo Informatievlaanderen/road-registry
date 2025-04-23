@@ -33,38 +33,38 @@
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofac" Version="10.0.2" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.AggregateSource.Testing.Xunit" Version="10.0.2" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.Api" Version="24.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Auth.AcmIdm" Version="3.3.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Aws.DistributedMutex" Version="4.0.1" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache" Version="2.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Aws.Lambda" Version="4.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.BlobStore" Version="4.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.CommandHandling" Version="9.0.1" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency" Version="9.0.1" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Auth.AcmIdm" Version="4.0.1" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Aws.DistributedMutex" Version="5.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache" Version="3.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Aws.Lambda" Version="5.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.BlobStore" Version="5.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.CommandHandling" Version="10.0.2" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency" Version="10.0.2" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.DockerUtilities" Version="2.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.EventHandling" Version="5.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.EventHandling.Autofac" Version="5.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Contracts" Version="21.14.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Import" Version="21.14.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Legacy" Version="21.14.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Provenance" Version="21.14.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple" Version="5.2.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer" Version="5.2.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer" Version="5.2.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.EventHandling" Version="7.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.EventHandling.Autofac" Version="7.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Contracts" Version="22.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Import" Version="22.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Legacy" Version="22.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Provenance" Version="22.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple" Version="6.0.1" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer" Version="6.0.1" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer" Version="6.0.1" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple" Version="5.2.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector" Version="15.0.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing" Version="15.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner" Version="13.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.Npgsql" Version="13.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer" Version="13.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac" Version="13.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Projector" Version="14.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Shaperon" Version="10.0.2" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Shaperon.Geometries" Version="10.0.2" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Sqs" Version="3.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Sqs.Lambda" Version="3.0.0" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.TicketingService.Abstractions" Version="2.0.1" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy" Version="2.0.1" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Utilities.Rfc3339DateTimeOffset" Version="4.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner" Version="15.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.Npgsql" Version="15.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer" Version="15.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac" Version="15.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Projector" Version="16.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Shaperon" Version="11.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Shaperon.Geometries" Version="11.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Sqs" Version="4.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Sqs.Lambda" Version="4.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.TicketingService.Abstractions" Version="3.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy" Version="3.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Utilities.Rfc3339DateTimeOffset" Version="5.0.0" />
     <PackageVersion Include="CompareNETObjects" Version="4.83.0" />
     <PackageVersion Include="Datadog.Trace.Bundle" Version="2.49.0" />
     <PackageVersion Include="Docker.DotNet" Version="3.125.15" />
