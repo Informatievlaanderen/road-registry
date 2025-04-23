@@ -66,8 +66,8 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v2
         with:
-          channel-id: '#team-wegenregister-dev'
-          slack-message: ":x: Integration Tests of road-registry have failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+          method: chat.postMessage
+          token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+          payload: |
+            channel: '#team-dinosaur-dev'
+            text: ':x: Integration Tests of road-registry have failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'

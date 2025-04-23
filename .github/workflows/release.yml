@@ -405,10 +405,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-build-${{ env.cache-name }}-
 
-    - name: Parse repository name
-      run: echo REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//") >> $GITHUB_ENV
-      shell: bash
-
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
       with:
@@ -805,19 +801,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Parse repository name
-      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
-      shell: bash
-
     - name: Notify deployment started
       uses: slackapi/slack-github-action@v2
       with:
-        channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to tst has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
-        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
+        method: chat.postMessage
+        token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+        payload: |
+          channel: '#team-dinosaur-dev'
+          text: 'Deployment of road-registry ${{ needs.release.outputs.version }} to tst has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
 
   system_healthcheck:
     if: github.repository_owner == 'Informatievlaanderen'
@@ -894,19 +885,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Parse repository name
-      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
-      shell: bash
-
     - name: Notify deployment succeeded
       uses: slackapi/slack-github-action@v2
       with:
-        channel-id: '#team-wegenregister-dev'
-        slack-message: ":white_check_mark: Deployment of road-registry ${{ needs.release.outputs.version }} to tst has finished."
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
-        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
+        method: chat.postMessage
+        token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+        payload: |
+          channel: '#team-dinosaur-dev'
+          text: ':white_check_mark: Deployment of road-registry ${{ needs.release.outputs.version }} to tst has finished.'
 
   build_notify_skipped:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version == 'none') }}
@@ -918,11 +904,12 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v2
         with:
-          channel-id: '#team-wegenregister-dev'
-          slack-message: ":x: Build of road-registry has been skipped. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+          method: chat.postMessage
+          token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+          payload: |
+            channel: '#team-dinosaur-dev'
+            text: ':x: Build of road-registry has been skipped. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+
       - name: Fail release
         run: exit 1
 
@@ -936,11 +923,11 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v2
         with:
-          channel-id: '#team-wegenregister-dev'
-          slack-message: ":x: Release of road-registry has been skipped. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+          method: chat.postMessage
+          token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+          payload: |
+            channel: '#team-dinosaur-dev'
+            text: ':x: Release of road-registry has been skipped. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
       - name: Fail release
         run: exit 1
 
@@ -954,11 +941,11 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v2
         with:
-          channel-id: '#team-wegenregister-dev'
-          slack-message: ":x: Release of road-registry has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+          method: chat.postMessage
+          token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+          payload: |
+            channel: '#team-dinosaur-dev'
+            text: ':x: Release of road-registry has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
 
   deployment_test_notify_failure:
     if: ${{ github.repository_owner == 'Informatievlaanderen' && failure() && needs.release.outputs.version && needs.release.outputs.version != 'none' }}
@@ -970,8 +957,8 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v2
         with:
-          channel-id: '#team-wegenregister-dev'
-          slack-message: ":x: Deployment of road-registry ${{ needs.release.outputs.version }} to tst has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+          method: chat.postMessage
+          token: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+          payload: |
+            channel: '#team-dinosaur-dev'
+            text: ':x: Deployment of road-registry ${{ needs.release.outputs.version }} to tst has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
