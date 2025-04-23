@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "dependencies": {
+    "net8.0": {
+      "roadregistry.backoffice": {
+        "type": "Project"
+      },
+      "roadregistry.backoffice.abstractions": {
+        "type": "Project"
+      },
+      "roadregistry.backoffice.handlers": {
+        "type": "Project"
+      },
+      "roadregistry.backoffice.handlers.sqs": {
+        "type": "Project"
+      },
+      "roadregistry.hosts": {
+        "type": "Project"
+      },
+      "roadregistry.streetname": {
+        "type": "Project"
+      }
+    },
+    "net8.0/linux-arm64": {},
+    "net8.0/linux-x64": {},
+    "net8.0/win-x64": {}
+  }
+}

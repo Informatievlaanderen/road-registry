@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "dependencies": {
+    "net8.0": {
+      "roadregistry.backoffice": {
+        "type": "Project"
+      },
+      "roadregistry.backoffice.abstractions": {
+        "type": "Project"
+      },
+      "roadregistry.backoffice.handlers": {
+        "type": "Project"
+      },
+      "roadregistry.backoffice.handlers.sqs": {
+        "type": "Project"
+      },
+      "roadregistry.backoffice.handlers.sqs.lambda": {
+        "type": "Project",
+        "dependencies": {
+          "RoadRegistry.BackOffice": "[1.0.0, )",
+          "RoadRegistry.BackOffice.Abstractions": "[1.0.0, )",
+          "RoadRegistry.BackOffice.Handlers": "[1.0.0, )",
+          "RoadRegistry.BackOffice.Handlers.Sqs": "[1.0.0, )",
+          "RoadRegistry.Hosts": "[1.0.0, )",
+          "RoadRegistry.StreetName": "[1.0.0, )"
+        }
+      },
+      "roadregistry.hosts": {
+        "type": "Project"
+      },
+      "roadregistry.streetname": {
+        "type": "Project"
+      },
+      "roadregistry.tests": {
+        "type": "Project"
+      }
+    }
+  }
+}

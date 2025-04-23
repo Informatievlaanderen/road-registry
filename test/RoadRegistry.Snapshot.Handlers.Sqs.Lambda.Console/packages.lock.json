@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "dependencies": {
+    "net8.0": {
+      "roadregistry.hosts": {
+        "type": "Project"
+      },
+      "roadregistry.snapshot.handlers.sqs": {
+        "type": "Project"
+      },
+      "roadregistry.snapshot.handlers.sqs.lambda": {
+        "type": "Project",
+        "dependencies": {
+          "RoadRegistry.Hosts": "[1.0.0, )",
+          "RoadRegistry.Snapshot.Handlers.Sqs": "[1.0.0, )"
+        }
+      }
+    }
+  }
+}
