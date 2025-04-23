@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 
 public partial class RoadRegistrySystemController
 {
@@ -39,6 +40,7 @@ public partial class RoadRegistrySystemController
 
         var result = await Mediator.Send(new CorrectRoadSegmentVersionsSqsRequest
         {
+            ProvenanceData = CreateProvenanceData(Modification.Update),
             Request = new CorrectRoadSegmentVersionsRequest(parameters
                 ?.RoadSegments
                 ?.Select(x => new CorrectRoadSegmentVersion(x.Id, x.Version, x.GeometryVersion))

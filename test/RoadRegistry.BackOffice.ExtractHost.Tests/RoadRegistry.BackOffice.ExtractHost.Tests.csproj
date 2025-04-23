@@ -1,16 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\.build\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Test.props" />
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <IsPackable>false</IsPackable>
-    <Platforms>AnyCPU;x64;x86</Platforms>
-    <EnableDefaultContentItems>false</EnableDefaultContentItems>
-    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
+    <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
     <Content Include="ZipArchiveWriters\Fixtures\RoadNodesToZipArchiveWriterFixture.wkt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

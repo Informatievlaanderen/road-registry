@@ -1,32 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\.build\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Test.props" />
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <IsPackable>false</IsPackable>
-    <Platforms>AnyCPU;x64;x86</Platforms>
-    <EnableDefaultContentItems>false</EnableDefaultContentItems>
-    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="Framework\**" />
-    <EmbeddedResource Remove="Framework\**" />
-    <None Remove="Framework\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="SqlCommandProcessorPositionStoreTests.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="UploadProcessor\empty.zip" />
-    <None Remove="UploadProcessor\valid.zip" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="UploadProcessor\empty.zip">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UploadProcessor\valid.zip">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.Jobs.Processor\RoadRegistry.Jobs.Processor.csproj" />
     <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
@@ -39,5 +16,13 @@
   <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="RoadRegistry.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="UploadProcessor\empty.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UploadProcessor\valid.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

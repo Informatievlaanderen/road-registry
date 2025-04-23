@@ -1,47 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\.build\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Test.props" />
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <IsPackable>false</IsPackable>
-    <Platforms>AnyCPU;x64;x86</Platforms>
     <NoWarn>1822;0618</NoWarn>
-    <EnableDefaultContentItems>false</EnableDefaultContentItems>
-    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Projections\TestData\expected.4.json" />
-    <None Remove="Projections\TestData\expected.458.json" />
-    <None Remove="Projections\TestData\expected.904.json" />
-    <None Remove="Projections\TestData\importedRoadSegment.4.json" />
-    <None Remove="Projections\TestData\importedRoadSegment.458.json" />
-    <None Remove="Projections\TestData\importedRoadSegment.904.json" />
-    <None Remove="TestFiles\ident2.txt" />
-    <None Remove="TestFiles\ident8.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Projections\TestData\expected.4.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Projections\TestData\expected.458.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Projections\TestData\expected.904.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Projections\TestData\importedRoadSegment.4.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Projections\TestData\importedRoadSegment.458.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Projections\TestData\importedRoadSegment.904.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="TestFiles\ident2.txt" />
-    <EmbeddedResource Include="TestFiles\ident8.txt" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.Wms.ProjectionHost\RoadRegistry.Wms.ProjectionHost.csproj" />
     <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
@@ -54,5 +17,11 @@
   <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="RoadRegistry.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+      <Content Include="Projections\TestData\*.json" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="TestFiles\*" />
   </ItemGroup>
 </Project>

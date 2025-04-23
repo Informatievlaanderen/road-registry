@@ -20,6 +20,7 @@ using Swashbuckle.AspNetCore.Filters;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 
 public partial class RoadSegmentsController
 {
@@ -77,7 +78,11 @@ public partial class RoadSegmentsController
                 });
             }
 
-            var result = await _mediator.Send(new DeleteRoadSegmentOutlineSqsRequest { Request = new DeleteRoadSegmentOutlineRequest(new RoadSegmentId(id)) }, cancellationToken);
+            var result = await _mediator.Send(new DeleteRoadSegmentOutlineSqsRequest
+            {
+                ProvenanceData = CreateProvenanceData(Modification.Delete),
+                Request = new DeleteRoadSegmentOutlineRequest(new RoadSegmentId(id))
+            }, cancellationToken);
 
             return Accepted(result);
         }

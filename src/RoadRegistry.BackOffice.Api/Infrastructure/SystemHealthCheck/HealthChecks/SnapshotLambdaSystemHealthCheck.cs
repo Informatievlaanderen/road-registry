@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthCheck.HealthChe
     using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
+    using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
     using MediatR;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
     using RoadRegistry.Snapshot.Handlers.Sqs.Infrastructure;
@@ -30,6 +31,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthCheck.HealthChe
         {
             var result = await _mediator.Send(new SnapshotLambdaHealthCheckSqsRequest
             {
+                ProvenanceData = new RoadRegistryProvenanceData(),
                 AssemblyVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString()
             }, cancellationToken);
 

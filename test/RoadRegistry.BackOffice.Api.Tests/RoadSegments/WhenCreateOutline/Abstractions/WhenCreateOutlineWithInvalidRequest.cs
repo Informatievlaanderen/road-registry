@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenCreateOutline.Abstractions;
 
+using System.Collections.Generic;
+using System.Linq;
 using Extensions;
 using Fixtures;
 using FluentValidation;
@@ -36,7 +38,7 @@ public abstract class WhenCreateOutlineWithInvalidRequest<TFixture> : IClassFixt
 
         Assert.StartsWith(ExpectedErrorMessagePrefix, errMessage);
     }
-    
+
     private IEnumerable<ValidationFailure> ItShouldHaveValidationException()
     {
         var ex = Assert.IsType<ValidationException>(Fixture.Exception);

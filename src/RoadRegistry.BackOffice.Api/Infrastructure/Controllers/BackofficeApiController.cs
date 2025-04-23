@@ -3,22 +3,25 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 using System.Globalization;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Api;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using Extensions;
 using FeatureToggle;
 using Hosts.Infrastructure.Options;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 public abstract class BackofficeApiController : ApiController
 {
-    private readonly TicketingOptions _ticketingOptions;
+    private readonly BackofficeApiControllerContext _context;
 
     protected BackofficeApiController()
     {
     }
 
-    protected BackofficeApiController(TicketingOptions ticketingOptions)
+    protected BackofficeApiController(BackofficeApiControllerContext context)
     {
-        _ticketingOptions = ticketingOptions;
+        _context = context;
     }
 
     protected IActionResult Accepted(LocationResult locationResult)
@@ -26,7 +29,7 @@ public abstract class BackofficeApiController : ApiController
         return Accepted(locationResult
             .Location
             .ToString()
-            .Replace(_ticketingOptions.InternalBaseUrl, _ticketingOptions.PublicBaseUrl));
+            .Replace(_context.TicketingOptions.InternalBaseUrl, _context.TicketingOptions.PublicBaseUrl));
     }
 
     protected void AddHeaderRetryAfter(int retryAfter)
@@ -57,4 +60,21 @@ public abstract class BackofficeApiController : ApiController
 
         return featureToggle.FeatureEnabled;
     }
+
+    protected ProvenanceData CreateProvenanceData(Modification modification = Modification.Unknown)
+    {
+        return new RoadRegistryProvenanceData(modification, _context.HttpContextAccessor.HttpContext!.GetOperatorName());
+    }
+}
+
+public class BackofficeApiControllerContext
+{
+    public BackofficeApiControllerContext(TicketingOptions ticketingOptions, IHttpContextAccessor httpContextAccessor)
+    {
+        TicketingOptions = ticketingOptions;
+        HttpContextAccessor = httpContextAccessor;
+    }
+
+    public TicketingOptions TicketingOptions { get; }
+    public IHttpContextAccessor HttpContextAccessor { get; }
 }

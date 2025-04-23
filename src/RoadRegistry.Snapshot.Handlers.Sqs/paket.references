@@ -1,9 +1,0 @@
-Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple
-Be.Vlaanderen.Basisregisters.Sqs
-Be.Vlaanderen.Basisregisters.TicketingService.Abstractions
-
-AWSSDK.Core
-AWSSDK.SQS
-MediatR
-MediatR.Contracts
-Microsoft.Extensions.DependencyInjection

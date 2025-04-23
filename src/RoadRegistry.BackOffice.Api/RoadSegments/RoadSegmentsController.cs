@@ -7,7 +7,6 @@ using Core;
 using Core.ProblemCodes;
 using Extensions;
 using FluentValidation;
-using Hosts.Infrastructure.Options;
 using Infrastructure.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -24,8 +23,8 @@ public partial class RoadSegmentsController : BackofficeApiController
 {
     private readonly IMediator _mediator;
 
-    public RoadSegmentsController(TicketingOptions ticketingOptions, IMediator mediator)
-        : base(ticketingOptions)
+    public RoadSegmentsController(BackofficeApiControllerContext context, IMediator mediator)
+        : base(context)
     {
         _mediator = mediator;
     }

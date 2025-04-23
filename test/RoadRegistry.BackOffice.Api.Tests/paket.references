@@ -1,9 +1,0 @@
-FluentValidation
-Microsoft.Data.SqlClient
-Microsoft.IdentityModel.Abstractions
-Microsoft.IdentityModel.JsonWebTokens
-Microsoft.IdentityModel.Logging
-Microsoft.IdentityModel.Tokens
-Microsoft.NET.Test.Sdk
-xunit.categories
-xunit.runner.visualstudio

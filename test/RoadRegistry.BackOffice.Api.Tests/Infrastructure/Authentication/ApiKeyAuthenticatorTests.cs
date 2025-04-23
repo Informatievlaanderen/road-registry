@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Api.Tests.Infrastructure.Authentication
 {
+    using System.Linq;
     using System.Security.Claims;
     using Api.Infrastructure.Controllers.Attributes;
     using AutoFixture;

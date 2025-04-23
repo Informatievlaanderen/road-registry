@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Handlers
 {
+    using System.Collections.Generic;
     using Abstractions.Jobs;
     using Api.Handlers;
     using Api.Infrastructure;

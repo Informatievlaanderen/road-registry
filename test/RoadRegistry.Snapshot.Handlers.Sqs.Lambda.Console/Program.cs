@@ -20,6 +20,7 @@ class Program
     {
         var sqsRequest = new CreateRoadNetworkSnapshotSqsRequest
         {
+            ProvenanceData = new RoadRegistryProvenanceData(),
             Request = new CreateRoadNetworkSnapshotRequest()
         };
 

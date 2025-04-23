@@ -21,6 +21,7 @@ using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Behaviors;
 using Configuration;
+using Controllers;
 using Controllers.Attributes;
 using Core;
 using Editor.Schema;
@@ -319,6 +320,7 @@ public class Startup
             .AddOrganizationCommandQueue()
             .AddSingleton(apiOptions)
             .Configure<ResponseOptions>(_configuration)
+            .AddScoped<BackofficeApiControllerContext>()
 
             .AddSystemHealthChecks([
                 typeof(CommandHostSystemHealthCheck),

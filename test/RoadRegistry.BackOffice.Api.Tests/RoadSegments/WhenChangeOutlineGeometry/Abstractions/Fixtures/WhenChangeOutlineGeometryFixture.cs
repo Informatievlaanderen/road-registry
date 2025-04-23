@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeOutlineGeometry.Abstractions.Fixtures;
 
+using Api.Infrastructure.Controllers;
 using Api.RoadSegments;
 using AutoFixture;
 using BackOffice.Extracts.Dbase.Organizations;
@@ -34,7 +35,7 @@ public abstract class WhenChangeOutlineGeometryFixture : ControllerActionFixture
 
     protected override async Task<IActionResult> GetResultAsync(PostChangeOutlineGeometryParameters request)
     {
-        var controller = new RoadSegmentsController(new FakeTicketingOptions(), _mediator)
+        var controller = new RoadSegmentsController(new BackofficeApiControllerContext(new FakeTicketingOptions(), new HttpContextAccessor()), _mediator)
         {
             ControllerContext = new ControllerContext
             {

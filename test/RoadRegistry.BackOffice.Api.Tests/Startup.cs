@@ -1,5 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.Tests;
 
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Api.Changes;
 using Api.Downloads;
 using Api.Extracts;
@@ -113,7 +116,7 @@ public class Startup : TestStartup
     {
         var executorAssemblyLocation = Assembly.GetExecutingAssembly().Location;
         var executorDirectoryInfo = new DirectoryInfo(executorAssemblyLocation).Parent;
-        var assemblyFileInfoCollection = executorDirectoryInfo.EnumerateFiles("RoadRegistry.*.dll");
+        var assemblyFileInfoCollection = executorDirectoryInfo!.EnumerateFiles("RoadRegistry.*.dll");
         var assemblyCollection = assemblyFileInfoCollection.Select(fi => Assembly.LoadFrom(fi.FullName));
         return assemblyCollection.ToList();
     }

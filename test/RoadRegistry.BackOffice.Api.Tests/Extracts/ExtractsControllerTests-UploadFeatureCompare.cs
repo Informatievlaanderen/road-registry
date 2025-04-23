@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
+using System.IO;
 using Microsoft.AspNetCore.Mvc;
 
 public partial class ExtractsControllerTests

@@ -9,6 +9,7 @@ using BackOffice.Handlers.Sqs.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
 using Core.ProblemCodes;
@@ -59,6 +60,7 @@ public partial class RoadSegmentsController
 
             var sqsRequest = new CreateRoadSegmentOutlineSqsRequest
             {
+                ProvenanceData = CreateProvenanceData(Modification.Insert),
                 Request = new CreateRoadSegmentOutlineRequest(
                     GeometryTranslator.Translate(GeometryTranslator.ParseGmlLineString(parameters.MiddellijnGeometrie)),
                     RoadSegmentStatus.ParseUsingDutchName(parameters.Wegsegmentstatus),

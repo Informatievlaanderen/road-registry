@@ -1,6 +1,0 @@
-Be.Vlaanderen.Basisregisters.EventHandling
-Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
-Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer
-
-Microsoft.EntityFrameworkCore.Design
-Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite

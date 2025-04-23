@@ -4,7 +4,6 @@ using Asp.Versioning;
 using Authentication;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
-using Hosts.Infrastructure.Options;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,8 +20,8 @@ public partial class RoadRegistrySystemController : BackofficeApiController
         IStreamStore store,
         IMediator mediator,
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
-        TicketingOptions ticketingOptions)
-        : base(ticketingOptions)
+        BackofficeApiControllerContext context)
+        : base(context)
     {
         Store = store;
         Mediator = mediator;

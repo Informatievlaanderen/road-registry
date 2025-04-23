@@ -29,6 +29,7 @@
     <PackageReference Include="Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy" />
     <PackageReference Include="AWSSDK.Core" />
     <PackageReference Include="AWSSDK.Lambda" />
+    <PackageReference Include="Destructurama.JsonNet" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="MediatR.Contracts" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />
@@ -58,6 +59,7 @@
     <PackageReference Include="Serilog.Extensions.Logging" />
     <PackageReference Include="Serilog.Settings.Configuration" />
     <PackageReference Include="Serilog.Sinks.Slack" />
+    <PackageReference Include="Serilog.Sinks.Console" />
     <PackageReference Include="SqlStreamStore.MsSql" />
   </ItemGroup>
 </Project>
