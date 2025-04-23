@@ -1,8 +1,6 @@
 namespace RoadRegistry.Product.PublishHost.HttpClients;
 
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -19,10 +17,8 @@ public sealed class MetaDataCenterHttpClient
 {
     private readonly Uri _baseUrl;
     private readonly MetadataCenterOptions _options;
-    private readonly ConcurrentDictionary<string, IEnumerable<string>> _defaultHeaders;
     private readonly ILogger<MetaDataCenterHttpClient>? _logger;
     private readonly ITokenProvider _tokenProvider;
-    private IDictionary<string, IEnumerable<string>> DefaultHeaders => _defaultHeaders;
 
     public MetaDataCenterHttpClient(
         IOptions<MetadataCenterOptions> options,
@@ -33,7 +29,6 @@ public sealed class MetaDataCenterHttpClient
         _options = options.Value;
         _tokenProvider = tokenProvider;
         _baseUrl = new Uri(_options.BaseUrl);
-        _defaultHeaders = new ConcurrentDictionary<string, IEnumerable<string>>();
     }
 
     private ByteArrayContent GenerateCswPublicationBody(string identifier, DateTime dateStamp)
@@ -67,16 +62,9 @@ public sealed class MetaDataCenterHttpClient
         return body;
     }
 
-    private async Task<string?> GetXsrfToken(CancellationToken cancellationToken)
+    private async Task<string> GetXsrfToken(CancellationToken cancellationToken)
     {
-        var requestMessage =
-            new HttpRequestMessage(HttpMethod.Get, new Uri(_baseUrl, "/srv/eng/info?type=me"));
-        foreach (var header in DefaultHeaders)
-        {
-            requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value);
-        }
-
-        requestMessage.Headers.TryAddWithoutValidation("Authorization", $"Bearer {await _tokenProvider.GetAccessToken()}");
+        var requestMessage = await BuildAuthorizedRequestMessage(HttpMethod.Get, "/srv/eng/info?type=me");
 
         string? xsrfToken = null;
         try
@@ -96,12 +84,13 @@ public sealed class MetaDataCenterHttpClient
 
             if (string.IsNullOrWhiteSpace(xsrfToken))
             {
-                _logger?.LogCritical("Unable to retrieve XSRF-TOKEN");
+                throw new InvalidOperationException($"Unable to retrieve XSRF-TOKEN, response: {(int)response.StatusCode}");
             }
         }
         catch (Exception ex)
         {
             _logger?.LogCritical(ex, "Unable to retrieve XSRF-TOKEN");
+            throw;
         }
 
         return xsrfToken;
@@ -112,18 +101,7 @@ public sealed class MetaDataCenterHttpClient
         CancellationToken cancellationToken)
     {
         var xsrfToken = await GetXsrfToken(cancellationToken);
-        if (string.IsNullOrWhiteSpace(xsrfToken))
-        {
-            return null;
-        }
-
-        var requestMessage = new HttpRequestMessage(HttpMethod.Post, new Uri(_baseUrl, "/srv/dut/csw-publication"));
-        foreach (var header in DefaultHeaders)
-        {
-            requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value);
-        }
-
-        requestMessage.Headers.TryAddWithoutValidation("Authorization", $"Bearer {await _tokenProvider.GetAccessToken()}");
+        var requestMessage = await BuildAuthorizedRequestMessage(HttpMethod.Post, "/srv/dut/csw-publication");
         requestMessage.Headers.TryAddWithoutValidation("X-XSRF-TOKEN", xsrfToken);
 
         requestMessage.Content = GenerateCswPublicationBody(_options.FullIdentifier, dateStamp);
@@ -158,22 +136,12 @@ public sealed class MetaDataCenterHttpClient
 
     public async Task<string> GetXmlAsString(CancellationToken cancellationToken)
     {
-        var requestMessage =
-            new HttpRequestMessage(
-                HttpMethod.Get,
-                new Uri(_baseUrl, $"/srv/api/records/{_options.FullIdentifier}/formatters/xml"));
-        foreach (var header in DefaultHeaders)
-        {
-            requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value);
-        }
-
-        requestMessage.Headers.TryAddWithoutValidation("Authorization", $"Bearer {await _tokenProvider.GetAccessToken()}");
+        var requestMessage = await BuildAuthorizedRequestMessage(HttpMethod.Get, $"/srv/api/records/{_options.FullIdentifier}/formatters/xml");
 
         using var httpClient = new HttpClient(new HttpClientHandler() { UseCookies = false });
         var response = await httpClient.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
         if (response.StatusCode != HttpStatusCode.OK)
         {
-            _logger?.LogCritical("Unable to get XML");
             throw new InvalidOperationException($"Unable to get XML, response: {(int)response.StatusCode}");
         }
 
@@ -182,26 +150,23 @@ public sealed class MetaDataCenterHttpClient
 
     public async Task<byte[]> GetPdfAsByteArray(CancellationToken cancellationToken)
     {
-        var requestMessage =
-            new HttpRequestMessage(
-                HttpMethod.Get,
-                new Uri(_baseUrl, $"/srv/api/records/{_options.FullIdentifier}/formatters/xsl-view?output=pdf&language=dut&attachment=true"));
-        foreach (var header in DefaultHeaders)
-        {
-            requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value);
-        }
-
-        requestMessage.Headers.TryAddWithoutValidation("Authorization", $"Bearer {await _tokenProvider.GetAccessToken()}");
+        var requestMessage = await BuildAuthorizedRequestMessage(HttpMethod.Get, $"/srv/api/records/{_options.FullIdentifier}/formatters/xsl-view?output=pdf&language=dut&attachment=true");
 
         using var httpClient = new HttpClient(new HttpClientHandler { UseCookies = false });
         var response = await httpClient.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
         if (response.StatusCode != HttpStatusCode.OK)
         {
-            _logger?.LogCritical("Unable to get pdf");
             throw new InvalidOperationException($"Unable to get pdf, response: {(int)response.StatusCode}");
         }
 
         var pdf = await response.Content.ReadAsByteArrayAsync(cancellationToken);
         return pdf;
+    }
+
+    private async Task<HttpRequestMessage> BuildAuthorizedRequestMessage(HttpMethod httpMethod, string relativeUri)
+    {
+        var requestMessage = new HttpRequestMessage(httpMethod, new Uri(_baseUrl, relativeUri));
+        requestMessage.Headers.TryAddWithoutValidation("Authorization", $"Bearer {await _tokenProvider.GetAccessToken()}");
+        return requestMessage;
     }
 }
