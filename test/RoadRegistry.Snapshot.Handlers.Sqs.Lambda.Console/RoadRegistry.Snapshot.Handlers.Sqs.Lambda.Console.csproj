@@ -9,4 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.Snapshot.Handlers.Sqs.Lambda\RoadRegistry.Snapshot.Handlers.Sqs.Lambda.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Amazon.Lambda.TestUtilities" />
+  </ItemGroup>
 </Project>

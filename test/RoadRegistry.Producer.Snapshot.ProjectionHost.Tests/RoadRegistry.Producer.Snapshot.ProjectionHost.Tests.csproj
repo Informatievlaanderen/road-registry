@@ -1,29 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <IsPackable>false</IsPackable>
     <Platforms>AnyCPU;x64;x86</Platforms>
-	  <EnableDefaultContentItems>false</EnableDefaultContentItems>
-	  <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
-
   <ItemGroup>
     <None Remove="TestFiles\ident2.txt" />
     <None Remove="TestFiles\ident8.txt" />
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="TestFiles\ident2.txt" />
     <EmbeddedResource Include="TestFiles\ident8.txt" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.Producer.Snapshot.ProjectionHost\RoadRegistry.Producer.Snapshot.ProjectionHost.csproj" />
     <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
   </ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.GrAr.Provenance" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="xunit.categories" />
+  </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="RoadRegistry.Tests" />

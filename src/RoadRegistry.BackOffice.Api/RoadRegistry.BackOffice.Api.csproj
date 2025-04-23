@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <Import Project="..\..\.build\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.App.props" />
-
   <PropertyGroup>
     <RootNamespace>RoadRegistry.BackOffice.Api</RootNamespace>
     <AssemblyName>RoadRegistry.BackOffice.Api</AssemblyName>
@@ -13,7 +12,6 @@
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <DocumentationFile>RoadRegistry.BackOffice.Api.xml</DocumentationFile>
     <NoWarn>1701;1702;1705;1591;8632</NoWarn>
-
     <Version>1.0.0</Version>
     <PackageId>Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api</PackageId>
     <Title>Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api</Title>
@@ -27,16 +25,9 @@
     <Description>Road Registry.</Description>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
-
   <ItemGroup>
     <None Include="..\..\.build\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\logo.png" Pack="true" PackagePath="" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="SourceLink.Embed.AllSourceFiles" PrivateAssets="all" />
-    <PackageReference Include="SourceLink.Copy.PdbFiles" PrivateAssets="all" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers.Sqs\RoadRegistry.BackOffice.Handlers.Sqs.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers\RoadRegistry.BackOffice.Handlers.csproj" />
@@ -49,7 +40,25 @@
     <ProjectReference Include="..\RoadRegistry.Snapshot.Handlers.Sqs\RoadRegistry.Snapshot.Handlers.Sqs.csproj" />
     <ProjectReference Include="..\RoadRegistry.Snapshot.Handlers\RoadRegistry.Snapshot.Handlers.csproj" />
   </ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.Auth.AcmIdm" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.Api" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.Aws.DistributedMutex" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.GrAr.Legacy" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.GrAr.Provenance" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.Shaperon" />
+    <PackageReference Include="DataDog.Trace.Bundle" />
+    <PackageReference Include="AWSSDK.Core" />
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" />
+    <PackageReference Include="Serilog.Sinks.Seq" />
+    <PackageReference Include="Serilog.Sinks.Slack" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SourceLink.Embed.AllSourceFiles" PrivateAssets="all" />
+    <PackageReference Include="SourceLink.Copy.PdbFiles" PrivateAssets="all" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Dockerfile" CopyToOutputDirectory="Always" />
     <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
