@@ -1,3 +1,10 @@
+## [4.29.4](https://github.com/informatievlaanderen/road-registry/compare/v4.29.3...v4.29.4) (2025-04-23)
+
+
+### Bug Fixes
+
+* throw exception when token creation fails for metadata ([9e297c8](https://github.com/informatievlaanderen/road-registry/commit/9e297c8a0b52453ed992832824dc26b9c574e71b))
+
 ## [4.29.3](https://github.com/informatievlaanderen/road-registry/compare/v4.29.2...v4.29.3) (2025-04-18)
 
 
