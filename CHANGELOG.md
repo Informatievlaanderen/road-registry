@@ -1,3 +1,10 @@
+## [4.29.5](https://github.com/informatievlaanderen/road-registry/compare/v4.29.4...v4.29.5) (2025-04-24)
+
+
+### Bug Fixes
+
+* **product-publish:** flush entry streams to upload valid zip to azure ([#1662](https://github.com/informatievlaanderen/road-registry/issues/1662)) ([e28ae1d](https://github.com/informatievlaanderen/road-registry/commit/e28ae1d99c99fb3578841adafc4242d2455005cc))
+
 ## [4.29.4](https://github.com/informatievlaanderen/road-registry/compare/v4.29.3...v4.29.4) (2025-04-23)
 
 
