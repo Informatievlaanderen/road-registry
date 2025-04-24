@@ -12,7 +12,7 @@ namespace RoadRegistry.Hosts.Infrastructure.Modules
     using Amazon.Runtime.Internal.Auth;
     using Amazon.S3;
     using Microsoft.Extensions.Logging;
-    
+
     public interface IAmazonS3Extended : IAmazonS3
     {
         public CreatePresignedPostResponse CreatePresignedPost(CreatePresignedPostRequest request);
@@ -59,12 +59,8 @@ namespace RoadRegistry.Hosts.Infrastructure.Modules
 
             var shortDate = signingDate[..8];
 
-            var credentials = Credentials.GetCredentials();
-
-            if (credentials is null)
-            {
-                throw new ConfigurationException("No credentials found");
-            }
+            var credentials = Credentials.GetCredentials()
+                ?? throw new ConfigurationErrorsException("No credentials found");
 
             _logger.LogInformation($"credentials: {credentials.AccessKey}");
             _logger.LogInformation($"usetoken: {credentials.UseToken}");
@@ -128,7 +124,7 @@ namespace RoadRegistry.Hosts.Infrastructure.Modules
             return Config.RegionEndpoint?.SystemName ?? RegionEndpoint.EUWest1.SystemName;
         }
     }
-    
+
     public sealed record CreatePresignedPostRequest(
         string BucketName,
         string Key,

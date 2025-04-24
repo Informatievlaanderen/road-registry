@@ -387,10 +387,6 @@ public static class DbaseFileProblems
     }
     public static FileError EuropeanRoadNotUnique(this IDbaseFileRecordProblemBuilder builder, AttributeId attributeId, RecordNumber takenByRecordNumber, AttributeId takenByAttributeId)
     {
-        ArgumentNullException.ThrowIfNull(attributeId);
-        ArgumentNullException.ThrowIfNull(takenByRecordNumber);
-        ArgumentNullException.ThrowIfNull(takenByAttributeId);
-
         return builder
             .Error(nameof(EuropeanRoadNotUnique))
             .WithParameter(new ProblemParameter("AttributeId", attributeId.ToString()))
@@ -412,10 +408,6 @@ public static class DbaseFileProblems
     }
     public static FileError NationalRoadNotUnique(this IDbaseFileRecordProblemBuilder builder, AttributeId attributeId, RecordNumber takenByRecordNumber, AttributeId takenByAttributeId)
     {
-        ArgumentNullException.ThrowIfNull(attributeId);
-        ArgumentNullException.ThrowIfNull(takenByRecordNumber);
-        ArgumentNullException.ThrowIfNull(takenByAttributeId);
-
         return builder
             .Error(nameof(NationalRoadNotUnique))
             .WithParameter(new ProblemParameter("AttributeId", attributeId.ToString()))

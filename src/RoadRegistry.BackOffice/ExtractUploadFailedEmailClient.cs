@@ -65,10 +65,6 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
             .AppendLine(JsonConvert.SerializeObject(ex, Formatting.Indented)).AppendLine()
             .AppendLine(exception.Message).AppendLine();
 
-        StringBuilder FormatTimeoutException(Exception exception) => new StringBuilder()
-            .AppendLine("De oplading kon niet tijdig verwerkt worden. Je kan de status volgen via het WR-portaal.").AppendLine()
-            .AppendLine(exception.Message).AppendLine();
-
         StringBuilder FormatCanNotUploadException(Exception exception) => new StringBuilder()
             .AppendLine("De status van de oplading kan niet geverifieerd worden.").AppendLine()
             .AppendLine(exception.Message).AppendLine();

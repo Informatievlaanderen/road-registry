@@ -34,7 +34,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         _organizationCache = organizationCache.ThrowIfNull();
     }
 
-    private async Task<(List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems)> ProcessLeveringRecords(
+    private Task<(List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems)> ProcessLeveringRecords(
         ICollection<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures,
         ICollection<Feature<RoadSegmentFeatureCompareAttributes>> extractFeatures,
         IRoadSegmentFeatureCompareStreetNameContext streetNameContext,
@@ -226,7 +226,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 RecordType.Added));
         }
 
-        return (processedRecords, problems);
+        return Task.FromResult((processedRecords, problems));
     }
 
     public override async Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)

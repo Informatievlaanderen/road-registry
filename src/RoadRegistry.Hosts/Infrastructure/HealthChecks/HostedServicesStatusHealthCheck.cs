@@ -18,7 +18,11 @@ internal class HostedServicesStatusHealthCheck : IHealthCheck
         _options = options;
     }
 
-    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(CheckHealth(context));
+    }
+    private HealthCheckResult CheckHealth(HealthCheckContext context)
     {
         try
         {

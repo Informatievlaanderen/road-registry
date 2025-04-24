@@ -58,7 +58,7 @@ class Program
         };
         var sqsEventAsJObject = JsonConvert.DeserializeObject<JObject>(JsonConvert.SerializeObject(sqsEvent, lambdaSerializer), lambdaSerializer);
 
-        await function.Handler(sqsEventAsJObject, new TestLambdaContext());
+        await function.Handler(sqsEventAsJObject!, new TestLambdaContext());
     }
 
     private sealed class CamelCaseExceptDictionaryKeysResolver : CamelCasePropertyNamesContractResolver

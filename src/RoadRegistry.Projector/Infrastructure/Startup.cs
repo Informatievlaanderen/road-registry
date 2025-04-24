@@ -140,11 +140,12 @@ public class Startup
                     {
                         var connectionStrings = _configuration
                             .GetSection("ConnectionStrings")
-                            .GetChildren();
+                            .GetChildren()
+                            .Where(x => x.Value is not null);
 
                         foreach (var connectionString in connectionStrings)
                         {
-                            if (connectionString.Value.Contains("host=", StringComparison.InvariantCultureIgnoreCase))
+                            if (connectionString.Value!.Contains("host=", StringComparison.InvariantCultureIgnoreCase))
                             {
                                 health.AddNpgSql(
                                     connectionString.Value,

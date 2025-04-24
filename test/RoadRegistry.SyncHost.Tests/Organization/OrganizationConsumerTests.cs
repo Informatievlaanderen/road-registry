@@ -28,7 +28,6 @@ namespace RoadRegistry.SyncHost.Tests.Organization
         private static readonly EventMapping Mapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
         private static readonly JsonSerializerSettings Settings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
         private static readonly StreamNameConverter StreamNameConverter = StreamNameConversions.PassThru;
-
         private readonly Fixture _fixture;
 
         public OrganizationConsumerTests()
@@ -205,10 +204,10 @@ namespace RoadRegistry.SyncHost.Tests.Organization
             var page = await store.ReadAllForwards(Position.Start, 1);
 
             Assert.Empty(page.Messages);
-            Assert.Single(loggerMock.Invocations
-                .Where(x => x.Arguments.Count >= 3
-                            && Equals(x.Arguments[0], LogLevel.Error)
-                            && x.Arguments[2].ToString().StartsWith($"Multiple Organizations found with a link to {ovoCode}")));
+            Assert.Single(loggerMock.Invocations,
+                x => x.Arguments.Count >= 3
+                     && Equals(x.Arguments[0], LogLevel.Error)
+                     && x.Arguments[2].ToString().StartsWith($"Multiple Organizations found with a link to {ovoCode}"));
         }
 
         [Fact]

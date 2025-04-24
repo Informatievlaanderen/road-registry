@@ -6,5 +6,5 @@ using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 
 public class CreateRoadNetworkSnapshotSqsRequest : SqsRequest, IHasBackOfficeRequest<CreateRoadNetworkSnapshotRequest>
 {
-    public CreateRoadNetworkSnapshotRequest Request { get; init; }
+    public required CreateRoadNetworkSnapshotRequest Request { get; init; }
 }

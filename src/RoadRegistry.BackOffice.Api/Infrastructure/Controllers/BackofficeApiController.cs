@@ -36,7 +36,7 @@ public abstract class BackofficeApiController : ApiController
     {
         if (retryAfter > 0)
         {
-            Response.Headers.Add("Retry-After", retryAfter.ToString(CultureInfo.InvariantCulture));
+            Response.Headers["Retry-After"] = retryAfter.ToString(CultureInfo.InvariantCulture);
         }
     }
 

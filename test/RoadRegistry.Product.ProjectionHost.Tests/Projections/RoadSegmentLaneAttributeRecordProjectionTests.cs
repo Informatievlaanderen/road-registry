@@ -523,7 +523,7 @@ public class RoadSegmentLaneAttributeRecordProjectionTests : IClassFixture<Proje
                     BEGINORG = { Value = acceptedRoadSegmentModified.OrganizationId },
                     LBLBGNORG = { Value = acceptedRoadSegmentModified.Organization }
                 }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
-            });
+            }) ?? [];
         }).SelectMany(x => x);
 
         return new RoadSegmentLaneAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)

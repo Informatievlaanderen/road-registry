@@ -105,7 +105,6 @@ public class RoadNode
 
     public RoadNode WithVersion(RoadNodeVersion version)
     {
-        ArgumentNullException.ThrowIfNull(version);
         return new RoadNode(Id, version, Type, Geometry, _segments);
     }
 

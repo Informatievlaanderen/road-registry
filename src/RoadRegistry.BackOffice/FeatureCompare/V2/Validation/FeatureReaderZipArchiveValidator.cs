@@ -20,9 +20,9 @@ public abstract class FeatureReaderZipArchiveValidator<TAttributes> : IFeatureRe
         _featureReader = featureReader;
     }
 
-    public async virtual Task<ZipArchiveProblems> ValidateAsync(ZipArchive archive, ZipArchiveValidatorContext context, CancellationToken cancellationToken)
+    public virtual Task<ZipArchiveProblems> ValidateAsync(ZipArchive archive, ZipArchiveValidatorContext context, CancellationToken cancellationToken)
     {
-        return _featureTypes.Aggregate(ZipArchiveProblems.None, (problems, featureType) =>
-            problems + _featureReader.Read(archive, featureType, context).Item2);
+        return Task.FromResult(_featureTypes.Aggregate(ZipArchiveProblems.None, (problems, featureType) =>
+            problems + _featureReader.Read(archive, featureType, context).Item2));
     }
 }
