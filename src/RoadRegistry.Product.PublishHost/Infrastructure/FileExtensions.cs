@@ -16,6 +16,7 @@ public static class FileExtensions
         var entry = archive.CreateEntry(fileName, CompressionLevel.Fastest);
         await using var entryStream = entry.Open();
         await entryStream.WriteAsync(content, cancellationToken);
+        await entryStream.FlushAsync(cancellationToken);
     }
 
     public static async Task AddToZipArchive(

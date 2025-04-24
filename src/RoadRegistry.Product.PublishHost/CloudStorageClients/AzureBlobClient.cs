@@ -28,7 +28,8 @@ namespace RoadRegistry.Product.PublishHost.CloudStorageClients
             MemoryStream sourceStream,
             CancellationToken cancellationToken)
         {
-            sourceStream.Seek(0, SeekOrigin.Begin);
+            sourceStream.Position = 0;
+
             var blobName = GetBlobName();
             var blobClient = _containerClient.GetBlockBlobClient(blobName);
             await blobClient.UploadAsync(
