@@ -111,7 +111,7 @@ public class Startup
                     Origins = _configuration
                         .GetSection("Cors")
                         .GetChildren()
-                        .Select(c => c.Value)
+                        .Select(c => c.Value!)
                         .ToArray()
                 },
                 Server =

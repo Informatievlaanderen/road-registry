@@ -2,10 +2,8 @@ namespace RoadRegistry.BackOffice.Exceptions;
 
 using System;
 using System.Linq;
-using System.Runtime.Serialization;
 using Core;
 
-[Serializable]
 public class RoadRegistryProblemsException : RoadRegistryException
 {
     public Problems Problems { get; }
@@ -19,10 +17,5 @@ public class RoadRegistryProblemsException : RoadRegistryException
         }
 
         Problems = problems;
-    }
-
-    protected RoadRegistryProblemsException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
-    {
     }
 }

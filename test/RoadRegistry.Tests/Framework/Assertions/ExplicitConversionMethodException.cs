@@ -1,11 +1,8 @@
 namespace RoadRegistry.Tests.Framework.Assertions;
 
-using System.Runtime.Serialization;
-
 /// <summary>
 ///     Represents an error about an ill-behaved explicit conversion method.
 /// </summary>
-[Serializable]
 public class ExplicitConversionMethodException : Exception
 {
     /// <summary>
@@ -51,36 +48,6 @@ public class ExplicitConversionMethodException : Exception
         To = to ?? throw new ArgumentNullException(nameof(to));
     }
 
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="ExplicitConversionMethodException" /> class.
-    /// </summary>
-    /// <param name="info">
-    ///     The <see cref="System.Runtime.Serialization.SerializationInfo" /> that holds the
-    ///     serialized object data about the exception being thrown.
-    /// </param>
-    /// <param name="context">
-    ///     The <see cref="System.Runtime.Serialization.StreamingContext" /> that contains
-    ///     contextual information about the source or destination.
-    /// </param>
-    protected ExplicitConversionMethodException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
-    {
-        From = (Type)info.GetValue("From", typeof(Type));
-        To = (Type)info.GetValue("To", typeof(Type));
-    }
-
     public Type From { get; }
     public Type To { get; }
-
-    public override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-        if (info == null)
-        {
-            throw new ArgumentNullException(nameof(info));
-        }
-
-        base.GetObjectData(info, context);
-        info.AddValue("From", From);
-        info.AddValue("To", To);
-    }
 }

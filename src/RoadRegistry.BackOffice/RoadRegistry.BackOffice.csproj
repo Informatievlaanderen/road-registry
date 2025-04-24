@@ -12,6 +12,7 @@
     <PublishReadyToRun>false</PublishReadyToRun>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    <NoWarn>CS8632</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Be.Vlaanderen.Basisregisters.AggregateSource" />

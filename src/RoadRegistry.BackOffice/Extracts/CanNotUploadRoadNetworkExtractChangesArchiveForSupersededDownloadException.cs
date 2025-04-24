@@ -1,9 +1,7 @@
 namespace RoadRegistry.BackOffice.Extracts;
 
 using System;
-using System.Runtime.Serialization;
 
-[Serializable]
 public class CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException : Exception
 {
     public CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException(ExternalExtractRequestId externalRequestId, ExtractRequestId requestId, DownloadId attemptedDownloadId, DownloadId requiredDownloadId, UploadId uploadId)
@@ -14,11 +12,6 @@ public class CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadEx
         AttemptedDownloadId = attemptedDownloadId;
         RequiredDownloadId = requiredDownloadId;
         UploadId = uploadId;
-    }
-
-    protected CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException(SerializationInfo serializationInfo, StreamingContext streamingContext)
-        : base(serializationInfo, streamingContext)
-    {
     }
 
     public DownloadId AttemptedDownloadId { get; }

@@ -488,7 +488,7 @@ public class RoadSegmentWidthAttributeRecordProjectionTests : IClassFixture<Proj
         {
             var segment = change.RoadSegmentAttributesModified;
 
-            return segment.Widths.Select(width => (object)new RoadSegmentWidthAttributeRecord
+            return segment.Widths?.Select(width => (object)new RoadSegmentWidthAttributeRecord
             {
                 Id = width.AttributeId,
                 RoadSegmentId = segment.Id,
