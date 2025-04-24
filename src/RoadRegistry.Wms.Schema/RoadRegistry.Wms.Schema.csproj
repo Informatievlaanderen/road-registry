@@ -6,6 +6,7 @@
     <Platforms>AnyCPU;x64;x86</Platforms>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    <NoWarn>CS8632</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Migrations" />

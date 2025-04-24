@@ -505,7 +505,7 @@ public class RoadSegmentLaneAttributeRecordProjectionTests : IClassFixture<Proje
         {
             var segment = change.RoadSegmentAttributesModified;
 
-            return segment.Lanes.Select(lane => (object)new RoadSegmentLaneAttributeRecord
+            return segment.Lanes?.Select(lane => (object)new RoadSegmentLaneAttributeRecord
             {
                 Id = lane.AttributeId,
                 RoadSegmentId = segment.Id,

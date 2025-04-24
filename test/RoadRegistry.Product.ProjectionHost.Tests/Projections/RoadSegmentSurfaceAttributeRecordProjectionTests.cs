@@ -498,7 +498,7 @@ public class RoadSegmentSurfaceAttributeRecordProjectionTests : IClassFixture<Pr
         {
             var segment = change.RoadSegmentAttributesModified;
 
-            return segment.Surfaces.Select(surface => (object)new RoadSegmentSurfaceAttributeRecord
+            return segment.Surfaces?.Select(surface => (object)new RoadSegmentSurfaceAttributeRecord
             {
                 Id = surface.AttributeId,
                 RoadSegmentId = segment.Id,

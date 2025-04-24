@@ -1,17 +1,9 @@
 namespace RoadRegistry.BackOffice.Abstractions.Exceptions;
 
-using System.Runtime.Serialization;
-
-[Serializable]
-public abstract class DownloadExtractException : ApplicationException
+public abstract class DownloadExtractException : Exception
 {
     protected DownloadExtractException(string message)
         : base(message)
-    {
-    }
-
-    protected DownloadExtractException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
     {
     }
 
