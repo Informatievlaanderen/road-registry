@@ -31,9 +31,11 @@ using RoadRegistry.Hosts.Infrastructure.Options;
 using SqlStreamStore;
 using System.Reflection;
 using Api.Grb;
+using Api.Infrastructure.Controllers;
 using FeatureCompare;
 using FeatureCompare.V1.Readers;
 using FeatureCompare.V1.Translators;
+using Microsoft.AspNetCore.Http;
 using Sync.MunicipalityRegistry;
 using MediatorModule = BackOffice.MediatorModule;
 
@@ -109,6 +111,9 @@ public class Startup : TestStartup
             .AddScoped<OrganizationsController>()
             .AddScoped<UploadController>()
             .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
+            .AddScoped(sp => new BackofficeApiControllerContext(
+                sp.GetRequiredService<TicketingOptions>(),
+                new HttpContextAccessor { HttpContext = new DefaultHttpContext() }))
             ;
     }
 
