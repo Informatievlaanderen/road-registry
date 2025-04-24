@@ -22,10 +22,9 @@ internal class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthent
     public ApiKeyAuthenticationHandler(IOptionsMonitor<ApiKeyAuthenticationOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
-        ISystemClock clock,
         IApiKeyAuthenticator apiKeyAuthenticator,
         UseApiKeyAuthenticationFeatureToggle useApiKeyAuthenticationFeatureToggle)
-        : base(options, logger, encoder, clock)
+        : base(options, logger, encoder)
     {
         _apiKeyAuthenticator = apiKeyAuthenticator;
         _useApiKeyAuthenticationFeatureToggle = useApiKeyAuthenticationFeatureToggle;
@@ -44,7 +43,7 @@ internal class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthent
         }
 
         IIdentity identity = null;
-        
+
         if (Context.Request.Headers.TryGetValue(ApiTokenHeaderName, out var apiTokens))
         {
             var apiToken = apiTokens.FirstOrDefault();
