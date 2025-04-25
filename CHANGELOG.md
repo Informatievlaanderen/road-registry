@@ -1,3 +1,10 @@
+## [4.29.7](https://github.com/informatievlaanderen/road-registry/compare/v4.29.6...v4.29.7) (2025-04-25)
+
+
+### Bug Fixes
+
+* **product-publish:** update more fields in metadata ([20d4b49](https://github.com/informatievlaanderen/road-registry/commit/20d4b49bbac8a8fcfd53a5bf5440ab27ffb5355b))
+
 ## [4.29.6](https://github.com/informatievlaanderen/road-registry/compare/v4.29.5...v4.29.6) (2025-04-25)
 
 
