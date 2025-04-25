@@ -148,16 +148,17 @@ namespace RoadRegistry.Product.PublishHost
 
             archiveStream.Position = 0;
             await using var azureZipArchiveStream = await archiveStream.CopyToNewMemoryStreamAsync(cancellationToken);
-            using var azureZipArchive = new ZipArchive(azureZipArchiveStream, ZipArchiveMode.Create, true);
-
-            await azureZipArchive.AddToZipArchive(
-                "Meta_Wegenregister.pdf",
-                pdfAsBytes,
-                cancellationToken);
-            await azureZipArchive.AddToZipArchive(
-                "Meta_Wegenregister.xml",
-                xmlAsString,
-                cancellationToken);
+            using (var azureZipArchive = new ZipArchive(azureZipArchiveStream, ZipArchiveMode.Update, true))
+            {
+                await azureZipArchive.AddToZipArchive(
+                    "Meta_Wegenregister.pdf",
+                    pdfAsBytes,
+                    cancellationToken);
+                await azureZipArchive.AddToZipArchive(
+                    "Meta_Wegenregister.xml",
+                    xmlAsString,
+                    cancellationToken);
+            }
 
             var azureBlobClient = sp.Resolve<AzureBlobClient>();
             await azureBlobClient.UploadBlobAsync(azureZipArchiveStream, cancellationToken);
