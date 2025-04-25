@@ -1,3 +1,10 @@
+## [4.29.8](https://github.com/informatievlaanderen/road-registry/compare/v4.29.7...v4.29.8) (2025-04-25)
+
+
+### Bug Fixes
+
+* **product-publish:** metadata path of endPosition field ([1f324cf](https://github.com/informatievlaanderen/road-registry/commit/1f324cfaa55e4ed33becc2208b1746c7e9a8f351))
+
 ## [4.29.7](https://github.com/informatievlaanderen/road-registry/compare/v4.29.6...v4.29.7) (2025-04-25)
 
 
