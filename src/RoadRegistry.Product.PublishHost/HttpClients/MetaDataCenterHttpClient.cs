@@ -47,6 +47,14 @@ public sealed class MetaDataCenterHttpClient
             <csw:Name>gmd:dateStamp/gco:Date</csw:Name>
             <csw:Value>{dateStamp:O}</csw:Value>
         </csw:RecordProperty>
+        <csw:RecordProperty>
+            <csw:Name>gmd:identificationInfo/gmd:MD_DataIdentification/gmd:citation/gmd:CI_Citation/gmd:edition/gco:CharacterString</csw:Name>
+            <csw:Value>Toestand {dateStamp:yyyy-MM-dd}</csw:Value>
+        </csw:RecordProperty>
+        <csw:RecordProperty>
+            <csw:Name>gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:extent/gml:TimePeriod/gml:endPosition</csw:Name>
+            <csw:Value>{dateStamp:yyyy-MM-dd}</csw:Value>
+        </csw:RecordProperty>
 		<csw:Constraint version=""1.1.0"">
 			<ogc:Filter>
 				<ogc:PropertyIsEqualTo>
