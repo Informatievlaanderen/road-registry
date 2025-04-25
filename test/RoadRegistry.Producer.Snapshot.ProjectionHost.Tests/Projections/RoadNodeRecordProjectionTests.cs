@@ -13,6 +13,7 @@ using RoadNode;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using RoadRegistry.Tests.Framework.Projections;
+using Shared;
 
 public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {

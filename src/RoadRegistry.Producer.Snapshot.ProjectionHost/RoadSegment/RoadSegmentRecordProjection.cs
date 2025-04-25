@@ -13,6 +13,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Shared;
 
     public class RoadSegmentRecordProjection : ConnectedProjection<RoadSegmentProducerSnapshotContext>
     {
@@ -88,7 +89,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                         LastChangedTimestamp = envelope.CreatedUtc
                     });
 
-                await Produce(envelope.Message.Id, roadNode.Entity.ToContract(), token);
+                await Produce(envelope.Message.Id, roadNode.Entity.ToContract(), envelope.Position, token);
             });
 
             When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
@@ -141,14 +142,14 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
             When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
             {
-                await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+                await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), envelope.Position, token);
             });
 
             When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
             {
                 if (envelope.Message.NameModified)
                 {
-                    await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+                    await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), envelope.Position, token);
                 }
             });
 
@@ -156,7 +157,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             {
                 if (envelope.Message.NameModified)
                 {
-                    await UpdateStreetNameLabels(context, new StreetNameLocalId(envelope.Message.Record.PersistentLocalId), envelope.Message.Record.DutchName, token);
+                    await UpdateStreetNameLabels(context, new StreetNameLocalId(envelope.Message.Record.PersistentLocalId), envelope.Message.Record.DutchName, envelope.Position, token);
                 }
             });
         }
@@ -237,7 +238,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             dbRecord.Origin = envelope.Message.ToOrigin();
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
-            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
         }
 
         private async Task ModifyRoadSegment(
@@ -306,7 +307,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             dbRecord.Origin = envelope.Message.ToOrigin();
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
-            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
         }
 
         private async Task AddRoadSegmentToEuropeanRoad(
@@ -445,7 +446,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             dbRecord.Origin = envelope.Message.ToOrigin();
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
-            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
         }
 
         private async Task ModifyRoadSegmentGeometry(
@@ -474,7 +475,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             dbRecord.Origin = envelope.Message.ToOrigin();
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
-            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
         }
 
         private async Task RemoveRoadSegment(
@@ -500,7 +501,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
             dbRecord.IsRemoved = true;
 
-            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
         }
 
         private async Task UpdateRoadSegmentVersion(
@@ -532,13 +533,14 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             dbRecord.Origin = envelope.Message.ToOrigin();
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
-            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
         }
 
         private async Task RenameOrganization(
             RoadSegmentProducerSnapshotContext context,
             OrganizationId organizationId,
             OrganizationName organizationName,
+            long storePosition,
             CancellationToken cancellationToken)
         {
             await context.RoadSegments.IncludeLocalForEachBatchAsync(q =>
@@ -550,7 +552,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                     {
                         dbRecord.MaintainerName = organizationName;
 
-                        await Produce(dbRecord.Id, dbRecord.ToContract(), cancellationToken);
+                        await Produce(dbRecord.Id, dbRecord.ToContract(), storePosition, cancellationToken);
                     }
                 }, cancellationToken);
         }
@@ -559,6 +561,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             RoadSegmentProducerSnapshotContext context,
             StreetNameLocalId streetNameLocalId,
             string dutchName,
+            long storePosition,
             CancellationToken cancellationToken)
         {
             await context.RoadSegments.IncludeLocalForEachBatchAsync(q =>
@@ -578,16 +581,17 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                             dbRecord.RightSideStreetName = dutchName;
                         }
 
-                        await Produce(dbRecord.Id, dbRecord.ToContract(), cancellationToken);
+                        await Produce(dbRecord.Id, dbRecord.ToContract(), storePosition, cancellationToken);
                     }
                 }, cancellationToken);
         }
 
-        private async Task Produce(int roadSegmentId, RoadSegmentSnapshot snapshot, CancellationToken cancellationToken)
+        private async Task Produce(int roadSegmentId, RoadSegmentSnapshot snapshot, long storePosition, CancellationToken cancellationToken)
         {
             var result = await _kafkaProducer.Produce(
-                roadSegmentId.ToString(CultureInfo.InvariantCulture),
+                roadSegmentId,
                 snapshot,
+                storePosition,
                 cancellationToken);
 
             if (!result.IsSuccess)

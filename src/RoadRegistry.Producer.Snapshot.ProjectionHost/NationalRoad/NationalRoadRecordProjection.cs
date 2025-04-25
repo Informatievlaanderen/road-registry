@@ -1,17 +1,16 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
 {
+    using System;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using BackOffice.Extensions;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Extensions;
-    using Projections;
-    using RoadRegistry.BackOffice.Extensions;
-    using System;
-    using System.Globalization;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using Shared;
 
     public class NationalRoadRecordProjection : ConnectedProjection<NationalRoadProducerSnapshotContext>
     {
@@ -47,7 +46,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             {
                 var nationalRoadRecord = await context.NationalRoads.AddAsync(nationalRoad, token);
 
-                await Produce(nationalRoadRecord.Entity.Id, nationalRoadRecord.Entity.ToContract(), token);
+                await Produce(nationalRoadRecord.Entity.Id, nationalRoadRecord.Entity.ToContract(), envelope.Position, token);
             }
         }
 
@@ -94,8 +93,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             dbRecord.Number = nationalRoadAdded.Number;
             dbRecord.Origin = envelope.Message.ToOrigin();
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
-            
-            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
+
+            await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
         }
 
         private async Task RoadSegmentRemovedFromNationalRoad(
@@ -148,14 +147,15 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
             dbRecord.IsRemoved = true;
 
-            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
         }
-        
-        private async Task Produce(int nationalRoadId, NationalRoadSnapshot snapshot, CancellationToken cancellationToken)
+
+        private async Task Produce(int nationalRoadId, NationalRoadSnapshot snapshot, long storePosition, CancellationToken cancellationToken)
         {
             var result = await _kafkaProducer.Produce(
-                nationalRoadId.ToString(CultureInfo.InvariantCulture),
+                nationalRoadId,
                 snapshot,
+                storePosition,
                 cancellationToken);
 
             if (!result.IsSuccess)

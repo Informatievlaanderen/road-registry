@@ -14,7 +14,7 @@
   <ItemGroup>
     <PackageReference Include="Be.Vlaanderen.Basisregisters.EventHandling.Autofac" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.GrAr.Contracts" />
-    <PackageReference Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Producer" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer" />
     <PackageReference Include="DataDog.Trace.Bundle" />

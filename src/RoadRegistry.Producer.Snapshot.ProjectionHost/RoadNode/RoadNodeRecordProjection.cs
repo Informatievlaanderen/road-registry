@@ -11,6 +11,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
     using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
+    using Shared;
 
     public class RoadNodeRecordProjection : ConnectedProjection<RoadNodeProducerSnapshotContext>
     {
@@ -37,7 +38,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
                         LastChangedTimestamp = envelope.CreatedUtc
                     }, token);
 
-                await Produce(envelope.Message.Id, roadNode.Entity.ToContract(), token);
+                await Produce(envelope.Message.Id, roadNode.Entity.ToContract(), envelope.Position, token);
             });
 
             When<Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
@@ -90,7 +91,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             dbRecord.Origin = envelope.Message.ToOrigin();
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
-            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
         }
 
         private async Task ModifyRoadNode(
@@ -117,7 +118,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             dbRecord.Origin = envelope.Message.ToOrigin();
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
-            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
         }
 
         private async Task RemoveRoadNode(
@@ -142,14 +143,15 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
             dbRecord.IsRemoved = true;
 
-            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
         }
 
-        private async Task Produce(int roadNodeId, RoadNodeSnapshot snapshot, CancellationToken cancellationToken)
+        private async Task Produce(int roadNodeId, RoadNodeSnapshot snapshot, long storePosition, CancellationToken cancellationToken)
         {
             var result = await _kafkaProducer.Produce(
-                roadNodeId.ToString(CultureInfo.InvariantCulture),
+                roadNodeId,
                 snapshot,
+                storePosition,
                 cancellationToken);
 
             if (!result.IsSuccess)

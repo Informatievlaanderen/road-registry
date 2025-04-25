@@ -5,7 +5,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
     using System.Threading;
     using System.Threading.Tasks;
     using BackOffice;
-    using BackOffice.Abstractions;
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
@@ -78,12 +77,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                 .Build();
 
             await roadRegistryHost
-                .LogSqlServerConnectionStrings(new []
-                {
+                .LogSqlServerConnectionStrings([
                     WellKnownConnectionNames.Events,
                     WellKnownConnectionNames.ProducerSnapshotProjections,
                     WellKnownConnectionNames.ProducerSnapshotProjectionsAdmin
-                })
+                ])
                 .RunAsync(async (sp, host, configuration) =>
                 {
                     var loggerFactory = sp.GetRequiredService<ILoggerFactory>();

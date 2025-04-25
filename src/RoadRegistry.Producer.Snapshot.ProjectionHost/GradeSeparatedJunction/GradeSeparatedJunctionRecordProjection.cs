@@ -1,5 +1,8 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
 {
+    using System;
+    using System.Threading;
+    using System.Threading.Tasks;
     using BackOffice;
     using BackOffice.Extensions;
     using BackOffice.Messages;
@@ -7,11 +10,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Extensions;
-    using Projections;
-    using System;
-    using System.Globalization;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using Shared;
 
     public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<GradeSeparatedJunctionProducerSnapshotContext>
     {
@@ -43,7 +42,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
                     LastChangedTimestamp = envelope.CreatedUtc
                 }, token);
 
-            await Produce(gradeSeparatedJunctionRecord.Entity.Id, gradeSeparatedJunctionRecord.Entity.ToContract(), token);
+            await Produce(gradeSeparatedJunctionRecord.Entity.Id, gradeSeparatedJunctionRecord.Entity.ToContract(), envelope.Position, token);
         }
 
         private async Task RoadNetworkChangesAccepted(GradeSeparatedJunctionProducerSnapshotContext context, Envelope<RoadNetworkChangesAccepted> envelope, CancellationToken token)
@@ -93,8 +92,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             dbRecord.TypeDutchName = typeTranslation.Name;
             dbRecord.Origin = envelope.Message.ToOrigin();
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
-            
-            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
+
+            await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
         }
 
         private async Task GradeSeparatedJunctionModified(
@@ -118,7 +117,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
                 dbRecord.Origin = envelope.Message.ToOrigin();
                 dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
-                await Produce(dbRecord.Id, dbRecord.ToContract(), token);
+                await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
             }
         }
 
@@ -145,14 +144,15 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
             dbRecord.IsRemoved = true;
 
-            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
         }
 
-        private async Task Produce(int gradeSeparatedJunctionId, GradeSeparatedJunctionSnapshot snapshot, CancellationToken cancellationToken)
+        private async Task Produce(int gradeSeparatedJunctionId, GradeSeparatedJunctionSnapshot snapshot, long storePosition, CancellationToken cancellationToken)
         {
             var result = await _kafkaProducer.Produce(
-                gradeSeparatedJunctionId.ToString(CultureInfo.InvariantCulture),
+                gradeSeparatedJunctionId,
                 snapshot,
+                storePosition,
                 cancellationToken);
 
             if (!result.IsSuccess)

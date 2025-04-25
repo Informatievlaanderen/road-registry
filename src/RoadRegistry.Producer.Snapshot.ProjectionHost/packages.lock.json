@@ -18,14 +18,14 @@
         "resolved": "22.0.0",
         "contentHash": "vAp0lWs24/5ajuKdIWr+0TuKCudALqTVjDsvotIk7bzRcyuXbEJjXUzH000E7UQVUuYtA0AiaHdwsUz2+PWnEw=="
       },
-      "Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple": {
+      "Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Producer": {
         "type": "Direct",
-        "requested": "[5.2.0, )",
-        "resolved": "5.2.0",
-        "contentHash": "g4ncGeAmd4mTAL7D5fk11wRQxxH42X4g2QEHmbRrV+aT97PFcYyFalb/xzx+g5niu6oGQNfsXEX+6oVh1lGn9A==",
+        "requested": "[6.0.2, )",
+        "resolved": "6.0.2",
+        "contentHash": "nPIG7/1Gf1nLhu1c/r1udJuyVsT77kwHZC2Ry1n2o8eIlT35kS3gwgjOAKBY9hf2PjFYlSkhTebOGqyVxEFtrg==",
         "dependencies": {
-          "Confluent.Kafka": "2.3.0",
-          "Microsoft.Extensions.Logging": "8.0.0"
+          "Confluent.Kafka": "2.9.0",
+          "Newtonsoft.Json": "13.0.3"
         }
       },
       "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": {

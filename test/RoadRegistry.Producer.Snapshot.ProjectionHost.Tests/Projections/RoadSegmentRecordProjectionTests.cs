@@ -15,6 +15,7 @@ using RoadRegistry.Tests.BackOffice.Scenarios;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using RoadRegistry.Tests.Framework.Projections;
 using RoadSegment;
+using Shared;
 
 public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {
