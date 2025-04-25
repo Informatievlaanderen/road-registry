@@ -1,3 +1,10 @@
+## [4.29.6](https://github.com/informatievlaanderen/road-registry/compare/v4.29.5...v4.29.6) (2025-04-25)
+
+
+### Bug Fixes
+
+* **product-publish:** upload to azure ([d2c6947](https://github.com/informatievlaanderen/road-registry/commit/d2c6947d5b45748f1579d3dc878d7a9f93d1a646))
+
 ## [4.29.5](https://github.com/informatievlaanderen/road-registry/compare/v4.29.4...v4.29.5) (2025-04-24)
 
 
