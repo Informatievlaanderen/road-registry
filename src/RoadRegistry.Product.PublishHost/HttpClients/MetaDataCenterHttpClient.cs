@@ -52,7 +52,7 @@ public sealed class MetaDataCenterHttpClient
             <csw:Value>Toestand {dateStamp:yyyy-MM-dd}</csw:Value>
         </csw:RecordProperty>
         <csw:RecordProperty>
-            <csw:Name>gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:extent/gml:TimePeriod/gml:endPosition</csw:Name>
+            <csw:Name>gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:temporalElement/gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/gml:endPosition</csw:Name>
             <csw:Value>{dateStamp:yyyy-MM-dd}</csw:Value>
         </csw:RecordProperty>
 		<csw:Constraint version=""1.1.0"">
