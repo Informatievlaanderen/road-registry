@@ -15,7 +15,6 @@
     <PackageReference Include="Be.Vlaanderen.Basisregisters.EventHandling" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.Npgsql" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.Utilities.Rfc3339DateTimeOffset" />
-    <!-- <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" /> -->
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />

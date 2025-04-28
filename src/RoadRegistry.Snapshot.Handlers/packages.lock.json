@@ -104,8 +104,8 @@
       },
       "Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore": {
         "type": "Transitive",
-        "resolved": "15.0.0",
-        "contentHash": "zXmqd6bAJW4+SPlCDOKTCRM1MGkDgqMfKqb7WvY/NRsrDfFGe3fkd35Uw2c/KKqzLJsqYghQ/DBlAdAfe4AkzQ==",
+        "resolved": "15.0.1",
+        "contentHash": "037s8100scc1k9Mw29bBLxFBtftfBzsrnk84a8RvoNWQMmcVQ9bCAtxiNmlHb6a2QsRlQNGvsVXuP7hDm+1CMA==",
         "dependencies": {
           "Be.Vlaanderen.Basisregisters.EventHandling": "7.0.0",
           "SqlStreamStore": "1.2.0"
@@ -1306,17 +1306,17 @@
           "AWSSDK.DynamoDBv2": "[3.7.302, )",
           "AWSSDK.SimpleEmailV2": "[3.7.301.5, )",
           "AWSSDK.SimpleNotificationService": "[3.7.301.7, )",
-          "Amazon.Lambda.Core": "[2.2.0, )",
+          "Amazon.Lambda.Core": "[2.5.1, )",
           "Be.Vlaanderen.Basisregisters.AggregateSource": "[10.0.2, )",
           "Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache": "[3.0.0, )",
           "Be.Vlaanderen.Basisregisters.BlobStore": "[5.0.0, )",
           "Be.Vlaanderen.Basisregisters.EventHandling.Autofac": "[7.0.0, )",
           "Be.Vlaanderen.Basisregisters.Generators.Guid.Deterministic": "[5.0.0, )",
           "Be.Vlaanderen.Basisregisters.GrAr.Provenance": "[22.0.0, )",
-          "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": "[6.0.1, )",
+          "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": "[6.0.2, )",
           "Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer": "[6.0.2, )",
-          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": "[15.0.0, )",
-          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer": "[15.0.0, )",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": "[15.0.1, )",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer": "[15.0.1, )",
           "Be.Vlaanderen.Basisregisters.Shaperon": "[11.0.0, )",
           "Be.Vlaanderen.Basisregisters.Shaperon.Geometries": "[11.0.0, )",
           "Be.Vlaanderen.Basisregisters.TicketingService.Abstractions": "[3.0.0, )",
@@ -1333,11 +1333,11 @@
           "Microsoft.Extensions.Configuration.FileExtensions": "[9.0.4, )",
           "Microsoft.Extensions.Logging.Abstractions": "[9.0.4, )",
           "Microsoft.Extensions.Logging.Console": "[9.0.4, )",
-          "Microsoft.IO.RecyclableMemoryStream": "[3.0.0, )",
-          "Microsoft.IdentityModel.Abstractions": "[8.0.1, )",
-          "Microsoft.IdentityModel.JsonWebTokens": "[8.0.1, )",
-          "Microsoft.IdentityModel.Logging": "[8.0.1, )",
-          "Microsoft.IdentityModel.Tokens": "[8.0.1, )",
+          "Microsoft.IO.RecyclableMemoryStream": "[3.0.1, )",
+          "Microsoft.IdentityModel.Abstractions": "[8.9.0, )",
+          "Microsoft.IdentityModel.JsonWebTokens": "[8.9.0, )",
+          "Microsoft.IdentityModel.Logging": "[8.9.0, )",
+          "Microsoft.IdentityModel.Tokens": "[8.9.0, )",
           "NetTopologySuite": "[2.6.0, )",
           "NetTopologySuite.IO.Esri.Shapefile": "[1.2.0, )",
           "NetTopologySuite.IO.GeoJSON": "[4.0.0, )",
@@ -1345,7 +1345,7 @@
           "Polly": "[8.5.2, )",
           "QuikGraph": "[2.5.0, )",
           "SqlStreamStore": "[1.2.0, )",
-          "System.IdentityModel.Tokens.Jwt": "[7.5.0, )"
+          "System.IdentityModel.Tokens.Jwt": "[8.9.0, )"
         }
       },
       "roadregistry.backoffice.abstractions": {
@@ -1353,16 +1353,16 @@
         "dependencies": {
           "AWSSDK.Core": "[3.7.402.35, )",
           "Be.Vlaanderen.Basisregisters.BlobStore": "[5.0.0, )",
-          "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.0, )",
+          "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.1, )",
           "MediatR.Contracts": "[2.0.1, )",
           "Microsoft.Extensions.DependencyInjection": "[9.0.4, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.0.4, )",
           "Microsoft.Extensions.Logging": "[9.0.4, )",
-          "Microsoft.IdentityModel.Abstractions": "[8.0.1, )",
-          "Microsoft.IdentityModel.JsonWebTokens": "[8.0.1, )",
-          "Microsoft.IdentityModel.Logging": "[8.0.1, )",
-          "Microsoft.IdentityModel.Tokens": "[8.0.1, )",
-          "Microsoft.Net.Http.Headers": "[8.0.3, )",
+          "Microsoft.IdentityModel.Abstractions": "[8.9.0, )",
+          "Microsoft.IdentityModel.JsonWebTokens": "[8.9.0, )",
+          "Microsoft.IdentityModel.Logging": "[8.9.0, )",
+          "Microsoft.IdentityModel.Tokens": "[8.9.0, )",
+          "Microsoft.Net.Http.Headers": "[9.0.4, )",
           "RoadRegistry.BackOffice": "[1.0.0, )"
         }
       },
@@ -1371,17 +1371,17 @@
         "dependencies": {
           "AWSSDK.Core": "[3.7.402.35, )",
           "AWSSDK.SQS": "[3.7.400.129, )",
-          "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": "[6.0.1, )",
-          "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.0, )",
-          "Be.Vlaanderen.Basisregisters.Sqs.Lambda": "[4.0.0, )",
+          "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": "[6.0.2, )",
+          "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.1, )",
+          "Be.Vlaanderen.Basisregisters.Sqs.Lambda": "[4.0.1, )",
           "Be.Vlaanderen.Basisregisters.TicketingService.Abstractions": "[3.0.0, )",
           "MediatR": "[12.5.0, )",
           "MediatR.Contracts": "[2.0.1, )",
           "Microsoft.Extensions.DependencyInjection": "[9.0.4, )",
-          "Microsoft.IdentityModel.Abstractions": "[8.0.1, )",
-          "Microsoft.IdentityModel.JsonWebTokens": "[8.0.1, )",
-          "Microsoft.IdentityModel.Logging": "[8.0.1, )",
-          "Microsoft.IdentityModel.Tokens": "[8.0.1, )",
+          "Microsoft.IdentityModel.Abstractions": "[8.9.0, )",
+          "Microsoft.IdentityModel.JsonWebTokens": "[8.9.0, )",
+          "Microsoft.IdentityModel.Logging": "[8.9.0, )",
+          "Microsoft.IdentityModel.Tokens": "[8.9.0, )",
           "RoadRegistry.BackOffice.Abstractions": "[1.0.0, )"
         }
       },
@@ -1390,8 +1390,8 @@
         "dependencies": {
           "AWSSDK.Core": "[3.7.402.35, )",
           "AWSSDK.SQS": "[3.7.400.129, )",
-          "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": "[6.0.1, )",
-          "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.0, )",
+          "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": "[6.0.2, )",
+          "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.1, )",
           "Be.Vlaanderen.Basisregisters.TicketingService.Abstractions": "[3.0.0, )",
           "MediatR": "[12.5.0, )",
           "MediatR.Contracts": "[2.0.1, )",
@@ -1402,9 +1402,9 @@
       },
       "Amazon.Lambda.Core": {
         "type": "CentralTransitive",
-        "requested": "[2.2.0, )",
-        "resolved": "2.2.0",
-        "contentHash": "DHqKeD1CYocP0t1dJC/NaXfu+5k6AoqnQ1Hlu/J2mXpLpCyeJfY+tIqT5fpruDarUlU0NtdIH8zSkCjeinyb1A=="
+        "requested": "[2.5.1, )",
+        "resolved": "2.5.1",
+        "contentHash": "84MTU67ZU+KMaT8V2C/76UCu3J77hTrDpiThlvUQLiNQMtpfF+9yHdVC4GEtoWGOGtItOaoBB0sdEE2V13qL9Q=="
       },
       "Autofac.Extensions.DependencyInjection": {
         "type": "CentralTransitive",
@@ -1568,9 +1568,9 @@
       },
       "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": {
         "type": "CentralTransitive",
-        "requested": "[6.0.1, )",
-        "resolved": "6.0.1",
-        "contentHash": "N+bYS7gIGrBQYEFPECwQbCWZsMeCi+g6vD79OUgVoWxg8KGQ5zV8bYXYtRNrfmEbhLTsEP7gLsWnf0OxCpHmZw==",
+        "requested": "[6.0.2, )",
+        "resolved": "6.0.2",
+        "contentHash": "0x1ZuXywYqtWEuPgDcpFHTzISIBM3ZtzE0wIH4r/Vz2Q9GFIE8FtwN4GSCkQqqDwwnQlyJPiHtWDWn9StDBtEw==",
         "dependencies": {
           "AWSSDK.Core": "3.7.402.35",
           "AWSSDK.SQS": "3.7.400.129",
@@ -1593,22 +1593,22 @@
       },
       "Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector": {
         "type": "CentralTransitive",
-        "requested": "[15.0.0, )",
-        "resolved": "15.0.0",
-        "contentHash": "3FVtbBiKXLIct6UfxUJlBh6+N9AUKnI4/XpHlz0WTZFV5vLhwtzXyFtQyPNbopgeYIOAaAWFtnv0r0E7Ld9WCw==",
+        "requested": "[15.0.1, )",
+        "resolved": "15.0.1",
+        "contentHash": "IAN5ZfcAY7YqV62v0YEcOkynmZaI6rb2Q46T7J5NtsIH3OVXVCe7LR2OsGxzf7OfThh9Ha/BF6sAj1h+pU+iIw==",
         "dependencies": {
           "Microsoft.EntityFrameworkCore": "9.0.3"
         }
       },
       "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": {
         "type": "CentralTransitive",
-        "requested": "[15.0.0, )",
-        "resolved": "15.0.0",
-        "contentHash": "ifO5nGhIMgxSNolrl71H9itQzIvYnLoQv/6/PdzmTHGSR6iWXK9dLFe3cePEoIMbEXfeGJKLHiTSOoC851ig8w==",
+        "requested": "[15.0.1, )",
+        "resolved": "15.0.1",
+        "contentHash": "zQZ4eQNtMPMwYOXnhQw9mVWysA96RsaI2UmUaypCgH5MOPIYeejTan+edmXouvrmvrk4OqzxucSOzgOSAkajMg==",
         "dependencies": {
           "Autofac.Extensions.DependencyInjection": "10.0.0",
-          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector": "15.0.0",
-          "Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore": "15.0.0",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector": "15.0.1",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore": "15.0.1",
           "Microsoft.EntityFrameworkCore.InMemory": "9.0.3",
           "Microsoft.EntityFrameworkCore.Relational": "9.0.3",
           "Microsoft.Extensions.Configuration": "9.0.3",
@@ -1621,13 +1621,13 @@
       },
       "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer": {
         "type": "CentralTransitive",
-        "requested": "[15.0.0, )",
-        "resolved": "15.0.0",
-        "contentHash": "CL78wHNBe8Uy0j8wQaS5NW0JhXKgu5mg/Byn/XIBAgbdo0O+64GuKmyLr0PvF+hIIAOTGoMvh74J9Z3GiHVzZQ==",
+        "requested": "[15.0.1, )",
+        "resolved": "15.0.1",
+        "contentHash": "ODroJjAjnxsCce6HANO7VDqVageupPvatBX12WOSISzkRxMfCtyD5kSDWkTBnTCC2zVcoeu5O2PDe7qKQH5d9A==",
         "dependencies": {
-          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector": "15.0.0",
-          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": "15.0.0",
-          "Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore": "15.0.0",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector": "15.0.1",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": "15.0.1",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore": "15.0.1",
           "Microsoft.EntityFrameworkCore.SqlServer": "9.0.3",
           "Polly": "8.5.2"
         }
@@ -1650,9 +1650,9 @@
       },
       "Be.Vlaanderen.Basisregisters.Sqs": {
         "type": "CentralTransitive",
-        "requested": "[4.0.0, )",
-        "resolved": "4.0.0",
-        "contentHash": "mrTLbSKBiSVwVjamBFISATDKEu6jfnbnk1y6qqUK0WhXXam8i0qcGxqtkic5QqfZRuBkvsPinsqMHVuHaLAPsQ==",
+        "requested": "[4.0.1, )",
+        "resolved": "4.0.1",
+        "contentHash": "ZhlPVAxQy42dZFLUC8+blptMkj/MdR5GlqJ+p0r5nli1VdnZSMzDjOKPG45hhijJtga2/kmAL6R4XKJfC5wehw==",
         "dependencies": {
           "Be.Vlaanderen.Basisregisters.GrAr.Provenance": "22.0.0",
           "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": "6.0.0",
@@ -1662,12 +1662,12 @@
       },
       "Be.Vlaanderen.Basisregisters.Sqs.Lambda": {
         "type": "CentralTransitive",
-        "requested": "[4.0.0, )",
-        "resolved": "4.0.0",
-        "contentHash": "6VJ0u0wZ4PCaCO0UGoup+fL+NrTsLnVpR+11YRc2xiX8eoezqRUbr9lq6QMbfBeII3/B1MjgB0bLYnTejPKCKw==",
+        "requested": "[4.0.1, )",
+        "resolved": "4.0.1",
+        "contentHash": "ajX/cyXP1FA7ZU1uXjgcP5AHeGQDriDBMLHU1mUVZxDsFGuDUk8LkJBQ5vV+5L5wrIqBnqZXFkDAwT+wofa1gw==",
         "dependencies": {
           "Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency": "10.0.2",
-          "Be.Vlaanderen.Basisregisters.Sqs": "4.0.0",
+          "Be.Vlaanderen.Basisregisters.Sqs": "4.0.1",
           "Be.Vlaanderen.Basisregisters.TicketingService.Abstractions": "3.0.0",
           "FluentValidation": "11.11.0",
           "MediatR": "12.5.0",
@@ -1735,7 +1735,7 @@
       },
       "Microsoft.Data.SqlClient": {
         "type": "CentralTransitive",
-        "requested": "[6.0.1, )",
+        "requested": "[6.0.2, )",
         "resolved": "6.0.1",
         "contentHash": "v7HxnYYXGGCJilxeQ4Pdks+popVuGajBpHmau0RU4ACIcbfs5qCNUnCogGpZ+CJ//8Qafhxq7vc5a8L9d6O8Eg==",
         "dependencies": {
@@ -1963,31 +1963,31 @@
       },
       "Microsoft.IdentityModel.Abstractions": {
         "type": "CentralTransitive",
-        "requested": "[8.0.1, )",
-        "resolved": "8.0.1",
-        "contentHash": "OtlIWcyX01olfdevPKZdIPfBEvbcioDyBiE/Z2lHsopsMD7twcKtlN9kMevHmI5IIPhFpfwCIiR6qHQz1WHUIw=="
+        "requested": "[8.9.0, )",
+        "resolved": "8.9.0",
+        "contentHash": "b/87S+lb86U7Ns7xgTKnqql6XGNr8hBE+k0rj5sRWwXeJe6uA+3mSjvpZ9GoQo3cB9zlwzcbGBU8KM44qX0t1g=="
       },
       "Microsoft.IdentityModel.JsonWebTokens": {
         "type": "CentralTransitive",
-        "requested": "[8.0.1, )",
-        "resolved": "8.0.1",
-        "contentHash": "s6++gF9x0rQApQzOBbSyp4jUaAlwm+DroKfL8gdOHxs83k8SJfUXhuc46rDB3rNXBQ1MVRxqKUrqFhO/M0E97g==",
+        "requested": "[8.9.0, )",
+        "resolved": "8.9.0",
+        "contentHash": "QcNC57hJLc6LIcy2PTYlD8iRBQBm6bqPKbCjsRYWlp7QTyJisF0ImUWaa3mx6wWaS1upwYneYVPiIiNSlAy16g==",
         "dependencies": {
-          "Microsoft.IdentityModel.Tokens": "8.0.1"
+          "Microsoft.IdentityModel.Tokens": "8.9.0"
         }
       },
       "Microsoft.IdentityModel.Logging": {
         "type": "CentralTransitive",
-        "requested": "[8.0.1, )",
-        "resolved": "8.0.1",
-        "contentHash": "UCPF2exZqBXe7v/6sGNiM6zCQOUXXQ9+v5VTb9gPB8ZSUPnX53BxlN78v2jsbIvK9Dq4GovQxo23x8JgWvm/Qg==",
+        "requested": "[8.9.0, )",
+        "resolved": "8.9.0",
+        "contentHash": "rswvH4ZANbFsJYEn+PGEOj7nkkBRjnsb7LcYGAS16VUJpSeKULLeYSy/7SK6jLO1WTT12xqdeL4mj3dYT7GdoQ==",
         "dependencies": {
-          "Microsoft.IdentityModel.Abstractions": "8.0.1"
+          "Microsoft.IdentityModel.Abstractions": "8.9.0"
         }
       },
       "Microsoft.IdentityModel.Protocols": {
         "type": "CentralTransitive",
-        "requested": "[8.0.1, )",
+        "requested": "[8.9.0, )",
         "resolved": "7.5.0",
         "contentHash": "ugyb0Nm+I+UrHGYg28mL8oCV31xZrOEbs8fQkcShUoKvgk22HroD2odCnqEf56CoAFYTwoDExz8deXzrFC+TyA==",
         "dependencies": {
@@ -1996,7 +1996,7 @@
       },
       "Microsoft.IdentityModel.Protocols.OpenIdConnect": {
         "type": "CentralTransitive",
-        "requested": "[8.0.1, )",
+        "requested": "[8.9.0, )",
         "resolved": "7.5.0",
         "contentHash": "/U3I/8uutTqZr2n/zt0q08bluYklq+5VWP7ZuOGpTUR1ln5bSbrexAzdSGzrhxTxNNbHMCU8Mn2bNQvcmehAxg==",
         "dependencies": {
@@ -2006,26 +2006,27 @@
       },
       "Microsoft.IdentityModel.Tokens": {
         "type": "CentralTransitive",
-        "requested": "[8.0.1, )",
-        "resolved": "8.0.1",
-        "contentHash": "kDimB6Dkd3nkW2oZPDkMkVHfQt3IDqO5gL0oa8WVy3OP4uE8Ij+8TXnqg9TOd9ufjsY3IDiGz7pCUbnfL18tjg==",
+        "requested": "[8.9.0, )",
+        "resolved": "8.9.0",
+        "contentHash": "qK6kW5qZvDj7E5RLWQ9gzJxQe5GUz7+7bXrLQQydSDF9hTf5Ip2qHuAQW3Fg9GND6jkjTr7IXAZFmBHadNQi4Q==",
         "dependencies": {
-          "Microsoft.IdentityModel.Logging": "8.0.1"
+          "Microsoft.Extensions.Logging.Abstractions": "8.0.2",
+          "Microsoft.IdentityModel.Logging": "8.9.0"
         }
       },
       "Microsoft.IO.RecyclableMemoryStream": {
         "type": "CentralTransitive",
-        "requested": "[3.0.0, )",
-        "resolved": "3.0.0",
-        "contentHash": "irv0HuqoH8Ig5i2fO+8dmDNdFdsrO+DoQcedwIlb810qpZHBNQHZLW7C/AHBQDgLLpw2T96vmMAy/aE4Yj55Sg=="
+        "requested": "[3.0.1, )",
+        "resolved": "3.0.1",
+        "contentHash": "s/s20YTVY9r9TPfTrN5g8zPF1YhwxyqO6PxUkrYTGI2B+OGPe9AdajWZrLhFqXIvqIW23fnUE4+ztrUWNU1+9g=="
       },
       "Microsoft.Net.Http.Headers": {
         "type": "CentralTransitive",
-        "requested": "[8.0.3, )",
-        "resolved": "8.0.3",
-        "contentHash": "iDM+dqS3TCm1rbN0hZ+bwbz72gBu+q2w3a3Vpyuza4eecBL+L7/eGyD6V3Ry2mP+NwyTCU9E9iOqlDRLJAcVIg==",
+        "requested": "[9.0.4, )",
+        "resolved": "9.0.4",
+        "contentHash": "tsiSFxf0oXyk+kP09aq783PrevFxWFuBJXmuvDACGYektsaftqSO2egteQnygP2NpXegzMLINUfnEaF1Zr5lzg==",
         "dependencies": {
-          "Microsoft.Extensions.Primitives": "8.0.0"
+          "Microsoft.Extensions.Primitives": "9.0.4"
         }
       },
       "NetTopologySuite": {
@@ -2098,12 +2099,12 @@
       },
       "System.IdentityModel.Tokens.Jwt": {
         "type": "CentralTransitive",
-        "requested": "[7.5.0, )",
-        "resolved": "7.5.0",
-        "contentHash": "D0TtrWOfoPdyYSlvOGaU9F1QR+qrbgJ/4eiEsQkIz7YQKIKkGXQldXukn6cYG9OahSq5UVMvyAIObECpH6Wglg==",
+        "requested": "[8.9.0, )",
+        "resolved": "8.9.0",
+        "contentHash": "7Pu9UjF1+so0s8zgzcIxSxbRQoiM2DMdwazVGmNptX3O6gDfMyeWZBd/Zn6VueDteN0ZTHw2acsf6+mAe8UpMw==",
         "dependencies": {
-          "Microsoft.IdentityModel.JsonWebTokens": "7.5.0",
-          "Microsoft.IdentityModel.Tokens": "7.5.0"
+          "Microsoft.IdentityModel.JsonWebTokens": "8.9.0",
+          "Microsoft.IdentityModel.Tokens": "8.9.0"
         }
       }
     },
@@ -3003,7 +3004,7 @@
       },
       "Microsoft.Data.SqlClient": {
         "type": "CentralTransitive",
-        "requested": "[6.0.1, )",
+        "requested": "[6.0.2, )",
         "resolved": "6.0.1",
         "contentHash": "v7HxnYYXGGCJilxeQ4Pdks+popVuGajBpHmau0RU4ACIcbfs5qCNUnCogGpZ+CJ//8Qafhxq7vc5a8L9d6O8Eg==",
         "dependencies": {
@@ -3915,7 +3916,7 @@
       },
       "Microsoft.Data.SqlClient": {
         "type": "CentralTransitive",
-        "requested": "[6.0.1, )",
+        "requested": "[6.0.2, )",
         "resolved": "6.0.1",
         "contentHash": "v7HxnYYXGGCJilxeQ4Pdks+popVuGajBpHmau0RU4ACIcbfs5qCNUnCogGpZ+CJ//8Qafhxq7vc5a8L9d6O8Eg==",
         "dependencies": {
@@ -4810,7 +4811,7 @@
       },
       "Microsoft.Data.SqlClient": {
         "type": "CentralTransitive",
-        "requested": "[6.0.1, )",
+        "requested": "[6.0.2, )",
         "resolved": "6.0.1",
         "contentHash": "v7HxnYYXGGCJilxeQ4Pdks+popVuGajBpHmau0RU4ACIcbfs5qCNUnCogGpZ+CJ//8Qafhxq7vc5a8L9d6O8Eg==",
         "dependencies": {
