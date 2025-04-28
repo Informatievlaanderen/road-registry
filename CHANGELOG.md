@@ -1,3 +1,38 @@
+## [4.29.8](https://github.com/informatievlaanderen/road-registry/compare/v4.29.7...v4.29.8) (2025-04-25)
+
+
+### Bug Fixes
+
+* **product-publish:** metadata path of endPosition field ([1f324cf](https://github.com/informatievlaanderen/road-registry/commit/1f324cfaa55e4ed33becc2208b1746c7e9a8f351))
+
+## [4.29.7](https://github.com/informatievlaanderen/road-registry/compare/v4.29.6...v4.29.7) (2025-04-25)
+
+
+### Bug Fixes
+
+* **product-publish:** update more fields in metadata ([20d4b49](https://github.com/informatievlaanderen/road-registry/commit/20d4b49bbac8a8fcfd53a5bf5440ab27ffb5355b))
+
+## [4.29.6](https://github.com/informatievlaanderen/road-registry/compare/v4.29.5...v4.29.6) (2025-04-25)
+
+
+### Bug Fixes
+
+* **product-publish:** upload to azure ([d2c6947](https://github.com/informatievlaanderen/road-registry/commit/d2c6947d5b45748f1579d3dc878d7a9f93d1a646))
+
+## [4.29.5](https://github.com/informatievlaanderen/road-registry/compare/v4.29.4...v4.29.5) (2025-04-24)
+
+
+### Bug Fixes
+
+* **product-publish:** flush entry streams to upload valid zip to azure ([#1662](https://github.com/informatievlaanderen/road-registry/issues/1662)) ([e28ae1d](https://github.com/informatievlaanderen/road-registry/commit/e28ae1d99c99fb3578841adafc4242d2455005cc))
+
+## [4.29.4](https://github.com/informatievlaanderen/road-registry/compare/v4.29.3...v4.29.4) (2025-04-23)
+
+
+### Bug Fixes
+
+* throw exception when token creation fails for metadata ([9e297c8](https://github.com/informatievlaanderen/road-registry/commit/9e297c8a0b52453ed992832824dc26b9c574e71b))
+
 ## [4.29.3](https://github.com/informatievlaanderen/road-registry/compare/v4.29.2...v4.29.3) (2025-04-18)
 
 
