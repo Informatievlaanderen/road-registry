@@ -1,19 +1,4 @@
-type file
-version 1.0.0
-
-id Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api
-title Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api
-
-authors Basisregisters.Vlaanderen
-owners Vlaamse overheid
-copyright Copyright (c) Vlaamse overheid
-requireLicenseAcceptance false
-projectUrl https://vlaanderen.be/digitaal-vlaanderen
-iconUrl https://raw.githubusercontent.com/Informatievlaanderen/build-pipeline/master/logo.png
-licenseUrl https://opensource.org/licenses/EUPL-1.2
-
-description Road Registry.
-
+//TODO-pr convert
 dependencies
   framework: net8.0
     Be.Vlaanderen.Basisregisters.Api >= LOCKEDVERSION
@@ -25,53 +10,3 @@ dependencies
     MediatR >= LOCKEDVERSION
     Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite >= LOCKEDVERSION
     Serilog.Sinks.Seq >= LOCKEDVERSION
-
-files
-  RoadRegistry.BackOffice.Api.dll => lib\net8.0
-  RoadRegistry.BackOffice.Api.pdb => lib\net8.0
-  RoadRegistry.BackOffice.Api.xml => lib\net8.0
-  RoadRegistry.BackOffice.Api.xml => content
-
-  RoadRegistry.BackOffice.dll => lib\net8.0
-  RoadRegistry.BackOffice.pdb => lib\net8.0
-
-  RoadRegistry.BackOffice.Abstractions.dll => lib\net8.0
-  RoadRegistry.BackOffice.Abstractions.pdb => lib\net8.0
-  RoadRegistry.BackOffice.Abstractions.xml => lib\net8.0
-  RoadRegistry.BackOffice.Abstractions.xml => content
-
-  RoadRegistry.BackOffice.Handlers.dll => lib\net8.0
-  RoadRegistry.BackOffice.Handlers.pdb => lib\net8.0
-
-  RoadRegistry.BackOffice.Handlers.Sqs.dll => lib\net8.0
-  RoadRegistry.BackOffice.Handlers.Sqs.pdb => lib\net8.0
-
-  RoadRegistry.BackOffice.ZipArchiveWriters.dll => lib\net8.0
-  RoadRegistry.BackOffice.ZipArchiveWriters.pdb => lib\net8.0
-
-  RoadRegistry.Editor.Projections.dll => lib\net8.0
-  RoadRegistry.Editor.Projections.pdb => lib\net8.0
-
-  RoadRegistry.Editor.Schema.dll => lib\net8.0
-  RoadRegistry.Editor.Schema.pdb => lib\net8.0
-
-  RoadRegistry.Hosts.dll => lib\net8.0
-  RoadRegistry.Hosts.pdb => lib\net8.0
-
-  RoadRegistry.Product.Schema.dll => lib\net8.0
-  RoadRegistry.Product.Schema.pdb => lib\net8.0
-
-  RoadRegistry.RoadNetwork.Schema.dll => lib\net8.0
-  RoadRegistry.RoadNetwork.Schema.pdb => lib\net8.0
-
-  RoadRegistry.Snapshot.Handlers.dll => lib\net8.0
-  RoadRegistry.Snapshot.Handlers.pdb => lib\net8.0
-
-  RoadRegistry.Snapshot.Handlers.Sqs.dll => lib\net8.0
-  RoadRegistry.Snapshot.Handlers.Sqs.pdb => lib\net8.0
-
-  RoadRegistry.StreetName.dll => lib\net8.0
-  RoadRegistry.StreetName.pdb => lib\net8.0
-
-  RoadRegistry.Sync.StreetNameRegistry.dll => lib\net8.0
-  RoadRegistry.Sync.StreetNameRegistry.pdb => lib\net8.0

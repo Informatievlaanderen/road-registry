@@ -22,6 +22,7 @@
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
     <PackageReference Include="Microsoft.IdentityModel.Logging" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" />
     <PackageReference Include="NetTopologySuite" />
   </ItemGroup>

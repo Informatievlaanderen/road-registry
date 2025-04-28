@@ -10,5 +10,3 @@ public static class IdentityExtensions
         return httpContext.FindOrgCodeClaim() ?? httpContext.User.FindFirst("operator")?.Value;
     }
 }
-//TODO-pr dotnet list package --outdated
-
