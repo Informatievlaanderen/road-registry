@@ -42,7 +42,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
                     LastChangedTimestamp = envelope.CreatedUtc
                 }, token);
 
-            await Produce(gradeSeparatedJunctionRecord.Entity.Id, gradeSeparatedJunctionRecord.Entity.ToContract(), envelope.Position, token);
+            await Produce(gradeSeparatedJunctionRecord.Entity.Id, gradeSeparatedJunctionRecord.Entity.ToContract(), token);
         }
 
         private async Task RoadNetworkChangesAccepted(GradeSeparatedJunctionProducerSnapshotContext context, Envelope<RoadNetworkChangesAccepted> envelope, CancellationToken token)
@@ -93,7 +93,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             dbRecord.Origin = envelope.Message.ToOrigin();
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
-            await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
 
         private async Task GradeSeparatedJunctionModified(
@@ -117,7 +117,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
                 dbRecord.Origin = envelope.Message.ToOrigin();
                 dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
-                await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
+                await Produce(dbRecord.Id, dbRecord.ToContract(), token);
             }
         }
 
@@ -144,15 +144,14 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
             dbRecord.IsRemoved = true;
 
-            await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
 
-        private async Task Produce(int gradeSeparatedJunctionId, GradeSeparatedJunctionSnapshot snapshot, long storePosition, CancellationToken cancellationToken)
+        private async Task Produce(int gradeSeparatedJunctionId, GradeSeparatedJunctionSnapshot snapshot, CancellationToken cancellationToken)
         {
             var result = await _kafkaProducer.Produce(
                 gradeSeparatedJunctionId,
                 snapshot,
-                storePosition,
                 cancellationToken);
 
             if (!result.IsSuccess)

@@ -3,7 +3,7 @@ namespace RoadRegistry.SyncHost.Tests;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.Common;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
 using Newtonsoft.Json;
 using Xunit.Abstractions;
 
@@ -27,7 +27,7 @@ public class WhenKafkaJsonMessage
 
         _outputHelper.WriteLine(serializedMessage);
 
-        var kafkaJsonMessage = new KafkaJsonMessage(message.GetType().FullName ?? "Unknown", serializedMessage);
+        var kafkaJsonMessage = new JsonMessage(message.GetType().FullName ?? "Unknown", serializedMessage);
         var serializedKafkaMessage = JsonConvert.SerializeObject(kafkaJsonMessage, _serializerSettings);
 
         _outputHelper.WriteLine(serializedKafkaMessage);

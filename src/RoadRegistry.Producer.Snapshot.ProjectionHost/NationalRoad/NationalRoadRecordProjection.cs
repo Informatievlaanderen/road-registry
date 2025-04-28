@@ -46,7 +46,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             {
                 var nationalRoadRecord = await context.NationalRoads.AddAsync(nationalRoad, token);
 
-                await Produce(nationalRoadRecord.Entity.Id, nationalRoadRecord.Entity.ToContract(), envelope.Position, token);
+                await Produce(nationalRoadRecord.Entity.Id, nationalRoadRecord.Entity.ToContract(), token);
             }
         }
 
@@ -94,7 +94,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             dbRecord.Origin = envelope.Message.ToOrigin();
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
-            await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
 
         private async Task RoadSegmentRemovedFromNationalRoad(
@@ -147,15 +147,14 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
             dbRecord.IsRemoved = true;
 
-            await Produce(dbRecord.Id, dbRecord.ToContract(), envelope.Position, token);
+            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
 
-        private async Task Produce(int nationalRoadId, NationalRoadSnapshot snapshot, long storePosition, CancellationToken cancellationToken)
+        private async Task Produce(int nationalRoadId, NationalRoadSnapshot snapshot, CancellationToken cancellationToken)
         {
             var result = await _kafkaProducer.Produce(
                 nationalRoadId,
                 snapshot,
-                storePosition,
                 cancellationToken);
 
             if (!result.IsSuccess)

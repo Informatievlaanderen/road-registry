@@ -56,7 +56,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
             {
                 var roadSegmentSurfaceRecord = await context.RoadSegmentSurfaces.AddAsync(surface, token);
 
-                await Produce(roadSegmentSurfaceRecord.Entity.Id, roadSegmentSurfaceRecord.Entity.ToContract(), envelope.Position, token);
+                await Produce(roadSegmentSurfaceRecord.Entity.Id, roadSegmentSurfaceRecord.Entity.ToContract(), token);
             }
         }
 
@@ -120,7 +120,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
 
                 var roadSegmentSurfaceRecord = await context.RoadSegmentSurfaces.AddAsync(surface, token);
 
-                await Produce(roadSegmentSurfaceRecord.Entity.Id, roadSegmentSurfaceRecord.Entity.ToContract(), envelope.Position, token);
+                await Produce(roadSegmentSurfaceRecord.Entity.Id, roadSegmentSurfaceRecord.Entity.ToContract(), token);
             }
         }
 
@@ -174,7 +174,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
             {
                 MarkRoadSegmentSurfaceAsRemoved(roadSegmentSurfaceRecord, envelope);
 
-                await Produce(roadSegmentSurfaceRecord.Id, roadSegmentSurfaceRecord.ToContract(), envelope.Position, token);
+                await Produce(roadSegmentSurfaceRecord.Id, roadSegmentSurfaceRecord.ToContract(), token);
             }
         }
 
@@ -202,7 +202,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
                 {
                     MarkRoadSegmentSurfaceAsRemoved(roadSegmentSurfaceRecord, envelope);
 
-                    await Produce(roadSegmentSurfaceRecord.Id, roadSegmentSurfaceRecord.ToContract(), envelope.Position, token);
+                    await Produce(roadSegmentSurfaceRecord.Id, roadSegmentSurfaceRecord.ToContract(), token);
                 }
             }
             else
@@ -262,7 +262,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
 
                 foreach (var roadSegmentSurfaceRecord in roadSegmentSurfaceRecords)
                 {
-                    await Produce(roadSegmentSurfaceRecord.Id, roadSegmentSurfaceRecord.ToContract(), envelope.Position, token);
+                    await Produce(roadSegmentSurfaceRecord.Id, roadSegmentSurfaceRecord.ToContract(), token);
                 }
             }
         }
@@ -290,12 +290,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
             context.RoadSegmentSurfaces.RemoveRange(removedRecords);
         }
 
-        private async Task Produce(int roadSegmentSurfaceId, RoadSegmentSurfaceSnapshot snapshot, long storePosition, CancellationToken cancellationToken)
+        private async Task Produce(int roadSegmentSurfaceId, RoadSegmentSurfaceSnapshot snapshot, CancellationToken cancellationToken)
         {
             var result = await _kafkaProducer.Produce(
                 roadSegmentSurfaceId,
                 snapshot,
-                storePosition,
                 cancellationToken);
 
             if (!result.IsSuccess)

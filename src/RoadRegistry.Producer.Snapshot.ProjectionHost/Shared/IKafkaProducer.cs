@@ -7,7 +7,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Shared
 
     public interface IKafkaProducer
     {
-        Task<Result> Produce<T>(int objectId, T message, long storePosition, CancellationToken cancellationToken)
+        Task<Result> Produce<T>(int objectId, T message, CancellationToken cancellationToken)
             where T : class, IQueueMessage;
     }
 }

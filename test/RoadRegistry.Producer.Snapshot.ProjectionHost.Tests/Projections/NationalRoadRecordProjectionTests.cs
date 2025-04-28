@@ -4,7 +4,7 @@ using System.Globalization;
 using AutoFixture;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
 using Extensions;
 using Moq;
 using NationalRoad;
@@ -68,8 +68,8 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
     {
         var kafkaProducer = new Mock<IKafkaProducer>();
         kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<NationalRoadSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<NationalRoadSnapshot>.Success(It.IsAny<NationalRoadSnapshot>()));
+            .Setup(x => x.Produce(It.IsAny<int>(), It.IsAny<NationalRoadSnapshot>(), CancellationToken.None))
+            .ReturnsAsync(Result.Success(new Offset(0)));
         return kafkaProducer;
     }
 
@@ -99,7 +99,7 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
         {
             kafkaProducer.Verify(
                 x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
+                    expectedRecord.Id,
                     It.Is(expectedRecord.ToContract(), new NationalRoadSnapshotEqualityComparer()),
                     It.IsAny<CancellationToken>()),
                 times ?? Times.Once());

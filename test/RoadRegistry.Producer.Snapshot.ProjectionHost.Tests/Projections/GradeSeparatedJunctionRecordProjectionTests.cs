@@ -1,11 +1,10 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Tests.Projections;
 
-using System.Globalization;
 using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
 using Extensions;
 using GradeSeparatedJunction;
 using Moq;
@@ -45,8 +44,8 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
     {
         var kafkaProducer = new Mock<IKafkaProducer>();
         kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<GradeSeparatedJunctionSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<GradeSeparatedJunctionSnapshot>.Success(It.IsAny<GradeSeparatedJunctionSnapshot>()));
+            .Setup(x => x.Produce(It.IsAny<int>(), It.IsAny<GradeSeparatedJunctionSnapshot>(), CancellationToken.None))
+            .ReturnsAsync(Result.Success(new Offset(0)));
         return kafkaProducer;
     }
 
@@ -78,7 +77,7 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
         {
             kafkaProducer.Verify(
                 x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
+                    expectedRecord.Id,
                     It.Is(expectedRecord.ToContract(), new GradeSeparatedJunctionSnapshotEqualityComparer()),
                     It.IsAny<CancellationToken>()),
                 times ?? Times.Once());
@@ -224,7 +223,7 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
             .Scenario()
             .Given(acceptedGradeSeparatedJunctionAdded, acceptedGradeSeparatedJunctionRemoved)
             .Expect(created.UtcDateTime, expectedRecords);
-        
+
         KafkaVerify(kafkaProducer, expectedRecords);
     }
 

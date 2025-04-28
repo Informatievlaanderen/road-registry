@@ -11,4 +11,4 @@ public static class IdentityExtensions
     }
 }
 //TODO-pr dotnet list package --outdated
-//TODO-pr remove Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple
+
