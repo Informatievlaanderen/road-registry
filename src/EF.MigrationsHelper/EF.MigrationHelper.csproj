@@ -3,9 +3,11 @@
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <RuntimeFrameworkVersion>8.0.2</RuntimeFrameworkVersion>
+
+    <RuntimeFrameworkVersion>9.0.4</RuntimeFrameworkVersion>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <OutputType>Exe</OutputType>
+
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
@@ -26,8 +28,5 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
-    <!-- <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.Design" /> -->
-    <PackageReference Include="SourceLink.Embed.AllSourceFiles" />
-    <PackageReference Include="SourceLink.Copy.PdbFiles" />
   </ItemGroup>
 </Project>

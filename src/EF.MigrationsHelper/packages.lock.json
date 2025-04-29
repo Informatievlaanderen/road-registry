@@ -34,18 +34,6 @@
           "Npgsql": "9.0.3"
         }
       },
-      "SourceLink.Copy.PdbFiles": {
-        "type": "Direct",
-        "requested": "[2.8.3, )",
-        "resolved": "2.8.3",
-        "contentHash": "cxlw1QHd/J7lOtSZ45VZMOsF/YSOlwZy0fCkauo9Ib9vOv+zGzjm9q3D8qGyMII0Zz1GSmli/oxhmUNuYUpc1g=="
-      },
-      "SourceLink.Embed.AllSourceFiles": {
-        "type": "Direct",
-        "requested": "[2.8.3, )",
-        "resolved": "2.8.3",
-        "contentHash": "Hv77AfKNDqSUH6MSGW1ZwKWFJ/CNKOe4FD6lpJGNYdSSQeEEsE2KyPlG1IgzA8+CJG8lDQV2vLS4OljHtHohsw=="
-      },
       "Autofac": {
         "type": "Transitive",
         "resolved": "8.1.0",
@@ -1527,8 +1515,6 @@
       "roadregistry.product.schema": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.35, )",
-          "Be.Vlaanderen.Basisregisters.BlobStore": "[5.0.0, )",
           "Be.Vlaanderen.Basisregisters.EventHandling": "[7.0.0, )",
           "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": "[15.0.1, )",
           "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer": "[15.0.1, )",
