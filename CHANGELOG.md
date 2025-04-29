@@ -1,3 +1,10 @@
+## [4.29.9](https://github.com/informatievlaanderen/road-registry/compare/v4.29.8...v4.29.9) (2025-04-29)
+
+
+### Bug Fixes
+
+* clean request body when updating metadata ([e88c1df](https://github.com/informatievlaanderen/road-registry/commit/e88c1df676db4903f3f50296d073176efcda72d9))
+
 ## [4.29.8](https://github.com/informatievlaanderen/road-registry/compare/v4.29.7...v4.29.8) (2025-04-25)
 
 
