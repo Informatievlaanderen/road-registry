@@ -30,4 +30,9 @@
     <PackageReference Include="Microsoft.IdentityModel.Logging" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="RoadRegistry.BackOffice.Abstractions.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>
