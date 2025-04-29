@@ -12,10 +12,6 @@
       "description": "Basisregisters Command handling packages",
       "matchPackageNames": ["Be.Vlaanderen.Basisregisters.AggregateSource*", "Be.Vlaanderen.Basisregisters.CommandHandling*"],
       "groupName": "command-handling"
-    },
-    {
-      "matchPackageNames": ["Structurizr.Core", "Structurizr.Client", "Structurizr.AdrTools"],
-      "allowedVersions": "<=0.9.7"
     }
   ]
 }

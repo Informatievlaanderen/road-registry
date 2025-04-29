@@ -57,7 +57,6 @@ ehthumbs.db
 Icon?
 Thumbs.db
 
-structurizr-*.json
 .local
 run-local.bat
 docker_local.sh
