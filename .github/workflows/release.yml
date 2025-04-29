@@ -128,50 +128,50 @@ jobs:
     secrets: inherit
 
   build-backoffice-commandhost:
-      name: Build BackOffice Command Host
-      uses: ./.github/workflows/build-image-sql.yml
-      needs: [ set-release-version ]
-      if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
-      with:
-        registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
-        image-file: rr-backoffice-commandhost-image.tar
-        image-name: backoffice-commandhost
-        test-project: RoadRegistry.BackOffice.CommandHost.Tests
-        build-project: RoadRegistry.BackOffice.CommandHost
-        semver: ${{ needs.set-release-version.outputs.version }}
-        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+    name: Build BackOffice Command Host
+    uses: ./.github/workflows/build-image-sql.yml
+    needs: [ set-release-version ]
+    if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
+    with:
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      image-file: rr-backoffice-commandhost-image.tar
+      image-name: backoffice-commandhost
+      test-project: RoadRegistry.BackOffice.CommandHost.Tests
+      build-project: RoadRegistry.BackOffice.CommandHost
+      semver: ${{ needs.set-release-version.outputs.version }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
     secrets: inherit
   
   build-adminhost:
-      name: Build Admin Host
-      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
-      needs: [ set-release-version ]
-      if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
-      with:
-        registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
-        image-file: rr-adminhost-image.tar
-        image-name: adminhost
-        test-project: RoadRegistry.AdminHost.Tests
-        build-project: RoadRegistry.AdminHost
-        semver: ${{ needs.set-release-version.outputs.version }}
-        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+    name: Build Admin Host
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
+    needs: [ set-release-version ]
+    if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
+    with:
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      image-file: rr-adminhost-image.tar
+      image-name: adminhost
+      test-project: RoadRegistry.AdminHost.Tests
+      build-project: RoadRegistry.AdminHost
+      semver: ${{ needs.set-release-version.outputs.version }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
     secrets: inherit
   
   build-jobs-processor:
-      name: Build Jobs Processor
-      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
-      needs: [ set-release-version ]
-      if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
-      with:
-        registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
-        image-file: rr-jobs-processor-image.tar
-        image-name: jobs-processor
-        test-project: RoadRegistry.Jobs.Processor.Tests
-        build-project: RoadRegistry.Jobs.Processor
-        semver: ${{ needs.set-release-version.outputs.version }}
-        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+    name: Build Jobs Processor
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
+    needs: [ set-release-version ]
+    if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
+    with:
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      image-file: rr-jobs-processor-image.tar
+      image-name: jobs-processor
+      test-project: RoadRegistry.Jobs.Processor.Tests
+      build-project: RoadRegistry.Jobs.Processor
+      semver: ${{ needs.set-release-version.outputs.version }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
     secrets: inherit
 
@@ -208,18 +208,18 @@ jobs:
     secrets: inherit
   
   build-projectionhost-integration:
-      name: Build Integration Projection Host
-      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
-      needs: [ set-release-version ]
-      if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
-      with:
-        registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
-        image-file: rr-integration-projectionhost-image.tar
-        image-name: integration-projectionhost
-        test-project: RoadRegistry.Integration.ProjectionHost.Tests
-        build-project: RoadRegistry.Integration.ProjectionHost
-        semver: ${{ needs.set-release-version.outputs.version }}
-        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
+    name: Build Integration Projection Host
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
+    needs: [ set-release-version ]
+    if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
+    with:
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      image-file: rr-integration-projectionhost-image.tar
+      image-name: integration-projectionhost
+      test-project: RoadRegistry.Integration.ProjectionHost.Tests
+      build-project: RoadRegistry.Integration.ProjectionHost
+      semver: ${{ needs.set-release-version.outputs.version }}
+      dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
     secrets: inherit
 
@@ -335,11 +335,13 @@ jobs:
   
   build-lambda-backoffice:
     name: Build Lambda BackOffice
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-lambda.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-lambda-arm64.yml@main
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      lambda-name: lambda-backoffice
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      image-file: rr-lambda-sqsbackofficefunction-image.tar
+      image-name: lambda-sqsbackofficefunction
       test-project: RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests
       build-project: RoadRegistry.BackOffice.Handlers.Sqs.Lambda
       semver: ${{ needs.set-release-version.outputs.version }}
@@ -349,11 +351,13 @@ jobs:
 
   build-lambda-snapshot:
     name: Build Lambda Snapshot
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-lambda.yml@main
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-lambda-arm64.yml@main
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
-      lambda-name: lambda-snapshot
+      registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
+      image-file: rr-lambda-sqssnapshotfunction-image.tar
+      image-name: lambda-sqssnapshotfunction
       test-project: RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests
       build-project: RoadRegistry.Snapshot.Handlers.Sqs.Lambda
       semver: ${{ needs.set-release-version.outputs.version }}
@@ -475,60 +479,6 @@ jobs:
         echo "version=$(cat semver)" >> "$GITHUB_OUTPUT"
       shell: bash
 
-  upload-lambda:
-    name: Upload Lambda
-    needs: [ release ]
-    runs-on: ubuntu-latest
-    if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.release.outputs.version != 'none') }}
-    steps:
-    - name: Download Lambda Backoffice
-      uses: actions/download-artifact@v4
-      continue-on-error: false
-      with:
-        name: lambda-backoffice-${{ needs.release.outputs.version }}
-        path: ~/backoffice/
-
-    - name: Download Lambda Snapshot
-      uses: actions/download-artifact@v4
-      continue-on-error: false
-      with:
-        name: lambda-snapshot-${{ needs.release.outputs.version }}
-        path: ~/snapshot/
-
-    - name: Configure AWS credentials (DevOps)
-      uses: aws-actions/configure-aws-credentials@v4.1.0
-      with:
-        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_DEVOPS }}
-        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_DEVOPS }}
-        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-
-    - name: Push Lambda functions to S3 DevOps
-      shell: bash
-      run: |
-        echo Push Lambda functions to S3 DevOps
-        aws s3 cp ~/backoffice/lambda.zip s3://devops-api-deploy-v4-lambda-362233117987/rr-sqsbackofficefunction/$SEMVER/lambda.zip
-        aws s3 cp ~/snapshot/lambda.zip s3://devops-api-deploy-v4-lambda-362233117987/rr-sqssnapshotfunction/$SEMVER/lambda.zip
-      env:
-        SEMVER: ${{ needs.release.outputs.version }}
-
-    - name: Configure AWS credentials (Production)
-      uses: aws-actions/configure-aws-credentials@v4.1.0
-      with:
-        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD }}
-        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD }}
-        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-
-    - name: Login to Amazon ECR (Production)
-      uses: aws-actions/amazon-ecr-login@v2
-
-    - name: Push Lambda functions to S3 (Production)
-      shell: bash
-      run: |
-        aws s3 cp ~/backoffice/lambda.zip s3://077849980894-vbr-prd-lam-rr-sqsbackoffice/$SEMVER/lambda.zip
-        aws s3 cp ~/snapshot/lambda.zip s3://077849980894-vbr-prd-lam-rr-sqssnapshot/$SEMVER/lambda.zip
-      env:
-        SEMVER: ${{ needs.release.outputs.version }}
-
   publish_to_nuget:
     needs: [ release ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.release.outputs.version != 'none') }}
@@ -643,7 +593,9 @@ jobs:
           'projector', 
           'synchost',
           'wfs-projectionhost', 
-          'wms-projectionhost'
+          'wms-projectionhost',
+          'lambda-sqsbackofficefunction',
+          'lambda-sqssnapshotfunction'
         ]
     steps:
       - name: Configure AWS credentials
@@ -686,7 +638,7 @@ jobs:
 
   deploy_services_to_test:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ push_images, release, upload-lambda ]
+    needs: [ push_images, release ]
     name: Deploy services to test
     runs-on: ubuntu-latest
     strategy:
@@ -733,7 +685,7 @@ jobs:
 
   deploy_tasks_to_test:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ push_images, release, upload-lambda ]
+    needs: [ push_images, release ]
     name: Deploy tasks to test
     runs-on: ubuntu-latest
     strategy:
