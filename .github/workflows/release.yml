@@ -412,11 +412,9 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: |
+        dotnet-version: dotnet-version:
         cache: true
         cache-dependency-path: "**/packages.lock.json"
-          8.0.202
-          ${{ vars.VBR_DOTNET_VERSION_9 }}
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
