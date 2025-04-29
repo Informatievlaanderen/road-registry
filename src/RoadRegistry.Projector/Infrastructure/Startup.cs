@@ -111,7 +111,7 @@ public class Startup
                     Origins = _configuration
                         .GetSection("Cors")
                         .GetChildren()
-                        .Select(c => c.Value)
+                        .Select(c => c.Value!)
                         .ToArray()
                 },
                 Server =
@@ -140,11 +140,12 @@ public class Startup
                     {
                         var connectionStrings = _configuration
                             .GetSection("ConnectionStrings")
-                            .GetChildren();
+                            .GetChildren()
+                            .Where(x => x.Value is not null);
 
                         foreach (var connectionString in connectionStrings)
                         {
-                            if (connectionString.Value.Contains("host=", StringComparison.InvariantCultureIgnoreCase))
+                            if (connectionString.Value!.Contains("host=", StringComparison.InvariantCultureIgnoreCase))
                             {
                                 health.AddNpgSql(
                                     connectionString.Value,

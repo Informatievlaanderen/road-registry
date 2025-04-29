@@ -9,10 +9,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
     using Extensions;
     using Projections;
     using System;
-    using System.Globalization;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Shared;
 
     public class RoadSegmentRecordProjection : ConnectedProjection<RoadSegmentProducerSnapshotContext>
     {
@@ -586,7 +586,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
         private async Task Produce(int roadSegmentId, RoadSegmentSnapshot snapshot, CancellationToken cancellationToken)
         {
             var result = await _kafkaProducer.Produce(
-                roadSegmentId.ToString(CultureInfo.InvariantCulture),
+                roadSegmentId,
                 snapshot,
                 cancellationToken);
 

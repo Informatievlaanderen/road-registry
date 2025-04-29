@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Organizations;
 
+using System.Linq;
 using Api.Organizations;
 using Microsoft.AspNetCore.Mvc;
 

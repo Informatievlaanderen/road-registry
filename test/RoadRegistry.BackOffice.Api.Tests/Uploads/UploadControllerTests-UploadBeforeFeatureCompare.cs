@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Uploads;
 
+using System.IO;
 using Microsoft.AspNetCore.Mvc;
 
 public partial class UploadControllerTests

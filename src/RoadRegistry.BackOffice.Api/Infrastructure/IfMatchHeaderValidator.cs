@@ -13,11 +13,11 @@ public interface IIfMatchHeaderValidator
 
 public class IfMatchHeaderValidator : IIfMatchHeaderValidator
 {
-    public async Task<bool> IsValid(string? ifMatchHeaderValue, RoadSegmentRecord roadSegment, CancellationToken ct)
+    public Task<bool> IsValid(string? ifMatchHeaderValue, RoadSegmentRecord roadSegment, CancellationToken ct)
     {
         if (ifMatchHeaderValue is null)
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         if (roadSegment is null)
@@ -30,6 +30,6 @@ public class IfMatchHeaderValidator : IIfMatchHeaderValidator
         var lastHash = roadSegment.LastEventHash;
         var lastHashTag = new ETag(ETagType.Strong, lastHash);
 
-        return ifMatchTag == lastHashTag.ToString();
+        return Task.FromResult(ifMatchTag == lastHashTag.ToString());
     }
 }

@@ -1,11 +1,8 @@
 namespace RoadRegistry.Tests.Framework.Assertions;
 
-using System.Runtime.Serialization;
-
 /// <summary>
 ///     Represents an error about an ill-behaved greater than or equal operator.
 /// </summary>
-[Serializable]
 public class GreaterThanOrEqualOperatorException : Exception
 {
     /// <summary>
@@ -46,33 +43,5 @@ public class GreaterThanOrEqualOperatorException : Exception
         Type = type ?? throw new ArgumentNullException(nameof(type));
     }
 
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="GreaterThanOrEqualOperatorException" /> class.
-    /// </summary>
-    /// <param name="info">
-    ///     The <see cref="System.Runtime.Serialization.SerializationInfo" /> that holds the
-    ///     serialized object data about the exception being thrown.
-    /// </param>
-    /// <param name="context">
-    ///     The <see cref="System.Runtime.Serialization.StreamingContext" /> that contains
-    ///     contextual information about the source or destination.
-    /// </param>
-    protected GreaterThanOrEqualOperatorException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
-    {
-        Type = (Type)info.GetValue("Type", typeof(Type));
-    }
-
     public Type Type { get; }
-
-    public override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-        if (info == null)
-        {
-            throw new ArgumentNullException(nameof(info));
-        }
-
-        base.GetObjectData(info, context);
-        info.AddValue("Type", Type);
-    }
 }

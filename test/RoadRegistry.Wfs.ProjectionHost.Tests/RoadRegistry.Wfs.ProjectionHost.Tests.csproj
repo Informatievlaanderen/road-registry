@@ -1,55 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-	<PropertyGroup>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>disable</Nullable>
-		<IsPackable>false</IsPackable>
-		<Platforms>AnyCPU;x64;x86</Platforms>
-		<NoWarn>8618,8887</NoWarn>
-		<EnableDefaultContentItems>false</EnableDefaultContentItems>
-		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
-	</PropertyGroup>
-
-	<ItemGroup>
-	  <None Remove="Projections\TestData\expected.4.json" />
-	  <None Remove="Projections\TestData\expected.458.json" />
-	  <None Remove="Projections\TestData\expected.904.json" />
-	  <None Remove="Projections\TestData\importedRoadSegment.4.json" />
-	  <None Remove="Projections\TestData\importedRoadSegment.458.json" />
-	  <None Remove="Projections\TestData\importedRoadSegment.904.json" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Content Include="Projections\TestData\expected.4.json">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Projections\TestData\expected.458.json">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Projections\TestData\expected.904.json">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Projections\TestData\importedRoadSegment.4.json">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Projections\TestData\importedRoadSegment.458.json">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Projections\TestData\importedRoadSegment.904.json">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Content>
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\..\src\RoadRegistry.Wfs.ProjectionHost\RoadRegistry.Wfs.ProjectionHost.csproj" />
-		<ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Using Include="Xunit" />
-		<Using Include="RoadRegistry.Tests" />
-	</ItemGroup>
-
-	<Import Project="..\..\.paket\Paket.Restore.targets" />
-
+  <Import Project="..\..\.build\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Test.props" />
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <NoWarn>8618,8887</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\RoadRegistry.Wfs.ProjectionHost\RoadRegistry.Wfs.ProjectionHost.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="xunit.categories" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="RoadRegistry.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+      <Content Include="Projections\TestData\*.json" CopyToOutputDirectory="Always" />
+  </ItemGroup>
 </Project>

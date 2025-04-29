@@ -11,6 +11,7 @@ using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using FluentValidation;
 using Infrastructure;
 using Infrastructure.Authentication;
@@ -83,7 +84,11 @@ public partial class RoadSegmentsController
             var request = new UnlinkStreetNameRequest(id, roadSegment.GeometryDrawMethod, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
             await validator.ValidateAndThrowAsync(request, cancellationToken);
 
-            var result = await _mediator.Send(new UnlinkStreetNameSqsRequest { Request = request }, cancellationToken);
+            var result = await _mediator.Send(new UnlinkStreetNameSqsRequest
+            {
+                ProvenanceData = CreateProvenanceData(Modification.Update),
+                Request = request
+            }, cancellationToken);
 
             return Accepted(result);
         }

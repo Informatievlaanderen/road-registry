@@ -8,6 +8,7 @@ using BackOffice.Handlers.Sqs.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using ChangeDynamicAttributes;
 using Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -72,6 +73,7 @@ public partial class RoadSegmentsController
 
             var sqsRequest = new ChangeRoadSegmentsDynamicAttributesSqsRequest
             {
+                ProvenanceData = CreateProvenanceData(Modification.Update),
                 Request = request
             };
 

@@ -1,17 +1,11 @@
 namespace RoadRegistry.BackOffice.Exceptions;
 
 using System;
-using System.Runtime.Serialization;
 
-[Serializable]
-public sealed class ExtractRequestMarkedInformativeException : ApplicationException
+public sealed class ExtractRequestMarkedInformativeException : Exception
 {
     public ExtractRequestMarkedInformativeException(DownloadId downloadId)
         : this(downloadId.ToString())
-    { }
-
-    private ExtractRequestMarkedInformativeException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
     { }
 
     public ExtractRequestMarkedInformativeException(string identifier)

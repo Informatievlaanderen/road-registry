@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeDynamicAttributes.Abstractions;
 
+using System.Collections.Generic;
+using System.Linq;
 using Api.RoadSegments.ChangeDynamicAttributes;
 using Fixtures;
 using FluentValidation;

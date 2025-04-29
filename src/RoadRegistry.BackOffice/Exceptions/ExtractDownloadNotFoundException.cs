@@ -1,17 +1,11 @@
 namespace RoadRegistry.BackOffice.Exceptions;
 
 using System;
-using System.Runtime.Serialization;
 
-[Serializable]
-public sealed class ExtractDownloadNotFoundException : ApplicationException
+public sealed class ExtractDownloadNotFoundException : Exception
 {
     public ExtractDownloadNotFoundException(DownloadId downloadId)
         : this(downloadId.ToString())
-    { }
-
-    private ExtractDownloadNotFoundException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
     { }
 
     public ExtractDownloadNotFoundException(string identifier)

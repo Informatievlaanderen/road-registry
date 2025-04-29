@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
+using System.Collections.Generic;
+using System.Linq;
 using Abstractions.Extracts;
 using BackOffice.Handlers.Extracts;
 using Editor.Schema;

@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Changes;
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Api.Changes;
 using Editor.Schema.RoadNetworkChanges;
 using FluentAssertions;
@@ -64,7 +66,7 @@ public partial class ChangeFeedControllerTests
         Assert.Equal("jan", item.Month.ToLowerInvariant());
         Assert.Equal("01:00", item.TimeOfDay);
     }
-    
+
     [Fact]
     public async Task When_downloading_head_changes_without_specifying_a_max_entry_count()
     {

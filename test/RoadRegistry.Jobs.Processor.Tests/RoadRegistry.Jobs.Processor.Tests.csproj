@@ -1,29 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
+  <Import Project="..\..\.build\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Test.props" />
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <IsPackable>false</IsPackable>
-    <Platforms>AnyCPU;x64;x86</Platforms>
-	  <EnableDefaultContentItems>false</EnableDefaultContentItems>
-	  <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
-
   <ItemGroup>
-    <Compile Remove="Framework\**" />
-    <EmbeddedResource Remove="Framework\**" />
-    <None Remove="Framework\**" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Jobs.Processor\RoadRegistry.Jobs.Processor.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
   </ItemGroup>
-
   <ItemGroup>
-    <Compile Remove="SqlCommandProcessorPositionStoreTests.cs" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.categories" />
+    <PackageReference Include="xunit.runner.visualstudio" />
   </ItemGroup>
-
   <ItemGroup>
-    <None Remove="UploadProcessor\empty.zip" />
-    <None Remove="UploadProcessor\valid.zip" />
+    <Using Include="Xunit" />
+    <Using Include="RoadRegistry.Tests" />
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="UploadProcessor\empty.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -32,17 +25,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\RoadRegistry.Jobs.Processor\RoadRegistry.Jobs.Processor.csproj" />
-    <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Using Include="Xunit" />
-    <Using Include="RoadRegistry.Tests" />
-  </ItemGroup>
-
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
-
 </Project>

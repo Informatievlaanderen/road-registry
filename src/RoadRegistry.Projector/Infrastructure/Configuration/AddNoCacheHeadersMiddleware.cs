@@ -17,8 +17,8 @@ public class AddNoCacheHeadersMiddleware
 
     public Task Invoke(HttpContext context)
     {
-        context.Response.Headers.Add("cache-control", "no-store, no-cache, must-revalidate");
-        context.Response.Headers.Add("pragma", "no-cache");
+        context.Response.Headers["cache-control"] = "no-store, no-cache, must-revalidate";
+        context.Response.Headers["pragma"] = "no-cache";
 
         return _next(context);
     }

@@ -2,19 +2,18 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Tests.Projections;
 
 using System.Globalization;
 using System.Linq;
-using System.Reflection.Emit;
 using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
 using Extensions;
 using Moq;
-using ProjectionHost.Projections;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using RoadRegistry.Tests.Framework.Projections;
 using RoadSegmentSurface;
+using Shared;
 
 public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {
@@ -73,8 +72,8 @@ public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionT
     {
         var kafkaProducer = new Mock<IKafkaProducer>();
         kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadSegmentSurfaceSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<RoadSegmentSurfaceSnapshot>.Success(It.IsAny<RoadSegmentSurfaceSnapshot>()));
+            .Setup(x => x.Produce(It.IsAny<int>(), It.IsAny<RoadSegmentSurfaceSnapshot>(), CancellationToken.None))
+            .ReturnsAsync(Result.Success(new Offset(0)));
         return kafkaProducer;
     }
 
@@ -120,7 +119,7 @@ public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionT
         {
             kafkaProducer.Verify(
                 x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
+                    expectedRecord.Id,
                     It.Is(expectedRecord.ToContract(), new RoadSegmentSurfaceSnapshotEqualityComparer()),
                     It.IsAny<CancellationToken>()),
                 times ?? Times.Once());
@@ -516,7 +515,7 @@ public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionT
         var acceptedRoadSegmentRemoved = _fixture
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.Create<RoadSegmentRemoved>());
-        
+
         var expectedRecords = ConvertToRoadSegmentSurfaceRecords(acceptedRoadSegmentAdded, created);
 
         var kafkaProducer = BuildKafkaProducer();
@@ -547,7 +546,7 @@ public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionT
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.Create<RoadSegmentModified>());
         acceptedRoadSegmentModified1.Changes.Single().RoadSegmentModified.Surfaces = surfaces.Take(surfaces.Length - 1).ToArray();
-        
+
         var acceptedRoadSegmentModified2 = _fixture
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.Create<RoadSegmentModified>());

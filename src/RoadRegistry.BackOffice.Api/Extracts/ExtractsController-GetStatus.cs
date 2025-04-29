@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracts;
 
 using System;
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions;

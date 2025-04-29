@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Changes;
 
+using System;
 using Api.Changes;
 using Infrastructure;
 using Infrastructure.Containers;
@@ -12,6 +13,6 @@ public partial class ChangeFeedControllerTests : ControllerMinimalTests<ChangeFe
 
     public ChangeFeedControllerTests(SqlServer fixture, ChangeFeedController controller, IMediator mediator) : base(controller, mediator)
     {
-        _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
+        _fixture = fixture.ThrowIfNull();
     }
 }

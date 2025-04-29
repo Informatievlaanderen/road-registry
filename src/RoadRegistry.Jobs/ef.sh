@@ -1,1 +1,1 @@
-dotnet ef --startup-project ../RoadRegistry.BackOffice.CommandHost "$@" --context JobsContext
+dotnet ef --startup-project ../EF.MigrationsHelper "$@" --context JobsContext

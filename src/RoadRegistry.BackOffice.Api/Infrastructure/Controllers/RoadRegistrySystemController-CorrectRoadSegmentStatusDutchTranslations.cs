@@ -6,6 +6,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 
 public partial class RoadRegistrySystemController
 {
@@ -26,6 +27,7 @@ public partial class RoadRegistrySystemController
         // For now I will leave this hardcoded
         var result = await Mediator.Send(new CorrectRoadSegmentStatusDutchTranslationsSqsRequest
         {
+            ProvenanceData = CreateProvenanceData(Modification.Update),
             Request = new CorrectRoadSegmentStatusDutchTranslationsRequest
             {
                 Identifier = RoadSegmentStatus.PermitGranted.Translation.Identifier,

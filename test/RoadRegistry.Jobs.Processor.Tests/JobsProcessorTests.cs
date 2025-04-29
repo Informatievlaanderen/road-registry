@@ -52,9 +52,9 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 .Setup(x => x.GetBlobAsync(blobName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new BlobObject(
                     blobName,
-                    null,
+                    null!,
                     ContentType.Parse("X-multipart/abc"),
-                    _ => Task.FromResult((Stream)EmbeddedResourceReader.Read("valid.zip"))));
+                    _ => Task.FromResult<Stream>(EmbeddedResourceReader.Read("valid.zip"))));
 
             var sut = new JobsProcessor(
                 new JobsProcessorOptions
@@ -117,9 +117,9 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 .Setup(x => x.GetBlobAsync(blobName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new BlobObject(
                     blobName,
-                    null,
+                    null!,
                     ContentType.Parse("X-multipart/abc"),
-                    _ => Task.FromResult((Stream)EmbeddedResourceReader.Read("valid.zip"))));
+                    _ => Task.FromResult<Stream>(EmbeddedResourceReader.Read("valid.zip"))));
 
             var sut = new JobsProcessor(
                 new JobsProcessorOptions
@@ -180,9 +180,9 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 .Setup(x => x.GetBlobAsync(blobName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new BlobObject(
                     blobName,
-                    null,
+                    null!,
                     ContentType.Parse("X-multipart/abc"),
-                    _ => Task.FromResult((Stream)EmbeddedResourceReader.Read("valid.zip"))));
+                    _ => Task.FromResult<Stream>(EmbeddedResourceReader.Read("valid.zip"))));
 
             var sut = new JobsProcessor(
                 new JobsProcessorOptions
@@ -276,7 +276,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
 
             mockIBlobClient
                 .Setup(x => x.GetBlobAsync(blobName, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((BlobObject?)null);
+                .ReturnsAsync((BlobObject)null);
 
             var sut = new JobsProcessor(
                 new JobsProcessorOptions
@@ -321,8 +321,8 @@ namespace RoadRegistry.Jobs.Processor.Tests
 
             mockIBlobClient
                 .Setup(x => x.GetBlobAsync(blobName, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new BlobObject(blobName, null, ContentType.Parse("X-multipart/abc"),
-                    _ => Task.FromResult((Stream)EmbeddedResourceReader.Read("empty.zip"))));
+                .ReturnsAsync(new BlobObject(blobName, null!, ContentType.Parse("X-multipart/abc"),
+                    _ => Task.FromResult<Stream>(EmbeddedResourceReader.Read("empty.zip"))));
 
             mockMediator
                 .Setup(x => x.Send(It.IsAny<object>(), It.IsAny<CancellationToken>()))
@@ -378,8 +378,8 @@ namespace RoadRegistry.Jobs.Processor.Tests
 
             mockIBlobClient
                 .Setup(x => x.GetBlobAsync(blobName, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new BlobObject(blobName, null, ContentType.Parse("X-multipart/abc"),
-                    _ => Task.FromResult((Stream)EmbeddedResourceReader.Read("empty.zip"))));
+                .ReturnsAsync(new BlobObject(blobName, null!, ContentType.Parse("X-multipart/abc"),
+                    _ => Task.FromResult<Stream>(EmbeddedResourceReader.Read("empty.zip"))));
 
             mockMediator
                 .Setup(x => x.Send(It.IsAny<object>(), It.IsAny<CancellationToken>()))

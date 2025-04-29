@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Infrastructure.Authentication;
 
+using System.Linq;
 using System.Reflection;
 using Api.Infrastructure.Authentication;
 

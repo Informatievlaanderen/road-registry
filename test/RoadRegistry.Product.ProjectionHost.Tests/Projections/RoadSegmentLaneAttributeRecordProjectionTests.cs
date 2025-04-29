@@ -505,7 +505,7 @@ public class RoadSegmentLaneAttributeRecordProjectionTests : IClassFixture<Proje
         {
             var segment = change.RoadSegmentAttributesModified;
 
-            return segment.Lanes.Select(lane => (object)new RoadSegmentLaneAttributeRecord
+            return segment.Lanes?.Select(lane => (object)new RoadSegmentLaneAttributeRecord
             {
                 Id = lane.AttributeId,
                 RoadSegmentId = segment.Id,
@@ -523,7 +523,7 @@ public class RoadSegmentLaneAttributeRecordProjectionTests : IClassFixture<Proje
                     BEGINORG = { Value = acceptedRoadSegmentModified.OrganizationId },
                     LBLBGNORG = { Value = acceptedRoadSegmentModified.Organization }
                 }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
-            });
+            }) ?? [];
         }).SelectMany(x => x);
 
         return new RoadSegmentLaneAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)

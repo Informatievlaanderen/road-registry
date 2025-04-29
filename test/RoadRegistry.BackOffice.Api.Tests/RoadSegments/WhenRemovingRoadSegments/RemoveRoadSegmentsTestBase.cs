@@ -1,24 +1,19 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenRemovingRoadSegments;
 
+using System.Collections.Generic;
+using System.Linq;
 using Abstractions.RoadSegments;
+using Api.Infrastructure.Controllers;
 using Api.RoadSegments;
-using Api.RoadSegments.ChangeAttributes;
 using AutoFixture;
-using BackOffice.Handlers.Sqs.RoadSegments;
-using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using Editor.Schema;
 using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
-using Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using RoadRegistry.Tests.BackOffice;
-using RoadRegistry.Tests.BackOffice.Extracts;
 using RoadRegistry.Tests.BackOffice.Scenarios;
-using RoadRegistry.Tests.Framework.Projections;
 
 public abstract class RemoveRoadSegmentsTestBase
 {
@@ -75,7 +70,7 @@ public abstract class RemoveRoadSegmentsTestBase
 
     protected async Task<IActionResult> GetResultAsync(DeleteRoadSegmentsParameters parameters)
     {
-        var controller = new RoadSegmentsController(new FakeTicketingOptions(), Mediator.Object)
+        var controller = new RoadSegmentsController(new BackofficeApiControllerContext(new FakeTicketingOptions(), new HttpContextAccessor()), Mediator.Object)
         {
             ControllerContext = new ControllerContext
             {

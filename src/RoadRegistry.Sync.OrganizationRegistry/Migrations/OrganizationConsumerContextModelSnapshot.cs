@@ -17,10 +17,10 @@ namespace RoadRegistry.Sync.OrganizationRegistry.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.16")
+                .HasAnnotation("ProductVersion", "9.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.ProcessedMessage", b =>
                 {
@@ -58,8 +58,6 @@ namespace RoadRegistry.Sync.OrganizationRegistry.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Name");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Name"));
 
                     b.ToTable("ProjectionStates", "RoadRegistryOrganizationConsumer");
                 });

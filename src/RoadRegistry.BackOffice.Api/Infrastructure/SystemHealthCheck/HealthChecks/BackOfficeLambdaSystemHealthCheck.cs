@@ -30,6 +30,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.SystemHealthCheck.HealthChe
         {
             var result = await _mediator.Send(new BackOfficeLambdaHealthCheckSqsRequest
             {
+                ProvenanceData = new RoadRegistryProvenanceData(),
                 AssemblyVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString()
             }, cancellationToken);
 

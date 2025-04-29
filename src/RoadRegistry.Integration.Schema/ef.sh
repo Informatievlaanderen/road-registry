@@ -1,1 +1,1 @@
-dotnet ef --startup-project ../RoadRegistry.Integration.ProjectionHost "$@" --context IntegrationContext
+dotnet ef --startup-project ../EF.MigrationsHelper "$@" --context IntegrationContext

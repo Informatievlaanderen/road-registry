@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
+using System.Threading;
 using GeoJSON.Net.Feature;
 using Microsoft.AspNetCore.Mvc;
 

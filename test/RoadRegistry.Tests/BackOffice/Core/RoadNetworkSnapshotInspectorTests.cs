@@ -70,7 +70,7 @@ public class RoadNetworkSnapshotInspectorTests
 
     [Fact(Skip = "Reads data from EditorContext. Useful for debugging purposes")]
     //[Fact]
-    public async Task ReadEditorContext()
+    public void ReadEditorContext()
     {
         const DbEnvironment dbEnvironment = DbEnvironment.PRD;
 
@@ -128,7 +128,7 @@ public class RoadNetworkSnapshotInspectorTests
 
     [Fact(Skip = "Reads data from ProductContext. Useful for debugging purposes")]
     //[Fact]
-    public async Task ReadProductContext()
+    public void ReadProductContext()
     {
         const DbEnvironment dbEnvironment = DbEnvironment.DEV;
 
@@ -163,25 +163,23 @@ public class RoadNetworkSnapshotInspectorTests
         var connectionString = GetEventsConnectionString(DbEnvironment.PRD);
         var messageFilePath = $"message-{position}.json";
 
-        await using (var connection = new SqlConnection(connectionString))
-        await using (var command = connection.CreateCommand())
+        await using var connection = new SqlConnection(connectionString);
+        await using var command = connection.CreateCommand();
+        await connection.OpenAsync();
+
+        command.CommandText = $"SELECT [JsonData] FROM [road-registry-events].[RoadRegistry].[Messages] WITH (NOLOCK) WHERE [Position] = {position}";
+
+        var reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess);
+        await reader.ReadAsync();
+
+        Assert.True(reader.HasRows);
+
+        if (reader.HasRows)
         {
-            await connection.OpenAsync();
+            var jsonData = reader.GetString(0);
+            Assert.NotNull(jsonData);
 
-            command.CommandText = $"SELECT [JsonData] FROM [road-registry-events].[RoadRegistry].[Messages] WITH (NOLOCK) WHERE [Position] = {position}";
-
-            var reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess);
-            await reader.ReadAsync();
-
-            Assert.True(reader.HasRows);
-
-            if (reader.HasRows)
-            {
-                var jsonData = reader.GetString(0);
-                Assert.NotNull(jsonData);
-
-                await File.WriteAllTextAsync(messageFilePath, jsonData);
-            }
+            await File.WriteAllTextAsync(messageFilePath, jsonData);
         }
     }
 

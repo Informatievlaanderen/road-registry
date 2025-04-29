@@ -27,6 +27,7 @@ public partial class RoadRegistrySystemController
     {
         var result = await Mediator.Send(new MigrateOutlinedRoadSegmentsOutOfRoadNetworkSqsRequest
         {
+            ProvenanceData = CreateProvenanceData(),
             Request = new MigrateOutlinedRoadSegmentsOutOfRoadNetworkRequest()
         }, cancellationToken);
         return Accepted(result);

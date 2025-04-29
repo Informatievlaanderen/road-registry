@@ -1,7 +1,12 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Extensions;
 
+using System;
+using System.Configuration;
+using System.Linq;
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Producer;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Hosts;
@@ -9,9 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RoadNode;
-using System;
-using System.Linq;
-using KafkaProducer = Projections.KafkaProducer;
+using KafkaProducer = Shared.KafkaProducer;
 
 internal static class ServiceCollectionExtensions
 {
@@ -38,17 +41,11 @@ internal static class ServiceCollectionExtensions
                 .AddSingleton(sp =>
                 {
                     var configuration = sp.GetRequiredService<IConfiguration>();
+                    var producerOptions = configuration.CreateProducerOptions(configuration.GetRequiredValue<string>(entityName + "Topic"));
 
                     return new ConnectedProjection<TSnapshotContext>[]
                     {
-                        resolveProjection(sp, new KafkaProducer(new KafkaProducerOptions(
-                            configuration["Kafka:BootstrapServers"],
-                            configuration["Kafka:SaslUserName"],
-                            configuration["Kafka:SaslPassword"],
-                            configuration.GetRequiredValue<string>(entityName + "Topic"),
-                            true,
-                            RoadNodeEventProcessor.SerializerSettings
-                        )))
+                        resolveProjection(sp, new KafkaProducer(producerOptions))
                     };
                 })
                 .AddSingleton(sp =>
@@ -62,5 +59,30 @@ internal static class ServiceCollectionExtensions
                 .AddSingleton(sp => buildAcceptStreamMessage(sp.GetRequiredService<ConnectedProjection<TSnapshotContext>[]>()))
                 .AddHostedService<TEventProcessor>()
             ;
+    }
+
+    private static ProducerOptions CreateProducerOptions(this IConfiguration configuration, string topicConfigurationKey)
+    {
+        var bootstrapServers = configuration.GetRequiredValue<string>("Kafka:BootstrapServers");
+        var saslUsername = configuration["Kafka:SaslUserName"];
+        var saslPassword = configuration["Kafka:SaslPassword"];
+
+        var topic = configuration.GetRequiredValue<string>(topicConfigurationKey);
+        var producerOptions = new ProducerOptions(
+                new BootstrapServers(bootstrapServers),
+                new Topic(topic),
+                useSinglePartition: true,
+                EventsJsonSerializerSettingsProvider.CreateSerializerSettings())
+            .ConfigureEnableIdempotence();
+
+        if (!string.IsNullOrEmpty(saslUsername)
+            && !string.IsNullOrEmpty(saslPassword))
+        {
+            producerOptions.ConfigureSaslAuthentication(new SaslAuthentication(
+                saslUsername,
+                saslPassword));
+        }
+
+        return producerOptions;
     }
 }

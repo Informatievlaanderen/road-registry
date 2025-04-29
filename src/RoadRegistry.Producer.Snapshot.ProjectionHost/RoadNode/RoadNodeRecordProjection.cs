@@ -6,11 +6,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Extensions;
-    using Projections;
     using System;
-    using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
+    using Shared;
 
     public class RoadNodeRecordProjection : ConnectedProjection<RoadNodeProducerSnapshotContext>
     {
@@ -148,7 +147,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
         private async Task Produce(int roadNodeId, RoadNodeSnapshot snapshot, CancellationToken cancellationToken)
         {
             var result = await _kafkaProducer.Produce(
-                roadNodeId.ToString(CultureInfo.InvariantCulture),
+                roadNodeId,
                 snapshot,
                 cancellationToken);
 

@@ -1,5 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.Tests;
 
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Api.Changes;
 using Api.Downloads;
 using Api.Extracts;
@@ -13,7 +16,6 @@ using BackOffice.Uploads;
 using Core;
 using Editor.Schema;
 using Extensions;
-using FeatureToggles;
 using Framework;
 using Hosts.Infrastructure.Extensions;
 using Infrastructure.Extensions;
@@ -28,9 +30,10 @@ using RoadRegistry.Hosts.Infrastructure.Options;
 using SqlStreamStore;
 using System.Reflection;
 using Api.Grb;
+using Api.Infrastructure.Controllers;
 using FeatureCompare;
-using FeatureCompare.V1.Readers;
 using FeatureCompare.V1.Translators;
+using Microsoft.AspNetCore.Http;
 using Sync.MunicipalityRegistry;
 using MediatorModule = BackOffice.MediatorModule;
 
@@ -106,6 +109,9 @@ public class Startup : TestStartup
             .AddScoped<OrganizationsController>()
             .AddScoped<UploadController>()
             .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
+            .AddScoped(sp => new BackofficeApiControllerContext(
+                sp.GetRequiredService<TicketingOptions>(),
+                new HttpContextAccessor { HttpContext = new DefaultHttpContext() }))
             ;
     }
 
@@ -113,7 +119,7 @@ public class Startup : TestStartup
     {
         var executorAssemblyLocation = Assembly.GetExecutingAssembly().Location;
         var executorDirectoryInfo = new DirectoryInfo(executorAssemblyLocation).Parent;
-        var assemblyFileInfoCollection = executorDirectoryInfo.EnumerateFiles("RoadRegistry.*.dll");
+        var assemblyFileInfoCollection = executorDirectoryInfo!.EnumerateFiles("RoadRegistry.*.dll");
         var assemblyCollection = assemblyFileInfoCollection.Select(fi => Assembly.LoadFrom(fi.FullName));
         return assemblyCollection.ToList();
     }

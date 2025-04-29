@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 
 public partial class RoadRegistrySystemController
 {
@@ -25,6 +26,7 @@ public partial class RoadRegistrySystemController
     {
         var result = await Mediator.Send(new CorrectRoadSegmentOrganizationNamesSqsRequest
         {
+            ProvenanceData = CreateProvenanceData(Modification.Update),
             Request = new CorrectRoadSegmentOrganizationNamesRequest()
         }, cancellationToken);
         return Accepted(result);

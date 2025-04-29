@@ -1,5 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes;
 
+using System.Collections.Generic;
+using System.Linq;
+using Api.Infrastructure.Controllers;
 using Api.RoadSegments;
 using Api.RoadSegments.ChangeAttributes;
 using AutoFixture;
@@ -96,7 +99,7 @@ public abstract class ChangeAttributesTestBase
 
     protected async Task<IActionResult> GetResultAsync(ChangeRoadSegmentAttributesParameters parameters)
     {
-        var controller = new RoadSegmentsController(new FakeTicketingOptions(), _mediator.Object)
+        var controller = new RoadSegmentsController(new BackofficeApiControllerContext(new FakeTicketingOptions(), new HttpContextAccessor()), _mediator.Object)
         {
             ControllerContext = new ControllerContext
             {

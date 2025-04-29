@@ -1,1 +1,1 @@
-dotnet ef --startup-project ../RoadRegistry.Wfs.ProjectionHost "$@" --context WfsContext
+dotnet ef --startup-project ../EF.MigrationsHelper "$@" --context WfsContext

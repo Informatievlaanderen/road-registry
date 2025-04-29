@@ -1,9 +1,6 @@
 namespace RoadRegistry.BackOffice.Abstractions.Exceptions;
 
-using System.Runtime.Serialization;
-
-[Serializable]
-public sealed class FeatureCompareDockerContainerRunningException : ApplicationException
+public sealed class FeatureCompareDockerContainerRunningException : Exception
 {
     public FeatureCompareDockerContainerRunningException(string message)
         : base(message)
@@ -14,11 +11,6 @@ public sealed class FeatureCompareDockerContainerRunningException : ApplicationE
         : this(message)
     {
         ArchiveId = archiveId;
-    }
-
-    private FeatureCompareDockerContainerRunningException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
-    {
     }
 
     public ArchiveId ArchiveId { get; init; }

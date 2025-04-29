@@ -118,18 +118,18 @@ public class RequestedChangeTranslator
         );
     }
 
-    private async Task<ModifyRoadNode> Translate(Messages.ModifyRoadNode command)
+    private Task<ModifyRoadNode> Translate(Messages.ModifyRoadNode command)
     {
         var permanent = new RoadNodeId(command.Id);
         var version = _roadNetworkVersionProvider.NextRoadNodeVersion(permanent);
 
-        return new ModifyRoadNode
+        return Task.FromResult(new ModifyRoadNode
         (
             permanent,
             version,
             RoadNodeType.Parse(command.Type),
             GeometryTranslator.Translate(command.Geometry)
-        );
+        ));
     }
 
     private RemoveRoadNode Translate(Messages.RemoveRoadNode command)

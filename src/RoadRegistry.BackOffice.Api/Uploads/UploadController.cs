@@ -8,7 +8,6 @@ using Core.ProblemCodes;
 using Exceptions;
 using FluentValidation;
 using FluentValidation.Results;
-using Hosts.Infrastructure.Options;
 using Infrastructure.Authentication;
 using Infrastructure.Controllers;
 using MediatR;
@@ -29,7 +28,7 @@ public partial class UploadController : BackofficeApiController
 {
     private readonly IMediator _mediator;
 
-    public UploadController(TicketingOptions ticketingOptions, IMediator mediator) : base(ticketingOptions)
+    public UploadController(BackofficeApiControllerContext context, IMediator mediator) : base(context)
     {
         _mediator = mediator;
     }

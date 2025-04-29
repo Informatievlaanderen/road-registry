@@ -56,7 +56,7 @@ public sealed class BackOfficeLambdaHealthCheckSqsLambdaRequestHandler : SqsLamb
             await RoadRegistryContext.RoadNetworks.ForOutlinedRoadSegment(outlinedRoadSegment.Id, cancellationToken);
         }
 
-        return new ETagResponse(null, null);
+        return new {};
     }
 
     protected override Task ValidateIfMatchHeaderValue(BackOfficeLambdaHealthCheckSqsLambdaRequest request, CancellationToken cancellationToken)

@@ -7,7 +7,7 @@ using NetTopologySuite.Geometries;
 
 public class Municipality
 {
-    public string MunicipalityId { get; set; }
+    public required string MunicipalityId { get; set; }
     public string NisCode { get; set; }
     public MunicipalityStatus Status { get; set; }
     public Geometry? Geometry { get; set; }

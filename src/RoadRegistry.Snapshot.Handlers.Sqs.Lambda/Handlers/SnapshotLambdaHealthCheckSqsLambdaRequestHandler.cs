@@ -5,7 +5,6 @@ using BackOffice;
 using BackOffice.Core;
 using BackOffice.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
@@ -46,7 +45,7 @@ public sealed class SnapshotLambdaHealthCheckSqsLambdaRequestHandler : SqsLambda
 
         await _snapshotWriter.WriteSnapshot(snapshot, roadNetworkVersion, cancellationToken);
 
-        return new ETagResponse(null, null);
+        return new { roadNetworkVersion };
     }
 
     protected override Task ValidateIfMatchHeaderValue(SnapshotLambdaHealthCheckSqsLambdaRequest request, CancellationToken cancellationToken)

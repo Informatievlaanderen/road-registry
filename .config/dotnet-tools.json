@@ -3,16 +3,17 @@
   "isRoot": true,
   "tools": {
     "dotnet-ef": {
-      "version": "8.0.3",
+      "version": "9.0.4",
       "commands": [
         "dotnet-ef"
       ]
     },
-    "paket": {
-      "version": "8.0.3",
+    "amazon.lambda.tools": {
+      "version": "5.12.4",
       "commands": [
-        "paket"
-      ]
+        "dotnet-lambda"
+      ],
+      "rollForward": false
     }
   }
 }

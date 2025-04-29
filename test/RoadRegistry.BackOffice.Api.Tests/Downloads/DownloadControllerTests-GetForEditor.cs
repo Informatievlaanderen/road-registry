@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Downloads;
 
+using System;
+using System.Threading.Tasks;
 using Api.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

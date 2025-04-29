@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenDeleteOutline.Abstractions.Fixtures;
 
+using Api.Infrastructure.Controllers;
 using Api.RoadSegments;
 using AutoFixture;
 using Editor.Schema;
@@ -38,7 +39,7 @@ public abstract class WhenDeleteOutlineFixture : ControllerActionFixture<int>
 
     protected override async Task<IActionResult> GetResultAsync(int roadSegmentId)
     {
-        var controller = new RoadSegmentsController(new FakeTicketingOptions(), _mediator)
+        var controller = new RoadSegmentsController(new BackofficeApiControllerContext(new FakeTicketingOptions(), new HttpContextAccessor()), _mediator)
         {
             ControllerContext = new ControllerContext
             {

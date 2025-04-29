@@ -5,8 +5,7 @@ using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
 using Extensions;
 using Moq;
 using ProjectionHost.Projections;
@@ -15,6 +14,7 @@ using RoadRegistry.Tests.BackOffice.Scenarios;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using RoadRegistry.Tests.Framework.Projections;
 using RoadSegment;
+using Shared;
 
 public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {
@@ -991,8 +991,8 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
     {
         var kafkaProducer = new Mock<IKafkaProducer>();
         kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadSegmentSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<RoadSegmentSnapshot>.Success(It.IsAny<RoadSegmentSnapshot>()));
+            .Setup(x => x.Produce(It.IsAny<int>(), It.IsAny<RoadSegmentSnapshot>(), CancellationToken.None))
+            .ReturnsAsync(Result.Success(new Offset(0)));
         return kafkaProducer;
     }
 
@@ -1011,7 +1011,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
         {
             kafkaProducer.Verify(
                 x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
+                    expectedRecord.Id,
                     It.Is(expectedRecord.ToContract(), new RoadSegmentSnapshotEqualityComparer()),
                     It.IsAny<CancellationToken>()),
                 times ?? Times.Once());

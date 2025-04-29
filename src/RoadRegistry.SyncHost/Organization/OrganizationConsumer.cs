@@ -124,7 +124,7 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                 Logger.LogError(ex.Message);
                 return;
             }
-            catch (OrganizationRegistryTemporarilyUnavailableException ex)
+            catch (OrganizationRegistryTemporarilyUnavailableException)
             {
                 if (!serviceIsUnavailable)
                 {

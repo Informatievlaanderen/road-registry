@@ -5,7 +5,7 @@ using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
 using Extensions;
 using Moq;
 using ProjectionHost.Projections;
@@ -13,6 +13,7 @@ using RoadNode;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using RoadRegistry.Tests.Framework.Projections;
+using Shared;
 
 public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {
@@ -45,8 +46,8 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
     {
         var kafkaProducer = new Mock<IKafkaProducer>();
         kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadNodeSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<RoadNodeSnapshot>.Success(It.IsAny<RoadNodeSnapshot>()));
+            .Setup(x => x.Produce(It.IsAny<int>(), It.IsAny<RoadNodeSnapshot>(), CancellationToken.None))
+            .ReturnsAsync(Result.Success(new Offset(0)));
         return kafkaProducer;
     }
 
@@ -81,7 +82,7 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
         {
             kafkaProducer.Verify(
                 x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
+                    expectedRecord.Id,
                     It.Is(expectedRecord.ToContract(), new RoadNodeSnapshotEqualityComparer()),
                     It.IsAny<CancellationToken>()),
                 times ?? Times.Once());
@@ -238,7 +239,7 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
         _fixture.Freeze<RoadNodeId>();
 
         var created = DateTimeOffset.UtcNow;
-        
+
         var acceptedRoadNodeAdded = _fixture
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.Create<RoadNodeAdded>());

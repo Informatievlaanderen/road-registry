@@ -13,12 +13,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 public static class AmazonSqsExtensions
 {
-    public static async Task CreateMissingQueuesAsync(this AmazonSQSClient amazonSqsClient, Dictionary<string, Dictionary<string, string>> queueUrlAttributes, CancellationToken cancellationToken)
+    private static Task CreateMissingQueuesAsync(this AmazonSQSClient amazonSqsClient, Dictionary<string, Dictionary<string, string>> queueUrlAttributes, CancellationToken cancellationToken)
     {
+        return Task.CompletedTask;
         // 2024-03-26: disabled because Localstack no longer works with the current SQS version
-        
+
         //var queues = await amazonSqsClient.ListQueuesAsync(new ListQueuesRequest(), cancellationToken);
-        
+
         //var existingQueueUrls = queues.QueueUrls.ToArray();
         //var missingQueueUrls = queueUrlAttributes
         //    .Select(x => x.Key)
@@ -77,7 +78,7 @@ public static class AmazonSqsExtensions
                 {"DeduplicationScope","messageGroup"}
             });
         }
-        
+
         if (queueUrlAttributes.Any())
         {
             var sqsOptions = sp.GetRequiredService<SqsOptions>();

@@ -36,7 +36,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 
         var sqsLambdaRequest = new LinkStreetNameSqsLambdaRequest(Guid.NewGuid().ToString(), new LinkStreetNameSqsRequest
         {
-            Request = new LinkStreetNameRequest(1, null, null, null),
+            Request = new LinkStreetNameRequest(1, null!, null, null),
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
             ProvenanceData = ObjectProvider.Create<ProvenanceData>()
@@ -101,7 +101,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 
         var sqsLambdaRequest = new LinkStreetNameSqsLambdaRequest(Guid.NewGuid().ToString(), new LinkStreetNameSqsRequest
         {
-            Request = new LinkStreetNameRequest(0, null, null, null),
+            Request = new LinkStreetNameRequest(0, null!, null, null),
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
             ProvenanceData = ObjectProvider.Create<ProvenanceData>()
@@ -131,7 +131,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 
         var sqsLambdaRequest = new LinkStreetNameSqsLambdaRequest(Guid.NewGuid().ToString(), new LinkStreetNameSqsRequest
         {
-            Request = new LinkStreetNameRequest(0, null, null, null),
+            Request = new LinkStreetNameRequest(0, null!, null, null),
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
             ProvenanceData = ObjectProvider.Create<ProvenanceData>()

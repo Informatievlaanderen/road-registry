@@ -1,17 +1,16 @@
 namespace RoadRegistry.Product.Schema;
 
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using BackOffice;
-using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using GradeSeparatedJunctions;
 using Microsoft.EntityFrameworkCore;
+using Organizations;
 using RoadNodes;
 using RoadSegments;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Organizations;
 
 public class ProductContext : RunnerDbContext<ProductContext>
 {

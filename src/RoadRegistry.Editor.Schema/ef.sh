@@ -1,1 +1,1 @@
-dotnet ef --startup-project ../RoadRegistry.Editor.ProjectionHost "$@" --context EditorContext
+dotnet ef --startup-project ../EF.MigrationsHelper "$@" --context EditorContext

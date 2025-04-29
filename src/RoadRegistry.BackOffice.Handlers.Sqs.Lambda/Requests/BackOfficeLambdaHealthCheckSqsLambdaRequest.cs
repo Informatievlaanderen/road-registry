@@ -11,7 +11,7 @@ public sealed record BackOfficeLambdaHealthCheckSqsLambdaRequest : SqsLambdaRequ
             groupId,
             sqsRequest.TicketId,
             sqsRequest.IfMatchHeaderValue,
-            default,
+            new RoadRegistryProvenanceData().ToProvenance(),
             sqsRequest.Metadata)
     {
         Request = sqsRequest;

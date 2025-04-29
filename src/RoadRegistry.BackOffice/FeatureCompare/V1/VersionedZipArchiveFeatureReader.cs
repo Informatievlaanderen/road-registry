@@ -25,8 +25,6 @@ public class VersionedZipArchiveFeatureReader<TFeature> : IZipArchiveFeatureRead
     public virtual (List<TFeature>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
     {
         ArgumentNullException.ThrowIfNull(archive);
-        ArgumentNullException.ThrowIfNull(featureType);
-        ArgumentNullException.ThrowIfNull(fileName);
         ArgumentNullException.ThrowIfNull(context);
 
         var readerProblems = new List<ZipArchiveProblems>();

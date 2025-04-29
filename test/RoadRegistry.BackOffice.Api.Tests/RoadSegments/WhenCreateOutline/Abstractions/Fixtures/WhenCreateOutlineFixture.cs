@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenCreateOutline.Abstractions.Fixtures;
 
+using Api.Infrastructure.Controllers;
 using Api.RoadSegments;
 using BackOffice.Extracts.Dbase.Organizations;
 using Editor.Schema;
@@ -39,7 +40,7 @@ public abstract class WhenCreateOutlineFixture : ControllerActionFixture<PostRoa
 
         await _editorContext.SaveChangesAsync(CancellationToken.None);
 
-        var controller = new RoadSegmentsController(new FakeTicketingOptions(), _mediator)
+        var controller = new RoadSegmentsController(new BackofficeApiControllerContext(new FakeTicketingOptions(), new HttpContextAccessor()), _mediator)
         {
             ControllerContext = new ControllerContext
             {
