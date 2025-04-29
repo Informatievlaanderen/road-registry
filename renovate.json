@@ -12,6 +12,10 @@
       "description": "Basisregisters Command handling packages",
       "matchPackageNames": ["Be.Vlaanderen.Basisregisters.AggregateSource*", "Be.Vlaanderen.Basisregisters.CommandHandling*"],
       "groupName": "command-handling"
+    },
+    {
+      "matchPackageNames": ["FluentAssertions"],
+      "allowedVersions": "<8.0.0"
     }
   ]
 }
