@@ -1,3 +1,10 @@
+# [4.30.0](https://github.com/informatievlaanderen/road-registry/compare/v4.29.9...v4.30.0) (2025-04-30)
+
+
+### Features
+
+* add Wegcategorie when creating new outlined roadsegment ([298c750](https://github.com/informatievlaanderen/road-registry/commit/298c7507918f073df2a4a5a31400530e5a77f694))
+
 ## [4.29.9](https://github.com/informatievlaanderen/road-registry/compare/v4.29.8...v4.29.9) (2025-04-29)
 
 
