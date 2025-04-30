@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using System.Linq;
 using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -118,14 +119,20 @@ public class AddRoadSegmentValidator : AddRoadSegmentValidatorBase
 
             RuleFor(c => c.Status)
                 .NotEmpty()
-                .Must(value => RoadSegmentStatus.CanParse(value) && RoadSegmentStatus.Parse(value).IsValidForEdit())
+                .Must(value => RoadSegmentStatus.TryParse(value, out var status) && status.IsValidForEdit())
                 .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid);
 
             RuleFor(c => c.Morphology)
                 .NotEmpty()
-                .Must(value => RoadSegmentMorphology.CanParse(value) && RoadSegmentMorphology.Parse(value).IsValidForEdit())
+                .Must(value => RoadSegmentMorphology.TryParse(value, out var morphology) && morphology.IsValidForEdit())
                 .When(c => c.Morphology != null, ApplyConditionTo.CurrentValidator)
                 .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid);
+
+            RuleFor(c => c.Category)
+                .NotEmpty()
+                .Must(value => RoadSegmentCategory.TryParse(value, out var category) && category.IsValidForEdit())
+                .When(c => c.Category != null, ApplyConditionTo.CurrentValidator)
+                .WithProblemCode(ProblemCode.RoadSegment.Category.NotValid);
 
             RuleForEach(c => c.Lanes)
                 .NotEmpty()

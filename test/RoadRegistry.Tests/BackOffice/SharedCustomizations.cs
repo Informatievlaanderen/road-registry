@@ -516,6 +516,18 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeRoadSegmentOutlineCategory(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentCategory>(customization =>
+            customization.FromFactory(generator =>
+                {
+                    var allowedValues = RoadSegmentCategory.Edit.Editable.ToArray();
+                    return allowedValues[generator.Next() % allowedValues.Length];
+                }
+            )
+        );
+    }
+
     public static void CustomizeRoadSegmentGeometry(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentGeometry>(customizer =>
@@ -734,6 +746,7 @@ public static class SharedCustomizations
         fixture.CustomizeRoadSegmentOutlineStatus();
         fixture.CustomizeRoadSegmentOutlineLaneCount();
         fixture.CustomizeRoadSegmentOutlineWidth();
+        fixture.CustomizeRoadSegmentOutlineCategory();
     }
 
     public static void CustomizeRoadSegmentPosition(this IFixture fixture)
