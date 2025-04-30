@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
 using System;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -68,7 +69,10 @@ public partial class RoadSegmentsController
                     RoadSegmentSurfaceType.ParseUsingDutchName(parameters.Wegverharding),
                     RoadSegmentWidth.ParseUsingDutchName(parameters.Wegbreedte),
                     RoadSegmentLaneCount.ParseUsingDutchName(parameters.AantalRijstroken.Aantal),
-                    RoadSegmentLaneDirection.ParseUsingDutchName(parameters.AantalRijstroken.Richting)
+                    RoadSegmentLaneDirection.ParseUsingDutchName(parameters.AantalRijstroken.Richting),
+                    parameters.Wegcategorie is not null
+                        ? RoadSegmentCategory.ParseUsingDutchName(parameters.Wegcategorie)
+                        : RoadSegmentCategory.Unknown
                 )
             };
             var result = await _mediator.Send(sqsRequest, cancellationToken);
@@ -143,6 +147,14 @@ public record PostRoadSegmentOutlineParameters
     [DataMember(Name = "AantalRijstroken", Order = 8)]
     [JsonProperty(Required = Required.Always)]
     public RoadSegmentLaneParameters AantalRijstroken { get; set; }
+
+    /// <summary>
+    ///     Wegcategorie zoals gedefinieerd in het Ruimtelijke Structuurplan Vlaanderen.
+    /// </summary>
+    [DataMember(Name = "Wegcategorie", Order = 9)]
+    [JsonProperty("wegcategorie", Required = Required.Default)]
+    [RoadRegistryEnumDataType(typeof(RoadSegmentCategory.Edit))]
+    public string? Wegcategorie { get; set; }
 }
 
 /// <summary>
@@ -233,6 +245,14 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
             .NotNull()
             .WithProblemCode(ProblemCode.RoadSegment.Lane.IsRequired)
             .SetValidator(new RoadSegmentLaneParametersValidator());
+
+        When(x => x.Wegcategorie is not null, () =>
+        {
+            RuleFor(x => x.Wegcategorie)
+                .Cascade(CascadeMode.Stop)
+                .Must(x => RoadSegmentCategory.TryParseUsingDutchName(x, out var category) && category.IsValidForEdit())
+                .WithProblemCode(ProblemCode.RoadSegment.Category.NotValid);
+        });
     }
 
     private async Task<bool> BeKnownOrganization(string code, CancellationToken cancellationToken)

@@ -78,7 +78,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
                         RoadSegmentGeometryDrawMethod.Outlined,
                         request.Morphology,
                         request.Status,
-                        RoadSegmentCategory.Unknown,
+                        request.Category,
                         request.AccessRestriction,
                         null,
                         null)
