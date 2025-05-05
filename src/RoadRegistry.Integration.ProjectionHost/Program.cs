@@ -58,6 +58,7 @@ public class Program
                 .AddSingleton(() =>
                     new IntegrationContext(
                         new DbContextOptionsBuilder<IntegrationContext>()
+                            .EnableSensitiveDataLogging()
                             .UseNpgsql(
                                 hostContext.Configuration.GetRequiredConnectionString(WellKnownConnectionNames.IntegrationProjections),
                                 options => options
