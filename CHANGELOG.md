@@ -1,3 +1,10 @@
+## [4.30.1](https://github.com/informatievlaanderen/road-registry/compare/v4.30.0...v4.30.1) (2025-05-05)
+
+
+### Bug Fixes
+
+* integration road projections to deal with re-using of attributeId ([fac2950](https://github.com/informatievlaanderen/road-registry/commit/fac2950a296948296e5fc43c053c726cc0d835cd))
+
 # [4.30.0](https://github.com/informatievlaanderen/road-registry/compare/v4.29.9...v4.30.0) (2025-04-30)
 
 
