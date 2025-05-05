@@ -59,16 +59,30 @@ public class RoadSegmentEuropeanRoadAttributeLatestItemProjection : ConnectedPro
         RoadSegmentAddedToEuropeanRoad europeanRoad,
         CancellationToken token)
     {
-        await context.RoadSegmentEuropeanRoadAttributes.AddAsync(new RoadSegmentEuropeanRoadAttributeLatestItem
+        var item = await context.RoadSegmentEuropeanRoadAttributes
+            .FindAsync(europeanRoad.AttributeId, cancellationToken: token)
+            .ConfigureAwait(false);
+
+        if (context.IsNullOrDeleted(item))
         {
-            Id = europeanRoad.AttributeId,
-            RoadSegmentId = europeanRoad.SegmentId,
-            Number = europeanRoad.Number,
-            OrganizationId = envelope.Message.OrganizationId,
-            OrganizationName = envelope.Message.Organization,
-            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
-            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
-        }, token);
+            item = new RoadSegmentEuropeanRoadAttributeLatestItem
+            {
+                Id = europeanRoad.AttributeId,
+                RoadSegmentId = europeanRoad.SegmentId
+            };
+            await context.RoadSegmentEuropeanRoadAttributes.AddAsync(item, token);
+        }
+        else
+        {
+            item.IsRemoved = false;
+        }
+
+        item.RoadSegmentId = europeanRoad.SegmentId;
+        item.Number = europeanRoad.Number;
+        item.OrganizationId = envelope.Message.OrganizationId;
+        item.OrganizationName = envelope.Message.Organization;
+        item.CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        item.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
     private static async Task RoadSegmentRemovedFromEuropeanRoad(IntegrationContext context, Envelope<RoadNetworkChangesAccepted> envelope, RoadSegmentRemovedFromEuropeanRoad europeanRoad, CancellationToken token)

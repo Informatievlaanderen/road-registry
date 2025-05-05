@@ -15,7 +15,7 @@ public partial class RoadSegmentVersionProjectionTests
 
         var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
         importedRoadSegment.PartOfNumberedRoads = [];
-        
+
         var expectedRecords = Array.Empty<object>()
             .Concat(new[]
             {
@@ -82,6 +82,99 @@ public partial class RoadSegmentVersionProjectionTests
         return BuildProjection()
             .Scenario()
             .Given(acceptedRoadSegmentAdded, message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_adding_road_segment_to_numbered_road_multiple_times_then_existing_record_is_reused()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToNumberedRoad>());
+
+        var expectedRecords = BuildInitialExpectedRoadSegmentRecords(acceptedRoadSegmentAdded)
+            .Concat(Array.ConvertAll(message.Changes, change =>
+            {
+                var roadSegmentAddedToNumberedRoad = change.RoadSegmentAddedToNumberedRoad;
+
+                var position = 1;
+
+                return BuildRoadSegmentRecord(
+                    position,
+                    acceptedRoadSegmentAdded,
+                    acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded,
+                    roadSegment =>
+                    {
+                        roadSegment.Version = roadSegmentAddedToNumberedRoad.SegmentVersion!.Value;
+
+                        roadSegment.OrganizationId = message.OrganizationId;
+                        roadSegment.OrganizationName = message.Organization;
+                        roadSegment.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When);
+
+                        var numberedRoadDirectionTranslation = RoadSegmentNumberedRoadDirection.Parse(roadSegmentAddedToNumberedRoad.Direction).Translation;
+
+                        roadSegment.PartOfNumberedRoads.Add(new RoadSegmentNumberedRoadAttributeVersion
+                        {
+                            Position = position,
+                            Id = roadSegmentAddedToNumberedRoad.AttributeId,
+                            RoadSegmentId = roadSegmentAddedToNumberedRoad.SegmentId,
+                            Number = roadSegmentAddedToNumberedRoad.Number,
+                            DirectionId = numberedRoadDirectionTranslation.Identifier,
+                            DirectionLabel = numberedRoadDirectionTranslation.Name,
+                            SequenceNumber = roadSegmentAddedToNumberedRoad.Ordinal,
+                            OrganizationId = message.OrganizationId,
+                            OrganizationName = message.Organization,
+                            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When),
+                            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When)
+                        });
+                    });
+            }))
+            .Concat(Array.ConvertAll(message.Changes, change =>
+            {
+                var roadSegmentAddedToNumberedRoad = change.RoadSegmentAddedToNumberedRoad;
+
+                var position = 2;
+
+                return BuildRoadSegmentRecord(
+                    position,
+                    acceptedRoadSegmentAdded,
+                    acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded,
+                    roadSegment =>
+                    {
+                        roadSegment.Version = roadSegmentAddedToNumberedRoad.SegmentVersion!.Value;
+
+                        roadSegment.OrganizationId = message.OrganizationId;
+                        roadSegment.OrganizationName = message.Organization;
+                        roadSegment.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When);
+
+                        var numberedRoadDirectionTranslation = RoadSegmentNumberedRoadDirection.Parse(roadSegmentAddedToNumberedRoad.Direction).Translation;
+
+                        roadSegment.PartOfNumberedRoads.Add(new RoadSegmentNumberedRoadAttributeVersion
+                        {
+                            Position = position,
+                            Id = roadSegmentAddedToNumberedRoad.AttributeId,
+                            RoadSegmentId = roadSegmentAddedToNumberedRoad.SegmentId,
+                            Number = roadSegmentAddedToNumberedRoad.Number,
+                            DirectionId = numberedRoadDirectionTranslation.Identifier,
+                            DirectionLabel = numberedRoadDirectionTranslation.Name,
+                            SequenceNumber = roadSegmentAddedToNumberedRoad.Ordinal,
+                            OrganizationId = message.OrganizationId,
+                            OrganizationName = message.Organization,
+                            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When),
+                            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When)
+                        });
+                    });
+            }));
+
+        return BuildProjection()
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, message, message)
             .Expect(expectedRecords);
     }
 
@@ -163,14 +256,14 @@ public partial class RoadSegmentVersionProjectionTests
         _fixture.Freeze<RoadSegmentId>();
 
         var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
-        
+
         var message = _fixture
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.CreateWith<RoadSegmentRemovedFromNumberedRoad>(x =>
             {
                 x.AttributeId = importedRoadSegment.PartOfNumberedRoads.First().AttributeId;
             }));
-        
+
         var expectedRecords = Array.Empty<object>()
             .Concat(new[]
             {

@@ -61,16 +61,30 @@ public class RoadSegmentNationalRoadAttributeLatestItemProjection : ConnectedPro
         RoadSegmentAddedToNationalRoad nationalRoad,
         CancellationToken token)
     {
-        await context.RoadSegmentNationalRoadAttributes.AddAsync(new RoadSegmentNationalRoadAttributeLatestItem
+        var item = await context.RoadSegmentNationalRoadAttributes
+            .FindAsync(nationalRoad.AttributeId, cancellationToken: token)
+            .ConfigureAwait(false);
+
+        if (context.IsNullOrDeleted(item))
         {
-            Id = nationalRoad.AttributeId,
-            RoadSegmentId = nationalRoad.SegmentId,
-            Number = nationalRoad.Number,
-            OrganizationId = envelope.Message.OrganizationId,
-            OrganizationName = envelope.Message.Organization,
-            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
-            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
-        }, token);
+            item = new RoadSegmentNationalRoadAttributeLatestItem
+            {
+                Id = nationalRoad.AttributeId,
+                RoadSegmentId = nationalRoad.SegmentId
+            };
+            await context.RoadSegmentNationalRoadAttributes.AddAsync(item, token);
+        }
+        else
+        {
+            item.IsRemoved = false;
+        }
+
+        item.RoadSegmentId = nationalRoad.SegmentId;
+        item.Number = nationalRoad.Number;
+        item.OrganizationId = envelope.Message.OrganizationId;
+        item.OrganizationName = envelope.Message.Organization;
+        item.CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        item.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
     private static async Task RoadSegmentRemovedFromNationalRoad(

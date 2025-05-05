@@ -45,20 +45,32 @@ public partial class RoadSegmentVersionProjection
     {
         var numberedRoadDirectionTranslation = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
 
-        roadSegment.PartOfNumberedRoads.Add(new RoadSegmentNumberedRoadAttributeVersion
+        var item = roadSegment.PartOfNumberedRoads.SingleOrDefault(x => x.Id == numberedRoad.AttributeId);
+
+        if (item is null)
         {
-            Position = roadSegment.Position,
-            Id = numberedRoad.AttributeId,
-            RoadSegmentId = numberedRoad.SegmentId,
-            Number = numberedRoad.Number,
-            DirectionId = numberedRoadDirectionTranslation.Identifier,
-            DirectionLabel = numberedRoadDirectionTranslation.Name,
-            SequenceNumber = numberedRoad.Ordinal,
-            OrganizationId = envelope.Message.OrganizationId,
-            OrganizationName = envelope.Message.Organization,
-            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
-            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
-        });
+            item = new RoadSegmentNumberedRoadAttributeVersion
+            {
+                Position = roadSegment.Position,
+                Id = numberedRoad.AttributeId,
+                RoadSegmentId = numberedRoad.SegmentId
+            };
+            roadSegment.PartOfNumberedRoads.Add(item);
+        }
+        else
+        {
+            item.IsRemoved = false;
+        }
+
+        item.RoadSegmentId = numberedRoad.SegmentId;
+        item.Number = numberedRoad.Number;
+        item.DirectionId = numberedRoadDirectionTranslation.Identifier;
+        item.DirectionLabel = numberedRoadDirectionTranslation.Name;
+        item.SequenceNumber = numberedRoad.Ordinal;
+        item.OrganizationId = envelope.Message.OrganizationId;
+        item.OrganizationName = envelope.Message.Organization;
+        item.CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        item.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
     private static void RemovePartOfNumberedRoads(

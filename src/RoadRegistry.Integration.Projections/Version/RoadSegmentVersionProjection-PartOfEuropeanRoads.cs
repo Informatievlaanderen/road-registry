@@ -34,17 +34,29 @@ public partial class RoadSegmentVersionProjection
         RoadSegmentVersion roadSegment,
         RoadSegmentAddedToEuropeanRoad europeanRoad)
     {
-        roadSegment.PartOfEuropeanRoads.Add(new RoadSegmentEuropeanRoadAttributeVersion
+        var item = roadSegment.PartOfEuropeanRoads.SingleOrDefault(x => x.Id == europeanRoad.AttributeId);
+
+        if (item is null)
         {
-            Position = roadSegment.Position,
-            Id = europeanRoad.AttributeId,
-            RoadSegmentId = europeanRoad.SegmentId,
-            Number = europeanRoad.Number,
-            OrganizationId = envelope.Message.OrganizationId,
-            OrganizationName = envelope.Message.Organization,
-            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
-            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
-        });
+            item = new RoadSegmentEuropeanRoadAttributeVersion
+            {
+                Position = roadSegment.Position,
+                Id = europeanRoad.AttributeId,
+                RoadSegmentId = europeanRoad.SegmentId
+            };
+            roadSegment.PartOfEuropeanRoads.Add(item);
+        }
+        else
+        {
+            item.IsRemoved = false;
+        }
+
+        item.RoadSegmentId = europeanRoad.SegmentId;
+        item.Number = europeanRoad.Number;
+        item.OrganizationId = envelope.Message.OrganizationId;
+        item.OrganizationName = envelope.Message.Organization;
+        item.CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        item.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
     private static void RemovePartOfEuropeanRoads(
