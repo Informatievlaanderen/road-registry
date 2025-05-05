@@ -68,19 +68,33 @@ public class RoadSegmentNumberedRoadAttributeLatestItemProjection : ConnectedPro
     {
         var directionTranslation = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
 
-        await context.RoadSegmentNumberedRoadAttributes.AddAsync(new RoadSegmentNumberedRoadAttributeLatestItem
+        var item = await context.RoadSegmentNumberedRoadAttributes
+            .FindAsync(numberedRoad.AttributeId, cancellationToken: token)
+            .ConfigureAwait(false);
+
+        if (context.IsNullOrDeleted(item))
         {
-            Id = numberedRoad.AttributeId,
-            RoadSegmentId = numberedRoad.SegmentId,
-            Number = numberedRoad.Number,
-            DirectionId = directionTranslation.Identifier,
-            DirectionLabel = directionTranslation.Name,
-            SequenceNumber = numberedRoad.Ordinal,
-            OrganizationId = envelope.Message.OrganizationId,
-            OrganizationName = envelope.Message.Organization,
-            CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
-            VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
-        }, token);
+            item = new RoadSegmentNumberedRoadAttributeLatestItem
+            {
+                Id = numberedRoad.AttributeId,
+                RoadSegmentId = numberedRoad.SegmentId
+            };
+            await context.RoadSegmentNumberedRoadAttributes.AddAsync(item, token);
+        }
+        else
+        {
+            item.IsRemoved = false;
+        }
+
+        item.RoadSegmentId = numberedRoad.SegmentId;
+        item.Number = numberedRoad.Number;
+        item.DirectionId = directionTranslation.Identifier;
+        item.DirectionLabel = directionTranslation.Name;
+        item.SequenceNumber = numberedRoad.Ordinal;
+        item.OrganizationId = envelope.Message.OrganizationId;
+        item.OrganizationName = envelope.Message.Organization;
+        item.CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        item.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
     private static async Task RoadSegmentRemovedFromNumberedRoad(
