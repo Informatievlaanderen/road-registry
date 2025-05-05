@@ -1,3 +1,10 @@
+## [4.30.2](https://github.com/informatievlaanderen/road-registry/compare/v4.30.1...v4.30.2) (2025-05-05)
+
+
+### Bug Fixes
+
+* EnableSensitiveDataLogging for IntegrationContext ([d3b62cd](https://github.com/informatievlaanderen/road-registry/commit/d3b62cd8f9cf6d04c8312b6b2937c12cb1d58558))
+
 ## [4.30.1](https://github.com/informatievlaanderen/road-registry/compare/v4.30.0...v4.30.1) (2025-05-05)
 
 
