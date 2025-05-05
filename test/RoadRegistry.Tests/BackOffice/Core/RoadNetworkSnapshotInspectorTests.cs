@@ -1,25 +1,24 @@
 namespace RoadRegistry.Tests.BackOffice.Core;
 
 using System.Data;
-using System.Text;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Editor.Schema;
+using Editor.Schema.Extensions;
+using Integration.Schema;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using Microsoft.IO;
 using Newtonsoft.Json;
-using Polly;
+using NodaTime;
 using Product.Schema;
-using Product.Schema.RoadSegments;
+using RoadNetwork.Schema;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
-using Serilog.Enrichers;
 using SqlStreamStore;
-using RoadRegistry.BackOffice.Extensions;
 
 public class RoadNetworkSnapshotInspectorTests
 {
@@ -39,6 +38,14 @@ public class RoadNetworkSnapshotInspectorTests
     private string GetEditorProjectionsConnectionString(DbEnvironment environment)
     {
         return Configuration.GetConnectionString($"EditorProjections-{environment}") ?? Configuration.GetRequiredConnectionString("EditorProjections");
+    }
+    private string GetIntegrationConnectionString(DbEnvironment environment)
+    {
+        return Configuration.GetConnectionString($"Integration-{environment}") ?? Configuration.GetRequiredConnectionString("Integration");
+    }
+    private string GetWmsConnectionString(DbEnvironment environment)
+    {
+        return Configuration.GetConnectionString($"Wms-{environment}") ?? Configuration.GetRequiredConnectionString("Wms");
     }
 
     private IStreamStore GetStreamStore(DbEnvironment dbEnvironment)
@@ -76,7 +83,7 @@ public class RoadNetworkSnapshotInspectorTests
 
         using (var dbContext = GetEditorContext(dbEnvironment))
         {
-            var enricher = EnrichEvent.WithTime(NodaTime.SystemClock.Instance);
+            var enricher = EnrichEvent.WithTime(SystemClock.Instance);
 
             //add events
             //using (var store = GetStreamStore(dbEnvironment))
@@ -155,13 +162,14 @@ public class RoadNetworkSnapshotInspectorTests
         }
     }
 
-    [Fact(Skip = "Loads a message to your local computer. Useful for debugging purposes")]
-    //[Fact]
+    //[Fact(Skip = "Loads a message to your local computer. Useful for debugging purposes")]
+    [Fact]
     public async Task InspectMessage()
     {
-        const int position = 1858902;
-        var connectionString = GetEventsConnectionString(DbEnvironment.PRD);
-        var messageFilePath = $"message-{position}.json";
+        const DbEnvironment env = DbEnvironment.STG;
+        const int position = 2252414;
+        var connectionString = GetEventsConnectionString(env);
+        var messageFilePath = $"message-{env}-{position}.json";
 
         await using (var connection = new SqlConnection(connectionString))
         await using (var command = connection.CreateCommand())
@@ -183,6 +191,275 @@ public class RoadNetworkSnapshotInspectorTests
                 await File.WriteAllTextAsync(messageFilePath, jsonData);
             }
         }
+    }
+
+    [Fact]
+    public async Task GenerateNewAttributeIdsForNumbersInEvent()
+    {
+        const DbEnvironment env = DbEnvironment.STG;
+        const int position = 2252414;
+
+        var eventsConnectionString = GetEventsConnectionString(env);
+        var projectionsConnectionString = GetEditorProjectionsConnectionString(env);
+        var integrationConnectionString = GetIntegrationConnectionString(env);
+        var wmsConnectionString = GetWmsConnectionString(env);
+
+        await using (var connection = new SqlConnection(eventsConnectionString))
+        await using (var command = connection.CreateCommand())
+        {
+            await connection.OpenAsync();
+
+            command.CommandText = $"SELECT [JsonData] FROM [road-registry-events].[RoadRegistry].[Messages] WITH (NOLOCK) WHERE [Position] = {position}";
+
+            var reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess);
+            await reader.ReadAsync();
+
+            Assert.True(reader.HasRows);
+
+            if (reader.HasRows)
+            {
+                var jsonData = reader.GetString(0);
+                Assert.NotNull(jsonData);
+
+                var message = JsonConvert.DeserializeObject<RoadNetworkChangesAccepted>(jsonData, EventsJsonSerializerSettingsProvider.CreateSerializerSettings());
+
+                var (europeanRoadMappings, nationalRoadMappings, numberedRoadMappings) = await GenerateNewIds(eventsConnectionString, message);
+                WriteMappingsToOutput(europeanRoadMappings, nationalRoadMappings, numberedRoadMappings);
+
+                await UpdateEventInDb(message, command, position);
+
+                await FixEditorProjections(projectionsConnectionString, europeanRoadMappings, nationalRoadMappings, numberedRoadMappings);
+                await FixProductProjections(projectionsConnectionString, europeanRoadMappings, nationalRoadMappings, numberedRoadMappings);
+                await FixIntegrationProjections(integrationConnectionString, europeanRoadMappings, nationalRoadMappings, numberedRoadMappings);
+                await FixWmsProjections(wmsConnectionString, europeanRoadMappings, nationalRoadMappings, numberedRoadMappings);
+            }
+        }
+    }
+
+    private static async Task UpdateEventInDb(RoadNetworkChangesAccepted message, SqlCommand command, int position)
+    {
+        var serializeMessage = JsonConvert.SerializeObject(message, EventsJsonSerializerSettingsProvider.CreateSerializerSettings());
+        command.CommandText = $"UPDATE [JsonData] = @json FROM [road-registry-events].[RoadRegistry].[Messages] WHERE [Position] = {position}";
+        command.Parameters.AddWithValue("json", serializeMessage);
+        var executed = await command.ExecuteNonQueryAsync();
+    }
+
+    private void WriteMappingsToOutput(Dictionary<int, int> europeanRoadMappings, Dictionary<int, int> nationalRoadMappings, Dictionary<int, int> numberedRoadMappings)
+    {
+        TestOutputHelper.WriteLine("Europese weg attributen: ");
+        foreach (var mapping in europeanRoadMappings)
+        {
+            TestOutputHelper.WriteLine($"{mapping.Key} -> {mapping.Value}");
+        }
+        TestOutputHelper.WriteLine("");
+        TestOutputHelper.WriteLine("Nationale weg attributen: ");
+        foreach (var mapping in nationalRoadMappings)
+        {
+            TestOutputHelper.WriteLine($"{mapping.Key} -> {mapping.Value}");
+        }
+        TestOutputHelper.WriteLine("");
+        TestOutputHelper.WriteLine("Genummerde weg attributen: ");
+        foreach (var mapping in numberedRoadMappings)
+        {
+            TestOutputHelper.WriteLine($"{mapping.Key} -> {mapping.Value}");
+        }
+        TestOutputHelper.WriteLine("");
+    }
+
+    private async Task<(Dictionary<int, int> europeanRoadMappings, Dictionary<int, int> nationalRoadMappings, Dictionary<int, int> numberedRoadMappings)> GenerateNewIds(string eventsConnectionString, RoadNetworkChangesAccepted message)
+    {
+        var roadNetworkDbIdGenerator = new RoadNetworkDbIdGenerator(new RoadNetworkDbContext(new DbContextOptionsBuilder<RoadNetworkDbContext>()
+            .UseSqlServer(
+                eventsConnectionString,
+                sqlOptions => sqlOptions
+                    .UseNetTopologySuite()
+            )
+            .Options));
+
+        var europeanRoadMappings = new Dictionary<int, int>();
+        var nationalRoadMappings = new Dictionary<int, int>();
+        var numberedRoadMappings = new Dictionary<int, int>();
+
+        // fix attribute_id in event (keep mapping van old->new)
+        foreach (var change in message.Changes.Flatten().OfType<RoadSegmentAddedToEuropeanRoad>())
+        {
+            var newId = await roadNetworkDbIdGenerator.NewEuropeanRoadAttributeId();
+            var oldId = change.AttributeId;
+            europeanRoadMappings.Add(oldId, newId);
+
+            change.AttributeId = newId;
+        }
+
+        foreach (var change in message.Changes.Flatten().OfType<RoadSegmentAddedToNationalRoad>())
+        {
+            var newId = await roadNetworkDbIdGenerator.NewNationalRoadAttributeId();
+            var oldId = change.AttributeId;
+            nationalRoadMappings.Add(oldId, newId);
+
+            change.AttributeId = newId;
+        }
+
+        foreach (var change in message.Changes.Flatten().OfType<RoadSegmentAddedToNumberedRoad>())
+        {
+            var newId = await roadNetworkDbIdGenerator.NewNumberedRoadAttributeId();
+            var oldId = change.AttributeId;
+            numberedRoadMappings.Add(oldId, newId);
+
+            change.AttributeId = newId;
+        }
+
+        return (europeanRoadMappings, nationalRoadMappings, numberedRoadMappings);
+    }
+
+    private static async Task FixIntegrationProjections(string integrationConnectionString, Dictionary<int, int> europeanRoadMappings, Dictionary<int, int> nationalRoadMappings, Dictionary<int, int> numberedRoadMappings)
+    {
+        var dbContext = new IntegrationContext(new DbContextOptionsBuilder<IntegrationContext>()
+            .UseSqlServer(
+                integrationConnectionString,
+                sqlOptions => sqlOptions
+                    .UseNetTopologySuite()
+            )
+            .Options);
+
+        foreach (var mapping in europeanRoadMappings)
+        {
+            var item = await dbContext.RoadSegmentEuropeanRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            item.Id = mapping.Value;
+        }
+
+        foreach (var mapping in nationalRoadMappings)
+        {
+            var item = await dbContext.RoadSegmentNationalRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            item.Id = mapping.Value;
+        }
+
+        foreach (var mapping in numberedRoadMappings)
+        {
+            var item = await dbContext.RoadSegmentNumberedRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            item.Id = mapping.Value;
+        }
+        await dbContext.SaveChangesAsync();
+    }
+
+    private static async Task FixWmsProjections(string wmsConnectionString, Dictionary<int, int> europeanRoadMappings, Dictionary<int, int> nationalRoadMappings, Dictionary<int, int> numberedRoadMappings)
+    {
+        var dbContext = new RoadRegistry.Wms.Schema.WmsContext(new DbContextOptionsBuilder<RoadRegistry.Wms.Schema.WmsContext>()
+            .UseSqlServer(
+                wmsConnectionString,
+                sqlOptions => sqlOptions
+                    .UseNetTopologySuite()
+            )
+            .Options);
+
+        foreach (var mapping in europeanRoadMappings)
+        {
+            var item = await dbContext.RoadSegmentEuropeanRoadAttributes.SingleAsync(x => x.EU_OIDN == mapping.Key);
+            item.EU_OIDN = mapping.Value;
+        }
+
+        foreach (var mapping in nationalRoadMappings)
+        {
+            var item = await dbContext.RoadSegmentNationalRoadAttributes.SingleAsync(x => x.NW_OIDN == mapping.Key);
+            item.NW_OIDN = mapping.Value;
+        }
+
+        //n/a: numberedRoadMappings
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    private static async Task FixEditorProjections(string projectionsConnectionString, Dictionary<int, int> europeanRoadMappings, Dictionary<int, int> nationalRoadMappings, Dictionary<int, int> numberedRoadMappings)
+    {
+        var dbContext = new EditorContext(new DbContextOptionsBuilder<EditorContext>()
+            .UseSqlServer(
+                projectionsConnectionString,
+                sqlOptions => sqlOptions
+                    .UseNetTopologySuite()
+            )
+            .Options);
+
+        var manager = new RecyclableMemoryStreamManager();
+        var encoding = WellKnownEncodings.WindowsAnsi;
+
+        //  fix DBF vanuit lokaal, delete record van old attribute_id, add new met new attribute_id
+        foreach (var mapping in europeanRoadMappings)
+        {
+            var item = await dbContext.RoadSegmentEuropeanRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            item.Id = mapping.Value;
+
+            var dbf = new RoadSegmentEuropeanRoadAttributeDbaseRecord().FromBytes(item.DbaseRecord, manager, encoding);
+            dbf.EU_OIDN.Value = mapping.Value;
+            item.DbaseRecord = dbf.ToBytes(manager, encoding);
+        }
+
+        foreach (var mapping in nationalRoadMappings)
+        {
+            var item = await dbContext.RoadSegmentNationalRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            item.Id = mapping.Value;
+
+            var dbf = new RoadSegmentNationalRoadAttributeDbaseRecord().FromBytes(item.DbaseRecord, manager, encoding);
+            dbf.NW_OIDN.Value = mapping.Value;
+            item.DbaseRecord = dbf.ToBytes(manager, encoding);
+        }
+
+        foreach (var mapping in numberedRoadMappings)
+        {
+            var item = await dbContext.RoadSegmentNumberedRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            item.Id = mapping.Value;
+
+            var dbf = new RoadSegmentNumberedRoadAttributeDbaseRecord().FromBytes(item.DbaseRecord, manager, encoding);
+            dbf.GW_OIDN.Value = mapping.Value;
+            item.DbaseRecord = dbf.ToBytes(manager, encoding);
+        }
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    private static async Task FixProductProjections(string projectionsConnectionString, Dictionary<int, int> europeanRoadMappings, Dictionary<int, int> nationalRoadMappings, Dictionary<int, int> numberedRoadMappings)
+    {
+        var dbContext = new ProductContext(new DbContextOptionsBuilder<ProductContext>()
+            .UseSqlServer(
+                projectionsConnectionString,
+                sqlOptions => sqlOptions
+                    .UseNetTopologySuite()
+            )
+            .Options);
+
+        var manager = new RecyclableMemoryStreamManager();
+        var encoding = WellKnownEncodings.WindowsAnsi;
+
+        //  fix DBF vanuit lokaal, delete record van old attribute_id, add new met new attribute_id
+        foreach (var mapping in europeanRoadMappings)
+        {
+            var item = await dbContext.RoadSegmentEuropeanRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            item.Id = mapping.Value;
+
+            var dbf = new RoadSegmentEuropeanRoadAttributeDbaseRecord().FromBytes(item.DbaseRecord, manager, encoding);
+            dbf.EU_OIDN.Value = mapping.Value;
+            item.DbaseRecord = dbf.ToBytes(manager, encoding);
+        }
+
+        foreach (var mapping in nationalRoadMappings)
+        {
+            var item = await dbContext.RoadSegmentNationalRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            item.Id = mapping.Value;
+
+            var dbf = new RoadSegmentNationalRoadAttributeDbaseRecord().FromBytes(item.DbaseRecord, manager, encoding);
+            dbf.NW_OIDN.Value = mapping.Value;
+            item.DbaseRecord = dbf.ToBytes(manager, encoding);
+        }
+
+        foreach (var mapping in numberedRoadMappings)
+        {
+            var item = await dbContext.RoadSegmentNumberedRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            item.Id = mapping.Value;
+
+            var dbf = new RoadSegmentNumberedRoadAttributeDbaseRecord().FromBytes(item.DbaseRecord, manager, encoding);
+            dbf.GW_OIDN.Value = mapping.Value;
+            item.DbaseRecord = dbf.ToBytes(manager, encoding);
+        }
+
+        await dbContext.SaveChangesAsync();
     }
 
     [Fact(Skip = "Loads a snapshot to your local computer. Useful for debugging purposes")]
