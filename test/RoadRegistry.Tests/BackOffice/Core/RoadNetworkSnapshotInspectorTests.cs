@@ -346,6 +346,8 @@ public class RoadNetworkSnapshotInspectorTests
             var jsonData = reader.GetString(0);
             Assert.NotNull(jsonData);
 
+            await File.WriteAllTextAsync($"message-{environment}-{position}.json",jsonData);
+
             return JsonConvert.DeserializeObject<RoadNetworkChangesAccepted>(jsonData, EventsJsonSerializerSettingsProvider.CreateSerializerSettings());
         }
     }
@@ -678,7 +680,7 @@ public class RoadNetworkSnapshotInspectorTests
             )
             .Options);
 
-        var kafkaProducer = new KafkaProducer(new KafkaProducerOptions(
+        var nationalRoadKafkaProducer = new KafkaProducer(new KafkaProducerOptions(
             Configuration["Kafka:BootstrapServers"],
             Configuration[$"Kafka:SaslUserName-{environment}"],
             Configuration[$"Kafka:SaslPassword-{environment}"],
@@ -716,7 +718,7 @@ public class RoadNetworkSnapshotInspectorTests
 
         async Task Produce(int nationalRoadId, NationalRoadSnapshot snapshot, CancellationToken cancellationToken)
         {
-            var result = await kafkaProducer.Produce(
+            var result = await nationalRoadKafkaProducer.Produce(
                 nationalRoadId.ToString(CultureInfo.InvariantCulture),
                 snapshot,
                 cancellationToken);
