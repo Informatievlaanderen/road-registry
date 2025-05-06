@@ -218,11 +218,11 @@ public class RoadNetworkSnapshotInspectorTests
 
         WriteMappingsToOutput(europeanRoadMappings, nationalRoadMappings, numberedRoadMappings);
 
+        await FixWmsProjections(env, europeanRoadMappings, nationalRoadMappings, numberedRoadMappings);
         await FixEditorProjections(env, europeanRoadMappings, nationalRoadMappings, numberedRoadMappings);
         await FixProductProjections(env, europeanRoadMappings, nationalRoadMappings, numberedRoadMappings);
         await FixProducerProjections(env, europeanRoadMappings, nationalRoadMappings, numberedRoadMappings);
         await FixIntegrationProjections(env, europeanRoadMappings, nationalRoadMappings, numberedRoadMappings);
-        await FixWmsProjections(env, europeanRoadMappings, nationalRoadMappings, numberedRoadMappings);
     }
 
     private void WriteMappingsToOutput(Dictionary<int, int> europeanRoadMappings, Dictionary<int, int> nationalRoadMappings, Dictionary<int, int> numberedRoadMappings)
@@ -262,6 +262,7 @@ public class RoadNetworkSnapshotInspectorTests
         var cachePath = $"mappings-{environment}.json";
         if (File.Exists(cachePath))
         {
+            TestOutputHelper.WriteLine($"Loading mappings from cache: {cachePath}");
             return JsonConvert.DeserializeObject<IdMappings>(await File.ReadAllTextAsync(cachePath));
         }
 
@@ -354,7 +355,7 @@ public class RoadNetworkSnapshotInspectorTests
         var connectionString = GetIntegrationConnectionString(environment);
 
         var dbContext = new IntegrationContext(new DbContextOptionsBuilder<IntegrationContext>()
-            .UseSqlServer(
+            .UseNpgsql(
                 connectionString,
                 sqlOptions => sqlOptions
                     .UseNetTopologySuite()
@@ -363,7 +364,12 @@ public class RoadNetworkSnapshotInspectorTests
 
         foreach (var mapping in europeanRoadMappings)
         {
-            var item = await dbContext.RoadSegmentEuropeanRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            var item = await dbContext.RoadSegmentEuropeanRoadAttributes.SingleOrDefaultAsync(x => x.Id == mapping.Key);
+            if (item is null)
+            {
+                TestOutputHelper.WriteLine($"Integration.european: no record found for {mapping.Key}");
+                continue;
+            }
             dbContext.RoadSegmentEuropeanRoadAttributes.Remove(item);
 
             dbContext.RoadSegmentEuropeanRoadAttributes.Add(new()
@@ -383,7 +389,12 @@ public class RoadNetworkSnapshotInspectorTests
 
         foreach (var mapping in nationalRoadMappings)
         {
-            var item = await dbContext.RoadSegmentNationalRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            var item = await dbContext.RoadSegmentNationalRoadAttributes.SingleOrDefaultAsync(x => x.Id == mapping.Key);
+            if (item is null)
+            {
+                TestOutputHelper.WriteLine($"Integration.national: no record found for {mapping.Key}");
+                continue;
+            }
             dbContext.RoadSegmentNationalRoadAttributes.Remove(item);
 
             dbContext.RoadSegmentNationalRoadAttributes.Add(new()
@@ -403,7 +414,12 @@ public class RoadNetworkSnapshotInspectorTests
 
         foreach (var mapping in numberedRoadMappings)
         {
-            var item = await dbContext.RoadSegmentNumberedRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            var item = await dbContext.RoadSegmentNumberedRoadAttributes.SingleOrDefaultAsync(x => x.Id == mapping.Key);
+            if (item is null)
+            {
+                TestOutputHelper.WriteLine($"Integration.numbered: no record found for {mapping.Key}");
+                continue;
+            }
             dbContext.RoadSegmentNumberedRoadAttributes.Remove(item);
 
             dbContext.RoadSegmentNumberedRoadAttributes.Add(new()
@@ -441,7 +457,12 @@ public class RoadNetworkSnapshotInspectorTests
 
         foreach (var mapping in europeanRoadMappings)
         {
-            var item = await dbContext.RoadSegmentEuropeanRoadAttributes.SingleAsync(x => x.EU_OIDN == mapping.Key);
+            var item = await dbContext.RoadSegmentEuropeanRoadAttributes.SingleOrDefaultAsync(x => x.EU_OIDN == mapping.Key);
+            if (item is null)
+            {
+                TestOutputHelper.WriteLine($"Wms.european: no record found for {mapping.Key}");
+                continue;
+            }
             dbContext.RoadSegmentEuropeanRoadAttributes.Remove(item);
 
             dbContext.RoadSegmentEuropeanRoadAttributes.Add(new()
@@ -457,7 +478,12 @@ public class RoadNetworkSnapshotInspectorTests
 
         foreach (var mapping in nationalRoadMappings)
         {
-            var item = await dbContext.RoadSegmentNationalRoadAttributes.SingleAsync(x => x.NW_OIDN == mapping.Key);
+            var item = await dbContext.RoadSegmentNationalRoadAttributes.SingleOrDefaultAsync(x => x.NW_OIDN == mapping.Key);
+            if (item is null)
+            {
+                TestOutputHelper.WriteLine($"Wms.national: no record found for {mapping.Key}");
+                continue;
+            }
             dbContext.RoadSegmentNationalRoadAttributes.Remove(item);
 
             dbContext.RoadSegmentNationalRoadAttributes.Add(new()
@@ -470,8 +496,6 @@ public class RoadNetworkSnapshotInspectorTests
                 IDENT2 = item.IDENT2
             });
         }
-
-        //n/a: numberedRoadMappings
 
         await dbContext.SaveChangesAsync();
     }
@@ -496,7 +520,12 @@ public class RoadNetworkSnapshotInspectorTests
         //  fix DBF vanuit lokaal, delete record van old attribute_id, add new met new attribute_id
         foreach (var mapping in europeanRoadMappings)
         {
-            var item = await dbContext.RoadSegmentEuropeanRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            var item = await dbContext.RoadSegmentEuropeanRoadAttributes.SingleOrDefaultAsync(x => x.Id == mapping.Key);
+            if (item is null)
+            {
+                TestOutputHelper.WriteLine($"Editor.european: no record found for {mapping.Key}");
+                continue;
+            }
             dbContext.RoadSegmentEuropeanRoadAttributes.Remove(item);
 
             var dbf = new RoadSegmentEuropeanRoadAttributeDbaseRecord().FromBytes(item.DbaseRecord, manager, encoding);
@@ -512,7 +541,12 @@ public class RoadNetworkSnapshotInspectorTests
 
         foreach (var mapping in nationalRoadMappings)
         {
-            var item = await dbContext.RoadSegmentNationalRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            var item = await dbContext.RoadSegmentNationalRoadAttributes.SingleOrDefaultAsync(x => x.Id == mapping.Key);
+            if (item is null)
+            {
+                TestOutputHelper.WriteLine($"Editor.national: no record found for {mapping.Key}");
+                continue;
+            }
             dbContext.RoadSegmentNationalRoadAttributes.Remove(item);
 
             var dbf = new RoadSegmentNationalRoadAttributeDbaseRecord().FromBytes(item.DbaseRecord, manager, encoding);
@@ -528,7 +562,12 @@ public class RoadNetworkSnapshotInspectorTests
 
         foreach (var mapping in numberedRoadMappings)
         {
-            var item = await dbContext.RoadSegmentNumberedRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            var item = await dbContext.RoadSegmentNumberedRoadAttributes.SingleOrDefaultAsync(x => x.Id == mapping.Key);
+            if (item is null)
+            {
+                TestOutputHelper.WriteLine($"Editor.numbered: no record found for {mapping.Key}");
+                continue;
+            }
             dbContext.RoadSegmentNumberedRoadAttributes.Remove(item);
 
             var dbf = new RoadSegmentNumberedRoadAttributeDbaseRecord().FromBytes(item.DbaseRecord, manager, encoding);
@@ -563,7 +602,12 @@ public class RoadNetworkSnapshotInspectorTests
         //  fix DBF vanuit lokaal, delete record van old attribute_id, add new met new attribute_id
         foreach (var mapping in europeanRoadMappings)
         {
-            var item = await dbContext.RoadSegmentEuropeanRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            var item = await dbContext.RoadSegmentEuropeanRoadAttributes.SingleOrDefaultAsync(x => x.Id == mapping.Key);
+            if (item is null)
+            {
+                TestOutputHelper.WriteLine($"Product.european: no record found for {mapping.Key}");
+                continue;
+            }
             dbContext.RoadSegmentEuropeanRoadAttributes.Remove(item);
 
             var dbf = new RoadSegmentEuropeanRoadAttributeDbaseRecord().FromBytes(item.DbaseRecord, manager, encoding);
@@ -579,7 +623,12 @@ public class RoadNetworkSnapshotInspectorTests
 
         foreach (var mapping in nationalRoadMappings)
         {
-            var item = await dbContext.RoadSegmentNationalRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            var item = await dbContext.RoadSegmentNationalRoadAttributes.SingleOrDefaultAsync(x => x.Id == mapping.Key);
+            if (item is null)
+            {
+                TestOutputHelper.WriteLine($"Product.national: no record found for {mapping.Key}");
+                continue;
+            }
             dbContext.RoadSegmentNationalRoadAttributes.Remove(item);
 
             var dbf = new RoadSegmentNationalRoadAttributeDbaseRecord().FromBytes(item.DbaseRecord, manager, encoding);
@@ -595,7 +644,12 @@ public class RoadNetworkSnapshotInspectorTests
 
         foreach (var mapping in numberedRoadMappings)
         {
-            var item = await dbContext.RoadSegmentNumberedRoadAttributes.SingleAsync(x => x.Id == mapping.Key);
+            var item = await dbContext.RoadSegmentNumberedRoadAttributes.SingleOrDefaultAsync(x => x.Id == mapping.Key);
+            if (item is null)
+            {
+                TestOutputHelper.WriteLine($"Product.numbered: no record found for {mapping.Key}");
+                continue;
+            }
             dbContext.RoadSegmentNumberedRoadAttributes.Remove(item);
 
             var dbf = new RoadSegmentNumberedRoadAttributeDbaseRecord().FromBytes(item.DbaseRecord, manager, encoding);
@@ -634,7 +688,12 @@ public class RoadNetworkSnapshotInspectorTests
 
         foreach (var mapping in nationalRoadMappings)
         {
-            var item = await dbContext.NationalRoads.SingleAsync(x => x.Id == mapping.Key);
+            var item = await dbContext.NationalRoads.SingleOrDefaultAsync(x => x.Id == mapping.Key);
+            if (item is null)
+            {
+                TestOutputHelper.WriteLine($"Producer.national: no record found for {mapping.Key}");
+                continue;
+            }
             dbContext.NationalRoads.Remove(item);
 
             dbContext.NationalRoads.Add(new()
@@ -642,7 +701,11 @@ public class RoadNetworkSnapshotInspectorTests
                 Id = mapping.Value,
                 RoadSegmentId = item.RoadSegmentId,
                 Number = item.Number,
-                Origin = item.Origin,
+                Origin = new()
+                {
+                    Timestamp = item.Origin.Timestamp,
+                    Organization = item.Origin.Organization
+                },
                 IsRemoved = item.IsRemoved,
                 LastChangedTimestamp = item.LastChangedTimestamp
             });
