@@ -1,3 +1,10 @@
+# [4.31.0](https://github.com/informatievlaanderen/road-registry/compare/v4.30.2...v4.31.0) (2025-05-07)
+
+
+### Features
+
+* add GRB featuretoggle for extractwriter v2 ([d7544df](https://github.com/informatievlaanderen/road-registry/commit/d7544df1a8bcf220ba205fa6d3d2cf44b2671693))
+
 ## [4.30.2](https://github.com/informatievlaanderen/road-registry/compare/v4.30.1...v4.30.2) (2025-05-05)
 
 
