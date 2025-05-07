@@ -8,7 +8,6 @@ using Core;
 using Editor.Schema;
 using Exceptions;
 using FeatureCompare;
-using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Messages;
@@ -22,7 +21,6 @@ using TicketingService.Abstractions;
 
 public class RoadNetworkExtractEventModule : EventHandlerModule
 {
-    private readonly UseExtractZipArchiveWriterV2FeatureToggle _useExtractZipArchiveWriterV2FeatureToggle;
     private readonly ILifetimeScope _lifetimeScope;
 
     public RoadNetworkExtractEventModule(
@@ -34,11 +32,9 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         ApplicationMetadata applicationMetadata,
         IRoadNetworkEventWriter roadNetworkEventWriter,
         IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
-        UseExtractZipArchiveWriterV2FeatureToggle useExtractZipArchiveWriterV2FeatureToggle,
         ILogger<RoadNetworkExtractEventModule> logger)
     {
         _lifetimeScope = lifetimeScope.ThrowIfNull();
-        _useExtractZipArchiveWriterV2FeatureToggle = useExtractZipArchiveWriterV2FeatureToggle.ThrowIfNull();
 
         ArgumentNullException.ThrowIfNull(downloadsBlobClient);
         ArgumentNullException.ThrowIfNull(uploadsBlobClient);
@@ -158,7 +154,6 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                 TimeSpan.FromSeconds(5)
             ]);
         var blobExists = await policy.ExecuteAsync(() => downloadsBlobClient.BlobExistsAsync(blobName, ct));
-
         if (blobExists)
         {
             await queue.Write(new Command(
@@ -169,9 +164,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                     ArchiveId = archiveId,
                     IsInformative = message.Body.IsInformative,
                     OverlapsWithDownloadIds = overlappingDownloadIds,
-                    ZipArchiveWriterVersion = _useExtractZipArchiveWriterV2FeatureToggle.FeatureEnabled
-                        ? WellKnownZipArchiveWriterVersions.V2
-                        : WellKnownZipArchiveWriterVersions.V1
+                    ZipArchiveWriterVersion = message.Body.ZipArchiveWriterVersion
                 })
                 .WithMessageId(message.MessageId), ct);
         }
@@ -182,7 +175,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                 new DownloadId(message.Body.DownloadId),
                 new ExtractDescription(extractDescription),
                 GeometryTranslator.Translate(message.Body.Contour),
-                message.Body.IsInformative);
+                message.Body.IsInformative,
+                message.Body.ZipArchiveWriterVersion);
 
             try
             {
@@ -206,9 +200,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                             ArchiveId = archiveId,
                             IsInformative = message.Body.IsInformative,
                             OverlapsWithDownloadIds = overlappingDownloadIds,
-                            ZipArchiveWriterVersion = _useExtractZipArchiveWriterV2FeatureToggle.FeatureEnabled
-                                ? WellKnownZipArchiveWriterVersions.V2
-                                : WellKnownZipArchiveWriterVersions.V1
+                            ZipArchiveWriterVersion = message.Body.ZipArchiveWriterVersion
                         })
                     .WithMessageId(message.MessageId), ct);
             }

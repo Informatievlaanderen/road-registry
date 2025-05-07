@@ -179,7 +179,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                         fixture.Create<DownloadId>(),
                         fixture.Create<ExtractDescription>(),
                         transactionZoneGeometry,
-                        isInformative: false);
+                        isInformative: false,
+                        zipArchiveWriterVersion: null);
 
                     await using var stream = manager.GetStream();
                     await using var context = new EditorContext(new DbContextOptionsBuilder<EditorContext>()

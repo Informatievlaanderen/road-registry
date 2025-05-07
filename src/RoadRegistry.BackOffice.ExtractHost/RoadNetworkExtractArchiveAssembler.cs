@@ -17,16 +17,16 @@ public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAsse
 {
     private readonly Func<EditorContext> _contextFactory;
     private readonly RecyclableMemoryStreamManager _manager;
-    private readonly IZipArchiveWriter _writer;
+    private readonly IZipArchiveWriterFactory _writerFactory;
 
     public RoadNetworkExtractArchiveAssembler(
         RecyclableMemoryStreamManager manager,
         Func<EditorContext> contextFactory,
-        IZipArchiveWriter writer)
+        IZipArchiveWriterFactory writerFactory)
     {
-        _manager = manager ?? throw new ArgumentNullException(nameof(manager));
-        _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
-        _writer = writer ?? throw new ArgumentNullException(nameof(writer));
+        _manager = manager.ThrowIfNull();
+        _contextFactory = contextFactory.ThrowIfNull();
+        _writerFactory = writerFactory.ThrowIfNull();
     }
 
     public async Task<MemoryStream> AssembleArchive(RoadNetworkExtractAssemblyRequest request, CancellationToken cancellationToken)
@@ -39,7 +39,8 @@ public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAsse
         await using var tr = await context.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
         using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
-        await _writer.WriteAsync(archive, request, new ZipArchiveDataProvider(context), cancellationToken);
+        var writer = _writerFactory.Create(request.ZipArchiveWriterVersion);
+        await writer.WriteAsync(archive, request, new ZipArchiveDataProvider(context), cancellationToken);
 
         return stream;
     }
