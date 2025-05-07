@@ -35,7 +35,7 @@ public class RoadNetworkExtractToZipArchiveWriterFixture : ZipArchiveWriterFixtu
         _assembler = new RoadNetworkExtractArchiveAssembler(
             memoryStreamManager,
             contextFactory,
-            zipArchiveWriter);
+            new ZipArchiveWriterFactory(zipArchiveWriter, zipArchiveWriter));
     }
 
     public TimeSpan ElapsedTimeSpan { get; private set; }
@@ -46,7 +46,8 @@ public class RoadNetworkExtractToZipArchiveWriterFixture : ZipArchiveWriterFixtu
         new DownloadId(),
         new ExtractDescription("TEST"),
         (IPolygonal)Result.Single(),
-        isInformative: false);
+        isInformative: false,
+        zipArchiveWriterVersion: null);
 
     public Task DisposeAsync()
     {

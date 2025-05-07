@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
 using Abstractions.Extracts;
+using FeatureToggles;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
@@ -8,13 +9,16 @@ using Microsoft.Extensions.Logging;
 public class DownloadExtractByFileRequestHandler : ExtractRequestHandler<DownloadExtractByFileRequest, DownloadExtractByFileResponse>
 {
     private readonly IDownloadExtractByFileRequestItemTranslator _translator;
+    private readonly UseExtractZipArchiveWriterV2FeatureToggle _useExtractZipArchiveWriterV2FeatureToggle;
 
     public DownloadExtractByFileRequestHandler(
         CommandHandlerDispatcher dispatcher,
         IDownloadExtractByFileRequestItemTranslator translator,
+        UseExtractZipArchiveWriterV2FeatureToggle useExtractZipArchiveWriterV2FeatureToggle,
         ILogger<DownloadExtractByContourRequestHandler> logger) : base(dispatcher, logger)
     {
         _translator = translator;
+        _useExtractZipArchiveWriterV2FeatureToggle = useExtractZipArchiveWriterV2FeatureToggle;
     }
 
     protected override async Task<DownloadExtractByFileResponse> HandleRequestAsync(DownloadExtractByFileRequest request, DownloadId downloadId, string randomExternalRequestId, CancellationToken cancellationToken)
@@ -27,7 +31,10 @@ public class DownloadExtractByFileRequestHandler : ExtractRequestHandler<Downloa
             Contour = contour,
             DownloadId = downloadId,
             Description = request.Description,
-            IsInformative = request.IsInformative
+            IsInformative = request.IsInformative,
+            ZipArchiveWriterVersion = _useExtractZipArchiveWriterV2FeatureToggle.FeatureEnabled
+                ? WellKnownZipArchiveWriterVersions.V2
+                : WellKnownZipArchiveWriterVersions.V1
         };
 
         var command = new Command(message).WithProvenanceData(request.ProvenanceData);

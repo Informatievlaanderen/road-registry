@@ -11,4 +11,5 @@ public interface IRoadNetworkExtractGotRequestedMessage : IMessage
     string ExternalRequestId { get; set; }
     string RequestId { get; set; }
     bool IsInformative { get; set; }
+    public string ZipArchiveWriterVersion { get; set; }
 }

@@ -72,7 +72,6 @@ public class GivenRoadNetwork: RoadNetworkTestBase
                 new ApplicationMetadata(RoadRegistryApplication.BackOffice),
                 Mock.Of<IRoadNetworkEventWriter>(),
                 Mock.Of<IExtractUploadFailedEmailClient>(),
-                new UseExtractZipArchiveWriterV2FeatureToggle(true),
                 LoggerFactory.CreateLogger<RoadNetworkExtractEventModule>())
         };
 

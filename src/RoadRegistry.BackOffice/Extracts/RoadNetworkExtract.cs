@@ -120,7 +120,8 @@ public class RoadNetworkExtract : EventSourcedEntity
         DownloadId downloadId,
         ExtractDescription extractDescription,
         IPolygonal contour,
-        bool isInformative)
+        bool isInformative,
+        string zipArchiveWriterVersion)
     {
         var instance = Factory(eventEnricher);
         instance.Apply(new RoadNetworkExtractGotRequestedV2
@@ -130,12 +131,13 @@ public class RoadNetworkExtract : EventSourcedEntity
             ExternalRequestId = externalExtractRequestId,
             DownloadId = downloadId,
             Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(contour),
-            IsInformative = isInformative
+            IsInformative = isInformative,
+            ZipArchiveWriterVersion = zipArchiveWriterVersion
         });
         return instance;
     }
 
-    public void RequestAgain(DownloadId downloadId, IPolygonal contour, bool isInformative)
+    public void RequestAgain(DownloadId downloadId, IPolygonal contour, bool isInformative, string zipArchiveWriterVersion)
     {
         if (!_requestedDownloads.Contains(downloadId))
             Apply(new RoadNetworkExtractGotRequestedV2
@@ -145,7 +147,8 @@ public class RoadNetworkExtract : EventSourcedEntity
                 ExternalRequestId = _externalExtractRequestId,
                 DownloadId = downloadId,
                 Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(contour),
-                IsInformative = isInformative
+                IsInformative = isInformative,
+                ZipArchiveWriterVersion = zipArchiveWriterVersion
             });
     }
 
