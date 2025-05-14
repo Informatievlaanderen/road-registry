@@ -1,3 +1,10 @@
+## [4.31.1](https://github.com/informatievlaanderen/road-registry/compare/v4.31.0...v4.31.1) (2025-05-14)
+
+
+### Bug Fixes
+
+* configure blob directory for azure upload ([cb4a452](https://github.com/informatievlaanderen/road-registry/commit/cb4a45276abc0c82fca6905c6905e4efd0613606))
+
 # [4.31.0](https://github.com/informatievlaanderen/road-registry/compare/v4.30.2...v4.31.0) (2025-05-07)
 
 
