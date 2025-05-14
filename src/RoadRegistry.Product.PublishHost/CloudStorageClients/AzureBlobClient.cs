@@ -45,10 +45,7 @@ namespace RoadRegistry.Product.PublishHost.CloudStorageClients
 
         private string GetBlobName()
         {
-            var isTest = _options.IsTest;
-            var blobName = "Wegenregister.zip";
-
-            return isTest ? $"9449/{blobName}" : $"1373/{blobName}";
+            return $"{_options.BlobDirectory}/Wegenregister.zip";
         }
     }
 }
