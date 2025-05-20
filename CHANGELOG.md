@@ -1,3 +1,10 @@
+## [4.31.2](https://github.com/informatievlaanderen/road-registry/compare/v4.31.1...v4.31.2) (2025-05-20)
+
+
+### Bug Fixes
+
+* typo in RoadSegmentCategory ([3ae0c11](https://github.com/informatievlaanderen/road-registry/commit/3ae0c119c1ec953c3a3a283b7876d8f1ee9dd616))
+
 ## [4.31.1](https://github.com/informatievlaanderen/road-registry/compare/v4.31.0...v4.31.1) (2025-05-14)
 
 
