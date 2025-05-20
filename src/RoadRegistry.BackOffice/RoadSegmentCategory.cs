@@ -214,8 +214,8 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
             nameof(LocalAccessRoad),
             new DutchTranslation(
                 "OW",
-                "lokale onstsluitingsweg",
-                "Lokale onstsluitingsweg"
+                "lokale ontsluitingsweg",
+                "Lokale ontsluitingsweg"
             )
         );
 
