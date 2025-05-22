@@ -6,20 +6,18 @@ using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Editor.Schema;
 using Infrastructure;
-using Infrastructure.Containers;
 using MediatR;
 using RoadRegistry.Tests.BackOffice;
 using SqlStreamStore;
 
-[Collection(nameof(SqlServerCollection))]
 public partial class GrbControllerTests : ControllerTests<GrbController>, IAsyncLifetime
 {
     private readonly Fixture _fixture;
-    private readonly SqlServer _sqlServerFixture;
+    private readonly DbContextBuilder _dbContextBuilderFixture;
     private EditorContext _editorContext;
 
     public GrbControllerTests(
-        SqlServer sqlServerFixture,
+        DbContextBuilder dbContextBuilderFixture,
         GrbController controller,
         IMediator mediator,
         IStreamStore streamStore,
@@ -27,7 +25,7 @@ public partial class GrbControllerTests : ControllerTests<GrbController>, IAsync
         RoadNetworkExtractUploadsBlobClient extractUploadClient)
         : base(controller, mediator, streamStore, uploadClient, extractUploadClient)
     {
-        _sqlServerFixture = sqlServerFixture.ThrowIfNull();
+        _dbContextBuilderFixture = dbContextBuilderFixture.ThrowIfNull();
         _fixture = new Fixture();
         _fixture.CustomizeExternalExtractRequestId();
         _fixture.CustomizeRoadNetworkExtractGeometry();
@@ -41,6 +39,6 @@ public partial class GrbControllerTests : ControllerTests<GrbController>, IAsync
 
     public async Task InitializeAsync()
     {
-        _editorContext = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
+        _editorContext = _dbContextBuilderFixture.CreateEditorContext();
     }
 }

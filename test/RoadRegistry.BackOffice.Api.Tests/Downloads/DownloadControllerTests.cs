@@ -9,22 +9,20 @@ using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Infrastructure;
-using Infrastructure.Containers;
 using MediatR;
 using Product.Schema;
 using RoadRegistry.Tests.Framework.Containers;
 using SqlStreamStore;
 
-[Collection(nameof(SqlServerCollection))]
 public partial class DownloadControllerTests : ControllerTests<DownloadController>
 {
     private readonly EditorContext _editorContext;
-    private readonly SqlServer _fixture;
+    private readonly DbContextBuilder _fixture;
     private readonly ProductContext _productContext;
     private readonly CancellationTokenSource _tokenSource;
 
     public DownloadControllerTests(
-        SqlServer fixture,
+        DbContextBuilder fixture,
         DownloadController controller,
         EditorContext editorContext,
         ProductContext productContext,

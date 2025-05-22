@@ -1,13 +1,10 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Infrastructure;
 
-using System;
-using System.Threading.Tasks;
-using Containers;
+using Editor.Schema;
 using Editor.Schema.RoadNetworkChanges;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 
 public abstract class ControllerMinimalTests<TController> where TController : ControllerBase
 {
@@ -21,13 +18,12 @@ public abstract class ControllerMinimalTests<TController> where TController : Co
     protected TController Controller { get; }
     protected IMediator Mediator { get; }
 
-    protected async Task<SqlConnectionStringBuilder> ApplyChangeCollectionIntoContext(SqlServer fixture, Func<ArchiveId, RoadNetworkChange[]> changeCallback)
+    protected async Task<EditorContext> ApplyChangeCollectionIntoContext(DbContextBuilder fixture, Func<ArchiveId, RoadNetworkChange[]> changeCallback)
     {
-        var database = await fixture.CreateDatabaseAsync();
         var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
         var changeCollection = changeCallback(archiveId);
 
-        await using var context = await fixture.CreateEmptyEditorContextAsync(database);
+        var context = fixture.CreateEditorContext();
 
         foreach (var @event in changeCollection)
         {
@@ -36,6 +32,6 @@ public abstract class ControllerMinimalTests<TController> where TController : Co
 
         await context.SaveChangesAsync();
 
-        return database;
+        return context;
     }
 }

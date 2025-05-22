@@ -1,25 +1,20 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
 using Api.Extracts;
-using AutoFixture;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Editor.Schema;
 using Infrastructure;
-using Infrastructure.Containers;
 using MediatR;
-using RoadRegistry.Tests.BackOffice;
 using SqlStreamStore;
 
-[Collection(nameof(SqlServerCollection))]
 public partial class ExtractsControllerTests : ControllerTests<ExtractsController>, IAsyncLifetime
 {
-    private readonly Fixture _fixture;
-    private readonly SqlServer _sqlServerFixture;
+    private readonly DbContextBuilder _dbContextBuilderFixture;
     private EditorContext _editorContext;
 
     public ExtractsControllerTests(
-        SqlServer sqlServerFixture,
+        DbContextBuilder dbContextBuilderFixture,
         ExtractsController controller,
         IMediator mediator,
         IStreamStore streamStore,
@@ -27,11 +22,7 @@ public partial class ExtractsControllerTests : ControllerTests<ExtractsControlle
         RoadNetworkExtractUploadsBlobClient extractUploadClient)
         : base(controller, mediator, streamStore, uploadClient, extractUploadClient)
     {
-        _sqlServerFixture = sqlServerFixture.ThrowIfNull();
-        _fixture = new Fixture();
-        _fixture.CustomizeExternalExtractRequestId();
-        _fixture.CustomizeRoadNetworkExtractGeometry();
-        _fixture.CustomizeMultiPolygon();
+        _dbContextBuilderFixture = dbContextBuilderFixture.ThrowIfNull();
     }
 
     public async Task DisposeAsync()
@@ -41,6 +32,6 @@ public partial class ExtractsControllerTests : ControllerTests<ExtractsControlle
 
     public async Task InitializeAsync()
     {
-        _editorContext = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
+        _editorContext = _dbContextBuilderFixture.CreateEditorContext();
     }
 }
