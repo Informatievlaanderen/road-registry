@@ -412,7 +412,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: dotnet-version:
+        dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
         cache: true
         cache-dependency-path: "**/packages.lock.json"
 
