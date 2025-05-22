@@ -22,7 +22,7 @@
     <PackageReference Include="AWSSDK.Core" />
     <PackageReference Include="Azure.Storage.Blobs" />
     <PackageReference Include="DataDog.Trace.Bundle" />
-    <PackageReference Include="IdentityModel" />
+    <PackageReference Include="Duende.IdentityModel" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Serilog.Enrichers.Environment" />

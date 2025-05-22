@@ -58,10 +58,10 @@
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Legacy" Version="22.0.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.GrAr.Provenance" Version="22.0.0" />
 
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple" Version="6.0.2" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer" Version="6.0.2" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer" Version="6.0.2" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Producer" Version="6.0.2" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple" Version="6.0.3" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer" Version="6.0.3" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer" Version="6.0.3" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Producer" Version="6.0.3" />
 
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector" Version="15.0.1" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing" Version="15.0.1" />
@@ -88,7 +88,7 @@
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
     <PackageVersion Include="FluentAssertions" Version="[7.1.0,8.0.0)" />
-    <PackageVersion Include="IdentityModel" Version="6.2.0" />
+    <PackageVersion Include="Duende.IdentityModel" Version="7.0.0" />
     <PackageVersion Include="MediatR" Version="12.5.0" />
     <PackageVersion Include="MediatR.Contracts" Version="2.0.1" />
     <PackageVersion Include="MessagePack" Version="2.5.192" />
