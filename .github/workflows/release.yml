@@ -68,7 +68,7 @@ jobs:
 
   build-backoffice-api:
     name: Build BackOffice Api    
-    uses: ./.github/workflows/build-image-sql.yml
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -97,7 +97,7 @@ jobs:
 
   build-backoffice-eventhost:
     name: Build BackOffice Event Host
-    uses: ./.github/workflows/build-image-sql.yml
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -129,7 +129,7 @@ jobs:
 
   build-backoffice-commandhost:
     name: Build BackOffice Command Host
-    uses: ./.github/workflows/build-image-sql.yml
+    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image-v2.yml@main
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
