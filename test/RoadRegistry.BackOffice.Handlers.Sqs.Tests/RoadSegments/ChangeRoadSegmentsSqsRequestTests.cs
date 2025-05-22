@@ -46,6 +46,7 @@ public class ChangeRoadSegmentsSqsRequestTests
 
         return new ChangeRoadSegmentsDynamicAttributesSqsRequest
         {
+            ProvenanceData = new RoadRegistryProvenanceData(),
             Request = new ChangeRoadSegmentsDynamicAttributesRequest
             {
                 ChangeRequests = new ChangeRoadSegmentDynamicAttributesRequest[]

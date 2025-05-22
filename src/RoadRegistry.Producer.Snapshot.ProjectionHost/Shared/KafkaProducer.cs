@@ -1,29 +1,31 @@
-namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Projections
+namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Shared
 {
+    using System.Globalization;
     using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts;
-    using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
-    using Newtonsoft.Json;
+    using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
+    using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Producer;
 
     public class KafkaProducer : IKafkaProducer
     {
-        private readonly KafkaProducerOptions _kafkaProducerOptions;
+        private readonly IProducer _producer;
 
-        public KafkaProducer(KafkaProducerOptions kafkaProducerOptions)
+        public KafkaProducer(ProducerOptions producerOptions)
         {
-            _kafkaProducerOptions = kafkaProducerOptions;
+            _producer = new Producer(producerOptions);
         }
 
-        public async Task<Result> Produce<T>(string key, T message, CancellationToken cancellationToken) where T : class, IQueueMessage
+        public Task<Result> Produce<T>(int objectId, T message, CancellationToken cancellationToken)
+            where T : class, IQueueMessage
         {
-            var kafkaMessage = new
-            {
-                Type = message.GetType().FullName!,
-                Data = message
-            };
-            var kafkaJsonMessage = JsonConvert.SerializeObject(kafkaMessage, Formatting.Indented, _kafkaProducerOptions.JsonSerializerSettings);
-            return await Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple.KafkaProducer.Produce(_kafkaProducerOptions, key, kafkaJsonMessage, cancellationToken);
+            var key = objectId.ToString(CultureInfo.InvariantCulture);
+
+            return _producer.ProduceJsonMessage(
+                new MessageKey(key),
+                message,
+                [],
+                cancellationToken);
         }
     }
 }

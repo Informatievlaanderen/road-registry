@@ -21,6 +21,7 @@ using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Behaviors;
 using Configuration;
+using Controllers;
 using Controllers.Attributes;
 using Core;
 using Editor.Schema;
@@ -87,7 +88,6 @@ public class Startup
         if (environment.IsDevelopment())
         {
             serviceProvider.CreateMissingBucketsAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
-            serviceProvider.CreateMissingQueuesAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         app
@@ -171,8 +171,8 @@ public class Startup
                         .GetChildren()
                         .Select(c => c.Value)
                         .ToArray(),
-                    Headers = new[] { ApiKeyAuthenticationHandler.ApiKeyHeaderName },
-                    ExposedHeaders = new[] { "Retry-After" }
+                    Headers = [ApiKeyAuthenticationHandler.ApiKeyHeaderName],
+                    ExposedHeaders = ["Retry-After"]
                 },
                 Server =
                 {
@@ -193,7 +193,7 @@ public class Startup
                         }
                     },
 
-                    XmlCommentPaths = new[] { typeof(Startup).GetTypeInfo().Assembly.GetName().Name },
+                    XmlCommentPaths = [typeof(Startup).GetTypeInfo().Assembly.GetName().Name],
                     MiddlewareHooks =
                     {
                         AfterSwaggerGen = options =>
@@ -227,7 +227,7 @@ public class Startup
                 }
             })
             .AddAcmIdmAuthorizationHandlers()
-            .AddSingleton(new AmazonDynamoDBClient(RegionEndpoint.EUWest1))
+            .AddSingleton(_ => new AmazonDynamoDBClient(RegionEndpoint.EUWest1))
             .AddSingleton(FileEncoding.WindowsAnsi)
             .AddStreetNameCache()
             .AddFeatureCompare()
@@ -252,9 +252,8 @@ public class Startup
             .AddScoped(_ => new EventSourcedEntityMap())
             .AddEmailClient()
             .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
-                new CommandHandlerModule[]
-                {
-                    new RoadNetworkChangesArchiveCommandModule(sp.GetService<RoadNetworkUploadsBlobClient>(),
+            [
+                new RoadNetworkChangesArchiveCommandModule(sp.GetService<RoadNetworkUploadsBlobClient>(),
                         sp.GetService<IStreamStore>(),
                         sp.GetService<ILifetimeScope>(),
                         sp.GetService<IRoadNetworkSnapshotReader>(),
@@ -281,7 +280,7 @@ public class Startup
                         sp.GetService<IClock>(),
                         sp.GetService<ILoggerFactory>()
                     )
-                })))
+            ])))
             .AddDbContextFactory<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
@@ -319,6 +318,7 @@ public class Startup
             .AddOrganizationCommandQueue()
             .AddSingleton(apiOptions)
             .Configure<ResponseOptions>(_configuration)
+            .AddScoped<BackofficeApiControllerContext>()
 
             .AddSystemHealthChecks([
                 typeof(CommandHostSystemHealthCheck),

@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Changes;
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Api.Changes;
 using Editor.Schema.RoadNetworkChanges;
 using FluentAssertions;
@@ -53,7 +55,7 @@ public partial class ChangeFeedControllerTests
                 Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveAcceptedEntry
                 {
                     Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = "file.zip" },
-                    Files = Array.Empty<FileProblems>()
+                    Files = []
                 }),
                 When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
             },
@@ -65,7 +67,7 @@ public partial class ChangeFeedControllerTests
                 Content = JsonConvert.SerializeObject(new RoadNetworkChangesBasedOnArchiveAcceptedEntry
                 {
                     Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = "file.zip" },
-                    Changes = Array.Empty<AcceptedChange>()
+                    Changes = []
                 }),
                 When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
             },
@@ -77,7 +79,7 @@ public partial class ChangeFeedControllerTests
                 Content = JsonConvert.SerializeObject(new RoadNetworkChangesBasedOnArchiveRejectedEntry
                 {
                     Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = "file.zip" },
-                    Changes = Array.Empty<RejectedChange>()
+                    Changes = []
                 }),
                 When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
             },

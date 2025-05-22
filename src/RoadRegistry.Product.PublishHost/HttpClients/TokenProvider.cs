@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Authentication;
 using System.Threading.Tasks;
-using IdentityModel;
-using IdentityModel.Client;
+using Duende.IdentityModel;
+using Duende.IdentityModel.Client;
 using Infrastructure.Configurations;
 using Microsoft.Extensions.Options;
 

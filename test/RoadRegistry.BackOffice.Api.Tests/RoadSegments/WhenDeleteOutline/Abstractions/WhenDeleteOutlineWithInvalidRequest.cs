@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenDeleteOutline.Abstractions;
 
+using System.Collections.Generic;
+using System.Linq;
 using Extensions;
 using Fixtures;
 using FluentValidation;

@@ -6,7 +6,6 @@ namespace RoadRegistry.Tests.BackOffice
     using System.Linq;
     using System.Text;
     using AutoFixture;
-    using Editor.Projections;
     using Editor.Schema.Extensions;
     using Microsoft.IO;
     using NetTopologySuite.Geometries;

@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Models;
 using System;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
 
 public class StreetNameEventProjectionContext : RunnerDbContext<StreetNameEventProjectionContext>
 {
@@ -40,6 +41,13 @@ public class StreetNameEventProjectionContext : RunnerDbContext<StreetNameEventP
                     .EnableRetryOnFailure()
                     .MigrationsHistoryTable(MigrationTables.StreetNameEvent, WellKnownSchemas.StreetNameEventSchema));
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        //base.OnModelCreating(modelBuilder); DO NOT trigger base => Does assembly scan!
+        modelBuilder.ApplyConfiguration(new ProjectionStatesConfiguration(ProjectionStateSchema));
+        modelBuilder.ApplyConfiguration(new RenamedStreetNameRecordEntityTypeConfiguration());
+    }
 }
 
 public class StreetNameEventProjectionContextMigrationFactory : DbContextMigratorFactory<StreetNameEventProjectionContext>
@@ -52,7 +60,7 @@ public class StreetNameEventProjectionContextMigrationFactory : DbContextMigrato
         })
     {
     }
-    
+
     protected override StreetNameEventProjectionContext CreateContext(DbContextOptions<StreetNameEventProjectionContext> migrationContextOptions)
     {
         return new StreetNameEventProjectionContext(migrationContextOptions);

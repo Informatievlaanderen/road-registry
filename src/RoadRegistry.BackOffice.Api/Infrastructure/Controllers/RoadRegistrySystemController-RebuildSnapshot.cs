@@ -32,6 +32,7 @@ public partial class RoadRegistrySystemController
 
         var result = await Mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest
         {
+            ProvenanceData = CreateProvenanceData(),
             Request = new RebuildRoadNetworkSnapshotRequest
             {
                 MaxStreamVersion = parameters.MaxStreamVersion

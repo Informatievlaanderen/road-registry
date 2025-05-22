@@ -1,31 +1,42 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
-	<Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.App.props" />
-
-	<PropertyGroup>
-		<RootNamespace>RoadRegistry.Product.PublishHost</RootNamespace>
-		<AssemblyName>RoadRegistry.Product.PublishHost</AssemblyName>
-		<ServerGarbageCollection>true</ServerGarbageCollection>
-		<Nullable>enable</Nullable>
-		<Platforms>AnyCPU;x64;x86</Platforms>
-		<NoWarn>CS8618</NoWarn>
-		<EnableDefaultContentItems>false</EnableDefaultContentItems>
-		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
-		<ProjectReference Include="..\RoadRegistry.BackOffice.Handlers\RoadRegistry.BackOffice.Handlers.csproj" />
-		<ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
-		<ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
-		<ProjectReference Include="..\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Content Include="Dockerfile" CopyToOutputDirectory="Always" />
-		<Content Include="init.sh" CopyToOutputDirectory="Always" />
-		<Content Include="appsettings.json" CopyToOutputDirectory="Always" />
-		<Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
-	</ItemGroup>
-
-	<Import Project="..\..\.paket\Paket.Restore.targets" />
+  <Import Project="..\..\.build\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.App.props" />
+  <PropertyGroup>
+    <RootNamespace>RoadRegistry.Product.PublishHost</RootNamespace>
+    <AssemblyName>RoadRegistry.Product.PublishHost</AssemblyName>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <Nullable>enable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+    <NoWarn>CS8618</NoWarn>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
+    <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers\RoadRegistry.BackOffice.Handlers.csproj" />
+    <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" />
+    <PackageReference Include="AWSSDK.Core" />
+    <PackageReference Include="Azure.Storage.Blobs" />
+    <PackageReference Include="DataDog.Trace.Bundle" />
+    <PackageReference Include="Duende.IdentityModel" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Serilog.Enrichers.Environment" />
+    <PackageReference Include="Serilog.Enrichers.Thread" />
+    <PackageReference Include="Serilog.Settings.Configuration" />
+    <PackageReference Include="Serilog.Sinks.Console" />
+    <PackageReference Include="Serilog.Sinks.Slack" />
+    <PackageReference Include="SqlStreamStore.MsSql" />
+    <PackageReference Include="System.Threading.Channels" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Dockerfile" CopyToOutputDirectory="Always" />
+    <Content Include="init.sh" CopyToOutputDirectory="Always" />
+    <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
+    <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
+  </ItemGroup>
 </Project>

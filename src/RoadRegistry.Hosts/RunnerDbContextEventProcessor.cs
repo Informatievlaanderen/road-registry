@@ -289,7 +289,7 @@ public abstract class RunnerDbContextEventProcessor<TDbContext> : RoadRegistryHo
                                         }
                                     },
                                     prefetchJsonData: false,
-                                    name: "RoadRegistry.Product.ProjectionHost.EventProcessor");
+                                    name: GetType().FullName);
 
                                 break;
 

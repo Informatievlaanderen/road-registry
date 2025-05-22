@@ -1,6 +1,5 @@
 namespace RoadRegistry.Wfs.ProjectionHost.Tests.Projections.Framework;
 
-using Be.Vlaanderen.Basisregisters.EventHandling;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Newtonsoft.Json;
@@ -11,8 +10,7 @@ public class TestDataHelper
     {
         return new SqlServerBytesReader
         {
-            HandleOrdinates = Ordinates.AllOrdinates,
-            HandleSRID = true
+            HandleOrdinates = Ordinates.AllOrdinates
         };
     }
 

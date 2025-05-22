@@ -13,6 +13,7 @@ using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 using TicketingService.Abstractions;
+using ETag = Be.Vlaanderen.Basisregisters.Api.ETag.ETag;
 
 public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambdaHandler<TSqsLambdaRequest>
     where TSqsLambdaRequest : SqsLambdaRequest

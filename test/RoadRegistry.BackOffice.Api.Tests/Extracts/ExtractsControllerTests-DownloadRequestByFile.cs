@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Abstractions.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;

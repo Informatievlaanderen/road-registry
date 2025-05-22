@@ -1,42 +1,64 @@
-<?xml version="1.0" encoding="utf-8"?>
-
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Test.props" />
-
+  <Import Project="..\..\.build\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Test.props" />
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>RoadRegistry.Tests</RootNamespace>
-    <DefaultNamespace>RoadRegistry.Tests</DefaultNamespace>
     <Nullable>disable</Nullable>
-    <Platforms>AnyCPU;x64;x86</Platforms>
-    <NoWarn>CS0618;1822</NoWarn>
-	  <EnableDefaultContentItems>false</EnableDefaultContentItems>
-	  <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    <NoWarn>CS0618;1822;CS8632</NoWarn>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
-    <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
-  </ItemGroup>
-
-  <ItemGroup>
-	  <Using Include="Xunit" />
-	  <Using Include="Xunit.Abstractions" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Api\RoadRegistry.BackOffice.Api.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Handlers.Sqs\RoadRegistry.BackOffice.Handlers.Sqs.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Editor.Projections\RoadRegistry.Editor.Projections.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Integration.Schema\RoadRegistry.Integration.Schema.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Jobs\RoadRegistry.Jobs.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Producer.Snapshot.ProjectionHost\RoadRegistry.Producer.Snapshot.ProjectionHost.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Wfs.Schema\RoadRegistry.Wfs.Schema.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Wms.Schema\RoadRegistry.Wms.Schema.csproj" />
   </ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.AggregateSource.Testing.CommandHandling" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.AggregateSource.Testing" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofac" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.AggregateSource.Testing.Xunit" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.TicketingService.Abstractions" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" />
+    <PackageReference Include="AutoFixture.Idioms" />
+    <PackageReference Include="AutoFixture.Xunit2" />
+    <PackageReference Include="CompareNETObjects" />
+    <PackageReference Include="Docker.DotNet" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" />
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="NetTopologySuite.IO.GeoJSON" />
+    <PackageReference Include="NodaTime.Testing" />
+    <PackageReference Include="SqlStreamStore.MsSql" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.categories" />
+    <PackageReference Include="Xunit.DependencyInjection.Logging" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="Xunit.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
+    <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
+  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="BackOffice\ident2.txt" />
     <EmbeddedResource Include="BackOffice\ident8.txt" />
@@ -44,10 +66,7 @@
     <EmbeddedResource Include="s3-bucket-tester.zip" />
     <EmbeddedResource Include="Resources\**\*" />
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="TestResults\" />
   </ItemGroup>
-
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

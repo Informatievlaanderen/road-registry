@@ -20,8 +20,8 @@ public class SyndicationController : DefaultProjectionsController
     }
 
     [HttpGet]
-    public async Task<IActionResult> ListSyndicationProjections()
+    public Task<IActionResult> ListSyndicationProjections()
     {
-        return Ok(Array.Empty<object>());
+        return Task.FromResult<IActionResult>(Ok(Array.Empty<object>()));
     }
 }

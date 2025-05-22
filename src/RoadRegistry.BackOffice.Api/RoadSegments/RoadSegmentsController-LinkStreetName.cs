@@ -21,6 +21,7 @@ using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 
 public partial class RoadSegmentsController
 {
@@ -84,7 +85,11 @@ public partial class RoadSegmentsController
             var request = new LinkStreetNameRequest(id, roadSegment.GeometryDrawMethod, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
             await validator.ValidateAndThrowAsync(request, cancellationToken);
 
-            var result = await _mediator.Send(new LinkStreetNameSqsRequest { Request = request }, cancellationToken);
+            var result = await _mediator.Send(new LinkStreetNameSqsRequest
+            {
+                ProvenanceData = CreateProvenanceData(Modification.Update),
+                Request = request
+            }, cancellationToken);
 
             return Accepted(result);
         }

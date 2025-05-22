@@ -1,5 +1,6 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Requests;
 
+using BackOffice;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using RoadRegistry.Snapshot.Handlers.Sqs.Infrastructure;
 
@@ -10,7 +11,7 @@ public sealed record SnapshotLambdaHealthCheckSqsLambdaRequest : SqsLambdaReques
             groupId,
             sqsRequest.TicketId,
             sqsRequest.IfMatchHeaderValue,
-            default,
+            new RoadRegistryProvenanceData().ToProvenance(),
             sqsRequest.Metadata)
     {
         Request = sqsRequest;

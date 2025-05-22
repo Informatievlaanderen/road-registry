@@ -26,46 +26,45 @@ public static class ServiceCollectionExtensions
                 new MsSqlStreamStoreV3(
                     new MsSqlStreamStoreV3Settings(
                         sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.Events))
-                    {
-                        Schema = WellKnownSchemas.EventSchema
-                    }));
+                        {
+                            Schema = WellKnownSchemas.EventSchema
+                        }));
     }
 
     public static IServiceCollection AddEditorContext(this IServiceCollection services)
     {
         return services
-                .AddSingleton<Func<EditorContext>>(sp =>
-                    {
-                        var configuration = sp.GetRequiredService<IConfiguration>();
-                        var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
-                        var connectionString = configuration.GetRequiredConnectionString(WellKnownConnectionNames.EditorProjections);
+            .AddSingleton<Func<EditorContext>>(sp =>
+                {
+                    var configuration = sp.GetRequiredService<IConfiguration>();
+                    var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
+                    var connectionString = configuration.GetRequiredConnectionString(WellKnownConnectionNames.EditorProjections);
 
-                        return () =>
-                            new EditorContext(
-                                new DbContextOptionsBuilder<EditorContext>()
-                                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                                    .UseLoggerFactory(loggerFactory)
-                                    .UseSqlServer(connectionString, options =>
-                                        options
-                                            .UseNetTopologySuite()
-                                    ).Options);
-                    }
-                )
-                .AddDbContext<EditorContext>((sp, options) => options
-                    .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                    .UseSqlServer(
-                        sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.EditorProjections),
-                        sqlOptions => sqlOptions
-                            .UseNetTopologySuite())
-                )
-            ;
+                    return () =>
+                        new EditorContext(
+                            new DbContextOptionsBuilder<EditorContext>()
+                                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                                .UseLoggerFactory(loggerFactory)
+                                .UseSqlServer(connectionString, options =>
+                                    options
+                                        .UseNetTopologySuite()
+                                ).Options);
+                }
+            )
+            .AddDbContext<EditorContext>((sp, options) => options
+                .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                .UseSqlServer(
+                    sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.EditorProjections),
+                    sqlOptions => sqlOptions
+                        .UseNetTopologySuite())
+            );
     }
 
     public static IServiceCollection AddDistributedStreamStoreLockOptions(this IServiceCollection services)
     {
         services.AddSingleton<DistributedStreamStoreLockOptionsValidator>();
-        
+
         return services.AddSingleton(sp =>
         {
             var configuration = sp.GetRequiredService<IConfiguration>();

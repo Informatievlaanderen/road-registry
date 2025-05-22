@@ -12,31 +12,32 @@ public class FakeStreetNameCache : IStreetNameCache
         var result = await GetAsync(streetNameIds, cancellationToken);
         return result.ToDictionary(x => x.Id, x => x.Name);
     }
-    
+
     public async Task<StreetNameCacheItem> GetAsync(int streetNameId, CancellationToken cancellationToken)
     {
-        var result = await GetAsync(new[] { streetNameId }, cancellationToken);
+        var result = await GetAsync([streetNameId], cancellationToken);
         return result.SingleOrDefault();
     }
 
-    public async Task<ICollection<StreetNameCacheItem>> GetAsync(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
+    public Task<ICollection<StreetNameCacheItem>> GetAsync(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
     {
-        return streetNameIds
-            .Distinct()
-            .Where(_cache.ContainsKey)
-            .Select(streetNameId =>
-            {
-                var streetName = _cache[streetNameId];
-
-                return new StreetNameCacheItem
+        return Task.FromResult<ICollection<StreetNameCacheItem>>(
+            streetNameIds
+                .Distinct()
+                .Where(_cache.ContainsKey)
+                .Select(streetNameId =>
                 {
-                    Id = streetNameId,
-                    Name = streetName.Name,
-                    Status = streetName.Status,
-                    IsRemoved = streetName.IsRemoved
-                };
-            })
-            .ToList();
+                    var streetName = _cache[streetNameId];
+
+                    return new StreetNameCacheItem
+                    {
+                        Id = streetNameId,
+                        Name = streetName.Name,
+                        Status = streetName.Status,
+                        IsRemoved = streetName.IsRemoved
+                    };
+                })
+                .ToList());
     }
 
     public Task<Dictionary<int, int>> GetRenamedIdsAsync(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)

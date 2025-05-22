@@ -66,7 +66,6 @@ public class RoadRegistryHost<T>
             if (environment.IsDevelopment())
             {
                 await _host.Services.CreateMissingBucketsAsync(CancellationToken.None).ConfigureAwait(false);
-                await _host.Services.CreateMissingQueuesAsync(CancellationToken.None).ConfigureAwait(false);
             }
 
             using (var scope = _host.Services.CreateScope())

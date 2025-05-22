@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
+using System.Collections.Generic;
+using System.Linq;
 using Abstractions.Extracts;
 using FluentAssertions;
 using FluentValidation;
@@ -23,8 +25,8 @@ public class DownloadExtractByContourRequestValidatorTests
 
     public static IEnumerable<object[]> InvalidDescriptionCases()
     {
-        yield return new object[] { null };
-        yield return new object[] { new string(Enumerable.Repeat('a', ExtractDescription.MaxLength + 1).ToArray()) };
+        yield return [null];
+        yield return [new string(Enumerable.Repeat('a', ExtractDescription.MaxLength + 1).ToArray())];
     }
 
     [Theory]

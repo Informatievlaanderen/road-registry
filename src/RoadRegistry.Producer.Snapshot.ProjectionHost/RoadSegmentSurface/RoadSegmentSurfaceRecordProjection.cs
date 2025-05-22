@@ -7,13 +7,12 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Extensions;
     using Microsoft.EntityFrameworkCore;
-    using Projections;
     using System;
-    using System.Globalization;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using BackOffice.Extensions;
+    using Shared;
 
     public class RoadSegmentSurfaceRecordProjection : ConnectedProjection<RoadSegmentSurfaceProducerSnapshotContext>
     {
@@ -294,7 +293,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
         private async Task Produce(int roadSegmentSurfaceId, RoadSegmentSurfaceSnapshot snapshot, CancellationToken cancellationToken)
         {
             var result = await _kafkaProducer.Produce(
-                roadSegmentSurfaceId.ToString(CultureInfo.InvariantCulture),
+                roadSegmentSurfaceId,
                 snapshot,
                 cancellationToken);
 

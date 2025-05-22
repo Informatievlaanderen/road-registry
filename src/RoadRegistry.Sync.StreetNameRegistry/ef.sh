@@ -1,1 +1,1 @@
-dotnet ef --startup-project ../RoadRegistry.SyncHost "$@"
+dotnet ef --startup-project ../EF.MigrationsHelper "$@"

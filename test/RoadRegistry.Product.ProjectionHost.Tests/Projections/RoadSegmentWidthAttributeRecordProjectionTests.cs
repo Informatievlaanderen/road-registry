@@ -488,7 +488,7 @@ public class RoadSegmentWidthAttributeRecordProjectionTests : IClassFixture<Proj
         {
             var segment = change.RoadSegmentAttributesModified;
 
-            return segment.Widths.Select(width => (object)new RoadSegmentWidthAttributeRecord
+            return segment.Widths?.Select(width => (object)new RoadSegmentWidthAttributeRecord
             {
                 Id = width.AttributeId,
                 RoadSegmentId = segment.Id,
@@ -503,7 +503,7 @@ public class RoadSegmentWidthAttributeRecordProjectionTests : IClassFixture<Proj
                     BEGINORG = { Value = acceptedRoadSegmentModified.OrganizationId },
                     LBLBGNORG = { Value = acceptedRoadSegmentModified.Organization }
                 }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
-            });
+            }) ?? [];
         }).SelectMany(x => x);
 
         return new RoadSegmentWidthAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)

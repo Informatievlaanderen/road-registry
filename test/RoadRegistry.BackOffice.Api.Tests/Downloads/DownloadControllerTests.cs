@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Downloads;
 
+using System;
+using System.Threading;
 using Api.Downloads;
 using BackOffice.Extracts;
 using BackOffice.Extracts.Dbase.Lists;

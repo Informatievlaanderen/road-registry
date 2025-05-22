@@ -1,17 +1,16 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
 {
+    using System;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using BackOffice.Extensions;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Extensions;
-    using Projections;
-    using RoadRegistry.BackOffice.Extensions;
-    using System;
-    using System.Globalization;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
+    using Shared;
 
     public class NationalRoadRecordProjection : ConnectedProjection<NationalRoadProducerSnapshotContext>
     {
@@ -94,7 +93,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             dbRecord.Number = nationalRoadAdded.Number;
             dbRecord.Origin = envelope.Message.ToOrigin();
             dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
-            
+
             await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
 
@@ -150,11 +149,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
 
             await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
-        
+
         private async Task Produce(int nationalRoadId, NationalRoadSnapshot snapshot, CancellationToken cancellationToken)
         {
             var result = await _kafkaProducer.Produce(
-                nationalRoadId.ToString(CultureInfo.InvariantCulture),
+                nationalRoadId,
                 snapshot,
                 cancellationToken);
 

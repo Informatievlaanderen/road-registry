@@ -1,11 +1,11 @@
 namespace RoadRegistry.Tests.Debugging;
 
 using System.Data;
-using System.Globalization;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Producer;
 using Editor.Schema;
 using Editor.Schema.Extensions;
 using FluentAssertions;
@@ -16,13 +16,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IO;
 using Newtonsoft.Json;
 using Producer.Snapshot.ProjectionHost.NationalRoad;
+using Producer.Snapshot.ProjectionHost.Shared;
 using Product.Schema;
 using RoadNetwork.Schema;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Wms.Schema;
-using KafkaProducer = Producer.Snapshot.ProjectionHost.Projections.KafkaProducer;
 
 public class FixRoadNumberAttributeIds
 {
@@ -530,13 +530,21 @@ public class FixRoadNumberAttributeIds
             )
             .Options);
 
-        var nationalRoadKafkaProducer = new KafkaProducer(new KafkaProducerOptions(
-            Configuration["Kafka:BootstrapServers"],
-            Configuration[$"Kafka:SaslUserName-{environment}"],
-            Configuration[$"Kafka:SaslPassword-{environment}"],
-            Configuration.GetRequiredValue<string>("NationalRoadTopic"),
-            true,
-            EventsJsonSerializerSettingsProvider.CreateSerializerSettings()));
+        var producerOptions = new ProducerOptions(
+            new BootstrapServers(Configuration.GetRequiredValue<string>("Kafka:BootstrapServers")),
+            new Topic(Configuration.GetRequiredValue<string>("NationalRoadTopic")),
+            useSinglePartition: true,
+            jsonSerializerSettings: EventsJsonSerializerSettingsProvider.CreateSerializerSettings()
+        );
+        var saslUsername = Configuration[$"Kafka:SaslUserName-{environment}"];
+        var saslPassword = Configuration[$"Kafka:SaslPassword-{environment}"];
+        if (!string.IsNullOrEmpty(saslUsername) && !string.IsNullOrEmpty(saslPassword))
+        {
+            producerOptions.ConfigureSaslAuthentication(new SaslAuthentication(
+                saslUsername,
+                saslPassword));
+        }
+        var nationalRoadKafkaProducer = new KafkaProducer(producerOptions);
 
         foreach (var mapping in nationalRoadMappings)
         {
@@ -569,7 +577,7 @@ public class FixRoadNumberAttributeIds
         async Task Produce(int nationalRoadId, NationalRoadSnapshot snapshot, CancellationToken cancellationToken)
         {
             var result = await nationalRoadKafkaProducer.Produce(
-                nationalRoadId.ToString(CultureInfo.InvariantCulture),
+                nationalRoadId,
                 snapshot,
                 cancellationToken);
 
