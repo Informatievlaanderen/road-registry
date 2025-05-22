@@ -1,3 +1,52 @@
+## [4.31.2](https://github.com/informatievlaanderen/road-registry/compare/v4.31.1...v4.31.2) (2025-05-20)
+
+
+### Bug Fixes
+
+* typo in RoadSegmentCategory ([3ae0c11](https://github.com/informatievlaanderen/road-registry/commit/3ae0c119c1ec953c3a3a283b7876d8f1ee9dd616))
+
+## [4.31.1](https://github.com/informatievlaanderen/road-registry/compare/v4.31.0...v4.31.1) (2025-05-14)
+
+
+### Bug Fixes
+
+* configure blob directory for azure upload ([cb4a452](https://github.com/informatievlaanderen/road-registry/commit/cb4a45276abc0c82fca6905c6905e4efd0613606))
+
+# [4.31.0](https://github.com/informatievlaanderen/road-registry/compare/v4.30.2...v4.31.0) (2025-05-07)
+
+
+### Features
+
+* add GRB featuretoggle for extractwriter v2 ([d7544df](https://github.com/informatievlaanderen/road-registry/commit/d7544df1a8bcf220ba205fa6d3d2cf44b2671693))
+
+## [4.30.2](https://github.com/informatievlaanderen/road-registry/compare/v4.30.1...v4.30.2) (2025-05-05)
+
+
+### Bug Fixes
+
+* EnableSensitiveDataLogging for IntegrationContext ([d3b62cd](https://github.com/informatievlaanderen/road-registry/commit/d3b62cd8f9cf6d04c8312b6b2937c12cb1d58558))
+
+## [4.30.1](https://github.com/informatievlaanderen/road-registry/compare/v4.30.0...v4.30.1) (2025-05-05)
+
+
+### Bug Fixes
+
+* integration road projections to deal with re-using of attributeId ([fac2950](https://github.com/informatievlaanderen/road-registry/commit/fac2950a296948296e5fc43c053c726cc0d835cd))
+
+# [4.30.0](https://github.com/informatievlaanderen/road-registry/compare/v4.29.9...v4.30.0) (2025-04-30)
+
+
+### Features
+
+* add Wegcategorie when creating new outlined roadsegment ([298c750](https://github.com/informatievlaanderen/road-registry/commit/298c7507918f073df2a4a5a31400530e5a77f694))
+
+## [4.29.9](https://github.com/informatievlaanderen/road-registry/compare/v4.29.8...v4.29.9) (2025-04-29)
+
+
+### Bug Fixes
+
+* clean request body when updating metadata ([e88c1df](https://github.com/informatievlaanderen/road-registry/commit/e88c1df676db4903f3f50296d073176efcda72d9))
+
 ## [4.29.8](https://github.com/informatievlaanderen/road-registry/compare/v4.29.7...v4.29.8) (2025-04-25)
 
 

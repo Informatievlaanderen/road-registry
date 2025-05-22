@@ -54,12 +54,12 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
                 if (extract == null)
                 {
-                    extract = RoadNetworkExtract.Request(eventEnricher, externalRequestId, downloadId, extractDescription, contour, isInformative);
+                    extract = RoadNetworkExtract.Request(eventEnricher, externalRequestId, downloadId, extractDescription, contour, isInformative, message.Body.ZipArchiveWriterVersion);
                     context.RoadNetworkExtracts.Add(extract);
                 }
                 else
                 {
-                    extract.RequestAgain(downloadId, contour, isInformative);
+                    extract.RequestAgain(downloadId, contour, isInformative, message.Body.ZipArchiveWriterVersion);
                 }
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(RequestRoadNetworkExtract));

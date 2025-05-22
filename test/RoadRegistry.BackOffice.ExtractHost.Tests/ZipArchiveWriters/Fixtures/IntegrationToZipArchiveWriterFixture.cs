@@ -18,10 +18,11 @@ public class IntegrationToZipArchiveWriterFixture : ZipArchiveWriterFixture, IAs
     public IntegrationToZipArchiveWriterFixture(WKTReader wktReader, RecyclableMemoryStreamManager memoryStreamManager, Func<EditorContext> contextFactory, IStreetNameCache streetNameCache)
         : base(wktReader)
     {
+        var writer = new IntegrationToZipArchiveWriter(new ZipArchiveWriterOptions(), streetNameCache, memoryStreamManager, Encoding.UTF8);
         _assembler = new RoadNetworkExtractArchiveAssembler(
             memoryStreamManager,
             contextFactory,
-            new IntegrationToZipArchiveWriter(new ZipArchiveWriterOptions(), streetNameCache, memoryStreamManager, Encoding.UTF8));
+            new ZipArchiveWriterFactory(writer, writer));
     }
 
     public TimeSpan ElapsedTimeSpan { get; private set; }
@@ -32,7 +33,8 @@ public class IntegrationToZipArchiveWriterFixture : ZipArchiveWriterFixture, IAs
         new DownloadId(),
         new ExtractDescription("TEST"),
         (IPolygonal)Result.Single(),
-        isInformative: false);
+        isInformative: false,
+        zipArchiveWriterVersion: null);
 
     public Task DisposeAsync()
     {

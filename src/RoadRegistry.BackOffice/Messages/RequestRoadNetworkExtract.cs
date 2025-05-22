@@ -9,4 +9,5 @@ public class RequestRoadNetworkExtract
     public Guid DownloadId { get; set; }
     public string ExternalRequestId { get; set; }
     public bool IsInformative { get; set; }
+    public string ZipArchiveWriterVersion { get; set; }
 }

@@ -12,7 +12,7 @@ namespace RoadRegistry.Integration.Schema.RoadSegments.Version
 
         public required long Position { get; init; }
         public required int Id { get; init; }
-        public required int RoadSegmentId { get; init; }
+        public required int RoadSegmentId { get; set; }
 
         public string Number { get; set; }
         public bool IsRemoved { get; set; }

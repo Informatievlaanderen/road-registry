@@ -98,6 +98,23 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
     }
 
     [Fact]
+    public async Task WhenCategoryIsObsolete_ThenTicketError()
+    {
+        // Arrange
+        await GivenOrganization();
+
+        // Act
+        var request = ObjectProvider.Create<CreateRoadSegmentOutlineRequest>() with
+        {
+            Category = RoadSegmentCategory.MainRoad
+        };
+        await HandleRequest(request);
+
+        // Assert
+        VerifyThatTicketHasError("WegcategorieNietCorrect", "Wegcategorie is foutief. 'MainRoad' is geen geldige waarde.");
+    }
+
+    [Fact]
     public async Task WhenGeometryIsTooLong_ThenTicketError()
     {
         // Arrange

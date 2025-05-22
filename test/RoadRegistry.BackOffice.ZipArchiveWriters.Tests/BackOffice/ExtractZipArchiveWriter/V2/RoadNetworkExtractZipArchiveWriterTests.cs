@@ -84,7 +84,8 @@
                     fixture.Create<DownloadId>(),
                     fixture.Create<ExtractDescription>(),
                     fixture.Create<IPolygonal>(),
-                    isInformative: true);
+                    isInformative: true,
+                    zipArchiveWriterVersion: null);
             await zipArchiveWriter.WriteAsync(archive, request, _zipArchiveDataProvider.Object, CancellationToken.None);
 
            var fileNames =  archive.Entries.Select(x => x.FullName).ToList();
@@ -163,7 +164,8 @@
                     fixture.Create<DownloadId>(),
                     fixture.Create<ExtractDescription>(),
                     fixture.Create<IPolygonal>(),
-                    isInformative: false);
+                    isInformative: false,
+                    zipArchiveWriterVersion: null);
             await zipArchiveWriter.WriteAsync(archive, request, _zipArchiveDataProvider.Object, CancellationToken.None);
 
            var fileNames =  archive.Entries.Select(x => x.FullName).ToList();

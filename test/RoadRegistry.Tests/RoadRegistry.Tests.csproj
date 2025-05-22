@@ -14,6 +14,7 @@
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Editor.Projections\RoadRegistry.Editor.Projections.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Integration.Schema\RoadRegistry.Integration.Schema.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Jobs\RoadRegistry.Jobs.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Producer.Snapshot.ProjectionHost\RoadRegistry.Producer.Snapshot.ProjectionHost.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" />

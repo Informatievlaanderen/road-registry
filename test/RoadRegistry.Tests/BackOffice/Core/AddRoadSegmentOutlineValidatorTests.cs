@@ -18,7 +18,7 @@ public class AddRoadSegmentOutlineValidatorTests : ValidatorTest<AddRoadSegment,
         Fixture.CustomizeRoadNodeId();
         Fixture.CustomizeRoadSegmentId();
         Fixture.CustomizeRoadSegmentAccessRestriction();
-        Fixture.CustomizeRoadSegmentCategory();
+        Fixture.CustomizeRoadSegmentOutlineCategory();
         Fixture.CustomizeRoadSegmentGeometryDrawMethod();
         Fixture.CustomizeRoadSegmentLaneDirection();
         Fixture.CustomizeRoadSegmentNumberedRoadDirection();

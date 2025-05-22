@@ -8,7 +8,7 @@ public class AzureBlobOptions
     public string ClientSecret { get; set; }
     public string ContainerName { get; set; }
     public string ConnectionString { get; set; }
-    public bool IsTest { get; set; }
+    public string BlobDirectory { get; set; }
     public bool IsAzurite { get; set; }
     public bool Enabled { get; set; }
 }

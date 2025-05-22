@@ -84,6 +84,36 @@ public class RoadSegmentNationalRoadAttributeLatestItemProjectionTests
     }
 
     [Fact]
+    public Task When_adding_same_road_segments_multiple_times_then_existing_record_is_reused()
+    {
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAddedToNationalRoad>());
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var nationalRoad = change.RoadSegmentAddedToNationalRoad;
+
+            return (object)new RoadSegmentNationalRoadAttributeLatestItem
+            {
+                Id = nationalRoad.AttributeId,
+                RoadSegmentId = nationalRoad.SegmentId,
+                Number = nationalRoad.Number,
+                OrganizationId = message.OrganizationId,
+                OrganizationName = message.Organization,
+                CreatedOnTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When),
+                VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(message.When)
+            };
+        });
+
+        return new RoadSegmentNationalRoadAttributeLatestItemProjection()
+            .Scenario()
+            .Given(message)
+            .Given(message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
     public Task When_importing_a_road_segment_without_national_road_links()
     {
         var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();

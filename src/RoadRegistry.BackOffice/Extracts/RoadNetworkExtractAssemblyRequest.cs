@@ -10,7 +10,8 @@ public class RoadNetworkExtractAssemblyRequest
         DownloadId downloadId,
         ExtractDescription extractDescription,
         IPolygonal contour,
-        bool isInformative)
+        bool isInformative,
+        string zipArchiveWriterVersion)
     {
         ExternalRequestId = requestId;
         RequestId = ExtractRequestId.FromExternalRequestId(requestId);
@@ -18,6 +19,7 @@ public class RoadNetworkExtractAssemblyRequest
         ExtractDescription = extractDescription;
         Contour = contour ?? throw new ArgumentNullException(nameof(contour));
         IsInformative = isInformative;
+        ZipArchiveWriterVersion = zipArchiveWriterVersion;
     }
 
     public ExternalExtractRequestId ExternalRequestId { get; }
@@ -26,4 +28,5 @@ public class RoadNetworkExtractAssemblyRequest
     public ExtractDescription ExtractDescription { get; }
     public IPolygonal Contour { get; }
     public bool IsInformative { get; }
+    public string ZipArchiveWriterVersion { get; }
 }

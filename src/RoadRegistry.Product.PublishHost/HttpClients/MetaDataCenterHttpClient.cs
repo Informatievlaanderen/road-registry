@@ -33,7 +33,7 @@ public sealed class MetaDataCenterHttpClient
 
     private ByteArrayContent GenerateCswPublicationBody(string identifier, DateTime dateStamp)
     {
-        var body = new ByteArrayContent(Encoding.UTF8.GetBytes($@"<?xml version=""1.0"" encoding=""UTF-8""?>
+        var xmlAsString = $@"<?xml version=""1.0"" encoding=""UTF-8""?>
 <csw:Transaction service=""CSW"" version=""2.0.2""
 	xmlns:csw=""http://www.opengis.net/cat/csw/2.0.2""
 	xmlns:ogc=""http://www.opengis.net/ogc""
@@ -56,16 +56,18 @@ public sealed class MetaDataCenterHttpClient
             <csw:Value>{dateStamp:yyyy-MM-dd}</csw:Value>
         </csw:RecordProperty>
 		<csw:Constraint version=""1.1.0"">
-			<ogc:Filter>
-				<ogc:PropertyIsEqualTo>
-					<ogc:PropertyName>Identifier</ogc:PropertyName>
-					<ogc:Literal>{identifier}</ogc:Literal>
-				</ogc:PropertyIsEqualTo>
-			</ogc:Filter>
+            <ogc:Filter>
+                <ogc:PropertyIsEqualTo>
+                    <ogc:PropertyName>Identifier</ogc:PropertyName>
+                    <ogc:Literal>{identifier}</ogc:Literal>
+                </ogc:PropertyIsEqualTo>
+            </ogc:Filter>
 		</csw:Constraint>
 	</csw:Update>
 </csw:Transaction>
-"));
+";
+
+        var body = new ByteArrayContent(Encoding.UTF8.GetBytes(XDocument.Parse(xmlAsString).ToString(SaveOptions.DisableFormatting)));
         body.Headers.ContentType = MediaTypeHeaderValue.Parse("application/xml");
         return body;
     }

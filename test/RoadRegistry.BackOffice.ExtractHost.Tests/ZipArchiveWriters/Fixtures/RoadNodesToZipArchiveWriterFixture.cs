@@ -17,10 +17,11 @@ public class RoadNodesToZipArchiveWriterFixture : ZipArchiveWriterFixture, IAsyn
     public RoadNodesToZipArchiveWriterFixture(WKTReader wktReader, RecyclableMemoryStreamManager memoryStreamManager, Func<EditorContext> contextFactory)
         : base(wktReader)
     {
+        var writer = new RoadNodesToZipArchiveWriter(memoryStreamManager, Encoding.UTF8);
         _assembler = new RoadNetworkExtractArchiveAssembler(
             memoryStreamManager,
             contextFactory,
-            new RoadNodesToZipArchiveWriter(memoryStreamManager, Encoding.UTF8));
+            new ZipArchiveWriterFactory(writer, writer));
     }
 
     public TimeSpan ElapsedTimeSpan { get; private set; }
@@ -31,7 +32,8 @@ public class RoadNodesToZipArchiveWriterFixture : ZipArchiveWriterFixture, IAsyn
         new DownloadId(),
         new ExtractDescription("TEST"),
         (IPolygonal)Result.Single(),
-        isInformative: false);
+        isInformative: false,
+        zipArchiveWriterVersion: null);
 
     public Task DisposeAsync()
     {

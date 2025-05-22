@@ -4,6 +4,7 @@ namespace RoadRegistry.BackOffice;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutchToString
@@ -213,8 +214,8 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
             nameof(LocalAccessRoad),
             new DutchTranslation(
                 "OW",
-                "lokale onstsluitingsweg",
-                "Lokale onstsluitingsweg"
+                "lokale ontsluitingsweg",
+                "Lokale ontsluitingsweg"
             )
         );
 
@@ -279,6 +280,7 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
         LocalAccessRoad,
         LocalHeritageAccessRoad
     ];
+
     public static readonly RoadSegmentCategory[] Obsolete =
     [
         MainRoad,
@@ -307,6 +309,11 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutc
         LocalAccessRoad,
         LocalHeritageAccessRoad
     ];
+
+    public sealed record Edit
+    {
+        public static readonly ImmutableArray<RoadSegmentCategory> Editable = [..All.Except(Obsolete)];
+    }
 
     public static bool IsUpgraded(RoadSegmentCategory category)
     {

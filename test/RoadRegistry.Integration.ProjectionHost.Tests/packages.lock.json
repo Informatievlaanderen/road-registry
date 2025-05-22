@@ -2602,6 +2602,7 @@
           "RoadRegistry.BackOffice.ZipArchiveWriters": "[1.0.0, )",
           "RoadRegistry.Editor.Projections": "[1.0.0, )",
           "RoadRegistry.Editor.Schema": "[1.0.0, )",
+          "RoadRegistry.Integration.Schema": "[1.0.0, )",
           "RoadRegistry.Jobs": "[1.0.0, )",
           "RoadRegistry.Producer.Snapshot.ProjectionHost": "[1.0.0, )",
           "RoadRegistry.Product.Schema": "[1.0.0, )",
