@@ -112,7 +112,7 @@
     "@govflanders/vl-ui-util": "^22.0.2",
     "@govflanders/vl-ui-vue-components": "^23.0.2",
     "@govflanders/vl-ui-wizard": "^22.0.2",
-    "axios": "^1.7.9",
+    "axios": "^1.8.2",
     "core-js": "^3.40.0",
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
