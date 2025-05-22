@@ -88,7 +88,6 @@ public class Startup
         if (environment.IsDevelopment())
         {
             serviceProvider.CreateMissingBucketsAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
-            serviceProvider.CreateMissingQueuesAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         app

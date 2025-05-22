@@ -44,9 +44,7 @@ public class StreetNameSnapshotProjectionContext : RunnerDbContext<StreetNameSna
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Do not call base method to avoid ApplyConfigurationsFromAssembly
-        //base.OnModelCreating(modelBuilder);
-
+        //base.OnModelCreating(modelBuilder); DO NOT trigger base => Does assembly scan!
         modelBuilder.ApplyConfiguration(new ProjectionStatesConfiguration(ProjectionStateSchema));
         modelBuilder.ApplyConfiguration(new StreetNameRecordEntityTypeConfiguration());
     }
