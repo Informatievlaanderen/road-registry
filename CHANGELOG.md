@@ -1,3 +1,13 @@
+## [4.31.3](https://github.com/informatievlaanderen/road-registry/compare/v4.31.2...v4.31.3) (2025-05-23)
+
+
+### Bug Fixes
+
+* category typo in dbf records ([9bd4286](https://github.com/informatievlaanderen/road-registry/commit/9bd4286900bd7ec346af41b5cd2fe6e3fa17e831))
+* **pipeline:** use build-image-v2 workflow from build-pipelines ([c2e23b0](https://github.com/informatievlaanderen/road-registry/commit/c2e23b06d996c07fab1d5af3c9472d30679325dc))
+* release pipeline ([6ad79b3](https://github.com/informatievlaanderen/road-registry/commit/6ad79b3103bc22279ece6a4acd00798fbb11bd6f))
+* remove sql server docker dependency from api/jobsprocessor unittests ([cefb41f](https://github.com/informatievlaanderen/road-registry/commit/cefb41fb6b520bc697e808ddcaed3ebbf71b8323))
+
 ## [4.31.2](https://github.com/informatievlaanderen/road-registry/compare/v4.31.1...v4.31.2) (2025-05-20)
 
 
