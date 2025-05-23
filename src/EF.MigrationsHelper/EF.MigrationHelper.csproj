@@ -23,7 +23,16 @@
     <Copyright>Copyright (c) Vlaamse overheid</Copyright>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Integration.Schema\RoadRegistry.Integration.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Producer.Snapshot.ProjectionHost\RoadRegistry.Producer.Snapshot.ProjectionHost.csproj" />
     <ProjectReference Include="..\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.RoadNetwork.Schema\RoadRegistry.RoadNetwork.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Sync.MunicipalityRegistry\RoadRegistry.Sync.MunicipalityRegistry.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Sync.OrganizationRegistry\RoadRegistry.Sync.OrganizationRegistry.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Sync.StreetNameRegistry\RoadRegistry.Sync.StreetNameRegistry.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Wfs.Schema\RoadRegistry.Wfs.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Wms.Schema\RoadRegistry.Wms.Schema.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
