@@ -20,7 +20,8 @@ public partial class ChangeFeedControllerTests
     [Fact]
     public async Task When_downloading_head_changes_of_an_empty_registry()
     {
-        await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
+        await using var context = _fixture.CreateEditorContext();
+
         var result = await Controller.GetHead(5, null, context);
 
         var jsonResult = Assert.IsType<JsonResult>(result);
@@ -32,8 +33,8 @@ public partial class ChangeFeedControllerTests
     [Fact]
     public async Task When_downloading_head_changes_of_filled_registry()
     {
-        var database = await ApplyChangeCollectionIntoContext(_fixture, archiveId => new RoadNetworkChange[]
-        {
+        await using var editorContext = await ApplyChangeCollectionIntoContext(_fixture, archiveId =>
+        [
             new()
             {
                 Title = "De oplading werd ontvangen.",
@@ -44,9 +45,8 @@ public partial class ChangeFeedControllerTests
                 }),
                 When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
             }
-        });
+        ]);
 
-        await using var editorContext = await _fixture.CreateEditorContextAsync(database);
         var result = await Controller.GetHead(5, null, editorContext);
 
         var jsonResult = Assert.IsType<JsonResult>(result);
@@ -70,7 +70,8 @@ public partial class ChangeFeedControllerTests
     [Fact]
     public async Task When_downloading_head_changes_without_specifying_a_max_entry_count()
     {
-        await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
+        await using var context = _fixture.CreateEditorContext();
+
         try
         {
             await Controller.GetHead(null, null, context);

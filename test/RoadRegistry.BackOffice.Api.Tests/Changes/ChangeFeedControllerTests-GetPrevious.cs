@@ -22,7 +22,7 @@ public partial class ChangeFeedControllerTests
     [Fact]
     public async Task When_downloading_previous_changes_of_an_empty_registry()
     {
-        await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
+        using var context = _fixture.CreateEditorContext();
         var result = await Controller.GetPrevious(0, 5, null, context);
 
         var jsonResult = Assert.IsType<JsonResult>(result);
@@ -34,7 +34,7 @@ public partial class ChangeFeedControllerTests
     [Fact]
     public async Task When_downloading_previous_changes_of_filled_registry()
     {
-        var database = await ApplyChangeCollectionIntoContext(_fixture, archiveId => new RoadNetworkChange[]
+        await using var editorContext = await ApplyChangeCollectionIntoContext(_fixture, archiveId => new RoadNetworkChange[]
         {
             new()
             {
@@ -85,7 +85,6 @@ public partial class ChangeFeedControllerTests
             }
         });
 
-        await using var editorContext = await _fixture.CreateEditorContextAsync(database);
         var result = await Controller.GetPrevious(2, 2, null, editorContext);
 
         var jsonResult = Assert.IsType<JsonResult>(result);
@@ -118,7 +117,7 @@ public partial class ChangeFeedControllerTests
     [Fact]
     public async Task When_downloading_previous_changes_without_specifying_a_before_entry()
     {
-        await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
+        using var context = _fixture.CreateEditorContext();
         try
         {
             await Controller.GetPrevious(null, 0, null, context);
@@ -133,7 +132,7 @@ public partial class ChangeFeedControllerTests
     [Fact]
     public async Task When_downloading_previous_changes_without_specifying_a_max_entry_count()
     {
-        await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
+        using var context = _fixture.CreateEditorContext();
         try
         {
             await Controller.GetPrevious(0, null, null, context);

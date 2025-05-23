@@ -3,20 +3,24 @@ namespace RoadRegistry.BackOffice.Api.Tests.Changes;
 using System;
 using System.Threading.Tasks;
 using Api.Changes;
+using Editor.Schema;
 using Editor.Schema.RoadNetworkChanges;
 using Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Text;
+using RoadRegistry.Tests.Framework.Projections;
 
 public partial class ChangeFeedControllerTests
 {
     [Fact]
     public async Task When_downloading_entry_content_of_a_non_existing_entry()
     {
-        await using var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync());
+        await using var context = _fixture.CreateEditorContext();
+
         var result = await Controller.GetContent(context, 0);
 
         Assert.IsType<NotFoundResult>(result);
@@ -25,11 +29,10 @@ public partial class ChangeFeedControllerTests
     [Fact]
     public async Task When_downloading_entry_content_of_an_existing_entry()
     {
-        var database = await _fixture.CreateDatabaseAsync();
         var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
 
-        await using var emptyEditorContext = await _fixture.CreateEmptyEditorContextAsync(database);
-        emptyEditorContext.RoadNetworkChanges.Add(new RoadNetworkChange
+        await using var editorContext = _fixture.CreateEditorContext();
+        editorContext.RoadNetworkChanges.Add(new RoadNetworkChange
         {
             Id = 0,
             Title = "Het opladings archief werd ontvangen.",
@@ -40,9 +43,8 @@ public partial class ChangeFeedControllerTests
             }),
             When = InstantPattern.ExtendedIso.Format(NodaConstants.UnixEpoch)
         });
-        await emptyEditorContext.SaveChangesAsync();
+        await editorContext.SaveChangesAsync();
 
-        await using var editorContext = await _fixture.CreateEditorContextAsync(database);
         var result = await Controller.GetContent(editorContext, 0);
 
         var jsonResult = Assert.IsType<JsonResult>(result);

@@ -33,6 +33,7 @@ using Api.Grb;
 using Api.Infrastructure.Controllers;
 using FeatureCompare;
 using FeatureCompare.V1.Translators;
+using Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Sync.MunicipalityRegistry;
 using MediatorModule = BackOffice.MediatorModule;
@@ -42,9 +43,8 @@ public class Startup : TestStartup
     protected override CommandHandlerDispatcher ConfigureCommandHandlerDispatcher(IServiceProvider sp)
     {
         return Dispatch.Using(Resolve.WhenEqualToMessage(
-            new CommandHandlerModule[]
-            {
-                new RoadNetworkChangesArchiveCommandModule(
+        [
+            new RoadNetworkChangesArchiveCommandModule(
                     sp.GetService<RoadNetworkUploadsBlobClient>(),
                     sp.GetService<IStreamStore>(),
                     sp.GetService<ILifetimeScope>(),
@@ -72,7 +72,7 @@ public class Startup : TestStartup
                     sp.GetService<IClock>(),
                     sp.GetService<ILoggerFactory>()
                 )
-            }));
+        ]));
     }
 
     protected override void ConfigureContainer(ContainerBuilder builder)
@@ -92,6 +92,7 @@ public class Startup : TestStartup
     protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
         services
+            .AddSingleton<DbContextBuilder>()
             .AddTicketing()
             .AddFakeTicketing()
             .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
