@@ -1,3 +1,10 @@
+## [4.31.4](https://github.com/informatievlaanderen/road-registry/compare/v4.31.3...v4.31.4) (2025-05-23)
+
+
+### Bug Fixes
+
+* surface snapshot producer for dotnet 9 ([e85dc47](https://github.com/informatievlaanderen/road-registry/commit/e85dc47f9a6b3ae4bcf829d32b362a6ca26b2685))
+
 ## [4.31.3](https://github.com/informatievlaanderen/road-registry/compare/v4.31.2...v4.31.3) (2025-05-23)
 
 
