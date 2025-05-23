@@ -1,3 +1,10 @@
+## [4.31.5](https://github.com/informatievlaanderen/road-registry/compare/v4.31.4...v4.31.5) (2025-05-23)
+
+
+### Bug Fixes
+
+* producer snapshot dbcontexts for dotnet 9 ([0f30a9e](https://github.com/informatievlaanderen/road-registry/commit/0f30a9ed716d9402e12cd481335d795d46dc0ccc))
+
 ## [4.31.4](https://github.com/informatievlaanderen/road-registry/compare/v4.31.3...v4.31.4) (2025-05-23)
 
 
