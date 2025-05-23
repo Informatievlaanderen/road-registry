@@ -1,3 +1,10 @@
+## [4.31.6](https://github.com/informatievlaanderen/road-registry/compare/v4.31.5...v4.31.6) (2025-05-23)
+
+
+### Bug Fixes
+
+* producer to detect topic configuration ([846427f](https://github.com/informatievlaanderen/road-registry/commit/846427fc7c58d9fbb167e44a7166f423cca6e12e))
+
 ## [4.31.5](https://github.com/informatievlaanderen/road-registry/compare/v4.31.4...v4.31.5) (2025-05-23)
 
 
