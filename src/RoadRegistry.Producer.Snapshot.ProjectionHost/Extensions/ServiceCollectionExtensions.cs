@@ -41,7 +41,7 @@ internal static class ServiceCollectionExtensions
                 .AddSingleton(sp =>
                 {
                     var configuration = sp.GetRequiredService<IConfiguration>();
-                    var producerOptions = configuration.CreateProducerOptions(configuration.GetRequiredValue<string>(entityName + "Topic"));
+                    var producerOptions = configuration.CreateProducerOptions(entityName + "Topic");
 
                     return new ConnectedProjection<TSnapshotContext>[]
                     {
