@@ -108,7 +108,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, GetStreetNameIdAsString(WellKnownStreetNameIds.Proposed), null));
 
         //Assert
-        VerifyThatTicketHasErrorList(ticketing, "LinkerstraatnaamNietOntkoppeld", $"Het wegsegment met id {roadSegmentId} heeft reeds een linkerstraatnaam. Gelieve deze eerst te ontkoppelen.");
+        ticketing.VerifyThatTicketHasError("LinkerstraatnaamNietOntkoppeld", $"Het wegsegment met id {roadSegmentId} heeft reeds een linkerstraatnaam. Gelieve deze eerst te ontkoppelen.");
     }
 
     [Fact]
@@ -126,7 +126,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, GetStreetNameIdAsString(99999), null));
 
         //Assert
-        VerifyThatTicketHasErrorList(ticketing, "StraatnaamNietGekend", "De straatnaam is niet gekend in het Straatnamenregister.");
+        ticketing.VerifyThatTicketHasError("StraatnaamNietGekend", "De straatnaam is niet gekend in het Straatnamenregister.");
     }
 
     [Fact]
@@ -144,7 +144,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, GetStreetNameIdAsString(WellKnownStreetNameIds.Null), null));
 
         //Assert
-        VerifyThatTicketHasErrorList(ticketing, "StraatnaamNietGekend", "De straatnaam is niet gekend in het Straatnamenregister.");
+        ticketing.VerifyThatTicketHasError("StraatnaamNietGekend", "De straatnaam is niet gekend in het Straatnamenregister.");
     }
 
     [InlineData(WellKnownStreetNameIds.Proposed)]
@@ -187,7 +187,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, GetStreetNameIdAsString(WellKnownStreetNameIds.Retired), null));
 
         //Assert
-        VerifyThatTicketHasErrorList(ticketing, "WegsegmentStraatnaamNietVoorgesteldOfInGebruik", "Deze actie is enkel toegelaten voor straatnamen met status 'voorgesteld' of 'in gebruik'.");
+        ticketing.VerifyThatTicketHasError("WegsegmentStraatnaamNietVoorgesteldOfInGebruik", "Deze actie is enkel toegelaten voor straatnamen met status 'voorgesteld' of 'in gebruik'.");
     }
 
     [Fact]
@@ -205,7 +205,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, null, GetStreetNameIdAsString(WellKnownStreetNameIds.Proposed)));
 
         //Assert
-        VerifyThatTicketHasErrorList(ticketing, "RechterstraatnaamNietOntkoppeld", $"Het wegsegment met id {roadSegmentId} heeft reeds een rechterstraatnaam. Gelieve deze eerst te ontkoppelen.");
+        ticketing.VerifyThatTicketHasError("RechterstraatnaamNietOntkoppeld", $"Het wegsegment met id {roadSegmentId} heeft reeds een rechterstraatnaam. Gelieve deze eerst te ontkoppelen.");
     }
 
     [Fact]
@@ -223,7 +223,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, null, GetStreetNameIdAsString(99999)));
 
         //Assert
-        VerifyThatTicketHasErrorList(ticketing, "StraatnaamNietGekend", "De straatnaam is niet gekend in het Straatnamenregister.");
+        ticketing.VerifyThatTicketHasError("StraatnaamNietGekend", "De straatnaam is niet gekend in het Straatnamenregister.");
     }
 
     [InlineData(WellKnownStreetNameIds.Proposed)]
@@ -265,7 +265,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, null, GetStreetNameIdAsString(WellKnownStreetNameIds.Retired)));
 
         //Assert
-        VerifyThatTicketHasErrorList(ticketing, "WegsegmentStraatnaamNietVoorgesteldOfInGebruik", "Deze actie is enkel toegelaten voor straatnamen met status 'voorgesteld' of 'in gebruik'.");
+        ticketing.VerifyThatTicketHasError("WegsegmentStraatnaamNietVoorgesteldOfInGebruik", "Deze actie is enkel toegelaten voor straatnamen met status 'voorgesteld' of 'in gebruik'.");
     }
 
     [Fact]
@@ -281,7 +281,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, GetStreetNameIdAsString(99999), null));
 
         //Assert
-        VerifyThatTicketHasErrorList(ticketing, "NotFound", $"Het wegsegment met id {roadSegmentId} bestaat niet.");
+        ticketing.VerifyThatTicketHasError("NotFound", $"Het wegsegment met id {roadSegmentId} bestaat niet.");
     }
 
     [Fact]

@@ -24,14 +24,14 @@ using Sqs.RoadSegments;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 
-public class WithValidRequest : BackOfficeLambdaTest
+public class GivenRoadSegment : BackOfficeLambdaTest
 {
-    public WithValidRequest(ITestOutputHelper outputHelper) : base(outputHelper)
+    public GivenRoadSegment(ITestOutputHelper outputHelper) : base(outputHelper)
     {
     }
 
     [Fact]
-    public async Task ThenSucceeded()
+    public async Task WithValidRequest_ThenSucceeded()
     {
         // Arrange
         var request = new ChangeRoadSegmentsDynamicAttributesRequest()
@@ -126,6 +126,27 @@ public class WithValidRequest : BackOfficeLambdaTest
             && x1.ToPosition == x2.ToPosition
             && x1.Width == x2.Width
         ).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task WithUnknownRoadSegmentId_ThenError()
+    {
+        // Arrange
+        var roadSegmentId = int.MaxValue;
+        var request = new ChangeRoadSegmentsDynamicAttributesRequest()
+            .Add(new RoadSegmentId(roadSegmentId), _ => { });
+
+        // Act
+        await HandleRequest(request);
+
+        // Assert
+        VerifyThatTicketHasError(
+            "NotFound",
+            $"Het wegsegment met id {roadSegmentId} bestaat niet.",
+            new Dictionary<string, object>
+            {
+                { "WegsegmentId", roadSegmentId }
+            });
     }
 
     private async Task HandleRequest(ChangeRoadSegmentsDynamicAttributesRequest request)

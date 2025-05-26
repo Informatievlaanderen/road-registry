@@ -65,40 +65,51 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
 
         await _changeRoadNetworkDispatcher.DispatchAsync(request, "Attributen wijzigen", async translatedChanges =>
         {
-            var problems = Problems.None;
+            var roadSegmentsProblems = new Dictionary<RoadSegmentId, Problems>();
 
             foreach (var change in request.Request.ChangeRequests)
             {
-                var roadSegmentId = change.Id;
-
-                var editorRoadSegment = await _editorContext.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentId, cancellationToken);
-                if (editorRoadSegment is null)
+                (translatedChanges, var problems) = await AppendChange(change, translatedChanges, cancellationToken);
+                if (problems.Any())
                 {
-                    problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));
-                    continue;
+                    roadSegmentsProblems.Add(change.Id, problems);
                 }
-
-                var geometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[editorRoadSegment.MethodId];
-
-                var networkRoadSegment = await RoadRegistryContext.RoadNetworks.FindRoadSegment(roadSegmentId, geometryDrawMethod, cancellationToken);
-                if (networkRoadSegment is null)
-                {
-                    problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));
-                    continue;
-                }
-
-                (translatedChanges, problems) = await AppendChange(translatedChanges, problems, networkRoadSegment, change, cancellationToken);
             }
 
-            if (problems.Any())
+            if (roadSegmentsProblems.Any())
             {
-                throw new RoadRegistryProblemsException(problems);
+                throw new RoadSegmentsProblemsException(roadSegmentsProblems);
             }
 
             return translatedChanges;
         }, cancellationToken);
 
         return new ChangeRoadSegmentAttributesResponse();
+    }
+
+    private async Task<(TranslatedChanges, Problems)> AppendChange(ChangeRoadSegmentAttributeRequest change, TranslatedChanges translatedChanges, CancellationToken cancellationToken)
+    {
+        var problems = Problems.None;
+        var roadSegmentId = change.Id;
+
+        var editorRoadSegment = await _editorContext.RoadSegments.IncludeLocalSingleOrDefaultAsync(x => x.Id == roadSegmentId, cancellationToken);
+        if (editorRoadSegment is null)
+        {
+            problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));
+            return (translatedChanges, problems);
+        }
+
+        var geometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[editorRoadSegment.MethodId];
+
+        var networkRoadSegment = await RoadRegistryContext.RoadNetworks.FindRoadSegment(roadSegmentId, geometryDrawMethod, cancellationToken);
+        if (networkRoadSegment is null)
+        {
+            problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));
+            return (translatedChanges, problems);
+        }
+
+        (translatedChanges, problems) = await AppendChange(translatedChanges, problems, networkRoadSegment, change, cancellationToken);
+        return (translatedChanges, problems);
     }
 
     private async Task<(TranslatedChanges, Problems)> AppendChange(

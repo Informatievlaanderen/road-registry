@@ -54,9 +54,13 @@ public class WhenLinkingStreetName : WhenChangeAttributesTestBase
         await HandleRequest(request);
 
         // Assert
-        VerifyThatTicketHasErrorList(
+        VerifyThatTicketHasError(
             "LinkerstraatnaamNietVoorgesteldOfInGebruik",
-            $"De linkerstraatnaam voor wegsegment met id {request.ChangeRequests.Single().Id} moet status 'voorgesteld' of 'in gebruik' hebben.");
+            $"De linkerstraatnaam voor wegsegment met id {request.ChangeRequests.Single().Id} moet status 'voorgesteld' of 'in gebruik' hebben.",
+            new Dictionary<string, object>
+            {
+                { "WegsegmentId", TestData.Segment1Added.Id }
+            });
     }
 
     [Fact]
@@ -100,9 +104,13 @@ public class WhenLinkingStreetName : WhenChangeAttributesTestBase
         await HandleRequest(request);
 
         // Assert
-        VerifyThatTicketHasErrorList(
+        VerifyThatTicketHasError(
             "LinkerstraatnaamNietGekend",
-            $"De linkerstraatnaam voor het wegsegment met id {request.ChangeRequests.Single().Id} is niet gekend in het Straatnamenregister.");
+            $"De linkerstraatnaam voor het wegsegment met id {request.ChangeRequests.Single().Id} is niet gekend in het Straatnamenregister.",
+            new Dictionary<string, object>
+            {
+                { "WegsegmentId", TestData.Segment1Added.Id }
+            });
     }
 
     [Fact]
@@ -146,9 +154,13 @@ public class WhenLinkingStreetName : WhenChangeAttributesTestBase
         await HandleRequest(request);
 
         // Assert
-        VerifyThatTicketHasErrorList(
+        VerifyThatTicketHasError(
             "RechterstraatnaamNietVoorgesteldOfInGebruik",
-            $"De rechterstraatnaam voor wegsegment met id {request.ChangeRequests.Single().Id} moet status 'voorgesteld' of 'in gebruik' hebben.");
+            $"De rechterstraatnaam voor wegsegment met id {request.ChangeRequests.Single().Id} moet status 'voorgesteld' of 'in gebruik' hebben.",
+            new Dictionary<string, object>
+            {
+                { "WegsegmentId", TestData.Segment1Added.Id }
+            });
     }
 
     [Fact]
@@ -192,8 +204,12 @@ public class WhenLinkingStreetName : WhenChangeAttributesTestBase
         await HandleRequest(request);
 
         // Assert
-        VerifyThatTicketHasErrorList(
+        VerifyThatTicketHasError(
             "RechterstraatnaamNietGekend",
-            $"De rechterstraatnaam voor het wegsegment met id {request.ChangeRequests.Single().Id} is niet gekend in het Straatnamenregister.");
+            $"De rechterstraatnaam voor het wegsegment met id {request.ChangeRequests.Single().Id} is niet gekend in het Straatnamenregister.",
+            new Dictionary<string, object>
+            {
+                { "WegsegmentId", TestData.Segment1Added.Id }
+            });
     }
 }
