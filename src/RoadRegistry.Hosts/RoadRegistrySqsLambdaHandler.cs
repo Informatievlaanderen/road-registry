@@ -70,6 +70,7 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
         {
             RoadRegistryValidationException validationException => validationException.ToTicketError(),
             RoadRegistryProblemsException problemsException => problemsException.ToTicketError(),
+            RoadSegmentsProblemsException problemsException => problemsException.ToTicketError(),
             _ => null
         };
 

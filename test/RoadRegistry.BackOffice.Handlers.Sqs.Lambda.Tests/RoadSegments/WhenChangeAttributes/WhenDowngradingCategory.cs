@@ -21,10 +21,7 @@ public class WhenDowngradingCategory : WhenChangeAttributesTestBase
     {
         // Arrange
         var request = new ChangeRoadSegmentAttributesRequest()
-            .Add(new RoadSegmentId(TestData.Segment1Added.Id), change =>
-            {
-                change.Category = RoadSegmentCategory.MainRoad;
-            });
+            .Add(new RoadSegmentId(TestData.Segment1Added.Id), change => { change.Category = RoadSegmentCategory.MainRoad; });
         var change = request.ChangeRequests.Single();
 
         await Given(Organizations.ToStreamName(new OrganizationId(OrganizationDbaseRecord.ORG.Value)), new ImportedOrganization
@@ -76,10 +73,7 @@ public class WhenDowngradingCategory : WhenChangeAttributesTestBase
     {
         // Arrange
         var request = new ChangeRoadSegmentAttributesRequest()
-            .Add(new RoadSegmentId(TestData.Segment1Added.Id), change =>
-            {
-                change.Category = RoadSegmentCategory.MainRoad;
-            });
+            .Add(new RoadSegmentId(TestData.Segment1Added.Id), change => { change.Category = RoadSegmentCategory.MainRoad; });
 
         await Given(Organizations.ToStreamName(new OrganizationId(OrganizationDbaseRecord.ORG.Value)), new ImportedOrganization
         {
@@ -114,6 +108,12 @@ public class WhenDowngradingCategory : WhenChangeAttributesTestBase
         await HandleRequest(request);
 
         // Assert
-        VerifyThatTicketHasErrorList("WegcategorieNietVeranderdHuidigeBevatRecentereVersie", "Wegcategorie werd niet gewijzigd voor wegsegment 1 omdat het record reeds een recentere versie bevat.");
+        VerifyThatTicketHasError(
+            "WegcategorieNietVeranderdHuidigeBevatRecentereVersie",
+            "Wegcategorie werd niet gewijzigd voor wegsegment 1 omdat het record reeds een recentere versie bevat.",
+            new Dictionary<string, object>
+            {
+                { "WegsegmentId", TestData.Segment1Added.Id }
+            });
     }
 }
