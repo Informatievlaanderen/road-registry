@@ -108,10 +108,11 @@ public class Organization : EventSourcedEntity
             return PredefinedTranslations.FromSystemValue(organizationId);
         }
 
-        if (organization.OvoCode is not null)
-        {
-            return new DutchTranslation(new OrganizationId(organization.OvoCode.Value), organization.Translation.Name);
-        }
+        // Can only be enabled once the OVO-code is leading instead of classic OrganizationId.
+        // if (organization.OvoCode is not null)
+        // {
+        //     return new DutchTranslation(new OrganizationId(organization.OvoCode.Value), organization.Translation.Name);
+        // }
 
         return organization.Translation
                ?? ToDutchTranslation(null, organizationId);
