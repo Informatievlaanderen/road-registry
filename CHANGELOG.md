@@ -1,3 +1,11 @@
+## [4.31.8](https://github.com/informatievlaanderen/road-registry/compare/v4.31.7...v4.31.8) (2025-05-26)
+
+
+### Bug Fixes
+
+* keep OrganizationId as maintainer when merging roadsegments via bulk removal ([2496544](https://github.com/informatievlaanderen/road-registry/commit/2496544b9a78ca4840cf10256fa18d52aaf2b809))
+* use ticketing ErrorContext for bulk actions GAWR-6910 ([25c6451](https://github.com/informatievlaanderen/road-registry/commit/25c6451236ff5e00c6f3917283a0ede93399b031))
+
 ## [4.31.7](https://github.com/informatievlaanderen/road-registry/compare/v4.31.6...v4.31.7) (2025-05-26)
 
 
