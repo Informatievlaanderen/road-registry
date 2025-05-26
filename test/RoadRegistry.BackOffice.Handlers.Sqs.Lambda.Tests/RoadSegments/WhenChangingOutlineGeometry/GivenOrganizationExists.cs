@@ -86,7 +86,7 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
         await HandleRequest(request);
 
         // Assert
-        VerifyThatTicketHasErrorList(
+        VerifyThatTicketHasError(
             "MiddellijnGeometrieTeLang",
             "De opgegeven geometrie van wegsegment met id 1 zijn lengte is groter of gelijk dan 100000 meter.");
     }
@@ -113,7 +113,7 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
         await HandleRequest(request);
 
         // Assert
-        VerifyThatTicketHasErrorList(
+        VerifyThatTicketHasError(
             "MiddellijnGeometrieKorterDanMinimum",
             "De opgegeven geometrie van wegsegment met id 1 heeft niet de minimale lengte van 2 meter.");
     }

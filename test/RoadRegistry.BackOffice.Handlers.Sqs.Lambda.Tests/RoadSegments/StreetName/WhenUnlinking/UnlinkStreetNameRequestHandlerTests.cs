@@ -107,7 +107,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, linkerstraatnaamPuri, null));
 
         //Assert
-        VerifyThatTicketHasErrorList(ticketing, "LinkerstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de linkerstraatnaam '{linkerstraatnaamPuri}'");
+        ticketing.VerifyThatTicketHasError("LinkerstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de linkerstraatnaam '{linkerstraatnaamPuri}'");
     }
 
     [Fact]
@@ -126,7 +126,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, linkerstraatnaamPuri, null));
 
         //Assert
-        VerifyThatTicketHasErrorList(ticketing, "LinkerstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de linkerstraatnaam '{linkerstraatnaamPuri}'");
+        ticketing.VerifyThatTicketHasError("LinkerstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de linkerstraatnaam '{linkerstraatnaamPuri}'");
     }
 
     [Fact]
@@ -168,7 +168,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, null, rechterstraatnaamPuri));
 
         //Assert
-        VerifyThatTicketHasErrorList(ticketing, "RechterstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de rechterstraatnaam '{rechterstraatnaamPuri}'");
+        ticketing.VerifyThatTicketHasError("RechterstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de rechterstraatnaam '{rechterstraatnaamPuri}'");
     }
 
     [Fact]
@@ -187,7 +187,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, null, rechterstraatnaamPuri));
 
         //Assert
-        VerifyThatTicketHasErrorList(ticketing, "RechterstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de rechterstraatnaam '{rechterstraatnaamPuri}'");
+        ticketing.VerifyThatTicketHasError("RechterstraatnaamNietGekoppeld", $"Het wegsegment met id {roadSegmentId} is niet gekoppeld aan de rechterstraatnaam '{rechterstraatnaamPuri}'");
     }
 
     [Fact]
@@ -226,7 +226,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, GetStreetNameIdAsString(99999), null));
 
         //Assert
-        VerifyThatTicketHasErrorList(ticketing, "NotFound", $"Het wegsegment met id {roadSegmentId} bestaat niet.");
+        ticketing.VerifyThatTicketHasError("NotFound", $"Het wegsegment met id {roadSegmentId} bestaat niet.");
     }
 
     [Fact]

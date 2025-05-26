@@ -17,6 +17,7 @@ using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Core;
 using Editor.Schema;
 using Editor.Schema.Organizations;
+using FluentAssertions;
 using Hosts;
 using MediatR;
 using Messages;
@@ -44,7 +45,7 @@ using RoadSegmentSurfaceAttributes = Messages.RoadSegmentSurfaceAttributes;
 using RoadSegmentWidthAttributes = Messages.RoadSegmentWidthAttributes;
 
 [Collection("runsequential")]
-public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
+public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
 {
     private const string ConfigurationDetailUrl = "http://base/{0}";
 
@@ -55,14 +56,12 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     private static readonly StreamNameConverter StreamNameConverter = StreamNameConversions.PassThru;
-
     protected EditorContext EditorContext { get; }
     protected RecyclableMemoryStreamManager RecyclableMemoryStreamManager { get; }
     protected FileEncoding FileEncoding { get; }
     protected OrganizationDbaseRecord OrganizationDbaseRecord { get; }
     protected ApplicationMetadata ApplicationMetadata { get; }
     protected IOrganizationCache OrganizationCache { get; }
-
     protected SqsLambdaHandlerOptions SqsLambdaHandlerOptions { get; }
 
     protected BackOfficeLambdaTest(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
@@ -175,9 +174,9 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
         var line1 = new MultiLineString(
             [
                 new LineString(
-                        new CoordinateArraySequence(new[] { pointA.Coordinate, pointB.Coordinate }),
-                        GeometryConfiguration.GeometryFactory
-                    )
+                    new CoordinateArraySequence(new[] { pointA.Coordinate, pointB.Coordinate }),
+                    GeometryConfiguration.GeometryFactory
+                )
             ])
             { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
@@ -321,9 +320,9 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
         var line1 = new MultiLineString(
             [
                 new LineString(
-                        new CoordinateArraySequence(new[] { pointA.Coordinate, pointB.Coordinate }),
-                        GeometryConfiguration.GeometryFactory
-                    )
+                    new CoordinateArraySequence(new[] { pointA.Coordinate, pointB.Coordinate }),
+                    GeometryConfiguration.GeometryFactory
+                )
             ])
             { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
@@ -427,51 +426,22 @@ public abstract class BackOfficeLambdaTest: RoadNetworkTestBase
 
     protected void VerifyThatTicketHasCompleted(object response)
     {
-        VerifyThatTicketHasCompleted(TicketingMock, response);
+        TicketingMock.VerifyThatTicketHasCompleted(response);
     }
 
     protected void VerifyThatTicketHasCompleted(Mock<ITicketing> ticketing, string location, string eTag)
     {
-        VerifyThatTicketHasCompleted(ticketing, new ETagResponse(location, eTag));
-    }
-
-    private void VerifyThatTicketHasCompleted(Mock<ITicketing> ticketing, object response)
-    {
-        ticketing.Verify(x =>
-            x.Complete(
-                It.IsAny<Guid>(),
-                new TicketResult(response),
-                CancellationToken.None
-            )
-        );
+        ticketing.VerifyThatTicketHasCompleted(new ETagResponse(location, eTag));
     }
 
     protected void VerifyThatTicketHasError(string code, string message)
     {
-        VerifyThatTicketHasError(TicketingMock, code, message);
+        TicketingMock.VerifyThatTicketHasError(code, message);
     }
 
-    protected void VerifyThatTicketHasError(Mock<ITicketing> ticketing, string code, string message)
+    protected void VerifyThatTicketHasError(string code, string message, Dictionary<string, object> errorContext)
     {
-        ticketing.Verify(x =>
-            x.Error(It.IsAny<Guid>(),
-                new TicketError(message, code),
-                CancellationToken.None));
-    }
-
-    protected void VerifyThatTicketHasErrorList(string code, string message)
-    {
-        VerifyThatTicketHasErrorList(TicketingMock, code, message);
-    }
-
-    protected void VerifyThatTicketHasErrorList(Mock<ITicketing> ticketing, string code, string message)
-    {
-        ticketing.Verify(x =>
-            x.Error(It.IsAny<Guid>(),
-                new TicketError(new[] {
-                    new TicketError(message, code)
-                }),
-                CancellationToken.None));
+        TicketingMock.VerifyThatTicketHasError(code, message, errorContext);
     }
 
     protected async Task WhenProcessing_SqsRequest_Then_SqsLambdaRequest_IsSent<TSqsRequest, TSqsLambdaRequest, TBackOfficeRequest>()
