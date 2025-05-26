@@ -29,6 +29,17 @@
         "resolved": "22.0.0",
         "contentHash": "vAp0lWs24/5ajuKdIWr+0TuKCudALqTVjDsvotIk7bzRcyuXbEJjXUzH000E7UQVUuYtA0AiaHdwsUz2+PWnEw=="
       },
+      "Be.Vlaanderen.Basisregisters.GrAr.Legacy": {
+        "type": "Direct",
+        "requested": "[22.0.0, )",
+        "resolved": "22.0.0",
+        "contentHash": "N/JSS69ji9rWvskTT9811X1xszvbp5sSsgBlwX/gKke/rsyjoA8GyT2aLh6QJGzjPvlTVKgisWsk4zWB6DiQ5w==",
+        "dependencies": {
+          "Be.Vlaanderen.Basisregisters.GrAr.Common": "22.0.0",
+          "Be.Vlaanderen.Basisregisters.Utilities.Rfc3339DateTimeOffset": "5.0.0",
+          "Newtonsoft.Json": "13.0.3"
+        }
+      },
       "Be.Vlaanderen.Basisregisters.GrAr.Provenance": {
         "type": "Direct",
         "requested": "[22.0.0, )",
@@ -395,6 +406,25 @@
         "type": "Transitive",
         "resolved": "9.0.5",
         "contentHash": "+jdJ9Vz+5Ia21l3KjahtmeHCIgQ7urfkdcJPxSfeqB40Jqryi27Lt4fKBmKyvc0YrfTUJ0cEB7QmoQRlU8FH0g=="
+      },
+      "Microsoft.Extensions.Diagnostics": {
+        "type": "Transitive",
+        "resolved": "9.0.5",
+        "contentHash": "fRiUjmhm9e4vMp6WEO9MgWNxVtWSr4Pcgh1W4DyJIr8bRANlZz9JU7uicf7ShzMspDxo/9Ejo9zJ6qQZY0IhVw==",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration": "9.0.5",
+          "Microsoft.Extensions.Diagnostics.Abstractions": "9.0.5",
+          "Microsoft.Extensions.Options.ConfigurationExtensions": "9.0.5"
+        }
+      },
+      "Microsoft.Extensions.Diagnostics.Abstractions": {
+        "type": "Transitive",
+        "resolved": "9.0.5",
+        "contentHash": "6YfTcULCYREMTqtk+s3UiszsFV2xN2FXtxdQpurmQJY9Cp/QGiM4MTKfJKUo7AzdLuzjOKKMWjQITmvtK7AsUg==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.5",
+          "Microsoft.Extensions.Options": "9.0.5"
+        }
       },
       "Microsoft.Extensions.FileSystemGlobbing": {
         "type": "Transitive",
@@ -1603,6 +1633,33 @@
           "System.IdentityModel.Tokens.Jwt": "[8.9.0, )"
         }
       },
+      "roadregistry.backoffice.abstractions": {
+        "type": "Project",
+        "dependencies": {
+          "AWSSDK.Core": "[3.7.402.35, )",
+          "Be.Vlaanderen.Basisregisters.BlobStore": "[5.0.0, )",
+          "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.1, )",
+          "MediatR.Contracts": "[2.0.1, )",
+          "Microsoft.Extensions.DependencyInjection": "[9.0.5, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.0.5, )",
+          "Microsoft.Extensions.Logging": "[9.0.5, )",
+          "Microsoft.IdentityModel.Abstractions": "[8.9.0, )",
+          "Microsoft.IdentityModel.JsonWebTokens": "[8.9.0, )",
+          "Microsoft.IdentityModel.Logging": "[8.9.0, )",
+          "Microsoft.IdentityModel.Tokens": "[8.9.0, )",
+          "Microsoft.Net.Http.Headers": "[9.0.5, )",
+          "RoadRegistry.BackOffice": "[1.0.0, )"
+        }
+      },
+      "roadregistry.streetname": {
+        "type": "Project",
+        "dependencies": {
+          "Be.Vlaanderen.Basisregisters.GrAr.Legacy": "[22.0.0, )",
+          "Microsoft.Extensions.Http": "[9.0.5, )",
+          "RoadRegistry.BackOffice": "[1.0.0, )",
+          "RoadRegistry.BackOffice.Abstractions": "[1.0.0, )"
+        }
+      },
       "Amazon.Lambda.Core": {
         "type": "CentralTransitive",
         "requested": "[2.5.1, )",
@@ -2020,6 +2077,20 @@
           "Microsoft.Extensions.Primitives": "9.0.5"
         }
       },
+      "Microsoft.Extensions.Http": {
+        "type": "CentralTransitive",
+        "requested": "[9.0.5, )",
+        "resolved": "9.0.5",
+        "contentHash": "6vbo3XjyEc+w/kv/Dkfv9NA7iSdIdX5dlU9Shk3wJJ0fiZpCVzVW5FJtNoIePX5hS0ENNpHPClq/qtq06yM4FQ==",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration.Abstractions": "9.0.5",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.5",
+          "Microsoft.Extensions.Diagnostics": "9.0.5",
+          "Microsoft.Extensions.Logging": "9.0.5",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.5",
+          "Microsoft.Extensions.Options": "9.0.5"
+        }
+      },
       "Microsoft.Extensions.Logging": {
         "type": "CentralTransitive",
         "requested": "[9.0.5, )",
@@ -2117,6 +2188,15 @@
         "requested": "[3.0.1, )",
         "resolved": "3.0.1",
         "contentHash": "s/s20YTVY9r9TPfTrN5g8zPF1YhwxyqO6PxUkrYTGI2B+OGPe9AdajWZrLhFqXIvqIW23fnUE4+ztrUWNU1+9g=="
+      },
+      "Microsoft.Net.Http.Headers": {
+        "type": "CentralTransitive",
+        "requested": "[9.0.5, )",
+        "resolved": "9.0.5",
+        "contentHash": "sqjw/evxL7KLVtAJIpO0lqw2RueqsR/gCQc0Kba9UkaDNLtUwDTXaayiFJLl50LrBZWDKWfRCDy5lbuKfQge9Q==",
+        "dependencies": {
+          "Microsoft.Extensions.Primitives": "9.0.5"
+        }
       },
       "NetTopologySuite": {
         "type": "CentralTransitive",
