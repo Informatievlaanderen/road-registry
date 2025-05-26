@@ -207,11 +207,6 @@ public class Startup
                             health.AddDbContextCheck<StreetNameEventConsumerContext>();
                             health.AddDbContextCheck<StreetNameEventProjectionContext>();
                         }
-
-                        if (projectionOptions.Integration.Enabled)
-                        {
-                            health.AddDbContextCheck<IntegrationContext>();
-                        }
                     }
                 }
             })
