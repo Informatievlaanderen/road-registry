@@ -1,3 +1,10 @@
+## [4.31.7](https://github.com/informatievlaanderen/road-registry/compare/v4.31.6...v4.31.7) (2025-05-26)
+
+
+### Bug Fixes
+
+* **projector:** integrationcontext healthcheck ([77c5a8c](https://github.com/informatievlaanderen/road-registry/commit/77c5a8cebe42353a5a9e8857720b00236c703240))
+
 ## [4.31.6](https://github.com/informatievlaanderen/road-registry/compare/v4.31.5...v4.31.6) (2025-05-23)
 
 
