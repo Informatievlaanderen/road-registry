@@ -6,6 +6,7 @@ echo "window.WR_ENV = \"${WR_ENV}\"" >> /usr/share/nginx/html/env.js
 echo "window.API_VERSION = \"${API_VERSION}\"" >> /usr/share/nginx/html/env.js
 echo "window.API_ENDPOINT = \"${API_ENDPOINT}\"" >> /usr/share/nginx/html/env.js
 echo "window.API_OLDENDPOINT = \"${API_OLDENDPOINT}\"" >> /usr/share/nginx/html/env.js
+echo "window.DOWNLOAD_WEGENREGISTER_URL = \"${DOWNLOAD_WEGENREGISTER_URL}\"" >> /usr/share/nginx/html/env.js
 echo "window.WMS_URL = \"${WMS_URL}\"" >> /usr/share/nginx/html/env.js
 echo "window.WMS_LAYER_TRANSACTIONZONES = \"${WMS_LAYER_TRANSACTIONZONES}\"" >> /usr/share/nginx/html/env.js
 echo "window.WMS_LAYER_OVERLAPPINGTRANSACTIONZONES = \"${WMS_LAYER_OVERLAPPINGTRANSACTIONZONES}\"" >> /usr/share/nginx/html/env.js
