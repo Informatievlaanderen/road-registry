@@ -1,20 +1,11 @@
-import Root from "./views/Root.vue";
-import DownloadProduct from "./views/DownloadProduct.vue";
+import { DOWNLOAD_WEGENREGISTER_URL } from "@/environment";
 
 export const DownloadProductRoutes = [
-    {
-        path: "/download-product",
-        component: Root,
-        meta: {},
-        children: [
-            {
-                path: "",
-                component: DownloadProduct,
-                name: "download-product",
-                meta: {
-                    requiresAuth: true
-                }
-            },
-        ],
+  {
+    path: "/download-product",
+    meta: {},
+    beforeEnter() {
+      window.open(DOWNLOAD_WEGENREGISTER_URL, "_blank");
     },
+  },
 ];

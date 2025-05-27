@@ -22,6 +22,7 @@ declare global {
     API_VERSION: string;
     API_ENDPOINT: string;
     API_OLDENDPOINT: string;
+    DOWNLOAD_WEGENREGISTER_URL: string;
     WMS_URL: string;
     WMS_LAYER_TRANSACTIONZONES: string;
     WMS_LAYER_OVERLAPPINGTRANSACTIONZONES: string;
@@ -35,6 +36,7 @@ window.WR_ENV = window.WR_ENV || "development";
 window.API_VERSION = window.API_VERSION || "";
 window.API_ENDPOINT = window.API_ENDPOINT || "";
 window.API_OLDENDPOINT = window.API_OLDENDPOINT || "";
+window.DOWNLOAD_WEGENREGISTER_URL = window.DOWNLOAD_WEGENREGISTER_URL || "";
 window.WMS_URL = window.WMS_URL || "";
 window.WMS_LAYER_TRANSACTIONZONES = window.WMS_LAYER_TRANSACTIONZONES || "";
 window.WMS_LAYER_OVERLAPPINGTRANSACTIONZONES = window.WMS_LAYER_OVERLAPPINGTRANSACTIONZONES || "";
