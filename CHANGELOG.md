@@ -1,3 +1,10 @@
+# [4.32.0](https://github.com/informatievlaanderen/road-registry/compare/v4.31.8...v4.32.0) (2025-05-27)
+
+
+### Features
+
+* GAWR-6930 "Download product" in UI redirects to download application ([18764c4](https://github.com/informatievlaanderen/road-registry/commit/18764c43a1304991ff309e9f90b36591400f9186))
+
 ## [4.31.8](https://github.com/informatievlaanderen/road-registry/compare/v4.31.7...v4.31.8) (2025-05-26)
 
 
