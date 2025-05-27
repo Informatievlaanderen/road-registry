@@ -3,6 +3,9 @@
     using System.IO.Compression;
     using System.Text;
     using AutoFixture;
+    using Editor.Schema.Extensions;
+    using Editor.Schema.RoadNodes;
+    using Extracts.Dbase.RoadNodes;
     using FluentAssertions;
     using Microsoft.Extensions.Logging.Abstractions;
     using Microsoft.IO;
@@ -64,6 +67,58 @@
         }
 
         [Fact]
+        public async Task TestRoadNode()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            var records = new List<RoadNodeRecord>();
+            for (var i = 1; i <= 1000; i++)
+            {
+                records.Add(new RoadNodeRecord
+                {
+                    Id = i,
+                    Geometry = new Point(i * 100, 200),
+                    DbaseRecord = new RoadNodeDbaseRecord
+                    {
+                        WK_OIDN = { Value = i},
+                        LBLBGNORG = { Value = $"ORG {i}" }
+                    }.ToBytes(_memoryStreamManager, FileEncoding.UTF8)
+                });
+            }
+
+            _zipArchiveDataProvider
+                .Setup(x => x.GetRoadNodes(It.IsAny<IPolygonal>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(records);
+
+            var fixture = new RoadNetworkTestData().ObjectProvider;
+            fixture.CustomizeNtsPolygon();
+
+            var zipArchiveWriter = new RoadNetworkExtractZipArchiveWriter(
+                _zipArchiveWriterOptions,
+                _streetNameCache,
+                _memoryStreamManager,
+                FileEncoding.UTF8,
+                NullLoggerFactory.Instance);
+
+            var stream = new MemoryStream();
+
+            using var archive = new ZipArchive(stream, ZipArchiveMode.Update, true, FileEncoding.UTF8);
+            var request = new RoadNetworkExtractAssemblyRequest(
+                fixture.Create<ExternalExtractRequestId>(),
+                fixture.Create<DownloadId>(),
+                fixture.Create<ExtractDescription>(),
+                fixture.Create<IPolygonal>(),
+                isInformative: true,
+                zipArchiveWriterVersion: WellKnownZipArchiveWriterVersions.V2);
+            await zipArchiveWriter.WriteAsync(archive, request, _zipArchiveDataProvider.Object, CancellationToken.None);
+
+            archive.Dispose();
+
+            stream.Position = 0;
+            await File.WriteAllBytesAsync("archive.zip", stream.ToArray());
+        }
+
+        [Fact]
         public async Task InformativeExtractRequest_ThenOnlyContainsExtractAndIntegrationFiles()
         {
             var fixture = new RoadNetworkTestData().ObjectProvider;
@@ -80,67 +135,68 @@
 
             using var archive = new ZipArchive(stream, ZipArchiveMode.Update, true, Encoding.UTF8);
             var request = new RoadNetworkExtractAssemblyRequest(
-                    fixture.Create<ExternalExtractRequestId>(),
-                    fixture.Create<DownloadId>(),
-                    fixture.Create<ExtractDescription>(),
-                    fixture.Create<IPolygonal>(),
-                    isInformative: true,
-                    zipArchiveWriterVersion: null);
+                fixture.Create<ExternalExtractRequestId>(),
+                fixture.Create<DownloadId>(),
+                fixture.Create<ExtractDescription>(),
+                fixture.Create<IPolygonal>(),
+                isInformative: true,
+                zipArchiveWriterVersion: WellKnownZipArchiveWriterVersions.V2);
             await zipArchiveWriter.WriteAsync(archive, request, _zipArchiveDataProvider.Object, CancellationToken.None);
 
-           var fileNames =  archive.Entries.Select(x => x.FullName).ToList();
+            var fileNames = archive.Entries.Select(x => x.FullName).ToList();
 
-           var expectedFileNames = new[] {
-               "Transactiezones.dbf",
-               "Transactiezones.shp",
-               "Transactiezones.shx",
-               "Transactiezones.cpg",
-               "Transactiezones.prj",
-               "eLstOrg.dbf",
-               "eWegknoop.dbf",
-               "eWegknoop.shp",
-               "eWegknoop.shx",
-               "eWegknoop.cpg",
-               "eWegknoop.prj",
-               "eWegsegment.dbf",
-               "eWegsegment.shp",
-               "eWegsegment.shx",
-               "eWegsegment.cpg",
-               "eWegsegment.prj",
-               "eAttRijstroken.dbf",
-               "eAttWegbreedte.dbf",
-               "eAttWegverharding.dbf",
-               "eAttNationweg.dbf",
-               "eAttEuropweg.dbf",
-               "eAttGenumweg.dbf",
-               "eRltOgkruising.dbf",
-               "iWegsegment.dbf",
-               "iWegsegment.shp",
-               "iWegsegment.shx",
-               "iWegsegment.cpg",
-               "iWegsegment.prj",
-               "iWegknoop.dbf",
-               "iWegknoop.shp",
-               "iWegknoop.shx",
-               "iWegknoop.cpg",
-               "iWegknoop.prj",
-               "eWegknoopLktType.dbf",
-               "eWegverhardLktType.dbf",
-               "eGenumwegLktRichting.dbf",
-               "eWegsegmentLktWegcat.dbf",
-               "eWegsegmentLktTgbep.dbf",
-               "eWegsegmentLktMethode.dbf",
-               "eWegsegmentLktMorf.dbf",
-               "eWegsegmentLktStatus.dbf",
-               "eOgkruisingLktType.dbf",
-               "eRijstrokenLktRichting.dbf"
-           };
+            var expectedFileNames = new[]
+            {
+                "Transactiezones.dbf",
+                "Transactiezones.shp",
+                "Transactiezones.shx",
+                "Transactiezones.cpg",
+                "Transactiezones.prj",
+                "eLstOrg.dbf",
+                "eWegknoop.dbf",
+                "eWegknoop.shp",
+                "eWegknoop.shx",
+                "eWegknoop.cpg",
+                "eWegknoop.prj",
+                "eWegsegment.dbf",
+                "eWegsegment.shp",
+                "eWegsegment.shx",
+                "eWegsegment.cpg",
+                "eWegsegment.prj",
+                "eAttRijstroken.dbf",
+                "eAttWegbreedte.dbf",
+                "eAttWegverharding.dbf",
+                "eAttNationweg.dbf",
+                "eAttEuropweg.dbf",
+                "eAttGenumweg.dbf",
+                "eRltOgkruising.dbf",
+                "iWegsegment.dbf",
+                "iWegsegment.shp",
+                "iWegsegment.shx",
+                "iWegsegment.cpg",
+                "iWegsegment.prj",
+                "iWegknoop.dbf",
+                "iWegknoop.shp",
+                "iWegknoop.shx",
+                "iWegknoop.cpg",
+                "iWegknoop.prj",
+                "eWegknoopLktType.dbf",
+                "eWegverhardLktType.dbf",
+                "eGenumwegLktRichting.dbf",
+                "eWegsegmentLktWegcat.dbf",
+                "eWegsegmentLktTgbep.dbf",
+                "eWegsegmentLktMethode.dbf",
+                "eWegsegmentLktMorf.dbf",
+                "eWegsegmentLktStatus.dbf",
+                "eOgkruisingLktType.dbf",
+                "eRijstrokenLktRichting.dbf"
+            };
 
-           fileNames.Should().HaveCount(expectedFileNames.Length);
-           foreach (var fileName in expectedFileNames)
-           {
-               fileNames.Should().Contain(fileName);
-           }
+            fileNames.Should().HaveCount(expectedFileNames.Length);
+            foreach (var fileName in expectedFileNames)
+            {
+                fileNames.Should().Contain(fileName);
+            }
         }
 
         [Fact]
@@ -160,84 +216,85 @@
 
             using var archive = new ZipArchive(stream, ZipArchiveMode.Update, true, Encoding.UTF8);
             var request = new RoadNetworkExtractAssemblyRequest(
-                    fixture.Create<ExternalExtractRequestId>(),
-                    fixture.Create<DownloadId>(),
-                    fixture.Create<ExtractDescription>(),
-                    fixture.Create<IPolygonal>(),
-                    isInformative: false,
-                    zipArchiveWriterVersion: null);
+                fixture.Create<ExternalExtractRequestId>(),
+                fixture.Create<DownloadId>(),
+                fixture.Create<ExtractDescription>(),
+                fixture.Create<IPolygonal>(),
+                isInformative: false,
+                zipArchiveWriterVersion: WellKnownZipArchiveWriterVersions.V2);
             await zipArchiveWriter.WriteAsync(archive, request, _zipArchiveDataProvider.Object, CancellationToken.None);
 
-           var fileNames =  archive.Entries.Select(x => x.FullName).ToList();
+            var fileNames = archive.Entries.Select(x => x.FullName).ToList();
 
-           var expectedFileNames = new[] {
-               "Transactiezones.dbf",
-               "Transactiezones.shp",
-               "Transactiezones.shx",
-               "Transactiezones.cpg",
-               "Transactiezones.prj",
-               "eLstOrg.dbf",
-               "eWegknoop.dbf",
-               "eWegknoop.shp",
-               "eWegknoop.shx",
-               "eWegknoop.cpg",
-               "eWegknoop.prj",
-               "Wegknoop.dbf",
-               "Wegknoop.shp",
-               "Wegknoop.shx",
-               "Wegknoop.cpg",
-               "Wegknoop.prj",
-               "eWegsegment.dbf",
-               "eWegsegment.shp",
-               "eWegsegment.shx",
-               "eWegsegment.cpg",
-               "eWegsegment.prj",
-               "Wegsegment.dbf",
-               "Wegsegment.shp",
-               "Wegsegment.shx",
-               "Wegsegment.cpg",
-               "Wegsegment.prj",
-               "eAttRijstroken.dbf",
-               "AttRijstroken.dbf",
-               "eAttWegbreedte.dbf",
-               "AttWegbreedte.dbf",
-               "eAttWegverharding.dbf",
-               "AttWegverharding.dbf",
-               "eAttNationweg.dbf",
-               "AttNationweg.dbf",
-               "eAttEuropweg.dbf",
-               "AttEuropweg.dbf",
-               "eAttGenumweg.dbf",
-               "AttGenumweg.dbf",
-               "eRltOgkruising.dbf",
-               "RltOgkruising.dbf",
-               "iWegsegment.dbf",
-               "iWegsegment.shp",
-               "iWegsegment.shx",
-               "iWegsegment.cpg",
-               "iWegsegment.prj",
-               "iWegknoop.dbf",
-               "iWegknoop.shp",
-               "iWegknoop.shx",
-               "iWegknoop.cpg",
-               "iWegknoop.prj",
-               "eWegknoopLktType.dbf",
-               "eWegverhardLktType.dbf",
-               "eGenumwegLktRichting.dbf",
-               "eWegsegmentLktWegcat.dbf",
-               "eWegsegmentLktTgbep.dbf",
-               "eWegsegmentLktMethode.dbf",
-               "eWegsegmentLktMorf.dbf",
-               "eWegsegmentLktStatus.dbf",
-               "eOgkruisingLktType.dbf",
-               "eRijstrokenLktRichting.dbf"
-           };
+            var expectedFileNames = new[]
+            {
+                "Transactiezones.dbf",
+                "Transactiezones.shp",
+                "Transactiezones.shx",
+                "Transactiezones.cpg",
+                "Transactiezones.prj",
+                "eLstOrg.dbf",
+                "eWegknoop.dbf",
+                "eWegknoop.shp",
+                "eWegknoop.shx",
+                "eWegknoop.cpg",
+                "eWegknoop.prj",
+                "Wegknoop.dbf",
+                "Wegknoop.shp",
+                "Wegknoop.shx",
+                "Wegknoop.cpg",
+                "Wegknoop.prj",
+                "eWegsegment.dbf",
+                "eWegsegment.shp",
+                "eWegsegment.shx",
+                "eWegsegment.cpg",
+                "eWegsegment.prj",
+                "Wegsegment.dbf",
+                "Wegsegment.shp",
+                "Wegsegment.shx",
+                "Wegsegment.cpg",
+                "Wegsegment.prj",
+                "eAttRijstroken.dbf",
+                "AttRijstroken.dbf",
+                "eAttWegbreedte.dbf",
+                "AttWegbreedte.dbf",
+                "eAttWegverharding.dbf",
+                "AttWegverharding.dbf",
+                "eAttNationweg.dbf",
+                "AttNationweg.dbf",
+                "eAttEuropweg.dbf",
+                "AttEuropweg.dbf",
+                "eAttGenumweg.dbf",
+                "AttGenumweg.dbf",
+                "eRltOgkruising.dbf",
+                "RltOgkruising.dbf",
+                "iWegsegment.dbf",
+                "iWegsegment.shp",
+                "iWegsegment.shx",
+                "iWegsegment.cpg",
+                "iWegsegment.prj",
+                "iWegknoop.dbf",
+                "iWegknoop.shp",
+                "iWegknoop.shx",
+                "iWegknoop.cpg",
+                "iWegknoop.prj",
+                "eWegknoopLktType.dbf",
+                "eWegverhardLktType.dbf",
+                "eGenumwegLktRichting.dbf",
+                "eWegsegmentLktWegcat.dbf",
+                "eWegsegmentLktTgbep.dbf",
+                "eWegsegmentLktMethode.dbf",
+                "eWegsegmentLktMorf.dbf",
+                "eWegsegmentLktStatus.dbf",
+                "eOgkruisingLktType.dbf",
+                "eRijstrokenLktRichting.dbf"
+            };
 
-           fileNames.Should().HaveCount(expectedFileNames.Length);
-           foreach (var fileName in expectedFileNames)
-           {
-               fileNames.Should().Contain(fileName);
-           }
+            fileNames.Should().HaveCount(expectedFileNames.Length);
+            foreach (var fileName in expectedFileNames)
+            {
+                fileNames.Should().Contain(fileName);
+            }
         }
     }
 }

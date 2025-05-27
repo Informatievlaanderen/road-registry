@@ -3,9 +3,11 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.V2;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Extracts;
 using Extracts.Dbase.RoadNodes;
 using Microsoft.IO;
+using NetTopologySuite.Geometries;
 using ShapeFile.V2;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
@@ -48,6 +50,7 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
                     var dbfRecord = new RoadNodeDbaseRecord();
                     dbfRecord.FromBytes(node.DbaseRecord, _manager, _encoding);
 
+                    //node.Geometry.WithSrid(GeometryConfiguration.GeometryFactory.SRID);
                     return ((DbaseRecord)dbfRecord, node.Geometry);
                 });
 
