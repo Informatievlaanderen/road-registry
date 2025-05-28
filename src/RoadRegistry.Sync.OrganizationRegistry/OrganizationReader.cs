@@ -85,7 +85,7 @@ public class OrganizationReader : IOrganizationReader
 
     private Uri CreateSyncUri(long changeId)
     {
-        return new Uri(new Uri(_options.OrganizationRegistrySyncUrl), $"/v1/search/organisations?q=changeId:[{changeId} TO *]&fields=name,ovoNumber,kboNumber&sort=changeId,id&scroll=true");
+        return new Uri(new Uri(_options.OrganizationRegistrySyncUrl), $"/v1/search/organisations?q=changeId:[{changeId} TO *]&fields=name,ovoNumber,kboNumber,keys&sort=changeId,id&scroll=true");
     }
 
     private Uri CreateScrollUri(string scrollId)
