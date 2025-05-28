@@ -20,6 +20,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
     using SqlStreamStore;
     using SqlStreamStore.Streams;
     using Sync.OrganizationRegistry;
+    using Sync.OrganizationRegistry.Models;
     using SyncHost.Organization;
     using Organization = Sync.OrganizationRegistry.Models.Organization;
 
@@ -243,6 +244,123 @@ namespace RoadRegistry.SyncHost.Tests.Organization
             Assert.Equal(organization2.OvoNumber, createOrganizationMessage.Code);
             Assert.Equal(organization2.Name, createOrganizationMessage.Name);
             Assert.Equal(organization2.OvoNumber, createOrganizationMessage.OvoCode);
+        }
+
+        [Fact]
+        public async Task WithOneActiveNisCode_ThenNisCodeIsUsedAsCode()
+        {
+            var nisCode = "10001";
+
+            var organization1 = new Organization
+            {
+                ChangeId = 1,
+                Name = _fixture.Create<OrganizationName>(),
+                OvoNumber = _fixture.Create<OrganizationOvoCode>(),
+                Keys =
+                [
+                    new Key
+                    {
+                        KeyTypeName = "NIS",
+                        Value = nisCode,
+                        Validity = new Validity
+                        {
+                            Start = DateTime.Today
+                        }
+                    }
+                ]
+            };
+
+            var (consumer, store) = BuildSetup(new FakeOrganizationReader(organization1));
+
+            await consumer.StartAsync(CancellationToken.None);
+
+            var createOrganizationMessage = await store.GetLastMessage<CreateOrganization>();
+
+            Assert.Equal(nisCode, createOrganizationMessage.Code);
+            Assert.Equal(organization1.Name, createOrganizationMessage.Name);
+            Assert.Equal(organization1.OvoNumber, createOrganizationMessage.OvoCode);
+        }
+
+        [Fact]
+        public async Task WithOneExpiredNisCode_ThenNisCodeIsUsedAsCode()
+        {
+            var nisCode = "10001";
+
+            var organization1 = new Organization
+            {
+                ChangeId = 1,
+                Name = _fixture.Create<OrganizationName>(),
+                OvoNumber = _fixture.Create<OrganizationOvoCode>(),
+                Keys =
+                [
+                    new Key
+                    {
+                        KeyTypeName = "NIS",
+                        Value = nisCode,
+                        Validity = new Validity
+                        {
+                            Start = DateTime.Today.AddDays(-10),
+                            End = DateTime.Today.AddDays(-1)
+                        }
+                    }
+                ]
+            };
+
+            var (consumer, store) = BuildSetup(new FakeOrganizationReader(organization1));
+
+            await consumer.StartAsync(CancellationToken.None);
+
+            var createOrganizationMessage = await store.GetLastMessage<CreateOrganization>();
+
+            Assert.Equal(nisCode, createOrganizationMessage.Code);
+            Assert.Equal(organization1.Name, createOrganizationMessage.Name);
+            Assert.Equal(organization1.OvoNumber, createOrganizationMessage.OvoCode);
+        }
+
+        [Fact]
+        public async Task WithMultipleNisCodes_ThenCurrentNisCodeIsUsedAsCode()
+        {
+            var nisCode1 = "10001";
+            var nisCode2 = "10002";
+
+            var organization1 = new Organization
+            {
+                ChangeId = 1,
+                Name = _fixture.Create<OrganizationName>(),
+                OvoNumber = _fixture.Create<OrganizationOvoCode>(),
+                Keys =
+                [
+                    new Key
+                    {
+                        KeyTypeName = "NIS",
+                        Value = nisCode1,
+                        Validity = new Validity
+                        {
+                            Start = DateTime.Today.AddDays(-10),
+                            End = DateTime.Today.AddDays(-1)
+                        }
+                    },
+                    new Key
+                    {
+                        KeyTypeName = "NIS",
+                        Value = nisCode2,
+                        Validity = new Validity
+                        {
+                            Start = DateTime.Today
+                        }
+                    }
+                ]
+            };
+
+            var (consumer, store) = BuildSetup(new FakeOrganizationReader(organization1));
+
+            await consumer.StartAsync(CancellationToken.None);
+
+            var createOrganizationMessage = await store.GetLastMessage<CreateOrganization>();
+
+            Assert.Equal(nisCode2, createOrganizationMessage.Code);
+            Assert.Equal(organization1.Name, createOrganizationMessage.Name);
+            Assert.Equal(organization1.OvoNumber, createOrganizationMessage.OvoCode);
         }
     }
 }
