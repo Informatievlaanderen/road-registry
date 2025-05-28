@@ -1,6 +1,7 @@
 namespace RoadRegistry.SyncHost.Organization;
 
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Threading;
@@ -34,7 +35,6 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     public const string ProjectionStateName = "roadregistry-sync-organization";
-
     private readonly ILifetimeScope _container;
     private readonly OrganizationConsumerOptions _options;
     private readonly IOrganizationReader _organizationReader;
@@ -165,25 +165,30 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var existingOrganizations = await editorContext.OrganizationsV2
-            .Where(x => x.OvoCode == organization.OvoNumber)
-            .ToListAsync(cancellationToken);
+        var organizationId = GetNisCodeOrOvoCode(organization);
 
-        var classicOrganizationIds = existingOrganizations
-            .Where(x => x.Code != x.OvoCode)
-            .Select(x => x.Code)
-            .Distinct()
-            .ToList();
-        if (classicOrganizationIds.Count > 1)
+        if (OrganizationOvoCode.AcceptsValue(organizationId))
         {
-            Logger.LogError($"Multiple Organizations found with a link to {organization.OvoNumber}, not proceeding with automatic rename to '{organization.Name}' (Ids: {string.Join(", ", classicOrganizationIds)})");
-            return;
+            var classicOrganizationIds = await editorContext.OrganizationsV2
+                .Where(x => x.OvoCode == organization.OvoNumber)
+                .Where(x => x.Code != x.OvoCode)
+                .Select(x => x.Code)
+                .Distinct()
+                .ToListAsync(cancellationToken);
+            if (classicOrganizationIds.Count > 1)
+            {
+                Logger.LogError($"Multiple Organizations found with a link to {organization.OvoNumber}, not proceeding with automatic rename to '{organization.Name}' (Ids: {string.Join(", ", classicOrganizationIds)})");
+                return;
+            }
+
+            if (classicOrganizationIds.Any())
+            {
+                organizationId = new OrganizationId(classicOrganizationIds.Single());
+            }
         }
 
         var ovoCode = new OrganizationOvoCode(organization.OvoNumber);
         var kboNumber = OrganizationKboNumber.FromValue(organization.KboNumber);
-
-        var organizationId = classicOrganizationIds.Any() ? new OrganizationId(classicOrganizationIds.Single()) : new OrganizationId(ovoCode);
 
         var existingOrganization = await organizationsContext.FindAsync(organizationId, cancellationToken);
         if (existingOrganization is null)
@@ -210,5 +215,40 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
             };
             await _organizationCommandQueue.WriteAsync(new Command(command), cancellationToken);
         }
+    }
+
+    private static OrganizationId GetNisCodeOrOvoCode(Organization organization)
+    {
+        return new OrganizationId(GetCurrentNisCode(organization)
+                                  ?? GetLastExpiredNisCode(organization)
+                                  ?? organization.OvoNumber);
+    }
+
+    private static string? GetCurrentNisCode(Organization organization)
+    {
+        var today = DateTime.Now.Date;
+
+        return organization.Keys?
+               .Where(x => x.KeyTypeName!.Equals("NIS", StringComparison.InvariantCultureIgnoreCase))
+               .Where(x => x.Validity is null || (
+                   (x.Validity.Start ?? today).Date >= today
+                   &&
+                   (x.Validity.End ?? today).Date <= today
+               ))
+               .OrderBy(x => x.Validity?.Start)
+               .Select(x => x.Value!)
+               .FirstOrDefault();
+    }
+
+    private static string? GetLastExpiredNisCode(Organization organization)
+    {
+        var today = DateTime.Now.Date;
+
+        return organization.Keys?
+               .Where(x => x.KeyTypeName!.Equals("NIS", StringComparison.InvariantCultureIgnoreCase))
+               .Where(x => x.Validity?.End is not null && x.Validity.End.Value < today)
+               .OrderByDescending(x => x.Validity.End)
+               .Select(x => x.Value!)
+               .FirstOrDefault();
     }
 }
