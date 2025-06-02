@@ -1,3 +1,10 @@
+## [4.32.1](https://github.com/informatievlaanderen/road-registry/compare/v4.32.0...v4.32.1) (2025-06-02)
+
+
+### Bug Fixes
+
+* OR sync must prioritize niscode over OVO-code ([8003ded](https://github.com/informatievlaanderen/road-registry/commit/8003ded899058adcf28afbb916340424b05297f1))
+
 # [4.32.0](https://github.com/informatievlaanderen/road-registry/compare/v4.31.8...v4.32.0) (2025-05-27)
 
 
