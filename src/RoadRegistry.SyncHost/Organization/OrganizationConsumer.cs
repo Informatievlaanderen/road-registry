@@ -231,9 +231,9 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
         return organization.Keys?
                .Where(x => x.KeyTypeName!.Equals("NIS", StringComparison.InvariantCultureIgnoreCase))
                .Where(x => x.Validity is null || (
-                   (x.Validity.Start ?? today).Date >= today
+                   (x.Validity.Start ?? today).Date <= today
                    &&
-                   (x.Validity.End ?? today).Date <= today
+                   (x.Validity.End ?? today).Date >= today
                ))
                .OrderBy(x => x.Validity?.Start)
                .Select(x => x.Value!)
