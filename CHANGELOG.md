@@ -1,3 +1,10 @@
+## [4.32.2](https://github.com/informatievlaanderen/road-registry/compare/v4.32.1...v4.32.2) (2025-06-05)
+
+
+### Bug Fixes
+
+* read active niscode from OR sync ([66e408f](https://github.com/informatievlaanderen/road-registry/commit/66e408f602d3f284e3b3e85bcc2baf47eac7a73a))
+
 ## [4.32.1](https://github.com/informatievlaanderen/road-registry/compare/v4.32.0...v4.32.1) (2025-06-02)
 
 
