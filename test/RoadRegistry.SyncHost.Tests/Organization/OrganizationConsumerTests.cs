@@ -1,5 +1,6 @@
 namespace RoadRegistry.SyncHost.Tests.Organization
 {
+    using System.Text.Json;
     using Autofac;
     using AutoFixture;
     using BackOffice;
@@ -12,6 +13,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
     using Editor.Schema.Organizations;
     using Extensions;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Configuration.Json;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.Abstractions;
     using Moq;
@@ -264,7 +266,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
                         Value = nisCode,
                         Validity = new Validity
                         {
-                            Start = DateTime.Today
+                            Start = new DateTime(2000,1,1)
                         }
                     }
                 ]
@@ -299,8 +301,8 @@ namespace RoadRegistry.SyncHost.Tests.Organization
                         Value = nisCode,
                         Validity = new Validity
                         {
-                            Start = DateTime.Today.AddDays(-10),
-                            End = DateTime.Today.AddDays(-1)
+                            Start = new DateTime(2000,1,1),
+                            End = new DateTime(2010,1,1)
                         }
                     }
                 ]
@@ -336,8 +338,8 @@ namespace RoadRegistry.SyncHost.Tests.Organization
                         Value = nisCode1,
                         Validity = new Validity
                         {
-                            Start = DateTime.Today.AddDays(-10),
-                            End = DateTime.Today.AddDays(-1)
+                            Start = new DateTime(2000,1,1),
+                            End = new DateTime(2010,1,1)
                         }
                     },
                     new Key
@@ -346,7 +348,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
                         Value = nisCode2,
                         Validity = new Validity
                         {
-                            Start = DateTime.Today
+                            Start = new DateTime(2010,1,2)
                         }
                     }
                 ]
@@ -361,6 +363,127 @@ namespace RoadRegistry.SyncHost.Tests.Organization
             Assert.Equal(nisCode2, createOrganizationMessage.Code);
             Assert.Equal(organization1.Name, createOrganizationMessage.Name);
             Assert.Equal(organization1.OvoNumber, createOrganizationMessage.OvoCode);
+        }
+
+        [Fact]
+        public async Task WithFutureNisCode_ThenCurrentNisCodeIsUsedAsCode()
+        {
+            var nisCode1 = "10001";
+            var nisCode2 = "10002";
+
+            var organization1 = new Organization
+            {
+                ChangeId = 1,
+                Name = _fixture.Create<OrganizationName>(),
+                OvoNumber = _fixture.Create<OrganizationOvoCode>(),
+                Keys =
+                [
+                    new Key
+                    {
+                        KeyTypeName = "NIS",
+                        Value = nisCode1,
+                        Validity = new Validity
+                        {
+                            Start = new DateTime(2000,1,1),
+                            End = new DateTime(2999,12,31)
+                        }
+                    },
+                    new Key
+                    {
+                        KeyTypeName = "NIS",
+                        Value = nisCode2,
+                        Validity = new Validity
+                        {
+                            Start = new DateTime(3000,1,1)
+                        }
+                    }
+                ]
+            };
+
+            var (consumer, store) = BuildSetup(new FakeOrganizationReader(organization1));
+
+            await consumer.StartAsync(CancellationToken.None);
+
+            var createOrganizationMessage = await store.GetLastMessage<CreateOrganization>();
+
+            Assert.Equal(nisCode1, createOrganizationMessage.Code);
+            Assert.Equal(organization1.Name, createOrganizationMessage.Name);
+            Assert.Equal(organization1.OvoNumber, createOrganizationMessage.OvoCode);
+        }
+
+        [Fact]
+        public async Task WithJsonResponse_ThenCurrentNisCodeIsUsedAsCode()
+        {
+            var json = """
+                       [
+                         {
+                           "changeId": 1117298,
+                           "changeTime": "2025-06-05",
+                           "id": "7c26f2cf-0e39-478e-a273-203d9bdb4072",
+                           "name": "Gemeente Wingene",
+                           "ovoNumber": "OVO002277",
+                           "validity": {},
+                           "kboNumber": "0207495470",
+                           "keys": [
+                             {
+                               "organisationKeyId": "9b9276ab-d3b5-43e7-ad5d-b9d2615bd70c",
+                               "keyTypeId": "5f1e81fa-b638-4c48-9bf8-125b3a203724",
+                               "keyTypeName": "Piavo_Sortering",
+                               "value": "40_2860",
+                               "validity": {
+                                 "start": "1977-01-01"
+                               }
+                             },
+                             {
+                               "organisationKeyId": "1de7739b-824b-4395-9016-ce24c89695f7",
+                               "keyTypeId": "371462ac-f885-4b1e-b657-b04da30a6377",
+                               "keyTypeName": "NIS",
+                               "value": "37018",
+                               "validity": {
+                                 "start": "1977-01-01"
+                               }
+                             },
+                             {
+                               "organisationKeyId": "565941a1-88dd-4d30-896e-98559d2c5132",
+                               "keyTypeId": "e26ee59c-e992-4e18-9ea9-ee3b33d7ba06",
+                               "keyTypeName": "INR",
+                               "value": "494",
+                               "validity": {
+                                 "start": "1977-01-01"
+                               }
+                             },
+                             {
+                               "organisationKeyId": "b0373838-efe8-4626-b7b3-2c2540bee315",
+                               "keyTypeId": "95dfef4a-ba38-47d7-bd76-05151aec8141",
+                               "keyTypeName": "KBO",
+                               "value": "0207.495.470",
+                               "validity": {
+                                 "start": "1977-01-01"
+                               }
+                             },
+                             {
+                               "organisationKeyId": "6aae3324-96eb-4557-ab2d-2430c9c6e250",
+                               "keyTypeId": "7f2994e5-211a-9c15-0d0e-c32b709774d8",
+                               "keyTypeName": "CIB",
+                               "value": "CIB000037242",
+                               "validity": {}
+                             }
+                           ]
+                         }
+                       ]
+                       """;
+            using var jsonStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(json));
+            var organizations = await System.Text.Json.JsonSerializer.DeserializeAsync<IEnumerable<Organization>>(jsonStream, JsonSerializerOptions.Web);
+
+            var (consumer, store) = BuildSetup(new FakeOrganizationReader(organizations!.ToArray()));
+
+            await consumer.StartAsync(CancellationToken.None);
+
+            var createOrganizationMessage = await store.GetLastMessage<CreateOrganization>();
+
+            Assert.Equal("37018", createOrganizationMessage.Code);
+            Assert.Equal("Gemeente Wingene", createOrganizationMessage.Name);
+            Assert.Equal("OVO002277", createOrganizationMessage.OvoCode);
         }
     }
 }
