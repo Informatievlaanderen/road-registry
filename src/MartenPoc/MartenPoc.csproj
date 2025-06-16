@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Marten" />
+    <PackageReference Include="Dapper" />
     <PackageReference Include="AutoFixture.Xunit2" />
   </ItemGroup>
 </Project>

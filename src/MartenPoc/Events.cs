@@ -14,11 +14,11 @@ public interface IWegknoopEvent
 {
 }
 
-public interface IHasId
+public interface IHasId //TODO-pr mag weg
 {
     Guid Id { get; }
 }
-public interface IHasGeometry
+public interface IHasGeometry //TODO-pr mag weg
 {
     string Geometry { get; }
 }

@@ -13,6 +13,9 @@ public sealed record ScopedWegennetwerk
 
     public static ScopedWegennetwerk Empty => new ScopedWegennetwerk([], []);
 
+    public IEnumerable<Wegknoop> Wegknopen => _wegknopen;
+    public IEnumerable<Wegsegment> Wegsegmenten => _wegsegmenten;
+
     public ScopedWegennetwerk(
         IEnumerable<Wegknoop> wegknopen,
         IEnumerable<Wegsegment> wegsegmenten)

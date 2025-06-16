@@ -1,11 +1,18 @@
 ﻿namespace MartenPoc;
 
 using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
+using Dapper;
+using JasperFx;
+using JasperFx.Blocks;
 using JasperFx.Events.Projections;
 using Marten;
 using Marten.Events.Projections;
+using Marten.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetTopologySuite.Geometries;
@@ -41,34 +48,39 @@ public class Program
             });
         }).Services.BuildServiceProvider();
 
-        var store = sp.GetService<IDocumentStore>();
+        await using var store = sp.GetService<IDocumentStore>();
 
-        // TODO-pr: add geometry column: ALTER TABLE mt_doc_roadnetworksegment ADD COLUMN geometry geometry(Geometry, 0);
+        await using var session = store.LightweightSession();
 
-
+        // rebuild aggregate snapshot
+        // var projectionDaemon = await store.BuildProjectionDaemonAsync();
+        // await projectionDaemon.RebuildProjectionAsync<Wegsegment>(CancellationToken.None);
 
         await SeedNetworkWithNewEntities(store);
-        //TODO-pr await SeedNetworkWithChangesToExistingEntities();
+        await SeedNetworkWithChangesToExistingEntities(store);
+        await SeedNetworkWithChangesToExistingEntities(store);
 
         var repository = new ScopedWegennetwerkRepository(store);
 
-        // var netwerk = await repository.Load(
-        //     wegknoopIds:
-        //     [
-        //         eersteWegsegment.BeginknoopId,
-        //         eersteWegsegment.EindknoopId,
-        //         tweedeWegsegment.BeginknoopId,
-        //         tweedeWegsegment.EindknoopId
-        //     ],
-        //     wegsegmentIds: [eersteWegsegmentId, tweedeWegsegmentId]);
-        //
-        // netwerk.WijzigWegknoopType(tweedeWegsegment.EindknoopId, "Schijnknoop");
-        //
-        // await repository.Save(netwerk);
+        var sw = Stopwatch.StartNew();
+        var minXY = 200100;
+        var width = 200;
+        var network = await repository.Load(new Polygon(new LinearRing([
+            new Coordinate(minXY, minXY),
+            new Coordinate(minXY, minXY+width),
+            new Coordinate(minXY+width, minXY+width),
+            new Coordinate(minXY+width, minXY),
+            new Coordinate(minXY, minXY)])));
+        var elapsed = sw.Elapsed;
+
+        var segments = network.Wegsegmenten.OrderByDescending(x => x.Version).ToList();
+
     }
 
     private static async Task SeedNetworkWithNewEntities(IDocumentStore store)
     {
+        //return;
+
         var fixture = new Fixture();
 
         var netwerk = ScopedWegennetwerk.Empty;
@@ -95,6 +107,50 @@ public class Program
                     knoopId1, knoopId2,
                     fixture.Create<string>(), fixture.Create<string>(), fixture.Create<string>(), fixture.Create<string>(),
                     fixture.Create<string>(), fixture.Create<string>(), fixture.Create<string>(), fixture.Create<string>(), fixture.Create<string>());
+                //break; //TODO-pr temp do only 1
+            }
+
+            await repository.SaveRoadNetworkChange(netwerk);
+            //break; //TODO-pr temp do only 1
+        }
+    }
+
+    private static async Task SeedNetworkWithChangesToExistingEntities(IDocumentStore store)
+    {
+        var fixture = new Fixture();
+
+        await using var session = store.LightweightSession();
+
+        var repository = new ScopedWegennetwerkRepository(store);
+        var minXY = 200000;
+        var width = 1000;
+        var netwerk = await repository.Load(new Polygon(new LinearRing([
+            new Coordinate(minXY, minXY),
+            new Coordinate(minXY, minXY+width),
+            new Coordinate(minXY+width, minXY+width),
+            new Coordinate(minXY+width, minXY),
+            new Coordinate(minXY, minXY)])));
+
+        foreach (var segment in netwerk.Wegsegmenten)
+        {
+            var changes = new Random().Next(0, 10);
+            for (var c = 0; c < changes; c++)
+            {
+                netwerk.WijzigWegsegment(segment.Id, segment.Geometry, segment.BeginknoopId, segment.EindknoopId,
+                    fixture.Create<string>(), fixture.Create<string>(), fixture.Create<string>(), fixture.Create<string>(),
+                    fixture.Create<string>(), fixture.Create<string>(), fixture.Create<string>(), fixture.Create<string>(), fixture.Create<string>());
+                //break; //TODO-pr temp do only 1
+            }
+
+            await repository.SaveRoadNetworkChange(netwerk);
+        }
+
+        foreach (var knoop in netwerk.Wegknopen)
+        {
+            var changes = new Random().Next(0, 10);
+            for (var c = 0; c < changes; c++)
+            {
+                netwerk.WijzigWegknoop(knoop.Id, knoop.Geometry, fixture.Create<string>());
             }
 
             await repository.SaveRoadNetworkChange(netwerk);

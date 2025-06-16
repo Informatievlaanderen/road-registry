@@ -12,6 +12,12 @@
           "xunit.extensibility.core": "[2.2.0, 3.0.0)"
         }
       },
+      "Dapper": {
+        "type": "Direct",
+        "requested": "[2.1.66, )",
+        "resolved": "2.1.66",
+        "contentHash": "/q77jUgDOS+bzkmk3Vy9SiWMaetTw+NOoPAV0xPBsGVAyljd5S6P+4RUW7R3ZUGGr9lDRyPKgAMj2UAOwvqZYw=="
+      },
       "Marten": {
         "type": "Direct",
         "requested": "[8.2.1, )",
