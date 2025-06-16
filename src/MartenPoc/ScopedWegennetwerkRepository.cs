@@ -47,14 +47,19 @@
 
         private record RoadNetworkSegment(Guid Id, Guid StartNodeId, Guid EndNodeId);
 
-        public async Task<ScopedWegennetwerk> Load(Geometry boundingBox)
+        public async Task<ScopedWegennetwerk> Load(Geometry boundingBox, int? limitSegments = null)
         {
             await using var session = _store.LightweightSession();
 
-            var segments = (await session.Connection.QueryAsync<RoadNetworkSegment>(@"
+            var sql = @"
 SELECT id as Id, start_node_id as StartNodeId, end_node_id as EndNodeId
 FROM road.roadnetworksegments
-WHERE ST_Intersects(geometry, ST_GeomFromText(@wkt, 0))", new { wkt = boundingBox.AsText() }))
+WHERE ST_Intersects(geometry, ST_GeomFromText(@wkt, 0))";
+            if (limitSegments is not null)
+            {
+                sql += $" LIMIT {limitSegments}";
+            }
+            var segments = (await session.Connection.QueryAsync<RoadNetworkSegment>(sql, new { wkt = boundingBox.AsText() }))
                 .ToList();
 
             var network = await Load(

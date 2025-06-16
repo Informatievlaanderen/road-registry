@@ -14,15 +14,6 @@ public interface IWegknoopEvent
 {
 }
 
-public interface IHasId //TODO-pr mag weg
-{
-    Guid Id { get; }
-}
-public interface IHasGeometry //TODO-pr mag weg
-{
-    string Geometry { get; }
-}
-
 public sealed record WegsegmentWerdToegevoegd(
     Guid Id,
     string Geometry,
@@ -37,7 +28,7 @@ public sealed record WegsegmentWerdToegevoegd(
     string Attribuut6,
     string Attribuut7,
     string Attribuut8
-    ) : IHasId, IWegsegmentEvent, ICreateEvent, IHasGeometry;
+    ) : IWegsegmentEvent, ICreateEvent;
 
 public sealed record WegsegmentWerdGewijzigd(
     Guid Id,
@@ -52,8 +43,8 @@ public sealed record WegsegmentWerdGewijzigd(
     string Attribuut5,
     string Attribuut6,
     string Attribuut7,
-    string Attribuut8) : IHasId, IWegsegmentEvent, IHasGeometry;
+    string Attribuut8) : IWegsegmentEvent;
 
-public sealed record WegknoopWerdToegevoegd(Guid Id, string Geometry, string Type) : IHasId, IWegknoopEvent, ICreateEvent, IHasGeometry;
+public sealed record WegknoopWerdToegevoegd(Guid Id, string Geometry, string Type) : IWegknoopEvent, ICreateEvent;
 
-public sealed record WegknoopWerdGewijzigd(Guid Id, string Geometry, string Type) : IHasId, IWegknoopEvent, IHasGeometry;
+public sealed record WegknoopWerdGewijzigd(Guid Id, string Geometry, string Type) : IWegknoopEvent;

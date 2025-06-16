@@ -27,8 +27,8 @@ public class Program
     {
         /*TODO-pr flow:
          x events genereren voor wegsegmenten en wegknopen
-         - inline projectie voor wegsegmenten en wegknopen
-         - perf test: scoped roadnetwerk inladen voor een regio (inline projectie gebruiken voor wegknoop/wegsegment ids te vinden)
+         x inline projectie voor wegsegmenten en wegknopen
+         x perf test: scoped roadnetwerk inladen voor een regio (inline projectie gebruiken voor wegknoop/wegsegment ids te vinden)
          - projectie maken adv causation_id
          */
 
@@ -50,31 +50,45 @@ public class Program
 
         await using var store = sp.GetService<IDocumentStore>();
 
-        await using var session = store.LightweightSession();
+        //await RebuildRoadSegmentSnapshots(store);
 
-        // rebuild aggregate snapshot
-        // var projectionDaemon = await store.BuildProjectionDaemonAsync();
-        // await projectionDaemon.RebuildProjectionAsync<Wegsegment>(CancellationToken.None);
+        //await SeedNetworkWithNewEntities(store);
+        //await SeedNetworkWithChangesToExistingEntities(store);
+        //await SeedNetworkWithChangesToExistingEntities(store);
 
-        await SeedNetworkWithNewEntities(store);
-        await SeedNetworkWithChangesToExistingEntities(store);
-        await SeedNetworkWithChangesToExistingEntities(store);
+        await LoadRoadNetworkForRegion(store);
+    }
 
+    private static async Task RebuildRoadSegmentSnapshots(IDocumentStore store)
+    {
+        var projectionDaemon = await store.BuildProjectionDaemonAsync();
+        await projectionDaemon.RebuildProjectionAsync<Wegsegment>(CancellationToken.None);
+    }
+
+    private static async Task LoadRoadNetworkForRegion(IDocumentStore store)
+    {
         var repository = new ScopedWegennetwerkRepository(store);
 
-        var sw = Stopwatch.StartNew();
         var minXY = 200100;
-        var width = 200;
+        var width = 5000;
+        // warmup -> beacuse of schema check?
+        var _ = await repository.Load(new Polygon(new LinearRing([
+            new Coordinate(minXY, minXY),
+            new Coordinate(minXY, minXY+width),
+            new Coordinate(minXY+width, minXY+width),
+            new Coordinate(minXY+width, minXY),
+            new Coordinate(minXY, minXY)])), limitSegments: 1);
+
+        var sw = Stopwatch.StartNew();
         var network = await repository.Load(new Polygon(new LinearRing([
             new Coordinate(minXY, minXY),
             new Coordinate(minXY, minXY+width),
             new Coordinate(minXY+width, minXY+width),
             new Coordinate(minXY+width, minXY),
-            new Coordinate(minXY, minXY)])));
+            new Coordinate(minXY, minXY)])), limitSegments: 10000);
         var elapsed = sw.Elapsed;
 
         var segments = network.Wegsegmenten.OrderByDescending(x => x.Version).ToList();
-
     }
 
     private static async Task SeedNetworkWithNewEntities(IDocumentStore store)

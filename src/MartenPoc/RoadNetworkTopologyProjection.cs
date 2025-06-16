@@ -8,7 +8,7 @@ using Weasel.Postgresql.Tables;
 
 public class RoadNetworkTopologyProjection : EventProjection
 {
-    private const string TableName = "roadnetworksegments";
+    private const string TableName = "road.roadnetworksegments";
 
     public RoadNetworkTopologyProjection()
     {
