@@ -29,6 +29,7 @@
     <PackageVersion Include="AWSSDK.SimpleNotificationService" Version="3.7.301.7" />
     <PackageVersion Include="AWSSDK.SQS" Version="3.7.400.129" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.24.0" />
+    <PackageVersion Include="Marten" Version="8.2.1" />
 
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.AggregateSource" Version="10.0.2" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.AggregateSource.Testing" Version="10.0.2" />

@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+  <Import Project="..\..\.build\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.App.props" />
+  <PropertyGroup>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <Nullable>disable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+    <NoWarn>CS8618</NoWarn>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+  </PropertyGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Marten" />
+    <PackageReference Include="AutoFixture.Xunit2" />
+  </ItemGroup>
+</Project>
