@@ -57,7 +57,7 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
 
         b.Property(p => p.LeftSideMunicipalityNisCode).HasColumnName("linksGemeenteNisCode");
         b.Property(p => p.RightSideMunicipalityNisCode).HasColumnName("rechtsGemeenteNisCode");
-        
+
         b.Property(p => p.IsRemoved)
             .HasColumnName("verwijderd")
             .HasDefaultValue(false)
@@ -65,12 +65,30 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
 
         b.HasIndex(p => p.IsRemoved)
             .IsClustered(false);
+        b.HasIndex(p => p.BeginRoadNodeId)
+            .IsClustered(false);
+        b.HasIndex(p => p.EndRoadNodeId)
+            .IsClustered(false);
+        b.HasIndex(p => p.LeftSideStreetNameId)
+            .IsClustered(false);
+        b.HasIndex(p => p.LeftSideStreetName)
+            .IsClustered(false);
+        b.HasIndex(p => p.RightSideStreetNameId)
+            .IsClustered(false);
+        b.HasIndex(p => p.RightSideStreetName)
+            .IsClustered(false);
+        b.HasIndex(p => p.AccessRestrictionId)
+            .IsClustered(false);
+        b.HasIndex(p => p.CategoryId)
+            .IsClustered(false);
+        b.HasIndex(p => p.MaintainerId)
+            .IsClustered(false);
+        b.HasIndex(p => p.MethodId)
+            .IsClustered(false);
         b.HasIndex(p => p.MorphologyId)
             .IsClustered(false)
             .HasDatabaseName("wegsegmentmorfologie");
-        b.HasIndex(p => p.LeftSideStreetNameId)
-            .IsClustered(false);
-        b.HasIndex(p => p.RightSideStreetNameId)
+        b.HasIndex(p => p.StatusId)
             .IsClustered(false);
     }
 }
