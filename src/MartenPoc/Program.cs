@@ -10,6 +10,7 @@ using Dapper;
 using Domain;
 using JasperFx;
 using JasperFx.Blocks;
+using JasperFx.Events.Daemon;
 using JasperFx.Events.Projections;
 using Marten;
 using Marten.Events.Projections;
@@ -35,29 +36,30 @@ public class Program
          - projectie maken adv causation_id
          */
 
-        var sp = new ServiceCollection().AddMarten(options =>
-        {
-            options.Connection(new NpgsqlDataSourceBuilder("Host=localhost;port=5440;Username=postgres;Password=postgres")
-                //.UseNetTopologySuite()
-                .Build());
-            options.DatabaseSchemaName = "road";
-            //options.UseSystemTextJsonForSerialization();
+        var host = Host.CreateDefaultBuilder(args)
+            .ConfigureServices((context, services) =>
+            {
+                services
+                    .AddMarten(options =>
+                    {
+                        options.Connection(new NpgsqlDataSourceBuilder("Host=localhost;port=5440;Username=postgres;Password=postgres")
+                            //.UseNetTopologySuite()
+                            .Build());
+                        options.DatabaseSchemaName = "road";
+                        //options.UseSystemTextJsonForSerialization();
 
-            ScopedWegennetwerkRepository.Configure(options);
+                        ScopedWegennetwerkRepository.Configure(options);
 
-            options.Projections.Add<RoadSegmentProjection>(ProjectionLifecycle.Async);
+                        options.Projections.Add<RoadSegmentProjection>(ProjectionLifecycle.Async);
+                    })
+                    .AddAsyncDaemon(DaemonMode.Solo);
 
-            // options.CreateDatabasesForTenants(c =>
-            // {
-            //     c.ForTenant()
-            //         .CheckAgainstPgDatabase()
-            //         .WithOwner("postgres")
-            //         .WithEncoding("UTF-8")
-            //         .ConnectionLimit(-1);
-            // });
-        }).Services.BuildServiceProvider();
+                services
+                    .AddHostedService<ProjectionBackgroundService>();
+            })
+            .Build();
 
-        await using var store = sp.GetService<IDocumentStore>();
+        await using var store = host.Services.GetService<IDocumentStore>();
 
         //await RebuildRoadSegmentSnapshots(store);
 
@@ -65,7 +67,9 @@ public class Program
         //await SeedNetworkWithChangesToExistingEntities(store);
         //await SeedNetworkWithChangesToExistingEntities(store);
 
-        await LoadRoadNetworkForRegion(store);
+        //await LoadRoadNetworkForRegion(store);
+
+        await host.RunAsync();
     }
 
     private static async Task RebuildRoadSegmentSnapshots(IDocumentStore store)
@@ -80,7 +84,7 @@ public class Program
 
         var minXY = 200100;
         var width = 5000;
-        // warmup -> beacuse of schema check?
+        // warmup needed -> because of schema check?
         var _ = await repository.Load(new Polygon(new LinearRing([
             new Coordinate(minXY, minXY),
             new Coordinate(minXY, minXY+width),
