@@ -1,4 +1,4 @@
-﻿namespace MartenPoc;
+﻿namespace MartenPoc.Domain;
 
 using System;
 using JasperFx.Events;

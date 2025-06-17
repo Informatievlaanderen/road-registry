@@ -9,8 +9,6 @@
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
   <ItemGroup>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Marten" />
     <PackageReference Include="Dapper" />
     <PackageReference Include="AutoFixture.Xunit2" />

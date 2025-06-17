@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using Dapper;
+using Domain;
 using JasperFx;
 using JasperFx.Blocks;
 using JasperFx.Events.Projections;
@@ -16,6 +17,8 @@ using Marten.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetTopologySuite.Geometries;
+using Npgsql;
+using Projections;
 
 public class Program
 {
@@ -34,18 +37,24 @@ public class Program
 
         var sp = new ServiceCollection().AddMarten(options =>
         {
+            options.Connection(new NpgsqlDataSourceBuilder("Host=localhost;port=5440;Username=postgres;Password=postgres")
+                //.UseNetTopologySuite()
+                .Build());
+            options.DatabaseSchemaName = "road";
+            //options.UseSystemTextJsonForSerialization();
+
             ScopedWegennetwerkRepository.Configure(options);
 
-            options.CreateDatabasesForTenants(c =>
-            {
-                // Specify a db to which to connect in case database needs to be created.
-                // If not specified, defaults to 'postgres' on the connection for a tenant.
-                c.ForTenant()
-                    .CheckAgainstPgDatabase()
-                    .WithOwner("postgres")
-                    .WithEncoding("UTF-8")
-                    .ConnectionLimit(-1);
-            });
+            options.Projections.Add<RoadSegmentProjection>(ProjectionLifecycle.Async);
+
+            // options.CreateDatabasesForTenants(c =>
+            // {
+            //     c.ForTenant()
+            //         .CheckAgainstPgDatabase()
+            //         .WithOwner("postgres")
+            //         .WithEncoding("UTF-8")
+            //         .ConnectionLimit(-1);
+            // });
         }).Services.BuildServiceProvider();
 
         await using var store = sp.GetService<IDocumentStore>();

@@ -1,16 +1,14 @@
-﻿namespace MartenPoc
+﻿namespace MartenPoc.Domain
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
     using Dapper;
     using JasperFx.Events.Projections;
     using Marten;
     using Marten.Events.Projections;
     using NetTopologySuite.Geometries;
-    using Npgsql;
 
     public class ScopedWegennetwerkRepository
     {
@@ -23,16 +21,9 @@
 
         public static void Configure(StoreOptions options)
         {
-            options.Connection(new NpgsqlDataSourceBuilder("Host=localhost;port=5440;Username=postgres;Password=postgres")
-                //.UseNetTopologySuite()
-                .Build());
-            options.DatabaseSchemaName = "road";
-            //options.UseSystemTextJsonForSerialization();
-
             options.Events.MetadataConfig.CausationIdEnabled = true;
 
-            options.Projections.Add(new RoadNetworkTopologyProjection(), ProjectionLifecycle.Inline);
-
+            options.Projections.Add<RoadNetworkTopologyProjection>(ProjectionLifecycle.Inline);
             options.Projections.Snapshot<Wegsegment>(SnapshotLifecycle.Inline);
             // options.Schema.For<Wegsegment>().Metadata(opts =>
             // {
