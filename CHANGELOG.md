@@ -1,3 +1,10 @@
+## [4.32.3](https://github.com/informatievlaanderen/road-registry/compare/v4.32.2...v4.32.3) (2025-06-17)
+
+
+### Bug Fixes
+
+* add missing WMS indices ([a5bb77b](https://github.com/informatievlaanderen/road-registry/commit/a5bb77ba03da7d583347c07da3e63a9ae3184719))
+
 ## [4.32.2](https://github.com/informatievlaanderen/road-registry/compare/v4.32.1...v4.32.2) (2025-06-05)
 
 
