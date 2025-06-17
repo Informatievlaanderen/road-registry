@@ -20,17 +20,17 @@ public class ProjectionBackgroundService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         // This will run all async projections in the background
-        _logger.LogInformation("Starting Marten Async Daemon...");
+        // _logger.LogInformation("Starting Marten Async Daemon...");
 
-        var daemon = await _store.BuildProjectionDaemonAsync();
-
-        // Optional: start a specific projection shard
-        // await daemon.StartShard("YourProjectionName", stoppingToken);
-
-        // Run all async projection shards
-        await daemon.StartAllAsync();
-
-        _logger.LogInformation("Stopping Marten Async Daemon...");
-        await daemon.StopAllAsync();
+        // var daemon = await _store.BuildProjectionDaemonAsync();
+        //
+        // // Optional: start a specific projection shard
+        // // await daemon.StartShard("YourProjectionName", stoppingToken);
+        //
+        // // Run all async projection shards
+        // await daemon.StartAllAsync();
+        //
+        // _logger.LogInformation("Stopping Marten Async Daemon...");
+        // await daemon.StopAllAsync();
     }
 }

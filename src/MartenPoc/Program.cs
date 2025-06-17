@@ -46,11 +46,10 @@ public class Program
                             //.UseNetTopologySuite()
                             .Build());
                         options.DatabaseSchemaName = "road";
-                        //options.UseSystemTextJsonForSerialization();
 
                         ScopedWegennetwerkRepository.Configure(options);
 
-                        options.Projections.Add<RoadSegmentProjection>(ProjectionLifecycle.Async);
+                        FlattenedRoadNetworkChangeProjection.Configure(options);
                     })
                     .AddAsyncDaemon(DaemonMode.Solo);
 

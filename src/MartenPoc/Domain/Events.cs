@@ -1,4 +1,4 @@
-﻿namespace MartenPoc.Domain;
+﻿namespace MartenPoc;
 
 using System;
 
