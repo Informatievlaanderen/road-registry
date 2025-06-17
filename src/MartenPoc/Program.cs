@@ -29,13 +29,6 @@ public class Program
 
     public static async Task Main(string[] args)
     {
-        /*TODO-pr flow:
-         x events genereren voor wegsegmenten en wegknopen
-         x inline projectie voor wegsegmenten en wegknopen
-         x perf test: scoped roadnetwerk inladen voor een regio (inline projectie gebruiken voor wegknoop/wegsegment ids te vinden)
-         - projectie maken adv causation_id
-         */
-
         var host = Host.CreateDefaultBuilder(args)
             .ConfigureServices((context, services) =>
             {
@@ -52,9 +45,6 @@ public class Program
                         FlattenedRoadNetworkChangeProjection.Configure(options);
                     })
                     .AddAsyncDaemon(DaemonMode.Solo);
-
-                services
-                    .AddHostedService<ProjectionBackgroundService>();
             })
             .Build();
 

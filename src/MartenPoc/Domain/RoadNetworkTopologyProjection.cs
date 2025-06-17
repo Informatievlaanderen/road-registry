@@ -39,33 +39,4 @@ public class RoadNetworkTopologyProjection : EventProjection
             e.Version, e.Data.Geometry, e.Data.StartNodeId, e.Data.EndNodeId, e.CausationId, e.Data.Id
         );
     }
-
-    // public RoadNetworkSegment Create(IEvent<WegsegmentWerdToegevoegd> input)
-    // {
-    //     return new RoadNetworkSegment(input.Data.Id, input.Data.Geometry, input.Data.StartNodeId, input.Data.EndNodeId, input.CausationId);
-    // }
-    //
-    // public RoadNetworkSegment Create(IEvent<WegsegmentWerdGewijzigd> input)
-    // {
-    //     return new RoadNetworkSegment(input.Data.Id, input.Data.Geometry, input.Data.StartNodeId, input.Data.EndNodeId, input.CausationId);
-    // }
 }
-
-// public record RoadNetworkSegment(Guid Id, string Geometry, Guid StartNodeId, Guid EndNodeId, string CausationId)
-// {
-//     public static RoadNetworkSegment Create(IEvent<WegsegmentWerdToegevoegd> werdToegevoegd) =>
-//         new(
-//             werdToegevoegd.Id,
-//             werdToegevoegd.Data.Geometry,
-//             werdToegevoegd.Data.StartNodeId,
-//             werdToegevoegd.Data.EndNodeId,
-//             werdToegevoegd.CausationId);
-//
-//     public RoadNetworkSegment Apply(WegsegmentWerdGewijzigd werdGewijzigd) =>
-//         this with
-//         {
-//             Geometry = werdGewijzigd.Geometry,
-//             StartNodeId = werdGewijzigd.StartNodeId,
-//             EndNodeId = werdGewijzigd.EndNodeId
-//         };
-// }
