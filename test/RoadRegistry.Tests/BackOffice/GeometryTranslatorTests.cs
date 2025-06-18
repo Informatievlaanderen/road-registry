@@ -36,7 +36,7 @@ public class GeometryTranslatorTests
     //}
 
     [Fact]
-    public void MeasuresAreUpdatedCorrectly_PolylineM()
+    public void WhenConvertingPolylineMToMultiLineString_ThenMeasuresAreUpdatedCorrectly()
     {
         var points = new[] { new Point(0, 0), new Point(0, 3), new Point(0, 10) };
         var invalidMeasures = points.Select(x => 1.0).ToArray();
@@ -56,7 +56,7 @@ public class GeometryTranslatorTests
     }
 
     [Fact]
-    public void MeasuresAreUpdatedCorrectly_RoadSegmentGeometry()
+    public void WhenTranslatingRoadSegmentGeometry_ThenMeasuresAreUpdatedCorrectly()
     {
         var points = new[] { new Point(0, 0), new Point(0, 3), new Point(0, 10) };
         var invalidMeasures = points.Select(x => 1.0).ToArray();
@@ -82,21 +82,36 @@ public class GeometryTranslatorTests
     }
 
     [Fact]
-    public void MeasuresAreUpdatedCorrectly_MultiLineString()
+    public void WhenTranslatingMultiLineString_ThenMeasuresAreUpdatedCorrectly()
     {
         var points = new[] { new Point(0, 0), new Point(0, 3), new Point(0, 10) };
-        
+
         var polyline = new MultiLineString(new [] { new LineString(points.Select(point => (Coordinate)new CoordinateM(point.X, point.Y, 1.0)).ToArray()) })
         {
             SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
         };
 
         var geometryLineString = GeometryTranslator.Translate(polyline);
-        
+
         var actualMeasures = geometryLineString.MultiLineString[0].Measures;
         var expectedMeasures = points.Select(x => x.Y).ToArray();
 
         Assert.Equal(expectedMeasures, actualMeasures);
+    }
+
+    [Fact]
+    public void WhenTranslatingMultiLineString_ThenDuplicateCoordinatesAreRemoved()
+    {
+        var points = new[] { new Coordinate(0, 0), new Coordinate(0, 3), new Coordinate(0, 10), new Coordinate(0, 10) };
+
+        var polyline = new MultiLineString([new LineString(points)])
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+
+        var geometryLineString = GeometryTranslator.Translate(polyline);
+
+        Assert.Equal(3, geometryLineString.MultiLineString.Single().Points.Length);
     }
 
     [Theory]
@@ -153,6 +168,29 @@ public class GeometryTranslatorTests
         var actualMeasures = geometryWithMeasures.GetOrdinates(Ordinate.M);
 
         Assert.Equal(expectedMeasures, actualMeasures);
+    }
+
+    [Theory]
+    [InlineData("MULTILINESTRING ((0 0, 0.00001 0, 1 0))", "MULTILINESTRING ((0 0, 1 0))")]
+    [InlineData("MULTILINESTRING ((0 0, 0 0, 1 0))", "MULTILINESTRING ((0 0, 1 0))")]
+    [InlineData("MULTILINESTRING ((0 0, 1 0, 1 0, 2 0))", "MULTILINESTRING ((0 0, 1 0, 2 0))")]
+    [InlineData("MULTILINESTRING ((0 0, 1 0, 2 0, 1 0, 1 0))", "MULTILINESTRING ((0 0, 1 0, 2 0, 1 0))")]
+    public void WhenRemovingDuplicateCoordinatesWithinTolerance_ThenSuccess(string wkt, string expectedWkt)
+    {
+        var geometry = (MultiLineString)new WKTReader().Read(wkt);
+        var wktWithoutDuplicateCoordinates = geometry.WithoutDuplicateCoordinates().AsText();
+
+        Assert.Equal(expectedWkt, wktWithoutDuplicateCoordinates);
+    }
+
+    [Theory]
+    [InlineData("MULTILINESTRING ((0 0, 0 0.01, 1 0))")]
+    public void WhenRemovingDuplicateCoordinatesOutsideTolerance_ThenNone(string wkt)
+    {
+        var geometry = (MultiLineString)new WKTReader().Read(wkt);
+        var wktWithoutDuplicateCoordinates = geometry.WithoutDuplicateCoordinates().AsText();
+
+        Assert.Equal(wkt, wktWithoutDuplicateCoordinates);
     }
 
     //[Fact]
