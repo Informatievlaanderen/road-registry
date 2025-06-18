@@ -1,3 +1,10 @@
+## [4.32.4](https://github.com/informatievlaanderen/road-registry/compare/v4.32.3...v4.32.4) (2025-06-18)
+
+
+### Bug Fixes
+
+* remove duplicate roadsegment coordinates GAWR-5731 ([2c24ffa](https://github.com/informatievlaanderen/road-registry/commit/2c24ffafd18c2ddecf26ecbed3b90961eb7e4a97))
+
 ## [4.32.3](https://github.com/informatievlaanderen/road-registry/compare/v4.32.2...v4.32.3) (2025-06-17)
 
 
