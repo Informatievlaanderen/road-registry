@@ -1,3 +1,10 @@
+## [4.32.5](https://github.com/informatievlaanderen/road-registry/compare/v4.32.4...v4.32.5) (2025-06-24)
+
+
+### Bug Fixes
+
+* tolerance for removal duplicate coordinates ([7a3f143](https://github.com/informatievlaanderen/road-registry/commit/7a3f14323185693fdd58e13a3c351f803fde3142))
+
 ## [4.32.4](https://github.com/informatievlaanderen/road-registry/compare/v4.32.3...v4.32.4) (2025-06-18)
 
 
