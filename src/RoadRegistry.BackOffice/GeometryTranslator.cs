@@ -126,7 +126,7 @@ public static class GeometryTranslator
                     var currentPoint = lineString[i];
                     var previousPoint = lineString[i - 1];
 
-                    if (currentPoint.Equals2D(previousPoint, VerificationContextTolerances.Default.GeometryTolerance))
+                    if (currentPoint.Equals2D(previousPoint, DefaultTolerances.DuplicateCoordinatesTolerance))
                     {
                         continue;
                     }
