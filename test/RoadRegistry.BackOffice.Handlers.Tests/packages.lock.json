@@ -2326,6 +2326,30 @@
           "RoadRegistry.BackOffice": "[1.0.0, )"
         }
       },
+      "roadregistry.backoffice.extracthost": {
+        "type": "Project",
+        "dependencies": {
+          "DataDog.Trace.Bundle": "[3.15.0, )",
+          "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite": "[9.0.4, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.0.5, )",
+          "Microsoft.Extensions.Hosting": "[9.0.5, )",
+          "RoadRegistry.BackOffice": "[1.0.0, )",
+          "RoadRegistry.BackOffice.Abstractions": "[1.0.0, )",
+          "RoadRegistry.BackOffice.Handlers": "[1.0.0, )",
+          "RoadRegistry.BackOffice.ZipArchiveWriters": "[1.0.0, )",
+          "RoadRegistry.Editor.Schema": "[1.0.0, )",
+          "RoadRegistry.Hosts": "[1.0.0, )",
+          "Serilog.Enrichers.Environment": "[3.0.1, )",
+          "Serilog.Enrichers.Thread": "[4.0.0, )",
+          "Serilog.Extensions.Hosting": "[9.0.0, )",
+          "Serilog.Settings.Configuration": "[9.0.0, )",
+          "Serilog.Sinks.Console": "[6.0.0, )",
+          "Serilog.Sinks.Seq": "[9.0.0, )",
+          "Serilog.Sinks.Slack": "[2.2.3, )",
+          "SqlStreamStore.MsSql": "[1.2.0, )",
+          "System.Threading.Channels": "[9.0.4, )"
+        }
+      },
       "roadregistry.backoffice.handlers": {
         "type": "Project",
         "dependencies": {

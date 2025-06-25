@@ -1,6 +1,7 @@
 ﻿ namespace RoadRegistry.BackOffice.Handlers.Tests.Extracts.WhenRequestingOverlappingTransactionZones;
 
  using Abstractions.Extracts;
+ using Api.Extracts.Handlers;
  using AutoFixture;
  using Editor.Schema;
  using Editor.Schema.Extracts;
