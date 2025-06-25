@@ -24,6 +24,29 @@ namespace RoadRegistry.Jobs.Processor.Tests
     public class JobsProcessorTests
     {
         [Fact]
+        public async Task EnsureExtractCleanupIsInvoked()
+        {
+            var mockExtractRequestCleaner = new Mock<IExtractRequestCleaner>();
+
+            var sut = new JobsProcessor(
+                new JobsProcessorOptions(),
+                new FakeJobsContextFactory().CreateDbContext(),
+                Mock.Of<ITicketing>(),
+                new RoadNetworkJobsBlobClient(Mock.Of<IBlobClient>()),
+                Mock.Of<IMediator>(),
+                mockExtractRequestCleaner.Object,
+                new NullLoggerFactory(),
+                Mock.Of<IHostApplicationLifetime>());
+
+            // Act
+            await sut.StartAsync(CancellationToken.None);
+
+            // Assert
+            mockExtractRequestCleaner.Verify(x => x.CloseOldExtracts(
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
         public async Task FlowTest_Uploads()
         {
             var fixture = new Fixture();
@@ -65,6 +88,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockTicketing.Object,
                 new RoadNetworkJobsBlobClient(mockIBlobClient.Object),
                 mockMediator.Object,
+                Mock.Of<IExtractRequestCleaner>(),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 
@@ -130,6 +154,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockTicketing.Object,
                 new RoadNetworkJobsBlobClient(mockIBlobClient.Object),
                 mockMediator.Object,
+                Mock.Of<IExtractRequestCleaner>(),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 
@@ -193,6 +218,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockTicketing.Object,
                 new RoadNetworkJobsBlobClient(mockIBlobClient.Object),
                 mockMediator.Object,
+                Mock.Of<IExtractRequestCleaner>(),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 
@@ -242,6 +268,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockTicketing.Object,
                 new RoadNetworkJobsBlobClient(mockIBlobClient.Object),
                 mockMediator.Object,
+                Mock.Of<IExtractRequestCleaner>(),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 
@@ -287,6 +314,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockTicketing.Object,
                 new RoadNetworkJobsBlobClient(mockIBlobClient.Object),
                 mockMediator.Object,
+                Mock.Of<IExtractRequestCleaner>(),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 
@@ -337,6 +365,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockTicketing.Object,
                 new RoadNetworkJobsBlobClient(mockIBlobClient.Object),
                 mockMediator.Object,
+                Mock.Of<IExtractRequestCleaner>(),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 
@@ -394,6 +423,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockTicketing.Object,
                 new RoadNetworkJobsBlobClient(mockIBlobClient.Object),
                 mockMediator.Object,
+                Mock.Of<IExtractRequestCleaner>(),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 

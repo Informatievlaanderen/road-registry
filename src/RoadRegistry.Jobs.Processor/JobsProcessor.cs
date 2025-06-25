@@ -31,6 +31,7 @@ namespace RoadRegistry.Jobs.Processor
 
     public sealed class JobsProcessor : BackgroundService
     {
+        private readonly IExtractRequestCleaner _extractRequestCleaner;
         private readonly JobsProcessorOptions _uploadProcessorOptions;
         private readonly JobsContext _jobsContext;
         private readonly ITicketing _ticketing;
@@ -45,6 +46,7 @@ namespace RoadRegistry.Jobs.Processor
             ITicketing ticketing,
             RoadNetworkJobsBlobClient blobClient,
             IMediator mediator,
+            IExtractRequestCleaner extractRequestCleaner,
             ILoggerFactory loggerFactory,
             IHostApplicationLifetime hostApplicationLifetime)
         {
@@ -53,6 +55,7 @@ namespace RoadRegistry.Jobs.Processor
             _ticketing = ticketing.ThrowIfNull();
             _blobClient = blobClient.ThrowIfNull();
             _mediator = mediator.ThrowIfNull();
+            _extractRequestCleaner = extractRequestCleaner.ThrowIfNull();
             _logger = loggerFactory.ThrowIfNull().CreateLogger<JobsProcessor>();
             _hostApplicationLifetime = hostApplicationLifetime.ThrowIfNull();
         }
@@ -62,6 +65,7 @@ namespace RoadRegistry.Jobs.Processor
             while (!stoppingToken.IsCancellationRequested)
             {
                 await ProcessJobs(stoppingToken);
+                await _extractRequestCleaner.CloseOldExtracts(stoppingToken);
 
                 if (!_uploadProcessorOptions.AlwaysRunning)
                 {

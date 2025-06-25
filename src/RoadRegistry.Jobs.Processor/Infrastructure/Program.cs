@@ -47,9 +47,8 @@ public class Program
                     .AddRoadRegistrySnapshot()
                     .AddScoped(_ => new EventSourcedEntityMap())
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
-                        new CommandHandlerModule[]
-                        {
-                            new RoadNetworkExtractCommandModule(
+                    [
+                        new RoadNetworkExtractCommandModule(
                                 sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<ILifetimeScope>(),
@@ -59,7 +58,8 @@ public class Program
                                 sp.GetService<IClock>(),
                                 sp.GetService<ILoggerFactory>()
                             )
-                        })))
+                    ])))
+                    .AddScoped<IExtractRequestCleaner, ExtractRequestCleaner>()
 
                     .AddHostedService<JobsProcessor>()
                     ;
@@ -73,12 +73,12 @@ public class Program
             .Build();
 
         await roadRegistryHost
-            .LogSqlServerConnectionStrings(new[] {
+            .LogSqlServerConnectionStrings([
                 WellKnownConnectionNames.Events,
                 WellKnownConnectionNames.Jobs,
                 WellKnownConnectionNames.EditorProjections,
                 WellKnownConnectionNames.StreetNameProjections
-            })
+            ])
             .RunAsync();
     }
 }
