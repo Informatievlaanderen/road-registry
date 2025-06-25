@@ -14,7 +14,7 @@ public sealed class UploadExtractRequestValidator : AbstractValidator<UploadExtr
     public async Task<UploadExtractResponse> Handle(UploadExtractRequest request, RequestHandlerDelegate<UploadExtractResponse> next, CancellationToken cancellationToken)
     {
         await this.ValidateAndThrowAsync(request, cancellationToken);
-        var response = await next();
+        var response = await next(cancellationToken);
         return response;
     }
 }
