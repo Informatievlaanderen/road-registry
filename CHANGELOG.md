@@ -1,3 +1,10 @@
+## [4.32.6](https://github.com/informatievlaanderen/road-registry/compare/v4.32.5...v4.32.6) (2025-06-25)
+
+
+### Bug Fixes
+
+* only send emails for failed uploads from GRB flow ([fd9b075](https://github.com/informatievlaanderen/road-registry/commit/fd9b0753b2a0d9273343e55f88d446bbb905de4e))
+
 ## [4.32.5](https://github.com/informatievlaanderen/road-registry/compare/v4.32.4...v4.32.5) (2025-06-24)
 
 
