@@ -22,7 +22,6 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
         IStreamStore store,
         ApplicationMetadata applicationMetadata,
         IRoadNetworkEventWriter roadNetworkEventWriter,
-        IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
         ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(lifetimeScope);
@@ -93,8 +92,6 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                         var errors = ex.Problems.Select(x => x.Translate().ToTicketError()).ToArray();
                         await ticketing.Error(message.Body.TicketId.Value, new TicketError(errors), ct);
                     }
-
-                    await extractUploadFailedEmailClient.SendAsync(message.Body.Description, new ValidationException(JsonConvert.SerializeObject(rejectedChangeEvent, Formatting.Indented)), ct);
                 }
                 finally
                 {

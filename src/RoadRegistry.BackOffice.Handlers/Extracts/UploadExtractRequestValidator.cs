@@ -18,20 +18,18 @@ public sealed class UploadExtractRequestValidator : AbstractValidator<UploadExtr
 
     public async Task<UploadExtractResponse> Handle(UploadExtractRequest request, RequestHandlerDelegate<UploadExtractResponse> next, CancellationToken cancellationToken)
     {
-        var validationResult = await this.ValidateAsync(request, cancellationToken);
+        var validationResult = await ValidateAsync(request, cancellationToken);
 
         if (validationResult.IsValid)
         {
-            var response = await next();
+            var response = await next(cancellationToken);
             return response;
         }
-        else
-        {
-            var ex = new ValidationException(validationResult.Errors);
-            var extractRequest = await _editorContext.ExtractRequests.FindAsync(new[] { DownloadId.Parse(request.DownloadId).ToGuid() }, cancellationToken);
 
-            await _emailClient.SendAsync(extractRequest?.Description, ex, cancellationToken);
-            throw ex;
-        }
+        var ex = new ValidationException(validationResult.Errors);
+        var extractRequest = await _editorContext.ExtractRequests.FindAsync([DownloadId.Parse(request.DownloadId).ToGuid()], cancellationToken);
+
+        await _emailClient.SendAsync(extractRequest?.Description, ex, cancellationToken);
+        throw ex;
     }
 }

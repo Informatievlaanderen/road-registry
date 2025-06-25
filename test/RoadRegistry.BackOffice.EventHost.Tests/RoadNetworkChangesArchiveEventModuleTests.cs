@@ -101,7 +101,6 @@ public class RoadNetworkChangesArchiveEventModuleTests : RoadNetworkTestBase
                 Store,
                 new ApplicationMetadata(RoadRegistryApplication.BackOffice),
                 _roadNetworkEventWriterMock.Object,
-                Mock.Of<IExtractUploadFailedEmailClient>(),
                 LoggerFactory
             )
         ]));

@@ -63,7 +63,6 @@ public class Program
                             sp.GetRequiredService<IStreamStore>(),
                             ApplicationMetadata,
                             sp.GetRequiredService<IRoadNetworkEventWriter>(),
-                            sp.GetService<IExtractUploadFailedEmailClient>(),
                             sp.GetRequiredService<ILoggerFactory>()
                         ),
                         new RoadNetworkSnapshotEventModule(
