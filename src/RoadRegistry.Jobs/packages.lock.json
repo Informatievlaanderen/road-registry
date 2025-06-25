@@ -1543,6 +1543,26 @@
           "RoadRegistry.BackOffice": "[1.0.0, )"
         }
       },
+      "roadregistry.editor.schema": {
+        "type": "Project",
+        "dependencies": {
+          "AWSSDK.Core": "[3.7.402.35, )",
+          "Be.Vlaanderen.Basisregisters.BlobStore": "[5.0.0, )",
+          "Be.Vlaanderen.Basisregisters.EventHandling": "[7.0.0, )",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": "[15.0.1, )",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer": "[15.0.1, )",
+          "Be.Vlaanderen.Basisregisters.Shaperon": "[11.0.0, )",
+          "Microsoft.EntityFrameworkCore.Design": "[9.0.4, )",
+          "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite": "[9.0.4, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.0.5, )",
+          "Microsoft.IdentityModel.Abstractions": "[8.9.0, )",
+          "Microsoft.IdentityModel.JsonWebTokens": "[8.9.0, )",
+          "Microsoft.IdentityModel.Logging": "[8.9.0, )",
+          "Microsoft.IdentityModel.Tokens": "[8.9.0, )",
+          "NetTopologySuite": "[2.6.0, )",
+          "RoadRegistry.BackOffice": "[1.0.0, )"
+        }
+      },
       "Amazon.Lambda.Core": {
         "type": "CentralTransitive",
         "requested": "[2.5.1, )",
