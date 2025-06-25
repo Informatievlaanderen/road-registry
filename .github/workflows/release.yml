@@ -152,7 +152,7 @@ jobs:
       registry: ${{ vars.VBR_DEVOPS_DOCKER_REGISTRY }}/road-registry
       image-file: rr-adminhost-image.tar
       image-name: adminhost
-      test-project: RoadRegistry.AdminHost.Tests
+      test-project: RoadRegistry.Empty.Tests
       build-project: RoadRegistry.AdminHost
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
