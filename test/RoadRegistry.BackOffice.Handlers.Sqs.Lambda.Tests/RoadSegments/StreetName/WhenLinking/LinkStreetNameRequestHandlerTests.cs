@@ -16,7 +16,6 @@ using Moq;
 using Requests;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
-using Sqs.RoadSegments;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 

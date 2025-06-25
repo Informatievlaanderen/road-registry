@@ -3,6 +3,7 @@
 using Abstractions.Uploads;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Api.Uploads;
 using AutoFixture;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;

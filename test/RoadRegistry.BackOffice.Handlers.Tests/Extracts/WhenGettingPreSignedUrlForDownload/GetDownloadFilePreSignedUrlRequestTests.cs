@@ -4,6 +4,7 @@ using Abstractions.Exceptions;
 using Abstractions.Extracts;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Api.Extracts.Handlers;
 using AutoFixture;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;

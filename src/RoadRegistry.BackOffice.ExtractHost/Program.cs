@@ -8,9 +8,7 @@ using Configuration;
 using Editor.Schema;
 using Extensions;
 using Extracts;
-using FeatureToggles;
 using Framework;
-using Handlers.Extracts;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.Data.SqlClient;
@@ -21,6 +19,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using SqlStreamStore;
 using ZipArchiveWriters.ExtractHost;
+using ZipArchiveWriters.ExtractHost.V1;
+using ZipArchiveWriters.ExtractHost.V2;
 
 public class Program
 {
@@ -52,14 +52,14 @@ public class Program
 
                     .AddSingleton<IZipArchiveWriterFactory>(sp =>
                         new ZipArchiveWriterFactory(
-                            new ZipArchiveWriters.ExtractHost.V1.RoadNetworkExtractToZipArchiveWriter(
+                            new RoadNetworkExtractToZipArchiveWriter(
                                 sp.GetService<ZipArchiveWriterOptions>(),
                                 sp.GetService<IStreetNameCache>(),
                                 sp.GetService<RecyclableMemoryStreamManager>(),
                                 sp.GetRequiredService<FileEncoding>(),
                                 sp.GetRequiredService<ILoggerFactory>()
                             ),
-                            new ZipArchiveWriters.ExtractHost.V2.RoadNetworkExtractZipArchiveWriter(
+                            new RoadNetworkExtractZipArchiveWriter(
                                 sp.GetService<ZipArchiveWriterOptions>(),
                                 sp.GetService<IStreetNameCache>(),
                                 sp.GetService<RecyclableMemoryStreamManager>(),

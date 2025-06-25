@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
 using Abstractions.Extensions;
 using Abstractions.RoadSegments;
-using BackOffice.Handlers.Sqs.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;

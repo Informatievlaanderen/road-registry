@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Modules;
 
 using Autofac;
+using Extracts.Handlers;
 
 public class ApiModule : Module
 {
@@ -10,5 +11,7 @@ public class ApiModule : Module
             .RegisterType<IfMatchHeaderValidator>()
             .As<IIfMatchHeaderValidator>()
             .AsSelf();
+
+        builder.Register(_ => (IDownloadExtractByFileRequestItemTranslator)new DownloadExtractByFileRequestItemTranslator());
     }
 }

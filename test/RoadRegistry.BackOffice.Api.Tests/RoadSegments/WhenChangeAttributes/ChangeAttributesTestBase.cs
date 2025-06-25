@@ -2,11 +2,11 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes;
 
 using System.Collections.Generic;
 using System.Linq;
+using Abstractions.RoadSegments;
 using Api.Infrastructure.Controllers;
 using Api.RoadSegments;
 using Api.RoadSegments.ChangeAttributes;
 using AutoFixture;
-using BackOffice.Handlers.Sqs.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Editor.Schema;
 using Editor.Schema.Organizations;

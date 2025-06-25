@@ -6,9 +6,8 @@ using BackOffice.Extracts;
 using BackOffice.Framework;
 using Editor.Schema;
 using Editor.Schema.Extracts;
-using FeatureToggles;
+using ExtractHost;
 using FluentAssertions;
-using Handlers.Extracts;
 using Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -16,7 +15,6 @@ using Moq;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.Tests.BackOffice.Scenarios;
-using SqlStreamStore;
 using Xunit.Abstractions;
 
 public class GivenRoadNetwork: RoadNetworkTestBase

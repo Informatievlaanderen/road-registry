@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.RoadSegments;
 using BackOffice.Handlers.Extensions;
-using BackOffice.Handlers.Sqs.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;

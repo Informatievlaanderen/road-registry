@@ -16,7 +16,6 @@ using Moq;
 using Requests;
 using RoadRegistry.StreetName;
 using RoadRegistry.Tests.Framework;
-using Sqs.RoadSegments;
 using Xunit.Abstractions;
 
 public class WhenChangeAttributesTestBase : BackOfficeLambdaTest

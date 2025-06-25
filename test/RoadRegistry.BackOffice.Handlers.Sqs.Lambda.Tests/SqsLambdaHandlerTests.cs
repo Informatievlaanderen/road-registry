@@ -17,7 +17,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Requests;
 using RoadRegistry.Tests.Framework;
-using Sqs.RoadSegments;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 

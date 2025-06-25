@@ -20,7 +20,6 @@ using Requests;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts;
 using RoadRegistry.Tests.Framework;
-using Sqs.RoadSegments;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 
