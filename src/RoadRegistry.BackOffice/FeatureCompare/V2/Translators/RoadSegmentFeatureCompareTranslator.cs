@@ -111,6 +111,19 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             cancellationToken.ThrowIfCancellationRequested();
 
             var changeFeatureAttributes = changeFeature.Attributes;
+            var identicalExtractFeature = extractFeatures.FirstOrDefault(e =>
+                e.Attributes.Id == changeFeatureAttributes.Id
+                && e.Attributes.Equals(changeFeatureAttributes));
+            if (identicalExtractFeature is not null)
+            {
+                processedRecords.Add(new RoadSegmentFeatureCompareRecord(
+                    FeatureType.Change,
+                    changeFeature.RecordNumber,
+                    changeFeatureAttributes,
+                    changeFeature.Attributes.Id,
+                    RecordType.Identical));
+                continue;
+            }
 
             if (changeFeatureAttributes.Method != RoadSegmentGeometryDrawMethod.Outlined)
             {
