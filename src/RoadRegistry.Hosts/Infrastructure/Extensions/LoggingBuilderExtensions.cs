@@ -61,6 +61,7 @@ public static class EventSourceLoggerFactoryExtensions
         return loggerConfiguration
             .Filter.ByExcluding(logEvent => logEvent.Exception is OperationCanceledException)
             .Filter.ByExcluding(logEvent => logEvent.Exception is RoadRegistryProblemsException)
+            .Filter.ByExcluding(logEvent => logEvent.Exception is RoadSegmentsProblemsException)
             .Filter.ByExcluding(
                 Matching.WithProperty<string>("SourceContext", value =>
                     "Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware".Equals(value, StringComparison.OrdinalIgnoreCase)))
