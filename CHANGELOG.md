@@ -1,3 +1,5 @@
+## [4.32.7](https://github.com/informatievlaanderen/road-registry/compare/v4.32.6...v4.32.7) (2025-06-27)
+
 ## [4.32.6](https://github.com/informatievlaanderen/road-registry/compare/v4.32.5...v4.32.6) (2025-06-25)
 
 
