@@ -1,9 +1,7 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.V2.Translators;
 
-using System;
 using System.Collections.Generic;
 using System.IO.Compression;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -41,15 +39,6 @@ public abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveEnt
         var (extractFeatures, extractFeaturesProblems) = ReadFeatures(archive, FeatureType.Extract, context);
         var (changeFeatures, changeFeaturesProblems) = ReadFeatures(archive, FeatureType.Change, context);
 
-        //niet op dit niveau excluden
-        // changeFeatures = changeFeatures
-        //     .Where(c =>
-        //     {
-        //         var extractFeature = extractFeatures.FirstOrDefault(e => GetIdentifier(e.Attributes).Equals(GetIdentifier(c.Attributes)));
-        //         return extractFeature is null || !extractFeature.Attributes.Equals(c.Attributes);
-        //     })
-        //     .ToList();
-
         return (extractFeatures, changeFeatures, extractFeaturesProblems + changeFeaturesProblems);
     }
 
@@ -58,15 +47,6 @@ public abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveEnt
         var (extractFeatures, extractFeaturesProblems) = ReadFeatures(archive, FeatureType.Extract, context);
         var (changeFeatures, changeFeaturesProblems) = ReadFeatures(archive, FeatureType.Change, context);
         var (integrationFeatures, integrationFeaturesProblems) = ReadFeatures(archive, FeatureType.Integration, context);
-
-        //niet op dit niveau excluden
-        // changeFeatures = changeFeatures
-        //     .Where(c =>
-        //     {
-        //         var extractFeature = extractFeatures.FirstOrDefault(e => GetIdentifier(e.Attributes).Equals(GetIdentifier(c.Attributes)));
-        //         return extractFeature is null || !extractFeature.Attributes.Equals(c.Attributes);
-        //     })
-        //     .ToList();
 
         var problems = extractFeaturesProblems + changeFeaturesProblems + integrationFeaturesProblems;
 
