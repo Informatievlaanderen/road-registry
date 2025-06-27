@@ -14,7 +14,10 @@ namespace RoadRegistry.BackOffice
             {
                 batchSizeRounded++;
             }
-            return Enumerable.Range(0, batchCount).Select(batchIndex => collection.Skip(batchSizeRounded * batchIndex).Take(batchSizeRounded).ToArray());
+
+            return Enumerable.Range(0, batchCount)
+                .Select(batchIndex => collection.Skip(batchSizeRounded * batchIndex).Take(batchSizeRounded).ToArray())
+                .Where(x => x.Any());
         }
     }
 }

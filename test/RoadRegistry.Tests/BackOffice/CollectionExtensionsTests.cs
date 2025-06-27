@@ -21,7 +21,7 @@ public class CollectionExtensionsTests
     {
         yield return new object[] { 1, 1, new[] { 1 } };
         yield return new object[] { 2, 1, new[] { 2 } };
-        yield return new object[] { 1, 2, new[] { 1, 0 } };
+        yield return new object[] { 1, 2, new[] { 1 } };
         yield return new object[] { 2, 2, new[] { 1, 1 } };
         yield return new object[] { 3, 2, new[] { 2, 1 } };
     }
