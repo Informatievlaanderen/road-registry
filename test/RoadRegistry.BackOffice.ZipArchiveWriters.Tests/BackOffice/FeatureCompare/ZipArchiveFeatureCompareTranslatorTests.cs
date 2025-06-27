@@ -12,7 +12,9 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
     using ExtractHost.V2;
     using Extracts;
     using FluentAssertions;
+    using MartinCostello.Logging.XUnit;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.Abstractions;
     using Microsoft.IO;
     using NetTopologySuite.Geometries;
@@ -34,13 +36,14 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
         }
 
         //[Fact]
-        [Fact(Skip = "For debugging purposes, run feature compare on a local archive")]
+        [Fact(Skip = "For debugging purposes, run feature compare v2 on a local archive")]
         public async Task RunFeatureCompareV2()
         {
-            var path = @"C:\Users\RikDePeuter\Downloads\portaal_upload.zip";
+            var path = @"C:\Users\RikDePeuter\Downloads\be5bf26d75e4414fb32243f0565a9cdb.zip";
 
+            var loggerFactory = new LoggerFactory([new XUnitLoggerProvider(_outputHelper, new XUnitLoggerOptions())]);
             var validator = ZipArchiveBeforeFeatureCompareValidatorV2Builder.Create();
-            var translator = ZipArchiveFeatureCompareTranslatorV2Builder.Create();
+            var translator = ZipArchiveFeatureCompareTranslatorV2Builder.Create(loggerFactory: loggerFactory);
             /*
             var translator = ZipArchiveFeatureCompareTranslator.Create([
                 new RoadNodeFeatureCompareTranslator(new RoadNodeFeatureCompareFeatureReader(FileEncoding.UTF8)),
@@ -48,6 +51,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                 new GradeSeparatedJunctionFeatureCompareTranslator(new GradeSeparatedJunctionFeatureCompareFeatureReader(FileEncoding.UTF8)),
             ], new NullLogger<ZipArchiveFeatureCompareTranslator>());
             */
+
             var sw = Stopwatch.StartNew();
             try
             {
@@ -56,7 +60,15 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                     var archive = new ZipArchive(fileStream);
                     await validator.ValidateAsync(archive, ZipArchiveMetadata.Empty, CancellationToken.None);
 
+                    var sw2 = Stopwatch.StartNew();
+                    //for(var i = 0; i < 10; i++)
+                    //{
                     var changes = await translator.TranslateAsync(archive, CancellationToken.None);
+                    //}
+                    var elapsed = sw2.Elapsed;
+                    _outputHelper.WriteLine($"Duration translator 10 runs: {sw2.Elapsed}");
+                    // antwerpen 15m37s
+                    // incl exclude nonchanged 22m maar zonder validator
                 }
             }
             catch (ZipArchiveValidationException ex)
@@ -73,7 +85,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
         }
 
         //[Fact]
-        [Fact(Skip = "For debugging purposes, run feature compare on a local archive")]
+        [Fact(Skip = "For debugging purposes, run feature compare v1 on a local archive")]
         public async Task RunFeatureCompareV1()
         {
             var path = @"C:\Users\RikDePeuter\Downloads\portaal_upload.zip";
@@ -116,9 +128,9 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
         public async Task CompareExtractV1AndV2()
         {
             var transactionZoneGeometries = new List<MultiPolygon>
-                {
-                    BuildTransactionZoneGeometry(232300, 165000, 10000),
-                };
+            {
+                BuildTransactionZoneGeometry(232300, 165000, 10000),
+            };
 
             var connectionString = "Data Source=tcp:localhost,21433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True";
 
@@ -261,16 +273,16 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
 
             return new Dictionary<ExtractFileName, int>
             {
-                { ExtractFileName.Transactiezones, transactionZones.Item1.Count},
-                { ExtractFileName.Wegknoop, nodes.Item1.Count},
-                { ExtractFileName.Wegsegment, segments.Item1.Count},
-                { ExtractFileName.AttRijstroken, lanes.Item1.Count},
-                { ExtractFileName.AttWegbreedte, widths.Item1.Count},
-                { ExtractFileName.AttWegverharding, surfaces.Item1.Count},
-                { ExtractFileName.AttEuropweg, europeanRoads.Item1.Count},
-                { ExtractFileName.AttNationweg, nationalRoads.Item1.Count},
-                { ExtractFileName.AttGenumweg, numberedRoads.Item1.Count},
-                { ExtractFileName.RltOgkruising, junctions.Item1.Count}
+                { ExtractFileName.Transactiezones, transactionZones.Item1.Count },
+                { ExtractFileName.Wegknoop, nodes.Item1.Count },
+                { ExtractFileName.Wegsegment, segments.Item1.Count },
+                { ExtractFileName.AttRijstroken, lanes.Item1.Count },
+                { ExtractFileName.AttWegbreedte, widths.Item1.Count },
+                { ExtractFileName.AttWegverharding, surfaces.Item1.Count },
+                { ExtractFileName.AttEuropweg, europeanRoads.Item1.Count },
+                { ExtractFileName.AttNationweg, nationalRoads.Item1.Count },
+                { ExtractFileName.AttGenumweg, numberedRoads.Item1.Count },
+                { ExtractFileName.RltOgkruising, junctions.Item1.Count }
             };
         }
 
@@ -301,22 +313,22 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
 
             return new Dictionary<ExtractFileName, int>
             {
-                { ExtractFileName.Transactiezones, transactionZones.Item1.Count},
-                { ExtractFileName.Wegknoop, nodes.Item1.Count},
-                { ExtractFileName.Wegsegment, segments.Item1.Count},
-                { ExtractFileName.AttRijstroken, lanes.Item1.Count},
-                { ExtractFileName.AttWegbreedte, widths.Item1.Count},
-                { ExtractFileName.AttWegverharding, surfaces.Item1.Count},
-                { ExtractFileName.AttEuropweg, europeanRoads.Item1.Count},
-                { ExtractFileName.AttNationweg, nationalRoads.Item1.Count},
-                { ExtractFileName.AttGenumweg, numberedRoads.Item1.Count},
-                { ExtractFileName.RltOgkruising, junctions.Item1.Count}
+                { ExtractFileName.Transactiezones, transactionZones.Item1.Count },
+                { ExtractFileName.Wegknoop, nodes.Item1.Count },
+                { ExtractFileName.Wegsegment, segments.Item1.Count },
+                { ExtractFileName.AttRijstroken, lanes.Item1.Count },
+                { ExtractFileName.AttWegbreedte, widths.Item1.Count },
+                { ExtractFileName.AttWegverharding, surfaces.Item1.Count },
+                { ExtractFileName.AttEuropweg, europeanRoads.Item1.Count },
+                { ExtractFileName.AttNationweg, nationalRoads.Item1.Count },
+                { ExtractFileName.AttGenumweg, numberedRoads.Item1.Count },
+                { ExtractFileName.RltOgkruising, junctions.Item1.Count }
             };
         }
 
         private static MultiPolygon BuildTransactionZoneGeometry(int x, int y, int width)
         {
-            var wkt = $"MULTIPOLYGON ((({x} {y}, {x} {y+width}, {x+width} {y+width}, {x+width} {y}, {x} {y})))";
+            var wkt = $"MULTIPOLYGON ((({x} {y}, {x} {y + width}, {x + width} {y + width}, {x + width} {y}, {x} {y})))";
             var geometry = new WKTReader().Read(wkt);
             geometry.SRID = 31370;
             return geometry.ToMultiPolygon();

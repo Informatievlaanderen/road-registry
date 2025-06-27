@@ -38,6 +38,7 @@ public abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveEnt
     {
         var (extractFeatures, extractFeaturesProblems) = ReadFeatures(archive, FeatureType.Extract, context);
         var (changeFeatures, changeFeaturesProblems) = ReadFeatures(archive, FeatureType.Change, context);
+
         return (extractFeatures, changeFeatures, extractFeaturesProblems + changeFeaturesProblems);
     }
 

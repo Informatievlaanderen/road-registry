@@ -7,7 +7,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
 using Exceptions;
 using Messages;
@@ -20,22 +19,34 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
         OperatorName.Unknown,
         OrganizationId.Unknown,
         ImmutableList<ITranslatedChange>.Empty,
-        ImmutableList<ITranslatedChange>.Empty);
+        ImmutableDictionary<RoadSegmentId, AddRoadSegment>.Empty,
+        ImmutableDictionary<RoadSegmentId, ModifyRoadSegment>.Empty,
+        ImmutableDictionary<RoadSegmentId, RemoveRoadSegment>.Empty,
+        ImmutableDictionary<RoadSegmentId, ModifyRoadSegment>.Empty);
 
     private readonly ImmutableList<ITranslatedChange> _changes;
-    private readonly ImmutableList<ITranslatedChange> _provisionalChanges;
+    private readonly ImmutableDictionary<RoadSegmentId, AddRoadSegment> _addRoadSegmentChanges;
+    private readonly ImmutableDictionary<RoadSegmentId, ModifyRoadSegment> _modifyRoadSegmentChanges;
+    private readonly ImmutableDictionary<RoadSegmentId, RemoveRoadSegment> _removeRoadSegmentChanges;
+    private readonly ImmutableDictionary<RoadSegmentId, ModifyRoadSegment> _modifyRoadSegmentProvisionalChanges;
 
     private TranslatedChanges(Reason reason,
         OperatorName @operator,
         OrganizationId organization,
         ImmutableList<ITranslatedChange> changes,
-        ImmutableList<ITranslatedChange> provisionalChanges)
+        ImmutableDictionary<RoadSegmentId, AddRoadSegment> addRoadSegmentChanges,
+        ImmutableDictionary<RoadSegmentId, ModifyRoadSegment> modifyRoadSegmentChanges,
+        ImmutableDictionary<RoadSegmentId, RemoveRoadSegment> removeRoadSegmentChanges,
+        ImmutableDictionary<RoadSegmentId, ModifyRoadSegment> modifyRoadSegmentProvisionalChanges)
     {
         Reason = reason;
         Operator = @operator;
         Organization = organization;
         _changes = changes ?? throw new ArgumentNullException(nameof(changes));
-        _provisionalChanges = provisionalChanges ?? throw new ArgumentNullException(nameof(provisionalChanges));
+        _addRoadSegmentChanges = addRoadSegmentChanges.ThrowIfNull();
+        _modifyRoadSegmentChanges = modifyRoadSegmentChanges.ThrowIfNull();
+        _removeRoadSegmentChanges = removeRoadSegmentChanges.ThrowIfNull();
+        _modifyRoadSegmentProvisionalChanges = modifyRoadSegmentProvisionalChanges.ThrowIfNull();
     }
 
     public int Count => _changes.Count;
@@ -55,166 +66,149 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
 
     public TranslatedChanges AppendChange(AddRoadNode change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(ModifyRoadNode change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(RemoveRoadNode change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(AddRoadSegment change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges.SetItem(change.TemporaryId, change), _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(ModifyRoadSegment change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges.SetItem(change.Id, change), _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(ModifyRoadSegmentAttributes change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(ModifyRoadSegmentGeometry change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(RemoveRoadSegment change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges.SetItem(change.Id, change), _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(RemoveOutlinedRoadSegment change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(RemoveOutlinedRoadSegmentFromRoadNetwork change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(AddRoadSegmentToEuropeanRoad change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(RemoveRoadSegmentFromEuropeanRoad change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(AddRoadSegmentToNationalRoad change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(RemoveRoadSegmentFromNationalRoad change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(AddRoadSegmentToNumberedRoad change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(RemoveRoadSegmentFromNumberedRoad change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(AddGradeSeparatedJunction change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(ModifyGradeSeparatedJunction change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendChange(RemoveGradeSeparatedJunction change)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization,
+            _changes.Add(change),
+            _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges,
+            _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges AppendProvisionalChange(ModifyRoadSegment change)
     {
         //NOTE: Only road segment modifications are currently considered provisional
-        return new TranslatedChanges(Reason, Operator, Organization, _changes, _provisionalChanges.Add(change));
-    }
-
-    public TranslatedChanges ReplaceChange(AddRoadNode before, AddRoadNode after)
-    {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.SetItem(_changes.IndexOf(before), after), _provisionalChanges);
-    }
-
-    public TranslatedChanges ReplaceChange(ModifyRoadNode before, ModifyRoadNode after)
-    {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.SetItem(_changes.IndexOf(before), after), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization,
+            _changes,
+            _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges,
+            _modifyRoadSegmentProvisionalChanges.SetItem(change.Id, change));
     }
 
     public TranslatedChanges ReplaceChange(AddRoadSegment before, AddRoadSegment after)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.SetItem(_changes.IndexOf(before), after), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization,
+            _changes.SetItem(_changes.IndexOf(before), after),
+            _addRoadSegmentChanges.SetItem(before.TemporaryId, after), _modifyRoadSegmentChanges, _removeRoadSegmentChanges,
+            _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges ReplaceChange(ModifyRoadSegment before, ModifyRoadSegment after)
     {
         //NOTE: ReplaceChange automatically converts a provisional change into a change - by design.
-        return _provisionalChanges.Contains(before)
-            ? new TranslatedChanges(Reason, Operator, Organization, _changes.Add(after), _provisionalChanges.Remove(before))
-            : new TranslatedChanges(Reason, Operator, Organization, _changes.SetItem(_changes.IndexOf(before), after), _provisionalChanges);
+        return _modifyRoadSegmentProvisionalChanges.ContainsKey(before.Id)
+            ? new TranslatedChanges(Reason, Operator, Organization,
+                _changes.Add(after),
+                _addRoadSegmentChanges, _modifyRoadSegmentChanges.SetItem(after.Id, after), _removeRoadSegmentChanges,
+                _modifyRoadSegmentProvisionalChanges.Remove(before.Id))
+            : new TranslatedChanges(Reason, Operator, Organization,
+                _changes.SetItem(_changes.IndexOf(before), after),
+                _addRoadSegmentChanges, _modifyRoadSegmentChanges.SetItem(before.Id, after), _removeRoadSegmentChanges,
+                _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges ReplaceProvisionalChange(ModifyRoadSegment before, ModifyRoadSegment after)
     {
         //NOTE: ReplaceProvisionalChange replaces an existing provisional change (if found).
-        return _provisionalChanges.Contains(before)
-            ? new TranslatedChanges(Reason, Operator, Organization, _changes, _provisionalChanges.SetItem(_provisionalChanges.IndexOf(before), after))
+        return _modifyRoadSegmentProvisionalChanges.ContainsKey(before.Id)
+            ? new TranslatedChanges(Reason, Operator, Organization,
+                _changes,
+                _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges,
+                _modifyRoadSegmentProvisionalChanges.SetItem(before.Id, after))
             : this;
-    }
-
-    public bool TryFindRoadNodeChangeOfShapeRecord(RecordNumber number, out ITranslatedChange change)
-    {
-        change = new ITranslatedChange[]
-        {
-            _changes.OfType<AddRoadNode>().SingleOrDefault(_ => _.RecordNumber.Equals(number)),
-            _changes.OfType<ModifyRoadNode>().SingleOrDefault(_ => _.RecordNumber.Equals(number)),
-            _changes.OfType<RemoveRoadNode>().SingleOrDefault(_ => _.RecordNumber.Equals(number))
-        }.Flatten();
-        return change != null;
     }
 
     public bool TryFindRoadSegmentChange(RoadSegmentId id, out ITranslatedChange change)
     {
-        change = new ITranslatedChange[]
-        {
-            _changes.OfType<AddRoadSegment>().SingleOrDefault(_ => _.TemporaryId == id),
-            _changes.OfType<ModifyRoadSegment>().SingleOrDefault(_ => _.Id == id),
-            _changes.OfType<RemoveRoadSegment>().SingleOrDefault(_ => _.Id == id)
-        }.Flatten();
-        return change != null;
-    }
-
-    public bool TryFindRoadSegmentChange(RecordNumber number, out ITranslatedChange change)
-    {
-        change = new ITranslatedChange[]
-        {
-            _changes.OfType<AddRoadSegment>().SingleOrDefault(_ => _.RecordNumber.Equals(number)),
-            _changes.OfType<ModifyRoadSegment>().SingleOrDefault(_ => _.RecordNumber.Equals(number)),
-            _changes.OfType<RemoveRoadSegment>().SingleOrDefault(_ => _.RecordNumber.Equals(number))
-        }.Flatten();
+        change = _addRoadSegmentChanges.GetValueOrDefault(id)
+                 ?? (ITranslatedChange?)_modifyRoadSegmentChanges.GetValueOrDefault(id)
+                 ?? _removeRoadSegmentChanges.GetValueOrDefault(id);
         return change != null;
     }
 
@@ -222,37 +216,32 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
     public bool TryFindRoadSegmentProvisionalChange(RoadSegmentId id, out ITranslatedChange change)
     {
         //NOTE: Only road segment modifications are currently considered provisional
-        change = new ITranslatedChange[]
-        {
-            _provisionalChanges.OfType<ModifyRoadSegment>().SingleOrDefault(_ => _.Id == id)
-        }.Flatten();
-        return change != null;
-    }
-
-    // For Shape Records
-    public bool TryFindRoadSegmentProvisionalChange(RecordNumber number, out ITranslatedChange change)
-    {
-        //NOTE: Only road segment modifications are currently considered provisional
-        change = new ITranslatedChange[]
-        {
-            _provisionalChanges.OfType<ModifyRoadSegment>().SingleOrDefault(_ => _.RecordNumber.Equals(number))
-        }.Flatten();
+        change = _modifyRoadSegmentProvisionalChanges.GetValueOrDefault(id);
         return change != null;
     }
 
     public TranslatedChanges WithOperatorName(OperatorName value)
     {
-        return new TranslatedChanges(Reason, value, Organization, _changes, _provisionalChanges);
+        return new TranslatedChanges(Reason, value, Organization,
+            _changes,
+            _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges,
+            _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges WithOrganization(OrganizationId value)
     {
-        return new TranslatedChanges(Reason, Operator, value, _changes, _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, value,
+            _changes,
+            _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges,
+            _modifyRoadSegmentProvisionalChanges);
     }
 
     public TranslatedChanges WithReason(Reason value)
     {
-        return new TranslatedChanges(value, Operator, Organization, _changes, _provisionalChanges);
+        return new TranslatedChanges(value, Operator, Organization,
+            _changes,
+            _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges,
+            _modifyRoadSegmentProvisionalChanges);
     }
 
     public async Task<ChangeRoadNetwork> ToChangeRoadNetworkCommand(
