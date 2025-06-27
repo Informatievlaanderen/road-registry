@@ -53,27 +53,29 @@ public class RoadSegmentLaneFeatureCompareTranslator : RoadSegmentAttributeFeatu
                                 changes = changes.ReplaceChange(modifyRoadSegment, modifyRoadSegment);
                                 break;
                         }
-
                         break;
                 }
             }
-            else if (changes.TryFindRoadSegmentChange(segmentId, out var change))
+            else
             {
-                switch (record.RecordType.Translation.Identifier)
+                if (changes.TryFindRoadSegmentChange(segmentId, out var change))
                 {
-                    case RecordType.IdenticalIdentifier:
-                    case RecordType.AddedIdentifier:
-                        switch (change)
-                        {
-                            case AddRoadSegment addRoadSegment:
-                                changes = changes.ReplaceChange(addRoadSegment, addRoadSegment.WithLane(lane));
-                                break;
-                            case ModifyRoadSegment modifyRoadSegment:
-                                changes = changes.ReplaceChange(modifyRoadSegment, modifyRoadSegment.WithLane(lane));
-                                break;
-                        }
+                    switch (record.RecordType.Translation.Identifier)
+                    {
+                        case RecordType.IdenticalIdentifier:
+                        case RecordType.AddedIdentifier:
+                            switch (change)
+                            {
+                                case AddRoadSegment addRoadSegment:
+                                    changes = changes.ReplaceChange(addRoadSegment, addRoadSegment.WithLane(lane));
+                                    break;
+                                case ModifyRoadSegment modifyRoadSegment:
+                                    changes = changes.ReplaceChange(modifyRoadSegment, modifyRoadSegment.WithLane(lane));
+                                    break;
+                            }
 
-                        break;
+                            break;
+                    }
                 }
             }
         }
