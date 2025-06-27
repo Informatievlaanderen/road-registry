@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.V2.Translators;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -34,7 +35,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         _organizationCache = organizationCache.ThrowIfNull();
     }
 
-    private Task<(List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems)> ProcessLeveringRecords(
+    private (List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems) ProcessLeveringRecords(
         ICollection<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures,
         ICollection<Feature<RoadSegmentFeatureCompareAttributes>> extractFeatures,
         IRoadSegmentFeatureCompareStreetNameContext streetNameContext,
@@ -239,7 +240,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 RecordType.Added));
         }
 
-        return Task.FromResult((processedRecords, problems));
+        return (processedRecords, problems);
     }
 
     public override async Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
@@ -258,12 +259,14 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             problems += maintenanceAuthorityProblems;
 
             var streetNameContext = await _streetNameContextFactory.Create(changeFeatures, cancellationToken);
-            var batchCount = Debugger.IsAttached ? 1 : 2;
 
-            var processedLeveringRecords = await Task.WhenAll(
-                changeFeatures.SplitIntoBatches(batchCount)
-                    .Select(changeFeaturesBatch => ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, streetNameContext, context, cancellationToken))
-                );
+            var batchCount = Debugger.IsAttached ? 1 : 4;
+
+            var processedLeveringRecords = new ConcurrentBag<(List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems)>();
+            Parallel.Invoke(changeFeatures
+                .SplitIntoBatches(batchCount)
+                .Select(changeFeaturesBatch => { return (Action)(() => { processedLeveringRecords.Add(ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, streetNameContext, context, cancellationToken)); }); })
+                .ToArray());
 
             foreach (var processedProblems in processedLeveringRecords.Select(x => x.Item2))
             {

@@ -31,16 +31,33 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
 
         problems = ValidateRoadSegmentIds(changeFeatures, problems, context, cancellationToken);
 
-        var wegsegmentenAdd = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Added).ToList();
-        var wegsegmentenIdentical = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Identical).ToList();
-        var wegsegmentenUpdate = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Modified).ToList();
-        var wegsegmentenDelete = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Removed).ToList();
-
         var extractFeaturesLookup = extractFeatures.ToLookup(x => x.Attributes.RoadSegmentId);
         var changeFeaturesLookup = changeFeatures.ToLookup(x => x.Attributes.RoadSegmentId);
 
+        List<Record> addedRecords = [], deletedRecords = [], identicalRecords = [], modifiedRecords = [];
+
+        Parallel.Invoke([
+            () => addedRecords = ProcessAddedSegments(changeFeaturesLookup, context, cancellationToken),
+            () => deletedRecords = ProcessRemovedSegments(extractFeaturesLookup, context, cancellationToken),
+            () => identicalRecords = ProcessIdenticalSegments(extractFeaturesLookup, changeFeaturesLookup, context, cancellationToken),
+            () => modifiedRecords = ProcessModifiedSegments(extractFeaturesLookup, changeFeaturesLookup, context, cancellationToken)
+        ]);
+
+        var processedRecords = Enumerable.Empty<Record>()
+            .Concat(addedRecords)
+            .Concat(deletedRecords)
+            .Concat(identicalRecords)
+            .Concat(modifiedRecords)
+            .ToList();
+
+        return Task.FromResult((TranslateProcessedRecords(context, changes, processedRecords), problems));
+    }
+
+    private static List<Record> ProcessAddedSegments(ILookup<RoadSegmentId, Feature<TAttributes>> changeFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    {
         var processedRecords = new List<Record>();
 
+        var wegsegmentenAdd = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Added).ToList();
         foreach (var wegsegment in wegsegmentenAdd)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -58,6 +75,14 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
             }
         }
 
+        return processedRecords;
+    }
+
+    private static List<Record> ProcessRemovedSegments(ILookup<RoadSegmentId, Feature<TAttributes>> extractFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    {
+        var processedRecords = new List<Record>();
+
+        var wegsegmentenDelete = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Removed).ToList();
         foreach (var wegsegment in wegsegmentenDelete)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -66,6 +91,14 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
                 .Select(feature => new Record(feature, RecordType.Removed)));
         }
 
+        return processedRecords;
+    }
+
+    private List<Record> ProcessIdenticalSegments(ILookup<RoadSegmentId, Feature<TAttributes>> extractFeaturesLookup, ILookup<RoadSegmentId, Feature<TAttributes>> changeFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    {
+        var processedRecords = new List<Record>();
+
+        var wegsegmentenIdentical = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Identical).ToList();
         foreach (var wegsegment in wegsegmentenIdentical)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -73,6 +106,14 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
             HandleIdenticalRoadSegment(wegsegment, changeFeaturesLookup, extractFeaturesLookup, processedRecords);
         }
 
+        return processedRecords;
+    }
+
+    private List<Record> ProcessModifiedSegments(ILookup<RoadSegmentId, Feature<TAttributes>> extractFeaturesLookup, ILookup<RoadSegmentId, Feature<TAttributes>> changeFeaturesLookup, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    {
+        var processedRecords = new List<Record>();
+
+        var wegsegmentenUpdate = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Modified).ToList();
         foreach (var wegsegment in wegsegmentenUpdate)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -80,9 +121,7 @@ public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : F
             HandleModifiedRoadSegment(wegsegment, changeFeaturesLookup, extractFeaturesLookup, processedRecords);
         }
 
-        problems.ThrowIfError();
-
-        return Task.FromResult((TranslateProcessedRecords(context, changes, processedRecords), problems));
+        return processedRecords;
     }
 
     private ZipArchiveProblems ValidateRoadSegmentIds(List<Feature<TAttributes>> changeFeatures, ZipArchiveProblems problems, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
