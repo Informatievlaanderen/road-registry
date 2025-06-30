@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Abstractions.Extracts;
+using Api.Extracts.Handlers;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using FluentAssertions;
 using FluentValidation;

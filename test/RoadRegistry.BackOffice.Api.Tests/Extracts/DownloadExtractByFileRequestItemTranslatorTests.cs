@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
 using Abstractions.Extracts;
+using Api.Extracts.Handlers;
 using BackOffice.Handlers.Extracts;
 using FluentAssertions;
 using FluentValidation;

@@ -5,6 +5,7 @@
     <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.ExtractHost\RoadRegistry.BackOffice.ExtractHost.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Handlers\RoadRegistry.BackOffice.Handlers.csproj" />
     <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
   </ItemGroup>
