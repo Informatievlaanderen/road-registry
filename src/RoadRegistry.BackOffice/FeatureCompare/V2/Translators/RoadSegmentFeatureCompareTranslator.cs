@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Models;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Index.Strtree;
 using Readers;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
@@ -48,6 +49,13 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         var processedRecords = new List<RoadSegmentFeatureCompareRecord>();
 
+        var spatialIndex = new STRtree<Feature<RoadSegmentFeatureCompareAttributes>>();
+        foreach (var feature in extractFeatures)
+        {
+            spatialIndex.Insert(feature.Attributes.Geometry.EnvelopeInternal, feature);
+        }
+        spatialIndex.Build();
+
         List<Feature<RoadSegmentFeatureCompareAttributes>> FindMatchingExtractFeatures(RoadSegmentFeatureCompareAttributes changeFeatureAttributes)
         {
             if (changeFeatureAttributes.Method == RoadSegmentGeometryDrawMethod.Outlined)
@@ -58,7 +66,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             }
 
             var bufferedGeometry = changeFeatureAttributes.Geometry.Buffer(clusterTolerance);
-            return extractFeatures
+            return spatialIndex
+                .Query(bufferedGeometry.EnvelopeInternal)
                 .Where(x => x.Attributes.Geometry.Intersects(bufferedGeometry))
                 .Where(x => changeFeatureAttributes.Geometry.RoadSegmentOverlapsWith(x.Attributes.Geometry, clusterTolerance))
                 .ToList();

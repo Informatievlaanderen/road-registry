@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Models;
 using Readers;
+using NetTopologySuite.Index.Strtree;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
@@ -26,18 +27,30 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
     {
     }
 
-    private List<RoadNodeFeatureCompareRecord> ProcessLeveringRecords(ICollection<Feature<RoadNodeFeatureCompareAttributes>> changeFeatures, ICollection<Feature<RoadNodeFeatureCompareAttributes>> extractFeatures, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    private List<RoadNodeFeatureCompareRecord> ProcessLeveringRecords(
+        ICollection<Feature<RoadNodeFeatureCompareAttributes>> changeFeatures,
+        ICollection<Feature<RoadNodeFeatureCompareAttributes>> extractFeatures,
+        ZipArchiveEntryFeatureCompareTranslateContext context,
+        CancellationToken cancellationToken)
     {
         var clusterTolerance = 0.05; // cfr WVB in GRB
 
         var processedRecords = new List<RoadNodeFeatureCompareRecord>();
+
+        var spatialIndex = new STRtree<Feature<RoadNodeFeatureCompareAttributes>>();
+        foreach (var feature in extractFeatures)
+        {
+            spatialIndex.Insert(feature.Attributes.Geometry.EnvelopeInternal, feature);
+        }
+        spatialIndex.Build();
 
         foreach (var changeFeature in changeFeatures)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var bufferedGeometry = changeFeature.Attributes.Geometry.Buffer(clusterTolerance);
-            var intersectingGeometries = extractFeatures
+            var intersectingGeometries = spatialIndex
+                .Query(bufferedGeometry.EnvelopeInternal)
                 .Where(x => x.Attributes.Geometry.Intersects(bufferedGeometry))
                 .ToList();
 
