@@ -1,3 +1,10 @@
+## [4.32.8](https://github.com/informatievlaanderen/road-registry/compare/v4.32.7...v4.32.8) (2025-06-27)
+
+
+### Bug Fixes
+
+* ignore RoadSegmentsProblemsException when logging errors ([c0c1790](https://github.com/informatievlaanderen/road-registry/commit/c0c1790b03d471dd0cf7e87d84356ba9c692a05f))
+
 ## [4.32.7](https://github.com/informatievlaanderen/road-registry/compare/v4.32.6...v4.32.7) (2025-06-27)
 
 ## [4.32.6](https://github.com/informatievlaanderen/road-registry/compare/v4.32.5...v4.32.6) (2025-06-25)
