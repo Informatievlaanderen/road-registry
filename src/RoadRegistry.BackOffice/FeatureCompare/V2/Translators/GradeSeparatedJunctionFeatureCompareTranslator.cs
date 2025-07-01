@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.V2.Translators;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -92,10 +93,12 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
                 {
                     problems += recordContext.UpperRoadSegmentIdOutOfRange(changeFeature.Attributes.UpperRoadSegmentId);
                 }
+
                 if (onWegsegmentFeature is null)
                 {
                     problems += recordContext.LowerRoadSegmentIdOutOfRange(changeFeature.Attributes.LowerRoadSegmentId);
                 }
+
                 continue;
             }
 
@@ -176,7 +179,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
         return changes;
     }
 
-    private async Task<ZipArchiveProblems> ValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunction(ZipArchiveEntryFeatureCompareTranslateContext context, List<Record> processedRecords)
+    private Task<ZipArchiveProblems> ValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunction(ZipArchiveEntryFeatureCompareTranslateContext context, List<Record> processedRecords)
     {
         var problems = ZipArchiveProblems.None;
 
@@ -186,14 +189,15 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
                         && (x.RecordType == RecordType.Added || (x.RecordType == RecordType.Modified && x.GeometryChanged)))
             .ToList();
 
-        var batchCount = Debugger.IsAttached ? 1 : 2;
+        var batchCount = Debugger.IsAttached ? 1 : 4;
 
-        var allProblemsForMissingGradeSeparatedJunctions = await Task.WhenAll(
-            changedRoadSegments.SplitIntoBatches(batchCount)
-                .Select(changedRoadSegmentsBatch => Task.Run(() =>
-                        GetProblemsForMissingGradeSeparatedJunctions(context, processedRecords, changedRoadSegmentsBatch))
-                ));
-        foreach (var problemsForMissingGradeSeparatedJunctions in allProblemsForMissingGradeSeparatedJunctions)
+        var allProblemsForMissingGradeSeparatedJunctions = new ConcurrentDictionary<int, ZipArchiveProblems>();
+        Parallel.Invoke(changedRoadSegments
+            .SplitIntoBatches(batchCount)
+            .Select((changedRoadSegmentsBatch, index) => { return (Action)(() => { allProblemsForMissingGradeSeparatedJunctions.TryAdd(index, GetProblemsForMissingGradeSeparatedJunctions(context, processedRecords, changedRoadSegmentsBatch)); }); })
+            .ToArray());
+
+        foreach (var problemsForMissingGradeSeparatedJunctions in allProblemsForMissingGradeSeparatedJunctions.OrderBy(x => x.Key).Select(x => x.Value))
         {
             problems += problemsForMissingGradeSeparatedJunctions;
         }
@@ -210,7 +214,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
         //    problems += recordContext.ExpectedGradeSeparatedJunctionsCountDiffersFromActual(i.RoadSegment1.Id, i.RoadSegment2.Id, i.Intersections.Count, i.GradeSeparatedJunctionsCount);
         //}
 
-        return problems;
+        return Task.FromResult(problems);
     }
 
     private ZipArchiveProblems GetProblemsForMissingGradeSeparatedJunctions(
@@ -281,7 +285,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
         public RoadSegmentCombinationKey Key => _key ??= new RoadSegmentCombinationKey(RoadSegment1, RoadSegment2);
     }
 
-    private sealed class RoadSegmentCombinationKey:
+    private sealed class RoadSegmentCombinationKey :
         IEquatable<RoadSegmentCombinationKey>,
         IComparable
     {

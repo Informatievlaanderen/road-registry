@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.V2.Translators;
 
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -92,7 +94,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                && feature1.Attributes.Geometry.IsReasonablyEqualTo(feature2.Attributes.Geometry, context.Tolerances);
     }
 
-    public override async Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
+    public override Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
     {
         var (extractFeatures, changeFeatures, problems) = ReadExtractAndChangeFeatures(context.Archive, context);
 
@@ -100,15 +102,15 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
 
         if (changeFeatures.Any())
         {
-            var batchCount = Debugger.IsAttached ? 1 : 2;
+            var batchCount = Debugger.IsAttached ? 1 : 4;
 
-            var processedLeveringRecords = await Task.WhenAll(
-                changeFeatures.SplitIntoBatches(batchCount)
-                    .Select(changeFeaturesBatch => Task.Run(() =>
-                        ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, context, cancellationToken), cancellationToken)
-                    ));
+            var processedLeveringRecords = new ConcurrentDictionary<int, ICollection<RoadNodeFeatureCompareRecord>>();
+            Parallel.Invoke(changeFeatures
+                .SplitIntoBatches(batchCount)
+                .Select((changeFeaturesBatch, index) => { return (Action)(() => { processedLeveringRecords.TryAdd(index, ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, context, cancellationToken)); }); })
+                .ToArray());
 
-            problems += AddProcessedRecordsToContext(processedLeveringRecords.SelectMany(x => x).ToList(), context, cancellationToken);
+            problems += AddProcessedRecordsToContext(processedLeveringRecords.OrderBy(x => x.Key).SelectMany(x => x.Value).ToList(), context, cancellationToken);
         }
 
         AddRemovedRecordsToContext(extractFeatures, context, cancellationToken);
@@ -117,7 +119,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
 
         changes = TranslateProcessedRecords(changes, context.RoadNodeRecords, cancellationToken);
 
-        return (changes, problems);
+        return Task.FromResult((changes, problems));
     }
 
     private TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<RoadNodeFeatureCompareRecord> records, CancellationToken cancellationToken)

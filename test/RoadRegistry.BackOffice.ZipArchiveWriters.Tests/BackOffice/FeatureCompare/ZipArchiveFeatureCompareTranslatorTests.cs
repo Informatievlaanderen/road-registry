@@ -59,16 +59,27 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                 {
                     var archive = new ZipArchive(fileStream);
                     await validator.ValidateAsync(archive, ZipArchiveMetadata.Empty, CancellationToken.None);
-
-                    var sw2 = Stopwatch.StartNew();
-                    //for(var i = 0; i < 10; i++)
+                    //var sw4 = Stopwatch.StartNew();
+                    //for (var i = 0; i < 10; i++)
                     //{
-                    var changes = await translator.TranslateAsync(archive, CancellationToken.None);
+                    //    var sw3 = Stopwatch.StartNew();
+                    //    await validator.ValidateAsync(archive, ZipArchiveMetadata.Empty, CancellationToken.None);
+                    //    _outputHelper.WriteLine($"Duration validator run {i}: {sw3.Elapsed}");
                     //}
-                    var elapsed = sw2.Elapsed;
-                    _outputHelper.WriteLine($"Duration translator 10 runs: {sw2.Elapsed}");
-                    // antwerpen 15m37s
-                    // incl exclude nonchanged 22m maar zonder validator
+                    //var elapsed4 = sw4.Elapsed;
+                    //_outputHelper.WriteLine($"Total duration validator 10 runs: {sw4.Elapsed}");
+                    
+                    await translator.TranslateAsync(archive, CancellationToken.None);
+                    // var sw2 = Stopwatch.StartNew();
+                    // for (var i = 0; i < 10; i++)
+                    // {
+                    //     var sw3 = Stopwatch.StartNew();
+                    //     var changes = await translator.TranslateAsync(archive, CancellationToken.None);
+                    //     _outputHelper.WriteLine($"Duration translator run {i}: {sw3.Elapsed}");
+                    // }
+
+                    //var elapsed = sw2.Elapsed;
+                    //_outputHelper.WriteLine($"Total duration translator 10 runs: {sw2.Elapsed}");
                 }
             }
             catch (ZipArchiveValidationException ex)
