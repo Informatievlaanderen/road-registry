@@ -29,7 +29,8 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
 
     private List<RoadNodeFeatureCompareRecord> ProcessLeveringRecords(
         ICollection<Feature<RoadNodeFeatureCompareAttributes>> changeFeatures,
-        ICollection<Feature<RoadNodeFeatureCompareAttributes>> extractFeatures,
+        IDictionary<RoadNodeId, Feature<RoadNodeFeatureCompareAttributes>> extractFeatures,
+        STRtree<Feature<RoadNodeFeatureCompareAttributes>> extractFeaturesSpatialIndex,
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
     {
@@ -37,19 +38,12 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
 
         var processedRecords = new List<RoadNodeFeatureCompareRecord>();
 
-        var spatialIndex = new STRtree<Feature<RoadNodeFeatureCompareAttributes>>();
-        foreach (var feature in extractFeatures)
-        {
-            spatialIndex.Insert(feature.Attributes.Geometry.EnvelopeInternal, feature);
-        }
-        spatialIndex.Build();
-
         foreach (var changeFeature in changeFeatures)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var bufferedGeometry = changeFeature.Attributes.Geometry.Buffer(clusterTolerance);
-            var intersectingGeometries = spatialIndex
+            var intersectingGeometries = extractFeaturesSpatialIndex
                 .Query(bufferedGeometry.EnvelopeInternal)
                 .Where(x => x.Attributes.Geometry.Intersects(bufferedGeometry))
                 .ToList();
@@ -78,8 +72,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
             }
             else
             {
-                var extractFeature = extractFeatures.FirstOrDefault(x => x.Attributes.Id == changeFeature.Attributes.Id);
-                if (extractFeature is not null)
+                if (extractFeatures.TryGetValue(changeFeature.Attributes.Id, out var extractFeature))
                 {
                     processedRecords.Add(new RoadNodeFeatureCompareRecord(
                         FeatureType.Change,
@@ -117,10 +110,22 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
         {
             var batchCount = Debugger.IsAttached ? 1 : 4;
 
+            var spatialIndex = new STRtree<Feature<RoadNodeFeatureCompareAttributes>>();
+            foreach (var feature in extractFeatures)
+            {
+                spatialIndex.Insert(feature.Attributes.Geometry.EnvelopeInternal, feature);
+            }
+            spatialIndex.Build();
+
+            var extractFeaturesDictionary = extractFeatures.ToDictionary(x => x.Attributes.Id, x => x);
+
             var processedLeveringRecords = new ConcurrentDictionary<int, ICollection<RoadNodeFeatureCompareRecord>>();
             Parallel.Invoke(changeFeatures
                 .SplitIntoBatches(batchCount)
-                .Select((changeFeaturesBatch, index) => { return (Action)(() => { processedLeveringRecords.TryAdd(index, ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, context, cancellationToken)); }); })
+                .Select((changeFeaturesBatch, index) => { return (Action)(() =>
+                {
+                    processedLeveringRecords.TryAdd(index, ProcessLeveringRecords(changeFeaturesBatch, extractFeaturesDictionary, spatialIndex, context, cancellationToken));
+                }); })
                 .ToArray());
 
             problems += AddProcessedRecordsToContext(processedLeveringRecords.OrderBy(x => x.Key).SelectMany(x => x.Value).ToList(), context, cancellationToken);

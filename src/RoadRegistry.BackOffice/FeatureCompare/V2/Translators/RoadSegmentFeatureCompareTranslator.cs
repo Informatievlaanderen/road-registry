@@ -38,7 +38,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
     private (List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems) ProcessLeveringRecords(
         ICollection<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures,
-        ICollection<Feature<RoadSegmentFeatureCompareAttributes>> extractFeatures,
+        IDictionary<RoadSegmentId, Feature<RoadSegmentFeatureCompareAttributes>> extractFeatures,
+        STRtree<Feature<RoadSegmentFeatureCompareAttributes>> spatialIndex,
         IRoadSegmentFeatureCompareStreetNameContext streetNameContext,
         ZipArchiveEntryFeatureCompareTranslateContext context,
         CancellationToken cancellationToken)
@@ -49,20 +50,16 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         var processedRecords = new List<RoadSegmentFeatureCompareRecord>();
 
-        var spatialIndex = new STRtree<Feature<RoadSegmentFeatureCompareAttributes>>();
-        foreach (var feature in extractFeatures)
-        {
-            spatialIndex.Insert(feature.Attributes.Geometry.EnvelopeInternal, feature);
-        }
-        spatialIndex.Build();
-
         List<Feature<RoadSegmentFeatureCompareAttributes>> FindMatchingExtractFeatures(RoadSegmentFeatureCompareAttributes changeFeatureAttributes)
         {
             if (changeFeatureAttributes.Method == RoadSegmentGeometryDrawMethod.Outlined)
             {
-                return extractFeatures
-                    .Where(x => x.Attributes.Id == changeFeatureAttributes.Id)
-                    .ToList();
+                if(extractFeatures.TryGetValue(changeFeatureAttributes.Id, out var extractFeature))
+                {
+                    return [extractFeature];
+                }
+
+                return [];
             }
 
             var bufferedGeometry = changeFeatureAttributes.Geometry.Buffer(clusterTolerance);
@@ -121,10 +118,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             cancellationToken.ThrowIfCancellationRequested();
 
             var changeFeatureAttributes = changeFeature.Attributes;
-            var identicalExtractFeature = extractFeatures.FirstOrDefault(e =>
-                e.Attributes.Id == changeFeatureAttributes.Id
-                && e.Attributes.Equals(changeFeatureAttributes));
-            if (identicalExtractFeature is not null)
+            if (extractFeatures.TryGetValue(changeFeatureAttributes.Id, out var identicalExtractFeature) && identicalExtractFeature.Attributes.Equals(changeFeatureAttributes))
             {
                 processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                     FeatureType.Change,
@@ -271,10 +265,25 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
             var batchCount = Debugger.IsAttached ? 1 : 4;
 
+            var spatialIndex = new STRtree<Feature<RoadSegmentFeatureCompareAttributes>>();
+            foreach (var feature in extractFeatures)
+            {
+                spatialIndex.Insert(feature.Attributes.Geometry.EnvelopeInternal, feature);
+            }
+            spatialIndex.Build();
+
+            var extractFeaturesDictionary = extractFeatures.ToDictionary(x => x.Attributes.Id, x => x);
+
             var processedLeveringRecords = new ConcurrentDictionary<int, (List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems)>();
             Parallel.Invoke(changeFeatures
                 .SplitIntoBatches(batchCount)
-                .Select((changeFeaturesBatch, index) => { return (Action)(() => { processedLeveringRecords.TryAdd(index, ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, streetNameContext, context, cancellationToken)); }); })
+                .Select((changeFeaturesBatch, index) =>
+                {
+                    return (Action)(() =>
+                    {
+                        processedLeveringRecords.TryAdd(index, ProcessLeveringRecords(changeFeaturesBatch, extractFeaturesDictionary, spatialIndex, streetNameContext, context, cancellationToken));
+                    });
+                })
                 .ToArray());
 
             foreach (var processedProblems in processedLeveringRecords.OrderBy(x => x.Key).Select(x => x.Value.Item2))
