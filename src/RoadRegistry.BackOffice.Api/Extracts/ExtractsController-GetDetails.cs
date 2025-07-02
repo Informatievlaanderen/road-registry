@@ -41,7 +41,11 @@ public partial class ExtractsController
                 Contour = response.Contour.ToGeoJson(),
                 ExtractRequestId = response.ExtractRequestId,
                 RequestedOn = response.RequestedOn,
-                IsInformative = response.IsInformative
+                IsInformative = response.IsInformative,
+                ArchiveId = response.ArchiveId,
+                TicketId = response.TicketId,
+                DownloadAvailable = response.DownloadAvailable,
+                ExtractDownloadTimeoutOccurred = response.ExtractDownloadTimeoutOccurred,
             });
         }
         catch (ExtractArchiveNotCreatedException)
@@ -73,4 +77,8 @@ internal record ExtractDetailsResponseBody
     public string ExtractRequestId { get; set; }
     public DateTimeOffset RequestedOn { get; set; }
     public bool IsInformative { get; set; }
+    public bool DownloadAvailable { get; set; }
+    public bool ExtractDownloadTimeoutOccurred { get; set; }
+    public string? ArchiveId { get; set; }
+    public string? TicketId { get; set; }
 }

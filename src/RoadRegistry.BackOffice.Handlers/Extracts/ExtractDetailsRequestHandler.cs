@@ -23,7 +23,7 @@ public class ExtractDetailsRequestHandler : EndpointRetryableRequestHandler<Extr
 
     protected override async Task<ExtractDetailsResponse> InnerHandleAsync(ExtractDetailsRequest request, CancellationToken cancellationToken)
     {
-        var record = await Context.ExtractRequests.FindAsync(new object[] { request.DownloadId.ToGuid() }, cancellationToken);
+        var record = await Context.ExtractRequests.FindAsync([request.DownloadId.ToGuid()], cancellationToken);
 
         if (record is null)
         {
@@ -38,7 +38,11 @@ public class ExtractDetailsRequestHandler : EndpointRetryableRequestHandler<Extr
             Contour = record.Contour.ToMultiPolygon(),
             ExtractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(record.ExternalRequestId)),
             RequestedOn = record.RequestedOn,
-            IsInformative = record.IsInformative
+            IsInformative = record.IsInformative,
+            ArchiveId = record.ArchiveId is not null ? new ArchiveId(record.ArchiveId) : null,
+            TicketId = TicketId.FromValue(record.TicketId),
+            DownloadAvailable = record.DownloadAvailable,
+            ExtractDownloadTimeoutOccurred = record.ExtractDownloadTimeoutOccurred
         };
     }
 }

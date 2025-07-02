@@ -23,7 +23,7 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
     public ArchiveId Id { get; private set; }
     public ExtractDescription Description { get; private set; }
 
-    public static RoadNetworkChangesArchive Upload(ArchiveId id, ExtractDescription extractDescription, Guid? ticketId)
+    public static RoadNetworkChangesArchive Upload(ArchiveId id, ExtractDescription extractDescription, DownloadId downloadId, TicketId? ticketId)
     {
         var instance = new RoadNetworkChangesArchive();
 
@@ -31,13 +31,14 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
         {
             ArchiveId = id,
             Description = extractDescription,
+            DownloadId = downloadId,
             TicketId = ticketId
         });
 
         return instance;
     }
 
-    public void AcceptOrReject(ZipArchiveProblems problems, ExtractRequestId extractRequestId, DownloadId downloadId, Guid? ticketId)
+    public void AcceptOrReject(ZipArchiveProblems problems, ExtractRequestId extractRequestId, DownloadId downloadId, TicketId? ticketId)
     {
         if (!problems.HasError())
         {

@@ -72,6 +72,7 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
 
     private SendEmailRequest CreateSendEmailRequest(string extractDescription, StringBuilder sb)
     {
+        //TODO-pr after public-api deployment, change body to url of extract details
         return string.IsNullOrEmpty(_emailClientOptions?.ExtractUploadFailed)
         ? null
         : new SendEmailRequest

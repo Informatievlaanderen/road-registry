@@ -47,6 +47,7 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
                 var downloadId = new DownloadId(message.Body.DownloadId);
                 var extractRequestId = ExtractRequestId.FromString(message.Body.ExtractRequestId);
+                var ticketId = TicketId.FromValue(message.Body.TicketId);
 
                 logger.LogInformation("Download started for S3 blob {BlobName}", archiveId);
                 var archiveBlob = await blobClient.GetBlobAsync(new BlobName(archiveId), ct);
@@ -62,14 +63,14 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
 
                         var extractDescription = transactionZoneFeatureReader.Read(archive).Description;
 
-                        var upload = RoadNetworkChangesArchive.Upload(archiveId, extractDescription, message.Body.TicketId);
-                        upload.AcceptOrReject(problems, extractRequestId, downloadId, message.Body.TicketId);
+                        var upload = RoadNetworkChangesArchive.Upload(archiveId, extractDescription, downloadId, ticketId);
+                        upload.AcceptOrReject(problems, extractRequestId, downloadId, ticketId);
 
-                        if (problems.HasError() && message.Body.TicketId is not null)
+                        if (problems.HasError() && ticketId is not null)
                         {
                             var ticketing = container.Resolve<ITicketing>();
                             var errors = problems.Select(x => x.Translate().ToTicketError()).ToArray();
-                            await ticketing.Error(message.Body.TicketId.Value, new TicketError(errors), ct);
+                            await ticketing.Error(ticketId.Value, new TicketError(errors), ct);
                         }
 
                         logger.LogInformation("Validation completed for archive");

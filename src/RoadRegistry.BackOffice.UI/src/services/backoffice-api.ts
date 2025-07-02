@@ -94,6 +94,11 @@ export const BackOfficeApi = {
     },
   },
   Extracts: {
+    getDetails: async (downloadId: string) => {
+      const path = `${apiEndpoint}/v1/extracts/${downloadId}`;
+      const response = await apiClient.get<RoadRegistry.ExtractDetails>(path);
+      return response.data;
+    },
     download: async (downloadid: string) => {
       const path = `${apiEndpoint}/v1/extracts/download/${downloadid}`;
       await apiClient.download("application/zip", `${downloadid}.zip`, path, "GET");

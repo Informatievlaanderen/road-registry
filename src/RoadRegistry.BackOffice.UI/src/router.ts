@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Router, { RawLocation, Route, RouteConfig } from "vue-router";
 import { ActivityRoutes } from "./modules/activity";
+import { ExtractRoutes } from "./modules/extract";
 import { InformationRoutes } from "./modules/information";
 import { DownloadExtractRoutes } from "./modules/download-extract";
 import { DownloadProductRoutes } from "./modules/download-product";
@@ -17,6 +18,7 @@ const routes: RouteConfig[] = [
   },
   ...AuthRoutes,
   ...ActivityRoutes,
+  ...ExtractRoutes,
   ...InformationRoutes,
   ...DownloadExtractRoutes,
   ...DownloadProductRoutes,

@@ -622,17 +622,12 @@ export default Vue.extend({
           isInformative: this.municipalityFlow.isInformative as boolean,
         };
 
-        await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
+        let downloadExtractResponse = await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
 
-        // wait a little bit to give the projection time to process the request to show in the activity feed
-        await new Promise((resolve) => {
-          setTimeout(resolve, 2000);
-        });
-
-        this.$router.push({
-          name: "activiteit",
-          query: { filter: this.municipalityFlow.description },
-        });
+        //TODO-pr enable after public-api deployment
+        //this.$router.push({ name: "extractDetails", params: { downloadId: downloadExtractResponse.downloadId} });
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        this.$router.push({ name: "activiteit", query: { filter: this.municipalityFlow.description } });
       } catch (error) {
         console.error("Submit municipality failed", error);
         this.municipalityFlow.hasGenericError = true;
@@ -651,6 +646,8 @@ export default Vue.extend({
           return;
         }
 
+        let downloadExtractResponse: RoadRegistry.DownloadExtractResponse;
+
         switch (this.contourFlow.contourType) {
           case "shp":
             {
@@ -660,9 +657,9 @@ export default Vue.extend({
                 isInformative: this.contourFlow.isInformative as boolean,
               };
               if (featureToggles.usePresignedEndpoints) {
-                await PublicApi.Extracts.postDownloadRequestByFile(requestData);
+                downloadExtractResponse = await PublicApi.Extracts.postDownloadRequestByFile(requestData);
               } else {
-                await BackOfficeApi.Extracts.postDownloadRequestByFile(requestData);
+                downloadExtractResponse = await BackOfficeApi.Extracts.postDownloadRequestByFile(requestData);
               }
             }
             break;
@@ -674,15 +671,16 @@ export default Vue.extend({
                 isInformative: this.contourFlow.isInformative as boolean,
               };
 
-              await PublicApi.Extracts.postDownloadRequestByContour(requestData);
+              downloadExtractResponse = await PublicApi.Extracts.postDownloadRequestByContour(requestData);
             }
             break;
           default:
             throw new Error(`Not implemented contour type: ${this.contourFlow.contourType}`);
         }
 
+        //TODO-pr enable after public-api deployment
+        //this.$router.push({ name: "extractDetails", params: { downloadId: downloadExtractResponse.downloadId} });
         await new Promise((resolve) => setTimeout(resolve, 2000));
-
         this.$router.push({ name: "activiteit", query: { filter: this.contourFlow.description } });
       } catch (exception) {
         if (exception instanceof RoadRegistryExceptions.RequestExtractPerContourError) {

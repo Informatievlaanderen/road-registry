@@ -135,6 +135,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 var downloadId = new DownloadId(command.Body.DownloadId);
                 var archiveId = new ArchiveId(command.Body.ArchiveId);
                 var uploadId = new UploadId(command.Body.UploadId);
+                var ticketId = TicketId.FromValue(command.Body.TicketId);
 
                 var extractRequestId = ExtractRequestId.FromString(command.Body.RequestId);
                 var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
@@ -143,7 +144,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 {
                     try
                     {
-                        var upload = extract.Upload(downloadId, uploadId, archiveId, command.Body.TicketId);
+                        var upload = extract.Upload(downloadId, uploadId, archiveId, ticketId);
 
                         var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
                         await using var archiveBlobStream = await archiveBlob.OpenAsync(ct);
@@ -152,7 +153,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                         var ticketing = container.Resolve<ITicketing>();
                         var beforeFeatureCompareValidator = beforeFeatureCompareValidatorFactory.Create(extract.ZipArchiveWriterVersion);
 
-                        await upload.ValidateArchiveUsing(archive, command.Body.TicketId, beforeFeatureCompareValidator, extractUploadFailedEmailClient, ticketing, ct);
+                        await upload.ValidateArchiveUsing(archive, ticketId, beforeFeatureCompareValidator, extractUploadFailedEmailClient, ticketing, ct);
                     }
                     catch (Exception ex)
                     {

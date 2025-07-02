@@ -87,7 +87,7 @@ export const PublicApi = {
 
       const path = `${apiEndpoint}/v2/wegen/upload/jobs`;
       const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
-      
+
       const data = new FormData();
       if (response.data.uploadUrlFormData) {
         for (let key in response.data.uploadUrlFormData) {
@@ -95,10 +95,10 @@ export const PublicApi = {
         }
       }
       data.append("file", file, filename);
-      
+
       let awsHttp = axios.create();
       var uploadFileResponse = await awsHttp.post(response.data.uploadUrl, data);
-      
+
       let status = uploadFileResponse.status as any;
       if (status !== 204) {
         return null;
@@ -118,6 +118,15 @@ export const PublicApi = {
     },
   },
   Extracts: {
+    getDetails: async (downloadId: string) => {
+      if (useBackOfficeApi) {
+        return BackOfficeApi.Extracts.getDetails(downloadId);
+      }
+
+      const path = `${apiEndpoint}/v2/wegen/extract/${downloadId}`;
+      const response = await apiClient.get<RoadRegistry.ExtractDetails>(path);
+      return response.data;
+    },
     download: async (downloadid: string) => {
       const path = `${apiEndpoint}/v2/wegen/extract/download/${downloadid}`;
       await apiClient.download("application/zip", `${downloadid}.zip`, path, "GET");
@@ -226,7 +235,7 @@ export const PublicApi = {
       }
 
       const request = {
-        nisCode
+        nisCode,
       } as RoadRegistry.ListOverlappingExtractsByNisCodeRequest;
       const path = `${apiEndpoint}/v2/wegen/extract/overlapping/perniscode`;
       const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
@@ -240,12 +249,12 @@ export const PublicApi = {
       }
 
       const request = {
-        contour
+        contour,
       } as RoadRegistry.ListOverlappingExtractsByContourRequest;
       const path = `${apiEndpoint}/v2/wegen/extract/overlapping/percontour`;
       const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
       return response.data;
-    }
+    },
   },
   Information: {
     getInformation: async (): Promise<RoadRegistry.RoadNetworkInformationResponse> => {
@@ -326,13 +335,13 @@ export const PublicApi = {
 
       return municipalities;
     },
-  },  
+  },
   Ticketing: {
     get: async (id: string): Promise<RoadRegistry.TicketDetails> => {
       const path = `${apiEndpoint}/v2/tickets/${id}`;
       const response = await apiClient.get<RoadRegistry.TicketDetails>(path, { params: { t: new Date().getTime() } });
       return response.data;
-    }
-  }
+    },
+  },
 };
 export default PublicApi;

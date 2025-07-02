@@ -12,4 +12,8 @@ public class ExtractRequestRecord
     public DateTimeOffset RequestedOn { get; set; }
     public bool IsInformative { get; set; }
     public DateTimeOffset? DownloadedOn { get; set; }
+    public string ArchiveId { get; set; }
+    public Guid? TicketId { get; set; }
+    public bool DownloadAvailable { get; set; }
+    public bool ExtractDownloadTimeoutOccurred { get; set; }
 }

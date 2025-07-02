@@ -18,7 +18,7 @@ public partial class UploadController
     [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<IActionResult> UploadJob(
         [FromRoute] Guid jobId,
-        IFormFile archive,
+        [FromForm(Name = "file")] IFormFile archive,
         CancellationToken cancellationToken,
         [FromServices] IHostEnvironment hostEnvironment)
     {
@@ -33,6 +33,6 @@ public partial class UploadController
 
         await _mediator.Send(request, cancellationToken);
 
-        return Accepted();
+        return NoContent();
     }
 }
