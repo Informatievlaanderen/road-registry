@@ -13,6 +13,7 @@ using RoadRegistry.Tests.Framework.Projections;
 public class ExtractUploadRecordProjectionTests
 {
     private readonly Fixture _fixture;
+    private readonly Instant _instant = SystemClock.Instance.GetCurrentInstant();
 
     public ExtractUploadRecordProjectionTests()
     {
@@ -32,7 +33,7 @@ public class ExtractUploadRecordProjectionTests
                                 ExternalRequestId = externalRequestId,
                                 RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
                                 ArchiveId = _fixture.Create<ArchiveId>(),
-                                When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                                When = InstantPattern.ExtendedIso.Format(_instant)
                             };
                         }
                     )
@@ -62,7 +63,7 @@ public class ExtractUploadRecordProjectionTests
                         Organization = _fixture.Create<OrganizationName>(),
                         TransactionId = _fixture.Create<TransactionId>(),
                         Changes = Array.Empty<AcceptedChange>(),
-                        When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                        When = InstantPattern.ExtendedIso.Format(_instant)
                     })
                     .OmitAutoProperties()
         );
@@ -128,7 +129,7 @@ public class ExtractUploadRecordProjectionTests
                         Organization = _fixture.Create<OrganizationName>(),
                         TransactionId = _fixture.Create<TransactionId>(),
                         Changes = Array.Empty<AcceptedChange>(),
-                        When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                        When = InstantPattern.ExtendedIso.Format(_instant)
                     })
                     .OmitAutoProperties()
         );
@@ -164,7 +165,7 @@ public class ExtractUploadRecordProjectionTests
                         Organization = _fixture.Create<OrganizationName>(),
                         TransactionId = _fixture.Create<TransactionId>(),
                         Changes = Array.Empty<RejectedChange>(),
-                        When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                        When = InstantPattern.ExtendedIso.Format(_instant)
                     })
                     .OmitAutoProperties()
         );
@@ -230,7 +231,7 @@ public class ExtractUploadRecordProjectionTests
                         Organization = _fixture.Create<OrganizationName>(),
                         TransactionId = _fixture.Create<TransactionId>(),
                         Changes = Array.Empty<RejectedChange>(),
-                        When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                        When = InstantPattern.ExtendedIso.Format(_instant)
                     })
                     .OmitAutoProperties()
         );
@@ -261,7 +262,7 @@ public class ExtractUploadRecordProjectionTests
                                 ExternalRequestId = externalRequestId,
                                 RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
                                 ArchiveId = _fixture.Create<ArchiveId>(),
-                                When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                                When = InstantPattern.ExtendedIso.Format(_instant)
                             };
                         }
                     )
@@ -293,7 +294,7 @@ public class ExtractUploadRecordProjectionTests
                         ExternalRequestId = accepted.ExternalRequestId,
                         RequestId = accepted.RequestId,
                         ArchiveId = accepted.ArchiveId,
-                        When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                        When = InstantPattern.ExtendedIso.Format(_instant)
                     },
                     @event = accepted,
                     expected
@@ -322,7 +323,7 @@ public class ExtractUploadRecordProjectionTests
                                 ExternalRequestId = externalRequestId,
                                 RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
                                 ArchiveId = _fixture.Create<ArchiveId>(),
-                                When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                                When = InstantPattern.ExtendedIso.Format(_instant)
                             };
                         }
                     )
@@ -421,7 +422,7 @@ public class ExtractUploadRecordProjectionTests
                         OrganizationId = _fixture.Create<OrganizationId>(),
                         Organization = _fixture.Create<OrganizationName>(),
                         TransactionId = _fixture.Create<TransactionId>(),
-                        When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                        When = InstantPattern.ExtendedIso.Format(_instant)
                     })
                     .OmitAutoProperties()
         );

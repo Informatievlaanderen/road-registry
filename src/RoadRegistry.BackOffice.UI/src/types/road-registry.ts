@@ -62,6 +62,17 @@ export namespace RoadRegistry {
     json: string;
   }
 
+  export interface ExtractDetails {
+    downloadId: string;
+    description: string;
+    extractRequestId: string;
+    isInformative: boolean;
+    archiveId: string;
+    ticketId: string;
+    downloadAvailable: boolean;
+    extractDownloadTimeoutOccurred: boolean;
+  }
+
   export interface DownloadExtractRequest {
     requestId: string;
     contour: string;

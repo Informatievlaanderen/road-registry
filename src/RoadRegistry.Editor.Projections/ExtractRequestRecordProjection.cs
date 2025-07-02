@@ -48,16 +48,56 @@ public class ExtractRequestRecordProjection : ConnectedProjection<EditorContext>
             await context.ExtractRequests.AddAsync(record, ct);
         });
 
-        When<Envelope<RoadNetworkExtractDownloaded>>(async (context, envelope, ct) =>
+        When<Envelope<RoadNetworkExtractDownloadBecameAvailable>>(async (context, envelope, ct) =>
         {
-            var record = await context.ExtractRequests
-                .IncludeLocalSingleOrDefaultAsync(record => record.DownloadId == envelope.Message.DownloadId, ct);
-            if (record is null)
+            await UpdateExtractRequest(context, envelope.Message.DownloadId, record =>
+            {
+                record.DownloadAvailable = true;
+            }, ct);
+        });
+
+        When<Envelope<RoadNetworkExtractDownloadTimeoutOccurred>>(async (context, envelope, ct) =>
+        {
+            if (envelope.Message.DownloadId is null)
             {
                 return;
             }
 
-            record.DownloadedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToDateTimeOffset();
+            await UpdateExtractRequest(context, envelope.Message.DownloadId.Value, record =>
+            {
+                record.ExtractDownloadTimeoutOccurred = true;
+            }, ct);
+        });
+
+        When<Envelope<RoadNetworkExtractDownloaded>>(async (context, envelope, ct) =>
+        {
+            await UpdateExtractRequest(context, envelope.Message.DownloadId, record =>
+            {
+                record.DownloadedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToDateTimeOffset();
+            }, ct);
+        });
+
+        When<Envelope<RoadNetworkChangesArchiveUploaded>>(async (context, envelope, ct) =>
+        {
+            if (envelope.Message.DownloadId is null)
+            {
+                return;
+            }
+
+            await UpdateExtractRequest(context, envelope.Message.DownloadId.Value, record =>
+            {
+                record.ArchiveId = envelope.Message.ArchiveId;
+                record.TicketId = envelope.Message.TicketId;
+            }, ct);
+        });
+
+        When<Envelope<RoadNetworkExtractChangesArchiveUploaded>>(async (context, envelope, ct) =>
+        {
+            await UpdateExtractRequest(context, envelope.Message.DownloadId, record =>
+            {
+                record.ArchiveId = envelope.Message.ArchiveId;
+                record.TicketId = envelope.Message.TicketId;
+            }, ct);
         });
 
         When<Envelope<RoadNetworkExtractClosed>>(async (context, envelope, ct) =>
@@ -74,6 +114,16 @@ public class ExtractRequestRecordProjection : ConnectedProjection<EditorContext>
 
             await CloseExtractRequests(context, [envelope.Message.DownloadId.Value], ct);
         });
+    }
+
+    private async Task UpdateExtractRequest(EditorContext editorContext, Guid downloadId, Action<ExtractRequestRecord> updateAction, CancellationToken cancellationToken)
+    {
+        var record = await editorContext.ExtractRequests
+            .IncludeLocalSingleOrDefaultAsync(r => r.DownloadId == downloadId, cancellationToken);
+        if (record is not null)
+        {
+            updateAction(record);
+        }
     }
 
     private async Task CloseExtractRequests(EditorContext editorContext, Guid[] downloadIds, CancellationToken cancellationToken)

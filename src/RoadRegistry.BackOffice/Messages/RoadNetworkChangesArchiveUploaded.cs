@@ -9,6 +9,7 @@ public class RoadNetworkChangesArchiveUploaded : IMessage
 {
     public string ArchiveId { get; set; }
     public string Description { get; set; }
+    public Guid? DownloadId { get; set; }
     public Guid? TicketId { get; set; }
     public string When { get; set; }
 }

@@ -152,7 +152,7 @@ public class RoadNetworkExtract : EventSourcedEntity
             });
     }
 
-    public RoadNetworkExtractUpload Upload(DownloadId downloadId, UploadId uploadId, ArchiveId archiveId, Guid? ticketId)
+    public RoadNetworkExtractUpload Upload(DownloadId downloadId, UploadId uploadId, ArchiveId archiveId, TicketId? ticketId)
     {
         if (!_requestedDownloads.Contains(downloadId))
             throw new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException(
@@ -189,7 +189,7 @@ public class RoadNetworkExtract : EventSourcedEntity
     public void Close(RoadNetworkExtractCloseReason reason, DownloadId? downloadId = null)
     {
         var closeDownloadIds = downloadId is not null
-            ? new[] { downloadId.Value }
+            ? [downloadId.Value]
             : _requestedDownloads.ToArray();
 
         Apply(new RoadNetworkExtractClosed
