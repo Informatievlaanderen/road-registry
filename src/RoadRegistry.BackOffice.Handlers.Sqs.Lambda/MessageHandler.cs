@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
+using Abstractions.RoadSegments;
+using Abstractions.RoadSegmentsOutline;
 using Autofac;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;

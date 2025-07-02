@@ -15,7 +15,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Requests;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
-using Sqs.RoadSegments;
 using Xunit.Abstractions;
 
 public abstract class WhenDeleteOutlineTestBase : BackOfficeLambdaTest

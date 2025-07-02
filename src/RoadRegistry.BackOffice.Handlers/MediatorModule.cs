@@ -9,7 +9,5 @@ public class MediatorModule : Module
     protected override void Load(ContainerBuilder builder)
     {
         builder.RegisterMediatrHandlersFromAssemblyContaining(GetType());
-
-        builder.Register(c => (IDownloadExtractByFileRequestItemTranslator)new DownloadExtractByFileRequestItemTranslator());
     }
 }
