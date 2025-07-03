@@ -28,9 +28,9 @@
       },
       "AWSSDK.Core": {
         "type": "Direct",
-        "requested": "[3.7.402.35, )",
-        "resolved": "3.7.402.35",
-        "contentHash": "9Jby5BBQTzZOqzQiFjJyr3zCe5GVi64U8gxOlPk3vTTuVJqtkisBJ0Jh1RBj2fNqnWmJLfaWSCLvX1L06zwHnQ=="
+        "requested": "[3.7.402.78, )",
+        "resolved": "3.7.402.78",
+        "contentHash": "v5CsLy+YN8YDHOgG385cH8oDtYrb0dNImdmkPJ7L7fbbRhpesW2VmmJOn4c3Ca/NWLmrpub6npxuh8+houdbZA=="
       },
       "Be.Vlaanderen.Basisregisters.Aws.DistributedMutex": {
         "type": "Direct",
@@ -2351,7 +2351,7 @@
       "Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.35, )",
+          "AWSSDK.Core": "[3.7.402.78, )",
           "Be.Vlaanderen.Basisregisters.Api": "[24.0.0, )",
           "Be.Vlaanderen.Basisregisters.Auth.AcmIdm": "[4.0.1, )",
           "Be.Vlaanderen.Basisregisters.Aws.DistributedMutex": "[5.0.0, )",
@@ -2369,10 +2369,10 @@
       "roadregistry.backoffice": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.35, )",
-          "AWSSDK.DynamoDBv2": "[3.7.302, )",
-          "AWSSDK.SimpleEmailV2": "[3.7.301.5, )",
-          "AWSSDK.SimpleNotificationService": "[3.7.301.7, )",
+          "AWSSDK.Core": "[3.7.402.78, )",
+          "AWSSDK.DynamoDBv2": "[3.7.408.1, )",
+          "AWSSDK.SimpleEmailV2": "[3.7.411.2, )",
+          "AWSSDK.SimpleNotificationService": "[3.7.400.172, )",
           "Amazon.Lambda.Core": "[2.5.1, )",
           "Be.Vlaanderen.Basisregisters.AggregateSource": "[10.0.2, )",
           "Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache": "[3.0.0, )",
@@ -2418,7 +2418,7 @@
       "roadregistry.backoffice.abstractions": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.35, )",
+          "AWSSDK.Core": "[3.7.402.78, )",
           "Be.Vlaanderen.Basisregisters.BlobStore": "[5.0.0, )",
           "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.1, )",
           "MediatR.Contracts": "[2.0.1, )",
@@ -2436,7 +2436,7 @@
       "roadregistry.backoffice.handlers": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.35, )",
+          "AWSSDK.Core": "[3.7.402.78, )",
           "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": "[6.0.3, )",
           "Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector": "[15.0.1, )",
           "MediatR": "[12.5.0, )",
@@ -2453,8 +2453,8 @@
       "roadregistry.backoffice.handlers.sqs": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.35, )",
-          "AWSSDK.SQS": "[3.7.400.129, )",
+          "AWSSDK.Core": "[3.7.402.78, )",
+          "AWSSDK.SQS": "[3.7.400.172, )",
           "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": "[6.0.3, )",
           "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.1, )",
           "Be.Vlaanderen.Basisregisters.Sqs.Lambda": "[4.0.1, )",
@@ -2472,7 +2472,7 @@
       "roadregistry.backoffice.handlers.sqs.lambda": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.35, )",
+          "AWSSDK.Core": "[3.7.402.78, )",
           "Amazon.Lambda.Serialization.Json": "[2.2.4, )",
           "Autofac.Extensions.DependencyInjection": "[10.0.0, )",
           "Be.Vlaanderen.Basisregisters.Api": "[24.0.0, )",
@@ -2511,7 +2511,7 @@
       "roadregistry.editor.schema": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.35, )",
+          "AWSSDK.Core": "[3.7.402.78, )",
           "Be.Vlaanderen.Basisregisters.BlobStore": "[5.0.0, )",
           "Be.Vlaanderen.Basisregisters.EventHandling": "[7.0.0, )",
           "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": "[15.0.1, )",
@@ -2531,8 +2531,8 @@
       "roadregistry.hosts": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.35, )",
-          "AWSSDK.Lambda": "[3.7.304.8, )",
+          "AWSSDK.Core": "[3.7.402.78, )",
+          "AWSSDK.Lambda": "[3.7.413.6, )",
           "AspNetCore.HealthChecks.Aws.S3": "[9.0.0, )",
           "AspNetCore.HealthChecks.Aws.Sqs": "[9.0.0, )",
           "AspNetCore.HealthChecks.DynamoDb": "[9.0.0, )",
@@ -2874,47 +2874,47 @@
       },
       "AWSSDK.DynamoDBv2": {
         "type": "CentralTransitive",
-        "requested": "[3.7.302, )",
-        "resolved": "3.7.406.17",
-        "contentHash": "HmCeGXJwbflvvtcLTXIPJsI4XsQslUZ4BPPUmyHNLmQJdORJ8veln/tsNPFWDlhjhZ1KI3jSDTdkQZsxPNqfVg==",
+        "requested": "[3.7.408.1, )",
+        "resolved": "3.7.408.1",
+        "contentHash": "0s1+FRbjJpnqz+aghm6cluZcTIxBUPse/sA4xV27yDxIrahiyRgsalX9HdpHGYr/HxNIHVeNk8/WJLBMFYJOtA==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.35, 4.0.0)"
+          "AWSSDK.Core": "[3.7.402.78, 4.0.0)"
         }
       },
       "AWSSDK.Lambda": {
         "type": "CentralTransitive",
-        "requested": "[3.7.304.8, )",
-        "resolved": "3.7.304.8",
-        "contentHash": "Vi8+Tcagcovwg5HyxgHPIC2KgCb0KjmICedX/G6JO5DcVKeiP9C54HucuUg6ycPyy91M4Wu5KhB3MTQeM3vfIw==",
+        "requested": "[3.7.413.6, )",
+        "resolved": "3.7.413.6",
+        "contentHash": "GDYh+4BqZcH2le0jy3qZu5iGffweEHp1YhH1bjbVgx5Le21vJO6PCTfl3l0YrOMHO+jC7EvFhLR4SVkO1nrlKQ==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.302.20, 4.0.0)"
+          "AWSSDK.Core": "[3.7.402.78, 4.0.0)"
         }
       },
       "AWSSDK.SimpleEmailV2": {
         "type": "CentralTransitive",
-        "requested": "[3.7.301.5, )",
-        "resolved": "3.7.301.5",
-        "contentHash": "gywkI/RjxDRk5Bah3v6+IsvOtnYDNfI4KLsA5dB3ZoNY6STOwTr044iyCsyGn0sYagXvWV3hoXi3rTKkbn+Icg==",
+        "requested": "[3.7.411.2, )",
+        "resolved": "3.7.411.2",
+        "contentHash": "mBa4WgOeL5Ny9qsxe38b/1TJzoKGl0SbJQ8abolvO+G2yPsjm/dX50pvAAeTUYYMUE0jLBmeC2HMQINq1CxRGg==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.302.20, 4.0.0)"
+          "AWSSDK.Core": "[3.7.402.78, 4.0.0)"
         }
       },
       "AWSSDK.SimpleNotificationService": {
         "type": "CentralTransitive",
-        "requested": "[3.7.301.7, )",
-        "resolved": "3.7.301.7",
-        "contentHash": "gE0f1HQNxkZmRlgVw8YIY0L4S5LfX6O0c2UM9CZCbKXgukori3nQ1EUcwPD1jAvhPHNL1U/oGAR6IVvcHN4fgA==",
+        "requested": "[3.7.400.172, )",
+        "resolved": "3.7.400.172",
+        "contentHash": "fWx5yAQf5biIe43Fl6Fh3RFWvbAlZg+Rpsl0Q7Hc+VkpOO/fa5UvjER1IVME92gKwgHIO0oP+YncJv1QUUL8rg==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.302.20, 4.0.0)"
+          "AWSSDK.Core": "[3.7.402.78, 4.0.0)"
         }
       },
       "AWSSDK.SQS": {
         "type": "CentralTransitive",
-        "requested": "[3.7.400.129, )",
-        "resolved": "3.7.400.129",
-        "contentHash": "vc1OnZscfyKbuucR6Ru1SQj6o6SYizmmd3P/BBgP7Oph9I2UMirSs92iDisKjI6kuun3qv5K9SJBasZA3di1lQ==",
+        "requested": "[3.7.400.172, )",
+        "resolved": "3.7.400.172",
+        "contentHash": "C6PClZ+0+vQm9R8YiU4KhjeWV6ecK56TEwMp4KUr2BwEUFOLo/uMPk1wgM+OsmjWPoPOR6iv4SKO6x9CDpkOUw==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.35, 4.0.0)"
+          "AWSSDK.Core": "[3.7.402.78, 4.0.0)"
         }
       },
       "Be.Vlaanderen.Basisregisters.AggregateSource": {
