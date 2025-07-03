@@ -27,9 +27,13 @@ public sealed class UploadExtractRequestValidator : AbstractValidator<UploadExtr
         }
 
         var ex = new ValidationException(validationResult.Errors);
-        var extractRequest = await _editorContext.ExtractRequests.FindAsync([DownloadId.Parse(request.DownloadId).ToGuid()], cancellationToken);
+        var downloadId = DownloadId.Parse(request.DownloadId);
+        var extractRequest = await _editorContext.ExtractRequests.FindAsync([downloadId.ToGuid()], cancellationToken);
 
-        await _emailClient.SendAsync(extractRequest?.Description, ex, cancellationToken);
+        if (extractRequest is not null)
+        {
+            await _emailClient.SendAsync(new (downloadId, extractRequest.Description), cancellationToken);
+        }
         throw ex;
     }
 }

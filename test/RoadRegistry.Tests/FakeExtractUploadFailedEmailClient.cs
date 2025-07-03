@@ -4,7 +4,7 @@ namespace RoadRegistry.Tests
 
     public class FakeExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
     {
-        public Task SendAsync(string extractDescription, Exception ex, CancellationToken cancellationToken)
+        public Task SendAsync(FailedExtractUpload extract, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }
