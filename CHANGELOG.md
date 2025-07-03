@@ -1,3 +1,10 @@
+# [4.33.0](https://github.com/informatievlaanderen/road-registry/compare/v4.32.8...v4.33.0) (2025-07-03)
+
+
+### Features
+
+* add extract details page to download/upload and track status ([616f1a2](https://github.com/informatievlaanderen/road-registry/commit/616f1a25c935a7ffc851f7c176b8efacec1e7bb4))
+
 ## [4.32.8](https://github.com/informatievlaanderen/road-registry/compare/v4.32.7...v4.32.8) (2025-06-27)
 
 
