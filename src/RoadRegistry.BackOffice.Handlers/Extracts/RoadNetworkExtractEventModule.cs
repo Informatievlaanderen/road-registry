@@ -116,7 +116,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                         await ticketing.Error(message.Body.TicketId.Value, new TicketError(errors), ct);
                     }
 
-                    await extractUploadFailedEmailClient.SendAsync(message.Body.Description, new ValidationException(JsonConvert.SerializeObject(rejectedChangeEvent, Formatting.Indented)), ct);
+                    await extractUploadFailedEmailClient.SendAsync(new (downloadId, message.Body.Description), ct);
                 }
                 finally
                 {
@@ -133,6 +133,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         CancellationToken ct)
         where TMessage : IRoadNetworkExtractGotRequestedMessage
     {
+        var downloadId = new DownloadId(message.Body.DownloadId);
         var archiveId = new ArchiveId(message.Body.DownloadId.ToString("N"));
         var blobName = new BlobName(archiveId);
         var extractDescription = message switch
@@ -143,7 +144,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         };
 
         var overlappingDownloadIds = !message.Body.IsInformative
-            ? await GetOverlappingDownloadIds(message.Body.DownloadId, message.Body.Contour, ct)
+            ? await GetOverlappingDownloadIds(downloadId, message.Body.Contour, ct)
             : [];
 
         var policy = Policy
@@ -172,7 +173,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         {
             var request = new RoadNetworkExtractAssemblyRequest(
                 new ExternalExtractRequestId(message.Body.ExternalRequestId),
-                new DownloadId(message.Body.DownloadId),
+                downloadId,
                 new ExtractDescription(extractDescription),
                 GeometryTranslator.Translate(message.Body.Contour),
                 message.Body.IsInformative,

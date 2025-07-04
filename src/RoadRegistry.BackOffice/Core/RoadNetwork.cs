@@ -101,7 +101,10 @@ public class RoadNetwork : EventSourcedEntity
             };
             Apply(@event);
 
-            await emailClient.SendAsync(@event.Reason, new ValidationException(JsonConvert.SerializeObject(@event, Formatting.Indented)), cancellationToken);
+            if (downloadId is not null)
+            {
+                await emailClient.SendAsync(new (downloadId.Value, @event.Reason), cancellationToken);
+            }
             return @event;
         }
         else

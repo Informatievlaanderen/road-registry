@@ -159,7 +159,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                     {
                         if (extractUploadFailedEmailClient is not null)
                         {
-                            await extractUploadFailedEmailClient.SendAsync(extract.Description, ex, ct);
+                            await extractUploadFailedEmailClient.SendAsync(new (downloadId, extract.Description), ct);
                         }
                         throw;
                     }

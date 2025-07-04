@@ -4,6 +4,7 @@ namespace RoadRegistry.BackOffice.Configuration
     {
         public string FromEmailAddress { get; set; }
         public string ExtractUploadFailed { get; set; }
+        public string ExtractDetailsPortaalUrl { get; set; }
 
         public string GetConfigurationKey() => "EmailClientOptions";
     }

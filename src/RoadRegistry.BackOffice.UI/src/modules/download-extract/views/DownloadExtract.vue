@@ -624,10 +624,7 @@ export default Vue.extend({
 
         let downloadExtractResponse = await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
 
-        //TODO-pr enable after public-api deployment
-        //this.$router.push({ name: "extractDetails", params: { downloadId: downloadExtractResponse.downloadId} });
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        this.$router.push({ name: "activiteit", query: { filter: this.municipalityFlow.description } });
+        this.$router.push({ name: "extractDetails", params: { downloadId: downloadExtractResponse.downloadId} });
       } catch (error) {
         console.error("Submit municipality failed", error);
         this.municipalityFlow.hasGenericError = true;
@@ -678,10 +675,7 @@ export default Vue.extend({
             throw new Error(`Not implemented contour type: ${this.contourFlow.contourType}`);
         }
 
-        //TODO-pr enable after public-api deployment
-        //this.$router.push({ name: "extractDetails", params: { downloadId: downloadExtractResponse.downloadId} });
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        this.$router.push({ name: "activiteit", query: { filter: this.contourFlow.description } });
+        this.$router.push({ name: "extractDetails", params: { downloadId: downloadExtractResponse.downloadId} });
       } catch (exception) {
         if (exception instanceof RoadRegistryExceptions.RequestExtractPerContourError) {
           this.contourFlow.hasValidationErrors = true;

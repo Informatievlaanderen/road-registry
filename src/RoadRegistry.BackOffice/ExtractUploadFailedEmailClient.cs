@@ -1,18 +1,17 @@
 namespace RoadRegistry.BackOffice;
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Amazon.SimpleEmailV2;
 using Amazon.SimpleEmailV2.Model;
 using Configuration;
-using Extracts;
-using FluentValidation;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using RoadRegistry.BackOffice.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+
+public interface IExtractUploadFailedEmailClient
+{
+    Task SendAsync(FailedExtractUpload extract, CancellationToken cancellationToken);
+}
 
 internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
 {
@@ -30,20 +29,9 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
         _logger = logger;
     }
 
-    public async Task SendAsync(string extractDescription, Exception ex, CancellationToken cancellationToken)
+    public async Task SendAsync(FailedExtractUpload extract, CancellationToken cancellationToken)
     {
-        var sb = ex switch
-        {
-            ValidationException => FormatValidationException(ex),
-            CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException => FormatCanNotUploadException(ex),
-            CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException => FormatCanNotUploadException(ex),
-            CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException => FormatCanNotUploadException(ex),
-            ExtractDownloadNotFoundException => FormatValidationException(ex),
-            ExtractRequestMarkedInformativeException => FormatValidationException(ex),
-            _ => new StringBuilder()
-        };
-
-        var emailRequest = CreateSendEmailRequest(extractDescription, sb);
+        var emailRequest = CreateSendEmailRequest(extract);
 
         try
         {
@@ -59,27 +47,26 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
         {
             _logger.LogError(myEx, "An error occurred with {ClientName}: {ExceptionMessage}", nameof(ExtractUploadFailedEmailClient), myEx.Message);
         }
-
-        StringBuilder FormatValidationException(Exception exception) => new StringBuilder()
-            .AppendLine("De oplading kon niet verwerkt worden wegens een validatiefout.").AppendLine()
-            .AppendLine(JsonConvert.SerializeObject(ex, Formatting.Indented)).AppendLine()
-            .AppendLine(exception.Message).AppendLine();
-
-        StringBuilder FormatCanNotUploadException(Exception exception) => new StringBuilder()
-            .AppendLine("De status van de oplading kan niet geverifieerd worden.").AppendLine()
-            .AppendLine(exception.Message).AppendLine();
     }
 
-    private SendEmailRequest CreateSendEmailRequest(string extractDescription, StringBuilder sb)
+    private string BuildExtractDetailsUrl(FailedExtractUpload extract)
     {
-        //TODO-pr after public-api deployment, change body to url of extract details
+        return !string.IsNullOrEmpty(_emailClientOptions?.ExtractDetailsPortaalUrl)
+            ? _emailClientOptions.ExtractDetailsPortaalUrl.Replace("{downloadId}", extract.DownloadId)
+            : string.Empty;
+    }
+
+    private SendEmailRequest CreateSendEmailRequest(FailedExtractUpload extract)
+    {
+        var portaalUrl = BuildExtractDetailsUrl(extract);
+
         return string.IsNullOrEmpty(_emailClientOptions?.ExtractUploadFailed)
         ? null
         : new SendEmailRequest
         {
             Destination = new Destination
             {
-                ToAddresses = new List<string> { _emailClientOptions.ExtractUploadFailed }
+                ToAddresses = [_emailClientOptions.ExtractUploadFailed]
             },
             FromEmailAddress = _emailClientOptions.FromEmailAddress,
             Content = new EmailContent
@@ -88,13 +75,23 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
                 {
                     Subject = new Content
                     {
-                        Data = extractDescription is not null
-                        ? $"Oplading Wegenregister {extractDescription} is mislukt"
-                        : $"Oplading Wegenregister is mislukt"
+                        Data = extract.Description is not null
+                        ? $"Oplading Wegenregister {extract.Description} is mislukt"
+                        : "Oplading Wegenregister is mislukt"
                     },
                     Body = new Body
                     {
-                        Text = new Content { Data = sb.ToString() }
+                        Html = new Content
+                        {
+                            Data = $"""
+                                    <html>
+                                    <body>
+                                    <p>De oplading kon niet verwerkt worden wegens een validatiefout.</p>
+                                    <a href="{portaalUrl}">{portaalUrl}</a>
+                                    </body>
+                                    </html>
+                                    """
+                        }
                     }
                 }
             }
@@ -111,14 +108,12 @@ public class NotConfiguredExtractUploadFailedEmailClient : IExtractUploadFailedE
         _logger = logger;
     }
 
-    public Task SendAsync(string extractDescription, Exception ex, CancellationToken cancellationToken)
+    public Task SendAsync(FailedExtractUpload extract, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Received email request, but client is not configured so not doing anything");
 
         return Task.CompletedTask;
     }
 }
-public interface IExtractUploadFailedEmailClient
-{
-    Task SendAsync(string extractDescription, Exception ex, CancellationToken cancellationToken);
-}
+
+public sealed record FailedExtractUpload(DownloadId DownloadId, string Description);
