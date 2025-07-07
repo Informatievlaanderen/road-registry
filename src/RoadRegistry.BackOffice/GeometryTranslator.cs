@@ -130,7 +130,7 @@ public static class GeometryTranslator
                     {
                         if (i == lineString.Count - 1)
                         {
-                            coordinates.Remove(previousPoint);
+                            coordinates.RemoveAt(coordinates.Count - 1);
                             coordinates.Add(currentPoint);
                         }
                         continue;
