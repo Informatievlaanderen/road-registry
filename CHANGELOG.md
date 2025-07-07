@@ -1,3 +1,10 @@
+## [4.33.2](https://github.com/informatievlaanderen/road-registry/compare/v4.33.1...v4.33.2) (2025-07-07)
+
+
+### Bug Fixes
+
+* always keep last coordinate of linestring when removing duplicate coordinates ([ee8d368](https://github.com/informatievlaanderen/road-registry/commit/ee8d368aab26e9ca1aa5eac625e327657e74d12e))
+
 ## [4.33.1](https://github.com/informatievlaanderen/road-registry/compare/v4.33.0...v4.33.1) (2025-07-07)
 
 
