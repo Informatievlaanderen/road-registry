@@ -8,6 +8,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Api\RoadRegistry.BackOffice.Api.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />

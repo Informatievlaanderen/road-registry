@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests
 {
     using Autofac.Extensions.DependencyInjection;
     using Be.Vlaanderen.Basisregisters.DockerUtilities;
-    using Infrastructure;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.TestHost;
     using Microsoft.Data.SqlClient;
@@ -15,7 +14,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests
     {
         public TestServer TestServer { get; private set; }
         public SqlConnection SqlConnection { get; private set; }
-        
+
         public override async Task InitializeAsync()
         {
             await base.InitializeAsync();
@@ -28,7 +27,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests
             var hostBuilder = new WebHostBuilder()
                 .ConfigureServices(services => services.AddAutofac())
                 .UseConfiguration(Configuration)
-                .UseStartup<Startup>()
+                .UseStartup<RoadRegistry.BackOffice.Api.Infrastructure.Startup>()
                 .ConfigureLogging(loggingBuilder => loggingBuilder.AddConsole())
                 .UseTestServer();
 

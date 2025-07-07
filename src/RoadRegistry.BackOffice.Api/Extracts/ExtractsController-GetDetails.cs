@@ -69,7 +69,7 @@ public partial class ExtractsController
     }
 }
 
-internal record ExtractDetailsResponseBody
+public record ExtractDetailsResponseBody
 {
     public string DownloadId { get; set; }
     public string Description { get; set; }
