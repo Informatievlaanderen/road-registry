@@ -1,3 +1,10 @@
+## [4.33.1](https://github.com/informatievlaanderen/road-registry/compare/v4.33.0...v4.33.1) (2025-07-07)
+
+
+### Bug Fixes
+
+* **producer:** serialize the message but not data ([78e9e62](https://github.com/informatievlaanderen/road-registry/commit/78e9e622c5f3bff6727a1772f81d632334ef536a))
+
 # [4.33.0](https://github.com/informatievlaanderen/road-registry/compare/v4.32.8...v4.33.0) (2025-07-03)
 
 
