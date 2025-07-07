@@ -1,3 +1,10 @@
+# [4.34.0](https://github.com/informatievlaanderen/road-registry/compare/v4.33.2...v4.34.0) (2025-07-07)
+
+
+### Features
+
+* on GRB failed upload send email with url to portaal ([63aaa2b](https://github.com/informatievlaanderen/road-registry/commit/63aaa2ba96667236cd6e9a4688deb863cbf6b11f))
+
 ## [4.33.2](https://github.com/informatievlaanderen/road-registry/compare/v4.33.1...v4.33.2) (2025-07-07)
 
 
