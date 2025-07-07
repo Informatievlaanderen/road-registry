@@ -19,7 +19,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Extracts
         [Fact]
         public async Task WhenExtractGotRequestedWithOverlap()
         {
-            var apiClient = await Fixture.CreateApiClient(new[] { Scopes.DvWrIngemetenWegBeheer });
+            var apiClient = await Fixture.CreateApiClient([Scopes.DvWrIngemetenWegBeheer]);
             if (apiClient is null)
             {
                 return;
@@ -27,13 +27,15 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Extracts
 
             await CloseRemainingTestExtracts(apiClient);
 
-            var extractRequest1 = await apiClient.RequestDownloadExtract(new DownloadExtractRequestBody(
+            var extractRequest1 = await apiClient.RequestDownloadExtractByContour(new DownloadExtractByContourRequestBody(
+                0,
                 "MULTIPOLYGON(((55000 200000,55000 200100,55100 200100,55100 200000,55000 200000)))",
                 $"{ExtractDescriptionPrefix}{DateTime.Today:yyyyMMdd}_{DateTime.Now:HHmmssfff}",
                 false
                 ), CancellationToken.None);
 
-            var extractRequest2 = await apiClient.RequestDownloadExtract(new DownloadExtractRequestBody(
+            var extractRequest2 = await apiClient.RequestDownloadExtractByContour(new DownloadExtractByContourRequestBody(
+                0,
                 "MULTIPOLYGON(((55050 200000,55050 200100,55150 200100,55150 200000,55050 200000)))",
                 $"{ExtractDescriptionPrefix}{DateTime.Today:yyyyMMdd}_{DateTime.Now:HHmmssfff}",
                 false
