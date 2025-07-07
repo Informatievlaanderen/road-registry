@@ -4,29 +4,24 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions.Extracts;
 using Api.Extracts;
-using AutoFixture;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
 using BackOffice.Uploads.Dbase.BeforeFeatureCompare.V2.Schema;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Editor.Schema.Extensions;
 using Extensions;
+using Extracts;
 using FeatureCompare.V2;
 using FeatureCompare.V2.Readers;
-using Infrastructure;
 using NetTopologySuite.Geometries;
-using Xunit;
-using RoadRegistry.BackOffice.Api.IntegrationTests.Extracts;
 using ShapeFile.V2;
 using Tests;
 using Tests.BackOffice.Scenarios;
+using Xunit;
 using Xunit.Abstractions;
 using Point = NetTopologySuite.Geometries.Point;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
@@ -42,16 +37,16 @@ public class ExtractUploadForSegmentsWithDummyChange : IClassFixture<ApiClientTe
         _testOutputHelper = testOutputHelper;
     }
 
-    [Fact]
-    //[Fact(Skip = "For debugging purposes only")]
+    //[Fact]
+    [Fact(Skip = "For debugging purposes only")]
     public async Task RunOnce()
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-        var segmentIds = new[]
+        var segmentIds = new RoadSegmentId[]
         {
-            1087278,
-            //1134688, //TODO-pr nog steeds aan te passen
+            //1087278,
+            //1134688,
         };
 
         var cancellationToken = CancellationToken.None;
@@ -71,7 +66,7 @@ public class ExtractUploadForSegmentsWithDummyChange : IClassFixture<ApiClientTe
         }
     }
 
-    private async Task ModifyRoadSegment(int segmentId, CancellationToken cancellationToken)
+    private async Task ModifyRoadSegment(RoadSegmentId segmentId, CancellationToken cancellationToken)
     {
         using var apiClient = await _fixture.CreateApiClient([Scopes.DvWrIngemetenWegBeheer]);
         if (apiClient is null)
@@ -98,7 +93,6 @@ public class ExtractUploadForSegmentsWithDummyChange : IClassFixture<ApiClientTe
             var fileName = ExtractFileName.Wegsegment;
             var featureType = FeatureType.Extract;
 
-            var leveringSegments = reader.Read(extractArchive, FeatureType.Change, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
             var extractSegments = reader.Read(extractArchive, featureType, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
 
             var records = extractSegments.Item1
