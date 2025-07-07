@@ -30,7 +30,7 @@
                 </span>
                 <span v-if="archiveId" style="margin-left: 1rem">
                   <vl-button v-if="isDownloading" mod-loading> Download upload... </vl-button>
-                  <vl-button v-else @click="downloadUpload(archiveId)"> Download upload </vl-button>
+                  <vl-button v-else @click="downloadUpload()"> Download upload </vl-button>
                 </span>
                 <div v-if="downloadError">
                   <br />
@@ -213,59 +213,60 @@ export default Vue.extend({
     },
   },
   async mounted() {
-    await this.loadExtractDetails();
+    await this.waitUntilExtractDetailsIsAvailable();
     await this.waitForTicketComplete();
   },
   destroyed() {
     this.trackProgress = false;
   },
   methods: {
-    async loadExtractDetails(): Promise<void> {
+    async waitUntilExtractDetailsIsAvailable(): Promise<void> {
       while (!this.extractStatus) {
-        try {
-          let details = await PublicApi.Extracts.getDetails(this.downloadId);
-
-          this.description = details.description;
-          this.isInformative = details.isInformative;
-          this.archiveId = details.archiveId;
-          this.ticketId = details.ticketId;
-          this.downloadAvailable = details.downloadAvailable;
-          this.extractStatus = details.downloadAvailable
-            ? {
-                error: false,
-                message: "",
-              }
-            : undefined;
-
-          if (details.extractDownloadTimeoutOccurred) {
-            this.extractStatus = {
-              error: true,
-              message: "Er was een probleem bij het aanmaken vah het extract, gelieve een nieuwe aan te vragen.",
-            };
-          }
-        } catch (err: any) {
-          console.error("Error getting extract details", err);
-
-          this.downloadAvailable = false;
-          if (err?.response?.status === 400) {
-            // retry paar keer voor projectie tijd te geven
-          } else if (err?.response?.status === 404) {
-            // nog niet beschikbaar
-          } else if (err?.response?.status === 410) {
-            this.extractStatus = {
-              error: true,
-              message: "Het extract is niet langer beschikbaar.",
-            };
-          } else {
-            this.extractStatus = {
-              error: true,
-              message: "Er is een probleem bij het ophalen van de extract details.",
-            };
-          }
-        }
+        await this.loadExtractDetails();
 
         if (!this.extractStatus) {
           await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
+    },
+    async loadExtractDetails(): Promise<void> {
+      try {
+        let details = await PublicApi.Extracts.getDetails(this.downloadId);
+
+        this.description = details.description;
+        this.isInformative = details.isInformative;
+        this.archiveId = details.archiveId;
+        this.ticketId = details.ticketId;
+        this.downloadAvailable = details.downloadAvailable;
+        this.extractStatus = details.downloadAvailable
+          ? {
+              error: false,
+              message: "",
+            }
+          : details.extractDownloadTimeoutOccurred
+          ? {
+              error: true,
+              message: "Er was een probleem bij het aanmaken vah het extract, gelieve een nieuwe aan te vragen.",
+            }
+          : undefined;
+      } catch (err: any) {
+        console.error("Error getting extract details", err);
+
+        this.downloadAvailable = false;
+        if (err?.response?.status === 400) {
+          // retry paar keer voor projectie tijd te geven
+        } else if (err?.response?.status === 404) {
+          // nog niet beschikbaar
+        } else if (err?.response?.status === 410) {
+          this.extractStatus = {
+            error: true,
+            message: "Het extract is niet langer beschikbaar.",
+          };
+        } else {
+          this.extractStatus = {
+            error: true,
+            message: "Er is een probleem bij het ophalen van de extract details.",
+          };
         }
       }
     },
@@ -386,7 +387,6 @@ export default Vue.extend({
         }
       } catch (err: any) {
         console.error("Error downloading extract", err);
-        debugger;
         if (err?.response?.status === 404) {
           this.downloadError = "Het extract is nog niet beschikbaar.";
         } else if (err?.response?.status === 410) {
@@ -398,13 +398,13 @@ export default Vue.extend({
         this.isDownloading = false;
       }
     },
-    async downloadUpload(archiveId: string): Promise<void> {
+    async downloadUpload(): Promise<void> {
       this.isDownloading = true;
       try {
         if (featureToggles.usePresignedEndpoints) {
-          await PublicApi.Uploads.downloadUsingPresignedUrl(archiveId);
+          await PublicApi.Uploads.downloadUsingPresignedUrl(this.archiveId);
         } else {
-          await BackOfficeApi.Uploads.download(archiveId);
+          await BackOfficeApi.Uploads.download(this.archiveId);
         }
       } catch (err: any) {
         console.error("Error downloading upload", err);
@@ -419,9 +419,10 @@ export default Vue.extend({
         this.isDownloading = false;
       }
     },
-    handleUploadComplete(args: any) {
+    async handleUploadComplete(args: any) {
       this.ticketId = args.ticketId;
-      this.waitForTicketComplete();
+      await this.waitForTicketComplete();
+      await this.loadExtractDetails();
     },
   },
 });
