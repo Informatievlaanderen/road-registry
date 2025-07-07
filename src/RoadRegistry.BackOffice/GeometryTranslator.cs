@@ -128,6 +128,11 @@ public static class GeometryTranslator
 
                     if (currentPoint.Equals2D(previousPoint, DefaultTolerances.DuplicateCoordinatesTolerance))
                     {
+                        if (i == lineString.Count - 1)
+                        {
+                            coordinates.Remove(previousPoint);
+                            coordinates.Add(currentPoint);
+                        }
                         continue;
                     }
 
