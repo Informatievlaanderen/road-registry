@@ -17,9 +17,9 @@ using RoadSegments;
 
 internal static class HttpClientExtensions
 {
-    public static async Task<DownloadExtractResponseBody> RequestDownloadExtract(this HttpClient client, DownloadExtractRequestBody request, CancellationToken cancellationToken)
+    public static async Task<DownloadExtractResponseBody> RequestDownloadExtractByContour(this HttpClient client, DownloadExtractByContourRequestBody request, CancellationToken cancellationToken)
     {
-        var response = await client.PostAsJsonAsync<DownloadExtractResponseBody>("v1/extracts/downloadrequests", request, cancellationToken);
+        var response = await client.PostAsJsonAsync<DownloadExtractResponseBody>("v1/extracts/downloadrequests/bycontour", request, cancellationToken);
         return response!;
     }
 
@@ -61,41 +61,41 @@ internal static class HttpClientExtensions
         response.EnsureSuccessStatusCode();
     }
 
-    public static async Task Upload(this HttpClient client, MemoryStream zipArchiveStream, CancellationToken cancellationToken)
-    {
-        var response = await client.PostAsJsonAsync<GetPresignedUploadUrlResponse>($"v1/upload/jobs", null, cancellationToken);
-
-        using var form = new MultipartFormDataContent();
-
-        zipArchiveStream.Position = 0;
-        var fileContent = new StreamContent(zipArchiveStream);
-        //fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-        fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
-        form.Add(
-            content: fileContent,
-            name: "file",
-            fileName: "archive.zip"
-        );
-
-        foreach (var formData in response.UploadUrlFormData)
-        {
-            form.Add(new StringContent(formData.Value), formData.Key);
-
-            //form.Add(new StringContent(formData.Value), $"\"{formData.Key}\"");
-
-            // var stringContent1 = new StringContent(formData.Value);
-            // //stringContent1.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") { Name = $"\"{formData.Key}\"" };
-            // stringContent1.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") { Name = $"{formData.Key}" };
-            // form.Add(stringContent1);
-        }
-
-        var formAsString = await form.ReadAsStringAsync();
-        using var awsClient = new HttpClient();
-        var uploadResponse = await awsClient.PostAsync(response.UploadUrl, form);
-        var responseBody = await uploadResponse.Content.ReadAsStringAsync();
-
-        uploadResponse.EnsureSuccessStatusCode();
-    }
+    // public static async Task Upload(this HttpClient client, MemoryStream zipArchiveStream, CancellationToken cancellationToken)
+    // {
+    //     var response = await client.PostAsJsonAsync<GetPresignedUploadUrlResponse>($"v1/upload/jobs", null, cancellationToken);
+    //
+    //     using var form = new MultipartFormDataContent();
+    //
+    //     zipArchiveStream.Position = 0;
+    //     var fileContent = new StreamContent(zipArchiveStream);
+    //     //fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+    //     fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
+    //     form.Add(
+    //         content: fileContent,
+    //         name: "file",
+    //         fileName: "archive.zip"
+    //     );
+    //
+    //     foreach (var formData in response.UploadUrlFormData)
+    //     {
+    //         form.Add(new StringContent(formData.Value), formData.Key);
+    //
+    //         //form.Add(new StringContent(formData.Value), $"\"{formData.Key}\"");
+    //
+    //         // var stringContent1 = new StringContent(formData.Value);
+    //         // //stringContent1.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") { Name = $"\"{formData.Key}\"" };
+    //         // stringContent1.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") { Name = $"{formData.Key}" };
+    //         // form.Add(stringContent1);
+    //     }
+    //
+    //     //var formAsString = await form.ReadAsStringAsync();
+    //     using var awsClient = new HttpClient();
+    //     var uploadResponse = await awsClient.PostAsync(response.UploadUrl, form, cancellationToken);
+    //     var responseBody = await uploadResponse.Content.ReadAsStringAsync(cancellationToken);
+    //
+    //     uploadResponse.EnsureSuccessStatusCode();
+    // }
 
     public static async Task<ExtractDetailsResponseBody> GetExtractDetails(this HttpClient client, string downloadId, CancellationToken cancellationToken)
     {

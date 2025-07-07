@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Extracts;
+using Api.Extracts;
 using AutoFixture;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
@@ -50,11 +51,7 @@ public class ExtractUploadForSegmentsWithDummyChange : IClassFixture<ApiClientTe
         var segmentIds = new[]
         {
             1087278,
-            1100959,
-            1112003,
-            1130086,
-            1134688,
-            1221295
+            //1134688, //TODO-pr nog steeds aan te passen
         };
 
         var cancellationToken = CancellationToken.None;
@@ -89,7 +86,8 @@ public class ExtractUploadForSegmentsWithDummyChange : IClassFixture<ApiClientTe
         var segment = await apiClient.GetRoadSegment(segmentId, cancellationToken);
         var firstPoint = new Point(segment.MiddellijnGeometrie.Coordinates[0][0][0], segment.MiddellijnGeometrie.Coordinates[0][0][1]);
 
-        var extractRequest = await apiClient.RequestDownloadExtract(new DownloadExtractRequestBody(
+        var extractRequest = await apiClient.RequestDownloadExtractByContour(new DownloadExtractByContourRequestBody(
+            0,
             firstPoint.Buffer(1).Envelope.AsText(),
             $"{DateTime.Today:yyyy-MM-dd} opkuis wegsegment {segmentId}",
             false), cancellationToken);
@@ -100,6 +98,7 @@ public class ExtractUploadForSegmentsWithDummyChange : IClassFixture<ApiClientTe
             var fileName = ExtractFileName.Wegsegment;
             var featureType = FeatureType.Extract;
 
+            var leveringSegments = reader.Read(extractArchive, FeatureType.Change, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
             var extractSegments = reader.Read(extractArchive, featureType, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
 
             var records = extractSegments.Item1
