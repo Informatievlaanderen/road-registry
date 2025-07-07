@@ -185,6 +185,16 @@ public class GeometryTranslatorTests
     }
 
     [Theory]
+    [InlineData("MULTILINESTRING ((0 0, 1.00001 0, 1 0))", "MULTILINESTRING ((0 0, 1 0))")]
+    public void WhenRemovingDuplicateCoordinatesWithinToleranceAtLastTwoCoordinates_ThenEndPointIsKept(string wkt, string expectedWkt)
+    {
+        var geometry = (MultiLineString)new WKTReader().Read(wkt);
+        var wktWithoutDuplicateCoordinates = geometry.WithoutDuplicateCoordinates().AsText();
+
+        Assert.Equal(expectedWkt, wktWithoutDuplicateCoordinates);
+    }
+
+    [Theory]
     [InlineData("MULTILINESTRING ((0 0, 0 0.01, 1 0))")]
     public void WhenRemovingDuplicateCoordinatesOutsideTolerance_ThenNone(string wkt)
     {
