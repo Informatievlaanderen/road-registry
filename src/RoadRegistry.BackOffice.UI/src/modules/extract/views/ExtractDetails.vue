@@ -40,41 +40,42 @@
                 </div>
               </div>
 
-              <div v-if="!isInformative">
-                <br />
-                <UploadComponent v-if="!uploadAndChangeAccepted" @upload-complete="handleUploadComplete" />
+              <br />
+              <UploadComponent
+                v-if="!isInformative && !uploadAndChangeAccepted"
+                @upload-complete="handleUploadComplete"
+              />
 
-                <div v-if="ticketId && uploadStatus.text">
-                  <vl-alert
-                    :title="uploadStatus.title"
-                    :mod-success="uploadStatus.success"
-                    :mod-warning="uploadStatus.warning"
-                    :mod-error="uploadStatus.error"
-                  >
-                    {{ uploadStatus.text }}
-                  </vl-alert>
+              <div v-if="ticketId && uploadStatus.text">
+                <vl-alert
+                  :title="uploadStatus.title"
+                  :mod-success="uploadStatus.success"
+                  :mod-warning="uploadStatus.warning"
+                  :mod-error="uploadStatus.error"
+                >
+                  {{ uploadStatus.text }}
+                </vl-alert>
+              </div>
+
+              <div v-if="fileProblems.length > 0">
+                <div v-for="fileProblem in fileProblems" :key="fileProblem.file">
+                  <br />
+                  <h3 v-if="fileProblem.file && fileProblem.file !== 'ticketId'">
+                    <strong>{{ fileProblem.file.toUpperCase() }}</strong>
+                  </h3>
+
+                  <ActivityProblems :problems="fileProblem.problems" />
                 </div>
+              </div>
 
-                <div v-if="fileProblems.length > 0">
-                  <div v-for="fileProblem in fileProblems" :key="fileProblem.file">
-                    <br />
-                    <h3 v-if="fileProblem.file && fileProblem.file !== 'ticketId'">
-                      <strong>{{ fileProblem.file.toUpperCase() }}</strong>
-                    </h3>
-
-                    <ActivityProblems :problems="fileProblem.problems" />
-                  </div>
-                </div>
-
-                <div v-if="changes.length > 0">
-                  <ActivitySummary v-if="summary" :summary="summary" />
-                  <div v-for="change in changes" :key="change.change">
-                    <h3>
-                      <strong>{{ change.change }}</strong>
-                    </h3>
-                    <ActivityProblems :problems="change.problems" />
-                    <br />
-                  </div>
+              <div v-if="changes.length > 0">
+                <ActivitySummary v-if="summary" :summary="summary" />
+                <div v-for="change in changes" :key="change.change">
+                  <h3>
+                    <strong>{{ change.change }}</strong>
+                  </h3>
+                  <ActivityProblems :problems="change.problems" />
+                  <br />
                 </div>
               </div>
             </div>
