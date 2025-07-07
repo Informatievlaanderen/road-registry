@@ -1,3 +1,10 @@
+## [4.34.2](https://github.com/informatievlaanderen/road-registry/compare/v4.34.1...v4.34.2) (2025-07-07)
+
+
+### Bug Fixes
+
+* show upload result in extract details after upload ([e935697](https://github.com/informatievlaanderen/road-registry/commit/e9356971bc8bad3a4cc0d59b58363132d6083653))
+
 ## [4.34.1](https://github.com/informatievlaanderen/road-registry/compare/v4.34.0...v4.34.1) (2025-07-07)
 
 
