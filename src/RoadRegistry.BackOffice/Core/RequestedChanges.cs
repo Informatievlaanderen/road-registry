@@ -307,7 +307,10 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
 
                 case ModifyRoadSegment modifyRoadSegment:
                     // the geometry to modify it to
-                    envelope.ExpandToInclude(modifyRoadSegment.Geometry.EnvelopeInternal);
+                    if (modifyRoadSegment.Geometry is not null)
+                    {
+                        envelope.ExpandToInclude(modifyRoadSegment.Geometry.EnvelopeInternal);
+                    }
                     // if we still know this segment, include the geometry as we know it now
                     if (view.Segments.TryGetValue(modifyRoadSegment.Id, out var segmentToModify))
                     {

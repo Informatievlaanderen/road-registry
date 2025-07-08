@@ -7,11 +7,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.EventHandling;
-using FluentValidation;
 using Framework;
 using Messages;
 using NetTopologySuite.Geometries;
-using Newtonsoft.Json;
 
 public class RoadNetwork : EventSourcedEntity
 {
@@ -41,6 +39,7 @@ public class RoadNetwork : EventSourcedEntity
         RequestedChanges requestedChanges,
         TicketId? ticketId,
         IExtractUploadFailedEmailClient emailClient,
+        IOrganizations organizations,
         CancellationToken cancellationToken)
     {
         var verifiableChanges =
@@ -55,14 +54,14 @@ public class RoadNetwork : EventSourcedEntity
                 .Replace(verifiableChange, verifiableChange.VerifyBefore(beforeContext));
         }
 
+        Messages.AcceptedChange[] acceptedChanges = [];
         if (!verifiableChanges.Any(change => change.HasErrors))
         {
-            var afterContext = beforeContext.CreateAfterVerificationContext(_view.With(requestedChanges));
-            foreach (var verifiableChange in verifiableChanges)
-            {
-                verifiableChanges = verifiableChanges
-                    .Replace(verifiableChange, verifiableChange.VerifyAfter(afterContext));
-            }
+            var afterContext = beforeContext.CreateAfterVerificationContext(_view.With(requestedChanges), organizations);
+            var afterChanges = verifiableChanges.Select(change => change.VerifyAfter(afterContext)).ToList();
+
+            verifiableChanges = afterChanges.Select(x => x.Item1).ToImmutableList();
+            acceptedChanges = afterChanges.SelectMany(x => x.Item2.AcceptedChanges).ToArray();
         }
 
         var verifiedChanges = verifiableChanges.ConvertAll(change => change.AsVerifiedChange());
@@ -118,10 +117,7 @@ public class RoadNetwork : EventSourcedEntity
                 OrganizationId = organization.Identifier,
                 Organization = organization.Name,
                 TransactionId = requestedChanges.TransactionId,
-                Changes = verifiedChanges
-                    .OfType<AcceptedChange>()
-                    .SelectMany(change => change.Translate())
-                    .ToArray(),
+                Changes = acceptedChanges!,
                 TicketId = ticketId
             };
             Apply(@event);

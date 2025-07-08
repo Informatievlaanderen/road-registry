@@ -44,6 +44,13 @@ public readonly struct OrganizationId : IEquatable<OrganizationId>
         return value == Other || value == Unknown;
     }
 
+    public static OrganizationId? FromValue(string? value)
+    {
+        return value is not null
+            ? new OrganizationId(value)
+            : null;
+    }
+
     public bool Equals(OrganizationId other)
     {
         return _value == other._value;

@@ -37,15 +37,15 @@ public class ExtractUploadForSegmentsWithDummyChange : IClassFixture<ApiClientTe
         _testOutputHelper = testOutputHelper;
     }
 
-    //[Fact]
-    [Fact(Skip = "For debugging purposes only")]
+    [Fact]
+    //[Fact(Skip = "For debugging purposes only")]
     public async Task RunOnce()
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
         var segmentIds = new RoadSegmentId[]
         {
-            //1087278,
+            new(1221295), //TODO-pr eens build werkt, deze nog fixen op PRD
             //1134688,
         };
 
@@ -105,10 +105,10 @@ public class ExtractUploadForSegmentsWithDummyChange : IClassFixture<ApiClientTe
                         var dbfRecord = new RoadSegmentDbaseRecord
                         {
                             WS_OIDN = { Value = segment.Id },
-                            LSTRNMID = { Value = segment.LeftStreetNameId },
-                            RSTRNMID = { Value = segment.RightStreetNameId },
-                            B_WK_OIDN = { Value = segment.StartNodeId },
-                            E_WK_OIDN = { Value = segment.EndNodeId },
+                            LSTRNMID = { Value = segment.LeftSideStreetNameId },
+                            RSTRNMID = { Value = segment.RightSideStreetNameId },
+                            B_WK_OIDN = { Value = segment.StartNodeId!.Value },
+                            E_WK_OIDN = { Value = segment.EndNodeId!.Value },
                             BEHEER = { Value = segment.MaintenanceAuthority },
                             WEGCAT = { Value = segment.Category.Translation.Identifier },
                             MORF = { Value = segment.Morphology.Translation.Identifier },

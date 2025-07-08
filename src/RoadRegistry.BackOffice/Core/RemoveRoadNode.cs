@@ -25,7 +25,7 @@ public class RemoveRoadNode : IRequestedChange
         };
     }
 
-    public void TranslateTo(Messages.RejectedChange message)
+    public void TranslateToRejectedChange(Messages.RejectedChange message)
     {
         if (message == null) throw new ArgumentNullException(nameof(message));
 
@@ -35,7 +35,7 @@ public class RemoveRoadNode : IRequestedChange
         };
     }
 
-    public Problems VerifyAfter(AfterVerificationContext context)
+    public VerifyAfterResult VerifyAfter(AfterVerificationContext context)
     {
         if (context == null) throw new ArgumentNullException(nameof(context));
 
@@ -51,7 +51,7 @@ public class RemoveRoadNode : IRequestedChange
                 if (foundSegment.End == Id) problems = problems.Add(new RoadSegmentEndNodeRefersToRemovedNode(foundSegment.Id, Id));
             }
 
-        return problems;
+        return VerifyAfterResult.WithAcceptedChanges(problems, TranslateTo);
     }
 
     public Problems VerifyBefore(BeforeVerificationContext context)

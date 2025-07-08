@@ -367,10 +367,10 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         new ModifyRoadSegment(
                             record.RecordNumber,
                             record.Id,
+                            record.Attributes.Method,
                             record.Attributes.StartNodeId,
                             record.Attributes.EndNodeId,
                             record.Attributes.MaintenanceAuthority,
-                            record.Attributes.Method,
                             record.Attributes.Morphology,
                             record.Attributes.Status,
                             record.Attributes.Category,
@@ -381,23 +381,23 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     );
                     break;
                 case RecordType.ModifiedIdentifier:
+                    //TODO-pr v1 FC nog aanpassen? enkel nog voor GRB
                     var modifyRoadSegment = new ModifyRoadSegment(
                             record.RecordNumber,
                             record.Id,
+                            record.Attributes.Method,
                             record.Attributes.StartNodeId,
                             record.Attributes.EndNodeId,
                             record.Attributes.MaintenanceAuthority,
-                            record.Attributes.Method,
                             record.Attributes.Morphology,
                             record.Attributes.Status,
-                            record.Attributes.Category,
+                            record.CategoryModified ? record.Attributes.Category : null,
                             record.Attributes.AccessRestriction,
                             record.Attributes.LeftStreetNameId,
                             record.Attributes.RightStreetNameId
                         )
                         .WithGeometry(record.Attributes.Geometry)
-                        .WithConvertedFromOutlined(record.ConvertedFromOutlined)
-                        .WithCategoryModified(record.CategoryModified);
+                        .WithConvertedFromOutlined(record.ConvertedFromOutlined);
                     if (record.Id != record.Attributes.Id)
                     {
                         modifyRoadSegment = modifyRoadSegment.WithOriginalId(record.Attributes.Id);

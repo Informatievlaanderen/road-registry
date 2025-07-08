@@ -45,7 +45,7 @@ public class RemoveRoadSegmentFromNumberedRoad : IRequestedChange, IHaveHash
         };
     }
 
-    public void TranslateTo(Messages.RejectedChange message)
+    public void TranslateToRejectedChange(Messages.RejectedChange message)
     {
         if (message == null) throw new ArgumentNullException(nameof(message));
 
@@ -58,11 +58,11 @@ public class RemoveRoadSegmentFromNumberedRoad : IRequestedChange, IHaveHash
         };
     }
 
-    public Problems VerifyAfter(AfterVerificationContext context)
+    public VerifyAfterResult VerifyAfter(AfterVerificationContext context)
     {
         if (context == null) throw new ArgumentNullException(nameof(context));
 
-        return Problems.None;
+        return VerifyAfterResult.WithAcceptedChanges(Problems.None, TranslateTo);
     }
 
     public Problems VerifyBefore(BeforeVerificationContext context)

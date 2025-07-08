@@ -44,7 +44,7 @@ public class ModifyRoadNode : IRequestedChange
         };
     }
 
-    public void TranslateTo(Messages.RejectedChange message)
+    public void TranslateToRejectedChange(Messages.RejectedChange message)
     {
         if (message == null) throw new ArgumentNullException(nameof(message));
 
@@ -56,7 +56,7 @@ public class ModifyRoadNode : IRequestedChange
         };
     }
 
-    public Problems VerifyAfter(AfterVerificationContext context)
+    public VerifyAfterResult VerifyAfter(AfterVerificationContext context)
     {
         if (context == null) throw new ArgumentNullException(nameof(context));
         var problems = Problems.None;
@@ -84,7 +84,7 @@ public class ModifyRoadNode : IRequestedChange
 
         problems = problems.AddRange(node.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
 
-        return problems;
+        return VerifyAfterResult.WithAcceptedChanges(problems, TranslateTo);
     }
 
     public Problems VerifyBefore(BeforeVerificationContext context)

@@ -15,9 +15,9 @@ public class AcceptedChange : IVerifiedChange
         _problems = problems ?? throw new ArgumentNullException(nameof(problems));
     }
 
-    public IEnumerable<Messages.AcceptedChange> Translate()
-    {
-        var warnings = _problems.Select(warning => warning.Translate()).ToArray();
-        return _requestedChange.TranslateTo(warnings);
-    }
+    // public IEnumerable<Messages.AcceptedChange> Translate()
+    // {
+    //     var warnings = _problems.Select(warning => warning.Translate()).ToArray();
+    //     return _requestedChange.TranslateTo(warnings);
+    // }
 }

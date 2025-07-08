@@ -28,7 +28,7 @@ public class RemoveRoadSegment : IRequestedChange
         };
     }
 
-    public void TranslateTo(Messages.RejectedChange message)
+    public void TranslateToRejectedChange(Messages.RejectedChange message)
     {
         if (message == null) throw new ArgumentNullException(nameof(message));
 
@@ -39,7 +39,7 @@ public class RemoveRoadSegment : IRequestedChange
         };
     }
 
-    public Problems VerifyAfter(AfterVerificationContext context)
+    public VerifyAfterResult VerifyAfter(AfterVerificationContext context)
     {
         if (context == null) throw new ArgumentNullException(nameof(context));
 
@@ -55,7 +55,7 @@ public class RemoveRoadSegment : IRequestedChange
             problems = problems.AddRange(
                 beforeEndNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
 
-        return problems;
+        return VerifyAfterResult.WithAcceptedChanges(problems, TranslateTo);
     }
 
     public Problems VerifyBefore(BeforeVerificationContext context)

@@ -10,50 +10,78 @@ public abstract class ModifyRoadSegmentValidatorBase : AbstractValidator<Message
     protected ModifyRoadSegmentValidatorBase()
     {
         RuleFor(c => c.Id).GreaterThanOrEqualTo(0);
-        When(x => x.OriginalId is not null, () =>
-        {
-            RuleFor(c => c.OriginalId).GreaterThan(0);
-        });
-        RuleFor(c => c.Geometry).NotNull().SetValidator(new RoadSegmentGeometryValidator());
-        RuleFor(c => c.MaintenanceAuthority).NotEmpty();
+
         RuleFor(c => c.GeometryDrawMethod)
             .NotEmpty()
             .Must(RoadSegmentGeometryDrawMethod.CanParse)
             .WithProblemCode(ProblemCode.RoadSegment.GeometryDrawMethod.NotValid)
             .When(c => c.GeometryDrawMethod != null, ApplyConditionTo.CurrentValidator);
-        RuleFor(c => c.Morphology)
-            .NotEmpty()
-            .Must(RoadSegmentMorphology.CanParse)
-            .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid)
-            .When(c => c.Morphology != null, ApplyConditionTo.CurrentValidator);
-        RuleFor(c => c.Status)
-            .NotEmpty()
-            .Must(RoadSegmentStatus.CanParse)
-            .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid)
-            .When(c => c.Status != null, ApplyConditionTo.CurrentValidator);
-        RuleFor(c => c.Category)
-            .NotEmpty()
-            .Must(RoadSegmentCategory.CanParse)
-            .WithProblemCode(ProblemCode.RoadSegment.Category.NotValid)
-            .When(c => c.Category != null, ApplyConditionTo.CurrentValidator);
-        RuleFor(c => c.AccessRestriction)
-            .NotEmpty()
-            .Must(RoadSegmentAccessRestriction.CanParse)
-            .WithProblemCode(ProblemCode.RoadSegment.AccessRestriction.NotValid)
-            .When(c => c.AccessRestriction != null, ApplyConditionTo.CurrentValidator);
 
-        RuleFor(c => c.Lanes)
-            .NotEmpty()
-            .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero,
-                (segment, _) => new RoadSegmentLanesHasCountOfZero(segment.OriginalId ?? segment.Id));
-        RuleFor(c => c.Widths)
-            .NotEmpty()
-            .WithProblemCode(ProblemCode.RoadSegment.Widths.HasCountOfZero,
-                (segment, _) => new RoadSegmentWidthsHasCountOfZero(segment.OriginalId ?? segment.Id));
-        RuleFor(c => c.Surfaces)
-            .NotEmpty()
-            .WithProblemCode(ProblemCode.RoadSegment.Surfaces.HasCountOfZero,
-                (segment, _) => new RoadSegmentSurfacesHasCountOfZero(segment.OriginalId ?? segment.Id));
+        When(x => x.OriginalId is not null, () => { RuleFor(c => c.OriginalId).GreaterThan(0); });
+
+        When(c => c.Geometry is not null, () => { RuleFor(c => c.Geometry).NotNull().SetValidator(new RoadSegmentGeometryValidator()); });
+
+        When(c => c.MaintenanceAuthority is not null, () => { RuleFor(c => c.MaintenanceAuthority).NotEmpty(); });
+
+        When(c => c.Morphology is not null, () =>
+        {
+            RuleFor(c => c.Morphology)
+                .NotEmpty()
+                .Must(RoadSegmentMorphology.CanParse)
+                .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid)
+                .When(c => c.Morphology != null, ApplyConditionTo.CurrentValidator);
+        });
+
+        When(c => c.Status is not null, () =>
+        {
+            RuleFor(c => c.Status)
+                .NotEmpty()
+                .Must(RoadSegmentStatus.CanParse)
+                .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid)
+                .When(c => c.Status != null, ApplyConditionTo.CurrentValidator);
+        });
+
+        When(c => c.Category is not null, () =>
+        {
+            RuleFor(c => c.Category)
+                .NotEmpty()
+                .Must(RoadSegmentCategory.CanParse)
+                .WithProblemCode(ProblemCode.RoadSegment.Category.NotValid)
+                .When(c => c.Category != null, ApplyConditionTo.CurrentValidator);
+        });
+
+        When(c => c.AccessRestriction is not null, () =>
+        {
+            RuleFor(c => c.AccessRestriction)
+                .NotEmpty()
+                .Must(RoadSegmentAccessRestriction.CanParse)
+                .WithProblemCode(ProblemCode.RoadSegment.AccessRestriction.NotValid)
+                .When(c => c.AccessRestriction != null, ApplyConditionTo.CurrentValidator);
+        });
+
+        When(c => c.Lanes is not null, () =>
+        {
+            RuleFor(c => c.Lanes)
+                .NotEmpty()
+                .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero,
+                    (segment, _) => new RoadSegmentLanesHasCountOfZero(segment.OriginalId ?? segment.Id));
+        });
+
+        When(c => c.Widths is not null, () =>
+        {
+            RuleFor(c => c.Widths)
+                .NotEmpty()
+                .WithProblemCode(ProblemCode.RoadSegment.Widths.HasCountOfZero,
+                    (segment, _) => new RoadSegmentWidthsHasCountOfZero(segment.OriginalId ?? segment.Id));
+        });
+
+        When(c => c.Surfaces is not null, () =>
+        {
+            RuleFor(c => c.Surfaces)
+                .NotEmpty()
+                .WithProblemCode(ProblemCode.RoadSegment.Surfaces.HasCountOfZero,
+                    (segment, _) => new RoadSegmentSurfacesHasCountOfZero(segment.OriginalId ?? segment.Id));
+        });
     }
 }
 
@@ -78,60 +106,100 @@ public class ModifyRoadSegmentValidator : ModifyRoadSegmentValidatorBase
 
     public ModifyRoadSegmentValidator()
     {
-        RuleFor(c => c.StartNodeId)
-            .GreaterThanOrEqualTo(0);
+        When(c => c.StartNodeId is not null, () =>
+        {
+            RuleFor(c => c.StartNodeId)
+                .Must(x => RoadNodeId.Accepts(x!.Value));
+        });
 
-        RuleFor(c => c.EndNodeId)
-            .GreaterThanOrEqualTo(0)
-            .NotEqual(c => c.StartNodeId);
-        
-        RuleForEach(c => c.Lanes)
-            .NotEmpty()
-            .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero)
-            .SetValidator(new RequestedRoadSegmentLaneAttributeValidator());
-        RuleForEach(c => c.Widths)
-            .NotEmpty()
-            .WithProblemCode(ProblemCode.RoadSegment.Widths.HasCountOfZero)
-            .SetValidator(new RequestedRoadSegmentWidthAttributeValidator());
-        RuleForEach(c => c.Surfaces)
-            .NotEmpty()
-            .WithProblemCode(ProblemCode.RoadSegment.Surfaces.HasCountOfZero)
-            .SetValidator(new RequestedRoadSegmentSurfaceAttributeValidator());
+        When(c => c.EndNodeId is not null, () =>
+        {
+            RuleFor(c => c.EndNodeId)
+                .Must(x => RoadNodeId.Accepts(x!.Value))
+                .NotEqual(c => c.StartNodeId);
+        });
+
+        When(c => c.Lanes is not null, () =>
+        {
+            RuleForEach(c => c.Lanes)
+                .NotEmpty()
+                .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero)
+                .SetValidator(new RequestedRoadSegmentLaneAttributeValidator());
+        });
+
+        When(c => c.Widths is not null, () =>
+        {
+            RuleForEach(c => c.Widths)
+                .NotEmpty()
+                .WithProblemCode(ProblemCode.RoadSegment.Widths.HasCountOfZero)
+                .SetValidator(new RequestedRoadSegmentWidthAttributeValidator());
+        });
+
+        When(c => c.Surfaces is not null, () =>
+        {
+            RuleForEach(c => c.Surfaces)
+                .NotEmpty()
+                .WithProblemCode(ProblemCode.RoadSegment.Surfaces.HasCountOfZero)
+                .SetValidator(new RequestedRoadSegmentSurfaceAttributeValidator());
+        });
     }
 
     private sealed class ModifyRoadSegmentOutlinedValidator : ModifyRoadSegmentValidatorBase
     {
         public ModifyRoadSegmentOutlinedValidator()
         {
-            RuleFor(c => c.StartNodeId)
-                .Must(value => value.IsValidStartRoadNodeIdForRoadSegmentOutline());
+            When(c => c.StartNodeId is not null, () =>
+            {
+                RuleFor(c => c.StartNodeId)
+                    .Must(value => value is null || value.Value.IsValidStartRoadNodeIdForRoadSegmentOutline());
+            });
 
-            RuleFor(c => c.EndNodeId)
-                .Must(value => value.IsValidEndRoadNodeIdForRoadSegmentOutline());
+            When(c => c.EndNodeId is not null, () =>
+            {
+                RuleFor(c => c.EndNodeId)
+                    .Must(value => value is null || value.Value.IsValidEndRoadNodeIdForRoadSegmentOutline());
+            });
 
-            RuleFor(c => c.Status)
-                .NotEmpty()
-                .Must(value => RoadSegmentStatus.CanParse(value) && RoadSegmentStatus.Parse(value).IsValidForEdit())
-                .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid);
+            When(c => c.Status is not null, () =>
+            {
+                RuleFor(c => c.Status)
+                    .NotEmpty()
+                    .Must(value => RoadSegmentStatus.CanParse(value) && RoadSegmentStatus.Parse(value).IsValidForEdit())
+                    .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid);
+            });
 
-            RuleFor(c => c.Morphology)
-                .NotEmpty()
-                .Must(value => RoadSegmentMorphology.CanParse(value) && RoadSegmentMorphology.Parse(value).IsValidForEdit())
-                .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid)
-                .When(c => c.Morphology != null, ApplyConditionTo.CurrentValidator);
+            When(c => c.Morphology is not null, () =>
+            {
+                RuleFor(c => c.Morphology)
+                    .NotEmpty()
+                    .Must(value => RoadSegmentMorphology.CanParse(value) && RoadSegmentMorphology.Parse(value).IsValidForEdit())
+                    .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid)
+                    .When(c => c.Morphology != null, ApplyConditionTo.CurrentValidator);
+            });
 
-            RuleForEach(c => c.Lanes)
-                .NotEmpty()
-                .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero)
-                .SetValidator(new RequestedRoadSegmentOutlinedLaneAttributeValidator());
-            RuleForEach(c => c.Widths)
-                .NotEmpty()
-                .WithProblemCode(ProblemCode.RoadSegment.Widths.HasCountOfZero)
-                .SetValidator(new RequestedRoadSegmentOutlinedWidthAttributeValidator());
-            RuleForEach(c => c.Surfaces)
-                .NotEmpty()
-                .WithProblemCode(ProblemCode.RoadSegment.Surfaces.HasCountOfZero)
-                .SetValidator(new RequestedRoadSegmentOutlinedSurfaceAttributeValidator());
+            When(c => c.Lanes is not null, () =>
+            {
+                RuleForEach(c => c.Lanes)
+                    .NotEmpty()
+                    .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero)
+                    .SetValidator(new RequestedRoadSegmentOutlinedLaneAttributeValidator());
+            });
+
+            When(c => c.Widths is not null, () =>
+            {
+                RuleForEach(c => c.Widths)
+                    .NotEmpty()
+                    .WithProblemCode(ProblemCode.RoadSegment.Widths.HasCountOfZero)
+                    .SetValidator(new RequestedRoadSegmentOutlinedWidthAttributeValidator());
+            });
+
+            When(c => c.Surfaces is not null, () =>
+            {
+                RuleForEach(c => c.Surfaces)
+                    .NotEmpty()
+                    .WithProblemCode(ProblemCode.RoadSegment.Surfaces.HasCountOfZero)
+                    .SetValidator(new RequestedRoadSegmentOutlinedSurfaceAttributeValidator());
+            });
         }
     }
 }

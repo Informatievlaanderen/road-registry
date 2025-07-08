@@ -184,22 +184,24 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
                 Logger.LogInformation("Linking RoadSegment {Id} to StreetName {StreetNameId}s", roadSegment.Id, destinationStreetNameId);
             }
 
-            var @event = new RoadNetworkChangesAccepted
-            {
-                RequestId = ChangeRequestId.FromUploadId(new UploadId(Guid.NewGuid())),
-                Reason = reason,
-                Operator = new OperatorName(organization.Code),
-                OrganizationId = organization.Code,
-                Organization = organization.Name,
-                TransactionId = requestedChanges.TransactionId,
-                Changes = requestedChanges
-                    .Select(x => new VerifiableChange(x).AsVerifiedChange())
-                    .OfType<AcceptedChange>()
-                    .SelectMany(change => change.Translate())
-                    .ToArray()
-            };
-
-            await _roadNetworkEventWriter.WriteAsync(segmentsPerStream.Key, ExpectedVersion.Any, new Event(@event), cancellationToken);
+            //TODO-pr te bekijken hoe dit oplossen
+            throw new NotImplementedException();
+            // var @event = new RoadNetworkChangesAccepted
+            // {
+            //     RequestId = ChangeRequestId.FromUploadId(new UploadId(Guid.NewGuid())),
+            //     Reason = reason,
+            //     Operator = new OperatorName(organization.Code),
+            //     OrganizationId = organization.Code,
+            //     Organization = organization.Name,
+            //     TransactionId = requestedChanges.TransactionId,
+            //     Changes = requestedChanges
+            //         .Select(x => new VerifiableChange(x).AsVerifiedChange())
+            //         .OfType<AcceptedChange>()
+            //         .SelectMany(change => change.Translate())
+            //         .ToArray()
+            // };
+            //
+            // await _roadNetworkEventWriter.WriteAsync(segmentsPerStream.Key, ExpectedVersion.Any, new Event(@event), cancellationToken);
         }
     }
 

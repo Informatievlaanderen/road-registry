@@ -106,7 +106,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 _logger.LogInformation("TIMETRACKING changeroadnetwork: translating command changes to RequestedChanges took {Elapsed}", sw.Elapsed);
 
                 sw.Restart();
-                var changedMessage = await network.Change(request, downloadId, reason, @operator, organizationTranslation, requestedChanges, ticketId, _emailClient, cancellationToken);
+                var changedMessage = await network.Change(request, downloadId, reason, @operator, organizationTranslation, requestedChanges, ticketId, _emailClient, context.Organizations, cancellationToken);
                 _logger.LogInformation("TIMETRACKING changeroadnetwork: applying RequestedChanges to RoadNetwork took {Elapsed}", sw.Elapsed);
 
                 if (changedMessage is RoadNetworkChangesRejected rejectedChangedMessage)

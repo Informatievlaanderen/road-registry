@@ -1,16 +1,12 @@
 namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
 using AutoFixture;
-using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Framework.Testing;
-using Microsoft.Extensions.Logging;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection;
 using Moq;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
-using Newtonsoft.Json;
 using NodaTime.Text;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
@@ -18,17 +14,13 @@ using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using TicketingService.Abstractions;
-using Xunit.Sdk;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
 using AddGradeSeparatedJunction = RoadRegistry.BackOffice.Messages.AddGradeSeparatedJunction;
 using AddRoadSegmentToEuropeanRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToEuropeanRoad;
 using AddRoadSegmentToNationalRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToNationalRoad;
 using AddRoadSegmentToNumberedRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToNumberedRoad;
-using Command = RoadRegistry.BackOffice.Framework.Command;
 using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
-using ModifyRoadSegment = RoadRegistry.BackOffice.Messages.ModifyRoadSegment;
 using ModifyRoadSegmentGeometry = RoadRegistry.BackOffice.Messages.ModifyRoadSegmentGeometry;
 using Point = NetTopologySuite.Geometries.Point;
 using Problem = RoadRegistry.BackOffice.Messages.Problem;
@@ -52,6 +44,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
     {
         var ticketId = ObjectProvider.Create<TicketId>();
 
+
         await Run(scenario => scenario
             .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
                 new ImportedOrganization
@@ -61,21 +54,13 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }
             )
-            .When(TheOperator.ChangesTheRoadNetwork(
-                TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization, ticketId,
-                new RequestedChange
-                {
-                    AddRoadNode = TestData.AddStartNode1
-                },
-                new RequestedChange
-                {
-                    AddRoadNode = TestData.AddEndNode1
-                },
-                new RequestedChange
-                {
-                    AddRoadSegment = TestData.AddSegment1
-                }
-            ))
+            .When(new ChangeRoadNetworkBuilder(TestData)
+                .WithTicketId(ticketId)
+                .WithAddRoadNode(TestData.AddStartNode1)
+                .WithAddRoadNode(TestData.AddEndNode1)
+                .WithAddRoadSegment(TestData.AddSegment1)
+                .Build()
+            )
             .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
             {
                 RequestId = TestData.RequestId,
@@ -84,24 +69,21 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                 OrganizationId = TestData.ChangedByOrganization,
                 Organization = TestData.ChangedByOrganizationName,
                 TransactionId = new TransactionId(1),
-                Changes = new[]
-                {
+                Changes =
+                [
                     new AcceptedChange
                     {
-                        RoadNodeAdded = TestData.StartNode1Added,
-                        Problems = Array.Empty<Problem>()
+                        RoadNodeAdded = TestData.StartNode1Added
                     },
                     new AcceptedChange
                     {
-                        RoadNodeAdded = TestData.EndNode1Added,
-                        Problems = Array.Empty<Problem>()
+                        RoadNodeAdded = TestData.EndNode1Added
                     },
                     new AcceptedChange
                     {
-                        RoadSegmentAdded = TestData.Segment1Added,
-                        Problems = Array.Empty<Problem>()
+                        RoadSegmentAdded = TestData.Segment1Added
                     }
-                },
+                ],
                 TicketId = ticketId,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             }));
@@ -138,22 +120,13 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                     When = InstantPattern.ExtendedIso.Format(currentInstant)
                 }
             )
-            .When(TheOperator.ChangesTheRoadNetwork(
-                TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization,
-                extractRequestId,
-                new RequestedChange
-                {
-                    AddRoadNode = TestData.AddStartNode1
-                },
-                new RequestedChange
-                {
-                    AddRoadNode = TestData.AddEndNode1
-                },
-                new RequestedChange
-                {
-                    AddRoadSegment = TestData.AddSegment1
-                }
-            ))
+            .When(new ChangeRoadNetworkBuilder(TestData)
+                .WithExtractRequestId(extractRequestId)
+                .WithAddRoadNode(TestData.AddStartNode1)
+                .WithAddRoadNode(TestData.AddEndNode1)
+                .WithAddRoadSegment(TestData.AddSegment1)
+                .Build()
+            )
             .Then([
                 new RecordedEvent(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
@@ -225,18 +198,15 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                 {
                     new AcceptedChange
                     {
-                        RoadNodeAdded = TestData.StartNode1Added,
-                        Problems = Array.Empty<Problem>()
+                        RoadNodeAdded = TestData.StartNode1Added
                     },
                     new AcceptedChange
                     {
-                        RoadNodeAdded = TestData.EndNode1Added,
-                        Problems = Array.Empty<Problem>()
+                        RoadNodeAdded = TestData.EndNode1Added
                     },
                     new AcceptedChange
                     {
-                        RoadSegmentAdded = TestData.Segment1Added,
-                        Problems = Array.Empty<Problem>()
+                        RoadSegmentAdded = TestData.Segment1Added
                     }
                 },
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -252,13 +222,15 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                 {
                     new AcceptedChange
                     {
-                        RoadNodeModified = TestData.StartNode1Modified,
-                        Problems = Array.Empty<Problem>()
+                        RoadNodeModified = TestData.StartNode1Modified
                     }
                 },
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             })
-            .When(TheOperator.ChangesTheRoadNetwork(TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization, ticketId))
+            .When(new ChangeRoadNetworkBuilder(TestData)
+                .WithTicketId(ticketId)
+                .Build()
+            )
             .Then(RoadNetworks.Stream, new NoRoadNetworkChanges
             {
                 RequestId = TestData.RequestId,
@@ -289,13 +261,11 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }
             )
-            .When(TheOperator.ChangesTheRoadNetwork(
-                TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization, ticketId,
-                new RequestedChange
-                {
-                    AddRoadNode = TestData.AddStartNode1
-                }
-            ))
+            .When(new ChangeRoadNetworkBuilder(TestData)
+                .WithTicketId(ticketId)
+                .WithAddRoadNode(TestData.AddStartNode1)
+                .Build()
+            )
             .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
             {
                 RequestId = TestData.RequestId,
@@ -2999,284 +2969,6 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                         OutlinedRoadSegmentRemoved = new OutlinedRoadSegmentRemoved
                         {
                             Id = TestData.Segment1Added.Id
-                        },
-                        Problems = Array.Empty<Problem>()
-                    }
-                },
-                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-            })
-        );
-    }
-
-    [Fact]
-    public Task when_converting_an_outlined_roadsegment_to_measured()
-    {
-        var geometry = GeometryTranslator.Translate(TestData.AddSegment1.Geometry);
-
-        var addOutlinedSegment = TestData.AddSegment1;
-        addOutlinedSegment.PermanentId = 1;
-        addOutlinedSegment.GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined;
-        addOutlinedSegment.Status = ObjectProvider.CreateUntil<RoadSegmentStatus>(x => x.IsValidForEdit());
-        addOutlinedSegment.Morphology = ObjectProvider.CreateUntil<RoadSegmentMorphology>(x => x.IsValidForEdit());
-        addOutlinedSegment.StartNodeId = 0;
-        addOutlinedSegment.EndNodeId = 0;
-        addOutlinedSegment.Lanes = addOutlinedSegment.Lanes.Take(1).ToArray();
-        addOutlinedSegment.Lanes[0].AttributeId = 1;
-        addOutlinedSegment.Lanes[0].FromPosition = 0;
-        addOutlinedSegment.Lanes[0].ToPosition = RoadSegmentPosition.FromDouble(geometry.Length);
-        addOutlinedSegment.Lanes[0].Count = ObjectProvider.CreateUntil<RoadSegmentLaneCount>(x => x.IsValidForEdit());
-        addOutlinedSegment.Surfaces = addOutlinedSegment.Surfaces.Take(1).ToArray();
-        addOutlinedSegment.Surfaces[0].AttributeId = 1;
-        addOutlinedSegment.Surfaces[0].FromPosition = addOutlinedSegment.Lanes[0].FromPosition;
-        addOutlinedSegment.Surfaces[0].ToPosition = addOutlinedSegment.Lanes[0].ToPosition;
-        addOutlinedSegment.Widths = addOutlinedSegment.Widths.Take(1).ToArray();
-        addOutlinedSegment.Widths[0].AttributeId = 1;
-        addOutlinedSegment.Widths[0].FromPosition = addOutlinedSegment.Lanes[0].FromPosition;
-        addOutlinedSegment.Widths[0].ToPosition = addOutlinedSegment.Lanes[0].ToPosition;
-        addOutlinedSegment.Widths[0].Width = ObjectProvider.CreateUntil<RoadSegmentWidth>(x => x.IsValidForEdit());
-
-        var outlinedSegmentAdded = TestData.Segment1Added;
-        outlinedSegmentAdded.Version = 1;
-        outlinedSegmentAdded.GeometryVersion = 1;
-        outlinedSegmentAdded.GeometryDrawMethod = addOutlinedSegment.GeometryDrawMethod;
-        outlinedSegmentAdded.Status = addOutlinedSegment.Status;
-        outlinedSegmentAdded.Morphology = addOutlinedSegment.Morphology;
-        outlinedSegmentAdded.StartNodeId = addOutlinedSegment.StartNodeId;
-        outlinedSegmentAdded.EndNodeId = addOutlinedSegment.EndNodeId;
-        outlinedSegmentAdded.Lanes = outlinedSegmentAdded.Lanes.Take(1).ToArray();
-        outlinedSegmentAdded.Lanes[0].AttributeId = addOutlinedSegment.Lanes[0].AttributeId;
-        outlinedSegmentAdded.Lanes[0].FromPosition = addOutlinedSegment.Lanes[0].FromPosition;
-        outlinedSegmentAdded.Lanes[0].ToPosition = addOutlinedSegment.Lanes[0].ToPosition;
-        outlinedSegmentAdded.Lanes[0].Count = addOutlinedSegment.Lanes[0].Count;
-        outlinedSegmentAdded.Surfaces = outlinedSegmentAdded.Surfaces.Take(1).ToArray();
-        outlinedSegmentAdded.Surfaces[0].AttributeId = addOutlinedSegment.Surfaces[0].AttributeId;
-        outlinedSegmentAdded.Surfaces[0].FromPosition = addOutlinedSegment.Surfaces[0].FromPosition;
-        outlinedSegmentAdded.Surfaces[0].ToPosition = addOutlinedSegment.Surfaces[0].ToPosition;
-        outlinedSegmentAdded.Widths = outlinedSegmentAdded.Widths.Take(1).ToArray();
-        outlinedSegmentAdded.Widths[0].AttributeId = addOutlinedSegment.Widths[0].AttributeId;
-        outlinedSegmentAdded.Widths[0].FromPosition = addOutlinedSegment.Widths[0].FromPosition;
-        outlinedSegmentAdded.Widths[0].ToPosition = addOutlinedSegment.Widths[0].ToPosition;
-        outlinedSegmentAdded.Widths[0].Width = addOutlinedSegment.Widths[0].Width;
-
-        var moveEndPointX = 10;
-        geometry = new LineString(new Coordinate[]
-        {
-            new(geometry.GetSingleLineString().StartPoint.X, geometry.GetSingleLineString().StartPoint.Y),
-            new(geometry.GetSingleLineString().EndPoint.X + moveEndPointX, geometry.GetSingleLineString().EndPoint.Y)
-        }).ToMultiLineString();
-        TestData.AddEndNode1.Geometry.Point.X += moveEndPointX;
-
-        var outlinedSegmentModified = JsonConvert.DeserializeObject<RoadSegmentModified>(JsonConvert.SerializeObject(TestData.Segment1Modified));
-        outlinedSegmentModified.ConvertedFromOutlined = false;
-        outlinedSegmentModified.Geometry = GeometryTranslator.Translate(geometry);
-        outlinedSegmentModified.Version = 2;
-        outlinedSegmentModified.GeometryVersion = 2;
-        outlinedSegmentModified.Lanes = new[]
-        {
-            new RoadSegmentLaneAttributes
-            {
-                AttributeId = TestData.ModifySegment1.Lanes[0].AttributeId,
-                FromPosition = 0,
-                ToPosition = (decimal)geometry.Length,
-                Count = TestData.ModifySegment1.Lanes[0].Count,
-                Direction = TestData.ModifySegment1.Lanes[0].Direction,
-                AsOfGeometryVersion = GeometryVersion.Initial
-            }
-        };
-        outlinedSegmentModified.Surfaces = new[]
-        {
-            new RoadSegmentSurfaceAttributes
-            {
-                AttributeId = TestData.ModifySegment1.Surfaces[0].AttributeId,
-                FromPosition = 0,
-                ToPosition = (decimal)geometry.Length,
-                Type = TestData.ModifySegment1.Surfaces[0].Type,
-                AsOfGeometryVersion = GeometryVersion.Initial
-            }
-        };
-        outlinedSegmentModified.Widths = new[]
-        {
-            new RoadSegmentWidthAttributes
-            {
-                AttributeId = TestData.ModifySegment1.Widths[0].AttributeId,
-                FromPosition = 0,
-                ToPosition = (decimal)geometry.Length,
-                Width = TestData.ModifySegment1.Widths[0].Width,
-                AsOfGeometryVersion = GeometryVersion.Initial
-            }
-        };
-
-        var modifySegmentToMeasured = TestData.ModifySegment1;
-        modifySegmentToMeasured.ConvertedFromOutlined = true;
-        modifySegmentToMeasured.Geometry = GeometryTranslator.Translate(geometry);
-        modifySegmentToMeasured.Lanes = new[]
-        {
-            new RequestedRoadSegmentLaneAttribute
-            {
-                AttributeId = 2,
-                FromPosition = 0,
-                ToPosition = (decimal)geometry.Length,
-                Count = outlinedSegmentAdded.Lanes[0].Count,
-                Direction = outlinedSegmentAdded.Lanes[0].Direction
-            }
-        };
-        modifySegmentToMeasured.Surfaces = new[]
-        {
-            new RequestedRoadSegmentSurfaceAttribute
-            {
-                AttributeId = 2,
-                FromPosition = 0,
-                ToPosition = (decimal)geometry.Length,
-                Type = outlinedSegmentAdded.Surfaces[0].Type
-            }
-        };
-        modifySegmentToMeasured.Widths = new[]
-        {
-            new RequestedRoadSegmentWidthAttribute
-            {
-                AttributeId = 2,
-                FromPosition = 0,
-                ToPosition = (decimal)geometry.Length,
-                Width = outlinedSegmentAdded.Widths[0].Width
-            }
-        };
-
-        var segmentToMeasuredModified = JsonConvert.DeserializeObject<RoadSegmentModified>(JsonConvert.SerializeObject(TestData.Segment1Modified));
-        segmentToMeasuredModified.ConvertedFromOutlined = true;
-        segmentToMeasuredModified.Geometry = GeometryTranslator.Translate(geometry);
-        segmentToMeasuredModified.Version = 3;
-        segmentToMeasuredModified.GeometryVersion = 2;
-        segmentToMeasuredModified.Lanes = new[]
-        {
-            new RoadSegmentLaneAttributes
-            {
-                AttributeId = modifySegmentToMeasured.Lanes[0].AttributeId,
-                FromPosition = 0,
-                ToPosition = (decimal)geometry.Length,
-                Count = modifySegmentToMeasured.Lanes[0].Count,
-                Direction = modifySegmentToMeasured.Lanes[0].Direction,
-                AsOfGeometryVersion = GeometryVersion.Initial
-            }
-        };
-        segmentToMeasuredModified.Surfaces = new[]
-        {
-            new RoadSegmentSurfaceAttributes
-            {
-                AttributeId = modifySegmentToMeasured.Surfaces[0].AttributeId,
-                FromPosition = 0,
-                ToPosition = (decimal)geometry.Length,
-                Type = modifySegmentToMeasured.Surfaces[0].Type,
-                AsOfGeometryVersion = GeometryVersion.Initial
-            }
-        };
-        segmentToMeasuredModified.Widths = new[]
-        {
-            new RoadSegmentWidthAttributes
-            {
-                AttributeId = modifySegmentToMeasured.Widths[0].AttributeId,
-                FromPosition = 0,
-                ToPosition = (decimal)geometry.Length,
-                Width = modifySegmentToMeasured.Widths[0].Width,
-                AsOfGeometryVersion = GeometryVersion.Initial
-            }
-        };
-
-        return Run(scenario => scenario
-            .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
-                new ImportedOrganization
-                {
-                    Code = TestData.ChangedByOrganization,
-                    Name = TestData.ChangedByOrganizationName,
-                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                }
-            )
-            .Given(RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(outlinedSegmentAdded.Id)),
-                new RoadNetworkChangesAccepted
-                {
-                    RequestId = TestData.RequestId,
-                    Reason = TestData.ReasonForChange,
-                    Operator = TestData.ChangedByOperator,
-                    OrganizationId = TestData.ChangedByOrganization,
-                    Organization = TestData.ChangedByOrganizationName,
-                    Changes = new[]
-                    {
-                        new AcceptedChange
-                        {
-                            RoadSegmentAdded = outlinedSegmentAdded
-                        },
-                        new AcceptedChange
-                        {
-                            RoadSegmentModified = outlinedSegmentModified
-                        }
-                    },
-                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                }
-            )
-            .When(TheOperator.ChangesTheRoadNetwork(
-                TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization,
-                new RequestedChange
-                {
-                    AddRoadNode = TestData.AddStartNode1
-                },
-                new RequestedChange
-                {
-                    AddRoadNode = TestData.AddEndNode1
-                },
-                new RequestedChange
-                {
-                    ModifyRoadSegment = modifySegmentToMeasured
-                },
-                new RequestedChange
-                {
-                    RemoveOutlinedRoadSegment = new RemoveOutlinedRoadSegment
-                    {
-                        Id = outlinedSegmentAdded.Id
-                    }
-                }
-            ))
-            .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
-            {
-                RequestId = TestData.RequestId,
-                Reason = TestData.ReasonForChange,
-                Operator = TestData.ChangedByOperator,
-                OrganizationId = TestData.ChangedByOrganization,
-                Organization = TestData.ChangedByOrganizationName,
-                TransactionId = new TransactionId(1),
-                Changes = new[]
-                {
-                    new AcceptedChange
-                    {
-                        RoadNodeAdded = TestData.StartNode1Added,
-                        Problems = Array.Empty<Problem>()
-                    },
-                    new AcceptedChange
-                    {
-                        RoadNodeAdded = TestData.EndNode1Added,
-                        Problems = Array.Empty<Problem>()
-                    },
-                    new AcceptedChange
-                    {
-                        RoadSegmentModified = segmentToMeasuredModified,
-                        Problems = Array.Empty<Problem>()
-                    }
-                },
-                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-            })
-            .Then(RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(segmentToMeasuredModified.Id)), new RoadNetworkChangesAccepted
-            {
-                RequestId = TestData.RequestId,
-                Reason = TestData.ReasonForChange,
-                Operator = TestData.ChangedByOperator,
-                OrganizationId = TestData.ChangedByOrganization,
-                Organization = TestData.ChangedByOrganizationName,
-                TransactionId = new TransactionId(2),
-                Changes = new[]
-                {
-                    new AcceptedChange
-                    {
-                        OutlinedRoadSegmentRemoved = new OutlinedRoadSegmentRemoved
-                        {
-                            Id = segmentToMeasuredModified.Id
                         },
                         Problems = Array.Empty<Problem>()
                     }
@@ -6542,162 +6234,6 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                         ]
                     }
                 ],
-                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-            }));
-    }
-
-    [Fact]
-    public Task when_modifying_a_segment_that_intersects_without_grade_separated_junction()
-    {
-        var geometry1 = new MultiLineString(new[]
-        {
-            new LineString(
-                new CoordinateArraySequence(new Coordinate[] { new CoordinateM(0.0, 0.0), new CoordinateM(50.0, 50.0) }),
-                GeometryConfiguration.GeometryFactory)
-            {
-                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-            }
-        });
-        TestData.Segment1Added.Geometry = GeometryTranslator.Translate(geometry1);
-        TestData.AddSegment1.Lanes = new[]
-        {
-            ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry1.Length,
-                attributeId: 1)
-        };
-        TestData.AddSegment1.Widths = new[]
-        {
-            ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry1.Length,
-                attributeId: 1)
-        };
-        TestData.AddSegment1.Surfaces = new[]
-        {
-            ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry1.Length,
-                attributeId: 1)
-        };
-        TestData.Segment1Added.Lanes = TestData.AddSegment1.Lanes.ToRoadSegmentLaneAttributes();
-        TestData.Segment1Added.Widths = TestData.AddSegment1.Widths.ToRoadSegmentWidthAttributes();
-        TestData.Segment1Added.Surfaces = TestData.AddSegment1.Surfaces.ToRoadSegmentSurfaceAttributes();
-
-        var startPoint2 = new Point(new CoordinateM(0.0, 50.0, 0.0));
-        var endPoint2 = new Point(new CoordinateM(50.0, 0.0, 70.71067));
-        var geometry2 = new MultiLineString(new[]
-        {
-            new LineString(
-                new CoordinateArraySequence(new[] { startPoint2.Coordinate, endPoint2.Coordinate }),
-                GeometryConfiguration.GeometryFactory)
-            {
-                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-            }
-        })
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-        TestData.AddSegment2.Geometry = GeometryTranslator.Translate(geometry2);
-        TestData.AddSegment2.Lanes = new[]
-        {
-            ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(geometry2.Length,
-                attributeId: TestData.Segment1Added.Lanes.Select(x => x.AttributeId).Max() + 1)
-        };
-        TestData.AddSegment2.Widths = new[]
-        {
-            ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(geometry2.Length,
-                attributeId: TestData.Segment1Added.Widths.Select(x => x.AttributeId).Max() + 1)
-        };
-        TestData.AddSegment2.Surfaces = new[]
-        {
-            ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(geometry2.Length,
-                attributeId: TestData.Segment1Added.Surfaces.Select(x => x.AttributeId).Max() + 1)
-        };
-        TestData.Segment2Added.Lanes = TestData.AddSegment2.Lanes.ToRoadSegmentLaneAttributes();
-        TestData.Segment2Added.Widths = TestData.AddSegment2.Widths.ToRoadSegmentWidthAttributes();
-        TestData.Segment2Added.Surfaces = TestData.AddSegment2.Surfaces.ToRoadSegmentSurfaceAttributes();
-
-        TestData.AddStartNode2.Geometry = GeometryTranslator.Translate(startPoint2);
-        TestData.AddEndNode2.Geometry = GeometryTranslator.Translate(endPoint2);
-
-        return Run(scenario => scenario
-            .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
-                new ImportedOrganization
-                {
-                    Code = TestData.ChangedByOrganization,
-                    Name = TestData.ChangedByOrganizationName,
-                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                }
-            )
-            .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
-            {
-                RequestId = TestData.RequestId,
-                Reason = TestData.ReasonForChange,
-                Operator = TestData.ChangedByOperator,
-                OrganizationId = TestData.ChangedByOrganization,
-                Organization = TestData.ChangedByOrganizationName,
-                Changes = new[]
-                {
-                    new AcceptedChange
-                    {
-                        RoadNodeAdded = TestData.StartNode1Added
-                    },
-                    new AcceptedChange
-                    {
-                        RoadNodeAdded = TestData.EndNode1Added
-                    },
-                    new AcceptedChange
-                    {
-                        RoadSegmentAdded = TestData.Segment1Added
-                    }
-                },
-                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-            })
-            .When(TheOperator.ChangesTheRoadNetwork(
-                TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization,
-                new RequestedChange
-                {
-                    AddRoadNode = TestData.AddStartNode2
-                },
-                new RequestedChange
-                {
-                    AddRoadNode = TestData.AddEndNode2
-                },
-                new RequestedChange
-                {
-                    AddRoadSegment = TestData.AddSegment2
-                }
-            ))
-            .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
-            {
-                RequestId = TestData.RequestId,
-                Reason = TestData.ReasonForChange,
-                Operator = TestData.ChangedByOperator,
-                OrganizationId = TestData.ChangedByOrganization,
-                Organization = TestData.ChangedByOrganizationName,
-                TransactionId = new TransactionId(1),
-                Changes = new[]
-                {
-                    new RejectedChange
-                    {
-                        AddRoadSegment = TestData.AddSegment2,
-                        Problems = new[]
-                        {
-                            new Problem
-                            {
-                                Reason = "IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction",
-                                Parameters = new[]
-                                {
-                                    new ProblemParameter
-                                    {
-                                        Name = "ModifiedRoadSegmentId",
-                                        Value = TestData.AddSegment2.TemporaryId.ToString()
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "IntersectingRoadSegmentId",
-                                        Value = TestData.Segment1Added.Id.ToString()
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             }));
     }

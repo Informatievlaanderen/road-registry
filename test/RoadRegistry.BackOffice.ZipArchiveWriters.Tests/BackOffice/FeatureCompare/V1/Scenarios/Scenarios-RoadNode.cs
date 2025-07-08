@@ -58,10 +58,10 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                 .AppendChange(new ModifyRoadSegment(
                     new RecordNumber(1),
                     new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
+                    RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                     new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value),
                     new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value),
                     new OrganizationId(context.Change.TestData.RoadSegment1DbaseRecord.BEHEER.Value),
-                    RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                     RoadSegmentMorphology.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.MORF.Value],
                     RoadSegmentStatus.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.STATUS.Value],
                     RoadSegmentCategory.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.WEGCAT.Value],
@@ -95,7 +95,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                         new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value))
                     )
                 )));
-        
+
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
 
@@ -138,10 +138,10 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                 .AppendChange(new ModifyRoadSegment(
                     new RecordNumber(1),
                     new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
+                    RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                     new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value),
                     new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value),
                     new OrganizationId(context.Change.TestData.RoadSegment1DbaseRecord.BEHEER.Value),
-                    RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                     RoadSegmentMorphology.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.MORF.Value],
                     RoadSegmentStatus.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.STATUS.Value],
                     RoadSegmentCategory.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.WEGCAT.Value],
@@ -186,7 +186,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
             .WithChange((builder, context) =>
             {
                 var maxId = new RoadNodeId(builder.DataSet.RoadNodeDbaseRecords.Max(x => x.WK_OIDN.Value));
-                
+
                 var nodeDbase = builder.CreateRoadNodeDbaseRecord();
                 nodeDbase.WK_OIDN.Value = maxId.Next();
 
@@ -241,7 +241,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
 
                 dbaseRecord.WK_OIDN.Value = maxId.Next();
                 dbaseRecord.TYPE.Value = context.Fixture.CreateWhichIsDifferentThan(RoadNodeType.ByIdentifier[dbaseRecord.TYPE.Value]).Translation.Identifier;
-                
+
                 builder.DataSet.RoadNodeDbaseRecords.Add(dbaseRecord);
                 builder.DataSet.RoadNodeShapeRecords.Add(shapeRecord);
             })
@@ -320,10 +320,10 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                     new ModifyRoadSegment(
                         new RecordNumber(1),
                         new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
+                        RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                         new RoadNodeId(context.Extract.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value),
                         new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value),
                         new OrganizationId(context.Change.TestData.RoadSegment1DbaseRecord.BEHEER.Value),
-                        RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                         RoadSegmentMorphology.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.MORF.Value],
                         RoadSegmentStatus.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.STATUS.Value],
                         RoadSegmentCategory.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.WEGCAT.Value],

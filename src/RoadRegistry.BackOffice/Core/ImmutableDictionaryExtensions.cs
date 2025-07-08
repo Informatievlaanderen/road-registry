@@ -10,14 +10,19 @@ internal static class ImmutableDictionaryExtensions
     public static ImmutableDictionary<TKey, IReadOnlyList<TValue>> Merge<TKey, TValue>(
         this ImmutableDictionary<TKey, IReadOnlyList<TValue>> dictionary,
         TKey key,
-        IEnumerable<TValue> values)
+        IEnumerable<TValue>? values)
     {
-        if (dictionary.TryGetValue(key, out var mergeable))
-            return dictionary
-                .Remove(key)
-                .Add(key, values.Concat(mergeable).Distinct().ToArray());
+        if (values is not null)
+        {
+            if (dictionary.TryGetValue(key, out var mergeable))
+                return dictionary
+                    .Remove(key)
+                    .Add(key, values.Concat(mergeable).Distinct().ToArray());
 
-        return dictionary.Add(key, values.Distinct().ToArray());
+            return dictionary.Add(key, values.Distinct().ToArray());
+        }
+
+        return dictionary;
     }
 
     public static void Merge<TKey, TValue>(this ImmutableDictionary<TKey, IReadOnlyList<TValue>>.Builder dictionary,
@@ -43,13 +48,17 @@ internal static class ImmutableDictionaryExtensions
         return dictionary;
     }
 
-    public static ImmutableDictionary<TKey, TValue>.Builder TryReplace<TKey, TValue>(
-        this ImmutableDictionary<TKey, TValue>.Builder dictionary,
-        TKey key,
+    public static ImmutableDictionary<TKey, TValue> TryReplace<TKey, TValue>(
+        this ImmutableDictionary<TKey, TValue> dictionary,
+        TKey? key,
         Converter<TValue, TValue> replacer
     )
+        where TKey : struct
     {
-        if (dictionary.TryGetValue(key, out var value)) dictionary[key] = replacer(value);
+        if (key is not null && dictionary.TryGetValue(key.Value, out var value))
+            return dictionary
+                .Remove(key.Value)
+                .Add(key.Value, replacer(value));
 
         return dictionary;
     }

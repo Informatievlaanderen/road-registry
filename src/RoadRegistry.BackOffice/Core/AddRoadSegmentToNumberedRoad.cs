@@ -58,7 +58,7 @@ public class AddRoadSegmentToNumberedRoad : IRequestedChange, IHaveHash
         };
     }
 
-    public void TranslateTo(Messages.RejectedChange message)
+    public void TranslateToRejectedChange(Messages.RejectedChange message)
     {
         if (message == null) throw new ArgumentNullException(nameof(message));
 
@@ -73,7 +73,7 @@ public class AddRoadSegmentToNumberedRoad : IRequestedChange, IHaveHash
         };
     }
 
-    public Problems VerifyAfter(AfterVerificationContext context)
+    public VerifyAfterResult VerifyAfter(AfterVerificationContext context)
     {
         if (context == null) throw new ArgumentNullException(nameof(context));
 
@@ -81,7 +81,7 @@ public class AddRoadSegmentToNumberedRoad : IRequestedChange, IHaveHash
 
         if (!context.AfterView.View.Segments.ContainsKey(SegmentId)) problems = problems.Add(new RoadSegmentMissing(TemporarySegmentId ?? SegmentId));
 
-        return problems;
+        return VerifyAfterResult.WithAcceptedChanges(problems, TranslateTo);
     }
 
     public Problems VerifyBefore(BeforeVerificationContext context)

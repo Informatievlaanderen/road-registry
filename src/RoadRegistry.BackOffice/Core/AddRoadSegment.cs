@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
 using NetTopologySuite.Geometries;
@@ -22,7 +23,6 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
         RoadNodeId? temporaryEndNodeId,
         MultiLineString geometry,
         OrganizationId maintenanceAuthorityId,
-        OrganizationName? maintenanceAuthorityName,
         RoadSegmentGeometryDrawMethod geometryDrawMethod,
         RoadSegmentMorphology morphology,
         RoadSegmentStatus status,
@@ -44,7 +44,6 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
         TemporaryEndNodeId = temporaryEndNodeId;
         Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
         MaintenanceAuthorityId = maintenanceAuthorityId;
-        MaintenanceAuthorityName = maintenanceAuthorityName;
         GeometryDrawMethod = geometryDrawMethod ?? throw new ArgumentNullException(nameof(geometryDrawMethod));
         Morphology = morphology ?? throw new ArgumentNullException(nameof(morphology));
         Status = status ?? throw new ArgumentNullException(nameof(status));
@@ -66,7 +65,6 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
     public IReadOnlyList<RoadSegmentLaneAttribute> Lanes { get; }
     public StreetNameLocalId? LeftSideStreetNameId { get; }
     public OrganizationId MaintenanceAuthorityId { get; }
-    public OrganizationName? MaintenanceAuthorityName { get; }
     public RoadSegmentMorphology Morphology { get; }
     public StreetNameLocalId? RightSideStreetNameId { get; }
     public RoadNodeId StartNodeId { get; }
@@ -79,8 +77,10 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
     public RoadNodeId? TemporaryStartNodeId { get; }
     public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
 
-    public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings, AfterVerificationContext context)
     {
+        var maintainer = context.Organizations.FindAsync(MaintenanceAuthorityId, CancellationToken.None).GetAwaiter().GetResult(); //TODO-pr verhuizen of method async maken?
+
         yield return new Messages.AcceptedChange
         {
             Problems = warnings,
@@ -97,7 +97,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
                 MaintenanceAuthority = new MaintenanceAuthority
                 {
                     Code = MaintenanceAuthorityId,
-                    Name = OrganizationName.FromValueWithFallback(MaintenanceAuthorityName)
+                    Name = OrganizationName.FromValueWithFallback(maintainer?.Translation.Name)
                 },
                 GeometryDrawMethod = GeometryDrawMethod,
                 Morphology = Morphology,
@@ -147,7 +147,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
         };
     }
 
-    public void TranslateTo(Messages.RejectedChange message)
+    public void TranslateToRejectedChange(Messages.RejectedChange message)
     {
         if (message == null) throw new ArgumentNullException(nameof(message));
 
@@ -198,7 +198,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
         };
     }
 
-    public Problems VerifyAfter(AfterVerificationContext context)
+    public VerifyAfterResult VerifyAfter(AfterVerificationContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
@@ -211,7 +211,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
         {
             problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId, context.Tolerances);
 
-            return problems;
+            return VerifyAfterResult.WithAcceptedChanges(problems, warnings => TranslateTo(warnings, context));
         }
 
         var byOtherSegment =
@@ -268,7 +268,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
             problems = problems.AddRange(intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions);
         }
 
-        return problems;
+        return VerifyAfterResult.WithAcceptedChanges(problems, warnings => TranslateTo(warnings, context));
     }
 
     public Problems VerifyBefore(BeforeVerificationContext context)

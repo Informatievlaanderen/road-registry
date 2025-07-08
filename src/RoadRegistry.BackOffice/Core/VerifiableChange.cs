@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 public class VerifiableChange
@@ -33,17 +34,23 @@ public class VerifiableChange
         return change;
     }
 
-    public VerifiableChange VerifyAfter(AfterVerificationContext context)
+    public (VerifiableChange, VerifyAfterResult) VerifyAfter(AfterVerificationContext context)
     {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-        return new VerifiableChange(
-            _requestedChange,
-            _problems.AddRange(_requestedChange.VerifyAfter(context)));
+        ArgumentNullException.ThrowIfNull(context);
+
+        var result = _requestedChange.VerifyAfter(context);
+
+        return (
+            new VerifiableChange(
+                _requestedChange,
+                _problems.AddRange(result.Problems)),
+            result);
     }
 
     public VerifiableChange VerifyBefore(BeforeVerificationContext context)
     {
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(context);
+
         return new VerifiableChange(
             _requestedChange,
             _problems.AddRange(_requestedChange.VerifyBefore(context)));
