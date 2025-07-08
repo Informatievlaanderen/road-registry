@@ -42,6 +42,13 @@ public abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttribut
             .Concat(modifiedRecords)
             .ToList();
 
+        // only keep records that per roadsegment have a RecordType other than Identical
+        processedRecords = processedRecords
+            .GroupBy(x => x.Feature.Attributes.RoadSegmentId)
+            .Where(g => g.Any(x => x.RecordType != RecordType.Identical))
+            .SelectMany(g => g)
+            .ToList();
+
         return Task.FromResult((TranslateProcessedRecords(changes, processedRecords), problems));
     }
 

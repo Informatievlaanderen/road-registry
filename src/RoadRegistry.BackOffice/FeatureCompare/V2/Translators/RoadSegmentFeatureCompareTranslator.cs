@@ -381,22 +381,13 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             {
                 case RecordType.IdenticalIdentifier:
                     //TODO-pr is overbodig, bij lane/... aanpassingen een kleine modify toevoegen adv context om de method te weten
-                    // changes = changes.AppendProvisionalChange(
-                    //     new ModifyRoadSegment(
-                    //         record.RecordNumber,
-                    //         record.Id,
-                    //         record.Attributes.StartNodeId,
-                    //         record.Attributes.EndNodeId,
-                    //         record.Attributes.MaintenanceAuthority,
-                    //         record.Attributes.Method,
-                    //         record.Attributes.Morphology,
-                    //         record.Attributes.Status,
-                    //         record.Attributes.Category,
-                    //         record.Attributes.AccessRestriction,
-                    //         record.Attributes.LeftStreetNameId,
-                    //         record.Attributes.RightStreetNameId
-                    //     ).WithGeometry(record.Attributes.Geometry)
-                    // );
+                    changes = changes.AppendProvisionalChange(
+                        new ModifyRoadSegment(
+                            record.RecordNumber,
+                            record.Id,
+                            record.Attributes.Method
+                        )
+                    );
                     break;
                 case RecordType.ModifiedIdentifier:
                     var modifyRoadSegment = new ModifyRoadSegment(
@@ -411,9 +402,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             record.Attributes.Category,
                             record.Attributes.AccessRestriction,
                             record.Attributes.LeftSideStreetNameId,
-                            record.Attributes.RightSideStreetNameId
+                            record.Attributes.RightSideStreetNameId,
+                            geometry: record.Attributes.Geometry
                         )
-                        .WithGeometry(record.Attributes.Geometry)
                         .WithConvertedFromOutlined(record.ConvertedFromOutlined);
                     if (record.Id != record.Attributes.Id)
                     {
@@ -431,7 +422,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             )
                         );
                     }
-
                     break;
                 case RecordType.AddedIdentifier:
                     changes = changes.AppendChange(
