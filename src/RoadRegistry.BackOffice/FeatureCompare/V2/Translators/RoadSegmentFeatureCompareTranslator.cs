@@ -126,7 +126,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 continue;
             }
 
-            if (changeFeatureAttributes.Method != RoadSegmentGeometryDrawMethod.Outlined)
+            if (changeFeatureAttributes.StartNodeId > 0 && changeFeatureAttributes.EndNodeId > 0)
             {
                 var startNodeFeature = FindRoadNodeByOriginalId(changeFeatureAttributes.StartNodeId!.Value);
                 var endNodeFeature = FindRoadNodeByOriginalId(changeFeatureAttributes.EndNodeId!.Value);
@@ -146,7 +146,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     {
                         problems += recordContext.EndRoadNodeIdOutOfRange(changeFeatureAttributes.EndNodeId!.Value);
                     }
-
                     continue;
                 }
 

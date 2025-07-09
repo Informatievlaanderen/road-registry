@@ -46,7 +46,7 @@ public class RequestedChangeTranslator
                     translated = translated.Append(Translate(command));
                     break;
                 case Messages.AddRoadSegment command:
-                    translated = translated.Append(await Translate(command, translated, ct));
+                    translated = translated.Append(await Translate(command, translated));
                     break;
                 case Messages.ModifyRoadSegment command:
                     translated = translated.Append(await Translate(command, translated, ct));
@@ -220,7 +220,7 @@ public class RequestedChangeTranslator
         return result.ToArray();
     }
 
-    private async Task<AddRoadSegment> Translate(Messages.AddRoadSegment command, IRequestedChangeIdentityTranslator translator, CancellationToken ct)
+    private async Task<AddRoadSegment> Translate(Messages.AddRoadSegment command, IRequestedChangeIdentityTranslator translator)
     {
         var commandPermanentId = RoadSegmentId.FromValue(command.PermanentId);
 
@@ -363,7 +363,8 @@ public class RequestedChangeTranslator
             laneAttributes,
             widthAttributes,
             surfaceAttributes,
-            command.ConvertedFromOutlined
+            command.ConvertedFromOutlined,
+            command.CategoryModified
         );
     }
 

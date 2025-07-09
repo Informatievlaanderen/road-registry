@@ -21,4 +21,5 @@ public class ModifyRoadSegment
     public bool ConvertedFromOutlined { get; set; }
     public int? Version { get; set; }
     public int? GeometryVersion { get; set; }
+    public bool? CategoryModified { get; set; }
 }

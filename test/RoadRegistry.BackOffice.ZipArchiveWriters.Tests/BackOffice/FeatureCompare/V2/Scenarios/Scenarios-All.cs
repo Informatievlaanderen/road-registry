@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.FeatureCompare.V2;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Tests.BackOffice;
@@ -184,7 +185,26 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                 var fixture = context.Fixture;
 
                 builder.TestData.RoadNode1DbaseRecord.TYPE.Value = fixture.CreateWhichIsDifferentThan(RoadNodeType.ByIdentifier[builder.TestData.RoadNode1DbaseRecord.TYPE.Value]).Translation.Identifier;
+
+                builder.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value = builder.TestData.RoadNode3DbaseRecord.WK_OIDN.Value;
+                builder.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value = builder.TestData.RoadNode4DbaseRecord.WK_OIDN.Value;
+                builder.TestData.RoadSegment1DbaseRecord.BEHEERDER.Value = fixture.CreateWhichIsDifferentThan(new OrganizationId(builder.TestData.RoadSegment1DbaseRecord.BEHEERDER.Value));
+                builder.TestData.RoadSegment1DbaseRecord.MORFOLOGIE.Value = fixture.CreateWhichIsDifferentThan(RoadSegmentMorphology.ByIdentifier[builder.TestData.RoadSegment1DbaseRecord.MORFOLOGIE.Value]).Translation.Identifier;
                 builder.TestData.RoadSegment1DbaseRecord.STATUS.Value = fixture.CreateWhichIsDifferentThan(RoadSegmentStatus.ByIdentifier[builder.TestData.RoadSegment1DbaseRecord.STATUS.Value]).Translation.Identifier;
+                builder.TestData.RoadSegment1DbaseRecord.CATEGORIE.Value = fixture.CreateWhichIsDifferentThan(RoadSegmentCategory.ByIdentifier[builder.TestData.RoadSegment1DbaseRecord.CATEGORIE.Value]).Translation.Identifier;
+                builder.TestData.RoadSegment1DbaseRecord.TGBEP.Value = fixture.CreateWhichIsDifferentThan(RoadSegmentAccessRestriction.ByIdentifier[builder.TestData.RoadSegment1DbaseRecord.TGBEP.Value]).Translation.Identifier;
+                builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value = fixture.CreateWhichIsDifferentThan(new StreetNameLocalId(builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value!.Value));
+                builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = fixture.CreateWhichIsDifferentThan(new StreetNameLocalId(builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value!.Value));
+                var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
+                lineString = new LineString([
+                    lineString.Coordinates[0],
+                    new CoordinateM(lineString.Coordinates[1].X + 1, lineString.Coordinates[1].Y, lineString.Coordinates[1].M + 1)
+                ]);
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
+                builder.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
+                builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
+                builder.TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
+
                 builder.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value = fixture.CreateWhichIsDifferentThan(EuropeanRoadNumber.Parse(builder.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value), EuropeanRoadNumber.Parse(builder.TestData.RoadSegment1EuropeanRoadDbaseRecord2.EUNUMMER.Value)).ToString();
                 builder.TestData.RoadSegment1NationalRoadDbaseRecord1.IDENT2.Value = fixture.CreateWhichIsDifferentThan(NationalRoadNumber.Parse(builder.TestData.RoadSegment1NationalRoadDbaseRecord1.IDENT2.Value), NationalRoadNumber.Parse(builder.TestData.RoadSegment1NationalRoadDbaseRecord2.IDENT2.Value)).ToString();
                 builder.TestData.RoadSegment1NumberedRoadDbaseRecord1.IDENT8.Value = fixture.CreateWhichIsDifferentThan(NumberedRoadNumber.Parse(builder.TestData.RoadSegment1NumberedRoadDbaseRecord1.IDENT8.Value), NumberedRoadNumber.Parse(builder.TestData.RoadSegment1NumberedRoadDbaseRecord2.IDENT8.Value)).ToString();

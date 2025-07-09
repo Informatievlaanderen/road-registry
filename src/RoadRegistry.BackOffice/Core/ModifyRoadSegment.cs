@@ -33,7 +33,8 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         IReadOnlyList<RoadSegmentLaneAttribute>? lanes,
         IReadOnlyList<RoadSegmentWidthAttribute>? widths,
         IReadOnlyList<RoadSegmentSurfaceAttribute>? surfaces,
-        bool convertedFromOutlined)
+        bool convertedFromOutlined,
+        bool? categoryModified)
     {
         Id = id;
         OriginalId = originalId;
@@ -56,6 +57,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         Widths = widths;
         Surfaces = surfaces;
         ConvertedFromOutlined = convertedFromOutlined;
+        CategoryModified = categoryModified;
     }
 
     public RoadSegmentId Id { get; }
@@ -79,6 +81,8 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
     public RoadNodeId? TemporaryEndNodeId { get; }
     public RoadNodeId? TemporaryStartNodeId { get; }
     public bool ConvertedFromOutlined { get; }
+    public bool? CategoryModified { get; }
+    private RoadSegmentCategory? _correctedCategory;
 
     public Problems VerifyBefore(BeforeVerificationContext context)
     {
@@ -87,7 +91,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         var problems = Problems.None;
         var originalIdOrId = context.Translator.TranslateToOriginalOrTemporaryOrId(Id);
 
-        if (!context.BeforeView.Segments.TryGetValue(Id, out _) && !ConvertedFromOutlined)
+        if (!context.BeforeView.Segments.TryGetValue(Id, out var beforeSegment) && !ConvertedFromOutlined)
         {
             problems = problems.Add(new RoadSegmentNotFound(originalIdOrId));
         }
@@ -109,12 +113,11 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
             problems += line.GetProblemsForRoadSegmentGeometry(originalIdOrId, context.Tolerances);
         }
 
-        //TODO-pr is obsolete geworden met optionele changes
-        // if (beforeSegment is not null && !CategoryModified && RoadSegmentCategory.IsUpgraded(beforeSegment.AttributeHash.Category))
-        // {
-        //     _correctedCategory = beforeSegment.AttributeHash.Category;
-        //     problems += new RoadSegmentCategoryNotChangedBecauseCurrentIsNewerVersion(originalIdOrId);
-        // }
+        if (beforeSegment is not null && CategoryModified is not null && !CategoryModified.Value && RoadSegmentCategory.IsUpgraded(beforeSegment.AttributeHash.Category))
+        {
+            _correctedCategory = beforeSegment.AttributeHash.Category;
+            problems += new RoadSegmentCategoryNotChangedBecauseCurrentIsNewerVersion(originalIdOrId);
+        }
 
         return problems;
     }
@@ -258,7 +261,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
                 GeometryDrawMethod = afterSegment.AttributeHash.GeometryDrawMethod,
                 Morphology = afterSegment.AttributeHash.Morphology,
                 Status = afterSegment.AttributeHash.Status,
-                Category = afterSegment.AttributeHash.Category,
+                Category = _correctedCategory ?? afterSegment.AttributeHash.Category,
                 AccessRestriction = afterSegment.AttributeHash.AccessRestriction,
                 LeftSide = new Messages.RoadSegmentSideAttributes
                 {
