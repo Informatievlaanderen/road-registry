@@ -380,7 +380,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             switch (record.RecordType.Translation.Identifier)
             {
                 case RecordType.IdenticalIdentifier:
-                    //TODO-pr is overbodig, bij lane/... aanpassingen een kleine modify toevoegen adv context om de method te weten
                     changes = changes.AppendProvisionalChange(
                         new ModifyRoadSegment(
                             record.RecordNumber,

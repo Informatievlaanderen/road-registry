@@ -42,10 +42,15 @@ public abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttribut
             .Concat(modifiedRecords)
             .ToList();
 
-        // only keep records that per roadsegment have a RecordType other than Identical
+        // only keep records that per roadsegment have a RecordType other than Identical or are being converted from outline to measured
         processedRecords = processedRecords
             .GroupBy(x => x.Feature.Attributes.RoadSegmentId)
-            .Where(g => g.Any(x => x.RecordType != RecordType.Identical))
+            .Where(g =>
+                g.Any(x => x.RecordType != RecordType.Identical)
+                || (
+                    changes.TryFindRoadSegmentChange(g.Key, out var segmentChange) && segmentChange is ModifyRoadSegment modifyRoadSegment && modifyRoadSegment.ConvertedFromOutlined
+                )
+            )
             .SelectMany(g => g)
             .ToList();
 
