@@ -22,7 +22,7 @@ using Sqs.RoadSegments;
 using Xunit.Abstractions;
 using GeometryTranslator = GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
-using ModifyRoadSegmentGeometry = BackOffice.Uploads.ModifyRoadSegmentGeometry;
+using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 
 public class GivenOrganizationExists : BackOfficeLambdaTest
 {
@@ -45,11 +45,12 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
 
         var lineString = new LineString(
             new CoordinateArraySequence([new CoordinateM(0, 0, 0), new CoordinateM(length, 0, length)]),
-            GeometryConfiguration.GeometryFactory);
+            GeometryConfiguration.GeometryFactory)
+            .ToMultiLineString();
 
         var request = new ChangeRoadSegmentOutlineGeometryRequest(
             roadSegmentId,
-            GeometryTranslator.Translate(lineString.ToMultiLineString())
+            GeometryTranslator.Translate(lineString)
         );
 
         // Act
@@ -60,8 +61,9 @@ public class GivenOrganizationExists : BackOfficeLambdaTest
 
         translatedChanges.Should().HaveCount(1);
 
-        var modifyRoadSegmentGeometry = Xunit.Assert.IsType<ModifyRoadSegmentGeometry>(translatedChanges[0]);
+        var modifyRoadSegmentGeometry = Xunit.Assert.IsType<ModifyRoadSegment>(translatedChanges[0]);
         modifyRoadSegmentGeometry.Id.Should().Be(roadSegmentId);
+        Assert.Equal(lineString, modifyRoadSegmentGeometry.Geometry);
     }
 
     [Fact]

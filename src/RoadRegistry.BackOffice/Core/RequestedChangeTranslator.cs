@@ -54,9 +54,6 @@ public class RequestedChangeTranslator
                 case Messages.ModifyRoadSegmentAttributes command:
                     translated = translated.Append(await Translate(command, organizations, ct));
                     break;
-                case Messages.ModifyRoadSegmentGeometry command:
-                    translated = translated.Append(await Translate(command, ct));
-                    break;
                 case Messages.RemoveRoadSegment command:
                     translated = translated.Append(Translate(command));
                     break;
@@ -415,34 +412,6 @@ public class RequestedChangeTranslator
             accessRestriction,
             leftSide,
             rightSide,
-            laneAttributes,
-            surfaceAttributes,
-            widthAttributes
-        );
-    }
-
-    private async Task<ModifyRoadSegmentGeometry> Translate(Messages.ModifyRoadSegmentGeometry command, CancellationToken ct)
-    {
-        var permanent = new RoadSegmentId(command.Id);
-
-        var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
-        var nextRoadSegmentVersionArgs = new NextRoadSegmentVersionArgs(permanent, geometryDrawMethod, false);
-        var version = await _roadNetworkVersionProvider.NextRoadSegmentVersion(nextRoadSegmentVersionArgs, ct);
-
-        var geometry = GeometryTranslator.Translate(command.Geometry);
-        var geometryVersion = await _roadNetworkVersionProvider.NextRoadSegmentGeometryVersion(nextRoadSegmentVersionArgs, geometry, ct);
-
-        var laneAttributes = await Translate(command.Lanes, permanent);
-        var widthAttributes = await Translate(command.Widths, permanent);
-        var surfaceAttributes = await Translate(command.Surfaces, permanent);
-
-        return new ModifyRoadSegmentGeometry
-        (
-            permanent,
-            version,
-            geometryVersion,
-            geometryDrawMethod,
-            geometry,
             laneAttributes,
             surfaceAttributes,
             widthAttributes

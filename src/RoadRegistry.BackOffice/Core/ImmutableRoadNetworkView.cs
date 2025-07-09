@@ -204,9 +204,6 @@ public partial class ImmutableRoadNetworkView : IRoadNetworkView
                 case ModifyRoadSegmentAttributes modifyRoadSegmentAttributes:
                     result = result.With(modifyRoadSegmentAttributes);
                     break;
-                case ModifyRoadSegmentGeometry modifyRoadSegmentGeometry:
-                    result = result.With(modifyRoadSegmentGeometry);
-                    break;
                 case RemoveRoadSegment removeRoadSegment:
                     result = result.With(removeRoadSegment);
                     break;

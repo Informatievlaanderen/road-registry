@@ -79,7 +79,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
 
     public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings, AfterVerificationContext context)
     {
-        var maintainer = context.Organizations.FindAsync(MaintenanceAuthorityId, CancellationToken.None).GetAwaiter().GetResult(); //TODO-pr verhuizen of method async maken?
+        var maintainer = context.Organizations.FindAsync(MaintenanceAuthorityId, CancellationToken.None).GetAwaiter().GetResult();
 
         yield return new Messages.AcceptedChange
         {

@@ -11,8 +11,7 @@ public class RequestedChange
     public ModifyGradeSeparatedJunction ModifyGradeSeparatedJunction { get; set; }
     public ModifyRoadNode ModifyRoadNode { get; set; }
     public ModifyRoadSegment ModifyRoadSegment { get; set; }
-    public ModifyRoadSegmentAttributes ModifyRoadSegmentAttributes { get; set; }
-    public ModifyRoadSegmentGeometry ModifyRoadSegmentGeometry { get; set; }
+    public ModifyRoadSegmentAttributes ModifyRoadSegmentAttributes { get; set; } //TODO-pr command obsolete?
     public RemoveGradeSeparatedJunction RemoveGradeSeparatedJunction { get; set; }
     public RemoveRoadNode RemoveRoadNode { get; set; }
     public RemoveRoadSegment RemoveRoadSegment { get; set; }
