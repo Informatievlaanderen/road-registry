@@ -51,9 +51,6 @@ public class RequestedChangeTranslator
                 case Messages.ModifyRoadSegment command:
                     translated = translated.Append(await Translate(command, translated, ct));
                     break;
-                case Messages.ModifyRoadSegmentAttributes command:
-                    translated = translated.Append(await Translate(command, organizations, ct));
-                    break;
                 case Messages.RemoveRoadSegment command:
                     translated = translated.Append(Translate(command));
                     break;
@@ -362,59 +359,6 @@ public class RequestedChangeTranslator
             surfaceAttributes,
             command.ConvertedFromOutlined,
             command.CategoryModified
-        );
-    }
-
-    private async Task<ModifyRoadSegmentAttributes> Translate(Messages.ModifyRoadSegmentAttributes command, IOrganizations organizations, CancellationToken ct)
-    {
-        var permanent = new RoadSegmentId(command.Id);
-
-        var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
-        var version = await _roadNetworkVersionProvider.NextRoadSegmentVersion(new NextRoadSegmentVersionArgs(permanent, geometryDrawMethod, false), ct);
-
-        OrganizationId? maintainerId = command.MaintenanceAuthority is not null
-            ? new OrganizationId(command.MaintenanceAuthority)
-            : null;
-        var maintainer = maintainerId is not null ? await organizations.FindAsync(maintainerId.Value, ct) : null;
-        var morphology = command.Morphology is not null
-            ? RoadSegmentMorphology.Parse(command.Morphology)
-            : null;
-        var status = command.Status is not null
-            ? RoadSegmentStatus.Parse(command.Status)
-            : null;
-        var category = command.Category is not null
-            ? RoadSegmentCategory.Parse(command.Category)
-            : null;
-        var accessRestriction = command.AccessRestriction is not null
-            ? RoadSegmentAccessRestriction.Parse(command.AccessRestriction)
-            : null;
-        var leftSide = command.LeftSide is not null
-            ? new RoadSegmentSideAttributes(StreetNameLocalId.FromValue(command.LeftSide.StreetNameId))
-            : null;
-        var rightSide = command.RightSide is not null
-            ? new RoadSegmentSideAttributes(StreetNameLocalId.FromValue(command.RightSide.StreetNameId))
-            : null;
-
-        var laneAttributes = await Translate(command.Lanes, permanent);
-        var widthAttributes = await Translate(command.Widths, permanent);
-        var surfaceAttributes = await Translate(command.Surfaces, permanent);
-
-        return new ModifyRoadSegmentAttributes
-        (
-            permanent,
-            version,
-            geometryDrawMethod,
-            maintainerId,
-            maintainer?.Translation.Name,
-            morphology,
-            status,
-            category,
-            accessRestriction,
-            leftSide,
-            rightSide,
-            laneAttributes,
-            surfaceAttributes,
-            widthAttributes
         );
     }
 

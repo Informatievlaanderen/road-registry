@@ -20,7 +20,7 @@ using TicketingService.Abstractions;
 using AddRoadSegmentToEuropeanRoad = BackOffice.Uploads.AddRoadSegmentToEuropeanRoad;
 using AddRoadSegmentToNationalRoad = BackOffice.Uploads.AddRoadSegmentToNationalRoad;
 using AddRoadSegmentToNumberedRoad = BackOffice.Uploads.AddRoadSegmentToNumberedRoad;
-using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
+using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using RemoveRoadSegmentFromEuropeanRoad = BackOffice.Uploads.RemoveRoadSegmentFromEuropeanRoad;
 using RemoveRoadSegmentFromNationalRoad = BackOffice.Uploads.RemoveRoadSegmentFromNationalRoad;
 using RemoveRoadSegmentFromNumberedRoad = BackOffice.Uploads.RemoveRoadSegmentFromNumberedRoad;
@@ -164,16 +164,14 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
 
         problems = await ValidateStreetNames(change, problems, cancellationToken);
 
-        changes = changes.AppendChange(new ModifyRoadSegmentAttributes(RecordNumber.Initial, roadSegment.Id, roadSegment.AttributeHash.GeometryDrawMethod)
-        {
-            MaintenanceAuthority = maintenanceAuthority,
-            Morphology = change.Morphology,
-            Status = change.Status,
-            Category = change.Category,
-            AccessRestriction = change.AccessRestriction,
-            LeftSideStreetNameId = change.LeftSideStreetNameId,
-            RightSideStreetNameId = change.RightSideStreetNameId
-        });
+        changes = changes.AppendChange(new ModifyRoadSegment(RecordNumber.Initial, roadSegment.Id, roadSegment.AttributeHash.GeometryDrawMethod,
+            maintenanceAuthority: maintenanceAuthority,
+            morphology: change.Morphology,
+            status: change.Status,
+            category: change.Category,
+            accessRestriction: change.AccessRestriction,
+            leftSideStreetNameId: change.LeftSideStreetNameId,
+            rightSideStreetNameId: change.RightSideStreetNameId));
 
         return (changes, problems);
     }

@@ -119,6 +119,11 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
 
     public Task Given(RecordedEvent[] events)
     {
+        var idGenerator = (FakeRoadNetworkIdGenerator)ScopedContainer.Resolve<IRoadNetworkIdGenerator>();
+        idGenerator.SeedEvents(events
+            .Select(x => x.Event)
+            .ToList());
+
         return Runner.WriteGivens(events);
     }
 

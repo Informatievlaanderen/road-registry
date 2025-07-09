@@ -206,6 +206,21 @@ public class ModifyRoadSegment : ITranslatedChange
             LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces, ConvertedFromOutlined, Version, GeometryVersion, CategoryModified);
     }
 
+    public ModifyRoadSegment WithLanes(IEnumerable<RoadSegmentLaneAttribute>? lanes)
+    {
+        if (lanes is null)
+        {
+            return this;
+        }
+
+        var segment = this;
+        foreach (var lane in lanes)
+        {
+            segment = segment.WithLane(lane);
+        }
+
+        return segment;
+    }
     public ModifyRoadSegment WithLane(RoadSegmentLaneAttribute lane)
     {
         var lanes = new List<RoadSegmentLaneAttribute>(Lanes ?? []) { lane };
@@ -217,6 +232,21 @@ public class ModifyRoadSegment : ITranslatedChange
             lanes, Widths, Surfaces, ConvertedFromOutlined, Version, GeometryVersion, CategoryModified);
     }
 
+    public ModifyRoadSegment WithSurfaces(IEnumerable<RoadSegmentSurfaceAttribute>? surfaces)
+    {
+        if (surfaces is null)
+        {
+            return this;
+        }
+
+        var segment = this;
+        foreach (var surface in surfaces)
+        {
+            segment = segment.WithSurface(surface);
+        }
+
+        return segment;
+    }
     public ModifyRoadSegment WithSurface(RoadSegmentSurfaceAttribute surface)
     {
         var surfaces = new List<RoadSegmentSurfaceAttribute>(Surfaces ?? []) { surface };
@@ -228,6 +258,21 @@ public class ModifyRoadSegment : ITranslatedChange
             Lanes, Widths, surfaces, ConvertedFromOutlined, Version, GeometryVersion, CategoryModified);
     }
 
+    public ModifyRoadSegment WithWidths(IEnumerable<RoadSegmentWidthAttribute>? widths)
+    {
+        if (widths is null)
+        {
+            return this;
+        }
+
+        var segment = this;
+        foreach (var width in widths)
+        {
+            segment = segment.WithWidth(width);
+        }
+
+        return segment;
+    }
     public ModifyRoadSegment WithWidth(RoadSegmentWidthAttribute width)
     {
         var widths = new List<RoadSegmentWidthAttribute>(Widths ?? []) { width };

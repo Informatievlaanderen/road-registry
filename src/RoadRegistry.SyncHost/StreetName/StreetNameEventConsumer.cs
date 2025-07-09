@@ -17,7 +17,7 @@ using SqlStreamStore;
 using SqlStreamStore.Streams;
 using Sync.StreetNameRegistry;
 using AcceptedChange = BackOffice.Core.AcceptedChange;
-using ModifyRoadSegmentAttributes = BackOffice.Core.ModifyRoadSegmentAttributes;
+using ModifyRoadSegment = BackOffice.Core.ModifyRoadSegment;
 using RoadSegmentSideAttributes = BackOffice.Core.RoadSegmentSideAttributes;
 using StreetNameWasRemovedV2 = Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry.StreetNameWasRemovedV2;
 using StreetNameWasRenamed = Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry.StreetNameWasRenamed;
@@ -162,27 +162,27 @@ public class StreetNameEventConsumer : RoadRegistryBackgroundService
 
             var requestedChanges = RequestedChanges.Start(transactionId);
 
-            foreach (var roadSegment in segmentsPerStream)
-            {
-                var leftSide = roadSegment.LeftSideStreetNameId == sourceStreetNameId
-                    ? new RoadSegmentSideAttributes(new StreetNameLocalId(destinationStreetNameId))
-                    : null;
-                var rightSide = roadSegment.RightSideStreetNameId == sourceStreetNameId
-                    ? new RoadSegmentSideAttributes(new StreetNameLocalId(destinationStreetNameId))
-                    : null;
-
-                requestedChanges = requestedChanges.Append(new ModifyRoadSegmentAttributes(
-                    new RoadSegmentId(roadSegment.Id),
-                    new RoadSegmentVersion(roadSegment.Version + 1),
-                    RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegment.MethodId],
-                    null, null, null, null, null, null,
-                    leftSide,
-                    rightSide,
-                    null, null, null
-                ));
-
-                Logger.LogInformation("Linking RoadSegment {Id} to StreetName {StreetNameId}s", roadSegment.Id, destinationStreetNameId);
-            }
+            // foreach (var roadSegment in segmentsPerStream)
+            // {
+            //     var leftSide = roadSegment.LeftSideStreetNameId == sourceStreetNameId
+            //         ? new RoadSegmentSideAttributes(new StreetNameLocalId(destinationStreetNameId))
+            //         : null;
+            //     var rightSide = roadSegment.RightSideStreetNameId == sourceStreetNameId
+            //         ? new RoadSegmentSideAttributes(new StreetNameLocalId(destinationStreetNameId))
+            //         : null;
+            //
+            //     requestedChanges = requestedChanges.Append(new ModifyRoadSegment(
+            //         new RoadSegmentId(roadSegment.Id),
+            //         new RoadSegmentVersion(roadSegment.Version + 1),
+            //         RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegment.MethodId],
+            //         null, null, null, null, null, null,
+            //         leftSide,
+            //         rightSide,
+            //         null, null, null
+            //     ));
+            //
+            //     Logger.LogInformation("Linking RoadSegment {Id} to StreetName {StreetNameId}s", roadSegment.Id, destinationStreetNameId);
+            // }
 
             //TODO-pr te bekijken hoe dit oplossen
             throw new NotImplementedException();

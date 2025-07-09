@@ -265,7 +265,6 @@ public static class RequestedChangesConverter
                     change.AddRoadSegment?.PermanentId
                     ?? change.ModifyRoadSegment?.Id
                     ?? change.RemoveRoadSegment?.Id
-                    ?? change.ModifyRoadSegmentAttributes?.Id
                     ?? change.RemoveOutlinedRoadSegment?.Id
                     ?? change.RemoveOutlinedRoadSegmentFromRoadNetwork?.Id
                     ?? change.AddRoadSegmentToEuropeanRoad?.SegmentId
@@ -278,7 +277,6 @@ public static class RequestedChangesConverter
                 var geometryDrawMethod = change.AddRoadSegment?.GeometryDrawMethod
                                          ?? change.ModifyRoadSegment?.GeometryDrawMethod
                                          ?? change.RemoveRoadSegment?.GeometryDrawMethod
-                                         ?? change.ModifyRoadSegmentAttributes?.GeometryDrawMethod
                                          ?? (change.RemoveOutlinedRoadSegment is not null ? RoadSegmentGeometryDrawMethod.Outlined.ToString() : null)
                                          ?? (change.RemoveOutlinedRoadSegmentFromRoadNetwork is not null ? RoadSegmentGeometryDrawMethod.Measured.ToString() : null)
                                          ?? change.AddRoadSegmentToEuropeanRoad?.SegmentGeometryDrawMethod

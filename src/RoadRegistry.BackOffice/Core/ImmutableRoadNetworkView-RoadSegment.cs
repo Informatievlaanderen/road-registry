@@ -125,62 +125,6 @@ public partial class ImmutableRoadNetworkView
         );
     }
 
-    private ImmutableRoadNetworkView With(ModifyRoadSegmentAttributes command)
-    {
-        var segmentBefore = _segments[command.Id];
-
-        var attributeHash = new AttributeHash(
-            command.AccessRestriction ?? segmentBefore.AttributeHash.AccessRestriction,
-            command.Category ?? segmentBefore.AttributeHash.Category,
-            command.Morphology ?? segmentBefore.AttributeHash.Morphology,
-            command.Status ?? segmentBefore.AttributeHash.Status,
-            command.LeftSide is not null
-                ? command.LeftSide.StreetNameId
-                : segmentBefore.AttributeHash.LeftStreetNameId,
-            command.RightSide is not null
-                ? command.RightSide.StreetNameId
-                : segmentBefore.AttributeHash.RightStreetNameId,
-            command.MaintenanceAuthorityId ?? segmentBefore.AttributeHash.OrganizationId,
-            command.GeometryDrawMethod
-        );
-
-        return new ImmutableRoadNetworkView(
-            _nodes,
-            _segments
-                .TryReplace(command.Id, segment => segment
-                    .WithVersion(command.Version)
-                    .WithAttributeHash(attributeHash)
-                    .WithLanes(command.Lanes?
-                        .Select(lane => new BackOffice.RoadSegmentLaneAttribute(
-                            lane.From,
-                            lane.To,
-                            lane.Count,
-                            lane.Direction,
-                            lane.AsOfGeometryVersion))
-                        .ToArray() ?? segmentBefore.Lanes)
-                    .WithSurfaces(command.Surfaces?
-                        .Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
-                            surface.From,
-                            surface.To,
-                            surface.Type,
-                            surface.AsOfGeometryVersion))
-                        .ToArray() ?? segmentBefore.Surfaces)
-                    .WithWidths(command.Widths?
-                        .Select(width => new BackOffice.RoadSegmentWidthAttribute(
-                            width.From,
-                            width.To,
-                            width.Width,
-                            width.AsOfGeometryVersion))
-                        .ToArray() ?? segmentBefore.Widths)
-                    .WithLastEventHash(command.GetHash())
-                ),
-            _gradeSeparatedJunctions,
-            SegmentReusableLaneAttributeIdentifiers,
-            SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers
-        );
-    }
-
     private ImmutableRoadNetworkView With(RemoveRoadSegment command)
     {
         return WithRemovedRoadSegment(command.Id);
