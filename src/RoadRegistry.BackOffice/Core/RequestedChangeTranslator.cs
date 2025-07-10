@@ -121,8 +121,8 @@ public class RequestedChangeTranslator
         (
             permanent,
             version,
-            RoadNodeType.Parse(command.Type),
-            GeometryTranslator.Translate(command.Geometry)
+            command.Type is not null ? RoadNodeType.Parse(command.Type) : null,
+            command.Geometry is not null ? GeometryTranslator.Translate(command.Geometry) : null
         ));
     }
 

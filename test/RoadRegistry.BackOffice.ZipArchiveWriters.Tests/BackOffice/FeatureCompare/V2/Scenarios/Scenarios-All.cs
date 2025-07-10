@@ -7,6 +7,7 @@ using RoadRegistry.BackOffice.FeatureCompare.V2;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Tests.BackOffice;
 using Xunit.Abstractions;
+using Point = NetTopologySuite.Geometries.Point;
 
 public class AllScenarios : FeatureCompareTranslatorScenariosBase
 {
@@ -185,6 +186,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                 var fixture = context.Fixture;
 
                 builder.TestData.RoadNode1DbaseRecord.TYPE.Value = fixture.CreateWhichIsDifferentThan(RoadNodeType.ByIdentifier[builder.TestData.RoadNode1DbaseRecord.TYPE.Value]).Translation.Identifier;
+                builder.TestData.RoadNode1ShapeRecord.Geometry = new Point(builder.TestData.RoadNode1ShapeRecord.Geometry.X + 0.01, builder.TestData.RoadNode1ShapeRecord.Geometry.Y);
 
                 builder.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value = builder.TestData.RoadNode3DbaseRecord.WK_OIDN.Value;
                 builder.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value = builder.TestData.RoadNode4DbaseRecord.WK_OIDN.Value;
@@ -197,8 +199,8 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                 builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = fixture.CreateWhichIsDifferentThan(new StreetNameLocalId(builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value!.Value));
                 var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
                 lineString = new LineString([
-                    lineString.Coordinates[0],
-                    new CoordinateM(lineString.Coordinates[1].X + 1, lineString.Coordinates[1].Y, lineString.Coordinates[1].M + 1)
+                    new CoordinateM(builder.TestData.RoadNode1ShapeRecord.Geometry.X, builder.TestData.RoadNode1ShapeRecord.Geometry.Y, builder.TestData.RoadNode1ShapeRecord.Geometry.X),
+                    new CoordinateM(builder.TestData.RoadNode2ShapeRecord.Geometry.X, builder.TestData.RoadNode2ShapeRecord.Geometry.Y, builder.TestData.RoadNode2ShapeRecord.Geometry.X)
                 ]);
                 builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
                 builder.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
@@ -220,8 +222,9 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         new ModifyRoadNode(
                             new RecordNumber(1),
                             new RoadNodeId(context.Change.TestData.RoadNode1DbaseRecord.WK_OIDN.Value),
-                            RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode1DbaseRecord.TYPE.Value]
-                        ).WithGeometry(context.Change.TestData.RoadNode1ShapeRecord.Geometry)
+                            RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode1DbaseRecord.TYPE.Value],
+                            context.Change.TestData.RoadNode1ShapeRecord.Geometry
+                        )
                     )
                     .AppendChange(
                         new ModifyRoadSegment(

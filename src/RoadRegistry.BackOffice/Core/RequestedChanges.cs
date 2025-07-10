@@ -273,8 +273,12 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
                     break;
 
                 case ModifyRoadNode modifyRoadNode:
-                    // the geometry to modify it to
-                    envelope.ExpandToInclude(modifyRoadNode.Geometry.Coordinate);
+                    if (modifyRoadNode.Geometry is not null)
+                    {
+                        // the geometry to modify it to
+                        envelope.ExpandToInclude(modifyRoadNode.Geometry.Coordinate);
+                    }
+
                     // if we still know this node, include the geometry as we know it now
                     if (view.Nodes.TryGetValue(modifyRoadNode.Id, out var nodeToModify))
                     {

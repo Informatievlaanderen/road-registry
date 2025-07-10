@@ -200,8 +200,9 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         new ModifyRoadNode(
                             new RecordNumber(1),
                             new RoadNodeId(context.Change.TestData.RoadNode1DbaseRecord.WK_OIDN.Value),
-                            RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode1DbaseRecord.TYPE.Value]
-                        ).WithGeometry(context.Change.TestData.RoadNode1ShapeRecord.Geometry)
+                            RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode1DbaseRecord.TYPE.Value],
+                            context.Change.TestData.RoadNode1ShapeRecord.Geometry
+                        )
                     )
                     .AppendChange(
                         new ModifyRoadSegment(

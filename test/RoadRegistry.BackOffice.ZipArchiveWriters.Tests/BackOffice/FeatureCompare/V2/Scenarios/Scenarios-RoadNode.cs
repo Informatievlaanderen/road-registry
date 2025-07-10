@@ -54,8 +54,8 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                 .AppendChange(new ModifyRoadNode(
                     new RecordNumber(2),
                     new RoadNodeId(context.Change.TestData.RoadNode2DbaseRecord.WK_OIDN.Value),
-                    RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode2DbaseRecord.TYPE.Value]
-                ).WithGeometry(context.Change.TestData.RoadNode2ShapeRecord.Geometry))
+                    geometry: context.Change.TestData.RoadNode2ShapeRecord.Geometry
+                ))
                 .AppendChange(new ModifyRoadSegment(
                         new RecordNumber(1),
                         new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
@@ -234,7 +234,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                     new RecordNumber(5),
                     new RoadNodeId(context.Extract.DataSet.RoadNodeDbaseRecords.Last().WK_OIDN.Value),
                     RoadNodeType.ByIdentifier[context.Change.DataSet.RoadNodeDbaseRecords.Last().TYPE.Value]
-                ).WithGeometry(context.Change.DataSet.RoadNodeShapeRecords.Last().Geometry)));
+                )));
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
@@ -259,7 +259,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                         new RecordNumber(1),
                         new RoadNodeId(context.Extract.TestData.RoadNode1DbaseRecord.WK_OIDN.Value),
                         RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode1DbaseRecord.TYPE.Value]
-                    ).WithGeometry(context.Change.TestData.RoadNode1ShapeRecord.Geometry)
+                    )
                 )
             );
 
@@ -296,8 +296,8 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                     new ModifyRoadNode(
                         new RecordNumber(1),
                         new RoadNodeId(context.Extract.TestData.RoadNode1DbaseRecord.WK_OIDN.Value),
-                        RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode1DbaseRecord.TYPE.Value]
-                    ).WithGeometry(context.Change.TestData.RoadNode1ShapeRecord.Geometry)
+                        geometry: context.Change.TestData.RoadNode1ShapeRecord.Geometry
+                    )
                 )
                 .AppendChange(
                     new ModifyRoadSegment(
