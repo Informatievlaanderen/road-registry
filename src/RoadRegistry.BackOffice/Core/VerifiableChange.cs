@@ -6,8 +6,9 @@ using System.Linq;
 
 public class VerifiableChange
 {
-    private readonly Problems _problems;
     private readonly IRequestedChange _requestedChange;
+    private readonly Problems _problems;
+    private readonly List<Messages.AcceptedChange> _acceptedChanges;
 
     public VerifiableChange(IRequestedChange change)
     {
@@ -15,14 +16,14 @@ public class VerifiableChange
         _problems = Problems.None;
     }
 
-    private VerifiableChange(IRequestedChange change, Problems problems)
+    private VerifiableChange(IRequestedChange change, Problems problems, List<Messages.AcceptedChange> acceptedChanges)
     {
         _requestedChange = change;
         _problems = problems;
+        _acceptedChanges = acceptedChanges;
     }
 
     public bool HasErrors => _problems.OfType<Error>().Any();
-    public bool HasWarnings => _problems.OfType<Warning>().Any();
 
     public IVerifiedChange AsVerifiedChange()
     {
@@ -30,21 +31,20 @@ public class VerifiableChange
         if (HasErrors)
             change = new RejectedChange(_requestedChange, _problems);
         else
-            change = new AcceptedChange(_requestedChange, _problems);
+            change = new AcceptedChange(_acceptedChanges);
         return change;
     }
 
-    public (VerifiableChange, VerifyAfterResult) VerifyAfter(AfterVerificationContext context)
+    public VerifiableChange VerifyAfter(AfterVerificationContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
         var result = _requestedChange.VerifyAfter(context);
 
-        return (
-            new VerifiableChange(
-                _requestedChange,
-                _problems.AddRange(result.Problems)),
-            result);
+        return new VerifiableChange(
+            _requestedChange,
+            _problems.AddRange(result.Problems),
+            result.AcceptedChanges);
     }
 
     public VerifiableChange VerifyBefore(BeforeVerificationContext context)
@@ -53,6 +53,7 @@ public class VerifiableChange
 
         return new VerifiableChange(
             _requestedChange,
-            _problems.AddRange(_requestedChange.VerifyBefore(context)));
+            _problems.AddRange(_requestedChange.VerifyBefore(context)),
+            []);
     }
 }

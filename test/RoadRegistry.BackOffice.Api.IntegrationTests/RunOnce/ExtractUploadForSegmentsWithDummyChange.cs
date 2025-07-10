@@ -37,16 +37,15 @@ public class ExtractUploadForSegmentsWithDummyChange : IClassFixture<ApiClientTe
         _testOutputHelper = testOutputHelper;
     }
 
-    [Fact]
-    //[Fact(Skip = "For debugging purposes only")]
+    //[Fact]
+    [Fact(Skip = "For debugging purposes only")]
     public async Task RunOnce()
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
         var segmentIds = new RoadSegmentId[]
         {
-            new(1221295), //TODO-pr eens build werkt, deze nog fixen op PRD
-            //1134688,
+            //new(1221295),
         };
 
         var cancellationToken = CancellationToken.None;

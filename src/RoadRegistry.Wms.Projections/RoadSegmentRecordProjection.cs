@@ -130,6 +130,14 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
                 }
         });
 
+        When<Envelope<RoadSegmentsStreetNamesChanged>>(async (context, envelope, token) =>
+        {
+            foreach (var change in envelope.Message.RoadSegments)
+            {
+                await RoadSegmentsStreetNamesChanged(context, envelope, change, token);
+            }
+        });
+
         When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
         {
             await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
@@ -434,6 +442,45 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
 
         var transactionId = new TransactionId(envelope.Message.TransactionId);
         dbRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
+    }
+
+    private async Task RoadSegmentsStreetNamesChanged(
+        WmsContext context,
+        Envelope<RoadSegmentsStreetNamesChanged> envelope,
+        RoadSegmentStreetNamesChanged change,
+        CancellationToken token)
+    {
+        var dbRecord = await context.RoadSegments
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == change.Id, token)
+            .ConfigureAwait(false);
+        if (dbRecord is null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {change.Id} is not found");
+        }
+
+        dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+
+        if (change.LeftSideStreetNameId is not null)
+        {
+            var streetNameRecord = await TryGetFromStreetNameCache(change.LeftSideStreetNameId, token);
+
+            dbRecord.LeftSideMunicipalityId = null;
+            dbRecord.LeftSideMunicipalityNisCode = streetNameRecord?.NisCode;
+            dbRecord.LeftSideStreetNameId = change.LeftSideStreetNameId;
+            dbRecord.LeftSideStreetName = streetNameRecord?.Name;
+        }
+
+        if (change.RightSideStreetNameId is not null)
+        {
+            var streetNameRecord = await TryGetFromStreetNameCache(change.RightSideStreetNameId, token);
+
+            dbRecord.RightSideMunicipalityId = null;
+            dbRecord.RightSideMunicipalityNisCode = streetNameRecord?.NisCode;
+            dbRecord.RightSideStreetNameId = change.RightSideStreetNameId;
+            dbRecord.RightSideStreetName = streetNameRecord?.Name;
+        }
+
+        dbRecord.RoadSegmentVersion = change.Version;
     }
 
     private static async Task ModifyRoadSegmentGeometry(

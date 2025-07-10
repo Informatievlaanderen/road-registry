@@ -4,6 +4,7 @@ using System;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Messages;
 
+//TODO-pr make partial update
 public class ModifyGradeSeparatedJunction : ITranslatedChange
 {
     public ModifyGradeSeparatedJunction(

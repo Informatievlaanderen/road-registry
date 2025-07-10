@@ -11,7 +11,6 @@ using Xunit.Abstractions;
 
 public class RoadSegmentLaneScenarios : FeatureCompareTranslatorScenariosBase
 {
-    //TODO-pr no changes should not result in a modifyroadsegment
     public RoadSegmentLaneScenarios(ITestOutputHelper testOutputHelper, ILogger<ZipArchiveFeatureCompareTranslator> logger)
         : base(testOutputHelper, logger)
     {

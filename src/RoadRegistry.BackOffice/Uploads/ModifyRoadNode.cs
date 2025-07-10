@@ -5,6 +5,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Messages;
 using Point = NetTopologySuite.Geometries.Point;
 
+//TODO-pr make partial update
 public class ModifyRoadNode : ITranslatedChange
 {
     public ModifyRoadNode(RecordNumber recordNumber, RoadNodeId id, RoadNodeType type)

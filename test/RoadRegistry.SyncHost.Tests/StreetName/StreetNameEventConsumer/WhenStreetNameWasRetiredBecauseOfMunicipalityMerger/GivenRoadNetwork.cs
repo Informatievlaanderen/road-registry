@@ -100,21 +100,21 @@ public class GivenRoadNetwork : StreetNameEventConsumerTestsBase
 
         {
             var streamMessage = page.Messages[0];
-            Assert.Equal(nameof(RoadNetworkChangesAccepted), streamMessage.Type);
+            Assert.Equal(nameof(RoadSegmentsStreetNamesChanged), streamMessage.Type);
             Assert.Equal("roadnetwork", streamMessage.StreamId);
 
-            var message = JsonConvert.DeserializeObject<RoadNetworkChangesAccepted>(await streamMessage.GetJsonData());
-            message.Changes.Should().HaveCount(2);
+            var message = JsonConvert.DeserializeObject<RoadSegmentsStreetNamesChanged>(await streamMessage.GetJsonData());
+            message.RoadSegments.Should().HaveCount(2);
 
-            var roadSegmentAttributesModified1 = message.Changes[0].RoadSegmentAttributesModified;
+            var roadSegmentAttributesModified1 = message.RoadSegments[0];
             roadSegmentAttributesModified1.Id.Should().Be(1);
-            roadSegmentAttributesModified1.LeftSide.StreetNameId.Should().Be(newStreetNamePersistentLocalId1);
-            roadSegmentAttributesModified1.RightSide.Should().BeNull();
+            roadSegmentAttributesModified1.LeftSideStreetNameId.Should().Be(newStreetNamePersistentLocalId1);
+            roadSegmentAttributesModified1.RightSideStreetNameId.Should().BeNull();
 
-            var roadSegmentAttributesModified2 = message.Changes[1].RoadSegmentAttributesModified;
+            var roadSegmentAttributesModified2 = message.RoadSegments[1];
             roadSegmentAttributesModified2.Id.Should().Be(2);
-            roadSegmentAttributesModified2.LeftSide.Should().BeNull();
-            roadSegmentAttributesModified2.RightSide.StreetNameId.Should().Be(newStreetNamePersistentLocalId1);
+            roadSegmentAttributesModified2.LeftSideStreetNameId.Should().BeNull();
+            roadSegmentAttributesModified2.RightSideStreetNameId.Should().Be(newStreetNamePersistentLocalId1);
         }
 
         {
@@ -215,21 +215,21 @@ public class GivenRoadNetwork : StreetNameEventConsumerTestsBase
 
         {
             var streamMessage = page.Messages[0];
-            Assert.Equal(nameof(RoadNetworkChangesAccepted), streamMessage.Type);
+            Assert.Equal(nameof(RoadSegmentsStreetNamesChanged), streamMessage.Type);
             Assert.Equal("roadnetwork", streamMessage.StreamId);
 
-            var message = JsonConvert.DeserializeObject<RoadNetworkChangesAccepted>(await streamMessage.GetJsonData());
-            message.Changes.Should().HaveCount(2);
+            var message = JsonConvert.DeserializeObject<RoadSegmentsStreetNamesChanged>(await streamMessage.GetJsonData());
+            message.RoadSegments.Should().HaveCount(2);
 
-            var roadSegmentAttributesModified1 = message.Changes[0].RoadSegmentAttributesModified;
+            var roadSegmentAttributesModified1 = message.RoadSegments[0];
             roadSegmentAttributesModified1.Id.Should().Be(1);
-            roadSegmentAttributesModified1.LeftSide.StreetNameId.Should().Be(-9);
-            roadSegmentAttributesModified1.RightSide.Should().BeNull();
+            roadSegmentAttributesModified1.LeftSideStreetNameId.Should().Be(-9);
+            roadSegmentAttributesModified1.RightSideStreetNameId.Should().BeNull();
 
-            var roadSegmentAttributesModified2 = message.Changes[1].RoadSegmentAttributesModified;
+            var roadSegmentAttributesModified2 = message.RoadSegments[1];
             roadSegmentAttributesModified2.Id.Should().Be(2);
-            roadSegmentAttributesModified2.LeftSide.Should().BeNull();
-            roadSegmentAttributesModified2.RightSide.StreetNameId.Should().Be(-9);
+            roadSegmentAttributesModified2.LeftSideStreetNameId.Should().BeNull();
+            roadSegmentAttributesModified2.RightSideStreetNameId.Should().Be(-9);
         }
 
         {

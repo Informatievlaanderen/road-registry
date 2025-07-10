@@ -6,7 +6,6 @@ using System.Linq;
 
 public interface IRequestedChange
 {
-    //IEnumerable<Messages.AcceptedChange> TranslateTo(Messages.Problem[] warnings);
     Problems VerifyBefore(BeforeVerificationContext context);
     VerifyAfterResult VerifyAfter(AfterVerificationContext context);
     void TranslateToRejectedChange(Messages.RejectedChange message);

@@ -7,7 +7,7 @@ using Be.Vlaanderen.Basisregisters.GrAr.Common;
 
 [EventName(EventName)]
 [EventDescription("Indicates a road network segment was imported.")]
-public class ImportedRoadSegment : IMessage, IHaveHash
+public class ImportedRoadSegment : IMessage, IHaveHash, IWhen
 {
     public const string EventName = "ImportedRoadSegment";
 

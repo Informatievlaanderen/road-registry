@@ -5,7 +5,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("NoRoadNetworkChanges")]
 [EventDescription("Indicates that there were no road network changes.")]
-public class NoRoadNetworkChanges : IMessage, IHaveTransactionId
+public class NoRoadNetworkChanges : IMessage, IHaveTransactionId, IWhen
 {
     public string Operator { get; set; }
     public string Organization { get; set; }

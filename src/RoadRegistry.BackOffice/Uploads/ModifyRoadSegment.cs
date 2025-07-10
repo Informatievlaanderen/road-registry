@@ -297,6 +297,22 @@ public class ModifyRoadSegment : ITranslatedChange
         return new ModifyRoadSegment(
             RecordNumber, Id, GeometryDrawMethod, OriginalId, StartNodeId, EndNodeId, Geometry,
             MaintenanceAuthority, Morphology, Status, Category, AccessRestriction,
-            LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces, ConvertedFromOutlined, Version, GeometryVersion, CategoryModified);
+            LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces, ConvertedFromOutlined, Version, geometryVersion, CategoryModified);
+    }
+
+    public ModifyRoadSegment WithLeftSideStreetNameId(StreetNameLocalId leftSideStreetNameId)
+    {
+        return new ModifyRoadSegment(
+            RecordNumber, Id, GeometryDrawMethod, OriginalId, StartNodeId, EndNodeId, Geometry,
+            MaintenanceAuthority, Morphology, Status, Category, AccessRestriction,
+            leftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces, ConvertedFromOutlined, Version, GeometryVersion, CategoryModified);
+    }
+
+    public ModifyRoadSegment WithRightSideStreetNameId(StreetNameLocalId rightSideStreetNameId)
+    {
+        return new ModifyRoadSegment(
+            RecordNumber, Id, GeometryDrawMethod, OriginalId, StartNodeId, EndNodeId, Geometry,
+            MaintenanceAuthority, Morphology, Status, Category, AccessRestriction,
+            LeftSideStreetNameId, rightSideStreetNameId, Lanes, Widths, Surfaces, ConvertedFromOutlined, Version, GeometryVersion, CategoryModified);
     }
 }

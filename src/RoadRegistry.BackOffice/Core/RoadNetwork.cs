@@ -28,6 +28,7 @@ public class RoadNetwork : EventSourcedEntity
         On<ImportedGradeSeparatedJunction>(e => { _view = _view.RestoreFromEvent(e); });
         On<ImportedRoadSegment>(e => { _view = _view.RestoreFromEvent(e); });
         On<RoadNetworkChangesAccepted>(e => { _view = _view.RestoreFromEvent(e); });
+        On<RoadSegmentsStreetNamesChanged>(e => { _view = _view.RestoreFromEvent(e); });
     }
 
     public async Task<IMessage> Change(
@@ -54,14 +55,15 @@ public class RoadNetwork : EventSourcedEntity
                 .Replace(verifiableChange, verifiableChange.VerifyBefore(beforeContext));
         }
 
-        Messages.AcceptedChange[] acceptedChanges = [];
         if (!verifiableChanges.Any(change => change.HasErrors))
         {
             var afterContext = beforeContext.CreateAfterVerificationContext(_view.With(requestedChanges), organizations);
-            var afterChanges = verifiableChanges.Select(change => change.VerifyAfter(afterContext)).ToList();
 
-            verifiableChanges = afterChanges.Select(x => x.Item1).ToImmutableList();
-            acceptedChanges = afterChanges.SelectMany(x => x.Item2.AcceptedChanges).ToArray();
+            foreach (var verifiableChange in verifiableChanges)
+            {
+                verifiableChanges = verifiableChanges
+                    .Replace(verifiableChange, verifiableChange.VerifyAfter(afterContext));
+            }
         }
 
         var verifiedChanges = verifiableChanges.ConvertAll(change => change.AsVerifiedChange());
@@ -117,7 +119,10 @@ public class RoadNetwork : EventSourcedEntity
                 OrganizationId = organization.Identifier,
                 Organization = organization.Name,
                 TransactionId = requestedChanges.TransactionId,
-                Changes = acceptedChanges!,
+                Changes = verifiedChanges
+                    .OfType<AcceptedChange>()
+                    .SelectMany(change => change.Translate())
+                    .ToArray(),
                 TicketId = ticketId
             };
             Apply(@event);

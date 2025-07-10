@@ -8,6 +8,7 @@ using BackOffice;
 using BackOffice.Extensions;
 using BackOffice.FeatureToggles;
 using BackOffice.Messages;
+using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Schema;
@@ -80,10 +81,15 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
                 }
         });
 
-        When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
+        When<Envelope<RoadSegmentsStreetNamesChanged>>(async (context, envelope, token) =>
         {
-            await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+            foreach (var change in envelope.Message.RoadSegments)
+            {
+                await RoadSegmentStreetNamesChanged(context, envelope, change, token);
+            }
         });
+
+        When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) => { await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token); });
 
         When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
         {
@@ -265,6 +271,39 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         UpdateBeginTime(dbRecord, envelope);
     }
 
+    private async Task RoadSegmentStreetNamesChanged(
+        WfsContext context,
+        Envelope<RoadSegmentsStreetNamesChanged> envelope,
+        RoadSegmentStreetNamesChanged change,
+        CancellationToken token)
+    {
+        var dbRecord = await context.RoadSegments
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == change.Id, token)
+            .ConfigureAwait(false);
+        if (dbRecord is null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {change.Id} is not found");
+        }
+
+        if (change.LeftSideStreetNameId is not null)
+        {
+            var streetNameRecord = await TryGetFromStreetNameCache(change.LeftSideStreetNameId, token);
+
+            dbRecord.LeftSideStreetNameId = change.LeftSideStreetNameId;
+            dbRecord.LeftSideStreetName = streetNameRecord?.Name;
+        }
+
+        if (change.RightSideStreetNameId is not null)
+        {
+            var streetNameRecord = await TryGetFromStreetNameCache(change.RightSideStreetNameId, token);
+
+            dbRecord.RightSideStreetNameId = change.RightSideStreetNameId;
+            dbRecord.RightSideStreetName = streetNameRecord?.Name;
+        }
+
+        UpdateBeginTime(dbRecord, envelope);
+    }
+
     private static async Task ModifyRoadSegmentGeometry(
         WfsContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -337,7 +376,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         CancellationToken cancellationToken)
     {
         await context.RoadSegments.IncludeLocalForEachBatchAsync(q =>
-            q.Where(x => x.LeftSideStreetNameId == streetNameLocalId || x.RightSideStreetNameId == streetNameLocalId),
+                q.Where(x => x.LeftSideStreetNameId == streetNameLocalId || x.RightSideStreetNameId == streetNameLocalId),
             5000,
             dbRecords =>
             {
@@ -365,7 +404,8 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         return streetNameId.HasValue ? await _streetNameCache.GetAsync(streetNameId.Value, token).ConfigureAwait(false) : null;
     }
 
-    private static RoadSegmentRecord UpdateBeginTime(RoadSegmentRecord record, Envelope<RoadNetworkChangesAccepted> envelope)
+    private static RoadSegmentRecord UpdateBeginTime<TMessage>(RoadSegmentRecord record, Envelope<TMessage> envelope)
+        where TMessage : IMessage, IWhen
     {
         record.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         return record;
