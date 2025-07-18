@@ -6,7 +6,7 @@ using RoadRegistry.BackOffice.Core;
 
 [EventName("RoadNetworkExtractGotRequestedV2")]
 [EventDescription("Indicates a road network extract was requested.")]
-public class RoadNetworkExtractGotRequestedV2 : IRoadNetworkExtractGotRequestedMessage
+public class RoadNetworkExtractGotRequestedV2 : IRoadNetworkExtractGotRequestedMessage, IWhen
 {
     public RoadNetworkExtractGeometry Contour { get; set; }
     public string Description { get; set; }

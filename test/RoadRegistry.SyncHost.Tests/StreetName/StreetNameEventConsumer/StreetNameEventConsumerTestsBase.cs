@@ -84,7 +84,6 @@ public class StreetNameEventConsumerTestsBase
             store,
             new StreetNameEventWriter(store, eventEnricher),
             new RoadNetworkEventWriter(store, eventEnricher),
-            lifetimeScope.Resolve<IRoadNetworkIdGenerator>(),
             topicConsumer,
             lifetimeScope.Resolve<EditorContext>,
             new NullLoggerFactory().CreateLogger<StreetNameEventConsumer>()

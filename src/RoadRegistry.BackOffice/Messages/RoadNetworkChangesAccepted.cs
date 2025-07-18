@@ -8,10 +8,10 @@ using BackOffice;
 
 [EventName(EventName)]
 [EventDescription("Indicates the road network changes were accepted.")]
-public class RoadNetworkChangesAccepted : IMessage, IHaveHash, IHaveTransactionId
+public class RoadNetworkChangesAccepted : IMessage, IHaveHash, IHaveTransactionId, IWhen
 {
     public const string EventName = "RoadNetworkChangesAccepted";
-    
+
     public AcceptedChange[] Changes { get; set; }
     public string Operator { get; set; }
     public string Organization { get; set; }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Framework;
 using Messages;
 
 public partial class ImmutableRoadNetworkView
@@ -39,6 +40,9 @@ public partial class ImmutableRoadNetworkView
                         break;
                     case RoadNetworkChangesAccepted roadNetworkChangesAccepted:
                         result = result.Given(roadNetworkChangesAccepted);
+                        break;
+                    case RoadSegmentsStreetNamesChanged roadSegmentsStreetNamesChanged:
+                        result = result.Given(roadSegmentsStreetNamesChanged);
                         break;
                 }
             }
@@ -333,6 +337,55 @@ public partial class ImmutableRoadNetworkView
             }
 
         return result;
+    }
+
+    private ImmutableRoadNetworkView Given(RoadSegmentsStreetNamesChanged @event)
+    {
+        ArgumentNullException.ThrowIfNull(@event);
+
+        var view = this;
+
+        foreach (var roadSegment in @event.RoadSegments)
+        {
+            view = view.Given(roadSegment, @event.GetHash());
+        }
+
+        return view;
+    }
+
+    private ImmutableRoadNetworkView Given(RoadSegmentStreetNamesChanged roadSegment, string eventHash)
+    {
+        ArgumentNullException.ThrowIfNull(roadSegment);
+
+        var id = new RoadSegmentId(roadSegment.Id);
+        var version = new RoadSegmentVersion(roadSegment.Version);
+
+        var segmentBefore = _segments[id];
+        var attributeHash = segmentBefore.AttributeHash;
+
+        if (roadSegment.LeftSideStreetNameId is not null)
+        {
+            attributeHash = attributeHash.WithLeftSide(new StreetNameLocalId(roadSegment.LeftSideStreetNameId.Value));
+        }
+
+        if (roadSegment.RightSideStreetNameId is not null)
+        {
+            attributeHash = attributeHash.WithRightSide(new StreetNameLocalId(roadSegment.RightSideStreetNameId.Value));
+        }
+
+        return new ImmutableRoadNetworkView(
+            _nodes,
+            _segments
+                .TryReplace(id, segment => segment
+                    .WithVersion(version)
+                    .WithStartAndEndAndAttributeHash(segmentBefore.Start, segmentBefore.End, attributeHash)
+                    .WithLastEventHash(eventHash)
+                ),
+            _gradeSeparatedJunctions,
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers
+        );
     }
 
     private ImmutableRoadNetworkView Given(RoadNodeAdded @event)

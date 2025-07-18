@@ -97,8 +97,6 @@ namespace RoadRegistry.BackOffice.CommandHost.Tests
             fixture.CustomizeModifyGradeSeparatedJunction();
             fixture.CustomizeModifyRoadNode();
             fixture.CustomizeModifyRoadSegment();
-            fixture.CustomizeModifyRoadSegmentAttributes();
-            fixture.CustomizeModifyRoadSegmentGeometry();
             fixture.CustomizeRemoveGradeSeparatedJunction();
             fixture.CustomizeRemoveRoadNode();
             fixture.CustomizeRemoveRoadSegment();

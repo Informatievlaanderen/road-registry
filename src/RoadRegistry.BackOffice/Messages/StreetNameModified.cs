@@ -4,7 +4,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("StreetNameModified")]
 [EventDescription("Notifies the domain that a street name has been modified.")]
-public class StreetNameModified : IMessage
+public class StreetNameModified : IMessage, IWhen
 {
     public StreetNameRecord Record { get; set; }
 

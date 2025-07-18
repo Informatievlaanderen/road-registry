@@ -25,7 +25,7 @@ public class RemoveOutlinedRoadSegment : IRequestedChange
         };
     }
 
-    public void TranslateTo(Messages.RejectedChange message)
+    public void TranslateToRejectedChange(Messages.RejectedChange message)
     {
         ArgumentNullException.ThrowIfNull(message);
 
@@ -35,11 +35,11 @@ public class RemoveOutlinedRoadSegment : IRequestedChange
         };
     }
 
-    public Problems VerifyAfter(AfterVerificationContext context)
+    public VerifyAfterResult VerifyAfter(AfterVerificationContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        return Problems.None;
+        return VerifyAfterResult.WithAcceptedChanges(Problems.None, TranslateTo);
     }
 
     public Problems VerifyBefore(BeforeVerificationContext context)

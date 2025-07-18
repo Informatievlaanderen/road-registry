@@ -121,12 +121,6 @@ public class ModifyRoadSegmentValidatorTests : ValidatorTest<ModifyRoadSegment, 
     }
 
     [Fact]
-    public void GeometryMustNotBeNull()
-    {
-        ShouldHaveValidationErrorFor(c => c.Geometry, null);
-    }
-
-    [Fact]
     public void LaneMustNotBeNull()
     {
         var data = Fixture.CreateMany<RequestedRoadSegmentLaneAttribute>().ToArray();
@@ -209,12 +203,6 @@ public class ModifyRoadSegmentValidatorTests : ValidatorTest<ModifyRoadSegment, 
 //        }
 
     [Fact]
-    public void LanesMustNotBeNull()
-    {
-        ShouldHaveValidationErrorFor(c => c.Lanes, null);
-    }
-
-    [Fact]
     public void LanesMustNotBeEmpty()
     {
         ShouldHaveValidationErrorFor(c => c.Lanes, Array.Empty<RequestedRoadSegmentLaneAttribute>());
@@ -263,17 +251,11 @@ public class ModifyRoadSegmentValidatorTests : ValidatorTest<ModifyRoadSegment, 
     }
 
     [Fact]
-    public void SurfacesMustNotBeNull()
-    {
-        ShouldHaveValidationErrorFor(c => c.Surfaces, null);
-    }
-
-    [Fact]
     public void SurfacesMustNotBeEmpty()
     {
         ShouldHaveValidationErrorFor(c => c.Surfaces, Array.Empty<RequestedRoadSegmentSurfaceAttribute>());
     }
-    
+
     [Fact]
     public void WidthMustNotBeNull()
     {
@@ -288,12 +270,6 @@ public class ModifyRoadSegmentValidatorTests : ValidatorTest<ModifyRoadSegment, 
     public void WidthsHasExpectedValidator()
     {
         Validator.ShouldHaveChildValidator(c => c.Widths, typeof(RequestedRoadSegmentWidthAttributeValidator));
-    }
-
-    [Fact]
-    public void WidthsMustNotBeNull()
-    {
-        ShouldHaveValidationErrorFor(c => c.Widths, null);
     }
 
     [Fact]

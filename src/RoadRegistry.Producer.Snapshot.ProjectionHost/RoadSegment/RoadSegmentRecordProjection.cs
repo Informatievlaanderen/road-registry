@@ -139,10 +139,15 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                     }
             });
 
-            When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
+            When<Envelope<RoadSegmentsStreetNamesChanged>>(async (context, envelope, token) =>
             {
-                await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+                foreach (var change in envelope.Message.RoadSegments)
+                {
+                    await RoadSegmentStreetNamesChanged(context, envelope, change, token);
+                }
             });
+
+            When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) => { await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token); });
 
             When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
             {
@@ -448,6 +453,48 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             await Produce(dbRecord.Id, dbRecord.ToContract(), token);
         }
 
+        private async Task RoadSegmentStreetNamesChanged(
+            RoadSegmentProducerSnapshotContext context,
+            Envelope<RoadSegmentsStreetNamesChanged> envelope,
+            RoadSegmentStreetNamesChanged change,
+            CancellationToken token)
+        {
+            var dbRecord = await context.RoadSegments
+                .IncludeLocalSingleOrDefaultAsync(x => x.Id == change.Id, token)
+                .ConfigureAwait(false);
+            if (dbRecord is null)
+            {
+                throw new InvalidOperationException($"RoadSegmentRecord with id {change.Id} is not found");
+            }
+
+            if (change.LeftSideStreetNameId is not null)
+            {
+                var streetNameRecord = await TryGetFromStreetNameCache(change.LeftSideStreetNameId, token);
+
+                dbRecord.LeftSideMunicipalityId = null;
+                dbRecord.LeftSideMunicipalityNisCode = streetNameRecord?.NisCode;
+                dbRecord.LeftSideStreetNameId = change.LeftSideStreetNameId;
+                dbRecord.LeftSideStreetName = streetNameRecord?.Name;
+            }
+
+            if (change.RightSideStreetNameId is not null)
+            {
+                var streetNameRecord = await TryGetFromStreetNameCache(change.RightSideStreetNameId, token);
+
+                dbRecord.RightSideMunicipalityId = null;
+                dbRecord.RightSideMunicipalityNisCode = streetNameRecord?.NisCode;
+                dbRecord.RightSideStreetNameId = change.RightSideStreetNameId;
+                dbRecord.RightSideStreetName = streetNameRecord?.Name;
+            }
+
+            dbRecord.Version = change.Version;
+            dbRecord.RoadSegmentVersion = change.Version;
+
+            dbRecord.LastChangedTimestamp = envelope.CreatedUtc;
+
+            await Produce(dbRecord.Id, dbRecord.ToContract(), token);
+        }
+
         private async Task ModifyRoadSegmentGeometry(
             RoadSegmentProducerSnapshotContext context,
             Envelope<RoadNetworkChangesAccepted> envelope,
@@ -491,6 +538,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             {
                 throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentRemoved.Id} is not found");
             }
+
             if (dbRecord.IsRemoved)
             {
                 return;
@@ -516,8 +564,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             }
 
             var dbRecord = await context.RoadSegments
-                            .IncludeLocalSingleOrDefaultAsync(x => x.Id == segmentId, token)
-                            .ConfigureAwait(false);
+                .IncludeLocalSingleOrDefaultAsync(x => x.Id == segmentId, token)
+                .ConfigureAwait(false);
             if (dbRecord is null)
             {
                 throw new InvalidOperationException($"RoadSegmentRecord with id {segmentId} is not found");
@@ -542,7 +590,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             CancellationToken cancellationToken)
         {
             await context.RoadSegments.IncludeLocalForEachBatchAsync(q =>
-                q.Where(x => x.MaintainerId == organizationId),
+                    q.Where(x => x.MaintainerId == organizationId),
                 5000,
                 async dbRecords =>
                 {
@@ -562,7 +610,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             CancellationToken cancellationToken)
         {
             await context.RoadSegments.IncludeLocalForEachBatchAsync(q =>
-                q.Where(x => x.LeftSideStreetNameId == streetNameLocalId || x.RightSideStreetNameId == streetNameLocalId),
+                    q.Where(x => x.LeftSideStreetNameId == streetNameLocalId || x.RightSideStreetNameId == streetNameLocalId),
                 5000,
                 async dbRecords =>
                 {

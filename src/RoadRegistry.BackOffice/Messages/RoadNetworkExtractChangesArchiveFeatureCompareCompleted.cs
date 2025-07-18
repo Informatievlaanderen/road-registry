@@ -5,7 +5,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("RoadNetworkExtractChangesArchiveFeatureCompareCompleted")]
 [EventDescription("Indicates the road network extract changes archive has gone through feature compare.")]
-public class RoadNetworkExtractChangesArchiveFeatureCompareCompleted : IMessage
+public class RoadNetworkExtractChangesArchiveFeatureCompareCompleted : IMessage, IWhen
 {
     public string ArchiveId { get; set; }
     public Guid DownloadId { get; set; }

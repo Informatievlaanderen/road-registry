@@ -44,7 +44,7 @@ public class ModifyGradeSeparatedJunction : IRequestedChange
         };
     }
 
-    public void TranslateTo(Messages.RejectedChange message)
+    public void TranslateToRejectedChange(Messages.RejectedChange message)
     {
         if (message == null) throw new ArgumentNullException(nameof(message));
 
@@ -57,7 +57,7 @@ public class ModifyGradeSeparatedJunction : IRequestedChange
         };
     }
 
-    public Problems VerifyAfter(AfterVerificationContext context)
+    public VerifyAfterResult VerifyAfter(AfterVerificationContext context)
     {
         if (context == null) throw new ArgumentNullException(nameof(context));
 
@@ -72,7 +72,7 @@ public class ModifyGradeSeparatedJunction : IRequestedChange
             && !upperSegment.Geometry.Intersects(lowerSegment.Geometry))
             problems = problems.Add(new UpperAndLowerRoadSegmentDoNotIntersect());
 
-        return problems;
+        return new VerifyAfterResult(problems);
     }
 
     public Problems VerifyBefore(BeforeVerificationContext context)

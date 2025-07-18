@@ -79,10 +79,10 @@ public sealed class CorrectRoadSegmentOrganizationNamesRequestHandler
             var modifyRoadSegment = new ModifyRoadSegment(
                 recordNumber,
                 roadSegment.Id,
+                roadSegment.AttributeHash.GeometryDrawMethod,
                 roadSegment.Start,
                 roadSegment.End,
                 roadSegment.AttributeHash.OrganizationId,
-                roadSegment.AttributeHash.GeometryDrawMethod,
                 roadSegment.AttributeHash.Morphology,
                 roadSegment.AttributeHash.Status,
                 roadSegment.AttributeHash.Category,

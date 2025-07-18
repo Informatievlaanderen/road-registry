@@ -367,10 +367,10 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         new ModifyRoadSegment(
                             record.RecordNumber,
                             record.Id,
+                            record.Attributes.Method,
                             record.Attributes.StartNodeId,
                             record.Attributes.EndNodeId,
                             record.Attributes.MaintenanceAuthority,
-                            record.Attributes.Method,
                             record.Attributes.Morphology,
                             record.Attributes.Status,
                             record.Attributes.Category,
@@ -384,10 +384,10 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     var modifyRoadSegment = new ModifyRoadSegment(
                             record.RecordNumber,
                             record.Id,
+                            record.Attributes.Method,
                             record.Attributes.StartNodeId,
                             record.Attributes.EndNodeId,
                             record.Attributes.MaintenanceAuthority,
-                            record.Attributes.Method,
                             record.Attributes.Morphology,
                             record.Attributes.Status,
                             record.Attributes.Category,

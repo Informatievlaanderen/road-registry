@@ -27,7 +27,7 @@ public class ModifyRoadNodeEqualityComparer : IEqualityComparer<ModifyRoadNode>
             (left.Geometry == null && right.Geometry == null)
             || (left.Geometry != null && right.Geometry != null && left.Geometry.EqualsTopologically(right.Geometry));
         return left.Id.Equals(right.Id)
-               && left.Type.Equals(right.Type)
+               && left.Type == right.Type
                && sameGeometry
                && (_ignoreRecordNumber || left.RecordNumber.Equals(right.RecordNumber));
     }

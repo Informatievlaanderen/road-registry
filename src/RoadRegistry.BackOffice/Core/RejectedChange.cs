@@ -20,7 +20,7 @@ public class RejectedChange : IVerifiedChange
         {
             Problems = _problems.Select(problem => problem.Translate()).ToArray()
         };
-        _requestedChange.TranslateTo(message);
+        _requestedChange.TranslateToRejectedChange(message);
         return message;
     }
 }

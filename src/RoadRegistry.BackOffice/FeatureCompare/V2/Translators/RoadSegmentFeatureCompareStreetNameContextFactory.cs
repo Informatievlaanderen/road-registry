@@ -27,11 +27,11 @@ public class RoadSegmentFeatureCompareStreetNameContextFactory: IRoadSegmentFeat
         CancellationToken cancellationToken)
     {
         var usedStreetNameIds = changeFeatures
-            .Where(x => x.Attributes.LeftStreetNameId > 0)
-            .Select(x => x.Attributes.LeftStreetNameId)
+            .Where(x => x.Attributes.LeftSideStreetNameId > 0)
+            .Select(x => x.Attributes.LeftSideStreetNameId.Value)
             .Concat(changeFeatures
-                .Where(x => x.Attributes.RightStreetNameId > 0)
-                .Select(x => x.Attributes.RightStreetNameId))
+                .Where(x => x.Attributes.RightSideStreetNameId > 0)
+                .Select(x => x.Attributes.RightSideStreetNameId.Value))
             .Select(x => x.ToInt32())
             .Distinct()
             .ToList();

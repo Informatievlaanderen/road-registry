@@ -4,7 +4,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("CreateOrganizationAccepted")]
 [EventDescription("Notifies the domain that an organization has been created.")]
-public class CreateOrganizationAccepted : IMessage
+public class CreateOrganizationAccepted : IMessage, IWhen
 {
     public string Code { get; set; }
     public string Name { get; set; }

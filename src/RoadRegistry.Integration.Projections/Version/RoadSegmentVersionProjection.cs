@@ -144,6 +144,27 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
                     }
             }
         });
+
+        When<Envelope<RoadSegmentsStreetNamesChanged>>(async (context, envelope, token) =>
+        {
+            var changesGroupedByRoadSegments = envelope.Message.RoadSegments
+                .GroupBy(x => x.Id)
+                .ToList();
+
+            foreach (var changesGroupedByRoadSegment in changesGroupedByRoadSegments)
+            {
+                var roadSegmentId = changesGroupedByRoadSegment.Key;
+
+                var roadSegment = await context.CreateNewRoadSegmentVersion(roadSegmentId, envelope, token);
+
+                await context.RoadSegmentVersions.AddAsync(roadSegment, token);
+
+                foreach (var change in changesGroupedByRoadSegment)
+                {
+                    RoadSegmentStreetNamesChanged(roadSegment, change, envelope);
+                }
+            }
+        });
     }
 
     private static RoadSegmentVersion CreateFirstRoadSegmentVersion(
@@ -336,6 +357,26 @@ public partial class RoadSegmentVersionProjection : ConnectedProjection<Integrat
         UpdateLanes(envelope, roadSegment, roadSegmentAttributesModified.Lanes);
         UpdateSurfaces(envelope, roadSegment, roadSegmentAttributesModified.Surfaces);
         UpdateWidths(envelope, roadSegment, roadSegmentAttributesModified.Widths);
+    }
+
+    private static void RoadSegmentStreetNamesChanged(
+        RoadSegmentVersion roadSegment,
+        RoadSegmentStreetNamesChanged change,
+        Envelope<RoadSegmentsStreetNamesChanged> envelope)
+    {
+        roadSegment.Version = change.Version;
+
+        if (change.LeftSideStreetNameId is not null)
+        {
+            roadSegment.LeftSideStreetNameId = change.LeftSideStreetNameId;
+        }
+
+        if (change.RightSideStreetNameId is not null)
+        {
+            roadSegment.RightSideStreetNameId = change.RightSideStreetNameId;
+        }
+
+        roadSegment.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
     private static void ModifyRoadSegmentGeometry(

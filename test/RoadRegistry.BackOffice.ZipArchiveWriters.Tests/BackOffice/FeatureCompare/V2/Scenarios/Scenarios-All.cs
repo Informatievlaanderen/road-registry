@@ -2,10 +2,12 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.FeatureCompare.V2;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Tests.BackOffice;
 using Xunit.Abstractions;
+using Point = NetTopologySuite.Geometries.Point;
 
 public class AllScenarios : FeatureCompareTranslatorScenariosBase
 {
@@ -184,7 +186,27 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                 var fixture = context.Fixture;
 
                 builder.TestData.RoadNode1DbaseRecord.TYPE.Value = fixture.CreateWhichIsDifferentThan(RoadNodeType.ByIdentifier[builder.TestData.RoadNode1DbaseRecord.TYPE.Value]).Translation.Identifier;
+                builder.TestData.RoadNode1ShapeRecord.Geometry = new Point(builder.TestData.RoadNode1ShapeRecord.Geometry.X + 0.01, builder.TestData.RoadNode1ShapeRecord.Geometry.Y);
+
+                builder.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value = builder.TestData.RoadNode3DbaseRecord.WK_OIDN.Value;
+                builder.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value = builder.TestData.RoadNode4DbaseRecord.WK_OIDN.Value;
+                builder.TestData.RoadSegment1DbaseRecord.BEHEERDER.Value = fixture.CreateWhichIsDifferentThan(new OrganizationId(builder.TestData.RoadSegment1DbaseRecord.BEHEERDER.Value));
+                builder.TestData.RoadSegment1DbaseRecord.MORFOLOGIE.Value = fixture.CreateWhichIsDifferentThan(RoadSegmentMorphology.ByIdentifier[builder.TestData.RoadSegment1DbaseRecord.MORFOLOGIE.Value]).Translation.Identifier;
                 builder.TestData.RoadSegment1DbaseRecord.STATUS.Value = fixture.CreateWhichIsDifferentThan(RoadSegmentStatus.ByIdentifier[builder.TestData.RoadSegment1DbaseRecord.STATUS.Value]).Translation.Identifier;
+                builder.TestData.RoadSegment1DbaseRecord.CATEGORIE.Value = fixture.CreateWhichIsDifferentThan(RoadSegmentCategory.ByIdentifier[builder.TestData.RoadSegment1DbaseRecord.CATEGORIE.Value]).Translation.Identifier;
+                builder.TestData.RoadSegment1DbaseRecord.TGBEP.Value = fixture.CreateWhichIsDifferentThan(RoadSegmentAccessRestriction.ByIdentifier[builder.TestData.RoadSegment1DbaseRecord.TGBEP.Value]).Translation.Identifier;
+                builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value = fixture.CreateWhichIsDifferentThan(new StreetNameLocalId(builder.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value!.Value));
+                builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value = fixture.CreateWhichIsDifferentThan(new StreetNameLocalId(builder.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value!.Value));
+                var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
+                lineString = new LineString([
+                    new CoordinateM(builder.TestData.RoadNode1ShapeRecord.Geometry.X, builder.TestData.RoadNode1ShapeRecord.Geometry.Y, builder.TestData.RoadNode1ShapeRecord.Geometry.X),
+                    new CoordinateM(builder.TestData.RoadNode2ShapeRecord.Geometry.X, builder.TestData.RoadNode2ShapeRecord.Geometry.Y, builder.TestData.RoadNode2ShapeRecord.Geometry.X)
+                ]);
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
+                builder.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
+                builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
+                builder.TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
+
                 builder.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value = fixture.CreateWhichIsDifferentThan(EuropeanRoadNumber.Parse(builder.TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value), EuropeanRoadNumber.Parse(builder.TestData.RoadSegment1EuropeanRoadDbaseRecord2.EUNUMMER.Value)).ToString();
                 builder.TestData.RoadSegment1NationalRoadDbaseRecord1.IDENT2.Value = fixture.CreateWhichIsDifferentThan(NationalRoadNumber.Parse(builder.TestData.RoadSegment1NationalRoadDbaseRecord1.IDENT2.Value), NationalRoadNumber.Parse(builder.TestData.RoadSegment1NationalRoadDbaseRecord2.IDENT2.Value)).ToString();
                 builder.TestData.RoadSegment1NumberedRoadDbaseRecord1.IDENT8.Value = fixture.CreateWhichIsDifferentThan(NumberedRoadNumber.Parse(builder.TestData.RoadSegment1NumberedRoadDbaseRecord1.IDENT8.Value), NumberedRoadNumber.Parse(builder.TestData.RoadSegment1NumberedRoadDbaseRecord2.IDENT8.Value)).ToString();
@@ -200,17 +222,18 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         new ModifyRoadNode(
                             new RecordNumber(1),
                             new RoadNodeId(context.Change.TestData.RoadNode1DbaseRecord.WK_OIDN.Value),
-                            RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode1DbaseRecord.TYPE.Value]
-                        ).WithGeometry(context.Change.TestData.RoadNode1ShapeRecord.Geometry)
+                            RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode1DbaseRecord.TYPE.Value],
+                            context.Change.TestData.RoadNode1ShapeRecord.Geometry
+                        )
                     )
                     .AppendChange(
                         new ModifyRoadSegment(
                                 new RecordNumber(1),
                                 new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
+                                RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                                 new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value),
                                 new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value),
                                 new OrganizationId(context.Change.TestData.RoadSegment1DbaseRecord.BEHEERDER.Value),
-                                RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
                                 RoadSegmentMorphology.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.MORFOLOGIE.Value],
                                 RoadSegmentStatus.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.STATUS.Value],
                                 RoadSegmentCategory.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.CATEGORIE.Value],
@@ -218,7 +241,6 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                                 StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
                                 StreetNameLocalId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
                             )
-                            .WithCategoryModified(false)
                             .WithGeometry(context.Change.TestData.RoadSegment1ShapeRecord.Geometry)
                             .WithLane(
                                 new RoadSegmentLaneAttribute(

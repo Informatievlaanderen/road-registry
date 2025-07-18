@@ -27,20 +27,20 @@ public class ModifyRoadSegmentEqualityComparer : IEqualityComparer<ModifyRoadSeg
             (left.Geometry == null && right.Geometry == null)
             || (left.Geometry != null && right.Geometry != null && left.Geometry.EqualsTopologically(right.Geometry));
         return left.Id.Equals(right.Id)
-               && left.StartNodeId.Equals(right.StartNodeId)
-               && left.EndNodeId.Equals(right.EndNodeId)
-               && left.MaintenanceAuthority.Equals(right.MaintenanceAuthority)
-               && left.Status.Equals(right.Status)
-               && left.AccessRestriction.Equals(right.AccessRestriction)
-               && left.Category.Equals(right.Category)
-               && left.Morphology.Equals(right.Morphology)
-               && left.GeometryDrawMethod.Equals(right.GeometryDrawMethod)
+               && left.StartNodeId == right.StartNodeId
+               && left.EndNodeId == right.EndNodeId
+               && left.MaintenanceAuthority == right.MaintenanceAuthority
+               && left.Status == right.Status
+               && left.AccessRestriction == right.AccessRestriction
+               && left.Category == right.Category
+               && left.Morphology == right.Morphology
+               && left.GeometryDrawMethod == right.GeometryDrawMethod
                && sameGeometry
-               && left.LeftSideStreetNameId.Equals(right.LeftSideStreetNameId)
-               && left.RightSideStreetNameId.Equals(right.RightSideStreetNameId)
-               && left.Lanes.SequenceEqual(right.Lanes, new RoadSegmentLaneAttributeEqualityComparer())
-               && left.Widths.SequenceEqual(right.Widths, new RoadSegmentWidthAttributeEqualityComparer())
-               && left.Surfaces.SequenceEqual(right.Surfaces, new RoadSegmentSurfaceAttributeEqualityComparer())
+               && left.LeftSideStreetNameId == right.LeftSideStreetNameId
+               && left.RightSideStreetNameId == right.RightSideStreetNameId
+               && (left.Lanes ?? []).SequenceEqual(right.Lanes ?? [], new RoadSegmentLaneAttributeEqualityComparer())
+               && (left.Widths ?? []).SequenceEqual(right.Widths ?? [], new RoadSegmentWidthAttributeEqualityComparer())
+               && (left.Surfaces ?? []).SequenceEqual(right.Surfaces ?? [], new RoadSegmentSurfaceAttributeEqualityComparer())
                && (_ignoreRecordNumber || left.RecordNumber.Equals(right.RecordNumber));
     }
 

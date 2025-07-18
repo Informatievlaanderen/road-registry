@@ -18,7 +18,10 @@ public partial class ImmutableRoadNetworkView
     private ImmutableRoadNetworkView With(ModifyRoadNode command)
     {
         return new ImmutableRoadNetworkView(
-            _nodes.TryReplace(command.Id, node => node.WithGeometry(command.Geometry).WithType(command.Type)),
+            _nodes.TryReplace(command.Id, node => node
+                .WithGeometry(command.Geometry ?? node.Geometry)
+                .WithType(command.Type ?? node.Type)
+                .WithVersion(command.Version)),
             _segments,
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,

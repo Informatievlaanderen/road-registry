@@ -7,7 +7,6 @@ using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Core;
-using FeatureToggles;
 using FluentAssertions;
 using Framework;
 using Handlers;
@@ -19,6 +18,7 @@ using NodaTime.Text;
 using Requests;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts;
+using RoadRegistry.Tests.BackOffice.Scenarios;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
 using Xunit.Abstractions;
@@ -44,8 +44,8 @@ public class GivenRoadSegment : BackOfficeLambdaTest
                 change.Lanes = lanePositions
                     .Select((x, index) => new ChangeRoadSegmentLaneAttributeRequest
                     {
-                        FromPosition = x.From,
-                        ToPosition = index != lanePositions.Length - 1 ? x.To : lastToPosition,
+                        FromPosition = RoadSegmentPosition.FromDouble(index),
+                        ToPosition = index != lanePositions.Length - 1 ? RoadSegmentPosition.FromDouble(index + 1) : lastToPosition,
                         Count = ObjectProvider.Create<RoadSegmentLaneCount>(),
                         Direction = ObjectProvider.Create<RoadSegmentLaneDirection>()
                     }).ToArray();
@@ -54,8 +54,8 @@ public class GivenRoadSegment : BackOfficeLambdaTest
                 change.Surfaces = surfacePositions
                     .Select((x, index) => new ChangeRoadSegmentSurfaceAttributeRequest
                     {
-                        FromPosition = x.From,
-                        ToPosition = index != surfacePositions.Length - 1 ? x.To : lastToPosition,
+                        FromPosition = RoadSegmentPosition.FromDouble(index),
+                        ToPosition = index != surfacePositions.Length - 1 ? RoadSegmentPosition.FromDouble(index + 1) : lastToPosition,
                         Type = ObjectProvider.Create<RoadSegmentSurfaceType>()
                     }).ToArray();
 
@@ -63,35 +63,19 @@ public class GivenRoadSegment : BackOfficeLambdaTest
                 change.Widths = widthPositions
                     .Select((x, index) => new ChangeRoadSegmentWidthAttributeRequest
                     {
-                        FromPosition = x.From,
-                        ToPosition = index != lanePositions.Length - 1 ? x.To : lastToPosition,
+                        FromPosition = RoadSegmentPosition.FromDouble(index),
+                        ToPosition = index != widthPositions.Length - 1 ? RoadSegmentPosition.FromDouble(index + 1) : lastToPosition,
                         Width = ObjectProvider.Create<RoadSegmentWidth>()
                     }).ToArray();
             });
 
-        await Given(Organizations.ToStreamName(new OrganizationId(OrganizationDbaseRecord.ORG.Value)), new ImportedOrganization
-        {
-            Code = OrganizationDbaseRecord.ORG.Value,
-            Name = OrganizationDbaseRecord.ORG.Value,
-            When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-        });
+        await Given(Organizations.ToStreamName(TestData.ChangedByOrganization), TestData.ChangedByImportedOrganization);
 
-        await Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
-        {
-            RequestId = TestData.RequestId,
-            Reason = TestData.ReasonForChange,
-            Operator = TestData.ChangedByOperator,
-            OrganizationId = TestData.ChangedByOrganization,
-            Organization = TestData.ChangedByOrganizationName,
-            Changes =
-            [
-                new AcceptedChange
-                {
-                    RoadSegmentAdded = TestData.Segment1Added
-                }
-            ],
-            When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-        });
+        await Given(RoadNetworks.Stream, new RoadNetworkChangesAcceptedBuilder(TestData)
+            .WithRoadNodeAdded(TestData.StartNode1Added)
+            .WithRoadNodeAdded(TestData.EndNode1Added)
+            .WithRoadSegmentAdded(TestData.Segment1Added)
+            .Build());
 
         await EditorContext.RoadSegments.AddAsync(TestData.Segment1Added.ToRoadSegmentRecord(TestData.ChangedByOrganization, Clock));
         await EditorContext.SaveChangesAsync();
@@ -105,7 +89,7 @@ public class GivenRoadSegment : BackOfficeLambdaTest
         var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
 
         var command = await Store.GetLastMessage<RoadNetworkChangesAccepted>();
-        var @event = command.Changes.Single().RoadSegmentAttributesModified;
+        var @event = command.Changes.Single().RoadSegmentModified;
         var change = request.ChangeRequests.Single();
 
         @event.Id.Should().Be(roadSegmentId);

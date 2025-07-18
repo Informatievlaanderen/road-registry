@@ -12,7 +12,7 @@ using AcceptedChange = Messages.AcceptedChange;
 using AddRoadSegmentToEuropeanRoad = BackOffice.Uploads.AddRoadSegmentToEuropeanRoad;
 using AddRoadSegmentToNationalRoad = BackOffice.Uploads.AddRoadSegmentToNationalRoad;
 using AddRoadSegmentToNumberedRoad = BackOffice.Uploads.AddRoadSegmentToNumberedRoad;
-using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
+using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using RemoveRoadSegmentFromEuropeanRoad = BackOffice.Uploads.RemoveRoadSegmentFromEuropeanRoad;
 using RemoveRoadSegmentFromNationalRoad = BackOffice.Uploads.RemoveRoadSegmentFromNationalRoad;
 using RemoveRoadSegmentFromNumberedRoad = BackOffice.Uploads.RemoveRoadSegmentFromNumberedRoad;
@@ -134,7 +134,7 @@ public class WhenChangeAttributesWithValidRequest : WhenChangeAttributesTestBase
         translatedChanges.Should().HaveCount(8);
         var roadSegmentId = change.Id;
 
-        var modifyRoadSegmentAttributes = Xunit.Assert.IsType<ModifyRoadSegmentAttributes>(translatedChanges[0]);
+        var modifyRoadSegmentAttributes = Xunit.Assert.IsType<ModifyRoadSegment>(translatedChanges[0]);
         modifyRoadSegmentAttributes.Id.Should().Be(roadSegmentId);
         modifyRoadSegmentAttributes.AccessRestriction.Should().Be(change.AccessRestriction);
         modifyRoadSegmentAttributes.Category.Should().Be(change.Category);

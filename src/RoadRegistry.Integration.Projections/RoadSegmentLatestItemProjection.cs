@@ -107,6 +107,14 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
                         break;
                 }
         });
+
+        When<Envelope<RoadSegmentsStreetNamesChanged>>(async (context, envelope, token) =>
+        {
+            foreach (var change in envelope.Message.RoadSegments)
+            {
+                await RoadSegmentStreetNamesChanged(context, change, envelope, token);
+            }
+        });
     }
 
     private static async Task AddRoadSegment(
@@ -318,6 +326,35 @@ public class RoadSegmentLatestItemProjection : ConnectedProjection<IntegrationCo
         {
             latestItem.RightSideStreetNameId = roadSegmentAttributesModified.RightSide.StreetNameId;
         }
+    }
+
+    private static async Task RoadSegmentStreetNamesChanged(
+        IntegrationContext context,
+        RoadSegmentStreetNamesChanged change,
+        Envelope<RoadSegmentsStreetNamesChanged> envelope,
+        CancellationToken token)
+    {
+        var latestItem = await context.RoadSegments
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == change.Id, token)
+            .ConfigureAwait(false);
+        if (context.IsNullOrDeleted(latestItem))
+        {
+            throw new InvalidOperationException($"{nameof(RoadSegmentLatestItem)} with id {change.Id} is not found");
+        }
+
+        latestItem.Version = change.Version;
+
+        if (change.LeftSideStreetNameId is not null)
+        {
+            latestItem.LeftSideStreetNameId = change.LeftSideStreetNameId;
+        }
+
+        if (change.RightSideStreetNameId is not null)
+        {
+            latestItem.RightSideStreetNameId = change.RightSideStreetNameId;
+        }
+
+        latestItem.VersionTimestamp = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
     }
 
     private static async Task ModifyRoadSegmentGeometry(

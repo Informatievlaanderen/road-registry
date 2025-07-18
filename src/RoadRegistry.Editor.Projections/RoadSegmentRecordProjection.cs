@@ -154,6 +154,14 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                 }
         });
 
+        When<Envelope<RoadSegmentsStreetNamesChanged>>(async (context, envelope, token) =>
+        {
+            foreach (var roadSegment in envelope.Message.RoadSegments)
+            {
+                await RoadSegmentStreetNamesChanged(manager, encoding, context, roadSegment, envelope, token);
+            }
+        });
+
         When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
         {
             await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
@@ -501,6 +509,51 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         dbRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
 
         UpdateHash(dbRecord, roadSegmentAttributesModified);
+    }
+
+    private static async Task RoadSegmentStreetNamesChanged(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        EditorContext context,
+        RoadSegmentStreetNamesChanged change,
+        Envelope<RoadSegmentsStreetNamesChanged> envelope,
+        CancellationToken token)
+    {
+        var dbRecord = await context.RoadSegments
+            .IncludeLocalWithoutQueryFiltersSingleOrDefaultAsync(x => x.Id == change.Id, token)
+            .ConfigureAwait(false);
+        if (context.IsNullOrDeleted(dbRecord))
+        {
+            return;
+        }
+
+        var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
+
+        dbRecord.Version = change.Version;
+        dbaseRecord.WS_UIDN.Value = new UIDN(change.Id, change.Version);
+
+        if (change.LeftSideStreetNameId is not null)
+        {
+            dbRecord.LeftSideStreetNameId = change.LeftSideStreetNameId.Value;
+
+            dbaseRecord.LSTRNMID.Value = change.LeftSideStreetNameId.Value;
+            dbaseRecord.LSTRNM.Value = null; // This value is fetched from cache when downloading (see RoadSegmentsToZipArchiveWriter)
+        }
+
+        if (change.RightSideStreetNameId is not null)
+        {
+            dbRecord.RightSideStreetNameId = change.RightSideStreetNameId.Value;
+
+            dbaseRecord.RSTRNMID.Value = change.RightSideStreetNameId.Value;
+            dbaseRecord.RSTRNM.Value = null; // This value is fetched from cache when downloading (see RoadSegmentsToZipArchiveWriter)
+        }
+
+        dbRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+
+        dbRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
+
+        UpdateHash(dbRecord, envelope.Message);
     }
 
     private static async Task ModifyRoadSegmentGeometry(RecyclableMemoryStreamManager manager,

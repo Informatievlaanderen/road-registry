@@ -93,13 +93,13 @@ public static class FeatureValidationExtensions
 
         foreach (var feature in features)
         {
-            if (feature.Attributes.StartNodeId > 0 && !context.ChangedRoadNodes.ContainsKey(feature.Attributes.StartNodeId))
+            if (feature.Attributes.StartNodeId > 0 && !context.ChangedRoadNodes.ContainsKey(feature.Attributes.StartNodeId.Value))
             {
                 var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
                 problems += recordContext.RoadSegmentStartNodeMissing(feature.Attributes.Id);
             }
 
-            if (feature.Attributes.EndNodeId > 0 && !context.ChangedRoadNodes.ContainsKey(feature.Attributes.EndNodeId))
+            if (feature.Attributes.EndNodeId > 0 && !context.ChangedRoadNodes.ContainsKey(feature.Attributes.EndNodeId.Value))
             {
                 var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
                 problems += recordContext.RoadSegmentEndNodeMissing(feature.Attributes.Id);

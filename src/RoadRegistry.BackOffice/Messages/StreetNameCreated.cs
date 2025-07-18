@@ -4,7 +4,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("StreetNameCreated")]
 [EventDescription("Notifies the domain that a street name has been created.")]
-public class StreetNameCreated : IMessage
+public class StreetNameCreated : IMessage, IWhen
 {
     public StreetNameRecord Record { get; set; }
 

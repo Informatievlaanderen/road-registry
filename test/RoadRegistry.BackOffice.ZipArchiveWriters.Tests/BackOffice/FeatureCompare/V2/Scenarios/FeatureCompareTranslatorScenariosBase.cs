@@ -62,7 +62,9 @@ public abstract class FeatureCompareTranslatorScenariosBase
         catch (EqualException)
         {
             TestOutputHelper.WriteLine($"Expected:\n{expected.Describe()}");
+            await File.WriteAllTextAsync("expected.txt", $"Expected:\n{expected.Describe()}");
             TestOutputHelper.WriteLine($"Actual:\n{result?.Describe()}");
+            await File.WriteAllTextAsync("actual.txt", $"Actual:\n{result?.Describe()}");
             throw;
         }
     }

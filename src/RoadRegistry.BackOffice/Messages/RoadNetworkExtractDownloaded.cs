@@ -5,7 +5,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("RoadNetworkExtractDownloaded")]
 [EventDescription("Indicates a road network extract has been downloaded.")]
-public class RoadNetworkExtractDownloaded : IMessage
+public class RoadNetworkExtractDownloaded : IMessage, IWhen
 {
     public string Description { get; set; }
     public Guid DownloadId { get; set; }

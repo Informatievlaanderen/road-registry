@@ -36,9 +36,9 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var bufferedGeometry = changeFeature.Attributes.Geometry.Buffer(clusterTolerance);
+            var bufferedGeometry = changeFeature.Attributes.Geometry!.Buffer(clusterTolerance);
             var intersectingGeometries = extractFeatures
-                .Where(x => x.Attributes.Geometry.Intersects(bufferedGeometry))
+                .Where(x => x.Attributes.Geometry!.Intersects(bufferedGeometry))
                 .ToList();
 
             if (intersectingGeometries.Any())
@@ -55,11 +55,12 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                 }
                 else
                 {
+                    var extractFeature = intersectingGeometries.First();
                     processedRecords.Add(new RoadNodeFeatureCompareRecord(
                         FeatureType.Change,
                         changeFeature.RecordNumber,
-                        changeFeature.Attributes,
-                        intersectingGeometries.First().Attributes.Id,
+                        changeFeature.Attributes.OnlyChangedAttributes(extractFeature.Attributes),
+                        extractFeature.Attributes.Id,
                         RecordType.Modified));
                 }
             }
@@ -145,8 +146,9 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                         new ModifyRoadNode(
                             record.RecordNumber,
                             record.Id,
-                            record.Attributes.Type
-                        ).WithGeometry(record.Attributes.Geometry)
+                            record.Attributes.Type,
+                            record.Attributes.Geometry
+                        )
                     );
                     break;
                 case RecordType.RemovedIdentifier:

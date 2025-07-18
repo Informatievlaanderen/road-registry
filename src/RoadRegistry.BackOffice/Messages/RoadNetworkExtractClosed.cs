@@ -5,7 +5,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("RoadNetworkExtractClosed")]
 [EventDescription("Indicates a road network extract has been closed and no further upload is expected or allowed.")]
-public class RoadNetworkExtractClosed : IMessage
+public class RoadNetworkExtractClosed : IMessage, IWhen
 {
     public string RequestId { get; set; }
     public string ExternalRequestId { get; set; }

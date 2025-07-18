@@ -71,8 +71,9 @@ public sealed class CorrectRoadNodeVersionsRequestHandler : IRequestHandler<Corr
             translatedChanges = translatedChanges.AppendChange(new ModifyRoadNode(
                 recordNumber,
                 roadNode.Id,
-                roadNode.Type
-            ).WithGeometry(roadNode.Geometry));
+                roadNode.Type,
+                roadNode.Geometry
+            ));
 
             recordNumber = recordNumber.Next();
         }
@@ -95,7 +96,7 @@ public sealed class CorrectRoadNodeVersionsRequestHandler : IRequestHandler<Corr
         await new ChangeRoadNetworkValidator().ValidateAndThrowAsync(changeRoadNetwork, cancellationToken);
 
         await _roadNetworkCommandQueue.WriteAsync(new Command(changeRoadNetwork), cancellationToken);
-        
+
         return new CorrectRoadNodeVersionsResponse(roadNodes.Count);
     }
 

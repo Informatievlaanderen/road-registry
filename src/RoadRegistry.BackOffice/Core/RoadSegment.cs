@@ -162,15 +162,14 @@ public class RoadSegment
         return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, hash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, Surfaces, Widths, LastEventHash);
     }
 
-    public RoadSegment WithGeometry(MultiLineString geometry)
+    public RoadSegment WithGeometry(MultiLineString? geometry)
     {
-        ArgumentNullException.ThrowIfNull(geometry);
-        return new RoadSegment(Id, Version, geometry, GeometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, Surfaces, Widths, LastEventHash);
+        return new RoadSegment(Id, Version, geometry ?? Geometry, GeometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, Surfaces, Widths, LastEventHash);
     }
 
-    public RoadSegment WithGeometryVersion(GeometryVersion geometryVersion)
+    public RoadSegment WithGeometryVersion(GeometryVersion? geometryVersion)
     {
-        return new RoadSegment(Id, Version, Geometry, geometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, Surfaces, Widths, LastEventHash);
+        return new RoadSegment(Id, Version, Geometry, geometryVersion ?? GeometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, Surfaces, Widths, LastEventHash);
     }
 
     public RoadSegment WithLastEventHash(string lastEventHash)
@@ -178,9 +177,9 @@ public class RoadSegment
         return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, Surfaces, Widths, lastEventHash);
     }
 
-    public RoadSegment WithStartAndEndAndAttributeHash(RoadNodeId start, RoadNodeId end, AttributeHash attributeHash)
+    public RoadSegment WithStartAndEndAndAttributeHash(RoadNodeId? start, RoadNodeId? end, AttributeHash attributeHash)
     {
-        return new RoadSegment(Id, Version, Geometry, GeometryVersion, start, end, attributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, Surfaces, Widths, LastEventHash);
+        return new RoadSegment(Id, Version, Geometry, GeometryVersion, start ?? Start, end ?? End, attributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, Surfaces, Widths, LastEventHash);
     }
 
     public RoadSegment WithVersion(RoadSegmentVersion version)
@@ -188,19 +187,19 @@ public class RoadSegment
         return new RoadSegment(Id, version, Geometry, GeometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, Surfaces, Widths, LastEventHash);
     }
 
-    public RoadSegment WithLanes(IReadOnlyCollection<BackOffice.RoadSegmentLaneAttribute> lanes)
+    public RoadSegment WithLanes(IReadOnlyCollection<BackOffice.RoadSegmentLaneAttribute>? lanes)
     {
-        return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, lanes, Surfaces, Widths, LastEventHash);
+        return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, lanes ?? Lanes, Surfaces, Widths, LastEventHash);
     }
 
-    public RoadSegment WithSurfaces(IReadOnlyCollection<BackOffice.RoadSegmentSurfaceAttribute> surfaces)
+    public RoadSegment WithSurfaces(IReadOnlyCollection<BackOffice.RoadSegmentSurfaceAttribute>? surfaces)
     {
-        return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, surfaces, Widths, LastEventHash);
+        return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, surfaces ?? Surfaces, Widths, LastEventHash);
     }
 
-    public RoadSegment WithWidths(IReadOnlyCollection<BackOffice.RoadSegmentWidthAttribute> widths)
+    public RoadSegment WithWidths(IReadOnlyCollection<BackOffice.RoadSegmentWidthAttribute>? widths)
     {
-        return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, Surfaces, widths, LastEventHash);
+        return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, Lanes, Surfaces, widths ?? Widths, LastEventHash);
     }
 
     public RoadNodeId? GetOppositeNode(RoadNodeId id)

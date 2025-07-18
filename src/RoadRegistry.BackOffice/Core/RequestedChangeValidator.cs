@@ -12,8 +12,6 @@ public class RequestedChangeValidator : AbstractValidator<RequestedChange>
         RuleFor(c => c.RemoveRoadNode).SetValidator(new RemoveRoadNodeValidator());
         RuleFor(c => c.AddRoadSegment).SetValidator(new AddRoadSegmentValidator());
         RuleFor(c => c.ModifyRoadSegment).SetValidator(new ModifyRoadSegmentValidator());
-        RuleFor(c => c.ModifyRoadSegmentAttributes).SetValidator(new ModifyRoadSegmentAttributesValidator());
-        RuleFor(c => c.ModifyRoadSegmentGeometry).SetValidator(new ModifyRoadSegmentGeometryValidator());
         RuleFor(c => c.RemoveRoadSegment).SetValidator(new RemoveRoadSegmentValidator());
         RuleFor(c => c.RemoveRoadSegments).SetValidator(new RemoveRoadSegmentsValidator());
         RuleFor(c => c.RemoveOutlinedRoadSegment).SetValidator(new RemoveOutlinedRoadSegmentValidator());

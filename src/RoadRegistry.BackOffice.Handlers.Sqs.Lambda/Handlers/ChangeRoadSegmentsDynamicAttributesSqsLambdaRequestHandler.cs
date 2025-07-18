@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Requests;
 using TicketingService.Abstractions;
-using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
+using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
 using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
@@ -111,18 +111,13 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
             return (translatedChanges, problems, recordNumber);
         }
 
-        var modifyChange = new ModifyRoadSegmentAttributes(recordNumber, roadSegmentId, geometryDrawMethod)
-        {
-            Lanes = change.Lanes?
-                .Select(lane => new RoadSegmentLaneAttribute(attributeIdProvider.Next(), lane.Count, lane.Direction, lane.FromPosition, lane.ToPosition))
-                .ToArray(),
-            Surfaces = change.Surfaces?
-                .Select(surface => new RoadSegmentSurfaceAttribute(attributeIdProvider.Next(), surface.Type, surface.FromPosition, surface.ToPosition))
-                .ToArray(),
-            Widths = change.Widths?
-                .Select(width => new RoadSegmentWidthAttribute(attributeIdProvider.Next(), width.Width, width.FromPosition, width.ToPosition))
-                .ToArray()
-        };
+        var modifyChange = new ModifyRoadSegment(recordNumber, roadSegmentId, geometryDrawMethod)
+            .WithLanes(change.Lanes?
+                .Select(lane => new RoadSegmentLaneAttribute(attributeIdProvider.Next(), lane.Count, lane.Direction, lane.FromPosition, lane.ToPosition)))
+            .WithSurfaces(change.Surfaces?
+                .Select(surface => new RoadSegmentSurfaceAttribute(attributeIdProvider.Next(), surface.Type, surface.FromPosition, surface.ToPosition)))
+            .WithWidths(change.Widths?
+                .Select(width => new RoadSegmentWidthAttribute(attributeIdProvider.Next(), width.Width, width.FromPosition, width.ToPosition)));
 
         problems += GetProblemsForLanes(networkRoadSegment, modifyChange.Lanes);
         problems += GetProblemsForSurfaces(networkRoadSegment, modifyChange.Surfaces);
@@ -134,7 +129,7 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
         return (translatedChanges, problems, recordNumber);
     }
 
-    private Problems GetProblemsForLanes(RoadSegment roadSegment, RoadSegmentLaneAttribute[]? lanes)
+    private Problems GetProblemsForLanes(RoadSegment roadSegment, IReadOnlyList<RoadSegmentLaneAttribute>? lanes)
     {
         var problems = Problems.None;
 
@@ -163,7 +158,7 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
         return problems;
     }
 
-    private Problems GetProblemsForSurfaces(RoadSegment roadSegment, RoadSegmentSurfaceAttribute[]? surfaces)
+    private Problems GetProblemsForSurfaces(RoadSegment roadSegment, IReadOnlyList<RoadSegmentSurfaceAttribute>? surfaces)
     {
         var problems = Problems.None;
 
@@ -181,7 +176,7 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
         return problems;
     }
 
-    private Problems GetProblemsForWidths(RoadSegment roadSegment, RoadSegmentWidthAttribute[]? widths)
+    private Problems GetProblemsForWidths(RoadSegment roadSegment, IReadOnlyList<RoadSegmentWidthAttribute>? widths)
     {
         var problems = Problems.None;
 

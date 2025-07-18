@@ -8,7 +8,7 @@ using NodaTime.Text;
 using RoadRegistry.Tests.BackOffice.Extracts;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
-using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
+using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 
 public class WhenDowngradingCategory : WhenChangeAttributesTestBase
 {
@@ -63,7 +63,7 @@ public class WhenDowngradingCategory : WhenChangeAttributesTestBase
         translatedChanges.Should().HaveCount(1);
         var roadSegmentId = change.Id;
 
-        var modifyRoadSegmentAttributes = Xunit.Assert.IsType<ModifyRoadSegmentAttributes>(translatedChanges[0]);
+        var modifyRoadSegmentAttributes = Xunit.Assert.IsType<ModifyRoadSegment>(translatedChanges[0]);
         modifyRoadSegmentAttributes.Id.Should().Be(roadSegmentId);
         modifyRoadSegmentAttributes.Category.Should().Be(change.Category);
     }

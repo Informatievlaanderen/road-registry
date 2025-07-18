@@ -59,24 +59,16 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
         return problems;
     }
 
-    private IEnumerable<Messages.AcceptedChange> _acceptedChanges;
-
-    public Problems VerifyAfter(AfterVerificationContext context)
+    public VerifyAfterResult VerifyAfter(AfterVerificationContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        _acceptedChanges = BuildAcceptedChanges(context);
-
-        var problems = context.ValidateRoadNetworkConnections(_acceptedChanges.ToArray(), Ids);
-        return problems;
+        var acceptedChanges = BuildAcceptedChanges(context).ToArray();
+        var problems = context.ValidateRoadNetworkConnections(acceptedChanges, Ids);
+        return VerifyAfterResult.WithAcceptedChanges(problems, _ => acceptedChanges);
     }
 
-    public IEnumerable<Messages.AcceptedChange> TranslateTo(Messages.Problem[] warnings)
-    {
-        return _acceptedChanges;
-    }
-
-    public void TranslateTo(Messages.RejectedChange message)
+    public void TranslateToRejectedChange(Messages.RejectedChange message)
     {
         ArgumentNullException.ThrowIfNull(message);
 

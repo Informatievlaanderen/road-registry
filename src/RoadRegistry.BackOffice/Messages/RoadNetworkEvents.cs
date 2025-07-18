@@ -26,6 +26,7 @@ public static class RoadNetworkEvents
         typeof(NoRoadNetworkChanges),
         typeof(RoadNetworkChangesAccepted),
         typeof(RoadNetworkChangesRejected),
+        typeof(RoadSegmentsStreetNamesChanged),
         typeof(RoadNetworkExtractGotRequested),
         typeof(RoadNetworkExtractGotRequestedV2),
         typeof(RoadNetworkExtractDownloaded),

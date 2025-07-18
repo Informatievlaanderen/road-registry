@@ -204,7 +204,8 @@
                 rootView.CreateScopedView(scope),
                 rootView.With(requestedChanges).CreateScopedView(scope),
                 Mock.Of<IRequestedChangeIdentityTranslator>(),
-                VerificationContextTolerances.Default);
+                VerificationContextTolerances.Default,
+                Mock.Of<IOrganizations>());
         }
     }
 }

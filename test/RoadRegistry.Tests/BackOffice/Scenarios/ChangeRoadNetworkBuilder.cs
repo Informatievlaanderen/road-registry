@@ -7,22 +7,21 @@ using RoadRegistry.BackOffice.Messages;
 
 public class ChangeRoadNetworkBuilder
 {
-    private readonly Fixture _fixture;
     private readonly List<RequestedChange> _changes = [];
 
     private string _requestId;
     private string _reason;
     private string _operator;
     private string _organizationId;
+    private TicketId? _ticketId;
+    private ExtractRequestId? _extractRequestId;
 
     public ChangeRoadNetworkBuilder(Fixture fixture)
     {
-        _fixture = fixture;
-
-        _requestId = ChangeRequestId.FromArchiveId(_fixture.Create<ArchiveId>());
-        _reason = _fixture.Create<Reason>();
-        _operator = _fixture.Create<OperatorName>();
-        _organizationId = _fixture.Create<OrganizationId>();
+        _requestId = ChangeRequestId.FromArchiveId(fixture.Create<ArchiveId>());
+        _reason = fixture.Create<Reason>();
+        _operator = fixture.Create<OperatorName>();
+        _organizationId = fixture.Create<OrganizationId>();
     }
 
     public ChangeRoadNetworkBuilder(RoadNetworkTestData testData)
@@ -34,6 +33,42 @@ public class ChangeRoadNetworkBuilder
         _organizationId = testData.ChangedByOrganization;
     }
 
+    public ChangeRoadNetworkBuilder WithAddRoadNode(AddRoadNode change, Action<AddRoadNode> configure = null)
+    {
+        configure?.Invoke(change);
+
+        _changes.Add(new RequestedChange
+        {
+            AddRoadNode = change
+        });
+
+        return this;
+    }
+
+    public ChangeRoadNetworkBuilder WithModifyRoadNode(ModifyRoadNode change, Action<ModifyRoadNode> configure = null)
+    {
+        configure?.Invoke(change);
+
+        _changes.Add(new RequestedChange
+        {
+            ModifyRoadNode = change
+        });
+
+        return this;
+    }
+
+    public ChangeRoadNetworkBuilder WithAddRoadSegment(AddRoadSegment change, Action<AddRoadSegment> configure = null)
+    {
+        configure?.Invoke(change);
+
+        _changes.Add(new RequestedChange
+        {
+            AddRoadSegment = change
+        });
+
+        return this;
+    }
+
     public ChangeRoadNetworkBuilder WithModifyRoadSegment(ModifyRoadSegment change, Action<ModifyRoadSegment> configure = null)
     {
         configure?.Invoke(change);
@@ -41,6 +76,18 @@ public class ChangeRoadNetworkBuilder
         _changes.Add(new RequestedChange
         {
             ModifyRoadSegment = change
+        });
+
+        return this;
+    }
+
+    public ChangeRoadNetworkBuilder WithRemoveOutlinedRoadSegment(RemoveOutlinedRoadSegment change, Action<RemoveOutlinedRoadSegment> configure = null)
+    {
+        configure?.Invoke(change);
+
+        _changes.Add(new RequestedChange
+        {
+            RemoveOutlinedRoadSegment = change
         });
 
         return this;
@@ -69,6 +116,20 @@ public class ChangeRoadNetworkBuilder
         return this;
     }
 
+    public ChangeRoadNetworkBuilder WithTicketId(TicketId ticketId)
+    {
+        _ticketId = ticketId;
+
+        return this;
+    }
+
+    public ChangeRoadNetworkBuilder WithExtractRequestId(ExtractRequestId extractRequestId)
+    {
+        _extractRequestId = extractRequestId;
+
+        return this;
+    }
+
     public Command Build()
     {
         return new Command(new ChangeRoadNetwork
@@ -77,6 +138,8 @@ public class ChangeRoadNetworkBuilder
             Reason = _reason,
             Operator = _operator,
             OrganizationId = _organizationId,
+            TicketId = _ticketId,
+            ExtractRequestId = _extractRequestId,
             Changes = _changes.ToArray()
         });
     }

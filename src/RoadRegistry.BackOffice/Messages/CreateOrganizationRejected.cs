@@ -4,7 +4,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("CreateOrganizationRejected")]
 [EventDescription("Notifies the domain that the request to create an organization has been rejected.")]
-public class CreateOrganizationRejected : IMessage
+public class CreateOrganizationRejected : IMessage, IWhen
 {
     public string Code { get; set; }
     public string Name { get; set; }
