@@ -23,11 +23,11 @@ public class ModifyGradeSeparatedJunction : IRequestedChange
     }
 
     public GradeSeparatedJunctionId Id { get; }
-    public RoadSegmentId LowerSegmentId { get; }
-    public RoadSegmentId? TemporaryLowerSegmentId { get; }
-    public RoadSegmentId? TemporaryUpperSegmentId { get; }
     public GradeSeparatedJunctionType Type { get; }
     public RoadSegmentId UpperSegmentId { get; }
+    public RoadSegmentId? TemporaryUpperSegmentId { get; }
+    public RoadSegmentId LowerSegmentId { get; }
+    public RoadSegmentId? TemporaryLowerSegmentId { get; }
 
     public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings)
     {
@@ -63,14 +63,22 @@ public class ModifyGradeSeparatedJunction : IRequestedChange
 
         var problems = Problems.None;
 
-        if (!context.AfterView.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment)) problems = problems.Add(new UpperRoadSegmentMissing());
+        if (!context.AfterView.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment))
+        {
+            problems = problems.Add(new UpperRoadSegmentMissing());
+        }
 
-        if (!context.AfterView.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment)) problems = problems.Add(new LowerRoadSegmentMissing());
+        if (!context.AfterView.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment))
+        {
+            problems = problems.Add(new LowerRoadSegmentMissing());
+        }
 
         if (upperSegment != null
             && lowerSegment != null
             && !upperSegment.Geometry.Intersects(lowerSegment.Geometry))
+        {
             problems = problems.Add(new UpperAndLowerRoadSegmentDoNotIntersect());
+        }
 
         return new VerifyAfterResult(problems);
     }
@@ -81,7 +89,10 @@ public class ModifyGradeSeparatedJunction : IRequestedChange
 
         var problems = Problems.None;
 
-        if (!context.BeforeView.View.GradeSeparatedJunctions.ContainsKey(Id)) problems = problems.Add(new GradeSeparatedJunctionNotFound());
+        if (!context.BeforeView.View.GradeSeparatedJunctions.ContainsKey(Id))
+        {
+            problems = problems.Add(new GradeSeparatedJunctionNotFound());
+        }
 
         return problems;
     }

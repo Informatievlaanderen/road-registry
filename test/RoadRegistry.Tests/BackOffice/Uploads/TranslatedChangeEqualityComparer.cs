@@ -53,12 +53,6 @@ public class TranslatedChangeEqualityComparer : IEqualityComparer<ITranslatedCha
                 )
             },
             {
-                (typeof(ModifyGradeSeparatedJunction), typeof(ModifyGradeSeparatedJunction)),
-                new TranslatedChangeEqualityComparer<ModifyGradeSeparatedJunction>(
-                    new ModifyGradeSeparatedJunctionEqualityComparer(ignoreRecordNumber)
-                )
-            },
-            {
                 (typeof(RemoveGradeSeparatedJunction), typeof(RemoveGradeSeparatedJunction)),
                 new TranslatedChangeEqualityComparer<RemoveGradeSeparatedJunction>(
                     new RemoveGradeSeparatedJunctionEqualityComparer(ignoreRecordNumber)

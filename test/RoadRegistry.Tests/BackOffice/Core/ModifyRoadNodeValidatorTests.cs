@@ -29,12 +29,6 @@ public class ModifyRoadNodeValidatorTests : ValidatorTest<ModifyRoadNode, Modify
         Validator.ShouldHaveChildValidator(c => c.Geometry, typeof(RoadNodeGeometryValidator));
     }
 
-    [Fact]
-    public void GeometryMustNotBeNull()
-    {
-        ShouldHaveValidationErrorFor(c => c.Geometry, null);
-    }
-
     [Theory]
     [InlineData(int.MinValue)]
     [InlineData(-1)]

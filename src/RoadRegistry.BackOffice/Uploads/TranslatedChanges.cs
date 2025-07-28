@@ -139,11 +139,6 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
         return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
-    public TranslatedChanges AppendChange(ModifyGradeSeparatedJunction change)
-    {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
-    }
-
     public TranslatedChanges AppendChange(RemoveGradeSeparatedJunction change)
     {
         return new TranslatedChanges(Reason, Operator, Organization,

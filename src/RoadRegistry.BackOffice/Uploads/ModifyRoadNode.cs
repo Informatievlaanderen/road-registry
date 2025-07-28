@@ -31,9 +31,4 @@ public class ModifyRoadNode : ITranslatedChange
             Geometry = Geometry is not null ? GeometryTranslator.Translate(Geometry) : null
         };
     }
-
-    public ModifyRoadNode WithGeometry(Point? geometry)
-    {
-        return new ModifyRoadNode(RecordNumber, Id, Type, geometry);
-    }
 }
