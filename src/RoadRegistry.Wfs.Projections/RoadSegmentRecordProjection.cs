@@ -404,10 +404,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         return streetNameId.HasValue ? await _streetNameCache.GetAsync(streetNameId.Value, token).ConfigureAwait(false) : null;
     }
 
-    private static RoadSegmentRecord UpdateBeginTime<TMessage>(RoadSegmentRecord record, Envelope<TMessage> envelope)
+    private static void UpdateBeginTime<TMessage>(RoadSegmentRecord record, Envelope<TMessage> envelope)
         where TMessage : IMessage, IWhen
     {
         record.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        return record;
     }
 }

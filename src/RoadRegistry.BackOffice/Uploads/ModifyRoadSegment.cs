@@ -116,7 +116,7 @@ public class ModifyRoadSegment : ITranslatedChange
     public bool ConvertedFromOutlined { get; }
     public RoadSegmentVersion? Version { get; }
     public GeometryVersion? GeometryVersion { get; }
-    [Obsolete]
+    [Obsolete("Now that Category is a nullable property, this property is no longer needed. Only kept while FC V1 is alive.")]
     public bool? CategoryModified { get; }
 
     public void TranslateTo(RequestedChange message)
@@ -189,7 +189,7 @@ public class ModifyRoadSegment : ITranslatedChange
             LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces, convertedFromOutlined, Version, GeometryVersion, CategoryModified);
     }
 
-    [Obsolete]
+    [Obsolete("Now that Category is a nullable property, this property is no longer needed. Only kept while FC V1 is alive.")]
     public ModifyRoadSegment WithCategoryModified(bool categoryModified)
     {
         return new ModifyRoadSegment(
