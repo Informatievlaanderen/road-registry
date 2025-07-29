@@ -40,8 +40,8 @@ public class RoadSegmentZipArchiveValidator : FeatureReaderZipArchiveValidator<R
                     .AtDbaseRecord(FeatureType.Change, feature.RecordNumber)
                     .WithIdentifier(nameof(RoadSegmentDbaseRecord.WS_OIDN), feature.Attributes.Id);
 
-                problems += GetProblemsForStreetNameId(recordContext, feature.Attributes.LeftStreetNameId, true, streetNameContext);
-                problems += GetProblemsForStreetNameId(recordContext, feature.Attributes.RightStreetNameId, false, streetNameContext);
+                problems += GetProblemsForStreetNameId(recordContext, feature.Attributes.LeftSideStreetNameId, true, streetNameContext);
+                problems += GetProblemsForStreetNameId(recordContext, feature.Attributes.RightSideStreetNameId, false, streetNameContext);
             }
         }
 

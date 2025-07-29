@@ -57,14 +57,14 @@ public class GivenRoadNetwork : StreetNameEventConsumerTestsBase
 
         {
             var streamMessage = page.Messages[0];
-            Assert.Equal(nameof(RoadNetworkChangesAccepted), streamMessage.Type);
+            Assert.Equal(nameof(RoadSegmentsStreetNamesChanged), streamMessage.Type);
             Assert.Equal("roadnetwork", streamMessage.StreamId);
 
-            var message = JsonConvert.DeserializeObject<RoadNetworkChangesAccepted>(await streamMessage.GetJsonData());
-            var roadSegmentAttributesModified = Assert.Single(message.Changes).RoadSegmentAttributesModified;
+            var message = JsonConvert.DeserializeObject<RoadSegmentsStreetNamesChanged>(await streamMessage.GetJsonData());
+            var roadSegmentAttributesModified = Assert.Single(message.RoadSegments);
             Assert.Equal(testData.Segment1Added.Id, roadSegmentAttributesModified.Id);
-            Assert.Equal(-9, roadSegmentAttributesModified.LeftSide.StreetNameId);
-            Assert.Equal(-9, roadSegmentAttributesModified.RightSide.StreetNameId);
+            Assert.Equal(-9, roadSegmentAttributesModified.LeftSideStreetNameId);
+            Assert.Equal(-9, roadSegmentAttributesModified.RightSideStreetNameId);
         }
     }
 
@@ -173,43 +173,43 @@ public class GivenRoadNetwork : StreetNameEventConsumerTestsBase
 
             {
                 var streamMessage = page.Messages[0];
-                Assert.Equal(nameof(RoadNetworkChangesAccepted), streamMessage.Type);
+                Assert.Equal(nameof(RoadSegmentsStreetNamesChanged), streamMessage.Type);
                 Assert.Equal("roadnetwork", streamMessage.StreamId);
 
-                var message = JsonConvert.DeserializeObject<RoadNetworkChangesAccepted>(await streamMessage.GetJsonData());
-                var roadSegment1AttributesModified = message.Changes[0].RoadSegmentAttributesModified;
+                var message = JsonConvert.DeserializeObject<RoadSegmentsStreetNamesChanged>(await streamMessage.GetJsonData());
+                var roadSegment1AttributesModified = message.RoadSegments[0];
                 Assert.Equal(1, roadSegment1AttributesModified.Id);
-                Assert.Equal(-9, roadSegment1AttributesModified.LeftSide.StreetNameId);
-                Assert.Equal(-9, roadSegment1AttributesModified.RightSide.StreetNameId);
+                Assert.Equal(-9, roadSegment1AttributesModified.LeftSideStreetNameId);
+                Assert.Equal(-9, roadSegment1AttributesModified.RightSideStreetNameId);
 
-                var roadSegment2AttributesModified = message.Changes[1].RoadSegmentAttributesModified;
+                var roadSegment2AttributesModified = message.RoadSegments[1];
                 Assert.Equal(2, roadSegment2AttributesModified.Id);
-                Assert.Equal(-9, roadSegment2AttributesModified.LeftSide.StreetNameId);
-                Assert.Equal(-9, roadSegment2AttributesModified.RightSide.StreetNameId);
+                Assert.Equal(-9, roadSegment2AttributesModified.LeftSideStreetNameId);
+                Assert.Equal(-9, roadSegment2AttributesModified.RightSideStreetNameId);
             }
 
             {
                 var streamMessage = page.Messages[1];
-                Assert.Equal(nameof(RoadNetworkChangesAccepted), streamMessage.Type);
+                Assert.Equal(nameof(RoadSegmentsStreetNamesChanged), streamMessage.Type);
                 Assert.Equal("roadsegment-outline-3", streamMessage.StreamId);
 
-                var message = JsonConvert.DeserializeObject<RoadNetworkChangesAccepted>(await streamMessage.GetJsonData());
-                var roadSegment3AttributesModified = message.Changes[0].RoadSegmentAttributesModified;
+                var message = JsonConvert.DeserializeObject<RoadSegmentsStreetNamesChanged>(await streamMessage.GetJsonData());
+                var roadSegment3AttributesModified = message.RoadSegments[0];
                 Assert.Equal(3, roadSegment3AttributesModified.Id);
-                Assert.Equal(-9, roadSegment3AttributesModified.LeftSide.StreetNameId);
-                Assert.Equal(-9, roadSegment3AttributesModified.RightSide.StreetNameId);
+                Assert.Equal(-9, roadSegment3AttributesModified.LeftSideStreetNameId);
+                Assert.Equal(-9, roadSegment3AttributesModified.RightSideStreetNameId);
             }
 
             {
                 var streamMessage = page.Messages[2];
-                Assert.Equal(nameof(RoadNetworkChangesAccepted), streamMessage.Type);
+                Assert.Equal(nameof(RoadSegmentsStreetNamesChanged), streamMessage.Type);
                 Assert.Equal("roadsegment-outline-4", streamMessage.StreamId);
 
-                var message = JsonConvert.DeserializeObject<RoadNetworkChangesAccepted>(await streamMessage.GetJsonData());
-                var roadSegment4AttributesModified = message.Changes[0].RoadSegmentAttributesModified;
+                var message = JsonConvert.DeserializeObject<RoadSegmentsStreetNamesChanged>(await streamMessage.GetJsonData());
+                var roadSegment4AttributesModified = message.RoadSegments[0];
                 Assert.Equal(4, roadSegment4AttributesModified.Id);
-                Assert.Equal(-9, roadSegment4AttributesModified.LeftSide.StreetNameId);
-                Assert.Equal(-9, roadSegment4AttributesModified.RightSide.StreetNameId);
+                Assert.Equal(-9, roadSegment4AttributesModified.LeftSideStreetNameId);
+                Assert.Equal(-9, roadSegment4AttributesModified.RightSideStreetNameId);
             }
         }
     }

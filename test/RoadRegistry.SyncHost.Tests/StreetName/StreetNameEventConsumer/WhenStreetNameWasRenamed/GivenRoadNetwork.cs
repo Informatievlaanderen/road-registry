@@ -56,14 +56,14 @@ public class GivenRoadNetwork : StreetNameEventConsumerTestsBase
 
         {
             var streamMessage = page.Messages[0];
-            Assert.Equal(nameof(RoadNetworkChangesAccepted), streamMessage.Type);
+            Assert.Equal(nameof(RoadSegmentsStreetNamesChanged), streamMessage.Type);
             Assert.Equal("roadnetwork", streamMessage.StreamId);
 
-            var message = JsonConvert.DeserializeObject<RoadNetworkChangesAccepted>(await streamMessage.GetJsonData());
-            var roadSegmentAttributesModified = Assert.Single(message.Changes).RoadSegmentAttributesModified;
+            var message = JsonConvert.DeserializeObject<RoadSegmentsStreetNamesChanged>(await streamMessage.GetJsonData());
+            var roadSegmentAttributesModified = Assert.Single(message.RoadSegments);
             roadSegmentAttributesModified.Id.Should().Be(testData.Segment1Added.Id);
-            roadSegmentAttributesModified.LeftSide.StreetNameId.Should().Be(streetName2LocalId);
-            roadSegmentAttributesModified.RightSide.StreetNameId.Should().Be(streetName2LocalId);
+            roadSegmentAttributesModified.LeftSideStreetNameId.Should().Be(streetName2LocalId);
+            roadSegmentAttributesModified.RightSideStreetNameId.Should().Be(streetName2LocalId);
         }
         {
             var streamMessage = page.Messages[1];

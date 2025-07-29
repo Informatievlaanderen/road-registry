@@ -172,48 +172,6 @@ public static class RequestedChangeFixtureExtensions
         );
     }
 
-    public static void CustomizeModifyRoadSegmentAttributes(this IFixture fixture)
-    {
-        fixture.Customize<ModifyRoadSegmentAttributes>(
-            composer =>
-                composer.FromFactory(random =>
-                    new ModifyRoadSegmentAttributes
-                    {
-                        Id = fixture.Create<RoadSegmentId>(),
-                        GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
-
-                        AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>(),
-                        Category = fixture.Create<RoadSegmentCategory>(),
-                        MaintenanceAuthority = fixture.Create<OrganizationId>(),
-                        Morphology = fixture.Create<RoadSegmentMorphology>(),
-                        Status = fixture.Create<RoadSegmentStatus>(),
-                        Lanes = fixture.CreateMany<RequestedRoadSegmentLaneAttribute>().ToArray(),
-                        Widths = fixture.CreateMany<RequestedRoadSegmentWidthAttribute>().ToArray(),
-                        Surfaces = fixture.CreateMany<RequestedRoadSegmentSurfaceAttribute>().ToArray()
-                    }
-                ).OmitAutoProperties()
-        );
-    }
-
-    public static void CustomizeModifyRoadSegmentGeometry(this IFixture fixture)
-    {
-        fixture.Customize<ModifyRoadSegmentGeometry>(
-            composer =>
-                composer.FromFactory(random =>
-                    new ModifyRoadSegmentGeometry
-                    {
-                        Id = fixture.Create<RoadSegmentId>(),
-                        GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
-
-                        Geometry = fixture.Create<RoadSegmentGeometry>(),
-                        Lanes = fixture.CreateMany<RequestedRoadSegmentLaneAttribute>().ToArray(),
-                        Widths = fixture.CreateMany<RequestedRoadSegmentWidthAttribute>().ToArray(),
-                        Surfaces = fixture.CreateMany<RequestedRoadSegmentSurfaceAttribute>().ToArray()
-                    }
-                ).OmitAutoProperties()
-        );
-    }
-
     public static void CustomizeRemoveGradeSeparatedJunction(this IFixture fixture)
     {
         fixture.Customize<RemoveGradeSeparatedJunction>(

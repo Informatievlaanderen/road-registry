@@ -5,7 +5,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("RoadNetworkChangesArchiveAccepted")]
 [EventDescription("Indicates the road network changes archive was accepted.")]
-public class RoadNetworkChangesArchiveAccepted : IMessage
+public class RoadNetworkChangesArchiveAccepted : IMessage, IWhen
 {
     public string ArchiveId { get; set; }
     public string ExtractRequestId { get; set; }

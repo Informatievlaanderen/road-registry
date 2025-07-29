@@ -89,16 +89,6 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
         return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges.SetItem(change.Id, change), _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }
 
-    public TranslatedChanges AppendChange(ModifyRoadSegmentAttributes change)
-    {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
-    }
-
-    public TranslatedChanges AppendChange(ModifyRoadSegmentGeometry change)
-    {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
-    }
-
     public TranslatedChanges AppendChange(RemoveRoadSegment change)
     {
         return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges.SetItem(change.Id, change), _modifyRoadSegmentProvisionalChanges);
@@ -145,11 +135,6 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
     }
 
     public TranslatedChanges AppendChange(AddGradeSeparatedJunction change)
-    {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
-    }
-
-    public TranslatedChanges AppendChange(ModifyGradeSeparatedJunction change)
     {
         return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges, _modifyRoadSegmentProvisionalChanges);
     }

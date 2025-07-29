@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Extensions;
 using BackOffice.Messages;
+using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.Extensions.Logging;
@@ -82,6 +83,14 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
                         await RemoveRoadSegment(context, roadSegmentRemoved, envelope, token);
                         break;
                 }
+        });
+
+        When<Envelope<RoadSegmentsStreetNamesChanged>>(async (context, envelope, token) =>
+        {
+            foreach (var roadSegment in envelope.Message.RoadSegments)
+            {
+                await RoadSegmentStreetNamesChanged(context, roadSegment, envelope, token);
+            }
         });
     }
 
@@ -205,10 +214,10 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         CancellationToken token)
     {
         var dbRecord = (await context.RoadSegmentVersions.IncludeLocalToListAsync(roadSegmentVersions =>
-            roadSegmentVersions
-                .Where(x => x.Id == roadSegmentAttributesModified.Id)
-                .OrderByDescending(x => x.RecordingDate)
-                .Take(1)
+                roadSegmentVersions
+                    .Where(x => x.Id == roadSegmentAttributesModified.Id)
+                    .OrderByDescending(x => x.RecordingDate)
+                    .Take(1)
             , token).ConfigureAwait(false)).FirstOrDefault();
 
         if (dbRecord is null)
@@ -224,6 +233,15 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         }
 
         dbRecord.Version = roadSegmentAttributesModified.Version;
+    }
+
+    private static async Task RoadSegmentStreetNamesChanged(
+        EditorContext context,
+        RoadSegmentStreetNamesChanged change,
+        Envelope<RoadSegmentsStreetNamesChanged> envelope,
+        CancellationToken token)
+    {
+        await UpdateRoadSegmentVersion(context, envelope, change.Id, change.Version, token);
     }
 
     private static async Task ModifyRoadSegmentGeometry(
@@ -266,7 +284,7 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
         if (!string.IsNullOrEmpty(roadSegmentRemoved.GeometryDrawMethod))
         {
             var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentRemoved.GeometryDrawMethod).Translation.Identifier;
-            
+
             dbRecord = (await context.RoadSegmentVersions.IncludeLocalToListAsync(roadSegmentVersions =>
                     roadSegmentVersions
                         .Where(x => x.Id == roadSegmentRemoved.Id && x.Method == method && !x.IsRemoved)
@@ -289,13 +307,14 @@ public class RoadSegmentVersionRecordProjection : ConnectedProjection<EditorCont
             dbRecord.IsRemoved = true;
         }
     }
-    
-    private static async Task UpdateRoadSegmentVersion(
+
+    private static async Task UpdateRoadSegmentVersion<TMessage>(
         EditorContext context,
-        Envelope<RoadNetworkChangesAccepted> envelope,
+        Envelope<TMessage> envelope,
         int segmentId,
         int? segmentVersion,
         CancellationToken token)
+        where TMessage : IMessage
     {
         if (segmentVersion is null)
         {

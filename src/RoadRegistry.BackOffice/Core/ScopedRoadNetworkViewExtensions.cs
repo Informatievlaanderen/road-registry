@@ -34,13 +34,15 @@ public static class ScopedRoadNetworkViewExtensions
 
     public static IEnumerable<KeyValuePair<RoadSegmentId, RoadSegment>> FindIntersectingRoadSegments(
         this IScopedRoadNetworkView scopedRoadNetworkView,
-        ModifyRoadSegment modifyRoadSegment)
+        ModifyRoadSegment modifyRoadSegment,
+        RoadNodeId startNodeId,
+        RoadNodeId endNodeId)
     {
         return scopedRoadNetworkView
             .FindIntersectingRoadSegments(
                 modifyRoadSegment.Id,
                 modifyRoadSegment.Geometry,
-                modifyRoadSegment.StartNodeId,
-                modifyRoadSegment.EndNodeId);
+                startNodeId,
+                endNodeId);
     }
 }

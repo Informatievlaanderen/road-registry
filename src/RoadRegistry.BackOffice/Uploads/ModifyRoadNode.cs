@@ -7,15 +7,7 @@ using Point = NetTopologySuite.Geometries.Point;
 
 public class ModifyRoadNode : ITranslatedChange
 {
-    public ModifyRoadNode(RecordNumber recordNumber, RoadNodeId id, RoadNodeType type)
-    {
-        RecordNumber = recordNumber;
-        Id = id;
-        Type = type ?? throw new ArgumentNullException(nameof(type));
-        Geometry = null;
-    }
-
-    private ModifyRoadNode(RecordNumber recordNumber, RoadNodeId id, RoadNodeType type, Point geometry)
+    public ModifyRoadNode(RecordNumber recordNumber, RoadNodeId id, RoadNodeType? type = null, Point? geometry = null)
     {
         RecordNumber = recordNumber;
         Id = id;
@@ -23,26 +15,20 @@ public class ModifyRoadNode : ITranslatedChange
         Geometry = geometry;
     }
 
-    public Point Geometry { get; }
-    public RoadNodeId Id { get; }
     public RecordNumber RecordNumber { get; }
-    public RoadNodeType Type { get; }
+    public RoadNodeId Id { get; }
+    public RoadNodeType? Type { get; }
+    public Point? Geometry { get; }
 
     public void TranslateTo(RequestedChange message)
     {
-        if (message == null) throw new ArgumentNullException(nameof(message));
+        ArgumentNullException.ThrowIfNull(message);
 
         message.ModifyRoadNode = new Messages.ModifyRoadNode
         {
             Id = Id,
-            Type = Type.ToString(),
-            Geometry = GeometryTranslator.Translate(Geometry)
+            Type = Type?.ToString(),
+            Geometry = Geometry is not null ? GeometryTranslator.Translate(Geometry) : null
         };
-    }
-
-    public ModifyRoadNode WithGeometry(Point geometry)
-    {
-        if (geometry == null) throw new ArgumentNullException(nameof(geometry));
-        return new ModifyRoadNode(RecordNumber, Id, Type, geometry);
     }
 }

@@ -7,11 +7,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.EventHandling;
-using FluentValidation;
 using Framework;
 using Messages;
 using NetTopologySuite.Geometries;
-using Newtonsoft.Json;
 
 public class RoadNetwork : EventSourcedEntity
 {
@@ -30,6 +28,7 @@ public class RoadNetwork : EventSourcedEntity
         On<ImportedGradeSeparatedJunction>(e => { _view = _view.RestoreFromEvent(e); });
         On<ImportedRoadSegment>(e => { _view = _view.RestoreFromEvent(e); });
         On<RoadNetworkChangesAccepted>(e => { _view = _view.RestoreFromEvent(e); });
+        On<RoadSegmentsStreetNamesChanged>(e => { _view = _view.RestoreFromEvent(e); });
     }
 
     public async Task<IMessage> Change(
@@ -41,6 +40,7 @@ public class RoadNetwork : EventSourcedEntity
         RequestedChanges requestedChanges,
         TicketId? ticketId,
         IExtractUploadFailedEmailClient emailClient,
+        IOrganizations organizations,
         CancellationToken cancellationToken)
     {
         var verifiableChanges =
@@ -57,7 +57,8 @@ public class RoadNetwork : EventSourcedEntity
 
         if (!verifiableChanges.Any(change => change.HasErrors))
         {
-            var afterContext = beforeContext.CreateAfterVerificationContext(_view.With(requestedChanges));
+            var afterContext = beforeContext.CreateAfterVerificationContext(_view.With(requestedChanges), organizations);
+
             foreach (var verifiableChange in verifiableChanges)
             {
                 verifiableChanges = verifiableChanges

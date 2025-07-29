@@ -170,16 +170,6 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
             _addedSegmentIdentifiers);
     }
 
-    public RequestedChanges Append(ModifyRoadSegmentAttributes change)
-    {
-        return AppendChange(change);
-    }
-
-    public RequestedChanges Append(ModifyRoadSegmentGeometry change)
-    {
-        return AppendChange(change);
-    }
-
     public RequestedChanges Append(RemoveRoadSegment change)
     {
         return AppendChange(change);
@@ -283,8 +273,12 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
                     break;
 
                 case ModifyRoadNode modifyRoadNode:
-                    // the geometry to modify it to
-                    envelope.ExpandToInclude(modifyRoadNode.Geometry.Coordinate);
+                    if (modifyRoadNode.Geometry is not null)
+                    {
+                        // the geometry to modify it to
+                        envelope.ExpandToInclude(modifyRoadNode.Geometry.Coordinate);
+                    }
+
                     // if we still know this node, include the geometry as we know it now
                     if (view.Nodes.TryGetValue(modifyRoadNode.Id, out var nodeToModify))
                     {
@@ -307,27 +301,14 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
 
                 case ModifyRoadSegment modifyRoadSegment:
                     // the geometry to modify it to
-                    envelope.ExpandToInclude(modifyRoadSegment.Geometry.EnvelopeInternal);
+                    if (modifyRoadSegment.Geometry is not null)
+                    {
+                        envelope.ExpandToInclude(modifyRoadSegment.Geometry.EnvelopeInternal);
+                    }
                     // if we still know this segment, include the geometry as we know it now
                     if (view.Segments.TryGetValue(modifyRoadSegment.Id, out var segmentToModify))
                     {
                         envelope.ExpandToInclude(segmentToModify.Geometry.EnvelopeInternal);
-                    }
-                    break;
-
-                case ModifyRoadSegmentAttributes modifyRoadSegmentAttributes:
-                    // if we still know this segment, include the geometry as we know it now
-                    if (view.Segments.TryGetValue(modifyRoadSegmentAttributes.Id, out var segmentAttributesToModify))
-                    {
-                        envelope.ExpandToInclude(segmentAttributesToModify.Geometry.EnvelopeInternal);
-                    }
-                    break;
-
-                case ModifyRoadSegmentGeometry modifyRoadSegmentGeometry:
-                    // if we still know this segment, include the geometry as we know it now
-                    if (view.Segments.TryGetValue(modifyRoadSegmentGeometry.Id, out var segmentGeometryToModify))
-                    {
-                        envelope.ExpandToInclude(segmentGeometryToModify.Geometry.EnvelopeInternal);
                     }
                     break;
 

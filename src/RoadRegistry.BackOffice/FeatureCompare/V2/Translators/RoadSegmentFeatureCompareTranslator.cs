@@ -57,9 +57,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     .ToList();
             }
 
-            var bufferedGeometry = changeFeatureAttributes.Geometry.Buffer(clusterTolerance);
+            var bufferedGeometry = changeFeatureAttributes.Geometry!.Buffer(clusterTolerance);
             return extractFeatures
-                .Where(x => x.Attributes.Geometry.Intersects(bufferedGeometry))
+                .Where(x => x.Attributes.Geometry!.Intersects(bufferedGeometry))
                 .Where(x => changeFeatureAttributes.Geometry.RoadSegmentOverlapsWith(x.Attributes.Geometry, clusterTolerance))
                 .ToList();
         }
@@ -102,8 +102,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         {
             return changeFeatureAttributes with
             {
-                LeftStreetNameId = CorrectStreetNameId(changeFeatureAttributes.LeftStreetNameId),
-                RightStreetNameId = CorrectStreetNameId(changeFeatureAttributes.RightStreetNameId)
+                LeftSideStreetNameId = CorrectStreetNameId(changeFeatureAttributes.LeftSideStreetNameId!.Value),
+                RightSideStreetNameId = CorrectStreetNameId(changeFeatureAttributes.RightSideStreetNameId!.Value)
             };
         }
 
@@ -126,10 +126,10 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 continue;
             }
 
-            if (changeFeatureAttributes.Method != RoadSegmentGeometryDrawMethod.Outlined)
+            if (changeFeatureAttributes.StartNodeId > 0 && changeFeatureAttributes.EndNodeId > 0)
             {
-                var startNodeFeature = FindRoadNodeByOriginalId(changeFeatureAttributes.StartNodeId);
-                var endNodeFeature = FindRoadNodeByOriginalId(changeFeatureAttributes.EndNodeId);
+                var startNodeFeature = FindRoadNodeByOriginalId(changeFeatureAttributes.StartNodeId!.Value);
+                var endNodeFeature = FindRoadNodeByOriginalId(changeFeatureAttributes.EndNodeId!.Value);
 
                 if (startNodeFeature is null || endNodeFeature is null)
                 {
@@ -139,11 +139,12 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
                     if (startNodeFeature is null)
                     {
-                        problems += recordContext.BeginRoadNodeIdOutOfRange(changeFeatureAttributes.StartNodeId);
+                        problems += recordContext.BeginRoadNodeIdOutOfRange(changeFeatureAttributes.StartNodeId!.Value);
                     }
+
                     if (endNodeFeature is null)
                     {
-                        problems += recordContext.EndRoadNodeIdOutOfRange(changeFeatureAttributes.EndNodeId);
+                        problems += recordContext.EndRoadNodeIdOutOfRange(changeFeatureAttributes.EndNodeId!.Value);
                     }
                     continue;
                 }
@@ -164,8 +165,8 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 var nonCriticalAttributesUnchanged = matchingExtractFeatures.FindAll(extractFeature =>
                     changeFeatureAttributes.Status == extractFeature.Attributes.Status &&
                     changeFeatureAttributes.Category == extractFeature.Attributes.Category &&
-                    changeFeatureAttributes.LeftStreetNameId == extractFeature.Attributes.LeftStreetNameId &&
-                    changeFeatureAttributes.RightStreetNameId == extractFeature.Attributes.RightStreetNameId &&
+                    changeFeatureAttributes.LeftSideStreetNameId == extractFeature.Attributes.LeftSideStreetNameId &&
+                    changeFeatureAttributes.RightSideStreetNameId == extractFeature.Attributes.RightSideStreetNameId &&
                     changeFeatureAttributes.MaintenanceAuthority == extractFeature.Attributes.MaintenanceAuthority &&
                     changeFeatureAttributes.Method == extractFeature.Attributes.Method &&
                     changeFeatureAttributes.StartNodeId == extractFeature.Attributes.StartNodeId &&
@@ -199,7 +200,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                             FeatureType.Change,
                             changeFeature.RecordNumber,
-                            changeFeatureAttributes,
+                            changeFeatureAttributes.OnlyChangedAttributes(extractFeature.Attributes),
                             extractFeature.Attributes.Id,
                             RecordType.Modified)
                         {
@@ -214,21 +215,22 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         changeFeatureAttributes.Geometry.IsReasonablyEqualTo(f.Attributes.Geometry, context.Tolerances)
                     );
                     var extractFeature = matchingExtractFeatures.FirstOrDefault(x => x.Attributes.Id == changeFeatureAttributes.Id)
-                        ?? matchingExtractFeatures.First();
+                                         ?? matchingExtractFeatures.First();
 
+                    var convertedFromOutlined = extractFeature.Attributes.Method == RoadSegmentGeometryDrawMethod.Outlined
+                                                && changeFeatureAttributes.Method != extractFeature.Attributes.Method;
                     processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                         FeatureType.Change,
                         changeFeature.RecordNumber,
-                        changeFeatureAttributes,
+                        convertedFromOutlined ? changeFeatureAttributes : changeFeatureAttributes.OnlyChangedAttributes(extractFeature.Attributes),
                         extractFeature.Attributes.Id,
                         RecordType.Modified)
                     {
                         GeometryChanged = !identicalGeometries.Any(),
-                        ConvertedFromOutlined = extractFeature.Attributes.Method == RoadSegmentGeometryDrawMethod.Outlined
-                                                && changeFeatureAttributes.Method != extractFeature.Attributes.Method,
-                        CategoryModified = extractFeature.Attributes.Category != changeFeatureAttributes.Category
+                        ConvertedFromOutlined = convertedFromOutlined
                     });
                 }
+
                 continue;
             }
 
@@ -290,7 +292,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         return (changes, problems);
     }
 
-
     private async Task<(List<Feature<RoadSegmentFeatureCompareAttributes>>, ZipArchiveProblems)> ValidateMaintenanceAuthorityAndMapToInternalId(List<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures, CancellationToken cancellationToken)
     {
         var problems = ZipArchiveProblems.None;
@@ -298,7 +299,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         foreach (var changeFeature in changeFeatures)
         {
-            var maintenanceAuthorityCode = changeFeature.Attributes.MaintenanceAuthority;
+            var maintenanceAuthorityCode = changeFeature.Attributes.MaintenanceAuthority!.Value;
 
             var maintenanceAuthority = await _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(maintenanceAuthorityCode, cancellationToken);
             if (maintenanceAuthority is null)
@@ -375,7 +376,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         foreach (var record in records.Where(x => x.FeatureType != FeatureType.Integration))
         {
             cancellationToken.ThrowIfCancellationRequested();
-
             switch (record.RecordType.Translation.Identifier)
             {
                 case RecordType.IdenticalIdentifier:
@@ -383,41 +383,32 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         new ModifyRoadSegment(
                             record.RecordNumber,
                             record.Id,
-                            record.Attributes.StartNodeId,
-                            record.Attributes.EndNodeId,
-                            record.Attributes.MaintenanceAuthority,
-                            record.Attributes.Method,
-                            record.Attributes.Morphology,
-                            record.Attributes.Status,
-                            record.Attributes.Category,
-                            record.Attributes.AccessRestriction,
-                            record.Attributes.LeftStreetNameId,
-                            record.Attributes.RightStreetNameId
-                        ).WithGeometry(record.Attributes.Geometry)
+                            record.Attributes.Method
+                        )
                     );
                     break;
                 case RecordType.ModifiedIdentifier:
                     var modifyRoadSegment = new ModifyRoadSegment(
                             record.RecordNumber,
                             record.Id,
+                            record.Attributes.Method,
                             record.Attributes.StartNodeId,
                             record.Attributes.EndNodeId,
                             record.Attributes.MaintenanceAuthority,
-                            record.Attributes.Method,
                             record.Attributes.Morphology,
                             record.Attributes.Status,
                             record.Attributes.Category,
                             record.Attributes.AccessRestriction,
-                            record.Attributes.LeftStreetNameId,
-                            record.Attributes.RightStreetNameId
+                            record.Attributes.LeftSideStreetNameId,
+                            record.Attributes.RightSideStreetNameId,
+                            geometry: record.Attributes.Geometry
                         )
-                        .WithGeometry(record.Attributes.Geometry)
-                        .WithConvertedFromOutlined(record.ConvertedFromOutlined)
-                        .WithCategoryModified(record.CategoryModified);
+                        .WithConvertedFromOutlined(record.ConvertedFromOutlined);
                     if (record.Id != record.Attributes.Id)
                     {
                         modifyRoadSegment = modifyRoadSegment.WithOriginalId(record.Attributes.Id);
                     }
+
                     changes = changes.AppendChange(modifyRoadSegment);
 
                     if (record.ConvertedFromOutlined)
@@ -436,16 +427,16 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             record.RecordNumber,
                             record.Id,
                             record.Attributes.Id,
-                            record.Attributes.StartNodeId,
-                            record.Attributes.EndNodeId,
-                            record.Attributes.MaintenanceAuthority,
+                            record.Attributes.StartNodeId!.Value,
+                            record.Attributes.EndNodeId!.Value,
+                            record.Attributes.MaintenanceAuthority!.Value,
                             record.Attributes.Method,
                             record.Attributes.Morphology,
                             record.Attributes.Status,
                             record.Attributes.Category,
                             record.Attributes.AccessRestriction,
-                            record.Attributes.LeftStreetNameId,
-                            record.Attributes.RightStreetNameId
+                            record.Attributes.LeftSideStreetNameId,
+                            record.Attributes.RightSideStreetNameId
                         ).WithGeometry(record.Attributes.Geometry)
                     );
                     break;
@@ -466,22 +457,28 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
     private void MigrateRoadNodeIds(RoadSegmentFeatureCompareRecord record, ZipArchiveEntryFeatureCompareTranslateContext context)
     {
-        var startNode = context.FindNotRemovedRoadNode(record.Attributes.StartNodeId);
-        if (startNode is not null)
+        if (record.Attributes.StartNodeId is not null)
         {
-            record.Attributes = record.Attributes with
+            var startNode = context.FindNotRemovedRoadNode(record.Attributes.StartNodeId.Value);
+            if (startNode is not null)
             {
-                StartNodeId = startNode.Id
-            };
+                record.Attributes = record.Attributes with
+                {
+                    StartNodeId = startNode.Id
+                };
+            }
         }
 
-        var endNode = context.FindNotRemovedRoadNode(record.Attributes.EndNodeId);
-        if (endNode is not null)
+        if (record.Attributes.EndNodeId is not null)
         {
-            record.Attributes = record.Attributes with
+            var endNode = context.FindNotRemovedRoadNode(record.Attributes.EndNodeId.Value);
+            if (endNode is not null)
             {
-                EndNodeId = endNode.Id
-            };
+                record.Attributes = record.Attributes with
+                {
+                    EndNodeId = endNode.Id
+                };
+            }
         }
     }
 
@@ -495,7 +492,12 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                                                                               && !x.RecordType.Equals(RecordType.Added));
             if (!hasProcessedRoadSegment)
             {
-                context.RoadSegmentRecords.Add(new RoadSegmentFeatureCompareRecord(FeatureType.Extract, extractFeature.RecordNumber, extractFeature.Attributes, extractFeature.Attributes.Id, RecordType.Removed));
+                context.RoadSegmentRecords.Add(new RoadSegmentFeatureCompareRecord(
+                    FeatureType.Extract,
+                    extractFeature.RecordNumber,
+                    extractFeature.Attributes,
+                    extractFeature.Attributes.Id,
+                    RecordType.Removed));
             }
         }
     }

@@ -42,6 +42,26 @@ public partial class RoadSegmentVersionProjectionTests
         _fixture.CustomizeRoadSegmentRemovedFromNationalRoad();
         _fixture.CustomizeRoadSegmentAddedToNumberedRoad();
         _fixture.CustomizeRoadSegmentRemovedFromNumberedRoad();
+        _fixture.CustomizeRoadSegmentsStreetNamesChanged();
+    }
+
+    [Fact]
+    public Task When_importing_road_segments()
+    {
+        var random = new Random();
+        var data = _fixture
+            .CreateMany<ImportedRoadSegment>(random.Next(1, 10))
+            .Select((importedRoadSegment, eventIndex) =>
+            {
+                var expected = BuildRoadSegmentRecord(eventIndex, importedRoadSegment);
+
+                return new { importedRoadSegment, expected };
+            }).ToList();
+
+        return BuildProjection()
+            .Scenario()
+            .Given(data.Select(d => d.importedRoadSegment))
+            .Expect(data.Select(d => d.expected));
     }
 
     [Fact]
@@ -58,11 +78,19 @@ public partial class RoadSegmentVersionProjectionTests
             .Given(message)
             .Expect(expectedRecords);
     }
-    
+
     [Fact]
     public Task When_modifying_road_segment_attributes()
     {
         return new ModifyRoadSegmentAttributesScenarioBuilder(_fixture)
+            .Expect();
+    }
+
+
+    [Fact]
+    public Task WhenRoadSegmentsStreetNamesChanged()
+    {
+        return new RoadSegmentsStreetNamesChangedScenarioBuilder(_fixture)
             .Expect();
     }
 
@@ -79,7 +107,7 @@ public partial class RoadSegmentVersionProjectionTests
         return new ModifyRoadSegmentScenarioBuilder(_fixture)
             .Expect();
     }
-    
+
     [Fact]
     public Task When_removing_road_segments()
     {
@@ -214,25 +242,6 @@ public partial class RoadSegmentVersionProjectionTests
             .Scenario()
             .Given(messages)
             .Expect(expectedRecords);
-    }
-
-    [Fact]
-    public Task When_importing_road_segments()
-    {
-        var random = new Random();
-        var data = _fixture
-            .CreateMany<ImportedRoadSegment>(random.Next(1, 10))
-            .Select((importedRoadSegment, eventIndex) =>
-            {
-                var expected = BuildRoadSegmentRecord(eventIndex, importedRoadSegment);
-
-                return new { importedRoadSegment, expected };
-            }).ToList();
-
-        return BuildProjection()
-            .Scenario()
-            .Given(data.Select(d => d.importedRoadSegment))
-            .Expect(data.Select(d => d.expected));
     }
 
     [Fact]

@@ -576,6 +576,42 @@ public static class Customizations
         );
     }
 
+    public static void CustomizeRoadSegmentsStreetNamesChanged(this IFixture fixture)
+    {
+        fixture.CustomizeRoadSegmentStreetNamesChanged();
+
+        fixture.Customize<RoadSegmentsStreetNamesChanged>(customization =>
+            customization
+                .FromFactory(generator =>
+                    new RoadSegmentsStreetNamesChanged
+                    {
+                        RoadSegments = [fixture.Create<RoadSegmentStreetNamesChanged>()],
+                        Reason = fixture.Create<Reason>(),
+                        When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                    }
+                )
+                .OmitAutoProperties()
+        );
+    }
+
+    public static void CustomizeRoadSegmentStreetNamesChanged(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentStreetNamesChanged>(customization =>
+            customization
+                .FromFactory(generator =>
+                    new RoadSegmentStreetNamesChanged
+                    {
+                        Id = fixture.Create<RoadSegmentId>(),
+                        GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
+                        LeftSideStreetNameId = fixture.Create<StreetNameLocalId>(),
+                        RightSideStreetNameId = fixture.Create<StreetNameLocalId>(),
+                        Version = fixture.Create<RoadSegmentVersion>()
+                    }
+                )
+                .OmitAutoProperties()
+        );
+    }
+
     public static void CustomizeRoadNodeAdded(this IFixture fixture)
     {
         fixture.Customize<RoadNodeAdded>(customization =>

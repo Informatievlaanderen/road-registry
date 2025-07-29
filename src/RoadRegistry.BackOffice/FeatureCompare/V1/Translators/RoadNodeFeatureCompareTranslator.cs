@@ -85,7 +85,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
 
         return processedRecords;
     }
-    
+
     private bool AttributesEquals(Feature<RoadNodeFeatureCompareAttributes> feature1, Feature<RoadNodeFeatureCompareAttributes> feature2, ZipArchiveEntryFeatureCompareTranslateContext context)
     {
         return feature1.Attributes.Type == feature2.Attributes.Type
@@ -143,8 +143,9 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                         new ModifyRoadNode(
                             record.RecordNumber,
                             record.Id,
-                            record.Attributes.Type
-                        ).WithGeometry(record.Attributes.Geometry)
+                            record.Attributes.Type,
+                            record.Attributes.Geometry
+                        )
                     );
                     break;
                 case RecordType.RemovedIdentifier:

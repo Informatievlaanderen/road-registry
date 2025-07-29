@@ -4,7 +4,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("ChangeOrganizationRejected")]
 [EventDescription("Notifies the domain that the request to change an organization has been rejected.")]
-public class ChangeOrganizationRejected : IMessage
+public class ChangeOrganizationRejected : IMessage, IWhen
 {
     public string Code { get; set; }
     public string? Name { get; set; }

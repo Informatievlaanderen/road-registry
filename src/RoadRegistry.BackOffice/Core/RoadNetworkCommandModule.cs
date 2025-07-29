@@ -106,7 +106,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 _logger.LogInformation("TIMETRACKING changeroadnetwork: translating command changes to RequestedChanges took {Elapsed}", sw.Elapsed);
 
                 sw.Restart();
-                var changedMessage = await network.Change(request, downloadId, reason, @operator, organizationTranslation, requestedChanges, ticketId, _emailClient, cancellationToken);
+                var changedMessage = await network.Change(request, downloadId, reason, @operator, organizationTranslation, requestedChanges, ticketId, _emailClient, context.Organizations, cancellationToken);
                 _logger.LogInformation("TIMETRACKING changeroadnetwork: applying RequestedChanges to RoadNetwork took {Elapsed}", sw.Elapsed);
 
                 if (changedMessage is RoadNetworkChangesRejected rejectedChangedMessage)
@@ -265,8 +265,6 @@ public static class RequestedChangesConverter
                     change.AddRoadSegment?.PermanentId
                     ?? change.ModifyRoadSegment?.Id
                     ?? change.RemoveRoadSegment?.Id
-                    ?? change.ModifyRoadSegmentAttributes?.Id
-                    ?? change.ModifyRoadSegmentGeometry?.Id
                     ?? change.RemoveOutlinedRoadSegment?.Id
                     ?? change.RemoveOutlinedRoadSegmentFromRoadNetwork?.Id
                     ?? change.AddRoadSegmentToEuropeanRoad?.SegmentId
@@ -279,8 +277,6 @@ public static class RequestedChangesConverter
                 var geometryDrawMethod = change.AddRoadSegment?.GeometryDrawMethod
                                          ?? change.ModifyRoadSegment?.GeometryDrawMethod
                                          ?? change.RemoveRoadSegment?.GeometryDrawMethod
-                                         ?? change.ModifyRoadSegmentAttributes?.GeometryDrawMethod
-                                         ?? change.ModifyRoadSegmentGeometry?.GeometryDrawMethod
                                          ?? (change.RemoveOutlinedRoadSegment is not null ? RoadSegmentGeometryDrawMethod.Outlined.ToString() : null)
                                          ?? (change.RemoveOutlinedRoadSegmentFromRoadNetwork is not null ? RoadSegmentGeometryDrawMethod.Measured.ToString() : null)
                                          ?? change.AddRoadSegmentToEuropeanRoad?.SegmentGeometryDrawMethod

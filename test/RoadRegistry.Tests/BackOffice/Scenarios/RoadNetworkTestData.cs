@@ -112,15 +112,10 @@ public class RoadNetworkTestData
         RequestId = ChangeRequestId.FromArchiveId(ArchiveId);
         ReasonForChange = ObjectProvider.Create<Reason>();
         ChangedByOperator = ObjectProvider.Create<OperatorName>();
+        TransactionId = ObjectProvider.Create<TransactionId>();
         ChangedByOrganization = ObjectProvider.Create<OrganizationId>();
         ChangedByOrganizationName = ObjectProvider.Create<OrganizationName>();
-        TransactionId = ObjectProvider.Create<TransactionId>();
-        ChangedByImportedOrganization = new ImportedOrganization
-        {
-            Code = ChangedByOrganization,
-            Name = ChangedByOrganizationName,
-            When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
-        };
+        ChangedByImportedOrganization = new ImportedOrganizationBuilder(this).Build();
 
         StartPoint1 = new Point(new CoordinateM(0.0, 0.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MiddlePoint1 = new Point(new CoordinateM(50.0, 50.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };

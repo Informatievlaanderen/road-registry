@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Requests;
 using TicketingService.Abstractions;
-using ModifyRoadSegmentGeometry = BackOffice.Uploads.ModifyRoadSegmentGeometry;
+using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
 using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
@@ -77,25 +77,25 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
 
             var attributeIdProvider = new NextAttributeIdProvider(AttributeId.Initial);
 
-            var lanes = roadSegment.Lanes
+            var lane = roadSegment.Lanes
                 .Select(lane => new RoadSegmentLaneAttribute(attributeIdProvider.Next(), lane.Count, lane.Direction, fromPosition, toPosition))
-                .ToList();
-            var surfaces = roadSegment.Surfaces
+                .Single();
+            var surface = roadSegment.Surfaces
                 .Select(surface => new RoadSegmentSurfaceAttribute(attributeIdProvider.Next(), surface.Type, fromPosition, toPosition))
-                .ToList();
-            var widths = roadSegment.Widths
+                .Single();
+            var width = roadSegment.Widths
                 .Select(width => new RoadSegmentWidthAttribute(attributeIdProvider.Next(), width.Width, fromPosition, toPosition))
-                .ToList();
+                .Single();
 
-            return translatedChanges.AppendChange(new ModifyRoadSegmentGeometry(
-                recordNumber,
-                roadSegmentId,
-                roadSegment.AttributeHash.GeometryDrawMethod,
-                request.Request.Geometry,
-                lanes,
-                surfaces,
-                widths
-            ));
+            return translatedChanges.AppendChange(new ModifyRoadSegment(
+                    recordNumber,
+                    roadSegmentId,
+                    roadSegment.AttributeHash.GeometryDrawMethod,
+                    geometry: geometry
+                )
+                .WithLane(lane)
+                .WithSurface(surface)
+                .WithWidth(width));
         }, cancellationToken);
 
         var lastHash = await GetRoadSegmentHash(roadSegmentId, RoadSegmentGeometryDrawMethod.Outlined, cancellationToken);

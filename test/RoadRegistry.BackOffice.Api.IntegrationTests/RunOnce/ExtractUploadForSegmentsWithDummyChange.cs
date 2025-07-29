@@ -45,8 +45,7 @@ public class ExtractUploadForSegmentsWithDummyChange : IClassFixture<ApiClientTe
 
         var segmentIds = new RoadSegmentId[]
         {
-            //1087278,
-            //1134688,
+            //new(1221295),
         };
 
         var cancellationToken = CancellationToken.None;
@@ -105,10 +104,10 @@ public class ExtractUploadForSegmentsWithDummyChange : IClassFixture<ApiClientTe
                         var dbfRecord = new RoadSegmentDbaseRecord
                         {
                             WS_OIDN = { Value = segment.Id },
-                            LSTRNMID = { Value = segment.LeftStreetNameId },
-                            RSTRNMID = { Value = segment.RightStreetNameId },
-                            B_WK_OIDN = { Value = segment.StartNodeId },
-                            E_WK_OIDN = { Value = segment.EndNodeId },
+                            LSTRNMID = { Value = segment.LeftSideStreetNameId },
+                            RSTRNMID = { Value = segment.RightSideStreetNameId },
+                            B_WK_OIDN = { Value = segment.StartNodeId!.Value },
+                            E_WK_OIDN = { Value = segment.EndNodeId!.Value },
                             BEHEER = { Value = segment.MaintenanceAuthority },
                             WEGCAT = { Value = segment.Category.Translation.Identifier },
                             MORF = { Value = segment.Morphology.Translation.Identifier },

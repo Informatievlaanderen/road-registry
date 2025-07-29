@@ -102,10 +102,10 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
                 var modifyRoadSegment = new ModifyRoadSegment(
                         recordNumber,
                         roadSegment.Id,
+                        roadSegment.AttributeHash.GeometryDrawMethod,
                         roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.Start,
                         roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.End,
                         roadSegment.AttributeHash.OrganizationId,
-                        roadSegment.AttributeHash.GeometryDrawMethod,
                         roadSegment.AttributeHash.Morphology,
                         roadSegment.AttributeHash.Status,
                         roadSegment.AttributeHash.Category,

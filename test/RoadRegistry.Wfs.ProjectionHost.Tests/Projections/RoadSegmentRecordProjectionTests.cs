@@ -57,6 +57,7 @@ public class RoadSegmentRecordProjectionTests
         _fixture.CustomizeRoadNetworkChangesAccepted();
         _fixture.CustomizeStreetNameRecord();
         _fixture.CustomizeStreetNameModified();
+        _fixture.CustomizeRoadSegmentsStreetNamesChanged();
     }
 
     [Fact]
@@ -309,6 +310,53 @@ public class RoadSegmentRecordProjectionTests
         return new RoadSegmentRecordProjection(new StreetNameCacheStub(), new UseRoadSegmentSoftDeleteFeatureToggle(true))
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentGeometryModified)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task WhenRoadSegmentsStreetNamesChanged()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var roadSegmentsStreetNamesChanged = _fixture
+            .Create<RoadSegmentsStreetNamesChanged>();
+
+        var expectedRecords = Array.ConvertAll(roadSegmentsStreetNamesChanged.RoadSegments, roadSegmentStreetNamesChanged =>
+        {
+            var segmentAdded = acceptedRoadSegmentAdded.Changes[0].RoadSegmentAdded;
+
+            return (object)new RoadSegmentRecord
+            {
+                Id = roadSegmentStreetNamesChanged.Id,
+                BeginTime = LocalDateTimeTranslator.TranslateFromWhen(roadSegmentsStreetNamesChanged.When),
+
+                MaintainerId = segmentAdded.MaintenanceAuthority.Code,
+                MaintainerName = segmentAdded.MaintenanceAuthority.Name,
+                MethodDutchName = RoadSegmentGeometryDrawMethod.Parse(segmentAdded.GeometryDrawMethod).Translation.Name,
+                CategoryDutchName = RoadSegmentCategory.Parse(segmentAdded.Category).Translation.Name,
+                Geometry2D = WfsGeometryTranslator.Translate2D(segmentAdded.Geometry),
+                MorphologyDutchName = RoadSegmentMorphology.Parse(segmentAdded.Morphology).Translation.Name,
+                StatusDutchName = RoadSegmentStatus.Parse(segmentAdded.Status).Translation.Name,
+                AccessRestriction = RoadSegmentAccessRestriction.Parse(segmentAdded.AccessRestriction).Translation.Name,
+
+                LeftSideStreetNameId = roadSegmentStreetNamesChanged.LeftSideStreetNameId,
+                LeftSideStreetName = null,
+
+                RightSideStreetNameId = roadSegmentStreetNamesChanged.RightSideStreetNameId,
+                RightSideStreetName = null,
+
+                BeginRoadNodeId = segmentAdded.StartNodeId,
+                EndRoadNodeId = segmentAdded.EndNodeId
+            };
+        });
+
+        return new RoadSegmentRecordProjection(new StreetNameCacheStub(), new UseRoadSegmentSoftDeleteFeatureToggle(true))
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, roadSegmentsStreetNamesChanged)
             .Expect(expectedRecords);
     }
 
