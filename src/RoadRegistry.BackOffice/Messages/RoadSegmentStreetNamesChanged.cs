@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 
-//TODO-pr unit tests for projections
 [EventName(EventName)]
 [EventDescription("Road segment streetnames were changed.")]
 public class RoadSegmentsStreetNamesChanged : IMessage, IHaveHash, IWhen

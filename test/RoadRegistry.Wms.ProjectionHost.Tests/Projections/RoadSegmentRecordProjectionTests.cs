@@ -63,6 +63,7 @@ public class RoadSegmentRecordProjectionTests
         _fixture.CustomizeRoadSegmentRemovedFromNationalRoad();
         _fixture.CustomizeRoadSegmentAddedToNumberedRoad();
         _fixture.CustomizeRoadSegmentRemovedFromNumberedRoad();
+        _fixture.CustomizeRoadSegmentsStreetNamesChanged();
     }
 
     [Fact]
@@ -562,6 +563,75 @@ public class RoadSegmentRecordProjectionTests
         return new RoadSegmentRecordProjection(new StreetNameCacheStub(), new UseRoadSegmentSoftDeleteFeatureToggle(true))
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentGeometryModified)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task WhenRoadSegmentsStreetNamesChanged()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var roadSegmentsStreetNamesChanged = _fixture
+            .Create<RoadSegmentsStreetNamesChanged>();
+
+        var expectedRecords = Array.ConvertAll(roadSegmentsStreetNamesChanged.RoadSegments, roadSegmentStreetNamesChanged =>
+        {
+            var segmentAdded = acceptedRoadSegmentAdded.Changes[0].RoadSegmentAdded;
+
+            return (object)new RoadSegmentRecord
+            {
+                Id = roadSegmentStreetNamesChanged.Id,
+                BeginOrganizationId = acceptedRoadSegmentAdded.OrganizationId,
+                BeginOrganizationName = acceptedRoadSegmentAdded.Organization,
+                BeginTime = LocalDateTimeTranslator.TranslateFromWhen(roadSegmentsStreetNamesChanged.When),
+                BeginApplication = null,
+
+                MaintainerId = segmentAdded.MaintenanceAuthority.Code,
+                MaintainerName = segmentAdded.MaintenanceAuthority.Name,
+
+                MethodId = RoadSegmentGeometryDrawMethod.Parse(segmentAdded.GeometryDrawMethod).Translation.Identifier,
+                MethodDutchName = RoadSegmentGeometryDrawMethod.Parse(segmentAdded.GeometryDrawMethod).Translation.Name,
+
+                CategoryId = RoadSegmentCategory.Parse(segmentAdded.Category).Translation.Identifier,
+                CategoryDutchName = RoadSegmentCategory.Parse(segmentAdded.Category).Translation.Name,
+
+                Geometry2D = WmsGeometryTranslator.Translate2D(segmentAdded.Geometry),
+                GeometryVersion = segmentAdded.GeometryVersion,
+
+                MorphologyId = RoadSegmentMorphology.Parse(segmentAdded.Morphology).Translation.Identifier,
+                MorphologyDutchName = RoadSegmentMorphology.Parse(segmentAdded.Morphology).Translation.Name,
+
+                StatusId = RoadSegmentStatus.Parse(segmentAdded.Status).Translation.Identifier,
+                StatusDutchName = RoadSegmentStatus.Parse(segmentAdded.Status).Translation.Name,
+
+                AccessRestrictionId = RoadSegmentAccessRestriction.Parse(segmentAdded.AccessRestriction).Translation.Identifier,
+                AccessRestrictionDutchName = RoadSegmentAccessRestriction.Parse(segmentAdded.AccessRestriction).Translation.Name,
+
+                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+
+                TransactionId = acceptedRoadSegmentAdded.TransactionId,
+
+                LeftSideMunicipalityId = null,
+                LeftSideStreetNameId = roadSegmentStreetNamesChanged.LeftSideStreetNameId,
+                LeftSideStreetName = null,
+
+                RightSideMunicipalityId = null,
+                RightSideStreetNameId = roadSegmentStreetNamesChanged.RightSideStreetNameId,
+                RightSideStreetName = null,
+
+                RoadSegmentVersion = roadSegmentStreetNamesChanged.Version,
+                BeginRoadNodeId = segmentAdded.StartNodeId,
+                EndRoadNodeId = segmentAdded.EndNodeId
+            };
+        });
+
+        return new RoadSegmentRecordProjection(new StreetNameCacheStub(), new UseRoadSegmentSoftDeleteFeatureToggle(true))
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, roadSegmentsStreetNamesChanged)
             .Expect(expectedRecords);
     }
 

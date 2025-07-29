@@ -6,6 +6,9 @@ using BackOffice.Messages;
 using Editor.Projections;
 using Editor.Schema.RoadSegments;
 using Microsoft.Extensions.Logging.Abstractions;
+using NodaTime;
+using NodaTime.Testing;
+using NodaTime.Text;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 
@@ -64,6 +67,7 @@ public class RoadSegmentVersionRecordProjectionTests : IClassFixture<ProjectionT
         _fixture.CustomizeRoadSegmentRemovedFromNationalRoad();
         _fixture.CustomizeRoadSegmentAddedToNumberedRoad();
         _fixture.CustomizeRoadSegmentRemovedFromNumberedRoad();
+        _fixture.CustomizeRoadSegmentsStreetNamesChanged();
     }
 
     [Fact]
@@ -420,6 +424,47 @@ public class RoadSegmentVersionRecordProjectionTests : IClassFixture<ProjectionT
                 GeometryVersion = roadSegmentAdded.GeometryVersion,
                 RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
                 IsRemoved = true
+            };
+        });
+
+        return BuildProjection()
+            .Scenario()
+            .Given(messages)
+            .ExpectWhileIgnoringQueryFilters(expectedRecords);
+    }
+
+    [Fact]
+    public Task WhenRoadSegmentsStreetNamesChanged()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var roadSegmentsStreetNamesChanged = _fixture.Create<RoadSegmentsStreetNamesChanged>();
+
+        var messages = new object[]
+        {
+            acceptedRoadSegmentAdded,
+            roadSegmentsStreetNamesChanged
+        };
+
+        var expectedRecords = Array.ConvertAll(acceptedRoadSegmentAdded.Changes, change =>
+        {
+            var roadSegmentAdded = change.RoadSegmentAdded;
+
+            var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod).Translation;
+
+            return (object)new RoadSegmentVersionRecord
+            {
+                StreamId = "roadnetwork",
+                Id = roadSegmentAdded.Id,
+                Version = roadSegmentsStreetNamesChanged.RoadSegments.Single().Version,
+                Method = geometryDrawMethodTranslation.Identifier,
+                GeometryVersion = roadSegmentAdded.GeometryVersion,
+                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+                IsRemoved = false
             };
         });
 
