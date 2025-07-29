@@ -1,3 +1,15 @@
+# [4.35.0](https://github.com/informatievlaanderen/road-registry/compare/v4.34.2...v4.35.0) (2025-07-29)
+
+
+### Bug Fixes
+
+* cleanup removed endpoint from acmidm integrationtest ([a2f7a50](https://github.com/informatievlaanderen/road-registry/commit/a2f7a505593beb25c52fc903741475fcc599fc13))
+
+
+### Features
+
+* FeatureCompare creates partial modification commands GAWR-6991 ([da5ad64](https://github.com/informatievlaanderen/road-registry/commit/da5ad64dfce62b53c66945916fcab93e375cb003))
+
 ## [4.34.2](https://github.com/informatievlaanderen/road-registry/compare/v4.34.1...v4.34.2) (2025-07-07)
 
 
