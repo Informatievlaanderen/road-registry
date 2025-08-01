@@ -3,24 +3,22 @@ namespace RoadRegistry.BackOffice.Api.Handlers.Extracts;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Abstractions;
+using Abstractions.Exceptions;
 using Abstractions.Extracts.V2;
 using Amazon.S3;
 using Amazon.S3.Model;
+using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using FluentValidation;
-using FluentValidation.Results;
+using Configuration;
+using Exceptions;
+using Framework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NodaTime;
-using RoadRegistry.BackOffice.Abstractions;
-using RoadRegistry.BackOffice.Abstractions.Exceptions;
-using RoadRegistry.BackOffice.Configuration;
-using RoadRegistry.BackOffice.Exceptions;
-using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.Extracts.Schema;
 
-public class GetDownloadUploadPreSignedUrlRequestHandler : EndpointRequestHandler<GetDownloadUploadPreSignedUrlRequest, GetDownloadUploadPreSignedUrlResponse>
+public class GetDownloadUploadPresignedUrlRequestHandler : EndpointRequestHandler<GetDownloadUploadPresignedUrlRequest, GetDownloadUploadPresignedUrlResponse>
 {
     private readonly RoadNetworkExtractUploadsBlobClient _client;
     private readonly IClock _clock;
@@ -29,7 +27,7 @@ public class GetDownloadUploadPreSignedUrlRequestHandler : EndpointRequestHandle
     private readonly S3Options _s3Options;
     private readonly ExtractsDbContext _extractsDbContext;
 
-    public GetDownloadUploadPreSignedUrlRequestHandler(
+    public GetDownloadUploadPresignedUrlRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkExtractUploadsBlobClient client,
         IClock clock,
@@ -38,7 +36,7 @@ public class GetDownloadUploadPreSignedUrlRequestHandler : EndpointRequestHandle
         S3Options s3Options,
         ExtractsDbContext extractsDbContext,
         ILoggerFactory logger)
-        : base(dispatcher, logger.CreateLogger<GetDownloadUploadPreSignedUrlRequestHandler>())
+        : base(dispatcher, logger.CreateLogger<GetDownloadUploadPresignedUrlRequestHandler>())
     {
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
         _clock = clock;
@@ -48,7 +46,7 @@ public class GetDownloadUploadPreSignedUrlRequestHandler : EndpointRequestHandle
         _extractsDbContext = extractsDbContext;
     }
 
-    protected override async Task<GetDownloadUploadPreSignedUrlResponse> InnerHandleAsync(GetDownloadUploadPreSignedUrlRequest request, CancellationToken cancellationToken)
+    protected override async Task<GetDownloadUploadPresignedUrlResponse> InnerHandleAsync(GetDownloadUploadPresignedUrlRequest request, CancellationToken cancellationToken)
     {
         var record = await _extractsDbContext.ExtractRequests.SingleOrDefaultAsync(x => x.DownloadId == request.DownloadId.ToGuid(), cancellationToken);
 
@@ -57,12 +55,12 @@ public class GetDownloadUploadPreSignedUrlRequestHandler : EndpointRequestHandle
             throw new ExtractDownloadNotFoundException(request.DownloadId);
         }
 
-        var archiveId = new ArchiveId(request.Identifier);
+        var archiveId = new ArchiveId(record.ArchiveId!);
         var blobName = new BlobName(archiveId.ToString());
 
         if (!await _client.BlobExistsAsync(blobName, cancellationToken))
         {
-            throw new ExtractDownloadNotFoundException(request.DownloadId);
+            throw new BlobNotFoundException(blobName);
         }
 
         var blob = await _client.GetBlobAsync(blobName, cancellationToken);
@@ -83,6 +81,6 @@ public class GetDownloadUploadPreSignedUrlRequestHandler : EndpointRequestHandle
                     .ToDateTimeUtc()
             });
 
-        return new GetDownloadUploadPreSignedUrlResponse(preSignedUrl, fileName);
+        return new GetDownloadUploadPresignedUrlResponse(preSignedUrl, fileName);
     }
 }

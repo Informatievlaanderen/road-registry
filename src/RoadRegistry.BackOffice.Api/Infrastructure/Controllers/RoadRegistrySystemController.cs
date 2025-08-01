@@ -20,8 +20,8 @@ public partial class RoadRegistrySystemController : BackofficeApiController
         IStreamStore store,
         IMediator mediator,
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
-        BackofficeApiControllerContext context)
-        : base(context)
+        BackofficeApiControllerContext apiContext)
+        : base(apiContext)
     {
         Store = store;
         Mediator = mediator;

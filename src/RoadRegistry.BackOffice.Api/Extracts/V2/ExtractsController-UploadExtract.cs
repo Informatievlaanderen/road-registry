@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracts.V2;
 
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Exceptions;
@@ -9,6 +10,8 @@ using Editor.Schema;
 using Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using RoadRegistry.Extracts.Schema;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 
@@ -18,7 +21,7 @@ public partial class ExtractsController
     ///     Vraag een pre-signed url aan voor een zip van een extract download te uploaden.
     /// </summary>
     /// <param name="downloadId"></param>
-    /// <param name="editorContext"></param>
+    /// <param name="extractsDbContext"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als de url is aangemaakt.</response>
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
@@ -27,13 +30,11 @@ public partial class ExtractsController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
-    [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerOperation(OperationId = nameof(UploadExtract))]
     [HttpPost("{downloadId}/upload", Name = nameof(UploadExtract))]
     public async Task<IActionResult> UploadExtract(
         [FromRoute] string downloadId,
-        [FromServices] EditorContext editorContext,
+        [FromServices] ExtractsDbContext extractsDbContext,
         CancellationToken cancellationToken)
     {
         if (!DownloadId.TryParse(downloadId, out var parsedDownloadId))
@@ -41,12 +42,12 @@ public partial class ExtractsController
             throw new InvalidGuidValidationException("DownloadId");
         }
 
-        var record = await editorContext.ExtractRequests.FindAsync([parsedDownloadId.ToGuid()], cancellationToken);
+        var record = await extractsDbContext.ExtractRequests.SingleOrDefaultAsync(x => x.DownloadId == parsedDownloadId.ToGuid(), cancellationToken);
         if (record is null)
         {
-            throw new ExtractRequestNotFoundException(parsedDownloadId);
+            return NotFound();
         }
 
-        return Ok(await _mediator.Send(GetPresignedUploadUrlRequest.ForExtracts(parsedDownloadId), cancellationToken));
+        return Ok(await _mediator.Send(GetPresignedUploadUrlRequest.ForExtractsV2(parsedDownloadId), cancellationToken));
     }
 }

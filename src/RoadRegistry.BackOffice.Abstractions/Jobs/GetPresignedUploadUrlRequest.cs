@@ -28,11 +28,21 @@ namespace RoadRegistry.BackOffice.Abstractions.Jobs
                 DownloadId = downloadId
             };
         }
+
+        public static GetPresignedUploadUrlRequest ForExtractsV2(DownloadId downloadId)
+        {
+            return new GetPresignedUploadUrlRequest
+            {
+                UploadType = UploadType.ExtractsV2,
+                DownloadId = downloadId
+            };
+        }
     }
 
     public enum UploadType
     {
         Uploads,
-        Extracts
+        Extracts,
+        ExtractsV2
     }
 }

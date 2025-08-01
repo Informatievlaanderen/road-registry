@@ -22,7 +22,7 @@ public partial class ExtractsController
     ///     of cancellation.
     /// </param>
     /// <returns>ActionResult.</returns>
-    [ProducesResponseType(typeof(GetExtractDownloadPreSignedUrlResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(DownloadExtractResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status410Gone)]
@@ -40,29 +40,25 @@ public partial class ExtractsController
 
         try
         {
-            var request = new GetDownloadExtractPreSignedUrlRequest(parsedDownloadId);
+            var request = new GetDownloadExtractPresignedUrlRequest(parsedDownloadId);
             var response = await _mediator.Send(request, cancellationToken);
 
-            return Ok(new GetExtractDownloadPreSignedUrlResponse
+            return Ok(new DownloadExtractResponse
             {
-                DownloadUrl = response.PreSignedUrl
+                DownloadUrl = response.PresignedUrl
             });
         }
         catch (ExtractDownloadNotFoundException)
         {
             return NotFound();
         }
-        catch (ExtractArchiveNotCreatedException)
-        {
-            return StatusCode((int)HttpStatusCode.Gone);
-        }
-        catch (BlobNotFoundException) // This condition can only occur if the blob no longer exists in the bucket
+        catch (BlobNotFoundException)
         {
             return StatusCode((int)HttpStatusCode.Gone);
         }
     }
 
-    public class GetExtractDownloadPreSignedUrlResponse
+    public class DownloadExtractResponse
     {
         public string DownloadUrl { get; init; }
     }

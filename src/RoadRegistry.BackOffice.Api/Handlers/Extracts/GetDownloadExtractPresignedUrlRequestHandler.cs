@@ -4,7 +4,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions;
-using Abstractions.Exceptions;
 using Abstractions.Extracts.V2;
 using Amazon.S3;
 using Amazon.S3.Model;
@@ -19,7 +18,7 @@ using NodaTime;
 using RoadRegistry.Extracts.Schema;
 using SqlStreamStore;
 
-public class GetDownloadExtractPreSignedUrlRequestHandler : EndpointRequestHandler<GetDownloadExtractPreSignedUrlRequest, GetDownloadExtractPreSignedUrlResponse>
+public class GetDownloadExtractPresignedUrlRequestHandler : EndpointRequestHandler<GetDownloadExtractPresignedUrlRequest, GetDownloadExtractPresignedUrlResponse>
 {
     private readonly ExtractsDbContext _extractsDbContext;
     private readonly RoadNetworkExtractDownloadsBlobClient _client;
@@ -28,7 +27,7 @@ public class GetDownloadExtractPreSignedUrlRequestHandler : EndpointRequestHandl
     private readonly S3BlobClientOptions _s3BlobClientOptions;
     private readonly S3Options _s3Options;
 
-    public GetDownloadExtractPreSignedUrlRequestHandler(
+    public GetDownloadExtractPresignedUrlRequestHandler(
         CommandHandlerDispatcher dispatcher,
         ExtractsDbContext extractsDbContext,
         RoadNetworkExtractDownloadsBlobClient client,
@@ -38,7 +37,7 @@ public class GetDownloadExtractPreSignedUrlRequestHandler : EndpointRequestHandl
         S3BlobClientOptions s3BlobClientOptions,
         S3Options s3Options,
         ILoggerFactory loggerFactory)
-        : base(dispatcher, loggerFactory.CreateLogger<GetDownloadExtractPreSignedUrlRequestHandler>())
+        : base(dispatcher, loggerFactory.CreateLogger<GetDownloadExtractPresignedUrlRequestHandler>())
     {
         _extractsDbContext = extractsDbContext;
         _client = client ?? throw new ArgumentNullException(nameof(client));
@@ -48,7 +47,7 @@ public class GetDownloadExtractPreSignedUrlRequestHandler : EndpointRequestHandl
         _s3Options = s3Options;
     }
 
-    protected override async Task<GetDownloadExtractPreSignedUrlResponse> InnerHandleAsync(GetDownloadExtractPreSignedUrlRequest request, CancellationToken cancellationToken)
+    protected override async Task<GetDownloadExtractPresignedUrlResponse> InnerHandleAsync(GetDownloadExtractPresignedUrlRequest request, CancellationToken cancellationToken)
     {
         var record = await _extractsDbContext.ExtractRequests.SingleOrDefaultAsync(x => x.DownloadId == request.DownloadId.ToGuid(), cancellationToken);
 
@@ -57,12 +56,7 @@ public class GetDownloadExtractPreSignedUrlRequestHandler : EndpointRequestHandl
             throw new ExtractDownloadNotFoundException(request.DownloadId);
         }
 
-        if (string.IsNullOrEmpty(record.ArchiveId))
-        {
-            throw new ExtractArchiveNotCreatedException();
-        }
-
-        var blobName = new BlobName(record.ArchiveId);
+        var blobName = new BlobName(record.ArchiveId!);
 
         if (!await _client.BlobExistsAsync(blobName, cancellationToken))
         {
@@ -71,7 +65,7 @@ public class GetDownloadExtractPreSignedUrlRequestHandler : EndpointRequestHandl
 
         var bucketName = _s3BlobClientOptions.GetBucketName(WellKnownBuckets.ExtractDownloadsBucket);
 
-        var preSignedUrl = await _amazonS3.GetPreSignedURLAsync(
+        var presignedUrl = await _amazonS3.GetPreSignedURLAsync(
             new GetPreSignedUrlRequest
             {
                 BucketName = bucketName,
@@ -85,6 +79,6 @@ public class GetDownloadExtractPreSignedUrlRequestHandler : EndpointRequestHandl
         record.DownloadedOn = DateTimeOffset.UtcNow;
         await _extractsDbContext.SaveChangesAsync(cancellationToken);
 
-        return new GetDownloadExtractPreSignedUrlResponse(preSignedUrl);
+        return new GetDownloadExtractPresignedUrlResponse(presignedUrl);
     }
 }

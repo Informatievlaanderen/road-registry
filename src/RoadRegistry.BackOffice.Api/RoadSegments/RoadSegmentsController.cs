@@ -23,8 +23,8 @@ public partial class RoadSegmentsController : BackofficeApiController
 {
     private readonly IMediator _mediator;
 
-    public RoadSegmentsController(BackofficeApiControllerContext context, IMediator mediator)
-        : base(context)
+    public RoadSegmentsController(BackofficeApiControllerContext apiContext, IMediator mediator)
+        : base(apiContext)
     {
         _mediator = mediator;
     }

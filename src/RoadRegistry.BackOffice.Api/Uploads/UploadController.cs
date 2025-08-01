@@ -28,7 +28,7 @@ public partial class UploadController : BackofficeApiController
 {
     private readonly IMediator _mediator;
 
-    public UploadController(BackofficeApiControllerContext context, IMediator mediator) : base(context)
+    public UploadController(BackofficeApiControllerContext apiContext, IMediator mediator) : base(apiContext)
     {
         _mediator = mediator;
     }

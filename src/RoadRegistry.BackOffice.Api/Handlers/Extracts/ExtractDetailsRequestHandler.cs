@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Extracts.V2;
+namespace RoadRegistry.BackOffice.Api.Handlers.Extracts;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +18,7 @@ public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetail
     public ExtractDetailsRequestHandler(
         ExtractsDbContext extractsDbContext,
         CommandHandlerDispatcher dispatcher,
-        ILogger<DownloadExtractByContourRequestHandler> logger)
+        ILogger<ExtractDetailsRequestHandler> logger)
         : base(dispatcher, logger)
     {
         _extractsDbContext = extractsDbContext;

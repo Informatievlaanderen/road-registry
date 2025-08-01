@@ -1,27 +1,25 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
 using System.Globalization;
-using System.Linq;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Extensions;
-using FeatureToggle;
 using Hosts.Infrastructure.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 public abstract class BackofficeApiController : ApiController
 {
-    private readonly BackofficeApiControllerContext _context;
+    protected BackofficeApiControllerContext ApiContext { get; }
 
     protected BackofficeApiController()
     {
     }
 
-    protected BackofficeApiController(BackofficeApiControllerContext context)
+    protected BackofficeApiController(BackofficeApiControllerContext apiContext)
     {
-        _context = context;
+        ApiContext = apiContext;
     }
 
     protected IActionResult Accepted(LocationResult locationResult)
@@ -29,7 +27,7 @@ public abstract class BackofficeApiController : ApiController
         return Accepted(locationResult
             .Location
             .ToString()
-            .Replace(_context.TicketingOptions.InternalBaseUrl, _context.TicketingOptions.PublicBaseUrl));
+            .Replace(ApiContext.TicketingOptions.InternalBaseUrl, ApiContext.TicketingOptions.PublicBaseUrl));
     }
 
     protected void AddHeaderRetryAfter(int retryAfter)
@@ -40,30 +38,9 @@ public abstract class BackofficeApiController : ApiController
         }
     }
 
-    protected bool GetFeatureToggleValue<T>(T featureToggle)
-        where T : IFeatureToggle
-    {
-        var headerKey = $"X-{typeof(T).Name}";
-        if (Request.Headers.TryGetValue(headerKey, out var values))
-        {
-            var value = values.First();
-            if (string.IsNullOrEmpty(value))
-            {
-                value = true.ToString();
-            }
-
-            if (bool.TryParse(value, out var featureEnabled))
-            {
-                return featureEnabled;
-            }
-        }
-
-        return featureToggle.FeatureEnabled;
-    }
-
     protected ProvenanceData CreateProvenanceData(Modification modification = Modification.Unknown)
     {
-        return new RoadRegistryProvenanceData(modification, _context.HttpContextAccessor.HttpContext?.GetOperatorName());
+        return new RoadRegistryProvenanceData(modification, ApiContext.HttpContextAccessor.HttpContext?.GetOperatorName());
     }
 }
 

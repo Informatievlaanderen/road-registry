@@ -1,9 +1,11 @@
 namespace RoadRegistry.BackOffice.Api.Extracts.V2;
 
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Exceptions;
-using Abstractions.Uploads;
+using Abstractions.Extracts.V2;
+using Be.Vlaanderen.Basisregisters.BlobStore;
 using Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,14 +16,12 @@ public partial class ExtractsController
     /// <summary>
     ///     Gets the pre-signed url to download the uploaded extract.
     /// </summary>
-    /// <param name="identifier">De identificator van de upload.</param>
+    /// <param name="downloadId">The download identifier.</param>
     /// <param name="cancellationToken"></param>
-    /// <response code="200">Als de upload gevonden is.</response>
-    /// <response code="404">Als de upload niet gevonden kan worden.</response>
-    /// <response code="500">Als er een interne fout is opgetreden.</response>
-    [ProducesResponseType(typeof(GetUploadDownloadPreSignedUrlResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(DownloadUploadResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status410Gone)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(OperationId = nameof(DownloadUpload))]
     [HttpGet("{downloadId}/upload", Name = nameof(DownloadUpload))]
@@ -36,12 +36,12 @@ public partial class ExtractsController
 
         try
         {
-            var request = new GetUploadFilePreSignedUrlRequest(parsedDownloadId);
+            var request = new GetDownloadUploadPresignedUrlRequest(parsedDownloadId);
             var response = await _mediator.Send(request, cancellationToken);
 
-            return Ok(new GetUploadDownloadPreSignedUrlResponse
+            return Ok(new DownloadUploadResponse
             {
-                DownloadUrl = response.PreSignedUrl,
+                DownloadUrl = response.PresignedUrl,
                 FileName = response.FileName
             });
         }
@@ -49,9 +49,13 @@ public partial class ExtractsController
         {
             return NotFound();
         }
+        catch (BlobNotFoundException)
+        {
+            return StatusCode((int)HttpStatusCode.Gone);
+        }
     }
 
-    public class GetUploadDownloadPreSignedUrlResponse
+    public class DownloadUploadResponse
     {
         public string DownloadUrl { get; init; }
         public string FileName { get; init; }
