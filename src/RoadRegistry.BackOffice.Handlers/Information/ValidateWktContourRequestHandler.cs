@@ -36,9 +36,34 @@ public class ValidateWktContourRequestHandler : EndpointRequestHandler<ValidateW
             Area = geometry.Area,
             AreaMaximumSquareKilometers = SquareKmMaximum,
             IsValid = geometry.IsValid,
-            IsLargerThanMaximumArea =  geometry.Area > (SquareKmMaximum * 1000 * 1000)
+            IsLargerThanMaximumArea = geometry.Area > (SquareKmMaximum * 1000 * 1000)
         };
 
         return Task.FromResult(response);
+    }
+}
+
+//TODO-pr bovenstaande obsolete? te bekijken waar gebruikt, enkel voor portaal?
+public interface IExtractContourValidator
+{
+    bool IsValid(string contour);
+}
+
+public class ExtractContourValidator: IExtractContourValidator
+{
+    private const int SquareKmMaximum = 100;
+
+    public bool IsValid(string contour)
+    {
+        try
+        {
+            var reader = new WKTReader();
+            var geometry = reader.Read(contour);
+            return geometry.IsValid && geometry.Area <= (SquareKmMaximum * 1000 * 1000);
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

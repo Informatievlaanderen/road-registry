@@ -155,7 +155,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
 
                         await upload.ValidateArchiveUsing(archive, ticketId, beforeFeatureCompareValidator, extractUploadFailedEmailClient, ticketing, ct);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         if (extractUploadFailedEmailClient is not null)
                         {

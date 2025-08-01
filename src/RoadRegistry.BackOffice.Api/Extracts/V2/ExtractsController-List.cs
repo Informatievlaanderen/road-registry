@@ -28,7 +28,7 @@ public partial class ExtractsController
         [FromServices] ExtractDownloadsOptions options,
         CancellationToken cancellationToken)
     {
-        //TODO-pr implement GetList
+        //TODO-pr implement GetList filtering by OrganizationCode (=OperatorName)
         throw new NotImplementedException();
         // try
         // {

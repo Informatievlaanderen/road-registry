@@ -1781,6 +1781,7 @@
           "RoadRegistry.BackOffice.ZipArchiveWriters": "[1.0.0, )",
           "RoadRegistry.Editor.Projections": "[1.0.0, )",
           "RoadRegistry.Editor.Schema": "[1.0.0, )",
+          "RoadRegistry.Extracts.Schema": "[1.0.0, )",
           "RoadRegistry.Product.Schema": "[1.0.0, )",
           "RoadRegistry.Sync.MunicipalityRegistry": "[1.0.0, )"
         }
@@ -1837,6 +1838,18 @@
           "Microsoft.IdentityModel.JsonWebTokens": "[8.9.0, )",
           "Microsoft.IdentityModel.Logging": "[8.9.0, )",
           "Microsoft.IdentityModel.Tokens": "[8.9.0, )",
+          "NetTopologySuite": "[2.6.0, )",
+          "RoadRegistry.BackOffice": "[1.0.0, )"
+        }
+      },
+      "roadregistry.extracts.schema": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Design": "[9.0.4, )",
+          "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite": "[9.0.4, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.0.5, )",
+          "Microsoft.IdentityModel.Abstractions": "[8.9.0, )",
+          "Microsoft.IdentityModel.Logging": "[8.9.0, )",
           "NetTopologySuite": "[2.6.0, )",
           "RoadRegistry.BackOffice": "[1.0.0, )"
         }

@@ -7,6 +7,7 @@ public static class WellKnownSchemas
     public const string EditorMetricsSchema = "RoadRegistryEditorMetrics";
     public const string EditorSchema = "RoadRegistryEditor";
     public const string IntegrationSchema = "integration_road";
+    public const string ExtractsSchema = "RoadRegistryExtracts";
     public const string ExtractHostSchema = "RoadRegistryBackOfficeExtractHost";
     public const string EventHostSchema = "RoadRegistryBackOfficeEventHost";
     public const string EventSchema = "RoadRegistry";

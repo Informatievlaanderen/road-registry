@@ -1,10 +1,19 @@
 namespace RoadRegistry.BackOffice.Api.Extracts.V2;
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Abstractions.Extracts.V2;
+using BackOffice.Handlers.Information;
+using BackOffice.Handlers.Sqs.Extracts;
+using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using Core.ProblemCodes;
+using Extensions;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RoadRegistry.BackOffice.Abstractions.Extracts;
 using Swashbuckle.AspNetCore.Annotations;
 
 public partial class ExtractsController
@@ -12,23 +21,65 @@ public partial class ExtractsController
     /// <summary>
     ///     Requests the download by contour.
     /// </summary>
-    /// <param name="body">The body.</param>
+    /// <param name="validator"></param>
+    /// <param name="body"></param>
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
     ///     of cancellation.
     /// </param>
     /// <returns>ActionResult.</returns>
-    [ProducesResponseType(typeof(DownloadExtractResponseBody), StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(LocationResult), StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(OperationId = nameof(RequestDownloadByContour))]
     [HttpPost("downloadrequests/bycontour", Name = nameof(RequestDownloadByContour))]
-    public async Task<ActionResult> RequestDownloadByContour([FromBody] DownloadExtractByContourRequestBody body, CancellationToken cancellationToken)
+    public async Task<IActionResult> RequestDownloadByContour(
+        [FromBody] RequestDownloadByContourBody body,
+        [FromServices] IValidator<RequestDownloadByContourBody> validator,
+        CancellationToken cancellationToken)
     {
-        var request = new DownloadExtractByContourRequest(body.Contour, body.Buffer, body.Description, body.IsInformative);
-        var response = await _mediator.Send(request, cancellationToken);
-        return Accepted(new DownloadExtractResponseBody(response.DownloadId, response.IsInformative));
+        try
+        {
+            await validator.ValidateAndThrowAsync(body, cancellationToken);
+
+            var extractRequestId = string.IsNullOrEmpty(body.ExternalRequestId)
+                ? Guid.NewGuid().ToString("N")
+                : ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(body.ExternalRequestId));
+
+            var result = await _mediator.Send(new RequestExtractSqsRequest
+            {
+                ProvenanceData = CreateProvenanceData(Modification.Insert),
+                Request = new RequestExtractRequest(extractRequestId, body.Contour, body.Description, body.IsInformative)
+            }, cancellationToken);
+
+            return Accepted(result);
+        }
+        catch (IdempotencyException)
+        {
+            return Accepted();
+        }
     }
 }
 
-public record DownloadExtractByContourRequestBody(int Buffer, string Contour, string Description, bool IsInformative);
+public record RequestDownloadByContourBody(string Contour, string Description, bool IsInformative, string? ExternalRequestId);
+
+public class RequestDownloadByContourBodyValidator : AbstractValidator<RequestDownloadByContourBody>
+{
+    public RequestDownloadByContourBodyValidator(IExtractContourValidator contourValidator)
+    {
+        RuleFor(x => x.Contour)
+            .Must(contourValidator.IsValid)
+            .WithProblemCode(ProblemCode.Extract.NotFound); //TODO-pr decide error+translation
+
+        RuleFor(c => c.Description)
+            .NotNull().WithMessage("'Description' must not be null or missing")
+            .MaximumLength(ExtractDescription.MaxLength).WithMessage($"'Description' must not be longer than {ExtractDescription.MaxLength} characters");
+
+        When(x => !string.IsNullOrEmpty(x.ExternalRequestId), () =>
+        {
+            RuleFor(x => x.ExternalRequestId)
+                .Must(ExtractRequestId.Accepts)
+                .WithProblemCode(ProblemCode.Extract.NotFound); //TODO-pr decide error+translation
+        });
+    }
+}

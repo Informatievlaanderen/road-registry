@@ -31,6 +31,8 @@ using Sync.StreetNameRegistry;
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using Extracts.Schema;
 using Integration.Schema;
 using Wfs.Schema;
 using Wms.Schema;
@@ -54,6 +56,7 @@ public class Startup
         IHostApplicationLifetime appLifetime,
         ILoggerFactory loggerFactory,
         IApiVersionDescriptionProvider apiVersionProvider,
+        IConfiguration configuration,
         HealthCheckService healthCheckService)
     {
         StartupHelpers.CheckDatabases(healthCheckService, DatabaseTag, loggerFactory).GetAwaiter().GetResult();
@@ -94,6 +97,14 @@ public class Startup
                     AfterMiddleware = x => x.UseMiddleware<AddNoCacheHeadersMiddleware>()
                 }
             });
+
+        var migratorFactories = serviceProvider.GetRequiredService<IDbContextMigratorFactory[]>();
+
+        foreach (var migratorFactory in migratorFactories)
+        {
+            migratorFactory.CreateMigrator(configuration, loggerFactory)
+                .MigrateAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
     }
 
     /// <summary>Configures services for the application.</summary>
@@ -229,6 +240,11 @@ public class Startup
             .AddDbContext<StreetNameEventConsumerContext>(WellKnownConnectionNames.StreetNameEventConsumer)
             .AddDbContext<StreetNameEventProjectionContext>(WellKnownConnectionNames.StreetNameProjections)
             .AddDbContext<IntegrationContext>(WellKnownConnectionNames.IntegrationProjections)
+
+            .AddSingleton(new IDbContextMigratorFactory[]
+            {
+                new ExtractsDbContextMigratorFactory()
+            })
             ;
 
         var containerBuilder = new ContainerBuilder();

@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts.V2;
 
 using System.Threading;
 using System.Threading.Tasks;
+using Abstractions.Exceptions;
 using Abstractions.Uploads;
 using Exceptions;
 using Microsoft.AspNetCore.Http;
@@ -24,11 +25,18 @@ public partial class ExtractsController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(OperationId = nameof(DownloadUpload))]
     [HttpGet("{downloadId}/upload", Name = nameof(DownloadUpload))]
-    public async Task<IActionResult> DownloadUpload(string identifier, CancellationToken cancellationToken)
+    public async Task<IActionResult> DownloadUpload(
+        [FromRoute] string downloadId,
+        CancellationToken cancellationToken)
     {
+        if (!DownloadId.TryParse(downloadId, out var parsedDownloadId))
+        {
+            throw new InvalidGuidValidationException("DownloadId");
+        }
+
         try
         {
-            var request = new GetUploadFilePreSignedUrlRequest(identifier);
+            var request = new GetUploadFilePreSignedUrlRequest(parsedDownloadId);
             var response = await _mediator.Send(request, cancellationToken);
 
             return Ok(new GetUploadDownloadPreSignedUrlResponse

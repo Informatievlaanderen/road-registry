@@ -1,0 +1,137 @@
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers.Extracts;
+
+using Abstractions.Extracts.V2;
+using BackOffice.Extracts;
+using Be.Vlaanderen.Basisregisters.BlobStore;
+using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Hosts;
+using Infrastructure;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
+using Requests.Extracts;
+using RoadRegistry.Extracts.Schema;
+using TicketingService.Abstractions;
+
+public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<RequestExtractSqsLambdaRequest>
+{
+    private readonly WKTReader _wktReader;
+    private readonly ExtractsDbContext _extractsDbContext;
+    private readonly RoadNetworkExtractDownloadsBlobClient _downloadsBlobClient;
+    private readonly IRoadNetworkExtractArchiveAssembler _assembler;
+
+    public RequestExtractSqsLambdaRequestHandler(
+        SqsLambdaHandlerOptions options,
+        ICustomRetryPolicy retryPolicy,
+        ITicketing ticketing,
+        IIdempotentCommandHandler idempotentCommandHandler,
+        IRoadRegistryContext roadRegistryContext,
+        WKTReader wktReader,
+        ExtractsDbContext extractsDbContext,
+        RoadNetworkExtractDownloadsBlobClient downloadsBlobClient,
+        IRoadNetworkExtractArchiveAssembler assembler,
+        ILogger<RequestExtractSqsLambdaRequestHandler> logger)
+        : base(
+            options,
+            retryPolicy,
+            ticketing,
+            idempotentCommandHandler,
+            roadRegistryContext,
+            logger)
+    {
+        _wktReader = wktReader;
+        _extractsDbContext = extractsDbContext;
+        _downloadsBlobClient = downloadsBlobClient;
+        _assembler = assembler;
+    }
+
+    protected override async Task<object> InnerHandle(RequestExtractSqsLambdaRequest request, CancellationToken cancellationToken)
+    {
+        var extractRequestId = ExtractRequestId.FromString(request.Request.ExtractRequestId);
+        var contour = _wktReader.Read(request.Request.Contour).ToMultiPolygon();
+        var downloadId = new DownloadId(Guid.NewGuid());
+        var extractDescription = new ExtractDescription(request.Request.Description);
+        var isInformative = request.Request.IsInformative;
+
+        var extractRequest = await _extractsDbContext.ExtractRequests.FindAsync([extractRequestId], cancellationToken);
+        if (extractRequest is null)
+        {
+            extractRequest = new ExtractRequest
+            {
+                ExtractRequestId = extractRequestId,
+                OrganizationCode = request.Provenance.Operator,
+                Contour = contour,
+                Description = extractDescription,
+                IsInformative = isInformative,
+                RequestedOn = DateTimeOffset.UtcNow,
+                DownloadId = downloadId
+            };
+            _extractsDbContext.ExtractRequests.Add(extractRequest);
+        }
+        else
+        {
+            extractRequest.RequestedOn = DateTimeOffset.UtcNow;
+            extractRequest.DownloadId = downloadId;
+            extractRequest.DownloadAvailable = false;
+            extractRequest.ArchiveId = null;
+        }
+
+        extractRequest.TicketId = request.TicketId;
+
+        await _extractsDbContext.SaveChangesAsync(cancellationToken);
+
+        await BuildArchive(extractRequest, cancellationToken);
+
+        await _extractsDbContext.SaveChangesAsync(cancellationToken);
+
+        return new RequestExtractResponse(downloadId);
+    }
+
+    protected override Task ValidateIfMatchHeaderValue(RequestExtractSqsLambdaRequest request, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    private async Task BuildArchive(
+        ExtractRequest extractRequest,
+        CancellationToken ct)
+    {
+        var archiveId = new ArchiveId(extractRequest.DownloadId.ToString("N"));
+
+        // var overlappingDownloadIds = !message.Body.IsInformative
+        //     ? await GetOverlappingDownloadIds(downloadId, message.Body.Contour, ct)
+        //     : [];
+
+        var request = new RoadNetworkExtractAssemblyRequest(
+            default,
+            new DownloadId(extractRequest.DownloadId),
+            new ExtractDescription(extractRequest.Description),
+            GeometryTranslator.Translate(GeometryTranslator.TranslateToRoadNetworkExtractGeometry((IPolygonal)extractRequest.Contour)),
+            extractRequest.IsInformative,
+            WellKnownZipArchiveWriterVersions.V2);
+
+        try
+        {
+            using (var content = await _assembler.AssembleArchive(request, ct))
+            {
+                content.Position = 0L;
+
+                await _downloadsBlobClient.CreateBlobAsync(
+                    new BlobName(archiveId),
+                    Metadata.None,
+                    ContentType.Parse("application/x-zip-compressed"),
+                    content,
+                    ct);
+            }
+
+            extractRequest.DownloadAvailable = true;
+            extractRequest.ArchiveId = archiveId;
+        }
+        catch (SqlException ex) when (ex.Number.Equals(-2))
+        {
+            extractRequest.ExtractDownloadTimeoutOccurred = true;
+        }
+    }
+}
