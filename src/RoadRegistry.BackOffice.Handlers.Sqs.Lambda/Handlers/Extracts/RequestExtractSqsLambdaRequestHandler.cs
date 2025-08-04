@@ -8,6 +8,7 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Hosts;
 using Infrastructure;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
@@ -62,27 +63,40 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
             {
                 ExtractRequestId = extractRequestId,
                 OrganizationCode = request.Provenance.Operator,
-                Contour = contour,
                 Description = extractDescription,
-                IsInformative = isInformative,
+                ExternalRequestId = request.Request.ExternalRequestId,
                 RequestedOn = DateTimeOffset.UtcNow,
-                DownloadId = downloadId
+                CurrentDownloadId = downloadId
             };
             _extractsDbContext.ExtractRequests.Add(extractRequest);
         }
         else
         {
-            extractRequest.RequestedOn = DateTimeOffset.UtcNow;
-            extractRequest.DownloadId = downloadId;
-            extractRequest.DownloadAvailable = false;
-            extractRequest.ArchiveId = null;
+            var existingOpenDownload = await _extractsDbContext.ExtractDownloads
+                .SingleOrDefaultAsync(x => x.ExtractRequestId == extractRequestId
+                                           && x.Closed == false, cancellationToken);
+            if (existingOpenDownload is not null)
+            {
+                existingOpenDownload.Closed = true;
+            }
+
+            extractRequest.CurrentDownloadId = downloadId;
         }
 
-        extractRequest.TicketId = request.TicketId;
+        var extractDownload = new ExtractDownload
+        {
+            ExtractRequestId = extractRequestId,
+            Contour = contour,
+            IsInformative = isInformative,
+            RequestedOn = extractRequest.RequestedOn,
+            DownloadId = downloadId,
+            TicketId = request.TicketId
+        };
+        _extractsDbContext.ExtractDownloads.Add(extractDownload);
 
         await _extractsDbContext.SaveChangesAsync(cancellationToken);
 
-        await BuildArchive(extractRequest, cancellationToken);
+        await BuildArchive(extractRequest, extractDownload, cancellationToken);
 
         await _extractsDbContext.SaveChangesAsync(cancellationToken);
 
@@ -96,20 +110,22 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
 
     private async Task BuildArchive(
         ExtractRequest extractRequest,
+        ExtractDownload extractDownload,
         CancellationToken ct)
     {
-        var archiveId = new ArchiveId(extractRequest.DownloadId.ToString("N"));
+        var archiveId = new ArchiveId(extractDownload.DownloadId.ToString("N"));
 
+        //TODO-pr nog nodig?
         // var overlappingDownloadIds = !message.Body.IsInformative
         //     ? await GetOverlappingDownloadIds(downloadId, message.Body.Contour, ct)
         //     : [];
 
         var request = new RoadNetworkExtractAssemblyRequest(
             default,
-            new DownloadId(extractRequest.DownloadId),
+            new DownloadId(extractDownload.DownloadId),
             new ExtractDescription(extractRequest.Description),
-            GeometryTranslator.Translate(GeometryTranslator.TranslateToRoadNetworkExtractGeometry((IPolygonal)extractRequest.Contour)),
-            extractRequest.IsInformative,
+            GeometryTranslator.Translate(GeometryTranslator.TranslateToRoadNetworkExtractGeometry((IPolygonal)extractDownload.Contour)),
+            extractDownload.IsInformative,
             WellKnownZipArchiveWriterVersions.V2);
 
         try
@@ -126,12 +142,12 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
                     ct);
             }
 
-            extractRequest.DownloadAvailable = true;
-            extractRequest.ArchiveId = archiveId;
+            extractDownload.DownloadAvailable = true;
+            extractDownload.ArchiveId = archiveId;
         }
         catch (SqlException ex) when (ex.Number.Equals(-2))
         {
-            extractRequest.ExtractDownloadTimeoutOccurred = true;
+            extractDownload.ExtractDownloadTimeoutOccurred = true;
         }
     }
 }

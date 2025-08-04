@@ -1,20 +1,20 @@
-namespace RoadRegistry.BackOffice.Api.Handlers.Extracts;
+namespace RoadRegistry.BackOffice.Api.Handlers.Extracts.V2;
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions;
-using Abstractions.Extracts.V2;
 using Amazon.S3;
 using Amazon.S3.Model;
-using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Configuration;
-using Exceptions;
-using Framework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using RoadRegistry.BackOffice.Abstractions;
+using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
+using RoadRegistry.BackOffice.Configuration;
+using RoadRegistry.BackOffice.Exceptions;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.Extracts.Schema;
 using SqlStreamStore;
 
@@ -49,7 +49,7 @@ public class GetDownloadExtractPresignedUrlRequestHandler : EndpointRequestHandl
 
     protected override async Task<GetDownloadExtractPresignedUrlResponse> InnerHandleAsync(GetDownloadExtractPresignedUrlRequest request, CancellationToken cancellationToken)
     {
-        var record = await _extractsDbContext.ExtractRequests.SingleOrDefaultAsync(x => x.DownloadId == request.DownloadId.ToGuid(), cancellationToken);
+        var record = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == request.DownloadId.ToGuid(), cancellationToken);
 
         if (record is null || record is not { DownloadAvailable: true })
         {

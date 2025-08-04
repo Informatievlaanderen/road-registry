@@ -155,12 +155,10 @@ public class RoadNetworkExtract : EventSourcedEntity
     public RoadNetworkExtractUpload Upload(DownloadId downloadId, UploadId uploadId, ArchiveId archiveId, TicketId? ticketId)
     {
         if (!_requestedDownloads.Contains(downloadId))
-            throw new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException(
-                _externalExtractRequestId, Id, downloadId, uploadId);
+            throw new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException();
 
         if (_requestedDownloads[^1] != downloadId)
-            throw new CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException(
-                _externalExtractRequestId, Id, downloadId, _requestedDownloads[^1], uploadId);
+            throw new CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException();
 
         if (_knownUploads.Count == 1)
             throw new CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException();

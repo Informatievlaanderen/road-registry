@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers.Extracts;
 using Abstractions.Extracts.V2;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Exceptions;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
@@ -35,15 +36,13 @@ public sealed class CloseExtractSqsLambdaRequestHandler : SqsLambdaHandler<Close
 
     protected override async Task<object> InnerHandle(CloseExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        var extractRequestId = ExtractRequestId.FromString(request.Request.ExtractRequestId);
-
-        var extractRequest = await _extractsDbContext.ExtractRequests.FindAsync([extractRequestId], cancellationToken);
-        if (extractRequest is null)
+        var download = await _extractsDbContext.ExtractDownloads.FindAsync([request.Request.DownloadId], cancellationToken);
+        if (download is null)
         {
-            //TODO-pr validation ex?
+            throw new ExtractRequestNotFoundException(new DownloadId(request.Request.DownloadId));
         }
 
-        extractRequest.Closed = true;
+        download.Closed = true;
 
         await _extractsDbContext.SaveChangesAsync(cancellationToken);
 

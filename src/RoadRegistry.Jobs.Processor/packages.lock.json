@@ -1815,6 +1815,25 @@
           "RoadRegistry.Sync.MunicipalityRegistry": "[1.0.0, )"
         }
       },
+      "roadregistry.backoffice.handlers.sqs": {
+        "type": "Project",
+        "dependencies": {
+          "AWSSDK.Core": "[3.7.402.35, )",
+          "AWSSDK.SQS": "[3.7.400.129, )",
+          "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": "[6.0.3, )",
+          "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.1, )",
+          "Be.Vlaanderen.Basisregisters.Sqs.Lambda": "[4.0.1, )",
+          "Be.Vlaanderen.Basisregisters.TicketingService.Abstractions": "[3.2.0, )",
+          "MediatR": "[12.5.0, )",
+          "MediatR.Contracts": "[2.0.1, )",
+          "Microsoft.Extensions.DependencyInjection": "[9.0.5, )",
+          "Microsoft.IdentityModel.Abstractions": "[8.9.0, )",
+          "Microsoft.IdentityModel.JsonWebTokens": "[8.9.0, )",
+          "Microsoft.IdentityModel.Logging": "[8.9.0, )",
+          "Microsoft.IdentityModel.Tokens": "[8.9.0, )",
+          "RoadRegistry.BackOffice.Abstractions": "[1.0.0, )"
+        }
+      },
       "roadregistry.backoffice.ziparchivewriters": {
         "type": "Project",
         "dependencies": {

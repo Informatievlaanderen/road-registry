@@ -17,6 +17,7 @@ public class ExtractsDbContext : DbContext
     }
 
     public DbSet<ExtractRequest> ExtractRequests { get; set; }
+    public DbSet<ExtractDownload> ExtractDownloads { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

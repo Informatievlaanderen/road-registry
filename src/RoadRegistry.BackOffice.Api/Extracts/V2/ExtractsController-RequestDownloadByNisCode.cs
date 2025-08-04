@@ -50,13 +50,13 @@ public partial class ExtractsController
                 return NotFound();
             }
 
-            var extractRequestId = Guid.NewGuid().ToString("N");
+            var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
             var contour = municipality.Geometry.ToMultiPolygon();
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
-                Request = new RequestExtractRequest(extractRequestId, contour.AsText(), body.Description, body.IsInformative)
+                Request = new RequestExtractRequest(extractRequestId, contour.AsText(), body.Description, body.IsInformative, null)
             }, cancellationToken);
 
             return Accepted(result);

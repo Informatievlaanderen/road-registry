@@ -407,7 +407,7 @@ public class ExtractScenarios : RoadRegistryTestBase
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
             .When(TheExternalSystem.UploadsRoadNetworkExtractChangesArchive(extractRequestId, outdatedDownloadId, uploadId, archiveId))
-            .Throws(new CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException(externalExtractRequestId, extractRequestId, outdatedDownloadId, downloadId, uploadId))
+            .Throws(new CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException())
         );
     }
 
@@ -444,7 +444,7 @@ public class ExtractScenarios : RoadRegistryTestBase
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             })
             .When(TheExternalSystem.UploadsRoadNetworkExtractChangesArchive(extractRequestId, unknownDownloadId, uploadId, archiveId))
-            .Throws(new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException(externalExtractRequestId, extractRequestId, unknownDownloadId, uploadId))
+            .Throws(new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException())
         );
     }
 

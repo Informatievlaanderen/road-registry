@@ -2507,6 +2507,7 @@
           "Microsoft.Extensions.Configuration.Json": "[9.0.5, )",
           "Microsoft.Extensions.Hosting": "[9.0.5, )",
           "RoadRegistry.BackOffice.Handlers": "[1.0.0, )",
+          "RoadRegistry.BackOffice.Handlers.Sqs": "[1.0.0, )",
           "RoadRegistry.Hosts": "[1.0.0, )",
           "RoadRegistry.Jobs": "[1.0.0, )",
           "Serilog": "[4.2.0, )",

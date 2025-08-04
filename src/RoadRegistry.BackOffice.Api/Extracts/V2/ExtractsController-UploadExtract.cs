@@ -1,19 +1,14 @@
 namespace RoadRegistry.BackOffice.Api.Extracts.V2;
 
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Exceptions;
 using Abstractions.Jobs;
-using Be.Vlaanderen.Basisregisters.Api.Exceptions;
-using Editor.Schema;
-using Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RoadRegistry.Extracts.Schema;
 using Swashbuckle.AspNetCore.Annotations;
-using Swashbuckle.AspNetCore.Filters;
 
 public partial class ExtractsController
 {
@@ -42,12 +37,26 @@ public partial class ExtractsController
             throw new InvalidGuidValidationException("DownloadId");
         }
 
-        var record = await extractsDbContext.ExtractRequests.SingleOrDefaultAsync(x => x.DownloadId == parsedDownloadId.ToGuid(), cancellationToken);
+        var record = await extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == parsedDownloadId.ToGuid(), cancellationToken);
         if (record is null)
         {
             return NotFound();
         }
 
-        return Ok(await _mediator.Send(GetPresignedUploadUrlRequest.ForExtractsV2(parsedDownloadId), cancellationToken));
+        //TODO-pr validaties wanneer er geen upload meer mag gebeuren, is dat nodig? de lambda gaat dat sowieso al aftoetsen
+        //record.IsInformative
+        //record.DownloadAvailable
+        //record.ArchiveId
+        //record.Closed
+        //record.DownloadedOn
+
+        var extractRequestId = ExtractRequestId.FromString(record.ExtractRequestId);
+        var response = await _mediator.Send(GetPresignedUploadUrlRequest.ForExtractsV2(extractRequestId), cancellationToken);
+
+        //TODO-pr mss dit via lambda doen? zodat er maar 1 instance per extract iets kan wijzigen, maakt het mss wel lastig
+        record.TicketId = response.TicketId;
+        await extractsDbContext.SaveChangesAsync(cancellationToken);
+
+        return Ok(response);
     }
 }

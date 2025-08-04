@@ -16,6 +16,7 @@ namespace RoadRegistry.Jobs.Processor
     using BackOffice.Exceptions;
     using BackOffice.Extensions;
     using BackOffice.Extracts;
+    using BackOffice.Handlers.Sqs.Extracts;
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -31,6 +32,7 @@ namespace RoadRegistry.Jobs.Processor
 
     public sealed class JobsProcessor : BackgroundService
     {
+        private readonly RoadNetworkUploadsBlobClient _uploadsBlobClient;
         private readonly IExtractRequestCleaner _extractRequestCleaner;
         private readonly JobsProcessorOptions _uploadProcessorOptions;
         private readonly JobsContext _jobsContext;
@@ -47,6 +49,7 @@ namespace RoadRegistry.Jobs.Processor
             RoadNetworkJobsBlobClient blobClient,
             IMediator mediator,
             IExtractRequestCleaner extractRequestCleaner,
+            RoadNetworkUploadsBlobClient uploadsBlobClient,
             ILoggerFactory loggerFactory,
             IHostApplicationLifetime hostApplicationLifetime)
         {
@@ -56,6 +59,7 @@ namespace RoadRegistry.Jobs.Processor
             _blobClient = blobClient.ThrowIfNull();
             _mediator = mediator.ThrowIfNull();
             _extractRequestCleaner = extractRequestCleaner.ThrowIfNull();
+            _uploadsBlobClient = uploadsBlobClient;
             _logger = loggerFactory.ThrowIfNull().CreateLogger<JobsProcessor>();
             _hostApplicationLifetime = hostApplicationLifetime.ThrowIfNull();
         }
@@ -116,7 +120,7 @@ namespace RoadRegistry.Jobs.Processor
                             await using var blobStream = await blob.OpenAsync(stoppingToken);
                             var readStream = await blobStream.CopyToNewMemoryStreamAsync(stoppingToken);
 
-                            var request = BuildRequest(job, blob, readStream);
+                            var request = await BuildRequest(job, blob, readStream, stoppingToken);
 
                             if (request is EndpointRequest endpointRequest)
                             {
@@ -194,10 +198,9 @@ namespace RoadRegistry.Jobs.Processor
         }
         private DutchValidationException ToDutchValidationException(ValidationFailure validationFailure)
         {
-            return new ValidationException(new[]
-            {
+            return new ValidationException([
                 validationFailure
-            }).TranslateToDutch();
+            ]).TranslateToDutch();
         }
 
         private async Task CancelJob(Job job, CancellationToken stoppingToken)
@@ -212,8 +215,10 @@ namespace RoadRegistry.Jobs.Processor
             _logger.LogWarning("Cancelled expired job '{jobId}'.", job.Id);
         }
 
-        private object BuildRequest(Job job, BlobObject blob, Stream blobStream)
+        private async Task<object> BuildRequest(Job job, BlobObject blob, Stream blobStream, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             switch (job.UploadType)
             {
                 case UploadType.Uploads:
@@ -228,6 +233,34 @@ namespace RoadRegistry.Jobs.Processor
                         }
 
                         return new BackOffice.Abstractions.Extracts.UploadExtractRequest(new DownloadId(job.DownloadId.Value), new UploadExtractArchiveRequest(blob.Name, blobStream, blob.ContentType), job.TicketId);
+                    }
+                case UploadType.ExtractsV2:
+                    {
+                        if (job.DownloadId is null)
+                        {
+                            throw ToDutchValidationException(ProblemCode.Upload.DownloadIdIsRequired);
+                        }
+
+                        var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
+                        var metadata = Metadata.None.Add(
+                            new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), blob.Name)
+                        );
+
+                        await _uploadsBlobClient.CreateBlobAsync(
+                            new BlobName(archiveId.ToString()),
+                            metadata,
+                            blob.ContentType,
+                            blobStream,
+                            cancellationToken
+                        );
+
+                        //TODO-pr TBD: downloadId of extractRequestId als messagegroupid gebruiken?
+                        return new UploadExtractSqsRequest
+                        {
+                            TicketId = job.TicketId,
+                            Request = new BackOffice.Abstractions.Extracts.V2.UploadExtractRequest(job.DownloadId.Value, archiveId),
+                            ProvenanceData = new RoadRegistryProvenanceData(Modification.Unknown, job.OperatorName)
+                        };
                     }
                 default:
                     throw new NotSupportedException($"{nameof(UploadType)} {job.UploadType} is not supported.");

@@ -69,7 +69,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                     await UpdateJobWithTicketId(job, ticketId, cancellationToken);
                     await transaction.CommitAsync(cancellationToken);
 
-                    return new GetPresignedUploadUrlResponse(job.Id, preSignedUrl.Url.ToString(), preSignedUrl.Fields, ticketUrl);
+                    return new GetPresignedUploadUrlResponse(job.Id, preSignedUrl.Url.ToString(), preSignedUrl.Fields, ticketId, ticketUrl);
                 }
                 catch (Exception)
                 {

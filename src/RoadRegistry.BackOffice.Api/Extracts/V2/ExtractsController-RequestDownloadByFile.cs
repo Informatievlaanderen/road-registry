@@ -50,12 +50,12 @@ public partial class ExtractsController
             await validator.ValidateAndThrowAsync(request, cancellationToken);
 
             var contour = fileTranslator.Translate(request.ShpFile);
-            var extractRequestId = Guid.NewGuid().ToString("N");
+            var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
-                Request = new RequestExtractRequest(extractRequestId, contour.AsText(), request.Description, request.IsInformative)
+                Request = new RequestExtractRequest(extractRequestId, contour.AsText(), request.Description, request.IsInformative, null)
             }, cancellationToken);
 
             return Accepted(result);
