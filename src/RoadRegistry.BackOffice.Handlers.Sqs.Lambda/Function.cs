@@ -17,6 +17,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StreetName;
 using System.Reflection;
+using Abstractions;
+using BackOffice.Extracts;
+using Editor.Schema;
+using Handlers.Extracts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.IO;
+using RoadRegistry.Extracts.Schema;
+using ZipArchiveWriters.ExtractHost;
 
 public class Function : RoadRegistryLambdaFunction<MessageHandler>
 {
@@ -33,6 +43,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
 
     protected override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
+        //TODO-pr add ExtractsDbContext
         services
             .AddStreetNameCache()
             .AddDistributedStreamStoreLockOptions()
@@ -41,13 +52,42 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .AddChangeRoadNetworkDispatcher()
             .AddRoadNetworkDbIdGenerator()
             .AddCommandHandlerDispatcher(sp => Resolve.WhenEqualToMessage(
-                new CommandHandlerModule[]
-                {
+                [
                     CommandModules.RoadNetwork(sp)
-                })
+                ])
             )
             .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
             .AddStreetNameClient()
+
+            // Extracts
+            .AddDbContext<ExtractsDbContext>((sp, options) =>
+            {
+                options
+                    .UseLoggerFactory(sp.GetRequiredService<ILoggerFactory>())
+                    .UseSqlServer(
+                        sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.Extracts),
+                        sqlOptions => ExtractsDbContext.ConfigureSqlServerOptions(sqlOptions
+                            .EnableRetryOnFailure()
+                            .MigrationsHistoryTable(ExtractsDbContextMigratorFactory.Configuration.Table, ExtractsDbContextMigratorFactory.Configuration.Schema)));
+            })
+            .AddEditorContext()
+            .RegisterOptions<ZipArchiveWriterOptions>()
+            .AddSingleton<IZipArchiveWriterFactory>(sp =>
+                new ZipArchiveWriterFactory(
+                    null,
+                    new ZipArchiveWriters.ExtractHost.V2.RoadNetworkExtractZipArchiveWriter(
+                        sp.GetService<ZipArchiveWriterOptions>(),
+                        sp.GetService<IStreetNameCache>(),
+                        sp.GetService<RecyclableMemoryStreamManager>(),
+                        sp.GetRequiredService<FileEncoding>(),
+                        sp.GetRequiredService<ILoggerFactory>()
+                    ))
+            )
+            .AddSingleton<IRoadNetworkExtractArchiveAssembler>(sp =>
+                new RoadNetworkExtractArchiveAssembler(
+                    sp.GetService<RecyclableMemoryStreamManager>(),
+                    sp.GetService<Func<EditorContext>>(),
+                    sp.GetService<IZipArchiveWriterFactory>()))
             ;
     }
 

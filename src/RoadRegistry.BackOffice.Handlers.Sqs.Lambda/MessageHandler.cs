@@ -5,8 +5,10 @@ using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using Extracts;
 using MediatR;
 using Requests;
+using Requests.Extracts;
 using RoadRegistry.BackOffice.Handlers.Sqs.Infrastructure;
 using RoadSegments;
 using Sqs;
@@ -47,6 +49,9 @@ public sealed class MessageHandler : BlobMessageHandler
             ChangeRoadSegmentAttributesSqsRequest request => new ChangeRoadSegmentAttributesSqsLambdaRequest(groupId, request),
             ChangeRoadSegmentOutlineGeometrySqsRequest request => new ChangeRoadSegmentOutlineGeometrySqsLambdaRequest(groupId, request),
             ChangeRoadSegmentsDynamicAttributesSqsRequest request => new ChangeRoadSegmentsDynamicAttributesSqsLambdaRequest(groupId, request),
+            RequestExtractSqsRequest request => new RequestExtractSqsLambdaRequest(groupId, request),
+            UploadExtractSqsRequest request => new UploadExtractSqsLambdaRequest(groupId, request),
+            CloseExtractSqsRequest request => new CloseExtractSqsLambdaRequest(groupId, request),
             _ => throw new NotImplementedException(
                 $"{sqsRequest.GetType().Name} has no corresponding {nameof(SqsLambdaRequest)} defined.")
         };

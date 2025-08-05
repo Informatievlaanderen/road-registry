@@ -55,7 +55,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         : base(
             options,
             retryPolicy,
-            new UncompletableTicketing(ticketing),
+            ticketing, //new UncompletableTicketing(ticketing), //TODO-pr temp disable want dat zorgt voor rare DI infinite loops
             idempotentCommandHandler,
             roadRegistryContext,
             loggerFactory.CreateLogger<UploadExtractSqsLambdaRequestHandler>())
@@ -190,48 +190,48 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
     }
 
     //TODO-pr TBD: voorlopig zo gedaan zodat de ticketId kan worden doorgegeven aan de command ipv een nieuwe ticket te maken
-    private sealed class UncompletableTicketing : ITicketing
-    {
-        private readonly ITicketing _ticketing;
-
-        public UncompletableTicketing(ITicketing ticketing)
-        {
-            _ticketing = ticketing;
-        }
-
-        public Task<Guid> CreateTicket(IDictionary<string, string>? metadata, CancellationToken cancellationToken)
-        {
-            throw new NotSupportedException();
-        }
-
-        public Task<IEnumerable<Ticket>> GetAll(CancellationToken cancellationToken)
-        {
-            throw new NotSupportedException();
-        }
-
-        public Task<Ticket?> Get(Guid ticketId, CancellationToken cancellationToken)
-        {
-            throw new NotSupportedException();
-        }
-
-        public Task Pending(Guid ticketId, CancellationToken cancellationToken)
-        {
-            return _ticketing.Pending(ticketId, cancellationToken);
-        }
-
-        public Task Complete(Guid ticketId, TicketResult result, CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task Error(Guid ticketId, TicketError error, CancellationToken cancellationToken)
-        {
-            return _ticketing.Error(ticketId, error, cancellationToken);
-        }
-
-        public Task Delete(Guid ticketId, CancellationToken cancellationToken)
-        {
-            throw new NotSupportedException();
-        }
-    }
+    // private sealed class UncompletableTicketing : ITicketing
+    // {
+    //     private readonly ITicketing _ticketing;
+    //
+    //     public UncompletableTicketing(ITicketing ticketing)
+    //     {
+    //         _ticketing = ticketing;
+    //     }
+    //
+    //     public Task<Guid> CreateTicket(IDictionary<string, string>? metadata, CancellationToken cancellationToken)
+    //     {
+    //         throw new NotSupportedException();
+    //     }
+    //
+    //     public Task<IEnumerable<Ticket>> GetAll(CancellationToken cancellationToken)
+    //     {
+    //         throw new NotSupportedException();
+    //     }
+    //
+    //     public Task<Ticket?> Get(Guid ticketId, CancellationToken cancellationToken)
+    //     {
+    //         throw new NotSupportedException();
+    //     }
+    //
+    //     public Task Pending(Guid ticketId, CancellationToken cancellationToken)
+    //     {
+    //         return _ticketing.Pending(ticketId, cancellationToken);
+    //     }
+    //
+    //     public Task Complete(Guid ticketId, TicketResult result, CancellationToken cancellationToken)
+    //     {
+    //         return Task.CompletedTask;
+    //     }
+    //
+    //     public Task Error(Guid ticketId, TicketError error, CancellationToken cancellationToken)
+    //     {
+    //         return _ticketing.Error(ticketId, error, cancellationToken);
+    //     }
+    //
+    //     public Task Delete(Guid ticketId, CancellationToken cancellationToken)
+    //     {
+    //         throw new NotSupportedException();
+    //     }
+    // }
 }

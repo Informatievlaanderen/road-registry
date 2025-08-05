@@ -25,6 +25,6 @@ public class ZipArchiveWriterFactory : IZipArchiveWriterFactory
             return _v2;
         }
 
-        return _v1;
+        return _v1 ?? throw new NotSupportedException();
     }
 }

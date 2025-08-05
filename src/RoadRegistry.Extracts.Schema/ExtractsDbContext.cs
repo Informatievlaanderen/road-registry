@@ -3,6 +3,7 @@ namespace RoadRegistry.Extracts.Schema;
 using System.Reflection;
 using BackOffice;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 public class ExtractsDbContext : DbContext
 {
@@ -34,5 +35,10 @@ public class ExtractsDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(GetType().GetTypeInfo().Assembly);
+    }
+
+    public static void ConfigureSqlServerOptions(SqlServerDbContextOptionsBuilder sqlServerOptions)
+    {
+        sqlServerOptions.UseNetTopologySuite();
     }
 }

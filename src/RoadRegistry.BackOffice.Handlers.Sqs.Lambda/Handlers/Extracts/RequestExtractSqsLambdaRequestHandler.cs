@@ -29,20 +29,19 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        WKTReader wktReader,
         ExtractsDbContext extractsDbContext,
         RoadNetworkExtractDownloadsBlobClient downloadsBlobClient,
         IRoadNetworkExtractArchiveAssembler assembler,
-        ILogger<RequestExtractSqsLambdaRequestHandler> logger)
+        ILoggerFactory loggerFactory)
         : base(
             options,
             retryPolicy,
             ticketing,
             idempotentCommandHandler,
             roadRegistryContext,
-            logger)
+            loggerFactory.CreateLogger<RequestExtractSqsLambdaRequestHandler>())
     {
-        _wktReader = wktReader;
+        _wktReader = new WKTReader();
         _extractsDbContext = extractsDbContext;
         _downloadsBlobClient = downloadsBlobClient;
         _assembler = assembler;
@@ -56,7 +55,7 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
         var extractDescription = new ExtractDescription(request.Request.Description);
         var isInformative = request.Request.IsInformative;
 
-        var extractRequest = await _extractsDbContext.ExtractRequests.FindAsync([extractRequestId], cancellationToken);
+        var extractRequest = await _extractsDbContext.ExtractRequests.FindAsync([extractRequestId.ToString()], cancellationToken);
         if (extractRequest is null)
         {
             extractRequest = new ExtractRequest

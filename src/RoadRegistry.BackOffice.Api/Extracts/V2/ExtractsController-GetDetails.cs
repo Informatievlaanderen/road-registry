@@ -13,18 +13,21 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 public partial class ExtractsController
-{
+{    /// <summary>
+    ///     Gets the extract details (v2).
+    /// </summary>
     [ProducesResponseType(typeof(ExtractDetailsResponseBody), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status410Gone)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    [SwaggerOperation(OperationId = nameof(GetDetails))]
+    [SwaggerOperation]
     [HttpGet("{downloadId}", Name = nameof(GetDetails))]
     public async Task<ActionResult> GetDetails(
         [FromRoute] string downloadId,
         CancellationToken cancellationToken)
     {
+        //TODO-pr postman testing full flow
         try
         {
             if (!DownloadId.TryParse(downloadId, out var parsedDownloadId))

@@ -18,13 +18,13 @@ public sealed class SqsHandlersModule : Module
             {
                 var configuration = c.Resolve<IConfiguration>();
                 var jsonSerializerSettings = SqsJsonSerializerSettingsProvider.CreateSerializerSettings();
-                
+
                 var sqsConfiguration = configuration.GetOptions<SqsConfiguration>();
                 if (sqsConfiguration?.ServiceUrl != null)
                 {
                     return new DevelopmentSqsOptions(jsonSerializerSettings, sqsConfiguration.ServiceUrl);
                 }
-                
+
                 return new SqsOptions(jsonSerializerSettings);
             })
             .As<SqsOptions>()
@@ -53,7 +53,16 @@ public sealed class SqsHandlersModule : Module
             .SingleInstance();
 
         builder
-            .Register(c => new SqsQueueConsumer(c.Resolve<SqsOptions>(), c.Resolve<ILogger<SqsQueueConsumer>>()))
+            .Register(c =>
+            {
+                var hostEnvironment = c.Resolve<IHostEnvironment>();
+                if (hostEnvironment.IsDevelopment())
+                {
+                    return (ISqsQueueConsumer)new FakeSqsQueueConsumer(c.Resolve<SqsJsonMessageSerializer>(), c.Resolve<ILoggerFactory>());
+                }
+
+                return new SqsQueueConsumer(c.Resolve<SqsOptions>(), c.Resolve<ILogger<SqsQueueConsumer>>());
+            })
             .As<ISqsQueueConsumer>()
             .SingleInstance();
 

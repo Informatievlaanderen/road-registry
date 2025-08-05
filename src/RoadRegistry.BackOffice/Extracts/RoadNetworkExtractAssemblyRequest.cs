@@ -14,7 +14,6 @@ public class RoadNetworkExtractAssemblyRequest
         string zipArchiveWriterVersion)
     {
         ExternalRequestId = requestId;
-        RequestId = ExtractRequestId.FromExternalRequestId(requestId);
         DownloadId = downloadId;
         ExtractDescription = extractDescription;
         Contour = contour ?? throw new ArgumentNullException(nameof(contour));
@@ -23,7 +22,6 @@ public class RoadNetworkExtractAssemblyRequest
     }
 
     public ExternalExtractRequestId ExternalRequestId { get; }
-    public ExtractRequestId RequestId { get; }
     public DownloadId DownloadId { get; }
     public ExtractDescription ExtractDescription { get; }
     public IPolygonal Contour { get; }

@@ -12,7 +12,10 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using SqlStreamStore;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Configuration;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 
 public class Program
 {
