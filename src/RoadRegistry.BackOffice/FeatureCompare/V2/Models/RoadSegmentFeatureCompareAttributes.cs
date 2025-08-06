@@ -6,7 +6,7 @@ public record RoadSegmentFeatureCompareAttributes
 {
     public RoadSegmentId Id { get; init; }
     public RoadSegmentGeometryDrawMethod Method { get; init; }
-    public MultiLineString? Geometry { get; init; }
+    public MultiLineString Geometry { get; init; }
     public RoadNodeId? StartNodeId { get; init; }
     public RoadNodeId? EndNodeId { get; init; }
     public RoadSegmentAccessRestriction? AccessRestriction { get; init; }
@@ -17,13 +17,13 @@ public record RoadSegmentFeatureCompareAttributes
     public StreetNameLocalId? LeftSideStreetNameId { get; init; }
     public StreetNameLocalId? RightSideStreetNameId { get; init; }
 
-    public RoadSegmentFeatureCompareAttributes OnlyChangedAttributes(RoadSegmentFeatureCompareAttributes other)
+    public RoadSegmentFeatureCompareAttributes OnlyChangedAttributes(RoadSegmentFeatureCompareAttributes other, MultiLineString extractGeometry)
     {
         return new RoadSegmentFeatureCompareAttributes
         {
             Id = Id,
             Method = Method,
-            Geometry = Geometry!.EqualsExact(other.Geometry) ? null : Geometry,
+            Geometry = Geometry!.EqualsExact(other.Geometry) ? extractGeometry : Geometry,
             StartNodeId = StartNodeId == other.StartNodeId ? null : StartNodeId,
             EndNodeId = EndNodeId == other.EndNodeId ? null : EndNodeId,
             AccessRestriction = AccessRestriction == other.AccessRestriction ? null : AccessRestriction,

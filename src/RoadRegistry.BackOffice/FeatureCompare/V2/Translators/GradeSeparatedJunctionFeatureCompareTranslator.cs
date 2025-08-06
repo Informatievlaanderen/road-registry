@@ -202,18 +202,6 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
             problems += problemsForMissingGradeSeparatedJunctions;
         }
 
-        //#WR-470 once it's refined
-        //var roadSegmentIntersectionsWithNotEnoughGradeSeparatedJunctions = roadSegmentIntersections
-        //    .Where(x => x.Intersections.Count != x.GradeSeparatedJunctionsCount)
-        //    .ToArray();
-
-        //foreach (var i in roadSegmentIntersectionsWithNotEnoughGradeSeparatedJunctions)
-        //{
-        //    var recordContext = ExtractFileName.Wegsegment.AtDbaseRecord(FeatureType.Change, i.RoadSegment1.RecordNumber);
-
-        //    problems += recordContext.ExpectedGradeSeparatedJunctionsCountDiffersFromActual(i.RoadSegment1.Id, i.RoadSegment2.Id, i.Intersections.Count, i.GradeSeparatedJunctionsCount);
-        //}
-
         return Task.FromResult(problems);
     }
 
@@ -247,7 +235,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
                 let r1Geometry = combination.RoadSegment1.Attributes.Geometry.GetSingleLineString()
                 let r2Geometry = combination.RoadSegment2.Attributes.Geometry.GetSingleLineString()
                 from intersection in intersections.OfType<Point>()
-                let intersectionIsFarAwayFromStartEndPoints = intersection.IsFarEnoughAwayFrom(new[] { r1Geometry.StartPoint, r1Geometry.EndPoint, r2Geometry.StartPoint, r2Geometry.EndPoint }, context.Tolerances.GeometryTolerance)
+                let intersectionIsFarAwayFromStartEndPoints = intersection.IsFarEnoughAwayFrom([r1Geometry.StartPoint, r1Geometry.EndPoint, r2Geometry.StartPoint, r2Geometry.EndPoint], context.Tolerances.GeometryTolerance)
                 where intersectionIsFarAwayFromStartEndPoints
                 select new
                 {

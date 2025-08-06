@@ -200,7 +200,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                             FeatureType.Change,
                             changeFeature.RecordNumber,
-                            changeFeatureAttributes.OnlyChangedAttributes(extractFeature.Attributes),
+                            changeFeatureAttributes.OnlyChangedAttributes(extractFeature.Attributes, extractFeature.Attributes.Geometry),
                             extractFeature.Attributes.Id,
                             RecordType.Modified)
                         {
@@ -219,10 +219,11 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
                     var convertedFromOutlined = extractFeature.Attributes.Method == RoadSegmentGeometryDrawMethod.Outlined
                                                 && changeFeatureAttributes.Method != extractFeature.Attributes.Method;
+
                     processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                         FeatureType.Change,
                         changeFeature.RecordNumber,
-                        convertedFromOutlined ? changeFeatureAttributes : changeFeatureAttributes.OnlyChangedAttributes(extractFeature.Attributes),
+                        convertedFromOutlined ? changeFeatureAttributes : changeFeatureAttributes.OnlyChangedAttributes(extractFeature.Attributes, extractFeature.Attributes.Geometry),
                         extractFeature.Attributes.Id,
                         RecordType.Modified)
                     {
@@ -401,7 +402,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             record.Attributes.AccessRestriction,
                             record.Attributes.LeftSideStreetNameId,
                             record.Attributes.RightSideStreetNameId,
-                            geometry: record.Attributes.Geometry
+                            geometry: record.GeometryChanged || record.ConvertedFromOutlined ? record.Attributes.Geometry : null
                         )
                         .WithConvertedFromOutlined(record.ConvertedFromOutlined);
                     if (record.Id != record.Attributes.Id)
