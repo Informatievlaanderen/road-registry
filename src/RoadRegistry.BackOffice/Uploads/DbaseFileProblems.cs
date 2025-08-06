@@ -141,17 +141,6 @@ public static class DbaseFileProblems
             .Build();
     }
 
-    public static FileError ExpectedGradeSeparatedJunctionsCountDiffersFromActual(this IDbaseFileRecordProblemBuilder builder, RoadSegmentId roadSegmentId1, RoadSegmentId roadSegmentId2, int intersectionsCount, int gradeSeparatedJunctionsCount)
-    {
-        return builder
-            .Error(nameof(ExpectedGradeSeparatedJunctionsCountDiffersFromActual))
-            .WithParameter(new ProblemParameter("RoadSegmentId1", roadSegmentId1.ToString()))
-            .WithParameter(new ProblemParameter("RoadSegmentId2", roadSegmentId2.ToString()))
-            .WithParameter(new ProblemParameter("IntersectionsCount", intersectionsCount.ToString()))
-            .WithParameter(new ProblemParameter("GradeSeparatedJunctionsCount", gradeSeparatedJunctionsCount.ToString()))
-            .Build();
-    }
-
     public static FileError HasDbaseHeaderFormatError(this IFileProblemBuilder builder, Exception exception)
     {
         if (exception == null) throw new ArgumentNullException(nameof(exception));
