@@ -1,3 +1,11 @@
+## [4.35.1](https://github.com/informatievlaanderen/road-registry/compare/v4.35.0...v4.35.1) (2025-08-06)
+
+
+### Bug Fixes
+
+* FeatureCompare check for missing GradeSeparatedJunctions when some segments are only partially changed ([890719d](https://github.com/informatievlaanderen/road-registry/commit/890719d93b72a40994b1d1281a860e76791786ec))
+* logging email sent with failed upload ([4c92d61](https://github.com/informatievlaanderen/road-registry/commit/4c92d61ed32c40b506e5a62c936b22212d3989db))
+
 # [4.35.0](https://github.com/informatievlaanderen/road-registry/compare/v4.34.2...v4.35.0) (2025-07-29)
 
 
