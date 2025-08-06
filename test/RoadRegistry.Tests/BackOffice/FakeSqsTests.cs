@@ -1,8 +1,10 @@
 namespace RoadRegistry.Tests.BackOffice;
 
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
+using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.BackOffice.Uploads;
 
 public class FakeSqsTests
 {
@@ -25,7 +27,7 @@ public class FakeSqsTests
         var sqsPublisher = new FakeSqsQueuePublisher();
         await sqsPublisher.CopyToQueue(queueUrl, originalMessage, _sqsQueueOptions, _cancellationToken);
 
-        var sqsConsumer = new FakeSqsQueueConsumer();
+        var sqsConsumer = new FakeSqsQueueConsumer(new SqsJsonMessageSerializer(new SqsOptions()), new NullLoggerFactory());
         await sqsConsumer.Consume(queueUrl, message =>
         {
             var uploadRoadNetworkChangesArchive = Assert.IsType<UploadRoadNetworkChangesArchive>(message);
