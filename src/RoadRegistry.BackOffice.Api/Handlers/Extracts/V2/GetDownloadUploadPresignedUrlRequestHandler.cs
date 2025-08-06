@@ -3,47 +3,34 @@ namespace RoadRegistry.BackOffice.Api.Handlers.Extracts.V2;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Amazon.S3;
-using Amazon.S3.Model;
+using Abstractions;
+using Abstractions.Extracts.V2;
+using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using Exceptions;
+using Framework;
+using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using NodaTime;
-using RoadRegistry.BackOffice.Abstractions;
-using RoadRegistry.BackOffice.Abstractions.Exceptions;
-using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
-using RoadRegistry.BackOffice.Configuration;
-using RoadRegistry.BackOffice.Exceptions;
-using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.Extracts.Schema;
 
 public class GetDownloadUploadPresignedUrlRequestHandler : EndpointRequestHandler<GetDownloadUploadPresignedUrlRequest, GetDownloadUploadPresignedUrlResponse>
 {
     private readonly RoadNetworkExtractUploadsBlobClient _client;
-    private readonly IClock _clock;
-    private readonly IAmazonS3 _amazonS3;
-    private readonly S3BlobClientOptions _s3BlobClientOptions;
-    private readonly S3Options _s3Options;
     private readonly ExtractsDbContext _extractsDbContext;
+    private readonly IDownloadFileUrlPresigner _downloadFileUrlPresigner;
 
     public GetDownloadUploadPresignedUrlRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkExtractUploadsBlobClient client,
-        IClock clock,
-        IAmazonS3 amazonS3,
-        S3BlobClientOptions s3BlobClientOptions,
-        S3Options s3Options,
         ExtractsDbContext extractsDbContext,
+        IDownloadFileUrlPresigner downloadFileUrlPresigner,
         ILoggerFactory logger)
         : base(dispatcher, logger.CreateLogger<GetDownloadUploadPresignedUrlRequestHandler>())
     {
-        _client = client ?? throw new BlobClientNotFoundException(nameof(client));
-        _clock = clock;
-        _amazonS3 = amazonS3;
-        _s3BlobClientOptions = s3BlobClientOptions;
-        _s3Options = s3Options;
+        _client = client;
         _extractsDbContext = extractsDbContext;
+        _downloadFileUrlPresigner = downloadFileUrlPresigner;
     }
 
     protected override async Task<GetDownloadUploadPresignedUrlResponse> InnerHandleAsync(GetDownloadUploadPresignedUrlRequest request, CancellationToken cancellationToken)
@@ -55,8 +42,13 @@ public class GetDownloadUploadPresignedUrlRequestHandler : EndpointRequestHandle
             throw new ExtractDownloadNotFoundException(request.DownloadId);
         }
 
-        var archiveId = new ArchiveId(record.ArchiveId!);
-        var blobName = new BlobName(archiveId.ToString());
+        if (record.UploadId is null)
+        {
+            throw new ExtractUploadNotFoundException(request.DownloadId);
+        }
+
+        var uploadId = new UploadId(record.UploadId.Value);
+        var blobName = new BlobName(uploadId);
 
         if (!await _client.BlobExistsAsync(blobName, cancellationToken))
         {
@@ -66,21 +58,10 @@ public class GetDownloadUploadPresignedUrlRequestHandler : EndpointRequestHandle
         var blob = await _client.GetBlobAsync(blobName, cancellationToken);
 
         var metadata = blob.Metadata.Where(pair => pair.Key == new MetadataKey("filename")).ToArray();
-        var fileName = metadata.Length == 1 ? metadata[0].Value : archiveId + ".zip";
+        var fileName = metadata.Length == 1 ? metadata[0].Value : uploadId + ".zip";
 
-        var bucketName = _s3BlobClientOptions.GetBucketName(WellKnownBuckets.UploadsBucket);
+        var preSignedUrl = await _downloadFileUrlPresigner.CreatePresignedDownloadUrl(WellKnownBuckets.UploadsBucket, blobName, fileName);
 
-        var preSignedUrl = await _amazonS3.GetPreSignedURLAsync(
-            new GetPreSignedUrlRequest
-            {
-                BucketName = bucketName,
-                Key = blobName,
-                Expires = _clock
-                    .GetCurrentInstant()
-                    .Plus(Duration.FromSeconds(_s3Options.ExpiresInSeconds))
-                    .ToDateTimeUtc()
-            });
-
-        return new GetDownloadUploadPresignedUrlResponse(preSignedUrl, fileName);
+        return new GetDownloadUploadPresignedUrlResponse(preSignedUrl.Url.ToString(), preSignedUrl.FileName);
     }
 }

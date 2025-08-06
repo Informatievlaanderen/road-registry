@@ -27,7 +27,6 @@ public partial class ExtractsController
         [FromRoute] string downloadId,
         CancellationToken cancellationToken)
     {
-        //TODO-pr postman testing full flow
         try
         {
             if (!DownloadId.TryParse(downloadId, out var parsedDownloadId))
@@ -46,7 +45,7 @@ public partial class ExtractsController
                 ExtractRequestId = response.ExtractRequestId,
                 RequestedOn = response.RequestedOn,
                 IsInformative = response.IsInformative,
-                ArchiveId = response.ArchiveId,
+                UploadId = response.UploadId,
                 TicketId = response.TicketId,
                 DownloadAvailable = response.DownloadAvailable,
                 ExtractDownloadTimeoutOccurred = response.ExtractDownloadTimeoutOccurred,
@@ -69,6 +68,6 @@ public record ExtractDetailsResponseBody
     public bool IsInformative { get; set; }
     public bool DownloadAvailable { get; set; }
     public bool ExtractDownloadTimeoutOccurred { get; set; }
-    public string? ArchiveId { get; set; }
+    public string? UploadId { get; set; }
     public string? TicketId { get; set; }
 }

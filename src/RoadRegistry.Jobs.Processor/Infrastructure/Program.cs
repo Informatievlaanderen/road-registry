@@ -1,24 +1,26 @@
 namespace RoadRegistry.Jobs.Processor.Infrastructure;
 
+using System.Threading.Tasks;
 using Autofac;
 using BackOffice;
 using BackOffice.Core;
 using BackOffice.Extensions;
 using BackOffice.Extracts;
+using BackOffice.FeatureCompare;
 using BackOffice.Framework;
-using BackOffice.Uploads;
+using BackOffice.Handlers.Sqs;
 using BackOffice.ZipArchiveWriters.Cleaning;
+using Extracts.Schema;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using Options;
 using SqlStreamStore;
-using System.Threading.Tasks;
-using BackOffice.FeatureCompare;
-using BackOffice.ZipArchiveWriters.Cleaning.V1;
+using MediatorModule = BackOffice.Handlers.Sqs.MediatorModule;
 
 public class Program
 {
@@ -59,6 +61,8 @@ public class Program
                                 sp.GetService<ILoggerFactory>()
                             )
                     ])))
+
+                    .AddExtractsDbContext(QueryTrackingBehavior.TrackAll)
                     .AddScoped<IExtractRequestCleaner, ExtractRequestCleaner>()
 
                     .AddHostedService<JobsProcessor>()
@@ -68,7 +72,10 @@ public class Program
             {
                 builder
                     .RegisterModule<BlobClientModule>()
-                    .RegisterModule<BackOffice.Handlers.MediatorModule>();
+                    .RegisterModule<BackOffice.Handlers.MediatorModule>()
+                    .RegisterModule<MediatorModule>()
+                    .RegisterModule<SqsHandlersModule>()
+                    ;
             })
             .Build();
 

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using Amazon.Lambda.TestUtilities;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Configuration;
 using Handlers.Sqs.Lambda;
 using Microsoft.Extensions.Logging;
@@ -18,13 +19,15 @@ public class LambdaRunner
     private readonly ISqsQueueConsumer _sqsQueueConsumer;
     private readonly SqsQueueUrlOptions _sqsQueueUrlOptions;
     private readonly SqsJsonMessageSerializer _sqsJsonMessageSerializer;
+    private readonly SqsOptions _sqsOptions;
     private readonly ILogger _logger;
 
-    public LambdaRunner(ISqsQueueConsumer sqsQueueConsumer, SqsQueueUrlOptions sqsQueueUrlOptions, SqsJsonMessageSerializer sqsJsonMessageSerializer, ILoggerFactory loggerFactory)
+    public LambdaRunner(ISqsQueueConsumer sqsQueueConsumer, SqsQueueUrlOptions sqsQueueUrlOptions, SqsJsonMessageSerializer sqsJsonMessageSerializer, SqsOptions sqsOptions, ILoggerFactory loggerFactory)
     {
         _sqsQueueConsumer = sqsQueueConsumer;
         _sqsQueueUrlOptions = sqsQueueUrlOptions;
         _sqsJsonMessageSerializer = sqsJsonMessageSerializer;
+        _sqsOptions = sqsOptions;
         _logger = loggerFactory.CreateLogger<LambdaRunner>();
     }
 
@@ -46,7 +49,7 @@ public class LambdaRunner
                     }
                 ]
             };
-            var sqsEventJson = JsonConvert.DeserializeObject<JObject>(JsonConvert.SerializeObject(sqsEvent));
+            var sqsEventJson = JsonConvert.DeserializeObject<JObject>(JsonConvert.SerializeObject(sqsEvent, _sqsOptions.JsonSerializerSettings));
 
             var lambdaContext = new TestLambdaContext
             {

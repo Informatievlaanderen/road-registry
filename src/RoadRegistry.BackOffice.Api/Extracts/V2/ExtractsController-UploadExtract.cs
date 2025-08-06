@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracts.V2;
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Exceptions;
@@ -21,7 +22,7 @@ public partial class ExtractsController
     /// <response code="200">Als de url is aangemaakt.</response>
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
-    [ProducesResponseType(typeof(GetPresignedUploadUrlResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UploadExtractResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
@@ -50,13 +51,14 @@ public partial class ExtractsController
         //record.Closed
         //record.DownloadedOn
 
-        var extractRequestId = ExtractRequestId.FromString(record.ExtractRequestId);
-        var response = await _mediator.Send(GetPresignedUploadUrlRequest.ForExtractsV2(extractRequestId), cancellationToken);
+        var response = await _mediator.Send(GetPresignedUploadUrlRequest.ForExtractsV2(parsedDownloadId), cancellationToken);
 
         //TODO-pr mss dit via lambda doen? zodat er maar 1 instance per extract iets kan wijzigen, maakt het mss wel lastig
         record.TicketId = response.TicketId;
         await extractsDbContext.SaveChangesAsync(cancellationToken);
 
-        return Ok(response);
+        return Ok(new UploadExtractResponse(response.UploadUrl, response.UploadUrlFormData, response.TicketUrl));
     }
+
+    public sealed record UploadExtractResponse(string UploadUrl, Dictionary<string, string> UploadUrlFormData, string TicketUrl);
 }

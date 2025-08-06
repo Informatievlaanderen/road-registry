@@ -72,8 +72,8 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
     protected override async Task<object> InnerHandle(UploadExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         var downloadId = new DownloadId(request.Request.DownloadId);
-        var archiveId = new ArchiveId(request.Request.ArchiveId);
-        var archiveBlob = await _uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), cancellationToken);
+        var uploadId = new UploadId(request.Request.UploadId);
+        var archiveBlob = await _uploadsBlobClient.GetBlobAsync(new BlobName(uploadId), cancellationToken);
 
         if (!ContentType.TryParse(archiveBlob.ContentType, out var parsed) || !SupportedContentTypes.Contains(parsed))
         {
@@ -125,7 +125,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
             var translatedChanges = await featureCompareTranslator.TranslateAsync(archive, cancellationToken);
             translatedChanges = translatedChanges.WithOperatorName(new OperatorName(request.Provenance.Operator));
 
-            var requestId = ChangeRequestId.FromArchiveId(archiveId);
+            var requestId = ChangeRequestId.FromUploadId(uploadId);
             var changeRoadNetwork = await translatedChanges.ToChangeRoadNetworkCommand(
                 Logger,
                 extractRequestId, requestId, downloadId, ticketId, cancellationToken);
@@ -134,6 +134,9 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
                 .WithMessageId(request.TicketId)
                 .WithProvenanceData(request.Request.ProvenanceData);
             await _roadNetworkCommandQueue.WriteAsync(command, cancellationToken);
+
+            extractDownload.UploadId = uploadId;
+            await _extractsDbContext.SaveChangesAsync(cancellationToken);
         }
         catch (InvalidDataException)
         {
@@ -156,8 +159,6 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
             }
             throw;
         }
-
-        //await _extractsDbContext.SaveChangesAsync(cancellationToken);
 
         return new object();
     }

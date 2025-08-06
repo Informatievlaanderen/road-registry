@@ -51,6 +51,7 @@ using NetTopologySuite.IO;
 using NodaTime;
 using Options;
 using Product.Schema;
+using RoadRegistry.Extracts.Schema;
 using RoadSegments;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
@@ -303,6 +304,7 @@ public class Startup
                     sqlOptions => sqlOptions
                         .UseNetTopologySuite())
             )
+            .AddExtractsDbContext()
             .AddOrganizationCache()
             .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
             .AddValidatorsFromAssemblyContaining<Startup>()
@@ -332,10 +334,21 @@ public class Startup
             .Configure<JobsBucketOptions>(_configuration.GetSection(JobsBucketOptions.ConfigKey))
             .AddJobsContext()
             .AddSingleton<IPagedUriGenerator, PagedUriGenerator>()
+            .AddScoped<AmazonS3DownloadFileUrlPresigner>()
+            .AddScoped<IDownloadFileUrlPresigner>(sp =>
+            {
+                var hostEnvironment = sp.GetRequiredService<IHostEnvironment>();
+                if (hostEnvironment.IsDevelopment())
+                {
+                    return new AnonymousBackOfficeApiDownloadFileUrlPresigner(sp.GetRequiredService<ApiOptions>());
+                }
+
+                return sp.GetRequiredService<AmazonS3DownloadFileUrlPresigner>();
+            })
             .AddScoped<IJobUploadUrlPresigner>(sp =>
             {
-                var options = sp.GetRequiredService<IOptions<JobsBucketOptions>>();
-                if (options.Value.UseBackOfficeApiUrlPresigner)
+                var hostEnvironment = sp.GetRequiredService<IHostEnvironment>();
+                if (hostEnvironment.IsDevelopment())
                 {
                     return new AnonymousBackOfficeApiJobUploadUrlPresigner(sp.GetRequiredService<ApiOptions>());
                 }

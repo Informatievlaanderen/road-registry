@@ -241,13 +241,13 @@ namespace RoadRegistry.Jobs.Processor
                             throw ToDutchValidationException(ProblemCode.Upload.DownloadIdIsRequired);
                         }
 
-                        var archiveId = new ArchiveId(Guid.NewGuid().ToString("N"));
+                        var uploadId = new UploadId(Guid.NewGuid());
                         var metadata = Metadata.None.Add(
                             new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), blob.Name)
                         );
 
                         await _uploadsBlobClient.CreateBlobAsync(
-                            new BlobName(archiveId.ToString()),
+                            new BlobName(uploadId.ToString()),
                             metadata,
                             blob.ContentType,
                             blobStream,
@@ -258,7 +258,7 @@ namespace RoadRegistry.Jobs.Processor
                         return new UploadExtractSqsRequest
                         {
                             TicketId = job.TicketId,
-                            Request = new BackOffice.Abstractions.Extracts.V2.UploadExtractRequest(job.DownloadId.Value, archiveId),
+                            Request = new BackOffice.Abstractions.Extracts.V2.UploadExtractRequest(job.DownloadId.Value, uploadId),
                             ProvenanceData = new RoadRegistryProvenanceData(Modification.Unknown, job.OperatorName)
                         };
                     }

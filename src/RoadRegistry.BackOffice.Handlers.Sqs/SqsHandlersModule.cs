@@ -40,16 +40,11 @@ public sealed class SqsHandlersModule : Module
                 var hostEnvironment = c.Resolve<IHostEnvironment>();
                 if (hostEnvironment.IsDevelopment())
                 {
-                    return new FakeSqsQueueFactory(c.Resolve<SqsJsonMessageSerializer>(), c.Resolve<ILoggerFactory>());
+                    return new SqsQueueFactoryForDevelopment(c.Resolve<SqsJsonMessageSerializer>(), c.Resolve<ILoggerFactory>());
                 }
 
                 return new SqsQueueFactory(c.Resolve<SqsOptions>());
             })
-            .SingleInstance();
-
-        builder
-            .Register(c => new SqsQueuePublisher(c.Resolve<SqsOptions>(), c.Resolve<ILogger<SqsQueuePublisher>>()))
-            .As<ISqsQueuePublisher>()
             .SingleInstance();
 
         builder
@@ -58,7 +53,7 @@ public sealed class SqsHandlersModule : Module
                 var hostEnvironment = c.Resolve<IHostEnvironment>();
                 if (hostEnvironment.IsDevelopment())
                 {
-                    return (ISqsQueueConsumer)new FakeSqsQueueConsumer(c.Resolve<SqsJsonMessageSerializer>(), c.Resolve<ILoggerFactory>());
+                    return (ISqsQueueConsumer)new SqsQueueConsumerForDevelopment(c.Resolve<SqsJsonMessageSerializer>(), c.Resolve<ILoggerFactory>());
                 }
 
                 return new SqsQueueConsumer(c.Resolve<SqsOptions>(), c.Resolve<ILogger<SqsQueueConsumer>>());

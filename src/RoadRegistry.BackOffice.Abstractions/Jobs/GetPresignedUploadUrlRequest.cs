@@ -11,7 +11,6 @@ namespace RoadRegistry.BackOffice.Abstractions.Jobs
 
         public UploadType UploadType { get; init; }
         public DownloadId? DownloadId { get; init; }
-        public ExtractRequestId? ExtractRequestId { get; init; }
 
         public static GetPresignedUploadUrlRequest ForUploads()
         {
@@ -30,12 +29,12 @@ namespace RoadRegistry.BackOffice.Abstractions.Jobs
             };
         }
 
-        public static GetPresignedUploadUrlRequest ForExtractsV2(ExtractRequestId extractRequestId)
+        public static GetPresignedUploadUrlRequest ForExtractsV2(DownloadId downloadId)
         {
             return new GetPresignedUploadUrlRequest
             {
                 UploadType = UploadType.ExtractsV2,
-                ExtractRequestId = extractRequestId
+                DownloadId = downloadId
             };
         }
     }

@@ -6,12 +6,12 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Uploads;
 
-public class FakeSqsQueueFactory : ISqsQueueFactory
+public class SqsQueueFactoryForDevelopment : ISqsQueueFactory
 {
     private readonly SqsJsonMessageSerializer _sqsJsonMessageSerializer;
     private readonly ILoggerFactory _loggerFactory;
 
-    public FakeSqsQueueFactory(SqsJsonMessageSerializer sqsJsonMessageSerializer, ILoggerFactory loggerFactory)
+    public SqsQueueFactoryForDevelopment(SqsJsonMessageSerializer sqsJsonMessageSerializer, ILoggerFactory loggerFactory)
     {
         _sqsJsonMessageSerializer = sqsJsonMessageSerializer.ThrowIfNull();
         _loggerFactory = loggerFactory.ThrowIfNull();
@@ -19,16 +19,16 @@ public class FakeSqsQueueFactory : ISqsQueueFactory
 
     public ISqsQueue Create(string queueUrl)
     {
-        return new FakeSqsQueue(queueUrl, _sqsJsonMessageSerializer, _loggerFactory.CreateLogger<FakeSqsQueue>());
+        return new SqsQueueForDevelopment(queueUrl, _sqsJsonMessageSerializer, _loggerFactory.CreateLogger<SqsQueueForDevelopment>());
     }
 
-    private sealed class FakeSqsQueue : ISqsQueue
+    private sealed class SqsQueueForDevelopment : ISqsQueue
     {
         private readonly string _queueUrl;
         private readonly SqsJsonMessageSerializer _sqsJsonMessageSerializer;
-        private readonly ILogger<FakeSqsQueue> _logger;
+        private readonly ILogger<SqsQueueForDevelopment> _logger;
 
-        public FakeSqsQueue(string queueUrl, SqsJsonMessageSerializer sqsJsonMessageSerializer, ILogger<FakeSqsQueue> logger)
+        public SqsQueueForDevelopment(string queueUrl, SqsJsonMessageSerializer sqsJsonMessageSerializer, ILogger<SqsQueueForDevelopment> logger)
         {
             _queueUrl = queueUrl.ThrowIfNull();
             _sqsJsonMessageSerializer = sqsJsonMessageSerializer.ThrowIfNull();

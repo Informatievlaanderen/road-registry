@@ -118,11 +118,6 @@ public abstract class TestStartup
                     .SingleInstance();
 
                 builder
-                    .Register(c => new FakeSqsQueuePublisher())
-                    .As<ISqsQueuePublisher>()
-                    .SingleInstance();
-
-                builder
                     .Register(c => new FakeSqsQueueConsumer())
                     .As<ISqsQueueConsumer>()
                     .SingleInstance();

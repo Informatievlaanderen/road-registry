@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NetTopologySuite.Geometries;
 
-//TODO-pr add migration
 public class ExtractDownload
 {
     public Guid DownloadId { get; set; }
@@ -17,7 +16,7 @@ public class ExtractDownload
     public bool DownloadAvailable { get; set; }
     public bool ExtractDownloadTimeoutOccurred { get; set; }
     public DateTimeOffset? DownloadedOn { get; set; }
-    public string? ArchiveId { get; set; }
+    public Guid? UploadId { get; set; }
     public Guid? TicketId { get; set; }
     public bool Closed { get; set; }
 }

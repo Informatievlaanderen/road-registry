@@ -31,7 +31,7 @@ public partial class ExtractsController
     [HttpGet("{downloadId}/download", Name = nameof(DownloadExtract))]
     public async Task<IActionResult> DownloadExtract(
         [FromRoute] string downloadId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         if (!DownloadId.TryParse(downloadId, out var parsedDownloadId))
         {

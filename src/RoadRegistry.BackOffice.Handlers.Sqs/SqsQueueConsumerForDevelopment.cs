@@ -1,23 +1,22 @@
-namespace RoadRegistry.BackOffice;
+namespace RoadRegistry.BackOffice.Handlers.Sqs;
 
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
-using Exceptions;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Uploads;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Uploads;
 
-public class FakeSqsQueueConsumer : ISqsQueueConsumer
+public class SqsQueueConsumerForDevelopment : ISqsQueueConsumer
 {
     private readonly ILogger _logger;
     private readonly SqsJsonMessageSerializer _sqsJsonMessageSerializer;
 
-    public FakeSqsQueueConsumer(SqsJsonMessageSerializer sqsJsonMessageSerializer, ILoggerFactory loggerFactory)
+    public SqsQueueConsumerForDevelopment(SqsJsonMessageSerializer sqsJsonMessageSerializer, ILoggerFactory loggerFactory)
     {
         _sqsJsonMessageSerializer = sqsJsonMessageSerializer;
         _logger = loggerFactory.CreateLogger(GetType());
@@ -25,7 +24,10 @@ public class FakeSqsQueueConsumer : ISqsQueueConsumer
 
     public async Task<Result<SqsJsonMessage>> Consume(string queueUrl, Func<object, Task> messageHandler, CancellationToken cancellationToken)
     {
-        var sqsQueueFilePath = Path.Combine(FindSqsDirectoryPath(), queueUrl.Split('/').Last());
+        var queueDirectory = FindSqsDirectoryPath();
+        var queueFileName = queueUrl.Split('/').Last();
+        var queueWatcher = new FileSystemWatcher(queueDirectory, queueFileName);
+        var sqsQueueFilePath = Path.Combine(queueDirectory, queueFileName);
 
         while (!cancellationToken.IsCancellationRequested)
         {
@@ -42,8 +44,14 @@ public class FakeSqsQueueConsumer : ISqsQueueConsumer
                         await messageHandler(sqsMessage);
 
                         await File.WriteAllTextAsync(sqsQueueFilePath, JsonConvert.SerializeObject(messagesQueue.ToList(), Formatting.Indented), cancellationToken);
+
+                        cancellationToken.ThrowIfCancellationRequested();
                     }
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
@@ -51,7 +59,8 @@ public class FakeSqsQueueConsumer : ISqsQueueConsumer
                 throw;
             }
 
-            Thread.Sleep(5000);
+            queueWatcher.WaitForChanged(WatcherChangeTypes.Changed | WatcherChangeTypes.Created);
+            Thread.Sleep(500);
         }
 
         throw new OperationCanceledException();

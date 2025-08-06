@@ -12,7 +12,7 @@ public sealed record ExtractListItem
     public ExtractRequestId ExtractRequestId { get; init; }
     public DateTimeOffset RequestedOn { get; set; }
     public bool IsInformative { get; init; }
-    public ArchiveId? ArchiveId { get; init; }
+    public UploadId? UploadId { get; init; }
     public bool DownloadAvailable { get; init; }
     public bool ExtractDownloadTimeoutOccurred { get; init; }
 }

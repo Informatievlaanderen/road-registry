@@ -46,7 +46,7 @@ public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetail
             ExtractRequestId = ExtractRequestId.FromString(record.Download.ExtractRequestId),
             RequestedOn = record.Download.RequestedOn,
             IsInformative = record.Download.IsInformative,
-            ArchiveId = record.Download.ArchiveId is not null ? new ArchiveId(record.Download.ArchiveId) : null,
+            UploadId = record.Download.UploadId is not null ? new UploadId(record.Download.UploadId.Value) : null,
             TicketId = TicketId.FromValue(record.Download.TicketId),
             DownloadAvailable = record.Download.DownloadAvailable,
             ExtractDownloadTimeoutOccurred = record.Download.ExtractDownloadTimeoutOccurred

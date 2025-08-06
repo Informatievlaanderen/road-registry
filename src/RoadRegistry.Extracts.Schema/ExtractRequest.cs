@@ -5,7 +5,6 @@ using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-//TODO-pr add migration
 public class ExtractRequest
 {
     public string ExtractRequestId { get; set; }

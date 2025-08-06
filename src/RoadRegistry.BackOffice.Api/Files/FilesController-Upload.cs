@@ -1,4 +1,5 @@
-namespace RoadRegistry.BackOffice.Api.Uploads;
+namespace RoadRegistry.BackOffice.Api.Files;
+
 using Abstractions.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Microsoft.AspNetCore.Authorization;
@@ -10,19 +11,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Jobs;
 
-public partial class UploadController
+public partial class FilesController
 {
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    [HttpPost("jobs/{jobId:guid}/upload")]
+    [HttpPost("upload/{jobId:guid}")]
     [AllowAnonymous]
     [ApiExplorerSettings(IgnoreApi = true)]
-    public async Task<IActionResult> UploadJob(
+    public async Task<IActionResult> Upload(
         [FromRoute] Guid jobId,
         [FromForm(Name = "file")] IFormFile archive,
         CancellationToken cancellationToken,
         [FromServices] IHostEnvironment hostEnvironment)
     {
-        // Only exists for local dev testing the entire upload flow (in UI)
+        // Only exists for local dev testing the entire flow (in UI)
         if (!hostEnvironment.IsDevelopment())
         {
             return NotFound();
@@ -33,6 +34,6 @@ public partial class UploadController
 
         await _mediator.Send(request, cancellationToken);
 
-        return NoContent();
+        return Accepted();
     }
 }

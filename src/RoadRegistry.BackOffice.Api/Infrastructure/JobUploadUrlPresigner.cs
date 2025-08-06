@@ -48,11 +48,8 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure
 
         public CreatePresignedPostResponse CreatePresignedUploadUrl(Job job)
         {
-            var uri = new Uri($"{_apiOptions.BaseUrl}/v1/upload/jobs/{job.Id}/upload");
-            return new CreatePresignedPostResponse(uri, new Dictionary<string, string>
-            {
-                {"X-JobId", job.Id.ToString()}
-            });
+            var uri = new Uri($"{_apiOptions.BaseUrl}/v1/files/upload/{job.Id}");
+            return new CreatePresignedPostResponse(uri, new Dictionary<string, string>());
         }
     }
 }

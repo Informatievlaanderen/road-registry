@@ -3,18 +3,15 @@ namespace RoadRegistry.BackOffice.Api.Handlers.Extracts.V2;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Amazon.S3;
-using Amazon.S3.Model;
+using Abstractions;
+using Abstractions.Extracts.V2;
+using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using Exceptions;
+using Framework;
+using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using NodaTime;
-using RoadRegistry.BackOffice.Abstractions;
-using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
-using RoadRegistry.BackOffice.Configuration;
-using RoadRegistry.BackOffice.Exceptions;
-using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.Extracts.Schema;
 using SqlStreamStore;
 
@@ -22,29 +19,20 @@ public class GetDownloadExtractPresignedUrlRequestHandler : EndpointRequestHandl
 {
     private readonly ExtractsDbContext _extractsDbContext;
     private readonly RoadNetworkExtractDownloadsBlobClient _client;
-    private readonly IClock _clock;
-    private readonly IAmazonS3 _amazonS3;
-    private readonly S3BlobClientOptions _s3BlobClientOptions;
-    private readonly S3Options _s3Options;
+    private readonly IDownloadFileUrlPresigner _downloadFileUrlPresigner;
 
     public GetDownloadExtractPresignedUrlRequestHandler(
         CommandHandlerDispatcher dispatcher,
         ExtractsDbContext extractsDbContext,
         RoadNetworkExtractDownloadsBlobClient client,
         IStreamStore streamStore,
-        IClock clock,
-        IAmazonS3 amazonS3,
-        S3BlobClientOptions s3BlobClientOptions,
-        S3Options s3Options,
+        IDownloadFileUrlPresigner downloadFileUrlPresigner,
         ILoggerFactory loggerFactory)
         : base(dispatcher, loggerFactory.CreateLogger<GetDownloadExtractPresignedUrlRequestHandler>())
     {
         _extractsDbContext = extractsDbContext;
-        _client = client ?? throw new ArgumentNullException(nameof(client));
-        _clock = clock;
-        _amazonS3 = amazonS3;
-        _s3BlobClientOptions = s3BlobClientOptions;
-        _s3Options = s3Options;
+        _client = client;
+        _downloadFileUrlPresigner = downloadFileUrlPresigner;
     }
 
     protected override async Task<GetDownloadExtractPresignedUrlResponse> InnerHandleAsync(GetDownloadExtractPresignedUrlRequest request, CancellationToken cancellationToken)
@@ -56,29 +44,19 @@ public class GetDownloadExtractPresignedUrlRequestHandler : EndpointRequestHandl
             throw new ExtractDownloadNotFoundException(request.DownloadId);
         }
 
-        var blobName = new BlobName(record.ArchiveId!);
+        var blobName = new BlobName(request.DownloadId);
 
         if (!await _client.BlobExistsAsync(blobName, cancellationToken))
         {
             throw new BlobNotFoundException(blobName);
         }
 
-        var bucketName = _s3BlobClientOptions.GetBucketName(WellKnownBuckets.ExtractDownloadsBucket);
-
-        var presignedUrl = await _amazonS3.GetPreSignedURLAsync(
-            new GetPreSignedUrlRequest
-            {
-                BucketName = bucketName,
-                Key = blobName,
-                Expires = _clock
-                    .GetCurrentInstant()
-                    .Plus(Duration.FromSeconds(_s3Options.ExpiresInSeconds))
-                    .ToDateTimeUtc()
-            });
+        var fileName = $"{blobName}.zip";
+        var presignedUrl = await _downloadFileUrlPresigner.CreatePresignedDownloadUrl(WellKnownBuckets.ExtractDownloadsBucket, blobName, fileName);
 
         record.DownloadedOn = DateTimeOffset.UtcNow;
         await _extractsDbContext.SaveChangesAsync(cancellationToken);
 
-        return new GetDownloadExtractPresignedUrlResponse(presignedUrl);
+        return new GetDownloadExtractPresignedUrlResponse(presignedUrl.Url.ToString());
     }
 }

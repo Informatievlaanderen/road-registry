@@ -43,7 +43,6 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
 
     protected override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
-        //TODO-pr add ExtractsDbContext
         services
             .AddStreetNameCache()
             .AddDistributedStreamStoreLockOptions()
@@ -60,16 +59,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .AddStreetNameClient()
 
             // Extracts
-            .AddDbContext<ExtractsDbContext>((sp, options) =>
-            {
-                options
-                    .UseLoggerFactory(sp.GetRequiredService<ILoggerFactory>())
-                    .UseSqlServer(
-                        sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.Extracts),
-                        sqlOptions => ExtractsDbContext.ConfigureSqlServerOptions(sqlOptions
-                            .EnableRetryOnFailure()
-                            .MigrationsHistoryTable(ExtractsDbContextMigratorFactory.Configuration.Table, ExtractsDbContextMigratorFactory.Configuration.Schema)));
-            })
+            .AddExtractsDbContext(QueryTrackingBehavior.TrackAll)
             .AddEditorContext()
             .RegisterOptions<ZipArchiveWriterOptions>()
             .AddSingleton<IZipArchiveWriterFactory>(sp =>

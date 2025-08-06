@@ -112,7 +112,7 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
         ExtractDownload extractDownload,
         CancellationToken ct)
     {
-        var archiveId = new ArchiveId(extractDownload.DownloadId.ToString("N"));
+        var downloadId = new DownloadId(extractDownload.DownloadId);
 
         //TODO-pr nog nodig?
         // var overlappingDownloadIds = !message.Body.IsInformative
@@ -121,7 +121,7 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
 
         var request = new RoadNetworkExtractAssemblyRequest(
             default,
-            new DownloadId(extractDownload.DownloadId),
+            downloadId,
             new ExtractDescription(extractRequest.Description),
             GeometryTranslator.Translate(GeometryTranslator.TranslateToRoadNetworkExtractGeometry((IPolygonal)extractDownload.Contour)),
             extractDownload.IsInformative,
@@ -134,7 +134,7 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
                 content.Position = 0L;
 
                 await _downloadsBlobClient.CreateBlobAsync(
-                    new BlobName(archiveId),
+                    new BlobName(downloadId),
                     Metadata.None,
                     ContentType.Parse("application/x-zip-compressed"),
                     content,
@@ -142,7 +142,6 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
             }
 
             extractDownload.DownloadAvailable = true;
-            extractDownload.ArchiveId = archiveId;
         }
         catch (SqlException ex) when (ex.Number.Equals(-2))
         {
