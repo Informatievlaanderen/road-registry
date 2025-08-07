@@ -242,8 +242,13 @@ namespace RoadRegistry.Jobs.Processor
                         }
 
                         var uploadId = new UploadId(Guid.NewGuid());
+                        var fileNames = blob.Metadata
+                            .Where(pair => pair.Key == new MetadataKey("filename"))
+                            .Select(x => x.Value)
+                            .ToArray();
+                        var fileName = fileNames.Length == 1 ? fileNames.Single() : $"{uploadId}.zip";
                         var metadata = Metadata.None.Add(
-                            new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), blob.Name)
+                            new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), fileName)
                         );
 
                         await _uploadsBlobClient.CreateBlobAsync(
@@ -257,8 +262,7 @@ namespace RoadRegistry.Jobs.Processor
                         //TODO-pr TBD: downloadId of extractRequestId als messagegroupid gebruiken?
                         return new UploadExtractSqsRequest
                         {
-                            TicketId = job.TicketId,
-                            Request = new BackOffice.Abstractions.Extracts.V2.UploadExtractRequest(job.DownloadId.Value, uploadId),
+                            Request = new BackOffice.Abstractions.Extracts.V2.UploadExtractRequest(job.DownloadId.Value, uploadId, job.TicketId),
                             ProvenanceData = new RoadRegistryProvenanceData(Modification.Unknown, job.OperatorName)
                         };
                     }

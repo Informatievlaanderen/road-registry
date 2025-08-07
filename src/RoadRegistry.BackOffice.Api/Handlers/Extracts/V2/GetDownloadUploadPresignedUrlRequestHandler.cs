@@ -57,8 +57,10 @@ public class GetDownloadUploadPresignedUrlRequestHandler : EndpointRequestHandle
 
         var blob = await _client.GetBlobAsync(blobName, cancellationToken);
 
-        var metadata = blob.Metadata.Where(pair => pair.Key == new MetadataKey("filename")).ToArray();
-        var fileName = metadata.Length == 1 ? metadata[0].Value : uploadId + ".zip";
+        var fileName = blob.Metadata
+            .Where(pair => pair.Key == new MetadataKey("filename"))
+            .Select(x => x.Value)
+            .Single();
 
         var preSignedUrl = await _downloadFileUrlPresigner.CreatePresignedDownloadUrl(WellKnownBuckets.UploadsBucket, blobName, fileName);
 

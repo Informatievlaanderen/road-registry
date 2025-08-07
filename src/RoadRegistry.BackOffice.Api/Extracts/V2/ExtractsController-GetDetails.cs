@@ -49,6 +49,7 @@ public partial class ExtractsController
                 TicketId = response.TicketId,
                 DownloadAvailable = response.DownloadAvailable,
                 ExtractDownloadTimeoutOccurred = response.ExtractDownloadTimeoutOccurred,
+                Closed = response.Closed,
             });
         }
         catch (ExtractRequestNotFoundException)
@@ -60,6 +61,7 @@ public partial class ExtractsController
 
 public record ExtractDetailsResponseBody
 {
+    //TODO-pr: ipv verschillende booleans, deftige status flow voorzien?
     public string DownloadId { get; set; }
     public string Description { get; set; }
     public MultiPolygon Contour { get; set; }
@@ -68,6 +70,7 @@ public record ExtractDetailsResponseBody
     public bool IsInformative { get; set; }
     public bool DownloadAvailable { get; set; }
     public bool ExtractDownloadTimeoutOccurred { get; set; }
+    public bool Closed { get; set; }
     public string? UploadId { get; set; }
     public string? TicketId { get; set; }
 }

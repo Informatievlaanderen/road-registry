@@ -26,6 +26,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.Extracts.Schema;
+using ZipArchiveWriters.Cleaning;
 using ZipArchiveWriters.ExtractHost;
 
 public class Function : RoadRegistryLambdaFunction<MessageHandler>
@@ -78,6 +79,8 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
                     sp.GetService<RecyclableMemoryStreamManager>(),
                     sp.GetService<Func<EditorContext>>(),
                     sp.GetService<IZipArchiveWriterFactory>()))
+            .AddFeatureCompare()
+            .AddSingleton<IBeforeFeatureCompareZipArchiveCleanerFactory, BeforeFeatureCompareZipArchiveCleanerFactory>()
             ;
     }
 

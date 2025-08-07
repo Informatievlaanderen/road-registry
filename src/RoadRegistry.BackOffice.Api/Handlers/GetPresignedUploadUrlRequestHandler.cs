@@ -59,8 +59,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                             { "Registry", "RoadRegistry" },
                             { "Action", "Upload" },
                             { "UploadType", request.UploadType.ToString() },
-                            { "DownloadId", request.DownloadId?.ToString() },
-                            { "JobId", job.Id.ToString("D") }
+                            { "DownloadId", request.DownloadId?.ToString() }
                         },
                         cancellationToken);
 

@@ -2336,7 +2336,9 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.0.5, )",
           "Microsoft.Extensions.Hosting": "[9.0.5, )",
           "RoadRegistry.BackOffice": "[1.0.0, )",
+          "RoadRegistry.BackOffice.Handlers": "[1.0.0, )",
           "RoadRegistry.BackOffice.Handlers.Sqs": "[1.0.0, )",
+          "RoadRegistry.Extracts.Schema": "[1.0.0, )",
           "RoadRegistry.Hosts": "[1.0.0, )",
           "RoadRegistry.Jobs": "[1.0.0, )",
           "RoadRegistry.RoadNetwork.Schema": "[1.0.0, )",
@@ -2350,6 +2352,24 @@
           "Serilog.Sinks.Slack": "[2.2.3, )",
           "SqlStreamStore.MsSql": "[1.2.0, )",
           "System.Threading.Channels": "[9.0.4, )"
+        }
+      },
+      "roadregistry.backoffice.handlers": {
+        "type": "Project",
+        "dependencies": {
+          "AWSSDK.Core": "[3.7.402.35, )",
+          "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": "[6.0.3, )",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector": "[15.0.1, )",
+          "MediatR": "[12.5.0, )",
+          "MediatR.Contracts": "[2.0.1, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.0.5, )",
+          "RoadRegistry.BackOffice": "[1.0.0, )",
+          "RoadRegistry.BackOffice.ZipArchiveWriters": "[1.0.0, )",
+          "RoadRegistry.Editor.Projections": "[1.0.0, )",
+          "RoadRegistry.Editor.Schema": "[1.0.0, )",
+          "RoadRegistry.Extracts.Schema": "[1.0.0, )",
+          "RoadRegistry.Product.Schema": "[1.0.0, )",
+          "RoadRegistry.Sync.MunicipalityRegistry": "[1.0.0, )"
         }
       },
       "roadregistry.backoffice.handlers.sqs": {
@@ -2578,6 +2598,23 @@
           "Microsoft.Extensions.Http": "[9.0.5, )",
           "RoadRegistry.BackOffice": "[1.0.0, )",
           "RoadRegistry.BackOffice.Abstractions": "[1.0.0, )"
+        }
+      },
+      "roadregistry.sync.municipalityregistry": {
+        "type": "Project",
+        "dependencies": {
+          "Be.Vlaanderen.Basisregisters.EventHandling": "[7.0.0, )",
+          "Be.Vlaanderen.Basisregisters.EventHandling.Autofac": "[7.0.0, )",
+          "Be.Vlaanderen.Basisregisters.GrAr.Contracts": "[22.0.0, )",
+          "Be.Vlaanderen.Basisregisters.GrAr.Provenance": "[22.0.0, )",
+          "Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer": "[6.0.3, )",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector": "[15.0.1, )",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": "[15.0.1, )",
+          "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.1, )",
+          "MediatR": "[12.5.0, )",
+          "Microsoft.EntityFrameworkCore.Design": "[9.0.4, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.0.5, )",
+          "RoadRegistry.BackOffice": "[1.0.0, )"
         }
       },
       "roadregistry.sync.streetnameregistry": {

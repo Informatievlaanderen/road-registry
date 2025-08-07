@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers.Extracts;
 
 using System.IO.Compression;
 using Abstractions.Exceptions;
-using Abstractions.Extracts.V2;
 using BackOffice.Extensions;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
@@ -18,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Requests.Extracts;
 using RoadRegistry.Extracts.Schema;
+using SqlStreamStore;
 using TicketingService.Abstractions;
 using ZipArchiveWriters.Cleaning;
 
@@ -33,7 +33,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
     private readonly RoadNetworkUploadsBlobClient _uploadsBlobClient;
     private readonly ExtractsDbContext _extractsDbContext;
     private readonly IZipArchiveBeforeFeatureCompareValidatorFactory _beforeFeatureCompareValidatorFactory;
-    private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
+    private readonly IStreamStore _store;
     private readonly IBeforeFeatureCompareZipArchiveCleanerFactory _beforeFeatureCompareZipArchiveCleanerFactory;
     private readonly IZipArchiveFeatureCompareTranslatorFactory _featureCompareTranslatorFactory;
     private readonly IExtractUploadFailedEmailClient _extractUploadFailedEmailClient;
@@ -47,7 +47,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         ExtractsDbContext extractsDbContext,
         RoadNetworkUploadsBlobClient uploadsBlobClient,
         IZipArchiveBeforeFeatureCompareValidatorFactory beforeFeatureCompareValidatorFactory,
-        IRoadNetworkCommandQueue roadNetworkCommandQueue,
+        IStreamStore store,
         IBeforeFeatureCompareZipArchiveCleanerFactory beforeFeatureCompareZipArchiveCleanerFactory,
         IZipArchiveFeatureCompareTranslatorFactory featureCompareTranslatorFactory,
         IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
@@ -55,7 +55,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         : base(
             options,
             retryPolicy,
-            ticketing, //new UncompletableTicketing(ticketing), //TODO-pr temp disable want dat zorgt voor rare DI infinite loops
+            ticketing,
             idempotentCommandHandler,
             roadRegistryContext,
             loggerFactory.CreateLogger<UploadExtractSqsLambdaRequestHandler>())
@@ -63,7 +63,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         _extractsDbContext = extractsDbContext;
         _uploadsBlobClient = uploadsBlobClient;
         _beforeFeatureCompareValidatorFactory = beforeFeatureCompareValidatorFactory;
-        _roadNetworkCommandQueue = roadNetworkCommandQueue;
+        _store = store;
         _beforeFeatureCompareZipArchiveCleanerFactory = beforeFeatureCompareZipArchiveCleanerFactory;
         _featureCompareTranslatorFactory = featureCompareTranslatorFactory;
         _extractUploadFailedEmailClient = extractUploadFailedEmailClient;
@@ -98,13 +98,16 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
             throw new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException();
         }
 
+        extractDownload.UploadId = uploadId;
+        await _extractsDbContext.SaveChangesAsync(cancellationToken);
+
         var extractRequest = await _extractsDbContext.ExtractRequests.SingleOrDefaultAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId && x.CurrentDownloadId == downloadId.ToGuid(), cancellationToken);
         if (extractRequest is null)
         {
             throw new CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException();
         }
 
-        var ticketId = new TicketId(request.TicketId);
+        var ticketId = new TicketId(request.Request.TicketId); // NOT the one from the SqsRequest
         var extractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId);
         var zipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.V2;
 
@@ -131,12 +134,10 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
                 extractRequestId, requestId, downloadId, ticketId, cancellationToken);
 
             var command = new Command(changeRoadNetwork)
-                .WithMessageId(request.TicketId)
+                .WithMessageId(request.Request.TicketId)
                 .WithProvenanceData(request.Request.ProvenanceData);
-            await _roadNetworkCommandQueue.WriteAsync(command, cancellationToken);
-
-            extractDownload.UploadId = uploadId;
-            await _extractsDbContext.SaveChangesAsync(cancellationToken);
+            var roadNetworkCommandQueueForCommandHost = new RoadNetworkCommandQueue(_store, new ApplicationMetadata(RoadRegistryApplication.BackOffice));
+            await roadNetworkCommandQueueForCommandHost.WriteAsync(command, cancellationToken);
         }
         catch (InvalidDataException)
         {
@@ -144,23 +145,24 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         }
         catch (ZipArchiveValidationException ex)
         {
-            if (extractRequest.ExternalRequestId is not null && extractRequest.ExternalRequestId.StartsWith("GRB_"))
-            {
-                await _extractUploadFailedEmailClient.SendAsync(new(downloadId, extractRequest.Description), cancellationToken);
-            }
-
+            await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
             throw ex.ToDutchValidationException();
         }
         catch
         {
-            if (extractRequest.ExternalRequestId is not null && extractRequest.ExternalRequestId.StartsWith("GRB_"))
-            {
-                await _extractUploadFailedEmailClient.SendAsync(new(downloadId, extractRequest.Description), cancellationToken);
-            }
+            await HandleSendingFailedEmail(extractRequest, downloadId, cancellationToken);
             throw;
         }
 
         return new object();
+    }
+
+    private async Task HandleSendingFailedEmail(ExtractRequest extractRequest, DownloadId downloadId, CancellationToken cancellationToken)
+    {
+        if (extractRequest.ExternalRequestId is not null && extractRequest.ExternalRequestId.StartsWith("GRB_"))
+        {
+            await _extractUploadFailedEmailClient.SendAsync(new(downloadId, extractRequest.Description), cancellationToken);
+        }
     }
 
     private async Task CleanArchive(Stream archiveStream, string zipArchiveWriterVersion, CancellationToken cancellationToken)
@@ -189,50 +191,4 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
     {
         return Task.CompletedTask;
     }
-
-    //TODO-pr TBD: voorlopig zo gedaan zodat de ticketId kan worden doorgegeven aan de command ipv een nieuwe ticket te maken
-    // private sealed class UncompletableTicketing : ITicketing
-    // {
-    //     private readonly ITicketing _ticketing;
-    //
-    //     public UncompletableTicketing(ITicketing ticketing)
-    //     {
-    //         _ticketing = ticketing;
-    //     }
-    //
-    //     public Task<Guid> CreateTicket(IDictionary<string, string>? metadata, CancellationToken cancellationToken)
-    //     {
-    //         throw new NotSupportedException();
-    //     }
-    //
-    //     public Task<IEnumerable<Ticket>> GetAll(CancellationToken cancellationToken)
-    //     {
-    //         throw new NotSupportedException();
-    //     }
-    //
-    //     public Task<Ticket?> Get(Guid ticketId, CancellationToken cancellationToken)
-    //     {
-    //         throw new NotSupportedException();
-    //     }
-    //
-    //     public Task Pending(Guid ticketId, CancellationToken cancellationToken)
-    //     {
-    //         return _ticketing.Pending(ticketId, cancellationToken);
-    //     }
-    //
-    //     public Task Complete(Guid ticketId, TicketResult result, CancellationToken cancellationToken)
-    //     {
-    //         return Task.CompletedTask;
-    //     }
-    //
-    //     public Task Error(Guid ticketId, TicketError error, CancellationToken cancellationToken)
-    //     {
-    //         return _ticketing.Error(ticketId, error, cancellationToken);
-    //     }
-    //
-    //     public Task Delete(Guid ticketId, CancellationToken cancellationToken)
-    //     {
-    //         throw new NotSupportedException();
-    //     }
-    // }
 }

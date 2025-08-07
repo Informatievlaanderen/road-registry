@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using DutchTranslations;
+using Extracts;
 using Framework;
+using MediatR;
 using Messages;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
@@ -135,8 +137,20 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             if (!failedChangedMessages.Any() && command.Body.ExtractRequestId is not null)
             {
                 var extractRequestId = ExtractRequestId.FromString(command.Body.ExtractRequestId);
+
+                // old
                 var extract = await context.RoadNetworkExtracts.Get(extractRequestId, cancellationToken);
-                extract.Close(RoadNetworkExtractCloseReason.UploadAccepted);
+                if (extract is not null)
+                {
+                    extract.Close(RoadNetworkExtractCloseReason.UploadAccepted);
+                }
+                else
+                {
+                    // new
+                    //TODO TBD: hier rechtstreeks de context updaten, of item op sqs plaatsen? bij Marten herwerking zal dit vermoedelijk in een lambda gebeuren dus kan dan rechtstreeks
+                    var extractsCloser = container.Resolve<IExtractsCloser>();
+                    await extractsCloser.CloseAsync(new DownloadId(command.Body.DownloadId!.Value), cancellationToken);
+                }
             }
 
             if (ticketId is not null)

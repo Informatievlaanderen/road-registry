@@ -39,14 +39,14 @@ public class ExtractDownloadConfiguration : IEntityTypeConfiguration<ExtractDown
         b.Property(p => p.Contour)
             .HasColumnType("Geometry")
             .IsRequired();
-        b.Property(p => p.DownloadId).IsRequired();
-        b.Property(p => p.RequestedOn).IsRequired();
         b.Property(p => p.IsInformative).IsRequired();
+        b.Property(p => p.RequestedOn).IsRequired();
+        b.Property(p => p.DownloadAvailable).IsRequired();
+        b.Property(p => p.ExtractDownloadTimeoutOccurred).IsRequired();
+        b.Property(p => p.DownloadedOn).IsRequired(false);
+        b.Property(p => p.UploadId).IsRequired(false);
+        b.Property(p => p.TicketId).IsRequired(false);
         b.Property(p => p.Closed).IsRequired();
-        //b.Property(p => p.ExternalRequestId).IsRequired(false);
-        //b.Property(p => p.DownloadedOn).IsRequired(false);
-        //b.Property(p => p.ArchiveId).IsRequired(false);
-        //b.Property(p => p.TicketId).IsRequired(false);
 
         b.HasIndex(x => x.ExtractRequestId);
     }

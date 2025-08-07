@@ -1070,6 +1070,30 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         modifyRoadSegment2.OriginalId.Should().BeNull();
     }
 
+    [Fact]
+    public async Task WhenOnlyIdChanges_ThenNoChangesDetected()
+    {
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                var newSegmentId = builder.DataSet.RoadSegmentDbaseRecords.Select(x => x.WS_OIDN.Value).Max() + 1;
+                builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value = newSegmentId;
+                builder.TestData.RoadSegment1LaneDbaseRecord.WS_OIDN.Value = newSegmentId;
+                builder.TestData.RoadSegment1SurfaceDbaseRecord.WS_OIDN.Value = newSegmentId;
+                builder.TestData.RoadSegment1WidthDbaseRecord.WS_OIDN.Value = newSegmentId;
+                builder.TestData.RoadSegment1NationalRoadDbaseRecord1.WS_OIDN.Value = newSegmentId;
+                builder.TestData.RoadSegment1NationalRoadDbaseRecord2.WS_OIDN.Value = newSegmentId;
+                builder.TestData.RoadSegment1EuropeanRoadDbaseRecord1.WS_OIDN.Value = newSegmentId;
+                builder.TestData.RoadSegment1EuropeanRoadDbaseRecord2.WS_OIDN.Value = newSegmentId;
+                builder.TestData.RoadSegment1NumberedRoadDbaseRecord1.WS_OIDN.Value = newSegmentId;
+                builder.TestData.RoadSegment1NumberedRoadDbaseRecord2.WS_OIDN.Value = newSegmentId;
+                builder.TestData.GradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = newSegmentId;
+            })
+            .BuildWithResult(context => TranslatedChanges.Empty);
+
+        await TranslateSucceeds(zipArchive);
+    }
+
     private static void FillStreetNameCache(ExtractsZipArchiveExtractDataSetBuilder builder, FakeStreetNameCache streetNameCache)
     {
         var streetNameIds = builder.DataSet.RoadSegmentDbaseRecords

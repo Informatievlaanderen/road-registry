@@ -9,16 +9,19 @@ using Extensions;
 using Extracts;
 using FeatureCompare;
 using Framework;
+using Handlers.Extracts;
 using Handlers.Sqs;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Jobs;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using RoadNetwork.Schema;
+using RoadRegistry.Extracts.Schema;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
 using Uploads;
@@ -57,6 +60,8 @@ public class Program
                 .AddRoadNetworkEventWriter()
                 .AddOrganizationCommandQueue()
                 .AddJobsContext()
+                .AddExtractsDbContext(QueryTrackingBehavior.TrackAll)
+                .AddScoped<IExtractsCloser, ExtractsCloser>()
 
                 .AddHostedService<HealthCommandProcessor>()
                 .AddHostedService<RoadNetworkCommandProcessor>()

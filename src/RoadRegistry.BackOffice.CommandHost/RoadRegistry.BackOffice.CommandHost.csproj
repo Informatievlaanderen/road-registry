@@ -11,7 +11,9 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers.Sqs\RoadRegistry.BackOffice.Handlers.Sqs.csproj" />
+    <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers\RoadRegistry.BackOffice.Handlers.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Extracts.Schema\RoadRegistry.Extracts.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
     <ProjectReference Include="..\RoadRegistry.Jobs\RoadRegistry.Jobs.csproj" />
     <ProjectReference Include="..\RoadRegistry.RoadNetwork.Schema\RoadRegistry.RoadNetwork.Schema.csproj" />

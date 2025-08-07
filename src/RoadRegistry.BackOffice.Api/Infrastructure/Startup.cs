@@ -304,7 +304,7 @@ public class Startup
                     sqlOptions => sqlOptions
                         .UseNetTopologySuite())
             )
-            .AddExtractsDbContext()
+            .AddExtractsDbContext(QueryTrackingBehavior.TrackAll)
             .AddOrganizationCache()
             .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
             .AddValidatorsFromAssemblyContaining<Startup>()

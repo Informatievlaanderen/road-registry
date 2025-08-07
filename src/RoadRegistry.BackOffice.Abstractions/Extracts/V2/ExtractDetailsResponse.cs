@@ -14,4 +14,5 @@ public sealed record ExtractDetailsResponse : EndpointResponse
     public TicketId? TicketId { get; init; }
     public bool DownloadAvailable { get; init; }
     public bool ExtractDownloadTimeoutOccurred { get; init; }
+    public bool Closed { get; init; }
 }

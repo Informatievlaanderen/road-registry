@@ -49,7 +49,8 @@ public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetail
             UploadId = record.Download.UploadId is not null ? new UploadId(record.Download.UploadId.Value) : null,
             TicketId = TicketId.FromValue(record.Download.TicketId),
             DownloadAvailable = record.Download.DownloadAvailable,
-            ExtractDownloadTimeoutOccurred = record.Download.ExtractDownloadTimeoutOccurred
+            ExtractDownloadTimeoutOccurred = record.Download.ExtractDownloadTimeoutOccurred,
+            Closed = record.Download.Closed
         };
     }
 }

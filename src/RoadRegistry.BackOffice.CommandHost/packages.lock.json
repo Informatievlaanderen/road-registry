@@ -1748,6 +1748,24 @@
           "RoadRegistry.BackOffice": "[1.0.0, )"
         }
       },
+      "roadregistry.backoffice.handlers": {
+        "type": "Project",
+        "dependencies": {
+          "AWSSDK.Core": "[3.7.402.35, )",
+          "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": "[6.0.3, )",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector": "[15.0.1, )",
+          "MediatR": "[12.5.0, )",
+          "MediatR.Contracts": "[2.0.1, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.0.5, )",
+          "RoadRegistry.BackOffice": "[1.0.0, )",
+          "RoadRegistry.BackOffice.ZipArchiveWriters": "[1.0.0, )",
+          "RoadRegistry.Editor.Projections": "[1.0.0, )",
+          "RoadRegistry.Editor.Schema": "[1.0.0, )",
+          "RoadRegistry.Extracts.Schema": "[1.0.0, )",
+          "RoadRegistry.Product.Schema": "[1.0.0, )",
+          "RoadRegistry.Sync.MunicipalityRegistry": "[1.0.0, )"
+        }
+      },
       "roadregistry.backoffice.handlers.sqs": {
         "type": "Project",
         "dependencies": {
@@ -1767,6 +1785,23 @@
           "RoadRegistry.BackOffice.Abstractions": "[1.0.0, )"
         }
       },
+      "roadregistry.backoffice.ziparchivewriters": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.IO.RecyclableMemoryStream": "[3.0.1, )",
+          "RoadRegistry.BackOffice.Abstractions": "[1.0.0, )",
+          "RoadRegistry.Editor.Schema": "[1.0.0, )",
+          "RoadRegistry.Product.Schema": "[1.0.0, )"
+        }
+      },
+      "roadregistry.editor.projections": {
+        "type": "Project",
+        "dependencies": {
+          "RoadRegistry.BackOffice": "[1.0.0, )",
+          "RoadRegistry.BackOffice.Abstractions": "[1.0.0, )",
+          "RoadRegistry.Editor.Schema": "[1.0.0, )"
+        }
+      },
       "roadregistry.editor.schema": {
         "type": "Project",
         "dependencies": {
@@ -1783,6 +1818,18 @@
           "Microsoft.IdentityModel.JsonWebTokens": "[8.9.0, )",
           "Microsoft.IdentityModel.Logging": "[8.9.0, )",
           "Microsoft.IdentityModel.Tokens": "[8.9.0, )",
+          "NetTopologySuite": "[2.6.0, )",
+          "RoadRegistry.BackOffice": "[1.0.0, )"
+        }
+      },
+      "roadregistry.extracts.schema": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Design": "[9.0.4, )",
+          "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite": "[9.0.4, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.0.5, )",
+          "Microsoft.IdentityModel.Abstractions": "[8.9.0, )",
+          "Microsoft.IdentityModel.Logging": "[8.9.0, )",
           "NetTopologySuite": "[2.6.0, )",
           "RoadRegistry.BackOffice": "[1.0.0, )"
         }
@@ -1853,6 +1900,24 @@
           "RoadRegistry.BackOffice.Abstractions": "[1.0.0, )"
         }
       },
+      "roadregistry.product.schema": {
+        "type": "Project",
+        "dependencies": {
+          "Be.Vlaanderen.Basisregisters.EventHandling": "[7.0.0, )",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": "[15.0.1, )",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer": "[15.0.1, )",
+          "Be.Vlaanderen.Basisregisters.Shaperon": "[11.0.0, )",
+          "Microsoft.EntityFrameworkCore.Design": "[9.0.4, )",
+          "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite": "[9.0.4, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.0.5, )",
+          "Microsoft.IdentityModel.Abstractions": "[8.9.0, )",
+          "Microsoft.IdentityModel.JsonWebTokens": "[8.9.0, )",
+          "Microsoft.IdentityModel.Logging": "[8.9.0, )",
+          "Microsoft.IdentityModel.Tokens": "[8.9.0, )",
+          "NetTopologySuite": "[2.6.0, )",
+          "RoadRegistry.BackOffice": "[1.0.0, )"
+        }
+      },
       "roadregistry.roadnetwork.schema": {
         "type": "Project",
         "dependencies": {
@@ -1883,6 +1948,23 @@
           "Microsoft.Extensions.Http": "[9.0.5, )",
           "RoadRegistry.BackOffice": "[1.0.0, )",
           "RoadRegistry.BackOffice.Abstractions": "[1.0.0, )"
+        }
+      },
+      "roadregistry.sync.municipalityregistry": {
+        "type": "Project",
+        "dependencies": {
+          "Be.Vlaanderen.Basisregisters.EventHandling": "[7.0.0, )",
+          "Be.Vlaanderen.Basisregisters.EventHandling.Autofac": "[7.0.0, )",
+          "Be.Vlaanderen.Basisregisters.GrAr.Contracts": "[22.0.0, )",
+          "Be.Vlaanderen.Basisregisters.GrAr.Provenance": "[22.0.0, )",
+          "Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer": "[6.0.3, )",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector": "[15.0.1, )",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": "[15.0.1, )",
+          "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.1, )",
+          "MediatR": "[12.5.0, )",
+          "Microsoft.EntityFrameworkCore.Design": "[9.0.4, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.0.5, )",
+          "RoadRegistry.BackOffice": "[1.0.0, )"
         }
       },
       "roadregistry.sync.streetnameregistry": {
@@ -2138,6 +2220,12 @@
         "requested": "[5.0.0, )",
         "resolved": "5.0.0",
         "contentHash": "YlSC0DHwE0vHgVmEOUQDF/6muu8Q+uv3gZWkS+0lKg6UocSUWa9VpBCciLnwLoSW7oIA+viSuBm4bGMWKrchDg=="
+      },
+      "Be.Vlaanderen.Basisregisters.GrAr.Contracts": {
+        "type": "CentralTransitive",
+        "requested": "[22.0.0, )",
+        "resolved": "22.0.0",
+        "contentHash": "vAp0lWs24/5ajuKdIWr+0TuKCudALqTVjDsvotIk7bzRcyuXbEJjXUzH000E7UQVUuYtA0AiaHdwsUz2+PWnEw=="
       },
       "Be.Vlaanderen.Basisregisters.GrAr.Legacy": {
         "type": "CentralTransitive",
