@@ -49,9 +49,7 @@ public class ExtractListRequestHandler : EndpointRequestHandler<ExtractListReque
                     ExtractRequestId = ExtractRequestId.FromString(record.Extract.ExtractRequestId),
                     RequestedOn = record.Extract.RequestedOn,
                     IsInformative = record.Download.IsInformative,
-                    UploadId = record.Download.UploadId is not null ? new UploadId(record.Download.UploadId.Value) : null,
-                    DownloadAvailable = record.Download.DownloadAvailable,
-                    ExtractDownloadTimeoutOccurred = record.Download.ExtractDownloadTimeoutOccurred
+                    Status = record.Download.DownloadStatus.ToString()
                 })
                 .ToList()
         };

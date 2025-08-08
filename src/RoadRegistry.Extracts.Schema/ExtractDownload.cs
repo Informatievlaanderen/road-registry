@@ -13,12 +13,29 @@ public class ExtractDownload
     public Geometry Contour { get; set; }
     public bool IsInformative { get; set; }
     public DateTimeOffset RequestedOn { get; set; }
-    public bool DownloadAvailable { get; set; }
-    public bool ExtractDownloadTimeoutOccurred { get; set; }
+
+    public ExtractDownloadStatus DownloadStatus { get; set; }
     public DateTimeOffset? DownloadedOn { get; set; }
     public Guid? UploadId { get; set; }
-    public Guid? TicketId { get; set; }
+    public DateTimeOffset? UploadedOn { get; set; }
+    public ExtractUploadStatus? UploadStatus { get; set; }
+
     public bool Closed { get; set; }
+    public Guid? TicketId { get; set; }
+}
+
+public enum ExtractDownloadStatus
+{
+    Building = 0,
+    Error = 1,
+    Available = 2
+}
+
+public enum ExtractUploadStatus
+{
+    Processing = 0,
+    Rejected = 1,
+    Accepted = 2
 }
 
 public class ExtractDownloadConfiguration : IEntityTypeConfiguration<ExtractDownload>
@@ -41,10 +58,11 @@ public class ExtractDownloadConfiguration : IEntityTypeConfiguration<ExtractDown
             .IsRequired();
         b.Property(p => p.IsInformative).IsRequired();
         b.Property(p => p.RequestedOn).IsRequired();
-        b.Property(p => p.DownloadAvailable).IsRequired();
-        b.Property(p => p.ExtractDownloadTimeoutOccurred).IsRequired();
+        b.Property(p => p.DownloadStatus).IsRequired();
         b.Property(p => p.DownloadedOn).IsRequired(false);
         b.Property(p => p.UploadId).IsRequired(false);
+        b.Property(p => p.UploadedOn).IsRequired(false);
+        b.Property(p => p.UploadStatus).IsRequired(false);
         b.Property(p => p.TicketId).IsRequired(false);
         b.Property(p => p.Closed).IsRequired();
 

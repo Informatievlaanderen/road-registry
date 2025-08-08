@@ -12,7 +12,7 @@ public sealed record ExtractDetailsResponse : EndpointResponse
     public bool IsInformative { get; init; }
     public UploadId? UploadId { get; init; }
     public TicketId? TicketId { get; init; }
-    public bool DownloadAvailable { get; init; }
-    public bool ExtractDownloadTimeoutOccurred { get; init; }
+    public string DownloadStatus { get; init; }
+    public string? UploadStatus { get; init; }
     public bool Closed { get; init; }
 }

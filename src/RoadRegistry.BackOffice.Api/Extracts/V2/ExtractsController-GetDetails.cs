@@ -45,10 +45,10 @@ public partial class ExtractsController
                 ExtractRequestId = response.ExtractRequestId,
                 RequestedOn = response.RequestedOn,
                 IsInformative = response.IsInformative,
+                DownloadStatus = response.DownloadStatus,
                 UploadId = response.UploadId,
+                UploadStatus = response.UploadStatus,
                 TicketId = response.TicketId,
-                DownloadAvailable = response.DownloadAvailable,
-                ExtractDownloadTimeoutOccurred = response.ExtractDownloadTimeoutOccurred,
                 Closed = response.Closed,
             });
         }
@@ -61,16 +61,15 @@ public partial class ExtractsController
 
 public record ExtractDetailsResponseBody
 {
-    //TODO-pr: ipv verschillende booleans, deftige status flow voorzien?
     public string DownloadId { get; set; }
     public string Description { get; set; }
     public MultiPolygon Contour { get; set; }
     public string ExtractRequestId { get; set; }
     public DateTimeOffset RequestedOn { get; set; }
     public bool IsInformative { get; set; }
-    public bool DownloadAvailable { get; set; }
-    public bool ExtractDownloadTimeoutOccurred { get; set; }
+    public string DownloadStatus { get; set; }
     public bool Closed { get; set; }
     public string? UploadId { get; set; }
+    public string UploadStatus { get; set; }
     public string? TicketId { get; set; }
 }

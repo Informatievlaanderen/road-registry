@@ -14,6 +14,7 @@ using Extensions;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NetTopologySuite.IO;
 using Swashbuckle.AspNetCore.Annotations;
 
 public partial class ExtractsController
@@ -63,10 +64,10 @@ public record RequestDownloadByContourBody(string Contour, string Description, b
 
 public class RequestDownloadByContourBodyValidator : AbstractValidator<RequestDownloadByContourBody>
 {
-    public RequestDownloadByContourBodyValidator(IExtractContourValidator contourValidator)
+    public RequestDownloadByContourBodyValidator()
     {
         RuleFor(x => x.Contour)
-            .Must(contourValidator.IsValid)
+            .Must(x => new ExtractContourValidator().IsValid(x))
             .WithProblemCode(ProblemCode.Extract.NotFound); //TODO-pr decide error+translation
 
         RuleFor(c => c.Description)
@@ -79,5 +80,24 @@ public class RequestDownloadByContourBodyValidator : AbstractValidator<RequestDo
                 .Must(ExtractRequestId.Accepts)
                 .WithProblemCode(ProblemCode.Extract.NotFound); //TODO-pr decide error+translation
         });
+    }
+}
+
+public class ExtractContourValidator
+{
+    private const int SquareKmMaximum = 100;
+
+    public bool IsValid(string contour)
+    {
+        try
+        {
+            var reader = new WKTReader();
+            var geometry = reader.Read(contour);
+            return geometry.IsValid && geometry.Area <= (SquareKmMaximum * 1000 * 1000);
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

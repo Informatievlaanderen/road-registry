@@ -39,7 +39,7 @@ public class GetDownloadExtractPresignedUrlRequestHandler : EndpointRequestHandl
     {
         var record = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == request.DownloadId.ToGuid(), cancellationToken);
 
-        if (record is null || record is not { DownloadAvailable: true })
+        if (record is null || record is not { DownloadStatus: ExtractDownloadStatus.Available })
         {
             throw new ExtractDownloadNotFoundException(request.DownloadId);
         }

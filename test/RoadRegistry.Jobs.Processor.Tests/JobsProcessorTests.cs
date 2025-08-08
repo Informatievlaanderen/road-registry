@@ -18,6 +18,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
     using AutoFixture;
     using BackOffice.Abstractions.Exceptions;
     using BackOffice.Abstractions.Jobs;
+    using Extracts.Schema;
     using TicketingService.Abstractions;
     using Xunit;
 
@@ -36,6 +37,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 Mock.Of<IMediator>(),
                 mockExtractRequestCleaner.Object,
                 new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
+                new FakeExtractsDbContextFactory().CreateDbContext(),
                 new NullLoggerFactory(),
                 Mock.Of<IHostApplicationLifetime>());
 
@@ -91,6 +93,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockMediator.Object,
                 Mock.Of<IExtractRequestCleaner>(),
                 new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
+                new FakeExtractsDbContextFactory().CreateDbContext(),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 
@@ -158,6 +161,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockMediator.Object,
                 Mock.Of<IExtractRequestCleaner>(),
                 new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
+                new FakeExtractsDbContextFactory().CreateDbContext(),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 
@@ -223,6 +227,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockMediator.Object,
                 Mock.Of<IExtractRequestCleaner>(),
                 new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
+                new FakeExtractsDbContextFactory().CreateDbContext(),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 
@@ -274,6 +279,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockMediator.Object,
                 Mock.Of<IExtractRequestCleaner>(),
                 new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
+                new FakeExtractsDbContextFactory().CreateDbContext(),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 
@@ -321,6 +327,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockMediator.Object,
                 Mock.Of<IExtractRequestCleaner>(),
                 new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
+                new FakeExtractsDbContextFactory().CreateDbContext(),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 
@@ -373,6 +380,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockMediator.Object,
                 Mock.Of<IExtractRequestCleaner>(),
                 new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
+                new FakeExtractsDbContextFactory().CreateDbContext(),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 
@@ -432,6 +440,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 mockMediator.Object,
                 Mock.Of<IExtractRequestCleaner>(),
                 new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
+                new FakeExtractsDbContextFactory().CreateDbContext(),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 

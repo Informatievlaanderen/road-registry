@@ -20,6 +20,7 @@ namespace RoadRegistry.Jobs.Processor
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+    using Extracts.Schema;
     using FluentValidation;
     using FluentValidation.Results;
     using MediatR;
@@ -33,6 +34,7 @@ namespace RoadRegistry.Jobs.Processor
     public sealed class JobsProcessor : BackgroundService
     {
         private readonly RoadNetworkUploadsBlobClient _uploadsBlobClient;
+        private readonly ExtractsDbContext _extractsDbContext;
         private readonly IExtractRequestCleaner _extractRequestCleaner;
         private readonly JobsProcessorOptions _uploadProcessorOptions;
         private readonly JobsContext _jobsContext;
@@ -50,6 +52,7 @@ namespace RoadRegistry.Jobs.Processor
             IMediator mediator,
             IExtractRequestCleaner extractRequestCleaner,
             RoadNetworkUploadsBlobClient uploadsBlobClient,
+            ExtractsDbContext extractsDbContext,
             ILoggerFactory loggerFactory,
             IHostApplicationLifetime hostApplicationLifetime)
         {
@@ -60,6 +63,7 @@ namespace RoadRegistry.Jobs.Processor
             _mediator = mediator.ThrowIfNull();
             _extractRequestCleaner = extractRequestCleaner.ThrowIfNull();
             _uploadsBlobClient = uploadsBlobClient;
+            _extractsDbContext = extractsDbContext;
             _logger = loggerFactory.ThrowIfNull().CreateLogger<JobsProcessor>();
             _hostApplicationLifetime = hostApplicationLifetime.ThrowIfNull();
         }
@@ -259,11 +263,14 @@ namespace RoadRegistry.Jobs.Processor
                             cancellationToken
                         );
 
-                        //TODO-pr TBD: downloadId of extractRequestId als messagegroupid gebruiken?
+                        var extractDownload = await _extractsDbContext.ExtractDownloads
+                            .SingleAsync(x => x.DownloadId == job.DownloadId.Value, cancellationToken);
+
                         return new UploadExtractSqsRequest
                         {
                             Request = new BackOffice.Abstractions.Extracts.V2.UploadExtractRequest(job.DownloadId.Value, uploadId, job.TicketId),
-                            ProvenanceData = new RoadRegistryProvenanceData(Modification.Unknown, job.OperatorName)
+                            ProvenanceData = new RoadRegistryProvenanceData(Modification.Unknown, job.OperatorName),
+                            ExtractRequestId = extractDownload.ExtractRequestId
                         };
                     }
                 default:

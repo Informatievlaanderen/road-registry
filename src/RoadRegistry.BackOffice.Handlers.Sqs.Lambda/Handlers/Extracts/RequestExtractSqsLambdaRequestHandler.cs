@@ -5,6 +5,9 @@ using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Exceptions;
+using FluentValidation;
+using FluentValidation.Results;
 using Hosts;
 using Infrastructure;
 using Microsoft.Data.SqlClient;
@@ -89,15 +92,28 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
             IsInformative = isInformative,
             RequestedOn = extractRequest.RequestedOn,
             DownloadId = downloadId,
-            TicketId = request.TicketId
+            TicketId = request.TicketId,
+            DownloadStatus = ExtractDownloadStatus.Building
         };
         _extractsDbContext.ExtractDownloads.Add(extractDownload);
 
         await _extractsDbContext.SaveChangesAsync(cancellationToken);
 
-        await BuildArchive(extractRequest, extractDownload, cancellationToken);
+        try
+        {
+            await BuildArchive(extractRequest, extractDownload, cancellationToken);
 
-        await _extractsDbContext.SaveChangesAsync(cancellationToken);
+            extractDownload.DownloadStatus = ExtractDownloadStatus.Available;
+        }
+        catch
+        {
+            extractDownload.DownloadStatus = ExtractDownloadStatus.Error;
+            throw;
+        }
+        finally
+        {
+            await _extractsDbContext.SaveChangesAsync(cancellationToken);
+        }
 
         return new RequestExtractResponse(downloadId);
     }
@@ -140,12 +156,17 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
                     content,
                     ct);
             }
-
-            extractDownload.DownloadAvailable = true;
         }
         catch (SqlException ex) when (ex.Number.Equals(-2))
         {
-            extractDownload.ExtractDownloadTimeoutOccurred = true;
+            throw new ValidationException([
+                new ValidationFailure
+                {
+                    PropertyName = "",
+                    ErrorCode = "DatabaseTimeout", //TODO-pr use ProblemCode?
+                    ErrorMessage = "Database timeout occurred while building the extract archive. "
+                }
+            ]);
         }
     }
 }

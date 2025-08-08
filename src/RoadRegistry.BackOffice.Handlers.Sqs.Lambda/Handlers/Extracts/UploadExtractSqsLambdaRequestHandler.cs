@@ -99,6 +99,8 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         }
 
         extractDownload.UploadId = uploadId;
+        extractDownload.UploadedOn = DateTimeOffset.UtcNow;
+        extractDownload.UploadStatus = ExtractUploadStatus.Processing;
         await _extractsDbContext.SaveChangesAsync(cancellationToken);
 
         var extractRequest = await _extractsDbContext.ExtractRequests.SingleOrDefaultAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId && x.CurrentDownloadId == downloadId.ToGuid(), cancellationToken);
