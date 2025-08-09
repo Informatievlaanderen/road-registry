@@ -1557,10 +1557,10 @@
       "roadregistry.backoffice": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.35, )",
-          "AWSSDK.DynamoDBv2": "[3.7.302, )",
-          "AWSSDK.SimpleEmailV2": "[3.7.301.5, )",
-          "AWSSDK.SimpleNotificationService": "[3.7.301.7, )",
+          "AWSSDK.Core": "[3.7.500.5, )",
+          "AWSSDK.DynamoDBv2": "[3.7.500.5, )",
+          "AWSSDK.SimpleEmailV2": "[3.7.500.5, )",
+          "AWSSDK.SimpleNotificationService": "[3.7.500.5, )",
           "Amazon.Lambda.Core": "[2.5.1, )",
           "Be.Vlaanderen.Basisregisters.AggregateSource": "[10.0.2, )",
           "Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache": "[3.0.0, )",
@@ -1621,40 +1621,40 @@
       },
       "AWSSDK.Core": {
         "type": "CentralTransitive",
-        "requested": "[3.7.402.35, )",
-        "resolved": "3.7.402.35",
-        "contentHash": "9Jby5BBQTzZOqzQiFjJyr3zCe5GVi64U8gxOlPk3vTTuVJqtkisBJ0Jh1RBj2fNqnWmJLfaWSCLvX1L06zwHnQ=="
+        "requested": "[3.7.500.5, )",
+        "resolved": "3.7.500.5",
+        "contentHash": "HVxfujEnKXnXoJFjXbnWBpFfkCZ79ESzzP6akFfN7dEtJqWvLyNqd7o9mSwOhMkYlH7+2sa49WIenhQ1g0v3XA=="
       },
       "AWSSDK.DynamoDBv2": {
         "type": "CentralTransitive",
-        "requested": "[3.7.302, )",
-        "resolved": "3.7.302",
-        "contentHash": "lgIEWG81ubAMWX96vzBphGNJuJcdtZR4oR0ReES/cfS1eKtAvtE7uz93kURRTnsAqpRHQc9FJEmmj0D1S9G9LQ==",
+        "requested": "[3.7.500.5, )",
+        "resolved": "3.7.500.5",
+        "contentHash": "x1BHVf1bqZrkIFIyLyAjJSw9K1eq5f0+yCd7LZbeDfZB03ddJakweAQA/HX8I0LeMNVchGW4JG21xNlt5x/3VQ==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.302.20, 4.0.0)"
+          "AWSSDK.Core": "[3.7.500.5, 4.0.0)"
         }
       },
       "AWSSDK.SimpleEmailV2": {
         "type": "CentralTransitive",
-        "requested": "[3.7.301.5, )",
-        "resolved": "3.7.301.5",
-        "contentHash": "gywkI/RjxDRk5Bah3v6+IsvOtnYDNfI4KLsA5dB3ZoNY6STOwTr044iyCsyGn0sYagXvWV3hoXi3rTKkbn+Icg==",
+        "requested": "[3.7.500.5, )",
+        "resolved": "3.7.500.5",
+        "contentHash": "Lvw6zJ07qu18Yu9RmZnYVbpFub/UY8QLvrFLJ5NXlBHU1W3+9NYCKT6XyriE3pLF9BGntUJC8+eZKJNjgnuN8g==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.302.20, 4.0.0)"
+          "AWSSDK.Core": "[3.7.500.5, 4.0.0)"
         }
       },
       "AWSSDK.SimpleNotificationService": {
         "type": "CentralTransitive",
-        "requested": "[3.7.301.7, )",
-        "resolved": "3.7.301.7",
-        "contentHash": "gE0f1HQNxkZmRlgVw8YIY0L4S5LfX6O0c2UM9CZCbKXgukori3nQ1EUcwPD1jAvhPHNL1U/oGAR6IVvcHN4fgA==",
+        "requested": "[3.7.500.5, )",
+        "resolved": "3.7.500.5",
+        "contentHash": "Zw0oeNE6pv0s+9BBNjrFH5Yvb6aIN3EClLRzsN1Rvcv479MKpJf8cCh+jzmZG7F/DJOQmK2sDNlwHD578kpFzg==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.302.20, 4.0.0)"
+          "AWSSDK.Core": "[3.7.500.5, 4.0.0)"
         }
       },
       "AWSSDK.SQS": {
         "type": "CentralTransitive",
-        "requested": "[3.7.400.129, )",
+        "requested": "[3.7.500.5, )",
         "resolved": "3.7.400.129",
         "contentHash": "vc1OnZscfyKbuucR6Ru1SQj6o6SYizmmd3P/BBgP7Oph9I2UMirSs92iDisKjI6kuun3qv5K9SJBasZA3di1lQ==",
         "dependencies": {
