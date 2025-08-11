@@ -1,3 +1,10 @@
+## [4.35.2](https://github.com/informatievlaanderen/road-registry/compare/v4.35.1...v4.35.2) (2025-08-11)
+
+
+### Bug Fixes
+
+* FC pass segment's node IDs when node is moved too much and gets a new ID ([569501a](https://github.com/informatievlaanderen/road-registry/commit/569501ae54e0f270145de6c2634102d872450cc4))
+
 ## [4.35.1](https://github.com/informatievlaanderen/road-registry/compare/v4.35.0...v4.35.1) (2025-08-06)
 
 
