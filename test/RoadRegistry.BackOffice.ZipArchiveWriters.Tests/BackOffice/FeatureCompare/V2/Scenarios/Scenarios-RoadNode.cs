@@ -132,7 +132,9 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                         new RecordNumber(1),
                         new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
                         RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
-                        geometry: context.Change.TestData.RoadSegment1ShapeRecord.Geometry
+                        geometry: context.Change.TestData.RoadSegment1ShapeRecord.Geometry,
+                        startNodeId: new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value),
+                        endNodeId: new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value)
                     )
                     .WithLane(
                         new RoadSegmentLaneAttribute(

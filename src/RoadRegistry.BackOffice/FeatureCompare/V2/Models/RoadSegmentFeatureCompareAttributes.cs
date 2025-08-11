@@ -17,15 +17,15 @@ public record RoadSegmentFeatureCompareAttributes
     public StreetNameLocalId? LeftSideStreetNameId { get; init; }
     public StreetNameLocalId? RightSideStreetNameId { get; init; }
 
-    public RoadSegmentFeatureCompareAttributes OnlyChangedAttributes(RoadSegmentFeatureCompareAttributes other, MultiLineString extractGeometry)
+    public RoadSegmentFeatureCompareAttributes OnlyChangedAttributes(RoadSegmentFeatureCompareAttributes other, MultiLineString extractGeometry, bool forceNodeIds)
     {
         return new RoadSegmentFeatureCompareAttributes
         {
             Id = Id,
             Method = Method,
             Geometry = Geometry!.EqualsExact(other.Geometry) ? extractGeometry : Geometry,
-            StartNodeId = StartNodeId == other.StartNodeId ? null : StartNodeId,
-            EndNodeId = EndNodeId == other.EndNodeId ? null : EndNodeId,
+            StartNodeId = StartNodeId != other.StartNodeId || forceNodeIds ? StartNodeId : null,
+            EndNodeId = EndNodeId != other.EndNodeId || forceNodeIds ? EndNodeId : null,
             AccessRestriction = AccessRestriction == other.AccessRestriction ? null : AccessRestriction,
             Category = Category == other.Category ? null : Category,
             MaintenanceAuthority = MaintenanceAuthority == other.MaintenanceAuthority ? null : MaintenanceAuthority,

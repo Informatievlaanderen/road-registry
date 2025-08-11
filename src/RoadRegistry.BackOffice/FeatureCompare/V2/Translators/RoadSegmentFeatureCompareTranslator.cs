@@ -126,6 +126,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 continue;
             }
 
+            var alwaysIncludeNodeIdsInChangedAttributes = false;
             if (changeFeatureAttributes.StartNodeId > 0 && changeFeatureAttributes.EndNodeId > 0)
             {
                 var startNodeFeature = FindRoadNodeByOriginalId(changeFeatureAttributes.StartNodeId!.Value);
@@ -147,6 +148,11 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         problems += recordContext.EndRoadNodeIdOutOfRange(changeFeatureAttributes.EndNodeId!.Value);
                     }
                     continue;
+                }
+
+                if (startNodeFeature.RecordType == RecordType.Added || endNodeFeature.RecordType == RecordType.Added)
+                {
+                    alwaysIncludeNodeIdsInChangedAttributes = true;
                 }
 
                 changeFeatureAttributes = changeFeatureAttributes with
@@ -200,7 +206,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                             FeatureType.Change,
                             changeFeature.RecordNumber,
-                            changeFeatureAttributes.OnlyChangedAttributes(extractFeature.Attributes, extractFeature.Attributes.Geometry),
+                            changeFeatureAttributes.OnlyChangedAttributes(extractFeature.Attributes, extractFeature.Attributes.Geometry, alwaysIncludeNodeIdsInChangedAttributes),
                             extractFeature.Attributes.Id,
                             RecordType.Modified)
                         {
@@ -223,7 +229,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                         FeatureType.Change,
                         changeFeature.RecordNumber,
-                        convertedFromOutlined ? changeFeatureAttributes : changeFeatureAttributes.OnlyChangedAttributes(extractFeature.Attributes, extractFeature.Attributes.Geometry),
+                        convertedFromOutlined ? changeFeatureAttributes : changeFeatureAttributes.OnlyChangedAttributes(extractFeature.Attributes, extractFeature.Attributes.Geometry, alwaysIncludeNodeIdsInChangedAttributes),
                         extractFeature.Attributes.Id,
                         RecordType.Modified)
                     {
