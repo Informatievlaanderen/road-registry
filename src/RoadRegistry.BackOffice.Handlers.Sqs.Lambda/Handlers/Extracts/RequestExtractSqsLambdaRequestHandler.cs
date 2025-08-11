@@ -93,7 +93,7 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
             RequestedOn = extractRequest.RequestedOn,
             DownloadId = downloadId,
             TicketId = request.TicketId,
-            DownloadStatus = ExtractDownloadStatus.Building
+            DownloadStatus = ExtractDownloadStatus.Preparing
         };
         _extractsDbContext.ExtractDownloads.Add(extractDownload);
 
@@ -164,7 +164,7 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
                 {
                     PropertyName = "",
                     ErrorCode = "DatabaseTimeout", //TODO-pr use ProblemCode?
-                    ErrorMessage = "Database timeout occurred while building the extract archive. "
+                    ErrorMessage = "Database timeout occurred while preparing the extract archive. "
                 }
             ]);
         }

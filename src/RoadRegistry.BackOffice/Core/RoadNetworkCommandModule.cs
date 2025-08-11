@@ -134,22 +134,22 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 }
             }
 
+            var useExtractsV2 = true; //TODO-pr use featuretoggle
+
             if (!failedChangedMessages.Any() && command.Body.ExtractRequestId is not null)
             {
-                var extractRequestId = ExtractRequestId.FromString(command.Body.ExtractRequestId);
-
-                // old
-                var extract = await context.RoadNetworkExtracts.Get(extractRequestId, cancellationToken);
-                if (extract is not null)
+                if (useExtractsV2)
                 {
-                    extract.Close(RoadNetworkExtractCloseReason.UploadAccepted);
+                    //TODO TBD: hier rechtstreeks de context updaten, of item op sqs plaatsen? bij Marten herwerking zal dit vermoedelijk in een lambda gebeuren dus kan dan rechtstreeks
+                    var extractsRequests = container.Resolve<IExtractRequests>();
+                    await extractsRequests.CloseAsync(downloadId!.Value, cancellationToken);
                 }
                 else
                 {
-                    // new
-                    //TODO TBD: hier rechtstreeks de context updaten, of item op sqs plaatsen? bij Marten herwerking zal dit vermoedelijk in een lambda gebeuren dus kan dan rechtstreeks
-                    var extractsCloser = container.Resolve<IExtractsCloser>();
-                    await extractsCloser.CloseAsync(new DownloadId(command.Body.DownloadId!.Value), cancellationToken);
+                    var extractRequestId = ExtractRequestId.FromString(command.Body.ExtractRequestId);
+
+                    var extract = await context.RoadNetworkExtracts.Get(extractRequestId, cancellationToken);
+                    extract.Close(RoadNetworkExtractCloseReason.UploadAccepted);
                 }
             }
 
@@ -166,6 +166,12 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                         .ToArray();
 
                     await ticketing.Error(ticketId.Value, new TicketError(errors), cancellationToken);
+
+                    if (useExtractsV2)
+                    {
+                        var extractsRequests = container.Resolve<IExtractRequests>();
+                        await extractsRequests.UploadRejectedAsync(downloadId!.Value, cancellationToken);
+                    }
                 }
                 else
                 {
@@ -194,6 +200,12 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     var summary = RoadNetworkChangesSummary.FromAcceptedChanges(acceptedChanges);
 
                     await ticketing.Complete(ticketId.Value, new TicketResult(new { Changes = changes, Summary = summary }), cancellationToken);
+
+                    if (useExtractsV2)
+                    {
+                        var extractsRequests = container.Resolve<IExtractRequests>();
+                        await extractsRequests.UploadAcceptedAsync(downloadId!.Value, cancellationToken);
+                    }
                 }
             }
         }

@@ -61,7 +61,7 @@ public class Program
                 .AddOrganizationCommandQueue()
                 .AddJobsContext()
                 .AddExtractsDbContext(QueryTrackingBehavior.TrackAll)
-                .AddScoped<IExtractsCloser, ExtractsCloser>()
+                .AddScoped<IExtractRequests, ExtractRequests>()
 
                 .AddHostedService<HealthCommandProcessor>()
                 .AddHostedService<RoadNetworkCommandProcessor>()

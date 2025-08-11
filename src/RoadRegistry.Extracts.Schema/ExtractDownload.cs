@@ -26,7 +26,7 @@ public class ExtractDownload
 
 public enum ExtractDownloadStatus
 {
-    Building = 0,
+    Preparing = 0,
     Error = 1,
     Available = 2
 }

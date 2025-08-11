@@ -112,12 +112,85 @@ export const PublicApi = {
     },
     downloadUsingPresignedUrl: async (identifier: string): Promise<void> => {
       const path = `${apiEndpoint}/v2/wegen/upload/${identifier}/presignedurl`;
-      const response = await apiClient.get<RoadRegistry.GetUploadDownloadPreSignedUrlResponse>(path);
+      const response = await apiClient.get<RoadRegistry.DownloadUploadResponse>(path);
 
       downloadFile(response.data.downloadUrl, response.data.fileName);
     },
   },
   Extracts: {
+    V2: {
+      getList: async (eigenExtracten: boolean) => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.getList(eigenExtracten);
+        }
+
+        throw "//TODO-pr route?";
+        // const path = `${apiEndpoint}/v2/wegen/extract`;
+        // const response = await apiClient.get<RoadRegistry.ExtractListResponse>(path, {
+        //   includeAllOrganizations: !eigenExtracten,
+        // });
+        // return response.data;
+      },
+      getDetails: async (downloadId: string) => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.getDetails(downloadId);
+        }
+
+        throw "//TODO-pr route?";
+        // const path = `${apiEndpoint}/v2/wegen/extract/${downloadId}`;
+        // const response = await apiClient.get<RoadRegistry.ExtractDetailsV2>(path);
+        // return response.data;
+      },
+      downloadExtract: async (downloadId: string): Promise<void> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.downloadExtract(downloadId);
+        }
+
+        throw "//TODO-pr route?";
+        // const path = `${apiEndpoint}/v2/wegen/extract/download/${downloadId}/presignedurl`;
+        // const response = await apiClient.get<RoadRegistry.DownloadExtractResponse>(path);
+
+        // downloadFile(response.data.downloadUrl, `${downloadId}.zip`);
+      },
+      downloadUpload: async (downloadId: string): Promise<void> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.downloadUpload(downloadId);
+        }
+
+        throw "//TODO-pr route?";
+        // const path = `${apiEndpoint}/v2/wegen/upload/${identifier}/presignedurl`;
+        // const response = await apiClient.get<RoadRegistry.DownloadUploadResponse>(path);
+
+        // downloadFile(response.data.downloadUrl, response.data.fileName);
+      },
+      upload: async (downloadId: string, file: Blob, filename: string): Promise<RoadRegistry.UploadPresignedUrlResponse | null> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.upload(downloadId, file, filename);
+        }
+
+        throw "//TODO-pr route?";
+        // const path = `${apiEndpoint}/v2/wegen/upload/jobs`;
+        // const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
+
+        // const data = new FormData();
+        // if (response.data.uploadUrlFormData) {
+        //   for (let key in response.data.uploadUrlFormData) {
+        //     data.append(key, response.data.uploadUrlFormData[key]);
+        //   }
+        // }
+        // data.append("file", file, filename);
+
+        // let awsHttp = axios.create();
+        // var uploadFileResponse = await awsHttp.post(response.data.uploadUrl, data);
+
+        // let status = uploadFileResponse.status as any;
+        // if (status !== 204) {
+        //   return null;
+        // }
+
+        // return response.data;
+      },
+    },
     getDetails: async (downloadId: string) => {
       if (useBackOfficeApi) {
         return BackOfficeApi.Extracts.getDetails(downloadId);
@@ -133,7 +206,7 @@ export const PublicApi = {
     },
     downloadUsingPresignedUrl: async (downloadId: string): Promise<void> => {
       const path = `${apiEndpoint}/v2/wegen/extract/download/${downloadId}/presignedurl`;
-      const response = await apiClient.get<RoadRegistry.GetExtractDownloadPreSignedUrlResponse>(path);
+      const response = await apiClient.get<RoadRegistry.DownloadExtractResponse>(path);
 
       downloadFile(response.data.downloadUrl, `${downloadId}.zip`);
     },
@@ -339,7 +412,7 @@ export const PublicApi = {
   Ticketing: {
     get: async (id: string): Promise<RoadRegistry.TicketDetails> => {
       const path = `${apiEndpoint}/v2/tickets/${id}`;
-      const response = await apiClient.get<RoadRegistry.TicketDetails>(path, { params: { t: new Date().getTime() } });
+      const response = await apiClient.get<RoadRegistry.TicketDetails>(path, { t: new Date().getTime() });
       return response.data;
     },
   },

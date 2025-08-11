@@ -44,12 +44,12 @@ export namespace RoadRegistry {
     ticketUrl: string;
   }
 
-  export interface GetUploadDownloadPreSignedUrlResponse {
+  export interface DownloadUploadResponse {
     downloadUrl: string;
     fileName: string;
   }
 
-  export interface GetExtractDownloadPreSignedUrlResponse {
+  export interface DownloadExtractResponse {
     downloadUrl: string;
   }
 
@@ -71,6 +71,30 @@ export namespace RoadRegistry {
     ticketId: string;
     downloadAvailable: boolean;
     extractDownloadTimeoutOccurred: boolean;
+  }
+  export interface ExtractDetailsV2 {
+    downloadId: string;
+    description: string;
+    extractRequestId: string;
+    isInformative: boolean;
+    ticketId: string;
+    downloadStatus: string;
+    uploadStatus: string;
+    requestedOn: string;
+    closed: boolean;
+  }
+  export interface ExtractListResponse {
+    items: ExtractListItem[];
+  }
+  export interface ExtractListItem {
+    downloadId: string;
+    description: string;
+    extractRequestId: string;
+    isInformative: boolean;
+    downloadStatus: string;
+    uploadStatus: string;
+    requestedOn: string;
+    closed: boolean;
   }
 
   export interface DownloadExtractRequest {

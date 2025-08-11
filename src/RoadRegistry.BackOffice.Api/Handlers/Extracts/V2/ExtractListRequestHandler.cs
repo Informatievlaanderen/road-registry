@@ -31,13 +31,32 @@ public class ExtractListRequestHandler : EndpointRequestHandler<ExtractListReque
     {
         var now = _clock.GetCurrentInstant().ToDateTimeOffset();
 
-        var records = await (
-            from extractRequest in _extractsDbContext.ExtractRequests
-            join extractDownload in _extractsDbContext.ExtractDownloads on extractRequest.CurrentDownloadId equals extractDownload.DownloadId
-            where extractRequest.OrganizationCode == request.OrganizationCode
-                && extractRequest.RequestedOn > now.AddYears(-1)
-            select new { Extract = extractRequest, Download = extractDownload }
-        ).ToListAsync(cancellationToken);
+        var extractRequestQuery = _extractsDbContext.ExtractRequests.AsQueryable();
+        if (request.OrganizationCode is not null)
+        {
+            extractRequestQuery = extractRequestQuery.Where(er => er.OrganizationCode == request.OrganizationCode);
+        }
+
+        var query =
+                from extractRequest in extractRequestQuery
+                join extractDownload in _extractsDbContext.ExtractDownloads on extractRequest.CurrentDownloadId equals extractDownload.DownloadId
+                where extractRequest.RequestedOn > now.AddYears(-1)
+                select new { Extract = extractRequest, Download = extractDownload }
+            ;
+
+        query = query
+            .OrderBy(x => x.Download.Closed ? 1 : 0)
+            .ThenBy(x =>
+                x.Download.UploadStatus != null && x.Download.UploadStatus != ExtractUploadStatus.Accepted
+                    ? 0
+                    : x.Download.UploadStatus == null
+                        ? 1
+                        : x.Download.UploadStatus == ExtractUploadStatus.Accepted
+                            ? 2
+                            : 9)
+            .ThenByDescending(x => x.Download.RequestedOn);
+
+        var records = await query.ToListAsync(cancellationToken);
 
         return new ExtractListResponse
         {
@@ -49,7 +68,9 @@ public class ExtractListRequestHandler : EndpointRequestHandler<ExtractListReque
                     ExtractRequestId = ExtractRequestId.FromString(record.Extract.ExtractRequestId),
                     RequestedOn = record.Extract.RequestedOn,
                     IsInformative = record.Download.IsInformative,
-                    Status = record.Download.DownloadStatus.ToString()
+                    DownloadStatus = record.Download.DownloadStatus.ToString(),
+                    UploadStatus = record.Download.UploadStatus?.ToString(),
+                    Closed = record.Download.Closed,
                 })
                 .ToList()
         };
