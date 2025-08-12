@@ -119,15 +119,86 @@ export const PublicApi = {
   },
   Extracts: {
     V2: {
-      getList: async (eigenExtracten: boolean) => {
+      requestExtractByContour: async (
+        downloadRequest: RoadRegistry.DownloadExtractByContourRequest
+      ): Promise<RoadRegistry.RequestExtractResponse> => {
         if (useBackOfficeApi) {
-          return BackOfficeApi.Extracts.V2.getList(eigenExtracten);
+          return BackOfficeApi.Extracts.V2.requestExtractByContour(downloadRequest);
+        }
+
+        throw "//TODO-pr route?";
+        // try {
+        //   const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/percontour`;
+        //   const response = await apiClient.post<RoadRegistry.RequestExtractResponse>(path, downloadRequest);
+        //   return response.data;
+        // } catch (exception) {
+        //   if (axios.isAxiosError(exception)) {
+        //     const response = exception?.response;
+        //     if (response && response.status === 400) {
+        //       // HTTP Bad Request
+        //       const error = response?.data as RoadRegistry.PerContourErrorResponse;
+        //       throw new RoadRegistryExceptions.RequestExtractPerContourError(error);
+        //     }
+        //   }
+
+        //   throw new Error("Unknown error");
+        // }
+      },
+      requestExtractByFile: async (
+        downloadRequest: RoadRegistry.DownloadExtractByFileRequest
+      ): Promise<RoadRegistry.RequestExtractResponse> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.requestExtractByFile(downloadRequest);
+        }
+
+        throw "//TODO-pr route?";
+        // const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/perbestand`;
+
+        // const data = new FormData();
+        // data.append("description", downloadRequest.description);
+        // data.append("isInformative", downloadRequest.isInformative.toString());
+        // downloadRequest.files.forEach((file) => {
+        //   data.append("files", file, file.name);
+        // });
+
+        // try {
+        //   const response = await apiClient.post<RoadRegistry.RequestExtractResponse>(path, data);
+        //   return response.data;
+        // } catch (exception) {
+        //   if (axios.isAxiosError(exception)) {
+        //     const response = exception?.response;
+        //     if (response && response.status === 400) {
+        //       // HTTP Bad Request
+        //       const error = response?.data as RoadRegistry.PerContourErrorResponse;
+        //       throw new RoadRegistryExceptions.RequestExtractPerContourError(error);
+        //     }
+        //   }
+
+        //   throw new Error("Unknown error");
+        // }
+      },
+      requestExtractByNisCode: async (
+        downloadRequest: RoadRegistry.DownloadExtractByNisCodeRequest
+      ): Promise<RoadRegistry.RequestExtractResponse> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.requestExtractByNisCode(downloadRequest);
+        }
+
+        throw "//TODO-pr route?";
+        // const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/perniscode`;
+        // const response = await apiClient.post<RoadRegistry.RequestExtractResponse>(path, downloadRequest);
+        // return response.data;
+      },
+      getList: async (eigenExtracten: boolean, page: number) => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.getList(eigenExtracten, page);
         }
 
         throw "//TODO-pr route?";
         // const path = `${apiEndpoint}/v2/wegen/extract`;
         // const response = await apiClient.get<RoadRegistry.ExtractListResponse>(path, {
-        //   includeAllOrganizations: !eigenExtracten,
+        //   allOrganizations: !eigenExtracten,
+        //   page: page,
         // });
         // return response.data;
       },
@@ -163,7 +234,11 @@ export const PublicApi = {
 
         // downloadFile(response.data.downloadUrl, response.data.fileName);
       },
-      upload: async (downloadId: string, file: Blob, filename: string): Promise<RoadRegistry.UploadPresignedUrlResponse | null> => {
+      upload: async (
+        downloadId: string,
+        file: Blob,
+        filename: string
+      ): Promise<RoadRegistry.UploadPresignedUrlResponse | null> => {
         if (useBackOfficeApi) {
           return BackOfficeApi.Extracts.V2.upload(downloadId, file, filename);
         }

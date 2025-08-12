@@ -56,11 +56,15 @@ public class ExtractListRequestHandler : EndpointRequestHandler<ExtractListReque
                             : 9)
             .ThenByDescending(x => x.Download.RequestedOn);
 
+        var pageSize = 100;
+        query = query.Skip(request.PageIndex * pageSize).Take(pageSize + 1);
+
         var records = await query.ToListAsync(cancellationToken);
 
         return new ExtractListResponse
         {
             Items = records
+                .Take(pageSize)
                 .Select(record => new ExtractListItem
                 {
                     DownloadId = new DownloadId(record.Download.DownloadId),
@@ -72,7 +76,8 @@ public class ExtractListRequestHandler : EndpointRequestHandler<ExtractListReque
                     UploadStatus = record.Download.UploadStatus?.ToString(),
                     Closed = record.Download.Closed,
                 })
-                .ToList()
+                .ToList(),
+            MoreDataAvailable = records.Count > pageSize
         };
     }
 }

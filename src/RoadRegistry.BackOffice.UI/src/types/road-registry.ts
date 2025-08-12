@@ -52,6 +52,11 @@ export namespace RoadRegistry {
   export interface DownloadExtractResponse {
     downloadUrl: string;
   }
+  
+  export interface RequestExtractResponse {
+    downloadId: string;
+    ticketUrl: string;
+  }
 
   export interface GetTicketResponse {
     status: string;
@@ -85,6 +90,7 @@ export namespace RoadRegistry {
   }
   export interface ExtractListResponse {
     items: ExtractListItem[];
+    moreDataAvailable: boolean;
   }
   export interface ExtractListItem {
     downloadId: string;

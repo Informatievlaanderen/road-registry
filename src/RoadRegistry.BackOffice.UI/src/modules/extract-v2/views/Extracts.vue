@@ -4,8 +4,11 @@
       <vl-layout>
         <vl-grid mod-stacked>
           <vl-column>
-            <wr-h2>Extracten</wr-h2>
+            <div>
+              <vl-button @click="extractAanvragen()"> Nieuw extract aanvragen </vl-button>
+            </div>
           </vl-column>
+
           <vl-column>
             <div v-if="!firstLoadCompleted">
               <vl-region>
@@ -16,8 +19,14 @@
             </div>
             <div v-else>
               <label class="vl-checkbox" for="eigen-extracten">
-                <input class="vl-checkbox__toggle" type="checkbox" id="eigen-extracten" v-model="eigenExtracten" />
-                <span class="vl-checkbox__label">
+                <input
+                  class="vl-checkbox__toggle"
+                  type="checkbox"
+                  id="eigen-extracten"
+                  v-model="eigenExtracten"
+                  :disabled="isLoading"
+                />
+                <span class="vl-checkbox__label" :disabled="isLoading ? 'disabled' : undefined">
                   <i class="vl-checkbox__box" aria-hidden="true"></i>
                   Eigen extracten
                 </span>
@@ -52,6 +61,13 @@
               </table>
             </div>
           </vl-column>
+
+          <vl-column>
+            <div v-vl-flex v-vl-flex:align-center>
+              <vl-button mod-loading v-if="isLoading"></vl-button>
+              <vl-button v-else-if="moreDataAvailable" @click="loadMore()"> Meer ... </vl-button>
+            </div>
+          </vl-column>
         </vl-grid>
       </vl-layout>
     </vl-main>
@@ -70,7 +86,10 @@ export default Vue.extend({
     return {
       extracts: [] as RoadRegistry.ExtractListItem[],
       eigenExtracten: true,
+      isLoading: false,
       firstLoadCompleted: false,
+      nextPage: 0,
+      moreDataAvailable: false,
     };
   },
   computed: {},
@@ -80,7 +99,7 @@ export default Vue.extend({
       this.eigenExtracten = eigenExtracten === "true";
     }
 
-    await this.refreshExtracten();
+    await this.loadInitialExtracts();
     this.firstLoadCompleted = true;
 
     //TODO-pr add auto-refresh to track those non-informative not completed yet
@@ -91,15 +110,50 @@ export default Vue.extend({
     //TODO-pr clean up any intervals or listeners
   },
   watch: {
-    eigenExtracten() {
-      localStorage.setItem("ExtractList.eigenExtracten", this.eigenExtracten.toString());
-      this.refreshExtracten();
+    async eigenExtracten() {
+      if (this.firstLoadCompleted) {
+        localStorage.setItem("ExtractList.eigenExtracten", this.eigenExtracten.toString());
+        this.loadInitialExtracts();
+      }
     },
   },
   methods: {
-    async refreshExtracten() {
-      const response = await PublicApi.Extracts.V2.getList(this.eigenExtracten);
-      this.extracts = response.items;
+    async loadInitialExtracts() {
+      while (this.isLoading) {
+        // wait
+      }
+
+      this.isLoading = true;
+      try {
+        this.extracts = [];
+        this.nextPage = 0;
+        this.moreDataAvailable = false;
+        await this.loadNextPage();
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async loadMore() {
+      if (this.isLoading) {
+        return;
+      }
+
+      this.isLoading = true;
+      try {
+        await this.loadNextPage();
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async loadNextPage() {
+      const response = await PublicApi.Extracts.V2.getList(this.eigenExtracten, this.nextPage);
+      const knownIds = this.extracts.map((x) => x.extractRequestId);
+      this.extracts.push(...response.items.filter((x) => !knownIds.includes(x.extractRequestId)));
+      this.moreDataAvailable = response.moreDataAvailable;
+      this.nextPage++;
+    },
+    extractAanvragen(){
+      this.$router.push({ name: "requestExtract" });
     },
     openDetails(downloadId: string) {
       this.$router.push({ name: "extractDetailsV2", params: { downloadId: downloadId } });

@@ -54,7 +54,7 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
     {
         var extractRequestId = ExtractRequestId.FromString(request.Request.ExtractRequestId);
         var contour = _wktReader.Read(request.Request.Contour).ToMultiPolygon();
-        var downloadId = new DownloadId(Guid.NewGuid());
+        var downloadId = DownloadId.Parse(request.Request.DownloadId);
         var extractDescription = new ExtractDescription(request.Request.Description);
         var isInformative = request.Request.IsInformative;
 

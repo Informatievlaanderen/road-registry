@@ -42,7 +42,7 @@
               </div>
 
               <br />
-              <UploadComponent v-if="!isInformative && !closed" @upload-complete="handleUploadComplete" />
+              <UploadComponent v-if="!isInformative && !closed" :downloadId="downloadId" @upload-complete="handleUploadComplete" />
 
               <div v-if="ticketId && uploadStatus.text">
                 <vl-alert
@@ -90,7 +90,7 @@ import { orderBy, uniq, uniqBy, camelCase } from "lodash";
 import { PublicApi } from "../../../services";
 import ActivityProblems from "../../activity/components/ActivityProblems.vue";
 import ActivitySummary from "../../activity/components/ActivitySummary.vue";
-import UploadComponent from "../../uploads/views/UploadComponent.vue";
+import UploadComponent from "./UploadComponent.vue";
 import DateFormat from "@/core/utils/date-format";
 
 const camelizeKeys: any = (obj: any) => {
@@ -278,6 +278,7 @@ export default Vue.extend({
       try {
         while (this.trackProgress) {
           try {
+            //TODO-pr CURRENT: polling fails to test full flow
             let ticketResult = await PublicApi.Ticketing.get(this.ticketId);
             this.ticketStatus = ticketResult.status;
 

@@ -37,11 +37,11 @@
                     <router-link :to="`/activiteit`" class="vl-tab" role="tab">Activiteit</router-link>
                     <router-link :to="`/informatie`" class="vl-tab" role="tab">Informatie</router-link>
                     <router-link v-if="userCanEdit" :to="`/extracten`" class="vl-tab" role="tab">Extracten</router-link>
-                    <router-link v-if="userCanEdit" :to="`/download-extract`" class="vl-tab" role="tab">
+                    <!-- TODO-pr sturen via featuretoggle <router-link v-if="userCanEdit" :to="`/download-extract`" class="vl-tab" role="tab">
                       Download Extract
-                    </router-link>
+                    </router-link> -->
                     <router-link :to="`/download-product`" class="vl-tab" role="tab">Download Product</router-link>
-                    <router-link v-if="userCanEdit" :to="`/uploads`" class="vl-tab" role="tab">Uploads</router-link>
+                    <!-- TODO-pr sturen via featuretoggle <router-link v-if="userCanEdit" :to="`/uploads`" class="vl-tab" role="tab">Uploads</router-link> -->
                     <router-link
                       v-if="userCanEdit && featureToggles.useTransactionZonesTab"
                       :to="`/bijwerkingszones`"

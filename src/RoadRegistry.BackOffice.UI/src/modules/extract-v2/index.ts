@@ -1,18 +1,18 @@
 import Root from "./views/Root.vue";
 import ExtractDetails from "./views/ExtractDetails.vue";
-import ExtractList from "./views/ExtractList.vue";
+import Extracts from "./views/Extracts.vue";
+import RequestExtract from "./views/RequestExtract.vue";
 import RoadRegistry from "@/types/road-registry";
 
 export const ExtractRoutes = [
   {
     path: "/extracten",
     component: Root,
-    meta: {
-    },
+    meta: {},
     children: [
       {
         path: "",
-        component: ExtractList,
+        component: Extracts,
         meta: {
           requiresAuth: true,
           requiresContexts: [RoadRegistry.UserContext.Editeerder, RoadRegistry.UserContext.Admin],
@@ -28,5 +28,14 @@ export const ExtractRoutes = [
         },
       },
     ],
+  },
+  {
+    path: "extractaanvraag",
+    component: RequestExtract,
+    name: "requestExtract",
+    meta: {
+      requiresAuth: true,
+      requiresContexts: [RoadRegistry.UserContext.Editeerder, RoadRegistry.UserContext.Admin],
+    },
   },
 ];

@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Extracts.V2;
+using FluentValidation;
+using FluentValidation.Results;
 using Infrastructure.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +20,8 @@ public partial class ExtractsController
     [SwaggerOperation(OperationId = nameof(GetList))]
     [HttpGet("", Name = nameof(GetList))]
     public async Task<ActionResult> GetList(
-        [FromQuery] bool includeAllOrganizations = false,
+        [FromQuery] bool allOrganizations = false,
+        [FromQuery] string? page = null, //TODO-pr erg raar, als je hier een int van maakt dan krijg je 400 errors vanuit de UI
         CancellationToken cancellationToken = default)
     {
         var organizationCode = ApiContext.HttpContextAccessor.HttpContext.GetOperatorName();
@@ -27,9 +30,14 @@ public partial class ExtractsController
             throw new InvalidOperationException("User is authenticated but no operator could be found.");
         }
 
-        var filterByOrganizationCode = includeAllOrganizations ? null : organizationCode;
+        if (!int.TryParse(page, out var pageIndex) || pageIndex < 0)
+        {
+            throw new ValidationException([new ValidationFailure(nameof(page), "Page index must be a non-negative integer.")]);
+        }
 
-        var request = new ExtractListRequest(filterByOrganizationCode);
+        var filterByOrganizationCode = allOrganizations ? null : organizationCode;
+
+        var request = new ExtractListRequest(filterByOrganizationCode, pageIndex);
         var response = await _mediator.Send(request, cancellationToken);
 
         return Ok(new ExtractsListResponse
@@ -46,7 +54,8 @@ public partial class ExtractsController
                     UploadStatus = x.UploadStatus,
                     Closed = x.Closed
                 })
-                .ToList()
+                .ToList(),
+            MoreDataAvailable = response.MoreDataAvailable
         });
     }
 }
@@ -54,6 +63,7 @@ public partial class ExtractsController
 public sealed record ExtractsListResponse
 {
     public ICollection<ExtractListItem> Items { get; init; }
+    public bool MoreDataAvailable { get; init; }
 }
 
 public sealed record ExtractListItem

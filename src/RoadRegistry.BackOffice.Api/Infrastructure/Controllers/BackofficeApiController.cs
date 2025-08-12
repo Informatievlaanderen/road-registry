@@ -22,12 +22,12 @@ public abstract class BackofficeApiController : ApiController
         ApiContext = apiContext;
     }
 
-    protected IActionResult Accepted(LocationResult locationResult)
+    protected IActionResult Accepted(LocationResult locationResult, object? value = null)
     {
         return Accepted(locationResult
             .Location
             .ToString()
-            .Replace(ApiContext.TicketingOptions.InternalBaseUrl, ApiContext.TicketingOptions.PublicBaseUrl));
+            .Replace(ApiContext.TicketingOptions.InternalBaseUrl, ApiContext.TicketingOptions.PublicBaseUrl), value);
     }
 
     protected void AddHeaderRetryAfter(int retryAfter)

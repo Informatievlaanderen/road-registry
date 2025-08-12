@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 public sealed record ExtractListResponse : EndpointResponse
 {
     public ICollection<ExtractListItem> Items { get; init; }
+    public bool MoreDataAvailable { get; init; }
 }
 
 public sealed record ExtractListItem

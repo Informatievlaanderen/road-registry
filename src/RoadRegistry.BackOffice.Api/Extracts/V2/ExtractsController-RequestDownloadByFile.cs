@@ -51,14 +51,15 @@ public partial class ExtractsController
 
             var contour = fileTranslator.Translate(request.ShpFile);
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
+            var downloadId = new DownloadId(Guid.NewGuid());
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
-                Request = new RequestExtractRequest(extractRequestId, contour.AsText(), request.Description, request.IsInformative, null)
+                Request = new RequestExtractRequest(extractRequestId, downloadId, contour.AsText(), request.Description, request.IsInformative, null)
             }, cancellationToken);
 
-            return Accepted(result);
+            return Accepted(result, new RequestExtractResponse(downloadId));
         }
         catch (IdempotencyException)
         {

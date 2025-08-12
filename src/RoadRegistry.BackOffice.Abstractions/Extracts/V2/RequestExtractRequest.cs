@@ -1,5 +1,5 @@
 namespace RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 
-public sealed record RequestExtractRequest(string ExtractRequestId, string Contour, string Description, bool IsInformative, string? ExternalRequestId) : EndpointRequest<RequestExtractResponse>
+public sealed record RequestExtractRequest(string ExtractRequestId, string DownloadId, string Contour, string Description, bool IsInformative, string? ExternalRequestId) : EndpointRequest<RequestExtractResponse>
 {
 }

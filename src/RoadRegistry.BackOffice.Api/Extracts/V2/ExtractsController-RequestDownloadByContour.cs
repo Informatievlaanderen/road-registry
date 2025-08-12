@@ -44,14 +44,15 @@ public partial class ExtractsController
             await validator.ValidateAndThrowAsync(body, cancellationToken);
 
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(body.ExternalRequestId ?? Guid.NewGuid().ToString("N")));
+            var downloadId = new DownloadId(Guid.NewGuid());
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
-                Request = new RequestExtractRequest(extractRequestId, body.Contour, body.Description, body.IsInformative, body.ExternalRequestId)
+                Request = new RequestExtractRequest(extractRequestId, downloadId, body.Contour, body.Description, body.IsInformative, body.ExternalRequestId)
             }, cancellationToken);
 
-            return Accepted(result);
+            return Accepted(result, new RequestExtractResponse(downloadId));
         }
         catch (IdempotencyException)
         {

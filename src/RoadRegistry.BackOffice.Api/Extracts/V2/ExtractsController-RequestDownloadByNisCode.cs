@@ -51,15 +51,16 @@ public partial class ExtractsController
             }
 
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
+            var downloadId = new DownloadId(Guid.NewGuid());
             var contour = municipality.Geometry.ToMultiPolygon();
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
-                Request = new RequestExtractRequest(extractRequestId, contour.AsText(), body.Description, body.IsInformative, null)
+                Request = new RequestExtractRequest(extractRequestId, downloadId, contour.AsText(), body.Description, body.IsInformative, null)
             }, cancellationToken);
 
-            return Accepted(result);
+            return Accepted(result, new RequestExtractResponse(downloadId));
         }
         catch (IdempotencyException)
         {
@@ -67,6 +68,8 @@ public partial class ExtractsController
         }
     }
 }
+
+public sealed record RequestExtractResponse(string DownloadId);
 
 public record RequestDownloadByNisCodeBody(string NisCode, string Description, bool IsInformative);
 
@@ -82,16 +85,17 @@ public class RequestDownloadByNisCodeBodyValidator : AbstractValidator<RequestDo
             .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("'NisCode' must not be empty, null or missing")
             .Must(BeNisCodeWithExpectedFormat).WithMessage("Invalid NIS-code. Expected format: '12345'")
-            .MustAsync(BeKnownNisCode).WithMessage("'NisCode' must be a known NIS-code");
+            .Must(BeKnownNisCode).WithMessage("'NisCode' must be a known NIS-code");
 
         RuleFor(c => c.Description)
             .NotNull().WithMessage("'Description' must not be null or missing")
             .MaximumLength(ExtractDescription.MaxLength).WithMessage($"'Description' must not be longer than {ExtractDescription.MaxLength} characters");
     }
 
-    private Task<bool> BeKnownNisCode(string nisCode, CancellationToken cancellationToken)
+    private bool BeKnownNisCode(string nisCode)
     {
-        return _municipalityContext.CurrentMunicipalityExistsByNisCode(nisCode, cancellationToken);
+        // FluentValidation does not support async validators in this context
+        return _municipalityContext.CurrentMunicipalityExistsByNisCode(nisCode, CancellationToken.None).GetAwaiter().GetResult();
     }
 
     private static bool BeNisCodeWithExpectedFormat(string nisCode)

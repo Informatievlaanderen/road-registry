@@ -1,5 +1,5 @@
 namespace RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 
-public sealed record ExtractListRequest(string? OrganizationCode) : EndpointRequest<ExtractListResponse>
+public sealed record ExtractListRequest(string? OrganizationCode, int PageIndex) : EndpointRequest<ExtractListResponse>
 {
 }
