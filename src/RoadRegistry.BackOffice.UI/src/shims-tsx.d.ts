@@ -1,11 +1,11 @@
-import Vue, { VNode } from 'vue'
+import Vue, { VNode } from "vue";
 
 declare global {
   namespace JSX {
     interface Element extends VNode {}
     interface ElementClass extends Vue {}
     interface IntrinsicElements {
-      [elem: string]: any
+      [elem: string]: any;
     }
   }
 
@@ -14,10 +14,11 @@ declare global {
     useDirectApiCalls: boolean;
     useTransactionZonesTab: boolean;
     useOverlapCheck: boolean;
-    usePresignedEndpoints: boolean;    
+    usePresignedEndpoints: boolean;
+    useExtractsV2: boolean;
   }
 
-  interface Window { 
+  interface Window {
     WR_ENV: WR_ENV_TYPE;
     API_VERSION: string;
     API_ENDPOINT: string;

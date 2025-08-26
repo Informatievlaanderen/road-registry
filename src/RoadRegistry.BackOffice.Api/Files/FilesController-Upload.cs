@@ -34,6 +34,6 @@ public partial class FilesController
 
         await _mediator.Send(request, cancellationToken);
 
-        return Accepted();
+        return NoContent();
     }
 }

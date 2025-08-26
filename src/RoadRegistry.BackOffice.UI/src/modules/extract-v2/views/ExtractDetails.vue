@@ -20,7 +20,7 @@
             </div>
 
             <div v-if="downloadAvailable === true">
-              <div>Aangevraagd op {{ requestedOn }}</div>
+              <div>Aangevraagd op: {{ requestedOn }}</div>
               <div>Beschrijving: {{ description }}</div>
 
               <div>
@@ -42,7 +42,11 @@
               </div>
 
               <br />
-              <UploadComponent v-if="!isInformative && !closed" :downloadId="downloadId" @upload-complete="handleUploadComplete" />
+              <UploadComponent
+                v-if="!isInformative && !closed"
+                :downloadId="downloadId"
+                @upload-complete="handleUploadComplete"
+              />
 
               <div v-if="ticketId && uploadStatus.text">
                 <vl-alert
@@ -92,6 +96,7 @@ import ActivityProblems from "../../activity/components/ActivityProblems.vue";
 import ActivitySummary from "../../activity/components/ActivitySummary.vue";
 import UploadComponent from "./UploadComponent.vue";
 import DateFormat from "@/core/utils/date-format";
+import RoadRegistry from "@/types/road-registry";
 
 const camelizeKeys: any = (obj: any) => {
   if (Array.isArray(obj)) {
@@ -133,7 +138,7 @@ export default Vue.extend({
       archiveId: "" as string,
       ticketId: "" as string,
       ticketStatus: undefined as string | undefined,
-      uploadResponseCode: 0 as number,
+      ticketResponseCode: 0 as number,
       fileProblems: [] as Array<any>,
       changes: [] as Array<any>,
       summary: undefined as any | undefined,
@@ -158,16 +163,9 @@ export default Vue.extend({
         text: "",
       };
 
-      switch (this.uploadResponseCode) {
+      switch (this.ticketResponseCode) {
         case 0:
           status.text = "Even geduld a.u.b.";
-          break;
-        case 200:
-        case 202:
-          status.success = true;
-          status.title = "Gelukt!";
-          status.text =
-            "Oplading is gelukt. We gaan nu het bestand inhoudelijk controleren en daarna de wijzigingen toepassen.";
           break;
         case 400:
           // show only fileProblems
@@ -182,10 +180,17 @@ export default Vue.extend({
           status.title = "Technische storing";
           status.text = "Er was een probleem bij het opladen - er is een onbekende fout gebeurd.";
           break;
-        case 1001:
+        case 999:
           status.error = true;
           status.title = "Technische storing";
           status.text = "Oplading wordt verwerkt, maar er is een probleem bij de opvolging.";
+          break;
+        case 1000:
+        case 1001:
+          status.title = "";
+          status.text = "Extract wordt aangemaakt.";
+          break;
+        case 1002: // extract is beschikbaar
           break;
         case 1100:
         case 1101:
@@ -234,6 +239,7 @@ export default Vue.extend({
       try {
         let details = await PublicApi.Extracts.V2.getDetails(this.downloadId);
         //TODO-pr use v2 model and endpoints
+        //TODO-pr add status zoals in de lijst, onder "aangevraagd op"
         this.description = details.description;
         this.requestedOn = DateFormat.format(details.requestedOn);
         this.isInformative = details.isInformative;
@@ -275,66 +281,23 @@ export default Vue.extend({
         return;
       }
 
+      this.trackProgress = true;
+
       try {
         while (this.trackProgress) {
           try {
-            //TODO-pr CURRENT: polling fails to test full flow
             let ticketResult = await PublicApi.Ticketing.get(this.ticketId);
             this.ticketStatus = ticketResult.status;
 
-            switch (ticketResult.status) {
-              case "created":
-                this.uploadResponseCode = 1100;
-                break;
-              case "pending":
-                this.uploadResponseCode = 1101;
-                break;
-              case "complete":
-                {
-                  this.trackProgress = false;
-                  let uploadResult = camelizeKeys(JSON.parse(ticketResult.result.json));
-                  if (uploadResult.changes.length > 0) {
-                    this.uploadResponseCode = 1102;
-                    this.changes = uploadResult.changes;
-                    this.summary = uploadResult.summary;
-                  } else {
-                    this.uploadResponseCode = 1103;
-                  }
-                }
-                break;
-              case "error":
-                {
-                  this.trackProgress = false;
-                  let ticketError = JSON.parse(ticketResult.result.json);
-                  let errors = [ticketError, ...(ticketError.Errors ?? [])];
-                  errors = uniqBy(errors, (x) => `${x.ErrorCode}_${x.ErrorMessage}`);
-                  let problems = errors.map((error) => {
-                    let codeParts = (error.ErrorCode ?? "").split("_");
-                    let file = codeParts.length > 1 ? codeParts[0] : null;
-                    let code = codeParts.length > 1 ? codeParts[1] : codeParts[0];
-                    let severity = code.startsWith("Warning") ? "Warning" : "Error";
-                    let text = error.ErrorMessage;
-                    return { file, code, severity, text };
-                  });
-                  let fileProblems = uniq(problems.map((x) => x.file)).map((file) => {
-                    return {
-                      file,
-                      problems: orderBy(
-                        problems.filter((p) => p.file === file),
-                        "severity"
-                      ),
-                    };
-                  });
-
-                  this.uploadResponseCode = 400;
-                  this.fileProblems = fileProblems;
-                }
-                break;
+            if (ticketResult.metadata.action === "Upload") {
+              this.handleTicketForUpload(ticketResult);
+            } else {
+              this.handleTicketForDownload(ticketResult);
             }
           } catch (err: any) {
             if (!this.handle400Or404Error(err)) {
               console.error("Error getting ticket details", err);
-              this.uploadResponseCode = 1001;
+              this.ticketResponseCode = 999;
             }
             return;
           }
@@ -343,9 +306,103 @@ export default Vue.extend({
         }
       } catch (err: any) {
         if (!this.handle400Or404Error(err)) {
-          this.uploadResponseCode = 500;
+          this.ticketResponseCode = 500;
           return;
         }
+      }
+    },
+    handleTicketForDownload(ticketResult: RoadRegistry.TicketDetails): void {
+      switch (ticketResult.status) {
+        case "created":
+          this.ticketResponseCode = 1000;
+          break;
+        case "pending":
+          this.ticketResponseCode = 1001;
+          break;
+        case "complete":
+          this.trackProgress = false;
+          this.ticketResponseCode = 1002;
+          break;
+        case "error":
+          {
+            this.trackProgress = false;
+            let ticketError = JSON.parse(ticketResult.result.json);
+            let errors = [ticketError, ...(ticketError.Errors ?? [])];
+            errors = uniqBy(errors, (x) => `${x.ErrorCode}_${x.ErrorMessage}`);
+            let problems = errors.map((error) => {
+              let codeParts = (error.ErrorCode ?? "").split("_");
+              let file = codeParts.length > 1 ? codeParts[0] : null;
+              let code = codeParts.length > 1 ? codeParts[1] : codeParts[0];
+              let severity = code.startsWith("Warning") ? "Warning" : "Error";
+              let text = error.ErrorMessage;
+              return { file, code, severity, text };
+            });
+            let fileProblems = uniq(problems.map((x) => x.file)).map((file) => {
+              return {
+                file,
+                problems: orderBy(
+                  problems.filter((p) => p.file === file),
+                  "severity"
+                ),
+              };
+            });
+
+            this.ticketResponseCode = 400;
+            this.fileProblems = fileProblems;
+          }
+          break;
+      }
+    },
+    handleTicketForUpload(ticketResult: RoadRegistry.TicketDetails): void {
+      switch (ticketResult.status) {
+        case "created":
+          this.ticketResponseCode = 1100;
+          break;
+        case "pending":
+          this.ticketResponseCode = 1101;
+          break;
+        case "complete":
+          {
+            this.trackProgress = false;
+            let uploadResult = camelizeKeys(JSON.parse(ticketResult.result.json));
+
+            if (uploadResult.changes.length > 0) {
+              this.ticketResponseCode = 1102;
+              this.changes = uploadResult.changes;
+              this.summary = uploadResult.summary;
+            } else {
+              this.ticketResponseCode = 1103;
+            }
+          }
+          break;
+        case "error":
+          {
+            this.trackProgress = false;
+            let ticketError = JSON.parse(ticketResult.result.json);
+            let errors = [ticketError, ...(ticketError.Errors ?? [])];
+            errors = uniqBy(errors, (x) => `${x.ErrorCode}_${x.ErrorMessage}`);
+            let problems = errors.map((error) => {
+              let codeParts = (error.ErrorCode ?? "").split("_");
+              let file = codeParts.length > 1 ? codeParts[0] : null;
+              let code = codeParts.length > 1 ? codeParts[1] : codeParts[0];
+              let severity = code.startsWith("Warning") ? "Warning" : "Error";
+              let text = error.ErrorMessage;
+              return { file, code, severity, text };
+            });
+            let fileProblems = uniq(problems.map((x) => x.file)).map((file) => {
+              return {
+                file,
+                problems: orderBy(
+                  problems.filter((p) => p.file === file),
+                  "severity"
+                ),
+              };
+            });
+
+            this.ticketResponseCode = 400;
+            this.fileProblems = fileProblems;
+          }
+          break;
       }
     },
     handle400Or404Error(err: any): boolean {
@@ -364,13 +421,13 @@ export default Vue.extend({
           };
         });
 
-        this.uploadResponseCode = 400;
+        this.ticketResponseCode = 400;
         this.fileProblems = fileProblems;
         return true;
       }
 
       if (err?.response?.status === 404) {
-        this.uploadResponseCode = 404;
+        this.ticketResponseCode = 404;
         return true;
       }
 

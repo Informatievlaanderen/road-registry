@@ -188,7 +188,12 @@ export namespace RoadRegistry {
 
   export interface TicketDetails {
     status: string;
+    metadata: TicketMetadata;
     result: TicketResult;
+  }
+
+  export interface TicketMetadata {
+    action: string;
   }
 
   export interface TicketResult {

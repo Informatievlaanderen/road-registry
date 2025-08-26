@@ -476,8 +476,14 @@ export const PublicApi = {
             headers
           )
         ).data;
-        municipalities.push(...response.gemeenten);
-        if (!response.volgende) break;
+        if (response.gemeenten) {
+          municipalities.push(...response.gemeenten);
+        }
+
+        if (!response.volgende) {
+          break;
+        }
+        
         query.offset += query.limit;
       }
 

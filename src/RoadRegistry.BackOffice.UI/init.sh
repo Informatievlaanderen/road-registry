@@ -17,6 +17,7 @@ echo "window.featureToggles.useDirectApiCalls = \"${FeatureToggles__UseDirectApi
 echo "window.featureToggles.useTransactionZonesTab = \"${FeatureToggles__UseTransactionZonesTab}\"" >> /usr/share/nginx/html/env.js
 echo "window.featureToggles.useOverlapCheck = \"${FeatureToggles__UseOverlapCheck}\"" >> /usr/share/nginx/html/env.js
 echo "window.featureToggles.usePresignedEndpoints = \"${FeatureToggles__UsePresignedEndpoints}\"" >> /usr/share/nginx/html/env.js
+echo "window.featureToggles.useExtractsV2 = \"${FeatureToggles__UseExtractsV2}\"" >> /usr/share/nginx/html/env.js
 
 export DOLLAR=$
 envsubst < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf

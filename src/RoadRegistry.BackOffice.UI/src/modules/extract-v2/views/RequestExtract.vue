@@ -534,39 +534,32 @@ export default Vue.extend({
     this.debouncedCheckIfContourWktIsValid = debounce(this.checkIfContourWktIsValid, 500, { trailing: true });
   },
   async mounted() {
-    try {
-      // fetch municipalities
-      const municipalities = await PublicApi.Municipalities.getAll();
-      this.municipalities = municipalities.sort((m1, m2) => {
-        if (m1.gemeentenaam.geografischeNaam.spelling > m2.gemeentenaam.geografischeNaam.spelling) {
-          return 1;
-        }
-        if (m1.gemeentenaam.geografischeNaam.spelling < m2.gemeentenaam.geografischeNaam.spelling) {
-          return -1;
-        }
-        return 0;
-      });
-    } catch (err) {
-      if (WR_ENV === "development") {
-        console.error(err);
-
-        this.municipalities = [
-          {
-            identificator: { id: "", naamruimte: "", objectId: "11001", versieId: "" },
-            detail: "",
-            gemeentenaam: {
-              geografischeNaam: {
-                spelling: "11001 (failed to load municipalities)",
-                taal: Municipalities.Taal.Nl,
-              },
+    // fetch municipalities
+    let municipalities = await PublicApi.Municipalities.getAll();
+    if (municipalities.length === 0 && WR_ENV === "development") {
+      municipalities = [
+        {
+          identificator: { id: "", naamruimte: "", objectId: "11001", versieId: "" },
+          detail: "",
+          gemeentenaam: {
+            geografischeNaam: {
+              spelling: "11001 (failed to load municipalities)",
+              taal: Municipalities.Taal.Nl,
             },
-            gemeenteStatus: Municipalities.GemeenteStatus.InGebruik,
           },
-        ];
-      } else {
-        throw err;
-      }
+          gemeenteStatus: Municipalities.GemeenteStatus.InGebruik,
+        },
+      ];
     }
+    this.municipalities = municipalities.sort((m1, m2) => {
+      if (m1.gemeentenaam.geografischeNaam.spelling > m2.gemeentenaam.geografischeNaam.spelling) {
+        return 1;
+      }
+      if (m1.gemeentenaam.geografischeNaam.spelling < m2.gemeentenaam.geografischeNaam.spelling) {
+        return -1;
+      }
+      return 0;
+    });
   },
   methods: {
     async approveStep2() {
@@ -600,7 +593,6 @@ export default Vue.extend({
       try {
         //TODO-pr overlap check
         // let response = await PublicApi.Extracts.V2.getOverlappingExtractRequestsByNisCode(this.municipalityFlow.nisCode);
-
         // this.municipalityFlow.overlapWarning = !this.municipalityFlow.isInformative && response.downloadIds.length > 0;
       } finally {
         this.isCheckingOverlap = false;
@@ -623,7 +615,7 @@ export default Vue.extend({
 
         let downloadExtractResponse = await PublicApi.Extracts.V2.requestExtractByNisCode(requestData);
 
-        this.$router.push({ name: "extractDetailsV2", params: { downloadId: downloadExtractResponse.downloadId} });
+        this.$router.push({ name: "extractDetailsV2", params: { downloadId: downloadExtractResponse.downloadId } });
       } catch (error) {
         console.error("Submit municipality failed", error);
         this.municipalityFlow.hasGenericError = true;
@@ -670,7 +662,7 @@ export default Vue.extend({
             throw new Error(`Not implemented contour type: ${this.contourFlow.contourType}`);
         }
 
-        this.$router.push({ name: "extractDetailsV2", params: { downloadId: downloadExtractResponse.downloadId} });
+        this.$router.push({ name: "extractDetailsV2", params: { downloadId: downloadExtractResponse.downloadId } });
       } catch (exception) {
         if (exception instanceof RoadRegistryExceptions.RequestExtractPerContourError) {
           this.contourFlow.hasValidationErrors = true;

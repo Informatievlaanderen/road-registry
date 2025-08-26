@@ -5,7 +5,7 @@ using TicketingService.Abstractions;
 
 public class RequestExtractSqsRequestHandler : SqsHandler<RequestExtractSqsRequest>
 {
-    public const string Action = "DownloadExtractByContour";
+    public const string Action = "RequestExtract";
 
     public RequestExtractSqsRequestHandler(IBackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl)
         : base(sqsQueue, ticketing, ticketingUrl)

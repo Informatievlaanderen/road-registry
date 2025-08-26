@@ -5,11 +5,13 @@ using Abstractions.Exceptions;
 using BackOffice.Extensions;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
+using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Exceptions;
 using FeatureCompare;
+using FluentValidation;
 using Framework;
 using Hosts;
 using Infrastructure;
@@ -71,6 +73,40 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
 
     protected override async Task<object> InnerHandle(UploadExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
+        var ticketId = new TicketId(request.Request.TicketId); // NOT the one from the SqsRequest
+        var downloadId = new DownloadId(request.Request.DownloadId);
+
+        try
+        {
+            var innerHandleResult = await InnerHandleForCustomTicketId(request, ticketId, cancellationToken);
+
+            await Ticketing.Complete(
+                ticketId,
+                new TicketResult(innerHandleResult),
+                cancellationToken);
+
+            return innerHandleResult;
+        }
+        catch (ValidationException exception)
+        {
+            var ticketError = MapValidationException(exception, request);
+            ticketError ??= new TicketError(exception.Message, "");
+
+            await TicketErrorAsync(ticketId, ticketError, downloadId, cancellationToken);
+            throw;
+        }
+        catch (DomainException exception)
+        {
+            var ticketError = MapDomainException(exception, request);
+            ticketError ??= new TicketError(exception.Message, "");
+
+            await TicketErrorAsync(ticketId, ticketError, downloadId, cancellationToken);
+            throw;
+        }
+    }
+
+    private async Task<object> InnerHandleForCustomTicketId(UploadExtractSqsLambdaRequest request, TicketId ticketId, CancellationToken cancellationToken)
+    {
         var downloadId = new DownloadId(request.Request.DownloadId);
         var uploadId = new UploadId(request.Request.UploadId);
         var archiveBlob = await _uploadsBlobClient.GetBlobAsync(new BlobName(uploadId), cancellationToken);
@@ -85,14 +121,17 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         {
             throw new ExtractDownloadNotFoundException(downloadId);
         }
+
         if (extractDownload.IsInformative)
         {
             throw new ExtractRequestMarkedInformativeException(downloadId);
         }
+
         if (extractDownload.Closed)
         {
             throw new ExtractRequestClosedException(downloadId);
         }
+
         if (extractDownload.DownloadedOn is null)
         {
             throw new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException();
@@ -109,8 +148,8 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
             throw new CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException();
         }
 
-        var ticketId = new TicketId(request.Request.TicketId); // NOT the one from the SqsRequest
         var extractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId);
+
         var zipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.V2;
 
         try
@@ -157,6 +196,21 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         }
 
         return new object();
+    }
+
+    private async Task TicketErrorAsync(TicketId ticketId, TicketError ticketError, DownloadId downloadId, CancellationToken cancellationToken)
+    {
+        await Ticketing.Error(
+            ticketId,
+            ticketError,
+            cancellationToken);
+
+        var extractDownload = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
+        if (extractDownload is not null)
+        {
+            extractDownload.UploadStatus = ExtractUploadStatus.Rejected;
+            await _extractsDbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 
     private async Task HandleSendingFailedEmail(ExtractRequest extractRequest, DownloadId downloadId, CancellationToken cancellationToken)

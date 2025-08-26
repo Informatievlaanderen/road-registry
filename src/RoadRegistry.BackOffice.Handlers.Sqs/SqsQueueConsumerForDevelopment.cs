@@ -35,15 +35,17 @@ public class SqsQueueConsumerForDevelopment : ISqsQueueConsumer
             {
                 if (File.Exists(sqsQueueFilePath))
                 {
-                    var messagesQueue = new Queue<string>(JsonConvert.DeserializeObject<List<string>>(await File.ReadAllTextAsync(sqsQueueFilePath, cancellationToken)));
-                    while (messagesQueue.Any())
+                    var messages = JsonConvert.DeserializeObject<List<string>>(await File.ReadAllTextAsync(sqsQueueFilePath, cancellationToken));
+                    while (messages.Any())
                     {
-                        var serializedMessage = messagesQueue.Dequeue();
+                        var serializedMessage = messages.First();
 
                         var sqsMessage = _sqsJsonMessageSerializer.Deserialize(serializedMessage);
                         await messageHandler(sqsMessage);
 
-                        await File.WriteAllTextAsync(sqsQueueFilePath, JsonConvert.SerializeObject(messagesQueue.ToList(), Formatting.Indented), cancellationToken);
+                        messages = JsonConvert.DeserializeObject<List<string>>(await File.ReadAllTextAsync(sqsQueueFilePath, cancellationToken));
+                        messages.RemoveAt(0);
+                        await File.WriteAllTextAsync(sqsQueueFilePath, JsonConvert.SerializeObject(messages.ToList(), Formatting.Indented), cancellationToken);
 
                         cancellationToken.ThrowIfCancellationRequested();
                     }
