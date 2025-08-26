@@ -95,14 +95,7 @@ public class Program
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 ),
-                new RoadNetworkCommandModule(
-                    sp.GetRequiredService<IStreamStore>(),
-                    sp.GetRequiredService<ILifetimeScope>(),
-                    sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
-                    sp.GetRequiredService<IClock>(),
-                    sp.GetService<IExtractUploadFailedEmailClient>(),
-                    sp.GetRequiredService<ILoggerFactory>()
-                ),
+                CommandModules.RoadNetwork(sp),
                 new RoadNetworkExtractCommandModule(
                     sp.GetRequiredService<RoadNetworkExtractUploadsBlobClient>(),
                     sp.GetRequiredService<IStreamStore>(),

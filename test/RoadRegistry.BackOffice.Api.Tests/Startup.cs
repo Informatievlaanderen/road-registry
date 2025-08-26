@@ -33,6 +33,7 @@ using Api.Grb;
 using Api.Infrastructure.Controllers;
 using FeatureCompare;
 using FeatureCompare.V1.Translators;
+using Hosts;
 using Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Sync.MunicipalityRegistry;
@@ -54,14 +55,7 @@ public class Startup : TestStartup
                     sp.GetService<IClock>(),
                     sp.GetService<ILoggerFactory>()
                 ),
-                new RoadNetworkCommandModule(
-                    sp.GetService<IStreamStore>(),
-                    sp.GetService<ILifetimeScope>(),
-                    sp.GetService<IRoadNetworkSnapshotReader>(),
-                    sp.GetService<IClock>(),
-                    sp.GetService<IExtractUploadFailedEmailClient>(),
-                    sp.GetService<ILoggerFactory>()
-                ),
+                CommandModules.RoadNetwork(sp),
                 new RoadNetworkExtractCommandModule(
                     sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                     sp.GetService<IStreamStore>(),

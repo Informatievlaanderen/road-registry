@@ -45,17 +45,17 @@ public class Startup : TestStartup
         builder.Register<IRoadNetworkEventWriter>(c => new RoadNetworkEventWriter(c.Resolve<IStreamStore>(), EnrichEvent.WithTime(c.Resolve<IClock>())));
         builder.Register<IIdempotentCommandHandler>(c => new RoadRegistryIdempotentCommandHandler(c.Resolve<CommandHandlerDispatcher>()));
         builder.Register(c => Dispatch.Using(Resolve.WhenEqualToMessage(
-            new CommandHandlerModule[]
-            {
-                new RoadNetworkCommandModule(
-                    c.Resolve<IStreamStore>(),
-                    c.Resolve<ILifetimeScope>(),
-                    new FakeRoadNetworkSnapshotReader(),
-                    c.Resolve<IClock>(),
-                    new FakeExtractUploadFailedEmailClient(),
-                    c.Resolve<ILoggerFactory>()
-                )
-            }), ApplicationMetadata));
+        [
+            new RoadNetworkCommandModule(
+                c.Resolve<IStreamStore>(),
+                c.Resolve<ILifetimeScope>(),
+                new FakeRoadNetworkSnapshotReader(),
+                c.Resolve<IClock>(),
+                new FakeExtractUploadFailedEmailClient(),
+                new UseExtractsV2FeatureToggle(true),
+                c.Resolve<ILoggerFactory>()
+            )
+        ]), ApplicationMetadata));
         builder.RegisterIdempotentCommandHandler();
     }
 

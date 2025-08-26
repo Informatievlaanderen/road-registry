@@ -69,17 +69,19 @@ public class RequestDownloadByContourBodyValidator : AbstractValidator<RequestDo
     {
         RuleFor(x => x.Contour)
             .Must(x => new ExtractContourValidator().IsValid(x))
-            .WithProblemCode(ProblemCode.Extract.NotFound); //TODO-pr decide error+translation
+            .WithProblemCode(ProblemCode.Extract.GeometryInvalid);
 
         RuleFor(c => c.Description)
-            .NotNull().WithMessage("'Description' must not be null or missing")
-            .MaximumLength(ExtractDescription.MaxLength).WithMessage($"'Description' must not be longer than {ExtractDescription.MaxLength} characters");
+            .NotNull()
+            .WithProblemCode(ProblemCode.Extract.DescriptionIsRequired)
+            .MaximumLength(ExtractDescription.MaxLength)
+            .WithProblemCode(ProblemCode.Extract.DescriptionTooLong);
 
         When(x => !string.IsNullOrEmpty(x.ExternalRequestId), () =>
         {
             RuleFor(x => x.ExternalRequestId)
                 .Must(ExtractRequestId.Accepts)
-                .WithProblemCode(ProblemCode.Extract.NotFound); //TODO-pr decide error+translation
+                .WithProblemCode(ProblemCode.Extract.ExternalRequestIdInvalid);
         });
     }
 }

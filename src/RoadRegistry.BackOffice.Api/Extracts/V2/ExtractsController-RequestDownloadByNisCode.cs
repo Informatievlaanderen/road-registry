@@ -9,6 +9,8 @@ using BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using Core.ProblemCodes;
+using Extensions;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -83,13 +85,15 @@ public class RequestDownloadByNisCodeBodyValidator : AbstractValidator<RequestDo
 
         RuleFor(c => c.NisCode)
             .Cascade(CascadeMode.Stop)
-            .NotEmpty().WithMessage("'NisCode' must not be empty, null or missing")
-            .Must(BeNisCodeWithExpectedFormat).WithMessage("Invalid NIS-code. Expected format: '12345'")
-            .Must(BeKnownNisCode).WithMessage("'NisCode' must be a known NIS-code");
+            .NotEmpty().WithMessage("NisCode is verplicht.")
+            .Must(BeNisCodeWithExpectedFormat).WithMessage("Ongeldige NIS-code. Verwacht formaat: '12345'")
+            .Must(BeKnownNisCode).WithMessage("NisCode is niet gekend.");
 
         RuleFor(c => c.Description)
-            .NotNull().WithMessage("'Description' must not be null or missing")
-            .MaximumLength(ExtractDescription.MaxLength).WithMessage($"'Description' must not be longer than {ExtractDescription.MaxLength} characters");
+            .NotNull()
+            .WithProblemCode(ProblemCode.Extract.DescriptionIsRequired)
+            .MaximumLength(ExtractDescription.MaxLength)
+            .WithProblemCode(ProblemCode.Extract.DescriptionTooLong);
     }
 
     private bool BeKnownNisCode(string nisCode)

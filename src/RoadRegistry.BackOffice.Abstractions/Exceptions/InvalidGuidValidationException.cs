@@ -10,6 +10,9 @@ public class InvalidGuidValidationException : ValidationException
             new ValidationFailure(
                 parameterName,
                 $"'{parameterName}' path parameter is not a global unique identifier without dashes.")
+            {
+                ErrorCode = "GuidOngeldig"
+            }
         ])
     {
     }

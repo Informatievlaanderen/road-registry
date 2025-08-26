@@ -102,9 +102,8 @@ export default Vue.extend({
     await this.loadInitialExtracts();
     this.firstLoadCompleted = true;
 
-    //TODO-pr add auto-refresh to track those non-informative not completed yet
-
-    //TODO-pr TBD: moeten nieuwe er vanzelf bij komen? ik denk van niet
+    //TODO-pr add auto-refresh to track those non-informative not completed yet via de extract list endpoint, first page
+    //TODO-pr ook nieuwe extracten vanzelf toevoegen
   },
   destroyed() {
     //TODO-pr clean up any intervals or listeners

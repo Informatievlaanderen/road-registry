@@ -5,11 +5,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Exceptions;
 using Abstractions.Jobs;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RoadRegistry.Extracts.Schema;
 using Swashbuckle.AspNetCore.Annotations;
+using TicketingService.Abstractions;
 
 public partial class ExtractsController
 {
@@ -18,6 +21,7 @@ public partial class ExtractsController
     /// </summary>
     /// <param name="downloadId"></param>
     /// <param name="extractsDbContext"></param>
+    /// <param name="ticketing"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als de url is aangemaakt.</response>
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
@@ -31,6 +35,7 @@ public partial class ExtractsController
     public async Task<IActionResult> UploadExtract(
         [FromRoute] string downloadId,
         [FromServices] ExtractsDbContext extractsDbContext,
+        [FromServices] ITicketing ticketing,
         CancellationToken cancellationToken)
     {
         if (!DownloadId.TryParse(downloadId, out var parsedDownloadId))
@@ -44,16 +49,25 @@ public partial class ExtractsController
             return NotFound();
         }
 
-        //TODO-pr validaties wanneer er geen upload meer mag gebeuren, is dat nodig? de lambda gaat dat sowieso al aftoetsen
-        //record.IsInformative
-        //record.DownloadAvailable
-        //record.ArchiveId
-        //record.Closed
-        //record.DownloadedOn
+        if (record.TicketId is not null)
+        {
+            var ticket = await ticketing.Get(record.TicketId.Value, cancellationToken);
+            if (ticket is not null && ticket.Status != TicketStatus.Complete && ticket.Status != TicketStatus.Error)
+            {
+                throw new ValidationException([
+                    new ValidationFailure
+                    {
+                        PropertyName = string.Empty,
+                        ErrorCode = "UploadNietAfgerond",
+                        ErrorMessage = "Er is nog een upload bezig voor dit extract.",
+                    }
+                ]);
+            }
+        }
 
         var response = await _mediator.Send(GetPresignedUploadUrlRequest.ForExtractsV2(parsedDownloadId), cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
 
-        //TODO-pr mss dit via lambda doen? zodat er maar 1 instance per extract iets kan wijzigen, maakt het mss wel lastig
         record.TicketId = response.TicketId;
         await extractsDbContext.SaveChangesAsync(cancellationToken);
 

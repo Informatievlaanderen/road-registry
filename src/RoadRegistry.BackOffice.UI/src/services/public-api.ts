@@ -126,7 +126,7 @@ export const PublicApi = {
           return BackOfficeApi.Extracts.V2.requestExtractByContour(downloadRequest);
         }
 
-        throw "//TODO-pr route?";
+        throw "//TODO-pr route blijft in v2, featuretoggle in public-api om te kiezen";
         // try {
         //   const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/percontour`;
         //   const response = await apiClient.post<RoadRegistry.RequestExtractResponse>(path, downloadRequest);
@@ -151,7 +151,7 @@ export const PublicApi = {
           return BackOfficeApi.Extracts.V2.requestExtractByFile(downloadRequest);
         }
 
-        throw "//TODO-pr route?";
+        throw "//TODO-pr route blijft in v2, featuretoggle in public-api om te kiezen";
         // const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/perbestand`;
 
         // const data = new FormData();
@@ -184,7 +184,7 @@ export const PublicApi = {
           return BackOfficeApi.Extracts.V2.requestExtractByNisCode(downloadRequest);
         }
 
-        throw "//TODO-pr route?";
+        throw "//TODO-pr route blijft in v2, featuretoggle in public-api om te kiezen";
         // const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/perniscode`;
         // const response = await apiClient.post<RoadRegistry.RequestExtractResponse>(path, downloadRequest);
         // return response.data;
@@ -194,7 +194,7 @@ export const PublicApi = {
           return BackOfficeApi.Extracts.V2.getList(eigenExtracten, page);
         }
 
-        throw "//TODO-pr route?";
+        throw "//TODO-pr route blijft in v2, featuretoggle in public-api om te kiezen";
         // const path = `${apiEndpoint}/v2/wegen/extract`;
         // const response = await apiClient.get<RoadRegistry.ExtractListResponse>(path, {
         //   allOrganizations: !eigenExtracten,
@@ -207,7 +207,7 @@ export const PublicApi = {
           return BackOfficeApi.Extracts.V2.getDetails(downloadId);
         }
 
-        throw "//TODO-pr route?";
+        throw "//TODO-pr route blijft in v2, featuretoggle in public-api om te kiezen";
         // const path = `${apiEndpoint}/v2/wegen/extract/${downloadId}`;
         // const response = await apiClient.get<RoadRegistry.ExtractDetailsV2>(path);
         // return response.data;
@@ -217,7 +217,7 @@ export const PublicApi = {
           return BackOfficeApi.Extracts.V2.downloadExtract(downloadId);
         }
 
-        throw "//TODO-pr route?";
+        throw "//TODO-pr route blijft in v2, featuretoggle in public-api om te kiezen";
         // const path = `${apiEndpoint}/v2/wegen/extract/download/${downloadId}/presignedurl`;
         // const response = await apiClient.get<RoadRegistry.DownloadExtractResponse>(path);
 
@@ -228,7 +228,7 @@ export const PublicApi = {
           return BackOfficeApi.Extracts.V2.downloadUpload(downloadId);
         }
 
-        throw "//TODO-pr route?";
+        throw "//TODO-pr route blijft in v2, featuretoggle in public-api om te kiezen";
         // const path = `${apiEndpoint}/v2/wegen/upload/${identifier}/presignedurl`;
         // const response = await apiClient.get<RoadRegistry.DownloadUploadResponse>(path);
 
@@ -243,7 +243,7 @@ export const PublicApi = {
           return BackOfficeApi.Extracts.V2.upload(downloadId, file, filename);
         }
 
-        throw "//TODO-pr route?";
+        throw "//TODO-pr route blijft in v2, featuretoggle in public-api om te kiezen";
         // const path = `${apiEndpoint}/v2/wegen/upload/jobs`;
         // const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
 

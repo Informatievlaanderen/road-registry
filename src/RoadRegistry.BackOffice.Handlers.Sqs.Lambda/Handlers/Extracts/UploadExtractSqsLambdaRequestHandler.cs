@@ -161,10 +161,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
 
     private async Task HandleSendingFailedEmail(ExtractRequest extractRequest, DownloadId downloadId, CancellationToken cancellationToken)
     {
-        //TODO-pr TBD: hoe bepalen of het een GRB extract is dat moet worden opgelost via Team DKI?
-        //er lijken nog prefixes te bestaat, mss in toekomst nog er bij? dit dan expliciet via endpoint te weten komen
-        // op zich, als ExternalRequestId niet null is is het mss al voldoende, het portaal vult die niet op en enkel niet-informatieve kunnen tot hier geraken
-        if (extractRequest.ExternalRequestId is not null) // && extractRequest.ExternalRequestId.StartsWith("GRB_"))
+        if (extractRequest.ExternalRequestId is not null)
         {
             await _extractUploadFailedEmailClient.SendAsync(new(downloadId, extractRequest.Description), cancellationToken);
         }

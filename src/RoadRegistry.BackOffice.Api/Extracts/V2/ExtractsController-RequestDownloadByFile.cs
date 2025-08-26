@@ -12,7 +12,9 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using Core.ProblemCodes;
 using Exceptions;
+using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -103,11 +105,13 @@ public sealed class DownloadExtractByFileRequestValidator : AbstractValidator<Do
 
         RuleFor(c => c.PrjFile)
             .Must(BeLambert1972ProjectionFormat)
-            .WithMessage("Projection format must be Lambert 1972");
+            .WithMessage("Projectie formaat moet Lambert 1972 zijn");
 
         RuleFor(c => c.Description)
-            .NotNull().WithMessage("'Description' must not be null or missing")
-            .MaximumLength(ExtractDescription.MaxLength).WithMessage($"'Description' must not be longer than {ExtractDescription.MaxLength} characters");
+            .NotNull()
+            .WithProblemCode(ProblemCode.Extract.DescriptionIsRequired)
+            .MaximumLength(ExtractDescription.MaxLength)
+            .WithProblemCode(ProblemCode.Extract.DescriptionTooLong);
     }
 
     private bool BeLambert1972ProjectionFormat(DownloadExtractByFileRequestItem item)
@@ -124,9 +128,9 @@ public sealed class DownloadExtractByFileRequestItemValidator : AbstractValidato
     public DownloadExtractByFileRequestItemValidator()
     {
         RuleFor(c => c.FileName)
-            .NotEmpty().WithMessage($"'{nameof(DownloadExtractByFileRequestItem.FileName)}' must not be empty, null or missing");
+            .NotEmpty().WithMessage($"'{nameof(DownloadExtractByFileRequestItem.FileName)}' is verplicht.");
 
         RuleFor(c => c.ContentType)
-            .NotEmpty().WithMessage($"'{nameof(DownloadExtractByFileRequestItem.ContentType)}' must be able to parse");
+            .NotEmpty().WithMessage($"'{nameof(DownloadExtractByFileRequestItem.ContentType)}' is ongeldig.");
     }
 }

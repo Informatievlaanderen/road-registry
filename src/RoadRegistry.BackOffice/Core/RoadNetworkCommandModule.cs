@@ -10,8 +10,8 @@ using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using DutchTranslations;
 using Extracts;
+using FeatureToggles;
 using Framework;
-using MediatR;
 using Messages;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
@@ -23,6 +23,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 {
     private readonly ILifetimeScope _lifetimeScope;
     private readonly IExtractUploadFailedEmailClient _emailClient;
+    private readonly UseExtractsV2FeatureToggle _useExtractsV2FeatureToggle;
     private readonly ILogger _logger;
 
     public RoadNetworkCommandModule(
@@ -31,6 +32,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         IRoadNetworkSnapshotReader snapshotReader,
         IClock clock,
         IExtractUploadFailedEmailClient emailClient,
+        UseExtractsV2FeatureToggle useExtractsV2FeatureToggle,
         ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(store);
@@ -42,6 +44,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         _lifetimeScope = lifetimeScope;
         _emailClient = emailClient;
+        _useExtractsV2FeatureToggle = useExtractsV2FeatureToggle;
         _logger = loggerFactory.CreateLogger<RoadNetworkCommandModule>();
 
         var enricher = EnrichEvent.WithTime(clock);
@@ -134,13 +137,10 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 }
             }
 
-            var useExtractsV2 = true; //TODO-pr use featuretoggle
-
             if (!failedChangedMessages.Any() && command.Body.ExtractRequestId is not null)
             {
-                if (useExtractsV2)
+                if (_useExtractsV2FeatureToggle.FeatureEnabled)
                 {
-                    //TODO TBD: hier rechtstreeks de context updaten, of item op sqs plaatsen? bij Marten herwerking zal dit vermoedelijk in een lambda gebeuren dus kan dan rechtstreeks
                     var extractsRequests = container.Resolve<IExtractRequests>();
                     await extractsRequests.CloseAsync(downloadId!.Value, cancellationToken);
                 }
@@ -167,7 +167,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
                     await ticketing.Error(ticketId.Value, new TicketError(errors), cancellationToken);
 
-                    if (useExtractsV2)
+                    if (_useExtractsV2FeatureToggle.FeatureEnabled)
                     {
                         var extractsRequests = container.Resolve<IExtractRequests>();
                         await extractsRequests.UploadRejectedAsync(downloadId!.Value, cancellationToken);
@@ -201,7 +201,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
                     await ticketing.Complete(ticketId.Value, new TicketResult(new { Changes = changes, Summary = summary }), cancellationToken);
 
-                    if (useExtractsV2)
+                    if (_useExtractsV2FeatureToggle.FeatureEnabled)
                     {
                         var extractsRequests = container.Resolve<IExtractRequests>();
                         await extractsRequests.UploadAcceptedAsync(downloadId!.Value, cancellationToken);

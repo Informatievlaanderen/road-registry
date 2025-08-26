@@ -130,11 +130,6 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
     {
         var downloadId = new DownloadId(extractDownload.DownloadId);
 
-        //TODO-pr nog nodig?
-        // var overlappingDownloadIds = !message.Body.IsInformative
-        //     ? await GetOverlappingDownloadIds(downloadId, message.Body.Contour, ct)
-        //     : [];
-
         var request = new RoadNetworkExtractAssemblyRequest(
             default,
             downloadId,
@@ -159,12 +154,14 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
         }
         catch (SqlException ex) when (ex.Number.Equals(-2))
         {
+            Logger.LogError(ex, $"Database timeout while creating extract for download {downloadId}: {ex.Message}");
+
             throw new ValidationException([
                 new ValidationFailure
                 {
-                    PropertyName = "",
-                    ErrorCode = "DatabaseTimeout", //TODO-pr use ProblemCode?
-                    ErrorMessage = "Database timeout occurred while preparing the extract archive. "
+                    PropertyName = string.Empty,
+                    ErrorCode = "DatabaseTimeout",
+                    ErrorMessage = "Er was een probleem met de databank tijdens het aanmaken van het extract."
                 }
             ]);
         }

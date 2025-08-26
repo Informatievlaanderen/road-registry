@@ -27,8 +27,10 @@ using Core;
 using Editor.Schema;
 using Extensions;
 using FeatureCompare;
+using FeatureToggles;
 using FluentValidation;
 using Framework;
+using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
 using IdentityModel.AspNetCore.OAuth2Introspection;
@@ -263,14 +265,7 @@ public class Startup
                         sp.GetService<IClock>(),
                         sp.GetService<ILoggerFactory>()
                     ),
-                    new RoadNetworkCommandModule(
-                        sp.GetService<IStreamStore>(),
-                        sp.GetService<ILifetimeScope>(),
-                        sp.GetService<IRoadNetworkSnapshotReader>(),
-                        sp.GetService<IClock>(),
-                        sp.GetService<IExtractUploadFailedEmailClient>(),
-                        sp.GetService<ILoggerFactory>()
-                    ),
+                    CommandModules.RoadNetwork(sp),
                     new RoadNetworkExtractCommandModule(
                         sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                         sp.GetService<IStreamStore>(),

@@ -598,7 +598,7 @@ export default Vue.extend({
       this.isCheckingOverlap = true;
 
       try {
-        //TODO-pr overlap check nog doen?
+        //TODO-pr overlap check
         // let response = await PublicApi.Extracts.V2.getOverlappingExtractRequestsByNisCode(this.municipalityFlow.nisCode);
 
         // this.municipalityFlow.overlapWarning = !this.municipalityFlow.isInformative && response.downloadIds.length > 0;
@@ -725,7 +725,7 @@ export default Vue.extend({
 
       this.isCheckingOverlap = true;
       try {
-        //TODO-pr overlap check nog doen?
+        //TODO-pr overlap check
         // let response = await PublicApi.Extracts.getOverlappingExtractRequestsByContour(this.contourFlow.wkt);
         // this.contourFlow.overlapWarning = !this.contourFlow.isInformative && response.downloadIds.length > 0;
       } finally {

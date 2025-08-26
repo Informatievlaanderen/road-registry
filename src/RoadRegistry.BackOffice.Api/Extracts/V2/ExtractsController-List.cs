@@ -21,7 +21,7 @@ public partial class ExtractsController
     [HttpGet("", Name = nameof(GetList))]
     public async Task<ActionResult> GetList(
         [FromQuery] bool allOrganizations = false,
-        [FromQuery] string? page = null, //TODO-pr erg raar, als je hier een int van maakt dan krijg je 400 errors vanuit de UI
+        [FromQuery] string? page = null, //TODO-pr erg raar, als je hier een int van maakt dan krijg je 400 errors vanuit de UI, later te bekijken in common api library
         CancellationToken cancellationToken = default)
     {
         var organizationCode = ApiContext.HttpContextAccessor.HttpContext.GetOperatorName();
