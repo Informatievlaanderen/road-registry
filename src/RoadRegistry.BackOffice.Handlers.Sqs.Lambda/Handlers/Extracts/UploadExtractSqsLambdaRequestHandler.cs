@@ -79,28 +79,21 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         try
         {
             var innerHandleResult = await InnerHandleForCustomTicketId(request, ticketId, cancellationToken);
-
-            await Ticketing.Complete(
-                ticketId,
-                new TicketResult(innerHandleResult),
-                cancellationToken);
+            // Do not complete ticket here, it's done by ChangeRoadNetwork handler
 
             return innerHandleResult;
         }
-        catch (ValidationException exception)
+        catch (Exception exception)
         {
-            var ticketError = MapValidationException(exception, request);
-            ticketError ??= new TicketError(exception.Message, "");
+            var ticketError = TryConvertToTicketError(exception, request);
+            await Ticketing.Error(ticketId, ticketError, cancellationToken);
 
-            await TicketErrorAsync(ticketId, ticketError, downloadId, cancellationToken);
-            throw;
-        }
-        catch (DomainException exception)
-        {
-            var ticketError = MapDomainException(exception, request);
-            ticketError ??= new TicketError(exception.Message, "");
-
-            await TicketErrorAsync(ticketId, ticketError, downloadId, cancellationToken);
+            var extractDownload = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
+            if (extractDownload is not null)
+            {
+                extractDownload.UploadStatus = ExtractUploadStatus.Rejected;
+                await _extractsDbContext.SaveChangesAsync(cancellationToken);
+            }
             throw;
         }
     }
@@ -196,22 +189,6 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         }
 
         return new object();
-    }
-
-    private async Task TicketErrorAsync(TicketId ticketId, TicketError ticketError, DownloadId downloadId, CancellationToken cancellationToken)
-    {
-        await Ticketing.Error(
-            ticketId,
-            ticketError,
-            cancellationToken);
-
-        //TODO-pr te bekijken of onderliggende lib kan aangepast worden om toe te laten om een ticketid mee te geven?
-        var extractDownload = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
-        if (extractDownload is not null)
-        {
-            extractDownload.UploadStatus = ExtractUploadStatus.Rejected;
-            await _extractsDbContext.SaveChangesAsync(cancellationToken);
-        }
     }
 
     private async Task HandleSendingFailedEmail(ExtractRequest extractRequest, DownloadId downloadId, CancellationToken cancellationToken)
