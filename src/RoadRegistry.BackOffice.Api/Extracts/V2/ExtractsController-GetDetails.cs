@@ -46,8 +46,9 @@ public partial class ExtractsController
                 RequestedOn = response.RequestedOn,
                 IsInformative = response.IsInformative,
                 DownloadStatus = response.DownloadStatus,
-                UploadId = response.UploadId,
+                DownloadedOn = response.DownloadedOn,
                 UploadStatus = response.UploadStatus,
+                UploadId = response.UploadId,
                 TicketId = response.TicketId,
                 Closed = response.Closed,
             });
@@ -61,15 +62,16 @@ public partial class ExtractsController
 
 public record ExtractDetailsResponseBody
 {
-    public string DownloadId { get; set; }
-    public string Description { get; set; }
-    public MultiPolygon Contour { get; set; }
-    public string ExtractRequestId { get; set; }
-    public DateTimeOffset RequestedOn { get; set; }
-    public bool IsInformative { get; set; }
-    public string DownloadStatus { get; set; }
-    public bool Closed { get; set; }
-    public string? UploadId { get; set; }
-    public string UploadStatus { get; set; }
-    public string? TicketId { get; set; }
+    public string DownloadId { get; init; }
+    public string Description { get; init; }
+    public MultiPolygon Contour { get; init; }
+    public string ExtractRequestId { get; init; }
+    public DateTimeOffset RequestedOn { get; init; }
+    public bool IsInformative { get; init; }
+    public string DownloadStatus { get; init; }
+    public DateTimeOffset? DownloadedOn { get; init; }
+    public bool Closed { get; init; }
+    public string? UploadStatus { get; init; }
+    public string? UploadId { get; init; }
+    public string? TicketId { get; init; }
 }

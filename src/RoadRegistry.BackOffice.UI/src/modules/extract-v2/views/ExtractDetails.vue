@@ -4,28 +4,34 @@
       <vl-layout>
         <vl-grid mod-stacked>
           <vl-column>
-            <wr-h2>Extract {{ isInformative ? " (informatief)" : "" }}</wr-h2>
+            <wr-h2
+              >Extract{{ extract?.isInformative ? " (informatief)" : ""
+              }}{{ extract?.description ? `: ${extract?.description}` : "" }}</wr-h2
+            >
           </vl-column>
 
           <vl-column>
-            <div v-if="downloadAvailable === undefined">Het extract is nog niet beschikbaar, even geduld a.u.b.</div>
-
-            <div v-if="downloadAvailable === false">
-              <div v-if="extractStatus">
-                <vl-alert :mod-error="extractStatus.error">
-                  {{ extractStatus.message }}
-                </vl-alert>
-              </div>
-              <div v-else>Het extract is nog niet beschikbaar, even geduld a.u.b.</div>
+            <div v-if="!extract">
+              <vl-region>
+                <div v-vl-align:center>
+                  <vl-loader message="Uw pagina is aan het laden" />
+                </div>
+              </vl-region>
             </div>
 
-            <div v-if="downloadAvailable === true">
-              <div>Aangevraagd op: {{ requestedOn }}</div>
-              <div>Beschrijving: {{ description }}</div>
+            <div v-if="extract && downloadAvailable === false && downloadStatusMessage">
+              <vl-alert :mod-error="downloadStatusMessage.error">
+                {{ downloadStatusMessage.message }}
+              </vl-alert>
+            </div>
+
+            <div v-if="extract">
+              <div>Aangevraagd op: {{ formatDate(extract.requestedOn) }}</div>
+              <div>Status: {{ status }}</div>
 
               <div>
                 <br />
-                <span>
+                <span v-if="downloadAvailable">
                   <vl-button v-if="isDownloading" mod-loading> Download extract... </vl-button>
                   <vl-button v-else @click="downloadExtract()"> Download extract </vl-button>
                 </span>
@@ -43,7 +49,7 @@
 
               <br />
               <UploadComponent
-                v-if="!isInformative && !closed"
+                v-if="!extract?.isInformative && downloadAvailable && !extract?.closed && extract?.downloadedOn"
                 :downloadId="downloadId"
                 @upload-complete="handleUploadComplete"
               />
@@ -122,13 +128,10 @@ export default Vue.extend({
   data() {
     return {
       trackProgress: true,
-      description: "" as string,
-      requestedOn: "" as string,
-      isInformative: false as boolean,
-      closed: false as boolean,
+      extract: undefined as RoadRegistry.ExtractDetailsV2 | undefined,
       downloadAvailable: false as boolean,
       downloadError: "" as string,
-      extractStatus: undefined as
+      downloadStatusMessage: undefined as
         | {
             error: boolean;
             message: string;
@@ -148,6 +151,37 @@ export default Vue.extend({
     downloadId(): string {
       return this.$route.params.downloadId;
     },
+    status() {
+      if (!this.extract) {
+        return "";
+      }
+
+      if (this.extract.closed) {
+        return "Gesloten";
+      }
+
+      if (this.extract.uploadStatus) {
+        switch (this.extract.uploadStatus) {
+          case "Processing":
+            return "Verwerken";
+          case "Rejected":
+            return "Geweigerd";
+          case "Accepted":
+            return "Aanvaard";
+        }
+      }
+
+      switch (this.extract.downloadStatus) {
+        case "Preparing":
+          return "Wordt voorbereid";
+        case "Available":
+          return "Beschikbaar";
+        case "Error":
+          return "Fout";
+      }
+
+      return "";
+    },
     uploadStatus(): {
       success: boolean;
       warning: boolean;
@@ -165,7 +199,7 @@ export default Vue.extend({
 
       switch (this.ticketResponseCode) {
         case 0:
-          status.text = "Even geduld a.u.b.";
+          //status.text = "Even geduld a.u.b.";
           break;
         case 400:
           // show only fileProblems
@@ -227,25 +261,27 @@ export default Vue.extend({
   },
   methods: {
     async waitUntilExtractDetailsIsAvailable(): Promise<void> {
-      while (!this.extractStatus && this.trackProgress) {
+      while (!this.downloadStatusMessage && this.trackProgress) {
         await this.loadExtractDetails();
 
-        if (!this.extractStatus) {
+        if (!this.downloadStatusMessage) {
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
       }
     },
+    formatDate(dateString: undefined | string): string {
+      if (!dateString) {
+        return "";
+      }
+      return DateFormat.format(dateString);
+    },
     async loadExtractDetails(): Promise<void> {
       try {
         let details = await PublicApi.Extracts.V2.getDetails(this.downloadId);
-        //TODO-pr use v2 model and endpoints
-        //TODO-pr add status zoals in de lijst, onder "aangevraagd op"
-        this.description = details.description;
-        this.requestedOn = DateFormat.format(details.requestedOn);
-        this.isInformative = details.isInformative;
+        this.extract = details;
         this.ticketId = details.ticketId;
         this.downloadAvailable = details.downloadStatus == "Available";
-        this.extractStatus =
+        this.downloadStatusMessage =
           details.downloadStatus == "Available"
             ? {
                 error: false,
@@ -254,7 +290,7 @@ export default Vue.extend({
             : details.downloadStatus == "Error"
             ? {
                 error: true,
-                message: "Er was een probleem bij het aanmaken vah het extract, gelieve een nieuwe aan te vragen.",
+                message: "Er was een probleem bij het aanmaken van het extract, gelieve een nieuwe aan te vragen.",
               }
             : undefined;
       } catch (err: any) {
@@ -264,12 +300,12 @@ export default Vue.extend({
         if (err?.response?.status === 404) {
           // nog niet beschikbaar
         } else if (err?.response?.status === 410) {
-          this.extractStatus = {
+          this.downloadStatusMessage = {
             error: true,
             message: "Het extract is niet langer beschikbaar.",
           };
         } else {
-          this.extractStatus = {
+          this.downloadStatusMessage = {
             error: true,
             message: "Er is een probleem bij het ophalen van de extract details.",
           };
@@ -438,6 +474,10 @@ export default Vue.extend({
       this.isDownloading = true;
       try {
         await PublicApi.Extracts.V2.downloadExtract(this.downloadId);
+
+        if (!this.extract?.downloadedOn) {
+          await this.loadExtractDetails;
+        }
       } catch (err: any) {
         console.error("Error downloading extract", err);
         if (err?.response?.status === 404) {

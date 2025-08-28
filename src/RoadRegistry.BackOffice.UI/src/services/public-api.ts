@@ -1,4 +1,4 @@
-import apiClient, { AxiosHttpApiClient } from "./api-client";
+import apiClient, { AxiosHttpApiClient, convertError } from "./api-client";
 import RoadRegistry from "@/types/road-registry";
 import RoadRegistryExceptions from "@/types/road-registry-exceptions";
 import Municipalities from "@/types/municipalities";
@@ -126,23 +126,16 @@ export const PublicApi = {
           return BackOfficeApi.Extracts.V2.requestExtractByContour(downloadRequest);
         }
 
-        throw "//TODO-pr route blijft in v2, featuretoggle in public-api om te kiezen";
-        // try {
-        //   const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/percontour`;
-        //   const response = await apiClient.post<RoadRegistry.RequestExtractResponse>(path, downloadRequest);
-        //   return response.data;
-        // } catch (exception) {
-        //   if (axios.isAxiosError(exception)) {
-        //     const response = exception?.response;
-        //     if (response && response.status === 400) {
-        //       // HTTP Bad Request
-        //       const error = response?.data as RoadRegistry.PerContourErrorResponse;
-        //       throw new RoadRegistryExceptions.RequestExtractPerContourError(error);
-        //     }
-        //   }
-
-        //   throw new Error("Unknown error");
-        // }
+        try {
+          const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/percontour`;
+          const response = await apiClient.post<RoadRegistry.RequestExtractResponse>(path, downloadRequest);
+          return {
+            downloadId: response.data.downloadId,
+            ticketUrl: response.headers.location,
+          };
+        } catch (exception) {
+          throw convertError(exception);
+        }
       },
       requestExtractByFile: async (
         downloadRequest: RoadRegistry.DownloadExtractByFileRequest
@@ -151,31 +144,24 @@ export const PublicApi = {
           return BackOfficeApi.Extracts.V2.requestExtractByFile(downloadRequest);
         }
 
-        throw "//TODO-pr route blijft in v2, featuretoggle in public-api om te kiezen";
-        // const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/perbestand`;
+        const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/perbestand`;
 
-        // const data = new FormData();
-        // data.append("description", downloadRequest.description);
-        // data.append("isInformative", downloadRequest.isInformative.toString());
-        // downloadRequest.files.forEach((file) => {
-        //   data.append("files", file, file.name);
-        // });
+        const data = new FormData();
+        data.append("description", downloadRequest.description);
+        data.append("isInformative", downloadRequest.isInformative.toString());
+        downloadRequest.files.forEach((file) => {
+          data.append("files", file, file.name);
+        });
 
-        // try {
-        //   const response = await apiClient.post<RoadRegistry.RequestExtractResponse>(path, data);
-        //   return response.data;
-        // } catch (exception) {
-        //   if (axios.isAxiosError(exception)) {
-        //     const response = exception?.response;
-        //     if (response && response.status === 400) {
-        //       // HTTP Bad Request
-        //       const error = response?.data as RoadRegistry.PerContourErrorResponse;
-        //       throw new RoadRegistryExceptions.RequestExtractPerContourError(error);
-        //     }
-        //   }
-
-        //   throw new Error("Unknown error");
-        // }
+        try {
+          const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, data);
+          return {
+            downloadId: response.data.downloadId,
+            ticketUrl: response.headers.location,
+          };
+        } catch (exception) {
+          throw convertError(exception);
+        }
       },
       requestExtractByNisCode: async (
         downloadRequest: RoadRegistry.DownloadExtractByNisCodeRequest
@@ -184,55 +170,88 @@ export const PublicApi = {
           return BackOfficeApi.Extracts.V2.requestExtractByNisCode(downloadRequest);
         }
 
-        throw "//TODO-pr route blijft in v2, featuretoggle in public-api om te kiezen";
-        // const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/perniscode`;
-        // const response = await apiClient.post<RoadRegistry.RequestExtractResponse>(path, downloadRequest);
-        // return response.data;
+        const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/perniscode`;
+
+        try {
+          const response = await apiClient.post<RoadRegistry.RequestExtractResponse>(path, downloadRequest);
+          return {
+            downloadId: response.data.downloadId,
+            ticketUrl: response.headers.location,
+          };
+        } catch (exception) {
+          throw convertError(exception);
+        }
       },
-      getList: async (eigenExtracten: boolean, page: number) => {
+
+      getOverlappingExtractsByNisCode: async (
+        nisCode: String
+      ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.getOverlappingExtractsByNisCode(nisCode);
+        }
+
+        const request = {
+          nisCode,
+        } as RoadRegistry.ListOverlappingExtractsByNisCodeRequest;
+        const path = `${apiEndpoint}/v2/wegen/extract/overlapping/perniscode`;
+        const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
+        return response.data;
+      },
+      getOverlappingExtractsByContour: async (
+        contour: String
+      ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.getOverlappingExtractsByContour(contour);
+        }
+
+        const request = {
+          contour,
+        } as RoadRegistry.ListOverlappingExtractsByContourRequest;
+        const path = `${apiEndpoint}/v2/wegen/extract/overlapping/percontour`;
+        const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
+        return response.data;
+      },
+
+      getList: async (eigenExtracten: boolean, page: number): Promise<RoadRegistry.ExtractListResponse> => {
         if (useBackOfficeApi) {
           return BackOfficeApi.Extracts.V2.getList(eigenExtracten, page);
         }
 
-        throw "//TODO-pr route blijft in v2, featuretoggle in public-api om te kiezen";
-        // const path = `${apiEndpoint}/v2/wegen/extract`;
-        // const response = await apiClient.get<RoadRegistry.ExtractListResponse>(path, {
-        //   allOrganizations: !eigenExtracten,
-        //   page: page,
-        // });
-        // return response.data;
+        const path = `${apiEndpoint}/v2/wegen/extract`;
+        const response = await apiClient.get<RoadRegistry.ExtractListResponse>(path, {
+          allOrganizations: !eigenExtracten,
+          page: page,
+        });
+        return response.data;
       },
-      getDetails: async (downloadId: string) => {
+      getDetails: async (downloadId: string): Promise<RoadRegistry.ExtractDetailsV2> => {
         if (useBackOfficeApi) {
           return BackOfficeApi.Extracts.V2.getDetails(downloadId);
         }
 
-        throw "//TODO-pr route blijft in v2, featuretoggle in public-api om te kiezen";
-        // const path = `${apiEndpoint}/v2/wegen/extract/${downloadId}`;
-        // const response = await apiClient.get<RoadRegistry.ExtractDetailsV2>(path);
-        // return response.data;
+        const path = `${apiEndpoint}/v2/wegen/extract/${downloadId}`;
+        const response = await apiClient.get<RoadRegistry.ExtractDetailsV2>(path);
+        return response.data;
       },
       downloadExtract: async (downloadId: string): Promise<void> => {
         if (useBackOfficeApi) {
           return BackOfficeApi.Extracts.V2.downloadExtract(downloadId);
         }
 
-        throw "//TODO-pr route blijft in v2, featuretoggle in public-api om te kiezen";
-        // const path = `${apiEndpoint}/v2/wegen/extract/download/${downloadId}/presignedurl`;
-        // const response = await apiClient.get<RoadRegistry.DownloadExtractResponse>(path);
+        const path = `${apiEndpoint}/v2/wegen/extract/${downloadId}/download`;
+        const response = await apiClient.get<RoadRegistry.DownloadExtractResponse>(path);
 
-        // downloadFile(response.data.downloadUrl, `${downloadId}.zip`);
+        downloadFile(response.data.downloadUrl, `${downloadId}.zip`);
       },
       downloadUpload: async (downloadId: string): Promise<void> => {
         if (useBackOfficeApi) {
           return BackOfficeApi.Extracts.V2.downloadUpload(downloadId);
         }
 
-        throw "//TODO-pr route blijft in v2, featuretoggle in public-api om te kiezen";
-        // const path = `${apiEndpoint}/v2/wegen/upload/${identifier}/presignedurl`;
-        // const response = await apiClient.get<RoadRegistry.DownloadUploadResponse>(path);
+        const path = `${apiEndpoint}/v2/wegen/extract/${downloadId}/upload`;
+        const response = await apiClient.get<RoadRegistry.DownloadUploadResponse>(path);
 
-        // downloadFile(response.data.downloadUrl, response.data.fileName);
+        downloadFile(response.data.downloadUrl, response.data.fileName);
       },
       upload: async (
         downloadId: string,
@@ -243,27 +262,26 @@ export const PublicApi = {
           return BackOfficeApi.Extracts.V2.upload(downloadId, file, filename);
         }
 
-        throw "//TODO-pr route blijft in v2, featuretoggle in public-api om te kiezen";
-        // const path = `${apiEndpoint}/v2/wegen/upload/jobs`;
-        // const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
+        const path = `${apiEndpoint}/v2/wegen/extract/${downloadId}/upload`;
+        const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
 
-        // const data = new FormData();
-        // if (response.data.uploadUrlFormData) {
-        //   for (let key in response.data.uploadUrlFormData) {
-        //     data.append(key, response.data.uploadUrlFormData[key]);
-        //   }
-        // }
-        // data.append("file", file, filename);
+        const data = new FormData();
+        if (response.data.uploadUrlFormData) {
+          for (let key in response.data.uploadUrlFormData) {
+            data.append(key, response.data.uploadUrlFormData[key]);
+          }
+        }
+        data.append("file", file, filename);
 
-        // let awsHttp = axios.create();
-        // var uploadFileResponse = await awsHttp.post(response.data.uploadUrl, data);
+        let awsHttp = axios.create();
+        var uploadFileResponse = await awsHttp.post(response.data.uploadUrl, data);
 
-        // let status = uploadFileResponse.status as any;
-        // if (status !== 204) {
-        //   return null;
-        // }
+        let status = uploadFileResponse.status as any;
+        if (status !== 204) {
+          return null;
+        }
 
-        // return response.data;
+        return response.data;
       },
     },
     getDetails: async (downloadId: string) => {
@@ -324,8 +342,8 @@ export const PublicApi = {
           const response = exception?.response;
           if (response && response.status === 400) {
             // HTTP Bad Request
-            const error = response?.data as RoadRegistry.PerContourErrorResponse;
-            throw new RoadRegistryExceptions.RequestExtractPerContourError(error);
+            const error = response?.data as RoadRegistry.BadRequestResponse;
+            throw new RoadRegistryExceptions.BadRequestError(error);
           }
         }
 
@@ -356,8 +374,8 @@ export const PublicApi = {
           const response = exception?.response;
           if (response && response.status === 400) {
             // HTTP Bad Request
-            const error = response?.data as RoadRegistry.PerContourErrorResponse;
-            throw new RoadRegistryExceptions.RequestExtractPerContourError(error);
+            const error = response?.data as RoadRegistry.BadRequestResponse;
+            throw new RoadRegistryExceptions.BadRequestError(error);
           }
         }
 
@@ -483,7 +501,7 @@ export const PublicApi = {
         if (!response.volgende) {
           break;
         }
-        
+
         query.offset += query.limit;
       }
 

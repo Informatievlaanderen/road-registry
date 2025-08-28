@@ -205,6 +205,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
             ticketError,
             cancellationToken);
 
+        //TODO-pr te bekijken of onderliggende lib kan aangepast worden om toe te laten om een ticketid mee te geven?
         var extractDownload = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
         if (extractDownload is not null)
         {

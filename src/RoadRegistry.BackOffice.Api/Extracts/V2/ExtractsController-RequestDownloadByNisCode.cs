@@ -12,6 +12,7 @@ using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Core.ProblemCodes;
 using Extensions;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NetTopologySuite.Geometries;
@@ -49,7 +50,12 @@ public partial class ExtractsController
             var municipality = await municipalityContext.FindCurrentMunicipalityByNisCode(body.NisCode, cancellationToken);
             if (municipality?.Geometry is null)
             {
-                return NotFound();
+                throw new ValidationException([new ValidationFailure
+                {
+                    PropertyName = nameof(body.NisCode),
+                    ErrorCode = "NotFound",
+                    ErrorMessage = $"Er werd geen gemeente/stad gevonden voor de NIS-code '{body.NisCode}'"
+                }]);
             }
 
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
@@ -86,14 +92,12 @@ public class RequestDownloadByNisCodeBodyValidator : AbstractValidator<RequestDo
         RuleFor(c => c.NisCode)
             .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("NisCode is verplicht.")
-            .Must(BeNisCodeWithExpectedFormat).WithMessage("Ongeldige NIS-code. Verwacht formaat: '12345'")
+            .Must(BeNisCodeWithExpectedFormat).WithMessage("Ongeldige NisCode. Verwacht formaat: '12345'")
             .Must(BeKnownNisCode).WithMessage("NisCode is niet gekend.");
 
         RuleFor(c => c.Description)
-            .NotNull()
-            .WithProblemCode(ProblemCode.Extract.DescriptionIsRequired)
-            .MaximumLength(ExtractDescription.MaxLength)
-            .WithProblemCode(ProblemCode.Extract.DescriptionTooLong);
+            .NotEmpty().WithProblemCode(ProblemCode.Extract.DescriptionIsRequired)
+            .MaximumLength(ExtractDescription.MaxLength).WithProblemCode(ProblemCode.Extract.DescriptionTooLong);
     }
 
     private bool BeKnownNisCode(string nisCode)

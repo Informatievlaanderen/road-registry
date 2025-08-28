@@ -10,7 +10,7 @@
           </vl-column>
 
           <vl-column>
-            <div v-if="!firstLoadCompleted">
+            <div v-if="!initializeCompleted">
               <vl-region>
                 <div v-vl-align:center>
                   <vl-loader message="Uw pagina is aan het laden" />
@@ -87,7 +87,7 @@ export default Vue.extend({
       extracts: [] as RoadRegistry.ExtractListItem[],
       eigenExtracten: true,
       isLoading: false,
-      firstLoadCompleted: false,
+      initializeCompleted: false,
       nextPage: 0,
       moreDataAvailable: false,
     };
@@ -100,17 +100,17 @@ export default Vue.extend({
     }
 
     await this.loadInitialExtracts();
-    this.firstLoadCompleted = true;
+    this.initializeCompleted = true;
 
-    //TODO-pr add auto-refresh to track those non-informative not completed yet via de extract list endpoint, first page
-    //TODO-pr ook nieuwe extracten vanzelf toevoegen
+    //TODO-pr add auto-refresh to track those non-informative not completed yet
+    // via de extract list endpoint, first page
+    // ook nieuwe extracten vanzelf toevoegen
+    // clean up any intervals or listeners in destroyed
   },
-  destroyed() {
-    //TODO-pr clean up any intervals or listeners
-  },
+  destroyed() {},
   watch: {
     async eigenExtracten() {
-      if (this.firstLoadCompleted) {
+      if (this.initializeCompleted) {
         localStorage.setItem("ExtractList.eigenExtracten", this.eigenExtracten.toString());
         this.loadInitialExtracts();
       }
@@ -151,7 +151,7 @@ export default Vue.extend({
       this.moreDataAvailable = response.moreDataAvailable;
       this.nextPage++;
     },
-    extractAanvragen(){
+    extractAanvragen() {
       this.$router.push({ name: "requestExtract" });
     },
     openDetails(downloadId: string) {
@@ -231,6 +231,7 @@ export default Vue.extend({
   }
   tr.error {
     background-color: #d2373c;
+    color: white;
   }
   tr.warning {
     background-color: #ffa10a;

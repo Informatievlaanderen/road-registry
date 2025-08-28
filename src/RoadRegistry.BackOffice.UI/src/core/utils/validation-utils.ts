@@ -13,7 +13,7 @@ const ValidationUtils = {
           });
     },
 
-    convertValidationErrorsToContourValidationErrors: (validationErrors: any): RoadRegistry.ContourValidationError[] => {
+    convertValidationErrorsToArray: (validationErrors: any): RoadRegistry.ValidationError[] => {
         return Object.keys(validationErrors).flatMap((key: string) => {
             return validationErrors[key].map((validationError: any) => ({
                 code: key,

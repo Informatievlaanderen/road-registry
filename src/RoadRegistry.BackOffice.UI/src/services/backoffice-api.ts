@@ -1,4 +1,4 @@
-import apiClient, { AxiosHttpApiClient } from "./api-client";
+import apiClient, { AxiosHttpApiClient, convertError } from "./api-client";
 import RoadRegistry from "@/types/road-registry";
 import RoadRegistryExceptions from "@/types/road-registry-exceptions";
 import axios from "axios";
@@ -97,11 +97,16 @@ export const BackOfficeApi = {
         downloadRequest: RoadRegistry.DownloadExtractByContourRequest
       ): Promise<RoadRegistry.RequestExtractResponse> => {
         const path = `${apiEndpoint}/v2/extracts/downloadrequests/bycontour`;
-        const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, downloadRequest);
-        return {
-          downloadId: response.data.downloadId,
-          ticketUrl: response.headers.location,
-        };
+
+        try {
+          const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, downloadRequest);
+          return {
+            downloadId: response.data.downloadId,
+            ticketUrl: response.headers.location,
+          };
+        } catch (exception) {
+          throw convertError(exception);
+        }
       },
       requestExtractByFile: async (
         downloadRequest: RoadRegistry.DownloadExtractByFileRequest
@@ -122,30 +127,46 @@ export const BackOfficeApi = {
             ticketUrl: response.headers.location,
           };
         } catch (exception) {
-          if (axios.isAxiosError(exception)) {
-            const response = exception?.response;
-            if (response && response.status === 400) {
-              // HTTP Bad Request
-              const error = response?.data as RoadRegistry.PerContourErrorResponse;
-              throw new RoadRegistryExceptions.RequestExtractPerContourError(error);
-            }
-          }
-
-          throw new Error("Unknown error");
+          throw convertError(exception);
         }
       },
       requestExtractByNisCode: async (
         downloadRequest: RoadRegistry.DownloadExtractByNisCodeRequest
       ): Promise<RoadRegistry.RequestExtractResponse> => {
-        const path = `${apiEndpoint}/v2/extracts/downloadrequests/byniscode`;
-        const response = await apiClient.post<RoadRegistry.RequestExtractResponse>(path, downloadRequest);
-        return {
-          downloadId: response.data.downloadId,
-          ticketUrl: response.headers.location,
-        };
+        try {
+          const path = `${apiEndpoint}/v2/extracts/downloadrequests/byniscode`;
+          const response = await apiClient.post<RoadRegistry.RequestExtractResponse>(path, downloadRequest);
+          return {
+            downloadId: response.data.downloadId,
+            ticketUrl: response.headers.location,
+          };
+        } catch (exception) {
+          throw convertError(exception);
+        }
       },
 
-      getList: async (eigenExtracten: boolean, page: number) => {
+      getOverlappingExtractsByNisCode: async (
+        nisCode: String
+      ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
+        const request = {
+          nisCode,
+        } as RoadRegistry.ListOverlappingExtractsByNisCodeRequest;
+        const path = `${apiEndpoint}/v2/extracts/overlapping/byniscode`;
+        const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
+        return response.data;
+      },
+      getOverlappingExtractsByContour: async (
+        contour: String
+      ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
+        const request = {
+          contour,
+        } as RoadRegistry.ListOverlappingExtractsByContourRequest;
+        const path = `${apiEndpoint}/v2/extracts/overlapping/bycontour`;
+        const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
+        return response.data;
+      },
+
+      getList: async (eigenExtracten: boolean, page: number): Promise<RoadRegistry.ExtractListResponse> => {
         const path = `${apiEndpoint}/v2/extracts`;
         const response = await apiClient.get<RoadRegistry.ExtractListResponse>(path, {
           allOrganizations: !eigenExtracten,
@@ -153,7 +174,7 @@ export const BackOfficeApi = {
         });
         return response.data;
       },
-      getDetails: async (downloadId: string) => {
+      getDetails: async (downloadId: string): Promise<RoadRegistry.ExtractDetailsV2> => {
         const path = `${apiEndpoint}/v2/extracts/${downloadId}`;
         const response = await apiClient.get<RoadRegistry.ExtractDetailsV2>(path);
         return response.data;
@@ -175,6 +196,7 @@ export const BackOfficeApi = {
       ): Promise<RoadRegistry.UploadPresignedUrlResponse | null> => {
         const path = `${apiEndpoint}/v2/extracts/${downloadId}/upload`;
         const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
+
         const data = new FormData();
         if (response.data.uploadUrlFormData) {
           for (let key in response.data.uploadUrlFormData) {
@@ -182,8 +204,10 @@ export const BackOfficeApi = {
           }
         }
         data.append("file", file, filename);
+
         let awsHttp = axios.create();
         var uploadFileResponse = await awsHttp.post(response.data.uploadUrl, data);
+        
         let status = uploadFileResponse.status as any;
         if (status !== 204) {
           return null;
@@ -246,8 +270,8 @@ export const BackOfficeApi = {
           const response = exception?.response;
           if (response && response.status === 400) {
             // HTTP Bad Request
-            const error = response?.data as RoadRegistry.PerContourErrorResponse;
-            throw new RoadRegistryExceptions.RequestExtractPerContourError(error);
+            const error = response?.data as RoadRegistry.BadRequestResponse;
+            throw new RoadRegistryExceptions.BadRequestError(error);
           }
         }
 

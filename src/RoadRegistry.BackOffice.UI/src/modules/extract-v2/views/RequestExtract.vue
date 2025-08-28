@@ -139,6 +139,13 @@
             <vl-alert v-if="municipalityFlow.hasGenericError" mod-error mod-small>
               <p>Er is een onverwachte fout opgetreden.</p>
             </vl-alert>
+            <vl-alert v-if="municipalityFlow.validationErrors.length" mod-error title="Validatie fouten" mod-small>
+              <ul>
+                <li v-for="validationError in municipalityFlow.validationErrors" :key="validationError.code">
+                  {{ validationError.reason }}
+                </li>
+              </ul>
+            </vl-alert>
           </div>
         </div>
       </div>
@@ -325,13 +332,10 @@
             <vl-alert v-if="contourFlow.hasGenericError" mod-error mod-small>
               <p>Er is een onverwachte fout opgetreden.</p>
             </vl-alert>
-            <vl-alert v-if="contourFlow.hasValidationErrors" mod-error title="Validatie fouten" mod-small>
+            <vl-alert v-if="contourFlow.validationErrors.length" mod-error title="Validatie fouten" mod-small>
               <ul>
-                <li
-                  v-for="contourValidationError in contourFlow.validationErrors.contour"
-                  :key="contourValidationError.code"
-                >
-                  {{ contourValidationError.reason }}
+                <li v-for="validationError in contourFlow.validationErrors" :key="validationError.code">
+                  {{ validationError.reason }}
                 </li>
               </ul>
             </vl-alert>
@@ -372,6 +376,7 @@ export default Vue.extend({
       municipalityFlow: {
         nisCode: "",
         description: "",
+        validationErrors: [] as RoadRegistry.ValidationError[],
         hasGenericError: false,
         isInformative: null as boolean | null,
         overlapWarning: false,
@@ -387,8 +392,7 @@ export default Vue.extend({
         areaMaximumSquareKilometers: 0,
         files: [] as Array<File>,
         description: "",
-        hasValidationErrors: false,
-        validationErrors: {} as RoadRegistry.PerContourValidationErrors,
+        validationErrors: [] as RoadRegistry.ValidationError[],
         hasGenericError: false,
         isInformative: null as boolean | null,
         overlapWarning: false,
@@ -521,10 +525,11 @@ export default Vue.extend({
     currentStep() {
       switch (this.currentStep) {
         case this.steps.Step3_Municipality:
+          this.municipalityFlow.validationErrors = [];
           this.municipalityFlow.hasGenericError = false;
           break;
         case this.steps.Step3_Contour:
-          this.contourFlow.hasValidationErrors = false;
+          this.contourFlow.validationErrors = [];
           this.contourFlow.hasGenericError = false;
           break;
       }
@@ -591,9 +596,8 @@ export default Vue.extend({
       this.isCheckingOverlap = true;
 
       try {
-        //TODO-pr overlap check
-        // let response = await PublicApi.Extracts.V2.getOverlappingExtractRequestsByNisCode(this.municipalityFlow.nisCode);
-        // this.municipalityFlow.overlapWarning = !this.municipalityFlow.isInformative && response.downloadIds.length > 0;
+        let response = await PublicApi.Extracts.V2.getOverlappingExtractsByNisCode(this.municipalityFlow.nisCode);
+        this.municipalityFlow.overlapWarning = !this.municipalityFlow.isInformative && response.downloadIds.length > 0;
       } finally {
         this.isCheckingOverlap = false;
       }
@@ -601,6 +605,7 @@ export default Vue.extend({
     async submitMunicipalityRequest() {
       this.isSubmitting = true;
       try {
+        this.municipalityFlow.validationErrors = [];
         this.municipalityFlow.hasGenericError = false;
 
         if (!this.municipalityFlowHasIsInformative) {
@@ -616,9 +621,15 @@ export default Vue.extend({
         let downloadExtractResponse = await PublicApi.Extracts.V2.requestExtractByNisCode(requestData);
 
         this.$router.push({ name: "extractDetailsV2", params: { downloadId: downloadExtractResponse.downloadId } });
-      } catch (error) {
-        console.error("Submit municipality failed", error);
-        this.municipalityFlow.hasGenericError = true;
+      } catch (exception) {
+        if (exception instanceof RoadRegistryExceptions.BadRequestError) {
+          this.municipalityFlow.validationErrors = ValidationUtils.convertValidationErrorsToArray(
+            exception.error.validationErrors
+          );
+        } else {
+          console.error("Submit municipality failed", exception);
+          this.municipalityFlow.hasGenericError = true;
+        }
       } finally {
         this.isSubmitting = false;
       }
@@ -627,7 +638,7 @@ export default Vue.extend({
     async submitContourRequest() {
       this.isSubmitting = true;
       try {
-        this.contourFlow.hasValidationErrors = false;
+        this.contourFlow.validationErrors = [];
         this.contourFlow.hasGenericError = false;
 
         if (!this.contourFlowHasIsInformative) {
@@ -664,11 +675,10 @@ export default Vue.extend({
 
         this.$router.push({ name: "extractDetailsV2", params: { downloadId: downloadExtractResponse.downloadId } });
       } catch (exception) {
-        if (exception instanceof RoadRegistryExceptions.RequestExtractPerContourError) {
-          this.contourFlow.hasValidationErrors = true;
-          this.contourFlow.validationErrors = {
-            contour: ValidationUtils.convertValidationErrorsToContourValidationErrors(exception.error.validationErrors),
-          };
+        if (exception instanceof RoadRegistryExceptions.BadRequestError) {
+          this.contourFlow.validationErrors = ValidationUtils.convertValidationErrorsToArray(
+            exception.error.validationErrors
+          );
         } else {
           console.error("Submit contour failed", exception);
           this.contourFlow.hasGenericError = true;
@@ -705,7 +715,7 @@ export default Vue.extend({
         return;
       }
 
-      if (isInformative) {
+      if (isInformative || this.contourFlow.contourType !== "wkt") {
         this.contourFlow.overlapWarning = false;
         this.contourFlow.overlapWarningAccepted = false;
         return;
@@ -717,9 +727,8 @@ export default Vue.extend({
 
       this.isCheckingOverlap = true;
       try {
-        //TODO-pr overlap check
-        // let response = await PublicApi.Extracts.getOverlappingExtractRequestsByContour(this.contourFlow.wkt);
-        // this.contourFlow.overlapWarning = !this.contourFlow.isInformative && response.downloadIds.length > 0;
+        let response = await PublicApi.Extracts.V2.getOverlappingExtractsByContour(this.contourFlow.wkt);
+        this.contourFlow.overlapWarning = !this.contourFlow.isInformative && response.downloadIds.length > 0;
       } finally {
         this.isCheckingOverlap = false;
       }

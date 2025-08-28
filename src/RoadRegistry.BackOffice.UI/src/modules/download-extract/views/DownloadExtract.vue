@@ -328,7 +328,7 @@
             <vl-alert v-if="contourFlow.hasValidationErrors" mod-error title="Validatie fouten" mod-small>
               <ul>
                 <li
-                  v-for="contourValidationError in contourFlow.validationErrors.contour"
+                  v-for="contourValidationError in contourFlow.validationErrors"
                   :key="contourValidationError.code"
                 >
                   {{ contourValidationError.reason }}
@@ -388,7 +388,7 @@ export default Vue.extend({
         files: [] as Array<File>,
         description: "",
         hasValidationErrors: false,
-        validationErrors: {} as RoadRegistry.PerContourValidationErrors,
+        validationErrors: [] as RoadRegistry.ValidationError[],
         hasGenericError: false,
         isInformative: null as boolean | null,
         overlapWarning: false,
@@ -677,11 +677,9 @@ export default Vue.extend({
 
         this.$router.push({ name: "extractDetails", params: { downloadId: downloadExtractResponse.downloadId} });
       } catch (exception) {
-        if (exception instanceof RoadRegistryExceptions.RequestExtractPerContourError) {
+        if (exception instanceof RoadRegistryExceptions.BadRequestError) {
           this.contourFlow.hasValidationErrors = true;
-          this.contourFlow.validationErrors = {
-            contour: ValidationUtils.convertValidationErrorsToContourValidationErrors(exception.error.validationErrors),
-          };
+          this.contourFlow.validationErrors = ValidationUtils.convertValidationErrorsToArray(exception.error.validationErrors);
         } else {
           console.error("Submit contour failed", exception);
           this.contourFlow.hasGenericError = true;

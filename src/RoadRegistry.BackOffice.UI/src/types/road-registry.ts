@@ -82,10 +82,11 @@ export namespace RoadRegistry {
     description: string;
     extractRequestId: string;
     isInformative: boolean;
+    requestedOn: string;
     ticketId: string;
     downloadStatus: string;
-    uploadStatus: string;
-    requestedOn: string;
+    downloadedOn: string;
+    uploadStatus: string;    
     closed: boolean;
   }
   export interface ExtractListResponse {
@@ -123,15 +124,11 @@ export namespace RoadRegistry {
     isInformative: boolean;
   }
 
-  export interface PerContourErrorResponse {
-    validationErrors: PerContourValidationErrors;
+  export interface BadRequestResponse {
+    validationErrors: any;
   }
 
-  export interface PerContourValidationErrors {
-    contour: ContourValidationError[];
-  }
-
-  export interface ContourValidationError {
+  export interface ValidationError {
     code: string;
     reason: string;
   }

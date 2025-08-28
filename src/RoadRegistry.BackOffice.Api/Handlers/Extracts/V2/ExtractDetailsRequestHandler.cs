@@ -49,6 +49,7 @@ public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetail
             UploadId = record.Download.UploadId is not null ? new UploadId(record.Download.UploadId.Value) : null,
             TicketId = TicketId.FromValue(record.Download.TicketId),
             DownloadStatus = record.Download.DownloadStatus.ToString(),
+            DownloadedOn = record.Download.DownloadedOn,
             UploadStatus = record.Download.UploadStatus?.ToString(),
             Closed = record.Download.Closed
         };
