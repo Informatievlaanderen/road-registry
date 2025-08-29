@@ -24,11 +24,11 @@ public class FakeSqsTests
 
         var originalMessage = new UploadRoadNetworkChangesArchive { ArchiveId = new ArchiveId(Guid.NewGuid().ToString("N")).ToString() };
 
-        var sqsQueueFactory = new SqsQueueFactoryForDevelopment(new SqsJsonMessageSerializer(new SqsOptions()), new NullLoggerFactory());
+        var sqsQueueFactory = new SqsQueueFactoryAndConsumerForDevelopment(new SqsJsonMessageSerializer(new SqsOptions()), new NullLoggerFactory());
         var sqsPublisher = sqsQueueFactory.Create(queueUrl);
         await sqsPublisher.Copy(originalMessage, _sqsQueueOptions, cancellationTokenSource.Token);
 
-        var sqsConsumer = new SqsQueueConsumerForDevelopment(new SqsJsonMessageSerializer(new SqsOptions()), new NullLoggerFactory());
+        var sqsConsumer = new SqsQueueFactoryAndConsumerForDevelopment(new SqsJsonMessageSerializer(new SqsOptions()), new NullLoggerFactory());
         try
         {
             await sqsConsumer.Consume(queueUrl, message =>

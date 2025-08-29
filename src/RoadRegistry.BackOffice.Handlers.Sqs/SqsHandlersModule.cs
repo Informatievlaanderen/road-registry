@@ -40,7 +40,7 @@ public sealed class SqsHandlersModule : Module
                 var hostEnvironment = c.Resolve<IHostEnvironment>();
                 if (hostEnvironment.IsDevelopment())
                 {
-                    return new SqsQueueFactoryForDevelopment(c.Resolve<SqsJsonMessageSerializer>(), c.Resolve<ILoggerFactory>());
+                    return new SqsQueueFactoryAndConsumerForDevelopment(c.Resolve<SqsJsonMessageSerializer>(), c.Resolve<ILoggerFactory>());
                 }
 
                 return new SqsQueueFactory(c.Resolve<SqsOptions>());
@@ -53,7 +53,7 @@ public sealed class SqsHandlersModule : Module
                 var hostEnvironment = c.Resolve<IHostEnvironment>();
                 if (hostEnvironment.IsDevelopment())
                 {
-                    return (ISqsQueueConsumer)new SqsQueueConsumerForDevelopment(c.Resolve<SqsJsonMessageSerializer>(), c.Resolve<ILoggerFactory>());
+                    return (ISqsQueueConsumer)new SqsQueueFactoryAndConsumerForDevelopment(c.Resolve<SqsJsonMessageSerializer>(), c.Resolve<ILoggerFactory>());
                 }
 
                 return new SqsQueueConsumer(c.Resolve<SqsOptions>(), c.Resolve<ILogger<SqsQueueConsumer>>());

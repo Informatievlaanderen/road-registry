@@ -83,23 +83,23 @@ public class ExtractDownloadaanvraagPerContourBodyValidator : AbstractValidator<
                 .WithProblemCode(ProblemCode.Extract.ExterneIdInvalid);
         });
     }
-}
 
-public class ExtractContourValidator
-{
-    private const int SquareKmMaximum = 100;
-
-    public bool IsValid(string contour)
+    private class ExtractContourValidator
     {
-        try
+        private const int SquareKmMaximum = 100;
+
+        public bool IsValid(string contour)
         {
-            var reader = new WKTReader();
-            var geometry = reader.Read(contour);
-            return geometry.IsValid && geometry.Area <= (SquareKmMaximum * 1000 * 1000);
-        }
-        catch
-        {
-            return false;
+            try
+            {
+                var reader = new WKTReader();
+                var geometry = reader.Read(contour);
+                return geometry.IsValid && geometry.Area <= (SquareKmMaximum * 1000 * 1000);
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

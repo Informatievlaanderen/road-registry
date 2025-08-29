@@ -142,16 +142,7 @@ export const convertError = (exception: any) => {
     const response = exception?.response;
     if (response && response.status === 400) {
       // HTTP Bad Request
-
       const error = response?.data as RoadRegistry.BadRequestResponse;
-      // console.log('BadRequestResponse.validationErrors', error.validationErrors);
-      // let keys = Object.keys(error.validationErrors)
-      // console.log('BadRequestResponse.keys', keys);
-
-      // keys.forEach((key: string) => {
-      //   let validationErrors = error.validationErrors[key] as RoadRegistry.ValidationError[];
-      //   console.log('ValidationError', key, validationErrors);
-      // });
       return new RoadRegistryExceptions.BadRequestError(error);
     }
   }

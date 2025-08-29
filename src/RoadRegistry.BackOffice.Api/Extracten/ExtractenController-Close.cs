@@ -20,7 +20,7 @@ public partial class ExtractenController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(OperationId = nameof(SluitExtract))]
-    [HttpPost("{downloadId}/sluiten", Name = nameof(SluitExtract))]
+    [HttpPost("{downloadId}/sluit", Name = nameof(SluitExtract))]
     public async Task<IActionResult> SluitExtract(
         [FromRoute] string downloadId,
         [FromServices] ExtractsDbContext extractsDbContext,
@@ -52,9 +52,4 @@ public partial class ExtractenController
             return Accepted();
         }
     }
-}
-
-public sealed record CloseRequestBody
-{
-    public string Reason { get; set; }
 }
