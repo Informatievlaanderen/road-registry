@@ -643,7 +643,7 @@ export default Vue.extend({
           return;
         }
 
-        let downloadExtractResponse: RoadRegistry.DownloadExtractResponse;
+        let downloadExtractResponse: RoadRegistry.DownloadExtractResponseBody;
 
         switch (this.contourFlow.contourType) {
           case "shp":

@@ -49,8 +49,8 @@ export namespace RoadRegistry {
     fileName: string;
   }
 
-  export interface DownloadExtractResponse {
-    downloadUrl: string;
+  export interface ExtractDownloadaanvraagResponse {
+    downloadId: string;
   }
   
   export interface RequestExtractResponse {
@@ -79,29 +79,27 @@ export namespace RoadRegistry {
   }
   export interface ExtractDetailsV2 {
     downloadId: string;
-    description: string;
-    extractRequestId: string;
-    isInformative: boolean;
-    requestedOn: string;
-    ticketId: string;
+    beschrijving: string;
+    informatief: boolean;
+    aangevraagdOp: string;
     downloadStatus: string;
-    downloadedOn: string;
+    gedownloadOp: string;
     uploadStatus: string;    
-    closed: boolean;
+    gesloten: boolean;
+    ticketId: string;
   }
   export interface ExtractListResponse {
     items: ExtractListItem[];
-    moreDataAvailable: boolean;
+    dataBeschikbaar: boolean;
   }
   export interface ExtractListItem {
     downloadId: string;
-    description: string;
-    extractRequestId: string;
-    isInformative: boolean;
+    beschrijving: string;
+    aangevraagdOp: string;
+    informatief: boolean;
     downloadStatus: string;
     uploadStatus: string;
-    requestedOn: string;
-    closed: boolean;
+    gesloten: boolean;
   }
 
   export interface DownloadExtractRequest {
@@ -109,19 +107,33 @@ export namespace RoadRegistry {
     contour: string;
   }
   export interface DownloadExtractResponse {
-    downloadId: string;
+    downloadUrl: string;
   }
+  export interface DownloadExtractResponseBody {
+    downloadId: string;
+    isInformative: boolean;
+  }  
 
   export interface DownloadExtractByContourRequest {
     contour: string;
     description: string;
     isInformative: boolean;
   }
+  export interface ExtractDownloadaanvraagPerContourBody {
+    contour: string;
+    beschrijving: string;
+    informatief: boolean;
+  }
 
   export interface DownloadExtractByFileRequest {
     files: File[];
     description: string;
     isInformative: boolean;
+  }
+  export interface ExtractDownloadaanvraagPerBestandBody {
+    bestanden: File[];
+    beschrijving: string;
+    informatief: boolean;
   }
 
   export interface BadRequestResponse {
@@ -137,6 +149,11 @@ export namespace RoadRegistry {
     nisCode: string;
     description: string;
     isInformative: boolean;
+  }
+  export interface ExtractDownloadaanvraagPerNisCodeBody {
+    nisCode: string;
+    beschrijving: string;
+    informatief: boolean;
   }
 
   export interface ListOverlappingExtractsByNisCodeRequest {

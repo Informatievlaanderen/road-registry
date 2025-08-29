@@ -539,34 +539,43 @@ export default Vue.extend({
     this.debouncedCheckIfContourWktIsValid = debounce(this.checkIfContourWktIsValid, 500, { trailing: true });
   },
   async mounted() {
-    // fetch municipalities
-    let municipalities = await PublicApi.Municipalities.getAll();
-    if (municipalities.length === 0 && WR_ENV === "development") {
-      municipalities = [
-        {
-          identificator: { id: "", naamruimte: "", objectId: "11001", versieId: "" },
-          detail: "",
-          gemeentenaam: {
-            geografischeNaam: {
-              spelling: "11001 (failed to load municipalities)",
-              taal: Municipalities.Taal.Nl,
-            },
-          },
-          gemeenteStatus: Municipalities.GemeenteStatus.InGebruik,
-        },
-      ];
-    }
-    this.municipalities = municipalities.sort((m1, m2) => {
-      if (m1.gemeentenaam.geografischeNaam.spelling > m2.gemeentenaam.geografischeNaam.spelling) {
-        return 1;
-      }
-      if (m1.gemeentenaam.geografischeNaam.spelling < m2.gemeentenaam.geografischeNaam.spelling) {
-        return -1;
-      }
-      return 0;
-    });
+    await this.loadMunicipalities();
   },
   methods: {
+    async loadMunicipalities() {
+      let municipalities;
+      try {
+        municipalities = await PublicApi.Municipalities.getAll();
+      } catch (err) {
+        if (WR_ENV === "development") {
+          municipalities = [
+            {
+              identificator: { id: "", naamruimte: "", objectId: "11001", versieId: "" },
+              detail: "",
+              gemeentenaam: {
+                geografischeNaam: {
+                  spelling: "11001 (failed to load municipalities)",
+                  taal: Municipalities.Taal.Nl,
+                },
+              },
+              gemeenteStatus: Municipalities.GemeenteStatus.InGebruik,
+            },
+          ];
+        } else {
+          throw err;
+        }
+      }
+
+      this.municipalities = municipalities.sort((m1, m2) => {
+        if (m1.gemeentenaam.geografischeNaam.spelling > m2.gemeentenaam.geografischeNaam.spelling) {
+          return 1;
+        }
+        if (m1.gemeentenaam.geografischeNaam.spelling < m2.gemeentenaam.geografischeNaam.spelling) {
+          return -1;
+        }
+        return 0;
+      });
+    },
     async approveStep2() {
       await this.checkIfContourWktIsValid();
       if (!this.contourFlowHasValidInput) {
@@ -612,10 +621,10 @@ export default Vue.extend({
           return;
         }
 
-        const requestData: RoadRegistry.DownloadExtractByNisCodeRequest = {
+        const requestData: RoadRegistry.ExtractDownloadaanvraagPerNisCodeBody = {
           nisCode: this.municipalityFlow.nisCode,
-          description: this.municipalityFlow.description,
-          isInformative: this.municipalityFlow.isInformative as boolean,
+          beschrijving: this.municipalityFlow.description,
+          informatief: this.municipalityFlow.isInformative as boolean,
         };
 
         let downloadExtractResponse = await PublicApi.Extracts.V2.requestExtractByNisCode(requestData);
@@ -650,20 +659,20 @@ export default Vue.extend({
         switch (this.contourFlow.contourType) {
           case "shp":
             {
-              const requestData: RoadRegistry.DownloadExtractByFileRequest = {
-                files: this.contourFlow.files,
-                description: this.contourFlow.description,
-                isInformative: this.contourFlow.isInformative as boolean,
+              const requestData: RoadRegistry.ExtractDownloadaanvraagPerBestandBody = {
+                bestanden: this.contourFlow.files,
+                beschrijving: this.contourFlow.description,
+                informatief: this.contourFlow.isInformative as boolean,
               };
               downloadExtractResponse = await PublicApi.Extracts.V2.requestExtractByFile(requestData);
             }
             break;
           case "wkt":
             {
-              const requestData: RoadRegistry.DownloadExtractByContourRequest = {
+              const requestData: RoadRegistry.ExtractDownloadaanvraagPerContourBody = {
                 contour: this.contourFlow.wkt,
-                description: this.contourFlow.description,
-                isInformative: this.contourFlow.isInformative as boolean,
+                beschrijving: this.contourFlow.description,
+                informatief: this.contourFlow.isInformative as boolean,
               };
 
               downloadExtractResponse = await PublicApi.Extracts.V2.requestExtractByContour(requestData);

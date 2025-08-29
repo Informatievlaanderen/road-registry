@@ -1,18 +1,18 @@
-namespace RoadRegistry.BackOffice.Api.Extracts.V2;
+namespace RoadRegistry.BackOffice.Api.Extracten;
 
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions.Extracts;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice.Abstractions.Extracts;
+using RoadRegistry.Sync.MunicipalityRegistry;
 using Swashbuckle.AspNetCore.Annotations;
-using Sync.MunicipalityRegistry;
 
-public partial class ExtractsController
+public partial class ExtractenController
 {
     /// <summary>
     ///     Gets the overlapping transaction zones by nis-code.
@@ -25,10 +25,10 @@ public partial class ExtractsController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation]
-    [HttpPost("overlapping/byniscode", Name = nameof(ListOverlappingByNisCode))]
-    public async Task<IActionResult> ListOverlappingByNisCode(
-        [FromBody] ListOverlappingByNisCodeBody body,
-        [FromServices] ListOverlappingByNisCodeBodyValidator validator,
+    [HttpPost("overlapping/perniscode", Name = nameof(GetOverlappingPerNisCode))]
+    public async Task<IActionResult> GetOverlappingPerNisCode(
+        [FromBody] GetOverlappingPerNisCodeBody body,
+        [FromServices] GetOverlappingPerNisCodeBodyValidator validator,
         [FromServices] MunicipalityEventConsumerContext municipalityContext,
         CancellationToken cancellationToken)
     {
@@ -55,14 +55,14 @@ public partial class ExtractsController
         return Ok(new ListOverlappingResponse(response.DownloadIds));
     }
 
-    public class ListOverlappingByNisCodeBody
+    public class GetOverlappingPerNisCodeBody
     {
         public string? NisCode { get; set; }
     }
 
-    public class ListOverlappingByNisCodeBodyValidator : AbstractValidator<ListOverlappingByNisCodeBody>
+    public class GetOverlappingPerNisCodeBodyValidator : AbstractValidator<GetOverlappingPerNisCodeBody>
     {
-        public ListOverlappingByNisCodeBodyValidator()
+        public GetOverlappingPerNisCodeBodyValidator()
         {
             RuleFor(c => c.NisCode)
                 .Cascade(CascadeMode.Stop)

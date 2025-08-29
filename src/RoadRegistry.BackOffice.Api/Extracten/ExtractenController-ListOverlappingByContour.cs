@@ -1,15 +1,15 @@
-namespace RoadRegistry.BackOffice.Api.Extracts.V2;
+namespace RoadRegistry.BackOffice.Api.Extracten;
 
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions.Extracts;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NetTopologySuite.IO;
+using RoadRegistry.BackOffice.Abstractions.Extracts;
 using Swashbuckle.AspNetCore.Annotations;
 
-public partial class ExtractsController
+public partial class ExtractenController
 {
     /// <summary>
     ///     Gets the overlapping transaction zones by contour.
@@ -21,10 +21,10 @@ public partial class ExtractsController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation]
-    [HttpPost("overlapping/bycontour", Name = nameof(ListOverlappingByContour))]
-    public async Task<IActionResult> ListOverlappingByContour(
-        [FromBody] ListOverlappingByContourBody body,
-        [FromServices] ListOverlappingByContourBodyValidator validator,
+    [HttpPost("overlapping/percontour", Name = nameof(GetOverlappingPerContour))]
+    public async Task<IActionResult> GetOverlappingPerContour(
+        [FromBody] GetOverlappingPerContourBody body,
+        [FromServices] GetOverlappingPerContourBodyValidator validator,
         CancellationToken cancellationToken)
     {
         await validator.ValidateAndThrowAsync(body, cancellationToken);
@@ -37,14 +37,14 @@ public partial class ExtractsController
         return Ok(new ListOverlappingResponse(response.DownloadIds));
     }
 
-    public class ListOverlappingByContourBody
+    public class GetOverlappingPerContourBody
     {
         public string? Contour { get; set; }
     }
 
-    public class ListOverlappingByContourBodyValidator : AbstractValidator<ListOverlappingByContourBody>
+    public class GetOverlappingPerContourBodyValidator : AbstractValidator<GetOverlappingPerContourBody>
     {
-        public ListOverlappingByContourBodyValidator()
+        public GetOverlappingPerContourBodyValidator()
         {
             RuleFor(x => x.Contour)
                 .NotEmpty().WithMessage("'Contour' is verplicht.");

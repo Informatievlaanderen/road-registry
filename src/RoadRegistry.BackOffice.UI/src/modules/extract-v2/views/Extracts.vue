@@ -50,10 +50,10 @@
                   <tr
                     v-for="extract in extracts"
                     :key="extract.downloadId"
-                    :class="{ closed: extract.closed, error: extractIsInError(extract) }"
+                    :class="{ closed: extract.gesloten, error: extractIsInError(extract) }"
                   >
                     <td><vl-button @click="openDetails(extract.downloadId)"> Details </vl-button></td>
-                    <td>{{ formatDate(extract.requestedOn) }}</td>
+                    <td>{{ formatDate(extract.aangevraagdOp) }}</td>
                     <td>{{ getStatus(extract) }}</td>
                     <td>{{ getDescription(extract) }}</td>
                   </tr>
@@ -65,7 +65,7 @@
           <vl-column>
             <div v-vl-flex v-vl-flex:align-center>
               <vl-button mod-loading v-if="isLoading"></vl-button>
-              <vl-button v-else-if="moreDataAvailable" @click="loadMore()"> Meer ... </vl-button>
+              <vl-button v-else-if="dataBeschikbaar" @click="loadMore()"> Meer ... </vl-button>
             </div>
           </vl-column>
         </vl-grid>
@@ -89,7 +89,7 @@ export default Vue.extend({
       isLoading: false,
       initializeCompleted: false,
       nextPage: 0,
-      moreDataAvailable: false,
+      dataBeschikbaar: false,
     };
   },
   computed: {},
@@ -126,7 +126,7 @@ export default Vue.extend({
       try {
         this.extracts = [];
         this.nextPage = 0;
-        this.moreDataAvailable = false;
+        this.dataBeschikbaar = false;
         await this.loadNextPage();
       } finally {
         this.isLoading = false;
@@ -146,9 +146,9 @@ export default Vue.extend({
     },
     async loadNextPage() {
       const response = await PublicApi.Extracts.V2.getList(this.eigenExtracten, this.nextPage);
-      const knownIds = this.extracts.map((x) => x.extractRequestId);
-      this.extracts.push(...response.items.filter((x) => !knownIds.includes(x.extractRequestId)));
-      this.moreDataAvailable = response.moreDataAvailable;
+      const knownIds = this.extracts.map((x) => x.downloadId);
+      this.extracts.push(...response.items.filter((x) => !knownIds.includes(x.downloadId)));
+      this.dataBeschikbaar = response.dataBeschikbaar;
       this.nextPage++;
     },
     extractAanvragen() {
@@ -158,7 +158,7 @@ export default Vue.extend({
       this.$router.push({ name: "extractDetailsV2", params: { downloadId: downloadId } });
     },
     getStatus(extract: RoadRegistry.ExtractListItem) {
-      if (extract.closed) {
+      if (extract.gesloten) {
         return "Gesloten";
       }
 
@@ -191,11 +191,11 @@ export default Vue.extend({
       return DateFormat.format(iso);
     },
     getDescription(extract: RoadRegistry.ExtractListItem) {
-      if (extract.isInformative) {
-        return `(informatief) ${extract.description}`;
+      if (extract.informatief) {
+        return `(informatief) ${extract.beschrijving}`;
       }
 
-      return `${extract.description}`;
+      return `${extract.beschrijving}`;
     },
   },
 });

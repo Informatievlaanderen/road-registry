@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.Api.Extracts.V2;
+﻿namespace RoadRegistry.BackOffice.Api.Extracten;
 
 using System;
 using System.Collections.Generic;

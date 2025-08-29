@@ -1,18 +1,18 @@
-namespace RoadRegistry.BackOffice.Api.Extracts.V2;
+namespace RoadRegistry.BackOffice.Api.Extracten;
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions.Exceptions;
-using Abstractions.Extracts.V2;
-using Exceptions;
-using Extensions;
 using GeoJSON.Net.Geometry;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RoadRegistry.BackOffice.Abstractions.Exceptions;
+using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
+using RoadRegistry.BackOffice.Exceptions;
+using RoadRegistry.BackOffice.Extensions;
 using Swashbuckle.AspNetCore.Annotations;
 
-public partial class ExtractsController
+public partial class ExtractenController
 {    /// <summary>
     ///     Gets the extract details (v2).
     /// </summary>
@@ -22,8 +22,8 @@ public partial class ExtractsController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status410Gone)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation]
-    [HttpGet("{downloadId}", Name = nameof(GetDetails))]
-    public async Task<ActionResult> GetDetails(
+    [HttpGet("{downloadId}", Name = nameof(GetExtractDetails))]
+    public async Task<ActionResult> GetExtractDetails(
         [FromRoute] string downloadId,
         CancellationToken cancellationToken)
     {
@@ -40,17 +40,16 @@ public partial class ExtractsController
             return Ok(new ExtractDetailsResponseBody
             {
                 DownloadId = response.DownloadId,
-                Description = response.Description,
+                Beschrijving = response.Description,
                 Contour = response.Contour.ToGeoJson(),
-                ExtractRequestId = response.ExtractRequestId,
-                RequestedOn = response.RequestedOn,
-                IsInformative = response.IsInformative,
+                AangevraagdOp = response.RequestedOn,
+                Informatief = response.IsInformative,
                 DownloadStatus = response.DownloadStatus,
-                DownloadedOn = response.DownloadedOn,
+                GedownloadOp = response.DownloadedOn,
                 UploadStatus = response.UploadStatus,
                 UploadId = response.UploadId,
                 TicketId = response.TicketId,
-                Closed = response.Closed,
+                Gesloten = response.Closed,
             });
         }
         catch (ExtractRequestNotFoundException)
@@ -63,15 +62,14 @@ public partial class ExtractsController
 public record ExtractDetailsResponseBody
 {
     public string DownloadId { get; init; }
-    public string Description { get; init; }
+    public string Beschrijving { get; init; }
     public MultiPolygon Contour { get; init; }
-    public string ExtractRequestId { get; init; }
-    public DateTimeOffset RequestedOn { get; init; }
-    public bool IsInformative { get; init; }
+    public DateTimeOffset AangevraagdOp { get; init; }
+    public bool Informatief { get; init; }
     public string DownloadStatus { get; init; }
-    public DateTimeOffset? DownloadedOn { get; init; }
-    public bool Closed { get; init; }
+    public DateTimeOffset? GedownloadOp { get; init; }
     public string? UploadStatus { get; init; }
     public string? UploadId { get; init; }
     public string? TicketId { get; init; }
+    public bool Gesloten { get; init; }
 }

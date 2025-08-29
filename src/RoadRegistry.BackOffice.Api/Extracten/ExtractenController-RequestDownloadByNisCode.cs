@@ -1,25 +1,25 @@
-namespace RoadRegistry.BackOffice.Api.Extracts.V2;
+namespace RoadRegistry.BackOffice.Api.Extracten;
 
 using System;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions.Extracts.V2;
-using BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using Core.ProblemCodes;
-using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
+using RoadRegistry.BackOffice.Core.ProblemCodes;
+using RoadRegistry.BackOffice.Extensions;
+using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
+using RoadRegistry.Sync.MunicipalityRegistry;
 using Swashbuckle.AspNetCore.Annotations;
-using Sync.MunicipalityRegistry;
 
-public partial class ExtractsController
+public partial class ExtractenController
 {
     /// <summary>
     ///     Requests the download by nis code.
@@ -35,11 +35,11 @@ public partial class ExtractsController
     [ProducesResponseType(typeof(LocationResult), StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    [SwaggerOperation(OperationId = nameof(RequestDownloadByNisCode))]
-    [HttpPost("downloadrequests/byniscode", Name = nameof(RequestDownloadByNisCode))]
-    public async Task<IActionResult> RequestDownloadByNisCode(
-        [FromBody] RequestDownloadByNisCodeBody body,
-        [FromServices] IValidator<RequestDownloadByNisCodeBody> validator,
+    [SwaggerOperation(OperationId = nameof(ExtractDownloadaanvraagPerNisCode))]
+    [HttpPost("downloadaanvragen/perniscode", Name = nameof(ExtractDownloadaanvraagPerNisCode))]
+    public async Task<IActionResult> ExtractDownloadaanvraagPerNisCode(
+        [FromBody] ExtractDownloadaanvraagPerNisCodeBody body,
+        [FromServices] IValidator<ExtractDownloadaanvraagPerNisCodeBody> validator,
         [FromServices] MunicipalityEventConsumerContext municipalityContext,
         CancellationToken cancellationToken)
     {
@@ -65,10 +65,10 @@ public partial class ExtractsController
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
-                Request = new RequestExtractRequest(extractRequestId, downloadId, contour.AsText(), body.Description, body.IsInformative, null)
+                Request = new RequestExtractRequest(extractRequestId, downloadId, contour.AsText(), body.Beschrijving, body.Informatief, null)
             }, cancellationToken);
 
-            return Accepted(result, new RequestExtractResponse(downloadId));
+            return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));
         }
         catch (IdempotencyException)
         {
@@ -77,15 +77,13 @@ public partial class ExtractsController
     }
 }
 
-public sealed record RequestExtractResponse(string DownloadId);
+public record ExtractDownloadaanvraagPerNisCodeBody(string NisCode, string Beschrijving, bool Informatief);
 
-public record RequestDownloadByNisCodeBody(string NisCode, string Description, bool IsInformative);
-
-public class RequestDownloadByNisCodeBodyValidator : AbstractValidator<RequestDownloadByNisCodeBody>
+public class ExtractDownloadaanvraagPerNisCodeBodyValidator : AbstractValidator<ExtractDownloadaanvraagPerNisCodeBody>
 {
     private readonly MunicipalityEventConsumerContext _municipalityContext;
 
-    public RequestDownloadByNisCodeBodyValidator(MunicipalityEventConsumerContext municipalityContext)
+    public ExtractDownloadaanvraagPerNisCodeBodyValidator(MunicipalityEventConsumerContext municipalityContext)
     {
         _municipalityContext = municipalityContext;
 
@@ -95,9 +93,9 @@ public class RequestDownloadByNisCodeBodyValidator : AbstractValidator<RequestDo
             .Must(BeNisCodeWithExpectedFormat).WithMessage("Ongeldige NisCode. Verwacht formaat: '12345'")
             .Must(BeKnownNisCode).WithMessage("NisCode is niet gekend.");
 
-        RuleFor(c => c.Description)
-            .NotEmpty().WithProblemCode(ProblemCode.Extract.DescriptionIsRequired)
-            .MaximumLength(ExtractDescription.MaxLength).WithProblemCode(ProblemCode.Extract.DescriptionTooLong);
+        RuleFor(c => c.Beschrijving)
+            .NotEmpty().WithProblemCode(ProblemCode.Extract.BeschrijvingIsRequired)
+            .MaximumLength(ExtractDescription.MaxLength).WithProblemCode(ProblemCode.Extract.BeschrijvingTooLong);
     }
 
     private bool BeKnownNisCode(string nisCode)

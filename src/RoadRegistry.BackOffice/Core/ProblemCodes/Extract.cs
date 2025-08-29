@@ -5,9 +5,9 @@ public sealed partial record ProblemCode
     public static class Extract
     {
         public static readonly ProblemCode NotFound = new("ExtractNotFound");
-        public static readonly ProblemCode GeometryInvalid = new("ExtractContourInvalid");
-        public static readonly ProblemCode DescriptionIsRequired = new("ExtractDescriptionIsRequired");
-        public static readonly ProblemCode DescriptionTooLong = new("ExtractDescriptionTooLong");
-        public static readonly ProblemCode ExternalRequestIdInvalid = new("ExtractExternalRequestIdInvalid");
+        public static readonly ProblemCode ContourInvalid = new("ExtractContourInvalid");
+        public static readonly ProblemCode BeschrijvingIsRequired = new("ExtractDescriptionIsRequired");
+        public static readonly ProblemCode BeschrijvingTooLong = new("ExtractDescriptionTooLong");
+        public static readonly ProblemCode ExterneIdInvalid = new("ExtractExternalRequestIdInvalid");
     }
 }

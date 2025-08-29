@@ -1,20 +1,20 @@
-namespace RoadRegistry.BackOffice.Api.Extracts.V2;
+namespace RoadRegistry.BackOffice.Api.Extracten;
 
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions.Exceptions;
-using Abstractions.Jobs;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RoadRegistry.BackOffice.Abstractions.Exceptions;
+using RoadRegistry.BackOffice.Abstractions.Jobs;
 using RoadRegistry.Extracts.Schema;
 using Swashbuckle.AspNetCore.Annotations;
 using TicketingService.Abstractions;
 
-public partial class ExtractsController
+public partial class ExtractenController
 {
     /// <summary>
     ///     Vraag een pre-signed url aan voor een zip van een extract download te uploaden.

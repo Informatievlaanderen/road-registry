@@ -1,23 +1,22 @@
-namespace RoadRegistry.BackOffice.Api.Extracts.V2;
+namespace RoadRegistry.BackOffice.Api.Extracten;
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions.Extracts.V2;
-using BackOffice.Handlers.Information;
-using BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using Core.ProblemCodes;
-using Extensions;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NetTopologySuite.IO;
+using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
+using RoadRegistry.BackOffice.Core.ProblemCodes;
+using RoadRegistry.BackOffice.Extensions;
+using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 using Swashbuckle.AspNetCore.Annotations;
 
-public partial class ExtractsController
+public partial class ExtractenController
 {
     /// <summary>
     ///     Requests the download by contour.
@@ -32,27 +31,27 @@ public partial class ExtractsController
     [ProducesResponseType(typeof(LocationResult), StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    [SwaggerOperation(OperationId = nameof(RequestDownloadByContour))]
-    [HttpPost("downloadrequests/bycontour", Name = nameof(RequestDownloadByContour))]
-    public async Task<IActionResult> RequestDownloadByContour(
-        [FromBody] RequestDownloadByContourBody body,
-        [FromServices] IValidator<RequestDownloadByContourBody> validator,
+    [SwaggerOperation(OperationId = nameof(ExtractDownloadaanvraagPerContour))]
+    [HttpPost("downloadaanvragen/percontour", Name = nameof(ExtractDownloadaanvraagPerContour))]
+    public async Task<IActionResult> ExtractDownloadaanvraagPerContour(
+        [FromBody] ExtractDownloadaanvraagPerContourBody body,
+        [FromServices] IValidator<ExtractDownloadaanvraagPerContourBody> validator,
         CancellationToken cancellationToken)
     {
         try
         {
             await validator.ValidateAndThrowAsync(body, cancellationToken);
 
-            var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(body.ExternalRequestId ?? Guid.NewGuid().ToString("N")));
+            var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(body.ExterneId ?? Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
-                Request = new RequestExtractRequest(extractRequestId, downloadId, body.Contour, body.Description, body.IsInformative, body.ExternalRequestId)
+                Request = new RequestExtractRequest(extractRequestId, downloadId, body.Contour, body.Beschrijving, body.Informatief, body.ExterneId)
             }, cancellationToken);
 
-            return Accepted(result, new RequestExtractResponse(downloadId));
+            return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));
         }
         catch (IdempotencyException)
         {
@@ -61,27 +60,27 @@ public partial class ExtractsController
     }
 }
 
-public record RequestDownloadByContourBody(string Contour, string Description, bool IsInformative, string? ExternalRequestId);
+public record ExtractDownloadaanvraagPerContourBody(string Contour, string Beschrijving, bool Informatief, string? ExterneId);
 
-public class RequestDownloadByContourBodyValidator : AbstractValidator<RequestDownloadByContourBody>
+public class ExtractDownloadaanvraagPerContourBodyValidator : AbstractValidator<ExtractDownloadaanvraagPerContourBody>
 {
-    public RequestDownloadByContourBodyValidator()
+    public ExtractDownloadaanvraagPerContourBodyValidator()
     {
         RuleFor(x => x.Contour)
             .Must(x => new ExtractContourValidator().IsValid(x))
-            .WithProblemCode(ProblemCode.Extract.GeometryInvalid);
+            .WithProblemCode(ProblemCode.Extract.ContourInvalid);
 
-        RuleFor(c => c.Description)
+        RuleFor(c => c.Beschrijving)
             .NotNull()
-            .WithProblemCode(ProblemCode.Extract.DescriptionIsRequired)
+            .WithProblemCode(ProblemCode.Extract.BeschrijvingIsRequired)
             .MaximumLength(ExtractDescription.MaxLength)
-            .WithProblemCode(ProblemCode.Extract.DescriptionTooLong);
+            .WithProblemCode(ProblemCode.Extract.BeschrijvingTooLong);
 
-        When(x => !string.IsNullOrEmpty(x.ExternalRequestId), () =>
+        When(x => !string.IsNullOrEmpty(x.ExterneId), () =>
         {
-            RuleFor(x => x.ExternalRequestId)
+            RuleFor(x => x.ExterneId)
                 .Must(ExtractRequestId.Accepts)
-                .WithProblemCode(ProblemCode.Extract.ExternalRequestIdInvalid);
+                .WithProblemCode(ProblemCode.Extract.ExterneIdInvalid);
         });
     }
 }

@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Extracts.V2;
+namespace RoadRegistry.BackOffice.Api.Extracten;
 
 using System;
 using System.Collections.Generic;
@@ -17,12 +17,12 @@ using Problem = Core.Problem;
 
 public interface IDownloadExtractByFileRequestItemTranslator
 {
-    Geometry Translate(DownloadExtractByFileRequestItem shapeFile);
+    Geometry Translate(ExtractDownloadaanvraagPerBestandItem shapeFile);
 }
 
 public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFileRequestItemTranslator
 {
-    public Geometry Translate(DownloadExtractByFileRequestItem shapeFile)
+    public Geometry Translate(ExtractDownloadaanvraagPerBestandItem shapeFile)
     {
         var (polygons, problems) = TryTranslateV2(shapeFile);
         if (problems.Any())
@@ -42,7 +42,7 @@ public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFile
                     .Select(problem => problem.TranslateToDutch())
                     .Select(problemTranslation => new ValidationFailure
                     {
-                        PropertyName = nameof(DownloadExtractByFileRequest.ShpFile),
+                        PropertyName = nameof(ExtractDownloadaanvraagPerBestand.ShpFile),
                         ErrorMessage = problemTranslation.Message,
                         ErrorCode = problemTranslation.Code
                     }));
@@ -52,7 +52,7 @@ public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFile
         return new MultiPolygon(polygons.ToArray()) { SRID = srid };
     }
 
-    private (List<Polygon>, List<Problem>) TryTranslateV1(DownloadExtractByFileRequestItem shapeFile)
+    private (List<Polygon>, List<Problem>) TryTranslateV1(ExtractDownloadaanvraagPerBestandItem shapeFile)
     {
         var problems = new List<Problem>();
 
@@ -104,7 +104,7 @@ public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFile
         return (polygons, problems);
     }
 
-    private (List<Polygon>, List<Problem>) TryTranslateV2(DownloadExtractByFileRequestItem shapeFile)
+    private (List<Polygon>, List<Problem>) TryTranslateV2(ExtractDownloadaanvraagPerBestandItem shapeFile)
     {
         var problems = new List<Problem>();
 

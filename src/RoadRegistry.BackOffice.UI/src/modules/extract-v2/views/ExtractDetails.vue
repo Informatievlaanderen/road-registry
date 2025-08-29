@@ -5,8 +5,8 @@
         <vl-grid mod-stacked>
           <vl-column>
             <wr-h2
-              >Extract{{ extract?.isInformative ? " (informatief)" : ""
-              }}{{ extract?.description ? `: ${extract?.description}` : "" }}</wr-h2
+              >Extract{{ extract?.informatief ? " (informatief)" : ""
+              }}{{ extract?.beschrijving ? `: ${extract?.beschrijving}` : "" }}</wr-h2
             >
           </vl-column>
 
@@ -26,7 +26,7 @@
             </div>
 
             <div v-if="extract">
-              <div>Aangevraagd op: {{ formatDate(extract.requestedOn) }}</div>
+              <div>Aangevraagd op: {{ formatDate(extract.aangevraagdOp) }}</div>
               <div>Status: {{ status }}</div>
 
               <div>
@@ -49,7 +49,7 @@
 
               <br />
               <UploadComponent
-                v-if="!extract?.isInformative && downloadAvailable && !extract?.closed && extract?.downloadedOn"
+                v-if="!extract?.informatief && downloadAvailable && !extract?.gesloten && extract?.gedownloadOp"
                 :downloadId="downloadId"
                 @upload-complete="handleUploadComplete"
               />
@@ -156,7 +156,7 @@ export default Vue.extend({
         return "";
       }
 
-      if (this.extract.closed) {
+      if (this.extract.gesloten) {
         return "Gesloten";
       }
 
@@ -475,7 +475,7 @@ export default Vue.extend({
       try {
         await PublicApi.Extracts.V2.downloadExtract(this.downloadId);
 
-        if (!this.extract?.downloadedOn) {
+        if (!this.extract?.gedownloadOp) {
           await this.loadExtractDetails;
         }
       } catch (err: any) {
