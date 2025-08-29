@@ -74,10 +74,63 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
     }
 
     [Fact]
-    public async Task IntersectingMeasuredRoadSegmentsWithoutGradeSeparatedJunctionShouldGiveProblem()
+    public async Task WhenIntersectingMeasuredRoadSegmentsWithoutGradeSeparatedJunction_ThenShouldGiveProblem()
     {
         var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
             .WithChange(ConfigureIntersectingMeasuredRoadSegmentsWithoutGradeSeparatedJunction)
+            .BuildWithResult(_ => TranslatedChanges.Empty);
+
+        var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, expected));
+        Assert.Contains(ex.Problems, x => x.Reason == nameof(DbaseFileProblems.GradeSeparatedJunctionMissing));
+    }
+
+    [Fact]
+    public async Task WhenIntersectingMeasuredRoadSegmentsWithoutGradeSeparatedJunction_WithChangedRoadSegmentsWithNullGeometry_ThenShouldOnlyReturnProblem()
+    {
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                // trigger partial update
+                builder.TestData.RoadSegment1DbaseRecord.MORF.Value = context.Fixture.CreateWhichIsDifferentThan(RoadSegmentMorphology.ByIdentifier[builder.TestData.RoadSegment1DbaseRecord.MORF.Value]).Translation.Identifier;
+
+                // add segment which intersects with existing segment to trigger checking missing gradeseparatedjunctions
+                var newNode1Dbase = builder.CreateRoadNodeDbaseRecord();
+                var newNode1Shape = builder.CreateRoadNodeShapeRecord();
+                var newNode2Dbase = builder.CreateRoadNodeDbaseRecord();
+                var newNode2Shape = builder.CreateRoadNodeShapeRecord();
+                var newSegment1Dbase = builder.CreateRoadSegmentDbaseRecord();
+                newSegment1Dbase.B_WK_OIDN.Value = newNode1Dbase.WK_OIDN.Value;
+                newSegment1Dbase.E_WK_OIDN.Value = newNode2Dbase.WK_OIDN.Value;
+                var newSegment1Shape = builder.CreateRoadSegmentShapeRecord();
+                var intersection = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString().Centroid;
+                var newSegment1GeometryCrossingSegment1 = new LineString([
+                    new (intersection.X, intersection.Y - 1),
+                    new (intersection.X, intersection.Y + 5)
+                ]);
+                newSegment1Shape.Geometry = newSegment1GeometryCrossingSegment1.ToMultiLineString();
+                var newSegment1Lane = builder.CreateRoadSegmentLaneDbaseRecord();
+                newSegment1Lane.WS_OIDN.Value = newSegment1Dbase.WS_OIDN.Value;
+                newSegment1Lane.VANPOS.Value = 0;
+                newSegment1Lane.TOTPOS.Value = newSegment1Shape.Geometry.Length;
+                var newSegment1Surface = builder.CreateRoadSegmentSurfaceDbaseRecord();
+                newSegment1Surface.WS_OIDN.Value = newSegment1Dbase.WS_OIDN.Value;
+                newSegment1Surface.VANPOS.Value = 0;
+                newSegment1Surface.TOTPOS.Value = newSegment1Shape.Geometry.Length;
+                var newSegment1Width = builder.CreateRoadSegmentWidthDbaseRecord();
+                newSegment1Width.WS_OIDN.Value = newSegment1Dbase.WS_OIDN.Value;
+                newSegment1Width.VANPOS.Value = 0;
+                newSegment1Width.TOTPOS.Value = newSegment1Shape.Geometry.Length;
+
+                builder.DataSet.RoadNodeDbaseRecords.Add(newNode1Dbase);
+                builder.DataSet.RoadNodeDbaseRecords.Add(newNode2Dbase);
+                builder.DataSet.RoadNodeShapeRecords.Add(newNode1Shape);
+                builder.DataSet.RoadNodeShapeRecords.Add(newNode2Shape);
+                builder.DataSet.RoadSegmentDbaseRecords.Add(newSegment1Dbase);
+                builder.DataSet.RoadSegmentShapeRecords.Add(newSegment1Shape);
+                builder.DataSet.LaneDbaseRecords.Add(newSegment1Lane);
+                builder.DataSet.SurfaceDbaseRecords.Add(newSegment1Surface);
+                builder.DataSet.WidthDbaseRecords.Add(newSegment1Width);
+            })
             .BuildWithResult(_ => TranslatedChanges.Empty);
 
         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, expected));
@@ -90,11 +143,10 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
 
         var intersection = roadSegment1Geometry.Centroid;
 
-        var roadSegment2Geometry = new LineString(new Coordinate[]
-        {
+        var roadSegment2Geometry = new LineString([
             new (intersection.X, intersection.Y - 1),
             new (intersection.X, intersection.Y + 5)
-        });
+        ]);
         builder.TestData.RoadSegment2ShapeRecord.Geometry = roadSegment2Geometry.ToMultiLineString();
 
         builder.TestData.RoadSegment2LaneDbaseRecord.TOTPOS.Value = roadSegment2Geometry.Length;

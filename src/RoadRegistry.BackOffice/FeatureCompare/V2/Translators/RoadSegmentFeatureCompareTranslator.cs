@@ -126,6 +126,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 continue;
             }
 
+            var alwaysIncludeNodeIdsInChangedAttributes = false;
             if (changeFeatureAttributes.StartNodeId > 0 && changeFeatureAttributes.EndNodeId > 0)
             {
                 var startNodeFeature = FindRoadNodeByOriginalId(changeFeatureAttributes.StartNodeId!.Value);
@@ -147,6 +148,11 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         problems += recordContext.EndRoadNodeIdOutOfRange(changeFeatureAttributes.EndNodeId!.Value);
                     }
                     continue;
+                }
+
+                if (startNodeFeature.RecordType == RecordType.Added || endNodeFeature.RecordType == RecordType.Added)
+                {
+                    alwaysIncludeNodeIdsInChangedAttributes = true;
                 }
 
                 changeFeatureAttributes = changeFeatureAttributes with
@@ -200,7 +206,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                             FeatureType.Change,
                             changeFeature.RecordNumber,
-                            changeFeatureAttributes.OnlyChangedAttributes(extractFeature.Attributes),
+                            changeFeatureAttributes.OnlyChangedAttributes(extractFeature.Attributes, extractFeature.Attributes.Geometry, alwaysIncludeNodeIdsInChangedAttributes),
                             extractFeature.Attributes.Id,
                             RecordType.Modified)
                         {
@@ -219,10 +225,11 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
                     var convertedFromOutlined = extractFeature.Attributes.Method == RoadSegmentGeometryDrawMethod.Outlined
                                                 && changeFeatureAttributes.Method != extractFeature.Attributes.Method;
+
                     processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                         FeatureType.Change,
                         changeFeature.RecordNumber,
-                        convertedFromOutlined ? changeFeatureAttributes : changeFeatureAttributes.OnlyChangedAttributes(extractFeature.Attributes),
+                        convertedFromOutlined ? changeFeatureAttributes : changeFeatureAttributes.OnlyChangedAttributes(extractFeature.Attributes, extractFeature.Attributes.Geometry, alwaysIncludeNodeIdsInChangedAttributes),
                         extractFeature.Attributes.Id,
                         RecordType.Modified)
                     {
@@ -401,7 +408,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             record.Attributes.AccessRestriction,
                             record.Attributes.LeftSideStreetNameId,
                             record.Attributes.RightSideStreetNameId,
-                            geometry: record.Attributes.Geometry
+                            geometry: record.GeometryChanged || record.ConvertedFromOutlined ? record.Attributes.Geometry : null
                         )
                         .WithConvertedFromOutlined(record.ConvertedFromOutlined);
                     if (record.Id != record.Attributes.Id)
