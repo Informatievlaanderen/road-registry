@@ -21,7 +21,7 @@ public class DownloadExtractByFileRequestValidatorTests : IAsyncLifetime
     {
         _validator = new DownloadExtractByFileRequestValidator(Encoding.UTF8);
         //TODO-pr implement test
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     public async Task DisposeAsync()

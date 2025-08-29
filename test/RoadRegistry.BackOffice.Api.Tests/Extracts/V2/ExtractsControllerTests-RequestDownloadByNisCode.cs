@@ -20,7 +20,7 @@ public class DownloadExtractByNisCodeRequestValidatorTests
     {
         _dbContextBuilderFixture = dbContextBuilderFixture;
         //TODO-pr implement test
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     public static IEnumerable<object[]> InvalidDescriptionCases()

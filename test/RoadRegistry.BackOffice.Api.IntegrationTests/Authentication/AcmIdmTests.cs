@@ -32,6 +32,18 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             new(HttpMethod.Get, "v1/download/for-editor"),
             new(HttpMethod.Get, "v1/download/for-product/{date}"),
 
+            new(HttpMethod.Post, "v1/extracten/{downloadId}/sluit", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Get, "v1/extracten/{downloadId}/download", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Get, "v1/extracten/{downloadId}/upload", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v1/extracten/{downloadId}/upload", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Get, "v1/extracten/{downloadId}", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Get, "v1/extracten", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v1/extracten/downloadaanvragen/percontour", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v1/extracten/downloadaanvragen/perbestand", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v1/extracten/downloadaanvragen/perniscode", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v1/extracten/overlapping/perniscode", Scopes.DvWrIngemetenWegBeheer),
+            new(HttpMethod.Post, "v1/extracten/overlapping/percontour", Scopes.DvWrIngemetenWegBeheer),
+
             new(HttpMethod.Get, "v1/extracts/{downloadId}", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Put, "v1/extracts/{downloadId}/close", Scopes.DvWrIngemetenWegBeheer),
             new(HttpMethod.Post, "v1/extracts/downloadrequests", Scopes.DvWrIngemetenWegBeheer),
@@ -102,6 +114,8 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             var apiDescriptions = apiExplorer.ApiDescriptionGroups.Items.SelectMany(apiDescriptionGroup => apiDescriptionGroup.Items).ToList();
             Assert.NotEmpty(apiDescriptions);
 
+            var missingEndpoints = new List<ApiDescription>();
+
             foreach (var apiDescription in apiDescriptions)
             {
                 var testEndpoint = Endpoints.SingleOrDefault(x =>
@@ -109,8 +123,13 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
                     && x.Uri.Equals(apiDescription.RelativePath, StringComparison.InvariantCultureIgnoreCase));
                 if (testEndpoint is null)
                 {
-                    Assert.Fail($"Endpoint '{apiDescription.HttpMethod} {apiDescription.RelativePath}' has no matching test");
+                    missingEndpoints.Add(apiDescription);
                 }
+            }
+
+            if (missingEndpoints.Any())
+            {
+                Assert.Fail($"Endpoints have no matching test:{Environment.NewLine}{string.Join(Environment.NewLine, missingEndpoints.Select(x => $"{x.HttpMethod} {x.RelativePath}"))}");
             }
         }
 
