@@ -1,3 +1,10 @@
+## [4.36.1](https://github.com/informatievlaanderen/road-registry/compare/v4.36.0...v4.36.1) (2025-08-29)
+
+
+### Bug Fixes
+
+* jobsprocessor remove incorrect default config for development ([2e5e874](https://github.com/informatievlaanderen/road-registry/commit/2e5e87464eb64bc324e7b82666c680791ea0c3a3))
+
 # [4.36.0](https://github.com/informatievlaanderen/road-registry/compare/v4.35.2...v4.36.0) (2025-08-29)
 
 
