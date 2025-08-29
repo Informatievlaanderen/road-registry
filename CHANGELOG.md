@@ -1,3 +1,17 @@
+# [4.36.0](https://github.com/informatievlaanderen/road-registry/compare/v4.35.2...v4.36.0) (2025-08-29)
+
+
+### Bug Fixes
+
+* packages.lock.json ([48f2e43](https://github.com/informatievlaanderen/road-registry/commit/48f2e43702b79b7e693fc37de0f67b3576a265c3))
+* packages.lock.json ([76a7f13](https://github.com/informatievlaanderen/road-registry/commit/76a7f1327ff3a208946c9aeb4ed47e890394063d))
+* tests ([4076a43](https://github.com/informatievlaanderen/road-registry/commit/4076a434cd9f02d09e7232415f3f608dc0a74dc4))
+
+
+### Features
+
+* extracts management page ([df0483c](https://github.com/informatievlaanderen/road-registry/commit/df0483c6040aeb1cf70435efbce83972f00a093e))
+
 ## [4.35.2](https://github.com/informatievlaanderen/road-registry/compare/v4.35.1...v4.35.2) (2025-08-11)
 
 
