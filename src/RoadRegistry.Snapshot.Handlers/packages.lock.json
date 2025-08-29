@@ -1302,10 +1302,10 @@
       "roadregistry.backoffice": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.35, )",
-          "AWSSDK.DynamoDBv2": "[3.7.302, )",
-          "AWSSDK.SimpleEmailV2": "[3.7.301.5, )",
-          "AWSSDK.SimpleNotificationService": "[3.7.301.7, )",
+          "AWSSDK.Core": "[3.7.500.11, )",
+          "AWSSDK.DynamoDBv2": "[3.7.504, )",
+          "AWSSDK.SimpleEmailV2": "[3.7.502, )",
+          "AWSSDK.SimpleNotificationService": "[3.7.501, )",
           "Amazon.Lambda.Core": "[2.5.1, )",
           "Be.Vlaanderen.Basisregisters.AggregateSource": "[10.0.2, )",
           "Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache": "[3.0.0, )",
@@ -1351,7 +1351,7 @@
       "roadregistry.backoffice.abstractions": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.35, )",
+          "AWSSDK.Core": "[3.7.500.11, )",
           "Be.Vlaanderen.Basisregisters.BlobStore": "[5.0.0, )",
           "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.1, )",
           "MediatR.Contracts": "[2.0.1, )",
@@ -1369,8 +1369,8 @@
       "roadregistry.backoffice.handlers.sqs": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.35, )",
-          "AWSSDK.SQS": "[3.7.400.129, )",
+          "AWSSDK.Core": "[3.7.500.11, )",
+          "AWSSDK.SQS": "[3.7.501.2, )",
           "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": "[6.0.3, )",
           "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.1, )",
           "Be.Vlaanderen.Basisregisters.Sqs.Lambda": "[4.0.1, )",
@@ -1388,8 +1388,8 @@
       "roadregistry.snapshot.handlers.sqs": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.35, )",
-          "AWSSDK.SQS": "[3.7.400.129, )",
+          "AWSSDK.Core": "[3.7.500.11, )",
+          "AWSSDK.SQS": "[3.7.501.2, )",
           "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": "[6.0.3, )",
           "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.1, )",
           "Be.Vlaanderen.Basisregisters.TicketingService.Abstractions": "[3.2.0, )",
@@ -1418,44 +1418,44 @@
       },
       "AWSSDK.Core": {
         "type": "CentralTransitive",
-        "requested": "[3.7.402.35, )",
-        "resolved": "3.7.402.35",
-        "contentHash": "9Jby5BBQTzZOqzQiFjJyr3zCe5GVi64U8gxOlPk3vTTuVJqtkisBJ0Jh1RBj2fNqnWmJLfaWSCLvX1L06zwHnQ=="
+        "requested": "[3.7.500.11, )",
+        "resolved": "3.7.500.11",
+        "contentHash": "mKWo09X/l6oKvtUs902CxhM3/YTqEfhkcfBtremdd6DNWLd1Xg0fLbhOOJvdKUlt8gKDWF6nVfi6LORx9dU7Ow=="
       },
       "AWSSDK.DynamoDBv2": {
         "type": "CentralTransitive",
-        "requested": "[3.7.302, )",
-        "resolved": "3.7.302",
-        "contentHash": "lgIEWG81ubAMWX96vzBphGNJuJcdtZR4oR0ReES/cfS1eKtAvtE7uz93kURRTnsAqpRHQc9FJEmmj0D1S9G9LQ==",
+        "requested": "[3.7.504, )",
+        "resolved": "3.7.504",
+        "contentHash": "NHplL4lqbnNlXwpzeqATI6XFlm7d/Ow+t3fODoV+w1Q7Wb+zxLJhdGs5JwXzie4GUKv1AS4n5or85PCzsHzUkg==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.302.20, 4.0.0)"
+          "AWSSDK.Core": "[3.7.500.11, 4.0.0)"
         }
       },
       "AWSSDK.SimpleEmailV2": {
         "type": "CentralTransitive",
-        "requested": "[3.7.301.5, )",
-        "resolved": "3.7.301.5",
-        "contentHash": "gywkI/RjxDRk5Bah3v6+IsvOtnYDNfI4KLsA5dB3ZoNY6STOwTr044iyCsyGn0sYagXvWV3hoXi3rTKkbn+Icg==",
+        "requested": "[3.7.502, )",
+        "resolved": "3.7.502",
+        "contentHash": "w/AnyrDYYLTJSVUSkstIxmDv2poGdARhSJzkQPTatF8/nTC8SUQYzlJ0NspZWUaTn5/XGESEcksxILuWoe2eVQ==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.302.20, 4.0.0)"
+          "AWSSDK.Core": "[3.7.500.11, 4.0.0)"
         }
       },
       "AWSSDK.SimpleNotificationService": {
         "type": "CentralTransitive",
-        "requested": "[3.7.301.7, )",
-        "resolved": "3.7.301.7",
-        "contentHash": "gE0f1HQNxkZmRlgVw8YIY0L4S5LfX6O0c2UM9CZCbKXgukori3nQ1EUcwPD1jAvhPHNL1U/oGAR6IVvcHN4fgA==",
+        "requested": "[3.7.501, )",
+        "resolved": "3.7.501",
+        "contentHash": "Jw8NAA6Ixi6CD4YQDrvdD7XZ498pvhqYMWwiOJBTnFQ97vlSIeJlkm1yQUeZ6zzv9uvMxNY/bBwfOAVaEVP3aw==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.302.20, 4.0.0)"
+          "AWSSDK.Core": "[3.7.500.11, 4.0.0)"
         }
       },
       "AWSSDK.SQS": {
         "type": "CentralTransitive",
-        "requested": "[3.7.400.129, )",
-        "resolved": "3.7.400.129",
-        "contentHash": "vc1OnZscfyKbuucR6Ru1SQj6o6SYizmmd3P/BBgP7Oph9I2UMirSs92iDisKjI6kuun3qv5K9SJBasZA3di1lQ==",
+        "requested": "[3.7.501.2, )",
+        "resolved": "3.7.501.2",
+        "contentHash": "E+p1yCzxsxHAnReQyfrUmUqLv1CqKZ8eV6BBFRcmuqmOiUsKBXWSQwyNcHP7iw+sm2WvQ6C/Py6RHmkRs5q76w==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.402.35, 4.0.0)"
+          "AWSSDK.Core": "[3.7.500.11, 4.0.0)"
         }
       },
       "Be.Vlaanderen.Basisregisters.AggregateSource": {
