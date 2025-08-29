@@ -27,8 +27,10 @@ using Core;
 using Editor.Schema;
 using Extensions;
 using FeatureCompare;
+using FeatureToggles;
 using FluentValidation;
 using Framework;
+using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
 using IdentityModel.AspNetCore.OAuth2Introspection;
@@ -51,6 +53,7 @@ using NetTopologySuite.IO;
 using NodaTime;
 using Options;
 using Product.Schema;
+using RoadRegistry.Extracts.Schema;
 using RoadSegments;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
@@ -262,14 +265,7 @@ public class Startup
                         sp.GetService<IClock>(),
                         sp.GetService<ILoggerFactory>()
                     ),
-                    new RoadNetworkCommandModule(
-                        sp.GetService<IStreamStore>(),
-                        sp.GetService<ILifetimeScope>(),
-                        sp.GetService<IRoadNetworkSnapshotReader>(),
-                        sp.GetService<IClock>(),
-                        sp.GetService<IExtractUploadFailedEmailClient>(),
-                        sp.GetService<ILoggerFactory>()
-                    ),
+                    CommandModules.RoadNetwork(sp),
                     new RoadNetworkExtractCommandModule(
                         sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                         sp.GetService<IStreamStore>(),
@@ -303,9 +299,10 @@ public class Startup
                     sqlOptions => sqlOptions
                         .UseNetTopologySuite())
             )
+            .AddExtractsDbContext(QueryTrackingBehavior.TrackAll)
             .AddOrganizationCache()
             .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
-            .AddValidatorsAsScopedFromAssemblyContaining<Startup>()
+            .AddValidatorsFromAssemblyContaining<Startup>()
             .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<BackOffice.Handlers.DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<DomainAssemblyMarker>()
@@ -332,10 +329,21 @@ public class Startup
             .Configure<JobsBucketOptions>(_configuration.GetSection(JobsBucketOptions.ConfigKey))
             .AddJobsContext()
             .AddSingleton<IPagedUriGenerator, PagedUriGenerator>()
+            .AddScoped<AmazonS3DownloadFileUrlPresigner>()
+            .AddScoped<IDownloadFileUrlPresigner>(sp =>
+            {
+                var hostEnvironment = sp.GetRequiredService<IHostEnvironment>();
+                if (hostEnvironment.IsDevelopment())
+                {
+                    return new AnonymousBackOfficeApiDownloadFileUrlPresigner(sp.GetRequiredService<ApiOptions>());
+                }
+
+                return sp.GetRequiredService<AmazonS3DownloadFileUrlPresigner>();
+            })
             .AddScoped<IJobUploadUrlPresigner>(sp =>
             {
-                var options = sp.GetRequiredService<IOptions<JobsBucketOptions>>();
-                if (options.Value.UseBackOfficeApiUrlPresigner)
+                var hostEnvironment = sp.GetRequiredService<IHostEnvironment>();
+                if (hostEnvironment.IsDevelopment())
                 {
                     return new AnonymousBackOfficeApiJobUploadUrlPresigner(sp.GetRequiredService<ApiOptions>());
                 }

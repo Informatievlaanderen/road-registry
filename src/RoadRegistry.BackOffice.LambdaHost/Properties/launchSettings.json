@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RoadRegistry.BackOffice.LambdaHost": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

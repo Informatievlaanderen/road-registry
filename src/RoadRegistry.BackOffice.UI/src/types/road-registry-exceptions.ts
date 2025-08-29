@@ -1,9 +1,9 @@
 import RoadRegistry from "./road-registry";
 
 export namespace RoadRegistryExceptions {
-    export class RequestExtractPerContourError extends Error {
-        error: RoadRegistry.PerContourErrorResponse;
-        constructor(error: RoadRegistry.PerContourErrorResponse) {
+    export class BadRequestError extends Error {
+        error: RoadRegistry.BadRequestResponse;
+        constructor(error: RoadRegistry.BadRequestResponse) {
             super();
             this.error = error;
         }

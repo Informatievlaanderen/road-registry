@@ -36,6 +36,14 @@ public static class ProblemTranslator
 
         {ProblemCode.Extract.NotFound, problem => new(problem.Severity, "ExtractNietGekend",
             "Het extract werd niet gevonden.")},
+        {ProblemCode.Extract.ContourInvalid, problem => new(problem.Severity, "ContourOngeldig",
+            "Contour is ongeldig.")},
+        {ProblemCode.Extract.BeschrijvingIsRequired, problem => new(problem.Severity, "BeschrijvingVerplicht",
+            "Beschrijving is verplicht.")},
+        {ProblemCode.Extract.BeschrijvingTooLong, problem => new(problem.Severity, "BeschrijvingTeLang",
+            $"Beschrijving mag niet langer zijn dan {ExtractDescription.MaxLength} karakters.")},
+        {ProblemCode.Extract.ExterneIdInvalid, problem => new(problem.Severity, "ExterneIdOngeldig",
+            "ExterneId is ongeldig.")},
 
         {ProblemCode.FromPosition.IsRequired, problem => new(problem.Severity, "VanPositieVerplicht",
             "VanPositie is verplicht.")},

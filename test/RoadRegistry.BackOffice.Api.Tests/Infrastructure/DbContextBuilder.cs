@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.Infrastructure;
 
 using Microsoft.EntityFrameworkCore;
 using RoadRegistry.Editor.Schema;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Sync.MunicipalityRegistry;
 using RoadRegistry.Tests.Framework.Projections;
 
@@ -25,5 +26,15 @@ public class DbContextBuilder
             .Options;
 
         return new MunicipalityEventConsumerContext(options);
+    }
+
+    public ExtractsDbContext CreateExtractsDbContext()
+    {
+        var options = new DbContextOptionsBuilder<ExtractsDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .EnableSensitiveDataLogging()
+            .Options;
+
+        return new ExtractsDbContext(options);
     }
 }

@@ -68,7 +68,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                     //}
                     //var elapsed4 = sw4.Elapsed;
                     //_outputHelper.WriteLine($"Total duration validator 10 runs: {sw4.Elapsed}");
-                    
+
                     await translator.TranslateAsync(archive, CancellationToken.None);
                     // var sw2 = Stopwatch.StartNew();
                     // for (var i = 0; i < 10; i++)

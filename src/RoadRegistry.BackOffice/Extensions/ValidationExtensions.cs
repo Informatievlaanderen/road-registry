@@ -19,7 +19,7 @@ public static class ValidationExtensions
     public static IRuleBuilderOptions<T, TProperty> WithProblemCode<T, TProperty>(this IRuleBuilderOptions<T, TProperty> rule, ProblemCode problemCode, Func<TProperty, string> valueConverter = null)
     {
         rule.WithErrorCode(problemCode);
-        
+
         string propertyName = null;
         rule.Configure(r =>
         {
@@ -54,6 +54,11 @@ public static class ValidationExtensions
 
     public static DutchValidationException TranslateToDutch(this ValidationException ex)
     {
+        if (ex is DutchValidationException dutchValidationException)
+        {
+            return dutchValidationException;
+        }
+
         return new DutchValidationException(ex.Errors.TranslateToDutch());
     }
 
@@ -118,7 +123,7 @@ public static class ValidationExtensions
             .Select(problem =>
                 {
                     var translatedProblem = problem.TranslateToDutch();
-                    
+
                     return new ValidationFailure(problem.File, translatedProblem.Message)
                     {
                         ErrorCode = $"{problem.Severity}{translatedProblem.Code}"

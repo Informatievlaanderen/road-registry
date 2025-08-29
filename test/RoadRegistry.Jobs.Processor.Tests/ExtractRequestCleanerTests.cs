@@ -4,6 +4,7 @@ using BackOffice;
 using BackOffice.Messages;
 using Editor.Schema;
 using Editor.Schema.Extracts;
+using Extracts.Schema;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Point = NetTopologySuite.Geometries.Point;
@@ -16,6 +17,7 @@ public class ExtractRequestCleanerTests
         // Arrange
         var commandHandlerDispatcher = new FakeCommandHandlerDispatcher();
         await using var editorContext = new FakeEditorContextFactory().CreateDbContext();
+        await using var extractsDbContext = new FakeExtractsDbContextFactory().CreateDbContext();
 
         var oldExtractDownloadId = Guid.NewGuid();
         editorContext.ExtractRequests.Add(new ExtractRequestRecord
@@ -41,6 +43,7 @@ public class ExtractRequestCleanerTests
         var cleaner = new ExtractRequestCleaner(
             commandHandlerDispatcher.Dispatcher,
             editorContext,
+            extractsDbContext,
             new NullLoggerFactory()
         );
 
@@ -59,6 +62,7 @@ public class ExtractRequestCleanerTests
         // Arrange
         var commandHandlerDispatcher = new FakeCommandHandlerDispatcher();
         await using var editorContext = new FakeEditorContextFactory().CreateDbContext();
+        await using var extractsDbContext = new FakeExtractsDbContextFactory().CreateDbContext();
 
         var oldExtractDownloadId = Guid.NewGuid();
         editorContext.ExtractRequests.Add(new ExtractRequestRecord
@@ -84,6 +88,7 @@ public class ExtractRequestCleanerTests
         var cleaner = new ExtractRequestCleaner(
             commandHandlerDispatcher.Dispatcher,
             editorContext,
+            extractsDbContext,
             new NullLoggerFactory()
         );
 
@@ -95,4 +100,6 @@ public class ExtractRequestCleanerTests
         var command = commandHandlerDispatcher.Invocations.Single().Body.Should().BeOfType<CloseRoadNetworkExtract>().Subject;
         command.DownloadId.Should().Be(new DownloadId(oldExtractDownloadId));
     }
+
+    //TODO-pr test ExtractV2 cleanup
 }

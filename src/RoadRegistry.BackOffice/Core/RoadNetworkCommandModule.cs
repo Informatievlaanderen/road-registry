@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using DutchTranslations;
+using Extracts;
+using FeatureToggles;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
@@ -21,6 +23,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 {
     private readonly ILifetimeScope _lifetimeScope;
     private readonly IExtractUploadFailedEmailClient _emailClient;
+    private readonly UseExtractsV2FeatureToggle _useExtractsV2FeatureToggle;
     private readonly ILogger _logger;
 
     public RoadNetworkCommandModule(
@@ -29,6 +32,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         IRoadNetworkSnapshotReader snapshotReader,
         IClock clock,
         IExtractUploadFailedEmailClient emailClient,
+        UseExtractsV2FeatureToggle useExtractsV2FeatureToggle,
         ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(store);
@@ -40,6 +44,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         _lifetimeScope = lifetimeScope;
         _emailClient = emailClient;
+        _useExtractsV2FeatureToggle = useExtractsV2FeatureToggle;
         _logger = loggerFactory.CreateLogger<RoadNetworkCommandModule>();
 
         var enricher = EnrichEvent.WithTime(clock);
@@ -134,9 +139,18 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
             if (!failedChangedMessages.Any() && command.Body.ExtractRequestId is not null)
             {
-                var extractRequestId = ExtractRequestId.FromString(command.Body.ExtractRequestId);
-                var extract = await context.RoadNetworkExtracts.Get(extractRequestId, cancellationToken);
-                extract.Close(RoadNetworkExtractCloseReason.UploadAccepted);
+                if (_useExtractsV2FeatureToggle.FeatureEnabled)
+                {
+                    var extractsRequests = container.Resolve<IExtractRequests>();
+                    await extractsRequests.CloseAsync(downloadId!.Value, cancellationToken);
+                }
+                else
+                {
+                    var extractRequestId = ExtractRequestId.FromString(command.Body.ExtractRequestId);
+
+                    var extract = await context.RoadNetworkExtracts.Get(extractRequestId, cancellationToken);
+                    extract.Close(RoadNetworkExtractCloseReason.UploadAccepted);
+                }
             }
 
             if (ticketId is not null)
@@ -152,6 +166,12 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                         .ToArray();
 
                     await ticketing.Error(ticketId.Value, new TicketError(errors), cancellationToken);
+
+                    if (_useExtractsV2FeatureToggle.FeatureEnabled)
+                    {
+                        var extractsRequests = container.Resolve<IExtractRequests>();
+                        await extractsRequests.UploadRejectedAsync(downloadId!.Value, cancellationToken);
+                    }
                 }
                 else
                 {
@@ -180,6 +200,12 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     var summary = RoadNetworkChangesSummary.FromAcceptedChanges(acceptedChanges);
 
                     await ticketing.Complete(ticketId.Value, new TicketResult(new { Changes = changes, Summary = summary }), cancellationToken);
+
+                    if (_useExtractsV2FeatureToggle.FeatureEnabled)
+                    {
+                        var extractsRequests = container.Resolve<IExtractRequests>();
+                        await extractsRequests.UploadAcceptedAsync(downloadId!.Value, cancellationToken);
+                    }
                 }
             }
         }

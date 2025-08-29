@@ -7,6 +7,7 @@ using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Core;
+using FeatureToggles;
 using FluentAssertions;
 using Framework;
 using Handlers;
@@ -175,6 +176,7 @@ public class GivenRoadSegment : BackOfficeLambdaTest
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
                     new FakeExtractUploadFailedEmailClient(),
+                    new UseExtractsV2FeatureToggle(true),
                     LoggerFactory
                 )
             ]), ApplicationMetadata))

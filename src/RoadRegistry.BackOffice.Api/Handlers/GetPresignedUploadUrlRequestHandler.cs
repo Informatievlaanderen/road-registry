@@ -59,8 +59,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                             { "Registry", "RoadRegistry" },
                             { "Action", "Upload" },
                             { "UploadType", request.UploadType.ToString() },
-                            { "DownloadId", request.DownloadId?.ToString() },
-                            { "JobId", job.Id.ToString("D") }
+                            { "DownloadId", request.DownloadId?.ToString() }
                         },
                         cancellationToken);
 
@@ -69,7 +68,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                     await UpdateJobWithTicketId(job, ticketId, cancellationToken);
                     await transaction.CommitAsync(cancellationToken);
 
-                    return new GetPresignedUploadUrlResponse(job.Id, preSignedUrl.Url.ToString(), preSignedUrl.Fields, ticketUrl);
+                    return new GetPresignedUploadUrlResponse(job.Id, preSignedUrl.Url.ToString(), preSignedUrl.Fields, ticketId, ticketUrl);
                 }
                 catch (Exception)
                 {

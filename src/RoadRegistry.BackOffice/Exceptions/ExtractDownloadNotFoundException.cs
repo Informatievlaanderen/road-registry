@@ -1,8 +1,6 @@
 namespace RoadRegistry.BackOffice.Exceptions;
 
-using System;
-
-public sealed class ExtractDownloadNotFoundException : Exception
+public sealed class ExtractDownloadNotFoundException : RoadRegistryException
 {
     public ExtractDownloadNotFoundException(DownloadId downloadId)
         : this(downloadId.ToString())

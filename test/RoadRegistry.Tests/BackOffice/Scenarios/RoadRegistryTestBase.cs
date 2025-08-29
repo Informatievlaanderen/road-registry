@@ -21,6 +21,7 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.FeatureCompare;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Infrastructure.Modules;
 using RoadRegistry.BackOffice.Messages;
@@ -172,6 +173,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
                     Container.Resolve<IRoadNetworkSnapshotReader>(),
                     Clock,
                     new FakeExtractUploadFailedEmailClient(),
+                    new UseExtractsV2FeatureToggle(true),
                     LoggerFactory),
                 new RoadNetworkExtractCommandModule(
                     new RoadNetworkExtractUploadsBlobClient(Client),

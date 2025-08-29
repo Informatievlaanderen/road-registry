@@ -6,6 +6,8 @@ public static class WellKnownConnectionNames
     public const string CommandHostAdmin = "CommandHostAdmin";
     public const string EditorProjections = "EditorProjections";
     public const string EditorProjectionsAdmin = "EditorProjectionsAdmin";
+    public const string Extracts = "Extracts";
+    public const string ExtractsAdmin = "ExtractsAdmin";
     public const string IntegrationProjections = "IntegrationProjections";
     public const string IntegrationProjectionsAdmin = "IntegrationProjectionsAdmin";
     public const string EventHost = "EventHost";

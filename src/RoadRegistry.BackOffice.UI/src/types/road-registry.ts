@@ -44,13 +44,18 @@ export namespace RoadRegistry {
     ticketUrl: string;
   }
 
-  export interface GetUploadDownloadPreSignedUrlResponse {
+  export interface DownloadUploadResponse {
     downloadUrl: string;
     fileName: string;
   }
 
-  export interface GetExtractDownloadPreSignedUrlResponse {
-    downloadUrl: string;
+  export interface ExtractDownloadaanvraagResponse {
+    downloadId: string;
+  }
+  
+  export interface RequestExtractResponse {
+    downloadId: string;
+    ticketUrl: string;
   }
 
   export interface GetTicketResponse {
@@ -72,19 +77,52 @@ export namespace RoadRegistry {
     downloadAvailable: boolean;
     extractDownloadTimeoutOccurred: boolean;
   }
+  export interface ExtractDetailsV2 {
+    downloadId: string;
+    beschrijving: string;
+    informatief: boolean;
+    aangevraagdOp: string;
+    downloadStatus: string;
+    gedownloadOp: string;
+    uploadStatus: string;    
+    gesloten: boolean;
+    ticketId: string;
+  }
+  export interface ExtractListResponse {
+    items: ExtractListItem[];
+    dataBeschikbaar: boolean;
+  }
+  export interface ExtractListItem {
+    downloadId: string;
+    beschrijving: string;
+    aangevraagdOp: string;
+    informatief: boolean;
+    downloadStatus: string;
+    uploadStatus: string;
+    gesloten: boolean;
+  }
 
   export interface DownloadExtractRequest {
     requestId: string;
     contour: string;
   }
   export interface DownloadExtractResponse {
-    downloadId: string;
+    downloadUrl: string;
   }
+  export interface DownloadExtractResponseBody {
+    downloadId: string;
+    isInformative: boolean;
+  }  
 
   export interface DownloadExtractByContourRequest {
     contour: string;
     description: string;
     isInformative: boolean;
+  }
+  export interface ExtractDownloadaanvraagPerContourBody {
+    contour: string;
+    beschrijving: string;
+    informatief: boolean;
   }
 
   export interface DownloadExtractByFileRequest {
@@ -92,16 +130,17 @@ export namespace RoadRegistry {
     description: string;
     isInformative: boolean;
   }
-
-  export interface PerContourErrorResponse {
-    validationErrors: PerContourValidationErrors;
+  export interface ExtractDownloadaanvraagPerBestandBody {
+    bestanden: File[];
+    beschrijving: string;
+    informatief: boolean;
   }
 
-  export interface PerContourValidationErrors {
-    contour: ContourValidationError[];
+  export interface BadRequestResponse {
+    validationErrors: any;
   }
 
-  export interface ContourValidationError {
+  export interface ValidationError {
     code: string;
     reason: string;
   }
@@ -110,6 +149,11 @@ export namespace RoadRegistry {
     nisCode: string;
     description: string;
     isInformative: boolean;
+  }
+  export interface ExtractDownloadaanvraagPerNisCodeBody {
+    nisCode: string;
+    beschrijving: string;
+    informatief: boolean;
   }
 
   export interface ListOverlappingExtractsByNisCodeRequest {
@@ -158,7 +202,12 @@ export namespace RoadRegistry {
 
   export interface TicketDetails {
     status: string;
+    metadata: TicketMetadata;
     result: TicketResult;
+  }
+
+  export interface TicketMetadata {
+    action: string;
   }
 
   export interface TicketResult {

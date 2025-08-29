@@ -64,6 +64,15 @@
           "Asp.Versioning.Mvc": "8.1.0"
         }
       },
+      "AspNetCore.HealthChecks.Aws.Sqs": {
+        "type": "Transitive",
+        "resolved": "9.0.0",
+        "contentHash": "GbIqFJueEuSm6IkL0YwsTATaAJdt/xCwIF2iwAQ0p/VxBn5pWqGRynYcTfc+OHhGvu/cHV5rutvjxOO8nqSf3w==",
+        "dependencies": {
+          "AWSSDK.SQS": "3.7.300.7",
+          "Microsoft.Extensions.Diagnostics.HealthChecks": "8.0.11"
+        }
+      },
       "AspNetCore.HealthChecks.UI.Core": {
         "type": "Transitive",
         "resolved": "9.0.0",
@@ -2225,6 +2234,15 @@
           "xunit.extensibility.execution": "[2.4.2, 3.0.0)"
         }
       },
+      "Xunit.DependencyInjection.Logging": {
+        "type": "Transitive",
+        "resolved": "9.0.0",
+        "contentHash": "MOPFOGUNvvUFd6K7tRuvQDt/wd7i4x759GWdNKFMq6DZr2IJ7+a9QG8W3xN5fiQ3qfwxJhsb3LvNNYKtboInpw==",
+        "dependencies": {
+          "MartinCostello.Logging.XUnit": "0.3.0",
+          "Xunit.DependencyInjection": "9.0.0"
+        }
+      },
       "xunit.extensibility.core": {
         "type": "Transitive",
         "resolved": "2.9.3",
@@ -2255,6 +2273,7 @@
           "MediatR": "[12.5.0, )",
           "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite": "[9.0.4, )",
           "Microsoft.Extensions.FileProviders.Abstractions": "[9.0.5, )",
+          "RoadRegistry.Extracts.Schema": "[1.0.0, )",
           "Serilog.Sinks.Seq": "[9.0.0, )",
           "Serilog.Sinks.Slack": "[2.2.3, )"
         }
@@ -2313,7 +2332,7 @@
         "dependencies": {
           "AWSSDK.Core": "[3.7.402.35, )",
           "Be.Vlaanderen.Basisregisters.BlobStore": "[5.0.0, )",
-          "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.1, )",
+          "Be.Vlaanderen.Basisregisters.Sqs": "[4.1.1, )",
           "MediatR.Contracts": "[2.0.1, )",
           "Microsoft.Extensions.DependencyInjection": "[9.0.5, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.0.5, )",
@@ -2339,6 +2358,7 @@
           "RoadRegistry.BackOffice.ZipArchiveWriters": "[1.0.0, )",
           "RoadRegistry.Editor.Projections": "[1.0.0, )",
           "RoadRegistry.Editor.Schema": "[1.0.0, )",
+          "RoadRegistry.Extracts.Schema": "[1.0.0, )",
           "RoadRegistry.Product.Schema": "[1.0.0, )",
           "RoadRegistry.Sync.MunicipalityRegistry": "[1.0.0, )"
         }
@@ -2349,8 +2369,8 @@
           "AWSSDK.Core": "[3.7.402.35, )",
           "AWSSDK.SQS": "[3.7.400.129, )",
           "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": "[6.0.3, )",
-          "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.1, )",
-          "Be.Vlaanderen.Basisregisters.Sqs.Lambda": "[4.0.1, )",
+          "Be.Vlaanderen.Basisregisters.Sqs": "[4.1.1, )",
+          "Be.Vlaanderen.Basisregisters.Sqs.Lambda": "[4.1.1, )",
           "Be.Vlaanderen.Basisregisters.TicketingService.Abstractions": "[3.2.0, )",
           "MediatR": "[12.5.0, )",
           "MediatR.Contracts": "[2.0.1, )",
@@ -2399,6 +2419,18 @@
           "RoadRegistry.BackOffice": "[1.0.0, )"
         }
       },
+      "roadregistry.extracts.schema": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Design": "[9.0.4, )",
+          "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite": "[9.0.4, )",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.0.5, )",
+          "Microsoft.IdentityModel.Abstractions": "[8.9.0, )",
+          "Microsoft.IdentityModel.Logging": "[8.9.0, )",
+          "NetTopologySuite": "[2.6.0, )",
+          "RoadRegistry.BackOffice": "[1.0.0, )"
+        }
+      },
       "roadregistry.hosts": {
         "type": "Project",
         "dependencies": {
@@ -2416,8 +2448,8 @@
           "Be.Vlaanderen.Basisregisters.EventHandling.Autofac": "[7.0.0, )",
           "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": "[15.0.1, )",
           "Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac": "[15.0.1, )",
-          "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.1, )",
-          "Be.Vlaanderen.Basisregisters.Sqs.Lambda": "[4.0.1, )",
+          "Be.Vlaanderen.Basisregisters.Sqs": "[4.1.1, )",
+          "Be.Vlaanderen.Basisregisters.Sqs.Lambda": "[4.1.1, )",
           "Be.Vlaanderen.Basisregisters.TicketingService.Abstractions": "[3.2.0, )",
           "Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy": "[3.2.0, )",
           "Destructurama.JsonNet": "[4.0.2, )",
@@ -2493,6 +2525,7 @@
           "Microsoft.Extensions.Configuration.Json": "[9.0.5, )",
           "Microsoft.Extensions.Hosting": "[9.0.5, )",
           "RoadRegistry.BackOffice.Handlers": "[1.0.0, )",
+          "RoadRegistry.BackOffice.Handlers.Sqs": "[1.0.0, )",
           "RoadRegistry.Hosts": "[1.0.0, )",
           "RoadRegistry.Jobs": "[1.0.0, )",
           "Serilog": "[4.2.0, )",
@@ -2580,7 +2613,7 @@
           "Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer": "[6.0.3, )",
           "Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector": "[15.0.1, )",
           "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": "[15.0.1, )",
-          "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.1, )",
+          "Be.Vlaanderen.Basisregisters.Sqs": "[4.1.1, )",
           "MediatR": "[12.5.0, )",
           "Microsoft.EntityFrameworkCore.Design": "[9.0.4, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.0.5, )",
@@ -2596,7 +2629,7 @@
           "Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.SqlServer": "[6.0.3, )",
           "Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector": "[15.0.1, )",
           "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": "[15.0.1, )",
-          "Be.Vlaanderen.Basisregisters.Sqs": "[4.0.1, )",
+          "Be.Vlaanderen.Basisregisters.Sqs": "[4.1.1, )",
           "MediatR": "[12.5.0, )",
           "Microsoft.EntityFrameworkCore.Design": "[9.0.4, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[9.0.5, )",
@@ -2702,16 +2735,6 @@
         "contentHash": "vyOiz09Qa+//aThDF7rzyeU6LG1++J3fMeBqv8ockOjr3y+5IVmxhjORy3YVVLummcCyqlb3teuOrQYkjG5tjQ==",
         "dependencies": {
           "AWSSDK.S3": "3.7.302",
-          "Microsoft.Extensions.Diagnostics.HealthChecks": "8.0.11"
-        }
-      },
-      "AspNetCore.HealthChecks.Aws.Sqs": {
-        "type": "CentralTransitive",
-        "requested": "[9.0.0, )",
-        "resolved": "9.0.0",
-        "contentHash": "GbIqFJueEuSm6IkL0YwsTATaAJdt/xCwIF2iwAQ0p/VxBn5pWqGRynYcTfc+OHhGvu/cHV5rutvjxOO8nqSf3w==",
-        "dependencies": {
-          "AWSSDK.SQS": "3.7.300.7",
           "Microsoft.Extensions.Diagnostics.HealthChecks": "8.0.11"
         }
       },
@@ -3242,9 +3265,9 @@
       },
       "Be.Vlaanderen.Basisregisters.Sqs": {
         "type": "CentralTransitive",
-        "requested": "[4.0.1, )",
-        "resolved": "4.0.1",
-        "contentHash": "ZhlPVAxQy42dZFLUC8+blptMkj/MdR5GlqJ+p0r5nli1VdnZSMzDjOKPG45hhijJtga2/kmAL6R4XKJfC5wehw==",
+        "requested": "[4.1.1, )",
+        "resolved": "4.1.1",
+        "contentHash": "IsZ9MsnKg0Ti2rWRoZ+FxW8Ju3k+9Jjwmq8k+0ZoacdrSmBudvT67LxMh+UMB5qqm2qFB15lSR2p02dOIor1+w==",
         "dependencies": {
           "Be.Vlaanderen.Basisregisters.GrAr.Provenance": "22.0.0",
           "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": "6.0.0",
@@ -3254,12 +3277,12 @@
       },
       "Be.Vlaanderen.Basisregisters.Sqs.Lambda": {
         "type": "CentralTransitive",
-        "requested": "[4.0.1, )",
-        "resolved": "4.0.1",
-        "contentHash": "ajX/cyXP1FA7ZU1uXjgcP5AHeGQDriDBMLHU1mUVZxDsFGuDUk8LkJBQ5vV+5L5wrIqBnqZXFkDAwT+wofa1gw==",
+        "requested": "[4.1.1, )",
+        "resolved": "4.1.1",
+        "contentHash": "boZf6yrjxEymt6S2x4riF/3OKJ7NNov3EonFpeHAscmnFTIcMrsCxdXYma1z2MLfhgf7dH2/ZaWZT9y3sDLI0g==",
         "dependencies": {
           "Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency": "10.0.2",
-          "Be.Vlaanderen.Basisregisters.Sqs": "4.0.1",
+          "Be.Vlaanderen.Basisregisters.Sqs": "4.1.1",
           "Be.Vlaanderen.Basisregisters.TicketingService.Abstractions": "3.0.0",
           "FluentValidation": "11.11.0",
           "MediatR": "12.5.0",
@@ -4050,16 +4073,6 @@
         "requested": "[2.9.3, )",
         "resolved": "2.9.3",
         "contentHash": "/Kq28fCE7MjOV42YLVRAJzRF0WmEqsmflm0cfpMjGtzQ2lR5mYVj1/i0Y8uDAOLczkL3/jArrwehfMD0YogMAA=="
-      },
-      "Xunit.DependencyInjection.Logging": {
-        "type": "CentralTransitive",
-        "requested": "[9.0.0, )",
-        "resolved": "9.0.0",
-        "contentHash": "MOPFOGUNvvUFd6K7tRuvQDt/wd7i4x759GWdNKFMq6DZr2IJ7+a9QG8W3xN5fiQ3qfwxJhsb3LvNNYKtboInpw==",
-        "dependencies": {
-          "MartinCostello.Logging.XUnit": "0.3.0",
-          "Xunit.DependencyInjection": "9.0.0"
-        }
       }
     },
     "net9.0/linux-x64": {

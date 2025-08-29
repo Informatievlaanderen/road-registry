@@ -278,7 +278,7 @@ public class UploadExtractRequestTests: RoadNetworkTestBase
         var command = await Store.GetLastMessage<UploadRoadNetworkExtractChangesArchive>();
         command.DownloadId.Should().Be(downloadId.ToGuid());
         command.RequestId.Should().Be(requestId);
-        command.UploadId.Should().Be(response.UploadId);
+        command.UploadId.Should().Be(response.UploadId.ToGuid());
         command.TicketId.Should().Be(ticketId);
     }
 

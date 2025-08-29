@@ -75,8 +75,8 @@
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.Shaperon" Version="11.0.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.Shaperon.Geometries" Version="11.0.0" />
 
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Sqs" Version="4.0.1" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Sqs.Lambda" Version="4.0.1" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Sqs" Version="4.1.1" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.Sqs.Lambda" Version="4.1.1" />
 
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.TicketingService.Abstractions" Version="3.2.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy" Version="3.2.0" />

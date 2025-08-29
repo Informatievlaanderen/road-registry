@@ -18,13 +18,13 @@ public sealed class SqsHandlersModule : Module
             {
                 var configuration = c.Resolve<IConfiguration>();
                 var jsonSerializerSettings = SqsJsonSerializerSettingsProvider.CreateSerializerSettings();
-                
+
                 var sqsConfiguration = configuration.GetOptions<SqsConfiguration>();
                 if (sqsConfiguration?.ServiceUrl != null)
                 {
                     return new DevelopmentSqsOptions(jsonSerializerSettings, sqsConfiguration.ServiceUrl);
                 }
-                
+
                 return new SqsOptions(jsonSerializerSettings);
             })
             .As<SqsOptions>()
@@ -40,7 +40,7 @@ public sealed class SqsHandlersModule : Module
                 var hostEnvironment = c.Resolve<IHostEnvironment>();
                 if (hostEnvironment.IsDevelopment())
                 {
-                    return new FakeSqsQueueFactory(c.Resolve<SqsJsonMessageSerializer>(), c.Resolve<ILoggerFactory>());
+                    return new SqsQueueFactoryAndConsumerForDevelopment(c.Resolve<SqsJsonMessageSerializer>(), c.Resolve<ILoggerFactory>());
                 }
 
                 return new SqsQueueFactory(c.Resolve<SqsOptions>());
@@ -48,12 +48,16 @@ public sealed class SqsHandlersModule : Module
             .SingleInstance();
 
         builder
-            .Register(c => new SqsQueuePublisher(c.Resolve<SqsOptions>(), c.Resolve<ILogger<SqsQueuePublisher>>()))
-            .As<ISqsQueuePublisher>()
-            .SingleInstance();
+            .Register(c =>
+            {
+                var hostEnvironment = c.Resolve<IHostEnvironment>();
+                if (hostEnvironment.IsDevelopment())
+                {
+                    return (ISqsQueueConsumer)new SqsQueueFactoryAndConsumerForDevelopment(c.Resolve<SqsJsonMessageSerializer>(), c.Resolve<ILoggerFactory>());
+                }
 
-        builder
-            .Register(c => new SqsQueueConsumer(c.Resolve<SqsOptions>(), c.Resolve<ILogger<SqsQueueConsumer>>()))
+                return new SqsQueueConsumer(c.Resolve<SqsOptions>(), c.Resolve<ILogger<SqsQueueConsumer>>());
+            })
             .As<ISqsQueueConsumer>()
             .SingleInstance();
 

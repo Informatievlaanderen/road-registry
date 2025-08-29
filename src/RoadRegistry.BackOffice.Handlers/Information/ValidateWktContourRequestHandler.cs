@@ -1,18 +1,11 @@
 namespace RoadRegistry.BackOffice.Handlers.Information;
 
 using Abstractions;
-using Abstractions.Exceptions;
 using Abstractions.Information;
-using FluentValidation;
 using Framework;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.IO;
 
-/// <summary>
-///     Upload controller, get upload
-/// </summary>
-/// <exception cref="ExtractDownloadNotFoundException"></exception>
-/// <exception cref="ValidationException"></exception>
 public class ValidateWktContourRequestHandler : EndpointRequestHandler<ValidateWktContourRequest, ValidateWktContourResponse>
 {
     public const int SquareKmMaximum = 100;
@@ -36,7 +29,7 @@ public class ValidateWktContourRequestHandler : EndpointRequestHandler<ValidateW
             Area = geometry.Area,
             AreaMaximumSquareKilometers = SquareKmMaximum,
             IsValid = geometry.IsValid,
-            IsLargerThanMaximumArea =  geometry.Area > (SquareKmMaximum * 1000 * 1000)
+            IsLargerThanMaximumArea = geometry.Area > (SquareKmMaximum * 1000 * 1000)
         };
 
         return Task.FromResult(response);

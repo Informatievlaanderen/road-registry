@@ -2,6 +2,7 @@ import Vue from "vue";
 import Router, { RawLocation, Route, RouteConfig } from "vue-router";
 import { ActivityRoutes } from "./modules/activity";
 import { ExtractRoutes } from "./modules/extract";
+import { ExtractRoutes as ExtractRoutesV2 } from "./modules/extract-v2";
 import { InformationRoutes } from "./modules/information";
 import { DownloadExtractRoutes } from "./modules/download-extract";
 import { DownloadProductRoutes } from "./modules/download-product";
@@ -19,16 +20,13 @@ const routes: RouteConfig[] = [
   ...AuthRoutes,
   ...ActivityRoutes,
   ...ExtractRoutes,
+  ...ExtractRoutesV2,
   ...InformationRoutes,
   ...DownloadExtractRoutes,
   ...DownloadProductRoutes,
   ...UploadRoutes,
   ...TransactionZonesRoutes,
 ];
-
-function ensureRouteMetaValue(route: Route, predicate: (meta: any) => boolean) {
-  return route.matched.some((m) => predicate(m.meta));
-}
 
 routes.push({
   path: "*",

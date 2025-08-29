@@ -1,5 +1,7 @@
 import Vue from "vue";
 import axios, { AxiosInstance, Method } from "axios";
+import RoadRegistry from "@/types/road-registry";
+import RoadRegistryExceptions from "@/types/road-registry-exceptions";
 import { AuthService } from "@/auth";
 import router from "@/router";
 import { featureToggles } from "@/environment";
@@ -134,6 +136,19 @@ export class AxiosHttpApiClient implements IApiClient {
     return await this.axios.patch<T>(url, data, { headers });
   }
 }
+
+export const convertError = (exception: any) => {
+  if (axios.isAxiosError(exception)) {
+    const response = exception?.response;
+    if (response && response.status === 400) {
+      // HTTP Bad Request
+      const error = response?.data as RoadRegistry.BadRequestResponse;
+      return new RoadRegistryExceptions.BadRequestError(error);
+    }
+  }
+
+  return exception;
+};
 
 export const apiClient = new AxiosHttpApiClient() as IApiClient;
 export default apiClient;

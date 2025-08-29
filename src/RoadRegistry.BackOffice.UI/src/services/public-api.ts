@@ -1,4 +1,4 @@
-import apiClient, { AxiosHttpApiClient } from "./api-client";
+import apiClient, { AxiosHttpApiClient, convertError } from "./api-client";
 import RoadRegistry from "@/types/road-registry";
 import RoadRegistryExceptions from "@/types/road-registry-exceptions";
 import Municipalities from "@/types/municipalities";
@@ -112,12 +112,178 @@ export const PublicApi = {
     },
     downloadUsingPresignedUrl: async (identifier: string): Promise<void> => {
       const path = `${apiEndpoint}/v2/wegen/upload/${identifier}/presignedurl`;
-      const response = await apiClient.get<RoadRegistry.GetUploadDownloadPreSignedUrlResponse>(path);
+      const response = await apiClient.get<RoadRegistry.DownloadUploadResponse>(path);
 
       downloadFile(response.data.downloadUrl, response.data.fileName);
     },
   },
   Extracts: {
+    V2: {
+      requestExtractByContour: async (
+        downloadRequest: RoadRegistry.ExtractDownloadaanvraagPerContourBody
+      ): Promise<RoadRegistry.RequestExtractResponse> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.requestExtractByContour(downloadRequest);
+        }
+
+        try {
+          const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/percontour`;
+          const response = await apiClient.post<RoadRegistry.ExtractDownloadaanvraagResponse>(path, downloadRequest);
+          return {
+            downloadId: response.data.downloadId,
+            ticketUrl: response.headers.location,
+          };
+        } catch (exception) {
+          throw convertError(exception);
+        }
+      },
+      requestExtractByFile: async (
+        downloadRequest: RoadRegistry.ExtractDownloadaanvraagPerBestandBody
+      ): Promise<RoadRegistry.RequestExtractResponse> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.requestExtractByFile(downloadRequest);
+        }
+
+        const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/perbestand`;
+
+        const data = new FormData();
+        data.append("beschrijving", downloadRequest.beschrijving);
+        data.append("informatief", downloadRequest.informatief.toString());
+        downloadRequest.bestanden.forEach((file) => {
+          data.append("bestanden", file, file.name);
+        });
+
+        try {
+          const response = await apiClient.post<RoadRegistry.ExtractDownloadaanvraagResponse>(path, data);
+          return {
+            downloadId: response.data.downloadId,
+            ticketUrl: response.headers.location,
+          };
+        } catch (exception) {
+          throw convertError(exception);
+        }
+      },
+      requestExtractByNisCode: async (
+        downloadRequest: RoadRegistry.ExtractDownloadaanvraagPerNisCodeBody
+      ): Promise<RoadRegistry.RequestExtractResponse> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.requestExtractByNisCode(downloadRequest);
+        }
+
+        const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/perniscode`;
+
+        try {
+          const response = await apiClient.post<RoadRegistry.ExtractDownloadaanvraagResponse>(path, downloadRequest);
+          return {
+            downloadId: response.data.downloadId,
+            ticketUrl: response.headers.location,
+          };
+        } catch (exception) {
+          throw convertError(exception);
+        }
+      },
+
+      getOverlappingExtractsByNisCode: async (
+        nisCode: String
+      ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.getOverlappingExtractsByNisCode(nisCode);
+        }
+
+        const request = {
+          nisCode,
+        } as RoadRegistry.ListOverlappingExtractsByNisCodeRequest;
+        const path = `${apiEndpoint}/v2/wegen/extracten/overlapping/perniscode`;
+        const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
+        return response.data;
+      },
+      getOverlappingExtractsByContour: async (
+        contour: String
+      ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.getOverlappingExtractsByContour(contour);
+        }
+
+        const request = {
+          contour,
+        } as RoadRegistry.ListOverlappingExtractsByContourRequest;
+        const path = `${apiEndpoint}/v2/wegen/extracten/overlapping/percontour`;
+        const response = await apiClient.post<RoadRegistry.ListOverlappingExtractsResponse>(path, request);
+        return response.data;
+      },
+
+      getList: async (eigenExtracten: boolean, page: number): Promise<RoadRegistry.ExtractListResponse> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.getList(eigenExtracten, page);
+        }
+
+        const path = `${apiEndpoint}/v2/wegen/extracten`;
+        const response = await apiClient.get<RoadRegistry.ExtractListResponse>(path, {
+          eigenExtracten: eigenExtracten,
+          page: page,
+        });
+        return response.data;
+      },
+      getDetails: async (downloadId: string): Promise<RoadRegistry.ExtractDetailsV2> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.getDetails(downloadId);
+        }
+
+        const path = `${apiEndpoint}/v2/wegen/extracten/${downloadId}`;
+        const response = await apiClient.get<RoadRegistry.ExtractDetailsV2>(path);
+        return response.data;
+      },
+      downloadExtract: async (downloadId: string): Promise<void> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.downloadExtract(downloadId);
+        }
+
+        const path = `${apiEndpoint}/v2/wegen/extracten/${downloadId}/download`;
+        const response = await apiClient.get<RoadRegistry.DownloadExtractResponse>(path);
+
+        downloadFile(response.data.downloadUrl, `${downloadId}.zip`);
+      },
+      downloadUpload: async (downloadId: string): Promise<void> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.downloadUpload(downloadId);
+        }
+
+        const path = `${apiEndpoint}/v2/wegen/extracten/${downloadId}/upload`;
+        const response = await apiClient.get<RoadRegistry.DownloadUploadResponse>(path);
+
+        downloadFile(response.data.downloadUrl, response.data.fileName);
+      },
+      upload: async (
+        downloadId: string,
+        file: Blob,
+        filename: string
+      ): Promise<RoadRegistry.UploadPresignedUrlResponse | null> => {
+        if (useBackOfficeApi) {
+          return BackOfficeApi.Extracts.V2.upload(downloadId, file, filename);
+        }
+
+        const path = `${apiEndpoint}/v2/wegen/extracten/${downloadId}/upload`;
+        const response = await apiClient.post<RoadRegistry.UploadPresignedUrlResponse>(path);
+
+        const data = new FormData();
+        if (response.data.uploadUrlFormData) {
+          for (let key in response.data.uploadUrlFormData) {
+            data.append(key, response.data.uploadUrlFormData[key]);
+          }
+        }
+        data.append("file", file, filename);
+
+        let awsHttp = axios.create();
+        var uploadFileResponse = await awsHttp.post(response.data.uploadUrl, data);
+
+        let status = uploadFileResponse.status as any;
+        if (status !== 204) {
+          return null;
+        }
+
+        return response.data;
+      },
+    },
     getDetails: async (downloadId: string) => {
       if (useBackOfficeApi) {
         return BackOfficeApi.Extracts.getDetails(downloadId);
@@ -133,7 +299,7 @@ export const PublicApi = {
     },
     downloadUsingPresignedUrl: async (downloadId: string): Promise<void> => {
       const path = `${apiEndpoint}/v2/wegen/extract/download/${downloadId}/presignedurl`;
-      const response = await apiClient.get<RoadRegistry.GetExtractDownloadPreSignedUrlResponse>(path);
+      const response = await apiClient.get<RoadRegistry.DownloadExtractResponse>(path);
 
       downloadFile(response.data.downloadUrl, `${downloadId}.zip`);
     },
@@ -151,33 +317,33 @@ export const PublicApi = {
     },
     postDownloadRequest: async (
       downloadRequest: RoadRegistry.DownloadExtractRequest
-    ): Promise<RoadRegistry.DownloadExtractResponse> => {
+    ): Promise<RoadRegistry.DownloadExtractResponseBody> => {
       if (useBackOfficeApi) {
         return BackOfficeApi.Extracts.postDownloadRequest(downloadRequest);
       }
 
       const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen`;
-      const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, downloadRequest);
+      const response = await apiClient.post<RoadRegistry.DownloadExtractResponseBody>(path, downloadRequest);
       return response.data;
     },
     postDownloadRequestByContour: async (
       downloadRequest: RoadRegistry.DownloadExtractByContourRequest
-    ): Promise<RoadRegistry.DownloadExtractResponse> => {
+    ): Promise<RoadRegistry.DownloadExtractResponseBody> => {
       if (useBackOfficeApi) {
         return BackOfficeApi.Extracts.postDownloadRequestByContour(downloadRequest);
       }
 
       try {
         const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/percontour`;
-        const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, downloadRequest);
+        const response = await apiClient.post<RoadRegistry.DownloadExtractResponseBody>(path, downloadRequest);
         return response.data;
       } catch (exception) {
         if (axios.isAxiosError(exception)) {
           const response = exception?.response;
           if (response && response.status === 400) {
             // HTTP Bad Request
-            const error = response?.data as RoadRegistry.PerContourErrorResponse;
-            throw new RoadRegistryExceptions.RequestExtractPerContourError(error);
+            const error = response?.data as RoadRegistry.BadRequestResponse;
+            throw new RoadRegistryExceptions.BadRequestError(error);
           }
         }
 
@@ -186,7 +352,7 @@ export const PublicApi = {
     },
     postDownloadRequestByFile: async (
       downloadRequest: RoadRegistry.DownloadExtractByFileRequest
-    ): Promise<RoadRegistry.DownloadExtractResponse> => {
+    ): Promise<RoadRegistry.DownloadExtractResponseBody> => {
       if (useBackOfficeApi) {
         return BackOfficeApi.Extracts.postDownloadRequestByFile(downloadRequest);
       }
@@ -201,15 +367,15 @@ export const PublicApi = {
       });
 
       try {
-        const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, data);
+        const response = await apiClient.post<RoadRegistry.DownloadExtractResponseBody>(path, data);
         return response.data;
       } catch (exception) {
         if (axios.isAxiosError(exception)) {
           const response = exception?.response;
           if (response && response.status === 400) {
             // HTTP Bad Request
-            const error = response?.data as RoadRegistry.PerContourErrorResponse;
-            throw new RoadRegistryExceptions.RequestExtractPerContourError(error);
+            const error = response?.data as RoadRegistry.BadRequestResponse;
+            throw new RoadRegistryExceptions.BadRequestError(error);
           }
         }
 
@@ -218,13 +384,13 @@ export const PublicApi = {
     },
     postDownloadRequestByNisCode: async (
       downloadRequest: RoadRegistry.DownloadExtractByNisCodeRequest
-    ): Promise<RoadRegistry.DownloadExtractResponse> => {
+    ): Promise<RoadRegistry.DownloadExtractResponseBody> => {
       if (useBackOfficeApi) {
         return BackOfficeApi.Extracts.postDownloadRequestByNisCode(downloadRequest);
       }
 
       const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/perniscode`;
-      const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, downloadRequest);
+      const response = await apiClient.post<RoadRegistry.DownloadExtractResponseBody>(path, downloadRequest);
       return response.data;
     },
     getOverlappingExtractRequestsByNisCode: async (
@@ -328,8 +494,14 @@ export const PublicApi = {
             headers
           )
         ).data;
-        municipalities.push(...response.gemeenten);
-        if (!response.volgende) break;
+        if (response.gemeenten) {
+          municipalities.push(...response.gemeenten);
+        }
+
+        if (!response.volgende) {
+          break;
+        }
+
         query.offset += query.limit;
       }
 
@@ -339,7 +511,7 @@ export const PublicApi = {
   Ticketing: {
     get: async (id: string): Promise<RoadRegistry.TicketDetails> => {
       const path = `${apiEndpoint}/v2/tickets/${id}`;
-      const response = await apiClient.get<RoadRegistry.TicketDetails>(path, { params: { t: new Date().getTime() } });
+      const response = await apiClient.get<RoadRegistry.TicketDetails>(path, { t: new Date().getTime() });
       return response.data;
     },
   },
