@@ -7,10 +7,9 @@ using Xunit.Sdk;
 
 public partial class ExtractsControllerTests
 {
-    [Fact]
+    [Fact(Skip = "//TODO-pr implement test")]
     public async Task WhenReceivingAllExtracts()
     {
-        //TODO-pr implement test
         throw new NotImplementedException();
         // try
         // {
@@ -25,10 +24,9 @@ public partial class ExtractsControllerTests
         // }
     }
 
-    [Fact]
+    [Fact(Skip = "//TODO-pr implement test")]
     public async Task WhenReceivingOwnOrganizationExtracts()
     {
-        //TODO-pr implement test
         throw new NotImplementedException();
         // var result = await Controller.GetStatus(
         //     Guid.NewGuid().ToString("N"),

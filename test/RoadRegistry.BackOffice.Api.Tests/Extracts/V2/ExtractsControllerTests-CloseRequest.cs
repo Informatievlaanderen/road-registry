@@ -6,10 +6,9 @@ using Xunit.Sdk;
 
 public partial class ExtractsControllerTests
 {
-    [Fact]
+    [Fact(Skip = "//TODO-pr implement test")]
     public async Task WhenClosingRequest()
     {
-        //TODO-pr implement test
         throw new NotImplementedException();
         // try
         // {

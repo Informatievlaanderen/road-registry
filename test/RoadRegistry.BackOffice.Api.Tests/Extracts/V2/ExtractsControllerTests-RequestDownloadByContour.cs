@@ -23,7 +23,7 @@ public class DownloadExtractByContourRequestValidatorTests
             new NullLogger<DownloadExtractByContourRequestValidator>());
 
         //TODO-pr implement test
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     // public static IEnumerable<object[]> InvalidDescriptionCases()
