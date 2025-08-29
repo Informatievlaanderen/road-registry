@@ -20,7 +20,7 @@ public sealed class SqsHandlersModule : Module
                 var jsonSerializerSettings = SqsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
                 var sqsConfiguration = configuration.GetOptions<SqsConfiguration>();
-                if (sqsConfiguration?.ServiceUrl != null)
+                if (!string.IsNullOrEmpty(sqsConfiguration?.ServiceUrl))
                 {
                     return new DevelopmentSqsOptions(jsonSerializerSettings, sqsConfiguration.ServiceUrl);
                 }
