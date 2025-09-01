@@ -36,7 +36,7 @@ public partial class ExtractenController
     public async Task<IActionResult> ExtractDownloadaanvraagPerContour(
         [FromBody] ExtractDownloadaanvraagPerContourBody body,
         [FromServices] IValidator<ExtractDownloadaanvraagPerContourBody> validator,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -67,11 +67,16 @@ public class ExtractDownloadaanvraagPerContourBodyValidator : AbstractValidator<
     public ExtractDownloadaanvraagPerContourBodyValidator()
     {
         RuleFor(x => x.Contour)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
+            .WithProblemCode(ProblemCode.Extract.ContourIsRequired)
             .Must(x => new ExtractContourValidator().IsValid(x))
-            .WithProblemCode(ProblemCode.Extract.ContourInvalid);
+            .WithProblemCode(ProblemCode.Extract.ContourInvalid)
+            ;
 
         RuleFor(c => c.Beschrijving)
-            .NotNull()
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
             .WithProblemCode(ProblemCode.Extract.BeschrijvingIsRequired)
             .MaximumLength(ExtractDescription.MaxLength)
             .WithProblemCode(ProblemCode.Extract.BeschrijvingTooLong);

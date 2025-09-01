@@ -36,7 +36,7 @@ public partial class ExtractenController
         [FromRoute] string downloadId,
         [FromServices] ExtractsDbContext extractsDbContext,
         [FromServices] ITicketing ticketing,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         if (!DownloadId.TryParse(downloadId, out var parsedDownloadId))
         {

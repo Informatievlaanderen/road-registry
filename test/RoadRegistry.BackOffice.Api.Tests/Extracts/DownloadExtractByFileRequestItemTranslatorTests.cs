@@ -6,11 +6,11 @@ using FluentAssertions;
 using FluentValidation;
 using ContentType = Be.Vlaanderen.Basisregisters.BlobStore.ContentType;
 
-public class DownloadExtractByFileRequestItemTranslatorTests : IAsyncLifetime
+public class ExtractShapefileContourReaderTests : IAsyncLifetime
 {
     private const int ValidBuffer = 50;
     
-    private readonly IDownloadExtractByFileRequestItemTranslator _translator = new DownloadExtractByFileRequestItemTranslator();
+    private readonly IDownloadExtractByFileRequestItemTranslator _translator = new ExtractShapefileContourReader();
     private DownloadExtractByFileRequestItem _prjFilePoint;
     private DownloadExtractByFileRequestItem _prjFilePolygon;
     private DownloadExtractByFileRequestItem _shpFilePoint;

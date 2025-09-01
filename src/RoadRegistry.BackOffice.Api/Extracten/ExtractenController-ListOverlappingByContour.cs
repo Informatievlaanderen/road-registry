@@ -25,7 +25,7 @@ public partial class ExtractenController
     public async Task<IActionResult> GetOverlappingPerContour(
         [FromBody] GetOverlappingPerContourBody body,
         [FromServices] GetOverlappingPerContourBodyValidator validator,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         await validator.ValidateAndThrowAsync(body, cancellationToken);
 

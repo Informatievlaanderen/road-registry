@@ -36,6 +36,8 @@ public static class ProblemTranslator
 
         {ProblemCode.Extract.NotFound, problem => new(problem.Severity, "ExtractNietGekend",
             "Het extract werd niet gevonden.")},
+        {ProblemCode.Extract.ContourIsRequired, problem => new(problem.Severity, "ContourVerplicht",
+            "Contour is verplicht.")},
         {ProblemCode.Extract.ContourInvalid, problem => new(problem.Severity, "ContourOngeldig",
             "Contour is ongeldig.")},
         {ProblemCode.Extract.BeschrijvingIsRequired, problem => new(problem.Severity, "BeschrijvingVerplicht",
@@ -44,6 +46,12 @@ public static class ProblemTranslator
             $"Beschrijving mag niet langer zijn dan {ExtractDescription.MaxLength} karakters.")},
         {ProblemCode.Extract.ExterneIdInvalid, problem => new(problem.Severity, "ExterneIdOngeldig",
             "ExterneId is ongeldig.")},
+        {ProblemCode.Extract.ProjectionInvalid, problem => new(problem.Severity, "ProjectieOngeldig",
+            "Projectie formaat moet Lambert 1972 zijn")},
+        {ProblemCode.Extract.NisCodeIsRequired, problem => new(problem.Severity, "NisCodeVerplicht",
+            "NIS-code is verplicht.")},
+        {ProblemCode.Extract.NisCodeInvalid, problem => new(problem.Severity, "NisCodeOngeldig",
+            "NIS-code is ongeldig. Verwacht formaat: '12345'")},
 
         {ProblemCode.FromPosition.IsRequired, problem => new(problem.Severity, "VanPositieVerplicht",
             "VanPositie is verplicht.")},

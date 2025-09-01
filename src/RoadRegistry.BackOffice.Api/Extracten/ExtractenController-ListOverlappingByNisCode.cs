@@ -30,7 +30,7 @@ public partial class ExtractenController
         [FromBody] GetOverlappingPerNisCodeBody body,
         [FromServices] GetOverlappingPerNisCodeBodyValidator validator,
         [FromServices] MunicipalityEventConsumerContext municipalityContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         await validator.ValidateAndThrowAsync(body, cancellationToken);
 

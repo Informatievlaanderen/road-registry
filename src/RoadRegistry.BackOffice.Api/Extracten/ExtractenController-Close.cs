@@ -24,7 +24,7 @@ public partial class ExtractenController
     public async Task<IActionResult> SluitExtract(
         [FromRoute] string downloadId,
         [FromServices] ExtractsDbContext extractsDbContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         if (!DownloadId.TryParse(downloadId, out var parsedDownloadId))
         {

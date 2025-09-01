@@ -1,27 +1,23 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Organizations;
 
 using Api.Organizations;
-using BackOffice.Extracts;
-using BackOffice.Uploads;
 using Editor.Schema;
 using Editor.Schema.Organizations;
 using Infrastructure;
-using MediatR;
 using SqlStreamStore;
 
-public partial class OrganizationControllerTests : ControllerTests<OrganizationsController>, IAsyncLifetime
+public partial class OrganizationControllerTests : ControllerMinimalTests<OrganizationsController>, IAsyncLifetime
 {
+    private readonly IStreamStore _store;
     private readonly EditorContext _editorContext;
 
     public OrganizationControllerTests(
         OrganizationsController controller,
-        IMediator mediator,
         IStreamStore streamStore,
-        EditorContext editorContext,
-        RoadNetworkUploadsBlobClient uploadClient,
-        RoadNetworkExtractUploadsBlobClient extractUploadClient)
-        : base(controller, mediator, streamStore, uploadClient, extractUploadClient)
+        EditorContext editorContext)
+        : base(controller)
     {
+        _store = streamStore;
         _editorContext = editorContext.ThrowIfNull();
     }
 
