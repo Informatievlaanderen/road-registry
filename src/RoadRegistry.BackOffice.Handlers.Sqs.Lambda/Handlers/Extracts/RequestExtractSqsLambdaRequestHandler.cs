@@ -5,7 +5,6 @@ using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using Exceptions;
 using FluentValidation;
 using FluentValidation.Results;
 using Hosts;
@@ -54,7 +53,7 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
     {
         var extractRequestId = ExtractRequestId.FromString(request.Request.ExtractRequestId);
         var contour = _wktReader.Read(request.Request.Contour).ToMultiPolygon();
-        var downloadId = DownloadId.Parse(request.Request.DownloadId);
+        var downloadId = new DownloadId(request.Request.DownloadId);
         var extractDescription = new ExtractDescription(request.Request.Description);
         var isInformative = request.Request.IsInformative;
 
