@@ -30,11 +30,6 @@ public class DbContextBuilder
 
     public ExtractsDbContext CreateExtractsDbContext()
     {
-        var options = new DbContextOptionsBuilder<ExtractsDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .EnableSensitiveDataLogging()
-            .Options;
-
-        return new ExtractsDbContext(options);
+        return new FakeExtractsDbContextFactory().CreateDbContext();
     }
 }

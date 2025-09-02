@@ -57,7 +57,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                     ContentType.Parse("X-multipart/abc"),
                     _ => Task.FromResult<Stream>(EmbeddedResourceReader.Read("valid.zip"))));
 
-            var extractsDbContext = CreateExtractsDbContext();
+            var extractsDbContext = new FakeExtractsDbContextFactory().CreateDbContext();
             extractsDbContext.ExtractDownloads.Add(new ExtractDownload
             {
                 DownloadId = downloadId,
@@ -170,16 +170,6 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 It.IsAny<CancellationToken>()), Times.Once);
 
             mockIHostApplicationLifeTime.Verify(x => x.StopApplication(), Times.Once);
-        }
-
-        private ExtractsDbContext CreateExtractsDbContext()
-        {
-            var options = new DbContextOptionsBuilder<ExtractsDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .EnableSensitiveDataLogging()
-                .Options;
-
-            return new ExtractsDbContext(options);
         }
     }
 }
