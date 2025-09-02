@@ -1,17 +1,17 @@
-namespace RoadRegistry.BackOffice.Api.Handlers.Extracts.V2;
+namespace RoadRegistry.BackOffice.Api.Handlers.Extracts;
 
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions;
-using Abstractions.Extracts.V2;
-using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Exceptions;
-using Framework;
-using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice.Abstractions;
+using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
+using RoadRegistry.BackOffice.Api.Infrastructure;
+using RoadRegistry.BackOffice.Exceptions;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.Extracts.Schema;
 
 public class GetDownloadUploadPresignedUrlRequestHandler : EndpointRequestHandler<GetDownloadUploadPresignedUrlRequest, GetDownloadUploadPresignedUrlResponse>
@@ -22,8 +22,8 @@ public class GetDownloadUploadPresignedUrlRequestHandler : EndpointRequestHandle
 
     public GetDownloadUploadPresignedUrlRequestHandler(
         CommandHandlerDispatcher dispatcher,
-        RoadNetworkExtractUploadsBlobClient client,
         ExtractsDbContext extractsDbContext,
+        RoadNetworkExtractUploadsBlobClient client,
         IDownloadFileUrlPresigner downloadFileUrlPresigner,
         ILoggerFactory logger)
         : base(dispatcher, logger.CreateLogger<GetDownloadUploadPresignedUrlRequestHandler>())

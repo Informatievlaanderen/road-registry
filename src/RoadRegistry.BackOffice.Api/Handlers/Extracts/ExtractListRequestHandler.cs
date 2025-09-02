@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Handlers.Extracts.V2;
+namespace RoadRegistry.BackOffice.Api.Handlers.Extracts;
 
 using System.Linq;
 using System.Threading;
@@ -56,15 +56,14 @@ public class ExtractListRequestHandler : EndpointRequestHandler<ExtractListReque
                             : 9)
             .ThenByDescending(x => x.Download.RequestedOn);
 
-        var pageSize = 100;
-        query = query.Skip(request.PageIndex * pageSize).Take(pageSize + 1);
+        query = query.Skip(request.PageIndex * request.PageSize).Take(request.PageSize + 1);
 
         var records = await query.ToListAsync(cancellationToken);
 
         return new ExtractListResponse
         {
             Items = records
-                .Take(pageSize)
+                .Take(request.PageSize)
                 .Select(record => new ExtractListItem
                 {
                     DownloadId = new DownloadId(record.Download.DownloadId),
@@ -77,7 +76,7 @@ public class ExtractListRequestHandler : EndpointRequestHandler<ExtractListReque
                     Closed = record.Download.Closed,
                 })
                 .ToList(),
-            MoreDataAvailable = records.Count > pageSize
+            MoreDataAvailable = records.Count > request.PageSize
         };
     }
 }

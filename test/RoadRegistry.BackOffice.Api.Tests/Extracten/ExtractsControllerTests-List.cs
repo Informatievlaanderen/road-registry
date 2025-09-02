@@ -21,7 +21,7 @@ public partial class ExtractsControllerTests
         };
 
         Mediator
-            .Setup(x => x.Send(new ExtractListRequest(null, 0), It.IsAny<CancellationToken>()))
+            .Setup(x => x.Send(new ExtractListRequest(null, 0, 100), It.IsAny<CancellationToken>()))
             .ReturnsAsync(extractListResponse);
 
         // Act
@@ -48,7 +48,7 @@ public partial class ExtractsControllerTests
         };
 
         Mediator
-            .Setup(x => x.Send(new ExtractListRequest(TestOrgCode, 0), It.IsAny<CancellationToken>()))
+            .Setup(x => x.Send(new ExtractListRequest(TestOrgCode, 0, 100), It.IsAny<CancellationToken>()))
             .ReturnsAsync(extractListResponse);
 
         // Act

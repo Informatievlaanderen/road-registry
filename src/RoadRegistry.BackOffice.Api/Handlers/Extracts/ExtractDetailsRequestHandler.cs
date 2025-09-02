@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Handlers.Extracts.V2;
+namespace RoadRegistry.BackOffice.Api.Handlers.Extracts;
 
 using System.Linq;
 using System.Threading;
