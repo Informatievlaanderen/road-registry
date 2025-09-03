@@ -30,18 +30,9 @@ public class ExtractRequestConfiguration : IEntityTypeConfiguration<ExtractReque
             .IsRequired();
 
         b.Property(p => p.Description).IsRequired();
-        // b.Property(p => p.Contour)
-        //     .HasColumnType("Geometry")
-        //     .IsRequired();
         b.Property(p => p.CurrentDownloadId).IsRequired();
         b.Property(p => p.RequestedOn).IsRequired();
-        //b.Property(p => p.IsInformative).IsRequired();
-        //b.Property(p => p.ExternalRequestId).IsRequired(false);
-        //b.Property(p => p.DownloadedOn).IsRequired(false);
-        //b.Property(p => p.ArchiveId).IsRequired(false);
-        //b.Property(p => p.TicketId).IsRequired(false);
 
         b.HasIndex(x => x.CurrentDownloadId);
-        //     .IsUnique();
     }
 }

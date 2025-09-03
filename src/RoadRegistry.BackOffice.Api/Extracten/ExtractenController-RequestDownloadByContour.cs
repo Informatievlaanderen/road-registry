@@ -89,7 +89,7 @@ public class ExtractDownloadaanvraagPerContourBodyValidator : AbstractValidator<
         });
     }
 
-    private class ExtractContourValidator
+    private sealed class ExtractContourValidator
     {
         private const int SquareKmMaximum = 100;
 
