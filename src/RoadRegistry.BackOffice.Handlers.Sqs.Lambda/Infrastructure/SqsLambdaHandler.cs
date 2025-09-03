@@ -52,8 +52,7 @@ public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambd
         {
             RoadSegmentOutlinedNotFoundException => new RoadSegmentOutlinedNotFound().ToTicketError(),
             RoadSegmentNotFoundException => new RoadSegmentNotFound().ToTicketError(),
-            //TODO-pr lambda exception translation to ticketerror
-            ExtractRequestNotFoundException ex => new ExtractRequestNotFound(ex.DownloadId).ToTicketError(),
+            ExtractRequestNotFoundException ex => new ExtractNotFound(ex.DownloadId).ToTicketError(),
             _ => null
         };
     }

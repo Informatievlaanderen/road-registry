@@ -2,9 +2,13 @@ namespace RoadRegistry.BackOffice.Exceptions;
 
 public sealed class ExtractDownloadNotFoundException : RoadRegistryException
 {
+    public DownloadId DownloadId { get; }
+
     public ExtractDownloadNotFoundException(DownloadId downloadId)
         : this(downloadId.ToString())
-    { }
+    {
+        DownloadId = downloadId;
+    }
 
     public ExtractDownloadNotFoundException(string identifier)
         : base($"Could not find the download with identifier {identifier}")

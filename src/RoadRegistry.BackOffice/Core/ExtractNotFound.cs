@@ -2,9 +2,9 @@ namespace RoadRegistry.BackOffice.Core;
 
 using ProblemCodes;
 
-public class ExtractRequestNotFound : Error
+public class ExtractNotFound : Error
 {
-    public ExtractRequestNotFound(DownloadId downloadId)
+    public ExtractNotFound(DownloadId downloadId)
         : base(ProblemCode.Extract.NotFound,
             new ProblemParameter("DownloadId", downloadId))
     {

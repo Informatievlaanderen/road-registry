@@ -1,8 +1,9 @@
 namespace RoadRegistry.BackOffice.Abstractions.Exceptions;
 
+using BackOffice.Exceptions;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 
-public sealed class UnsupportedMediaTypeException : Exception
+public sealed class UnsupportedMediaTypeException : RoadRegistryException
 {
     public ContentType? ContentType { get; }
 

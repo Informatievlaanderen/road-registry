@@ -9,11 +9,13 @@ using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Core;
+using Core.ProblemCodes;
 using Exceptions;
 using FeatureCompare;
-using FluentValidation;
 using Framework;
 using Hosts;
+using Hosts.Infrastructure.Extensions;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -94,6 +96,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
                 extractDownload.UploadStatus = ExtractUploadStatus.Rejected;
                 await _extractsDbContext.SaveChangesAsync(cancellationToken);
             }
+
             throw;
         }
     }
@@ -102,18 +105,16 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
     {
         var downloadId = new DownloadId(request.Request.DownloadId);
         var uploadId = new UploadId(request.Request.UploadId);
-        var archiveBlob = await _uploadsBlobClient.GetBlobAsync(new BlobName(uploadId), cancellationToken);
-
-        if (!ContentType.TryParse(archiveBlob.ContentType, out var parsed) || !SupportedContentTypes.Contains(parsed))
-        {
-            throw new UnsupportedMediaTypeException(archiveBlob.ContentType);
-        }
+        var blobName = new BlobName(uploadId);
 
         var extractDownload = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
         if (extractDownload is null)
         {
             throw new ExtractDownloadNotFoundException(downloadId);
         }
+
+        extractDownload.UploadId = uploadId;
+        extractDownload.UploadedOn = DateTimeOffset.UtcNow;
 
         if (extractDownload.IsInformative)
         {
@@ -130,16 +131,25 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
             throw new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException();
         }
 
-        extractDownload.UploadId = uploadId;
-        extractDownload.UploadedOn = DateTimeOffset.UtcNow;
-        extractDownload.UploadStatus = ExtractUploadStatus.Processing;
-        await _extractsDbContext.SaveChangesAsync(cancellationToken);
-
         var extractRequest = await _extractsDbContext.ExtractRequests.SingleOrDefaultAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId && x.CurrentDownloadId == downloadId.ToGuid(), cancellationToken);
         if (extractRequest is null)
         {
             throw new CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException();
         }
+
+        var archiveBlob = await _uploadsBlobClient.GetBlobAsync(blobName, cancellationToken);
+        if (archiveBlob is null)
+        {
+            throw new BlobNotFoundException(blobName);
+        }
+
+        if (!ContentType.TryParse(archiveBlob.ContentType, out var parsed) || !SupportedContentTypes.Contains(parsed))
+        {
+            throw new UnsupportedMediaTypeException(archiveBlob.ContentType);
+        }
+
+        extractDownload.UploadStatus = ExtractUploadStatus.Processing;
+        await _extractsDbContext.SaveChangesAsync(cancellationToken);
 
         var extractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId);
 
@@ -175,7 +185,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         }
         catch (InvalidDataException)
         {
-            throw new UnsupportedMediaTypeException();
+            throw new CorruptArchiveException();
         }
         catch (ZipArchiveValidationException ex)
         {
@@ -217,12 +227,33 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         }
         catch (InvalidDataException)
         {
-            throw new UnsupportedMediaTypeException();
+            throw new CorruptArchiveException();
         }
     }
 
     protected override Task ValidateIfMatchHeaderValue(UploadExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
+    }
+
+    protected override TicketError? InnerMapDomainException(DomainException exception, UploadExtractSqsLambdaRequest request)
+    {
+        return ConvertToError(exception, request)?.ToTicketError()
+            ?? base.InnerMapDomainException(exception, request);
+    }
+
+    private Error? ConvertToError(DomainException exception, UploadExtractSqsLambdaRequest request)
+    {
+        return exception switch
+        {
+            UnsupportedMediaTypeException ex => ex.ContentType is not null ? new UnsupportedMediaType(ex.ContentType.Value) : new UnsupportedMediaType(),
+            CorruptArchiveException => new Error(ProblemCode.Extract.CorruptArchive),
+            ExtractDownloadNotFoundException ex => new ExtractNotFound(ex.DownloadId),
+            ExtractRequestMarkedInformativeException => new Error(ProblemCode.Extract.CanNotUploadForInformativeExtract),
+            ExtractRequestClosedException => new Error(ProblemCode.Extract.CanNotUploadForClosedExtract),
+            CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException => new Error(ProblemCode.Extract.ExtractHasNotBeenDownloaded),
+            CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException => new Error(ProblemCode.Extract.CanNotUploadForSupersededDownload),
+            _ => null
+        };
     }
 }
