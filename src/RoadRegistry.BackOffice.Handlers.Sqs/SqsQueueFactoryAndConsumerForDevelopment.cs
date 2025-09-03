@@ -23,7 +23,7 @@ public class SqsQueueFactoryAndConsumerForDevelopment : ISqsQueueFactory, ISqsQu
 
     public ISqsQueue Create(string queueUrl)
     {
-        return new SqsQueueForDevelopment(_sqsDirectoryPath, queueUrl, _sqsJsonMessageSerializer, _loggerFactory.CreateLogger<SqsQueueForDevelopment>());
+        return new SqsQueueForDevelopment(BuildSqsQueueFilePath(queueUrl), _sqsJsonMessageSerializer, _loggerFactory.CreateLogger<SqsQueueForDevelopment>());
     }
 
     private static string FindSqsDirectoryPath()
@@ -45,10 +45,9 @@ public class SqsQueueFactoryAndConsumerForDevelopment : ISqsQueueFactory, ISqsQu
 
     public async Task<Result<SqsJsonMessage>> Consume(string queueUrl, Func<object, Task> messageHandler, CancellationToken cancellationToken)
     {
-        var queueDirectory = FindSqsDirectoryPath();
-        var queueFileName = queueUrl.Split('/').Last();
-        var queueWatcher = new FileSystemWatcher(queueDirectory, queueFileName);
-        var sqsQueueFilePath = Path.Combine(queueDirectory, queueFileName);
+        var sqsQueueFilePath = BuildSqsQueueFilePath(queueUrl);
+        var fiSqsQueue = new FileInfo(sqsQueueFilePath);
+        var queueWatcher = new FileSystemWatcher(fiSqsQueue.Directory!.FullName, fiSqsQueue.Name);
 
         while (!cancellationToken.IsCancellationRequested)
         {
@@ -89,33 +88,45 @@ public class SqsQueueFactoryAndConsumerForDevelopment : ISqsQueueFactory, ISqsQu
         throw new OperationCanceledException();
     }
 
+    private string BuildSqsQueueFilePath(string queueUrl)
+    {
+        var queueFileName = queueUrl.Split('/').Last();
+        return Path.Combine(_sqsDirectoryPath, queueFileName);
+    }
+
+    public void RemoveQueue(string queueUrl)
+    {
+        var sqsQueueFilePath = BuildSqsQueueFilePath(queueUrl);
+        if (File.Exists(sqsQueueFilePath))
+        {
+            File.Delete(sqsQueueFilePath);
+        }
+    }
+
     private sealed class SqsQueueForDevelopment : ISqsQueue
     {
-        private readonly string _sqsDirectoryPath;
-        private readonly string _queueUrl;
+        private readonly string _sqsQueueFilePath;
         private readonly SqsJsonMessageSerializer _sqsJsonMessageSerializer;
         private readonly ILogger<SqsQueueForDevelopment> _logger;
 
-        public SqsQueueForDevelopment(string sqsDirectoryPath, string queueUrl, SqsJsonMessageSerializer sqsJsonMessageSerializer, ILogger<SqsQueueForDevelopment> logger)
+        public SqsQueueForDevelopment(string sqsQueueFilePath, SqsJsonMessageSerializer sqsJsonMessageSerializer, ILogger<SqsQueueForDevelopment> logger)
         {
-            _sqsDirectoryPath = sqsDirectoryPath.ThrowIfNull();
-            _queueUrl = queueUrl.ThrowIfNull();
+            _sqsQueueFilePath = sqsQueueFilePath.ThrowIfNull();
             _sqsJsonMessageSerializer = sqsJsonMessageSerializer.ThrowIfNull();
             _logger = logger.ThrowIfNull();
         }
 
         public Task<bool> Copy<T>(T message, SqsQueueOptions queueOptions, CancellationToken cancellationToken) where T : class
         {
-            var sqsQueueFilePath = Path.Combine(_sqsDirectoryPath, _queueUrl.Split('/').Last());
-            var serializedMessages = File.Exists(sqsQueueFilePath)
-                ? JsonConvert.DeserializeObject<List<string>>(File.ReadAllText(sqsQueueFilePath))
+            var serializedMessages = File.Exists(_sqsQueueFilePath)
+                ? JsonConvert.DeserializeObject<List<string>>(File.ReadAllText(_sqsQueueFilePath))
                 : [];
 
             serializedMessages.Add(_sqsJsonMessageSerializer.Serialize(message));
 
-            File.WriteAllText(sqsQueueFilePath, JsonConvert.SerializeObject(serializedMessages, Formatting.Indented));
+            File.WriteAllText(_sqsQueueFilePath, JsonConvert.SerializeObject(serializedMessages, Formatting.Indented));
 
-            _logger.LogInformation("Enqueuing item on '{QueueUrl}':\n{Message}", _queueUrl, _sqsJsonMessageSerializer.Serialize(message));
+            _logger.LogInformation("Enqueuing item on '{QueueUrl}':\n{Message}", _sqsQueueFilePath, _sqsJsonMessageSerializer.Serialize(message));
             return Task.FromResult(true);
         }
     }

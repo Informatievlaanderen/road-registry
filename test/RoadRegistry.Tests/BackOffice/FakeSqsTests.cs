@@ -24,14 +24,15 @@ public class FakeSqsTests
 
         var originalMessage = new UploadRoadNetworkChangesArchive { ArchiveId = new ArchiveId(Guid.NewGuid().ToString("N")).ToString() };
 
-        var sqsQueueFactory = new SqsQueueFactoryAndConsumerForDevelopment(new SqsJsonMessageSerializer(new SqsOptions()), new NullLoggerFactory());
-        var sqsPublisher = sqsQueueFactory.Create(queueUrl);
+        var sqsQueueFactoryAndConsumer = new SqsQueueFactoryAndConsumerForDevelopment(new SqsJsonMessageSerializer(new SqsOptions()), new NullLoggerFactory());
+        sqsQueueFactoryAndConsumer.RemoveQueue(queueUrl);
+
+        var sqsPublisher = sqsQueueFactoryAndConsumer.Create(queueUrl);
         await sqsPublisher.Copy(originalMessage, _sqsQueueOptions, cancellationTokenSource.Token);
 
-        var sqsConsumer = new SqsQueueFactoryAndConsumerForDevelopment(new SqsJsonMessageSerializer(new SqsOptions()), new NullLoggerFactory());
         try
         {
-            await sqsConsumer.Consume(queueUrl, message =>
+            await sqsQueueFactoryAndConsumer.Consume(queueUrl, message =>
             {
                 var uploadRoadNetworkChangesArchive = Assert.IsType<UploadRoadNetworkChangesArchive>(message);
                 Assert.Equal(originalMessage.ArchiveId, uploadRoadNetworkChangesArchive.ArchiveId);
