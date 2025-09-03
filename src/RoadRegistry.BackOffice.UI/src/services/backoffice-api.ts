@@ -170,7 +170,7 @@ export const BackOfficeApi = {
         const path = `${apiEndpoint}/v1/extracten`;
         const response = await apiClient.get<RoadRegistry.ExtractListResponse>(path, {
           eigenExtracten: eigenExtracten,
-          page: page,
+          page: page || undefined,
         });
         return response.data;
       },

@@ -220,7 +220,7 @@ export const PublicApi = {
         const path = `${apiEndpoint}/v2/wegen/extracten`;
         const response = await apiClient.get<RoadRegistry.ExtractListResponse>(path, {
           eigenExtracten: eigenExtracten,
-          page: page,
+          page: page || undefined,
         });
         return response.data;
       },

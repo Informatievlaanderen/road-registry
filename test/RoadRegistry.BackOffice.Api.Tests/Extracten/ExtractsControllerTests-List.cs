@@ -27,7 +27,7 @@ public partial class ExtractsControllerTests
         // Act
         var result = await Controller.ListExtracten(
             eigenExtracten: eigenExtracten,
-            page: "0");
+            page: 0);
 
         // Assert
         var okObjectResult = Assert.IsType<OkObjectResult>(result);
@@ -54,7 +54,7 @@ public partial class ExtractsControllerTests
         // Act
         var result = await Controller.ListExtracten(
             eigenExtracten: eigenExtracten,
-            page: "0");
+            page: 0);
 
         // Assert
         var okObjectResult = Assert.IsType<OkObjectResult>(result);
@@ -64,9 +64,8 @@ public partial class ExtractsControllerTests
     }
 
     [Theory]
-    [InlineData("abc")]
-    [InlineData("-1")]
-    public async Task WhenGettingExtracts_WithInvalidPage_ThenValidationException(string page)
+    [InlineData(-1)]
+    public async Task WhenGettingExtracts_WithInvalidPage_ThenValidationException(int page)
     {
         var act = () => Controller.ListExtracten(
             page: page);

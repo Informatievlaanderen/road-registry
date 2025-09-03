@@ -84,9 +84,6 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
             extractRequest.CurrentDownloadId = downloadId;
         }
 
-        //TODO-pr add overlappingDownloadIds to extractdownload, of toch ten minste dat er zijn voor warning?
-        //var overlappingDownloadIds = await _extractsDbContext.GetOverlappingExtractDownloadIds(contour, cancellationToken);
-
         var extractDownload = await _extractsDbContext.ExtractDownloads.FindAsync([downloadId.ToGuid()], cancellationToken);
         if (extractDownload is null)
         {
