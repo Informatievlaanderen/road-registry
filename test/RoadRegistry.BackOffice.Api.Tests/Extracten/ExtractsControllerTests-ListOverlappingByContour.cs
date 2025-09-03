@@ -13,7 +13,7 @@ using NetTopologySuite.Geometries;
 public partial class ExtractsControllerTests
 {
     [Fact]
-    public async Task WhenGettingOverlappingExtractsByContour_ThenOkResult()
+    public async Task WhenGettingOverlappingExtractsByContour_ThenSucceeded()
     {
         // Arrange
         var overlappingResponse = new GetOverlappingExtractsResponse
@@ -45,18 +45,13 @@ public partial class ExtractsControllerTests
     [Fact]
     public async Task WhenGettingOverlappingExtractsByContour_WithInvalidRequest_ThenValidationException()
     {
-        try
-        {
-            var validator = new ExtractenController.GetOverlappingPerContourBodyValidator();
+        var validator = new ExtractenController.GetOverlappingPerContourBodyValidator();
 
-            await Controller.GetOverlappingPerContour(
-                new ExtractenController.GetOverlappingPerContourBody(),
-                validator);
-            Assert.Fail("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException)
-        {
-        }
+        var act = () => Controller.GetOverlappingPerContour(
+            new ExtractenController.GetOverlappingPerContourBody(),
+            validator);
+
+        await act.Should().ThrowAsync<ValidationException>();
     }
 }
 

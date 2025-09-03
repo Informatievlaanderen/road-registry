@@ -15,7 +15,7 @@ using Sync.MunicipalityRegistry.Models;
 public partial class ExtractsControllerTests
 {
     [Fact]
-    public async Task WhenGettingOverlappingExtractsByNisCode_ThenOkResult()
+    public async Task WhenGettingOverlappingExtractsByNisCode_ThenSucceeded()
     {
         // Arrange
         var overlappingResponse = new GetOverlappingExtractsResponse
@@ -58,46 +58,36 @@ public partial class ExtractsControllerTests
     [Fact]
     public async Task WhenGettingOverlappingExtractsByNisCode_WithInvalidRequest_ThenValidationException()
     {
-        try
-        {
-            var validator = new ExtractenController.GetOverlappingPerNisCodeBodyValidator();
-            var municipalityContext = _dbContextBuilder.CreateMunicipalityEventConsumerContext();
+        var validator = new ExtractenController.GetOverlappingPerNisCodeBodyValidator();
+        var municipalityContext = _dbContextBuilder.CreateMunicipalityEventConsumerContext();
 
-            await Controller.GetOverlappingPerNisCode(
-                new ExtractenController.GetOverlappingPerNisCodeBody(),
-                validator,
-                municipalityContext);
-            Assert.Fail("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException)
-        {
-        }
+        var act = () => Controller.GetOverlappingPerNisCode(
+            new ExtractenController.GetOverlappingPerNisCodeBody(),
+            validator,
+            municipalityContext);
+
+        await act.Should().ThrowAsync<ValidationException>();
     }
 
     [Fact]
     public async Task WhenGettingOverlappingExtractsByNisCode_WithUnknownNisCode_ThenValidationException()
     {
-        try
-        {
-            var validator = new ExtractenController.GetOverlappingPerNisCodeBodyValidator();
-            var municipalityContext = _dbContextBuilder.CreateMunicipalityEventConsumerContext();
+        var validator = new ExtractenController.GetOverlappingPerNisCodeBodyValidator();
+        var municipalityContext = _dbContextBuilder.CreateMunicipalityEventConsumerContext();
 
-            await Controller.GetOverlappingPerNisCode(
-                new ExtractenController.GetOverlappingPerNisCodeBody
-                {
-                    NisCode = "12345"
-                },
-                validator,
-                municipalityContext);
-            Assert.Fail("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException ex)
-        {
-            var error = ex.Errors.First();
-            error.PropertyName.Should().Be("NisCode");
-            error.ErrorCode.Should().Be("NotFound");
-            error.ErrorMessage.Should().Be("Er werd geen gemeente/stad gevonden voor de NIS-code '12345'");
-        }
+        var act = () => Controller.GetOverlappingPerNisCode(
+            new ExtractenController.GetOverlappingPerNisCodeBody
+            {
+                NisCode = "12345"
+            },
+            validator,
+            municipalityContext);
+
+        var ex = (await act.Should().ThrowAsync<ValidationException>()).Which;
+        var error = ex.Errors.First();
+        error.PropertyName.Should().Be("NisCode");
+        error.ErrorCode.Should().Be("NotFound");
+        error.ErrorMessage.Should().Be("Er werd geen gemeente/stad gevonden voor de NIS-code '12345'");
     }
 }
 

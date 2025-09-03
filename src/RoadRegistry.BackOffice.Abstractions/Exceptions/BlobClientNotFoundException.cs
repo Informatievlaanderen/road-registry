@@ -1,8 +1,6 @@
 namespace RoadRegistry.BackOffice.Abstractions.Exceptions;
 
-using BackOffice.Exceptions;
-
-public sealed class BlobClientNotFoundException : RoadRegistryException
+public sealed class BlobClientNotFoundException : Exception
 {
     public BlobClientNotFoundException(string argumentName)
         : base("Could not find blob client")

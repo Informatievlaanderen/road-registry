@@ -40,18 +40,13 @@ public partial class ExtractsControllerTests
     [Fact]
     public async Task WhenRequestExtractByContour_WithInvalidRequest_ThenValidationException()
     {
-        try
-        {
-            var validator = new ExtractDownloadaanvraagPerContourBodyValidator();
+        var validator = new ExtractDownloadaanvraagPerContourBodyValidator();
 
-            await Controller.ExtractDownloadaanvraagPerContour(
-                new ExtractDownloadaanvraagPerContourBody(default, default, default, default),
-                validator);
-            Assert.Fail("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException)
-        {
-        }
+        var act = () => Controller.ExtractDownloadaanvraagPerContour(
+            new ExtractDownloadaanvraagPerContourBody(default, default, default, default),
+            validator);
+
+        await act.Should().ThrowAsync<ValidationException>();
     }
 }
 

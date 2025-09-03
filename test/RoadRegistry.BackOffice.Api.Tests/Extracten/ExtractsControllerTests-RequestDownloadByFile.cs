@@ -55,39 +55,29 @@ public partial class ExtractsControllerTests
     [Fact]
     public async Task WhenRequestExtractByFile_WithInvalidRequest_ThenValidationException()
     {
-        try
-        {
-            var validator = new ExtractDownloadaanvraagPerBestandValidator(Encoding.UTF8);
+        var validator = new ExtractDownloadaanvraagPerBestandValidator(Encoding.UTF8);
 
-            await Controller.ExtractDownloadaanvraagPerBestand(
-                new ExtractDownloadaanvraagPerBestandBody(default, new FormFileCollection(), default),
-                validator,
-                Mock.Of<IExtractShapefileContourReader>());
-            Assert.Fail("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException)
-        {
-        }
+        var act = () => Controller.ExtractDownloadaanvraagPerBestand(
+            new ExtractDownloadaanvraagPerBestandBody(default, new FormFileCollection(), default),
+            validator,
+            Mock.Of<IExtractShapefileContourReader>());
+
+        await act.Should().ThrowAsync<ValidationException>();
     }
 
     [Fact]
     public async Task WhenRequestExtractByFile_WithMissingFiles_ThenValidationException()
     {
-        try
-        {
-            var validator = new ExtractDownloadaanvraagPerBestandValidator(Encoding.UTF8);
+        var validator = new ExtractDownloadaanvraagPerBestandValidator(Encoding.UTF8);
 
-            await Controller.ExtractDownloadaanvraagPerBestand(
-                new ExtractDownloadaanvraagPerBestandBody(Fixture.Create<string>(), new FormFileCollection(), default),
-                validator,
-                Mock.Of<IExtractShapefileContourReader>());
-            Assert.Fail("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException ex)
-        {
-            ex.Errors.Count().Should().Be(1);
-            ex.Errors.Should().ContainSingle(e => e.ErrorCode == "BestandVerplicht");
-        }
+        var act = () => Controller.ExtractDownloadaanvraagPerBestand(
+            new ExtractDownloadaanvraagPerBestandBody(Fixture.Create<string>(), new FormFileCollection(), default),
+            validator,
+            Mock.Of<IExtractShapefileContourReader>());
+
+        var ex = (await act.Should().ThrowAsync<ValidationException>()).Which;
+        ex.Errors.Count().Should().Be(1);
+        ex.Errors.Should().ContainSingle(e => e.ErrorCode == "BestandVerplicht");
     }
 }
 

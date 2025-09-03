@@ -16,7 +16,7 @@ using TicketingService.Abstractions;
 public partial class ExtractsControllerTests
 {
     [Fact]
-    public async Task WhenUploadingExtract_ThenOkResult()
+    public async Task WhenUploadingExtract_ThenSucceeded()
     {
         // Arrange
         var downloadId = Fixture.Create<DownloadId>();
@@ -52,17 +52,12 @@ public partial class ExtractsControllerTests
     [Fact]
     public async Task WhenUploadingExtract_WithInvalidDownloadId_ThenValidationException()
     {
-        try
-        {
-            await Controller.UploadExtract(
-                "not_a_guid_without_dashes",
-                _extractsDbContext,
-                Mock.Of<ITicketing>());
-            Assert.Fail("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException)
-        {
-        }
+        var act = () => Controller.UploadExtract(
+            "not_a_guid_without_dashes",
+            _extractsDbContext,
+            Mock.Of<ITicketing>());
+
+        await act.Should().ThrowAsync<ValidationException>();
     }
 
     [Fact]
@@ -120,7 +115,7 @@ public partial class ExtractsControllerTests
     [Theory]
     [InlineData(TicketStatus.Complete)]
     [InlineData(TicketStatus.Error)]
-    public async Task WhenUploadingExtract_WithPreviousUploadCompleted_ThenOkResult(TicketStatus completedTicketStatus)
+    public async Task WhenUploadingExtract_WithPreviousUploadCompleted_ThenSucceeded(TicketStatus completedTicketStatus)
     {
         // Arrange
         var downloadId = Fixture.Create<DownloadId>();

@@ -68,14 +68,9 @@ public partial class ExtractsControllerTests
     [InlineData("-1")]
     public async Task WhenGettingExtracts_WithInvalidPage_ThenValidationException(string page)
     {
-        try
-        {
-            await Controller.ListExtracten(
-                page: page);
-            Assert.Fail("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException)
-        {
-        }
+        var act = () => Controller.ListExtracten(
+            page: page);
+
+        await act.Should().ThrowAsync<ValidationException>();
     }
 }

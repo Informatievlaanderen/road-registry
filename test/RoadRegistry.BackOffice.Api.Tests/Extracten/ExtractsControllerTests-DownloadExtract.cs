@@ -13,7 +13,7 @@ using Moq;
 public partial class ExtractsControllerTests
 {
     [Fact]
-    public async Task WhenDownloadingExtract_ThenOkResult()
+    public async Task WhenDownloadingExtract_ThenSucceeded()
     {
         // Arrange
         var downloadId = Fixture.Create<DownloadId>();
@@ -36,15 +36,10 @@ public partial class ExtractsControllerTests
     [Fact]
     public async Task WhenDownloadingExtract_WithInvalidDownloadId_ThenValidationException()
     {
-        try
-        {
-            await Controller.DownloadExtract(
-                "not_a_guid_without_dashes");
-            Assert.Fail("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException)
-        {
-        }
+        var act = () => Controller.DownloadExtract(
+        "not_a_guid_without_dashes");
+
+        await act.Should().ThrowAsync<ValidationException>();
     }
 
     [Fact]

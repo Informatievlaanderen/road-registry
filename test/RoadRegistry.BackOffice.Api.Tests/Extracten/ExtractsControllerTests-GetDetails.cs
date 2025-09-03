@@ -13,7 +13,7 @@ using NetTopologySuite.Geometries;
 public partial class ExtractsControllerTests
 {
     [Fact]
-    public async Task WhenGettingExtractDetails_ThenOkResult()
+    public async Task WhenGettingExtractDetails_ThenSucceeded()
     {
         // Arrange
         var downloadId = Fixture.Create<DownloadId>();
@@ -43,16 +43,11 @@ public partial class ExtractsControllerTests
     [Fact]
     public async Task WhenGettingExtractDetails_WithInvalidDownloadId_ThenValidationException()
     {
-        try
-        {
-            await Controller.GetExtractDetails(
-                "not_a_guid_without_dashes",
-                CancellationToken.None);
-            Assert.Fail("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException)
-        {
-        }
+        var act = () => Controller.GetExtractDetails(
+            "not_a_guid_without_dashes",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ValidationException>();
     }
 
     [Fact]

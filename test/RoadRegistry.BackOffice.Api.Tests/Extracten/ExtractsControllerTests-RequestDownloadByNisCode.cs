@@ -53,20 +53,15 @@ public partial class ExtractsControllerTests
     [Fact]
     public async Task WhenRequestExtractByNisCode_WithInvalidRequest_ThenValidationException()
     {
-        try
-        {
-            var municipalityContext = _dbContextBuilder.CreateMunicipalityEventConsumerContext();
-            var validator = new ExtractDownloadaanvraagPerNisCodeBodyValidator(municipalityContext);
+        var municipalityContext = _dbContextBuilder.CreateMunicipalityEventConsumerContext();
+        var validator = new ExtractDownloadaanvraagPerNisCodeBodyValidator(municipalityContext);
 
-            await Controller.ExtractDownloadaanvraagPerNisCode(
-                new ExtractDownloadaanvraagPerNisCodeBody(default, default, default),
-                validator,
-                municipalityContext);
-            Assert.Fail("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException)
-        {
-        }
+        var act = () => Controller.ExtractDownloadaanvraagPerNisCode(
+            new ExtractDownloadaanvraagPerNisCodeBody(default, default, default),
+            validator,
+            municipalityContext);
+
+        await act.Should().ThrowAsync<ValidationException>();
     }
 }
 

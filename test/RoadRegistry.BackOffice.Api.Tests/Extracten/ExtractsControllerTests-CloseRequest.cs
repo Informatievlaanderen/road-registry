@@ -44,16 +44,11 @@ public partial class ExtractsControllerTests
     [Fact]
     public async Task WhenClosingExtract_WithInvalidDownloadId_ThenValidationException()
     {
-        try
-        {
-            await Controller.SluitExtract(
-                "not_a_guid_without_dashes",
-                _extractsDbContext);
-            Assert.Fail("Expected a validation exception but did not receive any");
-        }
-        catch (ValidationException)
-        {
-        }
+        var act = () => Controller.SluitExtract(
+            "not_a_guid_without_dashes",
+            _extractsDbContext);
+
+        await act.Should().ThrowAsync<ValidationException>();
     }
 
     [Fact]
