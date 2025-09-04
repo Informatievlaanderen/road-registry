@@ -199,7 +199,6 @@ export default Vue.extend({
 
       switch (this.ticketResponseCode) {
         case 0:
-          //status.text = "Even geduld a.u.b.";
           break;
         case 400:
           // show only fileProblems

@@ -10,6 +10,6 @@ public class MediatorModule : Module
     {
         builder.RegisterMediatrHandlersFromAssemblyContaining(GetType());
 
-        builder.Register(c => (IDownloadExtractByFileRequestItemTranslator)new DownloadExtractByFileRequestItemTranslator());
+        builder.Register(c => (IDownloadExtractByFileRequestItemTranslator)new ExtractShapefileContourReader());
     }
 }

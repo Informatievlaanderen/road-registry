@@ -1,19 +1,18 @@
-namespace RoadRegistry.BackOffice.Api.Handlers.Extracts.V2;
+namespace RoadRegistry.BackOffice.Api.Handlers.Extracts;
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions;
-using Abstractions.Extracts.V2;
-using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Exceptions;
-using Framework;
-using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice.Abstractions;
+using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
+using RoadRegistry.BackOffice.Api.Infrastructure;
+using RoadRegistry.BackOffice.Exceptions;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.Extracts.Schema;
-using SqlStreamStore;
 
 public class GetDownloadExtractPresignedUrlRequestHandler : EndpointRequestHandler<GetDownloadExtractPresignedUrlRequest, GetDownloadExtractPresignedUrlResponse>
 {
@@ -25,7 +24,6 @@ public class GetDownloadExtractPresignedUrlRequestHandler : EndpointRequestHandl
         CommandHandlerDispatcher dispatcher,
         ExtractsDbContext extractsDbContext,
         RoadNetworkExtractDownloadsBlobClient client,
-        IStreamStore streamStore,
         IDownloadFileUrlPresigner downloadFileUrlPresigner,
         ILoggerFactory loggerFactory)
         : base(dispatcher, loggerFactory.CreateLogger<GetDownloadExtractPresignedUrlRequestHandler>())
@@ -39,7 +37,7 @@ public class GetDownloadExtractPresignedUrlRequestHandler : EndpointRequestHandl
     {
         var record = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == request.DownloadId.ToGuid(), cancellationToken);
 
-        if (record is null || record is not { DownloadStatus: ExtractDownloadStatus.Available })
+        if (record is not { DownloadStatus: ExtractDownloadStatus.Available })
         {
             throw new ExtractDownloadNotFoundException(request.DownloadId);
         }

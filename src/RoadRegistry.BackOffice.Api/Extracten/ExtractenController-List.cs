@@ -15,13 +15,16 @@ using Swashbuckle.AspNetCore.Annotations;
 
 public partial class ExtractenController
 {
+    /// <summary>
+    ///     List of extracts.
+    /// </summary>
     [ProducesResponseType(typeof(ExtractsListResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerOperation(OperationId = nameof(ListExtracten))]
     [HttpGet("", Name = nameof(ListExtracten))]
     public async Task<ActionResult> ListExtracten(
         [FromQuery] bool? eigenExtracten = null,
-        [FromQuery] string? page = null, //TODO-pr erg raar, als je hier een int van maakt dan krijg je 400 errors vanuit de UI, later te bekijken in common api library
+        [FromQuery] int? page = null,
         CancellationToken cancellationToken = default)
     {
         var organizationCode = ApiContext.HttpContextAccessor.HttpContext.GetOperatorName();
@@ -30,10 +33,13 @@ public partial class ExtractenController
             throw new InvalidOperationException("User is authenticated but no operator could be found.");
         }
 
-        if (!int.TryParse(page, out var pageIndex) || pageIndex < 0)
+        // NOTE: for currently unknown reasons, a 400-error is returned if the page parameter value is `0`.
+        page ??= 0;
+        if (page < 0)
         {
-            throw new ValidationException([new ValidationFailure(nameof(page), "Page index must be a non-negative integer.")]);
+            throw new ValidationException([new ValidationFailure(nameof(page), "Page must be a non-negative integer.")]);
         }
+        var pageIndex = page.Value;
 
         var filterByOrganizationCode = (eigenExtracten ?? true) ? organizationCode : null;
 

@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Core;
+using Exceptions;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
@@ -51,6 +52,7 @@ public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambd
         {
             RoadSegmentOutlinedNotFoundException => new RoadSegmentOutlinedNotFound().ToTicketError(),
             RoadSegmentNotFoundException => new RoadSegmentNotFound().ToTicketError(),
+            ExtractRequestNotFoundException ex => new ExtractNotFound(ex.DownloadId).ToTicketError(),
             _ => null
         };
     }

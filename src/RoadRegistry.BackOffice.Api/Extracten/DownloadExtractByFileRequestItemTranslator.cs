@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Extracten;
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using FluentValidation;
 using FluentValidation.Results;
@@ -15,19 +16,19 @@ using RoadRegistry.BackOffice.ShapeFile.V2;
 using Polygon = NetTopologySuite.Geometries.Polygon;
 using Problem = Core.Problem;
 
-public interface IDownloadExtractByFileRequestItemTranslator
+public interface IExtractShapefileContourReader
 {
-    Geometry Translate(ExtractDownloadaanvraagPerBestandItem shapeFile);
+    Geometry Read(Stream shpStream);
 }
 
-public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFileRequestItemTranslator
+public class ExtractShapefileContourReader : IExtractShapefileContourReader
 {
-    public Geometry Translate(ExtractDownloadaanvraagPerBestandItem shapeFile)
+    public Geometry Read(Stream shpStream)
     {
-        var (polygons, problems) = TryTranslateV2(shapeFile);
+        var (polygons, problems) = TryTranslateV2(shpStream);
         if (problems.Any())
         {
-            var (v1Polygons, v1Problems) = TryTranslateV1(shapeFile);
+            var (v1Polygons, v1Problems) = TryTranslateV1(shpStream);
             if (!v1Problems.Any())
             {
                 polygons = v1Polygons;
@@ -52,7 +53,7 @@ public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFile
         return new MultiPolygon(polygons.ToArray()) { SRID = srid };
     }
 
-    private (List<Polygon>, List<Problem>) TryTranslateV1(ExtractDownloadaanvraagPerBestandItem shapeFile)
+    private (List<Polygon>, List<Problem>) TryTranslateV1(Stream shpStream)
     {
         var problems = new List<Problem>();
 
@@ -60,7 +61,7 @@ public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFile
         Geometry geometry = null;
         try
         {
-            (header, geometry) = new ExtractGeometryShapeFileReaderV1().Read(shapeFile.ReadStream);
+            (header, geometry) = new ExtractGeometryShapeFileReaderV1().Read(shpStream);
         }
         catch (Exception ex)
         {
@@ -104,7 +105,7 @@ public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFile
         return (polygons, problems);
     }
 
-    private (List<Polygon>, List<Problem>) TryTranslateV2(ExtractDownloadaanvraagPerBestandItem shapeFile)
+    private (List<Polygon>, List<Problem>) TryTranslateV2(Stream shpStream)
     {
         var problems = new List<Problem>();
 
@@ -112,7 +113,7 @@ public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFile
         Geometry geometry = null;
         try
         {
-            (shapeType, geometry) = new ExtractGeometryShapeFileReaderV2().Read(shapeFile.ReadStream);
+            (shapeType, geometry) = new ExtractGeometryShapeFileReaderV2().Read(shpStream);
         }
         catch (Exception ex)
         {

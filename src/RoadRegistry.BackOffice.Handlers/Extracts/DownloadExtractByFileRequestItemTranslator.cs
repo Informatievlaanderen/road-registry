@@ -21,7 +21,7 @@ public interface IDownloadExtractByFileRequestItemTranslator
     RoadNetworkExtractGeometry Translate(DownloadExtractByFileRequestItem shapeFile, int buffer);
 }
 
-public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFileRequestItemTranslator
+public class ExtractShapefileContourReader : IDownloadExtractByFileRequestItemTranslator
 {
     public RoadNetworkExtractGeometry Translate(DownloadExtractByFileRequestItem shapeFile, int buffer)
     {

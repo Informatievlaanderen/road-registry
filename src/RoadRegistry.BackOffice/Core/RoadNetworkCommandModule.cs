@@ -139,10 +139,10 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
             if (!failedChangedMessages.Any() && command.Body.ExtractRequestId is not null)
             {
-                if (_useExtractsV2FeatureToggle.FeatureEnabled)
+                if (_useExtractsV2FeatureToggle.FeatureEnabled && downloadId is not null)
                 {
                     var extractsRequests = container.Resolve<IExtractRequests>();
-                    await extractsRequests.CloseAsync(downloadId!.Value, cancellationToken);
+                    await extractsRequests.CloseAsync(downloadId.Value, cancellationToken);
                 }
                 else
                 {
@@ -167,10 +167,10 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
                     await ticketing.Error(ticketId.Value, new TicketError(errors), cancellationToken);
 
-                    if (_useExtractsV2FeatureToggle.FeatureEnabled)
+                    if (_useExtractsV2FeatureToggle.FeatureEnabled && downloadId is not null)
                     {
                         var extractsRequests = container.Resolve<IExtractRequests>();
-                        await extractsRequests.UploadRejectedAsync(downloadId!.Value, cancellationToken);
+                        await extractsRequests.UploadRejectedAsync(downloadId.Value, cancellationToken);
                     }
                 }
                 else
@@ -201,10 +201,10 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
                     await ticketing.Complete(ticketId.Value, new TicketResult(new { Changes = changes, Summary = summary }), cancellationToken);
 
-                    if (_useExtractsV2FeatureToggle.FeatureEnabled)
+                    if (_useExtractsV2FeatureToggle.FeatureEnabled && downloadId is not null)
                     {
                         var extractsRequests = container.Resolve<IExtractRequests>();
-                        await extractsRequests.UploadAcceptedAsync(downloadId!.Value, cancellationToken);
+                        await extractsRequests.UploadAcceptedAsync(downloadId.Value, cancellationToken);
                     }
                 }
             }

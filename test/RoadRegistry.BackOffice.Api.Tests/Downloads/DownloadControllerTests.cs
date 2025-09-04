@@ -1,20 +1,14 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Downloads;
 
-using System;
-using System.Threading;
 using Api.Downloads;
-using BackOffice.Extracts;
 using BackOffice.Extracts.Dbase.Lists;
-using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Infrastructure;
-using MediatR;
 using Product.Schema;
 using RoadRegistry.Tests.Framework.Containers;
-using SqlStreamStore;
 
-public partial class DownloadControllerTests : ControllerTests<DownloadController>
+public partial class DownloadControllerTests : ControllerMinimalTests<DownloadController>
 {
     private readonly EditorContext _editorContext;
     private readonly DbContextBuilder _fixture;
@@ -25,12 +19,8 @@ public partial class DownloadControllerTests : ControllerTests<DownloadControlle
         DbContextBuilder fixture,
         DownloadController controller,
         EditorContext editorContext,
-        ProductContext productContext,
-        IMediator mediator,
-        IStreamStore streamStore,
-        RoadNetworkUploadsBlobClient uploadClient,
-        RoadNetworkExtractUploadsBlobClient extractUploadClient)
-        : base(controller, mediator, streamStore, uploadClient, extractUploadClient)
+        ProductContext productContext)
+        : base(controller)
     {
         _fixture = fixture.ThrowIfNull();
         _tokenSource = new CancellationTokenSource();

@@ -27,7 +27,7 @@ public partial class ExtractenController
     ///     Requests the download by file.
     /// </summary>
     /// <param name="body"></param>
-    /// <param name="fileTranslator"></param>
+    /// <param name="shpFileContourReader"></param>
     /// <param name="validator"></param>
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
@@ -42,16 +42,16 @@ public partial class ExtractenController
     [HttpPost("downloadaanvragen/perbestand", Name = nameof(ExtractDownloadaanvraagPerBestand))]
     public async Task<IActionResult> ExtractDownloadaanvraagPerBestand(
         ExtractDownloadaanvraagPerBestandBody body,
-        [FromServices] IDownloadExtractByFileRequestItemTranslator fileTranslator,
         [FromServices] IValidator<ExtractDownloadaanvraagPerBestand> validator,
-        CancellationToken cancellationToken)
+        [FromServices] IExtractShapefileContourReader shpFileContourReader,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             var request = new ExtractDownloadaanvraagPerBestand(BuildRequestItem(".shp"), BuildRequestItem(".prj"), body.Beschrijving, body.Informatief);
             await validator.ValidateAndThrowAsync(request, cancellationToken);
 
-            var contour = fileTranslator.Translate(request.ShpFile);
+            var contour = shpFileContourReader.Read(request.ShpFile.ReadStream);
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
 
@@ -71,7 +71,12 @@ public partial class ExtractenController
         ExtractDownloadaanvraagPerBestandItem BuildRequestItem(string extension)
         {
             var file = body.Bestanden?.SingleOrDefault(formFile => formFile.FileName.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))
-                       ?? throw new DutchValidationException([new ValidationFailure(nameof(body.Bestanden), $"Een bestand met de extensie '{extension}' ontbreekt.")]);
+                       ?? throw new DutchValidationException([new ValidationFailure
+                       {
+                           PropertyName = nameof(body.Bestanden),
+                           ErrorCode = "BestandVerplicht",
+                           ErrorMessage = $"Een bestand met de extensie '{extension}' is verplicht."
+                       }]);
             var fileStream = new MemoryStream();
             file.CopyTo(fileStream);
             fileStream.Position = 0;
@@ -89,8 +94,8 @@ public sealed class ExtractDownloadaanvraagPerBestandValidator : AbstractValidat
 {
     private readonly Encoding _encoding;
 
-    public ExtractDownloadaanvraagPerBestandValidator()
-        : this(WellKnownEncodings.WindowsAnsi)
+    public ExtractDownloadaanvraagPerBestandValidator(FileEncoding fileEncoding)
+        : this(fileEncoding.Encoding)
     {
     }
 
@@ -105,10 +110,11 @@ public sealed class ExtractDownloadaanvraagPerBestandValidator : AbstractValidat
 
         RuleFor(c => c.PrjFile)
             .Must(BeLambert1972ProjectionFormat)
-            .WithMessage("Projectie formaat moet Lambert 1972 zijn");
+            .WithProblemCode(ProblemCode.Extract.ProjectionInvalid);
 
         RuleFor(c => c.Beschrijving)
-            .NotNull()
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
             .WithProblemCode(ProblemCode.Extract.BeschrijvingIsRequired)
             .MaximumLength(ExtractDescription.MaxLength)
             .WithProblemCode(ProblemCode.Extract.BeschrijvingTooLong);

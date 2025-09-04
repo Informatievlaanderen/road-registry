@@ -75,7 +75,7 @@ namespace RoadRegistry.Jobs.Processor
         {
             var extractDownloads = await _extractsDbContext.ExtractDownloads
                 .Where(extractDownload =>
-                    !extractDownload.IsInformative &&
+                    !extractDownload.Closed && !extractDownload.IsInformative &&
                     (
                         extractDownload.RequestedOn.Date <= DateTimeOffset.Now.Date.AddMonths(-6)
                         ||

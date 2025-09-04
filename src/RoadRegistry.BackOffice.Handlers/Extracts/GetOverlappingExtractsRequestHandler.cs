@@ -13,7 +13,7 @@ public class GetOverlappingExtractsRequestHandler : EndpointRequestHandler<GetOv
     public GetOverlappingExtractsRequestHandler(
         ExtractsDbContext context,
         CommandHandlerDispatcher dispatcher,
-        ILogger<DownloadExtractByContourRequestHandler> logger) : base(dispatcher, logger)
+        ILoggerFactory loggerFactory) : base(dispatcher, loggerFactory.CreateLogger<GetOverlappingExtractsRequestHandler>())
     {
         _context = context;
     }

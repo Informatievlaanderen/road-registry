@@ -41,7 +41,7 @@ public partial class ExtractenController
         [FromBody] ExtractDownloadaanvraagPerNisCodeBody body,
         [FromServices] IValidator<ExtractDownloadaanvraagPerNisCodeBody> validator,
         [FromServices] MunicipalityEventConsumerContext municipalityContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -89,9 +89,9 @@ public class ExtractDownloadaanvraagPerNisCodeBodyValidator : AbstractValidator<
 
         RuleFor(c => c.NisCode)
             .Cascade(CascadeMode.Stop)
-            .NotEmpty().WithMessage("NisCode is verplicht.")
-            .Must(BeNisCodeWithExpectedFormat).WithMessage("Ongeldige NisCode. Verwacht formaat: '12345'")
-            .Must(BeKnownNisCode).WithMessage("NisCode is niet gekend.");
+            .NotEmpty().WithProblemCode(ProblemCode.Extract.NisCodeIsRequired)
+            .Must(BeNisCodeWithExpectedFormat).WithProblemCode(ProblemCode.Extract.NisCodeInvalid)
+            .Must(BeKnownNisCode).WithErrorCode("NotFound").WithMessage(body => $"Er werd geen gemeente/stad gevonden voor de NIS-code '{body.NisCode}'");
 
         RuleFor(c => c.Beschrijving)
             .NotEmpty().WithProblemCode(ProblemCode.Extract.BeschrijvingIsRequired)

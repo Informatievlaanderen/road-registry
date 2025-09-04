@@ -9,10 +9,10 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Point = NetTopologySuite.Geometries.Point;
 
-public class ExtractRequestCleanerTests
+public partial class ExtractRequestCleanerTests
 {
     [Fact]
-    public async Task GivenDownloadedExtracts_ThenCloseExtractsOlderThan6Months()
+    public async Task ExtractsV1_GivenDownloadedExtracts_ThenCloseExtractsOlderThan6Months()
     {
         // Arrange
         var commandHandlerDispatcher = new FakeCommandHandlerDispatcher();
@@ -57,7 +57,7 @@ public class ExtractRequestCleanerTests
     }
 
     [Fact]
-    public async Task GivenNotDownloadedExtracts_ThenCloseExtractsOlderThanAWeek()
+    public async Task ExtractsV1_GivenNotDownloadedExtracts_ThenCloseExtractsOlderThanAWeek()
     {
         // Arrange
         var commandHandlerDispatcher = new FakeCommandHandlerDispatcher();
@@ -100,6 +100,4 @@ public class ExtractRequestCleanerTests
         var command = commandHandlerDispatcher.Invocations.Single().Body.Should().BeOfType<CloseRoadNetworkExtract>().Subject;
         command.DownloadId.Should().Be(new DownloadId(oldExtractDownloadId));
     }
-
-    //TODO-pr test ExtractV2 cleanup
 }

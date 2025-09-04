@@ -2362,7 +2362,6 @@
           "MediatR": "[12.5.0, )",
           "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite": "[9.0.4, )",
           "Microsoft.Extensions.FileProviders.Abstractions": "[9.0.5, )",
-          "RoadRegistry.Extracts.Schema": "[1.0.0, )",
           "Serilog.Sinks.Seq": "[9.0.0, )",
           "Serilog.Sinks.Slack": "[2.2.3, )"
         }

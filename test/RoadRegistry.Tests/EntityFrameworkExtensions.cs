@@ -1,6 +1,5 @@
 namespace Microsoft.EntityFrameworkCore;
 
-using Autofac.Core.Lifetime;
 using Extensions.DependencyInjection;
 using Extensions.Logging;
 using RoadRegistry.BackOffice;

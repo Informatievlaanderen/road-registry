@@ -25,14 +25,11 @@ public partial class ExtractenController
     public async Task<IActionResult> GetOverlappingPerContour(
         [FromBody] GetOverlappingPerContourBody body,
         [FromServices] GetOverlappingPerContourBodyValidator validator,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         await validator.ValidateAndThrowAsync(body, cancellationToken);
 
-        var response = await _mediator.Send(new GetOverlappingExtractsRequest
-        {
-            Contour = new WKTReader().Read(body.Contour)
-        }, cancellationToken);
+        var response = await _mediator.Send(new GetOverlappingExtractsRequest(new WKTReader().Read(body.Contour)), cancellationToken);
 
         return Ok(new ListOverlappingResponse(response.DownloadIds));
     }

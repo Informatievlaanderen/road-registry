@@ -18,7 +18,7 @@ public partial class OrganizationControllerTests
 
         Assert.IsType<AcceptedResult>(result);
 
-        var changeOrganizationCommand = await StreamStore.GetLastMessage<ChangeOrganization>();
+        var changeOrganizationCommand = await _store.GetLastMessage<ChangeOrganization>();
 
         changeOrganizationCommand.Should().NotBeNull();
         changeOrganizationCommand.Code.Should().Be("AGIV");

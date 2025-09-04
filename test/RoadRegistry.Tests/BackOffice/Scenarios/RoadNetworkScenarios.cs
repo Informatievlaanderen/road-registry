@@ -44,7 +44,6 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
     {
         var ticketId = ObjectProvider.Create<TicketId>();
 
-
         await Run(scenario => scenario
             .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
                 new ImportedOrganization

@@ -30,7 +30,7 @@ public partial class ExtractenController
         [FromBody] GetOverlappingPerNisCodeBody body,
         [FromServices] GetOverlappingPerNisCodeBodyValidator validator,
         [FromServices] MunicipalityEventConsumerContext municipalityContext,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         await validator.ValidateAndThrowAsync(body, cancellationToken);
 
@@ -47,10 +47,7 @@ public partial class ExtractenController
 
         var contour = municipality.Geometry.ToMultiPolygon();
 
-        var response = await _mediator.Send(new GetOverlappingExtractsRequest
-        {
-            Contour = contour
-        }, cancellationToken);
+        var response = await _mediator.Send(new GetOverlappingExtractsRequest(contour), cancellationToken);
 
         return Ok(new ListOverlappingResponse(response.DownloadIds));
     }

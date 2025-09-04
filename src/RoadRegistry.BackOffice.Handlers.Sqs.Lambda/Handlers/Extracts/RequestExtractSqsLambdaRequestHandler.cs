@@ -5,7 +5,6 @@ using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using Exceptions;
 using FluentValidation;
 using FluentValidation.Results;
 using Hosts;
@@ -54,7 +53,9 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
     {
         var extractRequestId = ExtractRequestId.FromString(request.Request.ExtractRequestId);
         var contour = _wktReader.Read(request.Request.Contour).ToMultiPolygon();
-        var downloadId = DownloadId.Parse(request.Request.DownloadId);
+        // ensure SRID is filled in
+        contour = (MultiPolygon)GeometryTranslator.Translate(GeometryTranslator.TranslateToRoadNetworkExtractGeometry(contour));
+        var downloadId = new DownloadId(request.Request.DownloadId);
         var extractDescription = new ExtractDescription(request.Request.Description);
         var isInformative = request.Request.IsInformative;
 
@@ -84,9 +85,6 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
 
             extractRequest.CurrentDownloadId = downloadId;
         }
-
-        //TODO-pr add overlappingDownloadIds to extractdownload, of toch ten minste dat er zijn voor warning?
-        //var overlappingDownloadIds = await _extractsDbContext.GetOverlappingExtractDownloadIds(contour, cancellationToken);
 
         var extractDownload = await _extractsDbContext.ExtractDownloads.FindAsync([downloadId.ToGuid()], cancellationToken);
         if (extractDownload is null)

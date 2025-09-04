@@ -53,12 +53,13 @@ public class ExtractsDbContext : DbContext
 
     public async Task<List<Guid>> GetOverlappingExtractDownloadIds(Geometry geometry, CancellationToken cancellationToken)
     {
+        geometry = (Geometry)GeometryTranslator.Translate(GeometryTranslator.TranslateToRoadNetworkExtractGeometry((IPolygonal)geometry, -0.001));
+
         var extractDownloadsQuery = ExtractDownloads
-            .Where(x => !x.IsInformative && !x.Closed);
+            .AsNoTracking()
+            .Where(x => !x.IsInformative && !x.Closed)
+            ;
 
-        geometry = geometry.Buffer(-0.001);
-
-        //TODO-pr probleem: intersection is altijd null en dus geen overlaps worden teruggestuurd, terwijl ik altijd dezelfde niscode geometry gebruik
         var overlaps = await (
             from extractDownload in extractDownloadsQuery
             let intersection = extractDownload.Contour.Intersection(geometry)
@@ -79,7 +80,7 @@ public class ExtractsDbContext : DbContext
 
 public static class ExtractsDbContextExtensions
 {
-    public static IServiceCollection AddExtractsDbContext(this IServiceCollection services, QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.NoTracking)
+    public static IServiceCollection AddExtractsDbContext(this IServiceCollection services, QueryTrackingBehavior queryTrackingBehavior)
     {
         return services.AddDbContext<ExtractsDbContext>((sp, options) => options
             .UseLoggerFactory(sp.GetRequiredService<ILoggerFactory>())

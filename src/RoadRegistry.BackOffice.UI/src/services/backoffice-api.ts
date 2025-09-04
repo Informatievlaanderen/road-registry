@@ -77,7 +77,7 @@ export const BackOfficeApi = {
       data.append("file", file, filename);
 
       let awsHttp = axios.create();
-      var uploadFileResponse = await awsHttp.post(response.data.uploadUrl, data);
+      let uploadFileResponse = await awsHttp.post(response.data.uploadUrl, data);
 
       let status = uploadFileResponse.status as any;
       if (status !== 204) {
@@ -146,7 +146,7 @@ export const BackOfficeApi = {
       },
 
       getOverlappingExtractsByNisCode: async (
-        nisCode: String
+        nisCode: string
       ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
         const request = {
           nisCode,
@@ -156,7 +156,7 @@ export const BackOfficeApi = {
         return response.data;
       },
       getOverlappingExtractsByContour: async (
-        contour: String
+        contour: string
       ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
         const request = {
           contour,
@@ -170,7 +170,7 @@ export const BackOfficeApi = {
         const path = `${apiEndpoint}/v1/extracten`;
         const response = await apiClient.get<RoadRegistry.ExtractListResponse>(path, {
           eigenExtracten: eigenExtracten,
-          page: page,
+          page: page || undefined,
         });
         return response.data;
       },
@@ -206,7 +206,7 @@ export const BackOfficeApi = {
         data.append("file", file, filename);
 
         let awsHttp = axios.create();
-        var uploadFileResponse = await awsHttp.post(response.data.uploadUrl, data);
+        let uploadFileResponse = await awsHttp.post(response.data.uploadUrl, data);
         
         let status = uploadFileResponse.status as any;
         if (status !== 204) {
@@ -286,7 +286,7 @@ export const BackOfficeApi = {
       return response.data;
     },
     getOverlappingExtractRequestsByNisCode: async (
-      nisCode: String
+      nisCode: string
     ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
       const request = {
         nisCode,
@@ -296,7 +296,7 @@ export const BackOfficeApi = {
       return response.data;
     },
     getOverlappingExtractRequestsByContour: async (
-      contour: String
+      contour: string
     ): Promise<RoadRegistry.ListOverlappingExtractsResponse> => {
       const request = {
         contour,
@@ -312,7 +312,7 @@ export const BackOfficeApi = {
       const response = await apiClient.get<RoadRegistry.RoadNetworkInformationResponse>(path);
       return response.data;
     },
-    postValidateWkt: async (wkt: String): Promise<RoadRegistry.ValidateWktResponse> => {
+    postValidateWkt: async (wkt: string): Promise<RoadRegistry.ValidateWktResponse> => {
       const path = `${apiEndpoint}/v1/information/validate-wkt`;
       const response = await apiClient.post(path, { contour: wkt });
       return response.data;

@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.Exceptions;
 
 using System;
 
-public sealed class ExtractRequestMarkedInformativeException : Exception
+public sealed class ExtractRequestMarkedInformativeException : RoadRegistryException
 {
     public ExtractRequestMarkedInformativeException(DownloadId downloadId)
         : this(downloadId.ToString())

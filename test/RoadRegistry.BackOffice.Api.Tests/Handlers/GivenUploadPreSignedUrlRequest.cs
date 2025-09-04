@@ -120,6 +120,44 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
         }
 
         [Fact]
+        public async Task ReturnsGetPreSignedUrlResponse_UploadType_ExtractsV2()
+        {
+            var ticketId = Guid.NewGuid();
+            var ticketUrl = $"https://api.ticketing.vlaanderen.be/{ticketId}";
+            var preSignedUrl = new Uri("https://signedUrl");
+            var downloadId = Guid.NewGuid();
+
+            _ticketing
+                .Setup(x => x.CreateTicket(It.IsAny<IDictionary<string, string>>(), CancellationToken.None))
+                .ReturnsAsync(ticketId);
+            _ticketingUrl
+                .Setup(x => x.For(ticketId))
+                .Returns(new Uri(ticketUrl));
+            _uploadUrlPresigner
+                .Setup(x => x.CreatePresignedUploadUrl(It.IsAny<Job>()))
+                .Returns(new CreatePresignedPostResponse(preSignedUrl, _fixture.Create<Dictionary<string, string>>()));
+
+            var jobsContext = new FakeJobsContextFactory().CreateDbContext();
+            var handler = CreatePreSignedUrlRequestHandler(jobsContext);
+            var response = await handler.Handle(GetPresignedUploadUrlRequest.ForExtractsV2(new DownloadId(downloadId)), CancellationToken.None);
+
+            var job = await jobsContext.Jobs.SingleOrDefaultAsync();
+
+            job.Should().NotBeNull();
+            job.TicketId.Should().Be(ticketId);
+            job.Status.Should().Be(JobStatus.Created);
+            job.UploadType.Should().Be(UploadType.ExtractsV2);
+            job.DownloadId.Should().Be(downloadId);
+            response.JobId.Should().Be(job.Id);
+            response.TicketId.Should().Be(ticketId);
+            response.TicketUrl.Should().Be(ticketUrl);
+            response.UploadUrl.Should().Be(preSignedUrl.ToString());
+
+            var transaction = (FakeDbContextTransaction)jobsContext.Database.CurrentTransaction;
+            transaction!.Status.Should().Be(FakeDbContextTransaction.TransactionStatus.Committed);
+        }
+
+        [Fact]
         public async Task WhenError_ThenNoJobIsCreated()
         {
             _ticketing

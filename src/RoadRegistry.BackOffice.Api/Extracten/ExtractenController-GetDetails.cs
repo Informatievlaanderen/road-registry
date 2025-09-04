@@ -13,7 +13,8 @@ using RoadRegistry.BackOffice.Extensions;
 using Swashbuckle.AspNetCore.Annotations;
 
 public partial class ExtractenController
-{    /// <summary>
+{
+    /// <summary>
     ///     Gets the extract details (v2).
     /// </summary>
     [ProducesResponseType(typeof(ExtractDetailsResponseBody), StatusCodes.Status200OK)]

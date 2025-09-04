@@ -242,7 +242,7 @@ namespace RoadRegistry.Jobs.Processor
                     {
                         if (job.DownloadId is null)
                         {
-                            throw ToDutchValidationException(ProblemCode.Upload.DownloadIdIsRequired);
+                            throw ToDutchValidationException(ProblemCode.Extract.DownloadIdIsRequired);
                         }
 
                         var uploadId = new UploadId(Guid.NewGuid());
