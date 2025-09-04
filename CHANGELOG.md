@@ -1,3 +1,10 @@
+# [4.37.0](https://github.com/informatievlaanderen/road-registry/compare/v4.36.1...v4.37.0) (2025-09-04)
+
+
+### Features
+
+* add tests for new extracts api endpoints ([776583e](https://github.com/informatievlaanderen/road-registry/commit/776583ea83c382e5b4bca2c2f44d9ac56c76465b))
+
 ## [4.36.1](https://github.com/informatievlaanderen/road-registry/compare/v4.36.0...v4.36.1) (2025-08-29)
 
 
