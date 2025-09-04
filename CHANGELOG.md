@@ -1,3 +1,10 @@
+## [4.37.1](https://github.com/informatievlaanderen/road-registry/compare/v4.37.0...v4.37.1) (2025-09-04)
+
+
+### Bug Fixes
+
+* extract request by file ([7736f06](https://github.com/informatievlaanderen/road-registry/commit/7736f06780a3be182fc74fd589e61c2d728b9d34))
+
 # [4.37.0](https://github.com/informatievlaanderen/road-registry/compare/v4.36.1...v4.37.0) (2025-09-04)
 
 
