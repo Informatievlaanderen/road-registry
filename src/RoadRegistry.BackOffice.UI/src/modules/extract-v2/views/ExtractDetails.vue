@@ -475,7 +475,7 @@ export default Vue.extend({
         await PublicApi.Extracts.V2.downloadExtract(this.downloadId);
 
         if (!this.extract?.gedownloadOp) {
-          await this.loadExtractDetails;
+          await this.loadExtractDetails();
         }
       } catch (err: any) {
         console.error("Error downloading extract", err);
