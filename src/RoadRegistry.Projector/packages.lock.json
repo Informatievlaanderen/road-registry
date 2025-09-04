@@ -223,15 +223,6 @@
           "Asp.Versioning.Mvc": "8.1.0"
         }
       },
-      "AspNetCore.HealthChecks.Aws.Sqs": {
-        "type": "Transitive",
-        "resolved": "9.0.0",
-        "contentHash": "GbIqFJueEuSm6IkL0YwsTATaAJdt/xCwIF2iwAQ0p/VxBn5pWqGRynYcTfc+OHhGvu/cHV5rutvjxOO8nqSf3w==",
-        "dependencies": {
-          "AWSSDK.SQS": "3.7.300.7",
-          "Microsoft.Extensions.Diagnostics.HealthChecks": "8.0.11"
-        }
-      },
       "AspNetCore.HealthChecks.UI.Core": {
         "type": "Transitive",
         "resolved": "9.0.0",
@@ -2555,6 +2546,16 @@
         "contentHash": "vyOiz09Qa+//aThDF7rzyeU6LG1++J3fMeBqv8ockOjr3y+5IVmxhjORy3YVVLummcCyqlb3teuOrQYkjG5tjQ==",
         "dependencies": {
           "AWSSDK.S3": "3.7.302",
+          "Microsoft.Extensions.Diagnostics.HealthChecks": "8.0.11"
+        }
+      },
+      "AspNetCore.HealthChecks.Aws.Sqs": {
+        "type": "CentralTransitive",
+        "requested": "[9.0.0, )",
+        "resolved": "9.0.0",
+        "contentHash": "GbIqFJueEuSm6IkL0YwsTATaAJdt/xCwIF2iwAQ0p/VxBn5pWqGRynYcTfc+OHhGvu/cHV5rutvjxOO8nqSf3w==",
+        "dependencies": {
+          "AWSSDK.SQS": "3.7.300.7",
           "Microsoft.Extensions.Diagnostics.HealthChecks": "8.0.11"
         }
       },
