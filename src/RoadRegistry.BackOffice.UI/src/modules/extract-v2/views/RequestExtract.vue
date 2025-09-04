@@ -543,27 +543,31 @@ export default Vue.extend({
   },
   methods: {
     async loadMunicipalities() {
-      let municipalities;
+      let municipalities = [] as Municipalities.Gemeenten[];
       try {
         municipalities = await PublicApi.Municipalities.getAll();
       } catch (err) {
         if (WR_ENV === "development") {
-          municipalities = [
-            {
-              identificator: { id: "", naamruimte: "", objectId: "11001", versieId: "" },
-              detail: "",
-              gemeentenaam: {
-                geografischeNaam: {
-                  spelling: "11001 (failed to load municipalities)",
-                  taal: Municipalities.Taal.Nl,
-                },
-              },
-              gemeenteStatus: Municipalities.GemeenteStatus.InGebruik,
-            },
-          ];
+          municipalities = [];
         } else {
           throw err;
         }
+      }
+
+      if (municipalities.length === 0) {
+        municipalities = [
+          {
+            identificator: { id: "", naamruimte: "", objectId: "11001", versieId: "" },
+            detail: "",
+            gemeentenaam: {
+              geografischeNaam: {
+                spelling: "11001 (failed to load municipalities)",
+                taal: Municipalities.Taal.Nl,
+              },
+            },
+            gemeenteStatus: Municipalities.GemeenteStatus.InGebruik,
+          },
+        ];
       }
 
       this.municipalities = municipalities.sort((m1, m2) => {

@@ -26,6 +26,7 @@ using Controllers.Attributes;
 using Core;
 using Editor.Schema;
 using Extensions;
+using Extracten;
 using FeatureCompare;
 using FeatureToggles;
 using FluentValidation;
@@ -316,6 +317,7 @@ public class Startup
             .AddSingleton(apiOptions)
             .Configure<ResponseOptions>(_configuration)
             .AddScoped<BackofficeApiControllerContext>()
+            .AddSingleton<IExtractShapefileContourReader, ExtractShapefileContourReader>()
 
             .AddSystemHealthChecks([
                 typeof(CommandHostSystemHealthCheck),
