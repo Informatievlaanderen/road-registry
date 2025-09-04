@@ -90,9 +90,9 @@ export default Vue.extend({
       initializeCompleted: false,
       nextPage: 0,
       dataBeschikbaar: false,
+      autoRefreshInterval: null as any,
     };
   },
-  computed: {},
   async mounted() {
     const eigenExtracten = localStorage.getItem("ExtractList.eigenExtracten");
     if (eigenExtracten !== null) {
@@ -101,22 +101,54 @@ export default Vue.extend({
 
     await this.loadInitialExtracts();
     this.initializeCompleted = true;
-
-    //TODO-pr add auto-refresh to track those non-informative not completed yet
-    // via de extract list endpoint, first page
-    // ook nieuwe extracten vanzelf toevoegen
-    // clean up any intervals or listeners in destroyed
+    this.startAutoRefresh();
   },
-  destroyed() {},
+  beforeDestroy() {
+    this.stopAutoRefresh();
+  },
   watch: {
     async eigenExtracten() {
       if (this.initializeCompleted) {
         localStorage.setItem("ExtractList.eigenExtracten", this.eigenExtracten.toString());
-        this.loadInitialExtracts();
+        this.stopAutoRefresh();
+        try {
+          await this.loadInitialExtracts();
+        } finally {
+          this.startAutoRefresh();
+        }
       }
     },
   },
   methods: {
+    startAutoRefresh() {
+      this.stopAutoRefresh();
+      this.autoRefreshInterval = setInterval(this.loadFirstPage, 10000);
+    },
+    stopAutoRefresh() {
+      if (this.autoRefreshInterval) {
+        clearInterval(this.autoRefreshInterval);
+      }
+    },
+    async loadFirstPage(): Promise<any> {
+      if (this.isLoading) {
+        console.warn("Skipping load, loading is still in progress");
+        return;
+      }
+
+      this.stopAutoRefresh();
+      this.isLoading = true;
+      try {
+        const response = await PublicApi.Extracts.V2.getList(this.eigenExtracten, 0);
+
+        this.extracts = [
+          ...response.items,
+          ...this.extracts.filter((x) => !response.items.find((y) => y.downloadId === x.downloadId)),
+        ];
+      } finally {
+        this.isLoading = false;
+        this.startAutoRefresh();
+      }
+    },
     async loadInitialExtracts() {
       while (this.isLoading) {
         // wait
