@@ -34,12 +34,13 @@
     <None Include="..\RoadRegistry.BackOffice.Abstractions\bin\$(Configuration)\$(TargetFramework)\RoadRegistry.BackOffice.Abstractions.xml" Pack="true" PackagePath="lib\$(TargetFramework)"/>
   </ItemGroup>
   <ItemGroup>
+    <!-- ******* NOTE: ProjectReferences should mark PrivateAssets="all" to avoid being marked as a nuget dependency ******* -->
     <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers.Sqs\RoadRegistry.BackOffice.Handlers.Sqs.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers\RoadRegistry.BackOffice.Handlers.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" PrivateAssets="all" />
-    <ProjectReference Include="..\RoadRegistry.Extracts.Schema\RoadRegistry.Extracts.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Extracts.Schema\RoadRegistry.Extracts.Schema.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\RoadRegistry.Jobs\RoadRegistry.Jobs.csproj" PrivateAssets="all" />
     <ProjectReference Include="..\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" PrivateAssets="all" />
