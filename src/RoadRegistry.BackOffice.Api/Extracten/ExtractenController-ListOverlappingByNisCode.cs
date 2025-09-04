@@ -47,10 +47,7 @@ public partial class ExtractenController
 
         var contour = municipality.Geometry.ToMultiPolygon();
 
-        var response = await _mediator.Send(new GetOverlappingExtractsRequest
-        {
-            Contour = contour
-        }, cancellationToken);
+        var response = await _mediator.Send(new GetOverlappingExtractsRequest(contour), cancellationToken);
 
         return Ok(new ListOverlappingResponse(response.DownloadIds));
     }

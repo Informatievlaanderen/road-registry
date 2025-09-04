@@ -53,6 +53,8 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
     {
         var extractRequestId = ExtractRequestId.FromString(request.Request.ExtractRequestId);
         var contour = _wktReader.Read(request.Request.Contour).ToMultiPolygon();
+        // ensure SRID is filled in
+        contour = (MultiPolygon)GeometryTranslator.Translate(GeometryTranslator.TranslateToRoadNetworkExtractGeometry(contour));
         var downloadId = new DownloadId(request.Request.DownloadId);
         var extractDescription = new ExtractDescription(request.Request.Description);
         var isInformative = request.Request.IsInformative;

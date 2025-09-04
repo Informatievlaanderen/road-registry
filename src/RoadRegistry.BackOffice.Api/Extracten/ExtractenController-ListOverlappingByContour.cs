@@ -29,10 +29,7 @@ public partial class ExtractenController
     {
         await validator.ValidateAndThrowAsync(body, cancellationToken);
 
-        var response = await _mediator.Send(new GetOverlappingExtractsRequest
-        {
-            Contour = new WKTReader().Read(body.Contour)
-        }, cancellationToken);
+        var response = await _mediator.Send(new GetOverlappingExtractsRequest(new WKTReader().Read(body.Contour)), cancellationToken);
 
         return Ok(new ListOverlappingResponse(response.DownloadIds));
     }

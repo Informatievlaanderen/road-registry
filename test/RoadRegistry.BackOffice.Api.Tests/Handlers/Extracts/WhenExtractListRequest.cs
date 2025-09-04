@@ -1,15 +1,15 @@
-﻿namespace RoadRegistry.BackOffice.Api.Tests.Handlers.Extracts.V2;
+﻿namespace RoadRegistry.BackOffice.Api.Tests.Handlers.Extracts;
 
 using System.Linq;
-using Abstractions.Extracts.V2;
-using Api.Handlers.Extracts;
 using AutoFixture;
 using FluentAssertions;
-using Infrastructure;
 using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.Geometries;
 using NodaTime;
 using NodaTime.Testing;
+using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
+using RoadRegistry.BackOffice.Api.Handlers.Extracts;
+using RoadRegistry.BackOffice.Api.Tests.Infrastructure;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 
