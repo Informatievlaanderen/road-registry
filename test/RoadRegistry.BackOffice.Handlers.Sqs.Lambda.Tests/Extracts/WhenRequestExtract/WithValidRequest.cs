@@ -67,6 +67,32 @@ public class WithValidRequest : WhenRequestExtractTestBase
     }
 
     [Fact]
+    public async Task WithInformativeExtract_ThenClosed()
+    {
+        // Arrange
+        var downloadId = ObjectProvider.Create<DownloadId>();
+        var request = new RequestExtractRequest(
+            ObjectProvider.Create<ExtractRequestId>(),
+            downloadId,
+            MultiPolygon.Empty.AsText(),
+            ObjectProvider.Create<string>(),
+            true,
+            ObjectProvider.Create<string>()
+        );
+
+        var blobClientMock = new Mock<IBlobClient>();
+
+        // Act
+        var sqsRequest = await HandleRequest(request, blobClient: blobClientMock.Object);
+
+        // Assert
+        VerifyThatTicketHasCompleted(new RequestExtractResponse(downloadId));
+
+        var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
+        extractDownload.Closed.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task GivenExtractRequest_ThenReUsedAndPreviousDownloadClosed()
     {
         // Arrange
