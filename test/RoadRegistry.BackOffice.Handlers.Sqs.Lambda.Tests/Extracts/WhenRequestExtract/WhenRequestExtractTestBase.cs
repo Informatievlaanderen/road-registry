@@ -30,12 +30,13 @@ public abstract class WhenRequestExtractTestBase : BackOfficeLambdaTest
     protected async Task<RequestExtractSqsRequest> HandleRequest(
         RequestExtractRequest request,
         IBlobClient? blobClient = null,
-        IRoadNetworkExtractArchiveAssembler? archiveAssembler = null)
+        IRoadNetworkExtractArchiveAssembler? archiveAssembler = null,
+        TicketId? ticketId = null)
     {
         var sqsRequest = new RequestExtractSqsRequest
         {
             Request = request,
-            TicketId = Guid.NewGuid(),
+            TicketId = ticketId ?? Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
             ProvenanceData = ObjectProvider.Create<ProvenanceData>()
         };

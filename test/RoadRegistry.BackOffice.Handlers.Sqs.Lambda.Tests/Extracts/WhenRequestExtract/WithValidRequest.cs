@@ -153,6 +153,65 @@ public class WithValidRequest : WhenRequestExtractTestBase
     }
 
     [Fact]
+    public async Task WhenPreviousLambdaRunArchiveAssemblyFailed_ThenDownloadIsNotClosed()
+    {
+        // Arrange
+        var downloadId = ObjectProvider.Create<DownloadId>();
+        var ticketId = ObjectProvider.Create<TicketId>();
+        var request = new RequestExtractRequest(
+            ObjectProvider.Create<ExtractRequestId>(),
+            downloadId,
+            MultiPolygon.Empty.AsText(),
+            ObjectProvider.Create<string>(),
+            false,
+            ObjectProvider.Create<string>()
+        );
+
+        var originalExtractRequest = new ExtractRequest
+        {
+            ExtractRequestId = request.ExtractRequestId,
+            Description = request.Description,
+            CurrentDownloadId = downloadId,
+            OrganizationCode = ObjectProvider.Create<string>(),
+            ExternalRequestId = request.ExternalRequestId
+        };
+        ExtractsDbContext.ExtractRequests.Add(originalExtractRequest);
+        ExtractsDbContext.ExtractDownloads.Add(new()
+        {
+            ExtractRequestId = request.ExtractRequestId,
+            DownloadId = downloadId,
+            Contour = MultiPolygon.Empty,
+            IsInformative = request.IsInformative,
+            Closed = false,
+            TicketId = ticketId
+        });
+        await ExtractsDbContext.SaveChangesAsync();
+
+        // Act
+        var sqsRequest = await HandleRequest(request, ticketId: ticketId);
+
+        // Assert
+        VerifyThatTicketHasCompleted(new RequestExtractResponse(downloadId));
+
+        var extractRequest = ExtractsDbContext.ExtractRequests.Single(x => x.ExtractRequestId == request.ExtractRequestId);
+        extractRequest.CurrentDownloadId.Should().Be(request.DownloadId);
+        extractRequest.Description.Should().Be(originalExtractRequest.Description);
+        extractRequest.OrganizationCode.Should().Be(originalExtractRequest.OrganizationCode);
+        extractRequest.ExternalRequestId.Should().Be(originalExtractRequest.ExternalRequestId);
+
+        var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
+        extractDownload.ExtractRequestId.Should().Be(request.ExtractRequestId);
+        extractDownload.Closed.Should().BeFalse();
+        extractDownload.Contour.AsText().Should().Be(request.Contour);
+        extractDownload.TicketId.Should().Be(sqsRequest.TicketId);
+        extractDownload.DownloadStatus.Should().Be(ExtractDownloadStatus.Available);
+        extractDownload.IsInformative.Should().Be(request.IsInformative);
+        extractDownload.UploadedOn.Should().BeNull();
+        extractDownload.UploadId.Should().BeNull();
+        extractDownload.UploadStatus.Should().BeNull();
+    }
+
+    [Fact]
     public async Task WhenArchiveAssemblyFails_ThenError()
     {
         // Arrange
