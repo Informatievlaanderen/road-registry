@@ -1,3 +1,10 @@
+## [4.37.3](https://github.com/informatievlaanderen/road-registry/compare/v4.37.2...v4.37.3) (2025-09-08)
+
+
+### Bug Fixes
+
+* keep extract open when lambda runs multiple times after failure ([3909d8c](https://github.com/informatievlaanderen/road-registry/commit/3909d8cefb6f5b5de7d338bdde63cbe2b31b4321))
+
 ## [4.37.2](https://github.com/informatievlaanderen/road-registry/compare/v4.37.1...v4.37.2) (2025-09-08)
 
 
