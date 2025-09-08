@@ -97,7 +97,8 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
                 RequestedOn = extractRequest.RequestedOn,
                 DownloadId = downloadId,
                 TicketId = request.TicketId,
-                DownloadStatus = ExtractDownloadStatus.Preparing
+                DownloadStatus = ExtractDownloadStatus.Preparing,
+                Closed = isInformative
             };
             _extractsDbContext.ExtractDownloads.Add(extractDownload);
         }
