@@ -1,3 +1,13 @@
+## [4.37.2](https://github.com/informatievlaanderen/road-registry/compare/v4.37.1...v4.37.2) (2025-09-08)
+
+
+### Bug Fixes
+
+* mark extract as closed when requesting informative ([1a621d6](https://github.com/informatievlaanderen/road-registry/commit/1a621d62602156f11af1b54be87ac23b3120aa65))
+* public-api path for requesting extract ([07562f2](https://github.com/informatievlaanderen/road-registry/commit/07562f2e243e53c65c2ab2bddb7235e0706116f0))
+* test ([cde4a47](https://github.com/informatievlaanderen/road-registry/commit/cde4a47e3e74667ab3559df6a53abbc221c4ce91))
+* test assertion with boolean fixtures ([3993d79](https://github.com/informatievlaanderen/road-registry/commit/3993d79af88a034da4796f54508079050873ffaf))
+
 ## [4.37.1](https://github.com/informatievlaanderen/road-registry/compare/v4.37.0...v4.37.1) (2025-09-04)
 
 
