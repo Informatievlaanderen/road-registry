@@ -73,7 +73,7 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
             };
             _extractsDbContext.ExtractRequests.Add(extractRequest);
         }
-        else
+        else if (extractRequest.CurrentDownloadId != downloadId)
         {
             var existingOpenDownload = await _extractsDbContext.ExtractDownloads
                 .SingleOrDefaultAsync(x => x.ExtractRequestId == extractRequestId
