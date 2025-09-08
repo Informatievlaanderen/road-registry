@@ -19,7 +19,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
     }
 
     [Fact]
-    public async Task ThenSucceeded()
+    public async Task WithNotInformativeRequest_ThenSucceeded()
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
@@ -28,7 +28,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
             downloadId,
             MultiPolygon.Empty.AsText(),
             ObjectProvider.Create<string>(),
-            ObjectProvider.Create<bool>(),
+            false,
             ObjectProvider.Create<string>()
         );
 
@@ -67,7 +67,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
     }
 
     [Fact]
-    public async Task WithInformativeExtract_ThenClosed()
+    public async Task WithInformativeRequest_ThenSucceededWithClosedExtract()
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
@@ -83,7 +83,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
         var blobClientMock = new Mock<IBlobClient>();
 
         // Act
-        var sqsRequest = await HandleRequest(request, blobClient: blobClientMock.Object);
+        await HandleRequest(request, blobClient: blobClientMock.Object);
 
         // Assert
         VerifyThatTicketHasCompleted(new RequestExtractResponse(downloadId));
@@ -102,7 +102,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
             downloadId,
             MultiPolygon.Empty.AsText(),
             ObjectProvider.Create<string>(),
-            ObjectProvider.Create<bool>(),
+            false,
             ObjectProvider.Create<string>()
         );
 
