@@ -127,7 +127,7 @@ export const PublicApi = {
         }
 
         try {
-          const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/percontour`;
+          const path = `${apiEndpoint}/v2/wegen/extracten/downloadaanvragen/percontour`;
           const response = await apiClient.post<RoadRegistry.ExtractDownloadaanvraagResponse>(path, downloadRequest);
           return {
             downloadId: response.data.downloadId,
@@ -144,7 +144,7 @@ export const PublicApi = {
           return BackOfficeApi.Extracts.V2.requestExtractByFile(downloadRequest);
         }
 
-        const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/perbestand`;
+        const path = `${apiEndpoint}/v2/wegen/extracten/downloadaanvragen/perbestand`;
 
         const data = new FormData();
         data.append("beschrijving", downloadRequest.beschrijving);
@@ -170,7 +170,7 @@ export const PublicApi = {
           return BackOfficeApi.Extracts.V2.requestExtractByNisCode(downloadRequest);
         }
 
-        const path = `${apiEndpoint}/v2/wegen/extract/downloadaanvragen/perniscode`;
+        const path = `${apiEndpoint}/v2/wegen/extracten/downloadaanvragen/perniscode`;
 
         try {
           const response = await apiClient.post<RoadRegistry.ExtractDownloadaanvraagResponse>(path, downloadRequest);
