@@ -15,6 +15,7 @@ public class ChangeRoadNetworkBuilder
     private string _organizationId;
     private TicketId? _ticketId;
     private ExtractRequestId? _extractRequestId;
+    private DownloadId? _downloadId;
 
     public ChangeRoadNetworkBuilder(Fixture fixture)
     {
@@ -130,6 +131,13 @@ public class ChangeRoadNetworkBuilder
         return this;
     }
 
+    public ChangeRoadNetworkBuilder WithDownloadId(DownloadId downloadId)
+    {
+        _downloadId = downloadId;
+
+        return this;
+    }
+
     public Command Build()
     {
         return new Command(new ChangeRoadNetwork
@@ -140,7 +148,8 @@ public class ChangeRoadNetworkBuilder
             OrganizationId = _organizationId,
             TicketId = _ticketId,
             ExtractRequestId = _extractRequestId,
-            Changes = _changes.ToArray()
+            Changes = _changes.ToArray(),
+            DownloadId = _downloadId
         });
     }
 }
