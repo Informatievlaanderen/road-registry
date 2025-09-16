@@ -139,14 +139,14 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
             if (_useExtractsV2FeatureToggle.FeatureEnabled)
             {
+                var extractsRequests = container.Resolve<IExtractRequests>();
+
                 if (failedChangedMessages.Any())
                 {
-                    var extractsRequests = container.Resolve<IExtractRequests>();
                     await extractsRequests.UploadRejectedAsync(downloadId!.Value, cancellationToken);
                 }
                 else
                 {
-                    var extractsRequests = container.Resolve<IExtractRequests>();
                     await extractsRequests.UploadAcceptedAsync(downloadId!.Value, cancellationToken);
                 }
             }
