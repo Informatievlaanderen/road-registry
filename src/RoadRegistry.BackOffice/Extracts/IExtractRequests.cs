@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 public interface IExtractRequests
 {
-    Task CloseAsync(DownloadId downloadId, CancellationToken cancellationToken);
     Task UploadAcceptedAsync(DownloadId downloadId, CancellationToken cancellationToken);
     Task UploadRejectedAsync(DownloadId downloadId, CancellationToken cancellationToken);
 }

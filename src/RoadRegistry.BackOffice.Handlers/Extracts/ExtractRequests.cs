@@ -14,19 +14,12 @@ public class ExtractRequests : IExtractRequests
         _extractsDbContext = extractsDbContext;
     }
 
-    public async Task CloseAsync(DownloadId downloadId, CancellationToken cancellationToken)
-    {
-        await UpdateExtractDownload(downloadId, record =>
-        {
-            record.Closed = true;
-        }, cancellationToken);
-    }
-
     public async Task UploadAcceptedAsync(DownloadId downloadId, CancellationToken cancellationToken)
     {
         await UpdateExtractDownload(downloadId, record =>
         {
             record.UploadStatus = ExtractUploadStatus.Accepted;
+            record.Closed = true;
         }, cancellationToken);
     }
 
