@@ -173,7 +173,6 @@ public class GivenOrganizationExists: BackOfficeLambdaTest
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
                     new FakeExtractUploadFailedEmailClient(),
-                    new UseExtractsV2FeatureToggle(true),
                     LoggerFactory
                 )
             ]), ApplicationMetadata))

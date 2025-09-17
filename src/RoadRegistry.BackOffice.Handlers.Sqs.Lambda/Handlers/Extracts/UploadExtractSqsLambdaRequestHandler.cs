@@ -176,6 +176,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
             var changeRoadNetwork = await translatedChanges.ToChangeRoadNetworkCommand(
                 Logger,
                 extractRequestId, requestId, downloadId, ticketId, cancellationToken);
+            changeRoadNetwork.UseExtractsV2 = true;
 
             var command = new Command(changeRoadNetwork)
                 .WithMessageId(request.Request.TicketId)

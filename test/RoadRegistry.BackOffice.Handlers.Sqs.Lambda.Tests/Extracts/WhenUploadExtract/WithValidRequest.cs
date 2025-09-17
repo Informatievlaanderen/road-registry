@@ -81,5 +81,6 @@ public class WithValidRequest : WhenUploadExtractTestBase
         changeRoadNetworkCommand!.ExtractRequestId.Should().Be(extractRequestId);
         changeRoadNetworkCommand.DownloadId.Should().Be(request.DownloadId);
         changeRoadNetworkCommand.TicketId.Should().Be(request.TicketId);
+        changeRoadNetworkCommand.UseExtractsV2.Should().BeTrue();
     }
 }

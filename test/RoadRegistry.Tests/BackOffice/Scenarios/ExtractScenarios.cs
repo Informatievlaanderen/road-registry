@@ -10,6 +10,7 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Messages;
 using System.IO.Compression;
+using Be.Vlaanderen.Basisregisters.EventHandling;
 using Moq;
 using TicketingService.Abstractions;
 using FileProblem = RoadRegistry.BackOffice.Messages.FileProblem;

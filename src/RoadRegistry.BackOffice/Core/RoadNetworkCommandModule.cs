@@ -23,7 +23,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 {
     private readonly ILifetimeScope _lifetimeScope;
     private readonly IExtractUploadFailedEmailClient _emailClient;
-    private readonly UseExtractsV2FeatureToggle _useExtractsV2FeatureToggle;
     private readonly ILogger _logger;
 
     public RoadNetworkCommandModule(
@@ -32,7 +31,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         IRoadNetworkSnapshotReader snapshotReader,
         IClock clock,
         IExtractUploadFailedEmailClient emailClient,
-        UseExtractsV2FeatureToggle useExtractsV2FeatureToggle,
         ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(store);
@@ -44,7 +42,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         _lifetimeScope = lifetimeScope;
         _emailClient = emailClient;
-        _useExtractsV2FeatureToggle = useExtractsV2FeatureToggle;
         _logger = loggerFactory.CreateLogger<RoadNetworkCommandModule>();
 
         var enricher = EnrichEvent.WithTime(clock);
@@ -137,7 +134,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 }
             }
 
-            if (_useExtractsV2FeatureToggle.FeatureEnabled)
+            if (command.Body.UseExtractsV2)
             {
                 var extractsRequests = container.Resolve<IExtractRequests>();
 
