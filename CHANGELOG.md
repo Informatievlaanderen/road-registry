@@ -1,3 +1,10 @@
+## [4.37.4](https://github.com/informatievlaanderen/road-registry/compare/v4.37.3...v4.37.4) (2025-09-17)
+
+
+### Bug Fixes
+
+* move UseExtractsV2 toggle to ChangeRoadNetwork command ([a3efe35](https://github.com/informatievlaanderen/road-registry/commit/a3efe3573f8cc7cb11f5e76c7f62a6ea24694fd9))
+
 ## [4.37.3](https://github.com/informatievlaanderen/road-registry/compare/v4.37.2...v4.37.3) (2025-09-08)
 
 
