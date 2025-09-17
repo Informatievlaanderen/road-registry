@@ -39,7 +39,6 @@ public class Startup : TestStartup
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IClock>(),
                     new FakeExtractUploadFailedEmailClient(),
-                    new UseExtractsV2FeatureToggle(true),
                     sp.GetService<ILoggerFactory>()
                 ),
                 new RoadNetworkExtractCommandModule(

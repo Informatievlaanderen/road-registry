@@ -52,7 +52,6 @@ public class Startup : TestStartup
                 new FakeRoadNetworkSnapshotReader(),
                 c.Resolve<IClock>(),
                 new FakeExtractUploadFailedEmailClient(),
-                new UseExtractsV2FeatureToggle(true),
                 c.Resolve<ILoggerFactory>()
             )
         ]), ApplicationMetadata));

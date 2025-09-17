@@ -20,7 +20,6 @@ public static class CommandModules
             sp.GetService<IRoadNetworkSnapshotReader>(),
             sp.GetService<IClock>(),
             sp.GetService<IExtractUploadFailedEmailClient>(),
-            sp.GetService<UseExtractsV2FeatureToggle>(),
             sp.GetService<ILoggerFactory>()
         );
     }

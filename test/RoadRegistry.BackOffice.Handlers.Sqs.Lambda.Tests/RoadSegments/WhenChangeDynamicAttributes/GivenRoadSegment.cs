@@ -176,7 +176,6 @@ public class GivenRoadSegment : BackOfficeLambdaTest
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
                     new FakeExtractUploadFailedEmailClient(),
-                    new UseExtractsV2FeatureToggle(true),
                     LoggerFactory
                 )
             ]), ApplicationMetadata))

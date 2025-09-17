@@ -22,7 +22,6 @@ using BackOffice.Extracts;
 using Editor.Schema;
 using Handlers.Extracts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.Extracts.Schema;

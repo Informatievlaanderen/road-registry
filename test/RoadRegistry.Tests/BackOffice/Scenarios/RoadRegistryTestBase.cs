@@ -30,8 +30,6 @@ using TicketingService.Abstractions;
 
 public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
 {
-    private readonly UseExtractsV2FeatureToggle _useExtractsV2FeatureToggle;
-
     private static readonly EventMapping Mapping =
         new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
 
@@ -42,10 +40,9 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     private Func<ScenarioRunner> _runnerFactory;
     private ScenarioRunner Runner => _runner ??= _runnerFactory();
 
-    protected RoadRegistryTestBase(ITestOutputHelper testOutputHelper, ComparisonConfig comparisonConfig = null, UseExtractsV2FeatureToggle useExtractsV2FeatureToggle = null)
+    protected RoadRegistryTestBase(ITestOutputHelper testOutputHelper, ComparisonConfig comparisonConfig = null)
         : base(testOutputHelper)
     {
-        _useExtractsV2FeatureToggle = useExtractsV2FeatureToggle ?? new UseExtractsV2FeatureToggle(false);
         ObjectProvider = new Fixture();
         ObjectProvider.Register(() => (ISnapshotStrategy)NoSnapshotStrategy.Instance);
 
@@ -176,7 +173,6 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
                     Container.Resolve<IRoadNetworkSnapshotReader>(),
                     Clock,
                     new FakeExtractUploadFailedEmailClient(),
-                    _useExtractsV2FeatureToggle,
                     LoggerFactory),
                 new RoadNetworkExtractCommandModule(
                     new RoadNetworkExtractUploadsBlobClient(Client),

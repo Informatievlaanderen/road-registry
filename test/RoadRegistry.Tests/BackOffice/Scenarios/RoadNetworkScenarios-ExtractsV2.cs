@@ -18,7 +18,7 @@ public class RoadNetworkScenariosExtractsV2 : RoadNetworkTestBase
     private readonly Mock<IExtractRequests> _extractRequests = new();
 
     public RoadNetworkScenariosExtractsV2(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper, new UseExtractsV2FeatureToggle(true))
+        : base(testOutputHelper)
     {
     }
 
@@ -63,6 +63,7 @@ public class RoadNetworkScenariosExtractsV2 : RoadNetworkTestBase
                 .WithAddRoadNode(TestData.AddStartNode1)
                 .WithAddRoadNode(TestData.AddEndNode1)
                 .WithAddRoadSegment(TestData.AddSegment1)
+                .WithExtractsV2()
                 .Build()
             )
             .Then([

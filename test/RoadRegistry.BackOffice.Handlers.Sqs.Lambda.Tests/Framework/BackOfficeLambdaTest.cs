@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using Abstractions;
 using Autofac;
 using AutoFixture;
+using BackOffice.Extracts;
 using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Framework;
 using BackOffice.Uploads;
@@ -102,6 +103,11 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
                 LoggerFactory.CreateLogger<ChangeRoadNetworkDispatcher>()
             ))
             .As<IChangeRoadNetworkDispatcher>();
+
+        containerBuilder
+            .Register(_ => new FakeExtractRequests())
+            .As<IExtractRequests>()
+            .SingleInstance();
     }
 
     protected async Task GivenOrganization()
