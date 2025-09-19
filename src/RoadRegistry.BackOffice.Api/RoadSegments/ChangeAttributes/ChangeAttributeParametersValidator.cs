@@ -56,7 +56,7 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
             .WithProblemCode(ProblemCode.Common.JsonInvalid)
             .Must(wegsegmenten => wegsegmenten.All(RoadSegmentId.Accepts))
             .WithProblemCode(ProblemCode.Common.JsonInvalid)
-            .MustAsync(BeExistingNonRemovedRoadSegment)
+            .Must(BeExistingNonRemovedRoadSegment)
             .WithProblemCode(ProblemCode.RoadSegments.NotFound, wegsegmenten => string.Join(", ", FindNonExistingOrRemovedRoadSegmentIds(wegsegmenten)));
 
         When(x => x.Wegbeheerder is not null, () =>
@@ -65,7 +65,7 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
                 .Cascade(CascadeMode.Stop)
                 .Must(OrganizationId.AcceptsValue)
                 .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotValid)
-                .MustAsync(BeKnownOrganization)
+                .Must(BeKnownOrganization)
                 .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotKnown, value => new MaintenanceAuthorityNotKnown(new OrganizationId(value)));
         });
 
@@ -148,19 +148,19 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
         });
     }
 
-    private Task<bool> BeExistingNonRemovedRoadSegment(int[] ids, CancellationToken cancellationToken)
+    private bool BeExistingNonRemovedRoadSegment(int[] ids)
     {
-        return Task.FromResult(!FindNonExistingOrRemovedRoadSegmentIds(ids).Any());
+        return !FindNonExistingOrRemovedRoadSegmentIds(ids).Any();
     }
 
-    private async Task<bool> BeKnownOrganization(string code, CancellationToken cancellationToken)
+    private bool BeKnownOrganization(string code)
     {
         if (!OrganizationId.AcceptsValue(code))
         {
             return false;
         }
 
-        var organization = await _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(new OrganizationId(code), cancellationToken);
+        var organization = _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(new OrganizationId(code), CancellationToken.None).GetAwaiter().GetResult();
         return organization is not null;
     }
 

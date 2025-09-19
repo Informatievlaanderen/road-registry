@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
 using System;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -225,7 +224,7 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
             .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.IsRequired)
             .Must(OrganizationId.AcceptsValue)
             .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotValid)
-            .MustAsync(BeKnownOrganization)
+            .Must(BeKnownOrganization)
             .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotKnown, value => new MaintenanceAuthorityNotKnown(new OrganizationId(value)));
 
         RuleFor(x => x.Wegverharding)
@@ -257,14 +256,14 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
         });
     }
 
-    private async Task<bool> BeKnownOrganization(string code, CancellationToken cancellationToken)
+    private bool BeKnownOrganization(string code)
     {
         if (!OrganizationId.AcceptsValue(code))
         {
             return false;
         }
 
-        var organization = await _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(new OrganizationId(code), cancellationToken);
+        var organization = _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(new OrganizationId(code), CancellationToken.None).GetAwaiter().GetResult();
         return organization is not null;
     }
 }
