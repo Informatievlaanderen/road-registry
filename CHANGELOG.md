@@ -1,3 +1,10 @@
+## [4.37.5](https://github.com/informatievlaanderen/road-registry/compare/v4.37.4...v4.37.5) (2025-09-19)
+
+
+### Bug Fixes
+
+* remove MustAsync validation from ASP automatic validators ([f851d7e](https://github.com/informatievlaanderen/road-registry/commit/f851d7eba5c6b442ea19e03d0ecbf94427be96db))
+
 ## [4.37.4](https://github.com/informatievlaanderen/road-registry/compare/v4.37.3...v4.37.4) (2025-09-17)
 
 
