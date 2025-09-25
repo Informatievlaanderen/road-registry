@@ -1,3 +1,10 @@
+## [4.37.6](https://github.com/informatievlaanderen/road-registry/compare/v4.37.5...v4.37.6) (2025-09-25)
+
+
+### Bug Fixes
+
+* update Objectcataloog_WR.pdf to 1.10 ([5383d33](https://github.com/informatievlaanderen/road-registry/commit/5383d330bb377ea28bad6005c003bb4771c1b3fd))
+
 ## [4.37.5](https://github.com/informatievlaanderen/road-registry/compare/v4.37.4...v4.37.5) (2025-09-19)
 
 
