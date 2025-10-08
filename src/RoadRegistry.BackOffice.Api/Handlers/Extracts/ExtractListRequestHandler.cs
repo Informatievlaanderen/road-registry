@@ -45,15 +45,13 @@ public class ExtractListRequestHandler : EndpointRequestHandler<ExtractListReque
             ;
 
         query = query
-            .OrderBy(x => x.Download.Closed ? 1 : 0)
-            .ThenBy(x =>
-                x.Download.UploadStatus != null && x.Download.UploadStatus != ExtractUploadStatus.Accepted
+            .OrderBy(x => x.Download.Closed
+                ? 9
+                : x.Download.UploadStatus == ExtractUploadStatus.Rejected
                     ? 0
-                    : x.Download.UploadStatus == null
+                    : x.Download.UploadStatus == ExtractUploadStatus.Processing
                         ? 1
-                        : x.Download.UploadStatus == ExtractUploadStatus.Accepted
-                            ? 2
-                            : 9)
+                        : 2)
             .ThenByDescending(x => x.Download.RequestedOn);
 
         query = query.Skip(request.PageIndex * request.PageSize).Take(request.PageSize + 1);

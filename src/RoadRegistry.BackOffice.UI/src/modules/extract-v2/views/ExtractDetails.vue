@@ -4,10 +4,7 @@
       <vl-layout>
         <vl-grid mod-stacked>
           <vl-column>
-            <wr-h2
-              >Extract{{ extract?.informatief ? " (informatief)" : ""
-              }}{{ extract?.beschrijving ? `: ${extract?.beschrijving}` : "" }}</wr-h2
-            >
+            <wr-h2>{{ extractTitle }}</wr-h2>
           </vl-column>
 
           <vl-column>
@@ -49,8 +46,9 @@
 
               <br />
               <UploadComponent
-                v-if="!extract?.informatief && downloadAvailable && !extract?.gesloten && extract?.gedownloadOp"
+                v-if="userCanUpload"
                 :downloadId="downloadId"
+                @upload-start="handleUploadStart"
                 @upload-complete="handleUploadComplete"
               />
 
@@ -148,6 +146,11 @@ export default Vue.extend({
     };
   },
   computed: {
+    extractTitle(): string {
+      return `Extract${this.extract?.informatief ? " (informatief)" : ""}${
+        this.extract?.beschrijving ? `: ${this.extract?.beschrijving}` : ""
+      }`;
+    },
     downloadId(): string {
       return this.$route.params.downloadId;
     },
@@ -248,6 +251,11 @@ export default Vue.extend({
       }
 
       return status;
+    },
+    userCanUpload() {
+      return (
+        !this.extract?.informatief && this.downloadAvailable && !this.extract?.gesloten && this.extract?.gedownloadOp
+      );
     },
   },
   async mounted() {
@@ -506,6 +514,14 @@ export default Vue.extend({
       } finally {
         this.isDownloading = false;
       }
+    },
+    resetUploadFeedback() {
+      this.ticketResponseCode = 0;
+      this.fileProblems = [];
+      this.changes = [];
+    },
+    handleUploadStart() {
+      this.resetUploadFeedback();
     },
     async handleUploadComplete(args: any) {
       this.ticketId = args.ticketId;
