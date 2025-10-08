@@ -111,32 +111,31 @@ public sealed class MetaDataCenterHttpClient
         CancellationToken cancellationToken)
     {
         var xsrfToken = await GetXsrfToken(cancellationToken);
-        var requestMessage = await BuildAuthorizedRequestMessage(HttpMethod.Post, "/srv/dut/csw-publication");
-        requestMessage.Headers.TryAddWithoutValidation("X-XSRF-TOKEN", xsrfToken);
-
-        requestMessage.Content = GenerateCswPublicationBody(_options.FullIdentifier, dateStamp);
+        var accessToken = await _tokenProvider.GetAccessToken();
 
         using var httpClient = new HttpClient(new HttpClientHandler { UseCookies = false });
 
-        HttpResponseMessage response;
+        HttpResponseMessage response = null!;
         var retry = 0;
-        while (true)
+        while (!cancellationToken.IsCancellationRequested)
         {
-            response = await httpClient.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                _logger?.LogCritical("Unable to update CswPublication");
-                await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken);
-                retry++;
-                if (retry == 10)
-                {
-                    throw new InvalidOperationException($"Unable to update CswPublication, response: {(int)response.StatusCode}");
-                }
+            var requestMessage = BuildAuthorizedRequestMessage(HttpMethod.Post, "/srv/dut/csw-publication", accessToken);
+            requestMessage.Headers.TryAddWithoutValidation("X-XSRF-TOKEN", xsrfToken);
+            requestMessage.Content = GenerateCswPublicationBody(_options.FullIdentifier, dateStamp);
 
-                continue;
+            response = await httpClient.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                break;
             }
 
-            break;
+            _logger?.LogError($"Unable to update CswPublication. StatusCode: {(int)response.StatusCode}, Response: {await response.Content.ReadAsStringAsync(cancellationToken)}");
+            await Task.Delay(TimeSpan.FromMinutes(1), cancellationToken);
+            retry++;
+            if (retry == 10)
+            {
+                throw new InvalidOperationException("Unable to update CswPublication");
+            }
         }
 
         var xmlResponseContent = await response.Content.ReadAsStreamAsync(cancellationToken);
@@ -175,8 +174,13 @@ public sealed class MetaDataCenterHttpClient
 
     private async Task<HttpRequestMessage> BuildAuthorizedRequestMessage(HttpMethod httpMethod, string relativeUri)
     {
+        return BuildAuthorizedRequestMessage(httpMethod, relativeUri, await _tokenProvider.GetAccessToken());
+    }
+
+    private HttpRequestMessage BuildAuthorizedRequestMessage(HttpMethod httpMethod, string relativeUri, string accessToken)
+    {
         var requestMessage = new HttpRequestMessage(httpMethod, new Uri(_baseUrl, relativeUri));
-        requestMessage.Headers.TryAddWithoutValidation("Authorization", $"Bearer {await _tokenProvider.GetAccessToken()}");
+        requestMessage.Headers.TryAddWithoutValidation("Authorization", $"Bearer {accessToken}");
         return requestMessage;
     }
 }
