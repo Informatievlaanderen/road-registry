@@ -205,6 +205,8 @@ export default Vue.extend({
       }
 
       try {
+        this.$emit("upload-start");
+
         let presignedUploadResponse = await PublicApi.Extracts.V2.upload(this.downloadId, file, file.name);
         if (!presignedUploadResponse) {
           return {
