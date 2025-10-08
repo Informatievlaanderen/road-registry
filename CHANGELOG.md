@@ -1,3 +1,10 @@
+## [4.37.8](https://github.com/informatievlaanderen/road-registry/compare/v4.37.7...v4.37.8) (2025-10-08)
+
+
+### Bug Fixes
+
+* extracts list sorting + reset upload feedback in UI when starting new upload ([6268218](https://github.com/informatievlaanderen/road-registry/commit/6268218e500550986bae4d8cbe5d3287d2950cd4))
+
 ## [4.37.7](https://github.com/informatievlaanderen/road-registry/compare/v4.37.6...v4.37.7) (2025-10-08)
 
 
