@@ -1,3 +1,10 @@
+## [4.37.7](https://github.com/informatievlaanderen/road-registry/compare/v4.37.6...v4.37.7) (2025-10-08)
+
+
+### Bug Fixes
+
+* extra logging when csw publication fails ([d2f37cc](https://github.com/informatievlaanderen/road-registry/commit/d2f37ccfa429c0d8b40669431db059b4246ccc6a))
+
 ## [4.37.6](https://github.com/informatievlaanderen/road-registry/compare/v4.37.5...v4.37.6) (2025-09-25)
 
 
