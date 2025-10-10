@@ -1,3 +1,10 @@
+## [4.37.9](https://github.com/informatievlaanderen/road-registry/compare/v4.37.8...v4.37.9) (2025-10-10)
+
+
+### Bug Fixes
+
+* set /extracten as default page instead of /activiteit ([1632159](https://github.com/informatievlaanderen/road-registry/commit/1632159daffa6355223a08e6fe0bffeb6a806762))
+
 ## [4.37.8](https://github.com/informatievlaanderen/road-registry/compare/v4.37.7...v4.37.8) (2025-10-08)
 
 
