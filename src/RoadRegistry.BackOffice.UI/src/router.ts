@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Router, { RawLocation, Route, RouteConfig } from "vue-router";
+import * as environment from "@/environment";
 import { ActivityRoutes } from "./modules/activity";
 import { ExtractRoutes } from "./modules/extract";
 import { ExtractRoutes as ExtractRoutesV2 } from "./modules/extract-v2";
@@ -12,10 +13,12 @@ import { AuthRoutes, AuthService, isAuthenticated } from "./auth";
 
 Vue.use(Router);
 
+const defaultRedirect = environment.featureToggles.useExtractsV2 ? 'extracten' : 'activiteit';
+
 const routes: RouteConfig[] = [
   {
     path: "/",
-    redirect: { name: "activiteit" },
+    redirect: { name: defaultRedirect },
   },
   ...AuthRoutes,
   ...ActivityRoutes,

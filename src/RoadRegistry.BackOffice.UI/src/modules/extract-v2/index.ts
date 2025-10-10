@@ -8,7 +8,8 @@ export const ExtractRoutes = [
   {
     path: "/extracten",
     component: Root,
-    meta: {},
+    name: "extracten",
+    meta: { requiresAuth: true },
     children: [
       {
         path: "",
