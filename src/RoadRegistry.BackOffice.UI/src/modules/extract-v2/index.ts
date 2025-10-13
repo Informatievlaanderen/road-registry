@@ -8,12 +8,12 @@ export const ExtractRoutes = [
   {
     path: "/extracten",
     component: Root,
-    name: "extracten",
-    meta: { requiresAuth: true },
+    meta: {},
     children: [
       {
         path: "",
         component: Extracts,
+        name: "extracten",
         meta: {
           requiresAuth: true,
           requiresContexts: [RoadRegistry.UserContext.Editeerder, RoadRegistry.UserContext.Admin],

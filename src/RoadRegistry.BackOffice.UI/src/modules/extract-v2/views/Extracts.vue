@@ -152,6 +152,7 @@ export default Vue.extend({
     async loadInitialExtracts() {
       while (this.isLoading) {
         // wait
+        await new Promise((resolve) => setTimeout(resolve, 50));
       }
 
       this.isLoading = true;
