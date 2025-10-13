@@ -1,3 +1,10 @@
+## [4.37.10](https://github.com/informatievlaanderen/road-registry/compare/v4.37.9...v4.37.10) (2025-10-13)
+
+
+### Bug Fixes
+
+* load correct component for /extracten after login ([3547d36](https://github.com/informatievlaanderen/road-registry/commit/3547d36702024c3b59c96f7718ad1d5ed6362d56))
+
 ## [4.37.9](https://github.com/informatievlaanderen/road-registry/compare/v4.37.8...v4.37.9) (2025-10-10)
 
 
