@@ -80,6 +80,12 @@ import RoadRegistry from "@/types/road-registry";
 import { PublicApi } from "../../../services";
 import DateFormat from "@/core/utils/date-format";
 
+const waitWhile = async (condition: () => boolean) => {
+  while (condition()) {
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+};
+
 export default Vue.extend({
   components: {},
   data() {
@@ -87,6 +93,7 @@ export default Vue.extend({
       extracts: [] as RoadRegistry.ExtractListItem[],
       eigenExtracten: true,
       isLoading: false,
+      isLoadingInBackground: false,
       initializeCompleted: false,
       nextPage: 0,
       dataBeschikbaar: false,
@@ -122,38 +129,38 @@ export default Vue.extend({
   methods: {
     startAutoRefresh() {
       this.stopAutoRefresh();
-      this.autoRefreshInterval = setInterval(this.loadFirstPage, 10000);
+      this.autoRefreshInterval = setInterval(this.loadFirstPageInBackground, 10000);
     },
     stopAutoRefresh() {
       if (this.autoRefreshInterval) {
         clearInterval(this.autoRefreshInterval);
       }
     },
-    async loadFirstPage(): Promise<any> {
-      if (this.isLoading) {
+    async loadFirstPageInBackground(): Promise<any> {
+      if (this.isLoading || this.isLoadingInBackground) {
         console.warn("Skipping load, loading is still in progress");
         return;
       }
 
       this.stopAutoRefresh();
-      this.isLoading = true;
+      this.isLoadingInBackground = true;
       try {
         const response = await PublicApi.Extracts.V2.getList(this.eigenExtracten, 0);
+        if (this.isLoading) {
+          return;
+        }
 
         this.extracts = [
           ...response.items,
           ...this.extracts.filter((x) => !response.items.find((y) => y.downloadId === x.downloadId)),
         ];
       } finally {
-        this.isLoading = false;
+        this.isLoadingInBackground = false;
         this.startAutoRefresh();
       }
     },
     async loadInitialExtracts() {
-      while (this.isLoading) {
-        // wait
-        await new Promise((resolve) => setTimeout(resolve, 50));
-      }
+      await waitWhile(() => this.isLoading || this.isLoadingInBackground);
 
       this.isLoading = true;
       try {
@@ -169,6 +176,8 @@ export default Vue.extend({
       if (this.isLoading) {
         return;
       }
+
+      await waitWhile(() => this.isLoadingInBackground);
 
       this.isLoading = true;
       try {
