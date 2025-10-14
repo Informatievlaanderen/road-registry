@@ -1,3 +1,10 @@
+## [4.37.11](https://github.com/informatievlaanderen/road-registry/compare/v4.37.10...v4.37.11) (2025-10-14)
+
+
+### Bug Fixes
+
+* hide loader in UI when auto-refreshing in background ([86ae265](https://github.com/informatievlaanderen/road-registry/commit/86ae265269e38feb9ae9578c53a3de94d867dca4))
+
 ## [4.37.10](https://github.com/informatievlaanderen/road-registry/compare/v4.37.9...v4.37.10) (2025-10-13)
 
 
