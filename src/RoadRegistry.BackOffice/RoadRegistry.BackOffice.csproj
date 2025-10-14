@@ -60,4 +60,7 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     <PackageReference Include="QuikGraph" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj" />
+  </ItemGroup>
 </Project>

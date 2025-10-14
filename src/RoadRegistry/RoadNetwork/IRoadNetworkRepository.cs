@@ -6,5 +6,6 @@ using NetTopologySuite.Geometries;
 
 public interface IRoadNetworkRepository
 {
-    Task<RoadNetwork> GetScopedRoadNetwork(Geometry boundingBox, CancellationToken cancellationToken);
+    Task<RoadNetwork> Load(Geometry boundingBox, CancellationToken cancellationToken);
+    Task Save(RoadNetwork roadNetwork, CancellationToken cancellationToken);
 }

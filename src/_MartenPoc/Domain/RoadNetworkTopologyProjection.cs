@@ -8,11 +8,11 @@ using Weasel.Postgresql.Tables;
 
 public class RoadNetworkTopologyProjection : EventProjection
 {
-    private const string TableName = "road.roadnetworksegments";
+    private const string RoadSegmentsTableName = "road.roadnetworksegments";
 
     public RoadNetworkTopologyProjection()
     {
-        var table = new Table(TableName);
+        var table = new Table(RoadSegmentsTableName);
         table.AddColumn<Guid>("id").AsPrimaryKey();
         table.AddColumn<int>("version");
         table.AddColumn("geometry", "geometry");
@@ -28,14 +28,14 @@ public class RoadNetworkTopologyProjection : EventProjection
     {
         //note: bounding box van geometry opslaan voor snelheid?
 
-        ops.QueueSqlCommand($"insert into {TableName} (id, version, geometry, start_node_id, end_node_id, causation_id) values (?, ?, ST_GeomFromText(?, 0), ?, ?, ?)",
+        ops.QueueSqlCommand($"insert into {RoadSegmentsTableName} (id, version, geometry, start_node_id, end_node_id, causation_id) values (?, ?, ST_GeomFromText(?, 0), ?, ?, ?)",
             e.Data.Id, e.Version, e.Data.Geometry, e.Data.StartNodeId, e.Data.EndNodeId, e.CausationId
         );
     }
 
     public void Project(IEvent<WegsegmentWerdGewijzigd> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand($"update {TableName} set version = ?, geometry = ?, start_node_id = ?, end_node_id = ?, causation_id = ? where id = ?",
+        ops.QueueSqlCommand($"update {RoadSegmentsTableName} set version = ?, geometry = ?, start_node_id = ?, end_node_id = ?, causation_id = ? where id = ?",
             e.Version, e.Data.Geometry, e.Data.StartNodeId, e.Data.EndNodeId, e.CausationId, e.Data.Id
         );
     }

@@ -14,11 +14,24 @@ public class ChangeRoadNetworkCommandHandler
 
     public async Task Handle(ChangeRoadNetworkCommand command, CancellationToken cancellationToken)
     {
-        //TODO-pr determine boundingbox from changes
+        //set ticket to pending?
+
+        //determine boundingbox from command changes
         Geometry boundingBox = null!;
 
-        var roadNetwork = await _roadNetworkRepository.GetScopedRoadNetwork(boundingBox, cancellationToken);
+        var roadNetwork = await _roadNetworkRepository.Load(boundingBox, cancellationToken);
 
+        var changes = new List<IRoadNetworkChange>();
+        //TODO-pr convert command changes to domain changes (dit zijn eigenlijk de core objecten)
+        //command.Changes
+        //= RoadNetworkChangeFactory
 
+        var result = roadNetwork.Change(changes);
+        if (result.Accepted)
+        {
+            await _roadNetworkRepository.Save(roadNetwork, cancellationToken);
+        }
+
+        //sluit ticket en extract hier? zie RoadNetworkCommandModule
     }
 }
