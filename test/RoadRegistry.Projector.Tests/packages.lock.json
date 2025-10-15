@@ -2382,6 +2382,14 @@
           "RoadRegistry.BackOffice": "[1.0.0, )"
         }
       },
+      "roadregistry.extracts.projections": {
+        "type": "Project",
+        "dependencies": {
+          "RoadRegistry.BackOffice": "[1.0.0, )",
+          "RoadRegistry.BackOffice.Abstractions": "[1.0.0, )",
+          "RoadRegistry.Extracts.Schema": "[1.0.0, )"
+        }
+      },
       "roadregistry.extracts.schema": {
         "type": "Project",
         "dependencies": {
@@ -2541,6 +2549,7 @@
           "Microsoft.IdentityModel.Logging": "[8.9.0, )",
           "Microsoft.IdentityModel.Tokens": "[8.9.0, )",
           "RoadRegistry.Editor.Schema": "[1.0.0, )",
+          "RoadRegistry.Extracts.Projections": "[1.0.0, )",
           "RoadRegistry.Extracts.Schema": "[1.0.0, )",
           "RoadRegistry.Hosts": "[1.0.0, )",
           "RoadRegistry.Integration.Schema": "[1.0.0, )",
