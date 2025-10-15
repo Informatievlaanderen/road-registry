@@ -346,6 +346,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
   
   build-lambda-backoffice:
