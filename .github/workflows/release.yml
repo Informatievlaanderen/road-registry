@@ -80,6 +80,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
 
   build-backoffice-ui:
@@ -109,6 +110,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
 
   build-backoffice-extracthost:
@@ -125,6 +127,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
 
   build-backoffice-commandhost:
@@ -141,6 +144,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
   
   build-adminhost:
@@ -157,6 +161,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
   
   build-jobs-processor:
@@ -173,6 +178,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
 
   build-projector:
@@ -189,6 +195,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
 
   build-projectionhost-editor:
@@ -205,6 +212,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
   
   build-projectionhost-integration:
@@ -221,6 +229,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
 
   build-projectionhost-product:
@@ -237,6 +246,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
 
   build-publishhost-product:
@@ -253,6 +263,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
 
   build-projectionhost-producersnapshot:
@@ -269,6 +280,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
 
   build-synchost:
@@ -285,6 +297,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
 
   build-projectionhost-wms:
@@ -301,6 +314,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
 
   build-projectionhost-wfs:
@@ -317,6 +331,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
 
   pack-backoffice-api:
@@ -347,6 +362,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
 
   build-lambda-snapshot:
@@ -363,6 +379,7 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
       dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
       prerestore-script: ./pre-restore.sh
+      use-packages-lock: false
     secrets: inherit
 
   release:
