@@ -58,14 +58,11 @@
     <PackageReference Include="SqlStreamStore" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     <PackageReference Include="QuikGraph" />
-
-    <PackageReference Include="Marten" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="GradeSeparatedJunction\Events\" />
     <Folder Include="RoadNetwork\Events\" />
     <Folder Include="RoadNode\Events\" />
     <Folder Include="RoadSegment\Events\" />
-    <Folder Include="RoadSegment\ValueObjects\" />
   </ItemGroup>
 </Project>

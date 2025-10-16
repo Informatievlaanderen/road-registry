@@ -2334,6 +2334,55 @@
           "Serilog.Sinks.Slack": "[2.2.3, )"
         }
       },
+      "roadregistry": {
+        "type": "Project",
+        "dependencies": {
+          "AWSSDK.Core": "[3.7.402.35, )",
+          "AWSSDK.DynamoDBv2": "[3.7.302, )",
+          "AWSSDK.SimpleEmailV2": "[3.7.301.5, )",
+          "AWSSDK.SimpleNotificationService": "[3.7.301.7, )",
+          "Amazon.Lambda.Core": "[2.5.1, )",
+          "Be.Vlaanderen.Basisregisters.AggregateSource": "[10.0.2, )",
+          "Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache": "[3.0.0, )",
+          "Be.Vlaanderen.Basisregisters.BlobStore": "[5.0.0, )",
+          "Be.Vlaanderen.Basisregisters.EventHandling.Autofac": "[7.0.0, )",
+          "Be.Vlaanderen.Basisregisters.Generators.Guid.Deterministic": "[5.0.0, )",
+          "Be.Vlaanderen.Basisregisters.GrAr.Provenance": "[22.0.0, )",
+          "Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple": "[6.0.3, )",
+          "Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer": "[6.0.3, )",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner": "[15.0.1, )",
+          "Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer": "[15.0.1, )",
+          "Be.Vlaanderen.Basisregisters.Shaperon": "[11.0.0, )",
+          "Be.Vlaanderen.Basisregisters.Shaperon.Geometries": "[11.0.0, )",
+          "Be.Vlaanderen.Basisregisters.TicketingService.Abstractions": "[3.2.0, )",
+          "DotSpatial.Projections": "[4.0.656, )",
+          "FeatureToggle.Common": "[4.0.2, )",
+          "FluentValidation": "[11.11.0, )",
+          "MediatR": "[12.5.0, )",
+          "MessagePack": "[2.5.192, )",
+          "Microsoft.EntityFrameworkCore": "[9.0.4, )",
+          "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite": "[9.0.4, )",
+          "Microsoft.Extensions.Configuration": "[9.0.5, )",
+          "Microsoft.Extensions.Configuration.Abstractions": "[9.0.5, )",
+          "Microsoft.Extensions.Configuration.Binder": "[9.0.5, )",
+          "Microsoft.Extensions.Configuration.FileExtensions": "[9.0.5, )",
+          "Microsoft.Extensions.Logging.Abstractions": "[9.0.5, )",
+          "Microsoft.Extensions.Logging.Console": "[9.0.5, )",
+          "Microsoft.IO.RecyclableMemoryStream": "[3.0.1, )",
+          "Microsoft.IdentityModel.Abstractions": "[8.9.0, )",
+          "Microsoft.IdentityModel.JsonWebTokens": "[8.9.0, )",
+          "Microsoft.IdentityModel.Logging": "[8.9.0, )",
+          "Microsoft.IdentityModel.Tokens": "[8.9.0, )",
+          "NetTopologySuite": "[2.6.0, )",
+          "NetTopologySuite.IO.Esri.Shapefile": "[1.2.0, )",
+          "NetTopologySuite.IO.GeoJSON": "[4.0.0, )",
+          "NetTopologySuite.IO.ShapeFile": "[2.1.0, )",
+          "Polly": "[8.5.2, )",
+          "QuikGraph": "[2.5.0, )",
+          "SqlStreamStore": "[1.2.0, )",
+          "System.IdentityModel.Tokens.Jwt": "[8.9.0, )"
+        }
+      },
       "roadregistry.backoffice": {
         "type": "Project",
         "dependencies": {
@@ -2379,6 +2428,8 @@
           "NetTopologySuite.IO.ShapeFile": "[2.1.0, )",
           "Polly": "[8.5.2, )",
           "QuikGraph": "[2.5.0, )",
+          "RoadRegistry": "[1.0.0, )",
+          "RoadRegistry.CommandHandling": "[1.0.0, )",
           "SqlStreamStore": "[1.2.0, )",
           "System.IdentityModel.Tokens.Jwt": "[8.9.0, )"
         }
@@ -2445,6 +2496,12 @@
           "RoadRegistry.BackOffice.Abstractions": "[1.0.0, )",
           "RoadRegistry.Editor.Schema": "[1.0.0, )",
           "RoadRegistry.Product.Schema": "[1.0.0, )"
+        }
+      },
+      "roadregistry.commandhandling": {
+        "type": "Project",
+        "dependencies": {
+          "RoadRegistry": "[1.0.0, )"
         }
       },
       "roadregistry.editor.projections": {

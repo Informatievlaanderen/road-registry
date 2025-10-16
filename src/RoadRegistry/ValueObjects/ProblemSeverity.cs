@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Core;
 
-using System;
 using System.Collections.Generic;
 
 public readonly record struct ProblemSeverity
@@ -19,11 +18,4 @@ public readonly record struct ProblemSeverity
 
     public static implicit operator ProblemSeverity(byte value) => Values[value];
     public static implicit operator byte(ProblemSeverity value) => value._value;
-
-    public static implicit operator ProblemSeverity(Messages.ProblemSeverity value) => value switch
-    {
-        Messages.ProblemSeverity.Error => ProblemSeverity.Error,
-        Messages.ProblemSeverity.Warning => ProblemSeverity.Warning,
-        _ => throw new NotSupportedException()
-    };
 }

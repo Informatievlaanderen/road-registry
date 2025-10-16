@@ -2,6 +2,23 @@
   "version": 2,
   "dependencies": {
     "net9.0": {
+      "Marten": {
+        "type": "Direct",
+        "requested": "[8.13.0, )",
+        "resolved": "8.13.0",
+        "contentHash": "XDicnliNDaBlyPHAF9nqjE/wzwjalykAe4t7TCvwMj7xj6NFi2TFoFAVLvXFQlA4h8mIBcNtqLkeh1Ki1vFZhQ==",
+        "dependencies": {
+          "FSharp.Core": "9.0.100",
+          "JasperFx": "1.8.1",
+          "JasperFx.Events": "1.10.1",
+          "JasperFx.RuntimeCompiler": "4.0.0",
+          "Microsoft.Extensions.Hosting.Abstractions": "9.0.0",
+          "Newtonsoft.Json": "13.0.3",
+          "Npgsql.Json.NET": "9.0.2",
+          "Polly.Core": "8.5.2",
+          "Weasel.Postgresql": "8.2.0"
+        }
+      },
       "Autofac": {
         "type": "Transitive",
         "resolved": "8.1.0",
@@ -1689,7 +1706,6 @@
           "DotSpatial.Projections": "[4.0.656, )",
           "FeatureToggle.Common": "[4.0.2, )",
           "FluentValidation": "[11.11.0, )",
-          "Marten": "[8.13.0, )",
           "MediatR": "[12.5.0, )",
           "MessagePack": "[2.5.192, )",
           "Microsoft.EntityFrameworkCore": "[9.0.4, )",
@@ -1995,23 +2011,6 @@
         "requested": "[11.11.0, )",
         "resolved": "11.11.0",
         "contentHash": "cyIVdQBwSipxWG8MA3Rqox7iNbUNUTK5bfJi9tIdm4CAfH71Oo5ABLP4/QyrUwuakqpUEPGtE43BDddvEehuYw=="
-      },
-      "Marten": {
-        "type": "CentralTransitive",
-        "requested": "[8.13.0, )",
-        "resolved": "8.13.0",
-        "contentHash": "XDicnliNDaBlyPHAF9nqjE/wzwjalykAe4t7TCvwMj7xj6NFi2TFoFAVLvXFQlA4h8mIBcNtqLkeh1Ki1vFZhQ==",
-        "dependencies": {
-          "FSharp.Core": "9.0.100",
-          "JasperFx": "1.8.1",
-          "JasperFx.Events": "1.10.1",
-          "JasperFx.RuntimeCompiler": "4.0.0",
-          "Microsoft.Extensions.Hosting.Abstractions": "9.0.0",
-          "Newtonsoft.Json": "13.0.3",
-          "Npgsql.Json.NET": "9.0.2",
-          "Polly.Core": "8.5.2",
-          "Weasel.Postgresql": "8.2.0"
-        }
       },
       "MediatR": {
         "type": "CentralTransitive",

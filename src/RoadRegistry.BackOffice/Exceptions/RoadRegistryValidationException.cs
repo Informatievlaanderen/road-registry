@@ -7,7 +7,7 @@ public class RoadRegistryValidationException : RoadRegistryException
 {
     public string ErrorCode { get; }
 
-    public RoadRegistryValidationException(Problem problem)
+    public RoadRegistryValidationException(Core.Problem problem)
         : this(problem.TranslateToDutch())
     {
     }

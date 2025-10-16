@@ -2,22 +2,20 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using BackOffice;
+using BackOffice.Core;
 using Changes;
 using GradeSeparatedJunction;
 using RoadNode;
 using RoadSegment;
 
-//TODO-pr current: verplaats strongly typed classes naar RoadRegistry (RoadSegmentId, RoadNodeId,...)
-//TODO-pr current: verplaats Problems ook, en zie hieronder voor per change deze te returnen
-//TODO-pr current: voorzien RoadNetworkChangeFactory voor in ChangeRoadNetworkCommandHandler te gebruiken
-
 public partial class RoadNetwork
 {
     public static RoadNetwork Empty => new RoadNetwork();
 
-    public IDictionary<int, RoadNode> RoadNodes { get; } = [];
-    public IDictionary<int, RoadSegment> RoadSegments { get; } = [];
-    public IDictionary<int, GradeSeparatedJunction> GradeSeparatedJunctions { get; } = [];
+    private Dictionary<RoadNodeId, RoadNode> RoadNodes { get; } = [];
+    private Dictionary<RoadSegmentId, RoadSegment> RoadSegments { get; } = [];
+    private Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; } = [];
 
     private RoadNetwork()
     {
@@ -33,22 +31,22 @@ public partial class RoadNetwork
         GradeSeparatedJunctions = gradeSeparatedJunctions.ToDictionary(x => x.Id, x => x);
     }
 
-    public RoadNetworkChangeResult Change(ICollection<IRoadNetworkChange> changes)
+    public RoadNetworkChangeResult Change(IReadOnlyCollection<IRoadNetworkChange> changes)
     {
         // produce change started event?
 
-        var problems = Problems.None;
+        var problems = new Dictionary<IRoadNetworkChange, Problems>();
 
         // dit vervangt the RequestedChangeTranslator
         foreach (var roadNetworkChange in changes)
         {
-            switch(roadNetworkChange)
+            switch (roadNetworkChange)
             {
                 case AddRoadSegmentChange change:
-                    problems += AddRoadSegment(change);
+                    problems.Add(roadNetworkChange, AddRoadSegment(change));
                     break;
                 case ModifyRoadSegmentChange change:
-                    problems += ModifyRoadSegment(change);
+                    problems.Add(roadNetworkChange, ModifyRoadSegment(change));
                     break;
                 // other cases
             }
@@ -56,10 +54,8 @@ public partial class RoadNetwork
 
         // produce change completed event
 
-        // commit events to entities? (roadsegment,...)
-
         return new RoadNetworkChangeResult(problems);
     }
 }
 
-public sealed record RoadNetworkChangeResult(Problems problems);
+public sealed record RoadNetworkChangeResult(IDictionary<IRoadNetworkChange, Problems> ProblemsPerChange);

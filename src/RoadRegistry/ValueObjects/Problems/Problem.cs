@@ -52,6 +52,4 @@ public abstract class Problem : IEquatable<Problem>, IEqualityComparer<Problem>
     {
         return HashCode.Combine(obj.Reason, obj.Parameters);
     }
-
-    public abstract Messages.Problem Translate();
 }

@@ -16,7 +16,7 @@ public sealed partial record ProblemCode
 
     public static ProblemCode[] GetValues() => Values.Values.ToArray();
 
-    public static ProblemCode FromReason(string problemReason)
+    public static ProblemCode? FromReason(string? problemReason)
     {
         if (problemReason is not null && Values.TryGetValue(problemReason, out var problemCode))
         {

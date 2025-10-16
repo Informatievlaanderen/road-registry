@@ -1,7 +1,7 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Store;
 
+using BackOffice;
 using Marten;
-using NetTopologySuite.Geometries;
 using RoadNetwork;
 using RoadNode;
 using RoadSegment;
@@ -15,18 +15,17 @@ public class RoadNetworkRepository: IRoadNetworkRepository
         _store = store;
     }
 
-    public async Task<RoadNetwork> Load(Geometry boundingBox, CancellationToken cancellationToken)
+    public async Task<RoadNetwork> Load(
+        RoadNetworkChanges changes,
+        CancellationToken cancellationToken)
     {
+        //TODO-pr load using envelope, gekende ids, en 1 niveau verder, bvb wegsegment x -> knope en dan die zijn wegsegment (dit is relevant voor bulk delete roadsegments)
 //         await using var session = _store.LightweightSession();
 //
 //         var sql = @$"
 // SELECT id as Id, start_node_id as StartNodeId, end_node_id as EndNodeId
 // FROM {RoadNetworkTopologyProjection.RoadSegmentsTableName}
 // WHERE ST_Intersects(geometry, ST_GeomFromText(@wkt, 0))";
-//         if (limitSegments is not null)
-//         {
-//             sql += $" LIMIT {limitSegments}";
-//         }
 //         var segments = (await session.Connection.QueryAsync<RoadNetworkSegment>(sql, new { wkt = boundingBox.AsText() }))
 //             .ToList();
 //
@@ -40,16 +39,16 @@ public class RoadNetworkRepository: IRoadNetworkRepository
 
     private async Task<RoadNetwork> Load(
         IDocumentSession session,
-        ICollection<Guid> wegknoopIds,
-        ICollection<Guid> wegsegmentIds)
+        ICollection<RoadNodeId> roadNodeIds,
+        ICollection<RoadSegmentId> roadSegmentIds)
     {
-        if (!wegsegmentIds.Any())
+        if (!roadSegmentIds.Any())
         {
             return RoadNetwork.Empty;
         }
 
-        var roadSegmentSnapshots = await session.LoadManyAsync<RoadSegment>(wegsegmentIds);
-        var roadNodeSnapshots = await session.LoadManyAsync<RoadNode>(wegknoopIds);
+        var roadSegmentSnapshots = await session.LoadManyAsync<RoadSegment>(roadSegmentIds.Select(x => x.ToInt32()));
+        var roadNodeSnapshots = await session.LoadManyAsync<RoadNode>(roadNodeIds.Select(x => x.ToInt32()));
         //TODO-pr gradeseparatedjunctions
 
         if (roadSegmentSnapshots.Any())
@@ -58,20 +57,21 @@ public class RoadNetworkRepository: IRoadNetworkRepository
         }
 
         // rebuild in progress? load data from aggregate streams
-        var wegknopen = new List<RoadNode>();
-        var wegsegmenten = new List<RoadSegment>();
+        var roadNodes = new List<RoadNode>();
+        var roadSegments = new List<RoadSegment>();
         //TODO-pr gradeseparatedjunctions
 
-        foreach (var id in wegknoopIds)
-        {
-            wegknopen.Add(await session.Events.AggregateStreamAsync<RoadNode>(id));
-        }
-        foreach (var id in wegsegmentIds)
-        {
-            wegsegmenten.Add(await session.Events.AggregateStreamAsync<RoadSegment>(id));
-        }
+        //TODO-pr build stream names
+        // foreach (var id in roadNodeIds)
+        // {
+        //     roadNodes.Add(await session.Events.AggregateStreamAsync<RoadNode>(id));
+        // }
+        // foreach (var id in roadSegmentIds)
+        // {
+        //     roadSegments.Add(await session.Events.AggregateStreamAsync<RoadSegment>(id));
+        // }
 
-        return new RoadNetwork(wegknopen, wegsegmenten, []);
+        return new RoadNetwork(roadNodes, roadSegments, []);
     }
 
     public async Task Save(RoadNetwork roadNetwork, CancellationToken cancellationToken)

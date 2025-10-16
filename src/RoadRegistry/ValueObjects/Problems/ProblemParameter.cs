@@ -49,12 +49,4 @@ public class ProblemParameter : IEquatable<ProblemParameter>, IEqualityComparer<
     {
         return Name.GetHashCode() ^ Value.GetHashCode();
     }
-
-    public Messages.ProblemParameter Translate()
-    {
-        return new Messages.ProblemParameter
-        {
-            Name = Name, Value = Value
-        };
-    }
 }

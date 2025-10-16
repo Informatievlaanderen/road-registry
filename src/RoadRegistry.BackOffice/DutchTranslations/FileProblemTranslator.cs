@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.DutchTranslations;
 
 using Core;
 using Extracts;
-using FeatureCompare;
 using System;
 using System.Text;
 using Extracts.Dbase;
@@ -15,6 +14,11 @@ using Problem = Messages.Problem;
 
 public static class FileProblemTranslator
 {
+    public static ProblemTranslation TranslateToDutch(this Messages.FileProblem problem)
+    {
+        return Dutch(problem);
+    }
+
     public static readonly Converter<FileProblem, ProblemTranslation> Dutch = problem =>
     {
         var translation = new ProblemTranslation(problem.Severity, problem.Reason);

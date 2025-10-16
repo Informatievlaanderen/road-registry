@@ -62,5 +62,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj" />
+    <ProjectReference Include="..\RoadRegistry.CommandHandling\RoadRegistry.CommandHandling.csproj" />
   </ItemGroup>
 </Project>

@@ -1,10 +1,11 @@
 ﻿namespace RoadRegistry.RoadNetwork;
 
+using BackOffice.Core;
 using Changes;
 
 public partial class RoadNetwork
 {
-    private void AddRoadSegment(AddRoadSegmentChange change)
+    private Problems AddRoadSegment(AddRoadSegmentChange change)
     {
         // ************ vervanging van de huidige Core classes per command
 
@@ -15,6 +16,7 @@ public partial class RoadNetwork
         // verify after
 
         // return events
+        return Problems.None;
     }
 
     private Problems ModifyRoadSegment(ModifyRoadSegmentChange change)
@@ -28,5 +30,6 @@ public partial class RoadNetwork
         // verify after
 
         // return events
+        return Problems.None;
     }
 }

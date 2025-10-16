@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Messages
 {
-    using Extensions;
+    using DutchTranslations;
     using TicketingService.Abstractions;
 
     public static class TicketingExtensions
@@ -9,12 +9,6 @@ namespace RoadRegistry.BackOffice.Messages
         {
             var translation = problem.TranslateToDutch();
             return new TicketError(translation.Message, $"{problem.File}_{problem.Severity}{translation.Code}");
-        }
-
-        public static TicketError ToTicketError(this Problem problem)
-        {
-            var translation = problem.TranslateToDutch();
-            return new TicketError(translation.Message, $"{problem.Severity}{translation.Code}");
         }
     }
 }

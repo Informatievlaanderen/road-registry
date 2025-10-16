@@ -10,4 +10,8 @@
       <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj" />
     </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Marten" />
+  </ItemGroup>
+
 </Project>

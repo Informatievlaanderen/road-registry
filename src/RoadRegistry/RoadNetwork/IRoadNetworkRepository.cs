@@ -2,10 +2,12 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using NetTopologySuite.Geometries;
 
 public interface IRoadNetworkRepository
 {
-    Task<RoadNetwork> Load(Geometry boundingBox, CancellationToken cancellationToken);
+    Task<RoadNetwork> Load(
+        RoadNetworkChanges changes,
+        CancellationToken cancellationToken);
+
     Task Save(RoadNetwork roadNetwork, CancellationToken cancellationToken);
 }

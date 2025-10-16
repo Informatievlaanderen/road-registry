@@ -36,12 +36,14 @@ public class Problem
         {
             throw new ArgumentException($"No parameter found with name '{parameterName}'");
         }
+
         return value;
     }
-    public string GetOptionalParameterValue(string parameterName)
+    public string? GetOptionalParameterValue(string parameterName)
     {
-        var parameter = Parameters.SingleOrDefault(x => string.Equals(x.Name, parameterName, StringComparison.InvariantCultureIgnoreCase));
-        return parameter?.Value;
+        return Parameters
+            .SingleOrDefault(x => string.Equals(x.Name, parameterName, StringComparison.InvariantCultureIgnoreCase))
+            ?.Value;
     }
 
     public bool HasParameter(string parameterName)
