@@ -431,8 +431,9 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
-        cache: true
-        cache-dependency-path: "**/packages.lock.json"
+    - name: .NET version
+      shell: bash
+      run: dotnet --info
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -447,10 +448,6 @@ jobs:
     - name: Node version
       shell: bash
       run: node --version
-
-    - name: .NET version
-      shell: bash
-      run: dotnet --info
 
     - name: Python version
       shell: bash
@@ -509,9 +506,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ vars.VBR_DOTNET_VERSION_9 }}
-        cache: true
-        cache-dependency-path: "**/packages.lock.json"
-
     - name: .NET version
       shell: bash
       run: dotnet --info
