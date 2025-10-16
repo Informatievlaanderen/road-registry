@@ -3,10 +3,10 @@ namespace RoadRegistry.Extracts.Schema;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 
-public class ExtractsDbContext : DbContext
+public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
 {
     public ExtractsDbContext()
     {
@@ -25,6 +25,8 @@ public class ExtractsDbContext : DbContext
         : base(options)
     {
     }
+
+    public override string ProjectionStateSchema => WellKnownSchemas.ExtractsSchema;
 
     public DbSet<ExtractRequest> ExtractRequests { get; set; }
     public DbSet<ExtractDownload> ExtractDownloads { get; set; }
@@ -37,13 +39,6 @@ public class ExtractsDbContext : DbContext
         {
             optionsBuilder.UseRoadRegistryInMemorySqlServer();
         }
-    }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-
-        modelBuilder.ApplyConfigurationsFromAssembly(GetType().GetTypeInfo().Assembly);
     }
 
     internal static void ConfigureSqlServerOptions(SqlServerDbContextOptionsBuilder sqlServerOptions)
@@ -82,11 +77,23 @@ public static class ExtractsDbContextExtensions
 {
     public static IServiceCollection AddExtractsDbContext(this IServiceCollection services, QueryTrackingBehavior queryTrackingBehavior)
     {
-        return services.AddDbContext<ExtractsDbContext>((sp, options) => options
+        return services
+            .AddDbContext<ExtractsDbContext>((sp, options) => options
             .UseLoggerFactory(sp.GetRequiredService<ILoggerFactory>())
             .UseQueryTrackingBehavior(queryTrackingBehavior)
             .UseSqlServer(
                 sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(WellKnownConnectionNames.Extracts),
+                ExtractsDbContext.ConfigureSqlServerOptions));
+    }
+
+    public static IServiceCollection AddExtractsDbContextFactory(this IServiceCollection services, QueryTrackingBehavior queryTrackingBehavior, string connectionStringName)
+    {
+        return services
+            .AddDbContextFactory<ExtractsDbContext>((sp, options) => options
+            .UseLoggerFactory(sp.GetRequiredService<ILoggerFactory>())
+            .UseQueryTrackingBehavior(queryTrackingBehavior)
+            .UseSqlServer(
+                sp.GetRequiredService<IConfiguration>().GetRequiredConnectionString(connectionStringName),
                 ExtractsDbContext.ConfigureSqlServerOptions));
     }
 }

@@ -1,3 +1,25 @@
+# [4.38.0](https://github.com/informatievlaanderen/road-registry/compare/v4.37.11...v4.38.0) (2025-10-16)
+
+
+### Bug Fixes
+
+* disable `use-packages-lock` on build ([ccba266](https://github.com/informatievlaanderen/road-registry/commit/ccba2662d5826efe2defa14a38e89f57468dce61))
+* release pipeline ([b971f93](https://github.com/informatievlaanderen/road-registry/commit/b971f932a5ddd25c9989998b6a3763639602c08f))
+* release pipeline to pack api without packages lock ([19f732f](https://github.com/informatievlaanderen/road-registry/commit/19f732f786c295fe0085bc31ada053c1bddda102))
+* remove and disable packages.lock.json ([0c3e40e](https://github.com/informatievlaanderen/road-registry/commit/0c3e40ef55bf8a96ad154facf836314c2f68e4f5))
+
+
+### Features
+
+* add projections to keep new extracts tables up-to-date GAWR-7108 ([00a9f42](https://github.com/informatievlaanderen/road-registry/commit/00a9f42105522801e362df176b770411f28e6471))
+
+## [4.37.11](https://github.com/informatievlaanderen/road-registry/compare/v4.37.10...v4.37.11) (2025-10-14)
+
+
+### Bug Fixes
+
+* hide loader in UI when auto-refreshing in background ([86ae265](https://github.com/informatievlaanderen/road-registry/commit/86ae265269e38feb9ae9578c53a3de94d867dca4))
+
 ## [4.37.10](https://github.com/informatievlaanderen/road-registry/compare/v4.37.9...v4.37.10) (2025-10-13)
 
 

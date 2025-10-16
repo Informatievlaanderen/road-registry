@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extracts.Schema;
@@ -12,9 +13,11 @@ using RoadRegistry.Extracts.Schema;
 namespace RoadRegistry.Extracts.Schema.Migrations
 {
     [DbContext(typeof(ExtractsDbContext))]
-    partial class ExtractsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251015082409_AddProjectionStates")]
+    partial class AddProjectionStates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

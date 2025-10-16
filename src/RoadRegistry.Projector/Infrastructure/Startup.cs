@@ -32,8 +32,15 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using EventProcessors;
 using Extracts.Schema;
+using Hosts.Infrastructure.Extensions;
 using Integration.Schema;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using NodaTime;
 using Wfs.Schema;
 using Wms.Schema;
 
@@ -246,6 +253,25 @@ public class Startup
                 new ExtractsDbContextMigratorFactory()
             })
             ;
+
+        // extracts projections until GRB has been migrated
+        {
+	        services
+	            .AddSingleton<IClock>(SystemClock.Instance)
+	            .AddSingleton<Scheduler>()
+	            .AddSingleton(new EnvelopeFactory(
+	                ExtractsEventProcessor.EventMapping,
+	                new EventDeserializer((eventData, eventType) =>
+	                    JsonConvert.DeserializeObject(eventData, eventType, ExtractsEventProcessor.SerializerSettings)))
+	            )
+	            .AddExtractsDbContextFactory(QueryTrackingBehavior.TrackAll, WellKnownConnectionNames.ExtractsAdmin)
+	            .AddDbContextEventProcessorServices<ExtractsEventProcessor, ExtractsDbContext>(_ =>
+	            [
+	                new RoadRegistry.Extracts.Projections.ExtractRequestProjection(),
+	                new RoadRegistry.Extracts.Projections.ExtractDownloadProjection(),
+	            ])
+	            .AddHostedService<ExtractsEventProcessor>();
+        }
 
         var containerBuilder = new ContainerBuilder();
         containerBuilder.RegisterModule(new LoggingModule(_configuration, services));
