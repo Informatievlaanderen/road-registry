@@ -3,6 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32427.441
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1710F546-49E2-4BAA-A8AB-655D55AD91CF}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+		RoadRegistry.sln.DotSettings = RoadRegistry.sln.DotSettings
+		docker-compose.yml = docker-compose.yml
+		Directory.Packages.props = Directory.Packages.props
+	EndProjectSection
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C2F8FF63-7A48-4179-A720-86206C42F496}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{8EA18457-86E2-4D2D-AC9E-2552FDC9676F}"
@@ -30,15 +39,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.ExtractHost.Tests", "test\RoadRegistry.BackOffice.ExtractHost.Tests\RoadRegistry.BackOffice.ExtractHost.Tests.csproj", "{4227AB8C-B49D-4830-B502-299CB25114BD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Tests", "test\RoadRegistry.Tests\RoadRegistry.Tests.csproj", "{0943FA25-9B89-4023-81DE-4A320B88EA7F}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1710F546-49E2-4BAA-A8AB-655D55AD91CF}"
-	ProjectSection(SolutionItems) = preProject
-		LICENSE = LICENSE
-		README.md = README.md
-		RoadRegistry.sln.DotSettings = RoadRegistry.sln.DotSettings
-		docker-compose.yml = docker-compose.yml
-		Directory.Packages.props = Directory.Packages.props
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.Abstractions", "src\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj", "{12EE9166-89E0-4444-ACB8-9125F7B055D3}"
 EndProject
@@ -100,8 +100,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Snapshot.Handl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests", "test\RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests\RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.csproj", "{58BE85D7-49B4-4BD1-85FD-82D8F7D1CDDA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.AdminHost", "src\RoadRegistry.AdminHost\RoadRegistry.AdminHost.csproj", "{DF83FE95-2C95-4AD8-A798-D0435A337F55}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Wfs.ProjectionHost.Tests", "test\RoadRegistry.Wfs.ProjectionHost.Tests\RoadRegistry.Wfs.ProjectionHost.Tests.csproj", "{0F16CEE1-2928-470A-ABC0-D82467BD1107}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Projector.Tests", "test\RoadRegistry.Projector.Tests\RoadRegistry.Projector.Tests.csproj", "{DE977244-3B8B-46D9-AAFF-877247B42139}"
@@ -151,8 +149,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.Extracts.Projections", "src\RoadRegistry.Extracts.Projections\RoadRegistry.Extracts.Projections.csproj", "{956DCDAF-B688-42CB-AEB8-970BDF6302C4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry", "src\RoadRegistry\RoadRegistry.csproj", "{C8EB0BD6-3285-4505-AD7A-60B970D45B68}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_MartenPoc", "src\_MartenPoc\_MartenPoc.csproj", "{C7D4284B-8AF0-492D-95E0-06FDC9AC109F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.Infrastructure.MartenDb", "src\RoadRegistry.Infrastructure.MartenDb\RoadRegistry.Infrastructure.MartenDb.csproj", "{DF06995C-5A9D-4C71-BF1C-A58A7047A259}"
 EndProject
@@ -982,18 +978,6 @@ Global
 		{C8EB0BD6-3285-4505-AD7A-60B970D45B68}.Release|x64.Build.0 = Release|Any CPU
 		{C8EB0BD6-3285-4505-AD7A-60B970D45B68}.Release|x86.ActiveCfg = Release|Any CPU
 		{C8EB0BD6-3285-4505-AD7A-60B970D45B68}.Release|x86.Build.0 = Release|Any CPU
-		{C7D4284B-8AF0-492D-95E0-06FDC9AC109F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C7D4284B-8AF0-492D-95E0-06FDC9AC109F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C7D4284B-8AF0-492D-95E0-06FDC9AC109F}.Debug|x64.ActiveCfg = Debug|x64
-		{C7D4284B-8AF0-492D-95E0-06FDC9AC109F}.Debug|x64.Build.0 = Debug|x64
-		{C7D4284B-8AF0-492D-95E0-06FDC9AC109F}.Debug|x86.ActiveCfg = Debug|x86
-		{C7D4284B-8AF0-492D-95E0-06FDC9AC109F}.Debug|x86.Build.0 = Debug|x86
-		{C7D4284B-8AF0-492D-95E0-06FDC9AC109F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C7D4284B-8AF0-492D-95E0-06FDC9AC109F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C7D4284B-8AF0-492D-95E0-06FDC9AC109F}.Release|x64.ActiveCfg = Release|x64
-		{C7D4284B-8AF0-492D-95E0-06FDC9AC109F}.Release|x64.Build.0 = Release|x64
-		{C7D4284B-8AF0-492D-95E0-06FDC9AC109F}.Release|x86.ActiveCfg = Release|x86
-		{C7D4284B-8AF0-492D-95E0-06FDC9AC109F}.Release|x86.Build.0 = Release|x86
 		{DF06995C-5A9D-4C71-BF1C-A58A7047A259}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DF06995C-5A9D-4C71-BF1C-A58A7047A259}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF06995C-5A9D-4C71-BF1C-A58A7047A259}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -1063,8 +1047,6 @@ Global
 		{8BBCF59D-7A4F-48A3-B8B2-5BD0C5CE46A8} = {8EA18457-86E2-4D2D-AC9E-2552FDC9676F}
 		{18024416-CD26-433B-B34B-2B248A57539C} = {8EA18457-86E2-4D2D-AC9E-2552FDC9676F}
 		{F987C308-5A0B-48E1-9AFF-72152E22484B} = {C2F8FF63-7A48-4179-A720-86206C42F496}
-
-		{C7D4284B-8AF0-492D-95E0-06FDC9AC109F} = {C2F8FF63-7A48-4179-A720-86206C42F496}
 		{6103DAB3-0551-419B-9D0D-9C2DAB6F3C73} = {C2F8FF63-7A48-4179-A720-86206C42F496}
 		{0D515A1E-522C-417A-8EDC-8015789F9865} = {C2F8FF63-7A48-4179-A720-86206C42F496}
 		{C8EB0BD6-3285-4505-AD7A-60B970D45B68} = {6103DAB3-0551-419B-9D0D-9C2DAB6F3C73}
@@ -1117,10 +1099,8 @@ Global
 		{358BD463-4407-41EA-B961-A4FA5D1928DC} = {C2F8FF63-7A48-4179-A720-86206C42F496}
 		{B327D115-8C65-40EE-99A2-B9FDD22C88A2} = {358BD463-4407-41EA-B961-A4FA5D1928DC}
 		{1E15EFC6-DD30-4783-A539-5E0D350E4D92} = {823B4A69-AE54-4CC3-A5DF-90383EB528E9}
-
 		{603A54B7-77F5-47DE-8532-B58CEA3F67B0} = {C2F8FF63-7A48-4179-A720-86206C42F496}
-		{956DCDAF-B688-42CB-AEB8-970BDF6302C4} = {C2F8FF63-7A48-4179-A720-86206C42F496}
-
+		{956DCDAF-B688-42CB-AEB8-970BDF6302C4} = {839C9008-A0F9-45BF-B60C-7F8D0DD1BA14}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2EB87445-E263-4E1E-89CC-3839170028E5}
