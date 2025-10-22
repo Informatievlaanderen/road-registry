@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 public class Problems : IReadOnlyCollection<Problem>
 {
@@ -80,4 +81,6 @@ public class Problems : IReadOnlyCollection<Problem>
 
         return None.Add(problem);
     }
+
+    public bool HasError() => _problems.OfType<Error>().Any();
 }

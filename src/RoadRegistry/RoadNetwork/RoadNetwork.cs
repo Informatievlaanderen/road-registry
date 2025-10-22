@@ -35,7 +35,7 @@ public partial class RoadNetwork
     {
         // produce change started event?
 
-        var problems = new Dictionary<IRoadNetworkChange, Problems>();
+        var problems = new List<(IRoadNetworkChange Change, Problems Problems)>();
 
         // dit vervangt the RequestedChangeTranslator
         foreach (var roadNetworkChange in changes)
@@ -43,10 +43,10 @@ public partial class RoadNetwork
             switch (roadNetworkChange)
             {
                 case AddRoadSegmentChange change:
-                    problems.Add(roadNetworkChange, AddRoadSegment(change));
+                    problems.Add((roadNetworkChange, AddRoadSegment(change)));
                     break;
                 case ModifyRoadSegmentChange change:
-                    problems.Add(roadNetworkChange, ModifyRoadSegment(change));
+                    problems.Add((roadNetworkChange, ModifyRoadSegment(change)));
                     break;
                 // other cases
             }
@@ -58,4 +58,4 @@ public partial class RoadNetwork
     }
 }
 
-public sealed record RoadNetworkChangeResult(IDictionary<IRoadNetworkChange, Problems> ProblemsPerChange);
+public sealed record RoadNetworkChangeResult(IReadOnlyCollection<(IRoadNetworkChange Change, Problems Problems)> ChangeProblems);

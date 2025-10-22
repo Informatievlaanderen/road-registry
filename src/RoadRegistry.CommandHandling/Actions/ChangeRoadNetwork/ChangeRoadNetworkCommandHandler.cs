@@ -38,16 +38,12 @@ public class ChangeRoadNetworkCommandHandler
         var roadNetwork = await _roadNetworkRepository.Load(roadNetworkChanges, cancellationToken);
         var changeResult = roadNetwork.Change(roadNetworkChanges);
 
-        var hasError = changeResult.ProblemsPerChange.SelectMany(x => x.Value).OfType<Error>().Any();
+        var hasError = changeResult.ChangeProblems.Select(x => x.Problems).Any(x => x.HasError());
         if (hasError)
         {
-            var roadNetworkChangesAsList = roadNetworkChanges.ToList();
-            var rejectedCommandsWithProblems = changeResult.ProblemsPerChange
-                .Select(x => (command.Changes[roadNetworkChangesAsList.IndexOf(x.Key)].Flatten(), x.Value))
-                .ToList();
             //TODO-pr set ticket to error
-            var errors = changeResult.ProblemsPerChange
-                .SelectMany(x => x.Value)
+            var errors = changeResult.ChangeProblems
+                .SelectMany(x => x.Problems)
                 .Select(problem => problem.Translate().ToTicketError())
                 .ToArray();
 
