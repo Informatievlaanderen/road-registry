@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Extracts;
 using Extracts.Dbase.RoadSegments;
 using Models;
+using RoadSegment.ValueObjects;
 using Uploads;
 
 public abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : FeatureCompareTranslatorBase<TAttributes>

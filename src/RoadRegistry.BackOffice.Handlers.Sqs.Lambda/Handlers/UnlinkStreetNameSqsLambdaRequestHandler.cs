@@ -12,6 +12,7 @@ using Infrastructure;
 using Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 using Requests;
+using RoadSegment.ValueObjects;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
@@ -94,7 +95,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                         roadSegment.AttributeHash.GeometryDrawMethod,
                         roadSegment.Start,
                         roadSegment.End,
-                        roadSegment.AttributeHash.OrganizationId,
+                        roadSegment.AttributeHash.MaintenanceAuthorityId,
                         roadSegment.AttributeHash.Morphology,
                         roadSegment.AttributeHash.Status,
                         roadSegment.AttributeHash.Category,

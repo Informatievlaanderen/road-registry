@@ -15,6 +15,7 @@ using Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Requests;
+using RoadSegment.ValueObjects;
 using StreetName;
 using TicketingService.Abstractions;
 using AddRoadSegmentToEuropeanRoad = BackOffice.Uploads.AddRoadSegmentToEuropeanRoad;

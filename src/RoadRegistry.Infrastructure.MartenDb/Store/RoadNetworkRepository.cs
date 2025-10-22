@@ -5,6 +5,7 @@ using Marten;
 using RoadNetwork;
 using RoadNode;
 using RoadSegment;
+using RoadSegment.ValueObjects;
 
 public class RoadNetworkRepository: IRoadNetworkRepository
 {

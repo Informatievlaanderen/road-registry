@@ -1,17 +1,28 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System.Threading.Tasks;
+using RoadSegment.ValueObjects;
 
 public interface IRoadNetworkIdGenerator
 {
-    Task<AttributeId> NewEuropeanRoadAttributeId();
-    Task<GradeSeparatedJunctionId> NewGradeSeparatedJunctionId();
-    Task<AttributeId> NewNationalRoadAttributeId();
-    Task<AttributeId> NewNumberedRoadAttributeId();
-    Task<RoadNodeId> NewRoadNodeId();
-    Task<RoadSegmentId> NewRoadSegmentId();
-    Task<AttributeId> NewRoadSegmentLaneAttributeId();
-    Task<AttributeId> NewRoadSegmentSurfaceAttributeId();
-    Task<AttributeId> NewRoadSegmentWidthAttributeId();
-    Task<TransactionId> NewTransactionId();
+    TransactionId NewTransactionId();
+    Task<TransactionId> NewTransactionIdAsync();
+    RoadNodeId NewRoadNodeId();
+    Task<RoadNodeId> NewRoadNodeIdAsync();
+    RoadSegmentId NewRoadSegmentId();
+    Task<RoadSegmentId> NewRoadSegmentIdAsync();
+    AttributeId NewRoadSegmentLaneAttributeId();
+    Task<AttributeId> NewRoadSegmentLaneAttributeIdAsync();
+    AttributeId NewRoadSegmentSurfaceAttributeId();
+    Task<AttributeId> NewRoadSegmentSurfaceAttributeIdAsync();
+    AttributeId NewRoadSegmentWidthAttributeId();
+    Task<AttributeId> NewRoadSegmentWidthAttributeIdAsync();
+    AttributeId NewEuropeanRoadAttributeId();
+    Task<AttributeId> NewEuropeanRoadAttributeIdAsync();
+    AttributeId NewNationalRoadAttributeId();
+    Task<AttributeId> NewNationalRoadAttributeIdAsync();
+    AttributeId NewNumberedRoadAttributeId();
+    Task<AttributeId> NewNumberedRoadAttributeIdAsync();
+    GradeSeparatedJunctionId NewGradeSeparatedJunctionId();
+    Task<GradeSeparatedJunctionId> NewGradeSeparatedJunctionIdAsync();
 }

@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.RoadNetwork;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using BackOffice;
@@ -8,14 +9,16 @@ using Changes;
 using GradeSeparatedJunction;
 using RoadNode;
 using RoadSegment;
+using RoadSegment.ValueObjects;
+using ValueObjects;
 
 public partial class RoadNetwork
 {
-    public static RoadNetwork Empty => new RoadNetwork();
+    public static RoadNetwork Empty => new();
 
-    private Dictionary<RoadNodeId, RoadNode> RoadNodes { get; } = [];
-    private Dictionary<RoadSegmentId, RoadSegment> RoadSegments { get; } = [];
-    private Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; } = [];
+    private IDictionary<RoadNodeId, RoadNode> RoadNodes { get; } = [];
+    private IDictionary<RoadSegmentId, RoadSegment> RoadSegments { get; } = [];
+    private IDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; } = [];
 
     private RoadNetwork()
     {
@@ -31,25 +34,48 @@ public partial class RoadNetwork
         GradeSeparatedJunctions = gradeSeparatedJunctions.ToDictionary(x => x.Id, x => x);
     }
 
-    public RoadNetworkChangeResult Change(IReadOnlyCollection<IRoadNetworkChange> changes)
+    public RoadNetworkChangeResult Change(IReadOnlyCollection<IRoadNetworkChange> changes, IRoadNetworkIdGenerator roadNetworkIdGenerator)
     {
         // produce change started event?
 
-        var problems = new List<(IRoadNetworkChange Change, Problems Problems)>();
+        var problems = Problems.None;
 
         // dit vervangt the RequestedChangeTranslator
+        var context = new RoadNetworkChangeContext
+        {
+            RoadNetwork = this,
+            Tolerances = VerificationContextTolerances.Default,
+            IdGenerator = roadNetworkIdGenerator
+        };
+
         foreach (var roadNetworkChange in changes)
         {
             switch (roadNetworkChange)
             {
                 case AddRoadSegmentChange change:
-                    problems.Add((roadNetworkChange, AddRoadSegment(change)));
+                    problems.AddRange(AddRoadSegment(change, context));
                     break;
                 case ModifyRoadSegmentChange change:
-                    problems.Add((roadNetworkChange, ModifyRoadSegment(change)));
+                    problems.AddRange(ModifyRoadSegment(change, context));
                     break;
-                // other cases
+                //TODO-pr other cases
+                default:
+                    throw new NotImplementedException($"{roadNetworkChange.GetType().Name} is not implemented.");
             }
+        }
+
+        if (problems.HasError())
+        {
+            //TODO-pr: verifywithinroadnetwork op alle gewijzigd/toegevoegde entiteiten, en degene die gelinkt zijn aan verwijderde
+            problems = RoadNodes.Values
+                .Where(x => x.HasChanges())
+                .Aggregate(problems, (p, x) => p + x.VerifyWithinRoadNetwork(context));
+            problems = RoadSegments.Values
+                .Where(x => x.HasChanges())
+                .Aggregate(problems, (p, x) => p + x.VerifyWithinRoadNetwork(context));
+            problems = GradeSeparatedJunctions.Values
+                .Where(x => x.HasChanges())
+                .Aggregate(problems, (p, x) => p + x.VerifyWithinRoadNetwork(context));
         }
 
         // produce change completed event
@@ -58,4 +84,4 @@ public partial class RoadNetwork
     }
 }
 
-public sealed record RoadNetworkChangeResult(IReadOnlyCollection<(IRoadNetworkChange Change, Problems Problems)> ChangeProblems);
+public sealed record RoadNetworkChangeResult(Problems Problems);

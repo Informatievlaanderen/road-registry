@@ -1,6 +1,10 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System.Linq;
+using RoadRegistry.RoadSegment.ValueObjects;
+using RoadSegmentEuropeanRoadAttribute = BackOffice.RoadSegmentEuropeanRoadAttribute;
+using RoadSegmentNationalRoadAttribute = BackOffice.RoadSegmentNationalRoadAttribute;
+using RoadSegmentNumberedRoadAttribute = BackOffice.RoadSegmentNumberedRoadAttribute;
 
 public partial class ImmutableRoadNetworkView
 {
@@ -81,7 +85,7 @@ public partial class ImmutableRoadNetworkView
             command.Status ?? segmentBefore.AttributeHash.Status,
             command.LeftSideStreetNameId ?? segmentBefore.AttributeHash.LeftStreetNameId,
             command.RightSideStreetNameId ?? segmentBefore.AttributeHash.RightStreetNameId,
-            command.MaintenanceAuthorityId ?? segmentBefore.AttributeHash.OrganizationId,
+            command.MaintenanceAuthorityId ?? segmentBefore.AttributeHash.MaintenanceAuthorityId,
             command.GeometryDrawMethod
         );
 

@@ -18,6 +18,7 @@ using Extracts;
 using FeatureCompare.V2;
 using FeatureCompare.V2.Readers;
 using NetTopologySuite.Geometries;
+using RoadSegment.ValueObjects;
 using ShapeFile.V2;
 using Tests;
 using Tests.BackOffice.Scenarios;

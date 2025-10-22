@@ -1,21 +1,33 @@
 ﻿namespace RoadRegistry.RoadNetwork;
 
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using BackOffice;
 using BackOffice.Core;
-using BackOffice.Core.ProblemCodes;
 using Changes;
-using NetTopologySuite.Geometries;
 using RoadSegment;
+using RoadSegment.ValueObjects;
 using ValueObjects;
 
 public partial class RoadNetwork
 {
+    public bool TryGetRoadSegment(RoadSegmentId roadSegmentId, [MaybeNullWhen(false)] out RoadSegment segment)
+    {
+        return RoadSegments.TryGetValue(roadSegmentId, out segment);
+    }
+
+    public bool TryGetRoadSegment(Predicate<RoadSegment> match, [MaybeNullWhen(false)] out RoadSegment segment)
+    {
+        segment = RoadSegments
+            .Where(x => match(x.Value))
+            .Select(x => x.Value)
+            .FirstOrDefault();
+        return segment is not null;
+    }
+
     private Problems AddRoadSegment(AddRoadSegmentChange change, RoadNetworkChangeContext context)
     {
-        // ************ vervanging van de huidige Core classes per command
-        var roadSegment = new RoadSegment();
-        var problems = roadSegment.Add(change, context);
+        var (roadSegment, problems) = RoadSegment.Register(change, context);
         if (problems.HasError())
         {
             return problems;
@@ -27,15 +39,11 @@ public partial class RoadNetwork
 
     private Problems ModifyRoadSegment(ModifyRoadSegmentChange change, RoadNetworkChangeContext context)
     {
-        // ************ vervanging van de huidige Core classes per command
+        if (!TryGetRoadSegment(change.Id, out var segment))
+        {
+            return Problems.Single(new RoadSegmentNotFound(change.OriginalId ?? change.Id));
+        }
 
-        // verify before (guard)
-
-        // generate + apply events
-
-        // verify after
-
-        // return events
-        return Problems.None;
+        return segment.Modify(change, context);
     }
 }

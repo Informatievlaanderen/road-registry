@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Messages;
 using NetTopologySuite.Geometries;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public partial class ImmutableRoadNetworkView : IRoadNetworkView
 {
@@ -103,7 +104,7 @@ public partial class ImmutableRoadNetworkView : IRoadNetworkView
                     Status = segment.Value.AttributeHash.Status,
                     LeftSideStreetNameId = segment.Value.AttributeHash.LeftStreetNameId?.ToInt32(),
                     RightSideStreetNameId = segment.Value.AttributeHash.RightStreetNameId?.ToInt32(),
-                    OrganizationId = segment.Value.AttributeHash.OrganizationId,
+                    OrganizationId = segment.Value.AttributeHash.MaintenanceAuthorityId,
                     GeometryDrawMethod = segment.Value.AttributeHash.GeometryDrawMethod.ToString()
                 },
                 EuropeanRoadAttributes = segment.Value.EuropeanRoadAttributes

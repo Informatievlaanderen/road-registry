@@ -8,6 +8,7 @@ using Editor.Projections;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
+using RoadSegment.ValueObjects;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServices>

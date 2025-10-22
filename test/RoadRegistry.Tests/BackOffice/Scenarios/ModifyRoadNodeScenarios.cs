@@ -10,6 +10,7 @@ using NodaTime.Text;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
+using RoadSegment.ValueObjects;
 using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
 using AddRoadNode = RoadRegistry.BackOffice.Messages.AddRoadNode;
 using AddRoadSegment = RoadRegistry.BackOffice.Messages.AddRoadSegment;

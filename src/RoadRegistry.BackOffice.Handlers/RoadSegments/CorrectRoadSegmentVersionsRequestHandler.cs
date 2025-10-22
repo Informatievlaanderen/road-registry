@@ -17,6 +17,7 @@ using RoadRegistry.Editor.Projections;
 using RoadRegistry.Editor.Schema;
 using System.Diagnostics;
 using Editor.Schema.Extensions;
+using RoadSegment.ValueObjects;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using Reason = BackOffice.Reason;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
@@ -105,7 +106,7 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
                         roadSegment.AttributeHash.GeometryDrawMethod,
                         roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.Start,
                         roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.End,
-                        roadSegment.AttributeHash.OrganizationId,
+                        roadSegment.AttributeHash.MaintenanceAuthorityId,
                         roadSegment.AttributeHash.Morphology,
                         roadSegment.AttributeHash.Status,
                         roadSegment.AttributeHash.Category,

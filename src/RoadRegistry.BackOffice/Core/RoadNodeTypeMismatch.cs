@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using ProblemCodes;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RoadNodeTypeMismatch : Error
 {

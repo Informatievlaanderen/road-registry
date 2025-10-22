@@ -7,6 +7,7 @@ namespace RoadRegistry.BackOffice.CommandHost.Tests
     using RoadRegistry.BackOffice.Core;
     using RoadRegistry.Tests.BackOffice;
     using RoadRegistry.Tests.BackOffice.Scenarios;
+    using RoadSegment.ValueObjects;
     using Xunit.Sdk;
     using AddGradeSeparatedJunction = Messages.AddGradeSeparatedJunction;
     using AddRoadNode = Messages.AddRoadNode;

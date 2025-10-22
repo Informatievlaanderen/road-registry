@@ -9,6 +9,7 @@ using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
+using RoadSegment.ValueObjects;
 using TicketingService.Abstractions;
 using RemoveRoadSegment = BackOffice.Uploads.RemoveRoadSegment;
 

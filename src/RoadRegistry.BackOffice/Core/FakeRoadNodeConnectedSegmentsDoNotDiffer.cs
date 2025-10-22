@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using ProblemCodes;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public class FakeRoadNodeConnectedSegmentsDoNotDiffer : Warning
 {

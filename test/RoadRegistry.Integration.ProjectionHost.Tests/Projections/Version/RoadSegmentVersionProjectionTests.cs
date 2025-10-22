@@ -9,6 +9,7 @@ using RoadRegistry.Integration.Projections.Version;
 using RoadRegistry.Tests;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadSegment.ValueObjects;
 using Schema.RoadSegments;
 using Schema.RoadSegments.Version;
 using static RoadRegistry.Integration.Projections.Version.RoadSegmentVersionProjection;

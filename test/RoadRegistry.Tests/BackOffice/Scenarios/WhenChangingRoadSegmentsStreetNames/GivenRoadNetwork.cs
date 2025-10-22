@@ -4,6 +4,7 @@ using FluentAssertions;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
+using RoadSegment.ValueObjects;
 
 public class GivenRoadNetwork : RoadNetworkTestBase
 {

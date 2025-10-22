@@ -5,6 +5,7 @@ using BackOffice;
 using BackOffice.Core;
 using NetTopologySuite.Geometries;
 using RoadRegistry.RoadNetwork;
+using RoadSegment.ValueObjects;
 using ValueObjects;
 
 public sealed record AddRoadSegmentChange : IRoadNetworkChange

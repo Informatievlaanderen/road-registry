@@ -12,6 +12,7 @@ using RoadRegistry.BackOffice.FeatureCompare;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.BeforeFeatureCompare.V2.Schema;
 using RoadRegistry.Tests.BackOffice;
+using RoadSegment.ValueObjects;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class ZipArchiveBeforeFeatureCompareValidatorTests

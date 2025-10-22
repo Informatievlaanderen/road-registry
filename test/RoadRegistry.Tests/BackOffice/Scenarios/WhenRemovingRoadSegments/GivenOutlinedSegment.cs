@@ -5,6 +5,7 @@ using Framework.Testing;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
+using RoadSegment.ValueObjects;
 using RemoveRoadSegments = RoadRegistry.BackOffice.Messages.RemoveRoadSegments;
 using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLaneAttributes;
 using RoadSegmentSideAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSideAttributes;

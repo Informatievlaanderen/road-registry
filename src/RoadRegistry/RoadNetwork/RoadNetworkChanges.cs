@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using BackOffice;
 using Changes;
 using NetTopologySuite.Geometries;
+using RoadSegment.ValueObjects;
 
 public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
 {

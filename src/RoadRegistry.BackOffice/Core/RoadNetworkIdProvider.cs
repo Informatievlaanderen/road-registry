@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 
 namespace RoadRegistry.BackOffice.Core
 {
+    using RoadRegistry.RoadSegment.ValueObjects;
+
     public interface IRoadNetworkIdProvider
     {
         Task<AttributeId> NextEuropeanRoadAttributeId();
@@ -30,35 +32,35 @@ namespace RoadRegistry.BackOffice.Core
             _idGenerator = idGenerator.ThrowIfNull();
             _view = view.ThrowIfNull();
         }
-        
+
         public Task<AttributeId> NextEuropeanRoadAttributeId()
         {
-            return _idGenerator.NewEuropeanRoadAttributeId();
+            return _idGenerator.NewEuropeanRoadAttributeIdAsync();
         }
 
         public Task<GradeSeparatedJunctionId> NextGradeSeparatedJunctionId()
         {
-            return _idGenerator.NewGradeSeparatedJunctionId();
+            return _idGenerator.NewGradeSeparatedJunctionIdAsync();
         }
 
         public Task<AttributeId> NextNationalRoadAttributeId()
         {
-            return _idGenerator.NewNationalRoadAttributeId();
+            return _idGenerator.NewNationalRoadAttributeIdAsync();
         }
 
         public Task<AttributeId> NextNumberedRoadAttributeId()
         {
-            return _idGenerator.NewNumberedRoadAttributeId();
+            return _idGenerator.NewNumberedRoadAttributeIdAsync();
         }
 
         public Task<RoadNodeId> NextRoadNodeId()
         {
-            return _idGenerator.NewRoadNodeId();
+            return _idGenerator.NewRoadNodeIdAsync();
         }
-        
+
         public Task<RoadSegmentId> NextRoadSegmentId()
         {
-            return _idGenerator.NewRoadSegmentId();
+            return _idGenerator.NewRoadSegmentIdAsync();
         }
 
         public Func<Task<AttributeId>> NextRoadSegmentLaneAttributeIdProvider(RoadSegmentId roadSegmentId)
@@ -66,10 +68,10 @@ namespace RoadRegistry.BackOffice.Core
             if (_view.SegmentReusableLaneAttributeIdentifiers.TryGetValue(roadSegmentId, out var reusableAttributeIdentifiers)
                 && reusableAttributeIdentifiers.Count != 0)
             {
-                return new NextReusableAttributeIdProvider(_idGenerator.NewRoadSegmentLaneAttributeId, reusableAttributeIdentifiers).Next;
+                return new NextReusableAttributeIdProvider(_idGenerator.NewRoadSegmentLaneAttributeIdAsync, reusableAttributeIdentifiers).Next;
             }
 
-            return _idGenerator.NewRoadSegmentLaneAttributeId;
+            return _idGenerator.NewRoadSegmentLaneAttributeIdAsync;
         }
 
         public Func<Task<AttributeId>> NextRoadSegmentSurfaceAttributeIdProvider(RoadSegmentId roadSegmentId)
@@ -77,10 +79,10 @@ namespace RoadRegistry.BackOffice.Core
             if (_view.SegmentReusableSurfaceAttributeIdentifiers.TryGetValue(roadSegmentId, out var reusableAttributeIdentifiers)
                 && reusableAttributeIdentifiers.Count != 0)
             {
-                return new NextReusableAttributeIdProvider(_idGenerator.NewRoadSegmentSurfaceAttributeId, reusableAttributeIdentifiers).Next;
+                return new NextReusableAttributeIdProvider(_idGenerator.NewRoadSegmentSurfaceAttributeIdAsync, reusableAttributeIdentifiers).Next;
             }
 
-            return _idGenerator.NewRoadSegmentSurfaceAttributeId;
+            return _idGenerator.NewRoadSegmentSurfaceAttributeIdAsync;
         }
 
         public Func<Task<AttributeId>> NextRoadSegmentWidthAttributeIdProvider(RoadSegmentId roadSegmentId)
@@ -88,17 +90,17 @@ namespace RoadRegistry.BackOffice.Core
             if (_view.SegmentReusableWidthAttributeIdentifiers.TryGetValue(roadSegmentId, out var reusableAttributeIdentifiers)
                 && reusableAttributeIdentifiers.Count != 0)
             {
-                return new NextReusableAttributeIdProvider(_idGenerator.NewRoadSegmentWidthAttributeId, reusableAttributeIdentifiers).Next;
+                return new NextReusableAttributeIdProvider(_idGenerator.NewRoadSegmentWidthAttributeIdAsync, reusableAttributeIdentifiers).Next;
             }
 
-            return _idGenerator.NewRoadSegmentWidthAttributeId;
+            return _idGenerator.NewRoadSegmentWidthAttributeIdAsync;
         }
-        
+
         public Task<TransactionId> NextTransactionId()
         {
-            return _idGenerator.NewTransactionId();
+            return _idGenerator.NewTransactionIdAsync();
         }
-        
+
         private sealed class NextReusableAttributeIdProvider
         {
             private readonly Func<Task<AttributeId>> _generateId;

@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Core;
 using System.Threading;
 using System.Threading.Tasks;
 using Framework;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public interface IRoadNetworks
 {

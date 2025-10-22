@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using RoadSegment.ValueObjects;
 
 public partial class RoadSegmentsController
 {

@@ -12,6 +12,8 @@ using NetTopologySuite.Geometries.Implementation;
 using NetTopologySuite.Geometries.Utilities;
 using NetTopologySuite.IO;
 using NetTopologySuite.IO.GML2;
+using RoadNetwork;
+using RoadSegment;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = NetTopologySuite.Geometries.Polygon;
@@ -70,84 +72,6 @@ public static class GeometryTranslator
             .WithMeasureOrdinates();
     }
 
-    public static MultiLineString WithMeasureOrdinates(this MultiLineString multiLineString)
-    {
-        var lineStrings = multiLineString.Geometries
-            .Cast<LineString>()
-            .Select(lineString =>
-            {
-                if (lineString.Count == 0)
-                {
-                    return lineString;
-                }
-
-                var coordinates = new Coordinate[lineString.Count];
-                coordinates[0] = new CoordinateM(lineString.StartPoint.X, lineString.StartPoint.Y, 0);
-
-                var currentMeasure = coordinates[0].M;
-
-                for (var i = 1; i < lineString.Count; i++)
-                {
-                    var currentPoint = lineString[i];
-                    var previousPoint = lineString[i - 1];
-
-                    var distanceToPreviousPoint = previousPoint.Distance(currentPoint);
-                    currentMeasure += distanceToPreviousPoint;
-                    coordinates[i] = new CoordinateM(currentPoint.X, currentPoint.Y, currentMeasure);
-                }
-
-                return new LineString(new CoordinateArraySequence(coordinates), multiLineString.Factory)
-                    .WithSrid(multiLineString.SRID);
-            })
-            .ToArray();
-
-        return new MultiLineString(lineStrings, multiLineString.Factory)
-            .WithSrid(multiLineString.SRID);
-    }
-
-    public static MultiLineString WithoutDuplicateCoordinates(this MultiLineString multiLineString)
-    {
-        var lineStrings = multiLineString.Geometries
-            .Cast<LineString>()
-            .Select(lineString =>
-            {
-                if (lineString.Count == 0)
-                {
-                    return lineString;
-                }
-
-                var coordinates = new CoordinateList
-                {
-                    new Coordinate(lineString.StartPoint.X, lineString.StartPoint.Y)
-                };
-
-                for (var i = 1; i < lineString.Count; i++)
-                {
-                    var currentPoint = lineString[i];
-                    var previousPoint = lineString[i - 1];
-
-                    if (currentPoint.Equals2D(previousPoint, DefaultTolerances.DuplicateCoordinatesTolerance))
-                    {
-                        if (i == lineString.Count - 1)
-                        {
-                            coordinates.RemoveAt(coordinates.Count - 1);
-                            coordinates.Add(currentPoint);
-                        }
-                        continue;
-                    }
-
-                    coordinates.Add(currentPoint);
-                }
-
-                return multiLineString.Factory.CreateLineString(coordinates.ToCoordinateArray())
-                    .WithSrid(multiLineString.SRID);
-            })
-            .ToArray();
-
-        return new MultiLineString(lineStrings, multiLineString.Factory)
-            .WithSrid(multiLineString.SRID);
-    }
-
     private static Geometry ParseGml(string gml)
     {
         var gmlReader = new GMLReader(WellKnownGeometryFactories.WithoutSrid);
@@ -188,68 +112,14 @@ public static class GeometryTranslator
         };
     }
 
-    public static MultiLineString Translate(RoadSegmentGeometry geometry)
-    {
-        ArgumentNullException.ThrowIfNull(geometry);
-
-        var toLineStrings = new List<LineString>();
-        foreach (var fromLineString in geometry.MultiLineString)
-        {
-            var toPoints = new List<Coordinate>();
-            for (var index = 0; index < fromLineString.Points.Length && index < fromLineString.Measures.Length; index++)
-            {
-                var fromPoint = fromLineString.Points[index];
-                var fromMeasure = fromLineString.Measures[index];
-                toPoints.Add(new CoordinateM(fromPoint.X, fromPoint.Y, fromMeasure));
-            }
-
-            toLineStrings.Add(
-                new LineString(
-                        new CoordinateArraySequence(toPoints.ToArray()),
-                        WellKnownGeometryFactories.Default)
-                    .WithSrid(geometry.SpatialReferenceSystemIdentifier)
-            );
-        }
-
-        return new MultiLineString(toLineStrings.ToArray(), WellKnownGeometryFactories.Default)
-            .WithSrid(geometry.SpatialReferenceSystemIdentifier)
-            .WithMeasureOrdinates();
-    }
-
     public static RoadSegmentGeometry Translate(MultiLineString geometry)
     {
-        ArgumentNullException.ThrowIfNull(geometry);
+        return geometry.ToRoadSegmentGeometry();
+    }
 
-        geometry = geometry
-            .WithoutDuplicateCoordinates()
-            .WithMeasureOrdinates();
-
-        var toMultiLineString = new Messages.LineString[geometry.NumGeometries];
-        var lineIndex = 0;
-        foreach (var fromLineString in geometry.Geometries.OfType<LineString>())
-        {
-            var toLineString = new Messages.LineString
-            {
-                Points = new Messages.Point[fromLineString.NumPoints],
-                Measures = fromLineString.GetOrdinates(Ordinate.M)
-            };
-
-            for (var pointIndex = 0; pointIndex < fromLineString.NumPoints; pointIndex++)
-                toLineString.Points[pointIndex] = new Messages.Point
-                {
-                    X = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, Ordinate.X),
-                    Y = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, Ordinate.Y)
-                };
-
-            toMultiLineString[lineIndex] = toLineString;
-            lineIndex++;
-        }
-
-        return new RoadSegmentGeometry
-        {
-            SpatialReferenceSystemIdentifier = geometry.SRID,
-            MultiLineString = toMultiLineString
-        };
+    public static MultiLineString Translate(RoadSegmentGeometry geometry)
+    {
+        return geometry.ToMultiLineString();
     }
 
     public static IPolygonal Translate(RoadNetworkExtractGeometry geometry)

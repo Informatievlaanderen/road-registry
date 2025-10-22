@@ -10,6 +10,7 @@ using Extracts;
 using Extracts.Dbase.RoadSegments;
 using Models;
 using NetTopologySuite.Geometries;
+using RoadSegment.ValueObjects;
 using Translators;
 using Uploads;
 using Validation;

@@ -4,9 +4,12 @@ using AutoFixture;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using RoadNetwork;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
+using RoadSegment;
+using RoadSegment.ValueObjects;
 using Scenarios;
 
 public class RoadSegmentGeometryTests

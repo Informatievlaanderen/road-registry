@@ -8,6 +8,7 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
 using Extensions;
 using Moq;
 using ProjectionHost.Projections;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using RoadRegistry.Tests.BackOffice.Uploads;

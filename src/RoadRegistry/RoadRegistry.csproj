@@ -15,6 +15,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Be.Vlaanderen.Basisregisters.AggregateSource" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.AggregateSource.ExplicitRouting" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.BlobStore" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.EventHandling.Autofac" />
@@ -63,6 +64,5 @@
     <Folder Include="GradeSeparatedJunction\Events\" />
     <Folder Include="RoadNetwork\Events\" />
     <Folder Include="RoadNode\Events\" />
-    <Folder Include="RoadSegment\Events\" />
   </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Infrastructure.Converters;
 
 using System;
 using Newtonsoft.Json;
+using RoadSegment.ValueObjects;
 
 public class RoadSegmentIdConverter : JsonConverter<RoadSegmentId>
 {

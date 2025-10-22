@@ -12,6 +12,8 @@ using Infrastructure;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Requests;
+using RoadNetwork;
+using RoadSegment;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;

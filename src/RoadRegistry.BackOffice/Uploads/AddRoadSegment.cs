@@ -6,6 +6,7 @@ using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Messages;
 using NetTopologySuite.Geometries;
+using RoadSegment.ValueObjects;
 
 public class AddRoadSegment : ITranslatedChange
 {

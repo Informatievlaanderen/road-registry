@@ -6,8 +6,12 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.FeatureCompare.V2;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Tests.BackOffice;
+using RoadSegment.ValueObjects;
 using Xunit.Abstractions;
 using Point = NetTopologySuite.Geometries.Point;
+using RoadSegmentLaneAttribute = Uploads.RoadSegmentLaneAttribute;
+using RoadSegmentSurfaceAttribute = Uploads.RoadSegmentSurfaceAttribute;
+using RoadSegmentWidthAttribute = Uploads.RoadSegmentWidthAttribute;
 
 public class AllScenarios : FeatureCompareTranslatorScenariosBase
 {

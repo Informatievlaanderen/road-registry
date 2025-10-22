@@ -21,6 +21,7 @@ using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using RoadRegistry.Tests.Framework;
+using RoadSegment.ValueObjects;
 using Sqs.RoadSegments;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;

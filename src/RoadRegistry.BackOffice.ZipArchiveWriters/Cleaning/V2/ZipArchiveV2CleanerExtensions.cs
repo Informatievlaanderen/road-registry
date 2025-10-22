@@ -6,6 +6,7 @@ using Extracts;
 using System.IO.Compression;
 using FeatureCompare.V2;
 using FeatureCompare.V2.Readers;
+using RoadSegment.ValueObjects;
 using Uploads;
 
 internal static class ZipArchiveV2CleanerExtensions

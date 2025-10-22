@@ -4,6 +4,7 @@ using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
 using Integration.Projections;
+using RoadSegment.ValueObjects;
 using Schema.RoadSegments.Version;
 
 public partial class RoadSegmentVersionProjectionTests

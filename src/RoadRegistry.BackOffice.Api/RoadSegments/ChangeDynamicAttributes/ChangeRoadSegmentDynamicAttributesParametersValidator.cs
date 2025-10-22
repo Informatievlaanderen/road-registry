@@ -6,6 +6,7 @@ using FluentValidation;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Core.ProblemCodes;
 using RoadRegistry.BackOffice.Extensions;
+using RoadSegment.ValueObjects;
 
 public class ChangeRoadSegmentDynamicAttributesParametersValidator : AbstractValidator<ChangeRoadSegmentDynamicAttributesParameters>
 {

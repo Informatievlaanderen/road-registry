@@ -6,6 +6,7 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Integration.Projections;
 using Integration.Projections.Version;
+using RoadSegment.ValueObjects;
 using Schema.RoadSegments;
 using Schema.RoadSegments.Version;
 using RoadSegmentVersion = Schema.RoadSegments.Version.RoadSegmentVersion;

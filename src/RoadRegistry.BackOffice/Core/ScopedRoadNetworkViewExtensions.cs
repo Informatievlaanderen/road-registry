@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Core;
 using System.Collections.Generic;
 using System.Linq;
 using NetTopologySuite.Geometries;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public static class ScopedRoadNetworkViewExtensions
 {

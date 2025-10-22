@@ -6,6 +6,10 @@ using System.Collections.Immutable;
 using System.Linq;
 using Framework;
 using Messages;
+using RoadRegistry.RoadSegment.ValueObjects;
+using RoadSegmentEuropeanRoadAttribute = BackOffice.RoadSegmentEuropeanRoadAttribute;
+using RoadSegmentNationalRoadAttribute = BackOffice.RoadSegmentNationalRoadAttribute;
+using RoadSegmentNumberedRoadAttribute = BackOffice.RoadSegmentNumberedRoadAttribute;
 
 public partial class ImmutableRoadNetworkView
 {
@@ -609,7 +613,7 @@ public partial class ImmutableRoadNetworkView
                 : segmentBefore.AttributeHash.RightStreetNameId,
             @event.MaintenanceAuthority is not null
                 ? new OrganizationId(@event.MaintenanceAuthority.Code)
-                : segmentBefore.AttributeHash.OrganizationId,
+                : segmentBefore.AttributeHash.MaintenanceAuthorityId,
             segmentBefore.AttributeHash.GeometryDrawMethod
         );
 
@@ -665,7 +669,7 @@ public partial class ImmutableRoadNetworkView
             segmentBefore.AttributeHash.Status,
             segmentBefore.AttributeHash.LeftStreetNameId,
             segmentBefore.AttributeHash.RightStreetNameId,
-            segmentBefore.AttributeHash.OrganizationId,
+            segmentBefore.AttributeHash.MaintenanceAuthorityId,
             segmentBefore.AttributeHash.GeometryDrawMethod
         );
 

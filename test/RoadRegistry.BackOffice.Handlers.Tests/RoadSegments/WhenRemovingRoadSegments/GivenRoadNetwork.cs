@@ -11,6 +11,7 @@ using Messages;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadSegment.ValueObjects;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 

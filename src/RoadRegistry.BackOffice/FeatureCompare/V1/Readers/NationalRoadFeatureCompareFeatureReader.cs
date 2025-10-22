@@ -8,6 +8,7 @@ using Extensions;
 using Extracts;
 using Extracts.Dbase.RoadSegments;
 using Models;
+using RoadSegment.ValueObjects;
 using Translators;
 using Uploads;
 using Validation;

@@ -6,6 +6,7 @@ using AutoFixture;
 using AutoFixture.Idioms;
 using Framework.Assertions;
 using RoadRegistry.BackOffice;
+using RoadSegment.ValueObjects;
 
 public class RoadSegmentIdTests
 {

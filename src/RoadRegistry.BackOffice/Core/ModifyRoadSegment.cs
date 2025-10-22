@@ -7,6 +7,9 @@ using System.Threading;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
 using NetTopologySuite.Geometries;
+using RoadRegistry.RoadNetwork;
+using RoadRegistry.RoadSegment;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public class ModifyRoadSegment : IRequestedChange, IHaveHash
 {
@@ -234,7 +237,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
     {
         var afterSegment = context.AfterView.Segments[Id];
 
-        var maintenanceAuthorityId = afterSegment.AttributeHash.OrganizationId;
+        var maintenanceAuthorityId = afterSegment.AttributeHash.MaintenanceAuthorityId;
         var maintainer = context.Organizations.FindAsync(maintenanceAuthorityId, CancellationToken.None).GetAwaiter().GetResult();
 
         var laneIdentifiers = new Queue<AttributeId>(context.AfterView.View.SegmentReusableLaneAttributeIdentifiers[Id]);

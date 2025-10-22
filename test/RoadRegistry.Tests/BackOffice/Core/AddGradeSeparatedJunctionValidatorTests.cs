@@ -3,6 +3,7 @@ namespace RoadRegistry.Tests.BackOffice.Core;
 using AutoFixture;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
+using RoadSegment.ValueObjects;
 using AddGradeSeparatedJunction = RoadRegistry.BackOffice.Messages.AddGradeSeparatedJunction;
 
 public class AddGradeSeparatedJunctionValidatorTests : ValidatorTest<AddGradeSeparatedJunction, AddGradeSeparatedJunctionValidator>

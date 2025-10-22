@@ -10,6 +10,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 using Framework;
 using Messages;
 using NetTopologySuite.Geometries;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RoadNetwork : EventSourcedEntity
 {

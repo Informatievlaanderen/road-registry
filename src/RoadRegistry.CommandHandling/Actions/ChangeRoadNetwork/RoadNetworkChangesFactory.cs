@@ -11,6 +11,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using RoadNetwork;
 using RoadNetwork.Changes;
 using RoadNetwork.ValueObjects;
+using RoadSegment.ValueObjects;
 using GeometryTranslator = BackOffice.GeometryTranslator;
 
 public class RoadNetworkChangesFactory
@@ -27,7 +28,7 @@ public class RoadNetworkChangesFactory
         ArgumentNullException.ThrowIfNull(roadNetworkCommand);
 
         //TODO-pr is transactionid nog nodig?
-        var translated = RoadNetworkChanges.Start(await _roadNetworkIdGenerator.NewTransactionId());
+        var translated = RoadNetworkChanges.Start(await _roadNetworkIdGenerator.NewTransactionIdAsync());
 
         foreach (var change in roadNetworkCommand.Changes.Flatten()
                      .Select((change, ordinal) => new SortableChange(change, ordinal))

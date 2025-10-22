@@ -7,6 +7,7 @@ using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.FeatureCompare.V2;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Tests.BackOffice;
+using RoadSegment.ValueObjects;
 using Xunit.Abstractions;
 
 public class RoadSegmentLaneScenarios : FeatureCompareTranslatorScenariosBase

@@ -7,6 +7,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Integration.Projections;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadSegment.ValueObjects;
 using Schema.RoadSegments;
 
 public class RoadSegmentLatestItemProjectionTests

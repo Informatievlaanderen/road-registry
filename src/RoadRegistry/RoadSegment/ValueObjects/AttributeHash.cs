@@ -1,7 +1,8 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.RoadSegment.ValueObjects;
 
 using System;
 using System.Diagnostics.Contracts;
+using BackOffice;
 
 public readonly struct AttributeHash : IEquatable<AttributeHash>
 {
@@ -11,7 +12,7 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
     public RoadSegmentStatus Status { get; }
     public StreetNameLocalId? LeftStreetNameId { get; }
     public StreetNameLocalId? RightStreetNameId { get; }
-    public OrganizationId OrganizationId { get; }
+    public OrganizationId MaintenanceAuthorityId { get; }
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
 
     public AttributeHash(
@@ -21,7 +22,7 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
         RoadSegmentStatus status,
         StreetNameLocalId? leftStreetNameId,
         StreetNameLocalId? rightStreetNameId,
-        OrganizationId organizationId,
+        OrganizationId maintenanceAuthorityId,
         RoadSegmentGeometryDrawMethod geometryDrawMethod)
     {
         AccessRestriction = accessRestriction;
@@ -30,32 +31,32 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
         Status = status;
         LeftStreetNameId = leftStreetNameId;
         RightStreetNameId = rightStreetNameId;
-        OrganizationId = organizationId;
+        MaintenanceAuthorityId = maintenanceAuthorityId;
         GeometryDrawMethod = geometryDrawMethod;
     }
 
     [Pure]
     public AttributeHash With(RoadSegmentAccessRestriction value)
     {
-        return new AttributeHash(value, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod);
+        return new AttributeHash(value, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, MaintenanceAuthorityId, GeometryDrawMethod);
     }
 
     [Pure]
     public AttributeHash With(RoadSegmentCategory value)
     {
-        return new AttributeHash(AccessRestriction, value, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod);
+        return new AttributeHash(AccessRestriction, value, Morphology, Status, LeftStreetNameId, RightStreetNameId, MaintenanceAuthorityId, GeometryDrawMethod);
     }
 
     [Pure]
     public AttributeHash With(RoadSegmentMorphology value)
     {
-        return new AttributeHash(AccessRestriction, Category, value, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod);
+        return new AttributeHash(AccessRestriction, Category, value, Status, LeftStreetNameId, RightStreetNameId, MaintenanceAuthorityId, GeometryDrawMethod);
     }
 
     [Pure]
     public AttributeHash With(RoadSegmentStatus value)
     {
-        return new AttributeHash(AccessRestriction, Category, Morphology, value, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod);
+        return new AttributeHash(AccessRestriction, Category, Morphology, value, LeftStreetNameId, RightStreetNameId, MaintenanceAuthorityId, GeometryDrawMethod);
     }
 
     [Pure]
@@ -67,25 +68,25 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
     [Pure]
     public AttributeHash With(RoadSegmentGeometryDrawMethod value)
     {
-        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, value);
+        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, MaintenanceAuthorityId, value);
     }
 
     [Pure]
     public AttributeHash WithLeftSide(StreetNameLocalId? value)
     {
-        return new AttributeHash(AccessRestriction, Category, Morphology, Status, value, RightStreetNameId, OrganizationId, GeometryDrawMethod);
+        return new AttributeHash(AccessRestriction, Category, Morphology, Status, value, RightStreetNameId, MaintenanceAuthorityId, GeometryDrawMethod);
     }
 
     [Pure]
     public AttributeHash WithRightSide(StreetNameLocalId? value)
     {
-        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, value, OrganizationId, GeometryDrawMethod);
+        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, value, MaintenanceAuthorityId, GeometryDrawMethod);
     }
 
     [Pure]
     public AttributeHash Without(StreetNameLocalId value)
     {
-        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId == value ? null : LeftStreetNameId, RightStreetNameId == value ? null : RightStreetNameId, OrganizationId, GeometryDrawMethod);
+        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId == value ? null : LeftStreetNameId, RightStreetNameId == value ? null : RightStreetNameId, MaintenanceAuthorityId, GeometryDrawMethod);
     }
 
     [Pure]
@@ -97,7 +98,7 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
                && Equals(Status, other.Status)
                && LeftStreetNameId.Equals(other.LeftStreetNameId)
                && RightStreetNameId.Equals(other.RightStreetNameId)
-               && OrganizationId.Equals(other.OrganizationId)
+               && MaintenanceAuthorityId.Equals(other.MaintenanceAuthorityId)
                && GeometryDrawMethod.Equals(other.GeometryDrawMethod)
                ;
     }
@@ -116,7 +117,7 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
             Status,
             HashCode.Combine(LeftStreetNameId, 'L'),
             HashCode.Combine(RightStreetNameId, 'R'),
-            OrganizationId,
+            MaintenanceAuthorityId,
             GeometryDrawMethod
         );
     }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Core;
+using RoadSegment.ValueObjects;
 
 public class RoadSegmentsProblemsException : RoadRegistryException
 {

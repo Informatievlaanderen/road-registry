@@ -1,15 +1,12 @@
 namespace NetTopologySuite.Geometries;
 
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Microsoft.Data.SqlClient;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Core;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
-using System.Data;
 using System.Linq;
-using IO;
+using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Implementation;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
 
 public static class NetTopologySuiteExtensions
 {
@@ -136,7 +133,7 @@ public static class NetTopologySuiteExtensions
 
         if (geometry is Polygon polygon)
         {
-            return new MultiPolygon(new[] { polygon }, polygon.Factory)
+            return new MultiPolygon([polygon], polygon.Factory)
             {
                 SRID = polygon.SRID
             };
@@ -168,7 +165,7 @@ public static class NetTopologySuiteExtensions
 
         if (geometry is LineString lineString)
         {
-            return new MultiLineString(new[] { lineString }, geometryFactory ?? lineString.Factory)
+            return new MultiLineString([lineString], geometryFactory ?? lineString.Factory)
             {
                 SRID = lineString.SRID
             };
@@ -186,7 +183,7 @@ public static class NetTopologySuiteExtensions
 
         if (geometry is Point point)
         {
-            return new MultiPoint(new[] { point }, geometryFactory ?? point.Factory)
+            return new MultiPoint([point], geometryFactory ?? point.Factory)
             {
                 SRID = point.SRID
             };
@@ -203,5 +200,210 @@ public static class NetTopologySuiteExtensions
             : GeometryConfiguration.GeometryFactory.SRID;
 
         return geometry;
+    }
+
+    public static MultiLineString WithMeasureOrdinates(this MultiLineString multiLineString)
+    {
+        var lineStrings = multiLineString.Geometries
+            .Cast<LineString>()
+            .Select(lineString =>
+            {
+                if (lineString.Count == 0)
+                {
+                    return lineString;
+                }
+
+                var coordinates = new Coordinate[lineString.Count];
+                coordinates[0] = new CoordinateM(lineString.StartPoint.X, lineString.StartPoint.Y, 0);
+
+                var currentMeasure = coordinates[0].M;
+
+                for (var i = 1; i < lineString.Count; i++)
+                {
+                    var currentPoint = lineString[i];
+                    var previousPoint = lineString[i - 1];
+
+                    var distanceToPreviousPoint = previousPoint.Distance(currentPoint);
+                    currentMeasure += distanceToPreviousPoint;
+                    coordinates[i] = new CoordinateM(currentPoint.X, currentPoint.Y, currentMeasure);
+                }
+
+                return new LineString(new CoordinateArraySequence(coordinates), multiLineString.Factory)
+                    .WithSrid(multiLineString.SRID);
+            })
+            .ToArray();
+
+        return new MultiLineString(lineStrings, multiLineString.Factory)
+            .WithSrid(multiLineString.SRID);
+    }
+
+    public static MultiLineString WithoutDuplicateCoordinates(this MultiLineString multiLineString)
+    {
+        var lineStrings = multiLineString.Geometries
+            .Cast<LineString>()
+            .Select(lineString =>
+            {
+                if (lineString.Count == 0)
+                {
+                    return lineString;
+                }
+
+                var coordinates = new CoordinateList
+                {
+                    new Coordinate(lineString.StartPoint.X, lineString.StartPoint.Y)
+                };
+
+                for (var i = 1; i < lineString.Count; i++)
+                {
+                    var currentPoint = lineString[i];
+                    var previousPoint = lineString[i - 1];
+
+                    if (currentPoint.Equals2D(previousPoint, DefaultTolerances.DuplicateCoordinatesTolerance))
+                    {
+                        if (i == lineString.Count - 1)
+                        {
+                            coordinates.RemoveAt(coordinates.Count - 1);
+                            coordinates.Add(currentPoint);
+                        }
+                        continue;
+                    }
+
+                    coordinates.Add(currentPoint);
+                }
+
+                return multiLineString.Factory.CreateLineString(coordinates.ToCoordinateArray())
+                    .WithSrid(multiLineString.SRID);
+            })
+            .ToArray();
+
+        return new MultiLineString(lineStrings, multiLineString.Factory)
+            .WithSrid(multiLineString.SRID);
+    }
+
+    public static bool SelfIntersects(this LineString instance)
+    {
+        if (instance.Length <= 0.0 || instance.NumPoints <= 2)
+            return false;
+
+        return !instance.IsSimple;
+    }
+
+    public static bool SelfOverlaps(this LineString instance)
+    {
+        if (instance.Length <= 0.0 || instance.NumPoints <= 2)
+            return false;
+
+        var lines = new LineString[instance.NumPoints - 1];
+        var fromPoint = instance.StartPoint;
+        for (var index = 1; index < instance.NumPoints; index++)
+        {
+            var toPoint = instance.GetPointN(index);
+            lines[index - 1] =
+                new LineString(
+                    new CoordinateArraySequence(
+                        new[]
+                        {
+                            new Coordinate(Math.Round(fromPoint.X, Precisions.GeometryPrecision), Math.Round(fromPoint.Y, Precisions.GeometryPrecision)),
+                            new Coordinate(Math.Round(toPoint.X, Precisions.GeometryPrecision), Math.Round(toPoint.Y, Precisions.GeometryPrecision))
+                        })
+                    , WellKnownGeometryFactories.Default);
+            fromPoint = toPoint;
+        }
+
+        var overlappings =
+            (
+                from left in lines
+                from right in lines
+                where !ReferenceEquals(left, right)
+                select new
+                {
+                    Left = left,
+                    Right = right,
+                    LeftOverlapsRight = left.Overlaps(right),
+                    LeftCoversRight = left.Covers(right)
+                }
+            )
+            .Where(x => x.LeftOverlapsRight || x.LeftCoversRight)
+            .ToArray();
+
+        return overlappings.Any();
+    }
+
+    public static bool HasInvalidMeasureOrdinates(this LineString instance)
+    {
+        var measures = instance.GetOrdinates(Ordinate.M);
+        return measures.Any(value => double.IsNaN(value) || double.IsNegativeInfinity(value) || double.IsPositiveInfinity(value));
+    }
+
+    public static bool IsReasonablyEqualTo(this MultiLineString @this, MultiLineString other, VerificationContextTolerances tolerances)
+    {
+        if (ReferenceEquals(@this, other)) return true;
+        if (@this.NumGeometries != other.NumGeometries) return false;
+        for (var i = 0; i < @this.NumGeometries; i++)
+        {
+            var thisLineString = (LineString)@this.GetGeometryN(i);
+            var otherLineString = (LineString)other.GetGeometryN(i);
+            if (!thisLineString.IsReasonablyEqualTo(otherLineString, tolerances)) return false;
+        }
+
+        return true;
+    }
+
+    private static bool IsReasonablyEqualTo(this LineString @this, LineString other, VerificationContextTolerances tolerances)
+    {
+        if (ReferenceEquals(@this, other)) return true;
+        if (@this.NumPoints != other.NumPoints) return false;
+        for (var i = 0; i < @this.NumPoints; i++)
+        {
+            var thisPoint = @this.GetCoordinateN(i);
+            var otherPoint = other.GetCoordinateN(i);
+            if (!thisPoint.IsReasonablyEqualTo(otherPoint, tolerances)) return false;
+        }
+
+        return true;
+    }
+
+    public static bool IsReasonablyEqualTo(this Point @this, Point other, VerificationContextTolerances tolerances)
+    {
+        if (ReferenceEquals(@this, other)) return true;
+        if (@this.IsEmpty && other.IsEmpty) return true;
+        if (@this.IsEmpty != other.IsEmpty) return false;
+        return @this.EqualsExact(other, tolerances.GeometryTolerance);
+    }
+
+    public static bool IsReasonablyEqualTo(this Coordinate @this, Coordinate other, VerificationContextTolerances tolerances)
+    {
+        if (ReferenceEquals(@this, other)) return true;
+        return @this.Equals2D(other, tolerances.GeometryTolerance);
+    }
+
+    public static bool IsReasonablyEqualTo(this double value, double other, VerificationContextTolerances tolerances)
+    {
+        return value.IsReasonablyEqualTo(other, tolerances.GeometryTolerance);
+    }
+
+    public static bool IsReasonablyEqualTo(this decimal value, decimal other, VerificationContextTolerances tolerances)
+    {
+        return value.IsReasonablyEqualTo(other, (decimal)tolerances.GeometryTolerance);
+    }
+
+    public static bool IsReasonablyLessThan(this double value, double other, VerificationContextTolerances tolerances)
+    {
+        return value.IsReasonablyLessThan(other, tolerances.GeometryTolerance);
+    }
+
+    public static bool IsReasonablyLessThan(this decimal value, decimal other, VerificationContextTolerances tolerances)
+    {
+        return value.IsReasonablyLessThan(other, (decimal)tolerances.GeometryTolerance);
+    }
+
+    public static bool IsReasonablyGreaterThan(this double value, double other, VerificationContextTolerances tolerances)
+    {
+        return value.IsReasonablyGreaterThan(other, tolerances.GeometryTolerance);
+    }
+
+    public static bool IsReasonablyGreaterThan(this decimal value, decimal other, VerificationContextTolerances tolerances)
+    {
+        return value.IsReasonablyGreaterThan(other, (decimal)tolerances.GeometryTolerance);
     }
 }

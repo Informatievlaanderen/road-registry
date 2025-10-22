@@ -7,6 +7,7 @@ using Core.ProblemCodes;
 using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
+using RoadSegment.ValueObjects;
 
 public class LinkStreetNameRequestValidator : AbstractValidator<LinkStreetNameRequest>
 {

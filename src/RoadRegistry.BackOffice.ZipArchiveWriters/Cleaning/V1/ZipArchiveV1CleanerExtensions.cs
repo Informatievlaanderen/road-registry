@@ -7,6 +7,7 @@ using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.FeatureCompare.V1;
 using RoadRegistry.BackOffice.FeatureCompare.V1.Readers;
 using RoadRegistry.BackOffice.Uploads;
+using RoadSegment.ValueObjects;
 
 internal static class ZipArchiveV1CleanerExtensions
 {

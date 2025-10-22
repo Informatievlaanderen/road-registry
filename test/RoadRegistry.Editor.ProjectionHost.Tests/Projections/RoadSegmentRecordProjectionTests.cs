@@ -15,6 +15,7 @@ using NodaTime.Testing;
 using NodaTime.Text;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
+using RoadSegment.ValueObjects;
 
 public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {

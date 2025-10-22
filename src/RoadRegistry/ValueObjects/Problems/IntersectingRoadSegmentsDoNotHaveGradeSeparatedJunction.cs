@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using ProblemCodes;
+using RoadSegment.ValueObjects;
 
 public class IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction : Error
 {

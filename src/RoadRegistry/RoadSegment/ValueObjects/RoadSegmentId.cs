@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice;
+namespace RoadRegistry.RoadSegment.ValueObjects;
 
 using System;
 using System.Globalization;

@@ -5,6 +5,7 @@ using AutoFixture.Idioms;
 using Framework.Assertions;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
+using RoadSegment.ValueObjects;
 using RoadSegmentLaneAttribute = RoadRegistry.BackOffice.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute;
 using RoadSegmentWidthAttribute = RoadRegistry.BackOffice.RoadSegmentWidthAttribute;

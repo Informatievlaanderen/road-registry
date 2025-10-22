@@ -13,17 +13,20 @@ public class ChangeRoadNetworkCommandHandler
     private readonly IRoadNetworkRepository _roadNetworkRepository;
     private readonly RoadNetworkChangesFactory _roadNetworkChangeFactory;
     private readonly IExtractRequests _extractRequests;
+    private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
     private readonly ITicketing _ticketing;
 
     public ChangeRoadNetworkCommandHandler(
         IRoadNetworkRepository roadNetworkRepository,
         RoadNetworkChangesFactory roadNetworkChangeFactory,
         IExtractRequests extractRequests,
+        IRoadNetworkIdGenerator roadNetworkIdGenerator,
         ITicketing ticketing)
     {
         _roadNetworkRepository = roadNetworkRepository;
         _roadNetworkChangeFactory = roadNetworkChangeFactory;
         _extractRequests = extractRequests;
+        _roadNetworkIdGenerator = roadNetworkIdGenerator;
         _ticketing = ticketing;
     }
 
@@ -36,14 +39,13 @@ public class ChangeRoadNetworkCommandHandler
         var roadNetworkChanges = await _roadNetworkChangeFactory.Build(command);
 
         var roadNetwork = await _roadNetworkRepository.Load(roadNetworkChanges, cancellationToken);
-        var changeResult = roadNetwork.Change(roadNetworkChanges);
+        var changeResult = roadNetwork.Change(roadNetworkChanges, _roadNetworkIdGenerator);
 
-        var hasError = changeResult.ChangeProblems.Select(x => x.Problems).Any(x => x.HasError());
+        var hasError = changeResult.Problems.HasError();
         if (hasError)
         {
             //TODO-pr set ticket to error
-            var errors = changeResult.ChangeProblems
-                .SelectMany(x => x.Problems)
+            var errors = changeResult.Problems
                 .Select(problem => problem.Translate().ToTicketError())
                 .ToArray();
 

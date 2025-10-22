@@ -4,6 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NetTopologySuite.Geometries;
+using RoadRegistry.RoadSegment.ValueObjects;
+using RoadSegmentEuropeanRoadAttribute = BackOffice.RoadSegmentEuropeanRoadAttribute;
+using RoadSegmentNationalRoadAttribute = BackOffice.RoadSegmentNationalRoadAttribute;
+using RoadSegmentNumberedRoadAttribute = BackOffice.RoadSegmentNumberedRoadAttribute;
 
 public partial class ImmutableRoadNetworkView
 {
@@ -176,7 +180,7 @@ public partial class ImmutableRoadNetworkView
                 segment1.AttributeHash.Status,
                 leftStreetNameId,
                 rightStreetNameId,
-                segment1.AttributeHash.OrganizationId,
+                segment1.AttributeHash.MaintenanceAuthorityId,
                 segment1.AttributeHash.GeometryDrawMethod
             ),
             lanes,
@@ -380,7 +384,7 @@ public partial class ImmutableRoadNetworkView
         if (segment1.AttributeHash.Category != segment2.AttributeHash.Category
             || segment1.AttributeHash.Morphology != segment2.AttributeHash.Morphology
             || segment1.AttributeHash.GeometryDrawMethod != segment2.AttributeHash.GeometryDrawMethod
-            || segment1.AttributeHash.OrganizationId != segment2.AttributeHash.OrganizationId
+            || segment1.AttributeHash.MaintenanceAuthorityId != segment2.AttributeHash.MaintenanceAuthorityId
             || segment1.AttributeHash.Status != segment2.AttributeHash.Status
             || segment1.AttributeHash.AccessRestriction != segment2.AttributeHash.AccessRestriction
             || !segment1.EuropeanRoadAttributes.Values.OrderBy(x => x.Number)

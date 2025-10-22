@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Core;
 using System;
 using System.Collections.Generic;
 using Messages;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RemoveOutlinedRoadSegment : IRequestedChange
 {

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Messages;
 using NetTopologySuite.Geometries;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RequestedChangeTranslator
 {

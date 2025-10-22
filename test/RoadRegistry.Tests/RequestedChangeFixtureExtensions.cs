@@ -5,6 +5,7 @@ using BackOffice;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;
+using RoadSegment.ValueObjects;
 
 public static class RequestedChangeFixtureExtensions
 {

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RemoveRoadSegments : IRequestedChange, IHaveHash
 {
@@ -217,7 +218,7 @@ public class RemoveRoadSegments : IRequestedChange, IHaveHash
                                 Category = segment.AttributeHash.Category,
                                 Morphology = segment.AttributeHash.Morphology,
                                 Status = segment.AttributeHash.Status,
-                                MaintenanceAuthority = GetMaintenanceAuthority(segment.AttributeHash.OrganizationId),
+                                MaintenanceAuthority = GetMaintenanceAuthority(segment.AttributeHash.MaintenanceAuthorityId),
                                 LeftSide = new Messages.RoadSegmentSideAttributes { StreetNameId = segment.AttributeHash.LeftStreetNameId },
                                 RightSide = new Messages.RoadSegmentSideAttributes { StreetNameId = segment.AttributeHash.RightStreetNameId },
                                 Lanes = segment!.Lanes.Select(x => new Messages.RoadSegmentLaneAttributes

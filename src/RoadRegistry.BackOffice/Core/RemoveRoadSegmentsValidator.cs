@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Core;
 using Extensions;
 using FluentValidation;
 using ProblemCodes;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RemoveRoadSegmentsValidator : AbstractValidator<Messages.RemoveRoadSegments>
 {

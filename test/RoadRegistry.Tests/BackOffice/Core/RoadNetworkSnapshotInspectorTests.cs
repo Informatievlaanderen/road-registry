@@ -20,6 +20,7 @@ using RoadRegistry.BackOffice.Messages;
 using Serilog.Enrichers;
 using SqlStreamStore;
 using RoadRegistry.BackOffice.Extensions;
+using RoadSegment.ValueObjects;
 
 public class RoadNetworkSnapshotInspectorTests
 {

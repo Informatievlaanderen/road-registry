@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.V2.Models;
 
 using NetTopologySuite.Geometries;
+using RoadSegment.ValueObjects;
 
 public record RoadSegmentFeatureCompareAttributes
 {

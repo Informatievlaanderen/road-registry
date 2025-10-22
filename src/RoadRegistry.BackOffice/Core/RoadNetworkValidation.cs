@@ -6,6 +6,7 @@ using System.Linq;
 using Messages;
 using QuikGraph;
 using QuikGraph.Algorithms;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public static class RoadNetworkValidation
 {

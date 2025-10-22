@@ -32,6 +32,7 @@ using NodaTime.Text;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using RoadRegistry.Tests.Framework.Projections;
+using RoadSegment.ValueObjects;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;

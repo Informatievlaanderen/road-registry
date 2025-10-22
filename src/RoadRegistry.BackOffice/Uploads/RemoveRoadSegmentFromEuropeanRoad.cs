@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Uploads;
 using System;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Messages;
+using RoadSegment.ValueObjects;
 
 public class RemoveRoadSegmentFromEuropeanRoad : ITranslatedChange
 {

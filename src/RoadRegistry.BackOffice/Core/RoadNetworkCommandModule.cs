@@ -16,6 +16,7 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using NodaTime;
+using RoadRegistry.RoadSegment.ValueObjects;
 using SqlStreamStore;
 using TicketingService.Abstractions;
 
@@ -232,7 +233,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                      .Where(x => x.AddRoadSegment?.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
                                  && x.AddRoadSegment!.PermanentId is null))
         {
-            change.AddRoadSegment.PermanentId = await idGenerator.NewRoadSegmentId();
+            change.AddRoadSegment.PermanentId = await idGenerator.NewRoadSegmentIdAsync();
         }
     }
 

@@ -5,6 +5,7 @@ using Core;
 using Messages;
 using NodaTime.Text;
 using RoadRegistry.Tests.BackOffice.Extracts;
+using RoadSegment.ValueObjects;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 

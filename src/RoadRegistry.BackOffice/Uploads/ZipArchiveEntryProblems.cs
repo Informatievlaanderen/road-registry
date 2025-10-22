@@ -8,6 +8,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
 using Extracts;
 using FeatureCompare;
+using RoadSegment.ValueObjects;
 
 public static class ZipArchiveEntryProblems
 {

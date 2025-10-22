@@ -7,6 +7,7 @@
     using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Core;
     using RoadRegistry.BackOffice.Messages;
+    using RoadSegment.ValueObjects;
     using Problem = RoadRegistry.BackOffice.Messages.Problem;
     using ProblemSeverity = RoadRegistry.BackOffice.Messages.ProblemSeverity;
     using RemoveRoadSegments = RoadRegistry.BackOffice.Messages.RemoveRoadSegments;

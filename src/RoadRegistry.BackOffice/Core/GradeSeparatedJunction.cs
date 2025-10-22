@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public class GradeSeparatedJunction
 {

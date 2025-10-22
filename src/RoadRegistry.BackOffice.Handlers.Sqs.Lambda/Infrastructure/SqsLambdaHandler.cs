@@ -13,6 +13,7 @@ using Exceptions;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
+using RoadSegment.ValueObjects;
 using TicketingService.Abstractions;
 using ETag = Be.Vlaanderen.Basisregisters.Api.ETag.ETag;
 

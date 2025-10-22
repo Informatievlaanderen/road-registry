@@ -9,6 +9,7 @@ using Editor.Projections;
 using Editor.Schema.Extensions;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
+using RoadSegment.ValueObjects;
 
 public class RoadSegmentLaneAttributeRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {

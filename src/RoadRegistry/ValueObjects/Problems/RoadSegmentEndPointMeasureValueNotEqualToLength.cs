@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Core;
 
 using System.Globalization;
 using ProblemCodes;
+using RoadSegment.ValueObjects;
 
 public class RoadSegmentEndPointMeasureValueNotEqualToLength : Error
 {

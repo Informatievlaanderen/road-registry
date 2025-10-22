@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using RoadSegment.ValueObjects;
+
 public interface IRequestedChangeIdentityTranslator
 {
     RoadNodeId TranslateToTemporaryOrId(RoadNodeId id);

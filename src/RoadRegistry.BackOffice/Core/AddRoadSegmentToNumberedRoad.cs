@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public class AddRoadSegmentToNumberedRoad : IRequestedChange, IHaveHash
 {

@@ -19,6 +19,7 @@ using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.ShapeFile.V2;
 using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.V2;
+using RoadSegment.ValueObjects;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = NetTopologySuite.Geometries.Polygon;

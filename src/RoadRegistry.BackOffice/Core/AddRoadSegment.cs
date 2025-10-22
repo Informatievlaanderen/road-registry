@@ -7,6 +7,9 @@ using System.Threading;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
 using NetTopologySuite.Geometries;
+using RoadRegistry.RoadNetwork;
+using RoadRegistry.RoadSegment;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public class AddRoadSegment : IRequestedChange, IHaveHash
 {

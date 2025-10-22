@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments
     using System.Threading;
     using System.Threading.Tasks;
     using Editor.Schema;
+    using RoadSegment.ValueObjects;
 
     public interface IRoadSegmentRepository
     {

@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
 using Abstractions;
 using Abstractions.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
+using RoadSegment.ValueObjects;
 using RoadSegments;
 
 public sealed record UnlinkStreetNameSqsLambdaRequest :

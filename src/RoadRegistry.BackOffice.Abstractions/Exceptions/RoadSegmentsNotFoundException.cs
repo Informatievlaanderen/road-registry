@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Abstractions.Exceptions;
 
 using BackOffice.Exceptions;
+using RoadSegment.ValueObjects;
 
 public class RoadSegmentsNotFoundException : RoadRegistryException
 {
