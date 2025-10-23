@@ -3,7 +3,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Events;
 using NetTopologySuite.Geometries;
 using ValueObjects;
@@ -40,11 +39,13 @@ public partial class RoadSegment
         }
     }
     //public string LastEventHash { get; private set; }
+    public bool IsRemoved { get; private set; }
 
     private RoadSegment()
     {
         Register<RoadSegmentAdded>(When);
         Register<RoadSegmentModified>(When);
+        Register<RoadSegmentRemoved>(When);
     }
 
     private void When(RoadSegmentAdded @event)
@@ -117,6 +118,12 @@ public partial class RoadSegment
             new RoadSegmentPosition(x.FromPosition),
             new RoadSegmentPosition(x.ToPosition),
             new RoadSegmentWidth(x.Width))).ToArray();
+        //LastEventHash = @event.GetHash();
+    }
+
+    private void When(RoadSegmentRemoved @event)
+    {
+        IsRemoved = true;
         //LastEventHash = @event.GetHash();
     }
 }

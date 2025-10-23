@@ -2,7 +2,7 @@ namespace RoadRegistry.RoadSegment.ValueObjects;
 
 using BackOffice;
 
-public abstract class RoadSegmentDynamicAttribute
+public abstract class RoadSegmentDynamicAttribute : IRoadSegmentDynamicAttribute
 {
     protected RoadSegmentDynamicAttribute(
         AttributeId id,

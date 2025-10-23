@@ -19,9 +19,9 @@ public partial class RoadSegment
 
     private Problems Add(AddRoadSegmentChange change, RoadNetworkChangeContext context)
     {
-        //Problems VerifyBefore()
         var problems = Problems.None;
-        var originalIdOrId = change.OriginalId ?? change.TemporaryId;
+
+        var originalIdOrId = context.Translator.TranslateToOriginalOrTemporaryOrId(change.TemporaryId);
 
         var line = change.Geometry.GetSingleLineString();
 

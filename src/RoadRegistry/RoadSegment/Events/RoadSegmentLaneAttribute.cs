@@ -2,9 +2,9 @@
 
 public class RoadSegmentLaneAttribute
 {
-    public required int AttributeId { get; set; }
-    public required decimal FromPosition { get; set; }
-    public required decimal ToPosition { get; set; }
-    public required int Count { get; set; }
-    public required string Direction { get; set; }
+    public required int AttributeId { get; init; }
+    public required decimal FromPosition { get; init; }
+    public required decimal ToPosition { get; init; }
+    public required int Count { get; init; }
+    public required string Direction { get; init; }
 }

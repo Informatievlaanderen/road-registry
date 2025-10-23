@@ -52,9 +52,9 @@ public class RoadNetworkChangesFactory
                 case ModifyRoadSegmentCommand command:
                     translated.Add(Translate(command));
                     break;
-                // case RemoveRoadSegment command:
-                //     translated = translated.Append(Translate(command));
-                //     break;
+                case RemoveRoadSegmentCommand command:
+                    translated.Add(Translate(command));
+                    break;
                 // case RemoveRoadSegments command:
                 //     translated = translated.Append(Translate(command, organizations));
                 //     break;
@@ -97,7 +97,7 @@ public class RoadNetworkChangesFactory
         return translated;
     }
 
-    // private async Task<AddRoadNode> Translate(AddRoadNode command)
+    // private async Task<AddRoadNodeChange> Translate(AddRoadNode command)
     // {
     //     var permanent = await _roadNetworkIdProvider.NextRoadNodeId();
     //     var temporaryId = new RoadNodeId(command.TemporaryId);
@@ -113,7 +113,7 @@ public class RoadNetworkChangesFactory
     //     );
     // }
     //
-    // private Task<ModifyRoadNode> Translate(ModifyRoadNode command)
+    // private Task<ModifyRoadNodeChange> Translate(ModifyRoadNode command)
     // {
     //     var permanent = new RoadNodeId(command.Id);
     //     var version = _roadNetworkVersionProvider.NextRoadNodeVersion(permanent);
@@ -127,7 +127,7 @@ public class RoadNetworkChangesFactory
     //     ));
     // }
     //
-    // private RemoveRoadNode Translate(RemoveRoadNode command)
+    // private RemoveRoadNodeChange Translate(RemoveRoadNode command)
     // {
     //     var permanent = new RoadNodeId(command.Id);
     //     return new RemoveRoadNode
@@ -284,19 +284,17 @@ public class RoadNetworkChangesFactory
         };
     }
 
-    // private RemoveRoadSegment Translate(RemoveRoadSegmentCommand command)
-    // {
-    //     var permanent = new RoadSegmentId(command.Id);
-    //     return new RemoveRoadSegment
-    //     (
-    //         permanent,
-    //         command.GeometryDrawMethod is not null
-    //             ? RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod)
-    //             : null
-    //     );
-    // }
+    private RemoveRoadSegmentChange Translate(RemoveRoadSegmentCommand command)
+    {
+        var permanent = new RoadSegmentId(command.Id);
+
+        return new RemoveRoadSegmentChange
+        {
+            Id = permanent
+        };
+    }
     //
-    // private RemoveRoadSegments Translate(RemoveRoadSegmentsCommand command, IOrganizations organizations)
+    // private RemoveRoadSegmentsChange Translate(RemoveRoadSegmentsCommand command, IOrganizations organizations)
     // {
     //     return new RemoveRoadSegments
     //     (
@@ -308,7 +306,7 @@ public class RoadNetworkChangesFactory
     //     );
     // }
     //
-    // private RemoveOutlinedRoadSegment Translate(RemoveOutlinedRoadSegmentCommand command)
+    // private RemoveOutlinedRoadSegmentChange Translate(RemoveOutlinedRoadSegmentCommand command)
     // {
     //     var permanent = new RoadSegmentId(command.Id);
     //     return new RemoveOutlinedRoadSegment
@@ -317,7 +315,7 @@ public class RoadNetworkChangesFactory
     //     );
     // }
     //
-    // private RemoveOutlinedRoadSegmentFromRoadNetwork Translate(RemoveOutlinedRoadSegmentFromRoadNetworkCommand command)
+    // private RemoveOutlinedRoadSegmentFromRoadNetworkChange Translate(RemoveOutlinedRoadSegmentFromRoadNetworkCommand command)
     // {
     //     var permanent = new RoadSegmentId(command.Id);
     //     return new RemoveOutlinedRoadSegmentFromRoadNetwork
@@ -326,7 +324,7 @@ public class RoadNetworkChangesFactory
     //     );
     // }
     //
-    // private async Task<AddRoadSegmentToEuropeanRoad> Translate(AddRoadSegmentToEuropeanRoadCommand command, IRequestedChangeIdentityTranslator translator, CancellationToken cancellationToken)
+    // private async Task<AddRoadSegmentToEuropeanRoadChange> Translate(AddRoadSegmentToEuropeanRoadCommand command, IRequestedChangeIdentityTranslator translator, CancellationToken cancellationToken)
     // {
     //     var permanent = await _roadNetworkIdProvider.NextEuropeanRoadAttributeId();
     //     var temporary = new AttributeId(command.TemporaryAttributeId);
@@ -359,7 +357,7 @@ public class RoadNetworkChangesFactory
     //     );
     // }
     //
-    // private async Task<RemoveRoadSegmentFromEuropeanRoad> Translate(RemoveRoadSegmentFromEuropeanRoadCommand command, IRequestedChangeIdentityTranslator translator, CancellationToken cancellationToken)
+    // private async Task<RemoveRoadSegmentFromEuropeanRoadChange> Translate(RemoveRoadSegmentFromEuropeanRoadCommand command, IRequestedChangeIdentityTranslator translator, CancellationToken cancellationToken)
     // {
     //     var permanent = new AttributeId(command.AttributeId);
     //     var segmentId = new RoadSegmentId(command.SegmentId);
@@ -378,7 +376,7 @@ public class RoadNetworkChangesFactory
     //     );
     // }
     //
-    // private async Task<AddRoadSegmentToNationalRoad> Translate(AddRoadSegmentToNationalRoadCommand command, IRequestedChangeIdentityTranslator translator, CancellationToken cancellationToken)
+    // private async Task<AddRoadSegmentToNationalRoadChange> Translate(AddRoadSegmentToNationalRoadCommand command, IRequestedChangeIdentityTranslator translator, CancellationToken cancellationToken)
     // {
     //     var permanent = await _roadNetworkIdProvider.NextNationalRoadAttributeId();
     //     var temporary = new AttributeId(command.TemporaryAttributeId);
@@ -411,7 +409,7 @@ public class RoadNetworkChangesFactory
     //     );
     // }
     //
-    // private async Task<RemoveRoadSegmentFromNationalRoad> Translate(RemoveRoadSegmentFromNationalRoadCommand command, IRequestedChangeIdentityTranslator translator, CancellationToken cancellationToken)
+    // private async Task<RemoveRoadSegmentFromNationalRoadChange> Translate(RemoveRoadSegmentFromNationalRoadCommand command, IRequestedChangeIdentityTranslator translator, CancellationToken cancellationToken)
     // {
     //     var permanent = new AttributeId(command.AttributeId);
     //     var segmentId = new RoadSegmentId(command.SegmentId);
@@ -431,7 +429,7 @@ public class RoadNetworkChangesFactory
     //     );
     // }
     //
-    // private async Task<AddRoadSegmentToNumberedRoad> Translate(AddRoadSegmentToNumberedRoadCommand command, IRequestedChangeIdentityTranslator translator, CancellationToken cancellationToken)
+    // private async Task<AddRoadSegmentToNumberedRoadChange> Translate(AddRoadSegmentToNumberedRoadCommand command, IRequestedChangeIdentityTranslator translator, CancellationToken cancellationToken)
     // {
     //     var permanent = await _roadNetworkIdProvider.NextNumberedRoadAttributeId();
     //     var temporary = new AttributeId(command.TemporaryAttributeId);
@@ -469,7 +467,7 @@ public class RoadNetworkChangesFactory
     //     );
     // }
     //
-    // private async Task<RemoveRoadSegmentFromNumberedRoad> Translate(RemoveRoadSegmentFromNumberedRoadCommand command, IRequestedChangeIdentityTranslator translator, CancellationToken cancellationToken)
+    // private async Task<RemoveRoadSegmentFromNumberedRoadChange> Translate(RemoveRoadSegmentFromNumberedRoadCommand command, IRequestedChangeIdentityTranslator translator, CancellationToken cancellationToken)
     // {
     //     var permanent = new AttributeId(command.AttributeId);
     //     var segmentId = new RoadSegmentId(command.SegmentId);
@@ -489,7 +487,7 @@ public class RoadNetworkChangesFactory
     //     );
     // }
     //
-    // private async Task<AddGradeSeparatedJunction> Translate(AddGradeSeparatedJunctionCommand command, IRequestedChangeIdentityTranslator translator)
+    // private async Task<AddGradeSeparatedJunctionChange> Translate(AddGradeSeparatedJunctionCommand command, IRequestedChangeIdentityTranslator translator)
     // {
     //     var permanent = await _roadNetworkIdProvider.NextGradeSeparatedJunctionId();
     //     var temporary = new GradeSeparatedJunctionId(command.TemporaryId);
@@ -528,7 +526,7 @@ public class RoadNetworkChangesFactory
     //         temporaryLowerSegmentId);
     // }
     //
-    // private ModifyGradeSeparatedJunction Translate(ModifyGradeSeparatedJunctionCommand command, IRequestedChangeIdentityTranslator translator)
+    // private ModifyGradeSeparatedJunctionChange Translate(ModifyGradeSeparatedJunctionCommand command, IRequestedChangeIdentityTranslator translator)
     // {
     //     var permanent = new GradeSeparatedJunctionId(command.Id);
     //
@@ -565,7 +563,7 @@ public class RoadNetworkChangesFactory
     //         temporaryLowerSegmentId);
     // }
     //
-    // private RemoveGradeSeparatedJunction Translate(RemoveGradeSeparatedJunctionCommand command)
+    // private RemoveGradeSeparatedJunctionChange Translate(RemoveGradeSeparatedJunctionCommand command)
     // {
     //     var permanent = new GradeSeparatedJunctionId(command.Id);
     //

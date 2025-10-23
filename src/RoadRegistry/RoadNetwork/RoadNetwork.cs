@@ -16,9 +16,13 @@ public partial class RoadNetwork
 {
     public static RoadNetwork Empty => new();
 
-    private Dictionary<RoadNodeId, RoadNode> RoadNodes { get; } = [];
-    private Dictionary<RoadSegmentId, RoadSegment> RoadSegments { get; } = [];
-    private Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; } = [];
+    public IReadOnlyDictionary<RoadNodeId, RoadNode> RoadNodes { get; }
+    public IReadOnlyDictionary<RoadSegmentId, RoadSegment> RoadSegments { get; }
+    public IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; }
+
+    private readonly Dictionary<RoadNodeId, RoadNode> _roadNodes = [];
+    private readonly Dictionary<RoadSegmentId, RoadSegment> _roadSegments = [];
+    private readonly Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> _gradeSeparatedJunctions = [];
 
     private RoadNetwork()
     {
@@ -29,12 +33,17 @@ public partial class RoadNetwork
         IReadOnlyCollection<RoadSegment> roadSegments,
         IReadOnlyCollection<GradeSeparatedJunction> gradeSeparatedJunctions)
     {
-        RoadNodes = roadNodes.ToDictionary(x => x.Id, x => x);
-        RoadSegments = roadSegments.ToDictionary(x => x.Id, x => x);
-        GradeSeparatedJunctions = gradeSeparatedJunctions.ToDictionary(x => x.Id, x => x);
+        _roadNodes = roadNodes.ToDictionary(x => x.Id, x => x);
+        RoadNodes = _roadNodes.AsReadOnly();
+
+        _roadSegments = roadSegments.ToDictionary(x => x.Id, x => x);
+        RoadSegments = _roadSegments.AsReadOnly();
+
+        _gradeSeparatedJunctions = gradeSeparatedJunctions.ToDictionary(x => x.Id, x => x);
+        GradeSeparatedJunctions = _gradeSeparatedJunctions.AsReadOnly();
     }
 
-    public RoadNetworkChangeResult Change(IReadOnlyCollection<IRoadNetworkChange> changes, IRoadNetworkIdGenerator roadNetworkIdGenerator)
+    public RoadNetworkChangeResult Change(RoadNetworkChanges changes, IRoadNetworkIdGenerator roadNetworkIdGenerator)
     {
         // produce change started event?
 
@@ -45,7 +54,8 @@ public partial class RoadNetwork
         {
             RoadNetwork = this,
             Tolerances = VerificationContextTolerances.Default,
-            IdGenerator = roadNetworkIdGenerator
+            IdGenerator = roadNetworkIdGenerator,
+            Translator = changes
         };
 
         foreach (var roadNetworkChange in changes)
@@ -58,24 +68,26 @@ public partial class RoadNetwork
                 case ModifyRoadSegmentChange change:
                     problems.AddRange(ModifyRoadSegment(change, context));
                     break;
+                case RemoveRoadSegmentChange change:
+                    problems.AddRange(RemoveRoadSegment(change, context));
+                    break;
                 //TODO-pr other cases
                 default:
                     throw new NotImplementedException($"{roadNetworkChange.GetType().Name} is not implemented.");
             }
         }
 
-        if (problems.HasError())
+        if (!problems.HasError())
         {
-            //TODO-pr: verifywithinroadnetwork op alle gewijzigd/toegevoegde entiteiten, en degene die gelinkt zijn aan verwijderde
-            problems = RoadNodes.Values
+            problems = _roadNodes.Values
                 .Where(x => x.HasChanges())
-                .Aggregate(problems, (p, x) => p + x.VerifyWithinRoadNetwork(context));
-            problems = RoadSegments.Values
+                .Aggregate(problems, (p, x) => p + x.VerifyTopologyAfterChanges(context));
+            problems = _roadSegments.Values
                 .Where(x => x.HasChanges())
-                .Aggregate(problems, (p, x) => p + x.VerifyWithinRoadNetwork(context));
-            problems = GradeSeparatedJunctions.Values
+                .Aggregate(problems, (p, x) => p + x.VerifyTopologyAfterChanges(context));
+            problems = _gradeSeparatedJunctions.Values
                 .Where(x => x.HasChanges())
-                .Aggregate(problems, (p, x) => p + x.VerifyWithinRoadNetwork(context));
+                .Aggregate(problems, (p, x) => p + x.VerifyTopologyAfterChanges(context));
         }
 
         // produce change completed event

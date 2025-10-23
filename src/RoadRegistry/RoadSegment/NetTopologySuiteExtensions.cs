@@ -162,11 +162,11 @@ public static class NetTopologySuiteExtensions
     }
 
     public static Problems GetProblemsForRoadSegmentLanes<T>(this LineString line, IEnumerable<T> lanes, VerificationContextTolerances contextTolerances)
-        where T: RoadSegmentDynamicAttributeChange
+        where T: IRoadSegmentDynamicAttribute
     {
         var problems = Problems.None;
 
-        T? previousLane = null;
+        T? previousLane = default;
         foreach (var lane in lanes)
         {
             if (previousLane == null)
@@ -217,11 +217,11 @@ public static class NetTopologySuiteExtensions
     }
 
     public static Problems GetProblemsForRoadSegmentWidths<T>(this LineString line, IEnumerable<T> widths, VerificationContextTolerances contextTolerances)
-        where T : RoadSegmentDynamicAttributeChange
+        where T : IRoadSegmentDynamicAttribute
     {
         var problems = Problems.None;
 
-        T? previousWidth = null;
+        T? previousWidth = default;
         foreach (var width in widths)
         {
             if (previousWidth == null)
@@ -272,11 +272,11 @@ public static class NetTopologySuiteExtensions
     }
 
     public static Problems GetProblemsForRoadSegmentSurfaces<T>(this LineString line, IEnumerable<T> surfaces, VerificationContextTolerances contextTolerances)
-        where T : RoadSegmentDynamicAttributeChange
+        where T : IRoadSegmentDynamicAttribute
     {
         var problems = Problems.None;
 
-        T? previousSurface = null;
+        T? previousSurface = default;
         foreach (var surface in surfaces)
         {
             if (previousSurface == null)

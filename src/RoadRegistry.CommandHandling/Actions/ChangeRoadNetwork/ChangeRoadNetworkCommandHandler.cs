@@ -4,7 +4,6 @@ using BackOffice;
 using BackOffice.Core;
 using BackOffice.Extracts;
 using BackOffice.Messages;
-using NetTopologySuite.Geometries;
 using RoadNetwork;
 using TicketingService.Abstractions;
 
@@ -44,7 +43,6 @@ public class ChangeRoadNetworkCommandHandler
         var hasError = changeResult.Problems.HasError();
         if (hasError)
         {
-            //TODO-pr set ticket to error
             var errors = changeResult.Problems
                 .Select(problem => problem.Translate().ToTicketError())
                 .ToArray();
@@ -55,6 +53,8 @@ public class ChangeRoadNetworkCommandHandler
         else
         {
             await _roadNetworkRepository.Save(roadNetwork, cancellationToken);
+            //TODO-pr ook resultaat van changes meegeven, bvb welke IDs zijn aangemaakt/gewijzigd/verwijderd, per entiteit
+            //is al zeker nodig voor E2E testen
             await _ticketing.Complete(command.TicketId, new TicketResult(), cancellationToken);
             //TODO-pr aparte projectie voorzien voor resultaat dat extract details kan opvragen
             await _extractRequests.UploadAcceptedAsync(downloadId, cancellationToken);

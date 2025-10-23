@@ -1,8 +1,9 @@
 namespace RoadRegistry.RoadNetwork.ValueObjects;
 
 using BackOffice;
+using RoadSegment.ValueObjects;
 
-public abstract class RoadSegmentDynamicAttributeChange
+public abstract class RoadSegmentDynamicAttributeChange : IRoadSegmentDynamicAttribute
 {
     protected RoadSegmentDynamicAttributeChange(
         AttributeId id,
