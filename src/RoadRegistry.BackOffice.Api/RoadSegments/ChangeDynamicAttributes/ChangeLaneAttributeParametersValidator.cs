@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeDynamicAttributes;
 
 using System;
 using FluentValidation;
+using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Core.ProblemCodes;
 using RoadRegistry.BackOffice.Extensions;

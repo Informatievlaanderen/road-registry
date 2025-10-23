@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeDynamicAttributes;
 using System;
 using System.Linq;
 using FluentValidation;
+using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Core.ProblemCodes;
 using RoadRegistry.BackOffice.Extensions;
@@ -83,7 +84,7 @@ public class ChangeRoadSegmentDynamicAttributesParametersValidator : AbstractVal
         {
             return true;
         }
-        
+
         return false;
     }
 

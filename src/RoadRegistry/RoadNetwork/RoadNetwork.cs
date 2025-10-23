@@ -16,9 +16,9 @@ public partial class RoadNetwork
 {
     public static RoadNetwork Empty => new();
 
-    private IDictionary<RoadNodeId, RoadNode> RoadNodes { get; } = [];
-    private IDictionary<RoadSegmentId, RoadSegment> RoadSegments { get; } = [];
-    private IDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; } = [];
+    private Dictionary<RoadNodeId, RoadNode> RoadNodes { get; } = [];
+    private Dictionary<RoadSegmentId, RoadSegment> RoadSegments { get; } = [];
+    private Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; } = [];
 
     private RoadNetwork()
     {

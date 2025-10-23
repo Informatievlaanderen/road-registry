@@ -14,6 +14,7 @@ using Infrastructure;
 using Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using NetTopologySuite.Geometries;
 using Requests;
 using RoadSegment.ValueObjects;
 using TicketingService.Abstractions;

@@ -1,5 +1,6 @@
 namespace RoadRegistry.Tests.BackOffice.Core;
 
+using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Core;
 using Point = NetTopologySuite.Geometries.Point;
 
