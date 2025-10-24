@@ -74,6 +74,7 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>, IRoad
 
         AddChange(change);
 
+        //TODO-pr ipv 1 grote bounding box, toch eilandjes maken (=multipolygon)
         Scope.ExpandToInclude(change.Geometry.EnvelopeInternal);
     }
 

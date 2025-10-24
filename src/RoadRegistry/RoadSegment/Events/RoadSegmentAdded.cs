@@ -1,8 +1,9 @@
 namespace RoadRegistry.RoadSegment.Events;
 
 using BackOffice;
-using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
+using RoadNetwork.ValueObjects;
+using ValueObjects;
 
 public class RoadSegmentAdded: IHaveHash
 {
@@ -10,7 +11,7 @@ public class RoadSegmentAdded: IHaveHash
 
     public required int Id { get; set; }
     public required int? OriginalId { get; set; }
-    public required RoadSegmentGeometry Geometry { get; set; }
+    public required GeometryObject Geometry { get; set; }
     public required int StartNodeId { get; set; }
     public required int EndNodeId { get; set; }
     public required string AccessRestriction { get; set; }

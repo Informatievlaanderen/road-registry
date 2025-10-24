@@ -1,6 +1,8 @@
 ﻿namespace RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
 
 using BackOffice.Messages;
+using RoadNetwork.ValueObjects;
+using RoadSegment.ValueObjects;
 
 public class AddRoadSegmentCommand
 {
@@ -9,7 +11,7 @@ public class AddRoadSegmentCommand
     public int? PermanentId { get; set; }
     public int StartNodeId { get; set; }
     public int EndNodeId { get; set; }
-    public RoadSegmentGeometry Geometry { get; set; }
+    public GeometryObject Geometry { get; set; }
     public string AccessRestriction { get; set; }
     public string Category { get; set; }
     public string GeometryDrawMethod { get; set; }

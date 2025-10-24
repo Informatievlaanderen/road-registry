@@ -28,9 +28,9 @@ public sealed record ModifyRoadSegmentChange : IRoadNetworkChange
     public required RoadSegmentStatus? Status { get; init; }
     public required StreetNameLocalId? LeftSideStreetNameId { get; init; }
     public required StreetNameLocalId? RightSideStreetNameId { get; init; }
-    public required IReadOnlyList<RoadSegmentLaneAttributeChange>? Lanes { get; init; }
-    public required IReadOnlyList<RoadSegmentSurfaceAttributeChange>? Surfaces { get; init; }
-    public required IReadOnlyList<RoadSegmentWidthAttributeChange>? Widths { get; init; }
+    public required IReadOnlyList<RoadSegmentLaneAttribute>? Lanes { get; init; }
+    public required IReadOnlyList<RoadSegmentSurfaceAttribute>? Surfaces { get; init; }
+    public required IReadOnlyList<RoadSegmentWidthAttribute>? Widths { get; init; }
 
     public required bool ConvertedFromOutlined { get; init; }
     public required bool? CategoryModified { get; init; }

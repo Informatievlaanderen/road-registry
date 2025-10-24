@@ -1,6 +1,7 @@
 namespace RoadRegistry.RoadSegment.ValueObjects;
 
 using BackOffice;
+using Newtonsoft.Json;
 
 public class RoadSegmentLaneAttribute : RoadSegmentDynamicAttribute
 {
@@ -14,6 +15,19 @@ public class RoadSegmentLaneAttribute : RoadSegmentDynamicAttribute
     {
         Count = count;
         Direction = direction;
+    }
+
+    [JsonConstructor]
+    private RoadSegmentLaneAttribute(
+        int id,
+        decimal from,
+        decimal to,
+        int count,
+        string direction
+    ) : base(new AttributeId(id), new RoadSegmentPosition(from), new RoadSegmentPosition(to))
+    {
+        Count = new RoadSegmentLaneCount(count);
+        Direction = RoadSegmentLaneDirection.Parse(direction);
     }
 
     public RoadSegmentLaneCount Count { get; }

@@ -2,17 +2,14 @@ namespace RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Core;
 using BackOffice.Messages;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using RoadNetwork;
 using RoadNetwork.Changes;
-using RoadNetwork.ValueObjects;
+using RoadSegment;
 using RoadSegment.ValueObjects;
-using GeometryTranslator = BackOffice.GeometryTranslator;
 
 public class RoadNetworkChangesFactory
 {
@@ -168,7 +165,7 @@ public class RoadNetworkChangesFactory
         //     temporaryEndNodeId = null;
         // }
 
-        var geometry = GeometryTranslator.Translate(command.Geometry);
+        var geometry = command.Geometry.ToMultiLineString();
         var maintainerId = new OrganizationId(command.MaintenanceAuthority);
         var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
         var morphology = RoadSegmentMorphology.Parse(command.Morphology);
@@ -240,7 +237,7 @@ public class RoadNetworkChangesFactory
         // var nextRoadSegmentVersionArgs = new NextRoadSegmentVersionArgs(permanent, geometryDrawMethod, command.ConvertedFromOutlined);
         // var version = RoadSegmentVersion.FromValue(command.Version)
         //               ?? await _roadNetworkVersionProvider.NextRoadSegmentVersion(nextRoadSegmentVersionArgs, ct);
-        var geometry = command.Geometry is not null ? GeometryTranslator.Translate(command.Geometry) : null;
+        var geometry = command.Geometry?.ToMultiLineString();
         // GeometryVersion? geometryVersion = geometry is not null
         //     ? GeometryVersion.FromValue(command.GeometryVersion) ?? await _roadNetworkVersionProvider.NextRoadSegmentGeometryVersion(nextRoadSegmentVersionArgs, geometry, ct)
         //     : null;
@@ -570,67 +567,67 @@ public class RoadNetworkChangesFactory
     //     return new RemoveGradeSeparatedJunction(permanent);
     // }
 
-    private RoadSegmentLaneAttributeChange[]? Translate(RequestedRoadSegmentLaneAttribute[]? attributes)
+    private RoadSegmentLaneAttribute[]? Translate(RequestedRoadSegmentLaneAttribute[]? attributes)
     {
         if (attributes is null)
         {
             return null;
         }
 
-        var result = new List<RoadSegmentLaneAttributeChange>();
+        var result = new List<RoadSegmentLaneAttribute>();
 
         foreach (var item in attributes)
         {
-            result.Add(new RoadSegmentLaneAttributeChange(
+            result.Add(new RoadSegmentLaneAttribute(
                 new AttributeId(item.AttributeId),
+                new RoadSegmentPosition(item.FromPosition),
+                new RoadSegmentPosition(item.ToPosition),
                 new RoadSegmentLaneCount(item.Count),
-                RoadSegmentLaneDirection.Parse(item.Direction),
-                new RoadSegmentPosition(item.FromPosition),
-                new RoadSegmentPosition(item.ToPosition)
+                RoadSegmentLaneDirection.Parse(item.Direction)
             ));
         }
 
         return result.ToArray();
     }
 
-    private RoadSegmentWidthAttributeChange[]? Translate(RequestedRoadSegmentWidthAttribute[]? attributes)
+    private RoadSegmentWidthAttribute[]? Translate(RequestedRoadSegmentWidthAttribute[]? attributes)
     {
         if (attributes is null)
         {
             return null;
         }
 
-        var result = new List<RoadSegmentWidthAttributeChange>();
+        var result = new List<RoadSegmentWidthAttribute>();
 
         foreach (var item in attributes)
         {
-            result.Add(new RoadSegmentWidthAttributeChange(
+            result.Add(new RoadSegmentWidthAttribute(
                 new AttributeId(item.AttributeId),
-                new RoadSegmentWidth(item.Width),
                 new RoadSegmentPosition(item.FromPosition),
-                new RoadSegmentPosition(item.ToPosition)
+                new RoadSegmentPosition(item.ToPosition),
+                new RoadSegmentWidth(item.Width)
             ));
         }
 
         return result.ToArray();
     }
 
-    private RoadSegmentSurfaceAttributeChange[]? Translate(RequestedRoadSegmentSurfaceAttribute[]? attributes)
+    private RoadSegmentSurfaceAttribute[]? Translate(RequestedRoadSegmentSurfaceAttribute[]? attributes)
     {
         if (attributes is null)
         {
             return null;
         }
 
-        var result = new List<RoadSegmentSurfaceAttributeChange>();
+        var result = new List<RoadSegmentSurfaceAttribute>();
 
         foreach (var item in attributes)
         {
-            result.Add(new RoadSegmentSurfaceAttributeChange(
+            result.Add(new RoadSegmentSurfaceAttribute(
                 new AttributeId(item.AttributeId),
-                RoadSegmentSurfaceType.Parse(item.Type),
                 new RoadSegmentPosition(item.FromPosition),
-                new RoadSegmentPosition(item.ToPosition)
+                new RoadSegmentPosition(item.ToPosition),
+                RoadSegmentSurfaceType.Parse(item.Type)
             ));
         }
 
@@ -654,7 +651,7 @@ public class RoadNetworkChangesFactory
             // typeof(RemoveRoadSegmentFromNationalRoadCommand),
             // typeof(RemoveRoadSegmentFromNumberedRoadCommand),
             // typeof(RemoveGradeSeparatedJunctionCommand),
-            // typeof(RemoveRoadSegmentCommand),
+            typeof(RemoveRoadSegmentCommand),
             // typeof(RemoveRoadNodeCommand)
         };
 

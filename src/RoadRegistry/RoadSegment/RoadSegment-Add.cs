@@ -7,6 +7,7 @@ using Events;
 using NetTopologySuite.Geometries;
 using RoadNetwork.Changes;
 using RoadNetwork.ValueObjects;
+using ValueObjects;
 
 public partial class RoadSegment
 {
@@ -63,28 +64,15 @@ public partial class RoadSegment
             {
                 StreetNameId = change.RightSideStreetNameId
             },
-            Lanes = change.Lanes.Select(x => new RoadSegmentLaneAttribute
-            {
-                AttributeId = x.Id,
-                FromPosition = x.From,
-                ToPosition = x.To,
-                Count = x.Count,
-                Direction = x.Direction
-            }).ToArray(),
-            Surfaces = change.Surfaces.Select(x => new RoadSegmentSurfaceAttribute
-            {
-                AttributeId = x.Id,
-                FromPosition = x.From,
-                ToPosition = x.To,
-                Type = x.Type
-            }).ToArray(),
-            Widths = change.Widths.Select(x => new RoadSegmentWidthAttribute
-            {
-                AttributeId = x.Id,
-                FromPosition = x.From,
-                ToPosition = x.To,
-                Width = x.Width
-            }).ToArray()
+            Lanes = change.Lanes
+                .Select(x => new RoadSegmentLaneAttribute(context.IdGenerator.NewRoadSegmentLaneAttributeId(), x.From, x.To, x.Count, x.Direction))
+                .ToArray(),
+            Surfaces = change.Surfaces
+                .Select(x => new RoadSegmentSurfaceAttribute(context.IdGenerator.NewRoadSegmentSurfaceAttributeId(), x.From, x.To, x.Type))
+                .ToArray(),
+            Widths = change.Widths
+                .Select(x => new RoadSegmentWidthAttribute(context.IdGenerator.NewRoadSegmentWidthAttributeId(), x.From, x.To, x.Width))
+                .ToArray()
         });
 
         return problems;

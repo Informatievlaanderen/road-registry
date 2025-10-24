@@ -2,80 +2,32 @@ namespace RoadRegistry.RoadSegment;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.Geometries.Implementation;
+using NetTopologySuite.IO;
 using RoadNetwork.ValueObjects;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.RoadSegment.ValueObjects;
 using LineString = NetTopologySuite.Geometries.LineString;
 
 public static class NetTopologySuiteExtensions
 {
-    public static MultiLineString ToMultiLineString(this RoadSegmentGeometry geometry)
+    public static MultiLineString ToMultiLineString(this GeometryObject roadSegmentGeometry)
     {
-        ArgumentNullException.ThrowIfNull(geometry);
+        ArgumentNullException.ThrowIfNull(roadSegmentGeometry);
 
-        var toLineStrings = new List<LineString>();
-        foreach (var fromLineString in geometry.MultiLineString)
-        {
-            var toPoints = new List<Coordinate>();
-            for (var index = 0; index < fromLineString.Points.Length && index < fromLineString.Measures.Length; index++)
-            {
-                var fromPoint = fromLineString.Points[index];
-                var fromMeasure = fromLineString.Measures[index];
-                toPoints.Add(new CoordinateM(fromPoint.X, fromPoint.Y, fromMeasure));
-            }
-
-            toLineStrings.Add(
-                new LineString(
-                        new CoordinateArraySequence(toPoints.ToArray()),
-                        WellKnownGeometryFactories.Default)
-                    .WithSrid(geometry.SpatialReferenceSystemIdentifier)
-            );
-        }
-
-        return new MultiLineString(toLineStrings.ToArray(), WellKnownGeometryFactories.Default)
-            .WithSrid(geometry.SpatialReferenceSystemIdentifier)
+        return ((MultiLineString)new WKTReader().Read(roadSegmentGeometry.WKT)
+            .WithSrid(roadSegmentGeometry.SRID))
             .WithMeasureOrdinates();
     }
 
-    public static RoadSegmentGeometry ToRoadSegmentGeometry(this MultiLineString geometry)
+    public static GeometryObject ToRoadSegmentGeometry(this MultiLineString geometry)
     {
         ArgumentNullException.ThrowIfNull(geometry);
 
-        geometry = geometry
+        return new GeometryObject(geometry.SRID, geometry
             .WithoutDuplicateCoordinates()
-            .WithMeasureOrdinates();
-
-        var toMultiLineString = new RoadRegistry.BackOffice.Messages.LineString[geometry.NumGeometries];
-        var lineIndex = 0;
-        foreach (var fromLineString in geometry.Geometries.OfType<LineString>())
-        {
-            var toLineString = new RoadRegistry.BackOffice.Messages.LineString
-            {
-                Points = new RoadRegistry.BackOffice.Messages.Point[fromLineString.NumPoints],
-                Measures = fromLineString.GetOrdinates(Ordinate.M)
-            };
-
-            for (var pointIndex = 0; pointIndex < fromLineString.NumPoints; pointIndex++)
-                toLineString.Points[pointIndex] = new RoadRegistry.BackOffice.Messages.Point
-                {
-                    X = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, Ordinate.X),
-                    Y = fromLineString.CoordinateSequence.GetOrdinate(pointIndex, Ordinate.Y)
-                };
-
-            toMultiLineString[lineIndex] = toLineString;
-            lineIndex++;
-        }
-
-        return new RoadSegmentGeometry
-        {
-            SpatialReferenceSystemIdentifier = geometry.SRID,
-            MultiLineString = toMultiLineString
-        };
+            .AsText());
     }
 
     public static Problems GetProblemsForRoadSegmentOutlinedGeometry(this LineString line, RoadSegmentId id, VerificationContextTolerances contextTolerances)

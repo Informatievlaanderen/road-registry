@@ -65,20 +65,20 @@ public partial class RoadSegment
             RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod)
         );
         Lanes = @event.Lanes.Select(x => new RoadSegmentLaneAttribute(
-            new AttributeId(x.AttributeId),
-            new RoadSegmentPosition(x.FromPosition),
-            new RoadSegmentPosition(x.ToPosition),
+            new AttributeId(x.Id),
+            new RoadSegmentPosition(x.From),
+            new RoadSegmentPosition(x.To),
             new RoadSegmentLaneCount(x.Count),
             RoadSegmentLaneDirection.Parse(x.Direction))).ToArray();
         Surfaces = @event.Surfaces.Select(x => new RoadSegmentSurfaceAttribute(
-            new AttributeId(x.AttributeId),
-            new RoadSegmentPosition(x.FromPosition),
-            new RoadSegmentPosition(x.ToPosition),
+            new AttributeId(x.Id),
+            new RoadSegmentPosition(x.From),
+            new RoadSegmentPosition(x.To),
             RoadSegmentSurfaceType.Parse(x.Type))).ToArray();
         Widths = @event.Widths.Select(x => new RoadSegmentWidthAttribute(
-            new AttributeId(x.AttributeId),
-            new RoadSegmentPosition(x.FromPosition),
-            new RoadSegmentPosition(x.ToPosition),
+            new AttributeId(x.Id),
+            new RoadSegmentPosition(x.From),
+            new RoadSegmentPosition(x.To),
             new RoadSegmentWidth(x.Width))).ToArray();
         EuropeanRoads = [];
         NationalRoads = [];
@@ -103,20 +103,20 @@ public partial class RoadSegment
             RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod)
         );
         Lanes = @event.Lanes.Select(x => new RoadSegmentLaneAttribute(
-            new AttributeId(x.AttributeId),
-            new RoadSegmentPosition(x.FromPosition),
-            new RoadSegmentPosition(x.ToPosition),
+            new AttributeId(x.Id),
+            new RoadSegmentPosition(x.From),
+            new RoadSegmentPosition(x.To),
             new RoadSegmentLaneCount(x.Count),
             RoadSegmentLaneDirection.Parse(x.Direction))).ToArray();
         Surfaces = @event.Surfaces.Select(x => new RoadSegmentSurfaceAttribute(
-            new AttributeId(x.AttributeId),
-            new RoadSegmentPosition(x.FromPosition),
-            new RoadSegmentPosition(x.ToPosition),
+            new AttributeId(x.Id),
+            new RoadSegmentPosition(x.From),
+            new RoadSegmentPosition(x.To),
             RoadSegmentSurfaceType.Parse(x.Type))).ToArray();
         Widths = @event.Widths.Select(x => new RoadSegmentWidthAttribute(
-            new AttributeId(x.AttributeId),
-            new RoadSegmentPosition(x.FromPosition),
-            new RoadSegmentPosition(x.ToPosition),
+            new AttributeId(x.Id),
+            new RoadSegmentPosition(x.From),
+            new RoadSegmentPosition(x.To),
             new RoadSegmentWidth(x.Width))).ToArray();
         //LastEventHash = @event.GetHash();
     }

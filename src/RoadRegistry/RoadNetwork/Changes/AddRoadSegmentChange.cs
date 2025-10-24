@@ -13,7 +13,7 @@ public sealed record AddRoadSegmentChange : IRoadNetworkChange
     //public required RoadSegmentId Id { get; init; }
     public required RoadSegmentId TemporaryId { get; init; }
     public required RoadSegmentId? OriginalId { get; init; }
-    public required RoadSegmentId? PermanentId { get; init; }
+    public required RoadSegmentId? PermanentId { get; init; } //TODO-pr ik denk dat deze obsolete is nu dat er geen verhuis meer nodig is tussen streams
     public required RoadNodeId StartNodeId { get; init; }
     //public required RoadNodeId? TemporaryStartNodeId { get; init; }
     public required RoadNodeId EndNodeId { get; init; }
@@ -27,7 +27,7 @@ public sealed record AddRoadSegmentChange : IRoadNetworkChange
     public required RoadSegmentStatus Status { get; init; }
     public required StreetNameLocalId? LeftSideStreetNameId { get; init; }
     public required StreetNameLocalId? RightSideStreetNameId { get; init; }
-    public required IReadOnlyList<RoadSegmentLaneAttributeChange> Lanes { get; init; }
-    public required IReadOnlyList<RoadSegmentSurfaceAttributeChange> Surfaces { get; init; }
-    public required IReadOnlyList<RoadSegmentWidthAttributeChange> Widths { get; init; }
+    public required IReadOnlyList<RoadSegmentLaneAttribute> Lanes { get; init; }
+    public required IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; init; }
+    public required IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; init; }
 }

@@ -7,9 +7,7 @@ using Events;
 using NetTopologySuite.Geometries;
 using RoadNetwork.Changes;
 using RoadNetwork.ValueObjects;
-using RoadSegmentLaneAttribute = Events.RoadSegmentLaneAttribute;
-using RoadSegmentSurfaceAttribute = Events.RoadSegmentSurfaceAttribute;
-using RoadSegmentWidthAttribute = Events.RoadSegmentWidthAttribute;
+using ValueObjects;
 
 public partial class RoadSegment
 {
@@ -34,8 +32,11 @@ public partial class RoadSegment
         }
 
         var category = change.Category;
-        //TODO-pr is deze logica wel juist? is bestaande logica
-        if (change.CategoryModified is not null && !change.CategoryModified.Value && RoadSegmentCategory.IsUpgraded(AttributeHash.Category))
+        if (category is not null
+            && change.CategoryModified is not null
+            && !change.CategoryModified.Value
+            && category != AttributeHash.Category
+            && RoadSegmentCategory.IsUpgraded(AttributeHash.Category))
         {
             category = AttributeHash.Category;
             problems += new RoadSegmentCategoryNotChangedBecauseCurrentIsNewerVersion(originalIdOrId);
@@ -75,63 +76,19 @@ public partial class RoadSegment
             },
             Lanes = change.Lanes is not null
                 ? change.Lanes
-                    .Select(item => new RoadSegmentLaneAttribute
-                    {
-                        AttributeId = laneIdentifiers.GetNextId(),
-                        Count = item.Count,
-                        Direction = item.Direction,
-                        FromPosition = item.From,
-                        ToPosition = item.To
-                    })
+                    .Select(x => new RoadSegmentLaneAttribute(laneIdentifiers.GetNextId(), x.From, x.To, x.Count, x.Direction))
                     .ToArray()
-                : Lanes
-                    .Select(item => new RoadSegmentLaneAttribute
-                    {
-                        AttributeId = item.Id,
-                        Count = item.Count,
-                        Direction = item.Direction,
-                        FromPosition = item.From,
-                        ToPosition = item.To
-                    })
-                    .ToArray(),
-            Widths = change.Widths is not null
-                ? change.Widths
-                     .Select(item => new RoadSegmentWidthAttribute
-                     {
-                         AttributeId = widthIdentifiers.GetNextId(),
-                         Width = item.Width,
-                         FromPosition = item.From,
-                         ToPosition = item.To
-                     })
-                     .ToArray()
-                : Widths
-                     .Select(item => new RoadSegmentWidthAttribute
-                     {
-                         AttributeId = item.Id,
-                         Width = item.Width,
-                         FromPosition = item.From,
-                         ToPosition = item.To
-                     })
-                     .ToArray(),
+                : Lanes.ToArray(),
             Surfaces = change.Surfaces is not null
                 ? change.Surfaces
-                    .Select(item => new RoadSegmentSurfaceAttribute
-                    {
-                        AttributeId = surfaceIdentifiers.GetNextId(),
-                        Type = item.Type,
-                        FromPosition = item.From,
-                        ToPosition = item.To
-                    })
+                    .Select(x => new RoadSegmentSurfaceAttribute(surfaceIdentifiers.GetNextId(), x.From, x.To, x.Type))
                     .ToArray()
-                : Surfaces
-                    .Select(item => new RoadSegmentSurfaceAttribute
-                    {
-                        AttributeId = item.Id,
-                        Type = item.Type,
-                        FromPosition = item.From,
-                        ToPosition = item.To
-                    })
-                    .ToArray()
+                : Surfaces.ToArray(),
+            Widths = change.Widths is not null
+                ? change.Widths
+                     .Select(x => new RoadSegmentWidthAttribute(widthIdentifiers.GetNextId(), x.From, x.To, x.Width))
+                     .ToArray()
+                : Widths.ToArray()
             //ConvertedFromOutlined = ConvertedFromOutlined
         });
 
