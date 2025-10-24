@@ -1,4 +1,4 @@
-namespace RoadRegistry.RoadSegment.ValueObjects;
+namespace RoadRegistry.RoadSegment.ValueObjects;//TODO-pr fix namespace
 
 using System;
 using System.Diagnostics.Contracts;

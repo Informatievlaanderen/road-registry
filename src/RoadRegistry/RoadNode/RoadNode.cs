@@ -5,7 +5,6 @@ using System.Linq;
 using BackOffice;
 using BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.AggregateSource;
-using RoadNetwork;
 using RoadNetwork.ValueObjects;
 
 public partial class RoadNode : AggregateRootEntity
@@ -40,7 +39,7 @@ public partial class RoadNode : AggregateRootEntity
                     .ToArray();
                 var segment1 = segments[0];
                 var segment2 = segments[1];
-                if (segment1.AttributeHash.Equals(segment2.AttributeHash))
+                if (segment1.Attributes.Equals(segment2.Attributes))
                 {
                     problems = problems.Add(new FakeRoadNodeConnectedSegmentsDoNotDiffer(
                         context.Translator.TranslateToTemporaryOrId(Id),

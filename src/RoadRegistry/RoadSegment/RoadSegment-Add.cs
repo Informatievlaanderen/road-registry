@@ -1,13 +1,11 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
-using System.Linq;
 using BackOffice;
 using BackOffice.Core;
 using Events;
 using NetTopologySuite.Geometries;
 using RoadNetwork.Changes;
 using RoadNetwork.ValueObjects;
-using ValueObjects;
 
 public partial class RoadSegment
 {
@@ -34,9 +32,26 @@ public partial class RoadSegment
         }
 
         problems += line.GetProblemsForRoadSegmentGeometry(originalIdOrId, context.Tolerances);
-        problems += line.GetProblemsForRoadSegmentLanes(change.Lanes, context.Tolerances);
-        problems += line.GetProblemsForRoadSegmentWidths(change.Widths, context.Tolerances);
-        problems += line.GetProblemsForRoadSegmentSurfaces(change.Surfaces, context.Tolerances);
+
+        //TODO-pr validate all dynamic attributes
+        /*AccessRestriction
+Category
+Morphology
+Status
+StreetNameId
+MaintenanceAuthorityId
+LaneCount
+LaneDirection
+SurfaceType
+Width
+EuropeanRoadNumber
+NationalRoadNumber
+NumberedRoadDirection
+NumberedRoadNumber
+NumberedRoadOrdinal*/
+        // problems += line.GetProblemsForRoadSegmentLanes(change.Lanes, context.Tolerances);
+        // problems += line.GetProblemsForRoadSegmentWidths(change.Widths, context.Tolerances);
+        // problems += line.GetProblemsForRoadSegmentSurfaces(change.Surfaces, context.Tolerances);
 
         if (problems.HasError())
         {
@@ -50,29 +65,16 @@ public partial class RoadSegment
             Geometry = change.Geometry.ToRoadSegmentGeometry(),
             StartNodeId = change.StartNodeId,
             EndNodeId = change.EndNodeId,
+            GeometryDrawMethod = change.GeometryDrawMethod,
             AccessRestriction = change.AccessRestriction,
             Category = change.Category,
-            GeometryDrawMethod = change.GeometryDrawMethod,
-            MaintenanceAuthorityId = change.MaintenanceAuthorityId,
             Morphology = change.Morphology,
             Status = change.Status,
-            LeftSide = new RoadSegmentSideAttribute
-            {
-                StreetNameId = change.LeftSideStreetNameId
-            },
-            RightSide = new RoadSegmentSideAttribute
-            {
-                StreetNameId = change.RightSideStreetNameId
-            },
-            Lanes = change.Lanes
-                .Select(x => new RoadSegmentLaneAttribute(context.IdGenerator.NewRoadSegmentLaneAttributeId(), x.From, x.To, x.Count, x.Direction))
-                .ToArray(),
-            Surfaces = change.Surfaces
-                .Select(x => new RoadSegmentSurfaceAttribute(context.IdGenerator.NewRoadSegmentSurfaceAttributeId(), x.From, x.To, x.Type))
-                .ToArray(),
-            Widths = change.Widths
-                .Select(x => new RoadSegmentWidthAttribute(context.IdGenerator.NewRoadSegmentWidthAttributeId(), x.From, x.To, x.Width))
-                .ToArray()
+            StreetNameId = change.StreetNameId,
+            MaintenanceAuthorityId = change.MaintenanceAuthorityId,
+            SurfaceType = change.SurfaceType,
+            EuropeanRoadNumbers = change.EuropeanRoadNumbers,
+            NationalRoadNumbers = change.NationalRoadNumbers,
         });
 
         return problems;

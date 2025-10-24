@@ -8,7 +8,6 @@ using BackOffice.Core;
 using BackOffice.Messages;
 using RoadNetwork;
 using RoadNetwork.Changes;
-using RoadSegment;
 using RoadSegment.ValueObjects;
 
 public class RoadNetworkChangesFactory
@@ -43,14 +42,14 @@ public class RoadNetworkChangesFactory
                 // case RemoveRoadNode command:
                 //     translated = translated.Append(Translate(command));
                 //     break;
-                case AddRoadSegmentCommand command:
-                    translated.Add(Translate(command));
+                case AddRoadSegmentChange command:
+                    translated.Add(command);
                     break;
-                case ModifyRoadSegmentCommand command:
-                    translated.Add(Translate(command));
+                case ModifyRoadSegmentChange command:
+                    translated.Add(command);
                     break;
-                case RemoveRoadSegmentCommand command:
-                    translated.Add(Translate(command));
+                case RemoveRoadSegmentChange command:
+                    translated.Add(command);
                     break;
                 // case RemoveRoadSegments command:
                 //     translated = translated.Append(Translate(command, organizations));
@@ -133,163 +132,163 @@ public class RoadNetworkChangesFactory
     //     );
     // }
 
-    private AddRoadSegmentChange Translate(AddRoadSegmentCommand command)
-    {
-        var commandPermanentId = RoadSegmentId.FromValue(command.PermanentId); //TODO-pr achteraf bekijken of dit nog wel nodig is
+    // private AddRoadSegmentChange Translate(AddRoadSegmentChange command)
+    // {
+    //     var commandPermanentId = RoadSegmentId.FromValue(command.PermanentId); //TODO-pr achteraf bekijken of dit nog wel nodig is
+    //
+    //     //var permanent = commandPermanentId ?? await _roadNetworkIdGenerator.NewRoadSegmentId();
+    //     var temporaryId = new RoadSegmentId(command.TemporaryId);
+    //     var originalId = RoadSegmentId.FromValue(command.OriginalId);
+    //
+    //     var startNodeId = new RoadNodeId(command.StartNodeId);
+    //     // RoadNodeId? temporaryStartNodeId;
+    //     // if (translator.TryTranslateToPermanent(startNodeId, out var permanentStartNodeId))
+    //     // {
+    //     //     temporaryStartNodeId = startNodeId;
+    //     //     startNodeId = permanentStartNodeId;
+    //     // }
+    //     // else
+    //     // {
+    //     //     temporaryStartNodeId = null;
+    //     // }
+    //
+    //     var endNodeId = new RoadNodeId(command.EndNodeId);
+    //     // RoadNodeId? temporaryEndNodeId;
+    //     // if (translator.TryTranslateToPermanent(endNodeId, out var permanentEndNodeId))
+    //     // {
+    //     //     temporaryEndNodeId = endNodeId;
+    //     //     endNodeId = permanentEndNodeId;
+    //     // }
+    //     // else
+    //     // {
+    //     //     temporaryEndNodeId = null;
+    //     // }
+    //
+    //     var geometry = command.Geometry.ToMultiLineString();
+    //     var maintainerId = new OrganizationId(command.MaintenanceAuthority);
+    //     var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
+    //     var morphology = RoadSegmentMorphology.Parse(command.Morphology);
+    //     var status = RoadSegmentStatus.Parse(command.Status);
+    //     var category = RoadSegmentCategory.Parse(command.Category);
+    //     var accessRestriction = RoadSegmentAccessRestriction.Parse(command.AccessRestriction);
+    //     var leftSideStreetNameId = StreetNameLocalId.FromValue(command.LeftSideStreetNameId);
+    //     var rightSideStreetNameId = StreetNameLocalId.FromValue(command.RightSideStreetNameId);
+    //
+    //     var laneAttributes = Translate(command.Lanes);
+    //     var widthAttributes = Translate(command.Widths);
+    //     var surfaceAttributes = Translate(command.Surfaces);
+    //
+    //     return new AddRoadSegmentChange
+    //     {
+    //         //Id = permanent,
+    //         TemporaryId = temporaryId,
+    //         OriginalId = originalId,
+    //         PermanentId = commandPermanentId,
+    //         StartNodeId = startNodeId,
+    //         //TemporaryStartNodeId = temporaryStartNodeId,
+    //         EndNodeId = endNodeId,
+    //         //TemporaryEndNodeId = temporaryEndNodeId,
+    //         Geometry = geometry,
+    //         MaintenanceAuthorityId = maintainerId,
+    //         GeometryDrawMethod = geometryDrawMethod,
+    //         Morphology = morphology,
+    //         Status = status,
+    //         Category = category,
+    //         AccessRestriction = accessRestriction,
+    //         LeftSideStreetNameId = leftSideStreetNameId,
+    //         RightSideStreetNameId = rightSideStreetNameId,
+    //         Lanes = laneAttributes!,
+    //         Widths = widthAttributes!,
+    //         Surfaces = surfaceAttributes!
+    //     };
+    // }
+    //
+    // private ModifyRoadSegmentChange Translate(ModifyRoadSegmentChange command)
+    // {
+    //     var permanent = new RoadSegmentId(command.Id);
+    //     var originalId = RoadSegmentId.FromValue(command.OriginalId);
+    //
+    //     var startNodeId = RoadNodeId.FromValue(command.StartNodeId);
+    //     // RoadNodeId? temporaryStartNodeId;
+    //     // if (startNodeId is not null && translator.TryTranslateToPermanent(startNodeId.Value, out var permanentStartNodeId))
+    //     // {
+    //     //     temporaryStartNodeId = startNodeId;
+    //     //     startNodeId = permanentStartNodeId;
+    //     // }
+    //     // else
+    //     // {
+    //     //     temporaryStartNodeId = null;
+    //     // }
+    //
+    //     var endNodeId = RoadNodeId.FromValue(command.EndNodeId);
+    //     // RoadNodeId? temporaryEndNodeId;
+    //     // if (endNodeId is not null && translator.TryTranslateToPermanent(endNodeId.Value, out var permanentEndNodeId))
+    //     // {
+    //     //     temporaryEndNodeId = endNodeId;
+    //     //     endNodeId = permanentEndNodeId;
+    //     // }
+    //     // else
+    //     // {
+    //     //     temporaryEndNodeId = null;
+    //     // }
+    //
+    //     var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
+    //     // var nextRoadSegmentVersionArgs = new NextRoadSegmentVersionArgs(permanent, geometryDrawMethod, command.ConvertedFromOutlined);
+    //     // var version = RoadSegmentVersion.FromValue(command.Version)
+    //     //               ?? await _roadNetworkVersionProvider.NextRoadSegmentVersion(nextRoadSegmentVersionArgs, ct);
+    //     var geometry = command.Geometry?.ToMultiLineString();
+    //     // GeometryVersion? geometryVersion = geometry is not null
+    //     //     ? GeometryVersion.FromValue(command.GeometryVersion) ?? await _roadNetworkVersionProvider.NextRoadSegmentGeometryVersion(nextRoadSegmentVersionArgs, geometry, ct)
+    //     //     : null;
+    //
+    //     var maintainerId = OrganizationId.FromValue(command.MaintenanceAuthority);
+    //     var morphology = command.Morphology is not null ? RoadSegmentMorphology.Parse(command.Morphology) : null;
+    //     var status = command.Status is not null ? RoadSegmentStatus.Parse(command.Status) : null;
+    //     var category = command.Category is not null ? RoadSegmentCategory.Parse(command.Category) : null;
+    //     var accessRestriction = command.AccessRestriction is not null ? RoadSegmentAccessRestriction.Parse(command.AccessRestriction) : null;
+    //     var leftSideStreetNameId = StreetNameLocalId.FromValue(command.LeftSideStreetNameId);
+    //     var rightSideStreetNameId = StreetNameLocalId.FromValue(command.RightSideStreetNameId);
+    //
+    //     var laneAttributes = Translate(command.Lanes);
+    //     var widthAttributes = Translate(command.Widths);
+    //     var surfaceAttributes = Translate(command.Surfaces);
+    //
+    //     return new ModifyRoadSegmentChange
+    //     {
+    //         Id = permanent,
+    //         OriginalId = originalId,
+    //         //version,
+    //         StartNodeId = startNodeId,
+    //         //TemporaryStartNodeId = temporaryStartNodeId,
+    //         EndNodeId = endNodeId,
+    //         //TemporaryEndNodeId = temporaryEndNodeId,
+    //         Geometry = geometry,
+    //         //geometryVersion,
+    //         MaintenanceAuthorityId = maintainerId,
+    //         GeometryDrawMethod = geometryDrawMethod,
+    //         Morphology = morphology,
+    //         Status = status,
+    //         Category = category,
+    //         AccessRestriction = accessRestriction,
+    //         LeftSideStreetNameId = leftSideStreetNameId,
+    //         RightSideStreetNameId = rightSideStreetNameId,
+    //         Lanes = laneAttributes,
+    //         Widths = widthAttributes,
+    //         Surfaces = surfaceAttributes,
+    //         ConvertedFromOutlined = command.ConvertedFromOutlined,
+    //         CategoryModified = command.CategoryModified
+    //     };
+    // }
 
-        //var permanent = commandPermanentId ?? await _roadNetworkIdGenerator.NewRoadSegmentId();
-        var temporaryId = new RoadSegmentId(command.TemporaryId);
-        var originalId = RoadSegmentId.FromValue(command.OriginalId);
-
-        var startNodeId = new RoadNodeId(command.StartNodeId);
-        // RoadNodeId? temporaryStartNodeId;
-        // if (translator.TryTranslateToPermanent(startNodeId, out var permanentStartNodeId))
-        // {
-        //     temporaryStartNodeId = startNodeId;
-        //     startNodeId = permanentStartNodeId;
-        // }
-        // else
-        // {
-        //     temporaryStartNodeId = null;
-        // }
-
-        var endNodeId = new RoadNodeId(command.EndNodeId);
-        // RoadNodeId? temporaryEndNodeId;
-        // if (translator.TryTranslateToPermanent(endNodeId, out var permanentEndNodeId))
-        // {
-        //     temporaryEndNodeId = endNodeId;
-        //     endNodeId = permanentEndNodeId;
-        // }
-        // else
-        // {
-        //     temporaryEndNodeId = null;
-        // }
-
-        var geometry = command.Geometry.ToMultiLineString();
-        var maintainerId = new OrganizationId(command.MaintenanceAuthority);
-        var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
-        var morphology = RoadSegmentMorphology.Parse(command.Morphology);
-        var status = RoadSegmentStatus.Parse(command.Status);
-        var category = RoadSegmentCategory.Parse(command.Category);
-        var accessRestriction = RoadSegmentAccessRestriction.Parse(command.AccessRestriction);
-        var leftSideStreetNameId = StreetNameLocalId.FromValue(command.LeftSideStreetNameId);
-        var rightSideStreetNameId = StreetNameLocalId.FromValue(command.RightSideStreetNameId);
-
-        var laneAttributes = Translate(command.Lanes);
-        var widthAttributes = Translate(command.Widths);
-        var surfaceAttributes = Translate(command.Surfaces);
-
-        return new AddRoadSegmentChange
-        {
-            //Id = permanent,
-            TemporaryId = temporaryId,
-            OriginalId = originalId,
-            PermanentId = commandPermanentId,
-            StartNodeId = startNodeId,
-            //TemporaryStartNodeId = temporaryStartNodeId,
-            EndNodeId = endNodeId,
-            //TemporaryEndNodeId = temporaryEndNodeId,
-            Geometry = geometry,
-            MaintenanceAuthorityId = maintainerId,
-            GeometryDrawMethod = geometryDrawMethod,
-            Morphology = morphology,
-            Status = status,
-            Category = category,
-            AccessRestriction = accessRestriction,
-            LeftSideStreetNameId = leftSideStreetNameId,
-            RightSideStreetNameId = rightSideStreetNameId,
-            Lanes = laneAttributes!,
-            Widths = widthAttributes!,
-            Surfaces = surfaceAttributes!
-        };
-    }
-
-    private ModifyRoadSegmentChange Translate(ModifyRoadSegmentCommand command)
-    {
-        var permanent = new RoadSegmentId(command.Id);
-        var originalId = RoadSegmentId.FromValue(command.OriginalId);
-
-        var startNodeId = RoadNodeId.FromValue(command.StartNodeId);
-        // RoadNodeId? temporaryStartNodeId;
-        // if (startNodeId is not null && translator.TryTranslateToPermanent(startNodeId.Value, out var permanentStartNodeId))
-        // {
-        //     temporaryStartNodeId = startNodeId;
-        //     startNodeId = permanentStartNodeId;
-        // }
-        // else
-        // {
-        //     temporaryStartNodeId = null;
-        // }
-
-        var endNodeId = RoadNodeId.FromValue(command.EndNodeId);
-        // RoadNodeId? temporaryEndNodeId;
-        // if (endNodeId is not null && translator.TryTranslateToPermanent(endNodeId.Value, out var permanentEndNodeId))
-        // {
-        //     temporaryEndNodeId = endNodeId;
-        //     endNodeId = permanentEndNodeId;
-        // }
-        // else
-        // {
-        //     temporaryEndNodeId = null;
-        // }
-
-        var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
-        // var nextRoadSegmentVersionArgs = new NextRoadSegmentVersionArgs(permanent, geometryDrawMethod, command.ConvertedFromOutlined);
-        // var version = RoadSegmentVersion.FromValue(command.Version)
-        //               ?? await _roadNetworkVersionProvider.NextRoadSegmentVersion(nextRoadSegmentVersionArgs, ct);
-        var geometry = command.Geometry?.ToMultiLineString();
-        // GeometryVersion? geometryVersion = geometry is not null
-        //     ? GeometryVersion.FromValue(command.GeometryVersion) ?? await _roadNetworkVersionProvider.NextRoadSegmentGeometryVersion(nextRoadSegmentVersionArgs, geometry, ct)
-        //     : null;
-
-        var maintainerId = OrganizationId.FromValue(command.MaintenanceAuthority);
-        var morphology = command.Morphology is not null ? RoadSegmentMorphology.Parse(command.Morphology) : null;
-        var status = command.Status is not null ? RoadSegmentStatus.Parse(command.Status) : null;
-        var category = command.Category is not null ? RoadSegmentCategory.Parse(command.Category) : null;
-        var accessRestriction = command.AccessRestriction is not null ? RoadSegmentAccessRestriction.Parse(command.AccessRestriction) : null;
-        var leftSideStreetNameId = StreetNameLocalId.FromValue(command.LeftSideStreetNameId);
-        var rightSideStreetNameId = StreetNameLocalId.FromValue(command.RightSideStreetNameId);
-
-        var laneAttributes = Translate(command.Lanes);
-        var widthAttributes = Translate(command.Widths);
-        var surfaceAttributes = Translate(command.Surfaces);
-
-        return new ModifyRoadSegmentChange
-        {
-            Id = permanent,
-            OriginalId = originalId,
-            //version,
-            StartNodeId = startNodeId,
-            //TemporaryStartNodeId = temporaryStartNodeId,
-            EndNodeId = endNodeId,
-            //TemporaryEndNodeId = temporaryEndNodeId,
-            Geometry = geometry,
-            //geometryVersion,
-            MaintenanceAuthorityId = maintainerId,
-            GeometryDrawMethod = geometryDrawMethod,
-            Morphology = morphology,
-            Status = status,
-            Category = category,
-            AccessRestriction = accessRestriction,
-            LeftSideStreetNameId = leftSideStreetNameId,
-            RightSideStreetNameId = rightSideStreetNameId,
-            Lanes = laneAttributes,
-            Widths = widthAttributes,
-            Surfaces = surfaceAttributes,
-            ConvertedFromOutlined = command.ConvertedFromOutlined,
-            CategoryModified = command.CategoryModified
-        };
-    }
-
-    private RemoveRoadSegmentChange Translate(RemoveRoadSegmentCommand command)
-    {
-        var permanent = new RoadSegmentId(command.Id);
-
-        return new RemoveRoadSegmentChange
-        {
-            Id = permanent
-        };
-    }
+    // private RemoveRoadSegmentChange Translate(RemoveRoadSegmentCommand command)
+    // {
+    //     var permanent = new RoadSegmentId(command.Id);
+    //
+    //     return new RemoveRoadSegmentChange
+    //     {
+    //         Id = permanent
+    //     };
+    // }
     //
     // private RemoveRoadSegmentsChange Translate(RemoveRoadSegmentsCommand command, IOrganizations organizations)
     // {
@@ -639,19 +638,19 @@ public class RoadNetworkChangesFactory
         private static readonly Type[] SequenceByTypeOfChange =
         {
             //typeof(AddRoadNodeCommand),
-            typeof(AddRoadSegmentCommand),
+            typeof(AddRoadSegmentChange),
             // typeof(AddRoadSegmentToEuropeanRoadCommand),
             // typeof(AddRoadSegmentToNationalRoadCommand),
             // typeof(AddRoadSegmentToNumberedRoadCommand),
             // typeof(AddGradeSeparatedJunctionCommand),
             // typeof(ModifyRoadNodeCommand),
-            typeof(ModifyRoadSegmentCommand),
+            typeof(ModifyRoadSegmentChange),
             // typeof(ModifyGradeSeparatedJunctionCommand),
             // typeof(RemoveRoadSegmentFromEuropeanRoadCommand),
             // typeof(RemoveRoadSegmentFromNationalRoadCommand),
             // typeof(RemoveRoadSegmentFromNumberedRoadCommand),
             // typeof(RemoveGradeSeparatedJunctionCommand),
-            typeof(RemoveRoadSegmentCommand),
+            typeof(RemoveRoadSegmentChange),
             // typeof(RemoveRoadNodeCommand)
         };
 

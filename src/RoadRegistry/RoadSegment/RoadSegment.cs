@@ -32,7 +32,7 @@ public partial class RoadSegment : AggregateRootEntity
 
         var line = Geometry.GetSingleLineString();
 
-        if (AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+        if (Attributes.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
         {
             problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId, context.Tolerances);
 
@@ -73,10 +73,6 @@ public partial class RoadSegment : AggregateRootEntity
             }
         }
 
-        problems += line.GetProblemsForRoadSegmentLanes(Lanes, context.Tolerances);
-        problems += line.GetProblemsForRoadSegmentWidths(Widths, context.Tolerances);
-        problems += line.GetProblemsForRoadSegmentSurfaces(Surfaces, context.Tolerances);
-
         if (!problems.Any())
         {
             //TODO-pr te bekijken indien performance issues bij grote uploads, vroeger werdt hier aparte scopedview voor gemaakt
@@ -105,7 +101,7 @@ public partial class RoadSegment : AggregateRootEntity
     {
         return roadNetwork
             .RoadSegments
-            .Where(segment => segment.Value.AttributeHash.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined)
+            .Where(segment => segment.Value.Attributes.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined)
             .Where(segment => segment.Key != intersectsWithId)
             .Where(segment => segment.Value.Geometry.Intersects(intersectsWithGeometry))
             .Where(segment => !segment.Value.Nodes.Any(roadNodeIdsNotInCommon.Contains));

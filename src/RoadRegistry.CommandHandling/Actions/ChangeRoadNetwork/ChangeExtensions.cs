@@ -20,7 +20,7 @@ public static class ChangeExtensions
                 // change.RemoveRoadNode,
                 change.AddRoadSegment,
                 change.ModifyRoadSegment,
-                // change.RemoveRoadSegment,
+                change.RemoveRoadSegment,
                 // change.RemoveRoadSegments,
                 // change.RemoveOutlinedRoadSegment,
                 // change.RemoveOutlinedRoadSegmentFromRoadNetwork,
