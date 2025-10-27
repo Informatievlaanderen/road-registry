@@ -1,3 +1,11 @@
+## [4.38.1](https://github.com/informatievlaanderen/road-registry/compare/v4.38.0...v4.38.1) (2025-10-27)
+
+
+### Bug Fixes
+
+* reject extract correctly when GRB upload failed ([47db0e6](https://github.com/informatievlaanderen/road-registry/commit/47db0e6bc1dc77fcb73fb5f2b17c27c9ac84a396))
+* reject extract correctly when GRB upload failed ([81fb887](https://github.com/informatievlaanderen/road-registry/commit/81fb887450c1bbe342dd0134824771d1553fd687))
+
 # [4.38.0](https://github.com/informatievlaanderen/road-registry/compare/v4.37.11...v4.38.0) (2025-10-16)
 
 
