@@ -33,13 +33,13 @@ public partial class RoadNetwork
         IReadOnlyCollection<RoadSegment> roadSegments,
         IReadOnlyCollection<GradeSeparatedJunction> gradeSeparatedJunctions)
     {
-        _roadNodes = roadNodes.ToDictionary(x => x.Id, x => x);
+        _roadNodes = roadNodes.ToDictionary(x => x.RoadNodeId, x => x);
         RoadNodes = _roadNodes.AsReadOnly();
 
-        _roadSegments = roadSegments.ToDictionary(x => x.Id, x => x);
+        _roadSegments = roadSegments.ToDictionary(x => x.RoadSegmentId, x => x);
         RoadSegments = _roadSegments.AsReadOnly();
 
-        _gradeSeparatedJunctions = gradeSeparatedJunctions.ToDictionary(x => x.Id, x => x);
+        _gradeSeparatedJunctions = gradeSeparatedJunctions.ToDictionary(x => x.GradeSeparatedJunctionId, x => x);
         GradeSeparatedJunctions = _gradeSeparatedJunctions.AsReadOnly();
     }
 

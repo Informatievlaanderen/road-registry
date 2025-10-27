@@ -28,7 +28,7 @@ public partial class RoadSegment : AggregateRootEntity
             return problems;
         }
 
-        var originalIdOrId = context.Translator.TranslateToOriginalOrTemporaryOrId(Id);
+        var originalIdOrId = context.Translator.TranslateToOriginalOrTemporaryOrId(RoadSegmentId);
 
         var line = Geometry.GetSingleLineString();
 
@@ -40,11 +40,11 @@ public partial class RoadSegment : AggregateRootEntity
         }
 
         var byOtherSegment = context.RoadNetwork.RoadSegments.Values.FirstOrDefault(segment =>
-            segment.Id != Id &&
+            segment.RoadSegmentId != RoadSegmentId &&
             segment.Geometry.IsReasonablyEqualTo(Geometry, context.Tolerances));
         if (byOtherSegment is not null)
         {
-            problems = problems.Add(new RoadSegmentGeometryTaken(byOtherSegment.Id));
+            problems = problems.Add(new RoadSegmentGeometryTaken(byOtherSegment.RoadSegmentId));
         }
 
         if (!context.RoadNetwork.RoadNodes.TryGetValue(StartNodeId, out var startNode))
@@ -76,12 +76,12 @@ public partial class RoadSegment : AggregateRootEntity
         if (!problems.Any())
         {
             //TODO-pr te bekijken indien performance issues bij grote uploads, vroeger werdt hier aparte scopedview voor gemaakt
-            var intersectingSegments = FindIntersectingRoadSegments(context.RoadNetwork, Id, Geometry, [StartNodeId, EndNodeId]);
+            var intersectingSegments = FindIntersectingRoadSegments(context.RoadNetwork, RoadSegmentId, Geometry, [StartNodeId, EndNodeId]);
             var intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions = intersectingSegments
                 .Where(intersectingSegment =>
                     !context.RoadNetwork.GradeSeparatedJunctions.Values.Any(junction =>
-                        (junction.LowerSegment == Id && junction.UpperSegment == intersectingSegment.Key) ||
-                        (junction.LowerSegment == intersectingSegment.Key && junction.UpperSegment == Id)))
+                        (junction.LowerSegment == RoadSegmentId && junction.UpperSegment == intersectingSegment.Key) ||
+                        (junction.LowerSegment == intersectingSegment.Key && junction.UpperSegment == RoadSegmentId)))
                 .Select(i =>
                     new IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction(
                         originalIdOrId,

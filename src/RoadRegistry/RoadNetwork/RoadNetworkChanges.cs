@@ -13,16 +13,14 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>, IRoad
 {
     public int Count => _changes.Count;
 
-    public TransactionId TransactionId { get; }
     public List<RoadNodeId> NodeIds { get; }
     public List<RoadSegmentId> SegmentIds { get; }
     public Envelope Scope { get; }
 
     private readonly List<IRoadNetworkChange> _changes;
 
-    private RoadNetworkChanges(TransactionId transactionId)
+    private RoadNetworkChanges()
     {
-        TransactionId = transactionId;
         Scope = new();
     }
 
@@ -174,9 +172,9 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>, IRoad
         _changes.Add(change);
     }
 
-    public static RoadNetworkChanges Start(TransactionId transactionId)
+    public static RoadNetworkChanges Start()
     {
-        return new RoadNetworkChanges(transactionId);
+        return new RoadNetworkChanges();
     }
 
     //TODO-pr later TBD of deze translation methods nog nodig zijn, zie oude class RequestedChanges

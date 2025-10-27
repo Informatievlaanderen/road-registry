@@ -7,11 +7,13 @@ using RoadSegment.ValueObjects;
 
 public partial class RoadNode
 {
+    public string Id => RoadNodeId.ToString(); // Required for MartenDb
+
     private readonly List<RoadSegmentId> _segments = [];
 
-    public RoadNodeId Id { get; }
-    public Point Geometry { get; }
-    public RoadNodeType Type { get; }
+    public RoadNodeId RoadNodeId { get; }
+    public Point Geometry { get; private set; }
+    public RoadNodeType Type { get; private set; }
 
     public IReadOnlyCollection<RoadSegmentId> Segments => _segments.AsReadOnly();
     public IReadOnlyCollection<RoadNodeType> SupportedRoadNodeTypes
@@ -25,5 +27,15 @@ public partial class RoadNode
             // 3 or more
             return [RoadNodeType.MiniRoundabout, RoadNodeType.RealNode];
         }
+    }
+
+    public static RoadNode Create(object @event) //RoadNodeAdded
+    {
+        return new RoadNode
+        {
+            //RoadNodeId = @event.Id,
+
+            //LastEventHash = @event.GetHash();
+        };
     }
 }

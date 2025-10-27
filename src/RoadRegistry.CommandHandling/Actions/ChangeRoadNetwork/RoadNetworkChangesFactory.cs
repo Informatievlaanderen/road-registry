@@ -12,19 +12,11 @@ using RoadSegment.ValueObjects;
 
 public class RoadNetworkChangesFactory
 {
-    private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
-
-    public RoadNetworkChangesFactory(IRoadNetworkIdGenerator roadNetworkIdGenerator)
-    {
-        _roadNetworkIdGenerator = roadNetworkIdGenerator;
-    }
-
     public async Task<RoadNetworkChanges> Build(ChangeRoadNetworkCommand roadNetworkCommand)
     {
         ArgumentNullException.ThrowIfNull(roadNetworkCommand);
 
-        //TODO-pr is transactionid nog nodig?
-        var translated = RoadNetworkChanges.Start(await _roadNetworkIdGenerator.NewTransactionIdAsync());
+        var translated = RoadNetworkChanges.Start();
 
         foreach (var change in roadNetworkCommand.Changes.Flatten()
                      .Select((change, ordinal) => new SortableChange(change, ordinal))

@@ -19,12 +19,15 @@ using StreetName;
 using System.Reflection;
 using Abstractions;
 using BackOffice.Extracts;
+using BackOffice.Handlers.Extracts;
+using CommandHandling;
 using Editor.Schema;
 using Handlers.Extracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Infrastructure.MartenDb.Setup;
 using ZipArchiveWriters.Cleaning;
 using ZipArchiveWriters.ExtractHost;
 
@@ -58,8 +61,13 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
             .AddStreetNameClient()
 
+            // ChangeRoadNetwork
+            .AddMartenRoadNetworkRepository()
+            .AddChangeRoadNetworkCommandHandler()
+
             // Extracts
             .AddExtractsDbContext(QueryTrackingBehavior.TrackAll)
+            .AddScoped<IExtractRequests, ExtractRequests>()
             .AddEditorContext()
             .RegisterOptions<ZipArchiveWriterOptions>()
             .AddSingleton<IZipArchiveWriterFactory>(sp =>

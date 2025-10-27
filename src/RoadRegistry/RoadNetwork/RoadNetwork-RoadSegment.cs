@@ -15,7 +15,7 @@ public partial class RoadNetwork
             return problems;
         }
 
-        _roadSegments.Add(roadSegment.Id, roadSegment);
+        _roadSegments.Add(roadSegment.RoadSegmentId, roadSegment);
         return problems;
     }
 

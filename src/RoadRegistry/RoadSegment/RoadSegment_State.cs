@@ -7,29 +7,11 @@ using Events;
 using NetTopologySuite.Geometries;
 using ValueObjects;
 
-public sealed class RoadSegmentAttributes
-{
-    public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; init; }
-    public RoadSegmentDynamicAttributeCollection<RoadSegmentAccessRestriction> AccessRestriction { get; init; }
-    public RoadSegmentDynamicAttributeCollection<RoadSegmentCategory> Category { get; init; }
-    public RoadSegmentDynamicAttributeCollection<RoadSegmentMorphology> Morphology { get; init; }
-    public RoadSegmentDynamicAttributeCollection<RoadSegmentStatus> Status { get; init; }
-    public RoadSegmentDynamicAttributeCollection<StreetNameLocalId> StreetNameId { get; init; }
-    public RoadSegmentDynamicAttributeCollection<OrganizationId> MaintenanceAuthorityId { get; init; }
-    public RoadSegmentDynamicAttributeCollection<RoadSegmentSurfaceType> SurfaceType { get; init; }
-    public IReadOnlyCollection<EuropeanRoadNumber> EuropeanRoadNumbers { get; init; }
-    public IReadOnlyCollection<NationalRoadNumber> NationalRoadNumbers { get; init; }
-
-    public bool Equals(RoadSegmentAttributes other)
-    {
-        //TODO-pr implement equality check, taking dynamic attributes into account
-        throw new NotImplementedException();
-    }
-}
-
 public partial class RoadSegment
 {
-    public RoadSegmentId Id { get; private set; }
+    public string Id => RoadSegmentId.ToString(); // Required for MartenDb
+
+    public RoadSegmentId RoadSegmentId { get; init; }
     public MultiLineString Geometry { get; private set; }
     public RoadNodeId StartNodeId { get; private set; }
     public RoadNodeId EndNodeId { get; private set; }
@@ -54,16 +36,33 @@ public partial class RoadSegment
 
     public bool IsRemoved { get; private set; }
 
-    private RoadSegment()
+    public static RoadSegment Create(RoadSegmentAdded @event)
     {
-        Register<RoadSegmentAdded>(When);
-        Register<RoadSegmentModified>(When);
-        Register<RoadSegmentRemoved>(When);
+        return new RoadSegment
+        {
+            RoadSegmentId = @event.Id,
+            Geometry = @event.Geometry.ToMultiLineString(),
+            StartNodeId = @event.StartNodeId,
+            EndNodeId = @event.EndNodeId,
+            Attributes = new()
+            {
+                GeometryDrawMethod = @event.GeometryDrawMethod,
+                AccessRestriction = @event.AccessRestriction,
+                Category = @event.Category,
+                Morphology = @event.Morphology,
+                Status = @event.Status,
+                StreetNameId = @event.StreetNameId,
+                MaintenanceAuthorityId = @event.MaintenanceAuthorityId,
+                SurfaceType = @event.SurfaceType,
+                EuropeanRoadNumbers = @event.EuropeanRoadNumbers,
+                NationalRoadNumbers = @event.NationalRoadNumbers
+            }
+            //LastEventHash = @event.GetHash();
+        };
     }
 
-    private void When(RoadSegmentAdded @event)
+    public RoadSegment Apply(RoadSegmentModified @event)
     {
-        Id = @event.Id;
         Geometry = @event.Geometry.ToMultiLineString();
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
@@ -81,32 +80,33 @@ public partial class RoadSegment
             NationalRoadNumbers = @event.NationalRoadNumbers
         };
         //LastEventHash = @event.GetHash();
+        return this;
     }
 
-    private void When(RoadSegmentModified @event)
-    {
-        Geometry = @event.Geometry.ToMultiLineString();
-        StartNodeId = @event.StartNodeId;
-        EndNodeId = @event.EndNodeId;
-        Attributes = new()
-        {
-            GeometryDrawMethod = @event.GeometryDrawMethod,
-            AccessRestriction = @event.AccessRestriction,
-            Category = @event.Category,
-            Morphology = @event.Morphology,
-            Status = @event.Status,
-            StreetNameId = @event.StreetNameId,
-            MaintenanceAuthorityId = @event.MaintenanceAuthorityId,
-            SurfaceType = @event.SurfaceType,
-            EuropeanRoadNumbers = @event.EuropeanRoadNumbers,
-            NationalRoadNumbers = @event.NationalRoadNumbers
-        };
-        //LastEventHash = @event.GetHash();
-    }
-
-    private void When(RoadSegmentRemoved @event)
+    public RoadSegment Apply(RoadSegmentRemoved @event)
     {
         IsRemoved = true;
         //LastEventHash = @event.GetHash();
+        return this;
+    }
+}
+
+public sealed class RoadSegmentAttributes
+{
+    public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; init; }
+    public RoadSegmentDynamicAttributeCollection<RoadSegmentAccessRestriction> AccessRestriction { get; init; }
+    public RoadSegmentDynamicAttributeCollection<RoadSegmentCategory> Category { get; init; }
+    public RoadSegmentDynamicAttributeCollection<RoadSegmentMorphology> Morphology { get; init; }
+    public RoadSegmentDynamicAttributeCollection<RoadSegmentStatus> Status { get; init; }
+    public RoadSegmentDynamicAttributeCollection<StreetNameLocalId> StreetNameId { get; init; }
+    public RoadSegmentDynamicAttributeCollection<OrganizationId> MaintenanceAuthorityId { get; init; }
+    public RoadSegmentDynamicAttributeCollection<RoadSegmentSurfaceType> SurfaceType { get; init; }
+    public IReadOnlyCollection<EuropeanRoadNumber> EuropeanRoadNumbers { get; init; }
+    public IReadOnlyCollection<NationalRoadNumber> NationalRoadNumbers { get; init; }
+
+    public bool Equals(RoadSegmentAttributes other)
+    {
+        //TODO-pr implement equality check, taking dynamic attributes into account
+        throw new NotImplementedException();
     }
 }

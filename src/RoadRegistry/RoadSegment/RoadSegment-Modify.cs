@@ -13,7 +13,7 @@ public partial class RoadSegment
     {
         var problems = Problems.None;
 
-        var originalIdOrId = context.Translator.TranslateToOriginalOrTemporaryOrId(Id);
+        var originalIdOrId = context.Translator.TranslateToOriginalOrTemporaryOrId(RoadSegmentId);
         var geometryDrawMethod = change.GeometryDrawMethod ?? Attributes.GeometryDrawMethod;
 
         var line = change.Geometry?.GetSingleLineString();
@@ -65,7 +65,7 @@ NumberedRoadOrdinal*/
 
         ApplyChange(new RoadSegmentModified
         {
-            Id = Id,
+            Id = RoadSegmentId,
             OriginalId = change.OriginalId,
             //Version = afterSegment.Version,
             StartNodeId = change.StartNodeId ?? StartNodeId,
