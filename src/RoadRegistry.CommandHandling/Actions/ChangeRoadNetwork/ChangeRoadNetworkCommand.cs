@@ -1,12 +1,15 @@
 ﻿namespace RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
 
+using BackOffice;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using RoadNetwork.Changes;
 
 public class ChangeRoadNetworkCommand
 {
     public Guid DownloadId { get; set; }
-    public IList<ChangeRoadNetworkCommandItem> Changes { get; set; } = [];
+    public Provenance Provenance { get; set; }
     public Guid TicketId { get; set; }
+    public IList<ChangeRoadNetworkCommandItem> Changes { get; set; } = [];
 }
 
 // zelfde niveau als Messages namespace, komt dan in een SqsRequest terecht en wordt geserialized

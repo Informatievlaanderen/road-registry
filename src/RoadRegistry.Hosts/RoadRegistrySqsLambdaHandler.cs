@@ -27,6 +27,24 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
+        ILoggerFactory loggerFactory)
+        : base(retryPolicy, ticketing, idempotentCommandHandler)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(roadRegistryContext);
+        ArgumentNullException.ThrowIfNull(loggerFactory);
+
+        RoadRegistryContext = roadRegistryContext;
+        DetailUrlFormat = options.DetailUrl;
+        Logger = loggerFactory.CreateLogger(GetType());
+    }
+
+    protected RoadRegistrySqsLambdaHandler(
+        SqsLambdaHandlerOptions options,
+        ICustomRetryPolicy retryPolicy,
+        ITicketing ticketing,
+        IIdempotentCommandHandler idempotentCommandHandler,
+        IRoadRegistryContext roadRegistryContext,
         ILogger logger)
         : base(retryPolicy, ticketing, idempotentCommandHandler)
     {

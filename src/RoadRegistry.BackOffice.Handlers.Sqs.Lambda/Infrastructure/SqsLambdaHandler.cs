@@ -31,6 +31,17 @@ public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambd
     {
     }
 
+    protected SqsLambdaHandler(
+        SqsLambdaHandlerOptions options,
+        ICustomRetryPolicy retryPolicy,
+        ITicketing ticketing,
+        IIdempotentCommandHandler idempotentCommandHandler,
+        IRoadRegistryContext roadRegistryContext,
+        ILoggerFactory loggerFactory)
+        : base(options, retryPolicy, ticketing, idempotentCommandHandler, roadRegistryContext, loggerFactory)
+    {
+    }
+
     protected async Task<string> GetRoadSegmentHash(
         RoadSegmentId roadSegmentId,
         RoadSegmentGeometryDrawMethod geometryDrawMethod,

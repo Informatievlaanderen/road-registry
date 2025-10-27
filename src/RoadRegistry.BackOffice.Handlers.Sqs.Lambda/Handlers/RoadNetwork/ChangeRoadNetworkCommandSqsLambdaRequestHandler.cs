@@ -1,28 +1,21 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers.RoadNetwork;
 
-using System.Diagnostics;
+using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
-using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using Be.Vlaanderen.Basisregisters.Sqs.Responses;
+using CommandHandling.Actions.ChangeRoadNetwork;
+using Core;
+using Hosts;
+using Infrastructure;
+using Messages;
 using Microsoft.Extensions.Logging;
 using Requests.RoadNetwork;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Exceptions;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
-using RoadRegistry.Hosts;
-using RoadRegistry.RoadSegment.ValueObjects;
 using TicketingService.Abstractions;
-using AddRoadSegment = BackOffice.Uploads.AddRoadSegment;
-using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
-using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
-using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
 
 public sealed class ChangeRoadNetworkCommandSqsLambdaRequestHandler : SqsLambdaHandler<ChangeRoadNetworkCommandSqsLambdaRequest>
 {
-    private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
-    private readonly IOrganizationCache _organizationCache;
+    private readonly IExtractRequests _extractRequests;
+    private readonly ChangeRoadNetworkCommandHandler _commandHandler;
 
     public ChangeRoadNetworkCommandSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -30,103 +23,51 @@ public sealed class ChangeRoadNetworkCommandSqsLambdaRequestHandler : SqsLambdaH
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
-        IOrganizationCache organizationCache,
-        ILogger<ChangeRoadNetworkCommandSqsLambdaRequestHandler> logger)
+        IExtractRequests extractRequests,
+        ChangeRoadNetworkCommandHandler commandHandler,
+        ILoggerFactory loggerFactory)
         : base(
             options,
             retryPolicy,
             ticketing,
             idempotentCommandHandler,
             roadRegistryContext,
-            logger)
+            loggerFactory)
     {
-        _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
-        _organizationCache = organizationCache;
+        _commandHandler = commandHandler;
+        _extractRequests = extractRequests;
     }
 
     protected override async Task<object> InnerHandle(ChangeRoadNetworkCommandSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
-        //TODO-pr implement
-        var startSw = Stopwatch.StartNew();
-        //
-        // var sw = Stopwatch.StartNew();
-        // var changeRoadNetworkCommand = await _changeRoadNetworkDispatcher.DispatchAsync(sqsLambdaRequest, "Wegsegment schetsen", async translatedChanges =>
-        // {
-        //     sw.Restart();
-        //
-        //     Logger.LogInformation("TIMETRACKING handler: loading RoadNetwork took {Elapsed}", sw.Elapsed);
-        //     sw.Restart();
-        //
-        //     var request = sqsLambdaRequest.Request;
-        //     var recordNumber = RecordNumber.Initial;
-        //     var problems = Problems.None;
-        //
-        //     var geometry = GeometryTranslator.Translate(request.Geometry);
-        //
-        //     var fromPosition = new RoadSegmentPosition(0);
-        //     var toPosition = new RoadSegmentPosition((decimal)geometry.Length);
-        //
-        //     var (maintenanceAuthority, maintenanceAuthorityProblems) = await FindOrganizationId(request.MaintenanceAuthority, cancellationToken);
-        //     problems += maintenanceAuthorityProblems;
-        //
-        //     translatedChanges = translatedChanges.AppendChange(
-        //         new AddRoadSegment(
-        //                 recordNumber,
-        //                 new RoadSegmentId(1),
-        //                 new RoadSegmentId(1),
-        //                 RoadNodeId.Zero,
-        //                 RoadNodeId.Zero,
-        //                 maintenanceAuthority,
-        //                 RoadSegmentGeometryDrawMethod.Outlined,
-        //                 request.Morphology,
-        //                 request.Status,
-        //                 request.Category,
-        //                 request.AccessRestriction,
-        //                 null,
-        //                 null)
-        //             .WithGeometry(geometry)
-        //             .WithSurface(new RoadSegmentSurfaceAttribute(AttributeId.Initial, request.SurfaceType, fromPosition, toPosition))
-        //             .WithWidth(new RoadSegmentWidthAttribute(AttributeId.Initial, request.Width, fromPosition, toPosition))
-        //             .WithLane(new RoadSegmentLaneAttribute(AttributeId.Initial, request.LaneCount, request.LaneDirection, fromPosition, toPosition))
-        //     );
-        //
-        //     if (problems.Any())
-        //     {
-        //         throw new RoadRegistryProblemsException(problems);
-        //     }
-        //
-        //     Logger.LogInformation("TIMETRACKING handler: converting request to TranslatedChanges took {Elapsed}", sw.Elapsed);
-        //     return translatedChanges;
-        // }, cancellationToken);
-        //
-        // sw.Restart();
-        // var roadSegmentId = new RoadSegmentId(changeRoadNetworkCommand.Changes.Single().AddRoadSegment.PermanentId.Value);
-        // Logger.LogInformation("Created road segment {RoadSegmentId}", roadSegmentId);
-        // var lastHash = await GetRoadSegmentHash(roadSegmentId, RoadSegmentGeometryDrawMethod.Outlined, cancellationToken);
-        // Logger.LogInformation("TIMETRACKING handler: getting RoadSegment hash took {Elapsed}", sw.Elapsed);
-        //
-        // Logger.LogInformation("TIMETRACKING handler: entire handler took {Elapsed}", startSw.Elapsed);
+        var command = sqsLambdaRequest.Request;
 
-        //return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
-        throw new NotImplementedException();
-    }
+        await Ticketing.Pending(command.TicketId, cancellationToken);
 
-    private async Task<(OrganizationId, Problems)> FindOrganizationId(OrganizationId organizationId, CancellationToken cancellationToken)
-    {
-        var problems = Problems.None;
+        command.Provenance = sqsLambdaRequest.Provenance;
 
-        var maintenanceAuthorityOrganization = await _organizationCache.FindByIdOrOvoCodeOrKboNumberAsync(organizationId, cancellationToken);
-        if (maintenanceAuthorityOrganization is not null)
+        var changeResult = await _commandHandler.Handle(command, cancellationToken);
+
+        var downloadId = new DownloadId(command.DownloadId);
+        var hasError = changeResult.Problems.HasError();
+        if (hasError)
         {
-            return (maintenanceAuthorityOrganization.Code, problems);
+            var errors = changeResult.Problems
+                .Select(problem => problem.Translate().ToTicketError())
+                .ToArray();
+
+            await Ticketing.Error(command.TicketId, new TicketError(errors), cancellationToken);
+            await _extractRequests.UploadRejectedAsync(downloadId, cancellationToken);
+        }
+        else
+        {
+            //TODO-pr ook resultaat van changes meegeven, bvb welke IDs zijn aangemaakt/gewijzigd/verwijderd, per entiteit
+            //is al zeker nodig voor E2E testen
+            await Ticketing.Complete(command.TicketId, new TicketResult(), cancellationToken);
+            //TODO-pr aparte projectie voorzien voor resultaat dat extract details kan opvragen
+            await _extractRequests.UploadAcceptedAsync(downloadId, cancellationToken);
         }
 
-        if (OrganizationOvoCode.AcceptsValue(organizationId))
-        {
-            problems = problems.Add(new MaintenanceAuthorityNotKnown(organizationId));
-        }
-
-        return (organizationId, problems);
+        return new object();
     }
 }
