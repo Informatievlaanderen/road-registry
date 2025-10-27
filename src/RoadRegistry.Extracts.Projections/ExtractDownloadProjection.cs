@@ -126,6 +126,16 @@ public class ExtractDownloadProjection : ConnectedProjection<ExtractsDbContext>
             }
 
             var record = await context.ExtractDownloads.IncludeLocalSingleOrDefaultAsync(download => download.TicketId == envelope.Message.TicketId, ct);
+            if (record is null)
+            {
+                // grb uploads
+                var extractRequest = await context.ExtractRequests.IncludeLocalSingleOrDefaultAsync(request => request.ExternalRequestId == envelope.Message.Reason, ct);
+                if (extractRequest is not null)
+                {
+                    record = await context.ExtractDownloads.IncludeLocalSingleOrDefaultAsync(download => download.DownloadId == extractRequest.CurrentDownloadId, ct);
+                }
+            }
+
             if (record is not null)
             {
                 record.UploadStatus = ExtractUploadStatus.Rejected;
