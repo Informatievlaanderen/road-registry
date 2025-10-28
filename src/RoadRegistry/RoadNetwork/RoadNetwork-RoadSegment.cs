@@ -9,33 +9,37 @@ public partial class RoadNetwork
 {
     private Problems AddRoadSegment(AddRoadSegmentChange change, RoadNetworkChangeContext context)
     {
-        var (roadSegment, problems) = RoadSegment.Register(change, context);
+        var (roadSegment, problems) = RoadSegment.Add(change, context);
         if (problems.HasError())
         {
             return problems;
         }
 
+        _identifierTranslator.RegisterMapping(change.OriginalId ?? change.TemporaryId, roadSegment!.RoadSegmentId);
         _roadSegments.Add(roadSegment.RoadSegmentId, roadSegment);
         return problems;
     }
 
     private Problems ModifyRoadSegment(ModifyRoadSegmentChange change, RoadNetworkChangeContext context)
     {
-        if (!_roadSegments.TryGetValue(change.Id, out var segment))
+        var originalIdOrId = change.OriginalId ?? change.Id;
+
+        if (!_roadSegments.TryGetValue(change.Id, out var roadSegment))
         {
-            return Problems.Single(new RoadSegmentNotFound(change.OriginalId ?? change.Id));
+            return Problems.Single(new RoadSegmentNotFound(originalIdOrId));
         }
 
-        return segment.Modify(change, context);
+        _identifierTranslator.RegisterMapping(originalIdOrId, roadSegment.RoadSegmentId);
+        return roadSegment.Modify(change, context);
     }
 
     private Problems RemoveRoadSegment(RemoveRoadSegmentChange change, RoadNetworkChangeContext context)
     {
-        if (!_roadSegments.TryGetValue(change.Id, out var segment))
+        if (!_roadSegments.TryGetValue(change.Id, out var roadSegment))
         {
             return Problems.Single(new RoadSegmentNotFound(change.Id));
         }
 
-        return segment.Remove(change, context);
+        return roadSegment.Remove(change, context);
     }
 }

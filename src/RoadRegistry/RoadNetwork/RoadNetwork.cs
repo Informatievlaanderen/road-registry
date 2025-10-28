@@ -20,11 +20,13 @@ public partial class RoadNetwork
     public IReadOnlyDictionary<RoadSegmentId, RoadSegment> RoadSegments { get; }
     public IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; }
 
-    private readonly Dictionary<RoadNodeId, RoadNode> _roadNodes = [];
-    private readonly Dictionary<RoadSegmentId, RoadSegment> _roadSegments = [];
-    private readonly Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> _gradeSeparatedJunctions = [];
+    private readonly Dictionary<RoadNodeId, RoadNode> _roadNodes;
+    private readonly Dictionary<RoadSegmentId, RoadSegment> _roadSegments;
+    private readonly Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> _gradeSeparatedJunctions;
+    private readonly IdentifierTranslator _identifierTranslator = new();
 
     private RoadNetwork()
+        : this([], [], [])
     {
     }
 
@@ -45,8 +47,6 @@ public partial class RoadNetwork
 
     public RoadNetworkChangeResult Change(RoadNetworkChanges changes, IRoadNetworkIdGenerator roadNetworkIdGenerator)
     {
-        // produce change started event?
-
         var problems = Problems.None;
 
         // dit vervangt the RequestedChangeTranslator
@@ -55,13 +55,22 @@ public partial class RoadNetwork
             RoadNetwork = this,
             Tolerances = VerificationContextTolerances.Default,
             IdGenerator = roadNetworkIdGenerator,
-            Translator = changes
+            IdTranslator = _identifierTranslator
         };
 
         foreach (var roadNetworkChange in changes)
         {
             switch (roadNetworkChange)
             {
+                case AddRoadNodeChange change:
+                    problems.AddRange(AddRoadNode(change, context));
+                    break;
+                // case ModifyRoadNodeChange change:
+                //     problems.AddRange(ModifyRoadNode(change, context));
+                //     break;
+                // case RemoveRoadNodeChange change:
+                //     problems.AddRange(RemoveRoadNode(change, context));
+                //     break;
                 case AddRoadSegmentChange change:
                     problems.AddRange(AddRoadSegment(change, context));
                     break;
@@ -82,6 +91,7 @@ public partial class RoadNetwork
             problems = _roadNodes.Values
                 .Where(x => x.HasChanges())
                 .Aggregate(problems, (p, x) => p + x.VerifyTopologyAfterChanges(context));
+            //TODO-pr also verify linked roadnodes
             problems = _roadSegments.Values
                 .Where(x => x.HasChanges())
                 .Aggregate(problems, (p, x) => p + x.VerifyTopologyAfterChanges(context));
@@ -89,8 +99,6 @@ public partial class RoadNetwork
                 .Where(x => x.HasChanges())
                 .Aggregate(problems, (p, x) => p + x.VerifyTopologyAfterChanges(context));
         }
-
-        // produce change completed event
 
         return new RoadNetworkChangeResult(problems);
     }

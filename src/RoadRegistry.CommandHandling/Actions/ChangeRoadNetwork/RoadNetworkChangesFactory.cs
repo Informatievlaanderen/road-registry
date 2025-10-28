@@ -16,7 +16,7 @@ public class RoadNetworkChangesFactory
     {
         ArgumentNullException.ThrowIfNull(roadNetworkCommand);
 
-        var translated = RoadNetworkChanges.Start();
+        var roadNetworkChanges = RoadNetworkChanges.Start();
 
         foreach (var change in roadNetworkCommand.Changes.Flatten()
                      .Select((change, ordinal) => new SortableChange(change, ordinal))
@@ -25,23 +25,23 @@ public class RoadNetworkChangesFactory
         {
             switch (change)
             {
-                // case AddRoadNode command:
-                //     translated = translated.Append(await Translate(command));
+                case AddRoadNodeChange command:
+                    roadNetworkChanges.Add(command);
+                    break;
+                // case ModifyRoadNodeChange command:
+                //     roadNetworkChanges.Add(command);
                 //     break;
-                // case ModifyRoadNode command:
-                //     translated = translated.Append(await Translate(command));
-                //     break;
-                // case RemoveRoadNode command:
-                //     translated = translated.Append(Translate(command));
+                // case RemoveRoadNodeChange command:
+                //     roadNetworkChanges.Add(command);
                 //     break;
                 case AddRoadSegmentChange command:
-                    translated.Add(command);
+                    roadNetworkChanges.Add(command);
                     break;
                 case ModifyRoadSegmentChange command:
-                    translated.Add(command);
+                    roadNetworkChanges.Add(command);
                     break;
                 case RemoveRoadSegmentChange command:
-                    translated.Add(command);
+                    roadNetworkChanges.Add(command);
                     break;
                 // case RemoveRoadSegments command:
                 //     translated = translated.Append(Translate(command, organizations));
@@ -82,7 +82,7 @@ public class RoadNetworkChangesFactory
             }
         }
 
-        return translated;
+        return roadNetworkChanges;
     }
 
     // private async Task<AddRoadNodeChange> Translate(AddRoadNode command)

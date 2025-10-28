@@ -9,7 +9,10 @@ public class DatabaseFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        var databaseName = $"road-{Guid.NewGuid():N}";
+        var databaseName = $"road-{DateTime.Now:yyyyMMdd-HHmmss-fff}";
+        //TODO-pr temp override
+        //databaseName = $"road-integrationtests";
+
         var connectionString = new ConfigurationBuilder()
             .AddIntegrationTestAppSettings()
             .Build()
@@ -21,16 +24,19 @@ public class DatabaseFixture : IAsyncLifetime
             .Split(';')
             .Where(x => !x.StartsWith("Database=", StringComparison.InvariantCultureIgnoreCase))
             .Concat([$"Database={databaseName}"]));
+
+        await InstallPostgis();
     }
 
     public Task DisposeAsync()
     {
+        //TODO-pr drop db?
         return Task.CompletedTask;
     }
 
     private async Task CreateDatabase(string connectionString, string database)
     {
-        var createDbQuery = $"CREATE DATABASE \"{database}\";";
+        var createDbQuery = $"DROP DATABASE IF EXISTS \"{database}\"; CREATE DATABASE \"{database}\";";
 
         await using var connection = new NpgsqlConnection(connectionString);
         await using var command = new NpgsqlCommand(createDbQuery, connection);
@@ -55,6 +61,15 @@ public class DatabaseFixture : IAsyncLifetime
             }
         }
 
+        await command.ExecuteNonQueryAsync();
+    }
+
+    private async Task InstallPostgis()
+    {
+        await using var connection = new NpgsqlConnection(ConnectionString);
+        await using var command = new NpgsqlCommand("CREATE EXTENSION postgis", connection);
+
+        await connection.OpenAsync();
         await command.ExecuteNonQueryAsync();
     }
 }

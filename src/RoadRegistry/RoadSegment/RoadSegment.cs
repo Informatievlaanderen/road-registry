@@ -10,7 +10,7 @@ using RoadNetwork;
 using RoadNetwork.ValueObjects;
 using ValueObjects;
 
-public partial class RoadSegment : AggregateRootEntity
+public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 {
     public Problems VerifyTopologyAfterChanges(RoadNetworkChangeContext context)
     {
@@ -25,10 +25,11 @@ public partial class RoadSegment : AggregateRootEntity
             if (context.RoadNetwork.RoadNodes.TryGetValue(EndNodeId, out var beforeEndNode))
                 problems = problems.AddRange(
                     beforeEndNode.VerifyTypeMatchesConnectedSegmentCount(context));
+
             return problems;
         }
 
-        var originalIdOrId = context.Translator.TranslateToOriginalOrTemporaryOrId(RoadSegmentId);
+        var originalIdOrId = context.IdTranslator.TranslateToTemporaryId(RoadSegmentId);
 
         var line = Geometry.GetSingleLineString();
 
@@ -85,7 +86,7 @@ public partial class RoadSegment : AggregateRootEntity
                 .Select(i =>
                     new IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction(
                         originalIdOrId,
-                        context.Translator.TranslateToOriginalOrTemporaryOrId(i.Key)));
+                        context.IdTranslator.TranslateToTemporaryId(i.Key)));
 
             problems = problems.AddRange(intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions);
         }

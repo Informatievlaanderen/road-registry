@@ -1,21 +1,23 @@
 ﻿namespace RoadRegistry.RoadNode;
 
 using System.Collections.Generic;
+using System.Linq;
 using BackOffice;
+using Events;
 using NetTopologySuite.Geometries;
+using Newtonsoft.Json;
 using RoadSegment.ValueObjects;
 
 public partial class RoadNode
 {
-    public string Id => RoadNodeId.ToString(); // Required for MartenDb
-
     private readonly List<RoadSegmentId> _segments = [];
 
-    public RoadNodeId RoadNodeId { get; }
+    public RoadNodeId RoadNodeId { get; init; }
     public Point Geometry { get; private set; }
     public RoadNodeType Type { get; private set; }
-
     public IReadOnlyCollection<RoadSegmentId> Segments => _segments.AsReadOnly();
+
+    [JsonIgnore]
     public IReadOnlyCollection<RoadNodeType> SupportedRoadNodeTypes
     {
         get
@@ -29,13 +31,30 @@ public partial class RoadNode
         }
     }
 
-    public static RoadNode Create(object @event) //RoadNodeAdded
+    public RoadNode(RoadNodeId id)
+        : base(id)
     {
-        return new RoadNode
-        {
-            //RoadNodeId = @event.Id,
+        RoadNodeId = id;
+    }
 
+    [JsonConstructor]
+    public RoadNode(int roadNodeId, Point geometry, string type, ICollection<int> segments)
+        : this(new RoadNodeId(roadNodeId))
+    {
+        Geometry = geometry;
+        Type = RoadNodeType.Parse(type);
+        _segments = segments.Select(x => new RoadSegmentId(x)).ToList();
+    }
+
+    public static RoadNode Create(RoadNodeAdded @event)
+    {
+        var roadNode = new RoadNode(@event.Id)
+        {
+            Geometry = @event.Geometry.AsPoint(),
+            Type = @event.Type
             //LastEventHash = @event.GetHash();
         };
+        roadNode.UncommittedEvents.Add(@event);
+        return roadNode;
     }
 }

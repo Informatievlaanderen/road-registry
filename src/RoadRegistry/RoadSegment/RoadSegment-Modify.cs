@@ -13,7 +13,7 @@ public partial class RoadSegment
     {
         var problems = Problems.None;
 
-        var originalIdOrId = context.Translator.TranslateToOriginalOrTemporaryOrId(RoadSegmentId);
+        var originalIdOrId = context.IdTranslator.TranslateToTemporaryId(RoadSegmentId);
         var geometryDrawMethod = change.GeometryDrawMethod ?? Attributes.GeometryDrawMethod;
 
         var line = change.Geometry?.GetSingleLineString();
@@ -22,6 +22,15 @@ public partial class RoadSegment
             problems += geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
                 ? line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId, context.Tolerances)
                 : line.GetProblemsForRoadSegmentGeometry(originalIdOrId, context.Tolerances);
+        }
+
+        if (!context.RoadNetwork.RoadNodes.TryGetValue(change.StartNodeId ?? StartNodeId, out var startRoadNode))
+        {
+            problems = problems.Add(new RoadSegmentStartNodeMissing(originalIdOrId));
+        }
+        if (!context.RoadNetwork.RoadNodes.TryGetValue(change.EndNodeId ?? EndNodeId, out var endRoadNode))
+        {
+            problems = problems.Add(new RoadSegmentEndNodeMissing(originalIdOrId));
         }
 
         if (geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
@@ -63,14 +72,17 @@ NumberedRoadOrdinal*/
             return problems;
         }
 
-        ApplyChange(new RoadSegmentModified
+        var originalStartRoadNode = context.RoadNetwork.RoadNodes[StartNodeId];
+        var originalEndRoadNode = context.RoadNetwork.RoadNodes[EndNodeId];
+
+        Apply(new RoadSegmentModified
         {
             Id = RoadSegmentId,
             OriginalId = change.OriginalId,
             //Version = afterSegment.Version,
             StartNodeId = change.StartNodeId ?? StartNodeId,
             EndNodeId = change.EndNodeId ?? EndNodeId,
-            Geometry = (change.Geometry ?? Geometry).ToRoadSegmentGeometry(),
+            Geometry = (change.Geometry ?? Geometry).ToGeometryObject(),
             //GeometryVersion = afterSegment.GeometryVersion,
             GeometryDrawMethod = change.GeometryDrawMethod ?? Attributes.GeometryDrawMethod,
             AccessRestriction = change.AccessRestriction ?? Attributes.AccessRestriction,
@@ -84,6 +96,11 @@ NumberedRoadOrdinal*/
             NationalRoadNumbers = change.NationalRoadNumbers ?? Attributes.NationalRoadNumbers
             //ConvertedFromOutlined = ConvertedFromOutlined
         });
+
+        originalStartRoadNode.DisconnectFrom(RoadSegmentId);
+        originalEndRoadNode.DisconnectFrom(RoadSegmentId);
+        startRoadNode!.ConnectWith(RoadSegmentId);
+        endRoadNode!.ConnectWith(RoadSegmentId);
 
         return problems;
     }

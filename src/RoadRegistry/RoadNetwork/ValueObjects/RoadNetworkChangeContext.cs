@@ -7,5 +7,5 @@ public class RoadNetworkChangeContext
     public required VerificationContextTolerances Tolerances { get; init; }
     public required RoadNetwork RoadNetwork { get; init; }
     public required IRoadNetworkIdGenerator IdGenerator { get; init; }
-    public required IRoadNetworkChangeIdentityTranslator Translator { get; init; }
+    public required IIdentifierTranslator IdTranslator { get; init; }
 }

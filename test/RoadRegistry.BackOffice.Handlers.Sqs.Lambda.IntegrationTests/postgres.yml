@@ -1,8 +1,8 @@
 version: '3.8'
 
 services:
-  postgres_test:
-    image: postgres:14.4
+  postgres:
+    image: postgis/postgis:14-3.5-alpine
     ports:
       - "15432:5432"
     volumes:

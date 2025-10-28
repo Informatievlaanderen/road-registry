@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 public abstract class Problem : IEquatable<Problem>, IEqualityComparer<Problem>
 {

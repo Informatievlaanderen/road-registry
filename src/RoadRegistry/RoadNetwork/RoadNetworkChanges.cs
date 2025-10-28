@@ -4,24 +4,22 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using BackOffice;
-using BackOffice.Core;
 using Changes;
 using NetTopologySuite.Geometries;
 using RoadSegment.ValueObjects;
 
-public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>, IRoadNetworkChangeIdentityTranslator
+public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
 {
     public int Count => _changes.Count;
 
-    public List<RoadNodeId> NodeIds { get; }
-    public List<RoadSegmentId> SegmentIds { get; }
-    public Envelope Scope { get; }
+    public List<RoadNodeId> NodeIds { get; } = [];
+    public List<RoadSegmentId> SegmentIds { get; } = [];
+    public Envelope Scope { get; } = new();
 
-    private readonly List<IRoadNetworkChange> _changes;
+    private readonly List<IRoadNetworkChange> _changes = [];
 
     private RoadNetworkChanges()
     {
-        Scope = new();
     }
 
     public IEnumerator<IRoadNetworkChange> GetEnumerator()
@@ -35,14 +33,12 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>, IRoad
     }
 
     //TODO-pr implement other change types
-    // public void Add(AddRoadNodeChange change)
-    // {
+    public void Add(AddRoadNodeChange change)
+    {
+        AddChange(change);
 
-    //_mapToPermanentNodeIdentifiers.Add(change.TemporaryId, change.Id),
-    //_mapToTemporaryNodeIdentifiers.Add(change.Id, change.TemporaryId),
-    //     AppendChange(change);
-    //envelope.ExpandToInclude(addRoadNode.Geometry.Coordinate);
-    // }
+        Scope.ExpandToInclude(change.Geometry.EnvelopeInternal);
+    }
 
     // public void Add(ModifyRoadNodeChange change)
     // {
@@ -65,11 +61,6 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>, IRoad
 
     public void Add(AddRoadSegmentChange change)
     {
-        if (change.OriginalId is not null)
-        {
-            _mapToOriginalSegmentIdentifiers.Add(change.TemporaryId, change.OriginalId.Value);
-        }
-
         AddChange(change);
 
         //TODO-pr ipv 1 grote bounding box, toch eilandjes maken (=multipolygon)
@@ -78,11 +69,6 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>, IRoad
 
     public void Add(ModifyRoadSegmentChange change)
     {
-        if (change.OriginalId is not null)
-        {
-            _mapToOriginalSegmentIdentifiers.Add(change.Id, change.OriginalId.Value);
-        }
-
         AddChange(change);
 
         if (change.Geometry is not null)
@@ -175,27 +161,5 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>, IRoad
     public static RoadNetworkChanges Start()
     {
         return new RoadNetworkChanges();
-    }
-
-    //TODO-pr later TBD of deze translation methods nog nodig zijn, zie oude class RequestedChanges
-    private readonly Dictionary<RoadNodeId, RoadNodeId> _mapToPermanentNodeIdentifiers = [];
-    private readonly Dictionary<RoadSegmentId, RoadSegmentId> _mapToPermanentSegmentIdentifiers = [];
-    private readonly Dictionary<RoadNodeId, RoadNodeId> _mapToTemporaryNodeIdentifiers = [];
-    private readonly Dictionary<RoadSegmentId, RoadSegmentId> _mapToOriginalSegmentIdentifiers = [];
-    public RoadNodeId TranslateToTemporaryOrId(RoadNodeId id)
-    {
-        return _mapToTemporaryNodeIdentifiers.GetValueOrDefault(id, id);
-    }
-    public RoadSegmentId TranslateToOriginalOrTemporaryOrId(RoadSegmentId id)
-    {
-        return _mapToOriginalSegmentIdentifiers.GetValueOrDefault(id, id);
-    }
-    public bool TryTranslateToPermanent(RoadNodeId id, out RoadNodeId permanent)
-    {
-        return _mapToPermanentNodeIdentifiers.TryGetValue(id, out permanent);
-    }
-    public bool TryTranslateToPermanent(RoadSegmentId id, out RoadSegmentId permanent)
-    {
-        return _mapToPermanentSegmentIdentifiers.TryGetValue(id, out permanent);
     }
 }

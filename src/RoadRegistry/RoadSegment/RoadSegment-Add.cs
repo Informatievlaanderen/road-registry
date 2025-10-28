@@ -9,18 +9,11 @@ using RoadNetwork.ValueObjects;
 
 public partial class RoadSegment
 {
-    public static (RoadSegment, Problems) Register(AddRoadSegmentChange change, RoadNetworkChangeContext context)
-    {
-        var segment = new RoadSegment();
-        var problems = segment.Add(change, context);
-        return (segment, problems);
-    }
-
-    private Problems Add(AddRoadSegmentChange change, RoadNetworkChangeContext context)
+    public static (RoadSegment?, Problems) Add(AddRoadSegmentChange change, RoadNetworkChangeContext context)
     {
         var problems = Problems.None;
 
-        var originalIdOrId = context.Translator.TranslateToOriginalOrTemporaryOrId(change.TemporaryId);
+        var originalIdOrId = change.OriginalId ?? change.TemporaryId;
 
         var line = change.Geometry.GetSingleLineString();
 
@@ -28,7 +21,16 @@ public partial class RoadSegment
         {
             problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId, context.Tolerances);
 
-            return problems;
+            return (null, problems);
+        }
+
+        if (!context.RoadNetwork.RoadNodes.TryGetValue(change.StartNodeId, out var startRoadNode))
+        {
+            problems = problems.Add(new RoadSegmentStartNodeMissing(originalIdOrId));
+        }
+        if (!context.RoadNetwork.RoadNodes.TryGetValue(change.EndNodeId, out var endRoadNode))
+        {
+            problems = problems.Add(new RoadSegmentEndNodeMissing(originalIdOrId));
         }
 
         problems += line.GetProblemsForRoadSegmentGeometry(originalIdOrId, context.Tolerances);
@@ -55,14 +57,14 @@ NumberedRoadOrdinal*/
 
         if (problems.HasError())
         {
-            return problems;
+            return (null, problems);
         }
 
-        ApplyChange(new RoadSegmentAdded
+        var segment = Create(new RoadSegmentAdded
         {
             Id = change.PermanentId ?? context.IdGenerator.NewRoadSegmentId(),
             OriginalId = change.OriginalId,
-            Geometry = change.Geometry.ToRoadSegmentGeometry(),
+            Geometry = change.Geometry.ToGeometryObject(),
             StartNodeId = change.StartNodeId,
             EndNodeId = change.EndNodeId,
             GeometryDrawMethod = change.GeometryDrawMethod,
@@ -77,6 +79,9 @@ NumberedRoadOrdinal*/
             NationalRoadNumbers = change.NationalRoadNumbers,
         });
 
-        return problems;
+        startRoadNode!.ConnectWith(segment.RoadSegmentId);
+        endRoadNode!.ConnectWith(segment.RoadSegmentId);
+
+        return (segment, problems);
     }
 }

@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Marten" />
+    <PackageReference Include="Dapper" />
   </ItemGroup>
 
 </Project>

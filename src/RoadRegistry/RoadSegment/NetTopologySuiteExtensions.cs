@@ -12,16 +12,16 @@ using LineString = NetTopologySuite.Geometries.LineString;
 
 public static class NetTopologySuiteExtensions
 {
-    public static MultiLineString ToMultiLineString(this GeometryObject roadSegmentGeometry)
+    public static MultiLineString AsMultiLineString(this GeometryObject geometry)
     {
-        ArgumentNullException.ThrowIfNull(roadSegmentGeometry);
+        ArgumentNullException.ThrowIfNull(geometry);
 
-        return ((MultiLineString)new WKTReader().Read(roadSegmentGeometry.WKT)
-            .WithSrid(roadSegmentGeometry.SRID))
+        return ((MultiLineString)new WKTReader().Read(geometry.WKT)
+            .WithSrid(geometry.SRID))
             .WithMeasureOrdinates();
     }
 
-    public static GeometryObject ToRoadSegmentGeometry(this MultiLineString geometry)
+    public static GeometryObject ToGeometryObject(this MultiLineString geometry)
     {
         ArgumentNullException.ThrowIfNull(geometry);
 

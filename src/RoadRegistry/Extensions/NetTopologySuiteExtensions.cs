@@ -166,9 +166,7 @@ public static class NetTopologySuiteExtensions
         if (geometry is LineString lineString)
         {
             return new MultiLineString([lineString], geometryFactory ?? lineString.Factory)
-            {
-                SRID = lineString.SRID
-            };
+                .WithSrid(lineString.SRID);
         }
 
         throw new InvalidCastException($"The geometry of type {geometry.GetType().Name} must be either a {nameof(LineString)} or a {nameof(MultiLineString)}.");

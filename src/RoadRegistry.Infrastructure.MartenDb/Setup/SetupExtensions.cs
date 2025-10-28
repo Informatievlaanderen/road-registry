@@ -1,7 +1,11 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Setup;
 
+using BackOffice;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using GradeSeparatedJunction;
+using JasperFx.Core;
+using JasperFx.Core.Reflection;
+using JasperFx.Events;
 using JasperFx.Events.Projections;
 using Marten;
 using Marten.Events.Projections;
@@ -9,11 +13,14 @@ using Marten.Schema;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using NodaTime;
+using NodaTime.Serialization.JsonNet;
 using Npgsql;
 using Projections;
 using RoadNetwork;
 using RoadNode;
 using RoadSegment;
+using RoadSegment.ValueObjects;
 using Store;
 using Weasel.Core;
 
@@ -33,13 +40,29 @@ public static class SetupExtensions
                     .Build());
                 options.DatabaseSchemaName = "road";
 
-                options.UseNewtonsoftForSerialization(enumStorage: EnumStorage.AsString, casing: Casing.CamelCase, nonPublicMembersStorage: NonPublicMembersStorage.All,
+                options.UseNewtonsoftForSerialization(
+                    enumStorage: EnumStorage.AsString,
+                    casing: Casing.CamelCase,
+                    nonPublicMembersStorage: NonPublicMembersStorage.All,
                     configure: jsonSerializerSettings =>
                     {
-                        //EventsJsonSerializerSettingsProvider.CreateSerializerSettings()
+                        jsonSerializerSettings.MaxDepth = 32;
+                        jsonSerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+                        jsonSerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                        jsonSerializerSettings
+                            .ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)
+                            .WithIsoIntervalConverter();
+
+                        foreach (var converter in WellKnownJsonConverters.Converters)
+                        {
+                            jsonSerializerSettings.Converters.Add(converter);
+                        }
                     });
 
+                options.Events.StreamIdentity = StreamIdentity.AsString;
+
                 options.ConfigureRoadNetworkRepository();
+
                 return options;
             });
 
