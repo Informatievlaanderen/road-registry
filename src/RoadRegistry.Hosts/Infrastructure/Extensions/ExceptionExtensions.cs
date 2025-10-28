@@ -9,6 +9,8 @@ using TicketingService.Abstractions;
 
 public static class ExceptionExtensions
 {
+    private const int MaxErrors = 100;
+
     public static TicketError ToTicketError(this RoadRegistryValidationException exception)
     {
         return new TicketError(exception.Message, exception.ErrorCode);
@@ -17,6 +19,7 @@ public static class ExceptionExtensions
     public static TicketError ToTicketError(this RoadRegistryProblemsException exception)
     {
         return new TicketError(exception.Problems
+            .Take(MaxErrors)
             .Select(problem => problem.ToTicketError())
             .ToArray()
         );
@@ -34,6 +37,7 @@ public static class ExceptionExtensions
 
                 return x.Value.Select(problem => problem.ToTicketError(errorContext));
             })
+            .Take(MaxErrors)
             .ToArray()
         );
     }
