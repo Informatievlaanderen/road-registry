@@ -1,3 +1,11 @@
+## [4.38.2](https://github.com/informatievlaanderen/road-registry/compare/v4.38.1...v4.38.2) (2025-10-28)
+
+
+### Bug Fixes
+
+* log ticketing error ([a07faca](https://github.com/informatievlaanderen/road-registry/commit/a07facaef8799088e6ca44d96f37d3acea1c3369))
+* log ticketing error when upload fails ([4ccf395](https://github.com/informatievlaanderen/road-registry/commit/4ccf39516b45d20d97f480e8350e8df4014338ba))
+
 ## [4.38.1](https://github.com/informatievlaanderen/road-registry/compare/v4.38.0...v4.38.1) (2025-10-27)
 
 
