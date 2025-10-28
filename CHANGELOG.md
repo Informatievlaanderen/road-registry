@@ -1,3 +1,10 @@
+## [4.38.3](https://github.com/informatievlaanderen/road-registry/compare/v4.38.2...v4.38.3) (2025-10-28)
+
+
+### Bug Fixes
+
+* limit upload errors to 100 ([5dff90f](https://github.com/informatievlaanderen/road-registry/commit/5dff90f48be1f596a98442703ff409e91703e4a5))
+
 ## [4.38.2](https://github.com/informatievlaanderen/road-registry/compare/v4.38.1...v4.38.2) (2025-10-28)
 
 
