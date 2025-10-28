@@ -1,3 +1,10 @@
+## [4.38.4](https://github.com/informatievlaanderen/road-registry/compare/v4.38.3...v4.38.4) (2025-10-28)
+
+
+### Bug Fixes
+
+* update ticketing to enforce body limit ([67c4abb](https://github.com/informatievlaanderen/road-registry/commit/67c4abb214d01aec4fa86afa7f779df55cfdac60))
+
 ## [4.38.3](https://github.com/informatievlaanderen/road-registry/compare/v4.38.2...v4.38.3) (2025-10-28)
 
 
