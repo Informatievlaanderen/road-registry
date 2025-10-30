@@ -10,13 +10,13 @@ using Weasel.Postgresql.Tables;
 
 public class RoadNetworkTopologyProjection : EventProjection
 {
-    public const string SegmentsTableName = "roadnetworktopology.segments";
+    public const string RoadSegmentsTableName = "roadnetworktopology.roadsegments";
     public const string GradeSeparatedJunctionsTableName = "roadnetworktopology.gradeseparatedjunctions";
 
     public RoadNetworkTopologyProjection()
     {
         {
-            var table = new Table(SegmentsTableName);
+            var table = new Table(RoadSegmentsTableName);
             table.AddColumn<int>("id").AsPrimaryKey();
             table.AddColumn("geometry", "geometry");
             table.AddColumn<int>("start_node_id");
@@ -50,21 +50,21 @@ public class RoadNetworkTopologyProjection : EventProjection
 
     public void Project(IEvent<RoadSegmentAdded> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand($"insert into {SegmentsTableName} (id, geometry, start_node_id, end_node_id, causation_id) values (?, ST_GeomFromText(?, ?), ?, ?, ?)",
+        ops.QueueSqlCommand($"insert into {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, causation_id) values (?, ST_GeomFromText(?, ?), ?, ?, ?)",
             e.Data.Id.ToInt32(), e.Data.Geometry.AsMultiLineString().AsText(), e.Data.Geometry.SRID, e.Data.StartNodeId.ToInt32(), e.Data.EndNodeId.ToInt32(), e.CausationId!
         );
     }
 
     public void Project(IEvent<RoadSegmentModified> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand($"update {SegmentsTableName} set geometry = ST_GeomFromText(?, ?), start_node_id = ?, end_node_id = ?, causation_id = ? where id = ?",
+        ops.QueueSqlCommand($"update {RoadSegmentsTableName} set geometry = ST_GeomFromText(?, ?), start_node_id = ?, end_node_id = ?, causation_id = ? where id = ?",
             e.Data.Geometry.AsMultiLineString().AsText(), e.Data.Geometry.SRID, e.Data.StartNodeId.ToInt32(), e.Data.EndNodeId.ToInt32(), e.CausationId!, e.Data.Id.ToInt32()
         );
     }
 
     public void Project(IEvent<RoadSegmentRemoved> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand($"delete from {SegmentsTableName} where id = ?",
+        ops.QueueSqlCommand($"delete from {RoadSegmentsTableName} where id = ?",
             e.Data.Id.ToInt32()
         );
     }

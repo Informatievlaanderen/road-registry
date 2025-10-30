@@ -26,21 +26,18 @@ using Tests.BackOffice;
 using Tests.BackOffice.Scenarios;
 using Tests.Framework;
 using TicketingService.Abstractions;
-using Xunit.Abstractions;
 
 [Collection("DockerFixtureCollection")]
 public class WithValidRequest : IClassFixture<DatabaseFixture>
 {
     private readonly DatabaseFixture _databaseFixture;
-    private readonly ITestOutputHelper _testOutputHelper;
 
     private readonly Mock<ITicketing> _ticketingMock = new();
     private readonly Mock<IExtractRequests> _extractRequestsMock = new();
 
-    public WithValidRequest(DatabaseFixture databaseFixture, ITestOutputHelper testOutputHelper)
+    public WithValidRequest(DatabaseFixture databaseFixture)
     {
         _databaseFixture = databaseFixture;
-        _testOutputHelper = testOutputHelper;
     }
 
     [Fact]
@@ -159,7 +156,7 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
             .AddSingleton(_extractRequestsMock.Object);
 
         services
-            .AddMartenRoadNetworkRepository()
+            .AddMartenRoad(options => options.AddRoadNetworkTopologyProjection())
             .AddSingleton<Core.IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
             .AddChangeRoadNetworkCommandHandler()
             .AddScoped<ChangeRoadNetworkCommandSqsLambdaRequestHandler>();

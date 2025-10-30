@@ -21,7 +21,7 @@ using Weasel.Core;
 
 public static class SetupExtensions
 {
-    public static IServiceCollection AddMartenRoadNetworkRepository(this IServiceCollection services)
+    public static IServiceCollection AddMartenRoad(this IServiceCollection services, Action<StoreOptions>? configure = null)
     {
         services
             .AddMarten(sp =>
@@ -55,8 +55,9 @@ public static class SetupExtensions
                     });
 
                 options.Events.StreamIdentity = StreamIdentity.AsString;
+                options.Events.MetadataConfig.CausationIdEnabled = true;
 
-                options.ConfigureRoadNetworkRepository();
+                configure?.Invoke(options);
 
                 return options;
             });
@@ -66,10 +67,8 @@ public static class SetupExtensions
         return services;
     }
 
-    private static void ConfigureRoadNetworkRepository(this StoreOptions options)
+    public static void AddRoadNetworkTopologyProjection(this StoreOptions options)
     {
-        options.Events.MetadataConfig.CausationIdEnabled = true;
-
         options.Projections.Add<RoadNetworkTopologyProjection>(ProjectionLifecycle.Inline);
 
         options.Projections.Snapshot<RoadSegment>(SnapshotLifecycle.Inline);
