@@ -2,13 +2,14 @@
 
 using System.Text.Json.Serialization;
 using BackOffice;
+using Events;
 using RoadSegment.ValueObjects;
 
 public partial class GradeSeparatedJunction
 {
-    public GradeSeparatedJunctionId GradeSeparatedJunctionId { get; init; }
-    public RoadSegmentId LowerSegment { get; private set; }
-    public RoadSegmentId UpperSegment { get; private set; }
+    public GradeSeparatedJunctionId GradeSeparatedJunctionId { get; }
+    public RoadSegmentId LowerRoadSegmentId { get; private set; }
+    public RoadSegmentId UpperRoadSegmentId { get; private set; }
     public GradeSeparatedJunctionType Type { get; private set; }
 
     public GradeSeparatedJunction(GradeSeparatedJunctionId id)
@@ -20,24 +21,27 @@ public partial class GradeSeparatedJunction
     [JsonConstructor]
     public GradeSeparatedJunction(
         int gradeSeparatedJunctionId,
-        int lowerSegment,
-        int upperSegment,
+        int lowerRoadSegmentId,
+        int upperRoadSegmentId,
         string type
     )
         : this(new GradeSeparatedJunctionId(gradeSeparatedJunctionId))
     {
-        LowerSegment = new RoadSegmentId(lowerSegment);
-        UpperSegment = new RoadSegmentId(upperSegment);
+        LowerRoadSegmentId = new RoadSegmentId(lowerRoadSegmentId);
+        UpperRoadSegmentId = new RoadSegmentId(upperRoadSegmentId);
         Type = GradeSeparatedJunctionType.Parse(type);
     }
 
-    public static GradeSeparatedJunction Create(object @event) //GradeSeparatedJunctionAdded
+    public static GradeSeparatedJunction Create(GradeSeparatedJunctionAdded @event)
     {
-        return new GradeSeparatedJunction(new GradeSeparatedJunctionId(0)) //@event.Id
+        var junction = new GradeSeparatedJunction(@event.Id)
         {
-            //RoadNodeId = @event.Id,
-
+            LowerRoadSegmentId = @event.LowerRoadSegmentId,
+            UpperRoadSegmentId = @event.UpperRoadSegmentId,
+            Type = @event.Type
             //LastEventHash = @event.GetHash();
         };
+        junction.UncommittedEvents.Add(@event);
+        return junction;
     }
 }

@@ -59,7 +59,6 @@
     <PackageReference Include="QuikGraph" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="GradeSeparatedJunction\Events\" />
     <Folder Include="ValueObjects\Spatial\" />
   </ItemGroup>
 </Project>

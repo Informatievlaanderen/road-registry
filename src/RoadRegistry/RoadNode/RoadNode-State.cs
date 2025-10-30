@@ -12,7 +12,7 @@ public partial class RoadNode
 {
     private readonly List<RoadSegmentId> _segments = [];
 
-    public RoadNodeId RoadNodeId { get; init; }
+    public RoadNodeId RoadNodeId { get; }
     public Point Geometry { get; private set; }
     public RoadNodeType Type { get; private set; }
     public IReadOnlyCollection<RoadSegmentId> Segments => _segments.AsReadOnly();

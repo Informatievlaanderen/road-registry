@@ -129,9 +129,9 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
             .SingleOrDefault();
         ticketResult.Should().NotBeNull();
 
-        //TODO-pr verify data in marten?
         var store = sp.GetRequiredService<IDocumentStore>();
         await using var session = store.LightweightSession();
+        //TODO-pr verify data?
         var roadNodes = await session.LoadRoadNodesAsync([new RoadNodeId(1), new RoadNodeId(2)]);
         var roadSegments = await session.LoadRoadSegmentsAsync([new RoadSegmentId(1)]);
     }

@@ -81,8 +81,8 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
             var intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions = intersectingSegments
                 .Where(intersectingSegment =>
                     !context.RoadNetwork.GradeSeparatedJunctions.Values.Any(junction =>
-                        (junction.LowerSegment == RoadSegmentId && junction.UpperSegment == intersectingSegment.Key) ||
-                        (junction.LowerSegment == intersectingSegment.Key && junction.UpperSegment == RoadSegmentId)))
+                        (junction.LowerRoadSegmentId == RoadSegmentId && junction.UpperRoadSegmentId == intersectingSegment.Key) ||
+                        (junction.LowerRoadSegmentId == intersectingSegment.Key && junction.UpperRoadSegmentId == RoadSegmentId)))
                 .Select(i =>
                     new IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction(
                         originalIdOrId,

@@ -21,7 +21,7 @@ public class ChangeRoadNetworkCommandHandler
 
     public async Task<RoadNetworkChangeResult> Handle(ChangeRoadNetworkCommand command, CancellationToken cancellationToken)
     {
-        var roadNetworkChanges = await _roadNetworkChangeFactory.Build(command);
+        var roadNetworkChanges = _roadNetworkChangeFactory.Build(command);
 
         var roadNetwork = await _roadNetworkRepository.Load(roadNetworkChanges);
         var changeResult = roadNetwork.Change(roadNetworkChanges, _roadNetworkIdGenerator);

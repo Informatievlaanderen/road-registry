@@ -10,7 +10,7 @@ using ValueObjects;
 
 public partial class RoadSegment
 {
-    public RoadSegmentId RoadSegmentId { get; init; }
+    public RoadSegmentId RoadSegmentId { get; }
     public MultiLineString Geometry { get; private set; }
     public RoadNodeId StartNodeId { get; private set; }
     public RoadNodeId EndNodeId { get; private set; }

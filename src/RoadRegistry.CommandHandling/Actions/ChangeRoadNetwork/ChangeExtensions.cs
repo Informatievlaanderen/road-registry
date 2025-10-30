@@ -30,7 +30,7 @@ public static class ChangeExtensions
                 // change.RemoveRoadSegmentFromNationalRoad,
                 // change.AddRoadSegmentToNumberedRoad,
                 // change.RemoveRoadSegmentFromNumberedRoad,
-                // change.AddGradeSeparatedJunction,
+                change.AddGradeSeparatedJunction,
                 // change.ModifyGradeSeparatedJunction,
                 // change.RemoveGradeSeparatedJunction
             }

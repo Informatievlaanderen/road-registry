@@ -71,6 +71,7 @@ public partial class RoadNetwork
                 // case RemoveRoadNodeChange change:
                 //     problems.AddRange(RemoveRoadNode(change, context));
                 //     break;
+
                 case AddRoadSegmentChange change:
                     problems.AddRange(AddRoadSegment(change, context));
                     break;
@@ -80,6 +81,16 @@ public partial class RoadNetwork
                 case RemoveRoadSegmentChange change:
                     problems.AddRange(RemoveRoadSegment(change, context));
                     break;
+
+                case AddGradeSeparatedJunctionChange change:
+                    problems.AddRange(AddGradeSeparatedJunction(change, context));
+                    break;
+                // case ModifyGradeSeparatedJunctionChange change:
+                //     problems.AddRange(ModifyGradeSeparatedJunction(change, context));
+                //     break;
+                // case RemoveGradeSeparatedJunctionChange change:
+                //     problems.AddRange(RemoveGradeSeparatedJunction(change, context));
+                //     break;
                 //TODO-pr other cases
                 default:
                     throw new NotImplementedException($"{roadNetworkChange.GetType().Name} is not implemented.");
@@ -88,10 +99,12 @@ public partial class RoadNetwork
 
         if (!problems.HasError())
         {
-            problems = _roadNodes.Values
-                .Where(x => x.HasChanges())
-                .Aggregate(problems, (p, x) => p + x.VerifyTopologyAfterChanges(context));
-            //TODO-pr also verify linked roadnodes
+            problems = _roadNodes.Values.Where(x => x.HasChanges()).Select(x => x.RoadNodeId)
+                .Concat(_roadSegments.Values.Where(x => x.HasChanges()).SelectMany(x => x.Nodes))
+                .Distinct()
+                .Select(x => _roadNodes.GetValueOrDefault(x))
+                .Where(x => x is not null)
+                .Aggregate(problems, (p, x) => p + x!.VerifyTopologyAfterChanges(context));
             problems = _roadSegments.Values
                 .Where(x => x.HasChanges())
                 .Aggregate(problems, (p, x) => p + x.VerifyTopologyAfterChanges(context));

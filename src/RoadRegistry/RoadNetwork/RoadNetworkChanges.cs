@@ -187,10 +187,10 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
     //     AddChange(change);
     // }
     //
-    // public void Add(AddGradeSeparatedJunctionChange change)
-    // {
-    //     AddChange(change);
-    // }
+    public void Add(AddGradeSeparatedJunctionChange change)
+    {
+        AddChange(change);
+    }
     //
     // public void Add(ModifyGradeSeparatedJunctionChange change)
     // {

@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
+using GradeSeparatedJunction.Events;
 using JasperFx.Events;
 using Marten;
 using Marten.Events.Projections;
@@ -33,17 +34,19 @@ public class RoadNetworkTopologyProjection : EventProjection
         {
             var table = new Table(GradeSeparatedJunctionsTableName);
             table.AddColumn<int>("id").AsPrimaryKey();
-            table.AddColumn<int>("upper_segment_id");
-            table.AddColumn<int>("lower_segment_id");
+            table.AddColumn<int>("lower_road_segment_id");
+            table.AddColumn<int>("upper_road_segment_id");
             table.AddColumn<string>("causation_id");
 
-            table.Indexes.Add(new IndexDefinition("idx_gradeseparatedjunctions_upper_segment_id").AgainstColumns("upper_segment_id"));
-            table.Indexes.Add(new IndexDefinition("idx_gradeseparatedjunctions_lower_segment_id").AgainstColumns("lower_segment_id"));
+            table.Indexes.Add(new IndexDefinition("idx_gradeseparatedjunctions_lower_road_segment_id").AgainstColumns("lower_road_segment_id"));
+            table.Indexes.Add(new IndexDefinition("idx_gradeseparatedjunctions_upper_road_segment_id").AgainstColumns("upper_road_segment_id"));
 
             SchemaObjects.Add(table);
             Options.DeleteDataInTableOnTeardown(table.Identifier.QualifiedName);
         }
     }
+
+    //TODO-pr unit test toevoegen die checkt of elke event hier een Project-methode heeft?
 
     public void Project(IEvent<RoadSegmentAdded> e, IDocumentOperations ops)
     {
@@ -67,4 +70,10 @@ public class RoadNetworkTopologyProjection : EventProjection
     }
 
     //TODO-pr gradeseparated junctions: zonder geometry, enkel administratieve data
+    public void Project(IEvent<GradeSeparatedJunctionAdded> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand($"insert into {GradeSeparatedJunctionsTableName} (id, lower_road_segment_id, upper_road_segment_id, causation_id) values (?, ST_GeomFromText(?, ?), ?, ?, ?)",
+            e.Data.Id.ToInt32(), e.Data.LowerRoadSegmentId.ToInt32(), e.Data.UpperRoadSegmentId.ToInt32(), e.CausationId!
+        );
+    }
 }

@@ -14,7 +14,7 @@ public class ChangeRoadNetworkCommand
 // zelfde niveau als Messages namespace, komt dan in een SqsRequest terecht en wordt geserialized
 public class ChangeRoadNetworkCommandItem
 {
-    // public AddGradeSeparatedJunctionChange AddGradeSeparatedJunction { get; set; }
+    public AddGradeSeparatedJunctionChange AddGradeSeparatedJunction { get; set; }
     public AddRoadNodeChange AddRoadNode { get; set; }
     public AddRoadSegmentChange AddRoadSegment { get; set; }
     // public AddRoadSegmentToEuropeanRoadChange AddRoadSegmentToEuropeanRoad { get; set; }
