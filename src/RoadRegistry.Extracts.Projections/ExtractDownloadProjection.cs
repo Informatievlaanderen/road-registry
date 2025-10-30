@@ -74,6 +74,10 @@ public class ExtractDownloadProjection : ConnectedProjection<ExtractsDbContext>
         {
             var record = await context.ExtractDownloads.IncludeLocalSingleAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
             record.DownloadStatus = ExtractDownloadStatus.Available;
+            if (record.IsInformative)
+            {
+                record.Closed = true;
+            }
         });
 
         When<Envelope<RoadNetworkExtractDownloadTimeoutOccurred>>(async (context, envelope, ct) =>
