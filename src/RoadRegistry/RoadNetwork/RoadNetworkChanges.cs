@@ -3,6 +3,7 @@ namespace RoadRegistry.RoadNetwork;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using BackOffice;
 using Changes;
 using NetTopologySuite.Geometries;
@@ -12,10 +13,11 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
 {
     public int Count => _changes.Count;
 
-    public List<RoadNodeId> NodeIds { get; } = [];
-    public List<RoadSegmentId> SegmentIds { get; } = [];
-    public Envelope Scope { get; } = new();
+    public List<RoadNodeId> RoadNodeIds { get; } = [];
+    public List<RoadSegmentId> RoadSegmentIds { get; } = [];
+    public List<GradeSeparatedJunctionId> GradeSeparatedJunctionIds { get; } = []; //TODO-pr fill
 
+    private readonly List<Geometry> _geometries = [];
     private readonly List<IRoadNetworkChange> _changes = [];
 
     private RoadNetworkChanges()
@@ -32,12 +34,62 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
         return GetEnumerator();
     }
 
-    //TODO-pr implement other change types
-    public void Add(AddRoadNodeChange change)
+    public MultiPolygon BuildScopeGeometry()
     {
-        AddChange(change);
+        if (!_geometries.Any())
+        {
+            return MultiPolygon.Empty;
+        }
 
-        Scope.ExpandToInclude(change.Geometry.EnvelopeInternal);
+        var scopes = new List<Polygon>();
+
+        foreach (var geometry in _geometries)
+        {
+            var boundingBox = (Polygon)geometry.Buffer(1).ConvexHull();
+
+            var scope = scopes.FirstOrDefault(x => x.Intersects(boundingBox));
+            if (scope is not null)
+            {
+                scopes.Remove(scope);
+                scope = (Polygon)scope.Union(boundingBox);
+            }
+            else
+            {
+                scope = boundingBox;
+            }
+
+            scopes.Add(scope);
+        }
+
+        MergeOverlappingScopes(scopes);
+
+        return new MultiPolygon(scopes.ToArray())
+            .WithSrid(_geometries.First().SRID);
+    }
+
+    private void MergeOverlappingScopes(List<Polygon> scopes)
+    {
+        for (var i = 0; i < scopes.Count; i++)
+        {
+            for (var j = i + 1; j < scopes.Count; j++)
+            {
+                if (scopes[i].Intersects(scopes[j]))
+                {
+                    var merged = (Polygon)scopes[i].Union(scopes[j]);
+                    scopes[i] = merged;
+                    scopes.RemoveAt(j);
+                    j--; // Adjust index after removal
+                }
+            }
+        }
+    }
+
+    //TODO-pr implement other change types
+    public RoadNetworkChanges Add(AddRoadNodeChange change)
+    {
+        _geometries.Add(change.Geometry);
+
+        return AddChange(change);
     }
 
     // public void Add(ModifyRoadNodeChange change)
@@ -59,30 +111,29 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
     // NodeIds.Add(change.Id);
     // }
 
-    public void Add(AddRoadSegmentChange change)
+    public RoadNetworkChanges Add(AddRoadSegmentChange change)
     {
-        AddChange(change);
+        _geometries.Add(change.Geometry);
 
-        //TODO-pr ipv 1 grote bounding box, toch eilandjes maken (=multipolygon)
-        Scope.ExpandToInclude(change.Geometry.EnvelopeInternal);
+        return AddChange(change);
     }
 
-    public void Add(ModifyRoadSegmentChange change)
+    public RoadNetworkChanges Add(ModifyRoadSegmentChange change)
     {
-        AddChange(change);
-
         if (change.Geometry is not null)
         {
-            Scope.ExpandToInclude(change.Geometry.EnvelopeInternal);
+            _geometries.Add(change.Geometry);
         }
 
-        SegmentIds.Add(change.Id);
+        RoadSegmentIds.Add(change.Id);
+
+        return AddChange(change);
     }
 
-    public void Add(RemoveRoadSegmentChange change)
+    public RoadNetworkChanges Add(RemoveRoadSegmentChange change)
     {
-        AddChange(change);
-        SegmentIds.Add(change.Id);
+        RoadSegmentIds.Add(change.Id);
+        return AddChange(change);
     }
 
     // public void Add(RemoveRoadSegmentsChange change)
@@ -92,7 +143,7 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
     //foreach (var roadSegmentId in removeRoadSegments.Ids)
     //{
     //      SegmentIds.Add(roadSegmentId);
-    //TODO-pr hoe gekoppelde nodes ook toevoegen? dit laten gebeuren in RoadNetworkRepo?
+    //TODO-pr hoe gekoppelde nodes ook toevoegen? dit laten gebeuren in RoadNetworkRepo? -> dit in aparte commando steken waarbij de repo een aparte method krijgt om de gekoppelde nodes op te halen
     //}
     // }
     //
@@ -151,11 +202,12 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
     //     AddChange(change);
     // }
 
-    private void AddChange(IRoadNetworkChange change)
+    private RoadNetworkChanges AddChange(IRoadNetworkChange change)
     {
         ArgumentNullException.ThrowIfNull(change);
 
         _changes.Add(change);
+        return this;
     }
 
     public static RoadNetworkChanges Start()

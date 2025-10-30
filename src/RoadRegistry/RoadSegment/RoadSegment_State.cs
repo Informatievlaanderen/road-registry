@@ -43,13 +43,14 @@ public partial class RoadSegment
     }
 
     [JsonConstructor]
-    public RoadSegment(int id,
+    public RoadSegment(
+        int roadSegmentId,
         MultiLineString geometry,
         int startNodeId,
         int endNodeId,
         RoadSegmentAttributes attributes
     )
-        : this(new RoadSegmentId(id))
+        : this(new RoadSegmentId(roadSegmentId))
     {
         Geometry = geometry;
         StartNodeId = new RoadNodeId(startNodeId);

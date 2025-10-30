@@ -2,9 +2,10 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Linq;
 using RoadRegistry.BackOffice;
 
-public sealed class RoadSegmentAttributes
+public sealed class RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
 {
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction> AccessRestriction { get; init; }
@@ -17,9 +18,23 @@ public sealed class RoadSegmentAttributes
     public ImmutableList<EuropeanRoadNumber> EuropeanRoadNumbers { get; init; }
     public ImmutableList<NationalRoadNumber> NationalRoadNumbers { get; init; }
 
-    public bool Equals(RoadSegmentAttributes other)
+    public bool Equals(RoadSegmentAttributes? other)
     {
-        //TODO-pr implement equality check, taking dynamic attributes into account
-        throw new NotImplementedException();
+        if (other is null)
+        {
+            return false;
+        }
+
+        return GeometryDrawMethod.Equals(other.GeometryDrawMethod)
+               && AccessRestriction.Equals(other.AccessRestriction)
+               && Category.Equals(other.Category)
+               && Morphology.Equals(other.Morphology)
+               && Status.Equals(other.Status)
+               && StreetNameId.Equals(other.StreetNameId)
+               && MaintenanceAuthorityId.Equals(other.MaintenanceAuthorityId)
+               && SurfaceType.Equals(other.SurfaceType)
+               && EuropeanRoadNumbers.SequenceEqual(other.EuropeanRoadNumbers)
+               && NationalRoadNumbers.SequenceEqual(other.NationalRoadNumbers)
+            ;
     }
 }

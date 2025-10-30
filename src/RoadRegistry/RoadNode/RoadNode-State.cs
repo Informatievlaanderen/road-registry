@@ -38,7 +38,11 @@ public partial class RoadNode
     }
 
     [JsonConstructor]
-    public RoadNode(int roadNodeId, Point geometry, string type, ICollection<int> segments)
+    public RoadNode(
+        int roadNodeId,
+        Point geometry,
+        string type,
+        ICollection<int> segments)
         : this(new RoadNodeId(roadNodeId))
     {
         Geometry = geometry;

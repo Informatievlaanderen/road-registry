@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.GradeSeparatedJunction;
 
-using System;
+using System.Text.Json.Serialization;
 using BackOffice;
 using RoadSegment.ValueObjects;
 
@@ -15,6 +15,20 @@ public partial class GradeSeparatedJunction
         : base(id)
     {
         GradeSeparatedJunctionId = id;
+    }
+
+    [JsonConstructor]
+    public GradeSeparatedJunction(
+        int gradeSeparatedJunctionId,
+        int lowerSegment,
+        int upperSegment,
+        string type
+    )
+        : this(new GradeSeparatedJunctionId(gradeSeparatedJunctionId))
+    {
+        LowerSegment = new RoadSegmentId(lowerSegment);
+        UpperSegment = new RoadSegmentId(upperSegment);
+        Type = GradeSeparatedJunctionType.Parse(type);
     }
 
     public static GradeSeparatedJunction Create(object @event) //GradeSeparatedJunctionAdded

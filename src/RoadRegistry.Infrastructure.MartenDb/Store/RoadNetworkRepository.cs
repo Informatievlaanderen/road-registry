@@ -1,10 +1,10 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Store;
 
+using System.Data;
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Dapper;
+using GradeSeparatedJunction;
 using Marten;
-using Marten.Schema;
 using NetTopologySuite.Geometries;
 using Projections;
 using RoadNetwork;
@@ -21,73 +21,19 @@ public class RoadNetworkRepository: IRoadNetworkRepository
         _store = store;
     }
 
-    private record RoadNetworkSegment(int Id, int StartNodeId, int EndNodeId);
-
-    public async Task<RoadNetwork> Load(
-        RoadNetworkChanges changes,
-        CancellationToken cancellationToken)
+    public async Task<RoadNetwork> Load(RoadNetworkChanges roadNetworkChanges)
     {
-        //TODO-pr load using envelope, gekende ids, en 1 niveau verder, bvb wegsegment x -> knope en dan die zijn wegsegment (dit is relevant voor bulk delete roadsegments)
-        await using var session = _store.LightweightSession();
+        await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
 
-        var boundingBox = new Polygon(new LinearRing([
-            new Coordinate(changes.Scope.MinX, changes.Scope.MinY),
-            new Coordinate(changes.Scope.MinX, changes.Scope.MaxY),
-            new Coordinate(changes.Scope.MaxX, changes.Scope.MaxY),
-            new Coordinate(changes.Scope.MaxX, changes.Scope.MinY),
-            new Coordinate(changes.Scope.MinX, changes.Scope.MinY)
-        ]));
-
-        var sql = @$"
-SELECT id as Id, start_node_id as StartNodeId, end_node_id as EndNodeId
-FROM {RoadNetworkTopologyProjection.TableName}
-WHERE ST_Intersects(geometry, ST_GeomFromText(@wkt, {WellKnownGeometryFactories.Default.SRID}))";
-        var segments = (await session.Connection.QueryAsync<RoadNetworkSegment>(sql, new { wkt = boundingBox.AsText() }))
-            .ToList();
-
-        var network = await Load(
+        var ids = await GetUnderlyingIds(session, roadNetworkChanges.BuildScopeGeometry());
+        var roadNetwork = await Load(
             session,
-            segments.SelectMany(x => new[] { x.StartNodeId, x.EndNodeId }).Distinct().Select(x => new RoadNodeId(x)).ToList(),
-            segments.Select(x => new RoadSegmentId(x.Id)).ToList());
-        return network;
-    }
+            roadNetworkChanges.RoadNodeIds.Union(ids.RoadNodeIds).ToList(),
+            roadNetworkChanges.RoadSegmentIds.Union(ids.RoadSegmentIds).ToList(),
+            roadNetworkChanges.GradeSeparatedJunctionIds.Union(ids.GradeSeparatedJunctionIds).ToList()
+        );
 
-    private async Task<RoadNetwork> Load(
-        IDocumentSession session,
-        ICollection<RoadNodeId> roadNodeIds,
-        ICollection<RoadSegmentId> roadSegmentIds)
-    {
-        if (!roadSegmentIds.Any())
-        {
-            return RoadNetwork.Empty;
-        }
-
-        //TODO-pr convert identifier to streamkey (=AggregrateId)
-        var roadSegmentSnapshots = await session.LoadManyAsync<RoadSegment>(roadSegmentIds.Select(x => $"RoadSegment-{x}"));
-        var roadNodeSnapshots = await session.LoadManyAsync<RoadNode>(roadNodeIds.Select(x => x.ToInt32().ToString()));
-        //TODO-pr gradeseparatedjunctions
-
-        if (roadSegmentSnapshots.Any())
-        {
-            return new RoadNetwork(roadNodeSnapshots, roadSegmentSnapshots, []);
-        }
-
-        // rebuild in progress? load data from aggregate streams
-        var roadNodes = new List<RoadNode>();
-        var roadSegments = new List<RoadSegment>();
-        //TODO-pr gradeseparatedjunctions
-
-        //TODO-pr build stream names
-        // foreach (var id in roadNodeIds)
-        // {
-        //     roadNodes.Add(await session.Events.AggregateStreamAsync<RoadNode>(id));
-        // }
-        // foreach (var id in roadSegmentIds)
-        // {
-        //     roadSegments.Add(await session.Events.AggregateStreamAsync<RoadSegment>(id));
-        // }
-
-        return new RoadNetwork(roadNodes, roadSegments, []);
+        return roadNetwork;
     }
 
     public async Task Save(RoadNetwork roadNetwork, CancellationToken cancellationToken)
@@ -100,6 +46,83 @@ WHERE ST_Intersects(geometry, ST_GeomFromText(@wkt, {WellKnownGeometryFactories.
         SaveEntities(roadNetwork.GradeSeparatedJunctions, session);
 
         await session.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task<(IReadOnlyCollection<RoadNodeId> RoadNodeIds, IReadOnlyCollection<RoadSegmentId> RoadSegmentIds, IReadOnlyCollection<GradeSeparatedJunctionId> GradeSeparatedJunctionIds)> GetUnderlyingIds(
+        IDocumentSession session, Geometry geometry)
+    {
+        if (geometry.IsEmpty)
+        {
+            return ([], [], []);
+        }
+
+        var sql = @$"
+SELECT id as RoadSegmentId, start_node_id as StartNodeId, end_node_id as EndNodeId, j.id as GradeSeparatedJunctionId
+FROM {RoadNetworkTopologyProjection.SegmentsTableName} rs
+LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j ON rs.id = j.upper_segment_id OR rs.id = j.lower_segment_id
+WHERE ST_Intersects(geometry, ST_GeomFromText(@wkt, {geometry.SRID}))";
+
+        var segments = (await session.Connection.QueryAsync<RoadNetworkTopologySegment>(sql, new { wkt = geometry.AsText() })).ToList();
+
+        return (
+            segments.SelectMany(x => new[] { x.StartNodeId, x.EndNodeId })
+                .Distinct()
+                .Select(x => new RoadNodeId(x))
+                .ToArray(),
+            segments.Select(x => x.RoadSegmentId)
+                .Distinct()
+                .Select(x => new RoadSegmentId(x))
+                .ToArray(),
+            segments.Where(x => x.GradeSeparatedJunctionId is not null)
+                .Select(x => x.GradeSeparatedJunctionId!.Value)
+                .Distinct()
+                .Select(x => new GradeSeparatedJunctionId(x))
+                .ToArray()
+        );
+    }
+
+    private async Task<RoadNetwork> Load(
+        IDocumentSession session,
+        IReadOnlyCollection<RoadNodeId> roadNodeIds,
+        IReadOnlyCollection<RoadSegmentId> roadSegmentIds,
+        IReadOnlyCollection<GradeSeparatedJunctionId> gradeSeparatedJunctionIds
+    )
+    {
+        if (!roadSegmentIds.Any())
+        {
+            return RoadNetwork.Empty;
+        }
+
+        var roadNodeSnapshots = await session.LoadManyAsync<RoadNode>(roadNodeIds.Select(x => StreamKeyFactory.Create(typeof(RoadNode), x)));
+        var roadSegmentSnapshots = await session.LoadManyAsync<RoadSegment>(roadSegmentIds.Select(x => StreamKeyFactory.Create(typeof(RoadSegment), x)));
+        var gradeSeparatedJunctionSnapshots = await session.LoadManyAsync<GradeSeparatedJunction>(gradeSeparatedJunctionIds.Select(x => StreamKeyFactory.Create(typeof(GradeSeparatedJunction), x)));
+
+        if (roadSegmentSnapshots.Count == roadSegmentIds.Count)
+        {
+            return new RoadNetwork(roadNodeSnapshots, roadSegmentSnapshots, gradeSeparatedJunctionSnapshots);
+        }
+
+        // rebuild in progress? load data from aggregate streams
+        //TODO-pr hoe bepalen of rebuild in progress is? is die vorige if-statement correct?
+
+        var roadNodes = new List<RoadNode>();
+        var roadSegments = new List<RoadSegment>();
+        var gradeSeparatedJunction = new List<GradeSeparatedJunction>();
+
+        foreach (var id in roadNodeIds)
+        {
+            roadNodes.Add((await session.Events.AggregateStreamAsync<RoadNode>(StreamKeyFactory.Create(typeof(RoadNode), id)))!);
+        }
+        foreach (var id in roadSegmentIds)
+        {
+            roadSegments.Add((await session.Events.AggregateStreamAsync<RoadSegment>(StreamKeyFactory.Create(typeof(RoadSegment), id)))!);
+        }
+        foreach (var id in gradeSeparatedJunctionIds)
+        {
+            gradeSeparatedJunction.Add((await session.Events.AggregateStreamAsync<GradeSeparatedJunction>(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), id)))!);
+        }
+
+        return new RoadNetwork(roadNodes, roadSegments, gradeSeparatedJunction);
     }
 
     private static void SaveEntities<TKey, TEntity>(IReadOnlyDictionary<TKey, TEntity> entities, IDocumentSession session)
@@ -122,4 +145,6 @@ WHERE ST_Intersects(geometry, ST_GeomFromText(@wkt, {WellKnownGeometryFactories.
             session.Store(entity.Value);
         }
     }
+
+    private sealed record RoadNetworkTopologySegment(int RoadSegmentId, int StartNodeId, int EndNodeId, int? GradeSeparatedJunctionId);
 }

@@ -1,9 +1,11 @@
 namespace RoadRegistry.RoadSegment.ValueObjects;
 
+using System;
 using System.Collections.Immutable;
+using System.Linq;
 using RoadRegistry.BackOffice;
 
-public class RoadSegmentDynamicAttributeValues<T>
+public class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmentDynamicAttributeValues<T>>
 {
     //TODO-pr dit object serializen als Values rechstreeks ipv eigen object? if so, via custom JsonConverter
     public ImmutableList<RoadSegmentDynamicAttributeValue<T>> Values { get; private set; } = [];
@@ -30,5 +32,15 @@ public class RoadSegmentDynamicAttributeValues<T>
             Value = value
         });
         return this;
+    }
+
+    public bool Equals(RoadSegmentDynamicAttributeValues<T>? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+
+        return Values.SequenceEqual(other.Values);
     }
 }

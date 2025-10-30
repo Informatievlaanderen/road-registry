@@ -5,9 +5,6 @@ using System.Threading.Tasks;
 
 public interface IRoadNetworkRepository
 {
-    Task<RoadNetwork> Load(
-        RoadNetworkChanges changes,
-        CancellationToken cancellationToken);
-
+    Task<RoadNetwork> Load(RoadNetworkChanges roadNetworkChanges);
     Task Save(RoadNetwork roadNetwork, CancellationToken cancellationToken);
 }

@@ -23,7 +23,7 @@ public class ChangeRoadNetworkCommandHandler
     {
         var roadNetworkChanges = await _roadNetworkChangeFactory.Build(command);
 
-        var roadNetwork = await _roadNetworkRepository.Load(roadNetworkChanges, cancellationToken);
+        var roadNetwork = await _roadNetworkRepository.Load(roadNetworkChanges);
         var changeResult = roadNetwork.Change(roadNetworkChanges, _roadNetworkIdGenerator);
 
         if (!changeResult.Problems.HasError())

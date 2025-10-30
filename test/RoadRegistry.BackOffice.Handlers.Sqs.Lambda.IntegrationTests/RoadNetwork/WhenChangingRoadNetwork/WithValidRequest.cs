@@ -112,66 +112,63 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
 
     private static async Task SeedNetwork(IDocumentStore store)
     {
-        var netwerk = RoadRegistry.RoadNetwork.RoadNetwork.Empty;
+        var seedRoadNetwork = RoadRegistry.RoadNetwork.RoadNetwork.Empty;
         var repository = new RoadNetworkRepository(store);
-
-        var changes = RoadNetworkChanges.Start();
 
         var nodeGeometry1 = new Point(200000, 200000);
         var nodeGeometry2 = new Point(200010, 200000);
         var fixture = new RoadNetworkTestData().ObjectProvider;
 
-        changes.Add(new AddRoadNodeChange
-        {
-            TemporaryId = new RoadNodeId(1),
-            OriginalId = null,
-            Geometry = nodeGeometry1,
-            Type = RoadNodeType.EndNode
-        });
-        changes.Add(new AddRoadNodeChange
-        {
-            TemporaryId = new RoadNodeId(2),
-            OriginalId = null,
-            Geometry = nodeGeometry2,
-            Type = RoadNodeType.EndNode
-        });
-        changes.Add(new AddRoadSegmentChange
-        {
-            TemporaryId = new RoadSegmentId(1),
-            OriginalId = null,
-            PermanentId = null,
-            StartNodeId = new RoadNodeId(1),
-            EndNodeId = new RoadNodeId(2),
-            Geometry = new LineString([new Coordinate(nodeGeometry1.X, nodeGeometry1.Y), new Coordinate(nodeGeometry2.X, nodeGeometry2.Y)])
-                .ToMultiLineString()
-                .WithMeasureOrdinates(),
-            GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-            AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>()
-                .Add(fixture.Create<RoadSegmentAccessRestriction>()),
-            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>()
-                .Add(fixture.Create<RoadSegmentCategory>()),
-            Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>()
-                .Add(fixture.Create<RoadSegmentMorphology>()),
-            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>()
-                .Add(fixture.Create<RoadSegmentStatus>()),
-            StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
-                .Add(fixture.Create<StreetNameLocalId>()),
-            MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>()
-                .Add(fixture.Create<OrganizationId>()),
-            SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>()
-                .Add(fixture.Create<RoadSegmentSurfaceType>()),
-            EuropeanRoadNumbers = [EuropeanRoadNumber.E19],
-            NationalRoadNumbers = [NationalRoadNumber.Parse("N123")]
-        });
+        var changes = RoadNetworkChanges.Start()
+            .Add(new AddRoadNodeChange
+            {
+                TemporaryId = new RoadNodeId(1),
+                OriginalId = null,
+                Geometry = nodeGeometry1,
+                Type = RoadNodeType.EndNode
+            })
+            .Add(new AddRoadNodeChange
+            {
+                TemporaryId = new RoadNodeId(2),
+                OriginalId = null,
+                Geometry = nodeGeometry2,
+                Type = RoadNodeType.EndNode
+            })
+            .Add(new AddRoadSegmentChange
+            {
+                TemporaryId = new RoadSegmentId(1),
+                OriginalId = null,
+                PermanentId = null,
+                StartNodeId = new RoadNodeId(1),
+                EndNodeId = new RoadNodeId(2),
+                Geometry = new LineString([new Coordinate(nodeGeometry1.X, nodeGeometry1.Y), new Coordinate(nodeGeometry2.X, nodeGeometry2.Y)])
+                    .ToMultiLineString()
+                    .WithMeasureOrdinates(),
+                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
+                AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>()
+                    .Add(fixture.Create<RoadSegmentAccessRestriction>()),
+                Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>()
+                    .Add(fixture.Create<RoadSegmentCategory>()),
+                Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>()
+                    .Add(fixture.Create<RoadSegmentMorphology>()),
+                Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>()
+                    .Add(fixture.Create<RoadSegmentStatus>()),
+                StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
+                    .Add(fixture.Create<StreetNameLocalId>()),
+                MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>()
+                    .Add(fixture.Create<OrganizationId>()),
+                SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>()
+                    .Add(fixture.Create<RoadSegmentSurfaceType>()),
+                EuropeanRoadNumbers = [EuropeanRoadNumber.E19],
+                NationalRoadNumbers = [NationalRoadNumber.Parse("N123")]
+            });
 
-        var result = netwerk.Change(changes, new FakeRoadNetworkIdGenerator());
+        var result = seedRoadNetwork.Change(changes, new FakeRoadNetworkIdGenerator());
         if (result.Problems.HasError())
         {
             throw new InvalidOperationException($"Seeding road network failed due to problems:{Environment.NewLine}{string.Join(Environment.NewLine, result.Problems.Select(x => x.Describe()))}");
         }
 
-        await repository.Save(netwerk, CancellationToken.None);
-
-        var roadNetwork = await repository.Load(changes, CancellationToken.None);
+        await repository.Save(seedRoadNetwork, CancellationToken.None);
     }
 }
