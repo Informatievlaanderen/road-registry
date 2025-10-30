@@ -15,7 +15,7 @@ public static class ChangeExtensions
         return new object[]
             {
                 //TODO-pr implement rest
-                // change.AddRoadNode,
+                change.AddRoadNode,
                 // change.ModifyRoadNode,
                 // change.RemoveRoadNode,
                 change.AddRoadSegment,
@@ -34,7 +34,8 @@ public static class ChangeExtensions
                 // change.ModifyGradeSeparatedJunction,
                 // change.RemoveGradeSeparatedJunction
             }
-            .Single(c => !ReferenceEquals(c, null));
+            .SingleOrDefault(c => !ReferenceEquals(c, null))
+            ?? throw new InvalidOperationException($"No change found in {nameof(ChangeRoadNetworkCommandItem)}.");
     }
 
     // public static IEnumerable<object> Flatten(this IEnumerable<AcceptedChange> changes)

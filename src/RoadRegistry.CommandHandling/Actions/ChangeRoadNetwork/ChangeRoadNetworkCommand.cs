@@ -1,6 +1,5 @@
 ﻿namespace RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
 
-using BackOffice;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using RoadNetwork.Changes;
 
@@ -15,22 +14,22 @@ public class ChangeRoadNetworkCommand
 // zelfde niveau als Messages namespace, komt dan in een SqsRequest terecht en wordt geserialized
 public class ChangeRoadNetworkCommandItem
 {
-    // public AddGradeSeparatedJunctionCommand AddGradeSeparatedJunction { get; set; }
-    // public AddRoadNodeCommand AddRoadNode { get; set; }
+    // public AddGradeSeparatedJunctionChange AddGradeSeparatedJunction { get; set; }
+    public AddRoadNodeChange AddRoadNode { get; set; }
     public AddRoadSegmentChange AddRoadSegment { get; set; }
-    // public AddRoadSegmentToEuropeanRoadCommand AddRoadSegmentToEuropeanRoad { get; set; }
-    // public AddRoadSegmentToNationalRoadCommand AddRoadSegmentToNationalRoad { get; set; }
-    // public AddRoadSegmentToNumberedRoadCommand AddRoadSegmentToNumberedRoad { get; set; }
-    // public ModifyGradeSeparatedJunctionCommand ModifyGradeSeparatedJunction { get; set; }
-    // public ModifyRoadNodeCommand ModifyRoadNode { get; set; }
+    // public AddRoadSegmentToEuropeanRoadChange AddRoadSegmentToEuropeanRoad { get; set; }
+    // public AddRoadSegmentToNationalRoadChange AddRoadSegmentToNationalRoad { get; set; }
+    // public AddRoadSegmentToNumberedRoadChange AddRoadSegmentToNumberedRoad { get; set; }
+    // public ModifyGradeSeparatedJunctionChange ModifyGradeSeparatedJunction { get; set; }
+    // public ModifyRoadNodeChange ModifyRoadNode { get; set; }
     public ModifyRoadSegmentChange ModifyRoadSegment { get; set; }
-    // public RemoveGradeSeparatedJunctionCommand RemoveGradeSeparatedJunction { get; set; }
-    // public RemoveRoadNodeCommand RemoveRoadNode { get; set; }
+    // public RemoveGradeSeparatedJunctionChange RemoveGradeSeparatedJunction { get; set; }
+    // public RemoveRoadNodeChange RemoveRoadNode { get; set; }
     public RemoveRoadSegmentChange RemoveRoadSegment { get; set; }
-    // public RemoveRoadSegmentsCommand RemoveRoadSegments { get; set; }
-    // public RemoveOutlinedRoadSegmentCommand RemoveOutlinedRoadSegment { get; set; }
-    // public RemoveOutlinedRoadSegmentFromRoadNetworkCommand RemoveOutlinedRoadSegmentFromRoadNetwork { get; set; }
-    // public RemoveRoadSegmentFromEuropeanRoadCommand RemoveRoadSegmentFromEuropeanRoad { get; set; }
-    // public RemoveRoadSegmentFromNationalRoadCommand RemoveRoadSegmentFromNationalRoad { get; set; }
-    // public RemoveRoadSegmentFromNumberedRoadCommand RemoveRoadSegmentFromNumberedRoad { get; set; }
+    // public RemoveRoadSegmentsChange RemoveRoadSegments { get; set; }
+    // public RemoveOutlinedRoadSegmentChange RemoveOutlinedRoadSegment { get; set; }
+    // public RemoveOutlinedRoadSegmentFromRoadNetworkChange RemoveOutlinedRoadSegmentFromRoadNetwork { get; set; }
+    // public RemoveRoadSegmentFromEuropeanRoadChange RemoveRoadSegmentFromEuropeanRoad { get; set; }
+    // public RemoveRoadSegmentFromNationalRoadChange RemoveRoadSegmentFromNationalRoad { get; set; }
+    // public RemoveRoadSegmentFromNumberedRoadChange RemoveRoadSegmentFromNumberedRoad { get; set; }
 }

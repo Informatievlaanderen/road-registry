@@ -57,10 +57,10 @@ public class RoadNetworkRepository: IRoadNetworkRepository
         }
 
         var sql = @$"
-SELECT id as RoadSegmentId, start_node_id as StartNodeId, end_node_id as EndNodeId, j.id as GradeSeparatedJunctionId
+SELECT rs.id as RoadSegmentId, rs.start_node_id as StartNodeId, rs.end_node_id as EndNodeId, j.id as GradeSeparatedJunctionId
 FROM {RoadNetworkTopologyProjection.SegmentsTableName} rs
 LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j ON rs.id = j.upper_segment_id OR rs.id = j.lower_segment_id
-WHERE ST_Intersects(geometry, ST_GeomFromText(@wkt, {geometry.SRID}))";
+WHERE ST_Intersects(rs.geometry, ST_GeomFromText(@wkt, {geometry.SRID}))";
 
         var segments = (await session.Connection.QueryAsync<RoadNetworkTopologySegment>(sql, new { wkt = geometry.AsText() })).ToList();
 
@@ -93,16 +93,16 @@ WHERE ST_Intersects(geometry, ST_GeomFromText(@wkt, {geometry.SRID}))";
             return RoadNetwork.Empty;
         }
 
-        var roadNodeSnapshots = await session.LoadManyAsync<RoadNode>(roadNodeIds.Select(x => StreamKeyFactory.Create(typeof(RoadNode), x)));
-        var roadSegmentSnapshots = await session.LoadManyAsync<RoadSegment>(roadSegmentIds.Select(x => StreamKeyFactory.Create(typeof(RoadSegment), x)));
-        var gradeSeparatedJunctionSnapshots = await session.LoadManyAsync<GradeSeparatedJunction>(gradeSeparatedJunctionIds.Select(x => StreamKeyFactory.Create(typeof(GradeSeparatedJunction), x)));
+        var roadNodeSnapshots = await session.LoadRoadNodesAsync(roadNodeIds);
+        var roadSegmentSnapshots = await session.LoadRoadSegmentsAsync(roadSegmentIds);
+        var gradeSeparatedJunctionSnapshots = await session.LoadGradeSeparatedJunctionAsync(gradeSeparatedJunctionIds);
 
-        if (roadSegmentSnapshots.Count == roadSegmentIds.Count)
+        if (roadSegmentSnapshots.Any())
         {
             return new RoadNetwork(roadNodeSnapshots, roadSegmentSnapshots, gradeSeparatedJunctionSnapshots);
         }
 
-        // rebuild in progress? load data from aggregate streams
+        //TODO-pr to discuss met Koen: rebuild projecties
         //TODO-pr hoe bepalen of rebuild in progress is? is die vorige if-statement correct?
 
         var roadNodes = new List<RoadNode>();

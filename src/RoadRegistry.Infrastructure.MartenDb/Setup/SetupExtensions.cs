@@ -1,15 +1,11 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Setup;
 
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.EventHandling;
 using GradeSeparatedJunction;
-using JasperFx.Core;
-using JasperFx.Core.Reflection;
 using JasperFx.Events;
 using JasperFx.Events.Projections;
 using Marten;
 using Marten.Events.Projections;
-using Marten.Schema;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -20,7 +16,6 @@ using Projections;
 using RoadNetwork;
 using RoadNode;
 using RoadSegment;
-using RoadSegment.ValueObjects;
 using Store;
 using Weasel.Core;
 
@@ -77,10 +72,6 @@ public static class SetupExtensions
 
         options.Projections.Add<RoadNetworkTopologyProjection>(ProjectionLifecycle.Inline);
 
-        // options.Schema.For<RoadSegment>().Metadata(opts =>
-        // {
-        //     //opts.Version.MapTo(x => x.Version);
-        // });
         options.Projections.Snapshot<RoadSegment>(SnapshotLifecycle.Inline);
         options.Projections.Snapshot<RoadNode>(SnapshotLifecycle.Inline);
         options.Projections.Snapshot<GradeSeparatedJunction>(SnapshotLifecycle.Inline);
