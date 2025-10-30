@@ -1,3 +1,10 @@
+## [4.38.5](https://github.com/informatievlaanderen/road-registry/compare/v4.38.4...v4.38.5) (2025-10-30)
+
+
+### Bug Fixes
+
+* extracts projection close informative requests when available ([26c85db](https://github.com/informatievlaanderen/road-registry/commit/26c85db483e44147cdc1ac46dd1a66c25bcc1bd4))
+
 ## [4.38.4](https://github.com/informatievlaanderen/road-registry/compare/v4.38.3...v4.38.4) (2025-10-28)
 
 
