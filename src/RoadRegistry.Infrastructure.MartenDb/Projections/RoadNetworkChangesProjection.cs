@@ -9,10 +9,10 @@ public static class RoadNetworkChangesProjectionExtensions
 {
     public static StoreOptions AddRoadNetworkChangesProjection(this StoreOptions options,
         string changesDocumentAlias,
-        IRoadNetworkChangesProjection[] projections,
-        ProjectionLifecycle lifecycle = ProjectionLifecycle.Async)
+        IRoadNetworkChangesProjection[] projections)
     {
-        options.Projections.Add(new RoadNetworkChangesProjection(projections), lifecycle,
+        options.Projections.Add(new RoadNetworkChangesProjection(projections),
+            ProjectionLifecycle.Async,
             asyncConfiguration: opts => { opts.BatchSize = 100; });
 
         options.Schema.For<RoadNetworkChangeProjectionItem>()

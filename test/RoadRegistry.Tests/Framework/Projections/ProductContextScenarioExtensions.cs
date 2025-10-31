@@ -111,8 +111,8 @@ public static class ProductContextScenarioExtensions
             var comparer = new CompareLogic(comparisonConfig);
             var actualRecords = await context.AllRecords();
             var result = comparer.Compare(
-                actualRecords,
-                records
+                records,
+                actualRecords
             );
 
             return result.AreEqual
@@ -168,8 +168,8 @@ public static class ProductContextScenarioExtensions
             var comparer = new CompareLogic(comparisonConfig);
             var actualRecords = await context.AllRecords();
             var result = comparer.Compare(
-                actualRecords,
-                records
+                records,
+                actualRecords
             );
 
             return result.AreEqual

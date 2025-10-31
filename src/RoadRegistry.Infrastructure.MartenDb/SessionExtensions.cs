@@ -3,12 +3,25 @@
 using BackOffice;
 using Marten;
 using GradeSeparatedJunction;
+using Marten.Events;
 using RoadNode;
 using RoadSegment;
 using RoadSegment.ValueObjects;
 
 public static class SessionExtensions
 {
+    public static void AppendOrStartStream(this IEventStoreOperations operations, string streamKey, object @event)
+    {
+        if (@event is ICreatedEvent)
+        {
+            operations.StartStream(streamKey, @event);
+        }
+        else
+        {
+            operations.Append(streamKey, @event);
+        }
+    }
+
     public static async Task<IReadOnlyList<RoadNode>> LoadRoadNodesAsync(this IDocumentSession session, IEnumerable<RoadNodeId> ids)
     {
         return await session.LoadManyEntitiesAsync<RoadNode, RoadNodeId>(ids);

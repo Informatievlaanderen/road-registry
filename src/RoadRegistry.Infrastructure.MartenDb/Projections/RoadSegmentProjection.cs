@@ -39,7 +39,7 @@ public class RoadSegmentProjection : IRoadNetworkChangesProjection
         session.Store(new RoadSegmentProjectionItem
         {
             Id = e.Data.Id,
-            CausationId = e.CausationId
+            GeometryDrawMethod = e.Data.GeometryDrawMethod
         });
     }
 
@@ -47,7 +47,7 @@ public class RoadSegmentProjection : IRoadNetworkChangesProjection
     {
         var roadSegment = await session.LoadAsync<RoadSegmentProjectionItem>(e.Data.Id);
 
-        roadSegment!.CausationId = e.CausationId;
+        roadSegment!.GeometryDrawMethod = e.Data.GeometryDrawMethod;
 
         session.Store(roadSegment);
     }
@@ -63,5 +63,5 @@ public class RoadSegmentProjection : IRoadNetworkChangesProjection
 public sealed class RoadSegmentProjectionItem
 {
     public int Id { get; set; }
-    public string CausationId { get; set; }
+    public string GeometryDrawMethod { get; set; }
 }

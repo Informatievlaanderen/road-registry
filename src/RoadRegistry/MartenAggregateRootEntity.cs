@@ -1,6 +1,5 @@
 ﻿namespace RoadRegistry;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -22,13 +21,5 @@ public abstract class MartenAggregateRootEntity<TIdentifier> : IMartenAggregateR
     protected MartenAggregateRootEntity(TIdentifier identifier)
     {
         Id = StreamKeyFactory.Create(GetType(), identifier);
-    }
-}
-
-public class StreamKeyFactory
-{
-    public static string Create<TIdentifier>(Type entityType, TIdentifier identifier)
-    {
-        return $"{entityType.Name}-{identifier}";
     }
 }

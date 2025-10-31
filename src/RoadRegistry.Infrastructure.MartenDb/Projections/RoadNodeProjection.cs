@@ -34,7 +34,7 @@ public class RoadNodeProjection : IRoadNetworkChangesProjection
         session.Store(new RoadNodeProjectionItem
         {
             Id = e.Data.Id,
-            CausationId = e.CausationId
+            Type = e.Data.Type
         });
     }
 
@@ -51,5 +51,5 @@ public class RoadNodeProjection : IRoadNetworkChangesProjection
 public sealed class RoadNodeProjectionItem
 {
     public int Id { get; set; }
-    public string CausationId { get; set; }
+    public string Type { get; set; }
 }

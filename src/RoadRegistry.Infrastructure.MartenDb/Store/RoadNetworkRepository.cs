@@ -132,14 +132,7 @@ WHERE ST_Intersects(rs.geometry, ST_GeomFromText(@wkt, {geometry.SRID}))";
         {
             foreach (var @event in entity.Value.GetChanges())
             {
-                if (@event is ICreatedEvent)
-                {
-                    session.Events.StartStream(entity.Value.Id, @event);
-                }
-                else
-                {
-                    session.Events.Append(entity.Value.Id, @event);
-                }
+                session.Events.AppendOrStartStream(entity.Value.Id, @event);
             }
 
             session.Store(entity.Value);
