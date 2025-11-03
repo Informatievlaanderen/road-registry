@@ -5,40 +5,72 @@ using Npgsql;
 
 public class DatabaseFixture : IAsyncLifetime
 {
+    public string DatabaseName { get; private set; }
     public string ConnectionString { get; private set; }
+
+    private string _rootConnectionString;
 
     public async Task InitializeAsync()
     {
-        var databaseName = $"road-{DateTime.Now:yyyyMMdd-HHmmss-fff}";
+        DatabaseName = $"road-{DateTime.Now:yyyyMMdd-HHmmss-fff}";
         //TODO-pr temp override
         //databaseName = $"road-integrationtests";
 
-        var connectionString = new ConfigurationBuilder()
+        _rootConnectionString = new ConfigurationBuilder()
             .AddIntegrationTestAppSettings()
             .Build()
             .GetConnectionString("Marten")!;
 
-        await CreateDatabase(connectionString, databaseName);
+        await CreateDatabase();
 
-        ConnectionString = string.Join(';', connectionString
+        ConnectionString = string.Join(';', _rootConnectionString
             .Split(';')
             .Where(x => !x.StartsWith("Database=", StringComparison.InvariantCultureIgnoreCase))
-            .Concat([$"Database={databaseName}"]));
+            .Concat([$"Database={DatabaseName}"]));
 
         await InstallPostgis();
     }
 
-    public Task DisposeAsync()
+    public async Task DisposeAsync()
     {
-        //TODO-pr drop db?
-        return Task.CompletedTask;
+        await DropDatabase();
     }
 
-    private async Task CreateDatabase(string connectionString, string database)
+    private async Task CreateDatabase()
     {
-        var createDbQuery = $"DROP DATABASE IF EXISTS \"{database}\"; CREATE DATABASE \"{database}\";";
+        var createDbQuery = $"DROP DATABASE IF EXISTS \"{DatabaseName}\"; CREATE DATABASE \"{DatabaseName}\";";
 
-        await using var connection = new NpgsqlConnection(connectionString);
+        await using var connection = new NpgsqlConnection(_rootConnectionString);
+        await using var command = new NpgsqlCommand(createDbQuery, connection);
+
+        var attempt = 1;
+        while (true)
+        {
+            try
+            {
+                await connection.OpenAsync();
+                break;
+            }
+            catch
+            {
+                if (attempt == 5)
+                {
+                    throw;
+                }
+
+                attempt++;
+                await Task.Delay(TimeSpan.FromMilliseconds(200));
+            }
+        }
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    private async Task DropDatabase()
+    {
+        var createDbQuery = $"DROP DATABASE IF EXISTS \"{DatabaseName}\";";
+
+        await using var connection = new NpgsqlConnection(_rootConnectionString);
         await using var command = new NpgsqlCommand(createDbQuery, connection);
 
         var attempt = 1;

@@ -1,11 +1,10 @@
-﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.Projections;
+﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.Projections.POC;
 
 using AutoFixture;
 using NetTopologySuite.Geometries;
-using RoadNode.Events;
-using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.RoadNetwork.ValueObjects;
-using Tests.BackOffice.Scenarios;
+using RoadRegistry.RoadNode.Events;
+using RoadRegistry.Tests.BackOffice.Scenarios;
 
 //TODO-pr nog te verplaatsen, welke assembly? dit is geen lambda, enkel Marten
 
@@ -28,7 +27,7 @@ public class RoadNodeProjectionTests : IClassFixture<DatabaseFixture>
         {
             Id = new RoadNodeId(1),
             Type = fixture.Create<RoadNodeType>(),
-            Geometry = new GeometryObject(31370, fixture.Create<Point>().AsText()),
+            Geometry = new GeometryObject(0, fixture.Create<Point>().AsText()),
             TemporaryId = fixture.Create<RoadNodeId>(),
             OriginalId = fixture.Create<RoadNodeId>()
         };

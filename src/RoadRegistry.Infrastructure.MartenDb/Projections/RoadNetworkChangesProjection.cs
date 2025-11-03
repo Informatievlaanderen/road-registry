@@ -48,7 +48,6 @@ internal class RoadNetworkChangesProjection : IProjection
 
             await using var session = operations.DocumentStore.LightweightSession();
 
-            //TODO-pr keep 1 record
             var roadNetworkChangeDocument = await session.LoadAsync<RoadNetworkChangeProjectionItem>(ChangesPositionDocumentId, cancellation)
                 ?? new RoadNetworkChangeProjectionItem
                 {
@@ -83,7 +82,7 @@ internal class RoadNetworkChangesProjection : IProjection
     }
 }
 
-internal sealed class RoadNetworkChangeProjectionItem
+public sealed class RoadNetworkChangeProjectionItem
 {
     public string Id { get; set; }
     public string CurrentCausationId { get; set; }

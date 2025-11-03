@@ -1,10 +1,10 @@
-﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
+﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.Projections.POC;
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using JasperFx.Events;
 using Marten;
+using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.RoadNode.Events;
 
 public class RoadNodeProjection : IRoadNetworkChangesProjection

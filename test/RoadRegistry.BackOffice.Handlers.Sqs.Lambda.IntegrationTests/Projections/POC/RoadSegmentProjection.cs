@@ -1,10 +1,11 @@
-﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
+﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.Projections.POC;
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JasperFx.Events;
 using Marten;
-using RoadSegment.Events;
+using RoadRegistry.Infrastructure.MartenDb.Projections;
+using RoadRegistry.RoadSegment.Events;
 
 public class RoadSegmentProjection : IRoadNetworkChangesProjection
 {
@@ -48,8 +49,12 @@ public class RoadSegmentProjection : IRoadNetworkChangesProjection
     private async Task Project(IEvent<RoadSegmentModified> e, IDocumentSession session)
     {
         var roadSegment = await session.LoadAsync<RoadSegmentProjectionItem>(e.Data.Id);
+        if (roadSegment is null)
+        {
+            throw new InvalidOperationException($"No document found for Id {e.Data.Id}");
+        }
 
-        roadSegment!.GeometryDrawMethod = e.Data.GeometryDrawMethod;
+        roadSegment.GeometryDrawMethod = e.Data.GeometryDrawMethod;
 
         session.Store(roadSegment);
     }
@@ -57,8 +62,12 @@ public class RoadSegmentProjection : IRoadNetworkChangesProjection
     private async Task Project(IEvent<RoadSegmentRemoved> e, IDocumentSession session)
     {
         var roadSegment = await session.LoadAsync<RoadSegmentProjectionItem>(e.Data.Id);
+        if (roadSegment is null)
+        {
+            throw new InvalidOperationException($"No document found for Id {e.Data.Id}");
+        }
 
-        session.Delete(roadSegment!);
+        session.Delete(roadSegment);
     }
 }
 

@@ -1,9 +1,9 @@
-﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.Projections;
+﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.Projections.POC;
 
 using AutoFixture;
-using RoadRegistry.Infrastructure.MartenDb.Projections;
-using RoadSegment.Events;
-using Tests.BackOffice.Scenarios;
+using RoadRegistry.RoadSegment.Events;
+using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadSegment.ValueObjects;
 
 //TODO-pr nog te verplaatsen, welke assembly? dit is geen lambda, enkel Marten
 
@@ -39,6 +39,21 @@ public class RoadSegmentProjectionTests : IClassFixture<DatabaseFixture>
         await CreateProjectionTestRunner()
             .Given(roadSegment1Added, roadSegment2Added)
             .Expect(expectedRoadSegment1, expectedRoadSegment2);
+    }
+
+    [Fact]
+    public async Task WhenRoadSegmentRemoved_ThenNone()
+    {
+        var fixture = new RoadNetworkTestData().ObjectProvider;
+        fixture.Freeze<RoadSegmentId>();
+
+        var roadSegment1Added = fixture.Create<RoadSegmentAdded>();
+        var roadSegment1Removed = fixture.Create<RoadSegmentRemoved>();
+
+        await CreateProjectionTestRunner()
+            .Given(roadSegment1Added)
+            .Given(roadSegment1Removed)
+            .ExpectNone(roadSegment1Added.Id);
     }
 
     private MartenProjectionTestRunner CreateProjectionTestRunner()

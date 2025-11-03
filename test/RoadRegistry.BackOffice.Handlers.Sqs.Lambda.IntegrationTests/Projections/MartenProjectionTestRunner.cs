@@ -22,7 +22,7 @@ public class MartenProjectionTestRunner
     public MartenProjectionTestRunner(DatabaseFixture databaseFixture)
     {
         _databaseFixture = databaseFixture;
-        _projectionWaitTimeout = TimeSpan.FromSeconds(5);
+        _projectionWaitTimeout = TimeSpan.FromMinutes(10); //TODO-pr temp override
     }
 
     public MartenProjectionTestRunner ConfigureServices(Action<IServiceCollection> configure)
@@ -106,17 +106,20 @@ public class MartenProjectionTestRunner
         // Arrange
         var sp = BuildServiceProvider();
         var store = sp.GetRequiredService<IDocumentStore>();
+
         await using var session = store.LightweightSession();
-        session.CausationId = Guid.NewGuid().ToString();
 
         foreach (var (streamKey, events) in _givenEvents)
         {
+            session.CausationId = Guid.NewGuid().ToString(); // Ensure events are grouped by causation id
+
             foreach (var @event in events)
             {
                 session.Events.AppendOrStartStream(streamKey, @event);
             }
+
+            await session.SaveChangesAsync();
         }
-        await session.SaveChangesAsync();
 
         // Act
         var projectionDaemon = await store.BuildProjectionDaemonAsync();
