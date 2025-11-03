@@ -10,6 +10,7 @@
     <ProjectReference Include="..\..\src\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.StreetName\RoadRegistry.StreetName.csproj" />
     <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Wms.ProjectionHost.Tests\RoadRegistry.Wms.ProjectionHost.Tests.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Be.Vlaanderen.Basisregisters.Aws.DistributedMutex" />

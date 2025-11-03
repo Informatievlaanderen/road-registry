@@ -7,7 +7,6 @@ using Marten;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RoadRegistry.Infrastructure.MartenDb;
-using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using Tests.Framework.Projections;
 using Xunit.Sdk;
@@ -62,7 +61,7 @@ public class MartenProjectionTestRunner
         where TProjectionEntity : notnull
         where TIdentifier : notnull
     {
-        return Assert(async session =>
+        return Expect(async (_, session) =>
         {
             foreach (var expectedDocument in expectedDocuments)
             {
@@ -102,8 +101,7 @@ public class MartenProjectionTestRunner
             }
         });
     }
-
-    public async Task Assert(Func<IDocumentSession, Task> assert)
+    public async Task Expect(Func<IServiceProvider, IDocumentSession, Task> assert)
     {
         // Arrange
         var sp = BuildServiceProvider();
@@ -126,7 +124,7 @@ public class MartenProjectionTestRunner
         await projectionDaemon.WaitForNonStaleData(_projectionWaitTimeout);
 
         // Assert
-        await assert(session);
+        await assert(sp, session);
     }
 
     private IServiceProvider BuildServiceProvider()
@@ -157,39 +155,5 @@ public class MartenProjectionTestRunner
         });
 
         return services.BuildServiceProvider();
-    }
-}
-
-public static class MartenProjectionTestRunnerExtensions
-{
-    public static MartenProjectionTestRunner ConfigureRoadNetworkChangesProjection<TProjection>(
-        this MartenProjectionTestRunner runner,
-        Action<StoreOptions> configureProjection)
-        where TProjection : IRoadNetworkChangesProjection, new()
-    {
-        return runner.ConfigureMarten(options =>
-        {
-            configureProjection(options);
-
-            options.AddRoadNetworkChangesProjection(
-                "projection_roadnetworkchanges",
-                [new TProjection()]);
-        });
-    }
-
-    public static MartenProjectionTestRunner Given<TEntity, TIdentifier>(this MartenProjectionTestRunner runner, TIdentifier identifier, params object[] events)
-        where TEntity : MartenAggregateRootEntity<TIdentifier>
-    {
-        return runner.Given(StreamKeyFactory.Create(typeof(TEntity), identifier), events);
-    }
-
-    public static MartenProjectionTestRunner Given<TEntity, TIdentifier>(this MartenProjectionTestRunner runner, ICollection<(TIdentifier Identifier, object[] Events)> events)
-        where TEntity : MartenAggregateRootEntity<TIdentifier>
-    {
-        foreach (var evt in events)
-        {
-            runner.Given<TEntity, TIdentifier>(evt.Identifier, evt.Events);
-        }
-        return runner;
     }
 }

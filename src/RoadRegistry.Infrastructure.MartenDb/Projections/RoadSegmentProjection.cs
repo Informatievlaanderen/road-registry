@@ -1,7 +1,6 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using JasperFx.Events;
 using Marten;
@@ -16,21 +15,24 @@ public class RoadSegmentProjection : IRoadNetworkChangesProjection
             .Identity(x => x.Id);
     }
 
-    public async Task Project(ICollection<IEvent> events, IDocumentSession session)
+    public async Task Project(IReadOnlyList<IEvent> events, IDocumentSession session, CancellationToken cancellationToken)
     {
-        foreach (var evt in events.OfType<IEvent<RoadSegmentAdded>>())
+        foreach (var evt in events)
         {
-            Project(evt, session);
-        }
+            cancellationToken.ThrowIfCancellationRequested();
 
-        foreach (var evt in events.OfType<IEvent<RoadSegmentModified>>())
-        {
-            await Project(evt, session);
-        }
-
-        foreach (var evt in events.OfType<IEvent<RoadSegmentRemoved>>())
-        {
-            await Project(evt, session);
+            switch (evt)
+            {
+                case IEvent<RoadSegmentAdded> added:
+                    Project(added, session);
+                    break;
+                case IEvent<RoadSegmentModified> modified:
+                    await Project(modified, session);
+                    break;
+                case IEvent<RoadSegmentRemoved> removed:
+                    await Project(removed, session);
+                    break;
+            }
         }
     }
 

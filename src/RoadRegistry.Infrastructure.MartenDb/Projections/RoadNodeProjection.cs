@@ -16,17 +16,22 @@ public class RoadNodeProjection : IRoadNetworkChangesProjection
             .Identity(x => x.Id);
     }
 
-    public async Task Project(ICollection<IEvent> events, IDocumentSession session)
+    public async Task Project(IReadOnlyList<IEvent> events, IDocumentSession session, CancellationToken cancellationToken)
     {
-        foreach (var evt in events.OfType<IEvent<RoadNodeAdded>>())
+        foreach (var evt in events)
         {
-            Project(evt, session);
-        }
+            cancellationToken.ThrowIfCancellationRequested();
 
-        // foreach (var evt in events.OfType<IEvent<RoadNodeModified>>())
-        // {
-        //     await Project(evt, session);
-        // }
+            switch (evt)
+            {
+                case IEvent<RoadNodeAdded> added:
+                    Project(added, session);
+                    break;
+                // case IEvent<RoadNodeModified> modified:
+                //     Project(modified, session);
+                //     break;
+            }
+        }
     }
 
     private void Project(IEvent<RoadNodeAdded> e, IDocumentSession session)

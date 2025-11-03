@@ -8,26 +8,28 @@ using Marten.Events.Projections;
 public static class RoadNetworkChangesProjectionExtensions
 {
     public static StoreOptions AddRoadNetworkChangesProjection(this StoreOptions options,
-        string changesDocumentAlias,
-        IRoadNetworkChangesProjection[] projections)
+        string changesStateTableName,
+        IReadOnlyCollection<IRoadNetworkChangesProjection> projections)
     {
         options.Projections.Add(new RoadNetworkChangesProjection(projections),
             ProjectionLifecycle.Async,
-            asyncConfiguration: opts => { opts.BatchSize = 100; });
+            asyncConfiguration: opts => { opts.BatchSize = 1000; });
 
         options.Schema.For<RoadNetworkChangeProjectionItem>()
-            .DocumentAlias(changesDocumentAlias)
+            .DocumentAlias(changesStateTableName)
             .Identity(x => x.Id);
 
         return options;
     }
 }
 
-public class RoadNetworkChangesProjection : IProjection
+internal class RoadNetworkChangesProjection : IProjection
 {
-    private readonly IRoadNetworkChangesProjection[] _projections;
+    private readonly IReadOnlyCollection<IRoadNetworkChangesProjection> _projections;
 
-    internal RoadNetworkChangesProjection(IRoadNetworkChangesProjection[] projections)
+    private const string ChangesPositionDocumentId = "roadnetworkchanges";
+
+    internal RoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections)
     {
         _projections = projections;
     }
@@ -36,40 +38,44 @@ public class RoadNetworkChangesProjection : IProjection
     {
         var roadNetworkChanges = events
             .GroupBy(x => x.CausationId!)
-            .Select(x => x.ToArray())
-            .ToArray();
+            .Select(x => x.ToList().AsReadOnly())
+            .ToList();
 
-        for (var i = 0; i < roadNetworkChanges.Length; i++)
+        for (var i = 0; i < roadNetworkChanges.Count; i++)
         {
             var roadNetworkChangeEvents = roadNetworkChanges[i];
             var causationId = roadNetworkChangeEvents.First().CausationId!;
 
             await using var session = operations.DocumentStore.LightweightSession();
 
-            var roadNetworkChangeDocument = await session.LoadAsync<RoadNetworkChangeProjectionItem>(causationId, cancellation);
-            if (roadNetworkChangeDocument is not null)
+            //TODO-pr keep 1 record
+            var roadNetworkChangeDocument = await session.LoadAsync<RoadNetworkChangeProjectionItem>(ChangesPositionDocumentId, cancellation)
+                ?? new RoadNetworkChangeProjectionItem
+                {
+                    Id = ChangesPositionDocumentId
+                };
+            if (roadNetworkChangeDocument.CurrentCausationId == causationId)
             {
                 continue;
             }
 
-            session.Store(new RoadNetworkChangeProjectionItem
-            {
-                Id = causationId
-            });
+            roadNetworkChangeDocument.CurrentCausationId = causationId;
+            session.Store(roadNetworkChangeDocument);
 
             var processEvents = roadNetworkChangeEvents;
 
-            var isLastBatch = i == roadNetworkChanges.Length - 1;
+            var isLastBatch = i == roadNetworkChanges.Count - 1;
             if (isLastBatch)
             {
                 processEvents = operations.Events.QueryAllRawEvents()
                     .Where(x => x.CausationId == causationId) //TODO-pr add index on causationId
-                    .ToArray();
+                    .ToList()
+                    .AsReadOnly();
             }
 
             foreach (var projection in _projections)
             {
-                await projection.Project(processEvents, session);
+                await projection.Project(processEvents, session, cancellation);
             }
 
             await session.SaveChangesAsync(cancellation);
@@ -77,7 +83,8 @@ public class RoadNetworkChangesProjection : IProjection
     }
 }
 
-public sealed class RoadNetworkChangeProjectionItem
+internal sealed class RoadNetworkChangeProjectionItem
 {
     public string Id { get; set; }
+    public string CurrentCausationId { get; set; }
 }

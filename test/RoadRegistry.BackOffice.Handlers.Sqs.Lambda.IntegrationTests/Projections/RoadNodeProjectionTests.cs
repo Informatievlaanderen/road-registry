@@ -2,7 +2,6 @@
 
 using AutoFixture;
 using NetTopologySuite.Geometries;
-using RoadNode;
 using RoadNode.Events;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.RoadNetwork.ValueObjects;
@@ -41,10 +40,8 @@ public class RoadNodeProjectionTests : IClassFixture<DatabaseFixture>
         };
 
         await CreateProjectionTestRunner()
-            .Given<RoadNode, RoadNodeId>(roadNode1Added.Id, roadNode1Added)
-            .Expect([
-                (roadNode1Added.Id, expectedRoadNode)
-            ]);
+            .Given(roadNode1Added)
+            .Expect(expectedRoadNode);
     }
 
     private MartenProjectionTestRunner CreateProjectionTestRunner()
