@@ -1,24 +1,14 @@
-﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.Projections.POC;
+﻿namespace RoadRegistry.Projections.IntegrationTests.POC;
 
 using AutoFixture;
-using RoadRegistry.RoadSegment.Events;
-using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadSegment.Events;
 using RoadSegment.ValueObjects;
+using Tests.BackOffice.Scenarios;
 
-//TODO-pr nog te verplaatsen, welke assembly? dit is geen lambda, enkel Marten
-
-[Collection("DockerFixtureCollection")]
-public class RoadSegmentProjectionTests : IClassFixture<DatabaseFixture>
+public class RoadSegmentProjectionTests
 {
-    private readonly DatabaseFixture _databaseFixture;
-
-    public RoadSegmentProjectionTests(DatabaseFixture databaseFixture)
-    {
-        _databaseFixture = databaseFixture;
-    }
-
     [Fact]
-    public async Task WhenRoadSegmentAdded_ThenSucceeded()
+    public Task WhenRoadSegmentAdded_ThenSucceeded()
     {
         var fixture = new RoadNetworkTestData().ObjectProvider;
 
@@ -36,7 +26,8 @@ public class RoadSegmentProjectionTests : IClassFixture<DatabaseFixture>
             GeometryDrawMethod = roadSegment2Added.GeometryDrawMethod
         };
 
-        await CreateProjectionTestRunner()
+        return BuildProjection()
+            .Scenario()
             .Given(roadSegment1Added, roadSegment2Added)
             .Expect(expectedRoadSegment1, expectedRoadSegment2);
     }
@@ -50,15 +41,14 @@ public class RoadSegmentProjectionTests : IClassFixture<DatabaseFixture>
         var roadSegment1Added = fixture.Create<RoadSegmentAdded>();
         var roadSegment1Removed = fixture.Create<RoadSegmentRemoved>();
 
-        await CreateProjectionTestRunner()
-            .Given(roadSegment1Added)
-            .Given(roadSegment1Removed)
-            .ExpectNone(roadSegment1Added.Id);
+        await BuildProjection()
+            .Scenario()
+            .Given(roadSegment1Added, roadSegment1Removed)
+            .ExpectNone();
     }
 
-    private MartenProjectionTestRunner CreateProjectionTestRunner()
+    private RoadSegmentProjection BuildProjection()
     {
-        return new MartenProjectionTestRunner(_databaseFixture)
-            .ConfigureRoadNetworkChangesProjection<RoadSegmentProjection>(RoadSegmentProjection.Configure);
+        return new RoadSegmentProjection();
     }
 }

@@ -1,9 +1,7 @@
-namespace RoadRegistry.Wms.ProjectionHost.Tests.Projections;
+namespace RoadRegistry.Wms.ProjectionHost.Tests.Infrastructure;
 
-using BackOffice;
-using BackOffice.Abstractions;
+using RoadRegistry.BackOffice;
 using RoadRegistry.Sync.StreetNameRegistry.Models;
-using Sync.StreetNameRegistry;
 
 public class StreetNameCacheStub : IStreetNameCache
 {

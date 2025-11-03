@@ -4,9 +4,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <NoWarn>1822;0618</NoWarn>
+    <RootNamespace>RoadRegistry.Wms.ProjectionHost.Tests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\RoadRegistry.Wms.ProjectionHost\RoadRegistry.Wms.ProjectionHost.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Wms.Projections\RoadRegistry.Wms.Projections.csproj" />
     <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
   </ItemGroup>
   <ItemGroup>

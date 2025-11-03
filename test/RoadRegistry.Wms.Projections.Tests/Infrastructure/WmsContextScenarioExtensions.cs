@@ -1,12 +1,12 @@
-namespace RoadRegistry.Tests.Framework.Projections;
+namespace RoadRegistry.Wms.ProjectionHost.Tests.Infrastructure;
 
 using System.Text;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Microsoft.EntityFrameworkCore;
+using RoadRegistry.Tests.Framework.Projections;
 using RoadRegistry.Wms.Schema;
 using Xunit.Sdk;
 
@@ -87,7 +87,9 @@ public static class WmsContextScenarioExtensions
             var position = 0L;
             foreach (var message in specification.Messages)
             {
-                var envelope = new Envelope(message, new Dictionary<string, object> { { "Position", position } }).ToGenericEnvelope();
+                var eventType = typeof(JasperFx.Events.Event<>).MakeGenericType(message.GetType());
+                var envelope = (JasperFx.Events.IEvent)Activator.CreateInstance(eventType, message)!;
+                envelope.Version = position;
                 await projector.ProjectAsync(context, envelope);
                 position++;
             }
@@ -123,7 +125,7 @@ public static class WmsContextScenarioExtensions
             var projector = new ConnectedProjector<WmsContext>(specification.Resolver);
             foreach (var message in specification.Messages)
             {
-                var envelope = new Envelope(message, new Dictionary<string, object>()).ToGenericEnvelope();
+                var envelope = JasperFx.Events.Event.For(message);
                 await projector.ProjectAsync(context, envelope);
             }
 
@@ -143,6 +145,7 @@ public static class WmsContextScenarioExtensions
 
     public static ConnectedProjectionScenario<WmsContext> Scenario(this ConnectedProjection<WmsContext> projection)
     {
-        return new ConnectedProjectionScenario<WmsContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
+        //TODO-pr important, use Resolve.WhenAssignableToHandlerMessageType
+        return new ConnectedProjectionScenario<WmsContext>(Resolve.WhenAssignableToHandlerMessageType(projection.Handlers));
     }
 }

@@ -33,30 +33,7 @@ public static class SetupExtensions
                 options.Connection(new NpgsqlDataSourceBuilder(connectionString)
                     .UseNetTopologySuite()
                     .Build());
-                options.DatabaseSchemaName = "road";
-
-                options.UseNewtonsoftForSerialization(
-                    enumStorage: EnumStorage.AsString,
-                    casing: Casing.CamelCase,
-                    nonPublicMembersStorage: NonPublicMembersStorage.All,
-                    configure: jsonSerializerSettings =>
-                    {
-                        jsonSerializerSettings.MaxDepth = 32;
-                        jsonSerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-                        jsonSerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                        jsonSerializerSettings
-                            .ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)
-                            .WithIsoIntervalConverter();
-
-                        foreach (var converter in WellKnownJsonConverters.Converters)
-                        {
-                            jsonSerializerSettings.Converters.Add(converter);
-                        }
-                    });
-
-                options.Events.StreamIdentity = StreamIdentity.AsString;
-                options.Events.MetadataConfig.CausationIdEnabled = true;
-
+                options.ConfigureRoad();
                 configure?.Invoke(options);
 
                 return options;
@@ -65,6 +42,33 @@ public static class SetupExtensions
         services.AddScoped<IRoadNetworkRepository, RoadNetworkRepository>();
 
         return services;
+    }
+
+    public static void ConfigureRoad(this StoreOptions options)
+    {
+        options.DatabaseSchemaName = "road";
+
+        options.UseNewtonsoftForSerialization(
+            enumStorage: EnumStorage.AsString,
+            casing: Casing.CamelCase,
+            nonPublicMembersStorage: NonPublicMembersStorage.All,
+            configure: jsonSerializerSettings =>
+            {
+                jsonSerializerSettings.MaxDepth = 32;
+                jsonSerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+                jsonSerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                jsonSerializerSettings
+                    .ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)
+                    .WithIsoIntervalConverter();
+
+                foreach (var converter in WellKnownJsonConverters.Converters)
+                {
+                    jsonSerializerSettings.Converters.Add(converter);
+                }
+            });
+
+        options.Events.StreamIdentity = StreamIdentity.AsString;
+        options.Events.MetadataConfig.CausationIdEnabled = true;
     }
 
     public static void AddRoadNetworkTopologyProjection(this StoreOptions options)
