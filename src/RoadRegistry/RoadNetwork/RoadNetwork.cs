@@ -6,15 +6,17 @@ using System.Linq;
 using BackOffice;
 using BackOffice.Core;
 using Changes;
+using Events;
 using GradeSeparatedJunction;
 using RoadNode;
 using RoadSegment;
 using RoadSegment.ValueObjects;
 using ValueObjects;
 
-public partial class RoadNetwork
+public partial class RoadNetwork : MartenAggregateRootEntity<string>
 {
     public static RoadNetwork Empty => new();
+    public const string GlobalIdentifier = "0";
 
     public IReadOnlyDictionary<RoadNodeId, RoadNode> RoadNodes { get; }
     public IReadOnlyDictionary<RoadSegmentId, RoadSegment> RoadSegments { get; }
@@ -34,6 +36,7 @@ public partial class RoadNetwork
         IReadOnlyCollection<RoadNode> roadNodes,
         IReadOnlyCollection<RoadSegment> roadSegments,
         IReadOnlyCollection<GradeSeparatedJunction> gradeSeparatedJunctions)
+        : base(GlobalIdentifier)
     {
         _roadNodes = roadNodes.ToDictionary(x => x.RoadNodeId, x => x);
         RoadNodes = _roadNodes.AsReadOnly();
@@ -112,6 +115,11 @@ public partial class RoadNetwork
                 .Where(x => x.HasChanges())
                 .Aggregate(problems, (p, x) => p + x.VerifyTopologyAfterChanges(context));
         }
+
+        UncommittedEvents.Add(new RoadNetworkChanged
+        {
+            CausationId = Guid.NewGuid().ToString()
+        });
 
         return new RoadNetworkChangeResult(problems);
     }

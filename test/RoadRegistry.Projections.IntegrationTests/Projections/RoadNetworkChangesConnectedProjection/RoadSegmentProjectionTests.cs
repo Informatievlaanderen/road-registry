@@ -51,8 +51,7 @@ public class RoadSegmentProjectionTests : IClassFixture<DatabaseFixture>
         var roadSegment1Removed = fixture.Create<RoadSegmentRemoved>();
 
         await CreateProjectionTestRunner()
-            .Given(roadSegment1Added)
-            .Given(roadSegment1Removed)
+            .Given(roadSegment1Added, roadSegment1Removed)
             .ExpectNone(roadSegment1Added.Id);
     }
 

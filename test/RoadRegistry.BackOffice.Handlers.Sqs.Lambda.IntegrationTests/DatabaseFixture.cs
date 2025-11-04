@@ -29,44 +29,14 @@ public class DatabaseFixture : IAsyncLifetime
         await InstallPostgis();
     }
 
-    public async Task DisposeAsync()
+    public Task DisposeAsync()
     {
-        await DropDatabase();
+        return Task.CompletedTask;
     }
 
     private async Task CreateDatabase()
     {
         var createDbQuery = $"DROP DATABASE IF EXISTS \"{DatabaseName}\"; CREATE DATABASE \"{DatabaseName}\";";
-
-        await using var connection = new NpgsqlConnection(_rootConnectionString);
-        await using var command = new NpgsqlCommand(createDbQuery, connection);
-
-        var attempt = 1;
-        while (true)
-        {
-            try
-            {
-                await connection.OpenAsync();
-                break;
-            }
-            catch
-            {
-                if (attempt == 5)
-                {
-                    throw;
-                }
-
-                attempt++;
-                await Task.Delay(TimeSpan.FromMilliseconds(200));
-            }
-        }
-
-        await command.ExecuteNonQueryAsync();
-    }
-
-    private async Task DropDatabase()
-    {
-        var createDbQuery = $"DROP DATABASE IF EXISTS \"{DatabaseName}\";";
 
         await using var connection = new NpgsqlConnection(_rootConnectionString);
         await using var command = new NpgsqlCommand(createDbQuery, connection);

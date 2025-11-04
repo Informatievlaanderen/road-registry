@@ -8,6 +8,7 @@ using Marten;
 using NetTopologySuite.Geometries;
 using Projections;
 using RoadNetwork;
+using RoadNetwork.Events;
 using RoadNode;
 using RoadSegment;
 using RoadSegment.ValueObjects;
@@ -39,7 +40,10 @@ public class RoadNetworkRepository: IRoadNetworkRepository
     public async Task Save(RoadNetwork roadNetwork, CancellationToken cancellationToken)
     {
         await using var session = _store.LightweightSession();
-        session.CausationId = Guid.NewGuid().ToString();
+
+        var roadNetworkChangedEvent = roadNetwork.GetChanges().OfType<RoadNetworkChanged>().Single();
+        session.CausationId = roadNetworkChangedEvent.CausationId;
+        session.Events.Append(roadNetwork.Id, roadNetworkChangedEvent);
 
         SaveEntities(roadNetwork.RoadSegments, session);
         SaveEntities(roadNetwork.RoadNodes, session);
@@ -102,8 +106,8 @@ WHERE ST_Intersects(rs.geometry, ST_GeomFromText(@wkt, {geometry.SRID}))";
             return new RoadNetwork(roadNodeSnapshots, roadSegmentSnapshots, gradeSeparatedJunctionSnapshots);
         }
 
-        //TODO-pr to discuss met Koen: rebuild projecties
         //TODO-pr hoe bepalen of rebuild in progress is? is die vorige if-statement correct?
+        //-> corrupte snapshots verwijderen + automatisch opslaan na verwerking, TODO die aggregates markeren dat ze dan altijd moeten worden opgeslagen
 
         var roadNodes = new List<RoadNode>();
         var roadSegments = new List<RoadSegment>();

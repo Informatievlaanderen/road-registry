@@ -2,6 +2,7 @@
 
 using BackOffice;
 using Marten;
+using RoadNetwork.Events;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.RoadNode.Events;
 using RoadRegistry.RoadSegment.Events;
@@ -25,9 +26,7 @@ public static class MartenProjectionIntegrationTestRunnerExtensions
         {
             configureProjection?.Invoke(options);
 
-            options.AddRoadNetworkChangesProjection(
-                "projection_roadnetworkchanges",
-                projections);
+            options.AddRoadNetworkChangesProjection(projections);
         });
     }
 
@@ -63,6 +62,9 @@ public static class MartenProjectionIntegrationTestRunnerExtensions
         {
             switch (evt)
             {
+                case RoadNetworkChanged @event:
+                    runner.Given<RoadRegistry.RoadNetwork.RoadNetwork, string>(RoadRegistry.RoadNetwork.RoadNetwork.GlobalIdentifier, @event);
+                    break;
                 case RoadNodeAdded @event:
                     runner.Given<RoadRegistry.RoadNode.RoadNode, RoadNodeId>(@event.Id, @event);
                     break;

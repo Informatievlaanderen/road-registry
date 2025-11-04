@@ -6,6 +6,8 @@ using KellermanSoftware.CompareNetObjects;
 using Marten;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RoadNetwork;
+using RoadNetwork.Events;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.Projections.IntegrationTests;
@@ -18,7 +20,7 @@ public class MartenProjectionIntegrationTestRunner
     private readonly List<Action<IServiceCollection>> _servicesConfigurations = [];
     private readonly List<Action<StoreOptions>> _storeConfigurations = [];
     private TimeSpan _projectionWaitTimeout;
-    private readonly List<(string StreamKey, object[] Events)> _givenEvents = [];
+    private readonly List<List<(string StreamKey, object Event)>> _givenEvents = [];
 
     public MartenProjectionIntegrationTestRunner(DatabaseFixture databaseFixture)
     {
@@ -44,7 +46,12 @@ public class MartenProjectionIntegrationTestRunner
 
     public MartenProjectionIntegrationTestRunner Given(string streamKey, params object[] events)
     {
-        _givenEvents.Add((streamKey, events));
+        _givenEvents.Add(events.Select(evt => (streamKey, evt)).ToList());
+        return this;
+    }
+    public MartenProjectionIntegrationTestRunner Given(IEnumerable<(string StreamKey, object Event)> eventsPerStreamKey)
+    {
+        _givenEvents.Add(eventsPerStreamKey.ToList());
         return this;
     }
 
@@ -113,14 +120,19 @@ public class MartenProjectionIntegrationTestRunner
 
         await using var session = store.LightweightSession();
 
-        foreach (var (streamKey, events) in _givenEvents)
+        foreach (var events in _givenEvents)
         {
             session.CausationId = Guid.NewGuid().ToString(); // Ensure events are grouped by causation id
 
             foreach (var @event in events)
             {
-                session.Events.AppendOrStartStream(streamKey, @event);
+                session.Events.AppendOrStartStream(@event.StreamKey, @event.Event);
             }
+
+            session.Events.Append(StreamKeyFactory.Create(typeof(RoadNetwork), RoadNetwork.GlobalIdentifier), new RoadNetworkChanged
+            {
+                CausationId = session.CausationId
+            });
 
             await session.SaveChangesAsync();
         }
@@ -139,7 +151,7 @@ public class MartenProjectionIntegrationTestRunner
         var title = string.Empty;
         var exceptionMessage = new StringBuilder()
             .AppendLine(title)
-            .AppendTitleBlock("Given", _givenEvents.SelectMany(x => x.Events), Formatters.NamedJsonMessage)
+            .AppendTitleBlock("Given", _givenEvents.SelectMany(x => x.Select(y => y.Event)), Formatters.NamedJsonMessage)
             .Append(result.Message);
 
         return new XunitException(exceptionMessage.ToString());
