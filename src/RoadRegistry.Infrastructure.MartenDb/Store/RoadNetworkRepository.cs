@@ -3,17 +3,14 @@
 using System.Data;
 using BackOffice;
 using Dapper;
-using GradeSeparatedJunction;
 using Marten;
 using NetTopologySuite.Geometries;
 using Projections;
 using RoadNetwork;
 using RoadNetwork.Events;
-using RoadNode;
-using RoadSegment;
 using RoadSegment.ValueObjects;
 
-public class RoadNetworkRepository: IRoadNetworkRepository
+public class RoadNetworkRepository : IRoadNetworkRepository
 {
     private readonly IDocumentStore _store;
 
@@ -92,47 +89,17 @@ WHERE ST_Intersects(rs.geometry, ST_GeomFromText(@wkt, {geometry.SRID}))";
         IReadOnlyCollection<GradeSeparatedJunctionId> gradeSeparatedJunctionIds
     )
     {
-        if (!roadSegmentIds.Any())
-        {
-            return RoadNetwork.Empty;
-        }
+        var roadNodes = await session.LoadRoadNodesAsync(roadNodeIds);
+        var roadSegments = await session.LoadRoadSegmentsAsync(roadSegmentIds);
+        var gradeSeparatedJunctions = await session.LoadGradeSeparatedJunctionAsync(gradeSeparatedJunctionIds);
 
-        var roadNodeSnapshots = await session.LoadRoadNodesAsync(roadNodeIds);
-        var roadSegmentSnapshots = await session.LoadRoadSegmentsAsync(roadSegmentIds);
-        var gradeSeparatedJunctionSnapshots = await session.LoadGradeSeparatedJunctionAsync(gradeSeparatedJunctionIds);
-
-        if (roadSegmentSnapshots.Any())
-        {
-            return new RoadNetwork(roadNodeSnapshots, roadSegmentSnapshots, gradeSeparatedJunctionSnapshots);
-        }
-
-        //TODO-pr hoe bepalen of rebuild in progress is? is die vorige if-statement correct?
-        //-> corrupte snapshots verwijderen + automatisch opslaan na verwerking, TODO die aggregates markeren dat ze dan altijd moeten worden opgeslagen
-
-        var roadNodes = new List<RoadNode>();
-        var roadSegments = new List<RoadSegment>();
-        var gradeSeparatedJunction = new List<GradeSeparatedJunction>();
-
-        foreach (var id in roadNodeIds)
-        {
-            roadNodes.Add((await session.Events.AggregateStreamAsync<RoadNode>(StreamKeyFactory.Create(typeof(RoadNode), id)))!);
-        }
-        foreach (var id in roadSegmentIds)
-        {
-            roadSegments.Add((await session.Events.AggregateStreamAsync<RoadSegment>(StreamKeyFactory.Create(typeof(RoadSegment), id)))!);
-        }
-        foreach (var id in gradeSeparatedJunctionIds)
-        {
-            gradeSeparatedJunction.Add((await session.Events.AggregateStreamAsync<GradeSeparatedJunction>(StreamKeyFactory.Create(typeof(GradeSeparatedJunction), id)))!);
-        }
-
-        return new RoadNetwork(roadNodes, roadSegments, gradeSeparatedJunction);
+        return new RoadNetwork(roadNodes, roadSegments, gradeSeparatedJunctions);
     }
 
     private static void SaveEntities<TKey, TEntity>(IReadOnlyDictionary<TKey, TEntity> entities, IDocumentSession session)
         where TEntity : IMartenAggregateRootEntity
     {
-        foreach(var entity in entities.Where(x => x.Value.HasChanges()))
+        foreach (var entity in entities.Where(x => x.Value.HasChanges()))
         {
             foreach (var @event in entity.Value.GetChanges())
             {

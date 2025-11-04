@@ -14,12 +14,19 @@ public abstract class MartenAggregateRootEntity<TIdentifier> : IMartenAggregateR
 {
     public string Id { get; set; } // Required for MartenDb
 
-    protected List<object> UncommittedEvents { get; } = [];
-    public bool HasChanges() => UncommittedEvents.Any();
+    public bool HasChanges() => _requestedToSaveSnapshot || UncommittedEvents.Any();
     public IReadOnlyCollection<object> GetChanges() => UncommittedEvents.AsReadOnly();
+
+    protected List<object> UncommittedEvents { get; } = [];
+    private bool _requestedToSaveSnapshot;
 
     protected MartenAggregateRootEntity(TIdentifier identifier)
     {
         Id = StreamKeyFactory.Create(GetType(), identifier);
+    }
+
+    public void RequestToSaveSnapshot()
+    {
+        _requestedToSaveSnapshot = true;
     }
 }

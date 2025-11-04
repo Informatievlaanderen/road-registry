@@ -38,8 +38,24 @@ public static class SessionExtensions
     }
 
     private static async Task<IReadOnlyList<TEntity>> LoadManyEntitiesAsync<TEntity, TIdentifier>(this IDocumentSession session, IEnumerable<TIdentifier> ids)
-        where TEntity : notnull
+        where TEntity : MartenAggregateRootEntity<TIdentifier>
     {
-        return await session.LoadManyAsync<TEntity>(ids.Select(x => StreamKeyFactory.Create(typeof(TEntity), x)));
+        var streamKeys = ids.Select(x => StreamKeyFactory.Create(typeof(TEntity), x)).ToList();
+        if (!streamKeys.Any())
+        {
+            return [];
+        }
+
+        var aggregates = (await session.LoadManyAsync<TEntity>(streamKeys)).ToList();
+
+        foreach (var streamKey in streamKeys.Where(x => aggregates.All(snapshot => snapshot.Id != x)))
+        {
+            var aggregate = (await session.Events.AggregateStreamAsync<TEntity>(streamKey))!;
+            aggregate.RequestToSaveSnapshot();
+
+            aggregates.Add(aggregate);
+        }
+
+        return aggregates.AsReadOnly();
     }
 }
