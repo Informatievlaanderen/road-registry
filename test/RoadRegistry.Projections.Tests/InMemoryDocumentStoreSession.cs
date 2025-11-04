@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Projections.IntegrationTests;
+﻿namespace RoadRegistry.Projections.Tests;
 
 using System.Data.Common;
 using System.Linq.Expressions;

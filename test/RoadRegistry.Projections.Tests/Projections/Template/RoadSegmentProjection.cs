@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Projections.IntegrationTests.POC;
+﻿namespace RoadRegistry.Projections.Tests.Projections.Template;
 
 using System.Collections.Generic;
 using System.Threading.Tasks;

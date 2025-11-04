@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests;
+﻿namespace RoadRegistry.Projections.IntegrationTests;
 
 using Microsoft.Extensions.Configuration;
 using Npgsql;

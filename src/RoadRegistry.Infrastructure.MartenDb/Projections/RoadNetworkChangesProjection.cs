@@ -1,6 +1,5 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using JasperFx.Events;
 using JasperFx.Events.Projections;
 using Marten;
@@ -35,7 +34,6 @@ internal class RoadNetworkChangesProjection : IProjection
         _projections = projections;
     }
 
-    //TODO-pr maak integration test hiervoor voor de flow te testen
     public async Task ApplyAsync(IDocumentOperations operations, IReadOnlyList<IEvent> events, CancellationToken cancellation)
     {
         var roadNetworkChanges = events
@@ -76,7 +74,6 @@ internal class RoadNetworkChangesProjection : IProjection
 
             foreach (var projection in _projections)
             {
-                //TODO-pr test met ingration flow
                 await projection.Project(processEvents, session, cancellation);
             }
 

@@ -1,13 +1,13 @@
-﻿namespace RoadRegistry.Projections.IntegrationTests.POC;
+﻿namespace RoadRegistry.Projections.Tests.Projections.Template;
 
 using System.Text;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
-using Infrastructure.MartenDb.Setup;
 using JasperFx.Events;
 using KellermanSoftware.CompareNetObjects;
 using Marten;
-using Tests.Framework.Projections;
+using RoadRegistry.Infrastructure.MartenDb.Setup;
+using RoadRegistry.Tests.Framework.Projections;
 using Xunit.Sdk;
 
 public static class ProjectionExtensions

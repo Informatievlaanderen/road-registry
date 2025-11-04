@@ -1,4 +1,4 @@
-namespace RoadRegistry.Projections.IntegrationTests;
+namespace RoadRegistry.Projections.Tests;
 
 public class Startup : TestStartup
 {

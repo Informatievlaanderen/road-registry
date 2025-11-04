@@ -4,22 +4,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <NoWarn>CS8603</NoWarn>
-    <RootNamespace>RoadRegistry.Projections.Tests</RootNamespace>
+    <RootNamespace>RoadRegistry.Projections.IntegrationTests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
-    <ProjectReference Include="..\..\src\RoadRegistry.StreetName\RoadRegistry.StreetName.csproj" />
     <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
-    <ProjectReference Include="..\RoadRegistry.Wms.Projections.Tests\RoadRegistry.Wms.Projections.Tests.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.StreetName\RoadRegistry.StreetName.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.Infrastructure.MartenDb\RoadRegistry.Infrastructure.MartenDb.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Be.Vlaanderen.Basisregisters.Aws.DistributedMutex" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.DockerUtilities" />
-    <PackageReference Include="Be.Vlaanderen.Basisregisters.Sqs" />
-    <PackageReference Include="Be.Vlaanderen.Basisregisters.Sqs.Lambda" />
-    <PackageReference Include="Be.Vlaanderen.Basisregisters.TicketingService.Abstractions" />
-
-    <PackageReference Include="AWSSDK.Core" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="MediatR.Contracts" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
@@ -27,9 +21,6 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
-    <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" />
-    <PackageReference Include="Amazon.Lambda.SQSEvents" />
-    <PackageReference Include="Amazon.Lambda.TestUtilities" />
     <PackageReference Include="System.IO.Pipelines" />
   </ItemGroup>
   <ItemGroup>
@@ -38,8 +29,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Projections\" />
+    <Content Update="postgres.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

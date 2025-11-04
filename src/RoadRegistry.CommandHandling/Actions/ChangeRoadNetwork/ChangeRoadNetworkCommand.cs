@@ -19,17 +19,14 @@ public class ChangeRoadNetworkCommandItem
     public AddRoadSegmentChange AddRoadSegment { get; set; }
     // public AddRoadSegmentToEuropeanRoadChange AddRoadSegmentToEuropeanRoad { get; set; }
     // public AddRoadSegmentToNationalRoadChange AddRoadSegmentToNationalRoad { get; set; }
-    // public AddRoadSegmentToNumberedRoadChange AddRoadSegmentToNumberedRoad { get; set; }
     // public ModifyGradeSeparatedJunctionChange ModifyGradeSeparatedJunction { get; set; }
     // public ModifyRoadNodeChange ModifyRoadNode { get; set; }
     public ModifyRoadSegmentChange ModifyRoadSegment { get; set; }
     // public RemoveGradeSeparatedJunctionChange RemoveGradeSeparatedJunction { get; set; }
     // public RemoveRoadNodeChange RemoveRoadNode { get; set; }
     public RemoveRoadSegmentChange RemoveRoadSegment { get; set; }
-    // public RemoveRoadSegmentsChange RemoveRoadSegments { get; set; }
-    // public RemoveOutlinedRoadSegmentChange RemoveOutlinedRoadSegment { get; set; }
-    // public RemoveOutlinedRoadSegmentFromRoadNetworkChange RemoveOutlinedRoadSegmentFromRoadNetwork { get; set; }
     // public RemoveRoadSegmentFromEuropeanRoadChange RemoveRoadSegmentFromEuropeanRoad { get; set; }
     // public RemoveRoadSegmentFromNationalRoadChange RemoveRoadSegmentFromNationalRoad { get; set; }
-    // public RemoveRoadSegmentFromNumberedRoadChange RemoveRoadSegmentFromNumberedRoad { get; set; }
+
+    // public RemoveRoadSegmentsChange RemoveRoadSegments { get; set; } //TODO-pr move to separate command
 }

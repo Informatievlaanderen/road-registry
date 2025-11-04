@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Wms.Projections;
+﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -9,16 +9,14 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using JasperFx.Events;
 using Marten;
 using Microsoft.EntityFrameworkCore;
-using RoadRegistry.Infrastructure.MartenDb.Projections;
 
-//TODO-pr dit testen in integration test 1-malig happy flow, of toch om te bekijken hoe het gebruikt gaat moeten worden qua registraties
-public abstract class DbContextRoadNetworkChangesProjection<TDbContext> : IRoadNetworkChangesProjection
+public abstract class RoadNetworkChangesRunnerDbContextProjection<TDbContext> : IRoadNetworkChangesProjection
     where TDbContext : RunnerDbContext<TDbContext>
 {
     private readonly ConnectedProjectionHandlerResolver<TDbContext> _resolver;
     private readonly IDbContextFactory<TDbContext> _dbContextFactory;
 
-    protected DbContextRoadNetworkChangesProjection(
+    protected RoadNetworkChangesRunnerDbContextProjection(
         ConnectedProjectionHandlerResolver<TDbContext> resolver,
         IDbContextFactory<TDbContext> dbContextFactory)
     {
