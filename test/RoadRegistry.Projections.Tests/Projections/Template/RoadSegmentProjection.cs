@@ -1,14 +1,12 @@
 ﻿namespace RoadRegistry.Projections.Tests.Projections.Template;
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using JasperFx.Events;
 using Marten;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadRegistry.RoadSegment.Events;
 
-public class RoadSegmentProjection : ConnectedProjection<IDocumentSession>, IRoadNetworkChangesProjection
+public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 {
     public static void Configure(StoreOptions options)
     {
@@ -52,17 +50,6 @@ public class RoadSegmentProjection : ConnectedProjection<IDocumentSession>, IRoa
 
             session.Delete(roadSegment);
         });
-    }
-
-    public async Task Project(IReadOnlyList<IEvent> events, IDocumentSession session, CancellationToken cancellationToken)
-    {
-        foreach (var handler in Handlers)
-        {
-            foreach (var evt in events)
-            {
-                await handler.Handler(session, evt, cancellationToken);
-            }
-        }
     }
 }
 
