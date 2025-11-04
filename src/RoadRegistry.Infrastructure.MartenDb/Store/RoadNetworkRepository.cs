@@ -40,11 +40,11 @@ public class RoadNetworkRepository : IRoadNetworkRepository
 
         var roadNetworkChangedEvent = roadNetwork.GetChanges().OfType<RoadNetworkChanged>().Single();
         session.CausationId = roadNetworkChangedEvent.CausationId;
-        session.Events.Append(roadNetwork.Id, roadNetworkChangedEvent);
 
         SaveEntities(roadNetwork.RoadSegments, session);
         SaveEntities(roadNetwork.RoadNodes, session);
         SaveEntities(roadNetwork.GradeSeparatedJunctions, session);
+        session.Events.Append(roadNetwork.Id, roadNetworkChangedEvent);
 
         await session.SaveChangesAsync(cancellationToken);
     }
