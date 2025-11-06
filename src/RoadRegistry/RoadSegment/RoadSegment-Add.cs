@@ -24,11 +24,14 @@ public partial class RoadSegment
             return (null, problems);
         }
 
-        if (!context.RoadNetwork.RoadNodes.TryGetValue(change.StartNodeId, out var startRoadNode))
+        var startNodeId = context.IdTranslator.TranslateToPermanentId(change.StartNodeId);
+        var endNodeId = context.IdTranslator.TranslateToPermanentId(change.EndNodeId);
+
+        if (!context.RoadNetwork.RoadNodes.TryGetValue(startNodeId, out var startRoadNode))
         {
             problems = problems.Add(new RoadSegmentStartNodeMissing(originalIdOrId));
         }
-        if (!context.RoadNetwork.RoadNodes.TryGetValue(change.EndNodeId, out var endRoadNode))
+        if (!context.RoadNetwork.RoadNodes.TryGetValue(endNodeId, out var endRoadNode))
         {
             problems = problems.Add(new RoadSegmentEndNodeMissing(originalIdOrId));
         }
@@ -63,10 +66,10 @@ NumberedRoadOrdinal*/
         var segment = Create(new RoadSegmentAdded
         {
             Id = change.PermanentId ?? context.IdGenerator.NewRoadSegmentId(),
-            OriginalId = change.OriginalId,
+            OriginalId = change.OriginalId ?? change.TemporaryId,
             Geometry = change.Geometry.ToGeometryObject(),
-            StartNodeId = change.StartNodeId,
-            EndNodeId = change.EndNodeId,
+            StartNodeId = startNodeId,
+            EndNodeId = endNodeId,
             GeometryDrawMethod = change.GeometryDrawMethod,
             AccessRestriction = change.AccessRestriction,
             Category = change.Category,

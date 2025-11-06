@@ -12,6 +12,9 @@ public partial class GradeSeparatedJunction
     public RoadSegmentId UpperRoadSegmentId { get; private set; }
     public GradeSeparatedJunctionType Type { get; private set; }
 
+    [JsonIgnore]
+    public bool IsRemoved { get; private set; }
+
     public GradeSeparatedJunction(GradeSeparatedJunctionId id)
         : base(id)
     {

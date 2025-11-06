@@ -9,8 +9,8 @@ public sealed record AddRoadSegmentChange : IRoadNetworkChange
 {
     //public required RoadSegmentId Id { get; init; }
     public required RoadSegmentId TemporaryId { get; init; }
-    public required RoadSegmentId? OriginalId { get; init; }
-    public required RoadSegmentId? PermanentId { get; init; } //TODO-pr ik denk dat deze obsolete is nu dat er geen verhuis meer nodig is tussen streams
+    public RoadSegmentId? OriginalId { get; init; }
+    public RoadSegmentId? PermanentId { get; init; } //TODO-pr ik denk dat deze obsolete is nu dat er geen verhuis meer nodig is tussen streams
     public required RoadNodeId StartNodeId { get; init; }
     //public required RoadNodeId? TemporaryStartNodeId { get; init; }
     public required RoadNodeId EndNodeId { get; init; }

@@ -34,6 +34,7 @@ public partial class RoadSegment
     }
     //public string LastEventHash { get; private set; }
 
+    [JsonIgnore]
     public bool IsRemoved { get; private set; }
 
     public RoadSegment(RoadSegmentId id)
@@ -84,7 +85,7 @@ public partial class RoadSegment
         return segment;
     }
 
-    public RoadSegment Apply(RoadSegmentModified @event)
+    public void Apply(RoadSegmentModified @event)
     {
         UncommittedEvents.Add(@event);
 
@@ -105,15 +106,13 @@ public partial class RoadSegment
             NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
         };
         //LastEventHash = @event.GetHash();
-        return this;
     }
 
-    public RoadSegment Apply(RoadSegmentRemoved @event)
+    public void Apply(RoadSegmentRemoved @event)
     {
         UncommittedEvents.Add(@event);
 
         IsRemoved = true;
         //LastEventHash = @event.GetHash();
-        return this;
     }
 }

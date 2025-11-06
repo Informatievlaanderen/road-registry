@@ -53,4 +53,17 @@ public abstract class Problem : IEquatable<Problem>, IEqualityComparer<Problem>
     {
         return HashCode.Combine(obj.Reason, obj.Parameters);
     }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append($"{Reason}");
+
+        if (Parameters.Any())
+        {
+            sb.Append($" -> {string.Join(", ", Parameters.Select(parameter => $"{parameter.Name}={parameter.Value}"))}");
+        }
+
+        return sb.ToString();
+    }
 }

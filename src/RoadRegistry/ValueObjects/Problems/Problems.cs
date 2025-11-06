@@ -83,4 +83,9 @@ public class Problems : IReadOnlyCollection<Problem>
     }
 
     public bool HasError() => _problems.OfType<Error>().Any();
+
+    public override string ToString()
+    {
+        return string.Join(Environment.NewLine, _problems);
+    }
 }

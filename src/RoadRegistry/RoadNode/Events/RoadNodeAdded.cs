@@ -10,7 +10,7 @@ public class RoadNodeAdded: IHaveHash, ICreatedEvent
 
     public required RoadNodeId Id { get; init; }
     public required RoadNodeId TemporaryId { get; init; }
-    public required RoadNodeId? OriginalId { get; init; }
+    public RoadNodeId? OriginalId { get; init; }
     public required GeometryObject Geometry { get; init; }
     public required RoadNodeType Type { get; init; }
 

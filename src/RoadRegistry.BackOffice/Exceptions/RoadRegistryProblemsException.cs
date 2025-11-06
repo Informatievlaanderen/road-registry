@@ -9,6 +9,7 @@ public class RoadRegistryProblemsException : RoadRegistryException
     public Problems Problems { get; }
 
     public RoadRegistryProblemsException(Problems problems)
+        : base($"{problems.Count} problems occurred:{Environment.NewLine}{problems}")
     {
         ArgumentNullException.ThrowIfNull(problems);
         if (!problems.Any())

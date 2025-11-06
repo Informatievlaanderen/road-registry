@@ -18,6 +18,9 @@ public partial class RoadNode
     public IReadOnlyCollection<RoadSegmentId> Segments => _segments.AsReadOnly();
 
     [JsonIgnore]
+    public bool IsRemoved { get; private set; }
+
+    [JsonIgnore]
     public IReadOnlyCollection<RoadNodeType> SupportedRoadNodeTypes
     {
         get

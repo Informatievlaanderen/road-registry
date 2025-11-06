@@ -11,7 +11,7 @@ public class RoadSegmentModified: IHaveHash
     public const string EventName = "RoadSegmentModified";
 
     public required RoadSegmentId Id { get; init; }
-    public required RoadSegmentId? OriginalId { get; init; }
+    public RoadSegmentId? OriginalId { get; init; }
     public required GeometryObject Geometry { get; init; }
     public required RoadNodeId StartNodeId { get; init; }
     public required RoadNodeId EndNodeId { get; init; }

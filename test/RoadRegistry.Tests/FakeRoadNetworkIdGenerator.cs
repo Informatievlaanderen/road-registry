@@ -5,6 +5,7 @@ namespace RoadRegistry.Tests
     using RoadRegistry.BackOffice.Core;
     using RoadRegistry.BackOffice.Messages;
     using RoadSegment.ValueObjects;
+    using RoadNetwork = RoadNetwork.RoadNetwork;
 
     public class FakeRoadNetworkIdGenerator: IRoadNetworkIdGenerator
     {
@@ -145,6 +146,8 @@ namespace RoadRegistry.Tests
                 var maxTransactionId = givenTransactionIds.Max();
                 SetCurrentValue(nameof(NewTransactionIdAsync), maxTransactionId);
             }
+
+            //TODO-pr implement new events
 
             foreach (var roadNetworkChangesAccepted in events.OfType<RoadNetworkChangesAccepted>())
             {
