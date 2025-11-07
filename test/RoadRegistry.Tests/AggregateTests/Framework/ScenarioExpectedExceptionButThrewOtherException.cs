@@ -1,7 +1,5 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
 
-using Tests.Framework.Testing;
-
 public class ScenarioExpectedExceptionButThrewOtherException
 {
     public ScenarioExpectedExceptionButThrewOtherException(ExpectExceptionScenario scenario, Exception actual)

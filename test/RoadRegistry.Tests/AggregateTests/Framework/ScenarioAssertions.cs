@@ -2,6 +2,7 @@ namespace RoadRegistry.Tests.AggregateTests.Framework;
 
 using System.Text;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Exceptions;
 using Xunit.Sdk;
 
 public static class ScenarioAssertions
@@ -69,16 +70,48 @@ public static class ScenarioAssertions
             case ScenarioExpectedExceptionButThrewNoException _:
                 throw new XunitException("Expected exception but threw no exception");
             case ScenarioExpectedExceptionButThrewOtherException threw:
-                throw new XunitException($"Expected exception but threw {threw.Actual}");
+            {
+                var messageBuilder = new StringBuilder();
+
+                if (threw.Scenario.Throws is RoadRegistryProblemsException expected && threw.Actual is RoadRegistryProblemsException actual)
+                {
+                    messageBuilder.AppendLine("Expected exceptions to match but found differences:");
+                    var comparison = runner.Compare(expected.Problems, actual.Problems);
+                    foreach (var difference in comparison.Differences)
+                    {
+                        messageBuilder.AppendLine("\t" + difference);
+                    }
+
+                    messageBuilder.AppendLine("Expected:");
+                    messageBuilder.AppendLine($"{expected.Problems}");
+                    messageBuilder.AppendLine();
+                    messageBuilder.AppendLine("Actual:");
+                    messageBuilder.AppendLine($"{actual.Problems}");
+                }
+                else
+                {
+                    messageBuilder.AppendLine("Expected exceptions to match but found differences.");
+                    messageBuilder.AppendLine("Expected:");
+                    messageBuilder.AppendLine($"{threw.Scenario.Throws}");
+                    messageBuilder.AppendLine();
+                    messageBuilder.AppendLine("Actual:");
+                    messageBuilder.AppendLine($"{threw.Actual}");
+                }
+
+                throw new XunitException(messageBuilder.ToString());
+            }
             case ScenarioExpectedExceptionButRecordedEvents recorded:
+            {
                 var messageBuilder = new StringBuilder();
                 messageBuilder.AppendLine("Expected exception but recorded these events:");
                 foreach (var actual in recorded.Actual)
                 {
-                    messageBuilder.AppendLine($"\t{actual.Stream} - {actual.Event.GetType().Name} {JsonConvert.SerializeObject(actual.Event, runner.SerializerSettings)}");
+                    messageBuilder.AppendLine($"Event={actual.GetType().Name}");
+                    messageBuilder.AppendLine(JsonConvert.SerializeObject(actual, runner.SerializerSettings));
                 }
 
                 throw new XunitException(messageBuilder.ToString());
+            }
         }
     }
 }

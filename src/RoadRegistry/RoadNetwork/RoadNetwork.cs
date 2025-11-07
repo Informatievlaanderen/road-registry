@@ -66,7 +66,7 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
             switch (roadNetworkChange)
             {
                 case AddRoadNodeChange change:
-                    problems.AddRange(AddRoadNode(change, context));
+                    problems = problems.AddRange(AddRoadNode(change, context));
                     break;
                 // case ModifyRoadNodeChange change:
                 //     problems.AddRange(ModifyRoadNode(change, context));
@@ -76,17 +76,17 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
                 //     break;
 
                 case AddRoadSegmentChange change:
-                    problems.AddRange(AddRoadSegment(change, context));
+                    problems = problems.AddRange(AddRoadSegment(change, context));
                     break;
                 case ModifyRoadSegmentChange change:
-                    problems.AddRange(ModifyRoadSegment(change, context));
+                    problems = problems.AddRange(ModifyRoadSegment(change, context));
                     break;
                 case RemoveRoadSegmentChange change:
-                    problems.AddRange(RemoveRoadSegment(change, context));
+                    problems = problems.AddRange(RemoveRoadSegment(change, context));
                     break;
 
                 case AddGradeSeparatedJunctionChange change:
-                    problems.AddRange(AddGradeSeparatedJunction(change, context));
+                    problems = problems.AddRange(AddGradeSeparatedJunction(change, context));
                     break;
                 // case ModifyGradeSeparatedJunctionChange change:
                 //     problems.AddRange(ModifyGradeSeparatedJunction(change, context));

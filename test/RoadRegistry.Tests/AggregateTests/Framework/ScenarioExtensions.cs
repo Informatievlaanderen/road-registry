@@ -1,5 +1,7 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
 
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.RoadNetwork;
 
@@ -13,5 +15,18 @@ public static class ScenarioExtensions
     public static IScenarioWhenStateBuilder When(this IScenarioGivenStateBuilder builder, Func<RoadNetworkChanges, RoadNetworkChanges> roadNetworkChangesBuilder)
     {
         return builder.When(new Command(roadNetworkChangesBuilder(RoadNetworkChanges.Start())));
+    }
+
+    public static IScenarioThrowsStateBuilder Throws(this IScenarioWhenStateBuilder builder, Problems problems)
+    {
+        return builder.Throws(new RoadRegistryProblemsException(problems));
+    }
+    public static IScenarioThrowsStateBuilder Throws(this IScenarioWhenStateBuilder builder, Problem problem)
+    {
+        return builder.Throws(Problems.Single(problem));
+    }
+    public static IScenarioThrowsStateBuilder Throws(this IScenarioWhenStateBuilder builder, params Problem[] problems)
+    {
+        return builder.Throws(Problems.Many(problems));
     }
 }

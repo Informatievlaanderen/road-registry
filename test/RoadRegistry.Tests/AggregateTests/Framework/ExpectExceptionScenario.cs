@@ -18,7 +18,7 @@ public class ExpectExceptionScenario
     public Exception Throws { get; }
     public Command When { get; }
 
-    public ScenarioExpectedExceptionButRecordedEvents ButRecordedEvents(RecordedEvent[] events)
+    public ScenarioExpectedExceptionButRecordedEvents ButRecordedEvents(object[] events)
     {
         return new ScenarioExpectedExceptionButRecordedEvents(this, events);
     }
