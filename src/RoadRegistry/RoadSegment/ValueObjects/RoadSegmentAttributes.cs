@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
 
 public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
@@ -17,6 +18,36 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
     public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType> SurfaceType { get; init; }
     public ImmutableList<EuropeanRoadNumber> EuropeanRoadNumbers { get; init; }
     public ImmutableList<NationalRoadNumber> NationalRoadNumbers { get; init; }
+
+    public RoadSegmentAttributes()
+    {
+    }
+
+    [JsonConstructor]
+    public RoadSegmentAttributes(
+        string geometryDrawMethod,
+        RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction> accessRestriction,
+        RoadSegmentDynamicAttributeValues<RoadSegmentCategory> category,
+        RoadSegmentDynamicAttributeValues<RoadSegmentMorphology> morphology,
+        RoadSegmentDynamicAttributeValues<RoadSegmentStatus> status,
+        RoadSegmentDynamicAttributeValues<StreetNameLocalId> streetNameId,
+        RoadSegmentDynamicAttributeValues<OrganizationId> maintenanceAuthorityId,
+        RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType> surfaceType,
+        ImmutableList<EuropeanRoadNumber> europeanRoadNumbers,
+        ImmutableList<NationalRoadNumber> nationalRoadNumbers
+    )
+    {
+        GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(geometryDrawMethod);
+        AccessRestriction = accessRestriction;
+        Category = category;
+        Morphology = morphology;
+        Status = status;
+        StreetNameId = streetNameId;
+        MaintenanceAuthorityId = maintenanceAuthorityId;
+        SurfaceType = surfaceType;
+        EuropeanRoadNumbers = europeanRoadNumbers;
+        NationalRoadNumbers = nationalRoadNumbers;
+    }
 
     public bool Equals(RoadSegmentAttributes? other)
     {

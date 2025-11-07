@@ -50,10 +50,13 @@ public static class SessionExtensions
 
         foreach (var streamKey in streamKeys.Where(x => aggregates.All(snapshot => snapshot.Id != x)))
         {
-            var aggregate = (await session.Events.AggregateStreamAsync<TEntity>(streamKey))!;
-            aggregate.RequestToSaveSnapshot();
+            var aggregate = (await session.Events.AggregateStreamAsync<TEntity>(streamKey));
+            if (aggregate is not null)
+            {
+                aggregate.RequestToSaveSnapshot();
 
-            aggregates.Add(aggregate);
+                aggregates.Add(aggregate);
+            }
         }
 
         return aggregates.AsReadOnly();

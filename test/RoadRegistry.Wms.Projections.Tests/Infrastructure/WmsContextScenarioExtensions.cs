@@ -145,7 +145,6 @@ public static class WmsContextScenarioExtensions
 
     public static ConnectedProjectionScenario<WmsContext> Scenario(this ConnectedProjection<WmsContext> projection)
     {
-        //TODO-pr important, use Resolve.WhenAssignableToHandlerMessageType
         return new ConnectedProjectionScenario<WmsContext>(Resolve.WhenAssignableToHandlerMessageType(projection.Handlers));
     }
 }

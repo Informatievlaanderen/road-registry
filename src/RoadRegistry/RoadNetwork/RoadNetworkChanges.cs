@@ -155,7 +155,7 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
     //foreach (var roadSegmentId in removeRoadSegments.Ids)
     //{
     //      SegmentIds.Add(roadSegmentId);
-    //TODO-pr hoe gekoppelde nodes ook toevoegen? dit laten gebeuren in RoadNetworkRepo? -> dit in aparte commando steken waarbij de repo een aparte method krijgt om de gekoppelde nodes op te halen
+    //dit in aparte commando steken waarbij de repo een aparte method krijgt om de gekoppelde nodes op te halen
     //}
     // }
     //
@@ -189,7 +189,7 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
 
     public RoadNetworkChanges Add(AddGradeSeparatedJunctionChange change)
     {
-        //TODO-pr te bekijken of dit wel nodig is
+        //TODO-pr AddGradeSeparatedJunctionChange te bekijken of dit wel nodig is
         _roadSegmentIds.Add(change.LowerRoadSegmentId);
         _roadSegmentIds.Add(change.UpperRoadSegmentId);
 

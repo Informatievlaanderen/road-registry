@@ -2,9 +2,10 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 
 public interface IRoadNetworkRepository
 {
     Task<RoadNetwork> Load(RoadNetworkChanges roadNetworkChanges);
-    Task Save(RoadNetwork roadNetwork, CancellationToken cancellationToken);
+    Task Save(RoadNetwork roadNetwork, Provenance provenance, CancellationToken cancellationToken);
 }

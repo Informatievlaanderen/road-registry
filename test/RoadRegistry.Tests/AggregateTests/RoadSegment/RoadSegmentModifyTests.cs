@@ -7,9 +7,7 @@ using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadSegment.Changes;
 using RoadSegmentModified = RoadRegistry.RoadSegment.Events.RoadSegmentModified;
 
-//TODO-pr unit test domein: RoadNetworkChangeTests en RoadSegmentModifyTests
-
-//TODO-pr voeg rest vd domein changes uit ChangeRoadNetworkCommand toe
+//TODO-pr test missing acties voor alle entities
 
 public class RoadSegmentModifyTests : RoadNetworkTestBase
 {

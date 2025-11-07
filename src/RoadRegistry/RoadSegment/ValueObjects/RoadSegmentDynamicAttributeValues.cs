@@ -7,7 +7,6 @@ using RoadRegistry.BackOffice;
 
 public class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmentDynamicAttributeValues<T>>
 {
-    //TODO-pr dit object serializen als Values rechstreeks ipv eigen object? if so, via custom JsonConverter
     public ImmutableList<RoadSegmentDynamicAttributeValue<T>> Values { get; private set; } = [];
 
     public RoadSegmentDynamicAttributeValues<T> Add(T value)

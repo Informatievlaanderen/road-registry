@@ -2,9 +2,11 @@
 
 using System.Data;
 using BackOffice;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Dapper;
 using Marten;
 using NetTopologySuite.Geometries;
+using Newtonsoft.Json;
 using Projections;
 using RoadNetwork;
 using RoadNetwork.Events;
@@ -34,12 +36,13 @@ public class RoadNetworkRepository : IRoadNetworkRepository
         return roadNetwork;
     }
 
-    public async Task Save(RoadNetwork roadNetwork, CancellationToken cancellationToken)
+    public async Task Save(RoadNetwork roadNetwork, Provenance provenance, CancellationToken cancellationToken)
     {
         await using var session = _store.LightweightSession();
 
         var roadNetworkChangedEvent = roadNetwork.GetChanges().OfType<RoadNetworkChanged>().Single();
         session.CausationId = roadNetworkChangedEvent.CausationId;
+        session.SetHeader("Provenance", provenance.ToDictionary());
 
         SaveEntities(roadNetwork.RoadSegments, session);
         SaveEntities(roadNetwork.RoadNodes, session);

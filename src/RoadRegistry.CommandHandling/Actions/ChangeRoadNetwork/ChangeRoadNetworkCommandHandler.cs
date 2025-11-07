@@ -28,8 +28,7 @@ public class ChangeRoadNetworkCommandHandler
 
         if (!changeResult.Problems.HasError())
         {
-            //TODO-pr save command.Provenance in event metadata?
-            await _roadNetworkRepository.Save(roadNetwork, cancellationToken);
+            await _roadNetworkRepository.Save(roadNetwork, command.Provenance, cancellationToken);
         }
 
         return changeResult;

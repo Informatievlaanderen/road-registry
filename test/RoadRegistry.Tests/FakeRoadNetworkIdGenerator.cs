@@ -147,8 +147,6 @@ namespace RoadRegistry.Tests
                 SetCurrentValue(nameof(NewTransactionIdAsync), maxTransactionId);
             }
 
-            //TODO-pr implement new events
-
             foreach (var roadNetworkChangesAccepted in events.OfType<RoadNetworkChangesAccepted>())
             {
                 foreach (var change in roadNetworkChangesAccepted.Changes.Flatten())
