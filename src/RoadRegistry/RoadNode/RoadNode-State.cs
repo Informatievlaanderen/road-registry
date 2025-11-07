@@ -10,29 +10,12 @@ using RoadSegment.ValueObjects;
 
 public partial class RoadNode
 {
-    private readonly List<RoadSegmentId> _segments = [];
-
     public RoadNodeId RoadNodeId { get; }
     public Point Geometry { get; private set; }
     public RoadNodeType Type { get; private set; }
-    public IReadOnlyCollection<RoadSegmentId> Segments => _segments.AsReadOnly();
 
     [JsonIgnore]
     public bool IsRemoved { get; private set; }
-
-    [JsonIgnore]
-    public IReadOnlyCollection<RoadNodeType> SupportedRoadNodeTypes
-    {
-        get
-        {
-            if (_segments.Count == 0) return [];
-            if (_segments.Count == 1) return [RoadNodeType.MiniRoundabout, RoadNodeType.EndNode];
-            if (_segments.Count == 2) return [RoadNodeType.MiniRoundabout, RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode];
-
-            // 3 or more
-            return [RoadNodeType.MiniRoundabout, RoadNodeType.RealNode];
-        }
-    }
 
     public RoadNode(RoadNodeId id)
         : base(id)
@@ -44,13 +27,11 @@ public partial class RoadNode
     public RoadNode(
         int roadNodeId,
         Point geometry,
-        string type,
-        ICollection<int> segments)
+        string type)
         : this(new RoadNodeId(roadNodeId))
     {
         Geometry = geometry;
         Type = RoadNodeType.Parse(type);
-        _segments = segments.Select(x => new RoadSegmentId(x)).ToList();
     }
 
     public static RoadNode Create(RoadNodeAdded @event)

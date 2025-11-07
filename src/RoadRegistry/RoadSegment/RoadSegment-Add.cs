@@ -82,9 +82,6 @@ NumberedRoadOrdinal*/
             NationalRoadNumbers = change.NationalRoadNumbers,
         });
 
-        startRoadNode!.ConnectWith(segment.RoadSegmentId);
-        endRoadNode!.ConnectWith(segment.RoadSegmentId);
-
         return (segment, problems);
     }
 }

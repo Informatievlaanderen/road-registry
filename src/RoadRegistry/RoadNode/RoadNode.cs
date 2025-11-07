@@ -1,11 +1,12 @@
 ﻿namespace RoadRegistry.RoadNode;
 
+using System.Collections.Generic;
 using System.Linq;
 using BackOffice;
 using BackOffice.Core;
 using NetTopologySuite.Geometries;
 using RoadNetwork.ValueObjects;
-using RoadSegment.ValueObjects;
+using RoadSegment;
 
 public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
 {
@@ -13,59 +14,89 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
     {
         var problems = Problems.None;
 
-        // if (IsRemoved)
-        // {
-        //     //TODO-pr implement
-        // }
+        var segments = context.RoadNetwork.RoadSegments.Values
+            .Where(x => x.StartNodeId == RoadNodeId || x.EndNodeId == RoadNodeId)
+            .ToList();
+
+        if (IsRemoved)
+        {
+            foreach (var segment in segments)
+            {
+                if (segment.StartNodeId == RoadNodeId)
+                {
+                    problems = problems.Add(new RoadSegmentStartNodeMissing(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId)));
+                }
+
+                if (segment.EndNodeId == RoadNodeId)
+                {
+                    problems = problems.Add(new RoadSegmentEndNodeMissing(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId)));
+                }
+            }
+
+            return problems;
+        }
 
         var byOtherNode =
             context.RoadNetwork.RoadNodes.Values.FirstOrDefault(n =>
                 n.Id != Id &&
                 n.Geometry.IsReasonablyEqualTo(Geometry, context.Tolerances));
-        if (byOtherNode != null)
+        if (byOtherNode is not null)
+        {
             problems = problems.Add(new RoadNodeGeometryTaken(
                 context.IdTranslator.TranslateToTemporaryId(byOtherNode.RoadNodeId)
             ));
-
-        var node = context.RoadNetwork.RoadNodes[RoadNodeId];
+        }
 
         problems = context.RoadNetwork.RoadSegments.Values
             .Where(s =>
-                !node.Segments.Contains(s.RoadSegmentId) &&
-                s.Geometry.IsWithinDistance(Geometry, Distances.TooClose)
+                segments.All(x => x.RoadSegmentId != s.RoadSegmentId)
+                && s.Geometry.IsWithinDistance(Geometry, Distances.TooClose)
             )
-            .Aggregate(
-                problems,
-                (current, segment) =>
+            .Aggregate(problems, (current, segment) =>
                     current.Add(new RoadNodeTooClose(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId))));
 
-        problems = problems.AddRange(node.VerifyTypeMatchesConnectedSegmentCount(context));
+        problems = problems.AddRange(VerifyTypeMatchesConnectedSegmentCount(context, segments));
 
         return problems;
     }
 
     public Problems VerifyTypeMatchesConnectedSegmentCount(RoadNetworkChangeContext context)
     {
+        var segments = context.RoadNetwork.RoadSegments.Values
+            .Where(x => x.StartNodeId == RoadNodeId || x.EndNodeId == RoadNodeId)
+            .ToList();
+
+        return VerifyTypeMatchesConnectedSegmentCount(context, segments);
+    }
+
+    private Problems VerifyTypeMatchesConnectedSegmentCount(RoadNetworkChangeContext context, List<RoadSegment> segments)
+    {
         var problems = Problems.None;
 
-        if (Segments.Count == 0)
+        if (segments.Count == 0)
         {
             problems = problems.Add(new RoadNodeNotConnectedToAnySegment(context.IdTranslator.TranslateToTemporaryId(RoadNodeId)));
         }
-        else if (Segments.Count == 1 && Type != RoadNodeType.EndNode)
+        else if (segments.Count == 1 && Type != RoadNodeType.EndNode)
         {
-            problems = problems.Add(RoadNodeTypeMismatch.New(context.IdTranslator.TranslateToTemporaryId(RoadNodeId), Segments.Select(context.IdTranslator.TranslateToTemporaryId).ToArray(), Type, [RoadNodeType.EndNode]));
+            problems = problems.Add(RoadNodeTypeMismatch.New(
+                context.IdTranslator.TranslateToTemporaryId(RoadNodeId),
+                segments.Select(x => context.IdTranslator.TranslateToTemporaryId(x.RoadSegmentId)).ToArray(),
+                Type,
+                [RoadNodeType.EndNode]));
         }
-        else if (Segments.Count == 2)
+        else if (segments.Count == 2)
         {
             if (!Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
             {
-                problems = problems.Add(RoadNodeTypeMismatch.New(context.IdTranslator.TranslateToTemporaryId(RoadNodeId), Segments.Select(context.IdTranslator.TranslateToTemporaryId).ToArray(), Type, [RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode]));
+                problems = problems.Add(RoadNodeTypeMismatch.New(
+                    context.IdTranslator.TranslateToTemporaryId(RoadNodeId),
+                    segments.Select(x => context.IdTranslator.TranslateToTemporaryId(x.RoadSegmentId)).ToArray(),
+                    Type,
+                    [RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode]));
             }
             else if (Type == RoadNodeType.FakeNode)
             {
-                var segments = Segments.Select(segmentId => context.RoadNetwork.RoadSegments[segmentId])
-                    .ToArray();
                 var segment1 = segments[0];
                 var segment2 = segments[1];
                 if (segment1.Attributes.Equals(segment2.Attributes))
@@ -78,20 +109,15 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
                 }
             }
         }
-        else if (Segments.Count > 2 && !Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
+        else if (segments.Count > 2 && !Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
         {
-            problems = problems.Add(RoadNodeTypeMismatch.New(context.IdTranslator.TranslateToTemporaryId(RoadNodeId), Segments.Select(context.IdTranslator.TranslateToTemporaryId).ToArray(), Type, [RoadNodeType.RealNode, RoadNodeType.MiniRoundabout]));
+            problems = problems.Add(RoadNodeTypeMismatch.New(
+                context.IdTranslator.TranslateToTemporaryId(RoadNodeId),
+                segments.Select(x => context.IdTranslator.TranslateToTemporaryId(x.RoadSegmentId)).ToArray(),
+                Type,
+                [RoadNodeType.RealNode, RoadNodeType.MiniRoundabout]));
         }
 
         return problems;
-    }
-
-    public void ConnectWith(RoadSegmentId segment)
-    {
-        _segments.Add(segment);
-    }
-    public void DisconnectFrom(RoadSegmentId segment)
-    {
-        _segments.Remove(segment);
     }
 }

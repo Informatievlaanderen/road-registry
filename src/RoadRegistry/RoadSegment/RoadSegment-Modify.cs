@@ -72,9 +72,6 @@ NumberedRoadOrdinal*/
             return problems;
         }
 
-        var originalStartRoadNode = context.RoadNetwork.RoadNodes[StartNodeId];
-        var originalEndRoadNode = context.RoadNetwork.RoadNodes[EndNodeId];
-
         Apply(new RoadSegmentModified
         {
             Id = RoadSegmentId,
@@ -96,11 +93,6 @@ NumberedRoadOrdinal*/
             NationalRoadNumbers = change.NationalRoadNumbers ?? Attributes.NationalRoadNumbers
             //ConvertedFromOutlined = ConvertedFromOutlined
         });
-
-        originalStartRoadNode.DisconnectFrom(RoadSegmentId);
-        originalEndRoadNode.DisconnectFrom(RoadSegmentId);
-        startRoadNode!.ConnectWith(RoadSegmentId);
-        endRoadNode!.ConnectWith(RoadSegmentId);
 
         return problems;
     }
