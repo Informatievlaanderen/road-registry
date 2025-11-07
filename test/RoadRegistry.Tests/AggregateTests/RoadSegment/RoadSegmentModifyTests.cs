@@ -4,12 +4,9 @@ using AutoFixture;
 using Framework;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.RoadNetwork.Changes;
-using RoadRegistry.RoadSegment.ValueObjects;
 using RoadSegmentModified = RoadRegistry.RoadSegment.Events.RoadSegmentModified;
 
-//TODO-pr aggregates (roadsegment/roadnode/gradeseparatedjunction) test each action: validation+event
 //TODO-pr unit test domein: RoadNetworkChangeTests en RoadSegmentModifyTests
 
 //TODO-pr voeg rest vd domein changes uit ChangeRoadNetworkCommand toe
@@ -21,7 +18,7 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
     {
         var change = new ModifyRoadSegmentChange
         {
-            Id = new RoadSegmentId(TestData.Segment1Added.Id),
+            Id = TestData.Segment1Added.Id,
             EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()]
         };
 
@@ -53,26 +50,42 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
     }
 
     [Fact]
-    public Task WhenUnknownRoadNodeId_ThenError()
+    public Task WhenNotFound_ThenError()
     {
         var change = new ModifyRoadSegmentChange
         {
-            Id = new RoadSegmentId(TestData.Segment1Added.Id),
+            Id = TestData.Segment1Added.Id,
             StartNodeId = new RoadNodeId(9)
         };
 
         return Run(scenario => scenario
-                .Given(changes => changes
-                    .Add(TestData.AddStartNode1)
-                    .Add(TestData.AddEndNode1)
-                    .Add(TestData.AddSegment1)
-                )
-                .When(changes => changes.Add(change))
-                .Throws(
-                    new Error("RoadSegmentStartNodeMissing", [new("Identifier", "1")])
-                )
+            .Given(changes => changes)
+            .When(changes => changes.Add(change))
+            .Throws(new Error("RoadSegmentNotFound", [new("SegmentId", change.Id.ToString())]))
         );
     }
+
+    [Fact]
+    public Task WhenStartNodeIsMissing_ThenError()
+    {
+        var change = new ModifyRoadSegmentChange
+        {
+            Id = TestData.Segment1Added.Id,
+            StartNodeId = new RoadNodeId(9)
+        };
+
+        return Run(scenario => scenario
+            .Given(changes => changes
+                .Add(TestData.AddStartNode1)
+                .Add(TestData.AddEndNode1)
+                .Add(TestData.AddSegment1)
+            )
+            .When(changes => changes.Add(change))
+            .Throws(new Error("RoadSegmentStartNodeMissing", [new("Identifier", "1")]))
+        );
+    }
+
+    //TODO-pr test validations RoadSegment.Modify, do Add first
 
     // [Fact]
     // public Task when_modifying_a_segment_geometry_with_length_at_least_100000()
