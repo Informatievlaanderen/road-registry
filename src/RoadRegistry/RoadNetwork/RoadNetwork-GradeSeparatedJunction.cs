@@ -1,7 +1,7 @@
 ﻿namespace RoadRegistry.RoadNetwork;
 
 using BackOffice.Core;
-using Changes;
+using GradeSeparatedJunction.Changes;
 using ValueObjects;
 using GradeSeparatedJunction = RoadRegistry.GradeSeparatedJunction.GradeSeparatedJunction;
 
@@ -19,23 +19,13 @@ public partial class RoadNetwork
         return problems;
     }
 
-    // private Problems ModifyGradeSeparatedJunction(ModifyGradeSeparatedJunctionChange change, RoadNetworkChangeContext context)
-    // {
-    //     if (!_gradeSeparatedJunctions.TryGetValue(change.Id, out var gradeSeparatedJunction))
-    //     {
-    //         return Problems.Single(new GradeSeparatedJunctionNotFound(change.OriginalId ?? change.Id));
-    //     }
-    //
-    //     return gradeSeparatedJunction.Modify(change, context);
-    // }
-    //
-    // private Problems RemoveRoadSegment(RemoveGradeSeparatedJunctionChange change, RoadNetworkChangeContext context)
-    // {
-    //     if (!_gradeSeparatedJunctions.TryGetValue(change.Id, out var gradeSeparatedJunction))
-    //     {
-    //         return Problems.Single(new GradeSeparatedJunctionNotFound(change.Id));
-    //     }
-    //
-    //     return gradeSeparatedJunction.Remove(change, context);
-    // }
+    private Problems RemoveGradeSeparatedJunction(RemoveGradeSeparatedJunctionChange change)
+    {
+        if (!_gradeSeparatedJunctions.TryGetValue(change.GradeSeparatedJunctionId, out var gradeSeparatedJunction))
+        {
+            return Problems.Single(new GradeSeparatedJunctionNotFound(change.GradeSeparatedJunctionId));
+        }
+
+        return gradeSeparatedJunction.Remove();
+    }
 }

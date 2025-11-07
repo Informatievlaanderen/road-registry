@@ -26,12 +26,12 @@ public class RoadSegmentProjectionTests : IClassFixture<DatabaseFixture>
 
         var expectedRoadSegment1 = new RoadSegmentProjectionItem
         {
-            Id = roadSegment1Added.Id,
+            Id = roadSegment1Added.RoadSegmentId,
             GeometryDrawMethod = roadSegment1Added.GeometryDrawMethod
         };
         var expectedRoadSegment2 = new RoadSegmentProjectionItem
         {
-            Id = roadSegment2Added.Id,
+            Id = roadSegment2Added.RoadSegmentId,
             GeometryDrawMethod = roadSegment2Added.GeometryDrawMethod
         };
 
@@ -52,7 +52,7 @@ public class RoadSegmentProjectionTests : IClassFixture<DatabaseFixture>
 
         await CreateProjectionTestRunner()
             .Given(roadSegment1Added, roadSegment1Removed)
-            .ExpectNone(roadSegment1Added.Id);
+            .ExpectNone(roadSegment1Added.RoadSegmentId);
     }
 
     private MartenProjectionIntegrationTestRunner CreateProjectionTestRunner()

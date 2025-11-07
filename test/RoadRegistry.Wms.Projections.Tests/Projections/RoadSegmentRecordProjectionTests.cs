@@ -965,7 +965,7 @@ public class RoadSegmentRecordProjectionTests
 
         var record = new RoadSegmentRecord
         {
-            Id = roadSegmentAdded.Id,
+            Id = roadSegmentAdded.RoadSegmentId,
             // BeginRoadNodeId = roadSegmentAdded.StartNodeId,
             // EndRoadNodeId = roadSegmentAdded.EndNodeId,
             // Geometry2D = geometry,

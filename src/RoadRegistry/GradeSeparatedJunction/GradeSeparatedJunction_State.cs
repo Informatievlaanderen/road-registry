@@ -37,14 +37,20 @@ public partial class GradeSeparatedJunction
 
     public static GradeSeparatedJunction Create(GradeSeparatedJunctionAdded @event)
     {
-        var junction = new GradeSeparatedJunction(@event.Id)
+        var junction = new GradeSeparatedJunction(@event.GradeSeparatedJunctionId)
         {
             LowerRoadSegmentId = @event.LowerRoadSegmentId,
             UpperRoadSegmentId = @event.UpperRoadSegmentId,
             Type = @event.Type
-            //LastEventHash = @event.GetHash();
         };
         junction.UncommittedEvents.Add(@event);
         return junction;
+    }
+
+    public void Apply(GradeSeparatedJunctionRemoved @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        IsRemoved = true;
     }
 }

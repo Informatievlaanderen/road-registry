@@ -1,8 +1,8 @@
 ﻿namespace RoadRegistry.GradeSeparatedJunction;
 
 using BackOffice.Core;
+using Changes;
 using Events;
-using RoadNetwork.Changes;
 using RoadNetwork.ValueObjects;
 
 public partial class GradeSeparatedJunction
@@ -13,7 +13,7 @@ public partial class GradeSeparatedJunction
 
         var roadNode = Create(new GradeSeparatedJunctionAdded
         {
-            Id = context.IdGenerator.NewGradeSeparatedJunctionId(),
+            GradeSeparatedJunctionId = context.IdGenerator.NewGradeSeparatedJunctionId(),
             TemporaryId = change.TemporaryId,
             LowerRoadSegmentId = change.LowerRoadSegmentId,
             UpperRoadSegmentId = change.UpperRoadSegmentId,

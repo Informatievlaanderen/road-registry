@@ -69,13 +69,13 @@ public static class MartenProjectionIntegrationTestRunnerExtensions
                     runner.Given<RoadRegistry.RoadNode.RoadNode, RoadNodeId>(@event.Id, @event);
                     break;
                 case RoadSegmentAdded @event:
-                    runner.Given<RoadRegistry.RoadSegment.RoadSegment, RoadSegmentId>(@event.Id, @event);
+                    runner.Given<RoadRegistry.RoadSegment.RoadSegment, RoadSegmentId>(@event.RoadSegmentId, @event);
                     break;
                 case RoadSegmentModified @event:
-                    runner.Given<RoadRegistry.RoadSegment.RoadSegment, RoadSegmentId>(@event.Id, @event);
+                    runner.Given<RoadRegistry.RoadSegment.RoadSegment, RoadSegmentId>(@event.RoadSegmentId, @event);
                     break;
                 case RoadSegmentRemoved @event:
-                    runner.Given<RoadRegistry.RoadSegment.RoadSegment, RoadSegmentId>(@event.Id, @event);
+                    runner.Given<RoadRegistry.RoadSegment.RoadSegment, RoadSegmentId>(@event.RoadSegmentId, @event);
                     break;
                 default:
                     throw new NotImplementedException($"Unhandled event type: {evt.GetType().Name}");

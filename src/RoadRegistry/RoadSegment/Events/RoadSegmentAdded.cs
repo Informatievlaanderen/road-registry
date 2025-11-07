@@ -10,7 +10,7 @@ public class RoadSegmentAdded: IHaveHash, ICreatedEvent
 {
     public const string EventName = "RoadSegmentAdded";
 
-    public required RoadSegmentId Id { get; init; }
+    public required RoadSegmentId RoadSegmentId { get; init; }
     public required RoadSegmentId OriginalId { get; init; }
     public required GeometryObject Geometry { get; init; }
     public required RoadNodeId StartNodeId { get; init; }

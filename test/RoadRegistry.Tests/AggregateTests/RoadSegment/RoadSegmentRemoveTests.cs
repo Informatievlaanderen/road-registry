@@ -5,7 +5,7 @@ using Framework;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Exceptions;
-using RoadRegistry.RoadNetwork.Changes;
+using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadSegmentModified = RoadRegistry.RoadSegment.Events.RoadSegmentModified;
@@ -17,7 +17,7 @@ public class RoadSegmentRemoveTests : RoadNetworkTestBase
     {
         var change = new RemoveRoadSegmentChange
         {
-            Id = TestData.Segment1Added.Id
+            RoadSegmentId = TestData.Segment1Added.RoadSegmentId
         };
 
         return Run(scenario => scenario
@@ -29,7 +29,7 @@ public class RoadSegmentRemoveTests : RoadNetworkTestBase
                 .When(changes => changes.Add(change))
                 .Then(new RoadSegmentRemoved
                 {
-                    Id = change.Id
+                    RoadSegmentId = change.RoadSegmentId
                 })
         );
     }
@@ -39,13 +39,13 @@ public class RoadSegmentRemoveTests : RoadNetworkTestBase
     {
         var change = new RemoveRoadSegmentChange
         {
-            Id = TestData.Segment1Added.Id
+            RoadSegmentId = TestData.Segment1Added.RoadSegmentId
         };
 
         return Run(scenario => scenario
             .Given(changes => changes)
             .When(changes => changes.Add(change))
-            .Throws(new Error("RoadSegmentNotFound", [new("SegmentId", change.Id.ToString())]))
+            .Throws(new Error("RoadSegmentNotFound", [new("SegmentId", change.RoadSegmentId.ToString())]))
         );
     }
 }

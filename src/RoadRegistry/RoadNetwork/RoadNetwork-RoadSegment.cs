@@ -1,8 +1,10 @@
 ﻿namespace RoadRegistry.RoadNetwork;
 
+using System;
 using BackOffice.Core;
-using Changes;
 using RoadSegment;
+using RoadSegment.Changes;
+using RoadSegment.ValueObjects;
 using ValueObjects;
 
 public partial class RoadNetwork
@@ -22,9 +24,9 @@ public partial class RoadNetwork
 
     private Problems ModifyRoadSegment(ModifyRoadSegmentChange change, RoadNetworkChangeContext context)
     {
-        var originalIdOrId = change.OriginalId ?? change.Id;
+        var originalIdOrId = change.OriginalId ?? change.RoadSegmentId;
 
-        if (!_roadSegments.TryGetValue(change.Id, out var roadSegment))
+        if (!_roadSegments.TryGetValue(change.RoadSegmentId, out var roadSegment))
         {
             return Problems.Single(new RoadSegmentNotFound(originalIdOrId));
         }
@@ -33,13 +35,13 @@ public partial class RoadNetwork
         return roadSegment.Modify(change, context);
     }
 
-    private Problems RemoveRoadSegment(RemoveRoadSegmentChange change, RoadNetworkChangeContext context)
+    private Problems ExecuteOnRoadSegment(RoadSegmentId roadSegmentId, Func<RoadSegment, Problems> modify)
     {
-        if (!_roadSegments.TryGetValue(change.Id, out var roadSegment))
+        if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment))
         {
-            return Problems.Single(new RoadSegmentNotFound(change.Id));
+            return Problems.Single(new RoadSegmentNotFound(roadSegmentId));
         }
 
-        return roadSegment.Remove(change, context);
+        return modify(roadSegment);
     }
 }

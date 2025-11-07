@@ -26,8 +26,8 @@ public class RoadSegmentProjectionTests : IClassFixture<DatabaseFixture>
         var roadSegment1Added = fixture.Create<RoadSegmentAdded>();
         var roadSegment2Added = fixture.Create<RoadSegmentAdded>();
 
-        var expectedRoadSegment1 = new RoadSegmentRecord(roadSegment1Added.Id);
-        var expectedRoadSegment2 = new RoadSegmentRecord(roadSegment2Added.Id);
+        var expectedRoadSegment1 = new RoadSegmentRecord(roadSegment1Added.RoadSegmentId);
+        var expectedRoadSegment2 = new RoadSegmentRecord(roadSegment2Added.RoadSegmentId);
 
         await CreateProjectionTestRunner()
             .Given(roadSegment1Added, roadSegment2Added)

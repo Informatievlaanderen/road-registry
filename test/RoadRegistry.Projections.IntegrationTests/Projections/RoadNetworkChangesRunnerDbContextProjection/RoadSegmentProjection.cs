@@ -11,7 +11,7 @@ public class RoadSegmentProjection : ConnectedProjection<TestDbContext>
     {
         When<IEvent<RoadSegmentAdded>>((context, e, ct) =>
         {
-            context.RoadSegments.Add(new RoadSegmentRecord(e.Data.Id));
+            context.RoadSegments.Add(new RoadSegmentRecord(e.Data.RoadSegmentId));
             return Task.CompletedTask;
         });
     }

@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using BackOffice;
 using Events;
 using NetTopologySuite.Geometries;
@@ -32,7 +33,6 @@ public partial class RoadSegment
             }
         }
     }
-    //public string LastEventHash { get; private set; }
 
     [JsonIgnore]
     public bool IsRemoved { get; private set; }
@@ -61,7 +61,7 @@ public partial class RoadSegment
 
     public static RoadSegment Create(RoadSegmentAdded @event)
     {
-        var segment = new RoadSegment(@event.Id)
+        var segment = new RoadSegment(@event.RoadSegmentId)
         {
             Geometry = @event.Geometry.AsMultiLineString(),
             StartNodeId = @event.StartNodeId,
@@ -79,7 +79,6 @@ public partial class RoadSegment
                 EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
                 NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
             }
-            //LastEventHash = @event.GetHash();
         };
         segment.UncommittedEvents.Add(@event);
         return segment;
@@ -105,7 +104,6 @@ public partial class RoadSegment
             EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
             NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
         };
-        //LastEventHash = @event.GetHash();
     }
 
     public void Apply(RoadSegmentRemoved @event)
@@ -113,6 +111,43 @@ public partial class RoadSegment
         UncommittedEvents.Add(@event);
 
         IsRemoved = true;
-        //LastEventHash = @event.GetHash();
+    }
+
+    public void Apply(RoadSegmentAddedToEuropeanRoad @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        Attributes = Attributes with
+        {
+            EuropeanRoadNumbers = Attributes.EuropeanRoadNumbers.Add(@event.Number)
+        };
+    }
+    public void Apply(RoadSegmentRemovedFromEuropeanRoad @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        Attributes = Attributes with
+        {
+            EuropeanRoadNumbers = Attributes.EuropeanRoadNumbers.Remove(@event.Number)
+        };
+    }
+
+    public void Apply(RoadSegmentAddedToNationalRoad @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        Attributes = Attributes with
+        {
+            NationalRoadNumbers = Attributes.NationalRoadNumbers.Add(@event.Number)
+        };
+    }
+    public void Apply(RoadSegmentRemovedFromNationalRoad @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        Attributes = Attributes with
+        {
+            NationalRoadNumbers = Attributes.NationalRoadNumbers.Remove(@event.Number)
+        };
     }
 }

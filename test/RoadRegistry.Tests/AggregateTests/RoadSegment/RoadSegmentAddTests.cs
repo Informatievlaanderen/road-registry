@@ -3,7 +3,7 @@
 using Framework;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using RoadRegistry.RoadNetwork.Changes;
+using RoadRegistry.RoadSegment.Changes;
 
 public class RoadSegmentAddTests : RoadNetworkTestBase
 {
@@ -29,7 +29,7 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
     {
         var change = new ModifyRoadSegmentChange
         {
-            Id = TestData.Segment1Added.Id,
+            RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
             StartNodeId = new RoadNodeId(9)
         };
 

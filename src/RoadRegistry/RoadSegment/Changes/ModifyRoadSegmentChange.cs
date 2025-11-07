@@ -1,13 +1,14 @@
-namespace RoadRegistry.RoadNetwork.Changes;
+namespace RoadRegistry.RoadSegment.Changes;
 
 using System.Collections.Generic;
-using BackOffice;
 using NetTopologySuite.Geometries;
-using RoadSegment.ValueObjects;
+using RoadNetwork;
+using RoadRegistry.BackOffice;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public sealed record ModifyRoadSegmentChange : IRoadNetworkChange
 {
-    public required RoadSegmentId Id { get; init; }
+    public required RoadSegmentId RoadSegmentId { get; init; }
 
     //public required RoadSegmentVersion Version { get; init; }
     //public required GeometryVersion? GeometryVersion { get; init; }

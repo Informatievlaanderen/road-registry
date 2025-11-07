@@ -1,7 +1,9 @@
 namespace RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
 
+using GradeSeparatedJunction.Changes;
 using RoadNetwork;
-using RoadNetwork.Changes;
+using RoadNode.Changes;
+using RoadSegment.Changes;
 
 public class RoadNetworkChangesFactory
 {
@@ -21,12 +23,12 @@ public class RoadNetworkChangesFactory
                 case AddRoadNodeChange command:
                     roadNetworkChanges.Add(command);
                     break;
-                // case ModifyRoadNodeChange command:
-                //     roadNetworkChanges.Add(command);
-                //     break;
-                // case RemoveRoadNodeChange command:
-                //     roadNetworkChanges.Add(command);
-                //     break;
+                case ModifyRoadNodeChange command:
+                    roadNetworkChanges.Add(command);
+                    break;
+                case RemoveRoadNodeChange command:
+                    roadNetworkChanges.Add(command);
+                    break;
                 case AddRoadSegmentChange command:
                     roadNetworkChanges.Add(command);
                     break;
@@ -36,67 +38,47 @@ public class RoadNetworkChangesFactory
                 case RemoveRoadSegmentChange command:
                     roadNetworkChanges.Add(command);
                     break;
-                // case RemoveRoadSegmentsChange command:
-                //     translated = translated.Append(Translate(command, organizations));
-                //     break;
-                // case RemoveOutlinedRoadSegmentChange command:
-                //     translated = translated.Append(Translate(command));
-                //     break;
-                // case RemoveOutlinedRoadSegmentFromRoadNetworkChange command:
-                //     translated = translated.Append(Translate(command));
-                //     break;
-                // case AddRoadSegmentToEuropeanRoadChange command:
-                //     translated = translated.Append(await Translate(command, translated, ct));
-                //     break;
-                // case RemoveRoadSegmentFromEuropeanRoadChange command:
-                //     translated = translated.Append(await Translate(command, translated, ct));
-                //     break;
-                // case AddRoadSegmentToNationalRoadChange command:
-                //     translated = translated.Append(await Translate(command, translated, ct));
-                //     break;
-                // case RemoveRoadSegmentFromNationalRoadChange command:
-                //     translated = translated.Append(await Translate(command, translated, ct));
-                //     break;
-                // case AddRoadSegmentToNumberedRoadChange command:
-                //     translated = translated.Append(await Translate(command, translated, ct));
-                //     break;
-                // case RemoveRoadSegmentFromNumberedRoadChange command:
-                //     translated = translated.Append(await Translate(command, translated, ct));
-                //     break;
+                case AddRoadSegmentToEuropeanRoadChange command:
+                    roadNetworkChanges.Add(command);
+                    break;
+                case RemoveRoadSegmentFromEuropeanRoadChange command:
+                    roadNetworkChanges.Add(command);
+                    break;
+                case AddRoadSegmentToNationalRoadChange command:
+                    roadNetworkChanges.Add(command);
+                    break;
+                case RemoveRoadSegmentFromNationalRoadChange command:
+                    roadNetworkChanges.Add(command);
+                    break;
                 case AddGradeSeparatedJunctionChange command:
                     roadNetworkChanges.Add(command);
                     break;
-                // case ModifyGradeSeparatedJunctionChange command:
-                //     translated = translated.Append(Translate(command, translated));
-                //     break;
-                // case RemoveGradeSeparatedJunctionChange command:
-                //     translated = translated.Append(Translate(command));
-                //     break;
+                case RemoveGradeSeparatedJunctionChange command:
+                    roadNetworkChanges.Add(command);
+                    break;
             }
         }
 
         return roadNetworkChanges;
     }
 
+    //TODO-pr move sorting logic to Domain? RoadNetwork.Change
     private sealed class RankChangeBeforeTranslation : IComparer<SortableChange>
     {
         private static readonly Type[] SequenceByTypeOfChange =
         {
             typeof(AddRoadNodeChange),
             typeof(AddRoadSegmentChange),
-            // typeof(AddRoadSegmentToEuropeanRoadChange),
-            // typeof(AddRoadSegmentToNationalRoadChange),
-            // typeof(AddRoadSegmentToNumberedRoadChange),
+            typeof(AddRoadSegmentToEuropeanRoadChange),
+            typeof(AddRoadSegmentToNationalRoadChange),
             typeof(AddGradeSeparatedJunctionChange),
-            // typeof(ModifyRoadNodeChange),
+            typeof(ModifyRoadNodeChange),
             typeof(ModifyRoadSegmentChange),
-            // typeof(ModifyGradeSeparatedJunctionChange),
-            // typeof(RemoveRoadSegmentFromEuropeanRoadChange),
-            // typeof(RemoveRoadSegmentFromNationalRoadChange),
-            // typeof(RemoveRoadSegmentFromNumberedRoadChange),
-            // typeof(RemoveGradeSeparatedJunctionChange),
+            typeof(RemoveRoadSegmentFromEuropeanRoadChange),
+            typeof(RemoveRoadSegmentFromNationalRoadChange),
+            typeof(RemoveGradeSeparatedJunctionChange),
             typeof(RemoveRoadSegmentChange),
-            // typeof(RemoveRoadNodeChange)
+            typeof(RemoveRoadNodeChange)
         };
 
         public int Compare(SortableChange? left, SortableChange? right)

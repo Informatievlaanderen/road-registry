@@ -4,7 +4,7 @@ using AutoFixture;
 using Framework;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using RoadRegistry.RoadNetwork.Changes;
+using RoadRegistry.RoadSegment.Changes;
 using RoadSegmentModified = RoadRegistry.RoadSegment.Events.RoadSegmentModified;
 
 //TODO-pr unit test domein: RoadNetworkChangeTests en RoadSegmentModifyTests
@@ -18,7 +18,7 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
     {
         var change = new ModifyRoadSegmentChange
         {
-            Id = TestData.Segment1Added.Id,
+            RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
             EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()]
         };
 
@@ -31,7 +31,7 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
                 .When(changes => changes.Add(change))
                 .Then(new RoadSegmentModified
                 {
-                    Id = change.Id,
+                    RoadSegmentId = change.RoadSegmentId,
                     Geometry = TestData.Segment1Added.Geometry,
                     StartNodeId = TestData.Segment1Added.StartNodeId,
                     EndNodeId = TestData.Segment1Added.EndNodeId,
@@ -54,14 +54,14 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
     {
         var change = new ModifyRoadSegmentChange
         {
-            Id = TestData.Segment1Added.Id,
+            RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
             StartNodeId = new RoadNodeId(9)
         };
 
         return Run(scenario => scenario
             .Given(changes => changes)
             .When(changes => changes.Add(change))
-            .Throws(new Error("RoadSegmentNotFound", [new("SegmentId", change.Id.ToString())]))
+            .Throws(new Error("RoadSegmentNotFound", [new("SegmentId", change.RoadSegmentId.ToString())]))
         );
     }
 
@@ -70,7 +70,7 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
     {
         var change = new ModifyRoadSegmentChange
         {
-            Id = TestData.Segment1Added.Id,
+            RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
             StartNodeId = new RoadNodeId(9)
         };
 

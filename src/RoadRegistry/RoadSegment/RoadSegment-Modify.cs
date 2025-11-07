@@ -2,9 +2,9 @@
 
 using BackOffice;
 using BackOffice.Core;
+using Changes;
 using Events;
 using NetTopologySuite.Geometries;
-using RoadNetwork.Changes;
 using RoadNetwork.ValueObjects;
 
 public partial class RoadSegment
@@ -74,7 +74,7 @@ NumberedRoadOrdinal*/
 
         Apply(new RoadSegmentModified
         {
-            Id = RoadSegmentId,
+            RoadSegmentId = RoadSegmentId,
             OriginalId = change.OriginalId,
             //Version = afterSegment.Version,
             StartNodeId = change.StartNodeId ?? StartNodeId,

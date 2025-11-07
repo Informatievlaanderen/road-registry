@@ -5,23 +5,36 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using BackOffice;
-using Changes;
+using GradeSeparatedJunction.Changes;
 using NetTopologySuite.Geometries;
+using RoadNode.Changes;
+using RoadSegment.Changes;
 using RoadSegment.ValueObjects;
 
 public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
 {
     public int Count => _changes.Count;
 
-    public List<RoadNodeId> RoadNodeIds { get; } = [];
-    public List<RoadSegmentId> RoadSegmentIds { get; } = [];
-    public List<GradeSeparatedJunctionId> GradeSeparatedJunctionIds { get; } = []; //TODO-pr fill
+    public IReadOnlyCollection<RoadNodeId> RoadNodeIds { get; }
+    public IReadOnlyCollection<RoadSegmentId> RoadSegmentIds { get; }
+    public IReadOnlyCollection<GradeSeparatedJunctionId> GradeSeparatedJunctionIds { get; }
 
     private readonly List<Geometry> _geometries = [];
     private readonly List<IRoadNetworkChange> _changes = [];
+    private readonly List<RoadNodeId> _roadNodeIds = [];
+    private readonly List<RoadSegmentId> _roadSegmentIds = [];
+    private readonly List<GradeSeparatedJunctionId> _gradeSeparatedJunctionIds = [];
 
     private RoadNetworkChanges()
     {
+        RoadNodeIds = _roadNodeIds.AsReadOnly();
+        RoadSegmentIds = _roadSegmentIds.AsReadOnly();
+        GradeSeparatedJunctionIds = _gradeSeparatedJunctionIds.AsReadOnly();
+    }
+
+    public static RoadNetworkChanges Start()
+    {
+        return new RoadNetworkChanges();
     }
 
     public IEnumerator<IRoadNetworkChange> GetEnumerator()
@@ -84,7 +97,6 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
         }
     }
 
-    //TODO-pr implement other change types
     public RoadNetworkChanges Add(AddRoadNodeChange change)
     {
         _geometries.Add(change.Geometry);
@@ -92,24 +104,24 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
         return AddChange(change);
     }
 
-    // public void Add(ModifyRoadNodeChange change)
-    // {
-    //     AppendChange(change);
+    public RoadNetworkChanges Add(ModifyRoadNodeChange change)
+    {
+        if (change.Geometry is not null)
+        {
+            _geometries.Add(change.Geometry);
+        }
 
-    // NodeIds.Add(change.Id);
+        _roadNodeIds.Add(change.Id);
 
-    //     if (modifyRoadNode.Geometry is not null)
-    //     {
-    //         // the geometry to modify it to
-    //         envelope.ExpandToInclude(modifyRoadNode.Geometry.Coordinate);
-    //     }
-    // }
-    //
-    // public void Add(RemoveRoadNodeChange change)
-    // {
-    //     AppendChange(change);
-    // NodeIds.Add(change.Id);
-    // }
+        return AddChange(change);
+    }
+
+    public RoadNetworkChanges Add(RemoveRoadNodeChange change)
+    {
+        _roadNodeIds.Add(change.Id);
+
+        return AddChange(change);
+    }
 
     public RoadNetworkChanges Add(AddRoadSegmentChange change)
     {
@@ -125,14 +137,14 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
             _geometries.Add(change.Geometry);
         }
 
-        RoadSegmentIds.Add(change.Id);
+        _roadSegmentIds.Add(change.RoadSegmentId);
 
         return AddChange(change);
     }
 
     public RoadNetworkChanges Add(RemoveRoadSegmentChange change)
     {
-        RoadSegmentIds.Add(change.Id);
+        _roadSegmentIds.Add(change.RoadSegmentId);
         return AddChange(change);
     }
 
@@ -147,60 +159,49 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
     //}
     // }
     //
-    // public void Add(RemoveOutlinedRoadSegmentChange change)
-    // {
-    //     AddChange(change);
-    // }
-    //
-    // public void Add(RemoveOutlinedRoadSegmentFromRoadNetworkChange change)
-    // {
-    //     AddChange(change);
-    // }
-    //
-    // public void Add(AddRoadSegmentToEuropeanRoadChange change)
-    // {
-    //     AddChange(change);
-    // }
-    //
-    // public void Add(RemoveRoadSegmentFromEuropeanRoadChange change)
-    // {
-    //     AddChange(change);
-    // }
-    //
-    // public void Add(AddRoadSegmentToNationalRoadChange change)
-    // {
-    //     AddChange(change);
-    // }
-    //
-    // public void Add(RemoveRoadSegmentFromNationalRoadChange change)
-    // {
-    //     AddChange(change);
-    // }
-    //
-    // public void Add(AddRoadSegmentToNumberedRoadChange change)
-    // {
-    //     AddChange(change);
-    // }
-    //
-    // public void Add(RemoveRoadSegmentFromNumberedRoadChange change)
-    // {
-    //     AddChange(change);
-    // }
-    //
-    public void Add(AddGradeSeparatedJunctionChange change)
+    public RoadNetworkChanges Add(AddRoadSegmentToEuropeanRoadChange change)
     {
-        AddChange(change);
+        _roadSegmentIds.Add(change.RoadSegmentId);
+
+        return AddChange(change);
     }
-    //
-    // public void Add(ModifyGradeSeparatedJunctionChange change)
-    // {
-    //     AddChange(change);
-    // }
-    //
-    // public void Add(RemoveGradeSeparatedJunctionChange change)
-    // {
-    //     AddChange(change);
-    // }
+
+    public RoadNetworkChanges Add(RemoveRoadSegmentFromEuropeanRoadChange change)
+    {
+        _roadSegmentIds.Add(change.RoadSegmentId);
+
+        return AddChange(change);
+    }
+
+    public RoadNetworkChanges Add(AddRoadSegmentToNationalRoadChange change)
+    {
+        _roadSegmentIds.Add(change.RoadSegmentId);
+
+        return AddChange(change);
+    }
+
+    public RoadNetworkChanges Add(RemoveRoadSegmentFromNationalRoadChange change)
+    {
+        _roadSegmentIds.Add(change.RoadSegmentId);
+
+        return AddChange(change);
+    }
+
+    public RoadNetworkChanges Add(AddGradeSeparatedJunctionChange change)
+    {
+        //TODO-pr te bekijken of dit wel nodig is
+        _roadSegmentIds.Add(change.LowerRoadSegmentId);
+        _roadSegmentIds.Add(change.UpperRoadSegmentId);
+
+        return AddChange(change);
+    }
+
+    public RoadNetworkChanges Add(RemoveGradeSeparatedJunctionChange change)
+    {
+        _gradeSeparatedJunctionIds.Add(change.GradeSeparatedJunctionId);
+
+        return AddChange(change);
+    }
 
     private RoadNetworkChanges AddChange(IRoadNetworkChange change)
     {
@@ -208,10 +209,5 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
 
         _changes.Add(change);
         return this;
-    }
-
-    public static RoadNetworkChanges Start()
-    {
-        return new RoadNetworkChanges();
     }
 }

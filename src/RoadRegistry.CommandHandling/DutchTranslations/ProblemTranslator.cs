@@ -133,8 +133,9 @@ public static class ProblemTranslator
                 $"VanPositie is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")
         },
         {
-            ProblemCode.GradeSeparatedJunction.NotFound, problem => new(problem.Severity, problem.Reason,
-                "De ongelijkgrondse kruising is niet langer onderdeel van het wegen netwerk.")
+            ProblemCode.GradeSeparatedJunction.NotFound, problem => new(problem.Severity, problem.Reason, problem.HasParameter("Identifier")
+                ? $"De ongelijkgrondse kruising met id {problem.GetParameterValue("Identifier")} is niet langer onderdeel van het wegen netwerk."
+                : "De ongelijkgrondse kruising is niet langer onderdeel van het wegen netwerk.")
         },
         {
             ProblemCode.NationalRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason,

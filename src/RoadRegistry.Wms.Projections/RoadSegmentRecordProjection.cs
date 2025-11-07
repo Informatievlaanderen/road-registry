@@ -133,13 +133,13 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         When<IEvent<RoadSegmentAdded>>(async (context, envelope, token) =>
         {
             var dbRecord = await context.RoadSegments
-                .IncludeLocalSingleOrDefaultAsync(x => x.Id == envelope.Data.Id, token)
+                .IncludeLocalSingleOrDefaultAsync(x => x.Id == envelope.Data.RoadSegmentId, token)
                 .ConfigureAwait(false);
             if (context.IsNullOrDeleted(dbRecord))
             {
                 dbRecord = new RoadSegmentRecord
                 {
-                    Id = envelope.Data.Id
+                    Id = envelope.Data.RoadSegmentId
                 };
                 await context.RoadSegments.AddAsync(dbRecord, token);
             }
@@ -207,13 +207,13 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         When<IEvent<RoadSegmentModified>>(async (context, envelope, token) =>
         {
             var dbRecord = await context.RoadSegments
-                .IncludeLocalSingleOrDefaultAsync(x => x.Id == envelope.Data.Id, token)
+                .IncludeLocalSingleOrDefaultAsync(x => x.Id == envelope.Data.RoadSegmentId, token)
                 .ConfigureAwait(false);
             if (context.IsNullOrDeleted(dbRecord))
             {
                 dbRecord = new RoadSegmentRecord
                 {
-                    Id = envelope.Data.Id
+                    Id = envelope.Data.RoadSegmentId
                 };
                 await context.RoadSegments.AddAsync(dbRecord, token);
             }
@@ -433,7 +433,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
     When<IEvent<RoadSegmentRemoved>>(async (context, envelope, token) =>
     {
         var roadSegmentRecord = await context.RoadSegments
-            .IncludeLocalSingleOrDefaultAsync(x => x.Id == envelope.Data.Id, token)
+            .IncludeLocalSingleOrDefaultAsync(x => x.Id == envelope.Data.RoadSegmentId, token)
             .ConfigureAwait(false);
         if (roadSegmentRecord is not null)
         {

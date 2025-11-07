@@ -17,12 +17,12 @@ public class RoadSegmentProjectionTests
 
         var expectedRoadSegment1 = new RoadSegmentProjectionItem
         {
-            Id = roadSegment1Added.Id,
+            Id = roadSegment1Added.RoadSegmentId,
             GeometryDrawMethod = roadSegment1Added.GeometryDrawMethod
         };
         var expectedRoadSegment2 = new RoadSegmentProjectionItem
         {
-            Id = roadSegment2Added.Id,
+            Id = roadSegment2Added.RoadSegmentId,
             GeometryDrawMethod = roadSegment2Added.GeometryDrawMethod
         };
 

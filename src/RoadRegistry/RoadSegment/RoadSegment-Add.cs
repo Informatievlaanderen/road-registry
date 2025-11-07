@@ -2,9 +2,9 @@
 
 using BackOffice;
 using BackOffice.Core;
+using Changes;
 using Events;
 using NetTopologySuite.Geometries;
-using RoadNetwork.Changes;
 using RoadNetwork.ValueObjects;
 
 public partial class RoadSegment
@@ -65,7 +65,7 @@ NumberedRoadOrdinal*/
 
         var segment = Create(new RoadSegmentAdded
         {
-            Id = change.PermanentId ?? context.IdGenerator.NewRoadSegmentId(),
+            RoadSegmentId = change.PermanentId ?? context.IdGenerator.NewRoadSegmentId(),
             OriginalId = change.OriginalId ?? change.TemporaryId,
             Geometry = change.Geometry.ToGeometryObject(),
             StartNodeId = startNodeId,

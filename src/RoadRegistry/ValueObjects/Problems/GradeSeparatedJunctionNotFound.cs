@@ -8,4 +8,10 @@ public class GradeSeparatedJunctionNotFound : Error
         : base(ProblemCode.GradeSeparatedJunction.NotFound)
     {
     }
+
+    public GradeSeparatedJunctionNotFound(GradeSeparatedJunctionId segmentId)
+        : base(ProblemCode.GradeSeparatedJunction.NotFound,
+            new ProblemParameter("Identifier", segmentId.ToInt32().ToString()))
+    {
+    }
 }

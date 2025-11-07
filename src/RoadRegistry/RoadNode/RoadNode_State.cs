@@ -1,12 +1,9 @@
 ﻿namespace RoadRegistry.RoadNode;
 
-using System.Collections.Generic;
-using System.Linq;
 using BackOffice;
 using Events;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
-using RoadSegment.ValueObjects;
 
 public partial class RoadNode
 {
@@ -40,9 +37,23 @@ public partial class RoadNode
         {
             Geometry = @event.Geometry.AsPoint(),
             Type = @event.Type
-            //LastEventHash = @event.GetHash();
         };
         roadNode.UncommittedEvents.Add(@event);
         return roadNode;
+    }
+
+    public void Apply(RoadNodeModified @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        Geometry = @event.Geometry.AsPoint();
+        Type = @event.Type;
+    }
+
+    public void Apply(RoadNodeRemoved @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        IsRemoved = true;
     }
 }

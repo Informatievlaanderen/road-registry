@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using RoadRegistry.BackOffice;
 
-public sealed class RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
+public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
 {
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction> AccessRestriction { get; init; }

@@ -2,16 +2,14 @@
 
 using BackOffice.Core;
 using Events;
-using RoadNetwork.Changes;
-using RoadNetwork.ValueObjects;
 
 public partial class RoadSegment
 {
-    public Problems Remove(RemoveRoadSegmentChange change, RoadNetworkChangeContext context)
+    public Problems Remove()
     {
         Apply(new RoadSegmentRemoved
         {
-            Id = change.Id
+            RoadSegmentId = RoadSegmentId
         });
 
         return Problems.None;

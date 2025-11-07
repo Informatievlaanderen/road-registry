@@ -51,21 +51,21 @@ public class RoadNetworkTopologyProjection : EventProjection
     public void Project(IEvent<RoadSegmentAdded> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand($"insert into {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, causation_id) values (?, ST_GeomFromText(?, ?), ?, ?, ?)",
-            e.Data.Id.ToInt32(), e.Data.Geometry.AsMultiLineString().AsText(), e.Data.Geometry.SRID, e.Data.StartNodeId.ToInt32(), e.Data.EndNodeId.ToInt32(), e.CausationId!
+            e.Data.RoadSegmentId.ToInt32(), e.Data.Geometry.AsMultiLineString().AsText(), e.Data.Geometry.SRID, e.Data.StartNodeId.ToInt32(), e.Data.EndNodeId.ToInt32(), e.CausationId!
         );
     }
 
     public void Project(IEvent<RoadSegmentModified> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand($"update {RoadSegmentsTableName} set geometry = ST_GeomFromText(?, ?), start_node_id = ?, end_node_id = ?, causation_id = ? where id = ?",
-            e.Data.Geometry.AsMultiLineString().AsText(), e.Data.Geometry.SRID, e.Data.StartNodeId.ToInt32(), e.Data.EndNodeId.ToInt32(), e.CausationId!, e.Data.Id.ToInt32()
+            e.Data.Geometry.AsMultiLineString().AsText(), e.Data.Geometry.SRID, e.Data.StartNodeId.ToInt32(), e.Data.EndNodeId.ToInt32(), e.CausationId!, e.Data.RoadSegmentId.ToInt32()
         );
     }
 
     public void Project(IEvent<RoadSegmentRemoved> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand($"delete from {RoadSegmentsTableName} where id = ?",
-            e.Data.Id.ToInt32()
+            e.Data.RoadSegmentId.ToInt32()
         );
     }
 
@@ -73,7 +73,7 @@ public class RoadNetworkTopologyProjection : EventProjection
     public void Project(IEvent<GradeSeparatedJunctionAdded> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand($"insert into {GradeSeparatedJunctionsTableName} (id, lower_road_segment_id, upper_road_segment_id, causation_id) values (?, ST_GeomFromText(?, ?), ?, ?, ?)",
-            e.Data.Id.ToInt32(), e.Data.LowerRoadSegmentId.ToInt32(), e.Data.UpperRoadSegmentId.ToInt32(), e.CausationId!
+            e.Data.GradeSeparatedJunctionId.ToInt32(), e.Data.LowerRoadSegmentId.ToInt32(), e.Data.UpperRoadSegmentId.ToInt32(), e.CausationId!
         );
     }
 }

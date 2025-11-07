@@ -7,9 +7,10 @@ using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using RoadRegistry.BackOffice;
-using RoadRegistry.RoadNetwork.Changes;
 using RoadRegistry.RoadNode;
+using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment;
+using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
@@ -327,7 +328,7 @@ public class RoadNetworkTestData
 
         Segment1Added = new RoadSegmentAdded
         {
-            Id = new RoadSegmentId(1),
+            RoadSegmentId = new RoadSegmentId(1),
             OriginalId = AddSegment1.TemporaryId,
             StartNodeId = StartNode1Added.Id,
             EndNodeId = EndNode1Added.Id,
@@ -364,7 +365,7 @@ public class RoadNetworkTestData
 
         Segment2Added = new RoadSegmentAdded
         {
-            Id = new RoadSegmentId(2),
+            RoadSegmentId = new RoadSegmentId(2),
             OriginalId = AddSegment2.TemporaryId,
             StartNodeId = StartNode2Added.Id,
             EndNodeId = EndNode2Added.Id,
@@ -401,7 +402,7 @@ public class RoadNetworkTestData
 
         Segment3Added = new RoadSegmentAdded
         {
-            Id = new RoadSegmentId(3),
+            RoadSegmentId = new RoadSegmentId(3),
             OriginalId = AddSegment3.TemporaryId,
             StartNodeId = StartNode3Added.Id,
             EndNodeId = EndNode3Added.Id,

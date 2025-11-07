@@ -1,9 +1,10 @@
-namespace RoadRegistry.RoadNetwork.Changes;
+namespace RoadRegistry.RoadSegment.Changes;
 
 using System.Collections.Generic;
-using BackOffice;
 using NetTopologySuite.Geometries;
-using RoadSegment.ValueObjects;
+using RoadNetwork;
+using RoadRegistry.BackOffice;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public sealed record AddRoadSegmentChange : IRoadNetworkChange
 {

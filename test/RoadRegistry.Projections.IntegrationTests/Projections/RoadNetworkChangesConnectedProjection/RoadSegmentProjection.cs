@@ -21,7 +21,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
         {
             session.Store(new RoadSegmentProjectionItem
             {
-                Id = e.Data.Id,
+                Id = e.Data.RoadSegmentId,
                 GeometryDrawMethod = e.Data.GeometryDrawMethod
             });
             return Task.CompletedTask;
@@ -29,10 +29,10 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
         When<IEvent<RoadSegmentModified>>(async (session, e, ct) =>
         {
-            var roadSegment = await session.LoadAsync<RoadSegmentProjectionItem>(e.Data.Id);
+            var roadSegment = await session.LoadAsync<RoadSegmentProjectionItem>(e.Data.RoadSegmentId);
             if (roadSegment is null)
             {
-                throw new InvalidOperationException($"No document found for Id {e.Data.Id}");
+                throw new InvalidOperationException($"No document found for Id {e.Data.RoadSegmentId}");
             }
 
             roadSegment.GeometryDrawMethod = e.Data.GeometryDrawMethod;
@@ -42,10 +42,10 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
         When<IEvent<RoadSegmentRemoved>>(async (session, e, ct) =>
         {
-            var roadSegment = await session.LoadAsync<RoadSegmentProjectionItem>(e.Data.Id);
+            var roadSegment = await session.LoadAsync<RoadSegmentProjectionItem>(e.Data.RoadSegmentId);
             if (roadSegment is null)
             {
-                throw new InvalidOperationException($"No document found for Id {e.Data.Id}");
+                throw new InvalidOperationException($"No document found for Id {e.Data.RoadSegmentId}");
             }
 
             session.Delete(roadSegment);

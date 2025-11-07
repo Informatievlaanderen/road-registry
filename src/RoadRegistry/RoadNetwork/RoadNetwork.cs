@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using BackOffice;
 using BackOffice.Core;
-using Changes;
 using Events;
 using GradeSeparatedJunction;
+using GradeSeparatedJunction.Changes;
 using RoadNode;
+using RoadNode.Changes;
 using RoadSegment;
+using RoadSegment.Changes;
 using RoadSegment.ValueObjects;
 using ValueObjects;
 
@@ -52,7 +54,6 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
     {
         var problems = Problems.None;
 
-        // dit vervangt the RequestedChangeTranslator
         var context = new RoadNetworkChangeContext
         {
             RoadNetwork = this,
@@ -68,12 +69,12 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
                 case AddRoadNodeChange change:
                     problems = problems.AddRange(AddRoadNode(change, context));
                     break;
-                // case ModifyRoadNodeChange change:
-                //     problems.AddRange(ModifyRoadNode(change, context));
-                //     break;
-                // case RemoveRoadNodeChange change:
-                //     problems.AddRange(RemoveRoadNode(change, context));
-                //     break;
+                case ModifyRoadNodeChange change:
+                    problems.AddRange(ModifyRoadNode(change));
+                    break;
+                case RemoveRoadNodeChange change:
+                    problems.AddRange(RemoveRoadNode(change));
+                    break;
 
                 case AddRoadSegmentChange change:
                     problems = problems.AddRange(AddRoadSegment(change, context));
@@ -82,19 +83,28 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
                     problems = problems.AddRange(ModifyRoadSegment(change, context));
                     break;
                 case RemoveRoadSegmentChange change:
-                    problems = problems.AddRange(RemoveRoadSegment(change, context));
+                    problems = problems.AddRange(ExecuteOnRoadSegment(change.RoadSegmentId, segment => segment.Remove()));
+                    break;
+                case AddRoadSegmentToEuropeanRoadChange change:
+                    problems = problems.AddRange(ExecuteOnRoadSegment(change.RoadSegmentId, segment => segment.AddEuropeanRoad(change)));
+                    break;
+                case RemoveRoadSegmentFromEuropeanRoadChange change:
+                    problems = problems.AddRange(ExecuteOnRoadSegment(change.RoadSegmentId, segment => segment.RemoveEuropeanRoad(change)));
+                    break;
+                case AddRoadSegmentToNationalRoadChange change:
+                    problems = problems.AddRange(ExecuteOnRoadSegment(change.RoadSegmentId, segment => segment.AddNationalRoad(change)));
+                    break;
+                case RemoveRoadSegmentFromNationalRoadChange change:
+                    problems = problems.AddRange(ExecuteOnRoadSegment(change.RoadSegmentId, segment => segment.RemoveNationalRoad(change)));
                     break;
 
                 case AddGradeSeparatedJunctionChange change:
                     problems = problems.AddRange(AddGradeSeparatedJunction(change, context));
                     break;
-                // case ModifyGradeSeparatedJunctionChange change:
-                //     problems.AddRange(ModifyGradeSeparatedJunction(change, context));
-                //     break;
-                // case RemoveGradeSeparatedJunctionChange change:
-                //     problems.AddRange(RemoveGradeSeparatedJunction(change, context));
-                //     break;
-                //TODO-pr other cases
+                case RemoveGradeSeparatedJunctionChange change:
+                    problems.AddRange(RemoveGradeSeparatedJunction(change));
+                    break;
+
                 default:
                     throw new NotImplementedException($"{roadNetworkChange.GetType().Name} is not implemented.");
             }

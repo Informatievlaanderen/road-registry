@@ -10,93 +10,24 @@ public static class ChangeExtensions
         return changes.Select(Flatten);
     }
 
-    public static object Flatten(this ChangeRoadNetworkCommandItem change)
+    private static object Flatten(this ChangeRoadNetworkCommandItem change)
     {
         return new object[]
             {
-                //TODO-pr implement rest
                 change.AddRoadNode,
-                // change.ModifyRoadNode,
-                // change.RemoveRoadNode,
+                change.ModifyRoadNode,
+                change.RemoveRoadNode,
                 change.AddRoadSegment,
                 change.ModifyRoadSegment,
                 change.RemoveRoadSegment,
-                // change.RemoveRoadSegments,
-                // change.RemoveOutlinedRoadSegment,
-                // change.RemoveOutlinedRoadSegmentFromRoadNetwork,
-                // change.AddRoadSegmentToEuropeanRoad,
-                // change.RemoveRoadSegmentFromEuropeanRoad,
-                // change.AddRoadSegmentToNationalRoad,
-                // change.RemoveRoadSegmentFromNationalRoad,
-                // change.AddRoadSegmentToNumberedRoad,
-                // change.RemoveRoadSegmentFromNumberedRoad,
+                change.AddRoadSegmentToEuropeanRoad,
+                change.RemoveRoadSegmentFromEuropeanRoad,
+                change.AddRoadSegmentToNationalRoad,
+                change.RemoveRoadSegmentFromNationalRoad,
                 change.AddGradeSeparatedJunction,
-                // change.ModifyGradeSeparatedJunction,
-                // change.RemoveGradeSeparatedJunction
+                change.RemoveGradeSeparatedJunction
             }
             .SingleOrDefault(c => !ReferenceEquals(c, null))
             ?? throw new InvalidOperationException($"No change found in {nameof(ChangeRoadNetworkCommandItem)}.");
     }
-
-    // public static IEnumerable<object> Flatten(this IEnumerable<AcceptedChange> changes)
-    // {
-    //     return changes.Select(Flatten);
-    // }
-    //
-    // public static object Flatten(this AcceptedChange change)
-    // {
-    //     return new object[]
-    //         {
-    //             change.RoadNodeAdded,
-    //             change.RoadNodeModified,
-    //             change.RoadNodeRemoved,
-    //             change.RoadSegmentAdded,
-    //             change.RoadSegmentModified,
-    //             change.RoadSegmentAttributesModified,
-    //             change.RoadSegmentGeometryModified,
-    //             change.RoadSegmentRemoved,
-    //             change.OutlinedRoadSegmentRemoved,
-    //             change.RoadSegmentAddedToEuropeanRoad,
-    //             change.RoadSegmentRemovedFromEuropeanRoad,
-    //             change.RoadSegmentAddedToNationalRoad,
-    //             change.RoadSegmentRemovedFromNationalRoad,
-    //             change.RoadSegmentAddedToNumberedRoad,
-    //             change.RoadSegmentRemovedFromNumberedRoad,
-    //             change.GradeSeparatedJunctionAdded,
-    //             change.GradeSeparatedJunctionModified,
-    //             change.GradeSeparatedJunctionRemoved
-    //         }
-    //         .Single(c => !ReferenceEquals(c, null));
-    // }
-    //
-    // public static IEnumerable<object> Flatten(this IEnumerable<RejectedChange> changes)
-    // {
-    //     return changes.Select(Flatten);
-    // }
-    //
-    // public static object Flatten(this RejectedChange change)
-    // {
-    //     return new object[]
-    //         {
-    //             change.AddRoadNode,
-    //             change.ModifyRoadNode,
-    //             change.RemoveRoadNode,
-    //             change.AddRoadSegment,
-    //             change.ModifyRoadSegment,
-    //             change.RemoveRoadSegment,
-    //             change.RemoveRoadSegments,
-    //             change.RemoveOutlinedRoadSegment,
-    //             change.RemoveOutlinedRoadSegmentFromRoadNetwork,
-    //             change.AddRoadSegmentToEuropeanRoad,
-    //             change.RemoveRoadSegmentFromEuropeanRoad,
-    //             change.AddRoadSegmentToNationalRoad,
-    //             change.RemoveRoadSegmentFromNationalRoad,
-    //             change.AddRoadSegmentToNumberedRoad,
-    //             change.RemoveRoadSegmentFromNumberedRoad,
-    //             change.AddGradeSeparatedJunction,
-    //             change.ModifyGradeSeparatedJunction,
-    //             change.RemoveGradeSeparatedJunction
-    //         }
-    //         .Single(c => !ReferenceEquals(c, null));
-    // }
 }
