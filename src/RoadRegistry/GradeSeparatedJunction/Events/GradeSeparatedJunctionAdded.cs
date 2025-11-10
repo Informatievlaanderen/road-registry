@@ -3,7 +3,7 @@ namespace RoadRegistry.GradeSeparatedJunction.Events;
 using BackOffice;
 using RoadSegment.ValueObjects;
 
-public class GradeSeparatedJunctionAdded : ICreatedEvent
+public record GradeSeparatedJunctionAdded : ICreatedEvent
 {
     public required GradeSeparatedJunctionId GradeSeparatedJunctionId { get; init; }
     public required GradeSeparatedJunctionId TemporaryId { get; init; }

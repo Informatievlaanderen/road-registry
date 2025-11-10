@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.RoadNetwork.ValueObjects;
 
-public sealed class GeometryObject
+public sealed record GeometryObject
 {
     public int SRID { get; }
     public string WKT { get; }

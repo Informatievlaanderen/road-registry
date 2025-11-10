@@ -66,7 +66,7 @@ public static class MartenProjectionIntegrationTestRunnerExtensions
                     runner.Given<RoadRegistry.RoadNetwork.RoadNetwork, string>(RoadRegistry.RoadNetwork.RoadNetwork.GlobalIdentifier, @event);
                     break;
                 case RoadNodeAdded @event:
-                    runner.Given<RoadRegistry.RoadNode.RoadNode, RoadNodeId>(@event.Id, @event);
+                    runner.Given<RoadRegistry.RoadNode.RoadNode, RoadNodeId>(@event.RoadNodeId, @event);
                     break;
                 case RoadSegmentAdded @event:
                     runner.Given<RoadRegistry.RoadSegment.RoadSegment, RoadSegmentId>(@event.RoadSegmentId, @event);

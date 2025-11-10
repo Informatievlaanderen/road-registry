@@ -5,7 +5,7 @@ using BackOffice;
 using RoadNetwork.ValueObjects;
 using ValueObjects;
 
-public class RoadSegmentAdded: ICreatedEvent
+public record RoadSegmentAdded: ICreatedEvent
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
     public required RoadSegmentId OriginalId { get; init; }

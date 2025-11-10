@@ -12,7 +12,7 @@ public partial class RoadNode
 
         Apply(new RoadNodeModified
         {
-            Id = RoadNodeId,
+            RoadNodeId = RoadNodeId,
             Geometry = (change.Geometry ?? Geometry).ToGeometryObject(),
             Type = change.Type ?? Type
         });

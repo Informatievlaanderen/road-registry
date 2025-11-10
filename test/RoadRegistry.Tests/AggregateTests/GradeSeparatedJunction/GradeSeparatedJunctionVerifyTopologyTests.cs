@@ -5,7 +5,7 @@ using RoadRegistry.BackOffice.Core;
 
 public class GradeSeparatedJunctionVerifyTopologyTests : RoadNetworkTestBase
 {
-    //TODO-pr test GradeSeparatedJunction.VerifyTopologyAfterChanges
+    //TODO-pr test GradeSeparatedJunction.VerifyTopology
 
     // [Fact]
     // public Task WhenNotConnectedToAnyRoadSegment_ThenError()

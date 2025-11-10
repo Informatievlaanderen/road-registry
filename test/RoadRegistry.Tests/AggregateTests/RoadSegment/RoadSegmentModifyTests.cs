@@ -7,8 +7,6 @@ using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadSegment.Changes;
 using RoadSegmentModified = RoadRegistry.RoadSegment.Events.RoadSegmentModified;
 
-//TODO-pr test missing acties voor alle entities
-
 public class RoadSegmentModifyTests : RoadNetworkTestBase
 {
     [Fact]

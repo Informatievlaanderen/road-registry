@@ -2,7 +2,7 @@ namespace RoadRegistry.RoadNode.Events;
 
 using BackOffice;
 
-public class RoadNodeRemoved
+public record RoadNodeRemoved
 {
-    public required RoadNodeId Id { get; init; }
+    public required RoadNodeId RoadNodeId { get; init; }
 }

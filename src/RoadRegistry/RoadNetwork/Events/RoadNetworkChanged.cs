@@ -1,5 +1,5 @@
 namespace RoadRegistry.RoadNetwork.Events;
 
-public class RoadNetworkChanged
+public record RoadNetworkChanged
 {
 }

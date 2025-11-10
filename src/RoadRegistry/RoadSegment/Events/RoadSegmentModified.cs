@@ -5,7 +5,7 @@ using BackOffice;
 using RoadNetwork.ValueObjects;
 using ValueObjects;
 
-public class RoadSegmentModified
+public record RoadSegmentModified
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
     public RoadSegmentId? OriginalId { get; init; }

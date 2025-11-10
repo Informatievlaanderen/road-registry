@@ -19,5 +19,5 @@ public class RoadNodeVerifyTopologyTests : RoadNetworkTestBase
         );
     }
 
-    //TODO-pr test RoadNode.VerifyTopologyAfterChanges
+    //TODO-pr test RoadNode.VerifyTopology
 }

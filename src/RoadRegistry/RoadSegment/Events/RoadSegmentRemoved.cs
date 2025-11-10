@@ -2,7 +2,7 @@ namespace RoadRegistry.RoadSegment.Events;
 
 using ValueObjects;
 
-public class RoadSegmentRemoved
+public record RoadSegmentRemoved
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
 }

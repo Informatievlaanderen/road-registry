@@ -11,7 +11,7 @@ public partial class RoadNode
 
         Apply(new RoadNodeRemoved
         {
-            Id = RoadNodeId
+            RoadNodeId = RoadNodeId
         });
 
         return problems;

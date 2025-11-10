@@ -33,7 +33,7 @@ public partial class RoadNode
 
     public static RoadNode Create(RoadNodeAdded @event)
     {
-        var roadNode = new RoadNode(@event.Id)
+        var roadNode = new RoadNode(@event.RoadNodeId)
         {
             Geometry = @event.Geometry.AsPoint(),
             Type = @event.Type

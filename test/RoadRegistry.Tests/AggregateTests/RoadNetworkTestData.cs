@@ -108,26 +108,14 @@ public class RoadNetworkTestData
         Fixture.CustomizeTransactionId();
         Fixture.CustomizeExtractRequestId();
 
+        Fixture.CustomizeRoadNodeAdded();
+        Fixture.CustomizeRoadNodeModified();
         Fixture.CustomizeRoadSegmentDynamicAttributeValues<OrganizationId>();
         Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentMorphology>();
         Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentStatus>();
         Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentCategory>();
         Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>();
         Fixture.CustomizeRoadSegmentDynamicAttributeValues<StreetNameLocalId>();
-        // ObjectProvider.CustomizeRoadNetworkChangesAccepted();
-        // ObjectProvider.CustomizeImportedOrganization();
-        // ObjectProvider.CustomizeAddRoadNode();
-        // ObjectProvider.CustomizeRoadNodeAdded();
-        // ObjectProvider.CustomizeModifyRoadNode();
-        // ObjectProvider.CustomizeRoadNodeModified();
-        // ObjectProvider.CustomizeRemoveRoadNode();
-        // ObjectProvider.CustomizeRoadNodeRemoved();
-        // ObjectProvider.CustomizeAddRoadSegment();
-        // ObjectProvider.CustomizeRoadSegmentAdded();
-        // ObjectProvider.CustomizeModifyRoadSegment();
-        // ObjectProvider.CustomizeRoadSegmentModified();
-        // ObjectProvider.CustomizeRemoveRoadSegment();
-        // ObjectProvider.CustomizeRoadSegmentRemoved();
         //
         // ObjectProvider.Customize<RequestedRoadSegmentEuropeanRoadAttribute>(composer =>
         //     composer.Do(instance =>
@@ -199,7 +187,7 @@ public class RoadNetworkTestData
 
         StartNode1Added = new RoadNodeAdded
         {
-            Id = new RoadNodeId(1),
+            RoadNodeId = new RoadNodeId(1),
             TemporaryId = AddStartNode1.TemporaryId,
             Geometry = AddStartNode1.Geometry.ToGeometryObject(),
             Type = AddStartNode1.Type
@@ -228,7 +216,7 @@ public class RoadNetworkTestData
 
         EndNode1Added = new RoadNodeAdded
         {
-            Id = new RoadNodeId(2),
+            RoadNodeId = new RoadNodeId(2),
             TemporaryId = AddEndNode1.TemporaryId,
             Geometry = AddEndNode1.Geometry.ToGeometryObject(),
             Type = AddEndNode1.Type
@@ -257,7 +245,7 @@ public class RoadNetworkTestData
 
         StartNode2Added = new RoadNodeAdded
         {
-            Id = new RoadNodeId(3),
+            RoadNodeId = new RoadNodeId(3),
             TemporaryId = AddStartNode2.TemporaryId,
             Geometry = AddStartNode2.Geometry.ToGeometryObject(),
             Type = AddStartNode2.Type
@@ -272,7 +260,7 @@ public class RoadNetworkTestData
 
         EndNode2Added = new RoadNodeAdded
         {
-            Id = new RoadNodeId(4),
+            RoadNodeId = new RoadNodeId(4),
             TemporaryId = AddEndNode2.TemporaryId,
             Geometry = AddEndNode2.Geometry.ToGeometryObject(),
             Type = AddEndNode2.Type
@@ -287,7 +275,7 @@ public class RoadNetworkTestData
 
         StartNode3Added = new RoadNodeAdded
         {
-            Id = new RoadNodeId(5),
+            RoadNodeId = new RoadNodeId(5),
             TemporaryId = AddStartNode3.TemporaryId,
             Geometry = AddStartNode3.Geometry.ToGeometryObject(),
             Type = AddStartNode3.Type
@@ -302,7 +290,7 @@ public class RoadNetworkTestData
 
         EndNode3Added = new RoadNodeAdded
         {
-            Id = new RoadNodeId(6),
+            RoadNodeId = new RoadNodeId(6),
             TemporaryId = AddEndNode3.TemporaryId,
             Geometry = AddEndNode3.Geometry.ToGeometryObject(),
             Type = AddEndNode3.Type
@@ -330,8 +318,8 @@ public class RoadNetworkTestData
         {
             RoadSegmentId = new RoadSegmentId(1),
             OriginalId = AddSegment1.TemporaryId,
-            StartNodeId = StartNode1Added.Id,
-            EndNodeId = EndNode1Added.Id,
+            StartNodeId = StartNode1Added.RoadNodeId,
+            EndNodeId = EndNode1Added.RoadNodeId,
             Geometry = AddSegment1.Geometry.ToGeometryObject(),
             MaintenanceAuthorityId = AddSegment1.MaintenanceAuthorityId,
             GeometryDrawMethod = AddSegment1.GeometryDrawMethod,
@@ -367,8 +355,8 @@ public class RoadNetworkTestData
         {
             RoadSegmentId = new RoadSegmentId(2),
             OriginalId = AddSegment2.TemporaryId,
-            StartNodeId = StartNode2Added.Id,
-            EndNodeId = EndNode2Added.Id,
+            StartNodeId = StartNode2Added.RoadNodeId,
+            EndNodeId = EndNode2Added.RoadNodeId,
             Geometry = AddSegment2.Geometry.ToGeometryObject(),
             MaintenanceAuthorityId = AddSegment2.MaintenanceAuthorityId,
             GeometryDrawMethod = AddSegment2.GeometryDrawMethod,
@@ -404,8 +392,8 @@ public class RoadNetworkTestData
         {
             RoadSegmentId = new RoadSegmentId(3),
             OriginalId = AddSegment3.TemporaryId,
-            StartNodeId = StartNode3Added.Id,
-            EndNodeId = EndNode3Added.Id,
+            StartNodeId = StartNode3Added.RoadNodeId,
+            EndNodeId = EndNode3Added.RoadNodeId,
             Geometry = AddSegment3.Geometry.ToGeometryObject(),
             MaintenanceAuthorityId = AddSegment3.MaintenanceAuthorityId,
             GeometryDrawMethod = AddSegment3.GeometryDrawMethod,
@@ -418,19 +406,5 @@ public class RoadNetworkTestData
             EuropeanRoadNumbers = AddSegment3.EuropeanRoadNumbers,
             NationalRoadNumbers = AddSegment3.NationalRoadNumbers
         };
-    }
-}
-
-public static class FixtureExtensions
-{
-    public static void CustomizeRoadSegmentDynamicAttributeValues<T>(this Fixture fixture)
-    {
-        fixture.Customize<RoadSegmentDynamicAttributeValues<T>>(
-            composer =>
-                composer.FromFactory(_ =>
-                    new RoadSegmentDynamicAttributeValues<T>()
-                        .Add(fixture.Create<T>())
-                ).OmitAutoProperties()
-        );
     }
 }

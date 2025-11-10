@@ -2,7 +2,7 @@ namespace RoadRegistry.GradeSeparatedJunction.Events;
 
 using BackOffice;
 
-public class GradeSeparatedJunctionRemoved
+public record GradeSeparatedJunctionRemoved
 {
     public required GradeSeparatedJunctionId GradeSeparatedJunctionId { get; init; }
 }
