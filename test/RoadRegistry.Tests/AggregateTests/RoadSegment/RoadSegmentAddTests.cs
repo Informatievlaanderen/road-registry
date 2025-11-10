@@ -3,10 +3,13 @@
 using AutoFixture;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events;
 using RoadRegistry.RoadSegment.ValueObjects;
+using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
 public class RoadSegmentAddTests : RoadNetworkTestBase
 {
@@ -45,26 +48,147 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
         segmentAdded.NationalRoadNumbers.Should().BeEquivalentTo(change.NationalRoadNumbers);
     }
 
-    //TODO-pr test validations RoadSegment.Add
-    // [Fact]
-    // public Task WhenStartNodeIsMissing_ThenError()
-    // {
-    //     var change = new ModifyRoadSegmentChange
-    //     {
-    //         RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
-    //         StartNodeId = new RoadNodeId(9)
-    //     };
-    //
-    //     return Run(scenario => scenario
-    //         .Given(changes => changes
-    //             .Add(TestData.AddStartNode1)
-    //             .Add(TestData.AddEndNode1)
-    //             .Add(TestData.AddSegment1)
-    //         )
-    //         .When(changes => changes.Add(change))
-    //         .Throws(new Error("RoadSegmentStartNodeMissing", [new("Identifier", "1")]))
-    //     );
-    // }
+    [Fact]
+    public void WithOutlined_WhenGeometryLengthIsLessThanMinimum_ThenError()
+    {
+        // Arrange
+        var change = Fixture.Create<AddRoadSegmentChange>() with
+        {
+            GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined,
+            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(1.99, 0)]).ToMultiLineString()
+        };
+
+        // Act
+        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator());
+
+        // Assert
+        problems.HasError().Should().BeTrue();
+        problems.Should().ContainEquivalentOf(new RoadSegmentGeometryLengthIsLessThanMinimum(change.OriginalId!.Value, Distances.TooClose));
+    }
+
+    [Fact]
+    public void WithOutlined_WhenGeometryLengthIsTooLong_ThenError()
+    {
+        // Arrange
+        var change = Fixture.Create<AddRoadSegmentChange>() with
+        {
+            GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined,
+            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(100000.01, 0)]).ToMultiLineString()
+        };
+
+        // Act
+        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator());
+
+        // Assert
+        problems.HasError().Should().BeTrue();
+        problems.Should().ContainEquivalentOf(new RoadSegmentGeometryLengthIsTooLong(change.OriginalId!.Value, Distances.TooLongSegmentLength));
+    }
+
+    [Fact]
+    public void WhenGeometryLengthIsZero_ThenError()
+    {
+        // Arrange
+        var change = Fixture.Create<AddRoadSegmentChange>() with
+        {
+            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString()
+        };
+
+        // Act
+        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator());
+
+        // Assert
+        problems.HasError().Should().BeTrue();
+        problems.Should().ContainEquivalentOf(new RoadSegmentGeometryLengthIsZero(change.OriginalId!.Value));
+    }
+
+    [Fact]
+    public void WhenGeometryLengthIsTooLong_ThenError()
+    {
+        // Arrange
+        var change = Fixture.Create<AddRoadSegmentChange>() with
+        {
+            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(100000.01, 0)]).ToMultiLineString()
+        };
+
+        // Act
+        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator());
+
+        // Assert
+        problems.HasError().Should().BeTrue();
+        problems.Should().ContainEquivalentOf(new RoadSegmentGeometryLengthIsTooLong(change.OriginalId!.Value, Distances.TooLongSegmentLength));
+    }
+
+    [Fact]
+    public void WhenGeometrySelfOverlaps_ThenError()
+    {
+        // Arrange
+        var change = Fixture.Create<AddRoadSegmentChange>() with
+        {
+            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0, 0), new Coordinate(5, 0)]).ToMultiLineString()
+        };
+
+        // Act
+        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator());
+
+        // Assert
+        problems.HasError().Should().BeTrue();
+        problems.Should().ContainEquivalentOf(new RoadSegmentGeometrySelfOverlaps(change.OriginalId!.Value));
+    }
+
+    [Fact]
+    public void WhenGeometrySelfIntersects_ThenError()
+    {
+        // Arrange
+        var change = Fixture.Create<AddRoadSegmentChange>() with
+        {
+            Geometry = new LineString([new Coordinate(0, 0), new Coordinate(10, 0), new Coordinate(10, 1), new Coordinate(0, -1)]).ToMultiLineString()
+        };
+
+        // Act
+        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator());
+
+        // Assert
+        problems.HasError().Should().BeTrue();
+        problems.Should().ContainEquivalentOf(new RoadSegmentGeometrySelfIntersects(change.OriginalId!.Value));
+    }
+
+    //TODO-pr test validations RoadSegment.Add dynamic attributes
+
+    [Fact]
+    public void WhenEuropeanRoadsAreNotUnique_ThenError()
+    {
+        // Arrange
+        var change = Fixture.Create<AddRoadSegmentChange>() with
+        {
+            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates(),
+            EuropeanRoadNumbers = [EuropeanRoadNumber.E17, EuropeanRoadNumber.E17]
+        };
+
+        // Act
+        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator());
+
+        // Assert
+        problems.HasError().Should().BeTrue();
+        problems.Should().ContainEquivalentOf(new Error("RoadSegmentEuropeanRoadsNotUnique"));
+    }
+
+    [Fact]
+    public void WhenNationalRoadsAreNotUnique_ThenError()
+    {
+        // Arrange
+        var change = Fixture.Create<AddRoadSegmentChange>() with
+        {
+            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates(),
+            NationalRoadNumbers = [NationalRoadNumber.Parse("N001"), NationalRoadNumber.Parse("N001")]
+        };
+
+        // Act
+        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator());
+
+        // Assert
+        problems.HasError().Should().BeTrue();
+        problems.Should().ContainEquivalentOf(new Error("RoadSegmentNationalRoadsNotUnique"));
+    }
 
     [Fact]
     public void StateCheck()

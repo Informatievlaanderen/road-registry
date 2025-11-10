@@ -1,7 +1,9 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
+using System.Linq;
 using BackOffice;
 using BackOffice.Core;
+using BackOffice.Core.ProblemCodes;
 using Changes;
 using Events;
 using NetTopologySuite.Geometries;
@@ -32,18 +34,18 @@ Morphology
 Status
 StreetNameId
 MaintenanceAuthorityId
-LaneCount
-LaneDirection
-SurfaceType
-Width
-EuropeanRoadNumber
-NationalRoadNumber
-NumberedRoadDirection
-NumberedRoadNumber
-NumberedRoadOrdinal*/
+SurfaceType*/
         // problems += line.GetProblemsForRoadSegmentLanes(change.Lanes, context.Tolerances);
-        // problems += line.GetProblemsForRoadSegmentWidths(change.Widths, context.Tolerances);
-        // problems += line.GetProblemsForRoadSegmentSurfaces(change.Surfaces, context.Tolerances);
+
+        if (change.EuropeanRoadNumbers.Count != change.EuropeanRoadNumbers.Distinct().Count())
+        {
+            problems = problems.Add(new Error(ProblemCode.RoadSegment.EuropeanRoads.NotUnique));
+        }
+
+        if (change.NationalRoadNumbers.Count != change.NationalRoadNumbers.Distinct().Count())
+        {
+            problems = problems.Add(new Error(ProblemCode.RoadSegment.NationalRoads.NotUnique));
+        }
 
         if (problems.HasError())
         {
