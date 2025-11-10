@@ -69,6 +69,7 @@ public static class SetupExtensions
 
         options.Events.StreamIdentity = StreamIdentity.AsString;
         options.Events.MetadataConfig.CausationIdEnabled = true;
+        options.Events.MetadataConfig.CorrelationIdEnabled = true;
         options.Events.MetadataConfig.HeadersEnabled = true;
     }
 

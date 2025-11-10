@@ -28,7 +28,7 @@ public class ChangeRoadNetworkCommandHandler
 
         if (!changeResult.Problems.HasError())
         {
-            await _roadNetworkRepository.Save(roadNetwork, command.Provenance, cancellationToken);
+            await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, command.Provenance, cancellationToken);
         }
 
         return changeResult;

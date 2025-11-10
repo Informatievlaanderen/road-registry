@@ -62,7 +62,10 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
             IdTranslator = _identifierTranslator
         };
 
-        foreach (var roadNetworkChange in changes)
+        foreach (var roadNetworkChange in changes
+                     .Select((change, ordinal) => new SortableChange(change, ordinal))
+                     .OrderBy(x => x, new SortableChangeComparer())
+                     .Select(x => x.Change))
         {
             switch (roadNetworkChange)
             {
@@ -126,12 +129,70 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
                 .Aggregate(problems, (p, x) => p + x.VerifyTopologyAfterChanges(context));
         }
 
-        UncommittedEvents.Add(new RoadNetworkChanged
-        {
-            CausationId = Guid.NewGuid().ToString()
-        });
+        UncommittedEvents.Add(new RoadNetworkChanged());
 
         return new RoadNetworkChangeResult(problems);
+    }
+
+    private sealed class SortableChangeComparer : IComparer<SortableChange>
+    {
+        private static readonly Type[] SequenceByTypeOfChange =
+        {
+            typeof(AddRoadNodeChange),
+            typeof(AddRoadSegmentChange),
+            typeof(AddRoadSegmentToEuropeanRoadChange),
+            typeof(AddRoadSegmentToNationalRoadChange),
+            typeof(AddGradeSeparatedJunctionChange),
+            typeof(ModifyRoadNodeChange),
+            typeof(ModifyRoadSegmentChange),
+            typeof(RemoveRoadSegmentFromEuropeanRoadChange),
+            typeof(RemoveRoadSegmentFromNationalRoadChange),
+            typeof(RemoveGradeSeparatedJunctionChange),
+            typeof(RemoveRoadSegmentChange),
+            typeof(RemoveRoadNodeChange)
+        };
+
+        public int Compare(SortableChange? left, SortableChange? right)
+        {
+            if (left is null)
+            {
+                throw new ArgumentNullException(nameof(left));
+            }
+
+            if (right is null)
+            {
+                throw new ArgumentNullException(nameof(right));
+            }
+
+            var leftRank = Array.IndexOf(SequenceByTypeOfChange, left.Change.GetType());
+            if (leftRank == -1)
+            {
+                throw new InvalidOperationException($"Change of type {left.Change.GetType().Name} is not configured in '{nameof(SequenceByTypeOfChange)}.");
+            }
+
+            var rightRank = Array.IndexOf(SequenceByTypeOfChange, right.Change.GetType());
+            if (rightRank == -1)
+            {
+                throw new InvalidOperationException($"Change of type {right.Change.GetType().Name} is not configured in '{nameof(SequenceByTypeOfChange)}.");
+            }
+
+            var comparison = leftRank.CompareTo(rightRank);
+            return comparison != 0
+                ? comparison
+                : left.Ordinal.CompareTo(right.Ordinal);
+        }
+    }
+
+    private sealed class SortableChange
+    {
+        public SortableChange(object change, int ordinal)
+        {
+            Ordinal = ordinal;
+            Change = change;
+        }
+
+        public object Change { get; }
+        public int Ordinal { get; }
     }
 }
 

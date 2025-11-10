@@ -21,7 +21,6 @@ public class RoadNetworkTopologyProjection : EventProjection
             table.AddColumn("geometry", "geometry");
             table.AddColumn<int>("start_node_id");
             table.AddColumn<int>("end_node_id");
-            table.AddColumn<string>("causation_id");
 
             var geometryIndex = new IndexDefinition("idx_segments_geometry").AgainstColumns("geometry");
             geometryIndex.CustomMethod = "gist";
@@ -36,7 +35,6 @@ public class RoadNetworkTopologyProjection : EventProjection
             table.AddColumn<int>("id").AsPrimaryKey();
             table.AddColumn<int>("lower_road_segment_id");
             table.AddColumn<int>("upper_road_segment_id");
-            table.AddColumn<string>("causation_id");
 
             table.Indexes.Add(new IndexDefinition("idx_gradeseparatedjunctions_lower_road_segment_id").AgainstColumns("lower_road_segment_id"));
             table.Indexes.Add(new IndexDefinition("idx_gradeseparatedjunctions_upper_road_segment_id").AgainstColumns("upper_road_segment_id"));
@@ -46,19 +44,19 @@ public class RoadNetworkTopologyProjection : EventProjection
         }
     }
 
-    //TODO-pr unit test toevoegen die checkt of elke event hier een Project-methode heeft?
+    //TODO-pr unit test toevoegen die checkt of elke event hier een Project-methode heeft
 
     public void Project(IEvent<RoadSegmentAdded> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand($"insert into {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, causation_id) values (?, ST_GeomFromText(?, ?), ?, ?, ?)",
-            e.Data.RoadSegmentId.ToInt32(), e.Data.Geometry.AsMultiLineString().AsText(), e.Data.Geometry.SRID, e.Data.StartNodeId.ToInt32(), e.Data.EndNodeId.ToInt32(), e.CausationId!
+        ops.QueueSqlCommand($"insert into {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id) values (?, ST_GeomFromText(?, ?), ?, ?)",
+            e.Data.RoadSegmentId.ToInt32(), e.Data.Geometry.AsMultiLineString().AsText(), e.Data.Geometry.SRID, e.Data.StartNodeId.ToInt32(), e.Data.EndNodeId.ToInt32()
         );
     }
 
     public void Project(IEvent<RoadSegmentModified> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand($"update {RoadSegmentsTableName} set geometry = ST_GeomFromText(?, ?), start_node_id = ?, end_node_id = ?, causation_id = ? where id = ?",
-            e.Data.Geometry.AsMultiLineString().AsText(), e.Data.Geometry.SRID, e.Data.StartNodeId.ToInt32(), e.Data.EndNodeId.ToInt32(), e.CausationId!, e.Data.RoadSegmentId.ToInt32()
+        ops.QueueSqlCommand($"update {RoadSegmentsTableName} set geometry = ST_GeomFromText(?, ?), start_node_id = ?, end_node_id = ?, where id = ?",
+            e.Data.Geometry.AsMultiLineString().AsText(), e.Data.Geometry.SRID, e.Data.StartNodeId.ToInt32(), e.Data.EndNodeId.ToInt32(), e.Data.RoadSegmentId.ToInt32()
         );
     }
 
@@ -72,8 +70,8 @@ public class RoadNetworkTopologyProjection : EventProjection
     //TODO-pr gradeseparated junctions: zonder geometry, enkel administratieve data
     public void Project(IEvent<GradeSeparatedJunctionAdded> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand($"insert into {GradeSeparatedJunctionsTableName} (id, lower_road_segment_id, upper_road_segment_id, causation_id) values (?, ST_GeomFromText(?, ?), ?, ?, ?)",
-            e.Data.GradeSeparatedJunctionId.ToInt32(), e.Data.LowerRoadSegmentId.ToInt32(), e.Data.UpperRoadSegmentId.ToInt32(), e.CausationId!
+        ops.QueueSqlCommand($"insert into {GradeSeparatedJunctionsTableName} (id, lower_road_segment_id, upper_road_segment_id) values (?, ST_GeomFromText(?, ?), ?, ?)",
+            e.Data.GradeSeparatedJunctionId.ToInt32(), e.Data.LowerRoadSegmentId.ToInt32(), e.Data.UpperRoadSegmentId.ToInt32()
         );
     }
 }

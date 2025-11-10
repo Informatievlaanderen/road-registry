@@ -36,18 +36,21 @@ public class RoadNetworkRepository : IRoadNetworkRepository
         return roadNetwork;
     }
 
-    public async Task Save(RoadNetwork roadNetwork, Provenance provenance, CancellationToken cancellationToken)
+    public async Task Save(RoadNetwork roadNetwork, string commandName, Provenance provenance, CancellationToken cancellationToken)
     {
         await using var session = _store.LightweightSession();
 
-        var roadNetworkChangedEvent = roadNetwork.GetChanges().OfType<RoadNetworkChanged>().Single();
-        session.CausationId = roadNetworkChangedEvent.CausationId;
+        session.CorrelationId = Guid.NewGuid().ToString();
+        session.CausationId = commandName;
         session.SetHeader("Provenance", provenance.ToDictionary());
 
         SaveEntities(roadNetwork.RoadSegments, session);
         SaveEntities(roadNetwork.RoadNodes, session);
         SaveEntities(roadNetwork.GradeSeparatedJunctions, session);
-        session.Events.Append(roadNetwork.Id, roadNetworkChangedEvent);
+        foreach (var evt in roadNetwork.GetChanges())
+        {
+            session.Events.Append(roadNetwork.Id, evt);
+        }
 
         await session.SaveChangesAsync(cancellationToken);
     }

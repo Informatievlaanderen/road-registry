@@ -17,12 +17,12 @@ public class RoadNetworkChangeProjection : EventProjection
 
     public async Task Project(IEvent<RoadNetworkChanged> e, IDocumentOperations operations, CancellationToken cancellation)
     {
-        var causationId = e.Data.CausationId;
-        
+        var correlationId = e.CorrelationId!;
+
         await using var session = operations.DocumentStore.LightweightSession();
 
         var processEvents = operations.Events.QueryAllRawEvents()
-            .Where(x => x.CausationId == causationId) //TODO-pr add index on causationId
+            .Where(x => x.CorrelationId == correlationId) //TODO-pr add index on correlationId
             .ToList()
             .AsReadOnly();
 

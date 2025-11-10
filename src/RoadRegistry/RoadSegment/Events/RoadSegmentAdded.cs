@@ -2,14 +2,11 @@ namespace RoadRegistry.RoadSegment.Events;
 
 using System.Collections.Generic;
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using RoadNetwork.ValueObjects;
 using ValueObjects;
 
-public class RoadSegmentAdded: IHaveHash, ICreatedEvent
+public class RoadSegmentAdded: ICreatedEvent
 {
-    public const string EventName = "RoadSegmentAdded";
-
     public required RoadSegmentId RoadSegmentId { get; init; }
     public required RoadSegmentId OriginalId { get; init; }
     public required GeometryObject Geometry { get; init; }
@@ -25,7 +22,4 @@ public class RoadSegmentAdded: IHaveHash, ICreatedEvent
     public required RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType> SurfaceType { get; init; }
     public required IReadOnlyCollection<EuropeanRoadNumber> EuropeanRoadNumbers { get; init; }
     public required IReadOnlyCollection<NationalRoadNumber> NationalRoadNumbers { get; init; }
-
-    public System.Collections.Generic.IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
-    public string GetHash() => this.ToEventHash(EventName);
 }

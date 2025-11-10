@@ -1,17 +1,10 @@
 namespace RoadRegistry.RoadSegment.Events;
 
-using System.Collections.Generic;
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using ValueObjects;
 
-public class RoadSegmentAddedToEuropeanRoad: IHaveHash
+public class RoadSegmentAddedToEuropeanRoad
 {
-    public const string EventName = "RoadSegmentAddedToEuropeanRoad";
-
     public required RoadSegmentId RoadSegmentId { get; init; }
     public required EuropeanRoadNumber Number { get; init; }
-
-    public IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
-    public string GetHash() => this.ToEventHash(EventName);
 }

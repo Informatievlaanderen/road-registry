@@ -122,17 +122,14 @@ public class MartenProjectionIntegrationTestRunner
 
         foreach (var events in _givenEvents)
         {
-            session.CausationId = Guid.NewGuid().ToString(); // Ensure events are grouped by causation id
+            session.CorrelationId = Guid.NewGuid().ToString(); // Ensure events are grouped by correlation id
 
             foreach (var @event in events)
             {
                 session.Events.AppendOrStartStream(@event.StreamKey, @event.Event);
             }
 
-            session.Events.Append(StreamKeyFactory.Create(typeof(RoadNetwork), RoadNetwork.GlobalIdentifier), new RoadNetworkChanged
-            {
-                CausationId = session.CausationId
-            });
+            session.Events.Append(StreamKeyFactory.Create(typeof(RoadNetwork), RoadNetwork.GlobalIdentifier), new RoadNetworkChanged());
 
             await session.SaveChangesAsync();
         }

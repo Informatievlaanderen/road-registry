@@ -7,5 +7,5 @@ using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 public interface IRoadNetworkRepository
 {
     Task<RoadNetwork> Load(RoadNetworkChanges roadNetworkChanges);
-    Task Save(RoadNetwork roadNetwork, Provenance provenance, CancellationToken cancellationToken);
+    Task Save(RoadNetwork roadNetwork, string commandName, Provenance provenance, CancellationToken cancellationToken);
 }
