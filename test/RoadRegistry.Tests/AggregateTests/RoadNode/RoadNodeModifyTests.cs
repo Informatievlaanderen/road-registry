@@ -15,20 +15,21 @@ public class RoadNodeModifyTests : RoadNetworkTestBase
         // Arrange
         Fixture.Freeze<RoadNodeId>();
 
-        var roadNode = RoadNode.Create(Fixture.Create<RoadNodeAdded>());
+        var node = RoadNode.Create(Fixture.Create<RoadNodeAdded>())
+            .WithoutChanges();
         var change = Fixture.Create<ModifyRoadNodeChange>();
 
         // Act
-        var problems = roadNode.Modify(change);
+        var problems = node.Modify(change);
 
         // Assert
         problems.HasError().Should().BeFalse();
-        roadNode.GetChanges().Should().HaveCount(2);
+        node.GetChanges().Should().HaveCount(1);
 
-        var roadNodeModified = (RoadNodeModified)roadNode.GetChanges().Last();
-        roadNodeModified.RoadNodeId.Should().Be(roadNode.RoadNodeId);
-        roadNodeModified.Type.Should().Be(change.Type);
-        roadNodeModified.Geometry.Should().Be(change.Geometry!.ToGeometryObject());
+        var nodeModified = (RoadNodeModified)node.GetChanges().Single();
+        nodeModified.RoadNodeId.Should().Be(node.RoadNodeId);
+        nodeModified.Type.Should().Be(change.Type);
+        nodeModified.Geometry.Should().Be(change.Geometry!.ToGeometryObject());
     }
 
     [Fact]
@@ -37,15 +38,15 @@ public class RoadNodeModifyTests : RoadNetworkTestBase
         // Arrange
         Fixture.Freeze<RoadNodeId>();
 
-        var roadNode = RoadNode.Create(Fixture.Create<RoadNodeAdded>());
+        var node = RoadNode.Create(Fixture.Create<RoadNodeAdded>());
         var evt = Fixture.Create<RoadNodeModified>();
 
         // Act
-        roadNode.Apply(evt);
+        node.Apply(evt);
 
         // Assert
-        roadNode.RoadNodeId.Should().Be(evt.RoadNodeId);
-        roadNode.Type.Should().Be(evt.Type);
-        roadNode.Geometry.Should().Be(evt.Geometry.AsPoint());
+        node.RoadNodeId.Should().Be(evt.RoadNodeId);
+        node.Type.Should().Be(evt.Type);
+        node.Geometry.Should().Be(evt.Geometry.AsPoint());
     }
 }

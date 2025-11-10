@@ -2,14 +2,13 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using BackOffice;
 using Events;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using ValueObjects;
 
-public partial class RoadSegment
+public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 {
     public RoadSegmentId RoadSegmentId { get; }
     public MultiLineString Geometry { get; private set; }

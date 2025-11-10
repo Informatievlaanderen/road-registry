@@ -4,13 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using BackOffice;
 using BackOffice.Core;
-using Be.Vlaanderen.Basisregisters.AggregateSource;
 using NetTopologySuite.Geometries;
 using RoadNetwork;
 using RoadNetwork.ValueObjects;
 using ValueObjects;
 
-public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
+public partial class RoadSegment
 {
     public Problems VerifyTopology(RoadNetworkVerifyTopologyContext context)
     {

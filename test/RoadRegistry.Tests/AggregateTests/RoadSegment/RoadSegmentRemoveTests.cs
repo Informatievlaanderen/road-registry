@@ -1,37 +1,34 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment;
 
 using AutoFixture;
+using FluentAssertions;
 using Framework;
-using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events;
 using RoadRegistry.RoadSegment.ValueObjects;
-using RoadSegmentModified = RoadRegistry.RoadSegment.Events.RoadSegmentModified;
+using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
 public class RoadSegmentRemoveTests : RoadNetworkTestBase
 {
     [Fact]
-    public Task ThenRoadSegmentRemoved()
+    public void ThenRoadSegmentRemoved()
     {
-        var change = new RemoveRoadSegmentChange
-        {
-            RoadSegmentId = TestData.Segment1Added.RoadSegmentId
-        };
+        // Arrange
+        Fixture.Freeze<RoadSegmentId>();
 
-        return Run(scenario => scenario
-                .Given(changes => changes
-                    .Add(TestData.AddStartNode1)
-                    .Add(TestData.AddEndNode1)
-                    .Add(TestData.AddSegment1)
-                )
-                .When(changes => changes.Add(change))
-                .Then(new RoadSegmentRemoved
-                {
-                    RoadSegmentId = change.RoadSegmentId
-                })
-        );
+        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentAdded>())
+            .WithoutChanges();
+
+        // Act
+        var problems = segment.Remove();
+
+        // Assert
+        problems.HasError().Should().BeFalse();
+        segment.GetChanges().Should().HaveCount(1);
+
+        var segmentRemoved = (RoadSegmentRemoved)segment.GetChanges().Single();
+        segmentRemoved.RoadSegmentId.Should().Be(segment.RoadSegmentId);
     }
 
     [Fact]
@@ -47,5 +44,37 @@ public class RoadSegmentRemoveTests : RoadNetworkTestBase
             .When(changes => changes.Add(change))
             .Throws(new Error("RoadSegmentNotFound", [new("SegmentId", change.RoadSegmentId.ToString())]))
         );
+    }
+
+    [Fact]
+    public void StateCheck()
+    {
+        // Arrange
+        Fixture.Freeze<RoadSegmentId>();
+
+        var segmentAdded = Fixture.Create<RoadSegmentAdded>();
+        var segment = RoadSegment.Create(segmentAdded);
+
+        var evt = Fixture.Create<RoadSegmentRemoved>();
+
+        // Act
+        segment.Apply(evt);
+
+        // Assert
+        segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);
+        segment.IsRemoved.Should().BeTrue();
+        segment.Geometry.AsText().Should().Be(segmentAdded.Geometry.WKT);
+        segment.StartNodeId.Should().Be(segmentAdded.StartNodeId);
+        segment.EndNodeId.Should().Be(segmentAdded.EndNodeId);
+        segment.Attributes.GeometryDrawMethod.Should().Be(segmentAdded.GeometryDrawMethod);
+        segment.Attributes.AccessRestriction.Should().Be(segmentAdded.AccessRestriction);
+        segment.Attributes.Category.Should().Be(segmentAdded.Category);
+        segment.Attributes.Morphology.Should().Be(segmentAdded.Morphology);
+        segment.Attributes.Status.Should().Be(segmentAdded.Status);
+        segment.Attributes.StreetNameId.Should().Be(segmentAdded.StreetNameId);
+        segment.Attributes.MaintenanceAuthorityId.Should().Be(segmentAdded.MaintenanceAuthorityId);
+        segment.Attributes.SurfaceType.Should().Be(segmentAdded.SurfaceType);
+        segment.Attributes.EuropeanRoadNumbers.Should().BeEquivalentTo(segmentAdded.EuropeanRoadNumbers);
+        segment.Attributes.NationalRoadNumbers.Should().BeEquivalentTo(segmentAdded.NationalRoadNumbers);
     }
 }

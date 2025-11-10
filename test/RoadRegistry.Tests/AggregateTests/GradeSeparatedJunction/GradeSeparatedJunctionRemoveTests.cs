@@ -14,17 +14,18 @@ public class GradeSeparatedJunctionRemoveTests : RoadNetworkTestBase
         // Arrange
         Fixture.Freeze<GradeSeparatedJunctionId>();
 
-        var gradeSeparatedJunction = GradeSeparatedJunction.Create(Fixture.Create<GradeSeparatedJunctionAdded>());
+        var junction = GradeSeparatedJunction.Create(Fixture.Create<GradeSeparatedJunctionAdded>())
+            .WithoutChanges();
 
         // Act
-        var problems = gradeSeparatedJunction.Remove();
+        var problems = junction.Remove();
 
         // Assert
         problems.HasError().Should().BeFalse();
-        gradeSeparatedJunction.GetChanges().Should().HaveCount(2);
+        junction.GetChanges().Should().HaveCount(1);
 
-        var gradeSeparatedJunctionModified = (GradeSeparatedJunctionRemoved)gradeSeparatedJunction.GetChanges().Last();
-        gradeSeparatedJunctionModified.GradeSeparatedJunctionId.Should().Be(gradeSeparatedJunction.GradeSeparatedJunctionId);
+        var junctionRemoved = (GradeSeparatedJunctionRemoved)junction.GetChanges().Single();
+        junctionRemoved.GradeSeparatedJunctionId.Should().Be(junction.GradeSeparatedJunctionId);
     }
 
     [Fact]
@@ -33,19 +34,19 @@ public class GradeSeparatedJunctionRemoveTests : RoadNetworkTestBase
         // Arrange
         Fixture.Freeze<GradeSeparatedJunctionId>();
 
-        var gradeSeparatedJunctionAdded = Fixture.Create<GradeSeparatedJunctionAdded>();
-        var gradeSeparatedJunction = GradeSeparatedJunction.Create(gradeSeparatedJunctionAdded);
+        var junctionAdded = Fixture.Create<GradeSeparatedJunctionAdded>();
+        var junction = GradeSeparatedJunction.Create(junctionAdded);
 
         var evt = Fixture.Create<GradeSeparatedJunctionRemoved>();
 
         // Act
-        gradeSeparatedJunction.Apply(evt);
+        junction.Apply(evt);
 
         // Assert
-        gradeSeparatedJunction.GradeSeparatedJunctionId.Should().Be(evt.GradeSeparatedJunctionId);
-        gradeSeparatedJunction.Type.Should().Be(gradeSeparatedJunctionAdded.Type);
-        gradeSeparatedJunction.LowerRoadSegmentId.Should().Be(gradeSeparatedJunctionAdded.LowerRoadSegmentId);
-        gradeSeparatedJunction.UpperRoadSegmentId.Should().Be(gradeSeparatedJunctionAdded.UpperRoadSegmentId);
-        gradeSeparatedJunction.IsRemoved.Should().BeTrue();
+        junction.GradeSeparatedJunctionId.Should().Be(evt.GradeSeparatedJunctionId);
+        junction.IsRemoved.Should().BeTrue();
+        junction.Type.Should().Be(junctionAdded.Type);
+        junction.LowerRoadSegmentId.Should().Be(junctionAdded.LowerRoadSegmentId);
+        junction.UpperRoadSegmentId.Should().Be(junctionAdded.UpperRoadSegmentId);
     }
 }

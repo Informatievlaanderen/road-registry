@@ -14,17 +14,18 @@ public class RoadNodeRemoveTests : RoadNetworkTestBase
         // Arrange
         Fixture.Freeze<RoadNodeId>();
 
-        var roadNode = RoadNode.Create(Fixture.Create<RoadNodeAdded>());
+        var node = RoadNode.Create(Fixture.Create<RoadNodeAdded>())
+            .WithoutChanges();
 
         // Act
-        var problems = roadNode.Remove();
+        var problems = node.Remove();
 
         // Assert
         problems.HasError().Should().BeFalse();
-        roadNode.GetChanges().Should().HaveCount(2);
+        node.GetChanges().Should().HaveCount(1);
 
-        var roadNodeModified = (RoadNodeRemoved)roadNode.GetChanges().Last();
-        roadNodeModified.RoadNodeId.Should().Be(roadNode.RoadNodeId);
+        var nodeRemoved = (RoadNodeRemoved)node.GetChanges().Single();
+        nodeRemoved.RoadNodeId.Should().Be(node.RoadNodeId);
     }
 
     [Fact]
@@ -33,18 +34,18 @@ public class RoadNodeRemoveTests : RoadNetworkTestBase
         // Arrange
         Fixture.Freeze<RoadNodeId>();
 
-        var roadNodeAdded = Fixture.Create<RoadNodeAdded>();
-        var roadNode = RoadNode.Create(roadNodeAdded);
+        var nodeAdded = Fixture.Create<RoadNodeAdded>();
+        var node = RoadNode.Create(nodeAdded);
 
         var evt = Fixture.Create<RoadNodeRemoved>();
 
         // Act
-        roadNode.Apply(evt);
+        node.Apply(evt);
 
         // Assert
-        roadNode.RoadNodeId.Should().Be(evt.RoadNodeId);
-        roadNode.Type.Should().Be(roadNodeAdded.Type);
-        roadNode.Geometry.Should().Be(roadNodeAdded.Geometry.AsPoint());
-        roadNode.IsRemoved.Should().BeTrue();
+        node.RoadNodeId.Should().Be(evt.RoadNodeId);
+        node.IsRemoved.Should().BeTrue();
+        node.Type.Should().Be(nodeAdded.Type);
+        node.Geometry.Should().Be(nodeAdded.Geometry.AsPoint());
     }
 }

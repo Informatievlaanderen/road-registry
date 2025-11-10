@@ -5,7 +5,7 @@ using Events;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 
-public partial class RoadNode
+public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
 {
     public RoadNodeId RoadNodeId { get; }
     public Point Geometry { get; private set; }

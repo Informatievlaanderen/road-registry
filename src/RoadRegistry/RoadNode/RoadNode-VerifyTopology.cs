@@ -8,7 +8,7 @@ using NetTopologySuite.Geometries;
 using RoadNetwork.ValueObjects;
 using RoadSegment;
 
-public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
+public partial class RoadNode
 {
     public Problems VerifyTopology(RoadNetworkVerifyTopologyContext context)
     {

@@ -5,7 +5,7 @@ using BackOffice;
 using Events;
 using RoadSegment.ValueObjects;
 
-public partial class GradeSeparatedJunction
+public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSeparatedJunctionId>
 {
     public GradeSeparatedJunctionId GradeSeparatedJunctionId { get; }
     public RoadSegmentId LowerRoadSegmentId { get; private set; }

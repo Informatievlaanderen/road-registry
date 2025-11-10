@@ -1,10 +1,9 @@
 ﻿namespace RoadRegistry.GradeSeparatedJunction;
 
-using BackOffice;
 using BackOffice.Core;
 using RoadNetwork.ValueObjects;
 
-public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSeparatedJunctionId>
+public partial class GradeSeparatedJunction
 {
     public Problems VerifyTopology(RoadNetworkVerifyTopologyContext context)
     {

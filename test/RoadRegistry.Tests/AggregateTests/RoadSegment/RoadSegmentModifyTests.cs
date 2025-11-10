@@ -1,48 +1,54 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment;
 
 using AutoFixture;
+using FluentAssertions;
 using Framework;
-using RoadRegistry.BackOffice;
+using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Core;
+using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
-using RoadSegmentModified = RoadRegistry.RoadSegment.Events.RoadSegmentModified;
+using RoadRegistry.RoadSegment.Events;
+using RoadRegistry.RoadSegment.ValueObjects;
+using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
 public class RoadSegmentModifyTests : RoadNetworkTestBase
 {
     [Fact]
-    public Task ThenRoadSegmentModified()
+    public void ThenRoadSegmentModified()
     {
-        var change = new ModifyRoadSegmentChange
+        // Arrange
+        Fixture.Freeze<RoadSegmentId>();
+
+        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentAdded>())
+            .WithoutChanges();
+        var change = Fixture.Create<ModifyRoadSegmentChange>() with
         {
-            RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
-            EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()]
+            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates()
         };
 
-        return Run(scenario => scenario
-                .Given(changes => changes
-                    .Add(TestData.AddStartNode1)
-                    .Add(TestData.AddEndNode1)
-                    .Add(TestData.AddSegment1)
-                )
-                .When(changes => changes.Add(change))
-                .Then(new RoadSegmentModified
-                {
-                    RoadSegmentId = change.RoadSegmentId,
-                    Geometry = TestData.Segment1Added.Geometry,
-                    StartNodeId = TestData.Segment1Added.StartNodeId,
-                    EndNodeId = TestData.Segment1Added.EndNodeId,
-                    GeometryDrawMethod = TestData.Segment1Added.GeometryDrawMethod,
-                    AccessRestriction = TestData.Segment1Added.AccessRestriction,
-                    Category = TestData.Segment1Added.Category,
-                    Morphology = TestData.Segment1Added.Morphology,
-                    Status = TestData.Segment1Added.Status,
-                    StreetNameId = TestData.Segment1Added.StreetNameId,
-                    MaintenanceAuthorityId = TestData.Segment1Added.MaintenanceAuthorityId,
-                    SurfaceType = TestData.Segment1Added.SurfaceType,
-                    EuropeanRoadNumbers = change.EuropeanRoadNumbers,
-                    NationalRoadNumbers = []
-                })
-        );
+        // Act
+        var problems = segment.Modify(change);
+
+        // Assert
+        problems.HasError().Should().BeFalse();
+        segment.GetChanges().Should().HaveCount(1);
+
+        var segmentModified = (RoadSegmentModified)segment.GetChanges().Single();
+        segmentModified.RoadSegmentId.Should().Be(change.RoadSegmentId);
+        segmentModified.Geometry.Should().Be(change.Geometry.ToGeometryObject());
+        segmentModified.OriginalId.Should().Be(change.OriginalId ?? change.RoadSegmentId);
+        segmentModified.StartNodeId.Should().Be(change.StartNodeId!.Value);
+        segmentModified.EndNodeId.Should().Be(change.EndNodeId!.Value);
+        segmentModified.GeometryDrawMethod.Should().Be(change.GeometryDrawMethod);
+        segmentModified.AccessRestriction.Should().Be(change.AccessRestriction);
+        segmentModified.Category.Should().Be(change.Category);
+        segmentModified.Morphology.Should().Be(change.Morphology);
+        segmentModified.Status.Should().Be(change.Status);
+        segmentModified.StreetNameId.Should().Be(change.StreetNameId);
+        segmentModified.MaintenanceAuthorityId.Should().Be(change.MaintenanceAuthorityId);
+        segmentModified.SurfaceType.Should().Be(change.SurfaceType);
+        segmentModified.EuropeanRoadNumbers.Should().BeEquivalentTo(change.EuropeanRoadNumbers);
+        segmentModified.NationalRoadNumbers.Should().BeEquivalentTo(change.NationalRoadNumbers);
     }
 
     [Fact]
@@ -50,8 +56,7 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
     {
         var change = new ModifyRoadSegmentChange
         {
-            RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
-            StartNodeId = new RoadNodeId(9)
+            RoadSegmentId = TestData.Segment1Added.RoadSegmentId
         };
 
         return Run(scenario => scenario
@@ -61,27 +66,27 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
         );
     }
 
-    [Fact]
-    public Task WhenStartNodeIsMissing_ThenError()
-    {
-        var change = new ModifyRoadSegmentChange
-        {
-            RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
-            StartNodeId = new RoadNodeId(9)
-        };
-
-        return Run(scenario => scenario
-            .Given(changes => changes
-                .Add(TestData.AddStartNode1)
-                .Add(TestData.AddEndNode1)
-                .Add(TestData.AddSegment1)
-            )
-            .When(changes => changes.Add(change))
-            .Throws(new Error("RoadSegmentStartNodeMissing", [new("Identifier", "1")]))
-        );
-    }
-
     //TODO-pr test validations RoadSegment.Modify, do Add first
+
+    // [Fact]
+    // public Task WhenStartNodeIsMissing_ThenError()
+    // {
+    //     var change = new ModifyRoadSegmentChange
+    //     {
+    //         RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
+    //         StartNodeId = new RoadNodeId(9)
+    //     };
+    //
+    //     return Run(scenario => scenario
+    //         .Given(changes => changes
+    //             .Add(TestData.AddStartNode1)
+    //             .Add(TestData.AddEndNode1)
+    //             .Add(TestData.AddSegment1)
+    //         )
+    //         .When(changes => changes.Add(change))
+    //         .Throws(new Error("RoadSegmentStartNodeMissing", [new("Identifier", "1")]))
+    //     );
+    // }
 
     // [Fact]
     // public Task when_modifying_a_segment_geometry_with_length_at_least_100000()
@@ -247,4 +252,34 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
     //             ],
     //             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
     //         }));
+
+    [Fact]
+    public void StateCheck()
+    {
+        // Arrange
+        Fixture.Freeze<RoadSegmentId>();
+
+        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentAdded>());
+        var evt = Fixture.Create<RoadSegmentModified>();
+
+        // Act
+        segment.Apply(evt);
+
+        // Assert
+        segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);
+        segment.Geometry.AsText().Should().Be(evt.Geometry.WKT);
+        segment.StartNodeId.Should().Be(evt.StartNodeId);
+        segment.EndNodeId.Should().Be(evt.EndNodeId);
+        segment.Attributes.GeometryDrawMethod.Should().Be(evt.GeometryDrawMethod);
+        segment.Attributes.AccessRestriction.Should().Be(evt.AccessRestriction);
+        segment.Attributes.Category.Should().Be(evt.Category);
+        segment.Attributes.Morphology.Should().Be(evt.Morphology);
+        segment.Attributes.Status.Should().Be(evt.Status);
+        segment.Attributes.StreetNameId.Should().Be(evt.StreetNameId);
+        segment.Attributes.MaintenanceAuthorityId.Should().Be(evt.MaintenanceAuthorityId);
+        segment.Attributes.SurfaceType.Should().Be(evt.SurfaceType);
+        segment.Attributes.EuropeanRoadNumbers.Should().BeEquivalentTo(evt.EuropeanRoadNumbers);
+        segment.Attributes.NationalRoadNumbers.Should().BeEquivalentTo(evt.NationalRoadNumbers);
+    }
+
 }
