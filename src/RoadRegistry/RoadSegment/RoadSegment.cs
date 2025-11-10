@@ -12,7 +12,7 @@ using ValueObjects;
 
 public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 {
-    public Problems VerifyTopologyAfterChanges(RoadNetworkChangeContext context)
+    public Problems VerifyTopology(RoadNetworkVerifyTopologyContext context)
     {
         var problems = Problems.None;
 
@@ -35,7 +35,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 
         if (Attributes.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
         {
-            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId, context.Tolerances);
+            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId);
 
             return problems;
         }

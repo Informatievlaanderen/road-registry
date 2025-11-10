@@ -5,11 +5,10 @@ using BackOffice.Core;
 using Changes;
 using Events;
 using NetTopologySuite.Geometries;
-using RoadNetwork.ValueObjects;
 
 public partial class RoadSegment
 {
-    public static (RoadSegment?, Problems) Add(AddRoadSegmentChange change, RoadNetworkChangeContext context)
+    public static (RoadSegment?, Problems) Add(AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator)
     {
         var problems = Problems.None;
 
@@ -19,24 +18,12 @@ public partial class RoadSegment
 
         if (change.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
         {
-            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId, context.Tolerances);
+            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId);
 
             return (null, problems);
         }
 
-        var startNodeId = context.IdTranslator.TranslateToPermanentId(change.StartNodeId);
-        var endNodeId = context.IdTranslator.TranslateToPermanentId(change.EndNodeId);
-
-        if (!context.RoadNetwork.RoadNodes.TryGetValue(startNodeId, out var startRoadNode))
-        {
-            problems = problems.Add(new RoadSegmentStartNodeMissing(originalIdOrId));
-        }
-        if (!context.RoadNetwork.RoadNodes.TryGetValue(endNodeId, out var endRoadNode))
-        {
-            problems = problems.Add(new RoadSegmentEndNodeMissing(originalIdOrId));
-        }
-
-        problems += line.GetProblemsForRoadSegmentGeometry(originalIdOrId, context.Tolerances);
+        problems += line.GetProblemsForRoadSegmentGeometry(originalIdOrId);
 
         //TODO-pr validate all dynamic attributes
         /*AccessRestriction
@@ -65,11 +52,11 @@ NumberedRoadOrdinal*/
 
         var segment = Create(new RoadSegmentAdded
         {
-            RoadSegmentId = change.PermanentId ?? context.IdGenerator.NewRoadSegmentId(),
+            RoadSegmentId = change.PermanentId ?? idGenerator.NewRoadSegmentId(),
             OriginalId = change.OriginalId ?? change.TemporaryId,
             Geometry = change.Geometry.ToGeometryObject(),
-            StartNodeId = startNodeId,
-            EndNodeId = endNodeId,
+            StartNodeId = change.StartNodeId,
+            EndNodeId = change.EndNodeId,
             GeometryDrawMethod = change.GeometryDrawMethod,
             AccessRestriction = change.AccessRestriction,
             Category = change.Category,

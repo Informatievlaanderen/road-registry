@@ -212,7 +212,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
 
         if (GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
         {
-            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId, context.Tolerances);
+            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId);
 
             return VerifyAfterResult.WithAcceptedChanges(problems, warnings => TranslateTo(warnings, context));
         }
@@ -285,12 +285,12 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
 
         if (GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
         {
-            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId, context.Tolerances);
+            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId);
 
             return problems;
         }
 
-        problems += line.GetProblemsForRoadSegmentGeometry(originalIdOrId, context.Tolerances);
+        problems += line.GetProblemsForRoadSegmentGeometry(originalIdOrId);
         problems += line.GetProblemsForRoadSegmentLanes(Lanes, context.Tolerances);
         problems += line.GetProblemsForRoadSegmentWidths(Widths, context.Tolerances);
         problems += line.GetProblemsForRoadSegmentSurfaces(Surfaces, context.Tolerances);

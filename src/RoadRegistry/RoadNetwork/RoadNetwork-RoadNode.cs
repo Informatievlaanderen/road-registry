@@ -7,9 +7,9 @@ using RoadNode = RoadRegistry.RoadNode.RoadNode;
 
 public partial class RoadNetwork
 {
-    private Problems AddRoadNode(AddRoadNodeChange change, RoadNetworkChangeContext context)
+    private Problems AddRoadNode(AddRoadNodeChange change, IRoadNetworkIdGenerator idGenerator)
     {
-        var (roadNode, problems) = RoadNode.Add(change, context);
+        var (roadNode, problems) = RoadNode.Add(change, idGenerator);
         if (problems.HasError())
         {
             return problems;

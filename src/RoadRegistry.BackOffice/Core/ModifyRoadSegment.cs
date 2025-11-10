@@ -105,7 +105,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         {
             if (line is not null)
             {
-                problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId, context.Tolerances);
+                problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId);
             }
 
             return problems;
@@ -113,7 +113,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
 
         if (line is not null)
         {
-            problems += line.GetProblemsForRoadSegmentGeometry(originalIdOrId, context.Tolerances);
+            problems += line.GetProblemsForRoadSegmentGeometry(originalIdOrId);
         }
 
         if (beforeSegment is not null && CategoryModified is not null && !CategoryModified.Value && RoadSegmentCategory.IsUpgraded(beforeSegment.AttributeHash.Category))
@@ -139,7 +139,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         {
             if (line is not null)
             {
-                problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId, context.Tolerances);
+                problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId);
             }
 
             return VerifyAfterResult.WithAcceptedChanges(problems, warnings => BuildAcceptedChanges(warnings, context));

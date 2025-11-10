@@ -5,13 +5,12 @@ using BackOffice.Core;
 using RoadSegment;
 using RoadSegment.Changes;
 using RoadSegment.ValueObjects;
-using ValueObjects;
 
 public partial class RoadNetwork
 {
-    private Problems AddRoadSegment(AddRoadSegmentChange change, RoadNetworkChangeContext context)
+    private Problems AddRoadSegment(AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator)
     {
-        var (roadSegment, problems) = RoadSegment.Add(change, context);
+        var (roadSegment, problems) = RoadSegment.Add(change, idGenerator);
         if (problems.HasError())
         {
             return problems;
@@ -22,7 +21,7 @@ public partial class RoadNetwork
         return problems;
     }
 
-    private Problems ModifyRoadSegment(ModifyRoadSegmentChange change, RoadNetworkChangeContext context)
+    private Problems ModifyRoadSegment(ModifyRoadSegmentChange change)
     {
         var originalIdOrId = change.OriginalId ?? change.RoadSegmentId;
 
@@ -32,7 +31,7 @@ public partial class RoadNetwork
         }
 
         _identifierTranslator.RegisterMapping(originalIdOrId, roadSegment.RoadSegmentId);
-        return roadSegment.Modify(change, context);
+        return roadSegment.Modify(change);
     }
 
     private Problems ExecuteOnRoadSegment(RoadSegmentId roadSegmentId, Func<RoadSegment, Problems> modify)

@@ -50,27 +50,16 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
         GradeSeparatedJunctions = _gradeSeparatedJunctions.AsReadOnly();
     }
 
-    public RoadNetworkChangeResult Change(RoadNetworkChanges changes, IRoadNetworkIdGenerator roadNetworkIdGenerator)
+    public RoadNetworkChangeResult Change(RoadNetworkChanges changes, IRoadNetworkIdGenerator idGenerator)
     {
         var problems = Problems.None;
 
-        var context = new RoadNetworkChangeContext
-        {
-            RoadNetwork = this,
-            Tolerances = VerificationContextTolerances.Default,
-            IdGenerator = roadNetworkIdGenerator,
-            IdTranslator = _identifierTranslator
-        };
-
-        foreach (var roadNetworkChange in changes
-                     .Select((change, ordinal) => new SortableChange(change, ordinal))
-                     .OrderBy(x => x, new SortableChangeComparer())
-                     .Select(x => x.Change))
+        foreach (var roadNetworkChange in changes)
         {
             switch (roadNetworkChange)
             {
                 case AddRoadNodeChange change:
-                    problems = problems.AddRange(AddRoadNode(change, context));
+                    problems = problems.AddRange(AddRoadNode(change, idGenerator));
                     break;
                 case ModifyRoadNodeChange change:
                     problems.AddRange(ModifyRoadNode(change));
@@ -80,10 +69,10 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
                     break;
 
                 case AddRoadSegmentChange change:
-                    problems = problems.AddRange(AddRoadSegment(change, context));
+                    problems = problems.AddRange(AddRoadSegment(change, idGenerator));
                     break;
                 case ModifyRoadSegmentChange change:
-                    problems = problems.AddRange(ModifyRoadSegment(change, context));
+                    problems = problems.AddRange(ModifyRoadSegment(change));
                     break;
                 case RemoveRoadSegmentChange change:
                     problems = problems.AddRange(ExecuteOnRoadSegment(change.RoadSegmentId, segment => segment.Remove()));
@@ -102,7 +91,7 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
                     break;
 
                 case AddGradeSeparatedJunctionChange change:
-                    problems = problems.AddRange(AddGradeSeparatedJunction(change, context));
+                    problems = problems.AddRange(AddGradeSeparatedJunction(change, idGenerator));
                     break;
                 case RemoveGradeSeparatedJunctionChange change:
                     problems.AddRange(RemoveGradeSeparatedJunction(change));
@@ -115,84 +104,29 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
 
         if (!problems.HasError())
         {
+            var context = new RoadNetworkVerifyTopologyContext
+            {
+                RoadNetwork = this,
+                IdTranslator = _identifierTranslator
+            };
+
             problems = _roadNodes.Values.Where(x => x.HasChanges()).Select(x => x.RoadNodeId)
                 .Concat(_roadSegments.Values.Where(x => x.HasChanges()).SelectMany(x => x.Nodes))
                 .Distinct()
                 .Select(x => _roadNodes.GetValueOrDefault(x))
                 .Where(x => x is not null)
-                .Aggregate(problems, (p, x) => p + x!.VerifyTopologyAfterChanges(context));
+                .Aggregate(problems, (p, x) => p + x!.VerifyTopology(context));
             problems = _roadSegments.Values
                 .Where(x => x.HasChanges())
-                .Aggregate(problems, (p, x) => p + x.VerifyTopologyAfterChanges(context));
+                .Aggregate(problems, (p, x) => p + x.VerifyTopology(context));
             problems = _gradeSeparatedJunctions.Values
                 .Where(x => x.HasChanges())
-                .Aggregate(problems, (p, x) => p + x.VerifyTopologyAfterChanges(context));
+                .Aggregate(problems, (p, x) => p + x.VerifyTopology(context));
         }
 
         UncommittedEvents.Add(new RoadNetworkChanged());
 
         return new RoadNetworkChangeResult(problems);
-    }
-
-    private sealed class SortableChangeComparer : IComparer<SortableChange>
-    {
-        private static readonly Type[] SequenceByTypeOfChange =
-        {
-            typeof(AddRoadNodeChange),
-            typeof(AddRoadSegmentChange),
-            typeof(AddRoadSegmentToEuropeanRoadChange),
-            typeof(AddRoadSegmentToNationalRoadChange),
-            typeof(AddGradeSeparatedJunctionChange),
-            typeof(ModifyRoadNodeChange),
-            typeof(ModifyRoadSegmentChange),
-            typeof(RemoveRoadSegmentFromEuropeanRoadChange),
-            typeof(RemoveRoadSegmentFromNationalRoadChange),
-            typeof(RemoveGradeSeparatedJunctionChange),
-            typeof(RemoveRoadSegmentChange),
-            typeof(RemoveRoadNodeChange)
-        };
-
-        public int Compare(SortableChange? left, SortableChange? right)
-        {
-            if (left is null)
-            {
-                throw new ArgumentNullException(nameof(left));
-            }
-
-            if (right is null)
-            {
-                throw new ArgumentNullException(nameof(right));
-            }
-
-            var leftRank = Array.IndexOf(SequenceByTypeOfChange, left.Change.GetType());
-            if (leftRank == -1)
-            {
-                throw new InvalidOperationException($"Change of type {left.Change.GetType().Name} is not configured in '{nameof(SequenceByTypeOfChange)}.");
-            }
-
-            var rightRank = Array.IndexOf(SequenceByTypeOfChange, right.Change.GetType());
-            if (rightRank == -1)
-            {
-                throw new InvalidOperationException($"Change of type {right.Change.GetType().Name} is not configured in '{nameof(SequenceByTypeOfChange)}.");
-            }
-
-            var comparison = leftRank.CompareTo(rightRank);
-            return comparison != 0
-                ? comparison
-                : left.Ordinal.CompareTo(right.Ordinal);
-        }
-    }
-
-    private sealed class SortableChange
-    {
-        public SortableChange(object change, int ordinal)
-        {
-            Ordinal = ordinal;
-            Change = change;
-        }
-
-        public object Change { get; }
-        public int Ordinal { get; }
     }
 }
 

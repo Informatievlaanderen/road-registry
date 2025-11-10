@@ -5,32 +5,23 @@ using BackOffice.Core;
 using Changes;
 using Events;
 using NetTopologySuite.Geometries;
-using RoadNetwork.ValueObjects;
 
 public partial class RoadSegment
 {
-    public Problems Modify(ModifyRoadSegmentChange change, RoadNetworkChangeContext context)
+    //TODO-pr only use IIdGenerator per entiteit actie + VerificationContextTolerances.Default rechtstreeks gebruiken
+    public Problems Modify(ModifyRoadSegmentChange change)
     {
         var problems = Problems.None;
 
-        var originalIdOrId = context.IdTranslator.TranslateToTemporaryId(RoadSegmentId);
+        var originalIdOrId = change.OriginalId ?? change.RoadSegmentId;
         var geometryDrawMethod = change.GeometryDrawMethod ?? Attributes.GeometryDrawMethod;
 
         var line = change.Geometry?.GetSingleLineString();
         if (line is not null)
         {
             problems += geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
-                ? line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId, context.Tolerances)
-                : line.GetProblemsForRoadSegmentGeometry(originalIdOrId, context.Tolerances);
-        }
-
-        if (!context.RoadNetwork.RoadNodes.TryGetValue(change.StartNodeId ?? StartNodeId, out var startRoadNode))
-        {
-            problems = problems.Add(new RoadSegmentStartNodeMissing(originalIdOrId));
-        }
-        if (!context.RoadNetwork.RoadNodes.TryGetValue(change.EndNodeId ?? EndNodeId, out var endRoadNode))
-        {
-            problems = problems.Add(new RoadSegmentEndNodeMissing(originalIdOrId));
+                ? line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId)
+                : line.GetProblemsForRoadSegmentGeometry(originalIdOrId);
         }
 
         if (geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)

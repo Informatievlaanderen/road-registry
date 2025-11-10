@@ -8,7 +8,7 @@ public class VerificationContextTolerances
         DefaultTolerances.GeometryTolerance
     );
 
-    public VerificationContextTolerances(
+    private VerificationContextTolerances(
         double geometryTolerance
     )
     {

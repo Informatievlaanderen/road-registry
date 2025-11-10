@@ -3,17 +3,16 @@
 using BackOffice.Core;
 using Changes;
 using Events;
-using RoadNetwork.ValueObjects;
 
 public partial class GradeSeparatedJunction
 {
-    public static (GradeSeparatedJunction?, Problems) Add(AddGradeSeparatedJunctionChange change, RoadNetworkChangeContext context)
+    public static (GradeSeparatedJunction?, Problems) Add(AddGradeSeparatedJunctionChange change, IRoadNetworkIdGenerator idGenerator)
     {
         var problems = Problems.None;
 
         var roadNode = Create(new GradeSeparatedJunctionAdded
         {
-            GradeSeparatedJunctionId = context.IdGenerator.NewGradeSeparatedJunctionId(),
+            GradeSeparatedJunctionId = idGenerator.NewGradeSeparatedJunctionId(),
             TemporaryId = change.TemporaryId,
             LowerRoadSegmentId = change.LowerRoadSegmentId,
             UpperRoadSegmentId = change.UpperRoadSegmentId,

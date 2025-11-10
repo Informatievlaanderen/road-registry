@@ -10,7 +10,7 @@ using RoadSegment;
 
 public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
 {
-    public Problems VerifyTopologyAfterChanges(RoadNetworkChangeContext context)
+    public Problems VerifyTopology(RoadNetworkVerifyTopologyContext context)
     {
         var problems = Problems.None;
 
@@ -60,7 +60,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         return problems;
     }
 
-    public Problems VerifyTypeMatchesConnectedSegmentCount(RoadNetworkChangeContext context)
+    public Problems VerifyTypeMatchesConnectedSegmentCount(RoadNetworkVerifyTopologyContext context)
     {
         var segments = context.RoadNetwork.RoadSegments.Values
             .Where(x => x.StartNodeId == RoadNodeId || x.EndNodeId == RoadNodeId)
@@ -69,7 +69,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         return VerifyTypeMatchesConnectedSegmentCount(context, segments);
     }
 
-    private Problems VerifyTypeMatchesConnectedSegmentCount(RoadNetworkChangeContext context, List<RoadSegment> segments)
+    private Problems VerifyTypeMatchesConnectedSegmentCount(RoadNetworkVerifyTopologyContext context, List<RoadSegment> segments)
     {
         var problems = Problems.None;
 

@@ -68,7 +68,7 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
             var recordNumber = RecordNumber.Initial;
 
             var geometry = GeometryTranslator.Translate(request.Request.Geometry);
-            problems += geometry.GetSingleLineString().GetProblemsForRoadSegmentOutlinedGeometry(roadSegmentId, VerificationContextTolerances.Default);
+            problems += geometry.GetSingleLineString().GetProblemsForRoadSegmentOutlinedGeometry(roadSegmentId);
             if (problems.Any())
             {
                 throw new RoadRegistryProblemsException(problems);

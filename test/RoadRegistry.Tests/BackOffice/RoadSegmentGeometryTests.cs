@@ -26,7 +26,7 @@ public class RoadSegmentGeometryTests
     {
         var geometry = GeometryTranslator.Translate(_fixture.Create<RoadSegmentGeometry>()).GetSingleLineString();
 
-        var problems = geometry.GetProblemsForRoadSegmentGeometry(_fixture.Create<RoadSegmentId>(), VerificationContextTolerances.Default);
+        var problems = geometry.GetProblemsForRoadSegmentGeometry(_fixture.Create<RoadSegmentId>());
         problems.Should().BeEmpty();
     }
 
@@ -36,7 +36,7 @@ public class RoadSegmentGeometryTests
     {
         var geometry = new WKTReader().Read(wkt).ToMultiLineString().GetSingleLineString();
 
-        var problems = geometry.GetProblemsForRoadSegmentGeometry(_fixture.Create<RoadSegmentId>(), VerificationContextTolerances.Default);
+        var problems = geometry.GetProblemsForRoadSegmentGeometry(_fixture.Create<RoadSegmentId>());
         problems.Should().ContainItemsAssignableTo<RoadSegmentGeometrySelfOverlaps>();
     }
 }

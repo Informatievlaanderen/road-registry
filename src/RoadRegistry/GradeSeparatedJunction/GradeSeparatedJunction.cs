@@ -6,7 +6,7 @@ using RoadNetwork.ValueObjects;
 
 public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSeparatedJunctionId>
 {
-    public Problems VerifyTopologyAfterChanges(RoadNetworkChangeContext context)
+    public Problems VerifyTopology(RoadNetworkVerifyTopologyContext context)
     {
         var problems = Problems.None;
 

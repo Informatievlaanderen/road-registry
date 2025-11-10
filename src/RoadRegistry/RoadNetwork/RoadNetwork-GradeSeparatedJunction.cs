@@ -7,9 +7,9 @@ using GradeSeparatedJunction = RoadRegistry.GradeSeparatedJunction.GradeSeparate
 
 public partial class RoadNetwork
 {
-    private Problems AddGradeSeparatedJunction(AddGradeSeparatedJunctionChange change, RoadNetworkChangeContext context)
+    private Problems AddGradeSeparatedJunction(AddGradeSeparatedJunctionChange change, IRoadNetworkIdGenerator idGenerator)
     {
-        var (gradeSeparatedJunction, problems) = GradeSeparatedJunction.Add(change, context);
+        var (gradeSeparatedJunction, problems) = GradeSeparatedJunction.Add(change, idGenerator);
         if (problems.HasError())
         {
             return problems;

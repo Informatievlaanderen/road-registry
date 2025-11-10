@@ -2,10 +2,10 @@
 
 using BackOffice.Core;
 
-public class RoadNetworkChangeContext
+public class RoadNetworkVerifyTopologyContext
 {
-    public required VerificationContextTolerances Tolerances { get; init; }
     public required RoadNetwork RoadNetwork { get; init; }
-    public required IRoadNetworkIdGenerator IdGenerator { get; init; }
     public required IIdentifierTranslator IdTranslator { get; init; }
+
+    public VerificationContextTolerances Tolerances => VerificationContextTolerances.Default;
 }

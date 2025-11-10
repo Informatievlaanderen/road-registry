@@ -30,9 +30,10 @@ public static class NetTopologySuiteExtensions
             .AsText());
     }
 
-    public static Problems GetProblemsForRoadSegmentOutlinedGeometry(this LineString line, RoadSegmentId id, VerificationContextTolerances contextTolerances)
+    public static Problems GetProblemsForRoadSegmentOutlinedGeometry(this LineString line, RoadSegmentId id)
     {
         var problems = Problems.None;
+        var contextTolerances = VerificationContextTolerances.Default;
 
         if (line.Length.IsReasonablyLessThan(Distances.TooClose, contextTolerances))
         {
@@ -47,9 +48,10 @@ public static class NetTopologySuiteExtensions
         return problems;
     }
 
-    public static Problems GetProblemsForRoadSegmentGeometry(this LineString line, RoadSegmentId id, VerificationContextTolerances contextTolerances)
+    public static Problems GetProblemsForRoadSegmentGeometry(this LineString line, RoadSegmentId id)
     {
         var problems = Problems.None;
+        var contextTolerances = VerificationContextTolerances.Default;
 
         if (line.Length.IsReasonablyEqualTo(0, contextTolerances))
         {
