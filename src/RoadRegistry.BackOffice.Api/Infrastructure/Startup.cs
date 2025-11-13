@@ -210,11 +210,7 @@ public class Startup
                 },
                 MiddlewareHooks =
                 {
-                    FluentValidation = _ =>
-                    {
-                        // Do not remove this handler!
-                        // It must be declared to avoid FluentValidation registering all validators within current assembly.
-                    },
+                    EnableFluentValidation = false,
                     Authorization = options =>
                     {
                         var blacklistedOvoCodes =  _configuration
