@@ -113,7 +113,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
 
         if (line is not null)
         {
-            problems += line.GetProblemsForRoadSegmentGeometry(originalIdOrId);
+            problems += line.ValidateRoadSegmentGeometry(originalIdOrId);
         }
 
         if (beforeSegment is not null && CategoryModified is not null && !CategoryModified.Value && RoadSegmentCategory.IsUpgraded(beforeSegment.AttributeHash.Category))

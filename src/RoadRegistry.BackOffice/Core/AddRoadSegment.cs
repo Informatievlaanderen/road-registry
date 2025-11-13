@@ -290,7 +290,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
             return problems;
         }
 
-        problems += line.GetProblemsForRoadSegmentGeometry(originalIdOrId);
+        problems += line.ValidateRoadSegmentGeometry(originalIdOrId);
         problems += line.GetProblemsForRoadSegmentLanes(Lanes, context.Tolerances);
         problems += line.GetProblemsForRoadSegmentWidths(Widths, context.Tolerances);
         problems += line.GetProblemsForRoadSegmentSurfaces(Surfaces, context.Tolerances);

@@ -93,6 +93,14 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode NotOutlined = new("RoadSegmentGeometryDrawMethodNotOutlined");
         }
 
+        public static class DynamicAttribute
+        {
+            public static readonly ProblemCode FromPositionNotEqualToZero = new("FromPositionNotEqualToZero");
+            public static readonly ProblemCode HasLengthOfZero = new("HasLengthOfZero");
+            public static readonly ProblemCode NotAdjacent = new("NotAdjacent");
+            public static readonly ProblemCode ToPositionNotEqualToLength = new("ToPositionNotEqualToLength");
+        }
+
         public static class Lane
         {
             public static readonly ProblemCode IsRequired = new("RoadSegmentLaneIsRequired");

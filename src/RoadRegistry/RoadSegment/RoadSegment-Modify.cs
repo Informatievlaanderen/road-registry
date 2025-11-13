@@ -1,14 +1,15 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
+using System.Linq;
 using BackOffice;
 using BackOffice.Core;
+using BackOffice.Core.ProblemCodes;
 using Changes;
 using Events;
 using NetTopologySuite.Geometries;
 
 public partial class RoadSegment
 {
-    //TODO-pr only use IIdGenerator per entiteit actie + VerificationContextTolerances.Default rechtstreeks gebruiken
     public Problems Modify(ModifyRoadSegmentChange change)
     {
         var problems = Problems.None;
@@ -21,7 +22,7 @@ public partial class RoadSegment
         {
             problems += geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
                 ? line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId)
-                : line.GetProblemsForRoadSegmentGeometry(originalIdOrId);
+                : line.ValidateRoadSegmentGeometry(originalIdOrId);
         }
 
         if (geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
@@ -41,22 +42,19 @@ public partial class RoadSegment
         //     problems += new RoadSegmentCategoryNotChangedBecauseCurrentIsNewerVersion(originalIdOrId);
         // }
 
-        //TODO-pr validate all dynamic attributes
-        /*AccessRestriction
-Category
-Morphology
-Status
-StreetNameId
-MaintenanceAuthorityId
-LaneCount
-LaneDirection
-SurfaceType
-Width
-EuropeanRoadNumber
-NationalRoadNumber
-NumberedRoadDirection
-NumberedRoadNumber
-NumberedRoadOrdinal*/
+
+        problems += line.ValidateRoadSegmentGeometry(originalIdOrId);
+
+        var segmentLength = (change.Geometry ?? Geometry).Length;
+        problems += change.AccessRestriction.Validate(originalIdOrId, nameof(change.AccessRestriction), segmentLength);
+        problems += change.Category.Validate(originalIdOrId, nameof(change.Category), segmentLength);
+        problems += change.Morphology.Validate(originalIdOrId, nameof(change.Morphology), segmentLength);
+        problems += change.Status.Validate(originalIdOrId, nameof(change.Status), segmentLength);
+        problems += change.StreetNameId.Validate(originalIdOrId, nameof(change.StreetNameId), segmentLength);
+        problems += change.MaintenanceAuthorityId.Validate(originalIdOrId, nameof(change.MaintenanceAuthorityId), segmentLength);
+        problems += change.SurfaceType.Validate(originalIdOrId, nameof(change.SurfaceType), segmentLength);
+        problems += change.EuropeanRoadNumbers.ValidateCollectionMustBeUnique(originalIdOrId, ProblemCode.RoadSegment.EuropeanRoads.NotUnique);
+        problems += change.NationalRoadNumbers.ValidateCollectionMustBeUnique(originalIdOrId, ProblemCode.RoadSegment.NationalRoads.NotUnique);
 
         if (problems.HasError())
         {

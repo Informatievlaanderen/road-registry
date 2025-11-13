@@ -25,27 +25,17 @@ public partial class RoadSegment
             return (null, problems);
         }
 
-        problems += line.GetProblemsForRoadSegmentGeometry(originalIdOrId);
+        problems += line.ValidateRoadSegmentGeometry(originalIdOrId);
 
-        //TODO-pr validate all dynamic attributes
-        /*AccessRestriction
-Category
-Morphology
-Status
-StreetNameId
-MaintenanceAuthorityId
-SurfaceType*/
-        // problems += line.GetProblemsForRoadSegmentLanes(change.Lanes, context.Tolerances);
-
-        if (change.EuropeanRoadNumbers.Count != change.EuropeanRoadNumbers.Distinct().Count())
-        {
-            problems = problems.Add(new Error(ProblemCode.RoadSegment.EuropeanRoads.NotUnique));
-        }
-
-        if (change.NationalRoadNumbers.Count != change.NationalRoadNumbers.Distinct().Count())
-        {
-            problems = problems.Add(new Error(ProblemCode.RoadSegment.NationalRoads.NotUnique));
-        }
+        problems += change.AccessRestriction.Validate(originalIdOrId, nameof(change.AccessRestriction), line.Length);
+        problems += change.Category.Validate(originalIdOrId, nameof(change.Category), line.Length);
+        problems += change.Morphology.Validate(originalIdOrId, nameof(change.Morphology), line.Length);
+        problems += change.Status.Validate(originalIdOrId, nameof(change.Status), line.Length);
+        problems += change.StreetNameId.Validate(originalIdOrId, nameof(change.StreetNameId), line.Length);
+        problems += change.MaintenanceAuthorityId.Validate(originalIdOrId, nameof(change.MaintenanceAuthorityId), line.Length);
+        problems += change.SurfaceType.Validate(originalIdOrId, nameof(change.SurfaceType), line.Length);
+        problems += change.EuropeanRoadNumbers.ValidateCollectionMustBeUnique(originalIdOrId, ProblemCode.RoadSegment.EuropeanRoads.NotUnique);
+        problems += change.NationalRoadNumbers.ValidateCollectionMustBeUnique(originalIdOrId, ProblemCode.RoadSegment.NationalRoads.NotUnique);
 
         if (problems.HasError())
         {
