@@ -1,3 +1,10 @@
+## [4.38.6](https://github.com/informatievlaanderen/road-registry/compare/v4.38.5...v4.38.6) (2025-11-13)
+
+
+### Bug Fixes
+
+* correctly disable FluentValidation in asp flow ([ae61cf3](https://github.com/informatievlaanderen/road-registry/commit/ae61cf3d2f951d38f254f46f8a7d37e5551dd3c3))
+
 ## [4.38.5](https://github.com/informatievlaanderen/road-registry/compare/v4.38.4...v4.38.5) (2025-10-30)
 
 
