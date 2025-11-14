@@ -152,7 +152,75 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
         problems.Should().ContainEquivalentOf(new RoadSegmentGeometrySelfIntersects(change.OriginalId!.Value));
     }
 
-    //TODO-pr test validations RoadSegment.Add dynamic attributes
+    [Fact]
+    public void EnsureValidatorIsUsedForAttribute_AccessRestriction()
+    {
+        EnsureValidatorIsUsedForAttribute(change => change with
+        {
+            AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>()
+                .Add(null, Fixture.Create<RoadSegmentPosition>(), Fixture.Create<RoadSegmentAttributeSide>(), Fixture.Create<RoadSegmentAccessRestriction>())
+        });
+    }
+
+    [Fact]
+    public void EnsureValidatorIsUsedForAttribute_Category()
+    {
+        EnsureValidatorIsUsedForAttribute(change => change with
+        {
+            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>()
+                .Add(null, Fixture.Create<RoadSegmentPosition>(), Fixture.Create<RoadSegmentAttributeSide>(), Fixture.Create<RoadSegmentCategory>())
+        });
+    }
+
+    [Fact]
+    public void EnsureValidatorIsUsedForAttribute_Morphology()
+    {
+        EnsureValidatorIsUsedForAttribute(change => change with
+        {
+            Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>()
+                .Add(null, Fixture.Create<RoadSegmentPosition>(), Fixture.Create<RoadSegmentAttributeSide>(), Fixture.Create<RoadSegmentMorphology>())
+        });
+    }
+
+    [Fact]
+    public void EnsureValidatorIsUsedForAttribute_Status()
+    {
+        EnsureValidatorIsUsedForAttribute(change => change with
+        {
+            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>()
+                .Add(null, Fixture.Create<RoadSegmentPosition>(), Fixture.Create<RoadSegmentAttributeSide>(), Fixture.Create<RoadSegmentStatus>())
+        });
+    }
+
+    [Fact]
+    public void EnsureValidatorIsUsedForAttribute_StreetNameId()
+    {
+        EnsureValidatorIsUsedForAttribute(change => change with
+        {
+            StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
+                .Add(null, Fixture.Create<RoadSegmentPosition>(), Fixture.Create<RoadSegmentAttributeSide>(), Fixture.Create<StreetNameLocalId>())
+        });
+    }
+
+    [Fact]
+    public void EnsureValidatorIsUsedForAttribute_MaintenanceAuthorityId()
+    {
+        EnsureValidatorIsUsedForAttribute(change => change with
+        {
+            MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>()
+                .Add(null, Fixture.Create<RoadSegmentPosition>(), Fixture.Create<RoadSegmentAttributeSide>(), Fixture.Create<OrganizationId>())
+        });
+    }
+
+    [Fact]
+    public void EnsureValidatorIsUsedForAttribute_SurfaceType()
+    {
+        EnsureValidatorIsUsedForAttribute(change => change with
+        {
+            SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>()
+                .Add(null, Fixture.Create<RoadSegmentPosition>(), Fixture.Create<RoadSegmentAttributeSide>(), Fixture.Create<RoadSegmentSurfaceType>())
+        });
+    }
 
     [Fact]
     public void WhenEuropeanRoadsAreNotUnique_ThenError()
@@ -169,7 +237,7 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
 
         // Assert
         problems.HasError().Should().BeTrue();
-        problems.Should().ContainEquivalentOf(new Error("RoadSegmentEuropeanRoadsNotUnique"));
+        problems.Should().Contain(x => x.Reason == "RoadSegmentEuropeanRoadsNotUnique");
     }
 
     [Fact]
@@ -187,7 +255,7 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
 
         // Assert
         problems.HasError().Should().BeTrue();
-        problems.Should().ContainEquivalentOf(new Error("RoadSegmentNationalRoadsNotUnique"));
+        problems.Should().Contain(x => x.Reason == "RoadSegmentNationalRoadsNotUnique");
     }
 
     [Fact]
@@ -214,5 +282,21 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
         segment.Attributes.SurfaceType.Should().Be(evt.SurfaceType);
         segment.Attributes.EuropeanRoadNumbers.Should().BeEquivalentTo(evt.EuropeanRoadNumbers);
         segment.Attributes.NationalRoadNumbers.Should().BeEquivalentTo(evt.NationalRoadNumbers);
+    }
+
+    private void EnsureValidatorIsUsedForAttribute(Func<AddRoadSegmentChange, AddRoadSegmentChange> changeBuilder)
+    {
+        // Arrange
+        var change = changeBuilder(Fixture.Create<AddRoadSegmentChange>() with
+        {
+            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates()
+        });
+
+        // Act
+        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator());
+
+        // Assert
+        problems.HasError().Should().BeTrue();
+        problems.Should().Contain(x => x.Reason.EndsWith("FromOrToPositionIsNull"));
     }
 }

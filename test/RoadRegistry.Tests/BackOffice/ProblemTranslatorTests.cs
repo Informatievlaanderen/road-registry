@@ -168,6 +168,11 @@ public class ProblemTranslatorTests
             }
         }
 
+        foreach (var problemCode in invalidProblemCodes.OrderBy(x => x.ToString()))
+        {
+            _testOutputHelper.WriteLine($"Missing translation: {problemCode}");
+        }
+
         Assert.Empty(invalidProblemCodes);
     }
 

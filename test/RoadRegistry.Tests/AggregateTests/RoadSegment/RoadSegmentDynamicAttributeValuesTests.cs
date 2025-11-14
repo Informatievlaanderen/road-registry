@@ -1,91 +1,126 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment;
 
-using AutoFixture;
 using FluentAssertions;
 using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Core.ProblemCodes;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RoadSegmentDynamicAttributeValuesTests
 {
-    private const string AttributeName = "a";
-    private static readonly RoadSegmentId RoadSegmentId = new(1);
-    private Fixture _fixture;
+    private readonly ITestOutputHelper _testOutputHelper;
 
-    public RoadSegmentDynamicAttributeValuesTests()
+    public RoadSegmentDynamicAttributeValuesTests(ITestOutputHelper testOutputHelper)
     {
-        _fixture = new Fixture();
+        _testOutputHelper = testOutputHelper;
     }
 
     [Fact]
-    public void WhenFromAndToAndSideIsNull_ThenOnly1ValueIsAllowed()
+    public void WhenFromAndToAreNullAndSideIsBoth_ThenOnly1ValueIsAllowed()
     {
-        Validate([
-            (null, null, null, 1),
-            (null, null, null, 2),
-        ]).OfType<Error>().Should().HaveCount(1);
+        AssertValidateResult([
+            (null, null, RoadSegmentAttributeSide.Both, 1)
+        ], expectedErrorCodes: []);
 
-        Validate([
-            (null, null, null, 1)
-        ]).Should().BeEmpty();
+        AssertValidateResult([
+            (null, null, RoadSegmentAttributeSide.Both, 1),
+            (null, null, RoadSegmentAttributeSide.Both, 2),
+        ], expectedErrorCodes: ["RoadSegmentCategoryValueNotUniqueWithinSegment"]);
     }
 
     [Fact]
-    public void WhenFromAndToIsNull_Then1ValuePerSideIsAllowed()
+    public void WhenFromAndToIsNullAndSideIsNotNull_Then1ValuePerSideIsAllowed()
     {
-        var attributes = new RoadSegmentDynamicAttributeValues<object>();
+        AssertValidateResult([
+            (null, null, RoadSegmentAttributeSide.Both, 1)
+        ], expectedErrorCodes: []);
 
-        var problems = attributes.Validate(RoadSegmentId, AttributeName, 0);
-        problems.HasError().Should().BeTrue();
+        AssertValidateResult([
+            (null, null, RoadSegmentAttributeSide.Left, 1)
+        ], expectedErrorCodes: []);
+
+        AssertValidateResult([
+            (null, null, RoadSegmentAttributeSide.Left, 1),
+            (null, null, RoadSegmentAttributeSide.Right, 1)
+        ], expectedErrorCodes: []);
+
+        AssertValidateResult([
+            (null, null, RoadSegmentAttributeSide.Both, 1),
+            (null, null, RoadSegmentAttributeSide.Both, 2)
+        ], expectedErrorCodes: ["RoadSegmentCategoryValueNotUniqueWithinSegment"]);
+
+        AssertValidateResult([
+            (null, null, RoadSegmentAttributeSide.Left, 1),
+            (null, null, RoadSegmentAttributeSide.Left, 2)
+        ], expectedErrorCodes: ["RoadSegmentCategoryValueNotUniqueWithinSegment"]);
     }
 
     [Fact]
     public void WhenOnlyFromOrToIsNull_ThenError()
     {
-        var attributes = new RoadSegmentDynamicAttributeValues<object>();
+        AssertValidateResult([
+            (0, 5, RoadSegmentAttributeSide.Both, 1)
+        ],
+            segmentLength: 5,
+            expectedErrorCodes: []);
 
-        var problems = attributes.Validate(RoadSegmentId, AttributeName, 0);
-        problems.HasError().Should().BeTrue();
+        AssertValidateResult([
+            (5, null, RoadSegmentAttributeSide.Both, 1)
+        ], expectedErrorCodes: ["RoadSegmentCategoryFromOrToPositionIsNull"]);
+
+        AssertValidateResult([
+            (null, 5, RoadSegmentAttributeSide.Both, 1)
+        ], expectedErrorCodes: ["RoadSegmentCategoryFromOrToPositionIsNull"]);
     }
 
     [Fact]
     public void WhenFromAndToAreNotNull_ThenFirstFromMustBeZero()
     {
-        var attributes = new RoadSegmentDynamicAttributeValues<object>();
-
-        var problems = attributes.Validate(RoadSegmentId, AttributeName, 0);
-        problems.HasError().Should().BeTrue();
+        AssertValidateResult(
+            [
+                (1, 5, RoadSegmentAttributeSide.Both, 1)
+            ],
+            segmentLength: 5,
+            expectedErrorCodes: ["RoadSegmentCategoryFromPositionNotEqualToZero"]);
     }
 
     [Fact]
     public void WhenFromAndToAreNotNull_ThenFromAndToMustBeDifferent()
     {
-        var attributes = new RoadSegmentDynamicAttributeValues<object>();
-
-        var problems = attributes.Validate(RoadSegmentId, AttributeName, 0);
-        problems.HasError().Should().BeTrue();
+        AssertValidateResult(
+            [
+                (0, 1, RoadSegmentAttributeSide.Both, 1),
+                (1, 1, RoadSegmentAttributeSide.Both, 2)
+            ],
+            segmentLength: 1,
+            expectedErrorCodes: ["RoadSegmentCategoryHasLengthOfZero"]);
     }
 
     [Fact]
     public void WhenFromAndToAreNotNull_ThenFromAndToMustBeAdjacent()
     {
-        var attributes = new RoadSegmentDynamicAttributeValues<object>();
-
-        var problems = attributes.Validate(RoadSegmentId, AttributeName, 0);
-        problems.HasError().Should().BeTrue();
+        AssertValidateResult(
+            [
+                (0, 1, RoadSegmentAttributeSide.Both, 1),
+                (4, 5, RoadSegmentAttributeSide.Both, 2)
+            ],
+            segmentLength: 5,
+            expectedErrorCodes: ["RoadSegmentCategoryNotAdjacent"]);
     }
 
     [Fact]
     public void WhenFromAndToAreNotNull_ThenLastToMustBeEqualToSegmentLength()
     {
-        var attributes = new RoadSegmentDynamicAttributeValues<object>();
-
-        var problems = attributes.Validate(RoadSegmentId, AttributeName, 0);
-        problems.HasError().Should().BeTrue();
+        AssertValidateResult(
+            [
+                (0, 1, RoadSegmentAttributeSide.Both, 1),
+                (1, 2, RoadSegmentAttributeSide.Both, 2)
+            ],
+            segmentLength: 5,
+            expectedErrorCodes: ["RoadSegmentCategoryToPositionNotEqualToLength"]);
     }
 
-    private Problems Validate((decimal? From, decimal? To, RoadSegmentAttributeSide? Side, object Value)[] attributeValues, double segmentLength = 0)
+    private void AssertValidateResult((decimal? From, decimal? To, RoadSegmentAttributeSide Side, object Value)[] attributeValues, string[] expectedErrorCodes, double segmentLength = 0)
     {
         var attributes = new RoadSegmentDynamicAttributeValues<object>();
 
@@ -97,10 +132,26 @@ public class RoadSegmentDynamicAttributeValuesTests
             var to = attributeValue.To is not null
                 ? new RoadSegmentPosition(attributeValue.To.Value)
                 : (RoadSegmentPosition?)null;
-            attributes.Add(from, to, attributeValue.Side ?? RoadSegmentAttributeSide.Both, attributeValue.Value);
+            attributes.Add(from, to, attributeValue.Side, attributeValue.Value);
         }
 
-        var problems = attributes.Validate(RoadSegmentId, AttributeName, segmentLength);
-        return problems;
+
+        var problems = attributes.Validate(new RoadSegmentId(1), segmentLength, ProblemCode.RoadSegment.Category.DynamicAttributeProblemCodes);
+        foreach (var problem in problems)
+        {
+            _testOutputHelper.WriteLine(problem.Describe());
+        }
+
+        if (expectedErrorCodes.Any())
+        {
+            foreach (var errorCode in expectedErrorCodes)
+            {
+                problems.Should().Contain(x => x.Reason == errorCode);
+            }
+        }
+        else
+        {
+            problems.Should().BeEmpty();
+        }
     }
 }

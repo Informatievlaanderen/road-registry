@@ -20,6 +20,18 @@ public sealed partial record ProblemCode
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentAccessRestrictionNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentAccessRestrictionIsRequired");
+
+            public static readonly DynamicAttributeProblemCodes DynamicAttributeProblemCodes = new()
+            {
+                FromOrToPositionIsNull = new("RoadSegmentAccessRestrictionFromOrToPositionIsNull"),
+                FromPositionNotEqualToZero = new("RoadSegmentAccessRestrictionFromPositionNotEqualToZero"),
+                HasLengthOfZero = new("RoadSegmentAccessRestrictionHasLengthOfZero"),
+                NotAdjacent = new("RoadSegmentAccessRestrictionNotAdjacent"),
+                ToPositionNotEqualToLength = new("RoadSegmentAccessRestrictionToPositionNotEqualToLength"),
+                ValueNotUniqueWithinSegment = new("RoadSegmentAccessRestrictionValueNotUniqueWithinSegment"),
+                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentAccessRestrictionLeftOrRightNotAllowedWhenUsingBoth"),
+                AnotherSegmentFoundBesidesTheGlobalSegment = new("RoadSegmentAccessRestrictionAnotherSegmentFoundBesidesTheGlobalSegment")
+            };
         }
 
         public static class Category
@@ -27,6 +39,18 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode NotValid = new("RoadSegmentCategoryNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentCategoryIsRequired");
             public static readonly ProblemCode NotChangedBecauseCurrentIsNewerVersion = new("RoadSegmentCategoryNotChangedBecauseCurrentIsNewerVersion");
+
+            public static readonly DynamicAttributeProblemCodes DynamicAttributeProblemCodes = new()
+            {
+                FromOrToPositionIsNull = new("RoadSegmentCategoryFromOrToPositionIsNull"),
+                FromPositionNotEqualToZero = new("RoadSegmentCategoryFromPositionNotEqualToZero"),
+                HasLengthOfZero = new("RoadSegmentCategoryHasLengthOfZero"),
+                NotAdjacent = new("RoadSegmentCategoryNotAdjacent"),
+                ToPositionNotEqualToLength = new("RoadSegmentCategoryToPositionNotEqualToLength"),
+                ValueNotUniqueWithinSegment = new("RoadSegmentCategoryValueNotUniqueWithinSegment"),
+                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentCategoryLeftOrRightNotAllowedWhenUsingBoth"),
+                AnotherSegmentFoundBesidesTheGlobalSegment = new("RoadSegmentCategoryAnotherSegmentFoundBesidesTheGlobalSegment")
+            };
         }
 
         public static class EuropeanRoads
@@ -93,14 +117,6 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode NotOutlined = new("RoadSegmentGeometryDrawMethodNotOutlined");
         }
 
-        public static class DynamicAttribute
-        {
-            public static readonly ProblemCode FromPositionNotEqualToZero = new("FromPositionNotEqualToZero");
-            public static readonly ProblemCode HasLengthOfZero = new("HasLengthOfZero");
-            public static readonly ProblemCode NotAdjacent = new("NotAdjacent");
-            public static readonly ProblemCode ToPositionNotEqualToLength = new("ToPositionNotEqualToLength");
-        }
-
         public static class Lane
         {
             public static readonly ProblemCode IsRequired = new("RoadSegmentLaneIsRequired");
@@ -135,18 +151,54 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode NotValid = new("RoadSegmentMaintenanceAuthorityNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentMaintenanceAuthorityIsRequired");
             public static readonly ProblemCode NotKnown = new("RoadSegmentMaintenanceAuthorityNotKnown");
+
+            public static readonly DynamicAttributeProblemCodes DynamicAttributeProblemCodes = new()
+            {
+                FromOrToPositionIsNull = new("RoadSegmentMaintenanceAuthorityFromOrToPositionIsNull"),
+                FromPositionNotEqualToZero = new("RoadSegmentMaintenanceAuthorityFromPositionNotEqualToZero"),
+                HasLengthOfZero = new("RoadSegmentMaintenanceAuthorityHasLengthOfZero"),
+                NotAdjacent = new("RoadSegmentMaintenanceAuthorityNotAdjacent"),
+                ToPositionNotEqualToLength = new("RoadSegmentMaintenanceAuthorityToPositionNotEqualToLength"),
+                ValueNotUniqueWithinSegment = new("RoadSegmentMaintenanceAuthorityValueNotUniqueWithinSegment"),
+                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentMaintenanceAuthorityLeftOrRightNotAllowedWhenUsingBoth"),
+                AnotherSegmentFoundBesidesTheGlobalSegment = new("RoadSegmentMaintenanceAuthorityAnotherSegmentFoundBesidesTheGlobalSegment")
+            };
         }
 
         public static class Morphology
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentMorphologyNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentMorphologyIsRequired");
+
+            public static readonly DynamicAttributeProblemCodes DynamicAttributeProblemCodes = new()
+            {
+                FromOrToPositionIsNull = new("RoadSegmentMorphologyFromOrToPositionIsNull"),
+                FromPositionNotEqualToZero = new("RoadSegmentMorphologyFromPositionNotEqualToZero"),
+                HasLengthOfZero = new("RoadSegmentMorphologyHasLengthOfZero"),
+                NotAdjacent = new("RoadSegmentMorphologyNotAdjacent"),
+                ToPositionNotEqualToLength = new("RoadSegmentMorphologyToPositionNotEqualToLength"),
+                ValueNotUniqueWithinSegment = new("RoadSegmentMorphologyValueNotUniqueWithinSegment"),
+                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentMorphologyLeftOrRightNotAllowedWhenUsingBoth"),
+                AnotherSegmentFoundBesidesTheGlobalSegment = new("RoadSegmentMorphologyAnotherSegmentFoundBesidesTheGlobalSegment")
+            };
         }
 
         public static class Status
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentStatusNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentStatusIsRequired");
+
+            public static readonly DynamicAttributeProblemCodes DynamicAttributeProblemCodes = new()
+            {
+                FromOrToPositionIsNull = new("RoadSegmentStatusFromOrToPositionIsNull"),
+                FromPositionNotEqualToZero = new("RoadSegmentStatusFromPositionNotEqualToZero"),
+                HasLengthOfZero = new("RoadSegmentStatusHasLengthOfZero"),
+                NotAdjacent = new("RoadSegmentStatusNotAdjacent"),
+                ToPositionNotEqualToLength = new("RoadSegmentStatusToPositionNotEqualToLength"),
+                ValueNotUniqueWithinSegment = new("RoadSegmentStatusValueNotUniqueWithinSegment"),
+                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentStatusLeftOrRightNotAllowedWhenUsingBoth"),
+                AnotherSegmentFoundBesidesTheGlobalSegment = new("RoadSegmentStatusAnotherSegmentFoundBesidesTheGlobalSegment")
+            };
         }
 
         public static class Width
@@ -184,6 +236,18 @@ public sealed partial record ProblemCode
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentSurfaceTypeNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentSurfaceTypeIsRequired");
+
+            public static readonly DynamicAttributeProblemCodes DynamicAttributeProblemCodes = new()
+            {
+                FromOrToPositionIsNull = new("RoadSegmentSurfaceAttributeFromOrToPositionIsNull"),
+                FromPositionNotEqualToZero = new("RoadSegmentSurfaceAttributeFromPositionNotEqualToZero"),
+                HasLengthOfZero = new("RoadSegmentSurfaceAttributeHasLengthOfZero"),
+                NotAdjacent = new("RoadSegmentSurfaceAttributeNotAdjacent"),
+                ToPositionNotEqualToLength = new("RoadSegmentSurfaceAttributeToPositionNotEqualToLength"),
+                ValueNotUniqueWithinSegment = new("RoadSegmentSurfaceAttributeValueNotUniqueWithinSegment"),
+                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentSurfaceAttributeLeftOrRightNotAllowedWhenUsingBoth"),
+                AnotherSegmentFoundBesidesTheGlobalSegment = new("RoadSegmentSurfaceAttributeAnotherSegmentFoundBesidesTheGlobalSegment")
+            };
         }
 
         public static class StreetName
@@ -207,6 +271,18 @@ public sealed partial record ProblemCode
                 public static readonly ProblemCode NotProposedOrCurrent = new("RoadSegmentStreetNameRightNotProposedOrCurrent");
                 public static readonly ProblemCode NotFound = new("RoadSegmentStreetNameRightNotFound");
             }
+
+            public static readonly DynamicAttributeProblemCodes DynamicAttributeProblemCodes = new()
+            {
+                FromOrToPositionIsNull = new("RoadSegmentStreetNameFromOrToPositionIsNull"),
+                FromPositionNotEqualToZero = new("RoadSegmentStreetNameFromPositionNotEqualToZero"),
+                HasLengthOfZero = new("RoadSegmentStreetNameHasLengthOfZero"),
+                NotAdjacent = new("RoadSegmentStreetNameNotAdjacent"),
+                ToPositionNotEqualToLength = new("RoadSegmentStreetNameToPositionNotEqualToLength"),
+                ValueNotUniqueWithinSegment = new("RoadSegmentStreetNameValueNotUniqueWithinSegment"),
+                LeftOrRightNotAllowedWhenUsingBoth = new("RoadSegmentStreetNameLeftOrRightNotAllowedWhenUsingBoth"),
+                AnotherSegmentFoundBesidesTheGlobalSegment = new("RoadSegmentStreetNameAnotherSegmentFoundBesidesTheGlobalSegment")
+            };
         }
 
         public static class StartNode
@@ -237,6 +313,18 @@ public sealed partial record ProblemCode
         {
             public static readonly ProblemCode DoesNotMatchNodeGeometry = new("RoadSegmentEndPointDoesNotMatchNodeGeometry");
             public static readonly ProblemCode MeasureValueNotEqualToLength = new("RoadSegmentEndPointMeasureValueNotEqualToLength");
+        }
+
+        public sealed record DynamicAttributeProblemCodes
+        {
+            public required ProblemCode FromOrToPositionIsNull { get; init; }
+            public required ProblemCode FromPositionNotEqualToZero { get; init; }
+            public required ProblemCode HasLengthOfZero { get; init; }
+            public required ProblemCode NotAdjacent { get; init; }
+            public required ProblemCode ToPositionNotEqualToLength { get; init; }
+            public required ProblemCode ValueNotUniqueWithinSegment { get; init; }
+            public required ProblemCode LeftOrRightNotAllowedWhenUsingBoth { get; init; }
+            public required ProblemCode AnotherSegmentFoundBesidesTheGlobalSegment { get; init; }
         }
     }
 

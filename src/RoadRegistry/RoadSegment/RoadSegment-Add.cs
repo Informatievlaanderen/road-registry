@@ -1,6 +1,5 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
-using System.Linq;
 using BackOffice;
 using BackOffice.Core;
 using BackOffice.Core.ProblemCodes;
@@ -27,13 +26,13 @@ public partial class RoadSegment
 
         problems += line.ValidateRoadSegmentGeometry(originalIdOrId);
 
-        problems += change.AccessRestriction.Validate(originalIdOrId, nameof(change.AccessRestriction), line.Length);
-        problems += change.Category.Validate(originalIdOrId, nameof(change.Category), line.Length);
-        problems += change.Morphology.Validate(originalIdOrId, nameof(change.Morphology), line.Length);
-        problems += change.Status.Validate(originalIdOrId, nameof(change.Status), line.Length);
-        problems += change.StreetNameId.Validate(originalIdOrId, nameof(change.StreetNameId), line.Length);
-        problems += change.MaintenanceAuthorityId.Validate(originalIdOrId, nameof(change.MaintenanceAuthorityId), line.Length);
-        problems += change.SurfaceType.Validate(originalIdOrId, nameof(change.SurfaceType), line.Length);
+        problems += change.AccessRestriction.Validate(originalIdOrId, line.Length, ProblemCode.RoadSegment.AccessRestriction.DynamicAttributeProblemCodes);
+        problems += change.Category.Validate(originalIdOrId, line.Length, ProblemCode.RoadSegment.Category.DynamicAttributeProblemCodes);
+        problems += change.Morphology.Validate(originalIdOrId, line.Length, ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes);
+        problems += change.Status.Validate(originalIdOrId, line.Length, ProblemCode.RoadSegment.Status.DynamicAttributeProblemCodes);
+        problems += change.StreetNameId.Validate(originalIdOrId, line.Length, ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes);
+        problems += change.MaintenanceAuthorityId.Validate(originalIdOrId, line.Length, ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes);
+        problems += change.SurfaceType.Validate(originalIdOrId, line.Length, ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes);
         problems += change.EuropeanRoadNumbers.ValidateCollectionMustBeUnique(originalIdOrId, ProblemCode.RoadSegment.EuropeanRoads.NotUnique);
         problems += change.NationalRoadNumbers.ValidateCollectionMustBeUnique(originalIdOrId, ProblemCode.RoadSegment.NationalRoads.NotUnique);
 

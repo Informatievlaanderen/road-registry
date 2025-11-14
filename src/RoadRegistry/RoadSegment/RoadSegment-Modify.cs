@@ -46,13 +46,13 @@ public partial class RoadSegment
         problems += line.ValidateRoadSegmentGeometry(originalIdOrId);
 
         var segmentLength = (change.Geometry ?? Geometry).Length;
-        problems += change.AccessRestriction.Validate(originalIdOrId, nameof(change.AccessRestriction), segmentLength);
-        problems += change.Category.Validate(originalIdOrId, nameof(change.Category), segmentLength);
-        problems += change.Morphology.Validate(originalIdOrId, nameof(change.Morphology), segmentLength);
-        problems += change.Status.Validate(originalIdOrId, nameof(change.Status), segmentLength);
-        problems += change.StreetNameId.Validate(originalIdOrId, nameof(change.StreetNameId), segmentLength);
-        problems += change.MaintenanceAuthorityId.Validate(originalIdOrId, nameof(change.MaintenanceAuthorityId), segmentLength);
-        problems += change.SurfaceType.Validate(originalIdOrId, nameof(change.SurfaceType), segmentLength);
+        problems += change.AccessRestriction.Validate(originalIdOrId, segmentLength, ProblemCode.RoadSegment.AccessRestriction.DynamicAttributeProblemCodes);
+        problems += change.Category.Validate(originalIdOrId, segmentLength, ProblemCode.RoadSegment.Category.DynamicAttributeProblemCodes);
+        problems += change.Morphology.Validate(originalIdOrId, segmentLength, ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes);
+        problems += change.Status.Validate(originalIdOrId, segmentLength, ProblemCode.RoadSegment.Status.DynamicAttributeProblemCodes);
+        problems += change.StreetNameId.Validate(originalIdOrId, segmentLength, ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes);
+        problems += change.MaintenanceAuthorityId.Validate(originalIdOrId, segmentLength, ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes);
+        problems += change.SurfaceType.Validate(originalIdOrId, segmentLength, ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes);
         problems += change.EuropeanRoadNumbers.ValidateCollectionMustBeUnique(originalIdOrId, ProblemCode.RoadSegment.EuropeanRoads.NotUnique);
         problems += change.NationalRoadNumbers.ValidateCollectionMustBeUnique(originalIdOrId, ProblemCode.RoadSegment.NationalRoads.NotUnique);
 
