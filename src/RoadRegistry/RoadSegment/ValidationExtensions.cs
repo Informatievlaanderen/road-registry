@@ -11,15 +11,16 @@ using ValueObjects;
 
 public static class ValidationExtensions
 {
-    public static Problems Validate<T>(this RoadSegmentDynamicAttributeValues<T>? attributeValues,
+    public static Problems Validate<T>(this RoadSegmentDynamicAttributeValues<T> attributeValues,
         RoadSegmentId roadSegmentId,
         double segmentLength,
         ProblemCode.RoadSegment.DynamicAttributeProblemCodes problemCodes)
     {
         var problems = Problems.None;
 
-        if (attributeValues is null || !attributeValues.Values.Any())
+        if (!attributeValues.Values.Any())
         {
+            //TODO-pr mag dit wel? moet dit geen fout geven?
             return problems;
         }
 

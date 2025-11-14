@@ -1,11 +1,10 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
-using BackOffice;
+using System.Collections.Immutable;
 using BackOffice.Core;
-using BackOffice.Core.ProblemCodes;
 using Changes;
 using Events;
-using NetTopologySuite.Geometries;
+using ValueObjects;
 
 public partial class RoadSegment
 {
@@ -15,26 +14,23 @@ public partial class RoadSegment
 
         var originalIdOrId = change.OriginalId ?? change.TemporaryId;
 
-        var line = change.Geometry.GetSingleLineString();
+        problems += new RoadSegmentGeometryValidator().Validate(originalIdOrId, change.GeometryDrawMethod, change.Geometry);
 
-        if (change.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
-        {
-            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId);
-
-            return (null, problems);
-        }
-
-        problems += line.ValidateRoadSegmentGeometry(originalIdOrId);
-
-        problems += change.AccessRestriction.Validate(originalIdOrId, line.Length, ProblemCode.RoadSegment.AccessRestriction.DynamicAttributeProblemCodes);
-        problems += change.Category.Validate(originalIdOrId, line.Length, ProblemCode.RoadSegment.Category.DynamicAttributeProblemCodes);
-        problems += change.Morphology.Validate(originalIdOrId, line.Length, ProblemCode.RoadSegment.Morphology.DynamicAttributeProblemCodes);
-        problems += change.Status.Validate(originalIdOrId, line.Length, ProblemCode.RoadSegment.Status.DynamicAttributeProblemCodes);
-        problems += change.StreetNameId.Validate(originalIdOrId, line.Length, ProblemCode.RoadSegment.StreetName.DynamicAttributeProblemCodes);
-        problems += change.MaintenanceAuthorityId.Validate(originalIdOrId, line.Length, ProblemCode.RoadSegment.MaintenanceAuthority.DynamicAttributeProblemCodes);
-        problems += change.SurfaceType.Validate(originalIdOrId, line.Length, ProblemCode.RoadSegment.SurfaceType.DynamicAttributeProblemCodes);
-        problems += change.EuropeanRoadNumbers.ValidateCollectionMustBeUnique(originalIdOrId, ProblemCode.RoadSegment.EuropeanRoads.NotUnique);
-        problems += change.NationalRoadNumbers.ValidateCollectionMustBeUnique(originalIdOrId, ProblemCode.RoadSegment.NationalRoads.NotUnique);
+        problems += new RoadSegmentAttributesValidator().Validate(originalIdOrId,
+            new RoadSegmentAttributes
+            {
+                GeometryDrawMethod = change.GeometryDrawMethod,
+                AccessRestriction = change.AccessRestriction,
+                Category = change.Category,
+                Morphology = change.Morphology,
+                Status = change.Status,
+                StreetNameId = change.StreetNameId,
+                MaintenanceAuthorityId = change.MaintenanceAuthorityId,
+                SurfaceType = change.SurfaceType,
+                EuropeanRoadNumbers = change.EuropeanRoadNumbers.ToImmutableList(),
+                NationalRoadNumbers = change.NationalRoadNumbers.ToImmutableList()
+            },
+            change.Geometry.Length);
 
         if (problems.HasError())
         {

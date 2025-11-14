@@ -116,6 +116,7 @@ public class RoadNetworkTestData
         Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentCategory>();
         Fixture.CustomizeRoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>();
         Fixture.CustomizeRoadSegmentDynamicAttributeValues<StreetNameLocalId>();
+        Fixture.CustomizeRoadSegmentAttributes();
         Fixture.CustomizeRoadSegmentAdded();
         Fixture.CustomizeRoadSegmentModified();
         //
