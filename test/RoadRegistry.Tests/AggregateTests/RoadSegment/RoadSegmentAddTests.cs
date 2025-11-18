@@ -3,6 +3,7 @@
 using AutoFixture;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
+using RoadNetwork;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadSegment;
@@ -24,8 +25,12 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
             Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates()
         };
 
+        var actualStartNodeId = Fixture.Create<RoadNodeId>();
+        var idTranslator = new IdentifierTranslator();
+        idTranslator.RegisterMapping(change.StartNodeId, actualStartNodeId);
+
         // Act
-        var (segment, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator());
+        var (segment, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), idTranslator);
 
         // Assert
         problems.HasError().Should().BeFalse();
@@ -35,7 +40,7 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
         segmentAdded.RoadSegmentId.Should().Be(new RoadSegmentId(1));
         segmentAdded.Geometry.Should().Be(change.Geometry.ToGeometryObject());
         segmentAdded.OriginalId.Should().Be(change.OriginalId ?? change.TemporaryId);
-        segmentAdded.StartNodeId.Should().Be(change.StartNodeId);
+        segmentAdded.StartNodeId.Should().Be(actualStartNodeId);
         segmentAdded.EndNodeId.Should().Be(change.EndNodeId);
         segmentAdded.GeometryDrawMethod.Should().Be(change.GeometryDrawMethod);
         segmentAdded.AccessRestriction.Should().Be(change.AccessRestriction);
@@ -61,7 +66,7 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
         };
 
         // Act
-        var (segment, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator());
+        var (segment, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
 
         // Assert
         problems.HasError().Should().BeFalse();
@@ -95,7 +100,7 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
         };
 
         // Act
-        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator());
+        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
 
         // Assert
         problems.HasError().Should().BeTrue();
@@ -114,7 +119,7 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
         };
 
         // Act
-        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator());
+        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
 
         // Assert
         problems.HasError().Should().BeTrue();

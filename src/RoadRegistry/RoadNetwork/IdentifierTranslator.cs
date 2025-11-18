@@ -6,6 +6,8 @@ using RoadSegment.ValueObjects;
 
 public interface IIdentifierTranslator
 {
+    void RegisterMapping(RoadNodeId temporaryId, RoadNodeId permanentId);
+    void RegisterMapping(RoadSegmentId temporaryId, RoadSegmentId permanentId);
     RoadNodeId TranslateToTemporaryId(RoadNodeId id);
     RoadSegmentId TranslateToTemporaryId(RoadSegmentId id);
     RoadNodeId TranslateToPermanentId(RoadNodeId id);
@@ -17,29 +19,29 @@ public interface IIdentifierTranslator
 public class IdentifierTranslator : IIdentifierTranslator
 {
     private readonly Dictionary<RoadNodeId, RoadNodeId> _mapToPermanentNodeIdentifiers = [];
-    private readonly Dictionary<RoadNodeId, RoadNodeId> _mapToOriginalNodeIdentifiers = [];
+    private readonly Dictionary<RoadNodeId, RoadNodeId> _mapToTemporaryNodeIdentifiers = [];
     private readonly Dictionary<RoadSegmentId, RoadSegmentId> _mapToPermanentSegmentIdentifiers = [];
-    private readonly Dictionary<RoadSegmentId, RoadSegmentId> _mapToOriginalSegmentIdentifiers = [];
+    private readonly Dictionary<RoadSegmentId, RoadSegmentId> _mapToTemporarySegmentIdentifiers = [];
 
     public void RegisterMapping(RoadNodeId temporaryId, RoadNodeId permanentId)
     {
         _mapToPermanentNodeIdentifiers[temporaryId] = permanentId;
-        _mapToOriginalNodeIdentifiers[permanentId] = temporaryId;
+        _mapToTemporaryNodeIdentifiers[permanentId] = temporaryId;
     }
 
     public void RegisterMapping(RoadSegmentId temporaryId, RoadSegmentId permanentId)
     {
         _mapToPermanentSegmentIdentifiers[temporaryId] = permanentId;
-        _mapToOriginalSegmentIdentifiers[permanentId] = temporaryId;
+        _mapToTemporarySegmentIdentifiers[permanentId] = temporaryId;
     }
 
     public RoadNodeId TranslateToTemporaryId(RoadNodeId id)
     {
-        return _mapToOriginalNodeIdentifiers.GetValueOrDefault(id, id);
+        return _mapToTemporaryNodeIdentifiers.GetValueOrDefault(id, id);
     }
     public RoadSegmentId TranslateToTemporaryId(RoadSegmentId id)
     {
-        return _mapToOriginalSegmentIdentifiers.GetValueOrDefault(id, id);
+        return _mapToTemporarySegmentIdentifiers.GetValueOrDefault(id, id);
     }
 
     public RoadNodeId TranslateToPermanentId(RoadNodeId id)

@@ -4,11 +4,12 @@ using System.Collections.Immutable;
 using BackOffice.Core;
 using Changes;
 using Events;
+using RoadNetwork;
 using ValueObjects;
 
 public partial class RoadSegment
 {
-    public static (RoadSegment?, Problems) Add(AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator)
+    public static (RoadSegment?, Problems) Add(AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator)
     {
         var problems = Problems.None;
 
@@ -42,8 +43,8 @@ public partial class RoadSegment
             RoadSegmentId = change.PermanentId ?? idGenerator.NewRoadSegmentId(),
             OriginalId = change.OriginalId ?? change.TemporaryId,
             Geometry = change.Geometry.ToGeometryObject(),
-            StartNodeId = change.StartNodeId,
-            EndNodeId = change.EndNodeId,
+            StartNodeId = idTranslator.TranslateToPermanentId(change.StartNodeId),
+            EndNodeId = idTranslator.TranslateToPermanentId(change.EndNodeId),
             GeometryDrawMethod = change.GeometryDrawMethod,
             AccessRestriction = change.AccessRestriction,
             Category = change.Category,

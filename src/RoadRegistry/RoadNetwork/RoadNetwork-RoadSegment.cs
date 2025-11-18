@@ -1,6 +1,8 @@
 ﻿namespace RoadRegistry.RoadNetwork;
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using BackOffice.Core;
 using RoadSegment;
 using RoadSegment.Changes;
@@ -8,20 +10,25 @@ using RoadSegment.ValueObjects;
 
 public partial class RoadNetwork
 {
-    private Problems AddRoadSegment(AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator)
+    public IEnumerable<RoadSegment> GetNonRemovedRoadSegments()
     {
-        var (roadSegment, problems) = RoadSegment.Add(change, idGenerator);
+        return _roadSegments.Values.Where(x => !x.IsRemoved);
+    }
+
+    private Problems AddRoadSegment(AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator)
+    {
+        var (roadSegment, problems) = RoadSegment.Add(change, idGenerator, idTranslator);
         if (problems.HasError())
         {
             return problems;
         }
 
-        _identifierTranslator.RegisterMapping(change.OriginalId ?? change.TemporaryId, roadSegment!.RoadSegmentId);
+        idTranslator.RegisterMapping(change.OriginalId ?? change.TemporaryId, roadSegment!.RoadSegmentId);
         _roadSegments.Add(roadSegment.RoadSegmentId, roadSegment);
         return problems;
     }
 
-    private Problems ModifyRoadSegment(ModifyRoadSegmentChange change)
+    private Problems ModifyRoadSegment(ModifyRoadSegmentChange change, IIdentifierTranslator idTranslator)
     {
         var originalIdOrId = change.OriginalId ?? change.RoadSegmentId;
 
@@ -30,11 +37,11 @@ public partial class RoadNetwork
             return Problems.Single(new RoadSegmentNotFound(originalIdOrId));
         }
 
-        _identifierTranslator.RegisterMapping(originalIdOrId, roadSegment.RoadSegmentId);
+        idTranslator.RegisterMapping(originalIdOrId, roadSegment.RoadSegmentId);
         return roadSegment.Modify(change);
     }
 
-    private Problems ExecuteOnRoadSegment(RoadSegmentId roadSegmentId, Func<RoadSegment, Problems> modify)
+    private Problems InvokeOnRoadSegment(RoadSegmentId roadSegmentId, Func<RoadSegment, Problems> modify)
     {
         if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment))
         {

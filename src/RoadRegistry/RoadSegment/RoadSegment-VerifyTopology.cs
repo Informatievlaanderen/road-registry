@@ -39,7 +39,7 @@ public partial class RoadSegment
             return problems;
         }
 
-        var byOtherSegment = context.RoadNetwork.RoadSegments.Values.FirstOrDefault(segment =>
+        var byOtherSegment = context.RoadNetwork.GetNonRemovedRoadSegments().FirstOrDefault(segment =>
             segment.RoadSegmentId != RoadSegmentId &&
             segment.Geometry.IsReasonablyEqualTo(Geometry, context.Tolerances));
         if (byOtherSegment is not null)
@@ -47,7 +47,7 @@ public partial class RoadSegment
             problems = problems.Add(new RoadSegmentGeometryTaken(byOtherSegment.RoadSegmentId));
         }
 
-        if (!context.RoadNetwork.RoadNodes.TryGetValue(StartNodeId, out var startNode))
+        if (!context.RoadNetwork.RoadNodes.TryGetValue(StartNodeId, out var startNode) || startNode.IsRemoved)
         {
             problems = problems.Add(new RoadSegmentStartNodeMissing(originalIdOrId));
         }
@@ -60,7 +60,7 @@ public partial class RoadSegment
             }
         }
 
-        if (!context.RoadNetwork.RoadNodes.TryGetValue(EndNodeId, out var endNode))
+        if (!context.RoadNetwork.RoadNodes.TryGetValue(EndNodeId, out var endNode) || endNode.IsRemoved)
         {
             problems = problems.Add(new RoadSegmentEndNodeMissing(originalIdOrId));
         }
@@ -80,12 +80,12 @@ public partial class RoadSegment
             var intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions = intersectingSegments
                 .Where(intersectingSegment =>
                     !context.RoadNetwork.GradeSeparatedJunctions.Values.Any(junction =>
-                        (junction.LowerRoadSegmentId == RoadSegmentId && junction.UpperRoadSegmentId == intersectingSegment.Key) ||
-                        (junction.LowerRoadSegmentId == intersectingSegment.Key && junction.UpperRoadSegmentId == RoadSegmentId)))
+                        (junction.LowerRoadSegmentId == RoadSegmentId && junction.UpperRoadSegmentId == intersectingSegment.RoadSegmentId) ||
+                        (junction.LowerRoadSegmentId == intersectingSegment.RoadSegmentId && junction.UpperRoadSegmentId == RoadSegmentId)))
                 .Select(i =>
                     new IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction(
                         originalIdOrId,
-                        context.IdTranslator.TranslateToTemporaryId(i.Key)));
+                        context.IdTranslator.TranslateToTemporaryId(i.RoadSegmentId)));
 
             problems = problems.AddRange(intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions);
         }
@@ -93,17 +93,17 @@ public partial class RoadSegment
         return problems;
     }
 
-    private static IEnumerable<KeyValuePair<RoadSegmentId, RoadSegment>> FindIntersectingRoadSegments(
+    private static IEnumerable<RoadSegment> FindIntersectingRoadSegments(
         RoadNetwork roadNetwork,
         RoadSegmentId intersectsWithId,
         MultiLineString intersectsWithGeometry,
         RoadNodeId[] roadNodeIdsNotInCommon)
     {
         return roadNetwork
-            .RoadSegments
-            .Where(segment => segment.Value.Attributes.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined)
-            .Where(segment => segment.Key != intersectsWithId)
-            .Where(segment => segment.Value.Geometry.Intersects(intersectsWithGeometry))
-            .Where(segment => !segment.Value.Nodes.Any(roadNodeIdsNotInCommon.Contains));
+            .GetNonRemovedRoadSegments()
+            .Where(segment => segment.Attributes.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined)
+            .Where(segment => segment.RoadSegmentId != intersectsWithId)
+            .Where(segment => segment.Geometry.Intersects(intersectsWithGeometry))
+            .Where(segment => !segment.Nodes.Any(roadNodeIdsNotInCommon.Contains));
     }
 }

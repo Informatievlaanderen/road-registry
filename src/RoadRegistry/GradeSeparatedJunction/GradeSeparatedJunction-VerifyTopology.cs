@@ -9,12 +9,12 @@ public partial class GradeSeparatedJunction
     {
         var problems = Problems.None;
 
-        if (!context.RoadNetwork.RoadSegments.TryGetValue(UpperRoadSegmentId, out var upperSegment))
+        if (!context.RoadNetwork.RoadSegments.TryGetValue(UpperRoadSegmentId, out var upperSegment) || upperSegment.IsRemoved)
         {
             problems = problems.Add(new UpperRoadSegmentMissing());
         }
 
-        if (!context.RoadNetwork.RoadSegments.TryGetValue(LowerRoadSegmentId, out var lowerSegment))
+        if (!context.RoadNetwork.RoadSegments.TryGetValue(LowerRoadSegmentId, out var lowerSegment) || lowerSegment.IsRemoved)
         {
             problems = problems.Add(new LowerRoadSegmentMissing());
         }

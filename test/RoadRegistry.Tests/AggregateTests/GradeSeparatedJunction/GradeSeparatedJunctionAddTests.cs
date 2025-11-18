@@ -2,10 +2,12 @@
 
 using AutoFixture;
 using FluentAssertions;
+using RoadNetwork;
 using RoadRegistry.BackOffice;
 using RoadRegistry.GradeSeparatedJunction;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.GradeSeparatedJunction.Events;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public class GradeSeparatedJunctionAddTests : RoadNetworkTestBase
 {
@@ -15,8 +17,12 @@ public class GradeSeparatedJunctionAddTests : RoadNetworkTestBase
         // Arrange
         var change = Fixture.Create<AddGradeSeparatedJunctionChange>();
 
+        var actualLowerRoadSegmentId = Fixture.Create<RoadSegmentId>();
+        var idTranslator = new IdentifierTranslator();
+        idTranslator.RegisterMapping(change.LowerRoadSegmentId, actualLowerRoadSegmentId);
+
         // Act
-        var (junction, problems) = GradeSeparatedJunction.Add(change, new FakeRoadNetworkIdGenerator());
+        var (junction, problems) = GradeSeparatedJunction.Add(change, new FakeRoadNetworkIdGenerator(), idTranslator);
 
         // Assert
         problems.HasError().Should().BeFalse();
@@ -25,7 +31,7 @@ public class GradeSeparatedJunctionAddTests : RoadNetworkTestBase
         var junctionAdded = (GradeSeparatedJunctionAdded)junction.GetChanges().Single();
         junctionAdded.GradeSeparatedJunctionId.Should().Be(new GradeSeparatedJunctionId(1));
         junctionAdded.Type.Should().Be(change.Type);
-        junctionAdded.LowerRoadSegmentId.Should().Be(change.LowerRoadSegmentId);
+        junctionAdded.LowerRoadSegmentId.Should().Be(actualLowerRoadSegmentId);
         junctionAdded.UpperRoadSegmentId.Should().Be(change.UpperRoadSegmentId);
     }
 

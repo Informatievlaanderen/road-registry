@@ -19,21 +19,18 @@ public abstract class RoadNetworkTestBase
 
     protected Task Run(Func<Scenario, IExpectEventsScenarioBuilder> builder)
     {
-        ArgumentNullException.ThrowIfNull(builder);
-
-        var scenarioBuilder = builder(new Scenario());
-
-        var runner = new ScenarioRunner(_roadNetworkIdGenerator);
-        return scenarioBuilder.AssertAsync(runner);
+        return Run((scenario, runner) => builder(scenario).Assert(runner));
     }
-
     protected Task Run(Func<Scenario, IExpectExceptionScenarioBuilder> builder)
     {
-        ArgumentNullException.ThrowIfNull(builder);
-
-        var scenarioBuilder = builder(new Scenario());
+        return Run((scenario, runner) => builder(scenario).Assert(runner));
+    }
+    private Task Run(Func<Scenario, ScenarioRunner, Task> assert)
+    {
+        ArgumentNullException.ThrowIfNull(assert);
 
         var runner = new ScenarioRunner(_roadNetworkIdGenerator);
-        return scenarioBuilder.AssertAsync(runner);
+
+        return assert(new Scenario(), runner);
     }
 }

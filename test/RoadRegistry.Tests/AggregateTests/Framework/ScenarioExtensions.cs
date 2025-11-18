@@ -17,16 +17,28 @@ public static class ScenarioExtensions
         return builder.When(new Command(roadNetworkChangesBuilder(RoadNetworkChanges.Start())));
     }
 
-    public static IScenarioThrowsStateBuilder Throws(this IScenarioWhenStateBuilder builder, Problems problems)
+    public static IScenarioThrowsStateBuilder ThenProblems(this IScenarioWhenStateBuilder builder, Problem problem)
     {
-        return builder.Throws(new RoadRegistryProblemsException(problems));
+        return ThenProblems(builder, Problems.Single(problem));
     }
-    public static IScenarioThrowsStateBuilder Throws(this IScenarioWhenStateBuilder builder, Problem problem)
+    public static IScenarioThrowsStateBuilder ThenProblems(this IScenarioWhenStateBuilder builder, params Problem[] problems)
     {
-        return builder.Throws(Problems.Single(problem));
+        return ThenProblems(builder, Problems.Many(problems));
     }
-    public static IScenarioThrowsStateBuilder Throws(this IScenarioWhenStateBuilder builder, params Problem[] problems)
+    public static IScenarioThrowsStateBuilder ThenProblems(this IScenarioWhenStateBuilder builder, Problems problems)
     {
-        return builder.Throws(Problems.Many(problems));
+        return builder.ThenException(new RoadRegistryProblemsException(problems));
+    }
+
+    public static IScenarioThrowsStateBuilder ThenContainsProblems(this IScenarioWhenStateBuilder builder, params Problem[] problems)
+    {
+        return ThenContainsProblems(builder, Problems.Many(problems));
+    }
+    public static IScenarioThrowsStateBuilder ThenContainsProblems(this IScenarioWhenStateBuilder builder, Problems problems)
+    {
+        return builder.ThenException(ex =>
+        {
+            return ex is RoadRegistryProblemsException problemsException && problems.All(expectedProblem => problemsException.Problems.Contains(expectedProblem));
+        });
     }
 }

@@ -39,10 +39,9 @@ public class RoadSegmentRemoveTests : RoadNetworkTestBase
             RoadSegmentId = TestData.Segment1Added.RoadSegmentId
         };
 
-        return Run(scenario => scenario
-            .Given(changes => changes)
-            .When(changes => changes.Add(change))
-            .Throws(new Error("RoadSegmentNotFound", [new("SegmentId", change.RoadSegmentId.ToString())]))
+        return Run(scenario => ScenarioExtensions.ThenProblems(scenario
+                .Given(changes => changes)
+                .When(changes => changes.Add(change)), new Error("RoadSegmentNotFound", [new("SegmentId", change.RoadSegmentId.ToString())]))
         );
     }
 

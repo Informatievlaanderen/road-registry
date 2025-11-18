@@ -4,5 +4,6 @@ public interface IScenarioWhenStateBuilder
 {
     IScenarioThenStateBuilder Then(params object[] events);
     IScenarioThenNoneStateBuilder ThenNone();
-    IScenarioThrowsStateBuilder Throws(Exception exception);
+    IScenarioThrowsStateBuilder ThenException(Exception exception);
+    IScenarioThrowsStateBuilder ThenException(Func<Exception, bool> exceptionIsAcceptable);
 }

@@ -27,7 +27,6 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
     private readonly Dictionary<RoadNodeId, RoadNode> _roadNodes;
     private readonly Dictionary<RoadSegmentId, RoadSegment> _roadSegments;
     private readonly Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> _gradeSeparatedJunctions;
-    private readonly IdentifierTranslator _identifierTranslator = new();
 
     private RoadNetwork()
         : this([], [], [])
@@ -53,13 +52,14 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
     public RoadNetworkChangeResult Change(RoadNetworkChanges changes, IRoadNetworkIdGenerator idGenerator)
     {
         var problems = Problems.None;
+        var idTranslator = new IdentifierTranslator();
 
         foreach (var roadNetworkChange in changes)
         {
             switch (roadNetworkChange)
             {
                 case AddRoadNodeChange change:
-                    problems = problems.AddRange(AddRoadNode(change, idGenerator));
+                    problems = problems.AddRange(AddRoadNode(change, idGenerator, idTranslator));
                     break;
                 case ModifyRoadNodeChange change:
                     problems.AddRange(ModifyRoadNode(change));
@@ -69,29 +69,29 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
                     break;
 
                 case AddRoadSegmentChange change:
-                    problems = problems.AddRange(AddRoadSegment(change, idGenerator));
+                    problems = problems.AddRange(AddRoadSegment(change, idGenerator, idTranslator));
                     break;
                 case ModifyRoadSegmentChange change:
-                    problems = problems.AddRange(ModifyRoadSegment(change));
+                    problems = problems.AddRange(ModifyRoadSegment(change, idTranslator));
                     break;
                 case RemoveRoadSegmentChange change:
-                    problems = problems.AddRange(ExecuteOnRoadSegment(change.RoadSegmentId, segment => segment.Remove()));
+                    problems = problems.AddRange(InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.Remove()));
                     break;
                 case AddRoadSegmentToEuropeanRoadChange change:
-                    problems = problems.AddRange(ExecuteOnRoadSegment(change.RoadSegmentId, segment => segment.AddEuropeanRoad(change)));
+                    problems = problems.AddRange(InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.AddEuropeanRoad(change)));
                     break;
                 case RemoveRoadSegmentFromEuropeanRoadChange change:
-                    problems = problems.AddRange(ExecuteOnRoadSegment(change.RoadSegmentId, segment => segment.RemoveEuropeanRoad(change)));
+                    problems = problems.AddRange(InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.RemoveEuropeanRoad(change)));
                     break;
                 case AddRoadSegmentToNationalRoadChange change:
-                    problems = problems.AddRange(ExecuteOnRoadSegment(change.RoadSegmentId, segment => segment.AddNationalRoad(change)));
+                    problems = problems.AddRange(InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.AddNationalRoad(change)));
                     break;
                 case RemoveRoadSegmentFromNationalRoadChange change:
-                    problems = problems.AddRange(ExecuteOnRoadSegment(change.RoadSegmentId, segment => segment.RemoveNationalRoad(change)));
+                    problems = problems.AddRange(InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.RemoveNationalRoad(change)));
                     break;
 
                 case AddGradeSeparatedJunctionChange change:
-                    problems = problems.AddRange(AddGradeSeparatedJunction(change, idGenerator));
+                    problems = problems.AddRange(AddGradeSeparatedJunction(change, idGenerator, idTranslator));
                     break;
                 case RemoveGradeSeparatedJunctionChange change:
                     problems.AddRange(RemoveGradeSeparatedJunction(change));
@@ -107,7 +107,7 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
             var context = new RoadNetworkVerifyTopologyContext
             {
                 RoadNetwork = this,
-                IdTranslator = _identifierTranslator
+                IdTranslator = idTranslator
             };
 
             problems = _roadNodes.Values.Where(x => x.HasChanges()).Select(x => x.RoadNodeId)
@@ -126,7 +126,7 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
 
         UncommittedEvents.Add(new RoadNetworkChanged());
 
-        return new RoadNetworkChangeResult(problems);
+        return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()));
     }
 }
 

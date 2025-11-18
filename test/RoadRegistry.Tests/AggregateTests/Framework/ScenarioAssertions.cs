@@ -7,13 +7,13 @@ using Xunit.Sdk;
 
 public static class ScenarioAssertions
 {
-    public static async Task AssertAsync(
+    public static async Task Assert(
         this IExpectEventsScenarioBuilder builder,
         ScenarioRunner runner,
         CancellationToken ct = default)
     {
         var scenario = builder.Build();
-        var result = await runner.RunAsync(scenario, ct);
+        var result = await runner.RunAsync(scenario);
         switch (result)
         {
             case ScenarioExpectedEventsButThrewException threw:
@@ -58,13 +58,12 @@ public static class ScenarioAssertions
         }
     }
 
-    public static async Task AssertAsync(
+    public static async Task Assert(
         this IExpectExceptionScenarioBuilder builder,
-        ScenarioRunner runner,
-        CancellationToken ct = default)
+        ScenarioRunner runner)
     {
         var scenario = builder.Build();
-        var result = await runner.RunAsync(scenario, ct);
+        var result = await runner.RunAsync(scenario);
         switch (result)
         {
             case ScenarioExpectedExceptionButThrewNoException _:

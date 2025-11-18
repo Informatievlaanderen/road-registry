@@ -1,13 +1,19 @@
 ﻿namespace RoadRegistry.RoadNetwork;
 
+using System.Collections.Generic;
+using System.Linq;
 using BackOffice.Core;
 using RoadNode.Changes;
-using ValueObjects;
-using RoadNode = RoadRegistry.RoadNode.RoadNode;
+using RoadNode = RoadNode.RoadNode;
 
 public partial class RoadNetwork
 {
-    private Problems AddRoadNode(AddRoadNodeChange change, IRoadNetworkIdGenerator idGenerator)
+    public IEnumerable<RoadNode> GetNonRemovedRoadNodes()
+    {
+        return _roadNodes.Values.Where(x => !x.IsRemoved);
+    }
+
+    private Problems AddRoadNode(AddRoadNodeChange change, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator)
     {
         var (roadNode, problems) = RoadNode.Add(change, idGenerator);
         if (problems.HasError())
@@ -15,7 +21,7 @@ public partial class RoadNetwork
             return problems;
         }
 
-        _identifierTranslator.RegisterMapping(change.TemporaryId, roadNode!.RoadNodeId);
+        idTranslator.RegisterMapping(change.TemporaryId, roadNode!.RoadNodeId);
         _roadNodes.Add(roadNode.RoadNodeId, roadNode);
         return problems;
     }

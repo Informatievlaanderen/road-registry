@@ -4,6 +4,7 @@ using AutoFixture;
 using FluentAssertions;
 using Framework;
 using NetTopologySuite.Geometries;
+using RoadNetwork;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadSegment;
@@ -104,10 +105,9 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
             RoadSegmentId = TestData.Segment1Added.RoadSegmentId
         };
 
-        return Run(scenario => scenario
-            .Given(changes => changes)
-            .When(changes => changes.Add(change))
-            .Throws(new Error("RoadSegmentNotFound", [new("SegmentId", change.RoadSegmentId.ToString())]))
+        return Run(scenario => ScenarioExtensions.ThenProblems(scenario
+                .Given(changes => changes)
+                .When(changes => changes.Add(change)), new Error("RoadSegmentNotFound", [new("SegmentId", change.RoadSegmentId.ToString())]))
         );
     }
 
@@ -121,7 +121,7 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
         };
 
         // Act
-        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator());
+        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
 
         // Assert
         problems.HasError().Should().BeTrue();
@@ -140,7 +140,7 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
         };
 
         // Act
-        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator());
+        var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
 
         // Assert
         problems.HasError().Should().BeTrue();

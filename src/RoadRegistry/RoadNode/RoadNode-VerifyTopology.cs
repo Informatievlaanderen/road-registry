@@ -14,7 +14,7 @@ public partial class RoadNode
     {
         var problems = Problems.None;
 
-        var segments = context.RoadNetwork.RoadSegments.Values
+        var segments = context.RoadNetwork.GetNonRemovedRoadSegments()
             .Where(x => x.StartNodeId == RoadNodeId || x.EndNodeId == RoadNodeId)
             .ToList();
 
@@ -37,7 +37,7 @@ public partial class RoadNode
         }
 
         var byOtherNode =
-            context.RoadNetwork.RoadNodes.Values.FirstOrDefault(n =>
+            context.RoadNetwork.GetNonRemovedRoadNodes().FirstOrDefault(n =>
                 n.Id != Id &&
                 n.Geometry.IsReasonablyEqualTo(Geometry, context.Tolerances));
         if (byOtherNode is not null)
@@ -47,7 +47,7 @@ public partial class RoadNode
             ));
         }
 
-        problems = context.RoadNetwork.RoadSegments.Values
+        problems = context.RoadNetwork.GetNonRemovedRoadSegments()
             .Where(s =>
                 segments.All(x => x.RoadSegmentId != s.RoadSegmentId)
                 && s.Geometry.IsWithinDistance(Geometry, Distances.TooClose)
@@ -62,7 +62,7 @@ public partial class RoadNode
 
     public Problems VerifyTypeMatchesConnectedSegmentCount(RoadNetworkVerifyTopologyContext context)
     {
-        var segments = context.RoadNetwork.RoadSegments.Values
+        var segments = context.RoadNetwork.GetNonRemovedRoadSegments()
             .Where(x => x.StartNodeId == RoadNodeId || x.EndNodeId == RoadNodeId)
             .ToList();
 

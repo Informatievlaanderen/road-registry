@@ -13,7 +13,6 @@ using Problems = RoadRegistry.BackOffice.Core.Problems;
 public class ScenarioRunner
 {
     public JsonSerializerSettings SerializerSettings { get; }
-
     private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
     private readonly ComparisonConfig _comparisonConfig;
 
@@ -24,14 +23,15 @@ public class ScenarioRunner
         {
             MaxDifferences = int.MaxValue,
             MaxStructDepth = 5,
-            CustomComparers = [
+            CustomComparers =
+            [
                 new ProblemsComparer(RootComparerFactory.GetRootComparer())
             ]
         };
         SerializerSettings = CreateSerializerSettings();
     }
 
-    public async Task<object> RunAsync(ExpectEventsScenario scenario, CancellationToken ct = default)
+    public async Task<object> RunAsync(ExpectEventsScenario scenario)
     {
         var roadNetwork = BuildRoadNetwork(scenario.Givens);
         var roadNetworkChanges = (RoadNetworkChanges)scenario.When.Body;
@@ -72,7 +72,7 @@ public class ScenarioRunner
         }
     }
 
-    public async Task<object> RunAsync(ExpectExceptionScenario scenario, CancellationToken ct = default)
+    public async Task<object> RunAsync(ExpectExceptionScenario scenario)
     {
         var roadNetwork = BuildRoadNetwork(scenario.Givens);
         var roadNetworkChanges = (RoadNetworkChanges)scenario.When.Body;
@@ -107,6 +107,16 @@ public class ScenarioRunner
         }
         catch (Exception exception)
         {
+            if (scenario.ThrownIsAcceptable is not null)
+            {
+                if (scenario.ThrownIsAcceptable(exception))
+                {
+                    return scenario.Pass();
+                }
+
+                return scenario.ButThrewException(exception);
+            }
+
             var config = new ComparisonConfig
             {
                 MaxDifferences = int.MaxValue,
@@ -118,7 +128,8 @@ public class ScenarioRunner
                     "TargetSite"
                 },
                 IgnoreObjectTypes = true,
-                CustomComparers = [
+                CustomComparers =
+                [
                     new ValidationFailureComparer(RootComparerFactory.GetRootComparer()),
                     new ProblemsComparer(RootComparerFactory.GetRootComparer())
                 ]
