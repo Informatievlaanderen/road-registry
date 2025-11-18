@@ -138,6 +138,18 @@ public static class ProblemTranslator
                 : "De ongelijkgrondse kruising is niet langer onderdeel van het wegen netwerk.")
         },
         {
+            ProblemCode.GradeSeparatedJunction.LowerSegmentMissing, problem => new(problem.Severity, problem.Reason,
+                $"De ongelijkgrondse kruising zijn onderste wegsegment {problem.GetParameterValue("RoadSegmentId")} ontbreekt.")
+        },
+        {
+            ProblemCode.GradeSeparatedJunction.UpperSegmentMissing, problem => new(problem.Severity, problem.Reason,
+                $"De ongelijkgrondse kruising zijn bovenste wegsegment {problem.GetParameterValue("RoadSegmentId")} ontbreekt.")
+        },
+        {
+            ProblemCode.GradeSeparatedJunction.UpperAndLowerDoNotIntersect, problem => new(problem.Severity, problem.Reason,
+                $"De ongelijkgrondse kruising zijn bovenste wegsegment {problem.GetParameterValue("UpperRoadSegmentId")} en onderste wegsegment {problem.GetParameterValue("LowerRoadSegmentId")} kruisen elkaar niet.")
+        },
+        {
             ProblemCode.NationalRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason,
                 $"Het wegsegment is reeds geen onderdeel meer van deze nationale weg met nummer {problem.Parameters[0].Value}.")
         },
