@@ -55,7 +55,7 @@ public partial class RoadNode
             .Aggregate(problems, (current, segment) =>
                     current.Add(new RoadNodeTooClose(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId))));
 
-        problems = problems.AddRange(VerifyTypeMatchesConnectedSegmentCount(context, segments));
+        problems += VerifyTypeMatchesConnectedSegmentCount(context, segments);
 
         return problems;
     }

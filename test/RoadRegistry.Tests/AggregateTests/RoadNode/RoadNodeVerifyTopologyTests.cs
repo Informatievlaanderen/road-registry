@@ -14,7 +14,7 @@ public class RoadNodeVerifyTopologyTests : RoadNetworkTestBase
     public Task WhenRemovedAndSegmentsAreStillConnectedByStartNode_ThenError()
     {
         return Run(scenario => scenario
-            .Given(b => b
+            .Given(given => given
                 .Add(TestData.AddSegment1StartNode)
                 .Add(TestData.AddSegment1EndNode)
                 .Add(TestData.AddSegment1)
@@ -28,11 +28,12 @@ public class RoadNodeVerifyTopologyTests : RoadNetworkTestBase
             .ThenProblems(new Error("RoadSegmentStartNodeMissing", new ProblemParameter("Identifier", "1")))
         );
     }
+
     [Fact]
     public Task WhenRemovedAndSegmentsAreStillConnectedByEndNode_ThenError()
     {
         return Run(scenario => scenario
-            .Given(b => b
+            .Given(given => given
                 .Add(TestData.AddSegment1StartNode)
                 .Add(TestData.AddSegment1EndNode)
                 .Add(TestData.AddSegment1)
@@ -67,11 +68,11 @@ public class RoadNodeVerifyTopologyTests : RoadNetworkTestBase
     public Task WhenNodeIsTooCloseToUnconnectedSegment_ThenError()
     {
         return Run(scenario => scenario
-            .Given(g => g)
-            .When(changes => changes
+            .Given(given => given
                 .Add(TestData.AddSegment1StartNode)
                 .Add(TestData.AddSegment1EndNode)
-                .Add(TestData.AddSegment1)
+                .Add(TestData.AddSegment1))
+            .When(changes => changes
                 .Add(new AddRoadNodeChange
                 {
                     TemporaryId = new RoadNodeId(3),

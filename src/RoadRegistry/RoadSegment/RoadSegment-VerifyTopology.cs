@@ -15,28 +15,20 @@ public partial class RoadSegment
     {
         var problems = Problems.None;
 
-        if (IsRemoved)
+        if (IsRemoved || Attributes.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
         {
             return problems;
         }
 
         var originalIdOrId = context.IdTranslator.TranslateToTemporaryId(RoadSegmentId);
-
         var line = Geometry.GetSingleLineString();
-
-        if (Attributes.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
-        {
-            problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId);
-
-            return problems;
-        }
 
         var byOtherSegment = context.RoadNetwork.GetNonRemovedRoadSegments().FirstOrDefault(segment =>
             segment.RoadSegmentId != RoadSegmentId &&
             segment.Geometry.IsReasonablyEqualTo(Geometry, context.Tolerances));
         if (byOtherSegment is not null)
         {
-            problems = problems.Add(new RoadSegmentGeometryTaken(byOtherSegment.RoadSegmentId));
+            problems = problems.Add(new RoadSegmentGeometryTaken(context.IdTranslator.TranslateToTemporaryId(byOtherSegment.RoadSegmentId)));
         }
 
         if (!context.RoadNetwork.RoadNodes.TryGetValue(StartNodeId, out var startNode) || startNode.IsRemoved)
@@ -45,7 +37,7 @@ public partial class RoadSegment
         }
         else
         {
-            if (line.StartPoint != null && !line.StartPoint.IsReasonablyEqualTo(startNode.Geometry, context.Tolerances))
+            if (!line.StartPoint.IsReasonablyEqualTo(startNode.Geometry, context.Tolerances))
             {
                 problems = problems.Add(new RoadSegmentStartPointDoesNotMatchNodeGeometry(originalIdOrId));
             }
@@ -57,7 +49,7 @@ public partial class RoadSegment
         }
         else
         {
-            if (line.EndPoint != null && !line.EndPoint.IsReasonablyEqualTo(endNode.Geometry, context.Tolerances))
+            if (!line.EndPoint.IsReasonablyEqualTo(endNode.Geometry, context.Tolerances))
             {
                 problems = problems.Add(new RoadSegmentEndPointDoesNotMatchNodeGeometry(originalIdOrId));
             }
