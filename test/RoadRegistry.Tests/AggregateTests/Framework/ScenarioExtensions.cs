@@ -29,6 +29,10 @@ public static class ScenarioExtensions
     {
         return builder.ThenException(new RoadRegistryProblemsException(problems));
     }
+    public static IScenarioThrowsStateBuilder ThenProblems(this IScenarioWhenStateBuilder builder, Func<Problems, bool> problemsAreAcceptable)
+    {
+        return builder.ThenException(ex => ex is RoadRegistryProblemsException problemsException && problemsAreAcceptable(problemsException.Problems));
+    }
 
     public static IScenarioThrowsStateBuilder ThenContainsProblems(this IScenarioWhenStateBuilder builder, params Problem[] problems)
     {

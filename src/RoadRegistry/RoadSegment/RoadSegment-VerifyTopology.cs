@@ -17,14 +17,6 @@ public partial class RoadSegment
 
         if (IsRemoved)
         {
-            if (context.RoadNetwork.RoadNodes.TryGetValue(StartNodeId, out var beforeStartNode))
-                problems = problems.AddRange(
-                    beforeStartNode.VerifyTypeMatchesConnectedSegmentCount(context));
-
-            if (context.RoadNetwork.RoadNodes.TryGetValue(EndNodeId, out var beforeEndNode))
-                problems = problems.AddRange(
-                    beforeEndNode.VerifyTypeMatchesConnectedSegmentCount(context));
-
             return problems;
         }
 
@@ -53,7 +45,6 @@ public partial class RoadSegment
         }
         else
         {
-            problems = problems.AddRange(startNode.VerifyTypeMatchesConnectedSegmentCount(context));
             if (line.StartPoint != null && !line.StartPoint.IsReasonablyEqualTo(startNode.Geometry, context.Tolerances))
             {
                 problems = problems.Add(new RoadSegmentStartPointDoesNotMatchNodeGeometry(originalIdOrId));
@@ -66,7 +57,6 @@ public partial class RoadSegment
         }
         else
         {
-            problems = problems.AddRange(endNode.VerifyTypeMatchesConnectedSegmentCount(context));
             if (line.EndPoint != null && !line.EndPoint.IsReasonablyEqualTo(endNode.Geometry, context.Tolerances))
             {
                 problems = problems.Add(new RoadSegmentEndPointDoesNotMatchNodeGeometry(originalIdOrId));

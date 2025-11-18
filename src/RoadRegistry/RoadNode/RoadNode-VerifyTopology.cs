@@ -60,40 +60,31 @@ public partial class RoadNode
         return problems;
     }
 
-    public Problems VerifyTypeMatchesConnectedSegmentCount(RoadNetworkVerifyTopologyContext context)
-    {
-        var segments = context.RoadNetwork.GetNonRemovedRoadSegments()
-            .Where(x => x.StartNodeId == RoadNodeId || x.EndNodeId == RoadNodeId)
-            .ToList();
-
-        return VerifyTypeMatchesConnectedSegmentCount(context, segments);
-    }
-
     private Problems VerifyTypeMatchesConnectedSegmentCount(RoadNetworkVerifyTopologyContext context, List<RoadSegment> segments)
     {
         var problems = Problems.None;
 
         if (segments.Count == 0)
         {
-            problems = problems.Add(new RoadNodeNotConnectedToAnySegment(context.IdTranslator.TranslateToTemporaryId(RoadNodeId)));
+            problems += new RoadNodeNotConnectedToAnySegment(context.IdTranslator.TranslateToTemporaryId(RoadNodeId));
         }
         else if (segments.Count == 1 && Type != RoadNodeType.EndNode)
         {
-            problems = problems.Add(RoadNodeTypeMismatch.New(
+            problems += RoadNodeTypeMismatch.New(
                 context.IdTranslator.TranslateToTemporaryId(RoadNodeId),
                 segments.Select(x => context.IdTranslator.TranslateToTemporaryId(x.RoadSegmentId)).ToArray(),
                 Type,
-                [RoadNodeType.EndNode]));
+                [RoadNodeType.EndNode]);
         }
         else if (segments.Count == 2)
         {
             if (!Type.IsAnyOf(RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode))
             {
-                problems = problems.Add(RoadNodeTypeMismatch.New(
+                problems += RoadNodeTypeMismatch.New(
                     context.IdTranslator.TranslateToTemporaryId(RoadNodeId),
                     segments.Select(x => context.IdTranslator.TranslateToTemporaryId(x.RoadSegmentId)).ToArray(),
                     Type,
-                    [RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode]));
+                    [RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode]);
             }
             else if (Type == RoadNodeType.FakeNode)
             {
@@ -101,21 +92,21 @@ public partial class RoadNode
                 var segment2 = segments[1];
                 if (segment1.Attributes.Equals(segment2.Attributes))
                 {
-                    problems = problems.Add(new FakeRoadNodeConnectedSegmentsDoNotDiffer(
+                    problems += new FakeRoadNodeConnectedSegmentsDoNotDiffer(
                         context.IdTranslator.TranslateToTemporaryId(RoadNodeId),
                         context.IdTranslator.TranslateToTemporaryId(segment1.RoadSegmentId),
                         context.IdTranslator.TranslateToTemporaryId(segment2.RoadSegmentId)
-                    ));
+                    );
                 }
             }
         }
         else if (segments.Count > 2 && !Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))
         {
-            problems = problems.Add(RoadNodeTypeMismatch.New(
+            problems += RoadNodeTypeMismatch.New(
                 context.IdTranslator.TranslateToTemporaryId(RoadNodeId),
                 segments.Select(x => context.IdTranslator.TranslateToTemporaryId(x.RoadSegmentId)).ToArray(),
                 Type,
-                [RoadNodeType.RealNode, RoadNodeType.MiniRoundabout]));
+                [RoadNodeType.RealNode, RoadNodeType.MiniRoundabout]);
         }
 
         return problems;

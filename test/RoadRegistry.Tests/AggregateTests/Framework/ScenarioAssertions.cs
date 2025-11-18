@@ -90,9 +90,12 @@ public static class ScenarioAssertions
                 else
                 {
                     messageBuilder.AppendLine("Expected exceptions to match but found differences.");
-                    messageBuilder.AppendLine("Expected:");
-                    messageBuilder.AppendLine($"{threw.Scenario.Throws}");
-                    messageBuilder.AppendLine();
+                    if (threw.Scenario.ThrownIsAcceptable is null)
+                    {
+                        messageBuilder.AppendLine("Expected:");
+                        messageBuilder.AppendLine($"{threw.Scenario.Throws}");
+                        messageBuilder.AppendLine();
+                    }
                     messageBuilder.AppendLine("Actual:");
                     messageBuilder.AppendLine($"{threw.Actual}");
                 }

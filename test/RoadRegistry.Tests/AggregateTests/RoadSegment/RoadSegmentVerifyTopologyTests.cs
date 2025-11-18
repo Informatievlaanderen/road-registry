@@ -27,4 +27,6 @@ public class RoadSegmentVerifyTopologyTests : RoadNetworkTestBase
     // }
 
     //TODO-pr test validations RoadSegment.VerifyTopologyAfterChanges
+
+    //TODO-pr ik denk dat die hier de checks van VerifyTypeMatchesConnectedSegmentCount overbodig zijn, want die zouden al op roadnode niveau moeten gebeuren bij een wijziging
 }

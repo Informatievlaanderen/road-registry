@@ -31,8 +31,8 @@ public class GradeSeparatedJunctionVerifyTopologyTests : RoadNetworkTestBase
         return Run(scenario => ScenarioExtensions.ThenProblems(scenario
                     .Given(b => b)
                     .When(changes => changes
-                        .Add(TestData.AddStartNode1)
-                        .Add(TestData.AddEndNode1)
+                        .Add(TestData.AddSegment1StartNode)
+                        .Add(TestData.AddSegment1EndNode)
                         .Add(TestData.AddSegment1)
                         .Add(Fixture.Create<AddGradeSeparatedJunctionChange>() with
                         {

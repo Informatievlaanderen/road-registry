@@ -20,6 +20,7 @@ using RoadSegmentAdded = RoadRegistry.RoadSegment.Events.RoadSegmentAdded;
 public class RoadNetworkTestData
 {
     public Fixture Fixture { get; }
+
     public Point StartPoint1 { get; }
     public Point StartPoint2 { get; }
     public Point StartPoint3 { get; }
@@ -32,31 +33,26 @@ public class RoadNetworkTestData
     public MultiLineString MultiLineString1 { get; }
     public MultiLineString MultiLineString2 { get; }
     public MultiLineString MultiLineString3 { get; }
-    public AddRoadNodeChange AddStartNode1 { get; }
-    public AddRoadNodeChange AddStartNode2 { get; }
-    public AddRoadNodeChange AddStartNode3 { get; }
-    public RoadNodeAdded StartNode1Added { get; }
-    public RoadNodeAdded StartNode2Added { get; }
 
-    public RoadNodeAdded StartNode3Added { get; }
-    //public ModifyRoadNodeChange ModifyStartNode1 { get; }
-    //public RoadNodeModified StartNode1Modified { get; }
+    public AddRoadNodeChange AddSegment1StartNode { get; }
+    public RoadNodeAdded Segment1StartNodeAdded { get; }
+    public AddRoadNodeChange AddSegment2StartNode { get; }
+    public RoadNodeAdded Segment2StartNodeAdded { get; }
+    public AddRoadNodeChange AddSegment3StartNode { get; }
+    public RoadNodeAdded Segment3StartNodeAdded { get; }
 
-    public AddRoadNodeChange AddEndNode1 { get; }
-    public AddRoadNodeChange AddEndNode2 { get; }
-    public AddRoadNodeChange AddEndNode3 { get; }
-    public RoadNodeAdded EndNode1Added { get; }
-    public RoadNodeAdded EndNode2Added { get; }
-
-    public RoadNodeAdded EndNode3Added { get; }
-    // public ModifyRoadNodeChange ModifyEndNode1 { get; }
-    // public RoadNodeModified EndNode1Modified { get; }
+    public AddRoadNodeChange AddSegment1EndNode { get; }
+    public RoadNodeAdded Segment1EndNodeAdded { get; }
+    public AddRoadNodeChange AddSegment2EndNode { get; }
+    public RoadNodeAdded Segment2EndNodeAdded { get; }
+    public AddRoadNodeChange AddSegment3EndNode { get; }
+    public RoadNodeAdded Segment3EndNodeAdded { get; }
 
     public AddRoadSegmentChange AddSegment1 { get; }
-    public AddRoadSegmentChange AddSegment2 { get; }
-    public AddRoadSegmentChange AddSegment3 { get; }
     public RoadSegmentAdded Segment1Added { get; }
+    public AddRoadSegmentChange AddSegment2 { get; }
     public RoadSegmentAdded Segment2Added { get; }
+    public AddRoadSegmentChange AddSegment3 { get; }
     public RoadSegmentAdded Segment3Added { get; }
 
     public RoadNetworkTestData(Action<Fixture> customize = null)
@@ -181,19 +177,19 @@ public class RoadNetworkTestData
             ])
             { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
-        AddStartNode1 = new AddRoadNodeChange
+        AddSegment1StartNode = new AddRoadNodeChange
         {
             TemporaryId = Fixture.Create<RoadNodeId>(),
             Geometry = StartPoint1,
             Type = RoadNodeType.EndNode
         };
 
-        StartNode1Added = new RoadNodeAdded
+        Segment1StartNodeAdded = new RoadNodeAdded
         {
             RoadNodeId = new RoadNodeId(1),
-            TemporaryId = AddStartNode1.TemporaryId,
-            Geometry = AddStartNode1.Geometry.ToGeometryObject(),
-            Type = AddStartNode1.Type
+            TemporaryId = AddSegment1StartNode.TemporaryId,
+            Geometry = AddSegment1StartNode.Geometry.ToGeometryObject(),
+            Type = AddSegment1StartNode.Type
         };
 
         // ModifyStartNode1 = new ModifyRoadNodeChange
@@ -210,19 +206,19 @@ public class RoadNetworkTestData
         //     Type = StartNode1Added.Type
         // };
 
-        AddEndNode1 = new AddRoadNodeChange
+        AddSegment1EndNode = new AddRoadNodeChange
         {
-            TemporaryId = new RoadNodeId(AddStartNode1.TemporaryId + 1),
+            TemporaryId = new RoadNodeId(AddSegment1StartNode.TemporaryId + 1),
             Geometry = EndPoint1,
             Type = RoadNodeType.EndNode
         };
 
-        EndNode1Added = new RoadNodeAdded
+        Segment1EndNodeAdded = new RoadNodeAdded
         {
             RoadNodeId = new RoadNodeId(2),
-            TemporaryId = AddEndNode1.TemporaryId,
-            Geometry = AddEndNode1.Geometry.ToGeometryObject(),
-            Type = AddEndNode1.Type
+            TemporaryId = AddSegment1EndNode.TemporaryId,
+            Geometry = AddSegment1EndNode.Geometry.ToGeometryObject(),
+            Type = AddSegment1EndNode.Type
         };
 
         // ModifyEndNode1 = new ModifyRoadNodeChange
@@ -239,71 +235,71 @@ public class RoadNetworkTestData
         //     Type = EndNode1Added.Type
         // };
 
-        AddStartNode2 = new AddRoadNodeChange
+        AddSegment2StartNode = new AddRoadNodeChange
         {
-            TemporaryId = new RoadNodeId(AddEndNode1.TemporaryId + 1),
+            TemporaryId = new RoadNodeId(AddSegment1EndNode.TemporaryId + 1),
             Geometry = StartPoint2,
             Type = RoadNodeType.EndNode
         };
 
-        StartNode2Added = new RoadNodeAdded
+        Segment2StartNodeAdded = new RoadNodeAdded
         {
             RoadNodeId = new RoadNodeId(3),
-            TemporaryId = AddStartNode2.TemporaryId,
-            Geometry = AddStartNode2.Geometry.ToGeometryObject(),
-            Type = AddStartNode2.Type
+            TemporaryId = AddSegment2StartNode.TemporaryId,
+            Geometry = AddSegment2StartNode.Geometry.ToGeometryObject(),
+            Type = AddSegment2StartNode.Type
         };
 
-        AddEndNode2 = new AddRoadNodeChange
+        AddSegment2EndNode = new AddRoadNodeChange
         {
-            TemporaryId = new RoadNodeId(AddStartNode2.TemporaryId + 1),
+            TemporaryId = new RoadNodeId(AddSegment2StartNode.TemporaryId + 1),
             Geometry = EndPoint2,
             Type = RoadNodeType.EndNode
         };
 
-        EndNode2Added = new RoadNodeAdded
+        Segment2EndNodeAdded = new RoadNodeAdded
         {
             RoadNodeId = new RoadNodeId(4),
-            TemporaryId = AddEndNode2.TemporaryId,
-            Geometry = AddEndNode2.Geometry.ToGeometryObject(),
-            Type = AddEndNode2.Type
+            TemporaryId = AddSegment2EndNode.TemporaryId,
+            Geometry = AddSegment2EndNode.Geometry.ToGeometryObject(),
+            Type = AddSegment2EndNode.Type
         };
 
-        AddStartNode3 = new AddRoadNodeChange
+        AddSegment3StartNode = new AddRoadNodeChange
         {
-            TemporaryId = new RoadNodeId(AddEndNode2.TemporaryId + 1),
+            TemporaryId = new RoadNodeId(AddSegment2EndNode.TemporaryId + 1),
             Geometry = StartPoint3,
             Type = RoadNodeType.EndNode
         };
 
-        StartNode3Added = new RoadNodeAdded
+        Segment3StartNodeAdded = new RoadNodeAdded
         {
             RoadNodeId = new RoadNodeId(5),
-            TemporaryId = AddStartNode3.TemporaryId,
-            Geometry = AddStartNode3.Geometry.ToGeometryObject(),
-            Type = AddStartNode3.Type
+            TemporaryId = AddSegment3StartNode.TemporaryId,
+            Geometry = AddSegment3StartNode.Geometry.ToGeometryObject(),
+            Type = AddSegment3StartNode.Type
         };
 
-        AddEndNode3 = new AddRoadNodeChange
+        AddSegment3EndNode = new AddRoadNodeChange
         {
-            TemporaryId = new RoadNodeId(AddStartNode3.TemporaryId + 1),
+            TemporaryId = new RoadNodeId(AddSegment3StartNode.TemporaryId + 1),
             Geometry = EndPoint3,
             Type = RoadNodeType.EndNode
         };
 
-        EndNode3Added = new RoadNodeAdded
+        Segment3EndNodeAdded = new RoadNodeAdded
         {
             RoadNodeId = new RoadNodeId(6),
-            TemporaryId = AddEndNode3.TemporaryId,
-            Geometry = AddEndNode3.Geometry.ToGeometryObject(),
-            Type = AddEndNode3.Type
+            TemporaryId = AddSegment3EndNode.TemporaryId,
+            Geometry = AddSegment3EndNode.Geometry.ToGeometryObject(),
+            Type = AddSegment3EndNode.Type
         };
 
         AddSegment1 = new AddRoadSegmentChange
         {
             TemporaryId = Fixture.Create<RoadSegmentId>(),
-            StartNodeId = AddStartNode1.TemporaryId,
-            EndNodeId = AddEndNode1.TemporaryId,
+            StartNodeId = AddSegment1StartNode.TemporaryId,
+            EndNodeId = AddSegment1EndNode.TemporaryId,
             Geometry = MultiLineString1,
             GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
             MaintenanceAuthorityId = Fixture.Create<RoadSegmentDynamicAttributeValues<OrganizationId>>(),
@@ -321,8 +317,8 @@ public class RoadNetworkTestData
         {
             RoadSegmentId = new RoadSegmentId(1),
             OriginalId = AddSegment1.TemporaryId,
-            StartNodeId = StartNode1Added.RoadNodeId,
-            EndNodeId = EndNode1Added.RoadNodeId,
+            StartNodeId = Segment1StartNodeAdded.RoadNodeId,
+            EndNodeId = Segment1EndNodeAdded.RoadNodeId,
             Geometry = AddSegment1.Geometry.ToGeometryObject(),
             MaintenanceAuthorityId = AddSegment1.MaintenanceAuthorityId,
             GeometryDrawMethod = AddSegment1.GeometryDrawMethod,
@@ -339,8 +335,8 @@ public class RoadNetworkTestData
         AddSegment2 = new AddRoadSegmentChange
         {
             TemporaryId = new RoadSegmentId(AddSegment1.TemporaryId + 1),
-            StartNodeId = AddStartNode2.TemporaryId,
-            EndNodeId = AddEndNode2.TemporaryId,
+            StartNodeId = AddSegment2StartNode.TemporaryId,
+            EndNodeId = AddSegment2EndNode.TemporaryId,
             Geometry = MultiLineString2,
             GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
             MaintenanceAuthorityId = Fixture.Create<RoadSegmentDynamicAttributeValues<OrganizationId>>(),
@@ -358,8 +354,8 @@ public class RoadNetworkTestData
         {
             RoadSegmentId = new RoadSegmentId(2),
             OriginalId = AddSegment2.TemporaryId,
-            StartNodeId = StartNode2Added.RoadNodeId,
-            EndNodeId = EndNode2Added.RoadNodeId,
+            StartNodeId = Segment2StartNodeAdded.RoadNodeId,
+            EndNodeId = Segment2EndNodeAdded.RoadNodeId,
             Geometry = AddSegment2.Geometry.ToGeometryObject(),
             MaintenanceAuthorityId = AddSegment2.MaintenanceAuthorityId,
             GeometryDrawMethod = AddSegment2.GeometryDrawMethod,
@@ -376,8 +372,8 @@ public class RoadNetworkTestData
         AddSegment3 = new AddRoadSegmentChange
         {
             TemporaryId = new RoadSegmentId(AddSegment2.TemporaryId + 1),
-            StartNodeId = AddStartNode3.TemporaryId,
-            EndNodeId = AddEndNode3.TemporaryId,
+            StartNodeId = AddSegment3StartNode.TemporaryId,
+            EndNodeId = AddSegment3EndNode.TemporaryId,
             Geometry = MultiLineString3,
             GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
             MaintenanceAuthorityId = Fixture.Create<RoadSegmentDynamicAttributeValues<OrganizationId>>(),
@@ -395,8 +391,8 @@ public class RoadNetworkTestData
         {
             RoadSegmentId = new RoadSegmentId(3),
             OriginalId = AddSegment3.TemporaryId,
-            StartNodeId = StartNode3Added.RoadNodeId,
-            EndNodeId = EndNode3Added.RoadNodeId,
+            StartNodeId = Segment3StartNodeAdded.RoadNodeId,
+            EndNodeId = Segment3EndNodeAdded.RoadNodeId,
             Geometry = AddSegment3.Geometry.ToGeometryObject(),
             MaintenanceAuthorityId = AddSegment3.MaintenanceAuthorityId,
             GeometryDrawMethod = AddSegment3.GeometryDrawMethod,

@@ -52,11 +52,11 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
             Changes = [
                 new ChangeRoadNetworkCommandItem
                 {
-                    AddRoadNode = testData.AddStartNode1
+                    AddRoadNode = testData.AddSegment1StartNode
                 },
                 new ChangeRoadNetworkCommandItem
                 {
-                    AddRoadNode = testData.AddEndNode1
+                    AddRoadNode = testData.AddSegment1EndNode
                 },
                 new ChangeRoadNetworkCommandItem
                 {
@@ -84,7 +84,7 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
         var store = sp.GetRequiredService<IDocumentStore>();
         await using var session = store.LightweightSession();
 
-        var roadNodes = await session.LoadRoadNodesAsync([testData.StartNode1Added.RoadNodeId, testData.EndNode1Added.RoadNodeId]);
+        var roadNodes = await session.LoadRoadNodesAsync([testData.Segment1StartNodeAdded.RoadNodeId, testData.Segment1EndNodeAdded.RoadNodeId]);
         roadNodes.Should().HaveCount(2);
 
         var roadSegments = await session.LoadRoadSegmentsAsync([testData.Segment1Added.RoadSegmentId]);
