@@ -21,7 +21,12 @@ public partial class RoadNetwork
             return problems;
         }
 
-        idTranslator.RegisterMapping(change.TemporaryId, roadNode!.RoadNodeId);
+        problems += idTranslator.RegisterMapping(change.TemporaryId, roadNode!.RoadNodeId);
+        if (problems.HasError())
+        {
+            return problems;
+        }
+
         _roadNodes.Add(roadNode.RoadNodeId, roadNode);
         return problems;
     }

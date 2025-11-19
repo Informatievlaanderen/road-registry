@@ -176,6 +176,10 @@ public static class ProblemTranslator
                 "De wegknoop is niet langer onderdeel van het wegen netwerk.")
         },
         {
+            ProblemCode.RoadNode.TemporaryIdNotUnique, problem => new(problem.Severity, problem.Reason,
+                $"De opgegeven tijdelijke wegknoop ID {problem.Parameters[0].Value} is niet uniek.")
+        },
+        {
             ProblemCode.RoadNode.TooClose, problem => new(problem.Severity, problem.Reason,
                 $"De geometrie ligt te dicht bij wegsegment met id {problem.Parameters[0].Value}.")
         },
@@ -224,6 +228,10 @@ public static class ProblemTranslator
         {
             ProblemCode.RoadSegment.OutlinedNotFound, problem => new(problem.Severity, "NotFound",
                 "Dit wegsegment bestaat niet of heeft niet de geometriemethode 'ingeschetst'.")
+        },
+        {
+            ProblemCode.RoadSegment.TemporaryIdNotUnique, problem => new(problem.Severity, problem.Reason,
+                $"De opgegeven tijdelijke wegsegment ID {problem.Parameters[0].Value} is niet uniek.")
         },
         {
             ProblemCode.RoadSegment.UpperAndLowerDoNotIntersect, problem => new(problem.Severity, problem.Reason,

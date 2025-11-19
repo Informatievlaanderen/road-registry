@@ -6,6 +6,7 @@ public sealed partial record ProblemCode
     {
         public static readonly ProblemCode NotFound = new("RoadNodeNotFound");
         public static readonly ProblemCode NotConnectedToAnySegment = new("RoadNodeNotConnectedToAnySegment");
+        public static readonly ProblemCode TemporaryIdNotUnique = new("RoadNodeTemporaryIdNotUnique");
         public static readonly ProblemCode TooClose = new("RoadNodeTooClose");
         public static readonly ProblemCode TypeMismatch = new("RoadNodeTypeMismatch");
 

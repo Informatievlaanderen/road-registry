@@ -97,6 +97,21 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
     }
 
     [Fact]
+    public Task WhenAddingMultipleSegmentsWithSameTemporaryId_ThenError()
+    {
+        return Run(scenario => scenario
+            .Given(given => given)
+            .When(changes => changes
+                .Add(TestData.AddSegment1)
+                .Add(TestData.AddSegment1)
+            )
+            .ThenContainsProblems(new Error("RoadSegmentTemporaryIdNotUnique",
+                new ProblemParameter("TemporaryId", TestData.AddSegment1.TemporaryId.ToString())
+            ))
+        );
+    }
+
+    [Fact]
     public void EnsureGeometryValidatorIsUsed()
     {
         // Arrange

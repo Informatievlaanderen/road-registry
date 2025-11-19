@@ -23,7 +23,12 @@ public partial class RoadNetwork
             return problems;
         }
 
-        idTranslator.RegisterMapping(change.OriginalId ?? change.TemporaryId, roadSegment!.RoadSegmentId);
+        problems += idTranslator.RegisterMapping(change.OriginalId ?? change.TemporaryId, roadSegment!.RoadSegmentId);
+        if (problems.HasError())
+        {
+            return problems;
+        }
+
         _roadSegments.Add(roadSegment.RoadSegmentId, roadSegment);
         return problems;
     }
@@ -37,7 +42,12 @@ public partial class RoadNetwork
             return Problems.Single(new RoadSegmentNotFound(originalIdOrId));
         }
 
-        idTranslator.RegisterMapping(originalIdOrId, roadSegment.RoadSegmentId);
+        var problems = idTranslator.RegisterMapping(originalIdOrId, roadSegment.RoadSegmentId);
+        if (problems.HasError())
+        {
+            return problems;
+        }
+
         return roadSegment.Modify(change);
     }
 

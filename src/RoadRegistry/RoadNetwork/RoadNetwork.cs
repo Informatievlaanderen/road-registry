@@ -124,6 +124,7 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
                 .Aggregate(problems, (p, x) => p + x.VerifyTopology(context));
         }
 
+        //TODO-pr mss hier aan toevoegen de Reason van een change? kan interessant zijn voor toekomst?
         UncommittedEvents.Add(new RoadNetworkChanged());
 
         return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()));

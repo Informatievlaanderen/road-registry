@@ -6,6 +6,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadNode.Changes;
+using RoadRegistry.RoadNode.Events;
 using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RoadNodeVerifyTopologyTests : RoadNetworkTestBase
@@ -97,63 +98,84 @@ public class RoadNodeVerifyTopologyTests : RoadNetworkTestBase
     }
 
     [Theory]
-    [InlineData(nameof(RoadNodeType.FakeNode))]
-    [InlineData(nameof(RoadNodeType.MiniRoundabout))]
-    [InlineData(nameof(RoadNodeType.RealNode))]
-    [InlineData(nameof(RoadNodeType.TurningLoopNode))]
-    public Task WhenVerifyType_WithOneSegmentConnectedAndTypeIsNotEndNode_ThenError(string invalidRoadNodeType)
+    [InlineData(nameof(RoadNodeType.EndNode), false)]
+    [InlineData(nameof(RoadNodeType.FakeNode), true)]
+    [InlineData(nameof(RoadNodeType.MiniRoundabout), true)]
+    [InlineData(nameof(RoadNodeType.RealNode), true)]
+    [InlineData(nameof(RoadNodeType.TurningLoopNode), true)]
+    public Task WhenVerifyType_WithOneSegmentConnectedAndTypeIsNotEndNode_ThenError(string roadNodeType, bool expectError)
     {
         var addStartNode1WithWrongType = TestData.AddSegment1StartNode with
         {
-            Type = RoadNodeType.Parse(invalidRoadNodeType)
+            Type = RoadNodeType.Parse(roadNodeType)
         };
 
-        return Run(scenario => scenario
-            .Given(b => b)
-            .When(changes => changes
-                .Add(addStartNode1WithWrongType)
-                .Add(TestData.AddSegment1)
-            )
-            .ThenContainsProblems(new Error("RoadNodeTypeMismatch",
-                new ProblemParameter("RoadNodeId", TestData.AddSegment1StartNode.TemporaryId.ToString()),
-                new ProblemParameter("ConnectedSegmentCount", "1"),
-                new ProblemParameter("ConnectedSegmentId", TestData.AddSegment1.TemporaryId.ToString()),
-                new ProblemParameter("Actual", addStartNode1WithWrongType.Type.ToString()),
-                new ProblemParameter("Expected", RoadNodeType.EndNode.ToString())
-            ))
+        return Run(scenario =>
+            {
+                var when = scenario
+                    .Given(b => b)
+                    .When(changes => changes
+                        .Add(addStartNode1WithWrongType)
+                        .Add(TestData.AddSegment1)
+                    );
+
+                if (expectError)
+                {
+                    return when.ThenContainsProblems(new Error("RoadNodeTypeMismatch",
+                        new ProblemParameter("RoadNodeId", TestData.AddSegment1StartNode.TemporaryId.ToString()),
+                        new ProblemParameter("ConnectedSegmentCount", "1"),
+                        new ProblemParameter("ConnectedSegmentId", TestData.AddSegment1.TemporaryId.ToString()),
+                        new ProblemParameter("Actual", addStartNode1WithWrongType.Type.ToString()),
+                        new ProblemParameter("Expected", RoadNodeType.EndNode.ToString())
+                    ));
+                }
+
+                return when.ThenProblems(problems => problems.All(x => x.Reason != "RoadNodeTypeMismatch"));
+            }
         );
     }
 
     [Theory]
-    [InlineData(nameof(RoadNodeType.EndNode))]
-    [InlineData(nameof(RoadNodeType.MiniRoundabout))]
-    [InlineData(nameof(RoadNodeType.RealNode))]
-    public Task WhenVerifyType_WithTwoSegmentsConnectedAndTypeIsNotFakeNodeOrTurningLoopNode_ThenError(string invalidRoadNodeType)
+    [InlineData(nameof(RoadNodeType.EndNode), true)]
+    [InlineData(nameof(RoadNodeType.FakeNode), false)]
+    [InlineData(nameof(RoadNodeType.MiniRoundabout), true)]
+    [InlineData(nameof(RoadNodeType.RealNode), true)]
+    [InlineData(nameof(RoadNodeType.TurningLoopNode), false)]
+    public Task WhenVerifyType_WithTwoSegmentsConnectedAndTypeIsNotFakeNodeOrTurningLoopNode_ThenError(string roadNodeType, bool expectError)
     {
         var addStartNode1WithWrongType = TestData.AddSegment1StartNode with
         {
-            Type = RoadNodeType.Parse(invalidRoadNodeType)
+            Type = RoadNodeType.Parse(roadNodeType)
         };
 
-        return Run(scenario => scenario
-            .Given(b => b)
-            .When(changes => changes
-                .Add(addStartNode1WithWrongType)
-                .Add(TestData.AddSegment1)
-                .Add(TestData.AddSegment2 with
+        return Run(scenario =>
+            {
+                var when = scenario
+                    .Given(b => b)
+                    .When(changes => changes
+                        .Add(addStartNode1WithWrongType)
+                        .Add(TestData.AddSegment1)
+                        .Add(TestData.AddSegment2 with
+                        {
+                            StartNodeId = addStartNode1WithWrongType.TemporaryId
+                        })
+                    );
+
+                if (expectError)
                 {
-                    StartNodeId = addStartNode1WithWrongType.TemporaryId
-                })
-            )
-            .ThenContainsProblems(new Error("RoadNodeTypeMismatch",
-                new ProblemParameter("RoadNodeId", TestData.AddSegment1StartNode.TemporaryId.ToString()),
-                new ProblemParameter("ConnectedSegmentCount", "2"),
-                new ProblemParameter("ConnectedSegmentId", TestData.AddSegment1.TemporaryId.ToString()),
-                new ProblemParameter("ConnectedSegmentId", TestData.AddSegment2.TemporaryId.ToString()),
-                new ProblemParameter("Actual", addStartNode1WithWrongType.Type.ToString()),
-                new ProblemParameter("Expected", RoadNodeType.FakeNode.ToString()),
-                new ProblemParameter("Expected", RoadNodeType.TurningLoopNode.ToString())
-            ))
+                    return when.ThenContainsProblems(new Error("RoadNodeTypeMismatch",
+                        new ProblemParameter("RoadNodeId", TestData.AddSegment1StartNode.TemporaryId.ToString()),
+                        new ProblemParameter("ConnectedSegmentCount", "2"),
+                        new ProblemParameter("ConnectedSegmentId", TestData.AddSegment1.TemporaryId.ToString()),
+                        new ProblemParameter("ConnectedSegmentId", TestData.AddSegment2.TemporaryId.ToString()),
+                        new ProblemParameter("Actual", addStartNode1WithWrongType.Type.ToString()),
+                        new ProblemParameter("Expected", RoadNodeType.FakeNode.ToString()),
+                        new ProblemParameter("Expected", RoadNodeType.TurningLoopNode.ToString())
+                    ));
+                }
+
+                return when.ThenProblems(problems => problems.All(x => x.Reason != "RoadNodeTypeMismatch"));
+            }
         );
     }
 
@@ -186,40 +208,51 @@ public class RoadNodeVerifyTopologyTests : RoadNetworkTestBase
     }
 
     [Theory]
-    [InlineData(nameof(RoadNodeType.EndNode))]
-    [InlineData(nameof(RoadNodeType.FakeNode))]
-    [InlineData(nameof(RoadNodeType.TurningLoopNode))]
-    public Task WhenVerifyType_WithThreeOrMoreSegmentsConnectedAndTypeIsNotRealNodeOrMiniRoundabout_ThenError(string invalidRoadNodeType)
+    [InlineData(nameof(RoadNodeType.EndNode), true)]
+    [InlineData(nameof(RoadNodeType.FakeNode), true)]
+    [InlineData(nameof(RoadNodeType.MiniRoundabout), false)]
+    [InlineData(nameof(RoadNodeType.RealNode), false)]
+    [InlineData(nameof(RoadNodeType.TurningLoopNode), true)]
+    public Task WhenVerifyType_WithThreeOrMoreSegmentsConnectedAndTypeIsNotRealNodeOrMiniRoundabout_ThenError(string roadNodeType, bool expectError)
     {
         var addStartNode1WithWrongType = TestData.AddSegment1StartNode with
         {
-            Type = RoadNodeType.Parse(invalidRoadNodeType)
+            Type = RoadNodeType.Parse(roadNodeType)
         };
 
-        return Run(scenario => scenario
-            .Given(b => b)
-            .When(changes => changes
-                .Add(addStartNode1WithWrongType)
-                .Add(TestData.AddSegment1)
-                .Add(TestData.AddSegment2 with
+        return Run(scenario =>
+            {
+                var when = scenario
+                    .Given(b => b)
+                    .When(changes => changes
+                        .Add(addStartNode1WithWrongType)
+                        .Add(TestData.AddSegment1)
+                        .Add(TestData.AddSegment2 with
+                        {
+                            StartNodeId = addStartNode1WithWrongType.TemporaryId
+                        })
+                        .Add(TestData.AddSegment3 with
+                        {
+                            StartNodeId = addStartNode1WithWrongType.TemporaryId
+                        })
+                    );
+
+                if (expectError)
                 {
-                    StartNodeId = addStartNode1WithWrongType.TemporaryId
-                })
-                .Add(TestData.AddSegment3 with
-                {
-                    StartNodeId = addStartNode1WithWrongType.TemporaryId
-                })
-            )
-            .ThenContainsProblems(new Error("RoadNodeTypeMismatch",
-                new ProblemParameter("RoadNodeId", TestData.AddSegment1StartNode.TemporaryId.ToString()),
-                new ProblemParameter("ConnectedSegmentCount", "3"),
-                new ProblemParameter("ConnectedSegmentId", TestData.AddSegment1.TemporaryId.ToString()),
-                new ProblemParameter("ConnectedSegmentId", TestData.AddSegment2.TemporaryId.ToString()),
-                new ProblemParameter("ConnectedSegmentId", TestData.AddSegment3.TemporaryId.ToString()),
-                new ProblemParameter("Actual", addStartNode1WithWrongType.Type.ToString()),
-                new ProblemParameter("Expected", RoadNodeType.RealNode.ToString()),
-                new ProblemParameter("Expected", RoadNodeType.MiniRoundabout.ToString())
-            ))
+                    return when.ThenContainsProblems(new Error("RoadNodeTypeMismatch",
+                        new ProblemParameter("RoadNodeId", TestData.AddSegment1StartNode.TemporaryId.ToString()),
+                        new ProblemParameter("ConnectedSegmentCount", "3"),
+                        new ProblemParameter("ConnectedSegmentId", TestData.AddSegment1.TemporaryId.ToString()),
+                        new ProblemParameter("ConnectedSegmentId", TestData.AddSegment2.TemporaryId.ToString()),
+                        new ProblemParameter("ConnectedSegmentId", TestData.AddSegment3.TemporaryId.ToString()),
+                        new ProblemParameter("Actual", addStartNode1WithWrongType.Type.ToString()),
+                        new ProblemParameter("Expected", RoadNodeType.RealNode.ToString()),
+                        new ProblemParameter("Expected", RoadNodeType.MiniRoundabout.ToString())
+                    ));
+                }
+
+                return when.ThenProblems(problems => problems.All(x => x.Reason != "RoadNodeTypeMismatch"));
+            }
         );
     }
 }
