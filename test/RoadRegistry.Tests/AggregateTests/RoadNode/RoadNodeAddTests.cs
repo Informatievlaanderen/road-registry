@@ -2,6 +2,7 @@
 
 using AutoFixture;
 using FluentAssertions;
+using Framework;
 using RoadRegistry.BackOffice;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Changes;
@@ -19,7 +20,7 @@ public class RoadNodeAddTests : RoadNetworkTestBase
         var (node, problems) = RoadNode.Add(change, new FakeRoadNetworkIdGenerator());
 
         // Assert
-        problems.HasError().Should().BeFalse();
+        problems.Should().HaveNoError();
         node.GetChanges().Should().HaveCount(1);
 
         var nodeAdded = (RoadNodeAdded)node.GetChanges().Single();

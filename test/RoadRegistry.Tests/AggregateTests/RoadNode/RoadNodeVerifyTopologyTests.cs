@@ -22,7 +22,7 @@ public class RoadNodeVerifyTopologyTests : RoadNetworkTestBase
             .When(changes => changes
                 .Add(new RemoveRoadNodeChange
                 {
-                    Id = TestData.Segment1StartNodeAdded.RoadNodeId
+                    RoadNodeId = TestData.Segment1StartNodeAdded.RoadNodeId
                 })
             )
             .ThenProblems(new Error("RoadSegmentStartNodeMissing", new ProblemParameter("Identifier", "1")))
@@ -41,7 +41,7 @@ public class RoadNodeVerifyTopologyTests : RoadNetworkTestBase
             .When(changes => changes
                 .Add(new RemoveRoadNodeChange
                 {
-                    Id = TestData.Segment1EndNodeAdded.RoadNodeId
+                    RoadNodeId = TestData.Segment1EndNodeAdded.RoadNodeId
                 })
             )
             .ThenProblems(new Error("RoadSegmentEndNodeMissing", new ProblemParameter("Identifier", "1")))
@@ -80,7 +80,7 @@ public class RoadNodeVerifyTopologyTests : RoadNetworkTestBase
                     Type = Fixture.Create<RoadNodeType>()
                 })
             )
-            .ThenContainsProblems(new Error("RoadNodeTooClose", new ProblemParameter("ToOtherSegment", TestData.AddSegment1.TemporaryId.ToString())))
+            .ThenContainsProblems(new Error("RoadNodeTooClose", new ProblemParameter("ToOtherSegment", TestData.Segment1Added.RoadSegmentId.ToString())))
         );
     }
 
@@ -96,12 +96,16 @@ public class RoadNodeVerifyTopologyTests : RoadNetworkTestBase
         );
     }
 
-    [Fact]
-    public Task WhenVerifyType_WithOneSegmentConnectedAndTypeIsNotEndNode_ThenError()
+    [Theory]
+    [InlineData(nameof(RoadNodeType.FakeNode))]
+    [InlineData(nameof(RoadNodeType.MiniRoundabout))]
+    [InlineData(nameof(RoadNodeType.RealNode))]
+    [InlineData(nameof(RoadNodeType.TurningLoopNode))]
+    public Task WhenVerifyType_WithOneSegmentConnectedAndTypeIsNotEndNode_ThenError(string invalidRoadNodeType)
     {
         var addStartNode1WithWrongType = TestData.AddSegment1StartNode with
         {
-            Type = RoadNodeType.FakeNode
+            Type = RoadNodeType.Parse(invalidRoadNodeType)
         };
 
         return Run(scenario => scenario
@@ -120,12 +124,15 @@ public class RoadNodeVerifyTopologyTests : RoadNetworkTestBase
         );
     }
 
-    [Fact]
-    public Task WhenVerifyType_WithTwoSegmentsConnectedAndTypeIsNotFakeNodeOrTurningLoopNode_ThenError()
+    [Theory]
+    [InlineData(nameof(RoadNodeType.EndNode))]
+    [InlineData(nameof(RoadNodeType.MiniRoundabout))]
+    [InlineData(nameof(RoadNodeType.RealNode))]
+    public Task WhenVerifyType_WithTwoSegmentsConnectedAndTypeIsNotFakeNodeOrTurningLoopNode_ThenError(string invalidRoadNodeType)
     {
         var addStartNode1WithWrongType = TestData.AddSegment1StartNode with
         {
-            Type = RoadNodeType.EndNode
+            Type = RoadNodeType.Parse(invalidRoadNodeType)
         };
 
         return Run(scenario => scenario
@@ -178,12 +185,15 @@ public class RoadNodeVerifyTopologyTests : RoadNetworkTestBase
         );
     }
 
-    [Fact]
-    public Task WhenVerifyType_WithThreeOrMoreSegmentsConnectedAndTypeIsNotRealNodeOrMiniRoundabout_ThenError()
+    [Theory]
+    [InlineData(nameof(RoadNodeType.EndNode))]
+    [InlineData(nameof(RoadNodeType.FakeNode))]
+    [InlineData(nameof(RoadNodeType.TurningLoopNode))]
+    public Task WhenVerifyType_WithThreeOrMoreSegmentsConnectedAndTypeIsNotRealNodeOrMiniRoundabout_ThenError(string invalidRoadNodeType)
     {
         var addStartNode1WithWrongType = TestData.AddSegment1StartNode with
         {
-            Type = RoadNodeType.EndNode
+            Type = RoadNodeType.Parse(invalidRoadNodeType)
         };
 
         return Run(scenario => scenario

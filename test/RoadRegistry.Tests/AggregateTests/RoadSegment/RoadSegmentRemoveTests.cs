@@ -24,7 +24,7 @@ public class RoadSegmentRemoveTests : RoadNetworkTestBase
         var problems = segment.Remove();
 
         // Assert
-        problems.HasError().Should().BeFalse();
+        problems.Should().HaveNoError();
         segment.GetChanges().Should().HaveCount(1);
 
         var segmentRemoved = (RoadSegmentRemoved)segment.GetChanges().Single();
@@ -34,14 +34,14 @@ public class RoadSegmentRemoveTests : RoadNetworkTestBase
     [Fact]
     public Task WhenNotFound_ThenError()
     {
-        var change = new RemoveRoadSegmentChange
-        {
-            RoadSegmentId = TestData.Segment1Added.RoadSegmentId
-        };
+        var change = Fixture.Create<RemoveRoadSegmentChange>();
 
-        return Run(scenario => ScenarioExtensions.ThenProblems(scenario
-                .Given(changes => changes)
-                .When(changes => changes.Add(change)), new Error("RoadSegmentNotFound", [new("SegmentId", change.RoadSegmentId.ToString())]))
+        return Run(scenario => scenario
+            .Given(given => given)
+            .When(changes => changes
+                .Add(change)
+            )
+            .ThenProblems(new Error("RoadSegmentNotFound", new ProblemParameter("SegmentId", change.RoadSegmentId.ToString())))
         );
     }
 

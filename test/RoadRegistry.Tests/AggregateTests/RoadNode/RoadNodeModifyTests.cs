@@ -2,10 +2,13 @@
 
 using AutoFixture;
 using FluentAssertions;
+using Framework;
 using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadNode.Events;
+using RoadNode = RoadRegistry.RoadNode.RoadNode;
 
 public class RoadNodeModifyTests : RoadNetworkTestBase
 {
@@ -23,13 +26,27 @@ public class RoadNodeModifyTests : RoadNetworkTestBase
         var problems = node.Modify(change);
 
         // Assert
-        problems.HasError().Should().BeFalse();
+        problems.Should().HaveNoError();
         node.GetChanges().Should().HaveCount(1);
 
         var nodeModified = (RoadNodeModified)node.GetChanges().Single();
         nodeModified.RoadNodeId.Should().Be(node.RoadNodeId);
         nodeModified.Type.Should().Be(change.Type);
         nodeModified.Geometry.Should().Be(change.Geometry!.ToGeometryObject());
+    }
+
+    [Fact]
+    public Task GivenNoRoadNode_WhenRoadNetworkChange_ThenNotFound()
+    {
+        var change = Fixture.Create<ModifyRoadNodeChange>();
+
+        return Run(scenario => scenario
+            .Given(given => given)
+            .When(changes => changes
+                .Add(change)
+            )
+            .ThenProblems(new Error("RoadNodeNotFound", new ProblemParameter("NodeId", change.RoadNodeId.ToString())))
+        );
     }
 
     [Fact]

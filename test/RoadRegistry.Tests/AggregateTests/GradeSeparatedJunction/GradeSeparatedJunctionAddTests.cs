@@ -2,6 +2,7 @@
 
 using AutoFixture;
 using FluentAssertions;
+using Framework;
 using RoadNetwork;
 using RoadRegistry.BackOffice;
 using RoadRegistry.GradeSeparatedJunction;
@@ -25,7 +26,7 @@ public class GradeSeparatedJunctionAddTests : RoadNetworkTestBase
         var (junction, problems) = GradeSeparatedJunction.Add(change, new FakeRoadNetworkIdGenerator(), idTranslator);
 
         // Assert
-        problems.HasError().Should().BeFalse();
+        problems.Should().HaveNoError();
         junction.GetChanges().Should().HaveCount(1);
 
         var junctionAdded = (GradeSeparatedJunctionAdded)junction.GetChanges().Single();

@@ -55,7 +55,7 @@ public class RoadSegmentVerifyTopologyTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1StartNode)
                 .Add(new RemoveRoadNodeChange
                 {
-                    Id = new RoadNodeId(1)
+                    RoadNodeId = new RoadNodeId(1)
                 })
                 .Add(TestData.AddSegment1)
             )
@@ -107,7 +107,7 @@ public class RoadSegmentVerifyTopologyTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1EndNode)
                 .Add(new RemoveRoadNodeChange
                 {
-                    Id = new RoadNodeId(2)
+                    RoadNodeId = new RoadNodeId(2)
                 })
                 .Add(TestData.AddSegment1)
             )

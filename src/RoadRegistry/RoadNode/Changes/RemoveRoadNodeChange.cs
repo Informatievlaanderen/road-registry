@@ -5,5 +5,5 @@ using RoadRegistry.BackOffice;
 
 public sealed record RemoveRoadNodeChange : IRoadNetworkChange
 {
-    public required RoadNodeId Id { get; init; }
+    public required RoadNodeId RoadNodeId { get; init; }
 }

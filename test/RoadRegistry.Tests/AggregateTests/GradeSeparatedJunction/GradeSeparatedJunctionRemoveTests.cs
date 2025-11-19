@@ -2,6 +2,7 @@
 
 using AutoFixture;
 using FluentAssertions;
+using Framework;
 using RoadRegistry.BackOffice;
 using RoadRegistry.GradeSeparatedJunction;
 using RoadRegistry.GradeSeparatedJunction.Events;
@@ -21,7 +22,7 @@ public class GradeSeparatedJunctionRemoveTests : RoadNetworkTestBase
         var problems = junction.Remove();
 
         // Assert
-        problems.HasError().Should().BeFalse();
+        problems.Should().HaveNoError();
         junction.GetChanges().Should().HaveCount(1);
 
         var junctionRemoved = (GradeSeparatedJunctionRemoved)junction.GetChanges().Single();

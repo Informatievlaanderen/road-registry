@@ -29,12 +29,26 @@ public class RoadSegmentRemoveNationalRoadTests : RoadNetworkTestBase
         var problems = segment.RemoveNationalRoad(change);
 
         // Assert
-        problems.HasError().Should().BeFalse();
+        problems.Should().HaveNoError();
         segment.GetChanges().Should().HaveCount(1);
 
         var actualEvent = (RoadSegmentRemovedFromNationalRoad)segment.GetChanges().Single();
         actualEvent.RoadSegmentId.Should().Be(change.RoadSegmentId);
         actualEvent.Number.Should().Be(change.Number);
+    }
+
+    [Fact]
+    public Task WhenNotFound_ThenError()
+    {
+        var change = Fixture.Create<RemoveRoadSegmentFromNationalRoadChange>();
+
+        return Run(scenario => scenario
+            .Given(given => given)
+            .When(changes => changes
+                .Add(change)
+            )
+            .ThenProblems(new Error("RoadSegmentNotFound", new ProblemParameter("SegmentId", change.RoadSegmentId.ToString())))
+        );
     }
 
     [Fact]
@@ -54,19 +68,8 @@ public class RoadSegmentRemoveNationalRoadTests : RoadNetworkTestBase
         var problems = segment.RemoveNationalRoad(change);
 
         // Assert
-        problems.HasError().Should().BeFalse();
+        problems.Should().HaveNoError();
         segment.GetChanges().Should().BeEmpty();
-    }
-
-    [Fact]
-    public Task WhenNotFound_ThenError()
-    {
-        var change = Fixture.Create<RemoveRoadSegmentFromNationalRoadChange>();
-
-        return Run(scenario => ScenarioExtensions.ThenProblems(scenario
-                .Given(changes => changes)
-                .When(changes => changes.Add(change)), new Error("RoadSegmentNotFound", [new("SegmentId", change.RoadSegmentId.ToString())]))
-        );
     }
 
     [Fact]

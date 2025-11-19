@@ -111,14 +111,14 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
             _geometries.Add(change.Geometry);
         }
 
-        _roadNodeIds.Add(change.Id);
+        _roadNodeIds.Add(change.RoadNodeId);
 
         return AddChange(change);
     }
 
     public RoadNetworkChanges Add(RemoveRoadNodeChange change)
     {
-        _roadNodeIds.Add(change.Id);
+        _roadNodeIds.Add(change.RoadNodeId);
 
         return AddChange(change);
     }

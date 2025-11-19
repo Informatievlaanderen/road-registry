@@ -2,6 +2,7 @@
 
 using AutoFixture;
 using FluentAssertions;
+using Framework;
 using NetTopologySuite.Geometries;
 using RoadNetwork;
 using RoadRegistry.BackOffice;
@@ -10,6 +11,7 @@ using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events;
 using RoadRegistry.RoadSegment.ValueObjects;
+using Xunit.Sdk;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
 public class RoadSegmentAddTests : RoadNetworkTestBase
@@ -22,7 +24,9 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
         {
             PermanentId = null,
             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates()
+            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates(),
+            EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()],
+            NationalRoadNumbers = [Fixture.Create<NationalRoadNumber>()]
         };
 
         var actualStartNodeId = Fixture.Create<RoadNodeId>();
@@ -33,7 +37,7 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
         var (segment, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), idTranslator);
 
         // Assert
-        problems.HasError().Should().BeFalse();
+        problems.Should().HaveNoError();
         segment.GetChanges().Should().HaveCount(1);
 
         var segmentAdded = (RoadSegmentAdded)segment.GetChanges().Single();
@@ -62,14 +66,16 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
         {
             PermanentId = null,
             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined,
-            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates()
+            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates(),
+            EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()],
+            NationalRoadNumbers = [Fixture.Create<NationalRoadNumber>()]
         };
 
         // Act
         var (segment, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
 
         // Assert
-        problems.HasError().Should().BeFalse();
+        problems.Should().HaveNoError();
         segment.GetChanges().Should().HaveCount(1);
 
         var segmentAdded = (RoadSegmentAdded)segment.GetChanges().Single();
@@ -103,7 +109,6 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
         var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
 
         // Assert
-        problems.HasError().Should().BeTrue();
         problems.Should().ContainEquivalentOf(new RoadSegmentGeometryLengthIsZero(change.OriginalId!.Value));
     }
 
@@ -122,7 +127,6 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
         var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
 
         // Assert
-        problems.HasError().Should().BeTrue();
         problems.Should().Contain(x => x.Reason == "RoadSegmentCategoryFromOrToPositionIsNull");
     }
 

@@ -35,7 +35,7 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
         var problems = segment.Modify(change);
 
         // Assert
-        problems.HasError().Should().BeFalse();
+        problems.Should().HaveNoError();
         segment.GetChanges().Should().HaveCount(1);
 
         var segmentModified = (RoadSegmentModified)segment.GetChanges().Single();
@@ -76,7 +76,7 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
         var problems = segment.Modify(change);
 
         // Assert
-        problems.HasError().Should().BeFalse();
+        problems.Should().HaveNoError();
         segment.GetChanges().Should().HaveCount(1);
 
         var segmentModified = (RoadSegmentModified)segment.GetChanges().Single();
@@ -100,14 +100,14 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
     [Fact]
     public Task WhenNotFound_ThenError()
     {
-        var change = new ModifyRoadSegmentChange
-        {
-            RoadSegmentId = TestData.Segment1Added.RoadSegmentId
-        };
+        var change = Fixture.Create<ModifyRoadSegmentChange>();
 
-        return Run(scenario => ScenarioExtensions.ThenProblems(scenario
-                .Given(changes => changes)
-                .When(changes => changes.Add(change)), new Error("RoadSegmentNotFound", [new("SegmentId", change.RoadSegmentId.ToString())]))
+        return Run(scenario => scenario
+            .Given(given => given)
+            .When(changes => changes
+                .Add(change)
+            )
+            .ThenProblems(new Error("RoadSegmentNotFound", new ProblemParameter("SegmentId", (change.OriginalId ?? change.RoadSegmentId).ToString())))
         );
     }
 
@@ -124,7 +124,6 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
         var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
 
         // Assert
-        problems.HasError().Should().BeTrue();
         problems.Should().ContainEquivalentOf(new RoadSegmentGeometryLengthIsZero(change.OriginalId!.Value));
     }
 
@@ -143,7 +142,6 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
         var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
 
         // Assert
-        problems.HasError().Should().BeTrue();
         problems.Should().Contain(x => x.Reason == "RoadSegmentCategoryFromOrToPositionIsNull");
     }
 

@@ -219,7 +219,6 @@ public class RoadSegmentAttributesValidatorTests
             attributesBuilder(attributes),
             0);
 
-        problems.HasError().Should().BeTrue();
         problems.Should().Contain(x => x.Reason.EndsWith("FromOrToPositionIsNull"));
     }
 

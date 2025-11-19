@@ -59,42 +59,42 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
             switch (roadNetworkChange)
             {
                 case AddRoadNodeChange change:
-                    problems = problems.AddRange(AddRoadNode(change, idGenerator, idTranslator));
+                    problems += AddRoadNode(change, idGenerator, idTranslator);
                     break;
                 case ModifyRoadNodeChange change:
-                    problems.AddRange(ModifyRoadNode(change));
+                    problems += ModifyRoadNode(change);
                     break;
                 case RemoveRoadNodeChange change:
-                    problems.AddRange(RemoveRoadNode(change));
+                    problems += RemoveRoadNode(change);
                     break;
 
                 case AddRoadSegmentChange change:
-                    problems = problems.AddRange(AddRoadSegment(change, idGenerator, idTranslator));
+                    problems += AddRoadSegment(change, idGenerator, idTranslator);
                     break;
                 case ModifyRoadSegmentChange change:
-                    problems = problems.AddRange(ModifyRoadSegment(change, idTranslator));
+                    problems += ModifyRoadSegment(change, idTranslator);
                     break;
                 case RemoveRoadSegmentChange change:
-                    problems = problems.AddRange(InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.Remove()));
+                    problems += InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.Remove());
                     break;
                 case AddRoadSegmentToEuropeanRoadChange change:
-                    problems = problems.AddRange(InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.AddEuropeanRoad(change)));
+                    problems += InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.AddEuropeanRoad(change));
                     break;
                 case RemoveRoadSegmentFromEuropeanRoadChange change:
-                    problems = problems.AddRange(InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.RemoveEuropeanRoad(change)));
+                    problems += InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.RemoveEuropeanRoad(change));
                     break;
                 case AddRoadSegmentToNationalRoadChange change:
-                    problems = problems.AddRange(InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.AddNationalRoad(change)));
+                    problems += InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.AddNationalRoad(change));
                     break;
                 case RemoveRoadSegmentFromNationalRoadChange change:
-                    problems = problems.AddRange(InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.RemoveNationalRoad(change)));
+                    problems += InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.RemoveNationalRoad(change));
                     break;
 
                 case AddGradeSeparatedJunctionChange change:
-                    problems = problems.AddRange(AddGradeSeparatedJunction(change, idGenerator, idTranslator));
+                    problems += AddGradeSeparatedJunction(change, idGenerator, idTranslator);
                     break;
                 case RemoveGradeSeparatedJunctionChange change:
-                    problems.AddRange(RemoveGradeSeparatedJunction(change));
+                    problems += RemoveGradeSeparatedJunction(change);
                     break;
 
                 default:

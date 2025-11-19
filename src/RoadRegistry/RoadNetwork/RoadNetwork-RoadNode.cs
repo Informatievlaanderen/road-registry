@@ -28,9 +28,9 @@ public partial class RoadNetwork
 
     private Problems ModifyRoadNode(ModifyRoadNodeChange change)
     {
-        if (!_roadNodes.TryGetValue(change.Id, out var roadNode))
+        if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
         {
-            return Problems.Single(new RoadNodeNotFound(change.Id));
+            return Problems.Single(new RoadNodeNotFound(change.RoadNodeId));
         }
 
         return roadNode.Modify(change);
@@ -38,9 +38,9 @@ public partial class RoadNetwork
 
     private Problems RemoveRoadNode(RemoveRoadNodeChange change)
     {
-        if (!_roadNodes.TryGetValue(change.Id, out var roadNode))
+        if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
         {
-            return Problems.Single(new RoadNodeNotFound(change.Id));
+            return Problems.Single(new RoadNodeNotFound(change.RoadNodeId));
         }
 
         return roadNode.Remove();
