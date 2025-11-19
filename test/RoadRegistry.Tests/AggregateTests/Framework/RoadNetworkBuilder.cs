@@ -28,7 +28,7 @@ public class RoadNetworkBuilder
             }
         }
 
-        return roadNetwork;
+        return roadNetwork.WithoutChanges();
     }
 
     public RoadNetworkBuilder Add(RoadNetworkChanges roadNetworkChanges)

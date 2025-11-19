@@ -15,7 +15,7 @@ public partial class RoadNetwork
         return _roadSegments.Values.Where(x => !x.IsRemoved);
     }
 
-    private Problems AddRoadSegment(AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator)
+    private Problems AddRoadSegment(AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
     {
         var (roadSegment, problems) = RoadSegment.Add(change, idGenerator, idTranslator);
         if (problems.HasError())
@@ -30,10 +30,12 @@ public partial class RoadNetwork
         }
 
         _roadSegments.Add(roadSegment.RoadSegmentId, roadSegment);
+        summary.Added.Add(roadSegment.RoadSegmentId);
+
         return problems;
     }
 
-    private Problems ModifyRoadSegment(ModifyRoadSegmentChange change, IIdentifierTranslator idTranslator)
+    private Problems ModifyRoadSegment(ModifyRoadSegmentChange change, IIdentifierTranslator idTranslator, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
     {
         var originalIdOrId = change.OriginalId ?? change.RoadSegmentId;
 
@@ -48,10 +50,34 @@ public partial class RoadNetwork
             return problems;
         }
 
-        return roadSegment.Modify(change);
+        problems = roadSegment.Modify(change);
+        if (problems.HasError())
+        {
+            return problems;
+        }
+
+        summary.Modified.Add(roadSegment.RoadSegmentId);
+        return problems;
     }
 
-    private Problems InvokeOnRoadSegment(RoadSegmentId roadSegmentId, Func<RoadSegment, Problems> modify)
+    private Problems RemoveRoadSegment(RoadSegmentId roadSegmentId, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
+    {
+        if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment))
+        {
+            return Problems.Single(new RoadSegmentNotFound(roadSegmentId));
+        }
+
+        var problems = roadSegment.Remove();
+        if (problems.HasError())
+        {
+            return problems;
+        }
+
+        summary.Removed.Add(roadSegment.RoadSegmentId);
+        return problems;
+    }
+
+    private Problems ModifyRoadSegment(RoadSegmentId roadSegmentId, Func<RoadSegment, Problems> modify, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
     {
         if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment))
         {

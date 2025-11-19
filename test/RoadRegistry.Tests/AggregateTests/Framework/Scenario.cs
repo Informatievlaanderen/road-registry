@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
 
+using RoadNetwork;
 using RoadRegistry.BackOffice.Framework;
 using RoadNetwork = RoadNetwork.RoadNetwork;
 
@@ -10,6 +11,7 @@ public class Scenario : IScenarioInitialStateBuilder
             [],
             null,
             [],
+            null,
             null,
             null);
 
@@ -39,21 +41,23 @@ public class Scenario : IScenarioInitialStateBuilder
         private readonly Action<RoadNetworkBuilder>[] _givens;
         private readonly Command _when;
         private readonly object[] _thens;
+        private readonly Action<RoadNetworkChangeResult, object[]>? _assert;
         private readonly Exception? _throws;
         private readonly Func<Exception, bool>? _thrownIsAcceptable;
 
-        public ScenarioBuilder(Action<RoadNetworkBuilder>[] givens, Command when, object[] thens, Exception? throws, Func<Exception, bool>? thrownIsAcceptable)
+        public ScenarioBuilder(Action<RoadNetworkBuilder>[] givens, Command when, object[] thens, Action<RoadNetworkChangeResult, object[]>? assert, Exception? throws, Func<Exception, bool>? thrownIsAcceptable)
         {
             _givens = givens;
             _when = when;
             _thens = thens;
+            _assert = assert;
             _throws = throws;
             _thrownIsAcceptable = thrownIsAcceptable;
         }
 
         ExpectEventsScenario IExpectEventsScenarioBuilder.Build()
         {
-            return new ExpectEventsScenario(_givens, _when, _thens);
+            return new ExpectEventsScenario(_givens, _when, _thens, _assert);
         }
 
         ExpectExceptionScenario IExpectExceptionScenarioBuilder.Build()
@@ -65,7 +69,7 @@ public class Scenario : IScenarioInitialStateBuilder
         {
             ArgumentNullException.ThrowIfNull(given);
 
-            return new ScenarioBuilder(_givens.Concat([given]).ToArray(), _when, _thens, _throws, _thrownIsAcceptable);
+            return new ScenarioBuilder(_givens.Concat([given]).ToArray(), _when, _thens, _assert, _throws, _thrownIsAcceptable);
         }
 
         IScenarioGivenNoneStateBuilder IScenarioInitialStateBuilder.GivenNone()
@@ -75,12 +79,17 @@ public class Scenario : IScenarioInitialStateBuilder
 
         IScenarioThenStateBuilder IScenarioThenStateBuilder.Then(object[] events)
         {
-            return new ScenarioBuilder(_givens, _when, _thens.Concat(events).ToArray(), _throws, _thrownIsAcceptable);
+            return new ScenarioBuilder(_givens, _when, _thens.Concat(events).ToArray(), _assert, _throws, _thrownIsAcceptable);
         }
 
         IScenarioThenStateBuilder IScenarioWhenStateBuilder.Then(object[] events)
         {
-            return new ScenarioBuilder(_givens, _when, events.ToArray(), _throws, _thrownIsAcceptable);
+            return new ScenarioBuilder(_givens, _when, events.ToArray(), _assert, _throws, _thrownIsAcceptable);
+        }
+
+        IScenarioThenStateBuilder IScenarioWhenStateBuilder.Then(Action<RoadNetworkChangeResult, object[]> assert)
+        {
+            return new ScenarioBuilder(_givens, _when, _thens, assert, _throws, _thrownIsAcceptable);
         }
 
         IScenarioThenNoneStateBuilder IScenarioWhenStateBuilder.ThenNone()
@@ -90,12 +99,12 @@ public class Scenario : IScenarioInitialStateBuilder
 
         IScenarioThrowsStateBuilder IScenarioWhenStateBuilder.ThenException(Exception exception)
         {
-            return new ScenarioBuilder(_givens, _when, _thens, exception, _thrownIsAcceptable);
+            return new ScenarioBuilder(_givens, _when, _thens, _assert, exception, _thrownIsAcceptable);
         }
 
         IScenarioThrowsStateBuilder IScenarioWhenStateBuilder.ThenException(Func<Exception, bool> exceptionIsAcceptable)
         {
-            return new ScenarioBuilder(_givens, _when, _thens, _throws, exceptionIsAcceptable);
+            return new ScenarioBuilder(_givens, _when, _thens, _assert, _throws, exceptionIsAcceptable);
         }
 
         public IScenarioGivenStateBuilder Given(RoadNetwork given)
@@ -122,7 +131,7 @@ public class Scenario : IScenarioInitialStateBuilder
         {
             ArgumentNullException.ThrowIfNull(command);
 
-            return new ScenarioBuilder(_givens, command, _thens, _throws, _thrownIsAcceptable);
+            return new ScenarioBuilder(_givens, command, _thens, _assert, _throws, _thrownIsAcceptable);
         }
     }
 }

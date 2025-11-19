@@ -20,7 +20,7 @@ public static class ValidationExtensions
 
         if (!attributeValues.Values.Any())
         {
-            //TODO-pr mag dit wel? moet dit geen fout geven?
+            //TODO-pr mag dit wel? moet dit geen fout geven? -> tbd met Mathieu aftoetsen
             return problems;
         }
 

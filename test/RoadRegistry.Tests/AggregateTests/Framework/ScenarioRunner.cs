@@ -57,6 +57,15 @@ public class ScenarioRunner
                 .Except(givenEvents)
                 .ToArray();
 
+            if (scenario.Assert is not null)
+            {
+                var allRecordedEvents = roadNetwork.GetChanges()
+                    .Concat(recordedEvents)
+                    .ToArray();
+                scenario.Assert(roadNetworkChangeResult, allRecordedEvents);
+                return scenario.Pass();
+            }
+
             var expectedEvents = scenario.Thens;
             var result = Compare(expectedEvents, recordedEvents);
             if (result.AreEqual)

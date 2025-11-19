@@ -266,6 +266,8 @@ namespace RoadRegistry.Jobs.Processor
                         var extractDownload = await _extractsDbContext.ExtractDownloads
                             .SingleAsync(x => x.DownloadId == job.DownloadId.Value, cancellationToken);
 
+                        //TODO-pr maak variant van UploadExtractSqsRequest+Handler die gebruik maakt van het nieuwe domein + FC V3
+                        //add feature toggle om de nieuwe sqsrequest te lanceren (bvb UseDomainV2)
                         return new UploadExtractSqsRequest
                         {
                             Request = new BackOffice.Abstractions.Extracts.V2.UploadExtractRequest(job.DownloadId.Value, uploadId, job.TicketId),

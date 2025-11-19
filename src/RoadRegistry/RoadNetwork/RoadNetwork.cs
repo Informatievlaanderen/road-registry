@@ -19,11 +19,9 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
 {
     public static RoadNetwork Empty => new();
     public const string GlobalIdentifier = "0";
-
     public IReadOnlyDictionary<RoadNodeId, RoadNode> RoadNodes { get; }
     public IReadOnlyDictionary<RoadSegmentId, RoadSegment> RoadSegments { get; }
     public IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; }
-
     private readonly Dictionary<RoadNodeId, RoadNode> _roadNodes;
     private readonly Dictionary<RoadSegmentId, RoadSegment> _roadSegments;
     private readonly Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> _gradeSeparatedJunctions;
@@ -52,6 +50,7 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
     public RoadNetworkChangeResult Change(RoadNetworkChanges changes, IRoadNetworkIdGenerator idGenerator)
     {
         var problems = Problems.None;
+        var summary = new RoadNetworkChangesSummary();
         var idTranslator = new IdentifierTranslator();
 
         foreach (var roadNetworkChange in changes)
@@ -59,42 +58,42 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
             switch (roadNetworkChange)
             {
                 case AddRoadNodeChange change:
-                    problems += AddRoadNode(change, idGenerator, idTranslator);
+                    problems += AddRoadNode(change, idGenerator, idTranslator, summary.RoadNodes);
                     break;
                 case ModifyRoadNodeChange change:
-                    problems += ModifyRoadNode(change);
+                    problems += ModifyRoadNode(change, summary.RoadNodes);
                     break;
                 case RemoveRoadNodeChange change:
-                    problems += RemoveRoadNode(change);
+                    problems += RemoveRoadNode(change, summary.RoadNodes);
                     break;
 
                 case AddRoadSegmentChange change:
-                    problems += AddRoadSegment(change, idGenerator, idTranslator);
+                    problems += AddRoadSegment(change, idGenerator, idTranslator, summary.RoadSegments);
                     break;
                 case ModifyRoadSegmentChange change:
-                    problems += ModifyRoadSegment(change, idTranslator);
+                    problems += ModifyRoadSegment(change, idTranslator, summary.RoadSegments);
                     break;
                 case RemoveRoadSegmentChange change:
-                    problems += InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.Remove());
+                    problems += RemoveRoadSegment(change.RoadSegmentId, summary.RoadSegments);
                     break;
                 case AddRoadSegmentToEuropeanRoadChange change:
-                    problems += InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.AddEuropeanRoad(change));
+                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.AddEuropeanRoad(change), summary.RoadSegments);
                     break;
                 case RemoveRoadSegmentFromEuropeanRoadChange change:
-                    problems += InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.RemoveEuropeanRoad(change));
+                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.RemoveEuropeanRoad(change), summary.RoadSegments);
                     break;
                 case AddRoadSegmentToNationalRoadChange change:
-                    problems += InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.AddNationalRoad(change));
+                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.AddNationalRoad(change), summary.RoadSegments);
                     break;
                 case RemoveRoadSegmentFromNationalRoadChange change:
-                    problems += InvokeOnRoadSegment(change.RoadSegmentId, segment => segment.RemoveNationalRoad(change));
+                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.RemoveNationalRoad(change), summary.RoadSegments);
                     break;
 
                 case AddGradeSeparatedJunctionChange change:
-                    problems += AddGradeSeparatedJunction(change, idGenerator, idTranslator);
+                    problems += AddGradeSeparatedJunction(change, idGenerator, idTranslator, summary.GradeSeparatedJunctions);
                     break;
                 case RemoveGradeSeparatedJunctionChange change:
-                    problems += RemoveGradeSeparatedJunction(change);
+                    problems += RemoveGradeSeparatedJunction(change, summary.GradeSeparatedJunctions);
                     break;
 
                 default:
@@ -124,11 +123,38 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
                 .Aggregate(problems, (p, x) => p + x.VerifyTopology(context));
         }
 
-        //TODO-pr mss hier aan toevoegen de Reason van een change? kan interessant zijn voor toekomst?
-        UncommittedEvents.Add(new RoadNetworkChanged());
+        UncommittedEvents.Add(new RoadNetworkChanged
+        {
+            ScopeGeometry = changes.BuildScopeGeometry().ToGeometryObject()
+        });
 
-        return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()));
+        return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), summary);
     }
 }
 
-public sealed record RoadNetworkChangeResult(Problems Problems);
+public sealed record RoadNetworkChangeResult(Problems Problems, RoadNetworkChangesSummary Changes);
+
+public sealed class RoadNetworkChangesSummary
+{
+    public RoadNetworkEntityChangesSummary<RoadNodeId> RoadNodes { get; } = new();
+    public RoadNetworkEntityChangesSummary<RoadSegmentId> RoadSegments { get; } = new();
+    public RoadNetworkEntityChangesSummary<GradeSeparatedJunctionId> GradeSeparatedJunctions { get; } = new();
+}
+
+public sealed class RoadNetworkEntityChangesSummary<TIdentifier>
+{
+    public UniqueList<TIdentifier> Added { get; } = [];
+    public UniqueList<TIdentifier> Modified { get; } = [];
+    public UniqueList<TIdentifier> Removed { get; } = [];
+
+    public sealed class UniqueList<T> : List<T>
+    {
+        public new void Add(T item)
+        {
+            if (!Contains(item))
+            {
+                base.Add(item);
+            }
+        }
+    }
+}

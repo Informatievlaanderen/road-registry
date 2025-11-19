@@ -61,10 +61,30 @@ public sealed class ChangeRoadNetworkCommandSqsLambdaRequestHandler : SqsLambdaH
         }
         else
         {
-            //TODO-pr ook resultaat van changes meegeven, bvb welke IDs zijn aangemaakt/gewijzigd/verwijderd, per entiteit
-            //is al zeker nodig voor E2E testen
-            await Ticketing.Complete(command.TicketId, new TicketResult(), cancellationToken);
-            //TODO-pr aparte projectie voorzien voor resultaat dat extract details kan opvragen
+            await Ticketing.Complete(command.TicketId, new TicketResult(new
+            {
+                Changes = new
+                {
+                    RoadNodes = new
+                    {
+                        Added = changeResult.Changes.RoadNodes.Added.Select(x => x.ToInt32()).ToList(),
+                        Modified = changeResult.Changes.RoadNodes.Modified.Select(x => x.ToInt32()).ToList(),
+                        Removed = changeResult.Changes.RoadNodes.Removed.Select(x => x.ToInt32()).ToList()
+                    },
+                    RoadSegments = new
+                    {
+                        Added = changeResult.Changes.RoadSegments.Added.Select(x => x.ToInt32()).ToList(),
+                        Modified = changeResult.Changes.RoadSegments.Modified.Select(x => x.ToInt32()).ToList(),
+                        Removed = changeResult.Changes.RoadSegments.Removed.Select(x => x.ToInt32()).ToList()
+                    },
+                    GradeSeparatedJunctions = new
+                    {
+                        Added = changeResult.Changes.GradeSeparatedJunctions.Added.Select(x => x.ToInt32()).ToList(),
+                        Modified = changeResult.Changes.GradeSeparatedJunctions.Modified.Select(x => x.ToInt32()).ToList(),
+                        Removed = changeResult.Changes.GradeSeparatedJunctions.Removed.Select(x => x.ToInt32()).ToList()
+                    }
+                }
+            }), cancellationToken);
             await _extractRequests.UploadAcceptedAsync(downloadId, cancellationToken);
         }
 

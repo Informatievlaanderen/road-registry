@@ -23,6 +23,7 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
     private readonly List<IRoadNetworkChange> _changes = [];
     private readonly List<RoadNodeId> _roadNodeIds = [];
     private readonly List<RoadSegmentId> _roadSegmentIds = [];
+    private readonly List<RoadSegmentId> _temporaryRoadSegmentIds = [];
     private readonly List<GradeSeparatedJunctionId> _gradeSeparatedJunctionIds = [];
 
     private RoadNetworkChanges()
@@ -125,6 +126,7 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
 
     public RoadNetworkChanges Add(AddRoadSegmentChange change)
     {
+        _temporaryRoadSegmentIds.Add(change.TemporaryId);
         _geometries.Add(change.Geometry);
 
         return AddChange(change);
@@ -148,50 +150,57 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
         return AddChange(change);
     }
 
-    // public void Add(RemoveRoadSegmentsChange change)
-    // {
-    //     AddChange(change);
-    //// if we still know this segment, include the geometry as we know it now
-    //foreach (var roadSegmentId in removeRoadSegments.Ids)
-    //{
-    //      SegmentIds.Add(roadSegmentId);
-    //dit in aparte commando steken waarbij de repo een aparte method krijgt om de gekoppelde nodes op te halen
-    //}
-    // }
-    //
     public RoadNetworkChanges Add(AddRoadSegmentToEuropeanRoadChange change)
     {
-        _roadSegmentIds.Add(change.RoadSegmentId);
+        if (!_temporaryRoadSegmentIds.Contains(change.RoadSegmentId))
+        {
+            _roadSegmentIds.Add(change.RoadSegmentId);
+        }
 
         return AddChange(change);
     }
 
     public RoadNetworkChanges Add(RemoveRoadSegmentFromEuropeanRoadChange change)
     {
-        _roadSegmentIds.Add(change.RoadSegmentId);
+        if (!_temporaryRoadSegmentIds.Contains(change.RoadSegmentId))
+        {
+            _roadSegmentIds.Add(change.RoadSegmentId);
+        }
 
         return AddChange(change);
     }
 
     public RoadNetworkChanges Add(AddRoadSegmentToNationalRoadChange change)
     {
-        _roadSegmentIds.Add(change.RoadSegmentId);
+        if (!_temporaryRoadSegmentIds.Contains(change.RoadSegmentId))
+        {
+            _roadSegmentIds.Add(change.RoadSegmentId);
+        }
 
         return AddChange(change);
     }
 
     public RoadNetworkChanges Add(RemoveRoadSegmentFromNationalRoadChange change)
     {
-        _roadSegmentIds.Add(change.RoadSegmentId);
+        if (!_temporaryRoadSegmentIds.Contains(change.RoadSegmentId))
+        {
+            _roadSegmentIds.Add(change.RoadSegmentId);
+        }
 
         return AddChange(change);
     }
 
     public RoadNetworkChanges Add(AddGradeSeparatedJunctionChange change)
     {
-        //TODO-pr AddGradeSeparatedJunctionChange te bekijken of dit wel nodig is
-        _roadSegmentIds.Add(change.LowerRoadSegmentId);
-        _roadSegmentIds.Add(change.UpperRoadSegmentId);
+        if (!_temporaryRoadSegmentIds.Contains(change.LowerRoadSegmentId))
+        {
+            _roadSegmentIds.Add(change.LowerRoadSegmentId);
+        }
+
+        if (!_temporaryRoadSegmentIds.Contains(change.UpperRoadSegmentId))
+        {
+            _roadSegmentIds.Add(change.UpperRoadSegmentId);
+        }
 
         return AddChange(change);
     }

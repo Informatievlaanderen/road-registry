@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
 
+using RoadNetwork;
 using RoadRegistry.BackOffice.Framework;
 
 public class ExpectEventsScenario
@@ -7,16 +8,19 @@ public class ExpectEventsScenario
     public ExpectEventsScenario(
         Action<RoadNetworkBuilder>[] givens,
         Command when,
-        object[] thens)
+        object[] thens,
+        Action<RoadNetworkChangeResult, object[]>? assert)
     {
         Givens = givens.ThrowIfNull();
         When = when.ThrowIfNull();
         Thens = thens.ThrowIfNull();
+        Assert = assert;
     }
 
     public Action<RoadNetworkBuilder>[] Givens { get; }
-    public object[] Thens { get; }
     public Command When { get; }
+    public object[] Thens { get; }
+    public Action<RoadNetworkChangeResult, object[]>? Assert { get; }
 
     public ScenarioExpectedEventsButRecordedOtherEvents ButRecordedOtherEvents(object[] events)
     {

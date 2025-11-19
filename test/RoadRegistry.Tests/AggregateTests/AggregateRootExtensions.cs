@@ -5,6 +5,11 @@ using System.Reflection;
 
 public static class AggregateRootExtensions
 {
+    public static RoadRegistry.RoadNetwork.RoadNetwork WithoutChanges(this RoadRegistry.RoadNetwork.RoadNetwork aggregate)
+    {
+        aggregate.ClearUncommittedEvents();
+        return aggregate;
+    }
     public static RoadRegistry.RoadNode.RoadNode WithoutChanges(this RoadRegistry.RoadNode.RoadNode aggregate)
     {
         aggregate.ClearUncommittedEvents();
