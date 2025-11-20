@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RoadNetwork;
 using RoadNetwork.Events;
+using RoadNetwork.ValueObjects;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.Projections.IntegrationTests;
@@ -129,7 +130,10 @@ public class MartenProjectionIntegrationTestRunner
                 session.Events.AppendOrStartStream(@event.StreamKey, @event.Event);
             }
 
-            session.Events.Append(StreamKeyFactory.Create(typeof(RoadNetwork), RoadNetwork.GlobalIdentifier), new RoadNetworkChanged());
+            session.Events.Append(StreamKeyFactory.Create(typeof(RoadNetwork), RoadNetwork.GlobalIdentifier), new RoadNetworkChanged
+            {
+                ScopeGeometry = new GeometryObject(0, string.Empty)
+            });
 
             await session.SaveChangesAsync();
         }

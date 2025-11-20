@@ -1,19 +1,14 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests;
 
-using AutoFixture;
+using Framework;
 using RoadRegistry.BackOffice.Core;
-using RoadRegistry.Tests.AggregateTests.Framework;
 
-public abstract class RoadNetworkTestBase
+public abstract class RoadNetworkTestBase : AggregateTestBase
 {
-    protected RoadNetworkTestData TestData { get; }
-    protected IFixture Fixture { get; }
     private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
 
     protected RoadNetworkTestBase()
     {
-        TestData = new();
-        Fixture = TestData.Fixture;
         _roadNetworkIdGenerator = new FakeRoadNetworkIdGenerator();
     }
 

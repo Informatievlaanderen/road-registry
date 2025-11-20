@@ -1,14 +1,17 @@
-﻿namespace RoadRegistry.Tests.AggregateTests.RoadNetworkTests;
+﻿namespace RoadRegistry.Tests.AggregateTests.GradeSeparatedJunction.RemoveGradeSeparatedJunction;
 
 using AutoFixture;
+using FluentAssertions;
 using Framework;
 using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 
-public class RoadNetworkChangesSummaryTests : RoadNetworkTestBase
+public class RoadNetworkTests : RoadNetworkTestBase
 {
     [Fact]
-    public Task WhenRoadNetworkChange_ThenRoadNetworkChanged()
+    public Task ThenSummaryIsUpdated()
     {
         var segment1Start = new Point(0, 0);
         var segment1End = new Point(10, 0);
@@ -16,8 +19,7 @@ public class RoadNetworkChangesSummaryTests : RoadNetworkTestBase
         var segment2End = new Point(5, -5);
 
         return Run(scenario => scenario
-            .Given(given => given)
-            .When(changes => changes
+            .Given(given => given
                 .Add(TestData.AddSegment1StartNode with
                 {
                     Geometry = segment1Start
@@ -46,23 +48,32 @@ public class RoadNetworkChangesSummaryTests : RoadNetworkTestBase
                 {
                     LowerRoadSegmentId = TestData.AddSegment1.TemporaryId,
                     UpperRoadSegmentId = TestData.AddSegment2.TemporaryId
-                }))
+                })
+            )
+            .When(changes => changes
+                .Add(new RemoveGradeSeparatedJunctionChange
+                {
+                    GradeSeparatedJunctionId = new GradeSeparatedJunctionId(1)
+                })
+            )
             .Then((result, events) =>
             {
-                //TODO-pr test of summary juist is
-                //eventueel happy flow per actie op roadnetwork niveau ook verhuizen naar de entity actie test class? dan zit dat bij elkaar
-
-                // new RoadNetworkChanged
-                // {
-                //     ScopeGeometry = new GeometryObject(31370, "")
-                // }
+                result.Changes.GradeSeparatedJunctions.Removed.Should().HaveCount(1);
             })
         );
     }
 
-    private static MultiLineString BuildSegmentGeometry(Point start, Point end)
+    [Fact]
+    public Task WhenNotFound_ThenError()
     {
-        return new MultiLineString([new LineString([start.Coordinate, end.Coordinate])])
-            .WithMeasureOrdinates();
+        var change = Fixture.Create<RemoveGradeSeparatedJunctionChange>();
+
+        return Run(scenario => scenario
+            .Given(given => given)
+            .When(changes => changes
+                .Add(change)
+            )
+            .ThenProblems(new Error("GradeSeparatedJunctionNotFound", new ProblemParameter("Identifier", change.GradeSeparatedJunctionId.ToString())))
+        );
     }
 }

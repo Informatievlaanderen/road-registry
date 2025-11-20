@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Tests.AggregateTests;
+﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
 
 using System.Collections;
 using System.Reflection;

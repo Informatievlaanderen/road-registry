@@ -1,13 +1,13 @@
-﻿namespace RoadRegistry.Tests.AggregateTests.GradeSeparatedJunction;
+﻿namespace RoadRegistry.Tests.AggregateTests.GradeSeparatedJunction.RemoveGradeSeparatedJunction;
 
 using AutoFixture;
 using FluentAssertions;
-using Framework;
 using RoadRegistry.BackOffice;
 using RoadRegistry.GradeSeparatedJunction;
 using RoadRegistry.GradeSeparatedJunction.Events;
+using RoadRegistry.Tests.AggregateTests.Framework;
 
-public class GradeSeparatedJunctionRemoveTests : RoadNetworkTestBase
+public class AggregateTests : AggregateTestBase
 {
     [Fact]
     public void ThenGradeSeparatedJunctionRemoved()

@@ -1,16 +1,14 @@
-﻿namespace RoadRegistry.Tests.AggregateTests.RoadNode;
+﻿namespace RoadRegistry.Tests.AggregateTests.RoadNode.RemoveRoadNode;
 
 using AutoFixture;
 using FluentAssertions;
 using Framework;
 using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadNode;
-using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadNode.Events;
 using RoadNode = RoadRegistry.RoadNode.RoadNode;
 
-public class RoadNodeRemoveTests : RoadNetworkTestBase
+public class AggregateTests : AggregateTestBase
 {
     [Fact]
     public void ThenRoadNodeRemoved()
@@ -30,20 +28,6 @@ public class RoadNodeRemoveTests : RoadNetworkTestBase
 
         var nodeRemoved = (RoadNodeRemoved)node.GetChanges().Single();
         nodeRemoved.RoadNodeId.Should().Be(node.RoadNodeId);
-    }
-
-    [Fact]
-    public Task GivenNoRoadNode_WhenRoadNetworkChange_ThenNotFound()
-    {
-        var change = Fixture.Create<RemoveRoadNodeChange>();
-
-        return Run(scenario => scenario
-            .Given(given => given)
-            .When(changes => changes
-                .Add(change)
-            )
-            .ThenProblems(new Error("RoadNodeNotFound", new ProblemParameter("NodeId", change.RoadNodeId.ToString())))
-        );
     }
 
     [Fact]

@@ -1,20 +1,19 @@
-﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment;
+﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment.AddRoadSegment;
 
 using AutoFixture;
 using FluentAssertions;
-using Framework;
 using NetTopologySuite.Geometries;
-using RoadNetwork;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
+using RoadRegistry.RoadNetwork;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events;
 using RoadRegistry.RoadSegment.ValueObjects;
-using Xunit.Sdk;
+using RoadRegistry.Tests.AggregateTests.Framework;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
-public class RoadSegmentAddTests : RoadNetworkTestBase
+public class AggregateTests : AggregateTestBase
 {
     [Fact]
     public void WithMeasured_ThenRoadSegmentAdded()
@@ -94,21 +93,6 @@ public class RoadSegmentAddTests : RoadNetworkTestBase
         segmentAdded.SurfaceType.Should().Be(change.SurfaceType);
         segmentAdded.EuropeanRoadNumbers.Should().BeEquivalentTo(change.EuropeanRoadNumbers);
         segmentAdded.NationalRoadNumbers.Should().BeEquivalentTo(change.NationalRoadNumbers);
-    }
-
-    [Fact]
-    public Task WhenAddingMultipleSegmentsWithSameTemporaryId_ThenError()
-    {
-        return Run(scenario => scenario
-            .Given(given => given)
-            .When(changes => changes
-                .Add(TestData.AddSegment1)
-                .Add(TestData.AddSegment1)
-            )
-            .ThenContainsProblems(new Error("RoadSegmentTemporaryIdNotUnique",
-                new ProblemParameter("TemporaryId", TestData.AddSegment1.TemporaryId.ToString())
-            ))
-        );
     }
 
     [Fact]

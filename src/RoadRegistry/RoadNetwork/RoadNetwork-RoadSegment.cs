@@ -84,6 +84,13 @@ public partial class RoadNetwork
             return Problems.Single(new RoadSegmentNotFound(roadSegmentId));
         }
 
-        return modify(roadSegment);
+        var problems = modify(roadSegment);
+        if (problems.HasError())
+        {
+            return problems;
+        }
+
+        summary.Modified.Add(roadSegmentId);
+        return problems;
     }
 }

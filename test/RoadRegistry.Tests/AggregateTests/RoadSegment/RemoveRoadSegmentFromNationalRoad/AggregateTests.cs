@@ -1,16 +1,14 @@
-﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment;
+﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment.RemoveRoadSegmentFromNationalRoad;
 
 using AutoFixture;
 using FluentAssertions;
 using Framework;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
-public class RoadSegmentRemoveNationalRoadTests : RoadNetworkTestBase
+public class AggregateTests : AggregateTestBase
 {
     [Fact]
     public void ThenRoadSegmentRemovedFromNationalRoad()
@@ -35,20 +33,6 @@ public class RoadSegmentRemoveNationalRoadTests : RoadNetworkTestBase
         var actualEvent = (RoadSegmentRemovedFromNationalRoad)segment.GetChanges().Single();
         actualEvent.RoadSegmentId.Should().Be(change.RoadSegmentId);
         actualEvent.Number.Should().Be(change.Number);
-    }
-
-    [Fact]
-    public Task WhenNotFound_ThenError()
-    {
-        var change = Fixture.Create<RemoveRoadSegmentFromNationalRoadChange>();
-
-        return Run(scenario => scenario
-            .Given(given => given)
-            .When(changes => changes
-                .Add(change)
-            )
-            .ThenProblems(new Error("RoadSegmentNotFound", new ProblemParameter("SegmentId", change.RoadSegmentId.ToString())))
-        );
     }
 
     [Fact]

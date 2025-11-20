@@ -47,6 +47,12 @@ public class ScenarioRunner
             var roadNetworkChangeResult = roadNetwork.Change(roadNetworkChanges, _roadNetworkIdGenerator);
             if (roadNetworkChangeResult.Problems.HasError())
             {
+                if (scenario.Assert is not null)
+                {
+                    scenario.Assert(roadNetworkChangeResult, []);
+                    return scenario.Pass();
+                }
+
                 throw new RoadRegistryProblemsException(roadNetworkChangeResult.Problems);
             }
 

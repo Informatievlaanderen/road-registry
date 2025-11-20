@@ -1,15 +1,14 @@
-﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment;
+﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment.AddRoadSegmentToNationalRoad;
 
 using AutoFixture;
 using FluentAssertions;
 using Framework;
-using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
-public class RoadSegmentAddNationalRoadTests : RoadNetworkTestBase
+public class AggregateTests : AggregateTestBase
 {
     [Fact]
     public void ThenRoadSegmentAddedToNationalRoad()
@@ -34,20 +33,6 @@ public class RoadSegmentAddNationalRoadTests : RoadNetworkTestBase
         var actualEvent = (RoadSegmentAddedToNationalRoad)segment.GetChanges().Single();
         actualEvent.RoadSegmentId.Should().Be(change.RoadSegmentId);
         actualEvent.Number.Should().Be(change.Number);
-    }
-
-    [Fact]
-    public Task WhenNotFound_ThenError()
-    {
-        var change = Fixture.Create<AddRoadSegmentToNationalRoadChange>();
-
-        return Run(scenario => scenario
-            .Given(given => given)
-            .When(changes => changes
-                .Add(change)
-            )
-            .ThenProblems(new Error("RoadSegmentNotFound", new ProblemParameter("SegmentId", change.RoadSegmentId.ToString())))
-        );
     }
 
     [Fact]

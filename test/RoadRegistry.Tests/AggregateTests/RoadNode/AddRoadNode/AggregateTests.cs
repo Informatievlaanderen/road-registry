@@ -1,16 +1,15 @@
-﻿namespace RoadRegistry.Tests.AggregateTests.RoadNode;
+﻿namespace RoadRegistry.Tests.AggregateTests.RoadNode.AddRoadNode;
 
 using AutoFixture;
 using FluentAssertions;
 using Framework;
 using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadNode.Events;
 using RoadNode = RoadRegistry.RoadNode.RoadNode;
 
-public class RoadNodeAddTests : RoadNetworkTestBase
+public class AggregateTests : AggregateTestBase
 {
     [Fact]
     public void ThenRoadNodeAdded()
@@ -29,21 +28,6 @@ public class RoadNodeAddTests : RoadNetworkTestBase
         nodeAdded.RoadNodeId.Should().Be(new RoadNodeId(1));
         nodeAdded.Type.Should().Be(change.Type);
         nodeAdded.Geometry.Should().Be(change.Geometry.ToGeometryObject());
-    }
-
-    [Fact]
-    public Task WhenAddingMultipleNodesWithSameTemporaryId_ThenError()
-    {
-        return Run(scenario => scenario
-            .Given(given => given)
-            .When(changes => changes
-                .Add(TestData.AddSegment1StartNode)
-                .Add(TestData.AddSegment1StartNode)
-            )
-            .ThenContainsProblems(new Error("RoadNodeTemporaryIdNotUnique",
-                new ProblemParameter("TemporaryId", TestData.AddSegment1StartNode.TemporaryId.ToString())
-            ))
-        );
     }
 
     [Fact]

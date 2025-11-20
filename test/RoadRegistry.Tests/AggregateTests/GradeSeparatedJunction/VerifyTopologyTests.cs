@@ -9,7 +9,7 @@ using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
 
-public class GradeSeparatedJunctionVerifyTopologyTests : RoadNetworkTestBase
+public class VerifyTopologyTests : RoadNetworkTestBase
 {
     [Fact]
     public Task WhenUpperRoadSegmentIsUnknown_ThenError()

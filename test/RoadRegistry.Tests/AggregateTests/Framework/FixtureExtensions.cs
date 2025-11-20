@@ -1,7 +1,6 @@
-﻿namespace RoadRegistry.Tests.AggregateTests;
+﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
 
 using AutoFixture;
-using BackOffice;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.RoadNode;
@@ -9,6 +8,7 @@ using RoadRegistry.RoadNode.Events;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Events;
 using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.Tests.BackOffice;
 using Point = NetTopologySuite.Geometries.Point;
 using RoadNodeAdded = RoadRegistry.RoadNode.Events.RoadNodeAdded;
 using RoadSegmentAdded = RoadRegistry.RoadSegment.Events.RoadSegmentAdded;

@@ -1,19 +1,19 @@
-﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment;
+﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment.ModifyRoadSegment;
 
 using AutoFixture;
 using FluentAssertions;
-using Framework;
 using NetTopologySuite.Geometries;
-using RoadNetwork;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
+using RoadRegistry.RoadNetwork;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events;
 using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.Tests.AggregateTests.Framework;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
-public class RoadSegmentModifyTests : RoadNetworkTestBase
+public class AggregateTests : AggregateTestBase
 {
     [Fact]
     public void WithMeasured_ThenRoadSegmentModified()
@@ -95,20 +95,6 @@ public class RoadSegmentModifyTests : RoadNetworkTestBase
         segmentModified.SurfaceType.Should().Be(change.SurfaceType);
         segmentModified.EuropeanRoadNumbers.Should().BeEquivalentTo(change.EuropeanRoadNumbers);
         segmentModified.NationalRoadNumbers.Should().BeEquivalentTo(change.NationalRoadNumbers);
-    }
-
-    [Fact]
-    public Task WhenNotFound_ThenError()
-    {
-        var change = Fixture.Create<ModifyRoadSegmentChange>();
-
-        return Run(scenario => scenario
-            .Given(given => given)
-            .When(changes => changes
-                .Add(change)
-            )
-            .ThenProblems(new Error("RoadSegmentNotFound", new ProblemParameter("SegmentId", (change.OriginalId ?? change.RoadSegmentId).ToString())))
-        );
     }
 
     [Fact]

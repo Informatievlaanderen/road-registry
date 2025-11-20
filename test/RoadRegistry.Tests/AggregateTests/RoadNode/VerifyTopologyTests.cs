@@ -6,10 +6,9 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadNode.Changes;
-using RoadRegistry.RoadNode.Events;
 using RoadRegistry.RoadSegment.ValueObjects;
 
-public class RoadNodeVerifyTopologyTests : RoadNetworkTestBase
+public class VerifyTopologyTests : RoadNetworkTestBase
 {
     [Fact]
     public Task WhenRemovedAndSegmentsAreStillConnectedByStartNode_ThenError()

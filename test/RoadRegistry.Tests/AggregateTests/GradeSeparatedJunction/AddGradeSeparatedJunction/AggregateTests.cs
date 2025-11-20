@@ -1,16 +1,16 @@
-﻿namespace RoadRegistry.Tests.AggregateTests.GradeSeparatedJunction;
+﻿namespace RoadRegistry.Tests.AggregateTests.GradeSeparatedJunction.AddGradeSeparatedJunction;
 
 using AutoFixture;
 using FluentAssertions;
-using Framework;
-using RoadNetwork;
 using RoadRegistry.BackOffice;
 using RoadRegistry.GradeSeparatedJunction;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.GradeSeparatedJunction.Events;
+using RoadRegistry.RoadNetwork;
 using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.Tests.AggregateTests.Framework;
 
-public class GradeSeparatedJunctionAddTests : RoadNetworkTestBase
+public class AggregateTests : AggregateTestBase
 {
     [Fact]
     public void ThenGradeSeparatedJunctionAdded()

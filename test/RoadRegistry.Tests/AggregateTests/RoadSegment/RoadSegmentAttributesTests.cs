@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment.ValueObjects;
+﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment;
 
 using System.Collections.Immutable;
 using FluentAssertions;

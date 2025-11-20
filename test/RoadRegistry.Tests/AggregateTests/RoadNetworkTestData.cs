@@ -4,6 +4,7 @@ using AutoFixture;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Framework;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using RoadRegistry.BackOffice;
@@ -309,8 +310,8 @@ public class RoadNetworkTestData
             AccessRestriction = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>>(),
             StreetNameId = Fixture.Create<RoadSegmentDynamicAttributeValues<StreetNameLocalId>>(),
             SurfaceType = Fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>>(),
-            EuropeanRoadNumbers = [],
-            NationalRoadNumbers = []
+            EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()],
+            NationalRoadNumbers = [Fixture.Create<NationalRoadNumber>()]
         };
 
         Segment1Added = new RoadSegmentAdded

@@ -7,7 +7,7 @@ using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
 
-public class RoadSegmentVerifyTopologyTests : RoadNetworkTestBase
+public class VerifyTopologyTests : RoadNetworkTestBase
 {
     [Fact]
     public Task WhenGeometryIsReasonablyEqualToOtherSegmentGeometry_ThenError()
