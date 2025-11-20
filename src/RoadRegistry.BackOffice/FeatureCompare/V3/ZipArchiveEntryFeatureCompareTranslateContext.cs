@@ -4,9 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
+using RoadNode;
 using RoadRegistry.BackOffice.Uploads;
-using RoadSegment.ValueObjects;
-using V1;
+using RoadRegistry.RoadSegment.ValueObjects;
+using RoadSegment;
 
 public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureReaderContext
 {

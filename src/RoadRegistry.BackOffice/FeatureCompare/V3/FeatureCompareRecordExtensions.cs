@@ -3,7 +3,9 @@ namespace RoadRegistry.BackOffice.FeatureCompare.V3;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RoadNode;
 using RoadRegistry.BackOffice.Uploads;
+using RoadSegment;
 
 public static class FeatureCompareRecordExtensions
 {

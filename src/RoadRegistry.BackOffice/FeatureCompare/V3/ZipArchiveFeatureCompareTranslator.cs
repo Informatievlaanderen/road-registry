@@ -6,9 +6,15 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
+using EuropeanRoad;
+using GradeSeparatedJunction;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.BackOffice.FeatureCompare.V3.Translators;
+using NationalRoad;
+using RoadNode;
 using RoadRegistry.BackOffice.Uploads;
+using RoadSegment;
+using RoadSegmentSurface;
+using TransactionZone;
 
 public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTranslator
 {
@@ -19,12 +25,9 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
         TransactionZoneFeatureCompareTranslator transactionZoneTranslator,
         RoadNodeFeatureCompareTranslator roadNodeTranslator,
         RoadSegmentFeatureCompareTranslator roadSegmentTranslator,
-        RoadSegmentLaneFeatureCompareTranslator roadSegmentLaneTranslator,
-        RoadSegmentWidthFeatureCompareTranslator roadSegmentWidthTranslator,
         RoadSegmentSurfaceFeatureCompareTranslator roadSegmentSurfaceTranslator,
         EuropeanRoadFeatureCompareTranslator europeanRoadTranslator,
         NationalRoadFeatureCompareTranslator nationalRoadTranslator,
-        NumberedRoadFeatureCompareTranslator numberedRoadTranslator,
         GradeSeparatedJunctionFeatureCompareTranslator gradeSeparatedJunctionTranslator,
         ILoggerFactory loggerFactory
     )
@@ -32,12 +35,9 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
                 transactionZoneTranslator.ThrowIfNull(),
                 roadNodeTranslator.ThrowIfNull(),
                 roadSegmentTranslator.ThrowIfNull(),
-                roadSegmentLaneTranslator.ThrowIfNull(),
-                roadSegmentWidthTranslator.ThrowIfNull(),
                 roadSegmentSurfaceTranslator.ThrowIfNull(),
                 europeanRoadTranslator.ThrowIfNull(),
                 nationalRoadTranslator.ThrowIfNull(),
-                numberedRoadTranslator.ThrowIfNull(),
                 gradeSeparatedJunctionTranslator.ThrowIfNull()
             ],
             loggerFactory)

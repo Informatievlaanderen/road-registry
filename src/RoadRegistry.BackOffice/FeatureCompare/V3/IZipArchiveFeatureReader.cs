@@ -2,12 +2,12 @@ namespace RoadRegistry.BackOffice.FeatureCompare.V3;
 
 using System.Collections.Generic;
 using System.IO.Compression;
-using Models;
+using RoadNode;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.FeatureCompare.V3.Translators;
 using RoadRegistry.BackOffice.Uploads;
-using RoadSegment.ValueObjects;
+using RoadRegistry.RoadSegment.ValueObjects;
+using RoadSegment;
 
 public interface IZipArchiveFeatureReader<TFeature>
 {
