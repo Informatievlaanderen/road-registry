@@ -21,7 +21,7 @@ public class RoadNetworkBuilder
 
         foreach (var change in _changes)
         {
-            var result = roadNetwork.Change(change, _idGenerator);
+            var result = roadNetwork.Change(change, null, _idGenerator);
             if (result.Problems.HasError())
             {
                 throw new RoadRegistryProblemsException(result.Problems);

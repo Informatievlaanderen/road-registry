@@ -45,7 +45,8 @@ namespace RoadRegistry.BackOffice
                 new RoadSegmentNumberedRoadOrdinalConverter(),
                 new GradeSeparatedJunctionIdConverter(),
                 new GradeSeparatedJunctionTypeConverter(),
-                new StreetNameLocalIdConverter()
+                new StreetNameLocalIdConverter(),
+                new DownloadIdConverter()
             ];
         }
     }

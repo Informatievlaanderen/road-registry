@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
 
+using BackOffice;
 using BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using RoadNetwork;
@@ -25,7 +26,7 @@ public class ChangeRoadNetworkCommandHandler
         var roadNetworkChanges = _roadNetworkChangeFactory.Build(command);
 
         var roadNetwork = await _roadNetworkRepository.Load(roadNetworkChanges);
-        var changeResult = roadNetwork.Change(roadNetworkChanges, _roadNetworkIdGenerator);
+        var changeResult = roadNetwork.Change(roadNetworkChanges, DownloadId.FromValue(command.DownloadId), _roadNetworkIdGenerator);
 
         if (!changeResult.Problems.HasError())
         {

@@ -44,7 +44,7 @@ public class ScenarioRunner
                 .Concat(roadNetwork.GradeSeparatedJunctions.SelectMany(x => x.Value.GetChanges()))
                 .ToList();
 
-            var roadNetworkChangeResult = roadNetwork.Change(roadNetworkChanges, _roadNetworkIdGenerator);
+            var roadNetworkChangeResult = roadNetwork.Change(roadNetworkChanges, null, _roadNetworkIdGenerator);
             if (roadNetworkChangeResult.Problems.HasError())
             {
                 if (scenario.Assert is not null)
@@ -100,7 +100,7 @@ public class ScenarioRunner
                 .Concat(roadNetwork.GradeSeparatedJunctions.SelectMany(x => x.Value.GetChanges()))
                 .ToList();
 
-            var roadNetworkChangeResult = roadNetwork.Change(roadNetworkChanges, _roadNetworkIdGenerator);
+            var roadNetworkChangeResult = roadNetwork.Change(roadNetworkChanges, null, _roadNetworkIdGenerator);
             if (roadNetworkChangeResult.Problems.HasError())
             {
                 throw new RoadRegistryProblemsException(roadNetworkChangeResult.Problems);

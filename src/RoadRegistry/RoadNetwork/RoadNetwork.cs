@@ -47,7 +47,7 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
         GradeSeparatedJunctions = _gradeSeparatedJunctions.AsReadOnly();
     }
 
-    public RoadNetworkChangeResult Change(RoadNetworkChanges changes, IRoadNetworkIdGenerator idGenerator)
+    public RoadNetworkChangeResult Change(RoadNetworkChanges changes, DownloadId? downloadId, IRoadNetworkIdGenerator idGenerator)
     {
         var problems = Problems.None;
         var summary = new RoadNetworkChangesSummary();
@@ -123,10 +123,10 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
                 .Aggregate(problems, (p, x) => p + x.VerifyTopology(context));
         }
 
-        //TODO-pr add DownloadId? of in causation_id opslaan? of in de reason van de provenance
         UncommittedEvents.Add(new RoadNetworkChanged
         {
-            ScopeGeometry = changes.BuildScopeGeometry().ToGeometryObject()
+            ScopeGeometry = changes.BuildScopeGeometry().ToGeometryObject(),
+            DownloadId = downloadId
         });
 
         return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), summary);
