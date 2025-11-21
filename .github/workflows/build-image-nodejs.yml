@@ -51,7 +51,7 @@ jobs:
         shell: bash
         run: npm ci
         env:
-          NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_WEBCOMP_TOKEN }}
 
       - name: Build Project
         shell: bash
@@ -85,7 +85,7 @@ jobs:
           ls -als
           cd ../../..
         env:
-          NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_WEBCOMP_TOKEN }}
           BUILD_PROJECT: ${{ inputs.build-project }}
 
       - name: Containerize

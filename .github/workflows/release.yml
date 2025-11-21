@@ -8,7 +8,7 @@ concurrency: Release
 
 env:
   SA_PASSWORD: ${{ secrets.SA_PASSWORD }}
-  NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
+  NPM_TOKEN: ${{ secrets.NPM_WEBCOMP_TOKEN }}
 
 jobs:
 
@@ -41,7 +41,7 @@ jobs:
       shell: bash
       run: npm ci
       env:
-        NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
+        NPM_TOKEN: ${{ secrets.NPM_WEBCOMP_TOKEN }}
 
     - name: Run Semantic Release Dry-Run
       shell: bash
