@@ -29,7 +29,6 @@ public class RoadSegmentFeatureCompareRecord
     public RecordType RecordType { get; }
 
     public bool GeometryChanged { get; init; }
-    public bool ConvertedFromOutlined { get; init; }
 
     public RoadSegmentId GetActualId() => Id;
     public RoadSegmentId GetOriginalId() => Attributes.Id;

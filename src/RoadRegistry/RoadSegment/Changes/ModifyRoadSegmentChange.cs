@@ -30,5 +30,5 @@ public sealed record ModifyRoadSegmentChange : IRoadNetworkChange
     public IReadOnlyCollection<NationalRoadNumber>? NationalRoadNumbers { get; init; }
 
     //public required bool ConvertedFromOutlined { get; init; }
-    public bool? CategoryModified { get; init; }
+    //public bool? CategoryModified { get; init; }
 }

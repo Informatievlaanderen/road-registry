@@ -1,9 +1,10 @@
 namespace RoadRegistry.Jobs.Processor.Tests
 {
     using AutoFixture;
-    using BackOffice.Abstractions.Extracts;
+    using BackOffice;
     using BackOffice.Abstractions.Jobs;
     using BackOffice.FeatureToggles;
+    using BackOffice.Handlers.Sqs.Extracts;
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Extracts.Schema;
@@ -13,16 +14,18 @@ namespace RoadRegistry.Jobs.Processor.Tests
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging.Abstractions;
     using Moq;
+    using NetTopologySuite.Geometries;
+    using RoadRegistry.Tests.BackOffice.Scenarios;
     using TicketingService.Abstractions;
 
     public partial class JobsProcessorTests
     {
         [Fact]
-        public async Task FlowTest_Extracts()
+        public async Task FlowTest_ExtractsV2WithDomainV2()
         {
-            var fixture = new Fixture();
+            var fixture = new RoadNetworkTestData().ObjectProvider;
             var mockTicketing = new Mock<ITicketing>();
-            var mockIBlobClient = new Mock<IBlobClient>();
+            var blobClient = new Mock<IBlobClient>();
             var mockMediator = new Mock<IMediator>();
             var mockIHostApplicationLifeTime = new Mock<IHostApplicationLifetime>();
             var jobsContext = new FakeJobsContextFactory().CreateDbContext();
@@ -30,7 +33,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
             var ticketId = Guid.NewGuid();
             var downloadId = Guid.NewGuid();
 
-            var job = new Job(DateTimeOffset.Now, JobStatus.Created, UploadType.Extracts, ticketId)
+            var job = new Job(DateTimeOffset.Now, JobStatus.Created, UploadType.ExtractsV2, ticketId)
             {
                 DownloadId = downloadId,
                 OperatorName = fixture.Create<string>().Substring(0, 20)
@@ -40,17 +43,33 @@ namespace RoadRegistry.Jobs.Processor.Tests
 
             var blobName = new BlobName(job.ReceivedBlobName);
 
-            mockIBlobClient
+            blobClient
                 .Setup(x => x.BlobExistsAsync(blobName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
-            mockIBlobClient
+            var blobFileName = "file.zip";
+            blobClient
                 .Setup(x => x.GetBlobAsync(blobName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new BlobObject(
                     blobName,
-                    null!,
+                    Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), blobFileName)),
                     ContentType.Parse("X-multipart/abc"),
                     _ => Task.FromResult<Stream>(EmbeddedResourceReader.Read("valid.zip"))));
+
+            var extractsDbContext = new FakeExtractsDbContextFactory().CreateDbContext();
+            var extractRequestId = fixture.Create<ExtractRequestId>();
+            extractsDbContext.ExtractRequests.Add(new ExtractRequest
+            {
+                ExtractRequestId = extractRequestId,
+                Description = fixture.Create<string>()
+            });
+            extractsDbContext.ExtractDownloads.Add(new ExtractDownload
+            {
+                DownloadId = downloadId,
+                Contour = Polygon.Empty,
+                ExtractRequestId = extractRequestId
+            });
+            await extractsDbContext.SaveChangesAsync();
 
             var sut = new JobsProcessor(
                 new JobsProcessorOptions
@@ -59,12 +78,12 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 },
                 jobsContext,
                 mockTicketing.Object,
-                new RoadNetworkJobsBlobClient(mockIBlobClient.Object),
+                new RoadNetworkJobsBlobClient(blobClient.Object),
                 mockMediator.Object,
                 Mock.Of<IExtractRequestCleaner>(),
-                new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
-                new FakeExtractsDbContextFactory().CreateDbContext(),
-                new UseDomainV2FeatureToggle(false),
+                new RoadNetworkUploadsBlobClient(blobClient.Object),
+                extractsDbContext,
+                new UseDomainV2FeatureToggle(true),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 
@@ -78,20 +97,29 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 x.Pending(ticketId, It.IsAny<CancellationToken>()),
                 Times.Once);
 
-            var executedRequest = Assert.IsType<UploadExtractRequest>(mockMediator.Invocations.Single().Arguments.First());
-            Assert.Equal(ticketId, executedRequest.TicketId);
-            Assert.Equal(blobName, executedRequest.Archive.FileName);
-            Assert.Equal(downloadId.ToString("N"), executedRequest.DownloadId);
-            executedRequest.ProvenanceData.Operator.Should().Be(job.OperatorName);
+            var createBlobInvocation = blobClient.Invocations
+                .Single(x => x.Method.Name == nameof(IBlobClient.CreateBlobAsync));
+            var blobMetadataFilename = createBlobInvocation
+                .Arguments.OfType<Metadata>()
+                .Single()
+                .Single();
+            blobMetadataFilename.Key.ToString().Should().Be("filename");
+            blobMetadataFilename.Value.Should().Be(blobFileName);
+
+            var executedRequest = Assert.IsType<UploadExtractSqsRequestV2>(mockMediator.Invocations.Single().Arguments.First());
+            executedRequest.Request.TicketId.Should().Be(ticketId);
+            executedRequest.Request.DownloadId.Should().Be(downloadId);
+            executedRequest.ProvenanceData!.Operator.Should().Be(job.OperatorName);
+            createBlobInvocation.Arguments.OfType<BlobName>().Single().ToString().Should().Be(new UploadId(executedRequest.Request.UploadId).ToString());
 
             mockIHostApplicationLifeTime.Verify(x => x.StopApplication(), Times.Once);
         }
 
         [Fact]
-        public async Task FlowTest_Extracts_MissingDownloadId()
+        public async Task FlowTest_ExtractsV2WithDomainV2_MissingDownloadId()
         {
             var mockTicketing = new Mock<ITicketing>();
-            var mockIBlobClient = new Mock<IBlobClient>();
+            var blobClient = new Mock<IBlobClient>();
             var mockMediator = new Mock<IMediator>();
             var mockIHostApplicationLifeTime = new Mock<IHostApplicationLifetime>();
             var jobsContext = new FakeJobsContextFactory().CreateDbContext();
@@ -107,11 +135,11 @@ namespace RoadRegistry.Jobs.Processor.Tests
 
             var blobName = new BlobName(job.ReceivedBlobName);
 
-            mockIBlobClient
+            blobClient
                 .Setup(x => x.BlobExistsAsync(blobName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
-            mockIBlobClient
+            blobClient
                 .Setup(x => x.GetBlobAsync(blobName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new BlobObject(
                     blobName,
@@ -126,12 +154,12 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 },
                 jobsContext,
                 mockTicketing.Object,
-                new RoadNetworkJobsBlobClient(mockIBlobClient.Object),
+                new RoadNetworkJobsBlobClient(blobClient.Object),
                 mockMediator.Object,
                 Mock.Of<IExtractRequestCleaner>(),
                 new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
                 new FakeExtractsDbContextFactory().CreateDbContext(),
-                new UseDomainV2FeatureToggle(false),
+                new UseDomainV2FeatureToggle(true),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 

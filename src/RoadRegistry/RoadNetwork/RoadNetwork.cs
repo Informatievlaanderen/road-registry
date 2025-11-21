@@ -123,6 +123,7 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
                 .Aggregate(problems, (p, x) => p + x.VerifyTopology(context));
         }
 
+        //TODO-pr add DownloadId? of in causation_id opslaan? of in de reason van de provenance
         UncommittedEvents.Add(new RoadNetworkChanged
         {
             ScopeGeometry = changes.BuildScopeGeometry().ToGeometryObject()

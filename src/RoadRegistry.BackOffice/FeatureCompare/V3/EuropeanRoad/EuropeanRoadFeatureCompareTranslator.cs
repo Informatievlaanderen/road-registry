@@ -3,9 +3,11 @@ namespace RoadRegistry.BackOffice.FeatureCompare.V3.EuropeanRoad;
 using System.Collections.Generic;
 using System.Linq;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadSegment;
+using Uploads;
+using TranslatedChanges = V3.TranslatedChanges;
 
 public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareTranslatorBase<EuropeanRoadFeatureCompareAttributes>
 {
@@ -105,30 +107,24 @@ public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
     {
         foreach (var record in records)
         {
-            var segment = context.FindRoadSegment(record.Feature.Attributes.RoadSegmentId);
-
             switch (record.RecordType.Translation.Identifier)
             {
                 case RecordType.AddedIdentifier:
                     changes = changes.AppendChange(
-                        new AddRoadSegmentToEuropeanRoad(
-                            record.Feature.RecordNumber,
-                            record.Feature.Attributes.Id,
-                            segment.Attributes.Method,
-                            record.Feature.Attributes.RoadSegmentId,
-                            record.Feature.Attributes.Number
-                        )
+                        new AddRoadSegmentToEuropeanRoadChange
+                        {
+                            RoadSegmentId = record.Feature.Attributes.RoadSegmentId,
+                            Number = record.Feature.Attributes.Number
+                        }
                     );
                     break;
                 case RecordType.RemovedIdentifier:
                     changes = changes.AppendChange(
-                        new RemoveRoadSegmentFromEuropeanRoad(
-                            record.Feature.RecordNumber,
-                            record.Feature.Attributes.Id,
-                            segment.Attributes.Method,
-                            record.Feature.Attributes.RoadSegmentId,
-                            record.Feature.Attributes.Number
-                        )
+                        new RemoveRoadSegmentFromEuropeanRoadChange
+                        {
+                            RoadSegmentId = record.Feature.Attributes.RoadSegmentId,
+                            Number = record.Feature.Attributes.Number
+                        }
                     );
                     break;
             }

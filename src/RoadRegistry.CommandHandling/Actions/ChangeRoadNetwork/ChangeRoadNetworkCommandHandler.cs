@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
 
 using BackOffice.Core;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using RoadNetwork;
 
 public class ChangeRoadNetworkCommandHandler
@@ -19,7 +20,7 @@ public class ChangeRoadNetworkCommandHandler
         _roadNetworkIdGenerator = roadNetworkIdGenerator;
     }
 
-    public async Task<RoadNetworkChangeResult> Handle(ChangeRoadNetworkCommand command, CancellationToken cancellationToken)
+    public async Task<RoadNetworkChangeResult> Handle(ChangeRoadNetworkCommand command, Provenance provenance, CancellationToken cancellationToken)
     {
         var roadNetworkChanges = _roadNetworkChangeFactory.Build(command);
 
@@ -28,7 +29,7 @@ public class ChangeRoadNetworkCommandHandler
 
         if (!changeResult.Problems.HasError())
         {
-            await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, command.Provenance, cancellationToken);
+            await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, provenance, cancellationToken);
         }
 
         return changeResult;

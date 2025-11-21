@@ -2,17 +2,18 @@ namespace RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
 
 using System.Collections.Generic;
 using System.Linq;
+using RoadNetwork;
 
 public static class ChangeExtensions
 {
-    public static IEnumerable<object> Flatten(this IEnumerable<ChangeRoadNetworkCommandItem> changes)
+    public static IEnumerable<IRoadNetworkChange> Flatten(this IEnumerable<ChangeRoadNetworkCommandItem> changes)
     {
         return changes.Select(Flatten);
     }
 
-    private static object Flatten(this ChangeRoadNetworkCommandItem change)
+    private static IRoadNetworkChange Flatten(this ChangeRoadNetworkCommandItem change)
     {
-        return new object[]
+        return new IRoadNetworkChange[]
             {
                 change.AddRoadNode,
                 change.ModifyRoadNode,

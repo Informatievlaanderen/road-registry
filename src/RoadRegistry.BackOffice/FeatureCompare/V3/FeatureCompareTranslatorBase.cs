@@ -5,8 +5,8 @@ using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Uploads;
+using Extracts;
+using Uploads;
 
 public static class Feature
 {

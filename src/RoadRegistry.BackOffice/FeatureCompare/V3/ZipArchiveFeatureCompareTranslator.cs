@@ -11,10 +11,10 @@ using GradeSeparatedJunction;
 using Microsoft.Extensions.Logging;
 using NationalRoad;
 using RoadNode;
-using RoadRegistry.BackOffice.Uploads;
 using RoadSegment;
 using RoadSegmentSurface;
 using TransactionZone;
+using Uploads;
 
 public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTranslator
 {
@@ -59,13 +59,13 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
         return new ZipArchiveFeatureCompareTranslator(translators, loggerFactory);
     }
 
-    public async Task<TranslatedChanges> TranslateAsync(ZipArchive archive, CancellationToken cancellationToken)
+    public async Task<TranslatedChanges> TranslateAsync(ZipArchive archive, ZipArchiveMetadata zipArchiveMetadata, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(archive);
 
         var changes = TranslatedChanges.Empty;
 
-        var context = new ZipArchiveEntryFeatureCompareTranslateContext(archive, ZipArchiveMetadata.Empty);
+        var context = new ZipArchiveEntryFeatureCompareTranslateContext(archive, zipArchiveMetadata);
 
         foreach (var translator in _translators)
         {

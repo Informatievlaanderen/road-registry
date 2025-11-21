@@ -10,10 +10,9 @@ using System.Threading.Tasks;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
-using RoadRegistry.BackOffice.Uploads;
-using AddRoadNode = Uploads.AddRoadNode;
-using ModifyRoadNode = Uploads.ModifyRoadNode;
-using RemoveRoadNode = Uploads.RemoveRoadNode;
+using RoadRegistry.RoadNode.Changes;
+using Uploads;
+using TranslatedChanges = V3.TranslatedChanges;
 
 public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadNodeFeatureCompareAttributes>
 {
@@ -132,30 +131,31 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
             {
                 case RecordType.AddedIdentifier:
                     changes = changes.AppendChange(
-                        new AddRoadNode(
-                            record.RecordNumber,
-                            record.Id,
-                            record.Attributes.Id,
-                            record.Attributes.Type
-                        ).WithGeometry(record.Attributes.Geometry)
+                        new AddRoadNodeChange
+                        {
+                            TemporaryId = record.Id,
+                            OriginalId = record.Attributes.Id,
+                            Geometry = record.Attributes.Geometry!,
+                            Type = record.Attributes.Type!
+                        }
                     );
                     break;
                 case RecordType.ModifiedIdentifier:
                     changes = changes.AppendChange(
-                        new ModifyRoadNode(
-                            record.RecordNumber,
-                            record.Id,
-                            record.Attributes.Type,
-                            record.Attributes.Geometry
-                        )
+                        new ModifyRoadNodeChange
+                        {
+                            RoadNodeId = record.Id,
+                            Geometry = record.Attributes.Geometry,
+                            Type = record.Attributes.Type
+                        }
                     );
                     break;
                 case RecordType.RemovedIdentifier:
                     changes = changes.AppendChange(
-                        new RemoveRoadNode(
-                            record.RecordNumber,
-                            record.Id
-                        )
+                        new RemoveRoadNodeChange
+                        {
+                            RoadNodeId = record.Id
+                        }
                     );
                     break;
             }

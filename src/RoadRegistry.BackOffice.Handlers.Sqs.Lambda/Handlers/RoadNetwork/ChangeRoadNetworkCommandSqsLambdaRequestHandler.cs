@@ -44,9 +44,7 @@ public sealed class ChangeRoadNetworkCommandSqsLambdaRequestHandler : SqsLambdaH
 
         await Ticketing.Pending(command.TicketId, cancellationToken);
 
-        command.Provenance = sqsLambdaRequest.Provenance;
-
-        var changeResult = await _commandHandler.Handle(command, cancellationToken);
+        var changeResult = await _commandHandler.Handle(command, sqsLambdaRequest.Provenance, cancellationToken);
 
         var downloadId = new DownloadId(command.DownloadId);
         var hasError = changeResult.Problems.HasError();

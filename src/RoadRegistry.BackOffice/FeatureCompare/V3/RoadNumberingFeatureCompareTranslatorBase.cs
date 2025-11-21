@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using RoadNetwork;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Uploads;

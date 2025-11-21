@@ -11,12 +11,10 @@ using NetTopologySuite.Geometries;
 using RoadNode;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
-using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
-using AddRoadSegment = Uploads.AddRoadSegment;
-using ModifyRoadSegment = Uploads.ModifyRoadSegment;
-using RemoveOutlinedRoadSegment = Uploads.RemoveOutlinedRoadSegment;
-using RemoveRoadSegment = Uploads.RemoveRoadSegment;
+using Uploads;
+using TranslatedChanges = V3.TranslatedChanges;
 
 public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareAttributes>
 {
@@ -309,18 +307,15 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     var extractFeature = matchingExtractFeatures.FirstOrDefault(x => x.Attributes.Id == changeFeatureAttributes.Id)
                                          ?? matchingExtractFeatures.First();
 
-                    var convertedFromOutlined = extractFeature.Attributes.Method == RoadSegmentGeometryDrawMethod.Outlined
-                                                && changeFeatureAttributes.Method != extractFeature.Attributes.Method;
 
                     processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                         FeatureType.Change,
                         changeFeature.RecordNumber,
-                        convertedFromOutlined ? changeFeatureAttributes : changeFeatureAttributes.OnlyChangedAttributes(extractFeature.Attributes, extractFeature.Attributes.Geometry, alwaysIncludeNodeIdsInChangedAttributes),
+                        changeFeatureAttributes.OnlyChangedAttributes(extractFeature.Attributes, extractFeature.Attributes.Geometry, alwaysIncludeNodeIdsInChangedAttributes),
                         extractFeature.Attributes.Id,
                         RecordType.Modified)
                     {
-                        GeometryChanged = !identicalGeometries.Any(),
-                        ConvertedFromOutlined = convertedFromOutlined
+                        GeometryChanged = !identicalGeometries.Any()
                     });
                 }
 
@@ -398,7 +393,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
             if (existingRecords.Length > 1)
             {
-                problems += DbaseFileProblems.IdentifierNotUnique(recordContext, (RoadSegmentId)record.GetActualId(), record.RecordNumber);
+                problems += recordContext.IdentifierNotUnique(record.GetActualId(), record.RecordNumber);
                 continue;
             }
 
@@ -425,80 +420,87 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             switch (record.RecordType.Translation.Identifier)
             {
                 case RecordType.IdenticalIdentifier:
-                    changes = changes.AppendProvisionalChange(
-                        new ModifyRoadSegment(
-                            record.RecordNumber,
-                            record.Id,
-                            record.Attributes.Method
-                        )
-                    );
                     break;
                 case RecordType.ModifiedIdentifier:
-                    var modifyRoadSegment = new ModifyRoadSegment(
-                            record.RecordNumber,
-                            record.Id,
-                            record.Attributes.Method,
-                            record.Attributes.StartNodeId,
-                            record.Attributes.EndNodeId,
-                            record.Attributes.MaintenanceAuthority,
-                            record.Attributes.Morphology,
-                            record.Attributes.Status,
-                            record.Attributes.Category,
-                            record.Attributes.AccessRestriction,
-                            record.Attributes.LeftSideStreetNameId,
-                            record.Attributes.RightSideStreetNameId,
-                            geometry: record.GeometryChanged || record.ConvertedFromOutlined ? record.Attributes.Geometry : null
-                        )
-                        .WithConvertedFromOutlined(record.ConvertedFromOutlined);
-                    if (record.Id != record.Attributes.Id)
+                    var modifyRoadSegment = new ModifyRoadSegmentChange
                     {
-                        modifyRoadSegment = modifyRoadSegment.WithOriginalId(record.Attributes.Id);
-                    }
+                        RoadSegmentId = record.Id,
+                        OriginalId = record.Attributes.Id,
+                        Geometry = record.GeometryChanged ? record.Attributes.Geometry : null,
+                        StartNodeId = record.Attributes.StartNodeId,
+                        EndNodeId = record.Attributes.EndNodeId,
+                        GeometryDrawMethod = record.Attributes.Method,
+                        AccessRestriction = record.Attributes.AccessRestriction is not null
+                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(record.Attributes.AccessRestriction)
+                            : null,
+                        Category = record.Attributes.Category is not null
+                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(record.Attributes.Category)
+                            : null,
+                        MaintenanceAuthorityId = record.Attributes.MaintenanceAuthority is not null
+                            ? new RoadSegmentDynamicAttributeValues<OrganizationId>(record.Attributes.MaintenanceAuthority.Value)
+                            : null,
+                        Morphology = record.Attributes.Morphology is not null
+                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>(record.Attributes.Morphology)
+                            : null,
+                        Status = record.Attributes.Status is not null
+                            ? new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(record.Attributes.Status)
+                            : null,
+                        StreetNameId = BuildStreetNameIdAttributes(record.Attributes.LeftSideStreetNameId, record.Attributes.RightSideStreetNameId),
+                    };
 
                     changes = changes.AppendChange(modifyRoadSegment);
-
-                    if (record.ConvertedFromOutlined)
-                    {
-                        changes = changes.AppendChange(
-                            new RemoveOutlinedRoadSegment(
-                                record.RecordNumber,
-                                record.Id
-                            )
-                        );
-                    }
                     break;
                 case RecordType.AddedIdentifier:
                     changes = changes.AppendChange(
-                        new AddRoadSegment(
-                            record.RecordNumber,
-                            record.Id,
-                            record.Attributes.Id,
-                            record.Attributes.StartNodeId!.Value,
-                            record.Attributes.EndNodeId!.Value,
-                            record.Attributes.MaintenanceAuthority!.Value,
-                            record.Attributes.Method,
-                            record.Attributes.Morphology,
-                            record.Attributes.Status,
-                            record.Attributes.Category,
-                            record.Attributes.AccessRestriction,
-                            record.Attributes.LeftSideStreetNameId,
-                            record.Attributes.RightSideStreetNameId
-                        ).WithGeometry(record.Attributes.Geometry)
+                        new AddRoadSegmentChange
+                        {
+                            TemporaryId = record.Id,
+                            OriginalId = record.Attributes.Id,
+                            Geometry = record.Attributes.Geometry,
+                            StartNodeId = record.Attributes.StartNodeId!.Value,
+                            EndNodeId = record.Attributes.EndNodeId!.Value,
+                            GeometryDrawMethod = record.Attributes.Method,
+                            AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(record.Attributes.AccessRestriction),
+                            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(record.Attributes.Category),
+                            MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(record.Attributes.MaintenanceAuthority!.Value),
+                            Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>(record.Attributes.Morphology),
+                            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(record.Attributes.Status),
+                            StreetNameId = BuildStreetNameIdAttributes(record.Attributes.LeftSideStreetNameId, record.Attributes.RightSideStreetNameId)!,
+                            SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>(),
+                            EuropeanRoadNumbers = [],
+                            NationalRoadNumbers = []
+                        }
                     );
                     break;
                 case RecordType.RemovedIdentifier:
                     changes = changes.AppendChange(
-                        new RemoveRoadSegment(
-                            record.RecordNumber,
-                            record.Id,
-                            record.Attributes.Method
-                        )
+                        new RemoveRoadSegmentChange
+                        {
+                            RoadSegmentId = record.Id
+                        }
                     );
                     break;
             }
         }
 
         return changes;
+    }
+
+    private RoadSegmentDynamicAttributeValues<StreetNameLocalId>? BuildStreetNameIdAttributes(StreetNameLocalId? leftSideStreetNameId, StreetNameLocalId? rightSideStreetNameId)
+    {
+        if (leftSideStreetNameId is null && rightSideStreetNameId is null)
+        {
+            return null;
+        }
+
+        if (leftSideStreetNameId == rightSideStreetNameId)
+        {
+            return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(leftSideStreetNameId.Value);
+        }
+
+        return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
+            .Add(null, null, RoadSegmentAttributeSide.Left, leftSideStreetNameId!.Value)
+            .Add(null, null, RoadSegmentAttributeSide.Right, rightSideStreetNameId!.Value);
     }
 
     private void MigrateRoadNodeIds(RoadSegmentFeatureCompareRecord record, ZipArchiveEntryFeatureCompareTranslateContext context)

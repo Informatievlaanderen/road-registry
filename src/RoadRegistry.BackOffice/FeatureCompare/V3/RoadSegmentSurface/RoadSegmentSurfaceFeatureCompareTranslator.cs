@@ -1,7 +1,11 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.V3.RoadSegmentSurface;
 
 using System.Collections.Generic;
-using RoadRegistry.BackOffice.Uploads;
+using System.Linq;
+using RoadNetwork;
+using RoadRegistry.RoadSegment.Changes;
+using RoadRegistry.RoadSegment.ValueObjects;
+using TranslatedChanges = TranslatedChanges;
 
 public class RoadSegmentSurfaceFeatureCompareTranslator : RoadSegmentAttributeFeatureCompareTranslatorBase<RoadSegmentSurfaceFeatureCompareAttributes>
 {
@@ -19,58 +23,50 @@ public class RoadSegmentSurfaceFeatureCompareTranslator : RoadSegmentAttributeFe
 
     protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)
     {
-        foreach (var record in records)
+        foreach (var grouping in records
+                     .GroupBy(x => x.Feature.Attributes.RoadSegmentId))
         {
-            var segmentId = record.Feature.Attributes.RoadSegmentId;
-            var surface = new RoadSegmentSurfaceAttribute(
-                record.Feature.Attributes.Id,
-                record.Feature.Attributes.Type,
-                record.Feature.Attributes.FromPosition,
-                record.Feature.Attributes.ToPosition
+            var segmentId = grouping.Key;
+            var attributes = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>(grouping
+                .Select(x => x.Feature.Attributes)
+                .Select(x => (x.FromPosition, x.ToPosition, RoadSegmentAttributeSide.Both, x.Type))
             );
-            if (changes.TryFindRoadSegmentProvisionalChange(segmentId, out var provisionalChange))
-            {
-                switch (provisionalChange)
-                {
-                    case ModifyRoadSegment modifyRoadSegment:
-                        switch (record.RecordType.Translation.Identifier)
-                        {
-                            case RecordType.IdenticalIdentifier:
-                                changes = changes.ReplaceProvisionalChange(modifyRoadSegment,
-                                    modifyRoadSegment.WithSurface(surface));
-                                break;
-                            case RecordType.AddedIdentifier:
-                            case RecordType.ModifiedIdentifier:
-                                changes = changes.ReplaceChange(modifyRoadSegment,
-                                    modifyRoadSegment.WithSurface(surface));
-                                break;
-                            case RecordType.RemovedIdentifier:
-                                changes = changes.ReplaceChange(modifyRoadSegment, modifyRoadSegment);
-                                break;
-                        }
 
-                        break;
-                }
-            }
-            else if (changes.TryFindRoadSegmentChange(segmentId, out var change))
+            if (changes.TryFindRoadSegmentChange(segmentId, out var roadSegmentChange))
             {
-                switch (record.RecordType.Translation.Identifier)
-                {
-                    case RecordType.IdenticalIdentifier:
-                    case RecordType.AddedIdentifier:
-                        switch (change)
-                        {
-                            case AddRoadSegment addRoadSegment:
-                                changes = changes.ReplaceChange(addRoadSegment, addRoadSegment.WithSurface(surface));
-                                break;
-                            case ModifyRoadSegment modifyRoadSegment:
-                                changes = changes.ReplaceChange(modifyRoadSegment, modifyRoadSegment.WithSurface(surface));
-                                break;
-                        }
-
-                        break;
-                }
+                changes = UpdateRoadSegmentChange(changes, roadSegmentChange, attributes);
             }
+            else
+            {
+                var modifyRoadSegmentChange = new ModifyRoadSegmentChange
+                {
+                    RoadSegmentId = segmentId
+                };
+
+                changes = changes.AppendChange(modifyRoadSegmentChange);
+                changes = UpdateRoadSegmentChange(changes, modifyRoadSegmentChange, attributes);
+            }
+        }
+
+        return changes;
+    }
+
+    private static TranslatedChanges UpdateRoadSegmentChange(TranslatedChanges changes, IRoadNetworkChange change, RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType> attributes)
+    {
+        switch (change)
+        {
+            case AddRoadSegmentChange addRoadSegment:
+                changes = changes.ReplaceChange(addRoadSegment, addRoadSegment with
+                {
+                    SurfaceType = attributes
+                });
+                break;
+            case ModifyRoadSegmentChange modifyRoadSegment:
+                changes = changes.ReplaceChange(modifyRoadSegment, modifyRoadSegment with
+                {
+                    SurfaceType = attributes
+                });
+                break;
         }
 
         return changes;

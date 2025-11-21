@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.FeatureCompare.V3;
 
 using System.Threading;
 using System.Threading.Tasks;
-using RoadRegistry.BackOffice.Uploads;
+using Uploads;
 
 public interface IZipArchiveEntryFeatureCompareTranslator
 {

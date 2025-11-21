@@ -7,12 +7,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Schema;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
-using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadSegment;
+using Uploads;
+using TranslatedChanges = V3.TranslatedChanges;
 
 public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTranslatorBase<GradeSeparatedJunctionFeatureCompareAttributes>
 {
@@ -156,21 +159,21 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
             {
                 case RecordType.AddedIdentifier:
                     changes = changes.AppendChange(
-                        new AddGradeSeparatedJunction(
-                            record.Feature.RecordNumber,
-                            record.Feature.Attributes.Id,
-                            record.Feature.Attributes.Type,
-                            record.Feature.Attributes.UpperRoadSegmentId,
-                            record.Feature.Attributes.LowerRoadSegmentId
-                        )
+                        new AddGradeSeparatedJunctionChange
+                        {
+                            TemporaryId = record.Feature.Attributes.Id,
+                            LowerRoadSegmentId = record.Feature.Attributes.LowerRoadSegmentId,
+                            UpperRoadSegmentId = record.Feature.Attributes.UpperRoadSegmentId,
+                            Type = record.Feature.Attributes.Type
+                        }
                     );
                     break;
                 case RecordType.RemovedIdentifier:
                     changes = changes.AppendChange(
-                        new RemoveGradeSeparatedJunction(
-                            record.Feature.RecordNumber,
-                            record.Feature.Attributes.Id
-                        )
+                        new RemoveGradeSeparatedJunctionChange
+                        {
+                            GradeSeparatedJunctionId = record.Feature.Attributes.Id
+                        }
                     );
                     break;
             }

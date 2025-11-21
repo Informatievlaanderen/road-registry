@@ -16,6 +16,7 @@ namespace RoadRegistry.Jobs.Processor
     using BackOffice.Exceptions;
     using BackOffice.Extensions;
     using BackOffice.Extracts;
+    using BackOffice.FeatureToggles;
     using BackOffice.Handlers.Sqs.Extracts;
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
@@ -35,6 +36,7 @@ namespace RoadRegistry.Jobs.Processor
     {
         private readonly RoadNetworkUploadsBlobClient _uploadsBlobClient;
         private readonly ExtractsDbContext _extractsDbContext;
+        private readonly UseDomainV2FeatureToggle _useDomainV2FeatureToggle;
         private readonly IExtractRequestCleaner _extractRequestCleaner;
         private readonly JobsProcessorOptions _uploadProcessorOptions;
         private readonly JobsContext _jobsContext;
@@ -53,6 +55,7 @@ namespace RoadRegistry.Jobs.Processor
             IExtractRequestCleaner extractRequestCleaner,
             RoadNetworkUploadsBlobClient uploadsBlobClient,
             ExtractsDbContext extractsDbContext,
+            UseDomainV2FeatureToggle useDomainV2FeatureToggle,
             ILoggerFactory loggerFactory,
             IHostApplicationLifetime hostApplicationLifetime)
         {
@@ -64,6 +67,7 @@ namespace RoadRegistry.Jobs.Processor
             _extractRequestCleaner = extractRequestCleaner.ThrowIfNull();
             _uploadsBlobClient = uploadsBlobClient;
             _extractsDbContext = extractsDbContext;
+            _useDomainV2FeatureToggle = useDomainV2FeatureToggle;
             _logger = loggerFactory.ThrowIfNull().CreateLogger<JobsProcessor>();
             _hostApplicationLifetime = hostApplicationLifetime.ThrowIfNull();
         }
@@ -266,12 +270,23 @@ namespace RoadRegistry.Jobs.Processor
                         var extractDownload = await _extractsDbContext.ExtractDownloads
                             .SingleAsync(x => x.DownloadId == job.DownloadId.Value, cancellationToken);
 
-                        //TODO-pr maak variant van UploadExtractSqsRequest+Handler die gebruik maakt van het nieuwe domein + FC V3
-                        //add feature toggle om de nieuwe sqsrequest te lanceren (bvb UseDomainV2)
+                        if (_useDomainV2FeatureToggle.FeatureEnabled)
+                        {
+                            var extractRequest = await _extractsDbContext.ExtractRequests
+                                .SingleAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId, cancellationToken);
+
+                            return new UploadExtractSqsRequestV2
+                            {
+                                Request = new BackOffice.Abstractions.Extracts.V2.UploadExtractRequest(job.DownloadId.Value, uploadId, job.TicketId),
+                                ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName, reason: extractRequest.Description),
+                                ExtractRequestId = extractDownload.ExtractRequestId
+                            };
+                        }
+
                         return new UploadExtractSqsRequest
                         {
                             Request = new BackOffice.Abstractions.Extracts.V2.UploadExtractRequest(job.DownloadId.Value, uploadId, job.TicketId),
-                            ProvenanceData = new RoadRegistryProvenanceData(Modification.Unknown, job.OperatorName),
+                            ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName),
                             ExtractRequestId = extractDownload.ExtractRequestId
                         };
                     }

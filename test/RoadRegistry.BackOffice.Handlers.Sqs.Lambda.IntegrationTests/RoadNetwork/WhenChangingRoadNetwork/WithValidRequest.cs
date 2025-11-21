@@ -48,7 +48,6 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
         {
             DownloadId = Guid.NewGuid(),
             TicketId = Guid.NewGuid(),
-            Provenance = provenanceData.ToProvenance(),
             Changes = [
                 new ChangeRoadNetworkCommandItem
                 {

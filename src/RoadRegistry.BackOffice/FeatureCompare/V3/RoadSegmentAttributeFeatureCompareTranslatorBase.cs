@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using RoadNetwork;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.RoadSegment.ValueObjects;
 
@@ -20,7 +21,6 @@ public abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttribut
     public override Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
     {
         var (extractFeatures, changeFeatures, problems) = ReadExtractAndChangeFeatures(context.Archive, context);
-
         problems.ThrowIfError();
 
         var extractFeaturesLookup = extractFeatures.ToLookup(x => x.Attributes.RoadSegmentId);

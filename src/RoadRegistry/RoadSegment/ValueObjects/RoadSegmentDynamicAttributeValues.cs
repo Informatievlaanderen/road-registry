@@ -1,6 +1,7 @@
 namespace RoadRegistry.RoadSegment.ValueObjects;
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using RoadRegistry.BackOffice;
@@ -8,6 +9,41 @@ using RoadRegistry.BackOffice;
 public class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmentDynamicAttributeValues<T>>
 {
     public ImmutableList<RoadSegmentDynamicAttributeValue<T>> Values { get; private set; } = [];
+
+    public RoadSegmentDynamicAttributeValues()
+    {
+    }
+
+    public RoadSegmentDynamicAttributeValues(T value)
+    {
+        Add(value);
+    }
+
+    public RoadSegmentDynamicAttributeValues(IEnumerable<(RoadSegmentPosition From, RoadSegmentPosition To, RoadSegmentAttributeSide Side, T Value)> values)
+    {
+        Values = Values.AddRange(values
+            .OrderBy(x => x.From)
+            .Select(x => new RoadSegmentDynamicAttributeValue<T>
+            {
+                From = x.From,
+                To = x.To,
+                Side = x.Side,
+                Value = x.Value
+            }));
+    }
+
+    public RoadSegmentDynamicAttributeValues(IEnumerable<(RoadSegmentPosition? From, RoadSegmentPosition? To, RoadSegmentAttributeSide Side, T Value)> values)
+    {
+        Values = Values.AddRange(values
+            .OrderBy(x => x.From)
+            .Select(x => new RoadSegmentDynamicAttributeValue<T>
+            {
+                From = x.From,
+                To = x.To,
+                Side = x.Side,
+                Value = x.Value
+            }));
+    }
 
     public RoadSegmentDynamicAttributeValues<T> Add(T value)
     {

@@ -18,22 +18,22 @@ public record RoadSegmentFeatureCompareAttributes
     public StreetNameLocalId? LeftSideStreetNameId { get; init; }
     public StreetNameLocalId? RightSideStreetNameId { get; init; }
 
-    public RoadSegmentFeatureCompareAttributes OnlyChangedAttributes(RoadSegmentFeatureCompareAttributes other, MultiLineString extractGeometry, bool forceNodeIds)
+    public RoadSegmentFeatureCompareAttributes OnlyChangedAttributes(RoadSegmentFeatureCompareAttributes other, MultiLineString extractGeometry, bool alwaysIncludeNodeIds)
     {
         return new RoadSegmentFeatureCompareAttributes
         {
             Id = Id,
             Method = Method,
             Geometry = Geometry!.EqualsExact(other.Geometry) ? extractGeometry : Geometry,
-            StartNodeId = StartNodeId != other.StartNodeId || forceNodeIds ? StartNodeId : null,
-            EndNodeId = EndNodeId != other.EndNodeId || forceNodeIds ? EndNodeId : null,
+            StartNodeId = StartNodeId != other.StartNodeId || alwaysIncludeNodeIds ? StartNodeId : null,
+            EndNodeId = EndNodeId != other.EndNodeId || alwaysIncludeNodeIds ? EndNodeId : null,
             AccessRestriction = AccessRestriction == other.AccessRestriction ? null : AccessRestriction,
             Category = Category == other.Category ? null : Category,
             MaintenanceAuthority = MaintenanceAuthority == other.MaintenanceAuthority ? null : MaintenanceAuthority,
             Morphology = Morphology == other.Morphology ? null : Morphology,
             Status = Status == other.Status ? null : Status,
-            LeftSideStreetNameId = LeftSideStreetNameId == other.LeftSideStreetNameId ? null : LeftSideStreetNameId,
-            RightSideStreetNameId = RightSideStreetNameId == other.RightSideStreetNameId ? null : RightSideStreetNameId
+            LeftSideStreetNameId = LeftSideStreetNameId == other.LeftSideStreetNameId && RightSideStreetNameId == other.RightSideStreetNameId ? null : LeftSideStreetNameId,
+            RightSideStreetNameId = LeftSideStreetNameId == other.LeftSideStreetNameId && RightSideStreetNameId == other.RightSideStreetNameId ? null : RightSideStreetNameId
         };
     }
 }
