@@ -1,6 +1,5 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
-using System.Collections.Immutable;
 using BackOffice.Core;
 using Changes;
 using Events;
@@ -27,9 +26,7 @@ public partial class RoadSegment
             Status = change.Status ?? Attributes.Status,
             StreetNameId = change.StreetNameId ?? Attributes.StreetNameId,
             MaintenanceAuthorityId = change.MaintenanceAuthorityId ?? Attributes.MaintenanceAuthorityId,
-            SurfaceType = change.SurfaceType ?? Attributes.SurfaceType,
-            EuropeanRoadNumbers = change.EuropeanRoadNumbers?.ToImmutableList() ?? Attributes.EuropeanRoadNumbers,
-            NationalRoadNumbers = change.NationalRoadNumbers?.ToImmutableList() ?? Attributes.NationalRoadNumbers
+            SurfaceType = change.SurfaceType ?? Attributes.SurfaceType
         };
         var segmentLength = geometry.Length;
         problems += new RoadSegmentAttributesValidator().Validate(originalId, attributes, segmentLength);
@@ -43,11 +40,9 @@ public partial class RoadSegment
         {
             RoadSegmentId = RoadSegmentId,
             OriginalId = change.OriginalId,
-            //Version = afterSegment.Version,
             StartNodeId = change.StartNodeId ?? StartNodeId,
             EndNodeId = change.EndNodeId ?? EndNodeId,
             Geometry = (change.Geometry ?? Geometry).ToGeometryObject(),
-            //GeometryVersion = afterSegment.GeometryVersion,
             GeometryDrawMethod = change.GeometryDrawMethod ?? Attributes.GeometryDrawMethod,
             AccessRestriction = change.AccessRestriction ?? Attributes.AccessRestriction,
             Category = change.Category ?? Attributes.Category,
@@ -55,10 +50,7 @@ public partial class RoadSegment
             Status = change.Status ?? Attributes.Status,
             StreetNameId = change.StreetNameId ?? Attributes.StreetNameId,
             MaintenanceAuthorityId = change.MaintenanceAuthorityId ?? Attributes.MaintenanceAuthorityId,
-            SurfaceType = change.SurfaceType ?? Attributes.SurfaceType,
-            EuropeanRoadNumbers = change.EuropeanRoadNumbers ?? Attributes.EuropeanRoadNumbers,
-            NationalRoadNumbers = change.NationalRoadNumbers ?? Attributes.NationalRoadNumbers
-            //ConvertedFromOutlined = ConvertedFromOutlined
+            SurfaceType = change.SurfaceType ?? Attributes.SurfaceType
         });
 
         return problems;

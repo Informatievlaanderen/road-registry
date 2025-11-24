@@ -9,15 +9,10 @@ using RoadRegistry.RoadSegment.ValueObjects;
 public sealed record ModifyRoadSegmentChange : IRoadNetworkChange
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
-
-    //public required RoadSegmentVersion Version { get; init; }
-    //public required GeometryVersion? GeometryVersion { get; init; }
     public required RoadSegmentId OriginalId { get; init; }
     public MultiLineString? Geometry { get; init; }
     public RoadNodeId? StartNodeId { get; init; }
-    //public required RoadNodeId? TemporaryStartNodeId { get; init; }
     public RoadNodeId? EndNodeId { get; init; }
-    //public required RoadNodeId? TemporaryEndNodeId { get; init; }
     public RoadSegmentGeometryDrawMethod? GeometryDrawMethod { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>? AccessRestriction { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentCategory>? Category { get; init; }
@@ -26,10 +21,4 @@ public sealed record ModifyRoadSegmentChange : IRoadNetworkChange
     public RoadSegmentDynamicAttributeValues<StreetNameLocalId>? StreetNameId { get; init; }
     public RoadSegmentDynamicAttributeValues<OrganizationId>? MaintenanceAuthorityId { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>? SurfaceType { get; init; }
-    //TODO-pr mss beter onderstaande props eruit halen en altijd expliciet via de add/remove changes werken? ook voor de edit endpoint
-    public IReadOnlyCollection<EuropeanRoadNumber>? EuropeanRoadNumbers { get; init; } // Is not used by FeatureCompare to keep changes done by other users
-    public IReadOnlyCollection<NationalRoadNumber>? NationalRoadNumbers { get; init; } // Is not used by FeatureCompare to keep changes done by other users
-
-    //public required bool ConvertedFromOutlined { get; init; }
-    //public bool? CategoryModified { get; init; }
 }

@@ -26,9 +26,7 @@ public class AggregateTests : AggregateTestBase
         var change = Fixture.Create<ModifyRoadSegmentChange>() with
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
-            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates(),
-            EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()],
-            NationalRoadNumbers = [Fixture.Create<NationalRoadNumber>()]
+            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates()
         };
 
         // Act
@@ -52,8 +50,6 @@ public class AggregateTests : AggregateTestBase
         segmentModified.StreetNameId.Should().Be(change.StreetNameId);
         segmentModified.MaintenanceAuthorityId.Should().Be(change.MaintenanceAuthorityId);
         segmentModified.SurfaceType.Should().Be(change.SurfaceType);
-        segmentModified.EuropeanRoadNumbers.Should().BeEquivalentTo(change.EuropeanRoadNumbers);
-        segmentModified.NationalRoadNumbers.Should().BeEquivalentTo(change.NationalRoadNumbers);
     }
 
     [Fact]
@@ -67,9 +63,7 @@ public class AggregateTests : AggregateTestBase
         var change = Fixture.Create<ModifyRoadSegmentChange>() with
         {
             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined,
-            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates(),
-            EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()],
-            NationalRoadNumbers = [Fixture.Create<NationalRoadNumber>()]
+            Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates()
         };
 
         // Act
@@ -93,8 +87,6 @@ public class AggregateTests : AggregateTestBase
         segmentModified.StreetNameId.Should().Be(change.StreetNameId);
         segmentModified.MaintenanceAuthorityId.Should().Be(change.MaintenanceAuthorityId);
         segmentModified.SurfaceType.Should().Be(change.SurfaceType);
-        segmentModified.EuropeanRoadNumbers.Should().BeEquivalentTo(change.EuropeanRoadNumbers);
-        segmentModified.NationalRoadNumbers.Should().BeEquivalentTo(change.NationalRoadNumbers);
     }
 
     [Fact]
@@ -156,8 +148,6 @@ public class AggregateTests : AggregateTestBase
         segment.Attributes.StreetNameId.Should().Be(evt.StreetNameId);
         segment.Attributes.MaintenanceAuthorityId.Should().Be(evt.MaintenanceAuthorityId);
         segment.Attributes.SurfaceType.Should().Be(evt.SurfaceType);
-        segment.Attributes.EuropeanRoadNumbers.Should().BeEquivalentTo(evt.EuropeanRoadNumbers);
-        segment.Attributes.NationalRoadNumbers.Should().BeEquivalentTo(evt.NationalRoadNumbers);
     }
 
 }

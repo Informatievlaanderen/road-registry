@@ -1,8 +1,8 @@
-namespace RoadRegistry.RoadSegment.ValueObjects;//TODO-pr fix namespace
+namespace RoadRegistry.BackOffice.Core;
 
 using System;
 using System.Diagnostics.Contracts;
-using BackOffice;
+using RoadRegistry.BackOffice;
 
 public readonly struct AttributeHash : IEquatable<AttributeHash>
 {

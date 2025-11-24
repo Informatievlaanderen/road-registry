@@ -75,23 +75,25 @@ public static class FixtureExtensions
     {
         fixture.Customize<RoadSegmentModified>(composer =>
             composer.FromFactory(_ =>
-                new RoadSegmentModified
                 {
-                    RoadSegmentId = fixture.Create<RoadSegmentId>(),
-                    OriginalId = null,
-                    Geometry = fixture.Create<MultiLineString>().ToGeometryObject(),
-                    StartNodeId = fixture.Create<RoadNodeId>(),
-                    EndNodeId = fixture.Create<RoadNodeId>(),
-                    GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
-                    AccessRestriction = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>>(),
-                    Category = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentCategory>>(),
-                    Morphology = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>>(),
-                    Status = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentStatus>>(),
-                    StreetNameId = fixture.Create<RoadSegmentDynamicAttributeValues<StreetNameLocalId>>(),
-                    MaintenanceAuthorityId = fixture.Create<RoadSegmentDynamicAttributeValues<OrganizationId>>(),
-                    SurfaceType = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>>(),
-                    EuropeanRoadNumbers = [fixture.Create<EuropeanRoadNumber>()],
-                    NationalRoadNumbers = [fixture.Create<NationalRoadNumber>()]
+                    var roadSegmentId = fixture.Create<RoadSegmentId>();
+
+                    return new RoadSegmentModified
+                    {
+                        RoadSegmentId = fixture.Create<RoadSegmentId>(),
+                        OriginalId = roadSegmentId,
+                        Geometry = fixture.Create<MultiLineString>().ToGeometryObject(),
+                        StartNodeId = fixture.Create<RoadNodeId>(),
+                        EndNodeId = fixture.Create<RoadNodeId>(),
+                        GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
+                        AccessRestriction = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>>(),
+                        Category = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentCategory>>(),
+                        Morphology = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>>(),
+                        Status = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentStatus>>(),
+                        StreetNameId = fixture.Create<RoadSegmentDynamicAttributeValues<StreetNameLocalId>>(),
+                        MaintenanceAuthorityId = fixture.Create<RoadSegmentDynamicAttributeValues<OrganizationId>>(),
+                        SurfaceType = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>>()
+                    };
                 }
             ).OmitAutoProperties()
         );

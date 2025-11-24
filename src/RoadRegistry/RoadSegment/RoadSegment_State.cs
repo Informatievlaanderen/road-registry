@@ -99,9 +99,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
             Status = @event.Status,
             StreetNameId = @event.StreetNameId,
             MaintenanceAuthorityId = @event.MaintenanceAuthorityId,
-            SurfaceType = @event.SurfaceType,
-            EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
-            NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
+            SurfaceType = @event.SurfaceType
         };
     }
 
