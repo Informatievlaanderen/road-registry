@@ -12,7 +12,7 @@ using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
 
-public class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>
+public class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>, IEquatable<TranslatedChanges>
 {
     public static readonly TranslatedChanges Empty = new(
         ImmutableList<IRoadNetworkChange>.Empty,
@@ -211,5 +211,45 @@ public class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>
             default:
                 throw new NotImplementedException($"No handler for change '{change.GetType().Name}'");
         }
+    }
+
+    public bool Equals(TranslatedChanges other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+
+        return _changes.SequenceEqual(other._changes);
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is null)
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+
+        if (obj.GetType() != GetType())
+        {
+            return false;
+        }
+
+        return Equals((TranslatedChanges)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return (_changes != null ? _changes.GetHashCode() : 0);
     }
 }

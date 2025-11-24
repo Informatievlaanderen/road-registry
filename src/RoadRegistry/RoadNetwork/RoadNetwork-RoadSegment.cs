@@ -23,7 +23,7 @@ public partial class RoadNetwork
             return problems;
         }
 
-        problems += idTranslator.RegisterMapping(change.OriginalId ?? change.TemporaryId, roadSegment!.RoadSegmentId);
+        problems += idTranslator.RegisterMapping(change.OriginalId, roadSegment!.RoadSegmentId);
         if (problems.HasError())
         {
             return problems;
@@ -37,14 +37,14 @@ public partial class RoadNetwork
 
     private Problems ModifyRoadSegment(ModifyRoadSegmentChange change, IIdentifierTranslator idTranslator, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
     {
-        var originalIdOrId = change.OriginalId ?? change.RoadSegmentId;
+        var originalId = change.OriginalId;
 
         if (!_roadSegments.TryGetValue(change.RoadSegmentId, out var roadSegment))
         {
-            return Problems.Single(new RoadSegmentNotFound(originalIdOrId));
+            return Problems.Single(new RoadSegmentNotFound(originalId));
         }
 
-        var problems = idTranslator.RegisterMapping(originalIdOrId, roadSegment.RoadSegmentId);
+        var problems = idTranslator.RegisterMapping(originalId, roadSegment.RoadSegmentId);
         if (problems.HasError())
         {
             return problems;

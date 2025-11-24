@@ -41,7 +41,7 @@ public class AggregateTests : AggregateTestBase
         var segmentModified = (RoadSegmentModified)segment.GetChanges().Single();
         segmentModified.RoadSegmentId.Should().Be(change.RoadSegmentId);
         segmentModified.Geometry.Should().Be(change.Geometry.ToGeometryObject());
-        segmentModified.OriginalId.Should().Be(change.OriginalId ?? change.RoadSegmentId);
+        segmentModified.OriginalId.Should().Be(change.OriginalId);
         segmentModified.StartNodeId.Should().Be(change.StartNodeId!.Value);
         segmentModified.EndNodeId.Should().Be(change.EndNodeId!.Value);
         segmentModified.GeometryDrawMethod.Should().Be(change.GeometryDrawMethod);
@@ -82,7 +82,7 @@ public class AggregateTests : AggregateTestBase
         var segmentModified = (RoadSegmentModified)segment.GetChanges().Single();
         segmentModified.RoadSegmentId.Should().Be(change.RoadSegmentId);
         segmentModified.Geometry.Should().Be(change.Geometry.ToGeometryObject());
-        segmentModified.OriginalId.Should().Be(change.OriginalId ?? change.RoadSegmentId);
+        segmentModified.OriginalId.Should().Be(change.OriginalId);
         segmentModified.StartNodeId.Should().Be(change.StartNodeId!.Value);
         segmentModified.EndNodeId.Should().Be(change.EndNodeId!.Value);
         segmentModified.GeometryDrawMethod.Should().Be(change.GeometryDrawMethod);
@@ -110,7 +110,7 @@ public class AggregateTests : AggregateTestBase
         var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
 
         // Assert
-        problems.Should().ContainEquivalentOf(new RoadSegmentGeometryLengthIsZero(change.OriginalId!.Value));
+        problems.Should().ContainEquivalentOf(new RoadSegmentGeometryLengthIsZero(change.OriginalId));
     }
 
     [Fact]

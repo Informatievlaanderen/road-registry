@@ -13,11 +13,11 @@ public partial class RoadSegment
     {
         var problems = Problems.None;
 
-        var originalIdOrId = change.OriginalId ?? change.TemporaryId;
+        var originalId = change.OriginalId;
 
-        problems += new RoadSegmentGeometryValidator().Validate(originalIdOrId, change.GeometryDrawMethod, change.Geometry);
+        problems += new RoadSegmentGeometryValidator().Validate(originalId, change.GeometryDrawMethod, change.Geometry);
 
-        problems += new RoadSegmentAttributesValidator().Validate(originalIdOrId,
+        problems += new RoadSegmentAttributesValidator().Validate(originalId,
             new RoadSegmentAttributes
             {
                 GeometryDrawMethod = change.GeometryDrawMethod,
@@ -40,8 +40,8 @@ public partial class RoadSegment
 
         var segment = Create(new RoadSegmentAdded
         {
-            RoadSegmentId = change.PermanentId ?? idGenerator.NewRoadSegmentId(),
-            OriginalId = change.OriginalId ?? change.TemporaryId,
+            RoadSegmentId = idGenerator.NewRoadSegmentId(),
+            OriginalId = change.OriginalId,
             Geometry = change.Geometry.ToGeometryObject(),
             StartNodeId = idTranslator.TranslateToPermanentId(change.StartNodeId),
             EndNodeId = idTranslator.TranslateToPermanentId(change.EndNodeId),

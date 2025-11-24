@@ -69,6 +69,18 @@ public class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmentDynami
         return this;
     }
 
+    public RoadSegmentDynamicAttributeValues<T> Add(RoadSegmentPosition? from, RoadSegmentPosition? to, T value)
+    {
+        Values = Values.Add(new RoadSegmentDynamicAttributeValue<T>
+        {
+            From = from,
+            To = to,
+            Side = RoadSegmentAttributeSide.Both,
+            Value = value
+        });
+        return this;
+    }
+
     public bool Equals(RoadSegmentDynamicAttributeValues<T>? other)
     {
         if (other is null)

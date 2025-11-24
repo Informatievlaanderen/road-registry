@@ -12,11 +12,11 @@ public partial class RoadSegment
     {
         var problems = Problems.None;
 
-        var originalIdOrId = change.OriginalId ?? change.RoadSegmentId;
+        var originalId = change.OriginalId;
         var geometryDrawMethod = change.GeometryDrawMethod ?? Attributes.GeometryDrawMethod;
         var geometry = change.Geometry ?? Geometry;
 
-        problems += new RoadSegmentGeometryValidator().Validate(originalIdOrId, geometryDrawMethod, geometry);
+        problems += new RoadSegmentGeometryValidator().Validate(originalId, geometryDrawMethod, geometry);
 
         //TODO-pr category logica upgrade validatie herbekijken eens FC is aangepast om de dynamische structuur te ondersteunen
         // var category = change.Category;
@@ -44,7 +44,7 @@ public partial class RoadSegment
             NationalRoadNumbers = change.NationalRoadNumbers?.ToImmutableList() ?? Attributes.NationalRoadNumbers
         };
         var segmentLength = geometry.Length;
-        problems += new RoadSegmentAttributesValidator().Validate(originalIdOrId, attributes, segmentLength);
+        problems += new RoadSegmentAttributesValidator().Validate(originalId, attributes, segmentLength);
 
         if (problems.HasError())
         {

@@ -109,13 +109,23 @@ public class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareT
             switch (record.RecordType.Translation.Identifier)
             {
                 case RecordType.AddedIdentifier:
-                    changes = changes.AppendChange(
-                        new AddRoadSegmentToNationalRoadChange
+                    if (changes.TryFindRoadSegmentChange(record.Feature.Attributes.RoadSegmentId, out var roadSegmentChange) && roadSegmentChange is AddRoadSegmentChange addRoadSegmentChange)
+                    {
+                        changes = changes.ReplaceChange(addRoadSegmentChange, addRoadSegmentChange with
                         {
-                            RoadSegmentId = record.Feature.Attributes.RoadSegmentId,
-                            Number = record.Feature.Attributes.Number
-                        }
-                    );
+                            NationalRoadNumbers = addRoadSegmentChange.NationalRoadNumbers.Concat([record.Feature.Attributes.Number]).ToArray()
+                        });
+                    }
+                    else
+                    {
+                        changes = changes.AppendChange(
+                            new AddRoadSegmentToNationalRoadChange
+                            {
+                                RoadSegmentId = record.Feature.Attributes.RoadSegmentId,
+                                Number = record.Feature.Attributes.Number
+                            }
+                        );
+                    }
                     break;
                 case RecordType.RemovedIdentifier:
                     changes = changes.AppendChange(

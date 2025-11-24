@@ -6,10 +6,10 @@ using RoadRegistry.RoadSegment.ValueObjects;
 public record RoadSegmentFeatureCompareAttributes
 {
     public RoadSegmentId Id { get; init; }
-    public RoadSegmentGeometryDrawMethod Method { get; init; }
     public MultiLineString Geometry { get; init; }
     public RoadNodeId? StartNodeId { get; init; }
     public RoadNodeId? EndNodeId { get; init; }
+    public RoadSegmentGeometryDrawMethod? Method { get; init; }
     public RoadSegmentAccessRestriction? AccessRestriction { get; init; }
     public RoadSegmentCategory? Category { get; init; }
     public OrganizationId? MaintenanceAuthority { get; init; }
@@ -23,10 +23,10 @@ public record RoadSegmentFeatureCompareAttributes
         return new RoadSegmentFeatureCompareAttributes
         {
             Id = Id,
-            Method = Method,
             Geometry = Geometry!.EqualsExact(other.Geometry) ? extractGeometry : Geometry,
             StartNodeId = StartNodeId != other.StartNodeId || alwaysIncludeNodeIds ? StartNodeId : null,
             EndNodeId = EndNodeId != other.EndNodeId || alwaysIncludeNodeIds ? EndNodeId : null,
+            Method = Method == other.Method ? null : Method,
             AccessRestriction = AccessRestriction == other.AccessRestriction ? null : AccessRestriction,
             Category = Category == other.Category ? null : Category,
             MaintenanceAuthority = MaintenanceAuthority == other.MaintenanceAuthority ? null : MaintenanceAuthority,

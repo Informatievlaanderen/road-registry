@@ -76,6 +76,7 @@ public class VerifyTopologyTests : RoadNetworkTestBase
                 .Add(new AddRoadNodeChange
                 {
                     TemporaryId = new RoadNodeId(3),
+                    OriginalId = Fixture.Create<RoadNodeId>(),
                     Geometry = new Point(TestData.AddSegment1StartNode.Geometry.X + 1.99, TestData.AddSegment1StartNode.Geometry.Y),
                     Type = Fixture.Create<RoadNodeType>()
                 })

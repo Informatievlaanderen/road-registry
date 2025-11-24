@@ -5,6 +5,7 @@ using System.Linq;
 using RoadNetwork;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
+using Uploads;
 using TranslatedChanges = TranslatedChanges;
 
 public class RoadSegmentSurfaceFeatureCompareTranslator : RoadSegmentAttributeFeatureCompareTranslatorBase<RoadSegmentSurfaceFeatureCompareAttributes>
@@ -28,6 +29,7 @@ public class RoadSegmentSurfaceFeatureCompareTranslator : RoadSegmentAttributeFe
         {
             var segmentId = grouping.Key;
             var attributes = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>(grouping
+                .Where(x => x.RecordType != RecordType.Removed)
                 .Select(x => x.Feature.Attributes)
                 .Select(x => (x.FromPosition, x.ToPosition, RoadSegmentAttributeSide.Both, x.Type))
             );
@@ -40,7 +42,8 @@ public class RoadSegmentSurfaceFeatureCompareTranslator : RoadSegmentAttributeFe
             {
                 var modifyRoadSegmentChange = new ModifyRoadSegmentChange
                 {
-                    RoadSegmentId = segmentId
+                    RoadSegmentId = segmentId,
+                    OriginalId = segmentId
                 };
 
                 changes = changes.AppendChange(modifyRoadSegmentChange);

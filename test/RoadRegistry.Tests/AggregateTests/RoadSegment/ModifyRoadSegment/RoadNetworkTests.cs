@@ -27,7 +27,7 @@ public class RoadNetworkTests : RoadNetworkTestBase
                 .Add(new ModifyRoadSegmentChange
                 {
                     RoadSegmentId = TestData.Segment1Added.RoadSegmentId,
-                    GeometryDrawMethod = TestData.Segment1Added.GeometryDrawMethod
+                    OriginalId = TestData.Segment1Added.RoadSegmentId
                 })
             )
             .Then((result, events) =>
@@ -47,7 +47,7 @@ public class RoadNetworkTests : RoadNetworkTestBase
             .When(changes => changes
                 .Add(change)
             )
-            .ThenProblems(new Error("RoadSegmentNotFound", new ProblemParameter("SegmentId", (change.OriginalId ?? change.RoadSegmentId).ToString())))
+            .ThenProblems(new Error("RoadSegmentNotFound", new ProblemParameter("SegmentId", change.OriginalId.ToString())))
         );
     }
 }

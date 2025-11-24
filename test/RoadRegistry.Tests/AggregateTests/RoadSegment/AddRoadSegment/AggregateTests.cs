@@ -21,7 +21,6 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         var change = Fixture.Create<AddRoadSegmentChange>() with
         {
-            PermanentId = null,
             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured,
             Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates(),
             EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()],
@@ -42,7 +41,7 @@ public class AggregateTests : AggregateTestBase
         var segmentAdded = (RoadSegmentAdded)segment.GetChanges().Single();
         segmentAdded.RoadSegmentId.Should().Be(new RoadSegmentId(1));
         segmentAdded.Geometry.Should().Be(change.Geometry.ToGeometryObject());
-        segmentAdded.OriginalId.Should().Be(change.OriginalId ?? change.TemporaryId);
+        segmentAdded.OriginalId.Should().Be(change.OriginalId);
         segmentAdded.StartNodeId.Should().Be(actualStartNodeId);
         segmentAdded.EndNodeId.Should().Be(change.EndNodeId);
         segmentAdded.GeometryDrawMethod.Should().Be(change.GeometryDrawMethod);
@@ -63,7 +62,6 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         var change = Fixture.Create<AddRoadSegmentChange>() with
         {
-            PermanentId = null,
             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined,
             Geometry = Fixture.Create<MultiLineString>().WithMeasureOrdinates(),
             EuropeanRoadNumbers = [Fixture.Create<EuropeanRoadNumber>()],
@@ -80,7 +78,7 @@ public class AggregateTests : AggregateTestBase
         var segmentAdded = (RoadSegmentAdded)segment.GetChanges().Single();
         segmentAdded.RoadSegmentId.Should().Be(new RoadSegmentId(1));
         segmentAdded.Geometry.Should().Be(change.Geometry.ToGeometryObject());
-        segmentAdded.OriginalId.Should().Be(change.OriginalId ?? change.TemporaryId);
+        segmentAdded.OriginalId.Should().Be(change.OriginalId);
         segmentAdded.StartNodeId.Should().Be(change.StartNodeId);
         segmentAdded.EndNodeId.Should().Be(change.EndNodeId);
         segmentAdded.GeometryDrawMethod.Should().Be(change.GeometryDrawMethod);
@@ -108,7 +106,7 @@ public class AggregateTests : AggregateTestBase
         var (_, problems) = RoadSegment.Add(change, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
 
         // Assert
-        problems.Should().ContainEquivalentOf(new RoadSegmentGeometryLengthIsZero(change.OriginalId!.Value));
+        problems.Should().ContainEquivalentOf(new RoadSegmentGeometryLengthIsZero(change.OriginalId));
     }
 
     [Fact]

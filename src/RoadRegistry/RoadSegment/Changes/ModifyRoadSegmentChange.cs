@@ -12,7 +12,7 @@ public sealed record ModifyRoadSegmentChange : IRoadNetworkChange
 
     //public required RoadSegmentVersion Version { get; init; }
     //public required GeometryVersion? GeometryVersion { get; init; }
-    public RoadSegmentId? OriginalId { get; init; }
+    public required RoadSegmentId OriginalId { get; init; }
     public MultiLineString? Geometry { get; init; }
     public RoadNodeId? StartNodeId { get; init; }
     //public required RoadNodeId? TemporaryStartNodeId { get; init; }
@@ -26,8 +26,9 @@ public sealed record ModifyRoadSegmentChange : IRoadNetworkChange
     public RoadSegmentDynamicAttributeValues<StreetNameLocalId>? StreetNameId { get; init; }
     public RoadSegmentDynamicAttributeValues<OrganizationId>? MaintenanceAuthorityId { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>? SurfaceType { get; init; }
-    public IReadOnlyCollection<EuropeanRoadNumber>? EuropeanRoadNumbers { get; init; }
-    public IReadOnlyCollection<NationalRoadNumber>? NationalRoadNumbers { get; init; }
+    //TODO-pr mss beter onderstaande props eruit halen en altijd expliciet via de add/remove changes werken? ook voor de edit endpoint
+    public IReadOnlyCollection<EuropeanRoadNumber>? EuropeanRoadNumbers { get; init; } // Is not used by FeatureCompare to keep changes done by other users
+    public IReadOnlyCollection<NationalRoadNumber>? NationalRoadNumbers { get; init; } // Is not used by FeatureCompare to keep changes done by other users
 
     //public required bool ConvertedFromOutlined { get; init; }
     //public bool? CategoryModified { get; init; }

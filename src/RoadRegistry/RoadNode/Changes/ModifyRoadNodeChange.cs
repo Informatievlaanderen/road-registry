@@ -7,6 +7,6 @@ using RoadRegistry.BackOffice;
 public sealed record ModifyRoadNodeChange : IRoadNetworkChange
 {
     public required RoadNodeId RoadNodeId { get; init; }
-    public required Point? Geometry { get; init; }
-    public required RoadNodeType? Type { get; init; }
+    public Point? Geometry { get; init; }
+    public RoadNodeType? Type { get; init; }
 }

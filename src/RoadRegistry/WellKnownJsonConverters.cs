@@ -15,6 +15,7 @@ namespace RoadRegistry.BackOffice
         {
             var factory = new GeometryFactory(new PrecisionModel(), SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32());
 
+            //TODO-pr zorg dat alle struct types ook een nullable variant hebben
             Converters =
             [
                 new GeometryConverter(),
@@ -29,6 +30,7 @@ namespace RoadRegistry.BackOffice
                 new NationalRoadNumberConverter(),
                 new NumberedRoadNumberConverter(),
                 new RoadNodeIdConverter(),
+                new NullableRoadNodeIdConverter(),
                 new RoadNodeTypeConverter(),
                 new RoadSegmentIdConverter(),
                 new RoadSegmentAccessRestrictionConverter(),
@@ -38,6 +40,7 @@ namespace RoadRegistry.BackOffice
                 new RoadSegmentLaneDirectionConverter(),
                 new RoadSegmentMorphologyConverter(),
                 new RoadSegmentPositionConverter(),
+                new NullableRoadSegmentPositionConverter(),
                 new RoadSegmentStatusConverter(),
                 new RoadSegmentSurfaceTypeConverter(),
                 new RoadSegmentWidthConverter(),
