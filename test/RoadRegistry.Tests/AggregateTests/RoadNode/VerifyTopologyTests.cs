@@ -189,11 +189,12 @@ public class VerifyTopologyTests : RoadNetworkTestBase
 
         var addIdenticalSegment = TestData.AddSegment1 with
         {
-            TemporaryId = Fixture.Create<RoadSegmentId>()
+            TemporaryId = Fixture.CreateWhichIsDifferentThan(TestData.AddSegment1.TemporaryId),
+            OriginalId = Fixture.CreateWhichIsDifferentThan(TestData.AddSegment1.TemporaryId, TestData.AddSegment1.OriginalId)
         };
 
         return Run(scenario => scenario
-            .Given(b => b)
+            .Given(given => given)
             .When(changes => changes
                 .Add(addStartNode1WithWrongType)
                 .Add(TestData.AddSegment1)
@@ -201,8 +202,8 @@ public class VerifyTopologyTests : RoadNetworkTestBase
             )
             .ThenContainsProblems(new Error("FakeRoadNodeConnectedSegmentsDoNotDiffer",
                 new ProblemParameter("RoadNodeId", TestData.AddSegment1StartNode.TemporaryId.ToString()),
-                new ProblemParameter("SegmentId", TestData.AddSegment1.TemporaryId.ToString()),
-                new ProblemParameter("SegmentId", addIdenticalSegment.TemporaryId.ToString())
+                new ProblemParameter("SegmentId", TestData.AddSegment1.OriginalId.ToString()),
+                new ProblemParameter("SegmentId", addIdenticalSegment.OriginalId.ToString())
             ))
         );
     }

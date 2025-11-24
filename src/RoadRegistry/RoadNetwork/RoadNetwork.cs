@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.RoadNetwork;
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using BackOffice;
@@ -147,15 +148,22 @@ public sealed class RoadNetworkEntityChangesSummary<TIdentifier>
     public UniqueList<TIdentifier> Added { get; } = [];
     public UniqueList<TIdentifier> Modified { get; } = [];
     public UniqueList<TIdentifier> Removed { get; } = [];
+}
 
-    public sealed class UniqueList<T> : List<T>
+public sealed class UniqueList<T> : IReadOnlyCollection<T>
+{
+    private readonly HashSet<T> _set = [];
+    private readonly List<T> _list = [];
+
+    public void Add(T item)
     {
-        public new void Add(T item)
+        if (_set.Add(item))
         {
-            if (!Contains(item))
-            {
-                base.Add(item);
-            }
+            _list.Add(item);
         }
     }
+
+    public int Count => _list.Count;
+    public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

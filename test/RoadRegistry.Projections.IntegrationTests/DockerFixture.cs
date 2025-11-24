@@ -1,6 +1,7 @@
 namespace RoadRegistry.Projections.IntegrationTests;
 
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.DockerUtilities;
 using Ductus.FluentDocker.Services;
 using Xunit;
 
@@ -18,13 +19,13 @@ public class DockerFixture : IAsyncLifetime
 
     public Task InitializeAsync()
     {
-        //_docker = DockerComposer.Compose("postgres.yml", "road-integration-tests-postgres"); //TODO-pr temp disable
+        _docker = DockerComposer.Compose("postgres.yml", "road-integration-tests-postgres");
         return Task.CompletedTask;
     }
 
     public Task DisposeAsync()
     {
-        //_docker.Dispose(); //TODO-pr temp disable
+        _docker.Dispose();
         return Task.CompletedTask;
     }
 }
