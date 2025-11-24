@@ -1,11 +1,11 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureCompare.V3.Scenarios;
 
 using System.IO.Compression;
+using Exceptions;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.FeatureCompare.V3;
-using RoadRegistry.BackOffice.Uploads;
 using RoadSegment.ValueObjects;
+using Uploads;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using IZipArchiveFeatureCompareTranslator = RoadRegistry.BackOffice.FeatureCompare.V3.IZipArchiveFeatureCompareTranslator;

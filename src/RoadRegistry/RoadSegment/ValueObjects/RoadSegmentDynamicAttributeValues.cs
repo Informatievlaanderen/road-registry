@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
 
 public class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmentDynamicAttributeValues<T>>
@@ -12,6 +13,12 @@ public class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmentDynami
 
     public RoadSegmentDynamicAttributeValues()
     {
+    }
+
+    [JsonConstructor]
+    public RoadSegmentDynamicAttributeValues(ICollection<RoadSegmentDynamicAttributeValue<T>> values)
+    {
+        Values = ImmutableList.CreateRange(values);
     }
 
     public RoadSegmentDynamicAttributeValues(T value)
@@ -57,18 +64,6 @@ public class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmentDynami
         return this;
     }
 
-    public RoadSegmentDynamicAttributeValues<T> Add(RoadSegmentPosition? from, RoadSegmentPosition? to, RoadSegmentAttributeSide side, T value)
-    {
-        Values = Values.Add(new RoadSegmentDynamicAttributeValue<T>
-        {
-            From = from,
-            To = to,
-            Side = side,
-            Value = value
-        });
-        return this;
-    }
-
     public RoadSegmentDynamicAttributeValues<T> Add(RoadSegmentPosition? from, RoadSegmentPosition? to, T value)
     {
         Values = Values.Add(new RoadSegmentDynamicAttributeValue<T>
@@ -76,6 +71,18 @@ public class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmentDynami
             From = from,
             To = to,
             Side = RoadSegmentAttributeSide.Both,
+            Value = value
+        });
+        return this;
+    }
+
+    public RoadSegmentDynamicAttributeValues<T> Add(RoadSegmentPosition? from, RoadSegmentPosition? to, RoadSegmentAttributeSide side, T value)
+    {
+        Values = Values.Add(new RoadSegmentDynamicAttributeValue<T>
+        {
+            From = from,
+            To = to,
+            Side = side,
             Value = value
         });
         return this;

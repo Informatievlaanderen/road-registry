@@ -33,6 +33,8 @@ public static class ValidationExtensions
         var valuesGroupedByPositionSegment = sortedAttributes
             .ToLookup(x => (x.From, x.To), x => (x.Side, x.Value));
 
+        //TODO-pr nakijken of het hier gegarandeerd is dat altijd het volledige wegsegment is verantwoordt (rekening houdende met null from/to pos) + add test indien niet het geval
+
         // ensure each position segment has correct amount of values per side
         RoadSegmentPosition? previousToPosition = null;
         foreach (var group in valuesGroupedByPositionSegment)

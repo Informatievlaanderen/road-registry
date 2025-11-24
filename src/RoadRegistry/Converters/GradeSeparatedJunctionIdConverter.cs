@@ -2,13 +2,12 @@ namespace RoadRegistry.BackOffice.Infrastructure.Converters;
 
 using System;
 using Newtonsoft.Json;
-using RoadSegment.ValueObjects;
 
-public class GradeSeparatedJunctionIdConverter : JsonConverter<GradeSeparatedJunctionId>
+public class GradeSeparatedJunctionIdConverter : NullableJsonConverter<GradeSeparatedJunctionId>
 {
-    public override GradeSeparatedJunctionId ReadJson(JsonReader reader, Type objectType, GradeSeparatedJunctionId existingValue, bool hasExistingValue, JsonSerializer serializer)
+    public override GradeSeparatedJunctionId ReadJson(JsonReader reader, Type objectType, GradeSeparatedJunctionId? existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
-        return new GradeSeparatedJunctionId(int.Parse(reader.Value?.ToString() ?? "0"));
+        return new GradeSeparatedJunctionId(Convert.ToInt32(reader.Value));
     }
 
     public override void WriteJson(JsonWriter writer, GradeSeparatedJunctionId value, JsonSerializer serializer)

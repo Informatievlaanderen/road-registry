@@ -7,7 +7,7 @@ public class RoadSegmentGeometryDrawMethodConverter : JsonConverter<RoadSegmentG
 {
     public override RoadSegmentGeometryDrawMethod ReadJson(JsonReader reader, Type objectType, RoadSegmentGeometryDrawMethod existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
-        return RoadSegmentGeometryDrawMethod.Parse(reader.Value?.ToString());
+        return RoadSegmentGeometryDrawMethod.Parse((string)reader.Value!);
     }
 
     public override void WriteJson(JsonWriter writer, RoadSegmentGeometryDrawMethod value, JsonSerializer serializer)

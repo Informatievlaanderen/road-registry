@@ -18,18 +18,6 @@ public partial class RoadSegment
 
         problems += new RoadSegmentGeometryValidator().Validate(originalId, geometryDrawMethod, geometry);
 
-        //TODO-pr category logica upgrade validatie herbekijken eens FC is aangepast om de dynamische structuur te ondersteunen
-        // var category = change.Category;
-        // if (category is not null
-        //     && change.CategoryModified is not null
-        //     && !change.CategoryModified.Value
-        //     && category != AttributeHash.Category
-        //     && RoadSegmentCategory.IsUpgraded(AttributeHash.Category))
-        // {
-        //     category = AttributeHash.Category;
-        //     problems += new RoadSegmentCategoryNotChangedBecauseCurrentIsNewerVersion(originalIdOrId);
-        // }
-
         var attributes = new RoadSegmentAttributes
         {
             GeometryDrawMethod = change.GeometryDrawMethod ?? Attributes.GeometryDrawMethod,
