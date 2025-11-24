@@ -5,7 +5,7 @@ using Be.Vlaanderen.Basisregisters.DockerUtilities;
 using Ductus.FluentDocker.Services;
 using Xunit;
 
-[CollectionDefinition("DockerFixtureCollection")]
+[CollectionDefinition(nameof(DockerFixtureCollection))]
 public class DockerFixtureCollection : ICollectionFixture<DockerFixture>
 {
     // This class has no code, and is never created. Its purpose is simply
@@ -19,7 +19,11 @@ public class DockerFixture : IAsyncLifetime
 
     public Task InitializeAsync()
     {
-        _docker = DockerComposer.Compose("postgres.yml", "road-integration-tests-postgres");
+        _docker = DockerComposer.Compose("postgres.yml", "road-projection-integration-tests-postgres");
+
+        //TODO-pr onstabiel integration tests: soms is de docker nog niet helemaal klaar en dan wordt de Docker dispose al opgeroepen wanneer de InstallPostgis gebeurd, maar daar kom je dan weer niet in de exception catch
+        Thread.Sleep(2000);
+
         return Task.CompletedTask;
     }
 

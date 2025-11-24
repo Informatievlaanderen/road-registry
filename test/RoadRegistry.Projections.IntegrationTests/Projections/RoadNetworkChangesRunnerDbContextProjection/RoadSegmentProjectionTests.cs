@@ -8,7 +8,7 @@ using Moq;
 using RoadRegistry.RoadSegment.Events;
 using Tests.BackOffice.Scenarios;
 
-[Collection("DockerFixtureCollection")]
+[Collection(nameof(DockerFixtureCollection))]
 public class RoadSegmentProjectionTests : IClassFixture<DatabaseFixture>
 {
     private readonly DatabaseFixture _databaseFixture;
@@ -18,6 +18,7 @@ public class RoadSegmentProjectionTests : IClassFixture<DatabaseFixture>
         _databaseFixture = databaseFixture;
     }
 
+    //TODO-pr current: test fails bij verwerken RoadNetworkChanged event, die is wel nodig voor projectie, rare null ref error
     [Fact]
     public async Task WhenRoadSegmentAdded_ThenSucceeded()
     {

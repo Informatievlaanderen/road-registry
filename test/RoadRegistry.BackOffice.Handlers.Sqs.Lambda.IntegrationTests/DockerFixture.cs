@@ -5,7 +5,7 @@ using Be.Vlaanderen.Basisregisters.DockerUtilities;
 using Ductus.FluentDocker.Services;
 using Xunit;
 
-[CollectionDefinition("DockerFixtureCollection")]
+[CollectionDefinition(nameof(DockerFixtureCollection))]
 public class DockerFixtureCollection : ICollectionFixture<DockerFixture>
 {
     // This class has no code, and is never created. Its purpose is simply

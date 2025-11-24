@@ -22,7 +22,7 @@ using Tests.BackOffice;
 using Tests.Framework;
 using TicketingService.Abstractions;
 
-[Collection("DockerFixtureCollection")]
+[Collection(nameof(DockerFixtureCollection))]
 public class WithValidRequest : IClassFixture<DatabaseFixture>
 {
     private readonly DatabaseFixture _databaseFixture;

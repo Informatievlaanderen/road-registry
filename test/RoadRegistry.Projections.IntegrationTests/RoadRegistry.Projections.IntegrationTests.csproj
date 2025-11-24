@@ -29,8 +29,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
-    <Content Update="postgres.yml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="postgres.yml" CopyToOutputDirectory="Always" />
   </ItemGroup>
 </Project>

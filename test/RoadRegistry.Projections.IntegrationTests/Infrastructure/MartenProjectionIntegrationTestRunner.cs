@@ -121,8 +121,14 @@ public class MartenProjectionIntegrationTestRunner
 
         await using var session = store.LightweightSession();
 
+        // session.Events.StartStream(StreamKeyFactory.Create(typeof(RoadNetwork), RoadNetwork.GlobalIdentifier), new RoadNetworkChanged
+        // {
+        //     ScopeGeometry = null!
+        // });
+
         foreach (var events in _givenEvents)
         {
+            session.CausationId = "given";
             session.CorrelationId = Guid.NewGuid().ToString(); // Ensure events are grouped by correlation id
 
             foreach (var @event in events)
@@ -132,7 +138,7 @@ public class MartenProjectionIntegrationTestRunner
 
             session.Events.Append(StreamKeyFactory.Create(typeof(RoadNetwork), RoadNetwork.GlobalIdentifier), new RoadNetworkChanged
             {
-                ScopeGeometry = new GeometryObject(0, string.Empty)
+                ScopeGeometry = null!
             });
 
             await session.SaveChangesAsync();

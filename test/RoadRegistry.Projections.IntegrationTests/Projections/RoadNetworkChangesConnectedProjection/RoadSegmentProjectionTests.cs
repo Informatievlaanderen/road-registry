@@ -6,7 +6,7 @@ using RoadRegistry.RoadSegment.Events;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 
-[Collection("DockerFixtureCollection")]
+[Collection(nameof(DockerFixtureCollection))]
 public class RoadSegmentProjectionTests : IClassFixture<DatabaseFixture>
 {
     private readonly DatabaseFixture _databaseFixture;

@@ -534,6 +534,10 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                 builder.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value = 0;
                 builder.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value = 0;
 
+                // allowed for both outlined and measured
+                builder.TestData.RoadSegment1DbaseRecord.STATUS.Value = RoadSegmentStatus.InUse.Translation.Identifier;
+                builder.TestData.RoadSegment1DbaseRecord.MORF.Value = RoadSegmentMorphology.ServiceRoad.Translation.Identifier;
+
                 builder.DataSet.RoadNodeDbaseRecords.Remove(builder.TestData.RoadNode1DbaseRecord);
                 builder.DataSet.RoadNodeDbaseRecords.Remove(builder.TestData.RoadNode2DbaseRecord);
                 builder.DataSet.RoadNodeShapeRecords.Remove(builder.TestData.RoadNode1ShapeRecord);
@@ -544,8 +548,6 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                 builder.TestData.RoadSegment1DbaseRecord.METHODE.Value = RoadSegmentGeometryDrawMethod.Measured.Translation.Identifier;
                 builder.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value = builder.TestData.RoadNode1DbaseRecord.WK_OIDN.Value;
                 builder.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value = builder.TestData.RoadNode2DbaseRecord.WK_OIDN.Value;
-
-                builder.TestData.RoadSegment1DbaseRecord.STATUS.Value = context.Fixture.CreateWhichIsDifferentThan(RoadSegmentStatus.ByIdentifier[builder.TestData.RoadSegment1DbaseRecord.STATUS.Value]).Translation.Identifier;
             })
             .BuildWithResult(context => TranslatedChanges.Empty
                 .AppendChange(new AddRoadNodeChange
@@ -568,8 +570,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                     OriginalId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
                     StartNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value),
                     EndNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value),
-                    GeometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
-                    Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatus.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.STATUS.Value])
+                    GeometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value]
                 }));
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
