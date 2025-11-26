@@ -137,9 +137,9 @@ public class AggregateTests : AggregateTestBase
 
         // Assert
         segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);
-        segment.Geometry.AsText().Should().Be(evt.Geometry.WKT);
-        segment.StartNodeId.Should().Be(evt.StartNodeId);
-        segment.EndNodeId.Should().Be(evt.EndNodeId);
+        segment.Geometry.AsText().Should().Be(evt.Geometry!.WKT);
+        segment.StartNodeId.Should().Be(evt.StartNodeId!.Value);
+        segment.EndNodeId.Should().Be(evt.EndNodeId!.Value);
         segment.Attributes.GeometryDrawMethod.Should().Be(evt.GeometryDrawMethod);
         segment.Attributes.AccessRestriction.Should().Be(evt.AccessRestriction);
         segment.Attributes.Category.Should().Be(evt.Category);

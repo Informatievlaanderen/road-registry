@@ -83,10 +83,10 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
         var store = sp.GetRequiredService<IDocumentStore>();
         await using var session = store.LightweightSession();
 
-        var roadNodes = await session.LoadRoadNodesAsync([testData.Segment1StartNodeAdded.RoadNodeId, testData.Segment1EndNodeAdded.RoadNodeId]);
+        var roadNodes = await session.LoadManyAsync([testData.Segment1StartNodeAdded.RoadNodeId, testData.Segment1EndNodeAdded.RoadNodeId]);
         roadNodes.Should().HaveCount(2);
 
-        var roadSegments = await session.LoadRoadSegmentsAsync([testData.Segment1Added.RoadSegmentId]);
+        var roadSegments = await session.LoadManyAsync([testData.Segment1Added.RoadSegmentId]);
         roadSegments.Should().HaveCount(1);
     }
 

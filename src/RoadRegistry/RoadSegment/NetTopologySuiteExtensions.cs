@@ -10,7 +10,7 @@ using LineString = NetTopologySuite.Geometries.LineString;
 
 public static class NetTopologySuiteExtensions
 {
-    public static MultiLineString AsMultiLineString(this GeometryObject geometry)
+    public static MultiLineString ToMultiLineString(this GeometryObject geometry)
     {
         ArgumentNullException.ThrowIfNull(geometry);
 

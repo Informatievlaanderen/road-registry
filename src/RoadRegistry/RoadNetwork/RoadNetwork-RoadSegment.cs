@@ -37,7 +37,7 @@ public partial class RoadNetwork
 
     private Problems ModifyRoadSegment(ModifyRoadSegmentChange change, IIdentifierTranslator idTranslator, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
     {
-        var originalId = change.OriginalId;
+        var originalId = change.OriginalId ?? change.RoadSegmentId;
 
         if (!_roadSegments.TryGetValue(change.RoadSegmentId, out var roadSegment))
         {

@@ -9,7 +9,7 @@ using RoadRegistry.RoadSegment.ValueObjects;
 public sealed record ModifyRoadSegmentChange : IRoadNetworkChange
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
-    public required RoadSegmentId OriginalId { get; init; }
+    public RoadSegmentId? OriginalId { get; init; }
     public MultiLineString? Geometry { get; init; }
     public RoadNodeId? StartNodeId { get; init; }
     public RoadNodeId? EndNodeId { get; init; }

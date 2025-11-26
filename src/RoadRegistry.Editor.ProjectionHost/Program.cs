@@ -13,6 +13,8 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using EventProcessors;
 using Extensions;
 using Hosts;
+using Infrastructure.MartenDb.Setup;
+using MartenMigration.Projections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,10 +50,13 @@ public class Program
             .RunAsync(async (sp, host, configuration) =>
             {
                 var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
-                var migratorFactory = sp.GetRequiredService<IRunnerDbContextMigratorFactory>();
+                var migratorFactories = sp.GetRequiredService<IRunnerDbContextMigratorFactory[]>();
 
-                await migratorFactory.CreateMigrator(configuration, loggerFactory)
-                    .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
+                foreach (var migratorFactory in migratorFactories)
+                {
+                    await migratorFactory.CreateMigrator(configuration, loggerFactory)
+                        .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
+                }
             });
     }
 
@@ -74,7 +79,7 @@ public class Program
                                     .UseNetTopologySuite()
                             ).Options)
                 )
-                .AddSingleton<IRunnerDbContextMigratorFactory>(new EditorContextMigrationFactory())
+                .AddSingleton<IRunnerDbContextMigratorFactory[]>([new EditorContextMigrationFactory(), new MartenMigrationContextMigrationFactory()])
                 .AddEditorContextEventProcessor<RoadNetworkEventProcessor>(sp =>
                 [
                     new RoadNetworkInfoProjection(),
@@ -113,6 +118,7 @@ public class Program
                 [
                     new RoadSegmentVersionRecordProjection(sp.GetRequiredService<ILogger<RoadSegmentVersionRecordProjection>>())
                 ])
+                .AddMartenDbMigrationEventProcessor()
                 ;
         })
         .ConfigureHealthChecks(HostingPort, builder => builder

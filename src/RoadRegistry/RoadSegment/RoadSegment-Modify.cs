@@ -11,7 +11,7 @@ public partial class RoadSegment
     {
         var problems = Problems.None;
 
-        var originalId = change.OriginalId;
+        var originalId = change.OriginalId ?? change.RoadSegmentId;
         var geometryDrawMethod = change.GeometryDrawMethod ?? Attributes.GeometryDrawMethod;
         var geometry = change.Geometry ?? Geometry;
 

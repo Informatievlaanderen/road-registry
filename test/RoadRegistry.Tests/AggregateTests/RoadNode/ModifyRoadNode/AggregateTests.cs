@@ -49,6 +49,6 @@ public class AggregateTests : AggregateTestBase
         // Assert
         node.RoadNodeId.Should().Be(evt.RoadNodeId);
         node.Type.Should().Be(evt.Type);
-        node.Geometry.Should().Be(evt.Geometry.AsPoint());
+        node.Geometry.Should().Be(evt.Geometry.ToPoint());
     }
 }

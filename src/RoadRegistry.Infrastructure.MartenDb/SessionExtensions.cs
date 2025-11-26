@@ -3,6 +3,7 @@
 using BackOffice;
 using Marten;
 using GradeSeparatedJunction;
+using JasperFx.Events;
 using Marten.Events;
 using RoadNode;
 using RoadSegment;
@@ -10,29 +11,42 @@ using RoadSegment.ValueObjects;
 
 public static class SessionExtensions
 {
-    public static void AppendOrStartStream(this IEventStoreOperations operations, string streamKey, object @event)
+    public static StreamAction AppendOrStartStream(this IEventStoreOperations operations, string streamKey, object @event)
     {
         if (@event is ICreatedEvent)
         {
-            operations.StartStream(streamKey, @event);
+            return operations.StartStream(streamKey, @event);
         }
-        else
-        {
-            operations.Append(streamKey, @event);
-        }
+
+        return operations.Append(streamKey, @event);
     }
 
-    public static async Task<IReadOnlyList<RoadNode>> LoadRoadNodesAsync(this IDocumentSession session, IEnumerable<RoadNodeId> ids)
+    public static async Task<RoadNode?> LoadAsync(this IDocumentSession session, RoadNodeId id)
+    {
+        var result = await session.LoadManyAsync([id]);
+        return result.SingleOrDefault();
+    }
+    public static async Task<IReadOnlyList<RoadNode>> LoadManyAsync(this IDocumentSession session, IEnumerable<RoadNodeId> ids)
     {
         return await session.LoadManyEntitiesAsync<RoadNode, RoadNodeId>(ids);
     }
 
-    public static async Task<IReadOnlyList<RoadSegment>> LoadRoadSegmentsAsync(this IDocumentSession session, IEnumerable<RoadSegmentId> ids)
+    public static async Task<RoadSegment?> LoadAsync(this IDocumentSession session, RoadSegmentId id)
+    {
+        var result = await session.LoadManyAsync([id]);
+        return result.SingleOrDefault();
+    }
+    public static async Task<IReadOnlyList<RoadSegment>> LoadManyAsync(this IDocumentSession session, IEnumerable<RoadSegmentId> ids)
     {
         return await session.LoadManyEntitiesAsync<RoadSegment, RoadSegmentId>(ids);
     }
 
-    public static async Task<IReadOnlyList<GradeSeparatedJunction>> LoadGradeSeparatedJunctionAsync(this IDocumentSession session, IEnumerable<GradeSeparatedJunctionId> ids)
+    public static async Task<GradeSeparatedJunction?> LoadAsync(this IDocumentSession session, GradeSeparatedJunctionId id)
+    {
+        var result = await session.LoadManyAsync([id]);
+        return result.SingleOrDefault();
+    }
+    public static async Task<IReadOnlyList<GradeSeparatedJunction>> LoadManyAsync(this IDocumentSession session, IEnumerable<GradeSeparatedJunctionId> ids)
     {
         return await session.LoadManyEntitiesAsync<GradeSeparatedJunction, GradeSeparatedJunctionId>(ids);
     }
@@ -50,7 +64,7 @@ public static class SessionExtensions
 
         foreach (var streamKey in streamKeys.Where(x => aggregates.All(snapshot => snapshot.Id != x)))
         {
-            var aggregate = (await session.Events.AggregateStreamAsync<TEntity>(streamKey));
+            var aggregate = await session.Events.AggregateStreamAsync<TEntity>(streamKey);
             if (aggregate is not null)
             {
                 aggregate.RequestToSaveSnapshot();

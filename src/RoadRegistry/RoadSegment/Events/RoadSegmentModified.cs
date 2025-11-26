@@ -7,16 +7,16 @@ using ValueObjects;
 public record RoadSegmentModified
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
-    public required RoadSegmentId OriginalId { get; init; } //TODO-pr is deze wel nodig in de event? wel voor errors terug te sturen, hier niet meer denk ik, mss voor terugkoppeling bij accepted messages?
-    public required GeometryObject Geometry { get; init; }
-    public required RoadNodeId StartNodeId { get; init; }
-    public required RoadNodeId EndNodeId { get; init; }
-    public required RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; init; }
-    public required RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction> AccessRestriction { get; set; }
-    public required RoadSegmentDynamicAttributeValues<RoadSegmentCategory> Category { get; set; }
-    public required RoadSegmentDynamicAttributeValues<RoadSegmentMorphology> Morphology { get; set; }
-    public required RoadSegmentDynamicAttributeValues<RoadSegmentStatus> Status { get; set; }
-    public required RoadSegmentDynamicAttributeValues<StreetNameLocalId> StreetNameId { get; set; }
-    public required RoadSegmentDynamicAttributeValues<OrganizationId> MaintenanceAuthorityId { get; set; }
-    public required RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType> SurfaceType { get; set; }
+    public RoadSegmentId? OriginalId { get; init; } //TODO-pr is deze wel nodig in de event? wel voor errors terug te sturen, hier niet meer denk ik, mss voor terugkoppeling bij accepted messages?
+    public GeometryObject? Geometry { get; init; }
+    public RoadNodeId? StartNodeId { get; init; }
+    public RoadNodeId? EndNodeId { get; init; }
+    public RoadSegmentGeometryDrawMethod? GeometryDrawMethod { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>? AccessRestriction { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentCategory>? Category { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>? Morphology { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentStatus>? Status { get; init; }
+    public RoadSegmentDynamicAttributeValues<StreetNameLocalId>? StreetNameId { get; init; }
+    public RoadSegmentDynamicAttributeValues<OrganizationId>? MaintenanceAuthorityId { get; init; }
+    public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>? SurfaceType { get; init; }
 }

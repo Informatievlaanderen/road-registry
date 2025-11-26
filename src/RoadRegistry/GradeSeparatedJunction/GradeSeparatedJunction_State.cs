@@ -49,6 +49,11 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
 
     public void Apply(GradeSeparatedJunctionRemoved @event)
     {
+        if (IsRemoved)
+        {
+            return;
+        }
+
         UncommittedEvents.Add(@event);
 
         IsRemoved = true;

@@ -124,13 +124,18 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
                 .Aggregate(problems, (p, x) => p + x.VerifyTopology(context));
         }
 
-        UncommittedEvents.Add(new RoadNetworkChanged
+        Apply(new RoadNetworkChanged
         {
             ScopeGeometry = changes.BuildScopeGeometry().ToGeometryObject(),
             DownloadId = downloadId
         });
 
         return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), summary);
+    }
+
+    public void Apply(RoadNetworkChanged @event)
+    {
+        UncommittedEvents.Add(@event);
     }
 }
 

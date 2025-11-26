@@ -48,6 +48,6 @@ public class AggregateTests : AggregateTestBase
         node.RoadNodeId.Should().Be(evt.RoadNodeId);
         node.IsRemoved.Should().BeTrue();
         node.Type.Should().Be(nodeAdded.Type);
-        node.Geometry.Should().Be(nodeAdded.Geometry.AsPoint());
+        node.Geometry.Should().Be(nodeAdded.Geometry.ToPoint());
     }
 }

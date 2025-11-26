@@ -5,6 +5,6 @@ using ValueObjects;
 
 public record RoadNetworkChanged
 {
-    public required GeometryObject ScopeGeometry { get; init; }
+    public GeometryObject? ScopeGeometry { get; init; }
     public DownloadId? DownloadId { get; init; }
 }

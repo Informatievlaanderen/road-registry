@@ -6,24 +6,22 @@ using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Dapper;
 using Marten;
 using NetTopologySuite.Geometries;
-using Newtonsoft.Json;
 using Projections;
 using RoadNetwork;
-using RoadNetwork.Events;
 using RoadSegment.ValueObjects;
 
 public class RoadNetworkRepository : IRoadNetworkRepository
 {
-    private readonly IDocumentStore _store;
+    protected IDocumentStore Store { get; }
 
     public RoadNetworkRepository(IDocumentStore store)
     {
-        _store = store;
+        Store = store;
     }
 
     public async Task<RoadNetwork> Load(RoadNetworkChanges roadNetworkChanges)
     {
-        await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
+        await using var session = Store.LightweightSession(IsolationLevel.Snapshot);
 
         var ids = await GetUnderlyingIds(session, roadNetworkChanges.BuildScopeGeometry());
         var roadNetwork = await Load(
@@ -35,12 +33,48 @@ public class RoadNetworkRepository : IRoadNetworkRepository
 
         return roadNetwork;
     }
+    public async Task<RoadNetwork> Load(
+        IReadOnlyCollection<RoadNodeId> roadNodeIds,
+        IReadOnlyCollection<RoadSegmentId> roadSegmentIds,
+        IReadOnlyCollection<GradeSeparatedJunctionId> gradeSeparatedJunctionIds
+    )
+    {
+        await using var session = Store.LightweightSession(IsolationLevel.Snapshot);
+
+        var roadNetwork = await Load(
+            session,
+            roadNodeIds,
+            roadSegmentIds,
+            gradeSeparatedJunctionIds
+        );
+
+        return roadNetwork;
+    }
+    private async Task<RoadNetwork> Load(
+        IDocumentSession session,
+        IReadOnlyCollection<RoadNodeId> roadNodeIds,
+        IReadOnlyCollection<RoadSegmentId> roadSegmentIds,
+        IReadOnlyCollection<GradeSeparatedJunctionId> gradeSeparatedJunctionIds
+    )
+    {
+        var roadNodes = await session.LoadManyAsync(roadNodeIds);
+        var roadSegments = await session.LoadManyAsync(roadSegmentIds);
+        var gradeSeparatedJunctions = await session.LoadManyAsync(gradeSeparatedJunctionIds);
+
+        return new RoadNetwork(roadNodes, roadSegments, gradeSeparatedJunctions);
+    }
 
     public async Task Save(RoadNetwork roadNetwork, string commandName, Provenance provenance, CancellationToken cancellationToken)
     {
-        await using var session = _store.LightweightSession();
+        await using var session = Store.LightweightSession();
 
-        session.CorrelationId = Guid.NewGuid().ToString();
+        AddChangesToSession(session, roadNetwork, commandName, provenance);
+
+        await session.SaveChangesAsync(cancellationToken);
+    }
+    public void AddChangesToSession(IDocumentSession session, RoadNetwork roadNetwork, string commandName, Provenance provenance)
+    {
+        session.CorrelationId ??= Guid.NewGuid().ToString();
         session.CausationId = commandName;
         session.SetHeader("Provenance", provenance.ToDictionary());
 
@@ -51,8 +85,6 @@ public class RoadNetworkRepository : IRoadNetworkRepository
         {
             session.Events.Append(roadNetwork.Id, evt);
         }
-
-        await session.SaveChangesAsync(cancellationToken);
     }
 
     private async Task<(IReadOnlyCollection<RoadNodeId> RoadNodeIds, IReadOnlyCollection<RoadSegmentId> RoadSegmentIds, IReadOnlyCollection<GradeSeparatedJunctionId> GradeSeparatedJunctionIds)> GetUnderlyingIds(
@@ -86,20 +118,6 @@ WHERE ST_Intersects(rs.geometry, ST_GeomFromText(@wkt, {geometry.SRID}))";
                 .Select(x => new GradeSeparatedJunctionId(x))
                 .ToArray()
         );
-    }
-
-    private async Task<RoadNetwork> Load(
-        IDocumentSession session,
-        IReadOnlyCollection<RoadNodeId> roadNodeIds,
-        IReadOnlyCollection<RoadSegmentId> roadSegmentIds,
-        IReadOnlyCollection<GradeSeparatedJunctionId> gradeSeparatedJunctionIds
-    )
-    {
-        var roadNodes = await session.LoadRoadNodesAsync(roadNodeIds);
-        var roadSegments = await session.LoadRoadSegmentsAsync(roadSegmentIds);
-        var gradeSeparatedJunctions = await session.LoadGradeSeparatedJunctionAsync(gradeSeparatedJunctionIds);
-
-        return new RoadNetwork(roadNodes, roadSegments, gradeSeparatedJunctions);
     }
 
     private static void SaveEntities<TKey, TEntity>(IReadOnlyDictionary<TKey, TEntity> entities, IDocumentSession session)

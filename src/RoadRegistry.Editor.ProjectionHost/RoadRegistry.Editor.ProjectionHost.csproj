@@ -13,6 +13,7 @@
     <ProjectReference Include="..\RoadRegistry.Editor.Projections\RoadRegistry.Editor.Projections.csproj" />
     <ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
+    <ProjectReference Include="..\RoadRegistry.MartenMigration.Projections\RoadRegistry.MartenMigration.Projections.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Be.Vlaanderen.Basisregisters.EventHandling.Autofac" />

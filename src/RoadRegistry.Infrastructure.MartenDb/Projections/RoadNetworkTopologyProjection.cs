@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
+using System.Text;
 using GradeSeparatedJunction.Events;
 using JasperFx.Events;
 using Marten;
@@ -49,14 +50,41 @@ public class RoadNetworkTopologyProjection : EventProjection
     public void Project(IEvent<RoadSegmentAdded> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand($"insert into {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id) values (?, ST_GeomFromText(?, ?), ?, ?)",
-            e.Data.RoadSegmentId.ToInt32(), e.Data.Geometry.AsMultiLineString().AsText(), e.Data.Geometry.SRID, e.Data.StartNodeId.ToInt32(), e.Data.EndNodeId.ToInt32()
+            e.Data.RoadSegmentId.ToInt32(), e.Data.Geometry.ToMultiLineString().AsText(), e.Data.Geometry.SRID, e.Data.StartNodeId.ToInt32(), e.Data.EndNodeId.ToInt32()
         );
     }
 
     public void Project(IEvent<RoadSegmentModified> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand($"update {RoadSegmentsTableName} set geometry = ST_GeomFromText(?, ?), start_node_id = ?, end_node_id = ?, where id = ?",
-            e.Data.Geometry.AsMultiLineString().AsText(), e.Data.Geometry.SRID, e.Data.StartNodeId.ToInt32(), e.Data.EndNodeId.ToInt32(), e.Data.RoadSegmentId.ToInt32()
+        var parameters = new List<object>();
+        var tableUpdates = new List<string>();
+
+        if (e.Data.Geometry is not null)
+        {
+            tableUpdates.Add("geometry = ST_GeomFromText(?, ?)");
+            parameters.Add(e.Data.Geometry.ToMultiLineString().AsText());
+            parameters.Add(e.Data.Geometry.SRID);
+        }
+
+        if (e.Data.StartNodeId is not null)
+        {
+            tableUpdates.Add("start_node_id = ?");
+            parameters.Add(e.Data.StartNodeId);
+        }
+
+        if (e.Data.EndNodeId is not null)
+        {
+            tableUpdates.Add("end_node_id = ?");
+            parameters.Add(e.Data.EndNodeId);
+        }
+
+        if (!tableUpdates.Any())
+        {
+            return;
+        }
+
+        ops.QueueSqlCommand($"update {RoadSegmentsTableName} set {string.Join(", ", tableUpdates)} where id = {e.Data.RoadSegmentId}",
+            parameters.ToArray()
         );
     }
 
@@ -67,7 +95,6 @@ public class RoadNetworkTopologyProjection : EventProjection
         );
     }
 
-    //TODO-pr gradeseparated junctions: zonder geometry, enkel administratieve data
     public void Project(IEvent<GradeSeparatedJunctionAdded> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand($"insert into {GradeSeparatedJunctionsTableName} (id, lower_road_segment_id, upper_road_segment_id) values (?, ST_GeomFromText(?, ?), ?, ?)",

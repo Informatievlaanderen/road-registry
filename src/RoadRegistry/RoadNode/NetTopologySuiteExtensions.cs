@@ -12,7 +12,7 @@ using LineString = NetTopologySuite.Geometries.LineString;
 
 public static class NetTopologySuiteExtensions
 {
-    public static Point AsPoint(this GeometryObject geometry)
+    public static Point ToPoint(this GeometryObject geometry)
     {
         ArgumentNullException.ThrowIfNull(geometry);
 

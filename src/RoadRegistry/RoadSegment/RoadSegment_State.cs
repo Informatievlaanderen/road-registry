@@ -60,34 +60,17 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
 
     public static RoadSegment Create(RoadSegmentAdded @event)
     {
-        var segment = new RoadSegment(@event.RoadSegmentId)
-        {
-            Geometry = @event.Geometry.AsMultiLineString(),
-            StartNodeId = @event.StartNodeId,
-            EndNodeId = @event.EndNodeId,
-            Attributes = new()
-            {
-                GeometryDrawMethod = @event.GeometryDrawMethod,
-                AccessRestriction = @event.AccessRestriction,
-                Category = @event.Category,
-                Morphology = @event.Morphology,
-                Status = @event.Status,
-                StreetNameId = @event.StreetNameId,
-                MaintenanceAuthorityId = @event.MaintenanceAuthorityId,
-                SurfaceType = @event.SurfaceType,
-                EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
-                NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
-            }
-        };
-        segment.UncommittedEvents.Add(@event);
+        var segment = new RoadSegment(@event.RoadSegmentId);
+        segment.Apply(@event);
         return segment;
     }
 
-    public void Apply(RoadSegmentModified @event)
+    public void Apply(RoadSegmentAdded @event)
     {
         UncommittedEvents.Add(@event);
 
-        Geometry = @event.Geometry.AsMultiLineString();
+        IsRemoved = false;
+        Geometry = @event.Geometry.ToMultiLineString();
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
         Attributes = new RoadSegmentAttributes
@@ -99,12 +82,39 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
             Status = @event.Status,
             StreetNameId = @event.StreetNameId,
             MaintenanceAuthorityId = @event.MaintenanceAuthorityId,
-            SurfaceType = @event.SurfaceType
+            SurfaceType = @event.SurfaceType,
+            EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
+            NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
+        };
+    }
+
+    public void Apply(RoadSegmentModified @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        Geometry = @event.Geometry?.ToMultiLineString() ?? Geometry;
+        StartNodeId = @event.StartNodeId ?? StartNodeId;
+        EndNodeId = @event.EndNodeId ?? EndNodeId;
+        Attributes = new RoadSegmentAttributes
+        {
+            GeometryDrawMethod = @event.GeometryDrawMethod ?? Attributes.GeometryDrawMethod,
+            AccessRestriction = @event.AccessRestriction ?? Attributes.AccessRestriction,
+            Category = @event.Category ?? Attributes.Category,
+            Morphology = @event.Morphology ?? Attributes.Morphology,
+            Status = @event.Status ?? Attributes.Status,
+            StreetNameId = @event.StreetNameId ?? Attributes.StreetNameId,
+            MaintenanceAuthorityId = @event.MaintenanceAuthorityId ?? Attributes.MaintenanceAuthorityId,
+            SurfaceType = @event.SurfaceType ?? Attributes.SurfaceType
         };
     }
 
     public void Apply(RoadSegmentRemoved @event)
     {
+        if (IsRemoved)
+        {
+            return;
+        }
+
         UncommittedEvents.Add(@event);
 
         IsRemoved = true;

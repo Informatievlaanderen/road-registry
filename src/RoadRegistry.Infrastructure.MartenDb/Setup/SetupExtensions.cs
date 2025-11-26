@@ -39,7 +39,7 @@ public static class SetupExtensions
                 return options;
             });
 
-        services.AddScoped<IRoadNetworkRepository, RoadNetworkRepository>();
+        services.AddSingleton<IRoadNetworkRepository, RoadNetworkRepository>();
 
         return services;
     }
