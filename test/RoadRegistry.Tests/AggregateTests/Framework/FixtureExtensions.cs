@@ -22,8 +22,7 @@ public static class FixtureExtensions
                 new RoadNodeAdded
                 {
                     RoadNodeId = fixture.Create<RoadNodeId>(),
-                    TemporaryId = fixture.Create<RoadNodeId>(),
-                    OriginalId = null,
+                    OriginalId = fixture.Create<RoadNodeId>(),
                     Geometry = fixture.Create<Point>().ToGeometryObject(),
                     Type = fixture.Create<RoadNodeType>()
                 }

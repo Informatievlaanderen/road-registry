@@ -13,8 +13,7 @@ public partial class RoadNode
         var roadNode = Create(new RoadNodeAdded
         {
             RoadNodeId = idGenerator.NewRoadNodeId(),
-            TemporaryId = change.TemporaryId,
-            OriginalId = change.OriginalId,
+            OriginalId = change.OriginalId ?? change.TemporaryId,
             Geometry = change.Geometry.ToGeometryObject(),
             Type = change.Type
         });

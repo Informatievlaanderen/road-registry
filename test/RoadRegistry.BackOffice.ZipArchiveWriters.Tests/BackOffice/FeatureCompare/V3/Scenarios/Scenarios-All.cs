@@ -48,7 +48,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         new AddRoadNodeChange
                         {
                             TemporaryId = new RoadNodeId(context.Change.TestData.RoadNode1DbaseRecord.WK_OIDN.Value),
-                            OriginalId = new RoadNodeId(context.Change.TestData.RoadNode1DbaseRecord.WK_OIDN.Value),
+                            OriginalId = null,
                             Type = RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode1DbaseRecord.TYPE.Value],
                             Geometry = context.Change.TestData.RoadNode1ShapeRecord.Geometry
                         }
@@ -56,7 +56,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                     .AppendChange(
                         new AddRoadNodeChange {
                             TemporaryId = new RoadNodeId(context.Change.TestData.RoadNode2DbaseRecord.WK_OIDN.Value),
-                            OriginalId = new RoadNodeId(context.Change.TestData.RoadNode2DbaseRecord.WK_OIDN.Value),
+                            OriginalId = null,
                             Type = RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode2DbaseRecord.TYPE.Value],
                             Geometry = context.Change.TestData.RoadNode2ShapeRecord.Geometry
                         }
@@ -155,7 +155,6 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                         new ModifyRoadSegmentChange
                         {
                             RoadSegmentId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
-                            OriginalId = new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
                             StartNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value),
                             EndNodeId = new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value),
                             Geometry = context.Change.TestData.RoadSegment1ShapeRecord.Geometry,

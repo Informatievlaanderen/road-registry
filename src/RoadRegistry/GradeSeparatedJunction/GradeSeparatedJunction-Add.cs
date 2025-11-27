@@ -14,7 +14,7 @@ public partial class GradeSeparatedJunction
         var roadNode = Create(new GradeSeparatedJunctionAdded
         {
             GradeSeparatedJunctionId = idGenerator.NewGradeSeparatedJunctionId(),
-            TemporaryId = change.TemporaryId,
+            OriginalId = change.TemporaryId,
             LowerRoadSegmentId = idTranslator.TranslateToPermanentId(change.LowerRoadSegmentId),
             UpperRoadSegmentId = idTranslator.TranslateToPermanentId(change.UpperRoadSegmentId),
             Type = change.Type

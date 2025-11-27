@@ -134,7 +134,9 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
                         new AddRoadNodeChange
                         {
                             TemporaryId = record.Id,
-                            OriginalId = record.Attributes.Id,
+                            OriginalId = record.Id != record.Attributes.Id
+                                ? record.Attributes.Id
+                                : null,
                             Geometry = record.Attributes.Geometry!,
                             Type = record.Attributes.Type!
                         }

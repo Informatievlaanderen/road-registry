@@ -13,7 +13,7 @@ public partial class RoadSegment
     {
         var problems = Problems.None;
 
-        var originalId = change.OriginalId;
+        var originalId = change.OriginalId ?? change.TemporaryId;
 
         problems += new RoadSegmentGeometryValidator().Validate(originalId, change.GeometryDrawMethod, change.Geometry);
 

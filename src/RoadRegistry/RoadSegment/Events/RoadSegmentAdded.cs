@@ -8,7 +8,7 @@ using ValueObjects;
 public record RoadSegmentAdded: ICreatedEvent
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
-    public required RoadSegmentId OriginalId { get; init; } //TODO-pr is deze wel nodig in de event? wel voor errors terug te sturen, hier niet meer denk ik, mss voor terugkoppeling bij accepted messages?
+    public RoadSegmentId? OriginalId { get; init; }
     public required GeometryObject Geometry { get; init; }
     public required RoadNodeId StartNodeId { get; init; }
     public required RoadNodeId EndNodeId { get; init; }

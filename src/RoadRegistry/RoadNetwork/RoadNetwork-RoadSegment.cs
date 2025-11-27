@@ -23,7 +23,7 @@ public partial class RoadNetwork
             return problems;
         }
 
-        problems += idTranslator.RegisterMapping(change.OriginalId, roadSegment!.RoadSegmentId);
+        problems += idTranslator.RegisterMapping(change.OriginalId ?? change.TemporaryId, roadSegment!.RoadSegmentId);
         if (problems.HasError())
         {
             return problems;

@@ -163,14 +163,14 @@ public class FeaturesReaderTests
             .AppendChange(new AddRoadNodeChange
             {
                 TemporaryId = new RoadNodeId(roadNodeDbaseRecord3.WK_OIDN.Value),
-                OriginalId = new RoadNodeId(roadNodeDbaseRecord3.WK_OIDN.Value),
+                OriginalId = null,
                 Geometry = GeometryTranslator.ToPoint(roadNodeShapeContent3.Shape),
                 Type = RoadNodeType.ByIdentifier[roadNodeDbaseRecord3.TYPE.Value]
             })
             .AppendChange(new AddRoadNodeChange
             {
                 TemporaryId = new RoadNodeId(roadNodeDbaseRecord4.WK_OIDN.Value),
-                OriginalId = new RoadNodeId(roadNodeDbaseRecord4.WK_OIDN.Value),
+                OriginalId = null,
                 Geometry = GeometryTranslator.ToPoint(roadNodeShapeContent4.Shape),
                 Type = RoadNodeType.ByIdentifier[roadNodeDbaseRecord4.TYPE.Value]
             })

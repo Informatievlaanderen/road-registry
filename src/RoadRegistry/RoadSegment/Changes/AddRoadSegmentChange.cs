@@ -11,7 +11,7 @@ using RoadRegistry.RoadSegment.ValueObjects;
 public sealed record AddRoadSegmentChange : IRoadNetworkChange, IEquatable<AddRoadSegmentChange>
 {
     public required RoadSegmentId TemporaryId { get; init; }
-    public required RoadSegmentId OriginalId { get; init; }
+    public RoadSegmentId? OriginalId { get; init; }
     public required RoadNodeId StartNodeId { get; init; }
     public required RoadNodeId EndNodeId { get; init; }
     public required MultiLineString Geometry { get; init; }

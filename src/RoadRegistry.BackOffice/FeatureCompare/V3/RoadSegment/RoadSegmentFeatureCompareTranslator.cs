@@ -425,7 +425,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     var modifyRoadSegment = new ModifyRoadSegmentChange
                     {
                         RoadSegmentId = record.Id,
-                        OriginalId = record.Attributes.Id,
+                        OriginalId = record.Id != record.Attributes.Id
+                            ? record.Attributes.Id
+                            : null,
                         Geometry = record.GeometryChanged ? record.Attributes.Geometry : null,
                         StartNodeId = record.Attributes.StartNodeId,
                         EndNodeId = record.Attributes.EndNodeId,
@@ -455,11 +457,13 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                         new AddRoadSegmentChange
                         {
                             TemporaryId = record.Id,
-                            OriginalId = record.Attributes.Id,
+                            OriginalId = record.Id != record.Attributes.Id
+                                ? record.Attributes.Id
+                                : null,
                             Geometry = record.Attributes.Geometry,
                             StartNodeId = record.Attributes.StartNodeId!.Value,
                             EndNodeId = record.Attributes.EndNodeId!.Value,
-                            GeometryDrawMethod = record.Attributes.Method,
+                            GeometryDrawMethod = record.Attributes.Method!,
                             AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(record.Attributes.AccessRestriction),
                             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(record.Attributes.Category),
                             MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(record.Attributes.MaintenanceAuthority!.Value),
