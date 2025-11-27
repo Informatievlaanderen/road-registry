@@ -43,7 +43,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 var roadNode = RoadNode.Create(new RoadRegistry.RoadNode.Events.RoadNodeAdded
                 {
                     RoadNodeId = roadNodeId,
-                    TemporaryId = roadNodeId,
+                    OriginalId = null,
                     Type = type,
                     Geometry = point.ToGeometryObject()
                 });
@@ -77,7 +77,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 var roadSegment = RoadSegment.Create(new RoadRegistry.RoadSegment.Events.RoadSegmentAdded
                 {
                     RoadSegmentId = roadSegmentId,
-                    OriginalId = roadSegmentId,
+                    OriginalId = null,
                     Geometry = geometry.ToGeometryObject(),
                     StartNodeId = new RoadNodeId(envelope.Message.StartNodeId),
                     EndNodeId = new RoadNodeId(envelope.Message.EndNodeId),
@@ -127,7 +127,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 var junction = GradeSeparatedJunction.Create(new RoadRegistry.GradeSeparatedJunction.Events.GradeSeparatedJunctionAdded
                 {
                     GradeSeparatedJunctionId = junctionId,
-                    TemporaryId = junctionId,
+                    OriginalId = null,
                     Type = type,
                     LowerRoadSegmentId = new RoadSegmentId(envelope.Message.LowerRoadSegmentId),
                     UpperRoadSegmentId = new RoadSegmentId(envelope.Message.UpperRoadSegmentId)
@@ -238,7 +238,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             var roadNode = RoadNode.Create(new RoadRegistry.RoadNode.Events.RoadNodeAdded
             {
                 RoadNodeId = roadNodeId,
-                TemporaryId = roadNodeId,
+                OriginalId = new RoadNodeId(change.OriginalId ?? change.TemporaryId),
                 Type = RoadNodeType.Parse(change.Type),
                 Geometry = GeometryTranslator.Translate(change.Geometry).ToGeometryObject()
             });
@@ -333,7 +333,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             var roadSegmentEvent = new RoadRegistry.RoadSegment.Events.RoadSegmentAdded
             {
                 RoadSegmentId = roadSegmentId,
-                OriginalId = roadSegmentId,
+                OriginalId = new RoadSegmentId(change.OriginalId ?? change.TemporaryId),
                 Geometry = geometry.ToGeometryObject(),
                 StartNodeId = new RoadNodeId(change.StartNodeId),
                 EndNodeId = new RoadNodeId(change.EndNodeId),
@@ -582,7 +582,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             var junction = GradeSeparatedJunction.Create(new RoadRegistry.GradeSeparatedJunction.Events.GradeSeparatedJunctionAdded
             {
                 GradeSeparatedJunctionId = gradeSeparatedJunctionId,
-                TemporaryId = gradeSeparatedJunctionId,
+                OriginalId = new GradeSeparatedJunctionId(change.TemporaryId),
                 Type = GradeSeparatedJunctionType.Parse(change.Type),
                 UpperRoadSegmentId = new RoadSegmentId(change.UpperRoadSegmentId),
                 LowerRoadSegmentId = new RoadSegmentId(change.LowerRoadSegmentId)
@@ -650,7 +650,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 });
 
                 var provenance = new Provenance(
-                    Instant.FromDateTimeUtc(LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)),
+                    LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
                     Application.RoadRegistry,
                     new Reason(envelope.Message.Reason),
                     new Operator(string.Empty),
@@ -684,7 +684,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
     private static Provenance BuildProvenance(Envelope<RoadNetworkChangesAccepted> envelope, Modification modification)
     {
         return new Provenance(
-            Instant.FromDateTimeUtc(LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)),
+            LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
             Application.RoadRegistry,
             new Reason(envelope.Message.Reason),
             new Operator(envelope.Message.OrganizationId),
@@ -734,8 +734,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         }
 
         return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
-            .Add(null, null, RoadSegmentAttributeSide.Left, new StreetNameLocalId(leftSideStreetNameId!.Value))
-            .Add(null, null, RoadSegmentAttributeSide.Right, new StreetNameLocalId(rightSideStreetNameId!.Value));
+            .Add(null, null, RoadSegmentAttributeSide.Left, StreetNameLocalId.FromValue(leftSideStreetNameId) ?? StreetNameLocalId.NotApplicable)
+            .Add(null, null, RoadSegmentAttributeSide.Right, StreetNameLocalId.FromValue(rightSideStreetNameId) ?? StreetNameLocalId.NotApplicable);
     }
 
     private static StreetNameLocalId GetValue(RoadSegmentDynamicAttributeValues<StreetNameLocalId> attributes, RoadSegmentAttributeSide side)
@@ -754,9 +754,9 @@ public static class LocalDateTimeTranslator
     private static readonly DateTimeZone LocalTimeZone =
         DateTimeZoneProviders.Tzdb["Europe/Brussels"];
 
-    public static DateTime TranslateFromWhen(string value)
+    public static Instant TranslateFromWhen(string value)
     {
-        return new ZonedDateTime(InstantPattern.ExtendedIso.Parse(value).Value, LocalTimeZone)
-            .ToDateTimeUnspecified();
+        return Instant.FromDateTimeOffset(new ZonedDateTime(InstantPattern.ExtendedIso.Parse(value).Value, LocalTimeZone)
+            .ToDateTimeOffset());
     }
 }

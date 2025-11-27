@@ -25,9 +25,9 @@ public static class SetupExtensions
             .AddHostedService<MartenMigrationContextEventProcessor>();
     }
 
-    private static void AddMartenDbMigration(this StoreOptions options)
+    public static void AddMartenDbMigration(this StoreOptions options)
     {
         options.Schema.For<MigratedEvent>()
-            .Identity(x => x.EventIdentifier);
+            .Identity(x => x.Id);
     }
 }

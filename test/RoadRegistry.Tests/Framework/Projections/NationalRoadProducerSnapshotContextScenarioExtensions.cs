@@ -97,7 +97,7 @@ public static class NationalRoadProducerSnapshotContextScenarioExtensions
             var position = 0L;
             foreach (var message in specification.Messages)
             {
-                var envelope = new Envelope(message, new Dictionary<string, object> { { "Position", position }, { "CreatedUtc", created.ToUniversalTime() } }).ToGenericEnvelope();
+                var envelope = new Envelope(message, new Dictionary<string, object> { { Envelope.PositionMetadataKey, position }, { Envelope.CreatedUtcMetadataKey, created.ToUniversalTime() } }).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
                 position++;
             }
@@ -150,7 +150,7 @@ public static class NationalRoadProducerSnapshotContextScenarioExtensions
             var position = 0L;
             foreach (var message in specification.Messages)
             {
-                var envelope = new Envelope(message, new Dictionary<string, object> { { "Position", position } }).ToGenericEnvelope();
+                var envelope = new Envelope(message, new Dictionary<string, object> { { Envelope.PositionMetadataKey, position } }).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
                 position++;
             }
@@ -186,7 +186,7 @@ public static class NationalRoadProducerSnapshotContextScenarioExtensions
             var projector = new ConnectedProjector<NationalRoadProducerSnapshotContext>(specification.Resolver);
             foreach (var message in specification.Messages)
             {
-                var envelope = new Envelope(message, new Dictionary<string, object> { { "CreatedUtc", DateTime.Now } }).ToGenericEnvelope();
+                var envelope = new Envelope(message, new Dictionary<string, object> { { Envelope.CreatedUtcMetadataKey, DateTime.Now } }).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
             }
 

@@ -107,8 +107,8 @@ public static class IntegrationContextScenarioExtensions
         {
             var envelope = new Envelope(message, new Dictionary<string, object>
             {
-                { "Position", position },
-                { "StreamId", RoadNetworkStreamNameProvider.Default.ToString() }
+                { Envelope.PositionMetadataKey, position },
+                { Envelope.StreamIdMetadataKey, RoadNetworkStreamNameProvider.Default.ToString() }
             }).ToGenericEnvelope();
             await projector.ProjectAsync(context, envelope);
             position++;
@@ -160,8 +160,8 @@ public static class IntegrationContextScenarioExtensions
         {
             var envelope = new Envelope(message, new Dictionary<string, object>
             {
-                { "Position", position },
-                { "StreamId", RoadNetworkStreamNameProvider.Default.ToString() }
+                { Envelope.PositionMetadataKey, position },
+                { Envelope.StreamIdMetadataKey, RoadNetworkStreamNameProvider.Default.ToString() }
             }).ToGenericEnvelope();
             await projector.ProjectAsync(context, envelope);
             position++;

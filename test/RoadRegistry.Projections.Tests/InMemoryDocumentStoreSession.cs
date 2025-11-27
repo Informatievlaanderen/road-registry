@@ -3,6 +3,7 @@
 using System.Data.Common;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 using System.Transactions;
 using JasperFx.Events;
 using JasperFx.Events.Daemon;
@@ -23,10 +24,12 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
 {
     private readonly StoreOptions _storeOptions;
     private readonly List<(object Id, Type Type, string JsonData)> _storedEntities = [];
+    private readonly List<StreamAction> _streamActions = new();
 
     public InMemoryDocumentStoreSession(StoreOptions options)
     {
         _storeOptions = options;
+        _eventsStoreOperations = new InMemoryEventStoreOperations();
     }
 
     public object[] AllRecords()
@@ -34,9 +37,17 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
         var serializer = _storeOptions.Serializer();
         return _storedEntities.Select(x =>
         {
-            using var jsonStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(x.JsonData));
+            using var jsonStream = new MemoryStream(Encoding.UTF8.GetBytes(x.JsonData));
             return serializer.FromJson(x.Type, jsonStream);
         }).ToArray();
+    }
+
+    public object[] AllEvents()
+    {
+        return _streamActions
+            .SelectMany(x => x.Events)
+            .Select(x => x.Data)
+            .ToArray();
     }
 
     private void StoreEntities<T>(IEnumerable<T> entities)
@@ -59,19 +70,33 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
                  ?? throw new InvalidOperationException($"No ID mapping found for entity of type '{type}'.");
     }
 
-    private Task<T?> LoadByIdAsync<T>(object id) where T : notnull
+    private async Task<T?> LoadByIdAsync<T>(object id) where T : notnull
+    {
+        var result = await LoadManyByIdAsync<T, object>([id]);
+        return result.SingleOrDefault();
+    }
+    private T? LoadById<T>(object id) where T : notnull
+    {
+        var result = LoadManyById<T, object>([id]);
+        return result.SingleOrDefault();
+    }
+    private async Task<IReadOnlyList<T>> LoadManyByIdAsync<T, TId>(IEnumerable<TId> ids) where T : notnull
+    {
+        return LoadManyById<T, TId>(ids);
+    }
+    private IReadOnlyList<T> LoadManyById<T, TId>(IEnumerable<TId> ids) where T : notnull
     {
         var serializer = _storeOptions.Serializer();
-        var entity = _storedEntities
-            .Where(x => x.Id.Equals(id))
+        var entities = _storedEntities
+            .Where(x => ids.Cast<object>().Contains(x.Id))
             .Select(x =>
             {
-                using var jsonStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(x.JsonData));
+                using var jsonStream = new MemoryStream(Encoding.UTF8.GetBytes(x.JsonData));
                 return (T)serializer.FromJson(x.Type, jsonStream);
             })
-            .SingleOrDefault();
+            .ToArray();
 
-        return Task.FromResult(entity);
+        return entities;
     }
 
     private void DeleteById<T>(object id) where T : notnull
@@ -91,6 +116,174 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
                  ?? throw new InvalidOperationException($"Entity of type '{typeof(T)}' has a null ID.");
 
         DeleteById<T>(id);
+    }
+
+    public IDocumentSession LightweightSession(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
+    {
+        return this;
+    }
+
+    public Task<T?> LoadAsync<T>(string id, CancellationToken token = new CancellationToken()) where T : notnull
+    {
+        return LoadByIdAsync<T>(id);
+    }
+
+    public Task<T?> LoadAsync<T>(object id, CancellationToken token = new CancellationToken()) where T : notnull
+    {
+        return LoadByIdAsync<T>(id);
+    }
+
+    public Task<T?> LoadAsync<T>(int id, CancellationToken token = new CancellationToken()) where T : notnull
+    {
+        return LoadByIdAsync<T>(id);
+    }
+
+    public Task<T?> LoadAsync<T>(long id, CancellationToken token = new CancellationToken()) where T : notnull
+    {
+        return LoadByIdAsync<T>(id);
+    }
+
+    public Task<T?> LoadAsync<T>(Guid id, CancellationToken token = new CancellationToken()) where T : notnull
+    {
+        return LoadByIdAsync<T>(id);
+    }
+
+    public Task<IReadOnlyList<T>> LoadManyAsync<T>(params string[] ids) where T : notnull
+    {
+        return LoadManyByIdAsync<T, string>(ids);
+    }
+
+    public Task<IReadOnlyList<T>> LoadManyAsync<T>(IEnumerable<string> ids) where T : notnull
+    {
+        return LoadManyByIdAsync<T, string>(ids);
+    }
+
+    public Task<IReadOnlyList<T>> LoadManyAsync<T>(params Guid[] ids) where T : notnull
+    {
+        return LoadManyByIdAsync<T, Guid>(ids);
+    }
+
+    public Task<IReadOnlyList<T>> LoadManyAsync<T>(IEnumerable<Guid> ids) where T : notnull
+    {
+        return LoadManyByIdAsync<T, Guid>(ids);
+    }
+
+    public Task<IReadOnlyList<T>> LoadManyAsync<T>(params int[] ids) where T : notnull
+    {
+        return LoadManyByIdAsync<T, int>(ids);
+    }
+
+    public Task<IReadOnlyList<T>> LoadManyAsync<T>(IEnumerable<int> ids) where T : notnull
+    {
+        return LoadManyByIdAsync<T, int>(ids);
+    }
+
+    public Task<IReadOnlyList<T>> LoadManyAsync<T>(params long[] ids) where T : notnull
+    {
+        return LoadManyByIdAsync<T, long>(ids);
+    }
+
+    public Task<IReadOnlyList<T>> LoadManyAsync<T>(IEnumerable<long> ids) where T : notnull
+    {
+        return LoadManyByIdAsync<T, long>(ids);
+    }
+
+    public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, params string[] ids) where T : notnull
+    {
+        return LoadManyByIdAsync<T, string>(ids);
+    }
+
+    public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, IEnumerable<string> ids) where T : notnull
+    {
+        return LoadManyByIdAsync<T, string>(ids);
+    }
+
+    public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, params Guid[] ids) where T : notnull
+    {
+        return LoadManyByIdAsync<T, Guid>(ids);
+    }
+
+    public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, IEnumerable<Guid> ids) where T : notnull
+    {
+        return LoadManyByIdAsync<T, Guid>(ids);
+    }
+
+    public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, params int[] ids) where T : notnull
+    {
+        return LoadManyByIdAsync<T, int>(ids);
+    }
+
+    public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, IEnumerable<int> ids) where T : notnull
+    {
+        return LoadManyByIdAsync<T, int>(ids);
+    }
+
+    public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, params long[] ids) where T : notnull
+    {
+        return LoadManyByIdAsync<T, long>(ids);
+    }
+
+    public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, IEnumerable<long> ids) where T : notnull
+    {
+        return LoadManyByIdAsync<T, long>(ids);
+    }
+
+    public void SetHeader(string key, object value)
+    {
+    }
+
+    public void Delete<T>(int id) where T : notnull
+    {
+        DeleteById<T>(id);
+    }
+
+    public void Delete<T>(long id) where T : notnull
+    {
+        DeleteById<T>(id);
+    }
+
+    public void Delete<T>(object id) where T : notnull
+    {
+        DeleteById<T>(id);
+    }
+
+    public void Delete<T>(Guid id) where T : notnull
+    {
+        DeleteById<T>(id);
+    }
+
+    public void Delete<T>(string id) where T : notnull
+    {
+        DeleteById<T>(id);
+    }
+
+    public void Insert<T>(IEnumerable<T> entities) where T : notnull
+    {
+        Insert(entities.ToArray());
+    }
+
+    public void Insert<T>(params T[] entities) where T : notnull
+    {
+        foreach (var entity in entities)
+        {
+            var type = entity.GetType();
+            var id = GetIdProperty(entity).GetValue(entity)
+                     ?? throw new InvalidOperationException($"Entity of type '{type}' has a null ID.");
+
+            var existingItem = LoadById<T>(id);
+            if (existingItem is not null)
+            {
+                throw new InvalidOperationException($"Entity of type '{type}' with ID '{id}' already exists.");
+            }
+
+            StoreEntities([entity]);
+        }
+    }
+
+    public Task SaveChangesAsync(CancellationToken token = new CancellationToken())
+    {
+        _streamActions.AddRange(_eventsStoreOperations.GetStreamActions());
+        return Task.CompletedTask;
     }
 
     public void Dispose()
@@ -125,11 +318,6 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
     }
 
     public Task<IDocumentSession> OpenSerializableSessionAsync(SessionOptions options, CancellationToken token = new CancellationToken())
-    {
-        throw new NotImplementedException();
-    }
-
-    public IDocumentSession LightweightSession(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
     {
         throw new NotImplementedException();
     }
@@ -264,31 +452,6 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
         throw new NotImplementedException();
     }
 
-    public Task<T?> LoadAsync<T>(string id, CancellationToken token = new CancellationToken()) where T : notnull
-    {
-        return LoadByIdAsync<T>(id);
-    }
-
-    public Task<T?> LoadAsync<T>(object id, CancellationToken token = new CancellationToken()) where T : notnull
-    {
-        return LoadByIdAsync<T>(id);
-    }
-
-    public Task<T?> LoadAsync<T>(int id, CancellationToken token = new CancellationToken()) where T : notnull
-    {
-        return LoadByIdAsync<T>(id);
-    }
-
-    public Task<T?> LoadAsync<T>(long id, CancellationToken token = new CancellationToken()) where T : notnull
-    {
-        return LoadByIdAsync<T>(id);
-    }
-
-    public Task<T?> LoadAsync<T>(Guid id, CancellationToken token = new CancellationToken()) where T : notnull
-    {
-        return LoadByIdAsync<T>(id);
-    }
-
     public IMartenQueryable<T> Query<T>() where T : notnull
     {
         throw new NotImplementedException();
@@ -369,86 +532,6 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
         throw new NotImplementedException();
     }
 
-    public Task<IReadOnlyList<T>> LoadManyAsync<T>(params string[] ids) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyList<T>> LoadManyAsync<T>(IEnumerable<string> ids) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyList<T>> LoadManyAsync<T>(params Guid[] ids) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyList<T>> LoadManyAsync<T>(IEnumerable<Guid> ids) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyList<T>> LoadManyAsync<T>(params int[] ids) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyList<T>> LoadManyAsync<T>(IEnumerable<int> ids) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyList<T>> LoadManyAsync<T>(params long[] ids) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyList<T>> LoadManyAsync<T>(IEnumerable<long> ids) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, params string[] ids) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, IEnumerable<string> ids) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, params Guid[] ids) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, IEnumerable<Guid> ids) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, params int[] ids) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, IEnumerable<int> ids) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, params long[] ids) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyList<T>> LoadManyAsync<T>(CancellationToken token, IEnumerable<long> ids) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
     public Guid? VersionFor<TDoc>(TDoc entity) where TDoc : notnull
     {
         throw new NotImplementedException();
@@ -501,22 +584,12 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
         throw new NotImplementedException();
     }
 
-    public Task SaveChangesAsync(CancellationToken token = new CancellationToken())
-    {
-        throw new NotImplementedException();
-    }
-
     public void Eject<T>(T document) where T : notnull
     {
         throw new NotImplementedException();
     }
 
     public void EjectAllOfType(Type type)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void SetHeader(string key, object value)
     {
         throw new NotImplementedException();
     }
@@ -529,31 +602,6 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
     ITenantOperations IDocumentOperations.ForTenant(string tenantId)
     {
         throw new NotImplementedException();
-    }
-
-    public void Delete<T>(int id) where T : notnull
-    {
-        DeleteById<T>(id);
-    }
-
-    public void Delete<T>(long id) where T : notnull
-    {
-        DeleteById<T>(id);
-    }
-
-    public void Delete<T>(object id) where T : notnull
-    {
-        DeleteById<T>(id);
-    }
-
-    public void Delete<T>(Guid id) where T : notnull
-    {
-        DeleteById<T>(id);
-    }
-
-    public void Delete<T>(string id) where T : notnull
-    {
-        DeleteById<T>(id);
     }
 
     public void DeleteWhere<T>(Expression<Func<T, bool>> expression) where T : notnull
@@ -597,16 +645,6 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
     }
 
     public void QueueOperation(IStorageOperation storageOperation)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Insert<T>(IEnumerable<T> entities) where T : notnull
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Insert<T>(params T[] entities) where T : notnull
     {
         throw new NotImplementedException();
     }
@@ -676,12 +714,6 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
         throw new NotImplementedException();
     }
 
-    IEventStoreOperations IDocumentSession.Events => _events2;
-    public ConcurrencyChecks Concurrency { get; }
-    public IList<IDocumentSessionListener> Listeners { get; }
-    public string? LastModifiedBy { get; set; }
-    IEventStoreOperations IDocumentOperations.Events => _events1;
-
     ITenantQueryOperations IQuerySession.ForTenant(string tenantId)
     {
         throw new NotImplementedException();
@@ -718,8 +750,12 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
     }
 
     private IQueryEventStore _events;
-    private IEventStoreOperations _events1;
-    private IEventStoreOperations _events2;
+    private InMemoryEventStoreOperations _eventsStoreOperations;
+    IEventStoreOperations IDocumentSession.Events => _eventsStoreOperations;
+    public ConcurrencyChecks Concurrency { get; }
+    public IList<IDocumentSessionListener> Listeners { get; }
+    public string? LastModifiedBy { get; set; }
+    IEventStoreOperations IDocumentOperations.Events => _eventsStoreOperations;
     public IReadOnlyStoreOptions Options { get; }
     public IMartenStorage Storage { get; }
     public AdvancedOperations Advanced { get; }

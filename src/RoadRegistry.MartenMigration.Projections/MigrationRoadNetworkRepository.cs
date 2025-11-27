@@ -4,11 +4,9 @@ using System;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Infrastructure.MartenDb.Store;
 using Marten;
 using Microsoft.Extensions.Logging;
-using RoadNetwork;
 
 public class MigrationRoadNetworkRepository : RoadNetworkRepository
 {
@@ -51,4 +49,4 @@ public class MigrationRoadNetworkRepository : RoadNetworkRepository
     }
 }
 
-public sealed record MigratedEvent(string EventIdentifier);
+public sealed record MigratedEvent(string Id);

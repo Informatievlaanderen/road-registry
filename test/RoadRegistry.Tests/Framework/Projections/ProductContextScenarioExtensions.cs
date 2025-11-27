@@ -128,8 +128,8 @@ public static class ProductContextScenarioExtensions
             {
                 var envelope = new Envelope(message, new Dictionary<string, object>
                 {
-                    { "Position", position },
-                    { "CreatedUtc", Moment.EnvelopeCreatedUtc.ToUniversalTime() }
+                    { Envelope.PositionMetadataKey, position },
+                    { Envelope.CreatedUtcMetadataKey, Moment.EnvelopeCreatedUtc.ToUniversalTime() }
                 }).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
                 position++;
@@ -183,7 +183,7 @@ public static class ProductContextScenarioExtensions
             var position = 0L;
             foreach (var message in specification.Messages)
             {
-                var envelope = new Envelope(message, new Dictionary<string, object> { { "Position", position } }).ToGenericEnvelope();
+                var envelope = new Envelope(message, new Dictionary<string, object> { { Envelope.PositionMetadataKey, position } }).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
                 position++;
             }

@@ -1,45 +1,31 @@
-namespace RoadRegistry.Tests.Framework.Projections;
+namespace RoadRegistry.Projections.Tests.Projections.MartenMigration;
 
 using System.Text;
+using BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Microsoft.EntityFrameworkCore;
-using Producer.Snapshot.ProjectionHost.GradeSeparatedJunction;
+using RoadNetwork.Events;
+using RoadRegistry.MartenMigration.Projections;
+using RoadRegistry.Tests.Framework.Projections;
 using Xunit.Sdk;
 
-public class MemoryGradeSeparatedJunctionProducerSnapshotContext : GradeSeparatedJunctionProducerSnapshotContext
+public static class MartenMigrationContextScenarioExtensions
 {
-    public MemoryGradeSeparatedJunctionProducerSnapshotContext(DbContextOptions<GradeSeparatedJunctionProducerSnapshotContext> options) : base(options)
+    private static MartenMigrationContext CreateContextFor(string database)
     {
-    }
-}
-
-public static class GradeSeparatedJunctionProducerSnapshotContextScenarioExtensions
-{
-    //IMPORTANT: Each time you change the db sets on the context, you must adjust this method as well.
-    //
-    private static async Task<object[]> AllRecords(this GradeSeparatedJunctionProducerSnapshotContext context)
-    {
-        var records = new List<object>();
-        records.AddRange(await context.GradeSeparatedJunctions.ToArrayAsync());
-
-        return records.ToArray();
-    }
-
-    private static GradeSeparatedJunctionProducerSnapshotContext CreateContextFor(string database)
-    {
-        var options = new DbContextOptionsBuilder<GradeSeparatedJunctionProducerSnapshotContext>()
+        var options = new DbContextOptionsBuilder<MartenMigrationContext>()
             .UseInMemoryDatabase(database)
             .EnableSensitiveDataLogging()
             .Options;
 
-        return new MemoryGradeSeparatedJunctionProducerSnapshotContext(options);
+        return new MartenMigrationContext(options);
     }
 
-    private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<GradeSeparatedJunctionProducerSnapshotContext> specification, VerificationResult result)
+    private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<MartenMigrationContext> specification, VerificationResult result)
     {
         var title = string.Empty;
         var exceptionMessage = new StringBuilder()
@@ -50,22 +36,30 @@ public static class GradeSeparatedJunctionProducerSnapshotContextScenarioExtensi
         return new XunitException(exceptionMessage.ToString());
     }
 
-    public static Task Expect(
-        this ConnectedProjectionScenario<GradeSeparatedJunctionProducerSnapshotContext> scenario,
-        DateTime created,
-        IEnumerable<object> records)
+    public static (ConnectedProjectionScenario<MartenMigrationContext>, InMemoryDocumentStoreSession) Given(
+        this (ConnectedProjectionScenario<MartenMigrationContext>, InMemoryDocumentStoreSession) scenarioAndStore,
+        params object[] messages)
     {
-        return scenario.Expect(created, records.ToArray());
+        var (scenario, store) = scenarioAndStore;
+        var result = scenario.Given(messages);
+        return (result, store);
+    }
+
+    public static Task Expect(
+        this (ConnectedProjectionScenario<MartenMigrationContext>, InMemoryDocumentStoreSession) scenarioAndStore,
+        IEnumerable<object> expectedEvents)
+    {
+        return scenarioAndStore.Expect(expectedEvents.ToArray());
     }
 
     public static async Task Expect(
-        this ConnectedProjectionScenario<GradeSeparatedJunctionProducerSnapshotContext> scenario,
-        DateTime created,
-        params object[] records)
+        this (ConnectedProjectionScenario<MartenMigrationContext>, InMemoryDocumentStoreSession) scenarioAndStore,
+        params object[] expectedEvents)
     {
+        var (scenario, store) = scenarioAndStore;
         var database = Guid.NewGuid().ToString("N");
 
-        var specification = scenario.Verify(async context =>
+        var specification = scenario.Verify(async _ =>
         {
             var comparisonConfig = new ComparisonConfig
             {
@@ -80,24 +74,34 @@ public static class GradeSeparatedJunctionProducerSnapshotContextScenarioExtensi
                 }
             };
             var comparer = new CompareLogic(comparisonConfig);
-            var actualRecords = await context.AllRecords();
+
+            var actualRecords = store.AllEvents()
+                .Where(x => x is not RoadNetworkChanged)
+                .ToArray();
             var result = comparer.Compare(
-                records,
+                expectedEvents,
                 actualRecords
             );
 
             return result.AreEqual
                 ? VerificationResult.Pass()
-                : VerificationResult.Fail(result.CreateDifferenceMessage(actualRecords, records));
+                : VerificationResult.Fail(result.CreateDifferenceMessage(actualRecords, expectedEvents));
         });
 
         await using (var context = CreateContextFor(database))
         {
-            var projector = new ConnectedProjector<GradeSeparatedJunctionProducerSnapshotContext>(specification.Resolver);
+            var projector = new ConnectedProjector<MartenMigrationContext>(specification.Resolver);
             var position = 0L;
             foreach (var message in specification.Messages)
             {
-                var envelope = new Envelope(message, new Dictionary<string, object> { { Envelope.PositionMetadataKey, position }, { Envelope.CreatedUtcMetadataKey, created.ToUniversalTime() } }).ToGenericEnvelope();
+                var envelope = (message as Envelope
+                               ?? new Envelope(message, new Dictionary<string, object>
+                               {
+                                   { Envelope.PositionMetadataKey, position },
+                                   { Envelope.StreamIdMetadataKey, RoadNetworkStreamNameProvider.Default.ToString() },
+                                   { Envelope.CreatedUtcMetadataKey, Moment.EnvelopeCreatedUtc.ToUniversalTime() },
+                                   { Envelope.EventNameMetadataKey, message.GetType().Name },
+                               })).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
                 position++;
             }
@@ -117,23 +121,26 @@ public static class GradeSeparatedJunctionProducerSnapshotContextScenarioExtensi
     }
 
     public static Task ExpectInAnyOrder(
-        this ConnectedProjectionScenario<GradeSeparatedJunctionProducerSnapshotContext> scenario,
+        this ConnectedProjectionScenario<MartenMigrationContext> scenario,
         IEnumerable<object> records)
     {
         return scenario.ExpectInAnyOrder(records.ToArray());
     }
 
     public static async Task ExpectInAnyOrder(
-        this ConnectedProjectionScenario<GradeSeparatedJunctionProducerSnapshotContext> scenario,
+        this (ConnectedProjectionScenario<MartenMigrationContext>, InMemoryDocumentStoreSession) scenarioAndStore,
         params object[] records)
     {
+        var (scenario, store) = scenarioAndStore;
         var database = Guid.NewGuid().ToString("N");
 
-        var specification = scenario.Verify(async context =>
+        var specification = scenario.Verify(async _ =>
         {
             var comparisonConfig = new ComparisonConfig { MaxDifferences = 5, IgnoreCollectionOrder = true };
             var comparer = new CompareLogic(comparisonConfig);
-            var actualRecords = await context.AllRecords();
+            var actualRecords = store.AllEvents()
+                .Where(x => x is not RoadNetworkChanged)
+                .ToArray();
             var result = comparer.Compare(
                 records,
                 actualRecords
@@ -146,11 +153,18 @@ public static class GradeSeparatedJunctionProducerSnapshotContextScenarioExtensi
 
         await using (var context = CreateContextFor(database))
         {
-            var projector = new ConnectedProjector<GradeSeparatedJunctionProducerSnapshotContext>(specification.Resolver);
+            var projector = new ConnectedProjector<MartenMigrationContext>(specification.Resolver);
             var position = 0L;
             foreach (var message in specification.Messages)
             {
-                var envelope = new Envelope(message, new Dictionary<string, object> { { Envelope.PositionMetadataKey, position } }).ToGenericEnvelope();
+                var envelope = (message as Envelope
+                                ?? new Envelope(message, new Dictionary<string, object>
+                                {
+                                    { Envelope.PositionMetadataKey, position },
+                                    { Envelope.StreamIdMetadataKey, RoadNetworkStreamNameProvider.Default.ToString() },
+                                    { Envelope.CreatedUtcMetadataKey, Moment.EnvelopeCreatedUtc.ToUniversalTime() },
+                                    { Envelope.EventNameMetadataKey, message.GetType().Name },
+                                })).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
                 position++;
             }
@@ -169,13 +183,17 @@ public static class GradeSeparatedJunctionProducerSnapshotContextScenarioExtensi
         }
     }
 
-    public static async Task ExpectNone(this ConnectedProjectionScenario<GradeSeparatedJunctionProducerSnapshotContext> scenario)
+    public static async Task ExpectNone(
+        this (ConnectedProjectionScenario<MartenMigrationContext>, InMemoryDocumentStoreSession) scenarioAndStore)
     {
+        var (scenario, store) = scenarioAndStore;
         var database = Guid.NewGuid().ToString("N");
 
-        var specification = scenario.Verify(async context =>
+        var specification = scenario.Verify(async _ =>
         {
-            var actualRecords = await context.AllRecords();
+            var actualRecords = store.AllEvents()
+                .Where(x => x is not RoadNetworkChanged)
+                .ToArray();
             return actualRecords.Length == 0
                 ? VerificationResult.Pass()
                 : VerificationResult.Fail($"Expected 0 records but found {actualRecords.Length}.");
@@ -183,10 +201,12 @@ public static class GradeSeparatedJunctionProducerSnapshotContextScenarioExtensi
 
         await using (var context = CreateContextFor(database))
         {
-            var projector = new ConnectedProjector<GradeSeparatedJunctionProducerSnapshotContext>(specification.Resolver);
+            var projector = new ConnectedProjector<MartenMigrationContext>(specification.Resolver);
             foreach (var message in specification.Messages)
             {
-                var envelope = new Envelope(message, new Dictionary<string, object> { { Envelope.CreatedUtcMetadataKey, DateTime.Now } }).ToGenericEnvelope();
+                var envelope = (message as Envelope
+                               ?? new Envelope(message, new Dictionary<string, object>()))
+                    .ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
             }
 
@@ -204,8 +224,8 @@ public static class GradeSeparatedJunctionProducerSnapshotContextScenarioExtensi
         }
     }
 
-    public static ConnectedProjectionScenario<GradeSeparatedJunctionProducerSnapshotContext> Scenario(this ConnectedProjection<GradeSeparatedJunctionProducerSnapshotContext> projection)
+    public static (ConnectedProjectionScenario<MartenMigrationContext>, InMemoryDocumentStoreSession) Scenario(this (ConnectedProjection<MartenMigrationContext>, InMemoryDocumentStoreSession) projection)
     {
-        return new ConnectedProjectionScenario<GradeSeparatedJunctionProducerSnapshotContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
+        return (new ConnectedProjectionScenario<MartenMigrationContext>(Resolve.WhenEqualToHandlerMessageType(projection.Item1.Handlers)), projection.Item2);
     }
 }
