@@ -1,3 +1,47 @@
+## [4.38.6](https://github.com/informatievlaanderen/road-registry/compare/v4.38.5...v4.38.6) (2025-11-13)
+
+
+### Bug Fixes
+
+* correctly disable FluentValidation in asp flow ([ae61cf3](https://github.com/informatievlaanderen/road-registry/commit/ae61cf3d2f951d38f254f46f8a7d37e5551dd3c3))
+
+## [4.38.5](https://github.com/informatievlaanderen/road-registry/compare/v4.38.4...v4.38.5) (2025-10-30)
+
+
+### Bug Fixes
+
+* extracts projection close informative requests when available ([26c85db](https://github.com/informatievlaanderen/road-registry/commit/26c85db483e44147cdc1ac46dd1a66c25bcc1bd4))
+
+## [4.38.4](https://github.com/informatievlaanderen/road-registry/compare/v4.38.3...v4.38.4) (2025-10-28)
+
+
+### Bug Fixes
+
+* update ticketing to enforce body limit ([67c4abb](https://github.com/informatievlaanderen/road-registry/commit/67c4abb214d01aec4fa86afa7f779df55cfdac60))
+
+## [4.38.3](https://github.com/informatievlaanderen/road-registry/compare/v4.38.2...v4.38.3) (2025-10-28)
+
+
+### Bug Fixes
+
+* limit upload errors to 100 ([5dff90f](https://github.com/informatievlaanderen/road-registry/commit/5dff90f48be1f596a98442703ff409e91703e4a5))
+
+## [4.38.2](https://github.com/informatievlaanderen/road-registry/compare/v4.38.1...v4.38.2) (2025-10-28)
+
+
+### Bug Fixes
+
+* log ticketing error ([a07faca](https://github.com/informatievlaanderen/road-registry/commit/a07facaef8799088e6ca44d96f37d3acea1c3369))
+* log ticketing error when upload fails ([4ccf395](https://github.com/informatievlaanderen/road-registry/commit/4ccf39516b45d20d97f480e8350e8df4014338ba))
+
+## [4.38.1](https://github.com/informatievlaanderen/road-registry/compare/v4.38.0...v4.38.1) (2025-10-27)
+
+
+### Bug Fixes
+
+* reject extract correctly when GRB upload failed ([47db0e6](https://github.com/informatievlaanderen/road-registry/commit/47db0e6bc1dc77fcb73fb5f2b17c27c9ac84a396))
+* reject extract correctly when GRB upload failed ([81fb887](https://github.com/informatievlaanderen/road-registry/commit/81fb887450c1bbe342dd0134824771d1553fd687))
+
 # [4.38.0](https://github.com/informatievlaanderen/road-registry/compare/v4.37.11...v4.38.0) (2025-10-16)
 
 

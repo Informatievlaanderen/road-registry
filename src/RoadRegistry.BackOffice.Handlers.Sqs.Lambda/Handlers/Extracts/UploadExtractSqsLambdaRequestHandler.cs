@@ -88,6 +88,14 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         catch (Exception exception)
         {
             var ticketError = TryConvertToTicketError(exception, request);
+            if (ticketError.Errors is not null)
+            {
+                Logger.LogInformation($"Upload failed, {ticketError.Errors.Count} errors:{Environment.NewLine}{string.Join(Environment.NewLine, ticketError.Errors.Select(x => $"{x.ErrorCode}: {x.ErrorMessage}"))}");
+            }
+            else
+            {
+                Logger.LogInformation($"Upload failed:{Environment.NewLine}{ticketError.ErrorCode}: {ticketError.ErrorMessage}");
+            }
             await Ticketing.Error(ticketId, ticketError, cancellationToken);
 
             var extractDownload = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);

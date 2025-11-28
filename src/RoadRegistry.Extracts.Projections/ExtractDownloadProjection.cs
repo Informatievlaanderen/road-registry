@@ -74,6 +74,10 @@ public class ExtractDownloadProjection : ConnectedProjection<ExtractsDbContext>
         {
             var record = await context.ExtractDownloads.IncludeLocalSingleAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
             record.DownloadStatus = ExtractDownloadStatus.Available;
+            if (record.IsInformative)
+            {
+                record.Closed = true;
+            }
         });
 
         When<Envelope<RoadNetworkExtractDownloadTimeoutOccurred>>(async (context, envelope, ct) =>
@@ -120,12 +124,22 @@ public class ExtractDownloadProjection : ConnectedProjection<ExtractsDbContext>
 
         When<Envelope<RoadNetworkChangesRejected>>(async (context, envelope, ct) =>
         {
-            if (envelope.Message.TicketId is null)
+            ExtractDownload record = null;
+
+            if (envelope.Message.TicketId is not null)
             {
-                return;
+                record = await context.ExtractDownloads.IncludeLocalSingleOrDefaultAsync(download => download.TicketId == envelope.Message.TicketId, ct);
+            }
+            else
+            {
+                // grb uploads
+                var extractRequest = await context.ExtractRequests.IncludeLocalSingleOrDefaultAsync(request => request.ExternalRequestId == envelope.Message.Reason, ct);
+                if (extractRequest is not null)
+                {
+                    record = await context.ExtractDownloads.IncludeLocalSingleOrDefaultAsync(download => download.DownloadId == extractRequest.CurrentDownloadId, ct);
+                }
             }
 
-            var record = await context.ExtractDownloads.IncludeLocalSingleOrDefaultAsync(download => download.TicketId == envelope.Message.TicketId, ct);
             if (record is not null)
             {
                 record.UploadStatus = ExtractUploadStatus.Rejected;
