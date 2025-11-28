@@ -8,7 +8,9 @@ using BackOffice;
 using BackOffice.Extensions;
 using BackOffice.FeatureToggles;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+using Extensions;
 using JasperFx.Events;
+using RoadNetwork.ValueObjects;
 using RoadSegment.Events;
 using Schema;
 
