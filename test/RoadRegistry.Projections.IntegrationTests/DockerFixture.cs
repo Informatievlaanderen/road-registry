@@ -20,9 +20,7 @@ public class DockerFixture : IAsyncLifetime
     public Task InitializeAsync()
     {
         _docker = DockerComposer.Compose("postgres.yml", "road-projection-integration-tests-postgres");
-
-        //TODO-pr onstabiel integration tests: soms is de docker nog niet helemaal klaar en dan wordt de Docker dispose al opgeroepen wanneer de InstallPostgis gebeurd, maar daar kom je dan weer niet in de exception catch
-        Thread.Sleep(2000);
+        Thread.Sleep(3000);
 
         return Task.CompletedTask;
     }

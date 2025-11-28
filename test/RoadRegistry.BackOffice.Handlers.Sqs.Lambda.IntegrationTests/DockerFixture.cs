@@ -20,6 +20,8 @@ public class DockerFixture : IAsyncLifetime
     public Task InitializeAsync()
     {
         _docker = DockerComposer.Compose("postgres.yml", "road-integration-tests-postgres");
+        Thread.Sleep(3000); // wait until PG is ready
+
         return Task.CompletedTask;
     }
 
