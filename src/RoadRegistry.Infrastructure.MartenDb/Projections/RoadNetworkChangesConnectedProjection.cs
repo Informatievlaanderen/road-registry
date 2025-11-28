@@ -16,11 +16,13 @@ public abstract class RoadNetworkChangesConnectedProjection : ConnectedProjectio
     public async Task Project(IReadOnlyList<IEvent> events, IDocumentSession session, CancellationToken cancellationToken)
     {
         foreach (var evt in events)
-        foreach (var handler in _resolver.Value(evt))
         {
-            await handler
-                .Handler(session, evt, cancellationToken)
-                .ConfigureAwait(false);
+            foreach (var handler in _resolver.Value(evt))
+            {
+                await handler
+                    .Handler(session, evt, cancellationToken)
+                    .ConfigureAwait(false);
+            }
         }
     }
 }

@@ -4,7 +4,7 @@ using System;
 using Newtonsoft.Json;
 using RoadRegistry.ValueObjects;
 
-public class RoadSegmentDynamicAttributeValue<T> : IEquatable<RoadSegmentDynamicAttributeValue<T>>
+public sealed class RoadSegmentDynamicAttributeValue<T> : IEquatable<RoadSegmentDynamicAttributeValue<T>>
 {
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public RoadSegmentAttributeSide Side { get; init; }

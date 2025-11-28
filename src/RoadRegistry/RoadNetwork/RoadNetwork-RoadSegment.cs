@@ -60,23 +60,6 @@ public partial class RoadNetwork
         return problems;
     }
 
-    private Problems RemoveRoadSegment(RoadSegmentId roadSegmentId, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
-    {
-        if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment))
-        {
-            return Problems.Single(new RoadSegmentNotFound(roadSegmentId));
-        }
-
-        var problems = roadSegment.Remove();
-        if (problems.HasError())
-        {
-            return problems;
-        }
-
-        summary.Removed.Add(roadSegment.RoadSegmentId);
-        return problems;
-    }
-
     private Problems ModifyRoadSegment(RoadSegmentId roadSegmentId, Func<RoadSegment, Problems> modify, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
     {
         if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment))
@@ -91,6 +74,23 @@ public partial class RoadNetwork
         }
 
         summary.Modified.Add(roadSegmentId);
+        return problems;
+    }
+
+    private Problems RemoveRoadSegment(RoadSegmentId roadSegmentId, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
+    {
+        if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment))
+        {
+            return Problems.Single(new RoadSegmentNotFound(roadSegmentId));
+        }
+
+        var problems = roadSegment.Remove();
+        if (problems.HasError())
+        {
+            return problems;
+        }
+
+        summary.Removed.Add(roadSegment.RoadSegmentId);
         return problems;
     }
 }

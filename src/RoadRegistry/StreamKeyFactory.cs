@@ -2,7 +2,7 @@ namespace RoadRegistry;
 
 using System;
 
-public class StreamKeyFactory
+public static class StreamKeyFactory
 {
     public static string Create<TIdentifier>(Type entityType, TIdentifier identifier)
     {

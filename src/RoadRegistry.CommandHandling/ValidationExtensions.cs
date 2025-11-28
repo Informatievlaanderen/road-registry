@@ -97,6 +97,15 @@ public static class ValidationExtensions
             });
     }
 
+    public static ProblemTranslation TranslateToDutch(this Problem problem)
+    {
+        return problem.Translate().TranslateToDutch();
+    }
+    public static ProblemTranslation TranslateToDutch(this Actions.ChangeRoadNetwork.ValueObjects.Problem problem)
+    {
+        return ProblemTranslator.Dutch(problem);
+    }
+
     public static ValidationFailure ToValidationFailure(this Actions.ChangeRoadNetwork.ValueObjects.Problem problem, string? propertyName = null)
     {
         return new ValidationFailure
@@ -106,15 +115,6 @@ public static class ValidationExtensions
             ErrorMessage = ProblemTranslator.Dutch(problem).Message,
             CustomState = ToCustomState(problem.Parameters)
         };
-    }
-
-    public static ProblemTranslation TranslateToDutch(this Problem problem)
-    {
-        return problem.Translate().TranslateToDutch();
-    }
-    public static ProblemTranslation TranslateToDutch(this Actions.ChangeRoadNetwork.ValueObjects.Problem problem)
-    {
-        return ProblemTranslator.Dutch(problem);
     }
 
     public static async Task ValidateAndThrowAsync<T>(

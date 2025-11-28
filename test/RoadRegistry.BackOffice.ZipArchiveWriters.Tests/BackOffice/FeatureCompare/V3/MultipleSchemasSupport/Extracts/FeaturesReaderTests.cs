@@ -364,7 +364,7 @@ public class FeaturesReaderTests
         }
 
         return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
-            .Add(null, null, RoadSegmentAttributeSide.Left, leftSideStreetNameId!.Value)
-            .Add(null, null, RoadSegmentAttributeSide.Right, rightSideStreetNameId!.Value);
+            .Add(null, null, RoadSegmentAttributeSide.Left, leftSideStreetNameId ?? StreetNameLocalId.NotApplicable)
+            .Add(null, null, RoadSegmentAttributeSide.Right, rightSideStreetNameId ?? StreetNameLocalId.NotApplicable);
     }
 }

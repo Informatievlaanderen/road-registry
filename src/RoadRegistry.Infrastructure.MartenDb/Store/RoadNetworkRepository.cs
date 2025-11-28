@@ -121,14 +121,14 @@ WHERE ST_Intersects(rs.geometry, ST_GeomFromText(@wkt, {geometry.SRID}))";
     private static void SaveEntities<TKey, TEntity>(IReadOnlyDictionary<TKey, TEntity> entities, IDocumentSession session)
         where TEntity : IMartenAggregateRootEntity
     {
-        foreach (var entity in entities.Where(x => x.Value.HasChanges()))
+        foreach (var entity in entities.Select(x => x.Value).Where(x => x.HasChanges()))
         {
-            foreach (var @event in entity.Value.GetChanges())
+            foreach (var @event in entity.GetChanges())
             {
-                session.Events.AppendOrStartStream(entity.Value.Id, @event);
+                session.Events.AppendOrStartStream(entity.Id, @event);
             }
 
-            session.Store(entity.Value);
+            session.Store(entity);
         }
     }
 

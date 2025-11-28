@@ -4,6 +4,7 @@ namespace RoadRegistry.ValueObjects;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using RoadRegistry.Extensions;
 
@@ -224,7 +225,7 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>, I
 
     public sealed record Edit
     {
-        public static readonly ICollection<RoadSegmentMorphology> Editable = All.Where(x => x != Unknown).ToArray();
+        public static readonly ImmutableArray<RoadSegmentMorphology> Editable = [..All.Where(x => x != Unknown)];
     }
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentMorphology> ByIdentifier =

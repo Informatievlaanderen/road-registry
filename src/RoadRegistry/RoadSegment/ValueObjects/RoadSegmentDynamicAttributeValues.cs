@@ -7,7 +7,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using RoadRegistry.ValueObjects;
 
-public class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmentDynamicAttributeValues<T>>
+public sealed class RoadSegmentDynamicAttributeValues<T> : IEquatable<RoadSegmentDynamicAttributeValues<T>>
 {
     public ImmutableList<RoadSegmentDynamicAttributeValue<T>> Values { get; private set; } = [];
 
