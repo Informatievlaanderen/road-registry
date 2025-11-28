@@ -1,9 +1,8 @@
 ﻿namespace RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
 
-using BackOffice;
-using BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using RoadNetwork;
+using RoadRegistry.ValueObjects;
 
 public class ChangeRoadNetworkCommandHandler
 {

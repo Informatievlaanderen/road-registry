@@ -1,4 +1,5 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.ValueObjects.Problems;
+
 using Extensions;
 using ProblemCodes;
 

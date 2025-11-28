@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Uploads;
 
 using Core;
+using ValueObjects.Problems;
 
 public interface IFileRecordProblemBuilder
 {

@@ -12,6 +12,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Extracts;
 using NetTopologySuite.IO.Esri.Dbf;
+using RoadRegistry.Extensions;
 
 public class DbaseRecordWriter
 {

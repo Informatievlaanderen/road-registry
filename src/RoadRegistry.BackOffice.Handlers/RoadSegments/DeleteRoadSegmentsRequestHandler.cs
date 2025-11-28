@@ -10,7 +10,6 @@ using Framework;
 using Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using RoadSegment.ValueObjects;
 using TicketingService.Abstractions;
 using RemoveRoadSegments = Messages.RemoveRoadSegments;
 

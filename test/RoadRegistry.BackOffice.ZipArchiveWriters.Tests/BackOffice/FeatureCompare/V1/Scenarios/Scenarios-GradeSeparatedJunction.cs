@@ -6,8 +6,8 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.FeatureCompare.V1;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extensions;
 using RoadRegistry.Tests.BackOffice;
-using RoadSegment.ValueObjects;
 using Xunit.Abstractions;
 
 public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenariosBase

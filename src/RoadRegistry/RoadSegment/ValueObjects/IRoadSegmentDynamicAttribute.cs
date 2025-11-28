@@ -1,6 +1,6 @@
 namespace RoadRegistry.RoadSegment.ValueObjects;
 
-using BackOffice;
+using RoadRegistry.ValueObjects;
 
 public interface IRoadSegmentDynamicAttribute
 {

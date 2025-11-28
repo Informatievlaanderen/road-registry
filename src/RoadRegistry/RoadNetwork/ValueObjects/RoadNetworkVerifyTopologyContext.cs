@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.RoadNetwork.ValueObjects;
 
-using BackOffice.Core;
+using RoadRegistry.ValueObjects;
 
 public class RoadNetworkVerifyTopologyContext
 {

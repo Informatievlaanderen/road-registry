@@ -11,6 +11,7 @@ using System.Xml.Schema;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
+using RoadRegistry.Extensions;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadSegment;

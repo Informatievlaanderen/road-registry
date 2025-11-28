@@ -1,9 +1,12 @@
 namespace RoadRegistry.Tests.BackOffice;
 
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
+using CommandHandling.DutchTranslations;
 using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Core.ProblemCodes;
 using RoadRegistry.BackOffice.DutchTranslations;
 using RoadRegistry.BackOffice.Messages;
+using ValueObjects.ProblemCodes;
+using ProblemSeverity = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.ProblemSeverity;
 
 public class ProblemTranslatorTests
 {

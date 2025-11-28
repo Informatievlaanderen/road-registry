@@ -1,7 +1,7 @@
 namespace RoadRegistry.RoadSegment.ValueObjects;
 
-using BackOffice;
 using Newtonsoft.Json;
+using RoadRegistry.ValueObjects;
 
 public class RoadSegmentWidthAttribute : RoadSegmentDynamicAttribute
 {

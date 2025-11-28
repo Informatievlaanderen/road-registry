@@ -1,13 +1,13 @@
-namespace RoadRegistry.BackOffice.DutchTranslations;
+namespace RoadRegistry.CommandHandling.DutchTranslations;
 
-using BackOffice;
-using Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Core.ProblemCodes;
-using Problem = Messages.Problem;
+using Actions.ChangeRoadNetwork.ValueObjects;
+using ValueObjects.ProblemCodes;
+using ValueObjects.Problems;
+using Problem = Actions.ChangeRoadNetwork.ValueObjects.Problem;
 
 public static class ProblemTranslator
 {

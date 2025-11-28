@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Messages;
 
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 
 public class AddRoadSegmentOutline : IMessage
 {

@@ -7,6 +7,7 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
+using ValueObjects.Problems;
 
 public class VerifyTopologyTests : RoadNetworkTestBase
 {

@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Product.Projections;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
-using RoadSegment.ValueObjects;
 using Schema.RoadSegments;
 
 public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServices>

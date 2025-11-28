@@ -65,4 +65,7 @@
     <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj" />
     <ProjectReference Include="..\RoadRegistry.CommandHandling\RoadRegistry.CommandHandling.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Using Include="RoadRegistry.ValueObjects" />
+  </ItemGroup>
 </Project>

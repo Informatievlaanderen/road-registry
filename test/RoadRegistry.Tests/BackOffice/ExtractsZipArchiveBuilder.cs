@@ -7,15 +7,15 @@ namespace RoadRegistry.Tests.BackOffice
     using System.Text;
     using AutoFixture;
     using Editor.Schema.Extensions;
+    using Extensions;
     using Microsoft.IO;
     using NetTopologySuite.Geometries;
-    using RoadRegistry.BackOffice;
+        using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Extracts.Dbase;
     using RoadRegistry.BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
     using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
     using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
-    using RoadSegment.ValueObjects;
-    using Point = NetTopologySuite.Geometries.Point;
+            using Point = NetTopologySuite.Geometries.Point;
 
     public class ExtractsZipArchiveBuilder
     {

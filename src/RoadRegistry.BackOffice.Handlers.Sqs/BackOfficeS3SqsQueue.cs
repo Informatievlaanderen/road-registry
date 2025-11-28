@@ -8,6 +8,7 @@ using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Configuration;
 using RoadRegistry.BackOffice.Uploads;
 using System.Reflection;
+using RoadRegistry.Extensions;
 
 public interface IBackOfficeS3SqsQueue : ISqsQueue
 {
@@ -60,7 +61,7 @@ internal class BackOfficeS3SqsQueue : IBackOfficeS3SqsQueue
         {
             return;
         }
-        
+
         _logger.LogInformation("Sqs message:\n{Message}", _sqsJsonMessageSerializer.Serialize(message));
     }
 }

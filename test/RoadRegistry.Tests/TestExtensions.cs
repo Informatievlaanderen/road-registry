@@ -2,6 +2,7 @@
 
 using System.Text;
 using RoadRegistry.BackOffice.Core;
+using ValueObjects.Problems;
 
 public static class TestExtensions
 {

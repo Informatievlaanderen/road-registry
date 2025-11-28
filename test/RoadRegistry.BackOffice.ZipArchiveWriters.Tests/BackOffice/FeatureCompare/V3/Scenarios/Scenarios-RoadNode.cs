@@ -8,6 +8,7 @@ using Microsoft.IO;
 using NetTopologySuite.Geometries;
 using RoadNode.Changes;
 using RoadRegistry.BackOffice.FeatureCompare.V3;
+using RoadRegistry.Extensions;
 using RoadRegistry.Tests.BackOffice;
 using RoadSegment.Changes;
 using RoadSegment.ValueObjects;

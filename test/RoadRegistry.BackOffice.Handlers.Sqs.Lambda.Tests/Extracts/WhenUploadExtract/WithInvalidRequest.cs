@@ -10,6 +10,7 @@ using Exceptions;
 using FluentAssertions;
 using Moq;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 using Polygon = NetTopologySuite.Geometries.Polygon;

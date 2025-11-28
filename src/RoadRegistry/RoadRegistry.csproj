@@ -60,6 +60,6 @@
     <PackageReference Include="QuikGraph" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ValueObjects\Spatial\" />
+    <Using Include="RoadRegistry.ValueObjects" />
   </ItemGroup>
 </Project>

@@ -3,10 +3,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BackOffice.Core;
+using RoadRegistry.ValueObjects;
+using RoadRegistry.ValueObjects.Problems;
 using RoadSegment;
 using RoadSegment.Changes;
-using RoadSegment.ValueObjects;
 
 public partial class RoadNetwork
 {

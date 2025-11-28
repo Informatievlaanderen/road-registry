@@ -1,7 +1,7 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.ValueObjects.Problems;
 
 using ProblemCodes;
-using RoadSegment.ValueObjects;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RoadSegmentEndPointDoesNotMatchNodeGeometry : Error
 {

@@ -9,7 +9,6 @@ using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.BasicApiProblem;
-using Core.ProblemCodes;
 using Exceptions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -19,6 +18,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ValueObjects.ProblemCodes;
 using Version = Infrastructure.Version;
 
 [ApiVersion(Version.Current)]

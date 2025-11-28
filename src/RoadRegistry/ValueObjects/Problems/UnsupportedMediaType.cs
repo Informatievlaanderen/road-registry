@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.ValueObjects.Problems;
 
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using ProblemCodes;

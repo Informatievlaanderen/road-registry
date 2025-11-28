@@ -1,7 +1,8 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.RoadNetwork;
 
 using System.Threading.Tasks;
-using RoadSegment.ValueObjects;
+using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.ValueObjects;
 
 public interface IRoadNetworkIdGenerator
 {

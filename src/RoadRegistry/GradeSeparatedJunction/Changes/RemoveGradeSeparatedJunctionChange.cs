@@ -1,7 +1,6 @@
 namespace RoadRegistry.GradeSeparatedJunction.Changes;
 
 using RoadNetwork;
-using RoadRegistry.BackOffice;
 
 public sealed record RemoveGradeSeparatedJunctionChange : IRoadNetworkChange
 {

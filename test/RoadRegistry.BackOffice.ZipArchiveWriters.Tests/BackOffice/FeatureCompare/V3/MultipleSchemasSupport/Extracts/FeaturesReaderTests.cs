@@ -12,6 +12,7 @@ using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.FeatureCompare.V3;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extensions;
 using RoadRegistry.Tests.BackOffice;
 using RoadSegment.Changes;
 using RoadSegment.ValueObjects;

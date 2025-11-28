@@ -1,8 +1,8 @@
-namespace RoadRegistry.BackOffice
+namespace RoadRegistry
 {
     using System.Collections.Generic;
     using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Infrastructure.Converters;
+    using Converters;
     using NetTopologySuite.Geometries;
     using NetTopologySuite.IO.Converters;
     using Newtonsoft.Json;

@@ -1,13 +1,11 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb;
 
-using BackOffice;
 using Marten;
 using GradeSeparatedJunction;
 using JasperFx.Events;
 using Marten.Events;
 using RoadNode;
 using RoadSegment;
-using RoadSegment.ValueObjects;
 
 public static class SessionExtensions
 {

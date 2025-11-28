@@ -2,6 +2,7 @@ namespace RoadRegistry.Tests.BackOffice.Uploads;
 
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Uploads;
+using ValueObjects.Problems;
 
 public class FileProblemComparer : IEqualityComparer<FileProblem>
 {

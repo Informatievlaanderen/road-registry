@@ -5,7 +5,6 @@ using Abstractions.RoadSegments;
 using Api.RoadSegments;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using RoadSegment.ValueObjects;
 
 public class GivenRoadNetwork : RemoveRoadSegmentsTestBase
 {

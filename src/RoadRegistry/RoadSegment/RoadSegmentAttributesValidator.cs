@@ -1,7 +1,8 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
-using BackOffice.Core;
-using BackOffice.Core.ProblemCodes;
+using RoadRegistry.ValueObjects;
+using RoadRegistry.ValueObjects.ProblemCodes;
+using RoadRegistry.ValueObjects.Problems;
 using ValueObjects;
 
 public class RoadSegmentAttributesValidator

@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Abstractions.RoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using MediatR;
-using RoadSegment.ValueObjects;
 
 public sealed record ChangeRoadSegmentsDynamicAttributesRequest : IRequest<ETagResponse>
 {

@@ -17,7 +17,7 @@ public class TranslatedChangesTests
         var translatedChanges = TranslatedChanges.Empty;
 
         var sut = () => translatedChanges.ToChangeRoadNetworkCommand(
-            NullLogger.Instance, 
+            NullLogger.Instance,
             fixture.Create<ExtractRequestId>(),
             fixture.Create<ChangeRequestId>(),
             fixture.Create<DownloadId>(),

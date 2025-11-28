@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Requests.Extracts;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schema;
 using TicketingService.Abstractions;
 

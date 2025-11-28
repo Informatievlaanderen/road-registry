@@ -7,6 +7,7 @@ using Core;
 using Editor.Schema;
 using Extracts.Dbase.Organizations;
 using Microsoft.EntityFrameworkCore;
+using RoadRegistry.Extensions;
 
 public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {

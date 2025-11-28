@@ -10,6 +10,7 @@ using Framework;
 using Moq;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using Xunit.Abstractions;
 
 public class WithValidRequest : WhenRequestExtractTestBase

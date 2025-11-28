@@ -11,7 +11,7 @@ using Core;
 using Exceptions;
 using Messages;
 using Microsoft.Extensions.Logging;
-using RoadSegment.ValueObjects;
+using RoadRegistry.Extensions;
 
 public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
 {

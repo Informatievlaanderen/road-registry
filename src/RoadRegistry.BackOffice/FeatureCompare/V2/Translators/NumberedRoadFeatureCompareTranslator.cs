@@ -6,7 +6,6 @@ using Models;
 using Readers;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Uploads;
-using RoadSegment.ValueObjects;
 
 public class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompareTranslatorBase<NumberedRoadFeatureCompareAttributes>
 {

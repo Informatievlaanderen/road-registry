@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Tests.BackOffice;
 
 using AutoFixture;
+using Extensions;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
@@ -9,8 +10,8 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using RoadSegment;
-using RoadSegment.ValueObjects;
 using Scenarios;
+using ValueObjects.Problems;
 
 public class RoadSegmentGeometryTests
 {

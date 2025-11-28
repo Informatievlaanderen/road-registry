@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Framework;
+namespace RoadRegistry.ValueObjects;
 
 using System;
 using System.Diagnostics.Contracts;
@@ -65,7 +65,7 @@ public struct StreamName : IEquatable<StreamName>
     {
         return string.Equals(_value, other._value, StringComparison.Ordinal);
     }
-    
+
     public override bool Equals(object obj)
     {
         if (ReferenceEquals(null, obj)) return false;

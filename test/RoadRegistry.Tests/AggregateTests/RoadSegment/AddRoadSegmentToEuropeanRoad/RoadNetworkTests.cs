@@ -6,6 +6,7 @@ using Framework;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadSegment.Changes;
+using ValueObjects.Problems;
 
 public class RoadNetworkTests : RoadNetworkTestBase
 {

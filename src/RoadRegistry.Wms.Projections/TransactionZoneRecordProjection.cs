@@ -16,7 +16,6 @@ using NetTopologySuite.Geometries.Utilities;
 using NetTopologySuite.Operation.Overlay;
 using NetTopologySuite.Operation.OverlayNG;
 using Schema;
-using ValueObjects;
 using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public class TransactionZoneRecordProjection : ConnectedProjection<WmsContext>

@@ -1,7 +1,6 @@
 namespace RoadRegistry.RoadSegment.Events;
 
-using BackOffice;
-using ValueObjects;
+using RoadRegistry.ValueObjects;
 
 public record RoadSegmentAddedToNationalRoad
 {

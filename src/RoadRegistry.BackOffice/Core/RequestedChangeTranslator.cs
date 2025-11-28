@@ -5,8 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using Messages;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using RoadRegistry.RoadSegment.ValueObjects;
 
 public class RequestedChangeTranslator

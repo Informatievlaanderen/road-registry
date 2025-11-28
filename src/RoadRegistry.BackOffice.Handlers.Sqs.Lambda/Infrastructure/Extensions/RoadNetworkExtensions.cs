@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions
 {
     using Core;
-    using RoadSegment.ValueObjects;
+    using RoadRegistry.RoadNetwork.ValueObjects;
 
     internal static class RoadNetworkExtensions
     {

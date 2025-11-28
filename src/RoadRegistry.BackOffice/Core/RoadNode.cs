@@ -5,7 +5,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using NetTopologySuite.Geometries;
+using RoadRegistry.RoadNetwork.ValueObjects;
+using RoadRegistry.RoadNode.Errors;
 using RoadRegistry.RoadSegment.ValueObjects;
+using ValueObjects.Problems;
 
 public class RoadNode
 {

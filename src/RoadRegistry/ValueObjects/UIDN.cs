@@ -1,7 +1,7 @@
-using System;
-
-namespace RoadRegistry.BackOffice
+namespace RoadRegistry.ValueObjects
 {
+    using System;
+
     public sealed record UIDN(int Id, int Version)
     {
         public static UIDN Parse(string value)

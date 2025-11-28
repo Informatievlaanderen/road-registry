@@ -2,10 +2,10 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using BackOffice;
 using Events;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
+using RoadRegistry.ValueObjects;
 using ValueObjects;
 
 public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>

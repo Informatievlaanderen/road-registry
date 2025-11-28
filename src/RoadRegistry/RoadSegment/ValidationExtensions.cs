@@ -2,11 +2,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using BackOffice;
-using BackOffice.Core;
-using BackOffice.Core.ProblemCodes;
-using BackOffice.Extensions;
+using Extensions;
 using NetTopologySuite.Geometries;
+using RoadRegistry.ValueObjects;
+using RoadRegistry.ValueObjects.ProblemCodes;
+using RoadRegistry.ValueObjects.Problems;
 using ValueObjects;
 
 public static class ValidationExtensions
@@ -20,7 +20,6 @@ public static class ValidationExtensions
 
         if (!attributeValues.Values.Any())
         {
-            //TODO-pr mag dit wel? moet dit geen fout geven? -> tbd met Mathieu aftoetsen
             return problems;
         }
 

@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using Framework;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using RoadRegistry.RoadSegment.ValueObjects;
 
 public static class RoadNetworkStreamNameProvider

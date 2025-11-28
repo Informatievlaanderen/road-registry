@@ -9,6 +9,7 @@ using Moq;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using RoadRegistry.Tests.BackOffice;
 using SqlStreamStore.Streams;
 using TicketingService.Abstractions;

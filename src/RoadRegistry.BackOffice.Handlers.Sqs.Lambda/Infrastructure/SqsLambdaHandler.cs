@@ -13,8 +13,9 @@ using Exceptions;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
-using RoadSegment.ValueObjects;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
+using ValueObjects.Problems;
 using ETag = Be.Vlaanderen.Basisregisters.Api.ETag.ETag;
 
 public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambdaHandler<TSqsLambdaRequest>

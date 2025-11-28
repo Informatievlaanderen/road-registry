@@ -1,14 +1,12 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Store;
 
 using System.Data;
-using BackOffice;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Dapper;
 using Marten;
 using NetTopologySuite.Geometries;
 using Projections;
 using RoadNetwork;
-using RoadSegment.ValueObjects;
 
 public class RoadNetworkRepository : IRoadNetworkRepository
 {

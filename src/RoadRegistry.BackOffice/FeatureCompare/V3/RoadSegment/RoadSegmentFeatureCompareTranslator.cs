@@ -11,6 +11,7 @@ using NetTopologySuite.Geometries;
 using RoadNode;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
+using RoadRegistry.Extensions;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
 using Uploads;
@@ -306,7 +307,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     );
                     var extractFeature = matchingExtractFeatures.FirstOrDefault(x => x.Attributes.Id == changeFeatureAttributes.Id)
                                          ?? matchingExtractFeatures.First();
-
 
                     processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                         FeatureType.Change,

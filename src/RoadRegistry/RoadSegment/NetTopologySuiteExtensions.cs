@@ -1,11 +1,11 @@
 namespace RoadRegistry.RoadSegment;
 
 using System;
-using BackOffice.Core;
+using Extensions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
-using RoadNetwork.ValueObjects;
-using ValueObjects;
+using RoadRegistry.ValueObjects;
+using RoadRegistry.ValueObjects.Problems;
 using LineString = NetTopologySuite.Geometries.LineString;
 
 public static class NetTopologySuiteExtensions

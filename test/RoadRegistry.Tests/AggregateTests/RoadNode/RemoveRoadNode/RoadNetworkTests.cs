@@ -5,6 +5,7 @@ using FluentAssertions;
 using Framework;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadNode.Changes;
+using ValueObjects.Problems;
 
 public class RoadNetworkTests : RoadNetworkTestBase
 {

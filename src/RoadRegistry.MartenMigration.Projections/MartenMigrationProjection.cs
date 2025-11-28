@@ -10,6 +10,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Extensions;
 using GradeSeparatedJunction;
 using Infrastructure.MartenDb;
 using Marten;

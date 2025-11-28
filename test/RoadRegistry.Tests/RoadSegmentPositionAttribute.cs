@@ -1,6 +1,6 @@
 namespace RoadRegistry.Tests
 {
-    using RoadRegistry.BackOffice;
+        using RoadRegistry.BackOffice;
 
     public sealed class RoadSegmentPositionAttribute
     {

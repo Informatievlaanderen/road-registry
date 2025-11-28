@@ -8,6 +8,7 @@ using Framework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
 using Sync.MunicipalityRegistry;
 
 public class GetOverlappingTransactionZonesByNisCodeRequestHandler : EndpointRequestHandler<GetOverlappingTransactionZonesByNisCodeRequest, GetOverlappingTransactionZonesByNisCodeResponse>

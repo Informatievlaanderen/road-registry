@@ -2,6 +2,7 @@ namespace RoadRegistry.RoadSegment.Changes;
 
 using RoadNetwork;
 using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.ValueObjects;
 
 public sealed record RemoveRoadSegmentChange : IRoadNetworkChange
 {

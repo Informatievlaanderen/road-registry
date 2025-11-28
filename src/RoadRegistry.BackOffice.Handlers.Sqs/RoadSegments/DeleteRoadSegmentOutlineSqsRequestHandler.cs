@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
 using Core;
-using RoadSegment.ValueObjects;
 using TicketingService.Abstractions;
 
 public class DeleteRoadSegmentOutlineSqsRequestHandler : SqsHandler<DeleteRoadSegmentOutlineSqsRequest>

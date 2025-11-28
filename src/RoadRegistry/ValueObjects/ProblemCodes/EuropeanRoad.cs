@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Core.ProblemCodes;
+namespace RoadRegistry.ValueObjects.ProblemCodes;
 
 public sealed partial record ProblemCode
 {

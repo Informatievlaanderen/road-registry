@@ -8,7 +8,6 @@ using BackOffice.Messages;
 using Product.Projections;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
-using RoadSegment.ValueObjects;
 
 public class RoadSegmentLaneAttributeRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {

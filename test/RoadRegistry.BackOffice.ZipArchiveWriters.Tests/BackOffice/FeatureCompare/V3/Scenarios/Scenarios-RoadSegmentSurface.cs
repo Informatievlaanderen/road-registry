@@ -2,12 +2,11 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
 
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.BackOffice.Core.ProblemCodes;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.FeatureCompare.V3;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Tests.BackOffice;
-using RoadSegment.ValueObjects;
+using ValueObjects.ProblemCodes;
 using Xunit.Abstractions;
 using TranslatedChanges = RoadRegistry.BackOffice.FeatureCompare.V3.TranslatedChanges;
 

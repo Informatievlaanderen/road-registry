@@ -12,7 +12,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
     using System.Threading;
     using System.Threading.Tasks;
     using BackOffice.Extensions;
-    using Shared;
+        using Shared;
 
     public class RoadSegmentSurfaceRecordProjection : ConnectedProjection<RoadSegmentSurfaceProducerSnapshotContext>
     {

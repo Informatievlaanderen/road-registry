@@ -7,6 +7,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.GradeSeparatedJunction.Changes;
+using ValueObjects.Problems;
 
 public class RoadNetworkTests : RoadNetworkTestBase
 {

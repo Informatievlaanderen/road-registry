@@ -1,8 +1,7 @@
-using RoadRegistry.BackOffice.Core;
-using System;
-
-namespace RoadRegistry.BackOffice.Extensions
+namespace RoadRegistry.Extensions
 {
+    using System;
+
     public static class FormattingExtensions
     {
         public static string ToRoundedMeasurementString(this double value)

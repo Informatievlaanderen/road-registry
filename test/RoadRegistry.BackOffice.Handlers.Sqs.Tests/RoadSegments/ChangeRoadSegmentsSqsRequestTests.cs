@@ -5,8 +5,8 @@ using AutoFixture;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using EqualityComparers;
 using Newtonsoft.Json;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using RoadRegistry.Tests.BackOffice.Scenarios;
-using RoadSegment.ValueObjects;
 using Sqs.RoadSegments;
 
 public class ChangeRoadSegmentsSqsRequestTests

@@ -2,7 +2,7 @@ namespace RoadRegistry.RoadNetwork;
 
 using System;
 using NetTopologySuite.Geometries;
-using ValueObjects;
+using RoadRegistry.ValueObjects;
 
 public static class NetTopologySuiteExtensions
 {

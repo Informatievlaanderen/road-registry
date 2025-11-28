@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using CommandHandling;
 using FluentValidation;
 using FluentValidation.Results;
 using NetTopologySuite.Geometries;
@@ -13,8 +14,10 @@ using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.ShapeFile.V1;
 using RoadRegistry.BackOffice.ShapeFile.V2;
+using RoadRegistry.Extensions;
+using ValueObjects.Problems;
 using Polygon = NetTopologySuite.Geometries.Polygon;
-using Problem = Core.Problem;
+using Problem = ValueObjects.Problems.Problem;
 
 public interface IExtractShapefileContourReader
 {

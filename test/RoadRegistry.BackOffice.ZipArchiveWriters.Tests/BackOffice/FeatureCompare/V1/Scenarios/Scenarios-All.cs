@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.FeatureCompare.V1;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Tests.BackOffice;
-using RoadSegment.ValueObjects;
 using Xunit.Abstractions;
 using RoadSegmentLaneAttribute = Uploads.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = Uploads.RoadSegmentSurfaceAttribute;

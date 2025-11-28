@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using RoadRegistry.RoadNetwork.ValueObjects;
 
 public class RoadSegmentLaneAttributes : IEnumerable<RoadSegmentLaneAttribute>
 {

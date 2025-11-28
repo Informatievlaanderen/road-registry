@@ -2,7 +2,7 @@ namespace RoadRegistry.RoadNetwork.Schema
 {
     using BackOffice;
     using BackOffice.Core;
-    using RoadSegment.ValueObjects;
+    using RoadRegistry.ValueObjects;
 
     public class RoadNetworkDbIdGenerator: IRoadNetworkIdGenerator
     {

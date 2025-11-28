@@ -3,10 +3,11 @@ namespace RoadRegistry.BackOffice.Abstractions.Extensions;
 using BackOffice.Extensions;
 using FluentValidation;
 using RoadRegistry.BackOffice.Abstractions.Exceptions;
-using RoadRegistry.BackOffice.Core.ProblemCodes;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CommandHandling;
+using ValueObjects.ProblemCodes;
 
 public static class ValidationExtensions
 {

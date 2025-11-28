@@ -2,7 +2,7 @@ namespace RoadRegistry.RoadSegment.ValueObjects;
 
 using System;
 using Newtonsoft.Json;
-using RoadRegistry.BackOffice;
+using RoadRegistry.ValueObjects;
 
 public class RoadSegmentDynamicAttributeValue<T> : IEquatable<RoadSegmentDynamicAttributeValue<T>>
 {

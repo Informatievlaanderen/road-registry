@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using NetTopologySuite.Geometries;
 using RoadNetwork;
-using RoadRegistry.BackOffice;
 using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.ValueObjects;
 
 public sealed record AddRoadSegmentChange : IRoadNetworkChange, IEquatable<AddRoadSegmentChange>
 {

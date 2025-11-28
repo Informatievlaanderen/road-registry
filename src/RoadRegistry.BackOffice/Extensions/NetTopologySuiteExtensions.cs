@@ -8,6 +8,10 @@ using IO;
 using Microsoft.Data.SqlClient;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
+using RoadRegistry.Extensions;
+using RoadRegistry.RoadNetwork.ValueObjects;
+using RoadRegistry.ValueObjects;
+using RoadRegistry.ValueObjects.Problems;
 using DynamicRoadSegmentAttribute = RoadRegistry.BackOffice.Core.DynamicRoadSegmentAttribute;
 
 public static class NetTopologySuiteExtensions

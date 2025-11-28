@@ -8,7 +8,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Extracts;
 using Models;
-using RoadSegment.ValueObjects;
 using Translators;
 using Uploads;
 

@@ -5,7 +5,7 @@ using Core;
 using FluentAssertions;
 using Messages;
 using NodaTime.Text;
-using RoadSegment.ValueObjects;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 

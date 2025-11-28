@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Core;
 using System.Linq;
 using FluentValidation;
 using Messages;
+using RoadRegistry.RoadNetwork.ValueObjects;
 
 public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
 {

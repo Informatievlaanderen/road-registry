@@ -13,10 +13,12 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
+using CommandHandling;
 using FluentValidation;
 using Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 using TicketingService.Abstractions;
+using ValueObjects.Problems;
 
 public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambdaHandlerBase<TSqsLambdaRequest>
     where TSqsLambdaRequest : SqsLambdaRequest

@@ -3,8 +3,8 @@ namespace RoadRegistry.RoadSegment.Changes;
 using System.Collections.Generic;
 using NetTopologySuite.Geometries;
 using RoadNetwork;
-using RoadRegistry.BackOffice;
 using RoadRegistry.RoadSegment.ValueObjects;
+using RoadRegistry.ValueObjects;
 
 public sealed record ModifyRoadSegmentChange : IRoadNetworkChange
 {

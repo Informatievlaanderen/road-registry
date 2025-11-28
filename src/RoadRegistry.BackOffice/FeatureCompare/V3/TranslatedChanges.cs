@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using CommandHandling.Actions.ChangeRoadNetwork;
 using RoadNetwork;
+using RoadRegistry.Extensions;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;

@@ -11,6 +11,7 @@ using Editor.Schema;
 using Extracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
+using RoadRegistry.Extensions;
 using ZipArchiveWriters.ExtractHost;
 
 public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAssembler

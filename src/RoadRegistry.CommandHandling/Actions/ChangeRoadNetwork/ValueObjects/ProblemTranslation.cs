@@ -1,5 +1,5 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 
-public readonly record struct ProblemTranslation(Messages.ProblemSeverity Severity, string Code, string Message = "")
+public readonly record struct ProblemTranslation(ProblemSeverity Severity, string Code, string Message = "")
 {
 }

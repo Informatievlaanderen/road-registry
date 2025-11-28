@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Framework;
 using Newtonsoft.Json;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using SqlStreamStore;
 
 public class StreetNames : EventSourcedEntityRepository<StreetName, StreetNameLocalId>, IStreetNames

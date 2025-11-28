@@ -5,6 +5,7 @@ using Framework;
 using Newtonsoft.Json;
 using SqlStreamStore;
 using System;
+using RoadRegistry.RoadNetwork.ValueObjects;
 
 public class Organizations : EventSourcedEntityRepository<Organization, OrganizationId>, IOrganizations
 {

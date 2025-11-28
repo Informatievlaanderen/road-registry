@@ -1,11 +1,13 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment;
 
+using Extensions;
 using Framework;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
+using ValueObjects.Problems;
 
 public class VerifyTopologyTests : RoadNetworkTestBase
 {

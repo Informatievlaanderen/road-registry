@@ -8,6 +8,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Extensions;
+using RoadRegistry.Extensions;
 using DbaseFileHeader = Be.Vlaanderen.Basisregisters.Shaperon.DbaseFileHeader;
 
 public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter

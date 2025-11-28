@@ -1,4 +1,6 @@
-namespace System;
+namespace RoadRegistry.Extensions;
+
+using System;
 
 internal static class NumericExtensions
 {

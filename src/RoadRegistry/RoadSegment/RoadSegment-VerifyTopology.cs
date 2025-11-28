@@ -2,12 +2,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using BackOffice;
-using BackOffice.Core;
+using Extensions;
 using NetTopologySuite.Geometries;
 using RoadNetwork;
 using RoadNetwork.ValueObjects;
-using ValueObjects;
+using RoadRegistry.ValueObjects;
+using RoadRegistry.ValueObjects.Problems;
 
 public partial class RoadSegment
 {

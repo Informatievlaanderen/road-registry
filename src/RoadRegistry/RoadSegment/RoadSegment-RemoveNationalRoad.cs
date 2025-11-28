@@ -1,8 +1,8 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
-using BackOffice.Core;
 using Changes;
 using Events;
+using RoadRegistry.ValueObjects.Problems;
 
 public partial class RoadSegment
 {

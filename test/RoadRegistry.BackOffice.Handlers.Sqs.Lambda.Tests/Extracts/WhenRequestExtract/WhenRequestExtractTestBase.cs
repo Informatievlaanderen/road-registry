@@ -13,6 +13,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers.Extracts;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests.Extracts;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using Xunit.Abstractions;

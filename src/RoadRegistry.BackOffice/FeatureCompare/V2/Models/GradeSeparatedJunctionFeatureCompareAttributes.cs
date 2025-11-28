@@ -1,7 +1,5 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.V2.Models;
 
-using RoadSegment.ValueObjects;
-
 public record GradeSeparatedJunctionFeatureCompareAttributes
 {
     public GradeSeparatedJunctionId Id { get; init; }

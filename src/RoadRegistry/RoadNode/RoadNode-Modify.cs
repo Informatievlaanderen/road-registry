@@ -1,8 +1,8 @@
 ﻿namespace RoadRegistry.RoadNode;
 
-using BackOffice.Core;
 using Changes;
 using Events;
+using RoadRegistry.ValueObjects.Problems;
 
 public partial class RoadNode
 {

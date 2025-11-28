@@ -1,8 +1,7 @@
-namespace RoadRegistry.BackOffice.Infrastructure.Converters;
+namespace RoadRegistry.Converters;
 
 using System;
 using Newtonsoft.Json;
-using RoadSegment.ValueObjects;
 
 public class RoadNodeIdConverter : NullableJsonConverter<RoadNodeId>
 {

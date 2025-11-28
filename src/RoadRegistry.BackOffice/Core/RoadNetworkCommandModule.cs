@@ -8,6 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using CommandHandling;
+using CommandHandling.DutchTranslations;
+using CommandHandling.Extracts;
 using DutchTranslations;
 using Extracts;
 using FeatureToggles;
@@ -16,9 +19,12 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using NodaTime;
+using RoadRegistry.RoadNetwork;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using RoadRegistry.RoadSegment.ValueObjects;
 using SqlStreamStore;
 using TicketingService.Abstractions;
+using RoadNetworkChangesSummary = Messages.RoadNetworkChangesSummary;
 
 public class RoadNetworkCommandModule : CommandHandlerModule
 {

@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using RoadRegistry.RoadNetwork.ValueObjects;
+
 public class RoadSegmentLaneAttribute : DynamicRoadSegmentAttribute
 {
     public RoadSegmentLaneAttribute(

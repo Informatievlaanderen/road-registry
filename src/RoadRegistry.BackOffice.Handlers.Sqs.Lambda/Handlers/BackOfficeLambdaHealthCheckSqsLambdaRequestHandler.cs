@@ -10,6 +10,7 @@ using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
 
 public sealed class BackOfficeLambdaHealthCheckSqsLambdaRequestHandler : SqsLambdaHandler<BackOfficeLambdaHealthCheckSqsLambdaRequest>

@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Core;
 using System;
 using Framework;
 using Messages;
+using RoadRegistry.RoadNetwork.ValueObjects;
 
 public class Organization : EventSourcedEntity
 {

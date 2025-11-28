@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO.Compression;
 using Extracts;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Extensions;
 
 public class CompositeZipArchiveWriter : IZipArchiveWriter
 {

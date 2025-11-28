@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using FluentValidation;
+using RoadRegistry.RoadNetwork.ValueObjects;
 
 public class AddRoadSegmentToEuropeanRoadValidator : AbstractValidator<Messages.AddRoadSegmentToEuropeanRoad>
 {

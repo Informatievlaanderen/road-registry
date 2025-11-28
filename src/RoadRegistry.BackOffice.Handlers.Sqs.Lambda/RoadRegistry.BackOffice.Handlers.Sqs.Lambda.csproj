@@ -43,6 +43,9 @@
     <PackageReference Include="Serilog.Sinks.Slack" />
   </ItemGroup>
   <ItemGroup>
+    <Using Include="RoadRegistry.ValueObjects" />
+  </ItemGroup>
+  <ItemGroup>
 		<Using Include="Amazon.Lambda.Core" />
 		<Using Include="Amazon.Lambda.Serialization.Json" />
 	</ItemGroup>

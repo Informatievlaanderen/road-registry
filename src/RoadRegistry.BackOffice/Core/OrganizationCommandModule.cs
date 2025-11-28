@@ -8,6 +8,7 @@ using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using SqlStreamStore;
 
 public class OrganizationCommandModule : CommandHandlerModule

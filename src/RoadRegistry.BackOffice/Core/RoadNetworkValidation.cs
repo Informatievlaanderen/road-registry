@@ -7,6 +7,7 @@ using Messages;
 using QuikGraph;
 using QuikGraph.Algorithms;
 using RoadRegistry.RoadSegment.ValueObjects;
+using ValueObjects.Problems;
 
 public static class RoadNetworkValidation
 {

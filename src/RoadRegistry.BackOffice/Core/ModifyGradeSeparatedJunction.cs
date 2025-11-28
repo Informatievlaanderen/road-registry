@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Messages;
 using RoadRegistry.RoadSegment.ValueObjects;
+using ValueObjects.Problems;
 
 public class ModifyGradeSeparatedJunction : IRequestedChange
 {
@@ -30,7 +31,7 @@ public class ModifyGradeSeparatedJunction : IRequestedChange
     public RoadSegmentId LowerSegmentId { get; }
     public RoadSegmentId? TemporaryLowerSegmentId { get; }
 
-    public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.Problem[] warnings)
     {
         yield return new Messages.AcceptedChange
         {

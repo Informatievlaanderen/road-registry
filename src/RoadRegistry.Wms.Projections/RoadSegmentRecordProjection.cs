@@ -11,9 +11,7 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Extensions;
-using RoadNetwork.ValueObjects;
 using Schema;
-using ValueObjects;
 
 public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
 {

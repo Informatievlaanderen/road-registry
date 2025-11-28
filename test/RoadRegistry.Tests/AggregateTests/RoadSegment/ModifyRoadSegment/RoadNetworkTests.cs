@@ -11,6 +11,7 @@ using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
+using ValueObjects.Problems;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
 public class RoadNetworkTests : RoadNetworkTestBase

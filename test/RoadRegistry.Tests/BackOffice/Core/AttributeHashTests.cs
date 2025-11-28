@@ -5,7 +5,6 @@ using AutoFixture.Idioms;
 using Framework.Assertions;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using RoadSegment.ValueObjects;
 using RoadSegmentLaneAttribute = RoadRegistry.BackOffice.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute;
 using RoadSegmentWidthAttribute = RoadRegistry.BackOffice.RoadSegmentWidthAttribute;
@@ -67,7 +66,7 @@ public class AttributeHashTests
         var right = sut.With(value2);
         Assert.NotEqual(left, right);
     }
-    
+
     [Fact]
     public void DiffersWhenLeftSideDiffers()
     {
@@ -124,7 +123,7 @@ public class AttributeHashTests
         var right = sut.With(value2);
         Assert.NotEqual(left, right);
     }
-    
+
     [Fact]
     public void ToStringReturnsExpectedResult()
     {

@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System.Linq;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadSegmentEuropeanRoadAttribute = BackOffice.RoadSegmentEuropeanRoadAttribute;
 using RoadSegmentNationalRoadAttribute = BackOffice.RoadSegmentNationalRoadAttribute;

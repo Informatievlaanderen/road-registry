@@ -1,7 +1,6 @@
 namespace RoadRegistry.RoadSegment.Events;
 
-using BackOffice;
-using RoadNetwork.ValueObjects;
+using RoadRegistry.ValueObjects;
 using ValueObjects;
 
 public record RoadSegmentModified

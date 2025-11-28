@@ -14,7 +14,7 @@ using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
 using Editor.Schema;
 using Hosts;
 using Microsoft.Extensions.Logging;
-using RoadSegment.ValueObjects;
+using RoadRegistry.Extensions;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 using Sync.StreetNameRegistry;

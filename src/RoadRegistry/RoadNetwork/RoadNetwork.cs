@@ -4,16 +4,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using BackOffice;
-using BackOffice.Core;
 using Events;
 using GradeSeparatedJunction;
 using GradeSeparatedJunction.Changes;
 using RoadNode;
 using RoadNode.Changes;
+using RoadRegistry.ValueObjects;
+using RoadRegistry.ValueObjects.Problems;
 using RoadSegment;
 using RoadSegment.Changes;
-using RoadSegment.ValueObjects;
 using ValueObjects;
 
 public partial class RoadNetwork : MartenAggregateRootEntity<string>

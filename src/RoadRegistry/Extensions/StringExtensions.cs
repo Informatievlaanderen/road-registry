@@ -1,6 +1,6 @@
-using System;
+namespace RoadRegistry.Extensions;
 
-namespace RoadRegistry.BackOffice.Extensions;
+using System;
 
 public static class StringExtensions
 {

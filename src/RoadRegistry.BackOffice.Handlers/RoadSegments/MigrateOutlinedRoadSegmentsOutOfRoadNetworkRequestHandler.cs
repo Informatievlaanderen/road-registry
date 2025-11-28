@@ -10,7 +10,7 @@ using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
 using AddRoadSegment = BackOffice.Uploads.AddRoadSegment;
-using Reason = BackOffice.Reason;
+using Reason = ValueObjects.Reason;
 using RemoveOutlinedRoadSegmentFromRoadNetwork = BackOffice.Uploads.RemoveOutlinedRoadSegmentFromRoadNetwork;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
@@ -38,7 +38,7 @@ public sealed class MigrateOutlinedRoadSegmentsOutOfRoadNetworkRequestHandler : 
             .WithOrganization(OrganizationId.DigitaalVlaanderen)
             .WithOperatorName(OperatorName.Unknown)
             .WithReason(new Reason("Migreer ingeschetste wegsegmenten uit het wegennetwerk"));
-        
+
         var network = await _roadRegistryContext.RoadNetworks.Get(cancellationToken);
         var roadSegments = network.FindRoadSegments(x => x.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined);
 
@@ -46,7 +46,7 @@ public sealed class MigrateOutlinedRoadSegmentsOutOfRoadNetworkRequestHandler : 
         {
             return new MigrateOutlinedRoadSegmentsOutOfRoadNetworkResponse(0);
         }
-        
+
         var recordNumber = RecordNumber.Initial;
         var attributeIdProvider = new NextAttributeIdProvider(AttributeId.Initial);
 

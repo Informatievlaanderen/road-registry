@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using RoadRegistry.Extensions;
 
 public class SqsMessagesBlobClient : IBlobClient
 {
@@ -38,7 +39,7 @@ public class SqsMessagesBlobClient : IBlobClient
     {
         return _client.GetBlobAsync(name, cancellationToken);
     }
-    
+
     public async Task CreateBlobMessageAsync<T>(BlobName name, Metadata metadata, ContentType contentType, T message,
         CancellationToken cancellationToken = default)
     {

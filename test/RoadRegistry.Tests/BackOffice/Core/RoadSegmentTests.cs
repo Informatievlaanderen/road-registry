@@ -5,7 +5,6 @@ using FluentAssertions;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using RoadSegment.ValueObjects;
 
 public class RoadSegmentTests
 {

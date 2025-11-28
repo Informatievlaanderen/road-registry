@@ -2,9 +2,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using BackOffice;
-using BackOffice.Core;
 using RoadNode.Changes;
+using RoadRegistry.ValueObjects;
+using RoadRegistry.ValueObjects.Problems;
 using RoadNode = RoadNode.RoadNode;
 
 public partial class RoadNetwork

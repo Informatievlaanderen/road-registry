@@ -2,6 +2,7 @@
 
 using FluentAssertions.Collections;
 using RoadRegistry.BackOffice.Core;
+using ValueObjects.Problems;
 using Xunit.Sdk;
 
 public static class FluentAssertionExtensions

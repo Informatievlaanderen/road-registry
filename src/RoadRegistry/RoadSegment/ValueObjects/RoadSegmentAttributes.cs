@@ -4,7 +4,7 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Newtonsoft.Json;
-using RoadRegistry.BackOffice;
+using RoadRegistry.ValueObjects;
 
 public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
 {

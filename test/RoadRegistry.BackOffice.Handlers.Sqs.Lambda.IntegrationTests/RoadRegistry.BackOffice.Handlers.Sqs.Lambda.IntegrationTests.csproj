@@ -17,7 +17,7 @@
     <PackageReference Include="Be.Vlaanderen.Basisregisters.Sqs" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.Sqs.Lambda" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.TicketingService.Abstractions" />
-    
+
     <PackageReference Include="AWSSDK.Core" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="MediatR.Contracts" />
@@ -34,6 +34,7 @@
   <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="RoadRegistry.Tests" />
+    <Using Include="RoadRegistry.ValueObjects" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />

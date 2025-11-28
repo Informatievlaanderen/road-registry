@@ -7,8 +7,8 @@ using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.RoadNetwork;
-using IRoadNetworkIdGenerator = RoadRegistry.BackOffice.Core.IRoadNetworkIdGenerator;
-using Problems = RoadRegistry.BackOffice.Core.Problems;
+using IRoadNetworkIdGenerator = RoadNetwork.IRoadNetworkIdGenerator;
+using Problems = ValueObjects.Problems.Problems;
 
 public class ScenarioRunner
 {

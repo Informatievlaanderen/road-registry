@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
 
+using Extensions;
 using RoadNetwork;
 using RoadRegistry.BackOffice.Framework;
 

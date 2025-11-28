@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
+using RoadRegistry.Extensions;
 using RoadRegistry.RoadNode.Changes;
 using Uploads;
 using TranslatedChanges = V3.TranslatedChanges;

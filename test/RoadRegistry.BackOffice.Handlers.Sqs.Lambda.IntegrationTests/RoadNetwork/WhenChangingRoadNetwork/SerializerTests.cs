@@ -6,7 +6,6 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using RoadNode.Changes;
 using RoadSegment.Changes;
-using RoadSegment.ValueObjects;
 using Tests.AggregateTests;
 using Xunit.Abstractions;
 

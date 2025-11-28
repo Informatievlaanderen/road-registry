@@ -2,6 +2,7 @@ namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
 using Autofac;
 using AutoFixture;
+using CommandHandling.Extracts;
 using Framework.Testing;
 using Moq;
 using NodaTime.Text;

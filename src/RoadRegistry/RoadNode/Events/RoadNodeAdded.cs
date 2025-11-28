@@ -1,8 +1,5 @@
 namespace RoadRegistry.RoadNode.Events;
 
-using BackOffice;
-using RoadNetwork.ValueObjects;
-
 public record RoadNodeAdded: ICreatedEvent
 {
     public required RoadNodeId RoadNodeId { get; init; }

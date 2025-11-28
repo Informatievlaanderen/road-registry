@@ -14,6 +14,7 @@ using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extensions;
 using AddRoadNode = Uploads.AddRoadNode;
 using ModifyRoadNode = Uploads.ModifyRoadNode;
 using RemoveRoadNode = Uploads.RemoveRoadNode;

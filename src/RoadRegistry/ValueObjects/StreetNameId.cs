@@ -1,4 +1,5 @@
-namespace RoadRegistry.BackOffice;
+namespace RoadRegistry.ValueObjects;
+
 using System;
 using System.Linq;
 using Extensions;
@@ -50,7 +51,7 @@ public readonly struct StreetNameId
     {
         return new StreetNameLocalId(ObjectId);
     }
-    
+
     public static implicit operator string(StreetNameId instance)
     {
         return instance.ToString();

@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment;
 
+using Extensions;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;

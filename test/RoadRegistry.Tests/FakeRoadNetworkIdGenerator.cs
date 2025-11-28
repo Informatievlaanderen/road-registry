@@ -1,11 +1,11 @@
 namespace RoadRegistry.Tests
 {
     using System.Runtime.CompilerServices;
-    using RoadRegistry.BackOffice;
+    using RoadNetwork;
+        using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Core;
     using RoadRegistry.BackOffice.Messages;
-    using RoadSegment.ValueObjects;
-    using RoadNetwork = RoadNetwork.RoadNetwork;
+            using RoadNetwork = RoadNetwork.RoadNetwork;
 
     public class FakeRoadNetworkIdGenerator: IRoadNetworkIdGenerator
     {

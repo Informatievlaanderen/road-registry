@@ -17,6 +17,7 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.IO.Esri;
 using NetTopologySuite.IO.Esri.Dbf.Fields;
 using NetTopologySuite.IO.Esri.Shapefiles.Writers;
+using RoadRegistry.Extensions;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public class ShapeFileRecordWriter

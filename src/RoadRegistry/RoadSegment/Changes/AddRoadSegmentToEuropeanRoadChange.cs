@@ -1,8 +1,7 @@
 namespace RoadRegistry.RoadSegment.Changes;
 
-using BackOffice;
 using RoadNetwork;
-using ValueObjects;
+using RoadRegistry.ValueObjects;
 
 public sealed record AddRoadSegmentToEuropeanRoadChange : IRoadNetworkChange
 {

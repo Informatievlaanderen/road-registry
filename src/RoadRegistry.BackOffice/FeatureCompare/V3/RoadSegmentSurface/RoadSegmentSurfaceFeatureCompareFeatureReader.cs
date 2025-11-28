@@ -10,6 +10,7 @@ using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extensions;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadSegmentSurfaceAttribute = Core.RoadSegmentSurfaceAttribute;
 

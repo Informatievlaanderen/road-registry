@@ -1,12 +1,11 @@
-namespace NetTopologySuite.Geometries;
+namespace RoadRegistry.Extensions;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Implementation;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Core;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.Geometries.Implementation;
 
 public static class NetTopologySuiteExtensions
 {

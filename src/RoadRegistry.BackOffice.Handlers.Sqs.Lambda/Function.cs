@@ -21,6 +21,7 @@ using Abstractions;
 using BackOffice.Extracts;
 using BackOffice.Handlers.Extracts;
 using CommandHandling;
+using CommandHandling.Extracts;
 using Editor.Schema;
 using Handlers.Extracts;
 using Microsoft.EntityFrameworkCore;

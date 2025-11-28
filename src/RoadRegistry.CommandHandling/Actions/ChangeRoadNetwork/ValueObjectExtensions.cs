@@ -1,32 +1,37 @@
-﻿namespace RoadRegistry.BackOffice.Core;
+﻿namespace RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
+
+using RoadRegistry.ValueObjects.Problems;
+using Problem = ValueObjects.Problem;
+using ProblemParameter = ValueObjects.ProblemParameter;
+using ProblemSeverity = ValueObjects.ProblemSeverity;
 
 public static class ValueObjectExtensions
 {
-    public static RoadRegistry.BackOffice.Messages.Problem Translate(this Problem problem)
+    public static Problem Translate(this RoadRegistry.ValueObjects.Problems.Problem problem)
     {
-        return new RoadRegistry.BackOffice.Messages.Problem
+        return new Problem
         {
             Severity = problem is Error
-                ? BackOffice.Messages.ProblemSeverity.Error
-                : BackOffice.Messages.ProblemSeverity.Warning,
+                ? ProblemSeverity.Error
+                : ProblemSeverity.Warning,
             Reason = problem.Reason,
             Parameters = problem.Parameters.Select(parameter => parameter.Translate()).ToArray()
         };
     }
 
-    public static RoadRegistry.BackOffice.Messages.ProblemParameter Translate(this ProblemParameter problemParameter)
+    public static ProblemParameter Translate(this RoadRegistry.ValueObjects.Problems.ProblemParameter problemParameter)
     {
-        return new RoadRegistry.BackOffice.Messages.ProblemParameter
+        return new ProblemParameter
         {
             Name = problemParameter.Name,
             Value = problemParameter.Value
         };
     }
 
-    public static Core.ProblemSeverity Translate(this Messages.ProblemSeverity value) => value switch
+    public static RoadRegistry.ValueObjects.ProblemSeverity Translate(this ProblemSeverity value) => value switch
     {
-        Messages.ProblemSeverity.Error => ProblemSeverity.Error,
-        Messages.ProblemSeverity.Warning => ProblemSeverity.Warning,
+        ProblemSeverity.Error => RoadRegistry.ValueObjects.ProblemSeverity.Error,
+        ProblemSeverity.Warning => RoadRegistry.ValueObjects.ProblemSeverity.Warning,
         _ => throw new NotSupportedException()
     };
 }

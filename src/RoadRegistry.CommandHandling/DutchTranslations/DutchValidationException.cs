@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Exceptions;
+namespace RoadRegistry.CommandHandling.DutchTranslations;
 
 using System.Collections.Generic;
 using FluentValidation;

@@ -1,8 +1,8 @@
 ﻿namespace RoadRegistry.GradeSeparatedJunction;
 
-using BackOffice.Core;
-using BackOffice.Core.ProblemCodes;
 using RoadNetwork.ValueObjects;
+using RoadRegistry.ValueObjects.ProblemCodes;
+using RoadRegistry.ValueObjects.Problems;
 
 public partial class GradeSeparatedJunction
 {

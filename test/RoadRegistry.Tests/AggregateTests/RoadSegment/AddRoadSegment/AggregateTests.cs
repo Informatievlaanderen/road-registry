@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment.AddRoadSegment;
 
 using AutoFixture;
+using Extensions;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
@@ -11,6 +12,7 @@ using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.AggregateTests.Framework;
+using ValueObjects.Problems;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
 public class AggregateTests : AggregateTestBase

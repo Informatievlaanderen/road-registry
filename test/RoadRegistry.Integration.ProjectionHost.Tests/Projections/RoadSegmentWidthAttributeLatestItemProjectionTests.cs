@@ -5,7 +5,6 @@ using BackOffice;
 using BackOffice.Messages;
 using Integration.Projections;
 using RoadRegistry.Tests.BackOffice;
-using RoadSegment.ValueObjects;
 using Schema.RoadSegments;
 
 public class RoadSegmentWidthAttributeLatestItemProjectionTests

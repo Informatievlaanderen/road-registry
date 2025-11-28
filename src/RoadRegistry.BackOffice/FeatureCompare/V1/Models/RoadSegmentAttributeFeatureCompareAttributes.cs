@@ -1,7 +1,5 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.V1.Models;
 
-using RoadSegment.ValueObjects;
-
 public abstract record RoadSegmentAttributeFeatureCompareAttributes
 {
     public AttributeId Id { get; init; }

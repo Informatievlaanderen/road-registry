@@ -19,6 +19,7 @@ using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Editor.Schema;
+using RoadRegistry.Extensions;
 using RoadRegistry.Hosts;
 using RoadRegistry.Sync.OrganizationRegistry;
 using RoadRegistry.Sync.OrganizationRegistry.Exceptions;

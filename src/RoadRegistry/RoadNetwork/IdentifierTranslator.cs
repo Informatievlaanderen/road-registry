@@ -1,10 +1,9 @@
 ﻿namespace RoadRegistry.RoadNetwork;
 
 using System.Collections.Generic;
-using BackOffice;
-using BackOffice.Core;
-using BackOffice.Core.ProblemCodes;
-using RoadSegment.ValueObjects;
+using RoadRegistry.ValueObjects;
+using RoadRegistry.ValueObjects.ProblemCodes;
+using RoadRegistry.ValueObjects.Problems;
 
 public interface IIdentifierTranslator
 {

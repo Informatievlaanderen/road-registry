@@ -5,11 +5,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using Messages;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
 using RoadRegistry.RoadNetwork;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.ValueObjects;
+using ValueObjects.Problems;
 
 public class AddRoadSegment : IRequestedChange, IHaveHash
 {
@@ -80,7 +84,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
     public RoadNodeId? TemporaryStartNodeId { get; }
     public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
 
-    public IEnumerable<Messages.AcceptedChange> TranslateTo(BackOffice.Messages.Problem[] warnings, AfterVerificationContext context)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.Problem[] warnings, AfterVerificationContext context)
     {
         var maintainer = context.Organizations.FindAsync(MaintenanceAuthorityId, CancellationToken.None).GetAwaiter().GetResult();
 

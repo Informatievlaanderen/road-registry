@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice;
+namespace RoadRegistry;
 
 public interface IDutchToString
 {

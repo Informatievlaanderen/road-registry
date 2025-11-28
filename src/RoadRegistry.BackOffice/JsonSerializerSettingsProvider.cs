@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice;
 
 using Be.Vlaanderen.Basisregisters.EventHandling;
-using Infrastructure.Converters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 

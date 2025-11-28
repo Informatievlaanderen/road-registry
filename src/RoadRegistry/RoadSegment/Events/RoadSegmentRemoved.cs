@@ -1,6 +1,6 @@
 namespace RoadRegistry.RoadSegment.Events;
 
-using ValueObjects;
+using RoadRegistry.ValueObjects;
 
 public record RoadSegmentRemoved
 {

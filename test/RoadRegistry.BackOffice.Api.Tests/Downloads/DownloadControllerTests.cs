@@ -6,6 +6,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Infrastructure;
 using Product.Schema;
+using RoadRegistry.Extensions;
 using RoadRegistry.Tests.Framework.Containers;
 
 public partial class DownloadControllerTests : ControllerMinimalTests<DownloadController>

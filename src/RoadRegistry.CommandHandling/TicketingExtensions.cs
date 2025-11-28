@@ -1,11 +1,11 @@
-namespace RoadRegistry.BackOffice.Messages
+namespace RoadRegistry.CommandHandling
 {
-    using Extensions;
+    using Actions.ChangeRoadNetwork.ValueObjects;
     using TicketingService.Abstractions;
 
     public static class TicketingExtensions
     {
-        public static TicketError ToTicketError(this Messages.Problem problem)
+        public static TicketError ToTicketError(this Problem problem)
         {
             var translation = problem.TranslateToDutch();
             return new TicketError(translation.Message, $"{problem.Severity}{translation.Code}");

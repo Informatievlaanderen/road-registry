@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Core.ProblemCodes;
+namespace RoadRegistry.ValueObjects.ProblemCodes;
 
 using System.Collections.Concurrent;
 using System.Linq;

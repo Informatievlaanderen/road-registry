@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
 using Core;
-using RoadSegment.ValueObjects;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
 
 public class LinkStreetNameSqsRequestHandler : SqsHandler<LinkStreetNameSqsRequest>

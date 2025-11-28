@@ -1,9 +1,7 @@
 ﻿namespace RoadRegistry.GradeSeparatedJunction;
 
 using System.Text.Json.Serialization;
-using BackOffice;
 using Events;
-using RoadSegment.ValueObjects;
 
 public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSeparatedJunctionId>
 {

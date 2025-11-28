@@ -3,6 +3,7 @@
 using FluentAssertions;
 using Framework;
 using RoadRegistry.BackOffice.Core;
+using ValueObjects.Problems;
 
 public class RoadNetworkTests : RoadNetworkTestBase
 {

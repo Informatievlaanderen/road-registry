@@ -1,9 +1,12 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using CommandHandling;
 using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
-using ProblemCodes;
+using RoadRegistry.RoadNetwork.ValueObjects;
+using ValueObjects.ProblemCodes;
+using ValueObjects.Problems;
 
 public abstract class ModifyRoadSegmentValidatorBase : AbstractValidator<Messages.ModifyRoadSegment>
 {

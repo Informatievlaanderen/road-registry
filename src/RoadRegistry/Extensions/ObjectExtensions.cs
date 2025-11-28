@@ -1,7 +1,8 @@
-namespace System;
+namespace RoadRegistry.Extensions;
 
-using Globalization;
-using Runtime.CompilerServices;
+using System;
+using System.Globalization;
+using System.Runtime.CompilerServices;
 
 public static class ObjectExtensions
 {

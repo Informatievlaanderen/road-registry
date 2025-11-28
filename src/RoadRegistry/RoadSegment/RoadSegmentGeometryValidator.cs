@@ -1,9 +1,9 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
-using BackOffice;
-using BackOffice.Core;
+using Extensions;
 using NetTopologySuite.Geometries;
-using ValueObjects;
+using RoadRegistry.ValueObjects;
+using RoadRegistry.ValueObjects.Problems;
 
 public class RoadSegmentGeometryValidator
 {

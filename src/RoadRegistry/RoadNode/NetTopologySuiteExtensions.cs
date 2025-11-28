@@ -2,11 +2,9 @@ namespace RoadRegistry.RoadNode;
 
 using System;
 using System.Collections.Generic;
+using Extensions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
-using RoadNetwork.ValueObjects;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadSegment.ValueObjects;
 using LineString = NetTopologySuite.Geometries.LineString;
 

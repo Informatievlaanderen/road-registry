@@ -6,6 +6,7 @@ using Dbase.V2;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.Organizations;
+using RoadRegistry.Extensions;
 
 public class OrganizationsZipArchiveWriter : IZipArchiveWriter
 {

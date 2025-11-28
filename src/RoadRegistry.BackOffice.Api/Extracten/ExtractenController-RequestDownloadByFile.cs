@@ -10,16 +10,18 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using CommandHandling;
+using CommandHandling.DutchTranslations;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
-using RoadRegistry.BackOffice.Core.ProblemCodes;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 using Swashbuckle.AspNetCore.Annotations;
+using ValueObjects.ProblemCodes;
 
 public partial class ExtractenController
 {

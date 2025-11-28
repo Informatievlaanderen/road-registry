@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.ValueObjects;
 
 using System;
 

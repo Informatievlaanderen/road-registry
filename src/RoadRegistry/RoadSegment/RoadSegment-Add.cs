@@ -1,10 +1,10 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
 using System.Collections.Immutable;
-using BackOffice.Core;
 using Changes;
 using Events;
 using RoadNetwork;
+using RoadRegistry.ValueObjects.Problems;
 using ValueObjects;
 
 public partial class RoadSegment

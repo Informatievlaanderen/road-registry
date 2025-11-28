@@ -5,6 +5,7 @@ using AutoFixture.Dsl;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Extensions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NodaTime;
@@ -14,7 +15,6 @@ using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
-using RoadSegment.ValueObjects;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = RoadRegistry.BackOffice.Messages.Point;
 using Polygon = RoadRegistry.BackOffice.Messages.Polygon;
@@ -413,11 +413,11 @@ public static class SharedCustomizations
 
     public static void CustomizeReason(this IFixture fixture)
     {
-        fixture.Customize<RoadRegistry.BackOffice.Reason>(composer =>
+        fixture.Customize<ValueObjects.Reason>(composer =>
             composer.FromFactory(generator =>
-                new RoadRegistry.BackOffice.Reason(new string(
+                new ValueObjects.Reason(new string(
                     (char)generator.Next(97, 123), // a-z
-                    generator.Next(1, RoadRegistry.BackOffice.Reason.MaxLength + 1))))
+                    generator.Next(1, ValueObjects.Reason.MaxLength + 1))))
         );
     }
 

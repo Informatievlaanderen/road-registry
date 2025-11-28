@@ -1,9 +1,11 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using CommandHandling;
 using Extensions;
 using FluentValidation;
-using ProblemCodes;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using RoadRegistry.RoadSegment.ValueObjects;
+using ValueObjects.ProblemCodes;
 
 public class RemoveRoadSegmentsValidator : AbstractValidator<Messages.RemoveRoadSegments>
 {

@@ -11,7 +11,6 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
-using Core.ProblemCodes;
 using Exceptions;
 using FeatureCompare.V3;
 using Hosts;
@@ -22,8 +21,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Requests.Extracts;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using Sqs.RoadNetwork;
 using TicketingService.Abstractions;
+using ValueObjects.ProblemCodes;
+using ValueObjects.Problems;
 
 public sealed class UploadExtractSqsLambdaRequestV2Handler : SqsLambdaHandler<UploadExtractSqsLambdaRequestV2>
 {

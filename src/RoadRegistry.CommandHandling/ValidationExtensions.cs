@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Extensions;
+namespace RoadRegistry.CommandHandling;
 
 using System;
 using System.Collections.Generic;
@@ -6,13 +6,15 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Core;
-using Core.ProblemCodes;
+using Actions.ChangeRoadNetwork;
+using Actions.ChangeRoadNetwork.ValueObjects;
 using DutchTranslations;
-using Exceptions;
 using FluentValidation;
 using FluentValidation.Results;
-using ProblemSeverity = Messages.ProblemSeverity;
+using ValueObjects.ProblemCodes;
+using Problem = ValueObjects.Problems.Problem;
+using ProblemParameter = ValueObjects.Problems.ProblemParameter;
+using ProblemSeverity = Actions.ChangeRoadNetwork.ValueObjects.ProblemSeverity;
 
 public static class ValidationExtensions
 {
@@ -71,7 +73,7 @@ public static class ValidationExtensions
             .Select(x => new
             {
                 ValidationFailure = x,
-                Problem = new Messages.Problem
+                Problem = new Actions.ChangeRoadNetwork.ValueObjects.Problem
                 {
                     Severity = ProblemSeverity.Error,
                     Reason = x.ErrorCode,
@@ -95,7 +97,7 @@ public static class ValidationExtensions
             });
     }
 
-    public static ValidationFailure ToValidationFailure(this Messages.Problem problem, string? propertyName = null)
+    public static ValidationFailure ToValidationFailure(this Actions.ChangeRoadNetwork.ValueObjects.Problem problem, string? propertyName = null)
     {
         return new ValidationFailure
         {
@@ -106,11 +108,11 @@ public static class ValidationExtensions
         };
     }
 
-    public static ProblemTranslation TranslateToDutch(this Core.Problem problem)
+    public static ProblemTranslation TranslateToDutch(this Problem problem)
     {
         return problem.Translate().TranslateToDutch();
     }
-    public static ProblemTranslation TranslateToDutch(this Messages.Problem problem)
+    public static ProblemTranslation TranslateToDutch(this Actions.ChangeRoadNetwork.ValueObjects.Problem problem)
     {
         return ProblemTranslator.Dutch(problem);
     }
@@ -128,14 +130,14 @@ public static class ValidationExtensions
         }
     }
 
-    private static Messages.ProblemParameter[] ParseCustomState(object? customState)
+    private static Actions.ChangeRoadNetwork.ValueObjects.ProblemParameter[] ParseCustomState(object? customState)
     {
         if (customState is null)
         {
             return [];
         }
 
-        if (customState is Messages.ProblemParameter[] problemParameters)
+        if (customState is Actions.ChangeRoadNetwork.ValueObjects.ProblemParameter[] problemParameters)
         {
             return problemParameters;
         }
@@ -145,7 +147,7 @@ public static class ValidationExtensions
             .ToArray();
     }
 
-    private static object ToCustomState(IEnumerable<Messages.ProblemParameter>? parameters)
+    private static object ToCustomState(IEnumerable<Actions.ChangeRoadNetwork.ValueObjects.ProblemParameter>? parameters)
     {
         return parameters?.ToArray() ?? [];
     }

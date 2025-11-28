@@ -11,6 +11,7 @@ using GradeSeparatedJunction;
 using Microsoft.Extensions.Logging;
 using NationalRoad;
 using RoadNode;
+using RoadRegistry.Extensions;
 using RoadSegment;
 using RoadSegmentSurface;
 using TransactionZone;

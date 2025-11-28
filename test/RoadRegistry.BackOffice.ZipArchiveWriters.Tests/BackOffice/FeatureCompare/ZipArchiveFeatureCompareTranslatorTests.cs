@@ -22,9 +22,10 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
     using RoadRegistry.BackOffice.FeatureCompare;
     using RoadRegistry.BackOffice.FeatureCompare.V1;
     using RoadRegistry.BackOffice.FeatureCompare.V1.Readers;
+    using RoadRegistry.Extensions;
     using RoadRegistry.Tests.BackOffice.Scenarios;
     using Uploads;
-    using Xunit.Abstractions;
+        using Xunit.Abstractions;
 
     public class ZipArchiveFeatureCompareTranslatorTests
     {

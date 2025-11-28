@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests;
 
 using Framework;
+using RoadNetwork;
 using RoadRegistry.BackOffice.Core;
 
 public abstract class RoadNetworkTestBase : AggregateTestBase

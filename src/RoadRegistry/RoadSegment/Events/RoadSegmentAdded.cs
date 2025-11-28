@@ -1,8 +1,7 @@
 namespace RoadRegistry.RoadSegment.Events;
 
 using System.Collections.Generic;
-using BackOffice;
-using RoadNetwork.ValueObjects;
+using RoadRegistry.ValueObjects;
 using ValueObjects;
 
 public record RoadSegmentAdded: ICreatedEvent

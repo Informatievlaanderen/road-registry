@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RoadNode;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extensions;
 using RoadSegment;
 
 public static class FeatureCompareRecordExtensions

@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.Messages;
+﻿namespace RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 
 public class RequestedRoadSegmentSurfaceAttribute
 {

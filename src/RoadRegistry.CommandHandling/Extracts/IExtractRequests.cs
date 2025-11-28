@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.Extracts;
+﻿namespace RoadRegistry.CommandHandling.Extracts;
 
 using System.Threading;
 using System.Threading.Tasks;
