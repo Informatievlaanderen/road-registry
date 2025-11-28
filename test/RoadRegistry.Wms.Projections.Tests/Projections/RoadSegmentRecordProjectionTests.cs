@@ -5,6 +5,7 @@ using Infrastructure;
 using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.RoadSegment.Events;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.Framework.Projections;
 using RoadRegistry.Wms.ProjectionHost.Tests.Projections.Framework;
 using RoadRegistry.Wms.Projections;
 using RoadRegistry.Wms.Schema;

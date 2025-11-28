@@ -3,9 +3,11 @@ namespace RoadRegistry.Wfs.ProjectionHost.Tests.Projections;
 using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
+using RoadNetwork.ValueObjects;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 using Schema;
+using ValueObjects;
 using Wfs.Projections;
 
 public class RoadNodeRecordProjectionTests
