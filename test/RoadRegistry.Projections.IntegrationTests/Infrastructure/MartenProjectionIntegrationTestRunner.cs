@@ -118,15 +118,10 @@ public class MartenProjectionIntegrationTestRunner
         var sp = BuildServiceProvider();
         var store = sp.GetRequiredService<IDocumentStore>();
 
-        await using var session = store.LightweightSession();
-
-        // session.Events.StartStream(StreamKeyFactory.Create(typeof(RoadNetwork), RoadNetwork.GlobalIdentifier), new RoadNetworkChanged
-        // {
-        //     ScopeGeometry = null!
-        // });
-
         foreach (var events in _givenEvents)
         {
+            await using var session = store.LightweightSession();
+
             session.CausationId = "given";
             session.CorrelationId = Guid.NewGuid().ToString(); // Ensure events are grouped by correlation id
 
@@ -149,7 +144,10 @@ public class MartenProjectionIntegrationTestRunner
         await projectionDaemon.WaitForNonStaleData(_projectionWaitTimeout);
 
         // Assert
-        await assert(sp, session);
+        {
+            await using var session = store.LightweightSession();
+            await assert(sp, session);
+        }
     }
 
     public XunitException CreateFailedScenarioExceptionFor(VerificationResult result)

@@ -18,4 +18,11 @@ public record RoadSegmentModified
     public RoadSegmentDynamicAttributeValues<StreetNameLocalId>? StreetNameId { get; init; }
     public RoadSegmentDynamicAttributeValues<OrganizationId>? MaintenanceAuthorityId { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>? SurfaceType { get; init; }
+
+    public RoadSegmentModified()
+    {
+    }
+    protected RoadSegmentModified(RoadSegmentModified other) // Needed for Marten
+    {
+    }
 }

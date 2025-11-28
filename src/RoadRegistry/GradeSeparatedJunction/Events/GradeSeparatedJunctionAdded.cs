@@ -7,4 +7,11 @@ public record GradeSeparatedJunctionAdded : ICreatedEvent
     public required RoadSegmentId LowerRoadSegmentId { get; init; }
     public required RoadSegmentId UpperRoadSegmentId { get; init; }
     public required GradeSeparatedJunctionType Type { get; init; }
+
+    public GradeSeparatedJunctionAdded()
+    {
+    }
+    protected GradeSeparatedJunctionAdded(GradeSeparatedJunctionAdded other) // Needed for Marten
+    {
+    }
 }

@@ -21,4 +21,11 @@ public record RoadSegmentAdded: ICreatedEvent
     public required RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType> SurfaceType { get; init; }
     public required IReadOnlyCollection<EuropeanRoadNumber> EuropeanRoadNumbers { get; init; }
     public required IReadOnlyCollection<NationalRoadNumber> NationalRoadNumbers { get; init; }
+
+    public RoadSegmentAdded()
+    {
+    }
+    protected RoadSegmentAdded(RoadSegmentAdded other) // Needed for Marten
+    {
+    }
 }
