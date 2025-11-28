@@ -104,7 +104,7 @@ public partial class ImmutableRoadNetworkView : IRoadNetworkView
                     Status = segment.Value.AttributeHash.Status,
                     LeftSideStreetNameId = segment.Value.AttributeHash.LeftStreetNameId?.ToInt32(),
                     RightSideStreetNameId = segment.Value.AttributeHash.RightStreetNameId?.ToInt32(),
-                    OrganizationId = segment.Value.AttributeHash.MaintenanceAuthorityId,
+                    OrganizationId = segment.Value.AttributeHash.OrganizationId,
                     GeometryDrawMethod = segment.Value.AttributeHash.GeometryDrawMethod.ToString()
                 },
                 EuropeanRoadAttributes = segment.Value.EuropeanRoadAttributes

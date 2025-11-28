@@ -85,7 +85,7 @@ public partial class ImmutableRoadNetworkView
             command.Status ?? segmentBefore.AttributeHash.Status,
             command.LeftSideStreetNameId ?? segmentBefore.AttributeHash.LeftStreetNameId,
             command.RightSideStreetNameId ?? segmentBefore.AttributeHash.RightStreetNameId,
-            command.MaintenanceAuthorityId ?? segmentBefore.AttributeHash.MaintenanceAuthorityId,
+            command.MaintenanceAuthorityId ?? segmentBefore.AttributeHash.OrganizationId,
             command.GeometryDrawMethod
         );
 

@@ -10,8 +10,4 @@
       <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Spatial\" />
-    </ItemGroup>
-
 </Project>

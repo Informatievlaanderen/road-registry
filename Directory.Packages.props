@@ -30,7 +30,7 @@
     <PackageVersion Include="AWSSDK.SQS" Version="3.7.400.129" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.24.0" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.AggregateSource" Version="10.0.2" />
-    <PackageVersion Include="Be.Vlaanderen.Basisregisters.AggregateSource.ExplicitRouting" Version="1.0.0" />
+    <PackageVersion Include="Be.Vlaanderen.Basisregisters.AggregateSource.ExplicitRouting" Version="10.0.2" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.AggregateSource.Testing" Version="10.0.2" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.AggregateSource.Testing.CommandHandling" Version="10.0.2" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofac" Version="10.0.2" />
@@ -69,6 +69,7 @@
 
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.TicketingService.Abstractions" Version="3.2.4" />
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy" Version="3.2.4" />
+
     <PackageVersion Include="Be.Vlaanderen.Basisregisters.Utilities.Rfc3339DateTimeOffset" Version="5.0.0" />
     <PackageVersion Include="CompareNETObjects" Version="4.83.0" />
     <PackageVersion Include="Dapper" Version="2.1.66" />

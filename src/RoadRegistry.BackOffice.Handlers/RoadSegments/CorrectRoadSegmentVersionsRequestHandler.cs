@@ -106,7 +106,7 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
                         roadSegment.AttributeHash.GeometryDrawMethod,
                         roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.Start,
                         roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.End,
-                        roadSegment.AttributeHash.MaintenanceAuthorityId,
+                        roadSegment.AttributeHash.OrganizationId,
                         roadSegment.AttributeHash.Morphology,
                         roadSegment.AttributeHash.Status,
                         roadSegment.AttributeHash.Category,

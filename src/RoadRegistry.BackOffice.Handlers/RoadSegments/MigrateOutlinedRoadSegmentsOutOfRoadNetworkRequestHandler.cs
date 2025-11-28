@@ -65,7 +65,7 @@ public sealed class MigrateOutlinedRoadSegmentsOutOfRoadNetworkRequestHandler : 
                 roadSegment.Id,
                 new RoadNodeId(0),
                 new RoadNodeId(0),
-                roadSegment.AttributeHash.MaintenanceAuthorityId,
+                roadSegment.AttributeHash.OrganizationId,
                 roadSegment.AttributeHash.GeometryDrawMethod,
                 roadSegment.AttributeHash.Morphology,
                 roadSegment.AttributeHash.Status,

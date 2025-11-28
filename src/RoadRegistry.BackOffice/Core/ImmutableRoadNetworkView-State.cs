@@ -613,7 +613,7 @@ public partial class ImmutableRoadNetworkView
                 : segmentBefore.AttributeHash.RightStreetNameId,
             @event.MaintenanceAuthority is not null
                 ? new OrganizationId(@event.MaintenanceAuthority.Code)
-                : segmentBefore.AttributeHash.MaintenanceAuthorityId,
+                : segmentBefore.AttributeHash.OrganizationId,
             segmentBefore.AttributeHash.GeometryDrawMethod
         );
 
@@ -669,7 +669,7 @@ public partial class ImmutableRoadNetworkView
             segmentBefore.AttributeHash.Status,
             segmentBefore.AttributeHash.LeftStreetNameId,
             segmentBefore.AttributeHash.RightStreetNameId,
-            segmentBefore.AttributeHash.MaintenanceAuthorityId,
+            segmentBefore.AttributeHash.OrganizationId,
             segmentBefore.AttributeHash.GeometryDrawMethod
         );
 

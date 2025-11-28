@@ -237,7 +237,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
     {
         var afterSegment = context.AfterView.Segments[Id];
 
-        var maintenanceAuthorityId = afterSegment.AttributeHash.MaintenanceAuthorityId;
+        var maintenanceAuthorityId = afterSegment.AttributeHash.OrganizationId;
         var maintainer = context.Organizations.FindAsync(maintenanceAuthorityId, CancellationToken.None).GetAwaiter().GetResult();
 
         var laneIdentifiers = new Queue<AttributeId>(context.AfterView.View.SegmentReusableLaneAttributeIdentifiers[Id]);

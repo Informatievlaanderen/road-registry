@@ -21,6 +21,7 @@
     <PackageReference Include="Be.Vlaanderen.Basisregisters.GrAr.Provenance" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.Shaperon" />

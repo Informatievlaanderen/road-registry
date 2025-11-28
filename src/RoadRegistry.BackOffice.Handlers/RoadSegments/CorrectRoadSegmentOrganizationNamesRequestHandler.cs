@@ -83,7 +83,7 @@ public sealed class CorrectRoadSegmentOrganizationNamesRequestHandler
                 roadSegment.AttributeHash.GeometryDrawMethod,
                 roadSegment.Start,
                 roadSegment.End,
-                roadSegment.AttributeHash.MaintenanceAuthorityId,
+                roadSegment.AttributeHash.OrganizationId,
                 roadSegment.AttributeHash.Morphology,
                 roadSegment.AttributeHash.Status,
                 roadSegment.AttributeHash.Category,
