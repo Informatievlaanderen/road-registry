@@ -52,6 +52,7 @@ public sealed class ChangeRoadNetworkCommandSqsLambdaRequestHandler : SqsLambdaH
         var hasError = changeResult.Problems.HasError();
         if (hasError)
         {
+            //TODO-pr fill in errorcontext met juiste identifier, bvb WegsegmentId, WegknoopId, OngelijkGrondseKruisingId
             var errors = changeResult.Problems
                 .Select(problem => problem.Translate().ToTicketError())
                 .ToArray();

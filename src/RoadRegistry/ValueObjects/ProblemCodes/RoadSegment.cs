@@ -26,6 +26,7 @@ public sealed partial record ProblemCode
             {
                 FromOrToPositionIsNull = new("RoadSegmentAccessRestrictionFromOrToPositionIsNull"),
                 FromPositionNotEqualToZero = new("RoadSegmentAccessRestrictionFromPositionNotEqualToZero"),
+                HasCountOfZero = new("RoadSegmentAccessRestrictionHasCountOfZero"),
                 HasLengthOfZero = new("RoadSegmentAccessRestrictionHasLengthOfZero"),
                 NotAdjacent = new("RoadSegmentAccessRestrictionNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentAccessRestrictionToPositionNotEqualToLength"),
@@ -45,6 +46,7 @@ public sealed partial record ProblemCode
             {
                 FromOrToPositionIsNull = new("RoadSegmentCategoryFromOrToPositionIsNull"),
                 FromPositionNotEqualToZero = new("RoadSegmentCategoryFromPositionNotEqualToZero"),
+                HasCountOfZero = new("RoadSegmentCategoryHasCountOfZero"),
                 HasLengthOfZero = new("RoadSegmentCategoryHasLengthOfZero"),
                 NotAdjacent = new("RoadSegmentCategoryNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentCategoryToPositionNotEqualToLength"),
@@ -157,6 +159,7 @@ public sealed partial record ProblemCode
             {
                 FromOrToPositionIsNull = new("RoadSegmentMaintenanceAuthorityFromOrToPositionIsNull"),
                 FromPositionNotEqualToZero = new("RoadSegmentMaintenanceAuthorityFromPositionNotEqualToZero"),
+                HasCountOfZero = new("RoadSegmentMaintenanceAuthorityHasCountOfZero"),
                 HasLengthOfZero = new("RoadSegmentMaintenanceAuthorityHasLengthOfZero"),
                 NotAdjacent = new("RoadSegmentMaintenanceAuthorityNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentMaintenanceAuthorityToPositionNotEqualToLength"),
@@ -175,6 +178,7 @@ public sealed partial record ProblemCode
             {
                 FromOrToPositionIsNull = new("RoadSegmentMorphologyFromOrToPositionIsNull"),
                 FromPositionNotEqualToZero = new("RoadSegmentMorphologyFromPositionNotEqualToZero"),
+                HasCountOfZero = new("RoadSegmentMorphologyHasCountOfZero"),
                 HasLengthOfZero = new("RoadSegmentMorphologyHasLengthOfZero"),
                 NotAdjacent = new("RoadSegmentMorphologyNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentMorphologyToPositionNotEqualToLength"),
@@ -193,6 +197,7 @@ public sealed partial record ProblemCode
             {
                 FromOrToPositionIsNull = new("RoadSegmentStatusFromOrToPositionIsNull"),
                 FromPositionNotEqualToZero = new("RoadSegmentStatusFromPositionNotEqualToZero"),
+                HasCountOfZero = new("RoadSegmentStatusHasCountOfZero"),
                 HasLengthOfZero = new("RoadSegmentStatusHasLengthOfZero"),
                 NotAdjacent = new("RoadSegmentStatusNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentStatusToPositionNotEqualToLength"),
@@ -242,6 +247,7 @@ public sealed partial record ProblemCode
             {
                 FromOrToPositionIsNull = new("RoadSegmentSurfaceAttributeFromOrToPositionIsNull"),
                 FromPositionNotEqualToZero = new("RoadSegmentSurfaceAttributeFromPositionNotEqualToZero"),
+                HasCountOfZero = new("RoadSegmentSurfaceAttributeHasCountOfZero"),
                 HasLengthOfZero = new("RoadSegmentSurfaceAttributeHasLengthOfZero"),
                 NotAdjacent = new("RoadSegmentSurfaceAttributeNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentSurfaceAttributeToPositionNotEqualToLength"),
@@ -277,6 +283,7 @@ public sealed partial record ProblemCode
             {
                 FromOrToPositionIsNull = new("RoadSegmentStreetNameFromOrToPositionIsNull"),
                 FromPositionNotEqualToZero = new("RoadSegmentStreetNameFromPositionNotEqualToZero"),
+                HasCountOfZero = new("RoadSegmentStreetNameHasCountOfZero"),
                 HasLengthOfZero = new("RoadSegmentStreetNameHasLengthOfZero"),
                 NotAdjacent = new("RoadSegmentStreetNameNotAdjacent"),
                 ToPositionNotEqualToLength = new("RoadSegmentStreetNameToPositionNotEqualToLength"),
@@ -320,6 +327,7 @@ public sealed partial record ProblemCode
         {
             public required ProblemCode FromOrToPositionIsNull { get; init; }
             public required ProblemCode FromPositionNotEqualToZero { get; init; }
+            public required ProblemCode HasCountOfZero { get; init; }
             public required ProblemCode HasLengthOfZero { get; init; }
             public required ProblemCode NotAdjacent { get; init; }
             public required ProblemCode ToPositionNotEqualToLength { get; init; }

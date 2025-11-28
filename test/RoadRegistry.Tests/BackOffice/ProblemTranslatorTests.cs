@@ -137,6 +137,22 @@ public class ProblemTranslatorTests
                     new ProblemParameter("SegmentId", "1")
                 ]
             },
+            {
+                ProblemCode.GradeSeparatedJunction.LowerSegmentMissing, [
+                    new ProblemParameter("RoadSegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.GradeSeparatedJunction.UpperSegmentMissing, [
+                    new ProblemParameter("RoadSegmentId", "1")
+                ]
+            },
+            {
+                ProblemCode.GradeSeparatedJunction.UpperAndLowerDoNotIntersect, [
+                    new ProblemParameter("UpperRoadSegmentId", "1"),
+                    new ProblemParameter("LowerRoadSegmentId", "2")
+                ]
+            },
         };
 
         var allValues = ProblemCode.GetValues();
@@ -166,7 +182,7 @@ public class ProblemTranslatorTests
             }
             catch(Exception ex)
             {
-                _testOutputHelper.WriteLine($"Failed trying to translate problem {problemCode}: {ex.Message}");
+                _testOutputHelper.WriteLine($"Failed trying to translate problem {problemCode}: {ex}");
                 invalidProblemCodes.Add(problemCode);
             }
         }
