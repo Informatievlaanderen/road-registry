@@ -21,7 +21,7 @@ using SqlStreamStore;
 using Xunit.Abstractions;
 using ZipArchiveWriters;
 using ZipArchiveWriters.Cleaning;
-using Reason = BackOffice.Reason;
+using Reason = ValueObjects.Reason;
 
 public abstract class WhenUploadExtractTestBase : BackOfficeLambdaTest
 {

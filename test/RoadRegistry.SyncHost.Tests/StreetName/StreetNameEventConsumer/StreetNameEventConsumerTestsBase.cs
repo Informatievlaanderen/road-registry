@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NodaTime;
 using NodaTime.Testing;
+using RoadNetwork;
 using SqlStreamStore;
 using Sync.StreetNameRegistry;
 using SyncHost.StreetName;

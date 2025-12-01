@@ -7,6 +7,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO.Esri.Shapefiles.Readers;
 using RoadRegistry.BackOffice.Dbase.V2;
+using RoadRegistry.Extensions;
 
 public static class ShapefileExtensions
 {

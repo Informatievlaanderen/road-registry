@@ -5,6 +5,8 @@ using System.Text;
 using AutoFixture;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
+using Extensions;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NodaTime;

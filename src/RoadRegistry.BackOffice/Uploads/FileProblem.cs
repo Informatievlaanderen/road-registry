@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Core;
+using ValueObjects.Problems;
 
 public abstract class FileProblem : IEquatable<FileProblem>, IEqualityComparer<FileProblem>
 {

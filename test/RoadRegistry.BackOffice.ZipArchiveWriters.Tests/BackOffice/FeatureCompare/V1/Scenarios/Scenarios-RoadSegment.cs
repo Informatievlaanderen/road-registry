@@ -8,8 +8,12 @@ using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.FeatureCompare.V1;
 using RoadRegistry.BackOffice.FeatureCompare.V1.Translators;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extensions;
 using RoadRegistry.Tests.BackOffice;
 using Xunit.Abstractions;
+using RoadSegmentLaneAttribute = Uploads.RoadSegmentLaneAttribute;
+using RoadSegmentSurfaceAttribute = Uploads.RoadSegmentSurfaceAttribute;
+using RoadSegmentWidthAttribute = Uploads.RoadSegmentWidthAttribute;
 
 public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 {

@@ -1,0 +1,33 @@
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests;
+
+using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.DockerUtilities;
+using Ductus.FluentDocker.Services;
+using Xunit;
+
+[CollectionDefinition(nameof(DockerFixtureCollection))]
+public class DockerFixtureCollection : ICollectionFixture<DockerFixture>
+{
+    // This class has no code, and is never created. Its purpose is simply
+    // to be the place to apply [CollectionDefinition] and all the
+    // ICollectionFixture<> interfaces.
+}
+
+public class DockerFixture : IAsyncLifetime
+{
+    private ICompositeService _docker;
+
+    public Task InitializeAsync()
+    {
+        _docker = DockerComposer.Compose("postgres.yml", "road-integration-tests-postgres");
+        Thread.Sleep(3000); // wait until PG is ready
+
+        return Task.CompletedTask;
+    }
+
+    public Task DisposeAsync()
+    {
+        _docker.Dispose();
+        return Task.CompletedTask;
+    }
+}

@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice.Extensions;
+using Extensions;
 using Microsoft.Extensions.Logging;
 
 public class ExtractRequestOverlapRecordProjection : ConnectedProjection<EditorContext>

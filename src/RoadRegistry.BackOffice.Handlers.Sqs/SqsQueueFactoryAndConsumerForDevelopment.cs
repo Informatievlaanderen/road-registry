@@ -4,6 +4,7 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Sqs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using RoadRegistry.Extensions;
 using Uploads;
 
 public class SqsQueueFactoryAndConsumerForDevelopment : ISqsQueueFactory, ISqsQueueConsumer

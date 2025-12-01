@@ -8,7 +8,7 @@ public class EventSourcedEntityMap: IDisposable
 {
     private readonly ConcurrentDictionary<StreamName, EventSourcedEntityMapEntry> _entries = new();
     private readonly ConcurrentQueue<EventSourcedEntityMapEntry> _entriesQueue = new();
-    
+
     public IEnumerable<EventSourcedEntityMapEntry> Entries => _entriesQueue;
 
     public void Attach(EventSourcedEntityMapEntry entry)

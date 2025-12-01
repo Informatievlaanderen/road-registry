@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SqlStreamStore;
 using System;
+using RoadRegistry.Extensions;
 using Uploads;
 
 public class RoadRegistryContext : IRoadRegistryContext, IDisposable

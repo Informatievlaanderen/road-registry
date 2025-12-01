@@ -4,6 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using NetTopologySuite.Geometries;
+using RoadRegistry.RoadSegment.ValueObjects;
+using RoadSegmentEuropeanRoadAttribute = BackOffice.RoadSegmentEuropeanRoadAttribute;
+using RoadSegmentNationalRoadAttribute = BackOffice.RoadSegmentNationalRoadAttribute;
+using RoadSegmentNumberedRoadAttribute = BackOffice.RoadSegmentNumberedRoadAttribute;
 
 public class RoadSegment
 {

@@ -36,6 +36,8 @@ public static class WellKnownSchemas
     public const string GradeSeparatedJunctionProducerSnapshotSchema = "RoadRegistryGradeSeparatedJunctionProducerSnapshotSchema";
     public const string RoadSegmentSurfaceProducerSnapshotMetaSchema = "RoadRegistryRoadSegmentSurfaceProducerSnapshotMetaSchema";
     public const string RoadSegmentSurfaceProducerSnapshotSchema = "RoadRegistryRoadSegmentSurfaceProducerSnapshotSchema";
+
+    public const string MartenMigrationSchema = "RoadRegistryMartenMigration";
 }
 
 public static class MigrationTables

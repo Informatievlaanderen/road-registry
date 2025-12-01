@@ -2,9 +2,10 @@ namespace RoadRegistry.BackOffice.Handlers.RoadSegments;
 
 using Abstractions.RoadSegments;
 using BackOffice.Extensions;
+using CommandHandling;
 using Core;
-using Core.ProblemCodes;
 using FluentValidation;
+using ValueObjects.ProblemCodes;
 
 public class RoadSegmentDetailRequestValidator : AbstractValidator<RoadSegmentDetailRequest>
 {

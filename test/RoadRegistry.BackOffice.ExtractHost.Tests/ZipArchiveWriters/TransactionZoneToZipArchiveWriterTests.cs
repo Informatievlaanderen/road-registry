@@ -14,6 +14,7 @@ using Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 using ShapeFile;

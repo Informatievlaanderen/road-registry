@@ -5,8 +5,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using Messages;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
+using RoadRegistry.RoadNetwork;
+using RoadRegistry.RoadSegment;
+using RoadRegistry.RoadSegment.ValueObjects;
+using ValueObjects.Problems;
 
 public class ModifyRoadSegment : IRequestedChange, IHaveHash
 {
@@ -102,7 +108,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         {
             if (line is not null)
             {
-                problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId, context.Tolerances);
+                problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId);
             }
 
             return problems;
@@ -110,7 +116,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
 
         if (line is not null)
         {
-            problems += line.GetProblemsForRoadSegmentGeometry(originalIdOrId, context.Tolerances);
+            problems += line.ValidateRoadSegmentGeometry(originalIdOrId);
         }
 
         if (beforeSegment is not null && CategoryModified is not null && !CategoryModified.Value && RoadSegmentCategory.IsUpgraded(beforeSegment.AttributeHash.Category))
@@ -136,7 +142,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         {
             if (line is not null)
             {
-                problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId, context.Tolerances);
+                problems += line.GetProblemsForRoadSegmentOutlinedGeometry(originalIdOrId);
             }
 
             return VerifyAfterResult.WithAcceptedChanges(problems, warnings => BuildAcceptedChanges(warnings, context));
@@ -230,7 +236,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         return VerifyAfterResult.WithAcceptedChanges(problems, warnings => BuildAcceptedChanges(warnings, context));
     }
 
-    private IEnumerable<Messages.AcceptedChange> BuildAcceptedChanges(BackOffice.Messages.Problem[] warnings, AfterVerificationContext context)
+    private IEnumerable<Messages.AcceptedChange> BuildAcceptedChanges(CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.Problem[] warnings, AfterVerificationContext context)
     {
         var afterSegment = context.AfterView.Segments[Id];
 
@@ -275,7 +281,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
                     .Select(item => new Messages.RoadSegmentLaneAttributes
                     {
                         AttributeId = laneIdentifiers.Dequeue(),
-                        AsOfGeometryVersion = RoadRegistry.BackOffice.GeometryVersion.Initial,
+                        AsOfGeometryVersion = ValueObjects.GeometryVersion.Initial,
                         Count = item.Count,
                         Direction = item.Direction,
                         FromPosition = item.From,
@@ -286,7 +292,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
                     .Select(item => new Messages.RoadSegmentWidthAttributes
                     {
                         AttributeId = widthIdentifiers.Dequeue(),
-                        AsOfGeometryVersion = RoadRegistry.BackOffice.GeometryVersion.Initial,
+                        AsOfGeometryVersion = ValueObjects.GeometryVersion.Initial,
                         Width = item.Width,
                         FromPosition = item.From,
                         ToPosition = item.To
@@ -296,7 +302,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
                     .Select(item => new Messages.RoadSegmentSurfaceAttributes
                     {
                         AttributeId = surfaceIdentifiers.Dequeue(),
-                        AsOfGeometryVersion = RoadRegistry.BackOffice.GeometryVersion.Initial,
+                        AsOfGeometryVersion = ValueObjects.GeometryVersion.Initial,
                         Type = item.Type,
                         FromPosition = item.From,
                         ToPosition = item.To

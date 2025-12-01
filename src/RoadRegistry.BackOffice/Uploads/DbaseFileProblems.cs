@@ -7,6 +7,8 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using RoadRegistry.Extensions;
+using ValueObjects.Problems;
 
 public static class DbaseFileProblems
 {

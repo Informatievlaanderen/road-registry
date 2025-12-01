@@ -12,6 +12,9 @@ using NetTopologySuite.Geometries.Implementation;
 using NetTopologySuite.Geometries.Utilities;
 using NetTopologySuite.IO;
 using NetTopologySuite.IO.GML2;
+using RoadNetwork;
+using RoadRegistry.Extensions;
+using RoadSegment;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = NetTopologySuite.Geometries.Polygon;
@@ -68,84 +71,6 @@ public static class GeometryTranslator
         return geometry
             .ToMultiLineString(WellKnownGeometryFactories.WithoutSrid)
             .WithMeasureOrdinates();
-    }
-
-    public static MultiLineString WithMeasureOrdinates(this MultiLineString multiLineString)
-    {
-        var lineStrings = multiLineString.Geometries
-            .Cast<LineString>()
-            .Select(lineString =>
-            {
-                if (lineString.Count == 0)
-                {
-                    return lineString;
-                }
-
-                var coordinates = new Coordinate[lineString.Count];
-                coordinates[0] = new CoordinateM(lineString.StartPoint.X, lineString.StartPoint.Y, 0);
-
-                var currentMeasure = coordinates[0].M;
-
-                for (var i = 1; i < lineString.Count; i++)
-                {
-                    var currentPoint = lineString[i];
-                    var previousPoint = lineString[i - 1];
-
-                    var distanceToPreviousPoint = previousPoint.Distance(currentPoint);
-                    currentMeasure += distanceToPreviousPoint;
-                    coordinates[i] = new CoordinateM(currentPoint.X, currentPoint.Y, currentMeasure);
-                }
-
-                return new LineString(new CoordinateArraySequence(coordinates), multiLineString.Factory)
-                    .WithSrid(multiLineString.SRID);
-            })
-            .ToArray();
-
-        return new MultiLineString(lineStrings, multiLineString.Factory)
-            .WithSrid(multiLineString.SRID);
-    }
-
-    public static MultiLineString WithoutDuplicateCoordinates(this MultiLineString multiLineString)
-    {
-        var lineStrings = multiLineString.Geometries
-            .Cast<LineString>()
-            .Select(lineString =>
-            {
-                if (lineString.Count == 0)
-                {
-                    return lineString;
-                }
-
-                var coordinates = new CoordinateList
-                {
-                    new Coordinate(lineString.StartPoint.X, lineString.StartPoint.Y)
-                };
-
-                for (var i = 1; i < lineString.Count; i++)
-                {
-                    var currentPoint = lineString[i];
-                    var previousPoint = lineString[i - 1];
-
-                    if (currentPoint.Equals2D(previousPoint, DefaultTolerances.DuplicateCoordinatesTolerance))
-                    {
-                        if (i == lineString.Count - 1)
-                        {
-                            coordinates.RemoveAt(coordinates.Count - 1);
-                            coordinates.Add(currentPoint);
-                        }
-                        continue;
-                    }
-
-                    coordinates.Add(currentPoint);
-                }
-
-                return multiLineString.Factory.CreateLineString(coordinates.ToCoordinateArray())
-                    .WithSrid(multiLineString.SRID);
-            })
-            .ToArray();
-
-        return new MultiLineString(lineStrings, multiLineString.Factory)
-            .WithSrid(multiLineString.SRID);
     }
 
     private static Geometry ParseGml(string gml)

@@ -12,8 +12,8 @@ using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using CommandHandling;
 using Core;
-using Core.ProblemCodes;
 using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -25,6 +25,8 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using ValueObjects.ProblemCodes;
+using ValueObjects.Problems;
 using ValidationException = FluentValidation.ValidationException;
 
 public partial class RoadSegmentsController

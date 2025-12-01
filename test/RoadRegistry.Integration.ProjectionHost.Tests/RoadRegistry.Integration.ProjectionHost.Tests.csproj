@@ -14,7 +14,11 @@
     <PackageReference Include="xunit.categories" />
   </ItemGroup>
   <ItemGroup>
+    <Using Include="RoadRegistry.ValueObjects" />
+  </ItemGroup>
+  <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="RoadRegistry.Tests" />
+    <Using Include="RoadRegistry.ValueObjects" />
   </ItemGroup>
 </Project>

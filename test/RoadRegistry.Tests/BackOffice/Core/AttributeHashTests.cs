@@ -66,7 +66,7 @@ public class AttributeHashTests
         var right = sut.With(value2);
         Assert.NotEqual(left, right);
     }
-    
+
     [Fact]
     public void DiffersWhenLeftSideDiffers()
     {
@@ -123,7 +123,7 @@ public class AttributeHashTests
         var right = sut.With(value2);
         Assert.NotEqual(left, right);
     }
-    
+
     [Fact]
     public void ToStringReturnsExpectedResult()
     {

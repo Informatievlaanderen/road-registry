@@ -10,7 +10,6 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
-using Core.ProblemCodes;
 using Exceptions;
 using FeatureCompare;
 using Framework;
@@ -23,6 +22,8 @@ using Requests.Extracts;
 using RoadRegistry.Extracts.Schema;
 using SqlStreamStore;
 using TicketingService.Abstractions;
+using ValueObjects.ProblemCodes;
+using ValueObjects.Problems;
 using ZipArchiveWriters.Cleaning;
 
 public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<UploadExtractSqsLambdaRequest>

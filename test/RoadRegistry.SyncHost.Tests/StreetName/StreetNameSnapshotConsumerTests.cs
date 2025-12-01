@@ -18,7 +18,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
     using Newtonsoft.Json;
     using NodaTime;
     using NodaTime.Testing;
-    using RoadRegistry.StreetName;
+        using RoadRegistry.StreetName;
     using RoadRegistry.Tests.BackOffice.Scenarios;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
@@ -145,7 +145,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
         public async Task CanConsumeSuccessfully_Removed()
         {
             var testData = new RoadNetworkTestData();
-            
+
             var streetNameObjectId = "1";
             var streetNameId = "https://data.vlaanderen.be/id/straatnaam/1";
 
@@ -218,7 +218,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
                 Assert.Equal(streetNameId, message.StreetNameId);
             }
         }
-        
+
         private (StreetNameSnapshotConsumer, IStreamStore, InMemoryStreetNameSnapshotTopicConsumer) BuildSetup(
             Action<StreetNameSnapshotConsumerContext> configureDbContext = null,
             Action<EditorContext> configureEditorContext = null

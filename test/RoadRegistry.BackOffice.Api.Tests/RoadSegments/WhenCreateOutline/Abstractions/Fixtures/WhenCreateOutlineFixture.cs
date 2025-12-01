@@ -9,6 +9,7 @@ using Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RoadRegistry.Extensions;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using RoadRegistry.Tests.Framework.Projections;
 

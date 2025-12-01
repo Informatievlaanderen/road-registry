@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using Framework;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public static class RoadNetworkStreamNameProvider
 {
@@ -10,7 +11,7 @@ public static class RoadNetworkStreamNameProvider
     {
         return new StreamName($"roadsegment-outline-{roadSegmentId}");
     }
-    
+
     public static StreamName Get(RoadSegmentId? roadSegmentId, RoadSegmentGeometryDrawMethod geometryDrawMethod)
     {
         if (roadSegmentId is not null && geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)

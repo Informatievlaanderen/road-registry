@@ -13,14 +13,34 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
+using CommandHandling;
 using FluentValidation;
 using Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 using TicketingService.Abstractions;
+using ValueObjects.Problems;
 
 public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambdaHandlerBase<TSqsLambdaRequest>
     where TSqsLambdaRequest : SqsLambdaRequest
 {
+    protected RoadRegistrySqsLambdaHandler(
+        SqsLambdaHandlerOptions options,
+        ICustomRetryPolicy retryPolicy,
+        ITicketing ticketing,
+        IIdempotentCommandHandler idempotentCommandHandler,
+        IRoadRegistryContext roadRegistryContext,
+        ILoggerFactory loggerFactory)
+        : base(retryPolicy, ticketing, idempotentCommandHandler)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(roadRegistryContext);
+        ArgumentNullException.ThrowIfNull(loggerFactory);
+
+        RoadRegistryContext = roadRegistryContext;
+        DetailUrlFormat = options.DetailUrl;
+        Logger = loggerFactory.CreateLogger(GetType());
+    }
+
     protected RoadRegistrySqsLambdaHandler(
         SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,

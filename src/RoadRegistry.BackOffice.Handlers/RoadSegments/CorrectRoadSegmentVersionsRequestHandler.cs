@@ -18,7 +18,7 @@ using RoadRegistry.Editor.Schema;
 using System.Diagnostics;
 using Editor.Schema.Extensions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
-using Reason = BackOffice.Reason;
+using Reason = ValueObjects.Reason;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
 using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;

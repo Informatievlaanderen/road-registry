@@ -18,5 +18,6 @@
   <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="RoadRegistry.Tests" />
+    <Using Include="RoadRegistry.ValueObjects" />
   </ItemGroup>
 </Project>

@@ -12,6 +12,7 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using RoadRegistry.Extensions;
 
 internal abstract class KafkaTopicConsumerByFile<TDbContext>
     where TDbContext : ConsumerDbContext<TDbContext>

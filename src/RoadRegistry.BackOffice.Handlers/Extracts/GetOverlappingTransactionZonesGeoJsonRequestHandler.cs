@@ -9,6 +9,7 @@ using GeoJSON.Net.Feature;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
 
 public class GetOverlappingTransactionZonesGeoJsonRequestHandler : EndpointRequestHandler<GetOverlappingTransactionZonesGeoJsonRequest, GetOverlappingTransactionZonesGeoJsonResponse>
 {

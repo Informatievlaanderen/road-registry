@@ -1,8 +1,10 @@
 namespace RoadRegistry.BackOffice.Uploads;
 
 using System.Linq;
-using Messages;
-using ProblemParameter = Core.ProblemParameter;
+using CommandHandling.Actions.ChangeRoadNetwork;
+using ProblemParameter = ValueObjects.Problems.ProblemParameter;
+using ProblemSeverity = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.ProblemSeverity;
+using RoadRegistry.BackOffice.Core;
 
 public class FileWarning : FileProblem
 {

@@ -26,6 +26,7 @@
     <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\RoadRegistry.Extracts.Schema\RoadRegistry.Extracts.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Infrastructure.MartenDb\RoadRegistry.Infrastructure.MartenDb.csproj" />
     <ProjectReference Include="..\RoadRegistry.StreetName\RoadRegistry.StreetName.csproj" />
   </ItemGroup>
   <ItemGroup>
@@ -40,6 +41,9 @@
     <PackageReference Include="AWSSDK.Core" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Serilog.Sinks.Slack" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="RoadRegistry.ValueObjects" />
   </ItemGroup>
   <ItemGroup>
 		<Using Include="Amazon.Lambda.Core" />

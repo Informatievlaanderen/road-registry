@@ -159,8 +159,8 @@ public static class EditorContextScenarioExtensions
             var comparer = new CompareLogic(comparisonConfig);
             var actualRecords = await context.AllRecords(ignoreQueryFilters: ignoreQueryFilters);
             var result = comparer.Compare(
-                actualRecords,
-                records
+                records,
+                actualRecords
             );
 
             return result.AreEqual
@@ -176,9 +176,9 @@ public static class EditorContextScenarioExtensions
             {
                 var envelope = new Envelope(message, new Dictionary<string, object>
                 {
-                    { "Position", position },
-                    { "StreamId", RoadNetworkStreamNameProvider.Default.ToString() },
-                    { "CreatedUtc", Moment.EnvelopeCreatedUtc.ToUniversalTime() }
+                    { Envelope.PositionMetadataKey, position },
+                    { Envelope.StreamIdMetadataKey, RoadNetworkStreamNameProvider.Default.ToString() },
+                    { Envelope.CreatedUtcMetadataKey, Moment.EnvelopeCreatedUtc.ToUniversalTime() }
                 }).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
                 position++;
@@ -217,8 +217,8 @@ public static class EditorContextScenarioExtensions
             var comparer = new CompareLogic(comparisonConfig);
             var actualRecords = await context.AllRecords();
             var result = comparer.Compare(
-                actualRecords,
-                records
+                records,
+                actualRecords
             );
 
             return result.AreEqual
@@ -234,8 +234,8 @@ public static class EditorContextScenarioExtensions
             {
                 var envelope = new Envelope(message, new Dictionary<string, object>
                 {
-                    { "Position", position },
-                    { "StreamId", RoadNetworkStreamNameProvider.Default.ToString() }
+                    { Envelope.PositionMetadataKey, position },
+                    { Envelope.StreamIdMetadataKey, RoadNetworkStreamNameProvider.Default.ToString() }
                 }).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
                 position++;

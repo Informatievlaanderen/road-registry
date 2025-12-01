@@ -9,7 +9,8 @@ using Abstractions.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using Core.ProblemCodes;
+using CommandHandling;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -22,6 +23,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using ValueObjects.ProblemCodes;
 
 public partial class RoadSegmentsController
 {

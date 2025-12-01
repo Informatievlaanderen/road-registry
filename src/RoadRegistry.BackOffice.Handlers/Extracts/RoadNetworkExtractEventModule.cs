@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using Polly;
+using RoadRegistry.Extensions;
 using SqlStreamStore;
 using TicketingService.Abstractions;
 

@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Core;
 
+
 public partial class ImmutableRoadNetworkView
 {
     private ImmutableRoadNetworkView With(AddRoadNode command)

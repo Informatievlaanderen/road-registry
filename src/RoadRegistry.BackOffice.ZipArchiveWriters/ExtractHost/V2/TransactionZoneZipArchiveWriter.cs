@@ -5,6 +5,7 @@ using System.Text;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase;
+using RoadRegistry.Extensions;
 using ShapeFile.V2;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 

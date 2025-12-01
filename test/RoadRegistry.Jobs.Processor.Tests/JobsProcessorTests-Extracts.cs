@@ -3,6 +3,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
     using AutoFixture;
     using BackOffice.Abstractions.Extracts;
     using BackOffice.Abstractions.Jobs;
+    using BackOffice.FeatureToggles;
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Extracts.Schema;
@@ -63,6 +64,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 Mock.Of<IExtractRequestCleaner>(),
                 new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
                 new FakeExtractsDbContextFactory().CreateDbContext(),
+                new UseDomainV2FeatureToggle(false),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 
@@ -129,6 +131,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 Mock.Of<IExtractRequestCleaner>(),
                 new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
                 new FakeExtractsDbContextFactory().CreateDbContext(),
+                new UseDomainV2FeatureToggle(false),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 

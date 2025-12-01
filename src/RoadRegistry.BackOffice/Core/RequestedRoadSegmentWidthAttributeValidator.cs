@@ -1,9 +1,11 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using CommandHandling;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using Extensions;
 using FluentValidation;
 using Messages;
-using ProblemCodes;
+using ValueObjects.ProblemCodes;
 
 public class RequestedRoadSegmentWidthAttributeValidator : AbstractValidator<RequestedRoadSegmentWidthAttribute>
 {

@@ -6,6 +6,7 @@ using Dbase.V2;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
+using RoadRegistry.Extensions;
 
 public class RoadSegmentLaneAttributesZipArchiveWriter : IZipArchiveWriter
 {

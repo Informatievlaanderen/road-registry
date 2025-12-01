@@ -18,13 +18,13 @@ namespace RoadRegistry.SyncHost.Tests.Organization
     using Microsoft.Extensions.Logging.Abstractions;
     using Moq;
     using Newtonsoft.Json;
-    using RoadRegistry.Tests.BackOffice;
+        using RoadRegistry.Tests.BackOffice;
     using SqlStreamStore;
     using SqlStreamStore.Streams;
     using Sync.OrganizationRegistry;
     using Sync.OrganizationRegistry.Models;
     using SyncHost.Organization;
-    using Organization = Sync.OrganizationRegistry.Models.Organization;
+        using Organization = Sync.OrganizationRegistry.Models.Organization;
 
     public class OrganizationConsumerTests
     {

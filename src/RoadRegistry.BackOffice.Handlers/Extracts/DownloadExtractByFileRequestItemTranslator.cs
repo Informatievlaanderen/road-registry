@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
 using Abstractions.Extracts;
 using BackOffice.Extensions;
+using CommandHandling;
 using Core;
 using FluentValidation;
 using FluentValidation.Results;
@@ -9,12 +10,14 @@ using Messages;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using NetTopologySuite.IO.Esri;
+using RoadRegistry.Extensions;
 using ShapeFile;
 using ShapeFile.V1;
 using ShapeFile.V2;
+using ValueObjects.Problems;
 using GeometryTranslator = BackOffice.GeometryTranslator;
 using Polygon = NetTopologySuite.Geometries.Polygon;
-using Problem = Core.Problem;
+using Problem = ValueObjects.Problems.Problem;
 
 public interface IDownloadExtractByFileRequestItemTranslator
 {

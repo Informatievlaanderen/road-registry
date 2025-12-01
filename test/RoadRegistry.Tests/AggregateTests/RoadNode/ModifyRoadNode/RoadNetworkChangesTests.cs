@@ -1,0 +1,30 @@
+﻿namespace RoadRegistry.Tests.AggregateTests.RoadNode.ModifyRoadNode;
+
+using AutoFixture;
+using FluentAssertions;
+using RoadRegistry.RoadNetwork;
+using RoadRegistry.RoadNode.Changes;
+using RoadRegistry.Tests.AggregateTests;
+
+public class RoadNetworkChangesTests
+{
+    private readonly IFixture _fixture;
+
+    public RoadNetworkChangesTests()
+    {
+        _fixture = new RoadNetworkTestData().Fixture;
+    }
+
+    [Fact]
+    public void ThenRoadNodeIdIsRegisteredAndGeometryIsUsedInScope()
+    {
+        var change = _fixture.Create<ModifyRoadNodeChange>();
+        var changes = RoadNetworkChanges.Start()
+            .Add(change);
+
+        changes.RoadNodeIds.Should().Contain(change.RoadNodeId);
+
+        var scope = changes.BuildScopeGeometry();
+        scope.ToList().Should().NotBeEmpty();
+    }
+}

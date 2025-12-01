@@ -2,19 +2,26 @@ namespace RoadRegistry.BackOffice.DutchTranslations;
 
 using Core;
 using Extracts;
-using FeatureCompare;
 using System;
 using System.Text;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
+using CommandHandling.DutchTranslations;
 using Extracts.Dbase;
 using Extracts.Dbase.GradeSeparatedJuntions;
 using Extracts.Dbase.RoadNodes;
 using Extracts.Dbase.RoadSegments;
 using Uploads;
+using ValueObjects.Problems;
 using FileProblem = Messages.FileProblem;
-using Problem = Messages.Problem;
+using Problem = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.Problem;
 
 public static class FileProblemTranslator
 {
+    public static ProblemTranslation TranslateToDutch(this Messages.FileProblem problem)
+    {
+        return Dutch(problem);
+    }
+
     public static readonly Converter<FileProblem, ProblemTranslation> Dutch = problem =>
     {
         var translation = new ProblemTranslation(problem.Severity, problem.Reason);
