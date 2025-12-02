@@ -1,11 +1,16 @@
 ﻿namespace RoadRegistry.RoadNetwork;
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Marten;
+using NetTopologySuite.Geometries;
 
 public interface IRoadNetworkRepository
 {
     Task<RoadNetwork> Load(RoadNetworkChanges roadNetworkChanges);
-    Task Save(RoadNetwork roadNetwork, string commandName, Provenance provenance, CancellationToken cancellationToken);
+    Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry geometry);
+    Task Save(RoadNetwork roadNetwork, string commandName, CancellationToken cancellationToken);
 }
+
+public sealed record RoadNetworkIds(IReadOnlyCollection<RoadNodeId> RoadNodeIds, IReadOnlyCollection<RoadSegmentId> RoadSegmentIds, IReadOnlyCollection<GradeSeparatedJunctionId> GradeSeparatedJunctionIds);

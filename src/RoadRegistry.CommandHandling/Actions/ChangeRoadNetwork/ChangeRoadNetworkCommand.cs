@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
 
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using GradeSeparatedJunction.Changes;
 using RoadNetwork;
 using RoadNode.Changes;
@@ -11,9 +12,10 @@ public class ChangeRoadNetworkCommand
     public required Guid DownloadId { get; set; }
     public required Guid TicketId { get; set; }
 
-    public RoadNetworkChanges ToRoadNetworkChanges()
+    public RoadNetworkChanges ToRoadNetworkChanges(Provenance provenance)
     {
-        var roadNetworkChanges = RoadNetworkChanges.Start();
+        var roadNetworkChanges = RoadNetworkChanges.Start()
+            .WithProvenance(provenance);
 
         foreach (var change in Changes.Flatten())
         {

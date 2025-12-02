@@ -1,9 +1,9 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadNode.RemoveRoadNode;
 
 using AutoFixture;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using FluentAssertions;
 using Framework;
-using RoadRegistry.BackOffice;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Events;
 using RoadNode = RoadRegistry.RoadNode.RoadNode;
@@ -20,7 +20,7 @@ public class AggregateTests : AggregateTestBase
             .WithoutChanges();
 
         // Act
-        var problems = node.Remove();
+        var problems = node.Remove(Fixture.Create<Provenance>());
 
         // Assert
         problems.Should().HaveNoError();
@@ -49,5 +49,9 @@ public class AggregateTests : AggregateTestBase
         node.IsRemoved.Should().BeTrue();
         node.Type.Should().Be(nodeAdded.Type);
         node.Geometry.Should().Be(nodeAdded.Geometry.ToPoint());
+        node.Origin.Timestamp.Should().Be(nodeAdded.Provenance.Timestamp);
+        node.Origin.OrganizationId.Should().Be(new OrganizationId(nodeAdded.Provenance.Operator));
+        node.LastModified.Timestamp.Should().Be(evt.Provenance.Timestamp);
+        node.LastModified.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
     }
 }

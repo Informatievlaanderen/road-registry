@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadNode.ModifyRoadNode;
 
 using AutoFixture;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using FluentAssertions;
 using Framework;
 using RoadRegistry.BackOffice;
@@ -17,12 +18,13 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadNodeId>();
 
-        var node = RoadNode.Create(Fixture.Create<RoadNodeAdded>())
+        var nodeAdded = Fixture.Create<RoadNodeAdded>();
+        var node = RoadNode.Create(nodeAdded)
             .WithoutChanges();
         var change = Fixture.Create<ModifyRoadNodeChange>();
 
         // Act
-        var problems = node.Modify(change);
+        var problems = node.Modify(change, TestData.Provenance);
 
         // Assert
         problems.Should().HaveNoError();
@@ -40,7 +42,8 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadNodeId>();
 
-        var node = RoadNode.Create(Fixture.Create<RoadNodeAdded>());
+        var nodeAdded = Fixture.Create<RoadNodeAdded>();
+        var node = RoadNode.Create(nodeAdded);
         var evt = Fixture.Create<RoadNodeModified>();
 
         // Act
@@ -49,6 +52,10 @@ public class AggregateTests : AggregateTestBase
         // Assert
         node.RoadNodeId.Should().Be(evt.RoadNodeId);
         node.Type.Should().Be(evt.Type);
-        node.Geometry.Should().Be(evt.Geometry.ToPoint());
+        node.Geometry.Should().Be(evt.Geometry!.ToPoint());
+        node.Origin.Timestamp.Should().Be(nodeAdded.Provenance.Timestamp);
+        node.Origin.OrganizationId.Should().Be(new OrganizationId(nodeAdded.Provenance.Operator));
+        node.LastModified.Timestamp.Should().Be(evt.Provenance.Timestamp);
+        node.LastModified.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
     }
 }

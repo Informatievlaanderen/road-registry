@@ -35,6 +35,7 @@
     <PackageReference Include="DotSpatial.Projections" />
     <PackageReference Include="FeatureToggle.Common" />
     <PackageReference Include="FluentValidation" />
+    <PackageReference Include="Marten" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="MessagePack" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />

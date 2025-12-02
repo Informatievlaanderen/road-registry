@@ -2,6 +2,7 @@ namespace RoadRegistry.Tests.AggregateTests;
 
 using AutoFixture;
 using BackOffice;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Framework;
@@ -22,6 +23,7 @@ public class RoadNetworkTestData
 {
     public Fixture Fixture { get; }
 
+    public Provenance Provenance { get; }
     public Point StartPoint1 { get; }
     public Point StartPoint2 { get; }
     public Point StartPoint3 { get; }
@@ -63,6 +65,7 @@ public class RoadNetworkTestData
         Fixture.CustomizePolylineM();
 
         Fixture.CustomizeOrganisation();
+        Fixture.CustomizeProvenance();
         Fixture.CustomizeProvenanceData();
 
         Fixture.CustomizeAttributeId();
@@ -142,6 +145,8 @@ public class RoadNetworkTestData
 
         customize?.Invoke(Fixture);
 
+        Provenance = Fixture.Create<Provenance>();
+
         StartPoint1 = new Point(new CoordinateM(0.0, 0.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MiddlePoint1 = new Point(new CoordinateM(50.0, 50.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         EndPoint1 = new Point(new CoordinateM(100.0, 100.0, 100.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
@@ -191,7 +196,8 @@ public class RoadNetworkTestData
             RoadNodeId = new RoadNodeId(1),
             OriginalId = AddSegment1StartNode.TemporaryId,
             Geometry = AddSegment1StartNode.Geometry.ToGeometryObject(),
-            Type = AddSegment1StartNode.Type
+            Type = AddSegment1StartNode.Type,
+            Provenance = new ProvenanceData(Provenance)
         };
 
         // ModifyStartNode1 = new ModifyRoadNodeChange
@@ -221,7 +227,8 @@ public class RoadNetworkTestData
             RoadNodeId = new RoadNodeId(2),
             OriginalId = AddSegment1EndNode.TemporaryId,
             Geometry = AddSegment1EndNode.Geometry.ToGeometryObject(),
-            Type = AddSegment1EndNode.Type
+            Type = AddSegment1EndNode.Type,
+            Provenance = new ProvenanceData(Provenance)
         };
 
         // ModifyEndNode1 = new ModifyRoadNodeChange
@@ -251,7 +258,8 @@ public class RoadNetworkTestData
             RoadNodeId = new RoadNodeId(3),
             OriginalId = AddSegment2StartNode.TemporaryId,
             Geometry = AddSegment2StartNode.Geometry.ToGeometryObject(),
-            Type = AddSegment2StartNode.Type
+            Type = AddSegment2StartNode.Type,
+            Provenance = new ProvenanceData(Provenance)
         };
 
         AddSegment2EndNode = new AddRoadNodeChange
@@ -267,7 +275,8 @@ public class RoadNetworkTestData
             RoadNodeId = new RoadNodeId(4),
             OriginalId = AddSegment2EndNode.TemporaryId,
             Geometry = AddSegment2EndNode.Geometry.ToGeometryObject(),
-            Type = AddSegment2EndNode.Type
+            Type = AddSegment2EndNode.Type,
+            Provenance = new ProvenanceData(Provenance)
         };
 
         AddSegment3StartNode = new AddRoadNodeChange
@@ -283,7 +292,8 @@ public class RoadNetworkTestData
             RoadNodeId = new RoadNodeId(5),
             OriginalId = AddSegment3StartNode.TemporaryId,
             Geometry = AddSegment3StartNode.Geometry.ToGeometryObject(),
-            Type = AddSegment3StartNode.Type
+            Type = AddSegment3StartNode.Type,
+            Provenance = new ProvenanceData(Provenance)
         };
 
         AddSegment3EndNode = new AddRoadNodeChange
@@ -299,7 +309,8 @@ public class RoadNetworkTestData
             RoadNodeId = new RoadNodeId(6),
             OriginalId = AddSegment3EndNode.TemporaryId,
             Geometry = AddSegment3EndNode.Geometry.ToGeometryObject(),
-            Type = AddSegment3EndNode.Type
+            Type = AddSegment3EndNode.Type,
+            Provenance = new ProvenanceData(Provenance)
         };
 
         var segment1TemporaryId = Fixture.Create<RoadSegmentId>();
@@ -338,7 +349,8 @@ public class RoadNetworkTestData
             StreetNameId = AddSegment1.StreetNameId,
             SurfaceType = AddSegment1.SurfaceType,
             EuropeanRoadNumbers = AddSegment1.EuropeanRoadNumbers,
-            NationalRoadNumbers = AddSegment1.NationalRoadNumbers
+            NationalRoadNumbers = AddSegment1.NationalRoadNumbers,
+            Provenance = new ProvenanceData(Provenance)
         };
 
         AddSegment2 = new AddRoadSegmentChange
@@ -376,7 +388,8 @@ public class RoadNetworkTestData
             StreetNameId = AddSegment2.StreetNameId,
             SurfaceType = AddSegment2.SurfaceType,
             EuropeanRoadNumbers = AddSegment2.EuropeanRoadNumbers,
-            NationalRoadNumbers = AddSegment2.NationalRoadNumbers
+            NationalRoadNumbers = AddSegment2.NationalRoadNumbers,
+            Provenance = new ProvenanceData(Provenance)
         };
 
         AddSegment3 = new AddRoadSegmentChange
@@ -414,7 +427,8 @@ public class RoadNetworkTestData
             StreetNameId = AddSegment3.StreetNameId,
             SurfaceType = AddSegment3.SurfaceType,
             EuropeanRoadNumbers = AddSegment3.EuropeanRoadNumbers,
-            NationalRoadNumbers = AddSegment3.NationalRoadNumbers
+            NationalRoadNumbers = AddSegment3.NationalRoadNumbers,
+            Provenance = new ProvenanceData(Provenance)
         };
     }
 }

@@ -1,6 +1,8 @@
 ﻿namespace RoadRegistry.Projections.IntegrationTests.Infrastructure;
 
 using System.Text;
+using BackOffice;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
 using KellermanSoftware.CompareNetObjects;
 using Marten;
@@ -132,7 +134,8 @@ public class MartenProjectionIntegrationTestRunner
 
             session.Events.Append(StreamKeyFactory.Create(typeof(RoadNetwork), RoadNetwork.GlobalIdentifier), new RoadNetworkChanged
             {
-                ScopeGeometry = null!
+                ScopeGeometry = null!,
+                Provenance = new RoadRegistryProvenanceData()
             });
 
             await session.SaveChangesAsync();

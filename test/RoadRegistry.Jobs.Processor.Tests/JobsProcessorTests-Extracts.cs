@@ -64,7 +64,6 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 Mock.Of<IExtractRequestCleaner>(),
                 new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
                 new FakeExtractsDbContextFactory().CreateDbContext(),
-                new UseDomainV2FeatureToggle(false),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 
@@ -131,7 +130,6 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 Mock.Of<IExtractRequestCleaner>(),
                 new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
                 new FakeExtractsDbContextFactory().CreateDbContext(),
-                new UseDomainV2FeatureToggle(false),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 

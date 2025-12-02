@@ -15,9 +15,9 @@ public partial class RoadNetwork
         return _roadSegments.Values.Where(x => !x.IsRemoved);
     }
 
-    private Problems AddRoadSegment(AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
+    private Problems AddRoadSegment(RoadNetworkChanges changes, AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
     {
-        var (roadSegment, problems) = RoadSegment.Add(change, idGenerator, idTranslator);
+        var (roadSegment, problems) = RoadSegment.Add(change, changes.Provenance, idGenerator, idTranslator);
         if (problems.HasError())
         {
             return problems;
@@ -35,7 +35,7 @@ public partial class RoadNetwork
         return problems;
     }
 
-    private Problems ModifyRoadSegment(ModifyRoadSegmentChange change, IIdentifierTranslator idTranslator, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
+    private Problems ModifyRoadSegment(RoadNetworkChanges changes, ModifyRoadSegmentChange change, IIdentifierTranslator idTranslator, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
     {
         var originalId = change.OriginalId ?? change.RoadSegmentId;
 
@@ -50,7 +50,7 @@ public partial class RoadNetwork
             return problems;
         }
 
-        problems = roadSegment.Modify(change);
+        problems = roadSegment.Modify(change, changes.Provenance);
         if (problems.HasError())
         {
             return problems;
@@ -77,14 +77,14 @@ public partial class RoadNetwork
         return problems;
     }
 
-    private Problems RemoveRoadSegment(RoadSegmentId roadSegmentId, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
+    private Problems RemoveRoadSegment(RoadNetworkChanges changes, RoadSegmentId roadSegmentId, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
     {
         if (!_roadSegments.TryGetValue(roadSegmentId, out var roadSegment))
         {
             return Problems.Single(new RoadSegmentNotFound(roadSegmentId));
         }
 
-        var problems = roadSegment.Remove();
+        var problems = roadSegment.Remove(changes.Provenance);
         if (problems.HasError())
         {
             return problems;

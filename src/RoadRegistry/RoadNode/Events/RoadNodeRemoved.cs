@@ -1,8 +1,12 @@
 namespace RoadRegistry.RoadNode.Events;
 
-public record RoadNodeRemoved
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+
+public record RoadNodeRemoved : IMartenEvent
 {
     public required RoadNodeId RoadNodeId { get; init; }
+
+    public required ProvenanceData Provenance { get; init; }
 
     public RoadNodeRemoved()
     {

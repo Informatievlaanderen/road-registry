@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
 
 using AutoFixture;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.RoadNode;
@@ -24,7 +25,8 @@ public static class FixtureExtensions
                     RoadNodeId = fixture.Create<RoadNodeId>(),
                     OriginalId = fixture.Create<RoadNodeId>(),
                     Geometry = fixture.Create<Point>().ToGeometryObject(),
-                    Type = fixture.Create<RoadNodeType>()
+                    Type = fixture.Create<RoadNodeType>(),
+                    Provenance = fixture.Create<ProvenanceData>()
                 }
             ).OmitAutoProperties()
         );
@@ -38,7 +40,8 @@ public static class FixtureExtensions
                 {
                     RoadNodeId = fixture.Create<RoadNodeId>(),
                     Geometry = fixture.Create<Point>().ToGeometryObject(),
-                    Type = fixture.Create<RoadNodeType>()
+                    Type = fixture.Create<RoadNodeType>(),
+                    Provenance = fixture.Create<ProvenanceData>()
                 }
             ).OmitAutoProperties()
         );
@@ -64,7 +67,8 @@ public static class FixtureExtensions
                     MaintenanceAuthorityId = fixture.Create<RoadSegmentDynamicAttributeValues<OrganizationId>>(),
                     SurfaceType = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>>(),
                     EuropeanRoadNumbers = [fixture.Create<EuropeanRoadNumber>()],
-                    NationalRoadNumbers = [fixture.Create<NationalRoadNumber>()]
+                    NationalRoadNumbers = [fixture.Create<NationalRoadNumber>()],
+                    Provenance = fixture.Create<ProvenanceData>()
                 }
             ).OmitAutoProperties()
         );
@@ -91,7 +95,8 @@ public static class FixtureExtensions
                         Status = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentStatus>>(),
                         StreetNameId = fixture.Create<RoadSegmentDynamicAttributeValues<StreetNameLocalId>>(),
                         MaintenanceAuthorityId = fixture.Create<RoadSegmentDynamicAttributeValues<OrganizationId>>(),
-                        SurfaceType = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>>()
+                        SurfaceType = fixture.Create<RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>>(),
+                        Provenance = fixture.Create<ProvenanceData>()
                     };
                 }
             ).OmitAutoProperties()

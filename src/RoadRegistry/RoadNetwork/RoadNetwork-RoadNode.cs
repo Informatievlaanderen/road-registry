@@ -14,9 +14,9 @@ public partial class RoadNetwork
         return _roadNodes.Values.Where(x => !x.IsRemoved);
     }
 
-    private Problems AddRoadNode(AddRoadNodeChange change, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator, RoadNetworkEntityChangesSummary<RoadNodeId> summary)
+    private Problems AddRoadNode(RoadNetworkChanges changes, AddRoadNodeChange change, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator, RoadNetworkEntityChangesSummary<RoadNodeId> summary)
     {
-        var (roadNode, problems) = RoadNode.Add(change, idGenerator);
+        var (roadNode, problems) = RoadNode.Add(change, changes.Provenance, idGenerator);
         if (problems.HasError())
         {
             return problems;
@@ -34,14 +34,14 @@ public partial class RoadNetwork
         return problems;
     }
 
-    private Problems ModifyRoadNode(ModifyRoadNodeChange change, RoadNetworkEntityChangesSummary<RoadNodeId> summary)
+    private Problems ModifyRoadNode(RoadNetworkChanges changes, ModifyRoadNodeChange change, RoadNetworkEntityChangesSummary<RoadNodeId> summary)
     {
         if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
         {
             return Problems.Single(new RoadNodeNotFound(change.RoadNodeId));
         }
 
-        var problems = roadNode.Modify(change);
+        var problems = roadNode.Modify(change, changes.Provenance);
         if (problems.HasError())
         {
             return problems;
@@ -51,14 +51,14 @@ public partial class RoadNetwork
         return problems;
     }
 
-    private Problems RemoveRoadNode(RemoveRoadNodeChange change, RoadNetworkEntityChangesSummary<RoadNodeId> summary)
+    private Problems RemoveRoadNode(RoadNetworkChanges changes, RemoveRoadNodeChange change, RoadNetworkEntityChangesSummary<RoadNodeId> summary)
     {
         if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
         {
             return Problems.Single(new RoadNodeNotFound(change.RoadNodeId));
         }
 
-        var problems = roadNode.Remove();
+        var problems = roadNode.Remove(changes.Provenance);
         if (problems.HasError())
         {
             return problems;

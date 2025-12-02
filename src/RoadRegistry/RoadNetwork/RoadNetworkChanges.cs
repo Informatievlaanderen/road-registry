@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Extensions;
 using GradeSeparatedJunction.Changes;
 using NetTopologySuite.Geometries;
@@ -15,6 +16,7 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
 {
     public int Count => _changes.Count;
 
+    public Provenance Provenance { get; private set; }
     public IReadOnlyCollection<RoadNodeId> RoadNodeIds { get; }
     public IReadOnlyCollection<RoadSegmentId> RoadSegmentIds { get; }
     public IReadOnlyCollection<GradeSeparatedJunctionId> GradeSeparatedJunctionIds { get; }
@@ -36,6 +38,12 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
     public static RoadNetworkChanges Start()
     {
         return new RoadNetworkChanges();
+    }
+
+    public RoadNetworkChanges WithProvenance(Provenance provenance)
+    {
+        Provenance = provenance;
+        return this;
     }
 
     public IEnumerator<IRoadNetworkChange> GetEnumerator()

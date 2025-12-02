@@ -5,6 +5,7 @@ using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using FeatureToggles;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
@@ -57,6 +58,7 @@ public abstract class WhenRequestExtractTestBase : BackOfficeLambdaTest
             ExtractsDbContext,
             new RoadNetworkExtractDownloadsBlobClient(blobClient ?? Mock.Of<IBlobClient>()),
             archiveAssembler ?? archiveAssemblerMock.Object,
+            new UseDomainV2FeatureToggle(true),
             new NullLoggerFactory()
         );
 

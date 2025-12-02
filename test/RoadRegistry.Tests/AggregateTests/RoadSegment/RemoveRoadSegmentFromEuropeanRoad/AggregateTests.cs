@@ -2,11 +2,9 @@
 
 using AutoFixture;
 using FluentAssertions;
-using RoadRegistry.BackOffice.Core;
+using Framework;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events;
-using RoadRegistry.RoadSegment.ValueObjects;
-using RoadRegistry.Tests.AggregateTests.Framework;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
 public class AggregateTests : AggregateTestBase
@@ -26,7 +24,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         // Act
-        var problems = segment.RemoveEuropeanRoad(change);
+        var problems = segment.RemoveEuropeanRoad(change, TestData.Provenance);
 
         // Assert
         problems.Should().HaveNoError();
@@ -51,7 +49,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         // Act
-        var problems = segment.RemoveEuropeanRoad(change);
+        var problems = segment.RemoveEuropeanRoad(change, TestData.Provenance);
 
         // Assert
         problems.Should().HaveNoError();
@@ -64,7 +62,8 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
 
-        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentAdded>());
+        var segmentAdded = Fixture.Create<RoadSegmentAdded>();
+        var segment = RoadSegment.Create(segmentAdded);
         var evt = Fixture.Create<RoadSegmentRemovedFromEuropeanRoad>();
 
         // Act
@@ -73,5 +72,9 @@ public class AggregateTests : AggregateTestBase
         // Assert
         segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);
         segment.Attributes.EuropeanRoadNumbers.Should().NotContain(evt.Number);
+        segment.Origin.Timestamp.Should().Be(segmentAdded.Provenance.Timestamp);
+        segment.Origin.OrganizationId.Should().Be(new OrganizationId(segmentAdded.Provenance.Operator));
+        segment.LastModified.Timestamp.Should().Be(evt.Provenance.Timestamp);
+        segment.LastModified.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
     }
 }

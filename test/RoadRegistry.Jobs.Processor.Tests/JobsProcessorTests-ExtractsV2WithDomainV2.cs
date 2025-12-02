@@ -67,7 +67,8 @@ namespace RoadRegistry.Jobs.Processor.Tests
             {
                 DownloadId = downloadId,
                 Contour = Polygon.Empty,
-                ExtractRequestId = extractRequestId
+                ExtractRequestId = extractRequestId,
+                ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV2
             });
             await extractsDbContext.SaveChangesAsync();
 
@@ -83,7 +84,6 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 Mock.Of<IExtractRequestCleaner>(),
                 new RoadNetworkUploadsBlobClient(blobClient.Object),
                 extractsDbContext,
-                new UseDomainV2FeatureToggle(true),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 
@@ -159,7 +159,6 @@ namespace RoadRegistry.Jobs.Processor.Tests
                 Mock.Of<IExtractRequestCleaner>(),
                 new RoadNetworkUploadsBlobClient(Mock.Of<IBlobClient>()),
                 new FakeExtractsDbContextFactory().CreateDbContext(),
-                new UseDomainV2FeatureToggle(true),
                 new NullLoggerFactory(),
                 mockIHostApplicationLifeTime.Object);
 

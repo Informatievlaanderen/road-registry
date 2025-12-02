@@ -16,6 +16,9 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     public RoadNodeId EndNodeId { get; private set; }
     public RoadSegmentAttributes Attributes { get; private set; }
 
+    public EventTimestamp Origin { get; }
+    public EventTimestamp LastModified { get; private set; }
+
     [JsonIgnore]
     public IEnumerable<RoadNodeId> Nodes
     {
@@ -33,34 +36,39 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         }
     }
 
-    [JsonIgnore]
     public bool IsRemoved { get; private set; }
 
-    public RoadSegment(RoadSegmentId id)
+    public RoadSegment(RoadSegmentId id, EventTimestamp origin)
         : base(id)
     {
         RoadSegmentId = id;
+        Origin = origin;
     }
 
     [JsonConstructor]
-    public RoadSegment(
+    protected RoadSegment(
         int roadSegmentId,
         MultiLineString geometry,
         int startNodeId,
         int endNodeId,
-        RoadSegmentAttributes attributes
+        RoadSegmentAttributes attributes,
+        EventTimestamp origin,
+        EventTimestamp lastModified,
+        bool isRemoved
     )
-        : this(new RoadSegmentId(roadSegmentId))
+        : this(new RoadSegmentId(roadSegmentId), origin)
     {
         Geometry = geometry;
         StartNodeId = new RoadNodeId(startNodeId);
         EndNodeId = new RoadNodeId(endNodeId);
         Attributes = attributes;
+        LastModified = lastModified;
+        IsRemoved = isRemoved;
     }
 
     public static RoadSegment Create(RoadSegmentAdded @event)
     {
-        var segment = new RoadSegment(@event.RoadSegmentId);
+        var segment = new RoadSegment(@event.RoadSegmentId, @event.Provenance.ToEventTimestamp());
         segment.Apply(@event);
         return segment;
     }
@@ -86,6 +94,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
             EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
             NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
         };
+        LastModified = @event.Provenance.ToEventTimestamp();
     }
 
     public void Apply(RoadSegmentModified @event)
@@ -106,6 +115,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
             MaintenanceAuthorityId = @event.MaintenanceAuthorityId ?? Attributes.MaintenanceAuthorityId,
             SurfaceType = @event.SurfaceType ?? Attributes.SurfaceType
         };
+        LastModified = @event.Provenance.ToEventTimestamp();
     }
 
     public void Apply(RoadSegmentRemoved @event)
@@ -118,6 +128,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = true;
+        LastModified = @event.Provenance.ToEventTimestamp();
     }
 
     public void Apply(RoadSegmentAddedToEuropeanRoad @event)
@@ -128,6 +139,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         {
             EuropeanRoadNumbers = Attributes.EuropeanRoadNumbers.Add(@event.Number)
         };
+        LastModified = @event.Provenance.ToEventTimestamp();
     }
     public void Apply(RoadSegmentRemovedFromEuropeanRoad @event)
     {
@@ -137,6 +149,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         {
             EuropeanRoadNumbers = Attributes.EuropeanRoadNumbers.Remove(@event.Number)
         };
+        LastModified = @event.Provenance.ToEventTimestamp();
     }
 
     public void Apply(RoadSegmentAddedToNationalRoad @event)
@@ -147,6 +160,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         {
             NationalRoadNumbers = Attributes.NationalRoadNumbers.Add(@event.Number)
         };
+        LastModified = @event.Provenance.ToEventTimestamp();
     }
     public void Apply(RoadSegmentRemovedFromNationalRoad @event)
     {
@@ -156,5 +170,6 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         {
             NationalRoadNumbers = Attributes.NationalRoadNumbers.Remove(@event.Number)
         };
+        LastModified = @event.Provenance.ToEventTimestamp();
     }
 }

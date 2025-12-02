@@ -127,6 +127,10 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
     {
         return instance?.ToString();
     }
+    public static implicit operator int(RoadSegmentAccessRestriction instance)
+    {
+        return instance.Translation.Identifier;
+    }
 
     public static bool operator !=(RoadSegmentAccessRestriction left, RoadSegmentAccessRestriction right)
     {

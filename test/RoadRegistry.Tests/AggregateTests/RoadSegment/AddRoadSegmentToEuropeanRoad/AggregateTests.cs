@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment.AddRoadSegmentToEuropeanRoad;
 
 using AutoFixture;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using FluentAssertions;
 using Framework;
 using RoadRegistry.RoadSegment.Changes;
@@ -24,7 +25,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         // Act
-        var problems = segment.AddEuropeanRoad(change);
+        var problems = segment.AddEuropeanRoad(change, TestData.Provenance);
 
         // Assert
         problems.Should().HaveNoError();
@@ -49,7 +50,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         // Act
-        var problems = segment.AddEuropeanRoad(change);
+        var problems = segment.AddEuropeanRoad(change, TestData.Provenance);
 
         // Assert
         problems.Should().HaveNoError();
@@ -62,7 +63,8 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
 
-        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentAdded>());
+        var segmentAdded = Fixture.Create<RoadSegmentAdded>();
+        var segment = RoadSegment.Create(segmentAdded);
         var evt = Fixture.Create<RoadSegmentAddedToEuropeanRoad>();
 
         // Act
@@ -71,5 +73,9 @@ public class AggregateTests : AggregateTestBase
         // Assert
         segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);
         segment.Attributes.EuropeanRoadNumbers.Should().Contain(evt.Number);
+        segment.Origin.Timestamp.Should().Be(segmentAdded.Provenance.Timestamp);
+        segment.Origin.OrganizationId.Should().Be(new OrganizationId(segmentAdded.Provenance.Operator));
+        segment.LastModified.Timestamp.Should().Be(evt.Provenance.Timestamp);
+        segment.LastModified.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
     }
 }

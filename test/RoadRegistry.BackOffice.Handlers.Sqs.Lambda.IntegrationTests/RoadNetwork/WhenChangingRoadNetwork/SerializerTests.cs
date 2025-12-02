@@ -36,6 +36,16 @@ public class SerializerTests
             {
                 RoadSegmentId = new RoadSegmentId(1),
                 OriginalId = new  RoadSegmentId(1)
+            },
+            AddRoadSegmentToEuropeanRoad = new AddRoadSegmentToEuropeanRoadChange
+            {
+                RoadSegmentId = new RoadSegmentId(1),
+                Number = fixture.Create<EuropeanRoadNumber>()
+            },
+            AddRoadSegmentToNationalRoad = new AddRoadSegmentToNationalRoadChange
+            {
+                RoadSegmentId = new RoadSegmentId(1),
+                Number = fixture.Create<NationalRoadNumber>()
             }
         });
 

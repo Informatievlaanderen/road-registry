@@ -1,8 +1,12 @@
 namespace RoadRegistry.GradeSeparatedJunction.Events;
 
-public record GradeSeparatedJunctionRemoved
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+
+public record GradeSeparatedJunctionRemoved : IMartenEvent
 {
     public required GradeSeparatedJunctionId GradeSeparatedJunctionId { get; init; }
+
+    public required ProvenanceData Provenance { get; init; }
 
     public GradeSeparatedJunctionRemoved()
     {

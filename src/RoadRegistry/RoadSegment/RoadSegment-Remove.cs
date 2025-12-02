@@ -1,15 +1,17 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Events;
 using RoadRegistry.ValueObjects.Problems;
 
 public partial class RoadSegment
 {
-    public Problems Remove()
+    public Problems Remove(Provenance provenance)
     {
         Apply(new RoadSegmentRemoved
         {
-            RoadSegmentId = RoadSegmentId
+            RoadSegmentId = RoadSegmentId,
+            Provenance = new ProvenanceData(provenance)
         });
 
         return Problems.None;

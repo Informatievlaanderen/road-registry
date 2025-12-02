@@ -1,7 +1,6 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Store;
 
 using System.Data;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Dapper;
 using Marten;
 using NetTopologySuite.Geometries;
@@ -31,23 +30,7 @@ public class RoadNetworkRepository : IRoadNetworkRepository
 
         return roadNetwork;
     }
-    public async Task<RoadNetwork> Load(
-        IReadOnlyCollection<RoadNodeId> roadNodeIds,
-        IReadOnlyCollection<RoadSegmentId> roadSegmentIds,
-        IReadOnlyCollection<GradeSeparatedJunctionId> gradeSeparatedJunctionIds
-    )
-    {
-        await using var session = Store.LightweightSession(IsolationLevel.Snapshot);
 
-        var roadNetwork = await Load(
-            session,
-            roadNodeIds,
-            roadSegmentIds,
-            gradeSeparatedJunctionIds
-        );
-
-        return roadNetwork;
-    }
     private async Task<RoadNetwork> Load(
         IDocumentSession session,
         IReadOnlyCollection<RoadNodeId> roadNodeIds,
@@ -62,35 +45,35 @@ public class RoadNetworkRepository : IRoadNetworkRepository
         return new RoadNetwork(roadNodes, roadSegments, gradeSeparatedJunctions);
     }
 
-    public async Task Save(RoadNetwork roadNetwork, string commandName, Provenance provenance, CancellationToken cancellationToken)
+    public async Task Save(RoadNetwork roadNetwork, string commandName, CancellationToken cancellationToken)
     {
         await using var session = Store.LightweightSession();
 
-        AddChangesToSession(session, roadNetwork, commandName, provenance);
+        AddChangesToSession(session, roadNetwork, commandName);
 
         await session.SaveChangesAsync(cancellationToken);
     }
-    public void AddChangesToSession(IDocumentSession session, RoadNetwork roadNetwork, string commandName, Provenance provenance)
+
+    public void AddChangesToSession(IDocumentSession session, RoadNetwork roadNetwork, string commandName)
     {
         session.CorrelationId ??= Guid.NewGuid().ToString();
         session.CausationId = commandName;
-        session.SetHeader("Provenance", provenance.ToDictionary());
 
         SaveEntities(roadNetwork.RoadSegments, session);
         SaveEntities(roadNetwork.RoadNodes, session);
         SaveEntities(roadNetwork.GradeSeparatedJunctions, session);
         foreach (var evt in roadNetwork.GetChanges())
         {
+            EnsureEventHasProvenance(evt);
             session.Events.Append(roadNetwork.Id, evt);
         }
     }
 
-    private async Task<(IReadOnlyCollection<RoadNodeId> RoadNodeIds, IReadOnlyCollection<RoadSegmentId> RoadSegmentIds, IReadOnlyCollection<GradeSeparatedJunctionId> GradeSeparatedJunctionIds)> GetUnderlyingIds(
-        IDocumentSession session, Geometry geometry)
+    public async Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry geometry)
     {
         if (geometry.IsEmpty)
         {
-            return ([], [], []);
+            return new RoadNetworkIds([], [], []);
         }
 
         var sql = @$"
@@ -101,7 +84,7 @@ WHERE ST_Intersects(rs.geometry, ST_GeomFromText(@wkt, {geometry.SRID}))";
 
         var segments = (await session.Connection.QueryAsync<RoadNetworkTopologySegment>(sql, new { wkt = geometry.AsText() })).ToList();
 
-        return (
+        return new RoadNetworkIds(
             segments.SelectMany(x => new[] { x.StartNodeId, x.EndNodeId })
                 .Distinct()
                 .Select(x => new RoadNodeId(x))
@@ -125,10 +108,24 @@ WHERE ST_Intersects(rs.geometry, ST_GeomFromText(@wkt, {geometry.SRID}))";
         {
             foreach (var @event in entity.GetChanges())
             {
+                EnsureEventHasProvenance(@event);
                 session.Events.AppendOrStartStream(entity.Id, @event);
             }
 
             session.Store(entity);
+        }
+    }
+
+    private static void EnsureEventHasProvenance(object @event)
+    {
+        if (@event is not IMartenEvent martenEvent)
+        {
+            throw new InvalidOperationException($"Event of type '{@event.GetType().Name}' does not implement '{nameof(IMartenEvent)}'.");
+        }
+
+        if (martenEvent.Provenance is null)
+        {
+            throw new InvalidOperationException($"Event of type '{@event.GetType().Name}' has empty {nameof(martenEvent.Provenance)}.");
         }
     }
 

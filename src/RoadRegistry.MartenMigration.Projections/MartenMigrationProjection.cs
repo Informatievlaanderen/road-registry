@@ -40,15 +40,6 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 var roadNodeId = new RoadNodeId(envelope.Message.Id);
                 var type = RoadNodeType.Parse(envelope.Message.Type);
                 var point = GeometryTranslator.Translate(envelope.Message.Geometry);
-
-                var roadNode = RoadNode.Create(new RoadRegistry.RoadNode.Events.RoadNodeAdded
-                {
-                    RoadNodeId = roadNodeId,
-                    OriginalId = null,
-                    Type = type,
-                    Geometry = point.ToGeometryObject()
-                });
-
                 var provenance = new Provenance(
                     Instant.FromDateTimeUtc(envelope.Message.Origin.Since),
                     Application.RoadRegistry,
@@ -56,6 +47,15 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     new Operator(envelope.Message.Origin.OrganizationId),
                     Modification.Insert,
                     Organisation.DigitaalVlaanderen);
+
+                var roadNode = RoadNode.Create(new RoadRegistry.RoadNode.Events.RoadNodeAdded
+                {
+                    RoadNodeId = roadNodeId,
+                    OriginalId = null,
+                    Type = type,
+                    Geometry = point.ToGeometryObject(),
+                    Provenance = new ProvenanceData(provenance)
+                });
 
                 SaveAggregateAndLegacyEvent(session, roadNode, envelope, envelope.Message, eventIdentifier, provenance);
             }, token);
@@ -74,6 +74,13 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 var category = RoadSegmentCategory.Parse(envelope.Message.Category);
                 var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod);
                 var accessRestriction = RoadSegmentAccessRestriction.Parse(envelope.Message.AccessRestriction);
+                var provenance = new Provenance(
+                    Instant.FromDateTimeUtc(envelope.Message.RecordingDate),
+                    Application.RoadRegistry,
+                    new Reason("Import"),
+                    new Operator(envelope.Message.Origin.OrganizationId),
+                    Modification.Insert,
+                    Organisation.DigitaalVlaanderen);
 
                 var roadSegment = RoadSegment.Create(new RoadRegistry.RoadSegment.Events.RoadSegmentAdded
                 {
@@ -101,16 +108,9 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                         .ToArray(),
                     NationalRoadNumbers = envelope.Message.PartOfNationalRoads
                         .Select(x => NationalRoadNumber.Parse(x.Number))
-                        .ToArray()
+                        .ToArray(),
+                    Provenance = new ProvenanceData(provenance)
                 });
-
-                var provenance = new Provenance(
-                    Instant.FromDateTimeUtc(envelope.Message.RecordingDate),
-                    Application.RoadRegistry,
-                    new Reason("Import"),
-                    new Operator(envelope.Message.Origin.OrganizationId),
-                    Modification.Insert,
-                    Organisation.DigitaalVlaanderen);
 
                 SaveAggregateAndLegacyEvent(session, roadSegment, envelope, envelope.Message, eventIdentifier, provenance);
             }, token);
@@ -124,16 +124,6 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             {
                 var junctionId = new GradeSeparatedJunctionId(envelope.Message.Id);
                 var type = GradeSeparatedJunctionType.Parse(envelope.Message.Type);
-
-                var junction = GradeSeparatedJunction.Create(new RoadRegistry.GradeSeparatedJunction.Events.GradeSeparatedJunctionAdded
-                {
-                    GradeSeparatedJunctionId = junctionId,
-                    OriginalId = null,
-                    Type = type,
-                    LowerRoadSegmentId = new RoadSegmentId(envelope.Message.LowerRoadSegmentId),
-                    UpperRoadSegmentId = new RoadSegmentId(envelope.Message.UpperRoadSegmentId)
-                });
-
                 var provenance = new Provenance(
                     Instant.FromDateTimeUtc(envelope.Message.Origin.Since),
                     Application.RoadRegistry,
@@ -141,6 +131,16 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     new Operator(envelope.Message.Origin.OrganizationId),
                     Modification.Insert,
                     Organisation.DigitaalVlaanderen);
+
+                var junction = GradeSeparatedJunction.Create(new RoadRegistry.GradeSeparatedJunction.Events.GradeSeparatedJunctionAdded
+                {
+                    GradeSeparatedJunctionId = junctionId,
+                    OriginalId = null,
+                    Type = type,
+                    LowerRoadSegmentId = new RoadSegmentId(envelope.Message.LowerRoadSegmentId),
+                    UpperRoadSegmentId = new RoadSegmentId(envelope.Message.UpperRoadSegmentId),
+                    Provenance = new ProvenanceData(provenance)
+                });
                 SaveAggregateAndLegacyEvent(session, junction, envelope, envelope.Message, eventIdentifier, provenance);
             }, token);
         });
@@ -183,11 +183,11 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
                     case RoadSegmentAddedToNumberedRoad change:
                         // only store legacy event
-                        await ModifyRoadSegment(new RoadSegmentId(change.SegmentId), _ => { }, envelope, change, changeIndex, token);
+                        await ModifyRoadSegment(new RoadSegmentId(change.SegmentId), (_, _) => { }, envelope, change, changeIndex, token);
                         break;
                     case RoadSegmentRemovedFromNumberedRoad change:
                         // only store legacy event
-                        await ModifyRoadSegment(new RoadSegmentId(change.SegmentId), _ => { }, envelope, change, changeIndex, token);
+                        await ModifyRoadSegment(new RoadSegmentId(change.SegmentId), (_, _) => { }, envelope, change, changeIndex, token);
                         break;
 
                     case RoadSegmentAttributesModified change:
@@ -201,7 +201,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                         break;
                     case OutlinedRoadSegmentRemoved change:
                         // only store legacy event, used for changing segment from outlined to measured
-                        await ModifyRoadSegment(new RoadSegmentId(change.Id), _ => { }, envelope, change, changeIndex, token);
+                        await ModifyRoadSegment(new RoadSegmentId(change.Id), (_, _) => { }, envelope, change, changeIndex, token);
                         break;
 
                     case GradeSeparatedJunctionAdded change:
@@ -235,16 +235,16 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         return _repo.InIdempotentSession(eventIdentifier, session =>
         {
             var roadNodeId = new RoadNodeId(change.Id);
+            var provenance = BuildProvenance(envelope, Modification.Insert);
 
             var roadNode = RoadNode.Create(new RoadRegistry.RoadNode.Events.RoadNodeAdded
             {
                 RoadNodeId = roadNodeId,
                 OriginalId = new RoadNodeId(change.OriginalId ?? change.TemporaryId),
                 Type = RoadNodeType.Parse(change.Type),
-                Geometry = GeometryTranslator.Translate(change.Geometry).ToGeometryObject()
+                Geometry = GeometryTranslator.Translate(change.Geometry).ToGeometryObject(),
+                Provenance = new ProvenanceData(provenance)
             });
-
-            var provenance = BuildProvenance(envelope, Modification.Insert);
             var downloadId = DownloadId.FromValue(envelope.Message.DownloadId);
             SaveAggregateAndLegacyEvent(session, roadNode, envelope, change, eventIdentifier, provenance, downloadId);
         }, token);
@@ -268,14 +268,16 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     throw new InvalidOperationException($"RoadNode with id {roadNodeId} is not found");
                 }
 
+                var provenance = BuildProvenance(envelope, Modification.Update);
+
                 roadNode.Apply(new RoadRegistry.RoadNode.Events.RoadNodeModified
                 {
                     RoadNodeId = roadNodeId,
                     Type = RoadNodeType.Parse(change.Type),
-                    Geometry = GeometryTranslator.Translate(change.Geometry).ToGeometryObject()
+                    Geometry = GeometryTranslator.Translate(change.Geometry).ToGeometryObject(),
+                    Provenance = new ProvenanceData(provenance)
                 });
 
-                var provenance = BuildProvenance(envelope, Modification.Update);
                 var downloadId = DownloadId.FromValue(envelope.Message.DownloadId);
                 SaveAggregateAndLegacyEvent(session, roadNode, envelope, change, eventIdentifier, provenance, downloadId);
             },
@@ -300,12 +302,14 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 throw new InvalidOperationException($"RoadNode with id {roadNodeId} is not found");
             }
 
+            var provenance = BuildProvenance(envelope, Modification.Delete);
+
             roadNode.Apply(new RoadRegistry.RoadNode.Events.RoadNodeRemoved
             {
-                RoadNodeId = roadNodeId
+                RoadNodeId = roadNodeId,
+                Provenance = new  ProvenanceData(provenance)
             });
 
-            var provenance = BuildProvenance(envelope, Modification.Delete);
             var downloadId = DownloadId.FromValue(envelope.Message.DownloadId);
             SaveAggregateAndLegacyEvent(session, roadNode, envelope, change, eventIdentifier, provenance, downloadId);
         }, token);
@@ -331,6 +335,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             var category = RoadSegmentCategory.Parse(change.Category);
             var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(change.GeometryDrawMethod);
             var accessRestriction = RoadSegmentAccessRestriction.Parse(change.AccessRestriction);
+            var provenance = BuildProvenance(envelope, Modification.Insert);
+
             var roadSegmentEvent = new RoadRegistry.RoadSegment.Events.RoadSegmentAdded
             {
                 RoadSegmentId = roadSegmentId,
@@ -353,7 +359,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                         RoadSegmentSurfaceType.Parse(x.Type)))
                 ),
                 EuropeanRoadNumbers = [],
-                NationalRoadNumbers = []
+                NationalRoadNumbers = [],
+                Provenance = new ProvenanceData(provenance)
             };
 
             if (roadSegment is null)
@@ -365,7 +372,6 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 roadSegment.Apply(roadSegmentEvent);
             }
 
-            var provenance = BuildProvenance(envelope, Modification.Insert);
             var downloadId = DownloadId.FromValue(envelope.Message.DownloadId);
             SaveAggregateAndLegacyEvent(session, roadSegment, envelope, change, eventIdentifier, provenance, downloadId);
         }, token);
@@ -380,7 +386,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         var roadSegmentId = new RoadSegmentId(change.Id);
 
         await ModifyRoadSegment(roadSegmentId,
-            segment =>
+            (segment, provenance) =>
             {
                 segment.Apply(new RoadRegistry.RoadSegment.Events.RoadSegmentModified
                 {
@@ -405,6 +411,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                             RoadSegmentAttributeSide.Both,
                             RoadSegmentSurfaceType.Parse(x.Type)))
                     ),
+                    Provenance = new ProvenanceData(provenance)
                 });
             },
             envelope, change, changeIndex, token);
@@ -419,12 +426,13 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         var roadSegmentId = new RoadSegmentId(change.SegmentId);
 
         await ModifyRoadSegment(roadSegmentId,
-            segment =>
+            (segment, provenance) =>
             {
                 segment.Apply(new RoadRegistry.RoadSegment.Events.RoadSegmentAddedToEuropeanRoad
                 {
                     RoadSegmentId = roadSegmentId,
-                    Number = EuropeanRoadNumber.Parse(change.Number)
+                    Number = EuropeanRoadNumber.Parse(change.Number),
+                    Provenance = new ProvenanceData(provenance)
                 });
             },
             envelope, change, changeIndex, token);
@@ -439,12 +447,13 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         var roadSegmentId = new RoadSegmentId(change.SegmentId);
 
         await ModifyRoadSegment(roadSegmentId,
-            segment =>
+            (segment, provenance) =>
             {
                 segment.Apply(new RoadRegistry.RoadSegment.Events.RoadSegmentRemovedFromEuropeanRoad
                 {
                     RoadSegmentId = roadSegmentId,
-                    Number = EuropeanRoadNumber.Parse(change.Number)
+                    Number = EuropeanRoadNumber.Parse(change.Number),
+                    Provenance = new ProvenanceData(provenance)
                 });
             },
             envelope, change, changeIndex, token);
@@ -459,12 +468,13 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         var roadSegmentId = new RoadSegmentId(change.SegmentId);
 
         await ModifyRoadSegment(roadSegmentId,
-            segment =>
+            (segment, provenance) =>
             {
                 segment.Apply(new RoadRegistry.RoadSegment.Events.RoadSegmentAddedToNationalRoad
                 {
                     RoadSegmentId = roadSegmentId,
-                    Number = NationalRoadNumber.Parse(change.Number)
+                    Number = NationalRoadNumber.Parse(change.Number),
+                    Provenance = new ProvenanceData(provenance)
                 });
             },
             envelope, change, changeIndex, token);
@@ -479,12 +489,13 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         var roadSegmentId = new RoadSegmentId(change.SegmentId);
 
         await ModifyRoadSegment(roadSegmentId,
-            segment =>
+            (segment, provenance) =>
             {
                 segment.Apply(new RoadRegistry.RoadSegment.Events.RoadSegmentRemovedFromNationalRoad
                 {
                     RoadSegmentId = roadSegmentId,
-                    Number = NationalRoadNumber.Parse(change.Number)
+                    Number = NationalRoadNumber.Parse(change.Number),
+                    Provenance = new ProvenanceData(provenance)
                 });
             },
             envelope, change, changeIndex, token);
@@ -499,7 +510,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         var roadSegmentId = new RoadSegmentId(change.Id);
 
         await ModifyRoadSegment(roadSegmentId,
-            segment =>
+            (segment, provenance) =>
             {
                 segment.Apply(new RoadRegistry.RoadSegment.Events.RoadSegmentModified
                 {
@@ -523,7 +534,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                         : null,
                     MaintenanceAuthorityId = change.MaintenanceAuthority is not null
                         ? new RoadSegmentDynamicAttributeValues<OrganizationId>(new OrganizationId(change.MaintenanceAuthority.Code))
-                        : null
+                        : null,
+                    Provenance = new ProvenanceData(provenance)
                 });
             },
             envelope, change, changeIndex, token);
@@ -538,34 +550,46 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         var roadSegmentId = new RoadSegmentId(change.Id);
 
         await ModifyRoadSegment(roadSegmentId,
-            segment =>
+            (segment, provenance) =>
             {
                 segment.Apply(new RoadRegistry.RoadSegment.Events.RoadSegmentModified
                 {
                     RoadSegmentId = roadSegmentId,
-                    Geometry = GeometryTranslator.Translate(change.Geometry).ToGeometryObject()
+                    Geometry = GeometryTranslator.Translate(change.Geometry).ToGeometryObject(),
+                    Provenance = new ProvenanceData(provenance)
                 });
             },
             envelope, change, changeIndex, token);
     }
 
-    private async Task RemoveRoadSegment(
+    private Task RemoveRoadSegment(
         RoadSegmentRemoved change,
         int changeIndex,
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
         var roadSegmentId = new RoadSegmentId(change.Id);
+        var eventIdentifier = BuildEventIdentifier(envelope, changeIndex);
 
-        await ModifyRoadSegment(roadSegmentId,
-            segment =>
+        return _repo.InIdempotentSession(eventIdentifier, async session =>
+        {
+            var roadSegment = await session.LoadAsync(roadSegmentId);
+            if (roadSegment is null)
             {
-                segment.Apply(new RoadRegistry.RoadSegment.Events.RoadSegmentRemoved
-                {
-                    RoadSegmentId = roadSegmentId
-                });
-            },
-            envelope, change, changeIndex, token);
+                throw new InvalidOperationException($"RoadSegment with id {roadSegmentId} is not found");
+            }
+
+            var provenance = BuildProvenance(envelope, Modification.Delete);
+
+            roadSegment.Apply(new RoadRegistry.RoadSegment.Events.RoadSegmentRemoved
+            {
+                RoadSegmentId = roadSegmentId,
+                Provenance = new ProvenanceData(provenance)
+            });
+
+            var downloadId = DownloadId.FromValue(envelope.Message.DownloadId);
+            SaveAggregateAndLegacyEvent(session, roadSegment, envelope, change, eventIdentifier, provenance, downloadId);
+        }, token);
     }
 
     private Task AddGradeSeparatedJunction(
@@ -579,6 +603,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         return _repo.InIdempotentSession(eventIdentifier, session =>
         {
             var gradeSeparatedJunctionId = new GradeSeparatedJunctionId(change.Id);
+            var provenance = BuildProvenance(envelope, Modification.Insert);
 
             var junction = GradeSeparatedJunction.Create(new RoadRegistry.GradeSeparatedJunction.Events.GradeSeparatedJunctionAdded
             {
@@ -586,10 +611,10 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 OriginalId = new GradeSeparatedJunctionId(change.TemporaryId),
                 Type = GradeSeparatedJunctionType.Parse(change.Type),
                 UpperRoadSegmentId = new RoadSegmentId(change.UpperRoadSegmentId),
-                LowerRoadSegmentId = new RoadSegmentId(change.LowerRoadSegmentId)
+                LowerRoadSegmentId = new RoadSegmentId(change.LowerRoadSegmentId),
+                Provenance = new ProvenanceData(provenance)
             });
 
-            var provenance = BuildProvenance(envelope, Modification.Insert);
             var downloadId = DownloadId.FromValue(envelope.Message.DownloadId);
             SaveAggregateAndLegacyEvent(session, junction, envelope, change, eventIdentifier, provenance, downloadId);
         }, token);
@@ -613,12 +638,14 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 throw new InvalidOperationException($"GradeSeparatedJunction with id {gradeSeparatedJunctionId} is not found");
             }
 
+            var provenance = BuildProvenance(envelope, Modification.Delete);
+
             junction.Apply(new RoadRegistry.GradeSeparatedJunction.Events.GradeSeparatedJunctionRemoved
             {
-                GradeSeparatedJunctionId = gradeSeparatedJunctionId
+                GradeSeparatedJunctionId = gradeSeparatedJunctionId,
+                Provenance = new  ProvenanceData(provenance)
             });
 
-            var provenance = BuildProvenance(envelope, Modification.Delete);
             var downloadId = DownloadId.FromValue(envelope.Message.DownloadId);
             SaveAggregateAndLegacyEvent(session, junction, envelope, change, eventIdentifier, provenance, downloadId);
         }, token);
@@ -642,14 +669,6 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     return;
                 }
 
-                segment.Apply(new RoadRegistry.RoadSegment.Events.RoadSegmentModified
-                {
-                    RoadSegmentId = roadSegmentId,
-                    StreetNameId = BuildStreetNameIdAttributes(
-                        change.LeftSideStreetNameId ?? GetValue(segment.Attributes.StreetNameId, RoadSegmentAttributeSide.Left),
-                        change.RightSideStreetNameId ?? GetValue(segment.Attributes.StreetNameId, RoadSegmentAttributeSide.Right)),
-                });
-
                 var provenance = new Provenance(
                     LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
                     Application.RoadRegistry,
@@ -657,12 +676,22 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                     new Operator(string.Empty),
                     Modification.Update,
                     Organisation.DigitaalVlaanderen);
+
+                segment.Apply(new RoadRegistry.RoadSegment.Events.RoadSegmentModified
+                {
+                    RoadSegmentId = roadSegmentId,
+                    StreetNameId = BuildStreetNameIdAttributes(
+                        change.LeftSideStreetNameId ?? GetValue(segment.Attributes.StreetNameId, RoadSegmentAttributeSide.Left),
+                        change.RightSideStreetNameId ?? GetValue(segment.Attributes.StreetNameId, RoadSegmentAttributeSide.Right)),
+                    Provenance = new ProvenanceData(provenance)
+                });
+
                 SaveAggregateAndLegacyEvent(session, segment, envelope, change, eventIdentifier, provenance);
             }, token);
         }
     }
 
-    private Task ModifyRoadSegment(RoadSegmentId roadSegmentId, Action<RoadSegment> modify, Envelope<RoadNetworkChangesAccepted> envelope, object change, int changeIndex, CancellationToken token)
+    private Task ModifyRoadSegment(RoadSegmentId roadSegmentId, Action<RoadSegment, Provenance> modify, Envelope<RoadNetworkChangesAccepted> envelope, object change, int changeIndex, CancellationToken token)
     {
         var eventIdentifier = BuildEventIdentifier(envelope, changeIndex);
 
@@ -674,9 +703,10 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 throw new InvalidOperationException($"RoadSegment with id {roadSegmentId} is not found");
             }
 
-            modify(roadSegment);
-
             var provenance = BuildProvenance(envelope, Modification.Update);
+
+            modify(roadSegment, provenance);
+
             var downloadId = DownloadId.FromValue(envelope.Message.DownloadId);
             SaveAggregateAndLegacyEvent(session, roadSegment, envelope, change, eventIdentifier, provenance, downloadId);
         }, token);
@@ -713,13 +743,14 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
         };
         roadNetwork.Apply(new RoadNetworkChanged
         {
-            DownloadId = downloadId
+            DownloadId = downloadId,
+            Provenance = new ProvenanceData(provenance)
         });
 
         session.SetHeader("LegacyEvent", legacyEvent);
 
         var causationId = $"migration-{envelope.EventName}-{legacyEventIdentifier}";
-        _repo.AddChangesToSession(session, roadNetwork, causationId, provenance);
+        _repo.AddChangesToSession(session, roadNetwork, causationId);
     }
 
     private static RoadSegmentDynamicAttributeValues<StreetNameLocalId> BuildStreetNameIdAttributes(int? leftSideStreetNameId, int? rightSideStreetNameId)

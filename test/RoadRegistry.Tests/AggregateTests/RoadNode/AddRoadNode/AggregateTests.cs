@@ -3,7 +3,6 @@
 using AutoFixture;
 using FluentAssertions;
 using Framework;
-using RoadRegistry.BackOffice;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadNode.Events;
@@ -18,7 +17,7 @@ public class AggregateTests : AggregateTestBase
         var change = Fixture.Create<AddRoadNodeChange>();
 
         // Act
-        var (node, problems) = RoadNode.Add(change, new FakeRoadNetworkIdGenerator());
+        var (node, problems) = RoadNode.Add(change, new FakeProvenance(), new FakeRoadNetworkIdGenerator());
 
         // Assert
         problems.Should().HaveNoError();
@@ -43,5 +42,9 @@ public class AggregateTests : AggregateTestBase
         node.RoadNodeId.Should().Be(evt.RoadNodeId);
         node.Type.Should().Be(evt.Type);
         node.Geometry.Should().Be(evt.Geometry.ToPoint());
+        node.Origin.Timestamp.Should().Be(evt.Provenance.Timestamp);
+        node.Origin.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
+        node.LastModified.Timestamp.Should().Be(evt.Provenance.Timestamp);
+        node.LastModified.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
     }
 }

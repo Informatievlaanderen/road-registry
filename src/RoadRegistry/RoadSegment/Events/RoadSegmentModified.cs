@@ -1,9 +1,10 @@
 namespace RoadRegistry.RoadSegment.Events;
 
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using RoadRegistry.ValueObjects;
 using ValueObjects;
 
-public record RoadSegmentModified
+public record RoadSegmentModified : IMartenEvent
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
     public RoadSegmentId? OriginalId { get; init; }
@@ -18,6 +19,8 @@ public record RoadSegmentModified
     public RoadSegmentDynamicAttributeValues<StreetNameLocalId>? StreetNameId { get; init; }
     public RoadSegmentDynamicAttributeValues<OrganizationId>? MaintenanceAuthorityId { get; init; }
     public RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>? SurfaceType { get; init; }
+
+    public required ProvenanceData Provenance { get; init; }
 
     public RoadSegmentModified()
     {

@@ -4,6 +4,7 @@ using AutoFixture;
 using BackOffice;
 using BackOffice.Core;
 using BackOffice.Messages;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Infrastructure.MartenDb.Setup;
 using Marten;
@@ -51,6 +52,13 @@ public class MartenMigrationProjectionTests
                     OriginalId = new RoadNodeId(@event.OriginalId!.Value),
                     Geometry = GeometryTranslator.Translate(@event.Geometry).ToGeometryObject(),
                     Type = RoadNodeType.Parse(@event.Type),
+                    Provenance = new ProvenanceData(new Provenance(
+                        LocalDateTimeTranslator.TranslateFromWhen(message.When),
+                        Application.RoadRegistry,
+                        new Reason(message.Reason),
+                        new Operator(message.OrganizationId),
+                        Modification.Insert,
+                        Organisation.DigitaalVlaanderen))
                 }
             );
     }
@@ -90,7 +98,14 @@ public class MartenMigrationProjectionTests
                         new RoadSegmentPosition(@event.Surfaces[0].ToPosition),
                         RoadSegmentSurfaceType.Parse(@event.Surfaces[0].Type)),
                 EuropeanRoadNumbers = [],
-                NationalRoadNumbers = []
+                NationalRoadNumbers = [],
+                Provenance = new ProvenanceData(new Provenance(
+                    LocalDateTimeTranslator.TranslateFromWhen(message.When),
+                    Application.RoadRegistry,
+                    new Reason(message.Reason),
+                    new Operator(message.OrganizationId),
+                    Modification.Insert,
+                    Organisation.DigitaalVlaanderen))
             });
     }
 

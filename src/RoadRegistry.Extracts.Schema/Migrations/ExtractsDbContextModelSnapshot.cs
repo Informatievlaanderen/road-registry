@@ -85,6 +85,12 @@ namespace RoadRegistry.Extracts.Schema.Migrations
                     b.Property<DateTimeOffset?>("UploadedOn")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<string>("ZipArchiveWriterVersion")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("V2");
+
                     b.HasKey("DownloadId");
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("DownloadId"));

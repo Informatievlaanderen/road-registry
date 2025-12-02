@@ -16,7 +16,7 @@ public class GivenRoadNetwork : StreetNameEventConsumerTestsBase
     {
         var testData = new RoadNetworkTestData();
         var streetName1LocalId = 1;
-        var streetName1WasRemoved = new StreetNameWasRemovedV2(string.Empty, streetName1LocalId, new FakeProvenance());
+        var streetName1WasRemoved = new StreetNameWasRemovedV2(string.Empty, streetName1LocalId, new FakeKafkaProvenance());
 
         var (consumer, store, topicConsumer) = BuildSetup(configureEditorContext: editorContext =>
         {
@@ -73,7 +73,7 @@ public class GivenRoadNetwork : StreetNameEventConsumerTestsBase
     {
         var testData = new RoadNetworkTestData();
         var streetName1LocalId = 1;
-        var streetName1WasRemoved = new StreetNameWasRemovedV2(string.Empty, streetName1LocalId, new FakeProvenance());
+        var streetName1WasRemoved = new StreetNameWasRemovedV2(string.Empty, streetName1LocalId, new FakeKafkaProvenance());
 
         var (consumer, store, topicConsumer) = BuildSetup(configureEditorContext: editorContext =>
         {

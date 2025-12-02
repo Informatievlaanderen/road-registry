@@ -102,6 +102,10 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>,
     {
         return instance?.ToString();
     }
+    public static implicit operator int(RoadSegmentSurfaceType instance)
+    {
+        return instance.Translation.Identifier;
+    }
 
     public static bool operator !=(RoadSegmentSurfaceType left, RoadSegmentSurfaceType right)
     {

@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
 using Events;
 using RoadRegistry.ValueObjects.Problems;
@@ -7,7 +8,7 @@ using ValueObjects;
 
 public partial class RoadSegment
 {
-    public Problems Modify(ModifyRoadSegmentChange change)
+    public Problems Modify(ModifyRoadSegmentChange change, Provenance provenance)
     {
         var problems = Problems.None;
 
@@ -40,17 +41,18 @@ public partial class RoadSegment
         {
             RoadSegmentId = RoadSegmentId,
             OriginalId = change.OriginalId,
-            StartNodeId = change.StartNodeId ?? StartNodeId,
-            EndNodeId = change.EndNodeId ?? EndNodeId,
-            Geometry = (change.Geometry ?? Geometry).ToGeometryObject(),
-            GeometryDrawMethod = change.GeometryDrawMethod ?? Attributes.GeometryDrawMethod,
-            AccessRestriction = change.AccessRestriction ?? Attributes.AccessRestriction,
-            Category = change.Category ?? Attributes.Category,
-            Morphology = change.Morphology ?? Attributes.Morphology,
-            Status = change.Status ?? Attributes.Status,
-            StreetNameId = change.StreetNameId ?? Attributes.StreetNameId,
-            MaintenanceAuthorityId = change.MaintenanceAuthorityId ?? Attributes.MaintenanceAuthorityId,
-            SurfaceType = change.SurfaceType ?? Attributes.SurfaceType
+            StartNodeId = change.StartNodeId,
+            EndNodeId = change.EndNodeId,
+            Geometry = change.Geometry?.ToGeometryObject(),
+            GeometryDrawMethod = change.GeometryDrawMethod,
+            AccessRestriction = change.AccessRestriction,
+            Category = change.Category,
+            Morphology = change.Morphology,
+            Status = change.Status,
+            StreetNameId = change.StreetNameId,
+            MaintenanceAuthorityId = change.MaintenanceAuthorityId,
+            SurfaceType = change.SurfaceType,
+            Provenance = new ProvenanceData(provenance)
         });
 
         return problems;

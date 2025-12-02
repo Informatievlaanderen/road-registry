@@ -1,10 +1,11 @@
 namespace RoadRegistry.RoadSegment.Events;
 
 using System.Collections.Generic;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using RoadRegistry.ValueObjects;
 using ValueObjects;
 
-public record RoadSegmentAdded: ICreatedEvent
+public record RoadSegmentAdded: IMartenEvent, ICreatedEvent
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
     public RoadSegmentId? OriginalId { get; init; }
@@ -21,6 +22,8 @@ public record RoadSegmentAdded: ICreatedEvent
     public required RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType> SurfaceType { get; init; }
     public required IReadOnlyCollection<EuropeanRoadNumber> EuropeanRoadNumbers { get; init; }
     public required IReadOnlyCollection<NationalRoadNumber> NationalRoadNumbers { get; init; }
+
+    public required ProvenanceData Provenance { get; init; }
 
     public RoadSegmentAdded()
     {

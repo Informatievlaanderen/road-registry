@@ -411,6 +411,18 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeProvenance(this IFixture fixture)
+    {
+        fixture.Customize<Provenance>(customization =>
+            customization.FromSeed(_ => new Provenance(new FakeClock(NodaConstants.UnixEpoch).GetCurrentInstant(),
+                Application.RoadRegistry,
+                new Reason("TEST"),
+                new Operator("TEST"),
+                Modification.Unknown,
+                fixture.Create<Organisation>()))
+        );
+    }
+
     public static void CustomizeReason(this IFixture fixture)
     {
         fixture.Customize<ValueObjects.Reason>(composer =>

@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.GradeSeparatedJunction.RemoveGradeSeparatedJunction;
 
 using AutoFixture;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using FluentAssertions;
 using RoadRegistry.BackOffice;
 using RoadRegistry.GradeSeparatedJunction;
@@ -19,7 +20,7 @@ public class AggregateTests : AggregateTestBase
             .WithoutChanges();
 
         // Act
-        var problems = junction.Remove();
+        var problems = junction.Remove(Fixture.Create<Provenance>());
 
         // Assert
         problems.Should().HaveNoError();
@@ -49,5 +50,9 @@ public class AggregateTests : AggregateTestBase
         junction.Type.Should().Be(junctionAdded.Type);
         junction.LowerRoadSegmentId.Should().Be(junctionAdded.LowerRoadSegmentId);
         junction.UpperRoadSegmentId.Should().Be(junctionAdded.UpperRoadSegmentId);
+        junction.Origin.Timestamp.Should().Be(junctionAdded.Provenance.Timestamp);
+        junction.Origin.OrganizationId.Should().Be(new OrganizationId(junctionAdded.Provenance.Operator));
+        junction.LastModified.Timestamp.Should().Be(evt.Provenance.Timestamp);
+        junction.LastModified.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
     }
 }

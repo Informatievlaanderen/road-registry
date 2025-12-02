@@ -232,7 +232,6 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
                     var zipArchiveWriterVersion = writer.Key;
 
                     var request = new RoadNetworkExtractAssemblyRequest(
-                        fixture.Create<ExternalExtractRequestId>(),
                         fixture.Create<DownloadId>(),
                         fixture.Create<ExtractDescription>(),
                         transactionZoneGeometry,

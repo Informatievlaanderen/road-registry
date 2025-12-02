@@ -19,14 +19,14 @@ public class ChangeRoadNetworkCommandHandler
 
     public async Task<RoadNetworkChangeResult> Handle(ChangeRoadNetworkCommand command, Provenance provenance, CancellationToken cancellationToken)
     {
-        var roadNetworkChanges = command.ToRoadNetworkChanges();
+        var roadNetworkChanges = command.ToRoadNetworkChanges(provenance);
 
         var roadNetwork = await _roadNetworkRepository.Load(roadNetworkChanges);
         var changeResult = roadNetwork.Change(roadNetworkChanges, DownloadId.FromValue(command.DownloadId), _roadNetworkIdGenerator);
 
         if (!changeResult.Problems.HasError())
         {
-            await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, provenance, cancellationToken);
+            await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
         }
 
         return changeResult;

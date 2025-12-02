@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed class GradeSeparatedJunctionType : IEquatable<GradeSeparatedJunctionType>
+public sealed class GradeSeparatedJunctionType : IEquatable<GradeSeparatedJunctionType>, IDutchToString
 {
     public static readonly GradeSeparatedJunctionType Bridge =
         new(
@@ -102,6 +102,11 @@ public sealed class GradeSeparatedJunctionType : IEquatable<GradeSeparatedJuncti
     public override string ToString()
     {
         return _value;
+    }
+
+    public string ToDutchString()
+    {
+        return Translation.Name;
     }
 
     public static bool TryParse(string value, out GradeSeparatedJunctionType parsed)

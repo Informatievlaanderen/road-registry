@@ -1,11 +1,14 @@
 namespace RoadRegistry.RoadSegment.Events;
 
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using RoadRegistry.ValueObjects;
 
-public record RoadSegmentAddedToNationalRoad
+public record RoadSegmentAddedToNationalRoad : IMartenEvent
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
     public required NationalRoadNumber Number { get; init; }
+
+    public required ProvenanceData Provenance { get; init; }
 
     public RoadSegmentAddedToNationalRoad()
     {

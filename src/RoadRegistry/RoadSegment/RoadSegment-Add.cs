@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.RoadSegment;
 
 using System.Collections.Immutable;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
 using Events;
 using RoadNetwork;
@@ -9,7 +10,7 @@ using ValueObjects;
 
 public partial class RoadSegment
 {
-    public static (RoadSegment?, Problems) Add(AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator)
+    public static (RoadSegment?, Problems) Add(AddRoadSegmentChange change, Provenance provenance, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator)
     {
         var problems = Problems.None;
 
@@ -55,6 +56,7 @@ public partial class RoadSegment
             SurfaceType = change.SurfaceType,
             EuropeanRoadNumbers = change.EuropeanRoadNumbers,
             NationalRoadNumbers = change.NationalRoadNumbers,
+            Provenance = new ProvenanceData(provenance)
         });
 
         return (segment, problems);

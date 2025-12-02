@@ -2,13 +2,11 @@
 
 using AutoFixture;
 using FluentAssertions;
-using RoadRegistry.BackOffice;
+using Framework;
+using RoadNetwork;
 using RoadRegistry.GradeSeparatedJunction;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.GradeSeparatedJunction.Events;
-using RoadRegistry.RoadNetwork;
-using RoadRegistry.RoadSegment.ValueObjects;
-using RoadRegistry.Tests.AggregateTests.Framework;
 
 public class AggregateTests : AggregateTestBase
 {
@@ -23,7 +21,7 @@ public class AggregateTests : AggregateTestBase
         idTranslator.RegisterMapping(change.LowerRoadSegmentId, actualLowerRoadSegmentId);
 
         // Act
-        var (junction, problems) = GradeSeparatedJunction.Add(change, new FakeRoadNetworkIdGenerator(), idTranslator);
+        var (junction, problems) = GradeSeparatedJunction.Add(change, TestData.Provenance, new FakeRoadNetworkIdGenerator(), idTranslator);
 
         // Assert
         problems.Should().HaveNoError();
@@ -50,5 +48,9 @@ public class AggregateTests : AggregateTestBase
         junction.Type.Should().Be(evt.Type);
         junction.LowerRoadSegmentId.Should().Be(evt.LowerRoadSegmentId);
         junction.UpperRoadSegmentId.Should().Be(evt.UpperRoadSegmentId);
+        junction.Origin.Timestamp.Should().Be(evt.Provenance.Timestamp);
+        junction.Origin.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
+        junction.LastModified.Timestamp.Should().Be(evt.Provenance.Timestamp);
+        junction.LastModified.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
     }
 }

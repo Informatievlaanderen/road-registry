@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.RoadSegment.ValueObjects;
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Newtonsoft.Json;
@@ -24,7 +25,7 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
     }
 
     [JsonConstructor]
-    public RoadSegmentAttributes(
+    protected RoadSegmentAttributes(
         string geometryDrawMethod,
         RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction> accessRestriction,
         RoadSegmentDynamicAttributeValues<RoadSegmentCategory> category,
@@ -33,8 +34,8 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
         RoadSegmentDynamicAttributeValues<StreetNameLocalId> streetNameId,
         RoadSegmentDynamicAttributeValues<OrganizationId> maintenanceAuthorityId,
         RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType> surfaceType,
-        ImmutableList<EuropeanRoadNumber> europeanRoadNumbers,
-        ImmutableList<NationalRoadNumber> nationalRoadNumbers
+        ICollection<EuropeanRoadNumber> europeanRoadNumbers,
+        ICollection<NationalRoadNumber> nationalRoadNumbers
     )
     {
         GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(geometryDrawMethod);
@@ -45,8 +46,8 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
         StreetNameId = streetNameId;
         MaintenanceAuthorityId = maintenanceAuthorityId;
         SurfaceType = surfaceType;
-        EuropeanRoadNumbers = europeanRoadNumbers;
-        NationalRoadNumbers = nationalRoadNumbers;
+        EuropeanRoadNumbers = europeanRoadNumbers.ToImmutableList();
+        NationalRoadNumbers = nationalRoadNumbers.ToImmutableList();
     }
 
     public bool Equals(RoadSegmentAttributes? other)

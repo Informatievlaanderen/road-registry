@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed class RoadNodeType : IEquatable<RoadNodeType>
+public sealed class RoadNodeType : IEquatable<RoadNodeType>, IDutchToString
 {
     public static readonly RoadNodeType EndNode =
         new(
@@ -115,6 +115,10 @@ public sealed class RoadNodeType : IEquatable<RoadNodeType>
     {
         return instance.ToString();
     }
+    public static implicit operator int(RoadNodeType instance)
+    {
+        return instance.Translation.Identifier;
+    }
 
     public static bool operator !=(RoadNodeType left, RoadNodeType right)
     {
@@ -139,6 +143,11 @@ public sealed class RoadNodeType : IEquatable<RoadNodeType>
     public override string ToString()
     {
         return _value;
+    }
+
+    public string ToDutchString()
+    {
+        return Translation.Name;
     }
 
     public static bool TryParse(string value, out RoadNodeType parsed)

@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Events;
 using GradeSeparatedJunction;
 using GradeSeparatedJunction.Changes;
@@ -58,42 +59,42 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
             switch (roadNetworkChange)
             {
                 case AddRoadNodeChange change:
-                    problems += AddRoadNode(change, idGenerator, idTranslator, summary.RoadNodes);
+                    problems += AddRoadNode(changes, change, idGenerator, idTranslator, summary.RoadNodes);
                     break;
                 case ModifyRoadNodeChange change:
-                    problems += ModifyRoadNode(change, summary.RoadNodes);
+                    problems += ModifyRoadNode(changes, change, summary.RoadNodes);
                     break;
                 case RemoveRoadNodeChange change:
-                    problems += RemoveRoadNode(change, summary.RoadNodes);
+                    problems += RemoveRoadNode(changes, change, summary.RoadNodes);
                     break;
 
                 case AddRoadSegmentChange change:
-                    problems += AddRoadSegment(change, idGenerator, idTranslator, summary.RoadSegments);
+                    problems += AddRoadSegment(changes, change, idGenerator, idTranslator, summary.RoadSegments);
                     break;
                 case ModifyRoadSegmentChange change:
-                    problems += ModifyRoadSegment(change, idTranslator, summary.RoadSegments);
+                    problems += ModifyRoadSegment(changes, change, idTranslator, summary.RoadSegments);
                     break;
                 case RemoveRoadSegmentChange change:
-                    problems += RemoveRoadSegment(change.RoadSegmentId, summary.RoadSegments);
+                    problems += RemoveRoadSegment(changes, change.RoadSegmentId, summary.RoadSegments);
                     break;
                 case AddRoadSegmentToEuropeanRoadChange change:
-                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.AddEuropeanRoad(change), summary.RoadSegments);
+                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.AddEuropeanRoad(change, changes.Provenance), summary.RoadSegments);
                     break;
                 case RemoveRoadSegmentFromEuropeanRoadChange change:
-                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.RemoveEuropeanRoad(change), summary.RoadSegments);
+                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.RemoveEuropeanRoad(change, changes.Provenance), summary.RoadSegments);
                     break;
                 case AddRoadSegmentToNationalRoadChange change:
-                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.AddNationalRoad(change), summary.RoadSegments);
+                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.AddNationalRoad(change, changes.Provenance), summary.RoadSegments);
                     break;
                 case RemoveRoadSegmentFromNationalRoadChange change:
-                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.RemoveNationalRoad(change), summary.RoadSegments);
+                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.RemoveNationalRoad(change, changes.Provenance), summary.RoadSegments);
                     break;
 
                 case AddGradeSeparatedJunctionChange change:
-                    problems += AddGradeSeparatedJunction(change, idGenerator, idTranslator, summary.GradeSeparatedJunctions);
+                    problems += AddGradeSeparatedJunction(changes, change, idGenerator, idTranslator, summary.GradeSeparatedJunctions);
                     break;
                 case RemoveGradeSeparatedJunctionChange change:
-                    problems += RemoveGradeSeparatedJunction(change, summary.GradeSeparatedJunctions);
+                    problems += RemoveGradeSeparatedJunction(changes, change, summary.GradeSeparatedJunctions);
                     break;
 
                 default:
@@ -126,7 +127,8 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
         Apply(new RoadNetworkChanged
         {
             ScopeGeometry = changes.BuildScopeGeometry().ToGeometryObject(),
-            DownloadId = downloadId
+            DownloadId = downloadId,
+            Provenance = new ProvenanceData(changes.Provenance)
         });
 
         return new RoadNetworkChangeResult(Problems.None.AddRange(problems.Distinct()), summary);

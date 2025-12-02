@@ -128,6 +128,10 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
     {
         return instance?.ToString();
     }
+    public static implicit operator int(RoadSegmentStatus instance)
+    {
+        return instance.Translation.Identifier;
+    }
 
     public static bool operator !=(RoadSegmentStatus left, RoadSegmentStatus right)
     {

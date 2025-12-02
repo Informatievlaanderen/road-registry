@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.GradeSeparatedJunction;
 
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
 using Events;
 using RoadNetwork;
@@ -7,19 +8,20 @@ using RoadRegistry.ValueObjects.Problems;
 
 public partial class GradeSeparatedJunction
 {
-    public static (GradeSeparatedJunction?, Problems) Add(AddGradeSeparatedJunctionChange change, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator)
+    public static (GradeSeparatedJunction?, Problems) Add(AddGradeSeparatedJunctionChange change, Provenance provenance, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator)
     {
         var problems = Problems.None;
 
-        var roadNode = Create(new GradeSeparatedJunctionAdded
+        var junction = Create(new GradeSeparatedJunctionAdded
         {
             GradeSeparatedJunctionId = idGenerator.NewGradeSeparatedJunctionId(),
             OriginalId = change.TemporaryId,
             LowerRoadSegmentId = idTranslator.TranslateToPermanentId(change.LowerRoadSegmentId),
             UpperRoadSegmentId = idTranslator.TranslateToPermanentId(change.UpperRoadSegmentId),
-            Type = change.Type
+            Type = change.Type,
+            Provenance = new ProvenanceData(provenance)
         });
 
-        return (roadNode, problems);
+        return (junction, problems);
     }
 }

@@ -10,12 +10,12 @@ public static class ScenarioExtensions
 {
     public static IScenarioGivenStateBuilder Given(this Scenario scenario, Func<RoadNetworkChanges, RoadNetworkChanges> roadNetworkChangesBuilder)
     {
-        return scenario.Given(builder => builder.Add(roadNetworkChangesBuilder(RoadNetworkChanges.Start())));
+        return scenario.Given(builder => builder.Add(roadNetworkChangesBuilder(RoadNetworkChanges.Start().WithProvenance(new FakeProvenance()))));
     }
 
     public static IScenarioWhenStateBuilder When(this IScenarioGivenStateBuilder builder, Func<RoadNetworkChanges, RoadNetworkChanges> roadNetworkChangesBuilder)
     {
-        return builder.When(new Command(roadNetworkChangesBuilder(RoadNetworkChanges.Start())));
+        return builder.When(new Command(roadNetworkChangesBuilder(RoadNetworkChanges.Start().WithProvenance(new FakeProvenance()))));
     }
 
     public static IScenarioThrowsStateBuilder ThenProblems(this IScenarioWhenStateBuilder builder, Problem problem)

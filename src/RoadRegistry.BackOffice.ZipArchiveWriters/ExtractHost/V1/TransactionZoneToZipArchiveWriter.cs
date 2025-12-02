@@ -38,7 +38,7 @@ public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter
                 TYPE = { Value = 2 },
                 BESCHRIJV =
                 {
-                    Value = string.IsNullOrEmpty(request.ExtractDescription) ? request.ExternalRequestId : request.ExtractDescription
+                    Value = request.ExtractDescription
                 },
                 OPERATOR = { Value = "" },
                 ORG = { Value = "AGIV" },
