@@ -32,7 +32,7 @@
                   <vl-button v-if="isDownloading" mod-loading> Download extract... </vl-button>
                   <vl-button v-else @click="downloadExtract()"> Download extract </vl-button>
                 </span>
-                <span v-if="archiveId" style="margin-left: 1rem">
+                <span v-if="extract.uploadStatus" style="margin-left: 1rem">
                   <vl-button v-if="isDownloading" mod-loading> Download upload... </vl-button>
                   <vl-button v-else @click="downloadUpload()"> Download upload </vl-button>
                 </span>
@@ -136,7 +136,6 @@ export default Vue.extend({
           }
         | undefined,
       isDownloading: false as boolean,
-      archiveId: "" as string,
       ticketId: "" as string,
       ticketStatus: undefined as string | undefined,
       ticketResponseCode: 0 as number,
