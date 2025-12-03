@@ -118,7 +118,7 @@
     "lodash": "^4.17.21",
     "oidc-client-ts": "^3.1.0",
     "ol": "6.1.1",
-    "vue": "^2.7.16",
+    "vue": "^3.0.0",
     "vue-class-component": "^7.2.3",
     "vue-property-decorator": "^9.1.2",
     "vue-router": "^3.6.5"
