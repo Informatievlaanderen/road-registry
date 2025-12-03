@@ -1,3 +1,11 @@
+## [4.38.7](https://github.com/informatievlaanderen/road-registry/compare/v4.38.6...v4.38.7) (2025-12-03)
+
+
+### Bug Fixes
+
+* GRB extracts projection to new extracts context to update CurrentDownloadId correctly when another extract is requested ([0f4f26a](https://github.com/informatievlaanderen/road-registry/commit/0f4f26a7c632609419f03681c3ed1ff70362536e))
+* show button to download the uploaded extract GAWR-7135 ([86ecdea](https://github.com/informatievlaanderen/road-registry/commit/86ecdea0d5c2b35a028cba5b6eaf80e707735633))
+
 ## [4.38.6](https://github.com/informatievlaanderen/road-registry/compare/v4.38.5...v4.38.6) (2025-11-13)
 
 
