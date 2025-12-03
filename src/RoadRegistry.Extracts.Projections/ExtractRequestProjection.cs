@@ -6,6 +6,7 @@ using BackOffice.Extensions;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Schema;
 
@@ -59,6 +60,18 @@ public class ExtractRequestProjection : ConnectedProjection<ExtractsDbContext>
                     CurrentDownloadId = message.DownloadId,
                 };
                 await context.ExtractRequests.AddAsync(record, ct);
+            }
+            else if (record.CurrentDownloadId != message.DownloadId)
+            {
+                var existingOpenDownload = await context.ExtractDownloads
+                    .SingleOrDefaultAsync(x => x.ExtractRequestId == extractRequestId
+                                               && x.Closed == false, ct);
+                if (existingOpenDownload is not null)
+                {
+                    existingOpenDownload.Closed = true;
+                }
+
+                record.CurrentDownloadId = message.DownloadId;
             }
         });
     }
