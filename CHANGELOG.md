@@ -1,3 +1,10 @@
+## [4.38.8](https://github.com/informatievlaanderen/road-registry/compare/v4.38.7...v4.38.8) (2025-12-03)
+
+
+### Bug Fixes
+
+* download uploaded file deal with potentially missing filename tag in s3 ([ff6ae68](https://github.com/informatievlaanderen/road-registry/commit/ff6ae68427f31a050411c09b3396b96729faca92))
+
 ## [4.38.7](https://github.com/informatievlaanderen/road-registry/compare/v4.38.6...v4.38.7) (2025-12-03)
 
 
