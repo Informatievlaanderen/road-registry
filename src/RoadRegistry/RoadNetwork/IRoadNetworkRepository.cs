@@ -8,8 +8,9 @@ using NetTopologySuite.Geometries;
 
 public interface IRoadNetworkRepository
 {
-    Task<RoadNetwork> Load(RoadNetworkChanges roadNetworkChanges);
     Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, Geometry geometry);
+    Task<RoadNetworkIds> GetUnderlyingIds(IDocumentSession session, IReadOnlyCollection<RoadSegmentId> roadSegmentIds);
+    Task<RoadNetwork> Load(IDocumentSession session, RoadNetworkIds ids);
     Task Save(RoadNetwork roadNetwork, string commandName, CancellationToken cancellationToken);
 }
 

@@ -45,6 +45,7 @@ public static class SetupExtensions
 
     public static void ConfigureRoad(this StoreOptions options)
     {
+        //TODO-pr update schemas: `eventstore` for event related, `projections` for all projections
         options.DatabaseSchemaName = "road";
 
         options.UseNewtonsoftForSerialization(
@@ -72,12 +73,14 @@ public static class SetupExtensions
         options.Events.MetadataConfig.HeadersEnabled = true;
     }
 
-    public static void AddRoadNetworkTopologyProjection(this StoreOptions options)
+    public static StoreOptions AddRoadNetworkTopologyProjection(this StoreOptions options)
     {
         options.Projections.Add<RoadNetworkTopologyProjection>(ProjectionLifecycle.Inline);
 
         options.Projections.Snapshot<RoadSegment>(SnapshotLifecycle.Inline);
         options.Projections.Snapshot<RoadNode>(SnapshotLifecycle.Inline);
         options.Projections.Snapshot<GradeSeparatedJunction>(SnapshotLifecycle.Inline);
+
+        return options;
     }
 }

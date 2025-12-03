@@ -82,6 +82,4 @@ public class ChangeRoadNetworkCommandItem
 
     public AddGradeSeparatedJunctionChange? AddGradeSeparatedJunction { get; set; }
     public RemoveGradeSeparatedJunctionChange? RemoveGradeSeparatedJunction { get; set; }
-
-    // public RemoveRoadSegmentsChange RemoveRoadSegments { get; set; } //TODO-pr move to separate command
 }

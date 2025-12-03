@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Exceptions;
 
 using System;
 using System.Linq;
-using Core;
 using ValueObjects.Problems;
 
 public class RoadRegistryProblemsException : RoadRegistryException

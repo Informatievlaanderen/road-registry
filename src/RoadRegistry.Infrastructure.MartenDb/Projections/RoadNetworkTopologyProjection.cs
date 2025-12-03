@@ -1,18 +1,21 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
-using System.Text;
 using GradeSeparatedJunction.Events;
 using JasperFx.Events;
 using Marten;
 using Marten.Events.Projections;
+using RoadNetwork.Events;
+using RoadNode.Events;
 using RoadSegment;
 using RoadSegment.Events;
+using Weasel.Postgresql;
+using Weasel.Postgresql.Functions;
 using Weasel.Postgresql.Tables;
 
 public class RoadNetworkTopologyProjection : EventProjection
 {
-    public const string RoadSegmentsTableName = "roadnetworktopology.roadsegments";
-    public const string GradeSeparatedJunctionsTableName = "roadnetworktopology.gradeseparatedjunctions";
+    public const string RoadSegmentsTableName = "projections.networktopology_roadsegments";
+    public const string GradeSeparatedJunctionsTableName = "projections.networktopology_gradeseparatedjunctions";
 
     public RoadNetworkTopologyProjection()
     {
@@ -22,13 +25,67 @@ public class RoadNetworkTopologyProjection : EventProjection
             table.AddColumn("geometry", "geometry");
             table.AddColumn<int>("start_node_id");
             table.AddColumn<int>("end_node_id");
+            table.AddColumn<DateTimeOffset>("timestamp");
 
             var geometryIndex = new IndexDefinition("idx_segments_geometry").AgainstColumns("geometry");
             geometryIndex.CustomMethod = "gist";
             table.Indexes.Add(geometryIndex);
 
+            table.Indexes.Add(new IndexDefinition("idx_roadsegments_start_node_id").AgainstColumns("start_node_id"));
+            table.Indexes.Add(new IndexDefinition("idx_roadsegments_end_node_id").AgainstColumns("end_node_id"));
+
             SchemaObjects.Add(table);
             Options.DeleteDataInTableOnTeardown(table.Identifier.QualifiedName);
+
+            SchemaObjects.Add(new Function(new PostgresqlObjectName("projections", "networktopology_delete_roadsegment"), @$"
+CREATE OR REPLACE FUNCTION projections.networktopology_delete_roadsegment(p_id integer, p_timestamp timestamptz) RETURNS int AS
+$$
+DECLARE
+    updated int;
+BEGIN
+
+    DELETE FROM {RoadSegmentsTableName}
+    WHERE id = p_id
+      AND timestamp < p_timestamp;
+
+    GET DIAGNOSTICS updated = ROW_COUNT;
+
+    IF updated = 0 THEN
+        RAISE EXCEPTION 'Concurrency conflict on segment %', 42
+            USING ERRCODE = '40001';
+    END IF;
+
+    RETURN updated;
+
+END;
+$$ LANGUAGE plpgsql;"));
+
+            SchemaObjects.Add(new Function(new PostgresqlObjectName("projections", "networktopology_update_roadsegment"), @$"
+CREATE OR REPLACE FUNCTION projections.networktopology_update_roadsegment(p_id integer, p_timestamp timestamptz, p_wkt character varying, p_srid integer, p_start_node_id integer, p_end_node_id integer) RETURNS int AS
+$$
+DECLARE
+    updated int;
+BEGIN
+
+    UPDATE {RoadSegmentsTableName}
+    SET geometry = (CASE WHEN p_wkt IS NOT NULL THEN ST_GeomFromText(p_wkt, p_srid) ELSE geometry END),
+        start_node_id = coalesce(p_start_node_id, start_node_id),
+        end_node_id = coalesce(p_end_node_id, end_node_id),
+        timestamp = p_timestamp
+    WHERE id = p_id
+      AND timestamp < p_timestamp;
+
+    GET DIAGNOSTICS updated = ROW_COUNT;
+
+    IF updated = 0 THEN
+        RAISE EXCEPTION 'Concurrency conflict on segment %', 42
+            USING ERRCODE = '40001';
+    END IF;
+
+    RETURN updated;
+
+END;
+$$ LANGUAGE plpgsql;"));
         }
 
         {
@@ -36,69 +93,124 @@ public class RoadNetworkTopologyProjection : EventProjection
             table.AddColumn<int>("id").AsPrimaryKey();
             table.AddColumn<int>("lower_road_segment_id");
             table.AddColumn<int>("upper_road_segment_id");
+            table.AddColumn<DateTimeOffset>("timestamp");
 
             table.Indexes.Add(new IndexDefinition("idx_gradeseparatedjunctions_lower_road_segment_id").AgainstColumns("lower_road_segment_id"));
             table.Indexes.Add(new IndexDefinition("idx_gradeseparatedjunctions_upper_road_segment_id").AgainstColumns("upper_road_segment_id"));
 
             SchemaObjects.Add(table);
             Options.DeleteDataInTableOnTeardown(table.Identifier.QualifiedName);
+
+            SchemaObjects.Add(new Function(new PostgresqlObjectName("projections", "networktopology_delete_gradeseparatedjunction"), @$"
+CREATE OR REPLACE FUNCTION projections.networktopology_delete_gradeseparatedjunction(p_id integer, p_timestamp timestamptz) RETURNS int AS
+$$
+DECLARE
+    updated int;
+BEGIN
+
+    DELETE FROM {GradeSeparatedJunctionsTableName}
+    WHERE id = p_id
+      AND timestamp < p_timestamp;
+
+    GET DIAGNOSTICS updated = ROW_COUNT;
+
+    IF updated = 0 THEN
+        RAISE EXCEPTION 'Concurrency conflict on grade separated junction %', 42
+            USING ERRCODE = '40001';
+    END IF;
+
+    RETURN updated;
+
+END;
+$$ LANGUAGE plpgsql;"));
         }
     }
 
-    //TODO-pr unit test toevoegen die checkt of elke event hier een Project-methode heeft
-
     public void Project(IEvent<RoadSegmentAdded> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand($"insert into {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id) values (?, ST_GeomFromText(?, ?), ?, ?)",
-            e.Data.RoadSegmentId.ToInt32(), e.Data.Geometry.ToMultiLineString().AsText(), e.Data.Geometry.SRID, e.Data.StartNodeId.ToInt32(), e.Data.EndNodeId.ToInt32()
+        ops.QueueSqlCommand($"INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp) VALUES (?, ST_GeomFromText(?, ?), ?, ?, ?)",
+            e.Data.RoadSegmentId.ToInt32(), e.Data.Geometry.ToMultiLineString().AsText(), e.Data.Geometry.SRID, e.Data.StartNodeId.ToInt32(), e.Data.EndNodeId.ToInt32(), e.Timestamp
         );
     }
 
     public void Project(IEvent<RoadSegmentModified> e, IDocumentOperations ops)
     {
-        var parameters = new List<object>();
-        var tableUpdates = new List<string>();
-
-        if (e.Data.Geometry is not null)
-        {
-            tableUpdates.Add("geometry = ST_GeomFromText(?, ?)");
-            parameters.Add(e.Data.Geometry.ToMultiLineString().AsText());
-            parameters.Add(e.Data.Geometry.SRID);
-        }
-
-        if (e.Data.StartNodeId is not null)
-        {
-            tableUpdates.Add("start_node_id = ?");
-            parameters.Add(e.Data.StartNodeId);
-        }
-
-        if (e.Data.EndNodeId is not null)
-        {
-            tableUpdates.Add("end_node_id = ?");
-            parameters.Add(e.Data.EndNodeId);
-        }
-
-        if (!tableUpdates.Any())
+        if (e.Data.Geometry is null && e.Data.StartNodeId is null && e.Data.EndNodeId is null)
         {
             return;
         }
 
-        ops.QueueSqlCommand($"update {RoadSegmentsTableName} set {string.Join(", ", tableUpdates)} where id = {e.Data.RoadSegmentId}",
-            parameters.ToArray()
-        );
+        var parameters = new object?[]
+        {
+            e.Data.RoadSegmentId.ToInt32(),
+            e.Timestamp,
+            e.Data.Geometry?.ToMultiLineString().AsText(),
+            e.Data.Geometry?.SRID,
+            e.Data.StartNodeId?.ToInt32(),
+            e.Data.EndNodeId?.ToInt32()
+        };
+
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?);", parameters);
     }
 
     public void Project(IEvent<RoadSegmentRemoved> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand($"delete from {RoadSegmentsTableName} where id = ?",
-            e.Data.RoadSegmentId.ToInt32()
-        );
+        var parameters = new object[]
+        {
+            e.Data.RoadSegmentId.ToInt32(),
+            e.Timestamp
+        };
+
+        ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadsegment(?, ?);", parameters);
     }
 
     public void Project(IEvent<GradeSeparatedJunctionAdded> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand($"insert into {GradeSeparatedJunctionsTableName} (id, lower_road_segment_id, upper_road_segment_id) values (?, ST_GeomFromText(?, ?), ?, ?)",
-            e.Data.GradeSeparatedJunctionId.ToInt32(), e.Data.LowerRoadSegmentId.ToInt32(), e.Data.UpperRoadSegmentId.ToInt32()
+        ops.QueueSqlCommand($"INSERT INTO {GradeSeparatedJunctionsTableName} (id, lower_road_segment_id, upper_road_segment_id, timestamp) VALUES (?, ?, ?, ?)",
+            e.Data.GradeSeparatedJunctionId.ToInt32(), e.Data.LowerRoadSegmentId.ToInt32(), e.Data.UpperRoadSegmentId.ToInt32(), e.Timestamp
         );
+    }
+    public void Project(IEvent<GradeSeparatedJunctionRemoved> e, IDocumentOperations ops)
+    {
+        var parameters = new object[]
+        {
+            e.Data.GradeSeparatedJunctionId.ToInt32(),
+            e.Timestamp
+        };
+
+        ops.QueueSqlCommand("SELECT projections.networktopology_delete_gradeseparatedjunction(?, ?);", parameters);
+    }
+
+    public void Project(IEvent<RoadNodeAdded> e, IDocumentOperations ops)
+    {
+        // Do nothing
+    }
+    public void Project(IEvent<RoadNodeModified> e, IDocumentOperations ops)
+    {
+        // Do nothing
+    }
+    public void Project(IEvent<RoadNodeRemoved> e, IDocumentOperations ops)
+    {
+        // Do nothing
+    }
+    public void Project(IEvent<RoadNetworkChanged> e, IDocumentOperations ops)
+    {
+        // Do nothing
+    }
+    public void Project(IEvent<RoadSegmentAddedToEuropeanRoad> e, IDocumentOperations ops)
+    {
+        // Do nothing
+    }
+    public void Project(IEvent<RoadSegmentAddedToNationalRoad> e, IDocumentOperations ops)
+    {
+        // Do nothing
+    }
+    public void Project(IEvent<RoadSegmentRemovedFromEuropeanRoad> e, IDocumentOperations ops)
+    {
+        // Do nothing
+    }
+    public void Project(IEvent<RoadSegmentRemovedFromNationalRoad> e, IDocumentOperations ops)
+    {
+        // Do nothing
     }
 }

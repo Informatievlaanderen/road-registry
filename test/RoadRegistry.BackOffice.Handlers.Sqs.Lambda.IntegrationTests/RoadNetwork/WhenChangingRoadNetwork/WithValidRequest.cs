@@ -117,7 +117,7 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
         services
             .AddMartenRoad(options => options.AddRoadNetworkTopologyProjection())
             .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
-            .AddChangeRoadNetworkCommandHandler()
+            .AddRoadRegistryCommandHandlers()
             .AddScoped<ChangeRoadNetworkCommandSqsLambdaRequestHandler>();
 
         var sp = services.BuildServiceProvider();
@@ -133,9 +133,5 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
     {
         // build projection tables
         await store.BuildProjectionDaemonAsync();
-
-        // await projectionDaemon.RebuildProjectionAsync<RoadSegment>(CancellationToken.None);
-        // await projectionDaemon.RebuildProjectionAsync<RoadNode>(CancellationToken.None);
-        // await projectionDaemon.RebuildProjectionAsync<GradeSeparatedJunction>(CancellationToken.None);
     }
 }
