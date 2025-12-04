@@ -1,3 +1,10 @@
+## [4.38.9](https://github.com/informatievlaanderen/road-registry/compare/v4.38.8...v4.38.9) (2025-12-04)
+
+
+### Bug Fixes
+
+* use correct bucket for downloading with presignedurl ([27ba10f](https://github.com/informatievlaanderen/road-registry/commit/27ba10fa4e52c08029b6919c35bbb33ab51622a6))
+
 ## [4.38.8](https://github.com/informatievlaanderen/road-registry/compare/v4.38.7...v4.38.8) (2025-12-03)
 
 
