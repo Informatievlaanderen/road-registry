@@ -138,7 +138,7 @@ public class FixRoadNumberAttributeIds
         // fix attribute_id in event (keep mapping van old->new)
         foreach (var change in message.Changes.Flatten().OfType<RoadSegmentAddedToEuropeanRoad>())
         {
-            var newId = await roadNetworkDbIdGenerator.NewEuropeanRoadAttributeId();
+            var newId = await roadNetworkDbIdGenerator.NewEuropeanRoadAttributeIdAsync();
             var oldId = change.AttributeId;
             europeanRoadMappings.Add(oldId, newId);
 
@@ -147,7 +147,7 @@ public class FixRoadNumberAttributeIds
 
         foreach (var change in message.Changes.Flatten().OfType<RoadSegmentAddedToNationalRoad>())
         {
-            var newId = await roadNetworkDbIdGenerator.NewNationalRoadAttributeId();
+            var newId = await roadNetworkDbIdGenerator.NewNationalRoadAttributeIdAsync();
             var oldId = change.AttributeId;
             nationalRoadMappings.Add(oldId, newId);
 
@@ -156,7 +156,7 @@ public class FixRoadNumberAttributeIds
 
         foreach (var change in message.Changes.Flatten().OfType<RoadSegmentAddedToNumberedRoad>())
         {
-            var newId = await roadNetworkDbIdGenerator.NewNumberedRoadAttributeId();
+            var newId = await roadNetworkDbIdGenerator.NewNumberedRoadAttributeIdAsync();
             var oldId = change.AttributeId;
             numberedRoadMappings.Add(oldId, newId);
 

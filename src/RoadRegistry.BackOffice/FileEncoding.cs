@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice;
 
 using System;
 using System.Text;
+using RoadRegistry.Extensions;
 
 public sealed class FileEncoding
 {

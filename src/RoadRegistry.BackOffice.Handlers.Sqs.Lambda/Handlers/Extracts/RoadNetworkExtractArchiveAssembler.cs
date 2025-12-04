@@ -12,6 +12,7 @@ using Microsoft.IO;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 using RoadRegistry.Editor.Schema;
+using RoadRegistry.Extensions;
 
 public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAssembler
 {

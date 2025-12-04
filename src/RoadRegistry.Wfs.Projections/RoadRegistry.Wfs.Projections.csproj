@@ -13,5 +13,6 @@
     <ProjectReference Include="..\RoadRegistry.Wfs.Schema\RoadRegistry.Wfs.Schema.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Using Include="RoadRegistry.ValueObjects" />
   </ItemGroup>
 </Project>

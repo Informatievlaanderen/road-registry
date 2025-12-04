@@ -1,5 +1,6 @@
 namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using RoadRegistry.BackOffice.Messages;
 
 internal static class RoadNetworkExtensions

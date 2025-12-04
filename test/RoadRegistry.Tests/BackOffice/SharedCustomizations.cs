@@ -5,6 +5,7 @@ using AutoFixture.Dsl;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Extensions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NodaTime;
@@ -410,13 +411,25 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeProvenance(this IFixture fixture)
+    {
+        fixture.Customize<Provenance>(customization =>
+            customization.FromSeed(_ => new Provenance(new FakeClock(NodaConstants.UnixEpoch).GetCurrentInstant(),
+                Application.RoadRegistry,
+                new Reason("TEST"),
+                new Operator("TEST"),
+                Modification.Unknown,
+                fixture.Create<Organisation>()))
+        );
+    }
+
     public static void CustomizeReason(this IFixture fixture)
     {
-        fixture.Customize<RoadRegistry.BackOffice.Reason>(composer =>
+        fixture.Customize<ValueObjects.Reason>(composer =>
             composer.FromFactory(generator =>
-                new RoadRegistry.BackOffice.Reason(new string(
+                new ValueObjects.Reason(new string(
                     (char)generator.Next(97, 123), // a-z
-                    generator.Next(1, RoadRegistry.BackOffice.Reason.MaxLength + 1))))
+                    generator.Next(1, ValueObjects.Reason.MaxLength + 1))))
         );
     }
 

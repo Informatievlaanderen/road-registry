@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extensions;
 
 public static class FeatureCompareRecordExtensions
 {

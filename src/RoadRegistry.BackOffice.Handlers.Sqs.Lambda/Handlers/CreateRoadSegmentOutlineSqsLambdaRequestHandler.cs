@@ -12,6 +12,7 @@ using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
 using TicketingService.Abstractions;
+using ValueObjects.Problems;
 using AddRoadSegment = BackOffice.Uploads.AddRoadSegment;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;

@@ -2,11 +2,11 @@
 {
     using AutoFixture;
     using Framework.Testing;
-    using RoadRegistry.BackOffice;
+        using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Core;
     using RoadRegistry.BackOffice.Messages;
-    using Problem = RoadRegistry.BackOffice.Messages.Problem;
-    using ProblemSeverity = RoadRegistry.BackOffice.Messages.ProblemSeverity;
+        using Problem = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.Problem;
+    using ProblemSeverity = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.ProblemSeverity;
     using RemoveRoadSegments = RoadRegistry.BackOffice.Messages.RemoveRoadSegments;
 
     public class GivenRoadNetwork: RemoveRoadSegmentsTestBase

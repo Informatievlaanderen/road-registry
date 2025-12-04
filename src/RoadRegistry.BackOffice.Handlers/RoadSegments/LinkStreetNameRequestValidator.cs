@@ -2,11 +2,12 @@ namespace RoadRegistry.BackOffice.Handlers.RoadSegments;
 
 using Abstractions.RoadSegments;
 using BackOffice.Extensions;
+using CommandHandling;
 using Core;
-using Core.ProblemCodes;
 using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
+using ValueObjects.ProblemCodes;
 
 public class LinkStreetNameRequestValidator : AbstractValidator<LinkStreetNameRequest>
 {

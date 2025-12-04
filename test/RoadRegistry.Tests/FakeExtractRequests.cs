@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Tests;
 
+using CommandHandling.Extracts;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Extracts;
 

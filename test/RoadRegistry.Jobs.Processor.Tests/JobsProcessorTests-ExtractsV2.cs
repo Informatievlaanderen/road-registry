@@ -2,8 +2,8 @@ namespace RoadRegistry.Jobs.Processor.Tests
 {
     using AutoFixture;
     using BackOffice;
-    using BackOffice.Abstractions.Extracts;
     using BackOffice.Abstractions.Jobs;
+    using BackOffice.FeatureToggles;
     using BackOffice.Handlers.Sqs.Extracts;
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
@@ -11,7 +11,6 @@ namespace RoadRegistry.Jobs.Processor.Tests
     using FluentAssertions;
     using Infrastructure.Options;
     using MediatR;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging.Abstractions;
     using Moq;

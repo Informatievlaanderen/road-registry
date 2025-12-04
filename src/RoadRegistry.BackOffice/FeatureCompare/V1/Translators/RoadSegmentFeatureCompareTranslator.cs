@@ -13,6 +13,7 @@ using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extensions;
 using AddRoadSegment = Uploads.AddRoadSegment;
 using ModifyRoadSegment = Uploads.ModifyRoadSegment;
 using RemoveOutlinedRoadSegment = Uploads.RemoveOutlinedRoadSegment;
@@ -273,7 +274,6 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         return (changes, problems);
     }
-
 
     private async Task<(List<Feature<RoadSegmentFeatureCompareAttributes>>, ZipArchiveProblems)> ValidateMaintenanceAuthorityAndMapToInternalId(List<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures, CancellationToken cancellationToken)
     {

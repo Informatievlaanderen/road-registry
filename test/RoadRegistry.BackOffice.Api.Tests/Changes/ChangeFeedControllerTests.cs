@@ -5,6 +5,7 @@ using Api.Changes;
 using Editor.Schema;
 using Editor.Schema.RoadNetworkChanges;
 using Infrastructure;
+using RoadRegistry.Extensions;
 
 public partial class ChangeFeedControllerTests : ControllerMinimalTests<ChangeFeedController>
 {

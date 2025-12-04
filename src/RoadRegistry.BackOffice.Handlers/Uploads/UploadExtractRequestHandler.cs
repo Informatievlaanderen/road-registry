@@ -13,6 +13,7 @@ using FeatureCompare;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Extensions;
 using ZipArchiveWriters.Cleaning;
 using ContentType = Be.Vlaanderen.Basisregisters.BlobStore.ContentType;
 

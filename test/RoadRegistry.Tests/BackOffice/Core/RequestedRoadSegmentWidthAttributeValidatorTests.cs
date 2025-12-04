@@ -1,6 +1,7 @@
 namespace RoadRegistry.Tests.BackOffice.Core;
 
 using AutoFixture;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;

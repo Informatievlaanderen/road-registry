@@ -90,7 +90,7 @@ public class GivenRoadNetwork : StreetNameEventConsumerTestsBase
             string.Empty,
             oldStreetNamePersistentLocalId,
             [newStreetNamePersistentLocalId1, newStreetNamePersistentLocalId2],
-            new FakeProvenance());
+            new FakeKafkaProvenance());
         topicConsumer.SeedMessage(@event);
 
         await consumer.StartAsync(CancellationToken.None);
@@ -205,7 +205,7 @@ public class GivenRoadNetwork : StreetNameEventConsumerTestsBase
             string.Empty,
             oldStreetNamePersistentLocalId,
             [],
-            new FakeProvenance());
+            new FakeKafkaProvenance());
         topicConsumer.SeedMessage(@event);
 
         await consumer.StartAsync(CancellationToken.None);

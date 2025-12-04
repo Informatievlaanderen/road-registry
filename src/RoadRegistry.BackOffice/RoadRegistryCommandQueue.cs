@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Framework;
 using Newtonsoft.Json;
+using RoadRegistry.Extensions;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 

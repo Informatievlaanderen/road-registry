@@ -11,6 +11,9 @@ using Extracts;
 using Extracts.Dbase.RoadSegments;
 using Models;
 using NetTopologySuite.Geometries;
+using RoadNetwork;
+using RoadRegistry.Extensions;
+using RoadSegment;
 using ShapeFile;
 using ShapeFile.V1;
 using Translators;
@@ -116,7 +119,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                             {
                                 var line = lines[0];
 
-                                var lineProblems = line.GetProblemsForRoadSegmentGeometry(features[index].Attributes.Id, context.Tolerances);
+                                var lineProblems = line.ValidateRoadSegmentGeometry(features[index].Attributes.Id);
 
                                 problems += lineProblems.Select(problem => recordContext
                                     .Error(problem.Reason)

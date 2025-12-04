@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using NodaTime;
 using Handlers;
+using RoadRegistry.Extensions;
 using SqlStreamStore;
 
 public class ExtractDetailsRequestHandler : EndpointRetryableRequestHandler<ExtractDetailsRequest, ExtractDetailsResponse>

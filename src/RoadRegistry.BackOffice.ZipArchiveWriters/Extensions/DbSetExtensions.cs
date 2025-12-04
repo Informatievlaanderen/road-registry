@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Extensions;
 
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
 
 public static class DbSetExtensions
 {

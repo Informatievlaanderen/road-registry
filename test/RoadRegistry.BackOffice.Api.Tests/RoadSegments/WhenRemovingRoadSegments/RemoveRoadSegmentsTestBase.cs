@@ -6,6 +6,7 @@ using Abstractions.RoadSegments;
 using Api.Infrastructure.Controllers;
 using Api.RoadSegments;
 using AutoFixture;
+using CommandHandling;
 using Extensions;
 using FluentValidation;
 using FluentValidation.Results;

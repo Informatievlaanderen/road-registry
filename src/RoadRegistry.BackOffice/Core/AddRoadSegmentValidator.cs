@@ -1,10 +1,12 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System.Linq;
+using CommandHandling;
 using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
-using ProblemCodes;
+using ValueObjects.ProblemCodes;
+using ValueObjects.Problems;
 
 public abstract class AddRoadSegmentValidatorBase : AbstractValidator<Messages.AddRoadSegment>
 {

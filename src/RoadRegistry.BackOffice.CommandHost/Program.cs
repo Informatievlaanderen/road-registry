@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Abstractions;
 using Autofac;
+using CommandHandling.Extracts;
 using Core;
 using Extensions;
 using Extracts;

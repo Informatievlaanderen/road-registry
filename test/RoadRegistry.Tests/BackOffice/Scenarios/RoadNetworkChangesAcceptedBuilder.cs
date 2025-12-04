@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
 using AutoFixture;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using NodaTime;
 using NodaTime.Text;
 using RoadRegistry.BackOffice;

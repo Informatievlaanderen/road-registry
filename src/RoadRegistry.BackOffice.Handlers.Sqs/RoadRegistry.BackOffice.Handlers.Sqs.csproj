@@ -26,4 +26,7 @@
     <PackageReference Include="Microsoft.IdentityModel.Logging" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" />
   </ItemGroup>
+  <ItemGroup>
+    <Using Include="RoadRegistry.ValueObjects" />
+  </ItemGroup>
 </Project>

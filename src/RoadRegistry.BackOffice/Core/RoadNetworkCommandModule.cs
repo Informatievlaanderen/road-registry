@@ -8,6 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using CommandHandling;
+using CommandHandling.DutchTranslations;
+using CommandHandling.Extracts;
 using DutchTranslations;
 using Extracts;
 using FeatureToggles;
@@ -16,8 +19,11 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using NodaTime;
+using RoadRegistry.RoadNetwork;
+using RoadRegistry.RoadSegment.ValueObjects;
 using SqlStreamStore;
 using TicketingService.Abstractions;
+using RoadNetworkChangesSummary = Messages.RoadNetworkChangesSummary;
 
 public class RoadNetworkCommandModule : CommandHandlerModule
 {
@@ -232,7 +238,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                      .Where(x => x.AddRoadSegment?.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
                                  && x.AddRoadSegment!.PermanentId is null))
         {
-            change.AddRoadSegment.PermanentId = await idGenerator.NewRoadSegmentId();
+            change.AddRoadSegment.PermanentId = await idGenerator.NewRoadSegmentIdAsync();
         }
     }
 

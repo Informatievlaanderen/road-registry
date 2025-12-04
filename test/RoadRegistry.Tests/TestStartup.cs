@@ -17,6 +17,7 @@ using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
 using NodaTime.Testing;
+using RoadNetwork;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Core;

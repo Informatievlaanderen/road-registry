@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 using Api.Extracts;
 using Editor.Schema;
 using Infrastructure;
+using RoadRegistry.Extensions;
 
 public partial class ExtractsControllerTests : ControllerMinimalTests<ExtractsController>, IAsyncLifetime
 {

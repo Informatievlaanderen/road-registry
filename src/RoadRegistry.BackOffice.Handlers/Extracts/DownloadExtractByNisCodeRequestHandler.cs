@@ -7,6 +7,7 @@ using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extensions;
 using Sync.MunicipalityRegistry;
 
 public class DownloadExtractByNisCodeRequestHandler : ExtractRequestHandler<DownloadExtractByNisCodeRequest, DownloadExtractByNisCodeResponse>

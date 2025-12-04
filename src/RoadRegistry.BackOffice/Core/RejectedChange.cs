@@ -2,6 +2,8 @@ namespace RoadRegistry.BackOffice.Core;
 
 using System;
 using System.Linq;
+using CommandHandling.Actions.ChangeRoadNetwork;
+using ValueObjects.Problems;
 
 public class RejectedChange : IVerifiedChange
 {

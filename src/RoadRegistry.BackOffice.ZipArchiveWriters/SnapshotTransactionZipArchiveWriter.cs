@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters;
 using System.Data;
 using System.IO.Compression;
 using Microsoft.EntityFrameworkCore;
+using RoadRegistry.Extensions;
 
 public class SnapshotTransactionZipArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext : DbContext
 {

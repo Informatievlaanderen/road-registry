@@ -8,6 +8,7 @@ using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO.Esri.Dbf;
 using NetTopologySuite.IO.Esri.Dbf.Fields;
+using RoadRegistry.Extensions;
 
 public static class DbaseExtensions
 {

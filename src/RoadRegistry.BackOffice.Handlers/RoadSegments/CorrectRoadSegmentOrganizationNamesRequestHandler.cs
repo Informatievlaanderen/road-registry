@@ -18,7 +18,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Product.Schema;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
-using Reason = Reason;
+using Reason = ValueObjects.Reason;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
 using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;

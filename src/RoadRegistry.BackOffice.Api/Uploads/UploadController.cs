@@ -4,7 +4,6 @@ using Abstractions.Exceptions;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
-using Core.ProblemCodes;
 using Exceptions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -17,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 using Asp.Versioning;
+using ValueObjects.ProblemCodes;
 using Version = Infrastructure.Version;
 
 [ApiVersion(Version.Current)]

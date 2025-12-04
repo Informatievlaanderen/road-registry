@@ -9,10 +9,13 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
 using Models;
 using NetTopologySuite.Geometries;
+using RoadNetwork;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extensions;
+using RoadSegment;
 using Translators;
 using V2;
 using Validation;
@@ -103,7 +106,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 WEGCAT = dbaseRecord.WEGCAT.GetValue(),
                 WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
                 Geometry = geometry
-            }.ToFeature(featureType, FileName, recordNumber, context.Tolerances);
+            }.ToFeature(featureType, FileName, recordNumber);
         }
     }
 
@@ -130,7 +133,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 WEGCAT = dbaseRecord.WEGCAT.GetValue(),
                 WS_OIDN = dbaseRecord.WS_OIDN.GetValue(),
                 Geometry = geometry
-            }.ToFeature(featureType, FileName, recordNumber, context.Tolerances);
+            }.ToFeature(featureType, FileName, recordNumber);
         }
     }
 
@@ -149,7 +152,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         public string WEGCAT { get; init; }
         public Geometry Geometry { get; init; }
 
-        public (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, VerificationContextTolerances contextTolerances)
+        public (Feature<RoadSegmentFeatureCompareAttributes>, ZipArchiveProblems) ToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber)
         {
             var problemBuilder = fileName
                 .AtDbaseRecord(featureType, recordNumber)
@@ -425,7 +428,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                     {
                         var line = lines[0];
 
-                        var lineProblems = line.GetProblemsForRoadSegmentGeometry(roadSegmentId, contextTolerances);
+                        var lineProblems = line.ValidateRoadSegmentGeometry(roadSegmentId);
 
                         problems += lineProblems.Select(problem => recordContext
                             .Error(problem.Reason)

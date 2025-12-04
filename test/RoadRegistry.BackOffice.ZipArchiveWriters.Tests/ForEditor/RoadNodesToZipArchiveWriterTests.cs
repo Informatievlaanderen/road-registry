@@ -113,7 +113,6 @@ public class RoadNodesToZipArchiveWriterTests
 
                             break;
 
-
                         default:
                             throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }

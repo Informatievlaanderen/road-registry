@@ -23,6 +23,7 @@
     <PackageReference Include="Be.Vlaanderen.Basisregisters.GrAr.Provenance" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.SqlServer" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.Shaperon" />
@@ -59,5 +60,12 @@
     <PackageReference Include="SqlStreamStore" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     <PackageReference Include="QuikGraph" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj" />
+    <ProjectReference Include="..\RoadRegistry.CommandHandling\RoadRegistry.CommandHandling.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="RoadRegistry.ValueObjects" />
   </ItemGroup>
 </Project>

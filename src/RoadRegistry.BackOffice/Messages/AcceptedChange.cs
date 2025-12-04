@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Messages;
 
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
+
 public class AcceptedChange
 {
     public Problem[] Problems { get; set; } = [];

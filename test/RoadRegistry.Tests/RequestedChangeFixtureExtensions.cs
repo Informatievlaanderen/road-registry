@@ -2,6 +2,7 @@ namespace RoadRegistry.Tests;
 
 using AutoFixture;
 using BackOffice;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;

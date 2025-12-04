@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Uploads;
 using System;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Messages;
+using RoadRegistry.Extensions;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class AddRoadNode : ITranslatedChange

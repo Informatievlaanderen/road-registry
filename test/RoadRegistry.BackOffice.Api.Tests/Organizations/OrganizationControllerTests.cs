@@ -4,6 +4,7 @@ using Api.Organizations;
 using Editor.Schema;
 using Editor.Schema.Organizations;
 using Infrastructure;
+using RoadRegistry.Extensions;
 using SqlStreamStore;
 
 public partial class OrganizationControllerTests : ControllerMinimalTests<OrganizationsController>, IAsyncLifetime

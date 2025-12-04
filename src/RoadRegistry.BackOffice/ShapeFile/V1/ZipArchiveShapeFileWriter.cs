@@ -9,6 +9,7 @@ using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using NetTopologySuite.IO.Streams;
+using RoadRegistry.Extensions;
 
 [Obsolete("Use V2 ShapeFileRecordWriter instead")]
 public class ZipArchiveShapeFileWriter

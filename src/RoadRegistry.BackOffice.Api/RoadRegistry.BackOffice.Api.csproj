@@ -67,6 +67,9 @@
     <PackageReference Include="SourceLink.Copy.PdbFiles" PrivateAssets="all"/>
   </ItemGroup>
   <ItemGroup>
+    <Using Include="RoadRegistry.ValueObjects" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="Dockerfile" CopyToOutputDirectory="Always" Pack="false"/>
     <Content Include="appsettings.json" CopyToOutputDirectory="Always" Pack="false"/>
     <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" Pack="false"/>

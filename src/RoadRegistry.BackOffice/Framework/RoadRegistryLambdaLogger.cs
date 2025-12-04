@@ -43,7 +43,6 @@ namespace RoadRegistry.BackOffice.Framework
             LambdaLogger.Log(message);
         }
 
-
         public IDisposable BeginScope<TState>(TState state) where TState : notnull => NullScope.Instance;
     }
 

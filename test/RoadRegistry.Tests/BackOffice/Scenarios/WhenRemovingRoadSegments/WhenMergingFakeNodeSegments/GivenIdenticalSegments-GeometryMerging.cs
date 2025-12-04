@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.Tests.BackOffice.Scenarios.WhenRemovingRoadSegments.WhenMergingFakeNodeSegments;
 
+using Extensions;
 using Framework.Testing;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;

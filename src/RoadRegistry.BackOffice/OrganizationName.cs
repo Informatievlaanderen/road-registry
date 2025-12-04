@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice;
 using System;
 using Core;
 using Extensions;
+using RoadRegistry.Extensions;
 
 public readonly struct OrganizationName : IEquatable<OrganizationName>
 {

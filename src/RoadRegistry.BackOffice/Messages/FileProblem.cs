@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Messages;
 
 using System;
 using System.Linq;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 
 public class FileProblem
 {

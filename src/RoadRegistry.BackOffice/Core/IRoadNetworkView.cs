@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Messages;
 using NetTopologySuite.Geometries;
+using RoadRegistry.RoadSegment.ValueObjects;
 
 public interface IRoadNetworkView
 {

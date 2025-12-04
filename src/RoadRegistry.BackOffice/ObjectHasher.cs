@@ -10,6 +10,12 @@ using NetTopologySuite.Geometries;
 
 public static class ObjectHasher
 {
+    public static IEnumerable<string> GetHashFields(object item)
+    {
+        var hashFields = GetHashFields(item, null);
+        return hashFields;
+    }
+
     private static void AddValueToFields(object item, object value, List<string> fields)
     {
         if (value == null)
@@ -40,12 +46,6 @@ public static class ObjectHasher
                 break;
             }
         }
-    }
-
-    public static IEnumerable<string> GetHashFields(object item)
-    {
-        var hashFields = GetHashFields(item, null);
-        return hashFields;
     }
 
     private static IEnumerable<string> GetHashFields(object item, object parentItem)

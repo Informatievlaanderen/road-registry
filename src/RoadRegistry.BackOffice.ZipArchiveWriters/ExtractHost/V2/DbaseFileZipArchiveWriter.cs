@@ -5,6 +5,7 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Dbase.V2;
 using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.Extensions;
 
 public class DbaseFileZipArchiveWriter : IZipArchiveWriter
 {

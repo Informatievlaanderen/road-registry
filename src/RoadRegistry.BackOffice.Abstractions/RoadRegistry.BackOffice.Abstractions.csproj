@@ -31,6 +31,9 @@
     <PackageReference Include="Microsoft.IdentityModel.Tokens" />
   </ItemGroup>
   <ItemGroup>
+    <Using Include="RoadRegistry.ValueObjects" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="RoadRegistry.BackOffice.Abstractions.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

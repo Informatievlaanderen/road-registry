@@ -8,6 +8,7 @@ using Api.RoadSegments.ChangeAttributes;
 using AutoFixture;
 using BackOffice.Handlers.Sqs.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using CommandHandling;
 using Editor.Schema;
 using Editor.Schema.Organizations;
 using Extensions;

@@ -5,6 +5,7 @@ using System.Text;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase;
+using RoadRegistry.Extensions;
 using ShapeFile.V2;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
@@ -34,7 +35,7 @@ public class TransactionZoneZipArchiveWriter : IZipArchiveWriter
             TYPE = { Value = 2 },
             BESCHRIJV =
             {
-                Value = string.IsNullOrEmpty(request.ExtractDescription) ? request.ExternalRequestId : request.ExtractDescription
+                Value = request.ExtractDescription
             },
             OPERATOR = { Value = "" },
             ORG = { Value = "AGIV" },

@@ -53,6 +53,15 @@ namespace RoadRegistry.RoadNetwork.Schema
             var result = await cmd.ExecuteScalarAsync();
             return Convert.ToInt32(result);
         }
+
+        public int GetNextSequenceValue(string name)
+        {
+            Database.OpenConnection();
+            var cmd = Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = $"SELECT NEXT VALUE FOR {Schema}.{name};";
+            var result = cmd.ExecuteScalar();
+            return Convert.ToInt32(result);
+        }
     }
 
     public class RoadNetworkDbContextMigrationFactory : DbContextMigratorFactory<RoadNetworkDbContext>

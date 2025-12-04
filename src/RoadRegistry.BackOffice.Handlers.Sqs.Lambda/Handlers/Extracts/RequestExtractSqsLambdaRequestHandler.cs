@@ -5,6 +5,7 @@ using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using FeatureToggles;
 using FluentValidation;
 using FluentValidation.Results;
 using Hosts;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Requests.Extracts;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schema;
 using TicketingService.Abstractions;
 
@@ -24,6 +26,7 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
     private readonly ExtractsDbContext _extractsDbContext;
     private readonly RoadNetworkExtractDownloadsBlobClient _downloadsBlobClient;
     private readonly IRoadNetworkExtractArchiveAssembler _assembler;
+    private readonly UseDomainV2FeatureToggle _useDomainV2FeatureToggle;
 
     public RequestExtractSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -34,6 +37,7 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
         ExtractsDbContext extractsDbContext,
         RoadNetworkExtractDownloadsBlobClient downloadsBlobClient,
         IRoadNetworkExtractArchiveAssembler assembler,
+        UseDomainV2FeatureToggle useDomainV2FeatureToggle,
         ILoggerFactory loggerFactory)
         : base(
             options,
@@ -47,6 +51,7 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
         _extractsDbContext = extractsDbContext;
         _downloadsBlobClient = downloadsBlobClient;
         _assembler = assembler;
+        _useDomainV2FeatureToggle = useDomainV2FeatureToggle;
     }
 
     protected override async Task<object> InnerHandle(RequestExtractSqsLambdaRequest request, CancellationToken cancellationToken)
@@ -98,7 +103,10 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
                 DownloadId = downloadId,
                 TicketId = request.TicketId,
                 DownloadStatus = ExtractDownloadStatus.Preparing,
-                Closed = isInformative
+                Closed = isInformative,
+                ZipArchiveWriterVersion = _useDomainV2FeatureToggle.FeatureEnabled
+                    ? WellKnownZipArchiveWriterVersions.DomainV2
+                    : WellKnownZipArchiveWriterVersions.V2
             };
             _extractsDbContext.ExtractDownloads.Add(extractDownload);
         }
@@ -137,26 +145,23 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
         var downloadId = new DownloadId(extractDownload.DownloadId);
 
         var request = new RoadNetworkExtractAssemblyRequest(
-            default,
             downloadId,
             new ExtractDescription(extractRequest.Description),
             GeometryTranslator.Translate(GeometryTranslator.TranslateToRoadNetworkExtractGeometry((IPolygonal)extractDownload.Contour)),
             extractDownload.IsInformative,
-            WellKnownZipArchiveWriterVersions.V2);
+            extractDownload.ZipArchiveWriterVersion);
 
         try
         {
-            using (var content = await _assembler.AssembleArchive(request, ct))
-            {
-                content.Position = 0L;
+            using var content = await _assembler.AssembleArchive(request, ct);
+            content.Position = 0L;
 
-                await _downloadsBlobClient.CreateBlobAsync(
-                    new BlobName(downloadId),
-                    Metadata.None,
-                    ContentType.Parse("application/x-zip-compressed"),
-                    content,
-                    ct);
-            }
+            await _downloadsBlobClient.CreateBlobAsync(
+                new BlobName(downloadId),
+                Metadata.None,
+                ContentType.Parse("application/x-zip-compressed"),
+                content,
+                ct);
         }
         catch (SqlException ex) when (ex.Number.Equals(-2))
         {

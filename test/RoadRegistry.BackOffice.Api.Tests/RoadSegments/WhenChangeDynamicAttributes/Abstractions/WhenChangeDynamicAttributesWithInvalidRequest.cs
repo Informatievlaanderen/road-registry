@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeDynamicAttrib
 using System.Collections.Generic;
 using System.Linq;
 using Api.RoadSegments.ChangeDynamicAttributes;
+using CommandHandling;
 using Fixtures;
 using FluentValidation;
 using FluentValidation.Results;

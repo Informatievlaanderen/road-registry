@@ -4,6 +4,7 @@ using System;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
 using NetTopologySuite.IO;
+using ValueObjects.Problems;
 
 public static class ShapeFileProblems
 {

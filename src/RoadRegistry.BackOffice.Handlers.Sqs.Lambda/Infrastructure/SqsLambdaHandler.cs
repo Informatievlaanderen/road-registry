@@ -14,6 +14,7 @@ using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
 using TicketingService.Abstractions;
+using ValueObjects.Problems;
 using ETag = Be.Vlaanderen.Basisregisters.Api.ETag.ETag;
 
 public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambdaHandler<TSqsLambdaRequest>
@@ -27,6 +28,17 @@ public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambd
         IRoadRegistryContext roadRegistryContext,
         ILogger logger)
         : base(options, retryPolicy, ticketing, idempotentCommandHandler, roadRegistryContext, logger)
+    {
+    }
+
+    protected SqsLambdaHandler(
+        SqsLambdaHandlerOptions options,
+        ICustomRetryPolicy retryPolicy,
+        ITicketing ticketing,
+        IIdempotentCommandHandler idempotentCommandHandler,
+        IRoadRegistryContext roadRegistryContext,
+        ILoggerFactory loggerFactory)
+        : base(options, retryPolicy, ticketing, idempotentCommandHandler, roadRegistryContext, loggerFactory)
     {
     }
 

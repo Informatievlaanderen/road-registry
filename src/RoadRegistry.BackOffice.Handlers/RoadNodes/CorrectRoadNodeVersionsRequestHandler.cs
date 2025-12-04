@@ -18,7 +18,7 @@ using RoadRegistry.Editor.Schema;
 using System.Diagnostics;
 using Editor.Schema.Extensions;
 using ModifyRoadNode = BackOffice.Uploads.ModifyRoadNode;
-using Reason = BackOffice.Reason;
+using Reason = ValueObjects.Reason;
 
 public sealed class CorrectRoadNodeVersionsRequestHandler : IRequestHandler<CorrectRoadNodeVersionsRequest, CorrectRoadNodeVersionsResponse>
 {

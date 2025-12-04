@@ -11,6 +11,7 @@ namespace RoadRegistry.StreetName
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
+    using Extensions;
     using Newtonsoft.Json;
 
     public class StreetNameApiClient: IStreetNameClient

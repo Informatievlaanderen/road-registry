@@ -7,6 +7,7 @@ using BackOffice.Extensions;
 using BackOffice.Handlers.RoadSegments;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using CommandHandling;
 using Core;
 using Handlers;
 using Hosts;
