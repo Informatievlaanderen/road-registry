@@ -48,29 +48,42 @@ public static class SetupExtensions
         //TODO-pr update schemas: `eventstore` for event related, `projections` for all projections
         options.DatabaseSchemaName = "road";
 
-        options.UseNewtonsoftForSerialization(
-            enumStorage: EnumStorage.AsString,
-            casing: Casing.CamelCase,
-            nonPublicMembersStorage: NonPublicMembersStorage.All,
-            configure: jsonSerializerSettings =>
-            {
-                jsonSerializerSettings.MaxDepth = 32;
-                jsonSerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-                jsonSerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                jsonSerializerSettings
-                    .ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)
-                    .WithIsoIntervalConverter();
-
-                foreach (var converter in WellKnownJsonConverters.Converters)
-                {
-                    jsonSerializerSettings.Converters.Add(converter);
-                }
-            });
+        options.ConfigureSerializer();
 
         options.Events.StreamIdentity = StreamIdentity.AsString;
         options.Events.MetadataConfig.CausationIdEnabled = true;
         options.Events.MetadataConfig.CorrelationIdEnabled = true;
         options.Events.MetadataConfig.HeadersEnabled = true;
+    }
+
+    public static StoreOptions ConfigureSerializer(this StoreOptions options)
+    {
+        options.UseNewtonsoftForSerialization(
+            enumStorage: EnumStorage.AsString,
+            casing: Casing.CamelCase,
+            nonPublicMembersStorage: NonPublicMembersStorage.All,
+            configure: settings =>
+            {
+                settings.MaxDepth = 32;
+                settings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+                settings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                settings
+                    .ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)
+                    .WithIsoIntervalConverter();
+
+                // Do not change this setting
+                // Setting this to None prevents Json.NET from loading malicious, unsafe, or security-sensitive types
+                settings.TypeNameHandling = TypeNameHandling.None;
+
+                foreach (var converter in WellKnownJsonConverters.Converters)
+                {
+                    settings.Converters.Add(converter);
+                }
+
+                settings.NullValueHandling = NullValueHandling.Include;
+                settings.Formatting = Formatting.None;
+            });
+        return options;
     }
 
     public static StoreOptions AddRoadNetworkTopologyProjection(this StoreOptions options)

@@ -43,6 +43,7 @@ namespace RoadRegistry
                 new RoadSegmentWidthConverter(),
                 new RoadSegmentNumberedRoadDirectionConverter(),
                 new RoadSegmentNumberedRoadOrdinalConverter(),
+                new RoadSegmentDynamicAttributeValuesJsonConverter(),
                 new GradeSeparatedJunctionIdConverter(),
                 new GradeSeparatedJunctionTypeConverter(),
                 new StreetNameLocalIdConverter(),

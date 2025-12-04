@@ -2,10 +2,13 @@
 
 using AutoFixture;
 using FluentAssertions;
+using Framework;
+using Marten;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
 using RoadRegistry.GradeSeparatedJunction;
 using RoadRegistry.GradeSeparatedJunction.Events;
+using RoadRegistry.Infrastructure.MartenDb.Setup;
 
 public class SerializerTests
 {
@@ -17,18 +20,18 @@ public class SerializerTests
     }
 
     [Fact]
-    public void CanSerializeAndDeserializeToJson()
+    public void AggregateCanSerializeAndDeserializeToJson()
     {
         var fixture = new RoadNetworkTestData().Fixture;
 
         var aggregate = GradeSeparatedJunction.Create(fixture.Create<GradeSeparatedJunctionAdded>());
 
-        var jsonSerializerSettings = SqsJsonSerializerSettingsProvider.CreateSerializerSettings();
-        var aggregateAsJson = JsonConvert.SerializeObject(aggregate, jsonSerializerSettings);
-        var deserializedAggregate = JsonConvert.DeserializeObject<GradeSeparatedJunction>(aggregateAsJson, jsonSerializerSettings);
+        var serializer = new StoreOptions().ConfigureSerializer().Serializer();
+        var aggregateAsJson = serializer.ToJson(aggregate);
+        var deserializedAggregate = serializer.FromJson<GradeSeparatedJunction>(aggregateAsJson);
 
-        _testOutputHelper.WriteLine($"Expected:\n{JsonConvert.SerializeObject(aggregate, Formatting.Indented, jsonSerializerSettings)}");
-        _testOutputHelper.WriteLine($"\nActual:\n{JsonConvert.SerializeObject(deserializedAggregate, Formatting.Indented, jsonSerializerSettings)}");
+        _testOutputHelper.WriteLine($"Expected:\n{serializer.ToJson(aggregate)}");
+        _testOutputHelper.WriteLine($"\nActual:\n{serializer.ToJson(deserializedAggregate)}");
 
         deserializedAggregate.Should().BeEquivalentTo(aggregate);
     }

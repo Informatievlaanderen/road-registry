@@ -1,11 +1,19 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadSegment;
 
+using System.Text;
 using AutoFixture;
 using FluentAssertions;
+using Framework;
+using Marten;
+using Marten.Services;
 using Newtonsoft.Json;
+using NodaTime;
+using NodaTime.Serialization.JsonNet;
 using RoadRegistry.BackOffice;
+using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Events;
+using Weasel.Core;
 
 public class SerializerTests
 {
@@ -17,18 +25,18 @@ public class SerializerTests
     }
 
     [Fact]
-    public void CanSerializeAndDeserializeToJson()
+    public void AggregateCanSerializeAndDeserializeToJson()
     {
         var fixture = new RoadNetworkTestData().Fixture;
 
         var aggregate = RoadSegment.Create(fixture.Create<RoadSegmentAdded>());
 
-        var jsonSerializerSettings = SqsJsonSerializerSettingsProvider.CreateSerializerSettings();
-        var aggregateAsJson = JsonConvert.SerializeObject(aggregate, jsonSerializerSettings);
-        var deserializedAggregate = JsonConvert.DeserializeObject<RoadSegment>(aggregateAsJson, jsonSerializerSettings);
+        var serializer = new StoreOptions().ConfigureSerializer().Serializer();
+        var aggregateAsJson = serializer.ToJson(aggregate);
+        var deserializedAggregate = serializer.FromJson<RoadSegment>(aggregateAsJson);
 
-        _testOutputHelper.WriteLine($"Expected:\n{JsonConvert.SerializeObject(aggregate, Formatting.Indented, jsonSerializerSettings)}");
-        _testOutputHelper.WriteLine($"\nActual:\n{JsonConvert.SerializeObject(deserializedAggregate, Formatting.Indented, jsonSerializerSettings)}");
+        _testOutputHelper.WriteLine($"Expected:\n{serializer.ToJson(aggregate)}");
+        _testOutputHelper.WriteLine($"\nActual:\n{serializer.ToJson(deserializedAggregate)}");
 
         deserializedAggregate.Should().BeEquivalentTo(aggregate);
     }
