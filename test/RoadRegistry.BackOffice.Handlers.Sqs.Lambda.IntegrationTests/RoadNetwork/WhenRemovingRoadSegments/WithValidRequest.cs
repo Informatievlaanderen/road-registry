@@ -77,6 +77,7 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
             EndNodeId = node2.TemporaryId,
             Geometry = BuildSegmentGeometry(node1.Geometry, node2.Geometry),
             Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatus.InUse),
+            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(RoadSegmentCategory.RegionalRoad),
             EuropeanRoadNumbers = [],
             NationalRoadNumbers = []
         };
@@ -88,6 +89,7 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
             EndNodeId = node3.TemporaryId,
             Geometry = BuildSegmentGeometry(node2.Geometry, node3.Geometry),
             Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatus.OutOfUse),
+            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(RoadSegmentCategory.RegionalRoad),
             EuropeanRoadNumbers = [],
             NationalRoadNumbers = []
         };
@@ -104,9 +106,11 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
         };
         var segment3 = testData.AddSegment3 with
         {
+            TemporaryId = new RoadSegmentId(3),
             StartNodeId = node4.TemporaryId,
             EndNodeId = node5.TemporaryId,
-            Geometry = BuildSegmentGeometry(node4.Geometry, node5.Geometry)
+            Geometry = BuildSegmentGeometry(node4.Geometry, node5.Geometry),
+            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(RoadSegmentCategory.RegionalRoad)
         };
 
         //TODO-pr add junction + verify it gets removed

@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Schema;
 using BackOffice;
 using BackOffice.Exceptions;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -11,15 +10,16 @@ using Extensions;
 using GradeSeparatedJunction.Changes;
 using NetTopologySuite.Geometries;
 using RoadNode.Changes;
-using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
 using RoadSegment;
 using RoadSegment.Changes;
-using RoadSegment.ValueObjects;
 
 public partial class RoadNetwork
 {
-    public void RemoveRoadSegments(IReadOnlyCollection<RoadSegmentId> roadSegmentIds, Provenance provenance)
+    public void RemoveRoadSegments(
+        IReadOnlyCollection<RoadSegmentId> roadSegmentIds,
+        IRoadNetworkIdGenerator idGenerator,
+        Provenance provenance)
     {
         var roadSegmentsProblems = new Dictionary<RoadSegmentId, Problems>();
 
@@ -32,9 +32,10 @@ public partial class RoadNetwork
             RoadSegmentCategory.PrimaryRoadII
         };
 
+        var idTranslator = new IdentifierTranslator();
         foreach (var roadSegmentId in roadSegmentIds)
         {
-            var problems = TryRemoveRoadSegment(roadSegmentId, invalidCategories, roadSegmentIds, provenance);
+            var problems = TryRemoveRoadSegment(roadSegmentId, invalidCategories, roadSegmentIds, idGenerator, idTranslator, provenance);
             if (problems.HasError())
             {
                 roadSegmentsProblems.Add(roadSegmentId, problems);
@@ -47,7 +48,13 @@ public partial class RoadNetwork
         }
     }
 
-    private Problems TryRemoveRoadSegment(RoadSegmentId roadSegmentId, IReadOnlyCollection<RoadSegmentCategory> invalidCategories, IReadOnlyCollection<RoadSegmentId> removingRoadSegmentIds, Provenance provenance)
+    private Problems TryRemoveRoadSegment(
+        RoadSegmentId roadSegmentId,
+        IReadOnlyCollection<RoadSegmentCategory> invalidCategories,
+        IReadOnlyCollection<RoadSegmentId> removingRoadSegmentIds,
+        IRoadNetworkIdGenerator idGenerator,
+        IIdentifierTranslator idTranslator,
+        Provenance provenance)
     {
         if (!_roadSegments.TryGetValue(roadSegmentId, out var segment))
         {
@@ -75,8 +82,8 @@ public partial class RoadNetwork
             return problems;
         }
 
-        problems += TryFixNodeType(segment.StartNodeId, removingRoadSegmentIds, provenance);
-        problems += TryFixNodeType(segment.EndNodeId, removingRoadSegmentIds, provenance);
+        problems += TryFixNodeType(segment.StartNodeId, removingRoadSegmentIds, idGenerator, idTranslator, provenance);
+        problems += TryFixNodeType(segment.EndNodeId, removingRoadSegmentIds, idGenerator, idTranslator, provenance);
 
         var junctions = _gradeSeparatedJunctions
             .Where(x => x.Value.IsConnectedTo(roadSegmentId))
@@ -90,7 +97,12 @@ public partial class RoadNetwork
         return problems;
     }
 
-    private Problems TryFixNodeType(RoadNodeId nodeId, IReadOnlyCollection<RoadSegmentId> removingRoadSegmentIds, Provenance provenance)
+    private Problems TryFixNodeType(
+        RoadNodeId nodeId,
+        IReadOnlyCollection<RoadSegmentId> removingRoadSegmentIds,
+        IRoadNetworkIdGenerator idGenerator,
+        IIdentifierTranslator idTranslator,
+        Provenance provenance)
     {
         var node = _roadNodes[nodeId];
 
@@ -121,7 +133,7 @@ public partial class RoadNetwork
             }, provenance);
             if (!problems.HasError())
             {
-                problems += TryMergeFakeNodeSegments(nodeId, nodeSegments, removingRoadSegmentIds, provenance);
+                problems += TryMergeFakeNodeSegments(nodeId, nodeSegments, removingRoadSegmentIds, idGenerator, idTranslator, provenance);
             }
 
             return problems;
@@ -142,6 +154,8 @@ public partial class RoadNetwork
     private Problems TryMergeFakeNodeSegments(RoadNodeId nodeId,
         IReadOnlyCollection<RoadSegment> nodeSegments,
         IReadOnlyCollection<RoadSegmentId> removingRoadSegmentIds,
+        IRoadNetworkIdGenerator idGenerator,
+        IIdentifierTranslator idTranslator,
         Provenance provenance)
     {
         var node = _roadNodes[nodeId];
@@ -169,8 +183,7 @@ public partial class RoadNetwork
             }, provenance);
         }
 
-        throw new NotImplementedException();
-        //return MergeSegments(segmentOne, segmentTwo);
+        return MergeSegments(segmentOne, segmentTwo, idGenerator, idTranslator, provenance);
     }
 
     private Problems MergeSegments(RoadSegment segment1, RoadSegment segment2, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator, Provenance provenance)
@@ -184,6 +197,9 @@ public partial class RoadNetwork
 
         var geometry = MergeGeometries(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection, startNodeId, endNodeId, commonNodeId);
 
+        //TODO-pr aparte change voor MergeRoadSegmentChange waarbij de originele ids worden meegegeven -> event RoadSegmentMerged
+        //+ bij de remove vd wegsegmenten de nieuwe merged id aan meegeven (dit ook als aparte change beschouwen)
+        // dit als aparte event: RoadSegmentRetiredBecauseOfMerger
         var mergedSegment = new AddRoadSegmentChange
         {
             TemporaryId = _roadSegments.Keys.Max().Next(),

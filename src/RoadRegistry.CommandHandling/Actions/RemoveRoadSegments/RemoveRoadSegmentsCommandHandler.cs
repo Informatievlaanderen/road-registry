@@ -9,20 +9,23 @@ public class RemoveRoadSegmentsCommandHandler
 {
     private readonly IDocumentStore _store;
     private readonly IRoadNetworkRepository _roadNetworkRepository;
+    private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
 
     public RemoveRoadSegmentsCommandHandler(
         IDocumentStore store,
-        IRoadNetworkRepository roadNetworkRepository)
+        IRoadNetworkRepository roadNetworkRepository,
+        IRoadNetworkIdGenerator roadNetworkIdGenerator)
     {
         _store = store;
         _roadNetworkRepository = roadNetworkRepository;
+        _roadNetworkIdGenerator = roadNetworkIdGenerator;
     }
 
     public async Task Handle(RemoveRoadSegmentsCommand command, Provenance provenance, CancellationToken cancellationToken)
     {
         var roadNetwork = await Load(command.RoadSegmentIds);
 
-        roadNetwork.RemoveRoadSegments(command.RoadSegmentIds, provenance);
+        roadNetwork.RemoveRoadSegments(command.RoadSegmentIds, _roadNetworkIdGenerator, provenance);
 
         await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
     }

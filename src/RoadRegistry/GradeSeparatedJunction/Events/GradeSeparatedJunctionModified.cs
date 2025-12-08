@@ -2,6 +2,7 @@ namespace RoadRegistry.GradeSeparatedJunction.Events;
 
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 
+//TODO-pr dit is enkel een V2 event
 public record GradeSeparatedJunctionModified : IMartenEvent
 {
     public required GradeSeparatedJunctionId GradeSeparatedJunctionId { get; init; }

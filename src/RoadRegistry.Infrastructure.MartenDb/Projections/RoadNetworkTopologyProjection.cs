@@ -123,6 +123,32 @@ BEGIN
 
 END;
 $$ LANGUAGE plpgsql;"));
+
+            SchemaObjects.Add(new Function(new PostgresqlObjectName("projections", "networktopology_update_gradeseparatedjunction"), @$"
+CREATE OR REPLACE FUNCTION projections.networktopology_update_roadsegment(p_id integer, p_timestamp timestamptz, p_lower_road_segment_id integer, p_upper_road_segment_id integer) RETURNS int AS
+$$
+DECLARE
+    updated int;
+BEGIN
+
+    UPDATE {GradeSeparatedJunctionsTableName}
+    SET lower_road_segment_id = coalesce(p_lower_road_segment_id, lower_road_segment_id),
+        upper_road_segment_id = coalesce(p_upper_road_segment_id, upper_road_segment_id),
+        timestamp = p_timestamp
+    WHERE id = p_id
+      AND timestamp < p_timestamp;
+
+    GET DIAGNOSTICS updated = ROW_COUNT;
+
+    IF updated = 0 THEN
+        RAISE EXCEPTION 'Concurrency conflict on grade separated junction %', 42
+            USING ERRCODE = '40001';
+    END IF;
+
+    RETURN updated;
+
+END;
+$$ LANGUAGE plpgsql;"));
         }
     }
 
@@ -170,6 +196,25 @@ $$ LANGUAGE plpgsql;"));
             e.Data.GradeSeparatedJunctionId.ToInt32(), e.Data.LowerRoadSegmentId.ToInt32(), e.Data.UpperRoadSegmentId.ToInt32(), e.Timestamp
         );
     }
+
+    public void Project(IEvent<GradeSeparatedJunctionModified> e, IDocumentOperations ops)
+    {
+        if (e.Data.LowerRoadSegmentId is null && e.Data.UpperRoadSegmentId is null)
+        {
+            return;
+        }
+
+        var parameters = new object?[]
+        {
+            e.Data.GradeSeparatedJunctionId.ToInt32(),
+            e.Timestamp,
+            e.Data.LowerRoadSegmentId?.ToInt32(),
+            e.Data.UpperRoadSegmentId?.ToInt32()
+        };
+
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_gradeseparatedjunction(?, ?, ?, ?);", parameters);
+    }
+
     public void Project(IEvent<GradeSeparatedJunctionRemoved> e, IDocumentOperations ops)
     {
         var parameters = new object[]
