@@ -54,6 +54,16 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
         return junction;
     }
 
+    public void Apply(GradeSeparatedJunctionModified @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        LowerRoadSegmentId = @event.LowerRoadSegmentId ?? LowerRoadSegmentId;
+        UpperRoadSegmentId = @event.UpperRoadSegmentId ?? UpperRoadSegmentId;
+        Type = @event.Type ?? Type;
+        LastModified = @event.Provenance.ToEventTimestamp();
+    }
+
     public void Apply(GradeSeparatedJunctionRemoved @event)
     {
         if (IsRemoved)

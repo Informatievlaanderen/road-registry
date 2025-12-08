@@ -69,4 +69,18 @@ public sealed record RoadSegmentAttributes : IEquatable<RoadSegmentAttributes>
                && NationalRoadNumbers.SequenceEqual(other.NationalRoadNumbers)
             ;
     }
+
+    //TODO-pr add unit test to ensure all dynamic attributes are ignored (using reflection)
+    public bool EqualsOnlyNonDynamicAttributes(RoadSegmentAttributes? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+
+        return GeometryDrawMethod.Equals(other.GeometryDrawMethod)
+               && EuropeanRoadNumbers.SequenceEqual(other.EuropeanRoadNumbers)
+               && NationalRoadNumbers.SequenceEqual(other.NationalRoadNumbers)
+            ;
+    }
 }

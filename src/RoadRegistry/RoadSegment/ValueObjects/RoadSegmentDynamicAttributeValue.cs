@@ -9,6 +9,7 @@ public sealed class RoadSegmentDynamicAttributeValue<T> : IEquatable<RoadSegment
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public RoadSegmentAttributeSide Side { get; init; }
 
+    //TODO-pr combine from/to into 1 object: Coverage
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public RoadSegmentPosition? From { get; init; }
 

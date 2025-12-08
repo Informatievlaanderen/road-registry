@@ -213,6 +213,23 @@ public class RoadNetworkChanges : IReadOnlyCollection<IRoadNetworkChange>
         return AddChange(change);
     }
 
+    public RoadNetworkChanges Add(ModifyGradeSeparatedJunctionChange change)
+    {
+        _gradeSeparatedJunctionIds.Add(change.GradeSeparatedJunctionId);
+
+        if (change.LowerRoadSegmentId is not null && !_temporaryRoadSegmentIds.Contains(change.LowerRoadSegmentId.Value))
+        {
+            _roadSegmentIds.Add(change.LowerRoadSegmentId.Value);
+        }
+
+        if (change.UpperRoadSegmentId is not null && !_temporaryRoadSegmentIds.Contains(change.UpperRoadSegmentId.Value))
+        {
+            _roadSegmentIds.Add(change.UpperRoadSegmentId.Value);
+        }
+
+        return AddChange(change);
+    }
+
     public RoadNetworkChanges Add(RemoveGradeSeparatedJunctionChange change)
     {
         _gradeSeparatedJunctionIds.Add(change.GradeSeparatedJunctionId);

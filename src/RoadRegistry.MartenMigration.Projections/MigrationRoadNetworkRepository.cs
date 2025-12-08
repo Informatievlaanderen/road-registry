@@ -37,10 +37,10 @@ public class MigrationRoadNetworkRepository : RoadNetworkRepository
         var eventProcessed = await session.LoadAsync<MigratedEvent>(eventIdentifier, token);
         if (eventProcessed is not null)
         {
-            _logger.LogWarning("Event with identifier {EventIdentifier} marked as processed, skipping.", eventIdentifier);
             return;
         }
 
+        _logger.LogInformation("Processing event with identifier {EventIdentifier}", eventIdentifier);
         await action(session);
 
         session.Insert(new MigratedEvent(eventIdentifier));

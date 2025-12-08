@@ -5,7 +5,6 @@ using System.Collections.Immutable;
 using Events;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
-using RoadRegistry.ValueObjects;
 using ValueObjects;
 
 public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
@@ -81,6 +80,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         Geometry = @event.Geometry.ToMultiLineString();
         StartNodeId = @event.StartNodeId;
         EndNodeId = @event.EndNodeId;
+        //TODO-pr from/to null maken indien voor heel segment relevant is?
         Attributes = new RoadSegmentAttributes
         {
             GeometryDrawMethod = @event.GeometryDrawMethod,
@@ -104,7 +104,8 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         Geometry = @event.Geometry?.ToMultiLineString() ?? Geometry;
         StartNodeId = @event.StartNodeId ?? StartNodeId;
         EndNodeId = @event.EndNodeId ?? EndNodeId;
-        Attributes = new RoadSegmentAttributes
+        //TODO-pr from/to null maken indien voor heel segment relevant is?
+        Attributes = Attributes with
         {
             GeometryDrawMethod = @event.GeometryDrawMethod ?? Attributes.GeometryDrawMethod,
             AccessRestriction = @event.AccessRestriction ?? Attributes.AccessRestriction,

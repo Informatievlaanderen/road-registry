@@ -62,6 +62,9 @@ public partial class RoadNetwork
                 case AddGradeSeparatedJunctionChange change:
                     problems += AddGradeSeparatedJunction(changes, change, idGenerator, idTranslator, summary.GradeSeparatedJunctions);
                     break;
+                case ModifyGradeSeparatedJunctionChange change:
+                    problems += ModifyGradeSeparatedJunction(changes, change, summary.GradeSeparatedJunctions);
+                    break;
                 case RemoveGradeSeparatedJunctionChange change:
                     problems += RemoveGradeSeparatedJunction(changes, change, summary.GradeSeparatedJunctions);
                     break;
@@ -247,6 +250,23 @@ public partial class RoadNetwork
         _gradeSeparatedJunctions.Add(gradeSeparatedJunction!.GradeSeparatedJunctionId, gradeSeparatedJunction);
         summary.Added.Add(gradeSeparatedJunction.GradeSeparatedJunctionId);
 
+        return problems;
+    }
+
+    private Problems ModifyGradeSeparatedJunction(RoadNetworkChanges changes, ModifyGradeSeparatedJunctionChange change, RoadNetworkEntityChangesSummary<GradeSeparatedJunctionId> summary)
+    {
+        if (!_gradeSeparatedJunctions.TryGetValue(change.GradeSeparatedJunctionId, out var junction))
+        {
+            return Problems.Single(new GradeSeparatedJunctionNotFound(change.GradeSeparatedJunctionId));
+        }
+
+        var problems = junction.Modify(change, changes.Provenance);
+        if (problems.HasError())
+        {
+            return problems;
+        }
+
+        summary.Modified.Add(junction.GradeSeparatedJunctionId);
         return problems;
     }
 

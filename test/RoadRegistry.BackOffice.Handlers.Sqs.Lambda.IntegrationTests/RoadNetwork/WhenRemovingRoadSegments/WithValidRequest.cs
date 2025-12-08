@@ -109,6 +109,7 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
             Geometry = BuildSegmentGeometry(node4.Geometry, node5.Geometry)
         };
 
+        //TODO-pr add junction + verify it gets removed
         var changes = TranslatedChanges.Empty
             .AppendChange(node1)
             .AppendChange(node2)
