@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
 using Events.V2;
+using Extensions;
 using RoadNetwork;
 using RoadRegistry.ValueObjects.Problems;
 using ValueObjects;
@@ -18,21 +19,21 @@ public partial class RoadSegment
 
         problems += new RoadSegmentGeometryValidator().Validate(originalId, change.GeometryDrawMethod, change.Geometry);
 
-        problems += new RoadSegmentAttributesValidator().Validate(originalId,
-            new RoadSegmentAttributes
-            {
-                GeometryDrawMethod = change.GeometryDrawMethod,
-                AccessRestriction = change.AccessRestriction,
-                Category = change.Category,
-                Morphology = change.Morphology,
-                Status = change.Status,
-                StreetNameId = change.StreetNameId,
-                MaintenanceAuthorityId = change.MaintenanceAuthorityId,
-                SurfaceType = change.SurfaceType,
-                EuropeanRoadNumbers = change.EuropeanRoadNumbers.ToImmutableList(),
-                NationalRoadNumbers = change.NationalRoadNumbers.ToImmutableList()
-            },
-            change.Geometry.Length);
+        var segmentLength = change.Geometry.Length;
+        var attributes = new RoadSegmentAttributes
+        {
+            GeometryDrawMethod = change.GeometryDrawMethod,
+            AccessRestriction = change.AccessRestriction.TryCleanEntireLengthCoverages(segmentLength),
+            Category = change.Category.TryCleanEntireLengthCoverages(segmentLength),
+            Morphology = change.Morphology.TryCleanEntireLengthCoverages(segmentLength),
+            Status = change.Status.TryCleanEntireLengthCoverages(segmentLength),
+            StreetNameId = change.StreetNameId.TryCleanEntireLengthCoverages(segmentLength),
+            MaintenanceAuthorityId = change.MaintenanceAuthorityId.TryCleanEntireLengthCoverages(segmentLength),
+            SurfaceType = change.SurfaceType.TryCleanEntireLengthCoverages(segmentLength),
+            EuropeanRoadNumbers = change.EuropeanRoadNumbers.ToImmutableList(),
+            NationalRoadNumbers = change.NationalRoadNumbers.ToImmutableList()
+        };
+        problems += new RoadSegmentAttributesValidator().Validate(originalId, attributes, segmentLength);
 
         if (problems.HasError())
         {
@@ -46,16 +47,16 @@ public partial class RoadSegment
             Geometry = change.Geometry.ToGeometryObject(),
             StartNodeId = idTranslator.TranslateToPermanentId(change.StartNodeId),
             EndNodeId = idTranslator.TranslateToPermanentId(change.EndNodeId),
-            GeometryDrawMethod = change.GeometryDrawMethod,
-            AccessRestriction = change.AccessRestriction,
-            Category = change.Category,
-            Morphology = change.Morphology,
-            Status = change.Status,
-            StreetNameId = change.StreetNameId,
-            MaintenanceAuthorityId = change.MaintenanceAuthorityId,
-            SurfaceType = change.SurfaceType,
-            EuropeanRoadNumbers = change.EuropeanRoadNumbers,
-            NationalRoadNumbers = change.NationalRoadNumbers,
+            GeometryDrawMethod = attributes.GeometryDrawMethod,
+            AccessRestriction = attributes.AccessRestriction,
+            Category = attributes.Category,
+            Morphology = attributes.Morphology,
+            Status = attributes.Status,
+            StreetNameId = attributes.StreetNameId,
+            MaintenanceAuthorityId = attributes.MaintenanceAuthorityId,
+            SurfaceType = attributes.SurfaceType,
+            EuropeanRoadNumbers = attributes.EuropeanRoadNumbers,
+            NationalRoadNumbers = attributes.NationalRoadNumbers,
             Provenance = new ProvenanceData(provenance)
         });
 

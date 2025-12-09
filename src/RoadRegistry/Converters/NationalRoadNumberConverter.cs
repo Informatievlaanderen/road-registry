@@ -3,14 +3,14 @@ namespace RoadRegistry.Converters;
 using System;
 using Newtonsoft.Json;
 
-public class NationalRoadNumberConverter : NullableJsonConverter<NationalRoadNumber>
+public class NationalRoadNumberConverter : NullableValueTypeJsonConverter<NationalRoadNumber>
 {
-    public override NationalRoadNumber ReadJson(JsonReader reader, Type objectType, NationalRoadNumber? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    protected override NationalRoadNumber ReadJson(object value, Type objectType, JsonSerializer serializer)
     {
-        return NationalRoadNumber.Parse((string)reader.Value!);
+        return NationalRoadNumber.Parse((string)value);
     }
 
-    public override void WriteJson(JsonWriter writer, NationalRoadNumber value, JsonSerializer serializer)
+    protected override void WriteJson(JsonWriter writer, NationalRoadNumber value, JsonSerializer serializer)
     {
         writer.WriteValue(value.ToString());
     }

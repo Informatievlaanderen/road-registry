@@ -4,14 +4,14 @@ using System;
 using Newtonsoft.Json;
 using RoadRegistry.RoadSegment.ValueObjects;
 
-public class RoadSegmentIdConverter : NullableJsonConverter<RoadSegmentId>
+public class RoadSegmentIdConverter : NullableValueTypeJsonConverter<RoadSegmentId>
 {
-    public override RoadSegmentId ReadJson(JsonReader reader, Type objectType, RoadSegmentId? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    protected override RoadSegmentId ReadJson(object value, Type objectType, JsonSerializer serializer)
     {
-        return new RoadSegmentId(Convert.ToInt32(reader.Value));
+        return new RoadSegmentId(Convert.ToInt32(value));
     }
 
-    public override void WriteJson(JsonWriter writer, RoadSegmentId value, JsonSerializer serializer)
+    protected override void WriteJson(JsonWriter writer, RoadSegmentId value, JsonSerializer serializer)
     {
         writer.WriteValue(value.ToInt32());
     }

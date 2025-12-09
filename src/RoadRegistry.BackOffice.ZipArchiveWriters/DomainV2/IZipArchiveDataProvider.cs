@@ -4,19 +4,20 @@ using Editor.Schema.Organizations;
 using GradeSeparatedJunction;
 using NetTopologySuite.Geometries;
 using RoadNode;
+using RoadRegistry.Extracts.Projections;
 using RoadSegment;
 
 public interface IZipArchiveDataProvider
 {
-    Task<IReadOnlyList<RoadNode>> GetRoadNodes(
+    Task<IReadOnlyList<RoadNodeExtractItem>> GetRoadNodes(
         IPolygonal contour,
         CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<RoadSegment>> GetRoadSegments(
+    Task<IReadOnlyList<RoadSegmentExtractItem>> GetRoadSegments(
         IPolygonal contour,
         CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<GradeSeparatedJunction>> GetGradeSeparatedJunctions(
+    Task<IReadOnlyList<GradeSeparatedJunctionExtractItem>> GetGradeSeparatedJunctions(
         IPolygonal contour,
         CancellationToken cancellationToken);
 

@@ -114,14 +114,15 @@ public class AggregateTests : AggregateTestBase
         {
             Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString(),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>()
-                .Add(null, Fixture.Create<RoadSegmentPosition>(), Fixture.Create<RoadSegmentAttributeSide>(), Fixture.Create<RoadSegmentCategory>())
+                .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategory>())
+                .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategory>())
         };
 
         // Act
         var (_, problems) = RoadSegment.Add(change, TestData.Provenance, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
 
         // Assert
-        problems.Should().Contain(x => x.Reason == "RoadSegmentCategoryFromOrToPositionIsNull");
+        problems.Should().Contain(x => x.Reason == "RoadSegmentCategoryValueNotUniqueWithinSegment");
     }
 
     [Fact]
@@ -150,10 +151,6 @@ public class AggregateTests : AggregateTestBase
         segment.Attributes.StreetNameId.Should().Be(evt.StreetNameId);
         segment.Attributes.MaintenanceAuthorityId.Should().Be(evt.MaintenanceAuthorityId);
         segment.Attributes.SurfaceType.Should().Be(evt.SurfaceType);
-        segment.Origin.Timestamp.Should().Be(segmentAdded.Provenance.Timestamp);
-        segment.Origin.OrganizationId.Should().Be(new OrganizationId(segmentAdded.Provenance.Operator));
-        segment.LastModified.Timestamp.Should().Be(evt.Provenance.Timestamp);
-        segment.LastModified.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
     }
 
 }

@@ -11,11 +11,11 @@ using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Events;
 using RoadRegistry.RoadNode.Events.V2;
 
-public class SerializerTests
+public class MartenSerializerTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
 
-    public SerializerTests(ITestOutputHelper testOutputHelper)
+    public MartenSerializerTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
     }
@@ -25,15 +25,15 @@ public class SerializerTests
     {
         var fixture = new RoadNetworkTestData().Fixture;
 
-        var aggregate = RoadNode.Create(fixture.Create<RoadNodeAdded>());
+        var original = RoadNode.Create(fixture.Create<RoadNodeAdded>());
 
         var serializer = new StoreOptions().ConfigureSerializer().Serializer();
-        var aggregateAsJson = serializer.ToJson(aggregate);
-        var deserializedAggregate = serializer.FromJson<RoadNode>(aggregateAsJson);
+        var originalAsJson = serializer.ToJson(original);
+        var deserialized = serializer.FromJson<RoadNode>(originalAsJson);
 
-        _testOutputHelper.WriteLine($"Expected:\n{serializer.ToJson(aggregate)}");
-        _testOutputHelper.WriteLine($"\nActual:\n{serializer.ToJson(deserializedAggregate)}");
+        _testOutputHelper.WriteLine($"Expected:\n{serializer.ToJson(original)}");
+        _testOutputHelper.WriteLine($"\nActual:\n{serializer.ToJson(deserialized)}");
 
-        deserializedAggregate.Should().BeEquivalentTo(aggregate);
+        deserialized.Should().BeEquivalentTo(original);
     }
 }

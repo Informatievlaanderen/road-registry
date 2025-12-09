@@ -32,7 +32,7 @@ using RoadSegmentSurfaceAttributes = RoadSegment.Events.V1.ValueObjects.RoadSegm
 using RoadSegmentWidthAttributes = RoadSegment.Events.V1.ValueObjects.RoadSegmentWidthAttributes;
 using RoadSegmentSideAttributes = RoadSegment.Events.V1.ValueObjects.RoadSegmentSideAttributes;
 using Reason = Be.Vlaanderen.Basisregisters.GrAr.Provenance.Reason;
-using RoadNodeGeometry = RoadNode.Events.V1.ValueObjects.RoadNodeGeometry;
+using RoadNodeGeometry = ValueObjects.RoadNodeGeometry;
 using RoadSegmentStreetNamesChanged = RoadSegment.Events.V1.RoadSegmentStreetNamesChanged;
 
 public class MartenMigrationProjection : ConnectedProjection<MartenMigrationContext>
@@ -65,12 +65,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 var streamKey = StreamKeyFactory.Create(typeof(RoadNode), roadNodeId);
                 var legacyEvent = new ImportedRoadNode
                 {
-                    Geometry = new RoadNodeGeometry
-                    {
-                        WKT = point.AsText(),
-                        SpatialReferenceSystemIdentifier = envelope.Message.Geometry.SpatialReferenceSystemIdentifier
-                    },
-                    Id = envelope.Message.Id,
+                    Geometry = point.ToGeometryObject(),
+                    RoadNodeId = envelope.Message.Id,
                     Origin = new()
                     {
                         Application = envelope.Message.Origin.Application,
@@ -111,12 +107,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 var streamKey = StreamKeyFactory.Create(typeof(RoadSegment), roadSegmentId);
                 var legacyEvent = new ImportedRoadSegment
                 {
-                    Id = roadSegmentId,
-                    Geometry = new()
-                    {
-                        SpatialReferenceSystemIdentifier = envelope.Message.Geometry.SpatialReferenceSystemIdentifier,
-                        WKT = geometry.AsText(),
-                    },
+                    RoadSegmentId = roadSegmentId,
+                    Geometry = geometry.ToGeometryObject(),
                     StartNodeId = envelope.Message.StartNodeId,
                     EndNodeId = envelope.Message.EndNodeId,
                     GeometryDrawMethod = envelope.Message.GeometryDrawMethod,
@@ -431,12 +423,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             var streamKey = StreamKeyFactory.Create(typeof(RoadNode), roadNodeId);
             var legacyEvent = new RoadRegistry.RoadNode.Events.V1.RoadNodeAdded
             {
-                Geometry = new()
-                {
-                    SpatialReferenceSystemIdentifier = change.Geometry.SpatialReferenceSystemIdentifier,
-                    WKT = point.AsText()
-                },
-                Id = change.Id,
+                Geometry = point.ToGeometryObject(),
+                RoadNodeId = change.Id,
                 Version = change.Version,
                 TemporaryId = change.TemporaryId,
                 OriginalId = change.OriginalId,
@@ -467,12 +455,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 var streamKey = StreamKeyFactory.Create(typeof(RoadNode), roadNodeId);
                 var legacyEvent = new RoadRegistry.RoadNode.Events.V1.RoadNodeModified
                 {
-                    Geometry = new()
-                    {
-                        SpatialReferenceSystemIdentifier = change.Geometry.SpatialReferenceSystemIdentifier,
-                        WKT = point.AsText()
-                    },
-                    Id = change.Id,
+                    Geometry = point.ToGeometryObject(),
+                    RoadNodeId = change.Id,
                     Version = change.Version,
                     Type = change.Type,
                     Provenance = new ProvenanceData(provenance)
@@ -501,7 +485,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             var streamKey = StreamKeyFactory.Create(typeof(RoadNode), roadNodeId);
             var legacyEvent = new RoadRegistry.RoadNode.Events.V1.RoadNodeRemoved
             {
-                Id = change.Id,
+                RoadNodeId = change.Id,
                 Provenance = new ProvenanceData(provenance)
             };
             session.Events.Append(streamKey, legacyEvent);
@@ -528,14 +512,10 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             var streamKey = StreamKeyFactory.Create(typeof(RoadSegment), roadSegmentId);
             var legacyEvent = new RoadRegistry.RoadSegment.Events.V1.RoadSegmentAdded
             {
-                Id = change.Id,
+                RoadSegmentId = change.Id,
                 TemporaryId = change.TemporaryId,
                 OriginalId = change.OriginalId,
-                Geometry = new()
-                {
-                    SpatialReferenceSystemIdentifier = change.Geometry.SpatialReferenceSystemIdentifier,
-                    WKT = geometry.AsText(),
-                },
+                Geometry = geometry.ToGeometryObject(),
                 StartNodeId = change.StartNodeId,
                 EndNodeId = change.EndNodeId,
                 GeometryDrawMethod = change.GeometryDrawMethod,
@@ -607,14 +587,10 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
                 return new RoadRegistry.RoadSegment.Events.V1.RoadSegmentModified
                 {
-                    Id = change.Id,
+                    RoadSegmentId = change.Id,
                     OriginalId = change.OriginalId,
                     ConvertedFromOutlined = change.ConvertedFromOutlined,
-                    Geometry = new()
-                    {
-                        SpatialReferenceSystemIdentifier = change.Geometry.SpatialReferenceSystemIdentifier,
-                        WKT = geometry.AsText(),
-                    },
+                    Geometry = geometry.ToGeometryObject(),
                     StartNodeId = change.StartNodeId,
                     EndNodeId = change.EndNodeId,
                     GeometryDrawMethod = change.GeometryDrawMethod,
@@ -686,8 +662,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 {
                     AttributeId = change.AttributeId,
                     TemporaryAttributeId = change.TemporaryAttributeId,
-                    SegmentId = change.SegmentId,
-                    SegmentVersion = change.SegmentVersion,
+                    RoadSegmentId = change.SegmentId,
+                    RoadSegmentVersion = change.SegmentVersion,
                     Number = change.Number,
                     Provenance = new ProvenanceData(provenance)
                 };
@@ -709,8 +685,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 return new RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromEuropeanRoad
                 {
                     AttributeId = change.AttributeId,
-                    SegmentId = change.SegmentId,
-                    SegmentVersion = change.SegmentVersion,
+                    RoadSegmentId = change.SegmentId,
+                    RoadSegmentVersion = change.SegmentVersion,
                     Number = change.Number,
                     Provenance = new ProvenanceData(provenance)
                 };
@@ -733,8 +709,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 {
                     AttributeId = change.AttributeId,
                     TemporaryAttributeId = change.TemporaryAttributeId,
-                    SegmentId = change.SegmentId,
-                    SegmentVersion = change.SegmentVersion,
+                    RoadSegmentId = change.SegmentId,
+                    RoadSegmentVersion = change.SegmentVersion,
                     Number = change.Number,
                     Provenance = new ProvenanceData(provenance)
                 };
@@ -756,8 +732,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 return new RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromNationalRoad
                 {
                     AttributeId = change.AttributeId,
-                    SegmentId = change.SegmentId,
-                    SegmentVersion = change.SegmentVersion,
+                    RoadSegmentId = change.SegmentId,
+                    RoadSegmentVersion = change.SegmentVersion,
                     Number = change.Number,
                     Provenance = new ProvenanceData(provenance)
                 };
@@ -780,8 +756,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 {
                     AttributeId = change.AttributeId,
                     TemporaryAttributeId = change.TemporaryAttributeId,
-                    SegmentId = change.SegmentId,
-                    SegmentVersion = change.SegmentVersion,
+                    RoadSegmentId = change.SegmentId,
+                    RoadSegmentVersion = change.SegmentVersion,
                     Number = change.Number,
                     Provenance = new ProvenanceData(provenance),
                     Direction = change.Direction,
@@ -805,8 +781,8 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 return new RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromNumberedRoad
                 {
                     AttributeId = change.AttributeId,
-                    SegmentId = change.SegmentId,
-                    SegmentVersion = change.SegmentVersion,
+                    RoadSegmentId = change.SegmentId,
+                    RoadSegmentVersion = change.SegmentVersion,
                     Number = change.Number,
                     Provenance = new ProvenanceData(provenance)
                 };
@@ -827,7 +803,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             {
                 return new RoadRegistry.RoadSegment.Events.V1.RoadSegmentAttributesModified
                 {
-                    Id = change.Id,
+                    RoadSegmentId = change.Id,
                     Version = change.Version,
                     AccessRestriction = change.AccessRestriction,
                     Category = change.Category,
@@ -894,14 +870,10 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             {
                 return new RoadRegistry.RoadSegment.Events.V1.RoadSegmentGeometryModified
                 {
-                    Id = change.Id,
+                    RoadSegmentId = change.Id,
                     Version = change.Version,
                     GeometryVersion = change.GeometryVersion,
-                    Geometry = new()
-                    {
-                        SpatialReferenceSystemIdentifier = change.Geometry.SpatialReferenceSystemIdentifier,
-                        WKT = GeometryTranslator.Translate(change.Geometry).AsText()
-                    },
+                    Geometry = GeometryTranslator.Translate(change.Geometry).ToGeometryObject(),
                     Lanes = change.Lanes.Select(x => new RoadSegmentLaneAttributes
                         {
                             AsOfGeometryVersion = x.AsOfGeometryVersion,
@@ -955,7 +927,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             var streamKey = StreamKeyFactory.Create(typeof(RoadSegment), roadSegmentId);
             var legacyEvent = new RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemoved
             {
-                Id = change.Id,
+                RoadSegmentId = change.Id,
                 GeometryDrawMethod = change.GeometryDrawMethod,
                 Provenance = new ProvenanceData(provenance)
             };
@@ -982,7 +954,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
             var streamKey = StreamKeyFactory.Create(typeof(RoadSegment), roadSegmentId);
             var legacyEvent = new RoadRegistry.RoadSegment.Events.V1.OutlinedRoadSegmentRemoved
             {
-                Id = change.Id,
+                RoadSegmentId = change.Id,
                 Provenance = new ProvenanceData(provenance)
             };
             session.Events.Append(streamKey, legacyEvent);
@@ -1067,7 +1039,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
                 var streamKey = StreamKeyFactory.Create(typeof(RoadSegment), new RoadSegmentId(change.Id));
                 var legacyEvent = new RoadSegmentStreetNamesChanged
                 {
-                    Id = change.Id,
+                    RoadSegmentId = change.Id,
                     Version = change.Version,
                     GeometryDrawMethod = change.GeometryDrawMethod,
                     LeftSideStreetNameId = change.LeftSideStreetNameId,

@@ -3,14 +3,14 @@ namespace RoadRegistry.Converters;
 using System;
 using Newtonsoft.Json;
 
-public class RoadSegmentPositionConverter : NullableJsonConverter<RoadSegmentPosition>
+public class RoadSegmentPositionConverter : NullableValueTypeJsonConverter<RoadSegmentPosition>
 {
-    public override RoadSegmentPosition ReadJson(JsonReader reader, Type objectType, RoadSegmentPosition? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    protected override RoadSegmentPosition ReadJson(object value, Type objectType, JsonSerializer serializer)
     {
-        return RoadSegmentPosition.FromDouble(Convert.ToDouble(reader.Value));
+        return RoadSegmentPosition.FromDouble(Convert.ToDouble(value));
     }
 
-    public override void WriteJson(JsonWriter writer, RoadSegmentPosition value, JsonSerializer serializer)
+    protected override void WriteJson(JsonWriter writer, RoadSegmentPosition value, JsonSerializer serializer)
     {
         writer.WriteValue(value.ToDecimal());
     }

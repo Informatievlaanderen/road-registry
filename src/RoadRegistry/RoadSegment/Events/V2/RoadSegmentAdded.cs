@@ -2,14 +2,13 @@ namespace RoadRegistry.RoadSegment.Events.V2;
 
 using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using RoadRegistry.RoadSegment.ValueObjects;
-using RoadRegistry.ValueObjects;
+using ValueObjects;
 
 public record RoadSegmentAdded: IMartenEvent, ICreatedEvent
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
     public RoadSegmentId? OriginalId { get; init; }
-    public required GeometryObject Geometry { get; init; }
+    public required RoadSegmentGeometry Geometry { get; init; }
     public required RoadNodeId StartNodeId { get; init; }
     public required RoadNodeId EndNodeId { get; init; }
     public required RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; init; }
@@ -24,11 +23,4 @@ public record RoadSegmentAdded: IMartenEvent, ICreatedEvent
     public required IReadOnlyCollection<NationalRoadNumber> NationalRoadNumbers { get; init; }
 
     public required ProvenanceData Provenance { get; init; }
-
-    public RoadSegmentAdded()
-    {
-    }
-    protected RoadSegmentAdded(RoadSegmentAdded other) // Needed for Marten
-    {
-    }
 }

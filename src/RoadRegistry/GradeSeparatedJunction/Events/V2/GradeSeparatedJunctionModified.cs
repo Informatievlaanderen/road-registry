@@ -10,11 +10,4 @@ public record GradeSeparatedJunctionModified : IMartenEvent
     public GradeSeparatedJunctionType? Type { get; init; }
 
     public required ProvenanceData Provenance { get; init; }
-
-    public GradeSeparatedJunctionModified()
-    {
-    }
-    protected GradeSeparatedJunctionModified(GradeSeparatedJunctionModified other) // Needed for Marten
-    {
-    }
 }

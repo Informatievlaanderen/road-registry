@@ -3,8 +3,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Extensions;
-using NetTopologySuite.Geometries;
-using RoadRegistry.ValueObjects;
 using RoadRegistry.ValueObjects.ProblemCodes;
 using RoadRegistry.ValueObjects.Problems;
 using ValueObjects;
@@ -24,29 +22,19 @@ public static class ValidationExtensions
         }
 
         var sortedAttributes = attributeValues.Values
-            .OrderBy(x => x.From)
-            .ThenBy(x => x.To)
+            .OrderBy(x => x.Coverage?.From)
+            .ThenBy(x => x.Coverage?.To)
             .ThenBy(x => x.Side)
             .ToList();
 
         var valuesGroupedByPositionSegment = sortedAttributes
-            .ToLookup(x => (x.From, x.To), x => (x.Side, x.Value));
+            .ToLookup(x => x.Coverage, x => (x.Side, x.Value));
 
         // ensure each position segment has correct amount of values per side
         RoadSegmentPosition? previousToPosition = null;
         foreach (var group in valuesGroupedByPositionSegment)
         {
-            if ((group.Key.From is null && group.Key.To is not null)
-                || (group.Key.From is not null && group.Key.To is null))
-            {
-                problems += new Error(problemCodes.FromOrToPositionIsNull,
-                    new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
-                    new ProblemParameter("FromPosition", group.Key.From?.ToString() ?? string.Empty),
-                    new ProblemParameter("ToPosition", group.Key.To?.ToString() ?? string.Empty));
-                continue;
-            }
-
-            if (group.Key.From is not null && group.Key.To is not null)
+            if (group.Key is not null)
             {
                 if (previousToPosition is null)
                 {
@@ -54,7 +42,7 @@ public static class ValidationExtensions
                     {
                         problems += new Error(problemCodes.FromPositionNotEqualToZero,
                             new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
-                            new ProblemParameter("FromPosition", group.Key.From.Value.ToString()));
+                            new ProblemParameter("FromPosition", group.Key.From.ToString()));
                     }
                 }
                 else
@@ -64,15 +52,15 @@ public static class ValidationExtensions
                         problems += new Error(problemCodes.NotAdjacent,
                             new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
                             new ProblemParameter("ToPosition", previousToPosition.Value.ToString()),
-                            new ProblemParameter("FromPosition", group.Key.From.Value.ToString()));
+                            new ProblemParameter("FromPosition", group.Key.From.ToString()));
                     }
 
                     if (group.Key.From == group.Key.To)
                     {
                         problems += new Error(problemCodes.HasLengthOfZero,
                             new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
-                            new ProblemParameter("FromPosition", group.Key.From.Value.ToString()),
-                            new ProblemParameter("ToPosition", group.Key.To.Value.ToString()));
+                            new ProblemParameter("FromPosition", group.Key.From.ToString()),
+                            new ProblemParameter("ToPosition", group.Key.To.ToString()));
                     }
                 }
 
@@ -86,15 +74,15 @@ public static class ValidationExtensions
             {
                 problems += new Error(problemCodes.ValueNotUniqueWithinSegment,
                     new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
-                    new ProblemParameter("FromPosition", group.Key.From?.ToString() ?? string.Empty),
-                    new ProblemParameter("ToPosition", group.Key.To?.ToString() ?? string.Empty));
+                    new ProblemParameter("FromPosition", group.Key?.From.ToString() ?? string.Empty),
+                    new ProblemParameter("ToPosition", group.Key?.To.ToString() ?? string.Empty));
             }
             else if (both.Count == 1 && notBoth.Count > 0)
             {
                 problems += new Error(problemCodes.LeftOrRightNotAllowedWhenUsingBoth,
                     new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
-                    new ProblemParameter("FromPosition", group.Key.From?.ToString() ?? string.Empty),
-                    new ProblemParameter("ToPosition", group.Key.To?.ToString() ?? string.Empty));
+                    new ProblemParameter("FromPosition", group.Key?.From.ToString() ?? string.Empty),
+                    new ProblemParameter("ToPosition", group.Key?.To.ToString() ?? string.Empty));
             }
             else if (both.Count == 0)
             {
@@ -105,8 +93,8 @@ public static class ValidationExtensions
                 {
                     problems += new Error(problemCodes.ValueNotUniqueWithinSegment,
                         new ProblemParameter("RoadSegmentId", roadSegmentId.ToString()),
-                        new ProblemParameter("FromPosition", group.Key.From?.ToString() ?? string.Empty),
-                        new ProblemParameter("ToPosition", group.Key.To?.ToString() ?? string.Empty));
+                        new ProblemParameter("FromPosition", group.Key?.From.ToString() ?? string.Empty),
+                        new ProblemParameter("ToPosition", group.Key?.To.ToString() ?? string.Empty));
                 }
             }
         }
@@ -119,7 +107,7 @@ public static class ValidationExtensions
                 new ProblemParameter("Length", segmentLength.ToRoundedMeasurementString()));
         }
 
-        var valuesOnEntireSegment = valuesGroupedByPositionSegment[(null, null)];
+        var valuesOnEntireSegment = valuesGroupedByPositionSegment[null];
         if (valuesOnEntireSegment.Any() && valuesGroupedByPositionSegment.Count > 1)
         {
             problems += new Error(problemCodes.AnotherSegmentFoundBesidesTheGlobalSegment,

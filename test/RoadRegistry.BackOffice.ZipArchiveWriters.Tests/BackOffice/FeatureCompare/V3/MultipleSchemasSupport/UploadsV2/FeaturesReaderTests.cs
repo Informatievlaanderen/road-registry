@@ -175,7 +175,7 @@ public class FeaturesReaderTests
                 Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatus.ByIdentifier[roadSegmentDbaseRecord2.STATUS.Value]),
                 Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(RoadSegmentCategory.ByIdentifier[roadSegmentDbaseRecord2.CATEGORIE.Value]),
                 AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(RoadSegmentAccessRestriction.ByIdentifier[roadSegmentDbaseRecord2.TGBEP.Value]),
-                SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>([(new RoadSegmentPosition(Convert.ToDecimal(surfaceDbaseRecord2.VANPOS.Value)), new RoadSegmentPosition(Convert.ToDecimal(surfaceDbaseRecord2.TOTPOS.Value)), RoadSegmentAttributeSide.Both, RoadSegmentSurfaceType.ByIdentifier[surfaceDbaseRecord2.TYPE.Value])]),
+                SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>([(new(new RoadSegmentPosition(Convert.ToDecimal(surfaceDbaseRecord2.VANPOS.Value)), new RoadSegmentPosition(Convert.ToDecimal(surfaceDbaseRecord2.TOTPOS.Value))), RoadSegmentAttributeSide.Both, RoadSegmentSurfaceType.ByIdentifier[surfaceDbaseRecord2.TYPE.Value])]),
                 StreetNameId = BuildStreetNameIdAttributes(StreetNameLocalId.FromValue(roadSegmentDbaseRecord2.LSTRNMID.Value), StreetNameLocalId.FromValue(roadSegmentDbaseRecord2.RSTRNMID.Value)),
                 EuropeanRoadNumbers = [EuropeanRoadNumber.Parse(europeanRoadDbaseRecord.EUNUMMER.Value!)],
                 NationalRoadNumbers = [NationalRoadNumber.Parse(nationalRoadDbaseRecord.IDENT2.Value!)]
@@ -360,7 +360,7 @@ public class FeaturesReaderTests
         }
 
         return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
-            .Add(null, null, RoadSegmentAttributeSide.Left, leftSideStreetNameId ?? StreetNameLocalId.NotApplicable)
-            .Add(null, null, RoadSegmentAttributeSide.Right, rightSideStreetNameId ?? StreetNameLocalId.NotApplicable);
+            .Add(null, RoadSegmentAttributeSide.Left, leftSideStreetNameId ?? StreetNameLocalId.NotApplicable)
+            .Add(null, RoadSegmentAttributeSide.Right, rightSideStreetNameId ?? StreetNameLocalId.NotApplicable);
     }
 }

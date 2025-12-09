@@ -204,6 +204,11 @@ public class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>, IEquat
                 {
                     AddGradeSeparatedJunction = command
                 };
+            case ModifyGradeSeparatedJunctionChange command:
+                return new ChangeRoadNetworkCommandItem
+                {
+                    ModifyGradeSeparatedJunction = command
+                };
             case RemoveGradeSeparatedJunctionChange command:
                 return new ChangeRoadNetworkCommandItem
                 {

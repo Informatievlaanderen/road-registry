@@ -11,7 +11,7 @@ public class RoadSegmentAdded : IMartenEvent
     public required RoadSegmentGeometry Geometry { get; set; }
     public required string GeometryDrawMethod { get; set; }
     public required int GeometryVersion { get; set; }
-    public required int Id { get; set; }
+    public required int RoadSegmentId { get; set; }
     public required RoadSegmentLaneAttributes[] Lanes { get; set; }
     public required RoadSegmentSideAttributes LeftSide { get; set; }
     public required MaintenanceAuthority MaintenanceAuthority { get; set; }

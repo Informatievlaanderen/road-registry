@@ -16,11 +16,11 @@ using RoadRegistry.RoadSegment.Events;
 using RoadRegistry.RoadSegment.Events.V2;
 using Weasel.Core;
 
-public class SerializerTests
+public class MartenSerializerTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
 
-    public SerializerTests(ITestOutputHelper testOutputHelper)
+    public MartenSerializerTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
     }
@@ -30,15 +30,15 @@ public class SerializerTests
     {
         var fixture = new RoadNetworkTestData().Fixture;
 
-        var aggregate = RoadSegment.Create(fixture.Create<RoadSegmentAdded>());
+        var original = RoadSegment.Create(fixture.Create<RoadSegmentAdded>());
 
         var serializer = new StoreOptions().ConfigureSerializer().Serializer();
-        var aggregateAsJson = serializer.ToJson(aggregate);
-        var deserializedAggregate = serializer.FromJson<RoadSegment>(aggregateAsJson);
+        var originalAsJson = serializer.ToJson(original);
+        var deserialized = serializer.FromJson<RoadSegment>(originalAsJson);
 
-        _testOutputHelper.WriteLine($"Expected:\n{serializer.ToJson(aggregate)}");
-        _testOutputHelper.WriteLine($"\nActual:\n{serializer.ToJson(deserializedAggregate)}");
+        _testOutputHelper.WriteLine($"Expected:\n{serializer.ToJson(original)}");
+        _testOutputHelper.WriteLine($"\nActual:\n{serializer.ToJson(deserialized)}");
 
-        deserializedAggregate.Should().BeEquivalentTo(aggregate);
+        deserialized.Should().BeEquivalentTo(original);
     }
 }

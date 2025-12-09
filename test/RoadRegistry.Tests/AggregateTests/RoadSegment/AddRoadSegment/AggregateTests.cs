@@ -8,7 +8,6 @@ using NetTopologySuite.Geometries;
 using RoadNetwork;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
-using RoadRegistry.RoadSegment.Events;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using ValueObjects.Problems;
@@ -118,14 +117,15 @@ public class AggregateTests : AggregateTestBase
         {
             Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString(),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>()
-                .Add(null, Fixture.Create<RoadSegmentPosition>(), Fixture.Create<RoadSegmentAttributeSide>(), Fixture.Create<RoadSegmentCategory>())
+                .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategory>())
+                .Add(null, RoadSegmentAttributeSide.Both, Fixture.Create<RoadSegmentCategory>())
         };
 
         // Act
         var (_, problems) = RoadSegment.Add(change, TestData.Provenance, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
 
         // Assert
-        problems.Should().Contain(x => x.Reason == "RoadSegmentCategoryFromOrToPositionIsNull");
+        problems.Should().Contain(x => x.Reason == "RoadSegmentCategoryValueNotUniqueWithinSegment");
     }
 
     [Fact]
@@ -152,9 +152,5 @@ public class AggregateTests : AggregateTestBase
         segment.Attributes.SurfaceType.Should().Be(evt.SurfaceType);
         segment.Attributes.EuropeanRoadNumbers.Should().BeEquivalentTo(evt.EuropeanRoadNumbers);
         segment.Attributes.NationalRoadNumbers.Should().BeEquivalentTo(evt.NationalRoadNumbers);
-        segment.Origin.Timestamp.Should().Be(evt.Provenance.Timestamp);
-        segment.Origin.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
-        segment.LastModified.Timestamp.Should().Be(evt.Provenance.Timestamp);
-        segment.LastModified.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
     }
 }

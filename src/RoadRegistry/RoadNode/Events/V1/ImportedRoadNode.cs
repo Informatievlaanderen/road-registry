@@ -7,7 +7,7 @@ using ValueObjects;
 public class ImportedRoadNode : IMartenEvent
 {
     public required RoadNodeGeometry Geometry { get; set; }
-    public required int Id { get; set; }
+    public required int RoadNodeId { get; set; }
     public required ImportedOriginProperties Origin { get; set; }
     public required string Type { get; set; }
     public required int Version { get; set; }

@@ -9,6 +9,15 @@ using RoadRegistry.Infrastructure.MartenDb.Projections;
 using RoadSegment;
 using RoadSegment.Events.V2;
 
+public class DummyRoadNetworkChangesProjection : RoadNetworkChangesProjection
+{
+    public DummyRoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections)
+        : base(projections)
+    {
+    }
+}
+
+
 public static class MartenProjectionIntegrationTestRunnerExtensions
 {
     public static MartenProjectionIntegrationTestRunner ConfigureRoadNetworkChangesProjection<TProjection>(
@@ -27,7 +36,7 @@ public static class MartenProjectionIntegrationTestRunnerExtensions
         {
             configureProjection?.Invoke(options);
 
-            options.AddRoadNetworkChangesProjection(projections);
+            options.AddRoadNetworkChangesProjection(new DummyRoadNetworkChangesProjection(projections));
         });
     }
 

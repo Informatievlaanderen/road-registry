@@ -5,7 +5,7 @@ using ValueObjects;
 
 public class RoadSegmentGeometryModified : IMartenEvent
 {
-    public required int Id { get; set; }
+    public required int RoadSegmentId { get; set; }
     public required int Version { get; set; }
     public required int GeometryVersion { get; set; }
     public required RoadSegmentGeometry Geometry { get; set; }

@@ -74,9 +74,5 @@ public class AggregateTests : AggregateTestBase
         // Assert
         segment.RoadSegmentId.Should().Be(evt.RoadSegmentId);
         segment.Attributes.EuropeanRoadNumbers.Should().Contain(evt.Number);
-        segment.Origin.Timestamp.Should().Be(segmentAdded.Provenance.Timestamp);
-        segment.Origin.OrganizationId.Should().Be(new OrganizationId(segmentAdded.Provenance.Operator));
-        segment.LastModified.Timestamp.Should().Be(evt.Provenance.Timestamp);
-        segment.LastModified.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
     }
 }

@@ -3,17 +3,18 @@
 using AutoFixture;
 using CommandHandling.Actions.ChangeRoadNetwork;
 using FluentAssertions;
+using GradeSeparatedJunction.Changes;
 using Newtonsoft.Json;
 using RoadNode.Changes;
 using RoadSegment.Changes;
 using Tests.AggregateTests;
 using Xunit.Abstractions;
 
-public class SerializerTests
+public class SqsSerializerTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
 
-    public SerializerTests(ITestOutputHelper testOutputHelper)
+    public SqsSerializerTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
     }
@@ -34,20 +35,14 @@ public class SerializerTests
             },
             ModifyRoadSegment = new ModifyRoadSegmentChange
             {
-                RoadSegmentId = new RoadSegmentId(1),
-                OriginalId = new  RoadSegmentId(1)
+                RoadSegmentId = new RoadSegmentId(1)
             },
-            AddRoadSegmentToEuropeanRoad = new AddRoadSegmentToEuropeanRoadChange
+            ModifyGradeSeparatedJunction = new ModifyGradeSeparatedJunctionChange
             {
-                RoadSegmentId = new RoadSegmentId(1),
-                Number = fixture.Create<EuropeanRoadNumber>()
-            },
-            AddRoadSegmentToNationalRoad = new AddRoadSegmentToNationalRoadChange
-            {
-                RoadSegmentId = new RoadSegmentId(1),
-                Number = fixture.Create<NationalRoadNumber>()
+                GradeSeparatedJunctionId = new  GradeSeparatedJunctionId(1)
             }
         });
+
 
         var jsonSerializerSettings = SqsJsonSerializerSettingsProvider.CreateSerializerSettings();
         var changesAsJson = JsonConvert.SerializeObject(changes, jsonSerializerSettings);

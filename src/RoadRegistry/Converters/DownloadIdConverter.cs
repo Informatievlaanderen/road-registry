@@ -3,14 +3,14 @@ namespace RoadRegistry.Converters;
 using System;
 using Newtonsoft.Json;
 
-public class DownloadIdConverter : NullableJsonConverter<DownloadId>
+public class DownloadIdConverter : NullableValueTypeJsonConverter<DownloadId>
 {
-    public override DownloadId ReadJson(JsonReader reader, Type objectType, DownloadId? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    protected override DownloadId ReadJson(object value, Type objectType, JsonSerializer serializer)
     {
-        return new DownloadId(Guid.Parse((string)reader.Value!));
+        return new DownloadId(Guid.Parse((string)value));
     }
 
-    public override void WriteJson(JsonWriter writer, DownloadId value, JsonSerializer serializer)
+    protected override void WriteJson(JsonWriter writer, DownloadId value, JsonSerializer serializer)
     {
         writer.WriteValue(value.ToGuid());
     }

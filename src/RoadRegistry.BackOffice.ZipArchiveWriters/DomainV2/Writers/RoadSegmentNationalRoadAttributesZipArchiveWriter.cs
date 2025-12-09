@@ -42,7 +42,7 @@ public class RoadSegmentNationalRoadAttributesZipArchiveWriter : IZipArchiveWrit
         foreach (var featureType in featureTypes)
         {
             var records = roadSegments
-                .SelectMany(x => x.Attributes.NationalRoadNumbers.Select(number => (RoadSegment: x, number)))
+                .SelectMany(x => x.NationalRoadNumbers.Select(number => (RoadSegment: x, number)))
                 .OrderBy(x => x.RoadSegment.Id)
                 .ThenBy(x => x.number)
                 .Select(x =>

@@ -2,13 +2,10 @@
 {
     using Editor.Schema;
     using Editor.Schema.Organizations;
-    using GradeSeparatedJunction;
     using Marten;
     using NetTopologySuite.Geometries;
     using RoadNetwork;
-    using RoadNode;
-    using RoadRegistry.Infrastructure.MartenDb;
-    using RoadSegment;
+    using RoadRegistry.Extracts.Projections;
 
     public class ZipArchiveDataProvider : IZipArchiveDataProvider
     {
@@ -24,32 +21,30 @@
             _editorContext = editorContext;
         }
 
-        //TODO-pr latest: data uit (nieuwe) marten projectie halen ipv aggregate snapshots inladen
-
-        public async Task<IReadOnlyList<RoadNode>> GetRoadNodes(
+        public async Task<IReadOnlyList<RoadNodeExtractItem>> GetRoadNodes(
             IPolygonal contour,
             CancellationToken cancellationToken)
         {
             var ids = await GetUnderlyingRoadNetworkIds((Geometry)contour);
 
-            return await _session.LoadManyAsync(ids.RoadNodeIds);
+            return await _session.LoadManyAsync<RoadNodeExtractItem>(cancellationToken, ids.RoadNodeIds.Select(x => x.ToInt32()).ToArray());
         }
 
-        public async Task<IReadOnlyList<RoadSegment>> GetRoadSegments(
+        public async Task<IReadOnlyList<RoadSegmentExtractItem>> GetRoadSegments(
             IPolygonal contour,
             CancellationToken cancellationToken)
         {
             var ids = await GetUnderlyingRoadNetworkIds((Geometry)contour);
 
-            return await _session.LoadManyAsync(ids.RoadSegmentIds);
+            return await _session.LoadManyAsync<RoadSegmentExtractItem>(cancellationToken, ids.RoadSegmentIds.Select(x => x.ToInt32()).ToArray());
         }
-        public async Task<IReadOnlyList<GradeSeparatedJunction>> GetGradeSeparatedJunctions(
+        public async Task<IReadOnlyList<GradeSeparatedJunctionExtractItem>> GetGradeSeparatedJunctions(
             IPolygonal contour,
             CancellationToken cancellationToken)
         {
             var ids = await GetUnderlyingRoadNetworkIds((Geometry)contour);
 
-            return await _session.LoadManyAsync(ids.GradeSeparatedJunctionIds);
+            return await _session.LoadManyAsync<GradeSeparatedJunctionExtractItem>(cancellationToken, ids.GradeSeparatedJunctionIds.Select(x => x.ToInt32()).ToArray());
         }
 
         public async Task<IReadOnlyList<OrganizationRecordV2>> GetOrganizations(CancellationToken cancellationToken)

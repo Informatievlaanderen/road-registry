@@ -1,13 +1,10 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadNode.ModifyRoadNode;
 
 using AutoFixture;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Extensions;
 using FluentAssertions;
 using Framework;
-using RoadRegistry.BackOffice;
-using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Changes;
-using RoadRegistry.RoadNode.Events;
 using RoadRegistry.RoadNode.Events.V2;
 using RoadNode = RoadRegistry.RoadNode.RoadNode;
 
@@ -53,10 +50,6 @@ public class AggregateTests : AggregateTestBase
         // Assert
         node.RoadNodeId.Should().Be(evt.RoadNodeId);
         node.Type.Should().Be(evt.Type);
-        node.Geometry.Should().Be(evt.Geometry!.ToPoint());
-        node.Origin.Timestamp.Should().Be(nodeAdded.Provenance.Timestamp);
-        node.Origin.OrganizationId.Should().Be(new OrganizationId(nodeAdded.Provenance.Operator));
-        node.LastModified.Timestamp.Should().Be(evt.Provenance.Timestamp);
-        node.LastModified.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
+        node.Geometry.Should().Be(evt.Geometry!.ToGeometry());
     }
 }

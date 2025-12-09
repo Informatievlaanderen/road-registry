@@ -3,10 +3,9 @@
 using AutoFixture;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Extensions;
 using NetTopologySuite.Geometries;
-using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Events.V2;
-using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using Point = NetTopologySuite.Geometries.Point;

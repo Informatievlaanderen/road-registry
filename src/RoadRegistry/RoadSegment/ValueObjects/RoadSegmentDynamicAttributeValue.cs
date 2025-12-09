@@ -5,16 +5,13 @@ using Newtonsoft.Json;
 using RoadRegistry.ValueObjects;
 
 public sealed class RoadSegmentDynamicAttributeValue<T> : IEquatable<RoadSegmentDynamicAttributeValue<T>>
+    where T : notnull
 {
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public RoadSegmentAttributeSide Side { get; init; }
 
-    //TODO-pr combine from/to into 1 object: Coverage
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-    public RoadSegmentPosition? From { get; init; }
-
-    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-    public RoadSegmentPosition? To { get; init; }
+    public RoadSegmentPositionCoverage? Coverage { get; init; }
 
     public required T Value { get; init; }
 
@@ -26,9 +23,10 @@ public sealed class RoadSegmentDynamicAttributeValue<T> : IEquatable<RoadSegment
         }
 
         return Side.Equals(other.Side)
-               && From.Equals(other.From)
-               && To.Equals(other.To)
+               && object.Equals(Coverage, other.Coverage)
                && Value.Equals(other.Value)
-               ;
+            ;
     }
 }
+
+public sealed record RoadSegmentPositionCoverage(RoadSegmentPosition From, RoadSegmentPosition To);

@@ -6,6 +6,7 @@ using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Utilities;
 using NetTopologySuite.Geometries;
+using RoadNode;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.DbaseV2.RoadNodes;
 using RoadRegistry.BackOffice.ShapeFile.V2;
@@ -56,7 +57,7 @@ public class RoadNodesZipArchiveWriter : IZipArchiveWriter
                         BEGINORG = { Value = x.Origin.OrganizationId }
                     };
 
-                    return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry);
+                    return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.ToGeometry());
                 });
 
             await writer.WriteToArchive(archive, extractFilename, featureType, ShapeType.Point, RoadNodeDbaseRecord.Schema, records, cancellationToken);

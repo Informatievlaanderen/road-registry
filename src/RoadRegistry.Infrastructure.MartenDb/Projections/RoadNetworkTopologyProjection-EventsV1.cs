@@ -5,7 +5,6 @@ using JasperFx.Events;
 using Marten;
 using RoadNetwork.Events.V1;
 using RoadNode.Events.V1;
-using RoadSegment;
 using RoadSegment.Events.V1;
 
 public partial class RoadNetworkTopologyProjection
@@ -13,23 +12,23 @@ public partial class RoadNetworkTopologyProjection
     public void Project(IEvent<ImportedRoadSegment> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand($"INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp) VALUES (?, ST_GeomFromText(?, ?), ?, ?, ?)",
-            e.Data.Id, e.Data.Geometry.WKT, e.Data.Geometry.SpatialReferenceSystemIdentifier, e.Data.StartNodeId, e.Data.EndNodeId, e.Timestamp
+            e.Data.RoadSegmentId, e.Data.Geometry.WKT, e.Data.Geometry.SRID, e.Data.StartNodeId, e.Data.EndNodeId, e.Timestamp
         );
     }
     public void Project(IEvent<RoadSegmentAdded> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand($"INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp) VALUES (?, ST_GeomFromText(?, ?), ?, ?, ?)",
-            e.Data.Id, e.Data.Geometry.WKT, e.Data.Geometry.SpatialReferenceSystemIdentifier, e.Data.StartNodeId, e.Data.EndNodeId, e.Timestamp
+            e.Data.RoadSegmentId, e.Data.Geometry.WKT, e.Data.Geometry.SRID, e.Data.StartNodeId, e.Data.EndNodeId, e.Timestamp
         );
     }
     public void Project(IEvent<RoadSegmentModified> e, IDocumentOperations ops)
     {
         var parameters = new object?[]
         {
-            e.Data.Id,
+            e.Data.RoadSegmentId,
             e.Timestamp,
             e.Data.Geometry.WKT,
-            e.Data.Geometry.SpatialReferenceSystemIdentifier,
+            e.Data.Geometry.SRID,
             e.Data.StartNodeId,
             e.Data.EndNodeId
         };
@@ -40,10 +39,10 @@ public partial class RoadNetworkTopologyProjection
     {
         var parameters = new object?[]
         {
-            e.Data.Id,
+            e.Data.RoadSegmentId,
             e.Timestamp,
             e.Data.Geometry.WKT,
-            e.Data.Geometry.SpatialReferenceSystemIdentifier
+            e.Data.Geometry.SRID
         };
 
         ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, null, null);", parameters);
@@ -53,7 +52,7 @@ public partial class RoadNetworkTopologyProjection
     {
         var parameters = new object[]
         {
-            e.Data.Id,
+            e.Data.RoadSegmentId,
             e.Timestamp
         };
 

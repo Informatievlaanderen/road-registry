@@ -3,14 +3,14 @@ namespace RoadRegistry.Converters;
 using System;
 using Newtonsoft.Json;
 
-public class RoadNodeTypeConverter : JsonConverter<RoadNodeType>
+public class RoadNodeTypeConverter : NullableValueTypeJsonConverter<RoadNodeType>
 {
-    public override RoadNodeType ReadJson(JsonReader reader, Type objectType, RoadNodeType existingValue, bool hasExistingValue, JsonSerializer serializer)
+    protected override RoadNodeType ReadJson(object value, Type objectType, JsonSerializer serializer)
     {
-        return RoadNodeType.Parse(reader.Value?.ToString());
+        return RoadNodeType.Parse((string)value);
     }
 
-    public override void WriteJson(JsonWriter writer, RoadNodeType value, JsonSerializer serializer)
+    protected override void WriteJson(JsonWriter writer, RoadNodeType value, JsonSerializer serializer)
     {
         writer.WriteValue(value.ToString());
     }

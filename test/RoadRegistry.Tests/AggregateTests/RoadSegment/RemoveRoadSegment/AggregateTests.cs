@@ -60,9 +60,5 @@ public class AggregateTests : AggregateTestBase
         segment.Attributes.SurfaceType.Should().Be(segmentAdded.SurfaceType);
         segment.Attributes.EuropeanRoadNumbers.Should().BeEquivalentTo(segmentAdded.EuropeanRoadNumbers);
         segment.Attributes.NationalRoadNumbers.Should().BeEquivalentTo(segmentAdded.NationalRoadNumbers);
-        segment.Origin.Timestamp.Should().Be(segmentAdded.Provenance.Timestamp);
-        segment.Origin.OrganizationId.Should().Be(new OrganizationId(segmentAdded.Provenance.Operator));
-        segment.LastModified.Timestamp.Should().Be(evt.Provenance.Timestamp);
-        segment.LastModified.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
     }
 }

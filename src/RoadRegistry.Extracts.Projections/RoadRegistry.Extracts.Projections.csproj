@@ -12,6 +12,7 @@
     <ProjectReference Include="..\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\RoadRegistry.Extracts.Schema\RoadRegistry.Extracts.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Infrastructure.MartenDb\RoadRegistry.Infrastructure.MartenDb.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="RoadRegistry.ValueObjects" />

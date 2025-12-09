@@ -3,7 +3,8 @@
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
 using Events.V2;
-using RoadRegistry.ValueObjects.Problems;
+using Extensions;
+using ValueObjects.Problems;
 
 public partial class RoadNode
 {

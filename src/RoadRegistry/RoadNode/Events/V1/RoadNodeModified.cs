@@ -6,7 +6,7 @@ using ValueObjects;
 public class RoadNodeModified : IMartenEvent
 {
     public required RoadNodeGeometry Geometry { get; set; }
-    public required int Id { get; set; }
+    public required int RoadNodeId { get; set; }
     public required int Version { get; set; }
     public required string Type { get; set; }
 

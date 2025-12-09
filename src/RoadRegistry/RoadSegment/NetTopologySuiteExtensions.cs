@@ -1,33 +1,12 @@
 namespace RoadRegistry.RoadSegment;
 
-using System;
 using Extensions;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
-using RoadRegistry.ValueObjects;
 using RoadRegistry.ValueObjects.Problems;
 using LineString = NetTopologySuite.Geometries.LineString;
 
 public static class NetTopologySuiteExtensions
 {
-    public static MultiLineString ToMultiLineString(this GeometryObject geometry)
-    {
-        ArgumentNullException.ThrowIfNull(geometry);
-
-        return ((MultiLineString)new WKTReader().Read(geometry.WKT)
-            .WithSrid(geometry.SRID))
-            .WithMeasureOrdinates();
-    }
-
-    public static GeometryObject ToGeometryObject(this MultiLineString geometry)
-    {
-        ArgumentNullException.ThrowIfNull(geometry);
-
-        return new GeometryObject(geometry.SRID, geometry
-            .WithoutDuplicateCoordinates()
-            .AsText());
-    }
-
     public static Problems GetProblemsForRoadSegmentOutlinedGeometry(this LineString line, RoadSegmentId id)
     {
         var problems = Problems.None;

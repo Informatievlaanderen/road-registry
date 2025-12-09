@@ -5,7 +5,6 @@ using JasperFx.Events;
 using Marten;
 using RoadNetwork.Events.V2;
 using RoadNode.Events.V2;
-using RoadSegment;
 using RoadSegment.Events.V2;
 
 public partial class RoadNetworkTopologyProjection
@@ -13,7 +12,7 @@ public partial class RoadNetworkTopologyProjection
     public void Project(IEvent<RoadSegmentAdded> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand($"INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp) VALUES (?, ST_GeomFromText(?, ?), ?, ?, ?)",
-            e.Data.RoadSegmentId.ToInt32(), e.Data.Geometry.ToMultiLineString().AsText(), e.Data.Geometry.SRID, e.Data.StartNodeId.ToInt32(), e.Data.EndNodeId.ToInt32(), e.Timestamp
+            e.Data.RoadSegmentId.ToInt32(), e.Data.Geometry.WKT, e.Data.Geometry.SRID, e.Data.StartNodeId.ToInt32(), e.Data.EndNodeId.ToInt32(), e.Timestamp
         );
     }
 
@@ -28,7 +27,7 @@ public partial class RoadNetworkTopologyProjection
         {
             e.Data.RoadSegmentId.ToInt32(),
             e.Timestamp,
-            e.Data.Geometry?.ToMultiLineString().AsText(),
+            e.Data.Geometry?.WKT,
             e.Data.Geometry?.SRID,
             e.Data.StartNodeId?.ToInt32(),
             e.Data.EndNodeId?.ToInt32()

@@ -1,19 +1,12 @@
 namespace RoadRegistry.RoadNetwork.Events.V2;
 
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using RoadRegistry.ValueObjects;
+using ValueObjects;
 
 public record RoadNetworkChanged : IMartenEvent
 {
-    public GeometryObject? ScopeGeometry { get; init; }
+    public RoadNetworkChangeGeometry? ScopeGeometry { get; init; }
     public DownloadId? DownloadId { get; init; }
 
     public required ProvenanceData Provenance { get; init; }
-
-    public RoadNetworkChanged()
-    {
-    }
-    protected RoadNetworkChanged(RoadNetworkChanged other) // Needed for Marten
-    {
-    }
 }

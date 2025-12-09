@@ -26,6 +26,7 @@ public static class ChangeExtensions
                 change.AddRoadSegmentToNationalRoad,
                 change.RemoveRoadSegmentFromNationalRoad,
                 change.AddGradeSeparatedJunction,
+                change.ModifyGradeSeparatedJunction,
                 change.RemoveGradeSeparatedJunction
             }
             .SingleOrDefault(c => !ReferenceEquals(c, null))

@@ -6,14 +6,12 @@ using BackOffice.Core;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Extensions;
 using Infrastructure.MartenDb.Setup;
 using Marten;
 using Microsoft.Extensions.Logging.Abstractions;
-using RoadNode;
 using RoadRegistry.MartenMigration.Projections;
 using RoadRegistry.Tests.BackOffice.Scenarios;
-using RoadSegment;
-using RoadSegment.ValueObjects;
 
 public class MartenMigrationProjectionTests
 {
@@ -48,15 +46,11 @@ public class MartenMigrationProjectionTests
             .Given(envelope, envelope)
             .Expect(new RoadRegistry.RoadNode.Events.V1.RoadNodeAdded
                 {
-                    Id = @event.Id,
+                    RoadNodeId = @event.Id,
                     TemporaryId = @event.TemporaryId,
                     OriginalId = @event.OriginalId,
                     Version = @event.Version,
-                    Geometry = new()
-                    {
-                        SpatialReferenceSystemIdentifier = @event.Geometry.SpatialReferenceSystemIdentifier,
-                        WKT = GeometryTranslator.Translate(@event.Geometry).AsText()
-                    },
+                    Geometry = GeometryTranslator.Translate(@event.Geometry).ToGeometryObject(),
                     Type = @event.Type,
                     Provenance = new ProvenanceData(new Provenance(
                         LocalDateTimeTranslator.TranslateFromWhen(message.When),

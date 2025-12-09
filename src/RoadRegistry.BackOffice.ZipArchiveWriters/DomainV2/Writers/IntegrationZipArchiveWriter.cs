@@ -13,6 +13,7 @@ using RoadRegistry.BackOffice.Extracts.DbaseV2.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.DbaseV2.RoadSegments;
 using RoadRegistry.BackOffice.ShapeFile.V2;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Projections;
 using RoadSegment;
 using RoadSegment.ValueObjects;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
@@ -48,10 +49,10 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
         var nodesInContour = await zipArchiveDataProvider.GetRoadNodes(request.Contour, cancellationToken);
 
         // segments integration
-        var integrationBufferedSegmentsGeometries = segmentsInContour.Select(x => x.Geometry.Buffer(IntegrationBufferInMeters)).ToList();
+        var integrationBufferedSegmentsGeometries = segmentsInContour.Select(x => x.Geometry.ToGeometry().Buffer(IntegrationBufferInMeters)).ToList();
 
-        var integrationSegments = new List<RoadSegment>();
-        var integrationNodes = new List<RoadNode>();
+        var integrationSegments = new List<RoadSegmentExtractItem>();
+        var integrationNodes = new List<RoadNodeExtractItem>();
 
         if (integrationBufferedSegmentsGeometries.Any())
         {
@@ -64,7 +65,7 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
                 cancellationToken);
 
             integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentEqualityComparerById()).ToList();
-            integrationSegments = integrationSegments.Where(integrationSegment => { return integrationBufferedSegmentsGeometries.Any(segmentBufferedGeometry => segmentBufferedGeometry.Intersects(integrationSegment.Geometry)); })
+            integrationSegments = integrationSegments.Where(integrationSegment => { return integrationBufferedSegmentsGeometries.Any(segmentBufferedGeometry => segmentBufferedGeometry.Intersects(integrationSegment.Geometry.ToGeometry())); })
                 .ToList();
 
             // nodes integration
@@ -86,7 +87,7 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
             const ExtractFileName extractFilename = ExtractFileName.Wegsegment;
 
             var cachedStreetNameIds = integrationSegments
-                .SelectMany(record => record.Attributes.StreetNameId.Values.Select(x => x.Value))
+                .SelectMany(record => record.StreetNameId.Values.Select(x => x.Value))
                 .Where(streetNameId => streetNameId > 0)
                 .Select(streetNameId => streetNameId.ToInt32())
                 .Distinct()
@@ -99,8 +100,8 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
                 .OrderBy(x => x.Id)
                 .Select(x =>
                 {
-                    var leftStreetNameId = GetValue(x.Attributes.StreetNameId, RoadSegmentAttributeSide.Left);
-                    var rightStreetNameId = GetValue(x.Attributes.StreetNameId, RoadSegmentAttributeSide.Right);
+                    var leftStreetNameId = GetValue(x.StreetNameId, RoadSegmentAttributeSide.Left);
+                    var rightStreetNameId = GetValue(x.StreetNameId, RoadSegmentAttributeSide.Right);
 
                     var dbfRecord = new RoadSegmentDbaseRecord
                     {
@@ -110,21 +111,21 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
 
                         B_WK_OIDN = { Value = x.StartNodeId },
                         E_WK_OIDN = { Value = x.EndNodeId },
-                        STATUS = { Value = GetValue(x.Attributes.Status) },
+                        STATUS = { Value = GetValue(x.Status) },
                         //LBLSTATUS = { Value = xxx },
-                        MORF = { Value = GetValue(x.Attributes.Morphology) },
+                        MORF = { Value = GetValue(x.Morphology) },
                         //LBLMORF = { Value = xxx },
-                        WEGCAT = { Value = GetValue(x.Attributes.Category) },
+                        WEGCAT = { Value = GetValue(x.Category) },
                         //LBLWEGCAT = { Value = xxx },
                         LSTRNMID = { Value = leftStreetNameId },
                         LSTRNM = { Value = cachedStreetNames.GetValueOrDefault(leftStreetNameId) },
                         RSTRNMID = { Value = rightStreetNameId },
                         RSTRNM = { Value = cachedStreetNames.GetValueOrDefault(rightStreetNameId) },
-                        BEHEER = { Value = GetValue(x.Attributes.MaintenanceAuthorityId) },
+                        BEHEER = { Value = GetValue(x.MaintenanceAuthorityId) },
                         //LBLBEHEER = { Value = xxx },
-                        METHODE = { Value = x.Attributes.GeometryDrawMethod },
+                        METHODE = { Value = x.GeometryDrawMethod },
                         //LBLMETHOD = { Value = xxx },
-                        TGBEP = { Value = GetValue(x.Attributes.AccessRestriction) },
+                        TGBEP = { Value = GetValue(x.AccessRestriction) },
                         //LBLTGBEP = { Value = xxx },
 
                         //OPNDATUM = { Value = xxx },
@@ -132,7 +133,7 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
                         BEGINORG = { Value = x.Origin.OrganizationId }
                     };
 
-                    return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry);
+                    return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.ToGeometry());
                 })
                 .ToList();
 
@@ -159,18 +160,18 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
                         BEGINORG = { Value = x.Origin.OrganizationId }
                     };
 
-                    return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry);
+                    return ((DbaseRecord)dbfRecord, (Geometry)x.Geometry.ToGeometry());
                 });
 
             await writer.WriteToArchive(archive, extractFilename, featureType, ShapeType.Point, RoadNodeDbaseRecord.Schema, records, cancellationToken);
         }
     }
 
-    private static T GetValue<T>(RoadSegmentDynamicAttributeValues<T> attributes)
+    private static T GetValue<T>(RoadRegistry.Extracts.Projections.RoadSegmentDynamicAttributeValues<T> attributes)
     {
         return attributes.Values.Single().Value;
     }
-    private static T GetValue<T>(RoadSegmentDynamicAttributeValues<T> attributes, RoadSegmentAttributeSide side)
+    private static T GetValue<T>(RoadRegistry.Extracts.Projections.RoadSegmentDynamicAttributeValues<T> attributes, RoadSegmentAttributeSide side)
     {
         return side switch
         {
@@ -180,9 +181,9 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
         };
     }
 
-    private sealed class RoadSegmentEqualityComparerById : IEqualityComparer<RoadSegment>
+    private sealed class RoadSegmentEqualityComparerById : IEqualityComparer<RoadSegmentExtractItem>
     {
-        public bool Equals(RoadSegment x, RoadSegment y)
+        public bool Equals(RoadSegmentExtractItem x, RoadSegmentExtractItem y)
         {
             if (ReferenceEquals(x, y)) return true;
             if (ReferenceEquals(x, null)) return false;
@@ -191,15 +192,15 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
             return x.Id == y.Id;
         }
 
-        public int GetHashCode(RoadSegment obj)
+        public int GetHashCode(RoadSegmentExtractItem obj)
         {
             return obj.RoadSegmentId;
         }
     }
 
-    private sealed class RoadNodeEqualityComparerById : IEqualityComparer<RoadNode>
+    private sealed class RoadNodeEqualityComparerById : IEqualityComparer<RoadNodeExtractItem>
     {
-        public bool Equals(RoadNode x, RoadNode y)
+        public bool Equals(RoadNodeExtractItem x, RoadNodeExtractItem y)
         {
             if (ReferenceEquals(x, y)) return true;
             if (ReferenceEquals(x, null)) return false;
@@ -208,7 +209,7 @@ public class IntegrationZipArchiveWriter : IZipArchiveWriter
             return x.Id == y.Id;
         }
 
-        public int GetHashCode(RoadNode obj)
+        public int GetHashCode(RoadNodeExtractItem obj)
         {
             return obj.RoadNodeId;
         }

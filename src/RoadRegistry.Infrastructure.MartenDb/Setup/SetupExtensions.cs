@@ -5,9 +5,11 @@ using JasperFx.Events;
 using JasperFx.Events.Projections;
 using Marten;
 using Marten.Events.Projections;
+using Marten.Services.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using NodaTime;
 using NodaTime.Serialization.JsonNet;
 using Npgsql;
@@ -45,8 +47,7 @@ public static class SetupExtensions
 
     public static void ConfigureRoad(this StoreOptions options)
     {
-        //TODO-pr update schemas: `eventstore` for event related, `projections` for all projections
-        options.DatabaseSchemaName = "road";
+        options.DatabaseSchemaName = "eventstore";
 
         options.ConfigureSerializer();
 
@@ -79,6 +80,16 @@ public static class SetupExtensions
                 {
                     settings.Converters.Add(converter);
                 }
+
+                settings.ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new CamelCaseNamingStrategy
+                    {
+                        OverrideSpecifiedNames = true,
+                        ProcessDictionaryKeys = false,
+                        ProcessExtensionDataNames = true
+                    }
+                };
 
                 settings.NullValueHandling = NullValueHandling.Include;
                 settings.Formatting = Formatting.None;

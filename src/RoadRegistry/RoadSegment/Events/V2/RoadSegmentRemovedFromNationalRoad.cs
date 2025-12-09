@@ -9,11 +9,4 @@ public record RoadSegmentRemovedFromNationalRoad : IMartenEvent
     public required NationalRoadNumber Number { get; init; }
 
     public required ProvenanceData Provenance { get; init; }
-
-    public RoadSegmentRemovedFromNationalRoad()
-    {
-    }
-    protected RoadSegmentRemovedFromNationalRoad(RoadSegmentRemovedFromNationalRoad other) // Needed for Marten
-    {
-    }
 }

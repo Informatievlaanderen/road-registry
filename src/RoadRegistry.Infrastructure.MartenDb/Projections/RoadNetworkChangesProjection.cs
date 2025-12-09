@@ -9,11 +9,11 @@ using RoadNetwork.Events.V2;
 using RoadNode.Events.V1;
 using RoadSegment.Events.V1;
 
-public class RoadNetworkChangeProjection : EventProjection
+public abstract class RoadNetworkChangesProjection : EventProjection
 {
     private readonly IReadOnlyCollection<IRoadNetworkChangesProjection> _projections;
 
-    public RoadNetworkChangeProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections)
+    protected RoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections)
     {
         _projections = projections;
 
@@ -25,6 +25,10 @@ public class RoadNetworkChangeProjection : EventProjection
 
         // V2
         IncludeType<RoadNetworkChanged>();
+    }
+
+    public virtual void Configure(StoreOptions options)
+    {
     }
 
     public Task Project(IEvent<ImportedRoadNode> e, IDocumentOperations operations, CancellationToken cancellation)

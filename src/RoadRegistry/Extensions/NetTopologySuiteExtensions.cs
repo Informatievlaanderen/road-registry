@@ -6,9 +6,41 @@ using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
+using NetTopologySuite.IO;
 
 public static class NetTopologySuiteExtensions
 {
+    public static Point ToGeometry(this RoadNodeGeometry geometry)
+    {
+        ArgumentNullException.ThrowIfNull(geometry);
+
+        return ((Point)new WKTReader().Read(geometry.WKT)
+            .WithSrid(geometry.SRID));
+    }
+
+    public static RoadNodeGeometry ToGeometryObject(this Point geometry)
+    {
+        ArgumentNullException.ThrowIfNull(geometry);
+
+        return RoadNodeGeometry.Create(geometry);
+    }
+
+    public static MultiLineString ToGeometry(this RoadSegmentGeometry geometry)
+    {
+        ArgumentNullException.ThrowIfNull(geometry);
+
+        return ((MultiLineString)new WKTReader().Read(geometry.WKT)
+                .WithSrid(geometry.SRID))
+            .WithMeasureOrdinates();
+    }
+
+    public static RoadSegmentGeometry ToGeometryObject(this MultiLineString geometry)
+    {
+        ArgumentNullException.ThrowIfNull(geometry);
+
+        return RoadSegmentGeometry.Create(geometry.WithoutDuplicateCoordinates());
+    }
+
     public static IPolygonal[] GetPolygonals(this IPolygonal polygonal)
     {
         if (polygonal is Polygon polygon)

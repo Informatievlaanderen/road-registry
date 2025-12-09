@@ -49,9 +49,5 @@ public class AggregateTests : AggregateTestBase
         junction.Type.Should().Be(junctionAdded.Type);
         junction.LowerRoadSegmentId.Should().Be(junctionAdded.LowerRoadSegmentId);
         junction.UpperRoadSegmentId.Should().Be(junctionAdded.UpperRoadSegmentId);
-        junction.Origin.Timestamp.Should().Be(junctionAdded.Provenance.Timestamp);
-        junction.Origin.OrganizationId.Should().Be(new OrganizationId(junctionAdded.Provenance.Operator));
-        junction.LastModified.Timestamp.Should().Be(evt.Provenance.Timestamp);
-        junction.LastModified.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
     }
 }

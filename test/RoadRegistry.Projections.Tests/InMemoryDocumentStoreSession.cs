@@ -23,7 +23,7 @@ using IsolationLevel = System.Data.IsolationLevel;
 public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
 {
     private readonly StoreOptions _storeOptions;
-    private readonly List<(object Id, Type Type, string JsonData)> _storedEntities = [];
+    private readonly Dictionary<(object Id, Type Type), string> _storedEntities = [];
     private readonly List<StreamAction> _streamActions = new();
 
     public InMemoryDocumentStoreSession(StoreOptions options)
@@ -37,8 +37,8 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
         var serializer = _storeOptions.Serializer();
         return _storedEntities.Select(x =>
         {
-            using var jsonStream = new MemoryStream(Encoding.UTF8.GetBytes(x.JsonData));
-            return serializer.FromJson(x.Type, jsonStream);
+            using var jsonStream = new MemoryStream(Encoding.UTF8.GetBytes(x.Value));
+            return serializer.FromJson(x.Key.Type, jsonStream);
         }).ToArray();
     }
 
@@ -58,7 +58,7 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
             var id = GetIdProperty(entity).GetValue(entity)
                      ?? throw new InvalidOperationException($"Entity of type '{type}' has a null ID.");
 
-            _storedEntities.Add((id, type, _storeOptions.Serializer().ToJson(entity)));
+            _storedEntities[(id, type)] = _storeOptions.Serializer().ToJson(entity);
         }
     }
 
@@ -88,11 +88,11 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
     {
         var serializer = _storeOptions.Serializer();
         var entities = _storedEntities
-            .Where(x => ids.Cast<object>().Contains(x.Id))
+            .Where(x => ids.Cast<object>().Contains(x.Key.Id))
             .Select(x =>
             {
-                using var jsonStream = new MemoryStream(Encoding.UTF8.GetBytes(x.JsonData));
-                return (T)serializer.FromJson(x.Type, jsonStream);
+                using var jsonStream = new MemoryStream(Encoding.UTF8.GetBytes(x.Value));
+                return (T)serializer.FromJson(x.Key.Type, jsonStream);
             })
             .ToArray();
 
@@ -101,13 +101,12 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
 
     private void DeleteById<T>(object id) where T : notnull
     {
-        var entity = _storedEntities.SingleOrDefault(x => x.Id.Equals(id));
-        if (entity == default)
+        if(!_storedEntities.ContainsKey((id, typeof(T))))
         {
             throw new InvalidOperationException($"No entity of type '{typeof(T).Name}' with Id '{id}' found to delete.");
         }
 
-        _storedEntities.Remove(entity);
+        _storedEntities.Remove((id, typeof(T)));
     }
 
     public void Delete<T>(T entity) where T : notnull

@@ -9,4 +9,12 @@ public sealed record AddGradeSeparatedJunctionChange : IRoadNetworkChange
     public required RoadSegmentId LowerRoadSegmentId { get; init; }
     public required RoadSegmentId UpperRoadSegmentId { get; init; }
     public required GradeSeparatedJunctionType Type { get; init; }
+
+    public AddGradeSeparatedJunctionChange()
+    {
+    }
+
+    public AddGradeSeparatedJunctionChange(AddGradeSeparatedJunctionChange other) // Needed for Marten
+    {
+    }
 }

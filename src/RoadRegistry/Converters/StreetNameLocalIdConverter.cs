@@ -3,14 +3,14 @@ namespace RoadRegistry.Converters
     using System;
     using Newtonsoft.Json;
 
-    public class StreetNameLocalIdConverter : NullableJsonConverter<StreetNameLocalId>
+    public class StreetNameLocalIdConverter : NullableValueTypeJsonConverter<StreetNameLocalId>
     {
-        public override StreetNameLocalId ReadJson(JsonReader reader, Type objectType, StreetNameLocalId? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        protected override StreetNameLocalId ReadJson(object value, Type objectType, JsonSerializer serializer)
         {
-            return new StreetNameLocalId(Convert.ToInt32(reader.Value));
+            return new StreetNameLocalId(Convert.ToInt32(value));
         }
 
-        public override void WriteJson(JsonWriter writer, StreetNameLocalId value, JsonSerializer serializer)
+        protected override void WriteJson(JsonWriter writer, StreetNameLocalId value, JsonSerializer serializer)
         {
             writer.WriteValue(value.ToInt32());
         }

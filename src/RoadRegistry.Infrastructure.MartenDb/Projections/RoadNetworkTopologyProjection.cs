@@ -1,16 +1,6 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
-using GradeSeparatedJunction.Events;
-using GradeSeparatedJunction.Events.V1;
-using JasperFx.Events;
-using Marten;
 using Marten.Events.Projections;
-using RoadNetwork.Events;
-using RoadNode.Events;
-using RoadNode.Events.V1;
-using RoadSegment;
-using RoadSegment.Events;
-using RoadSegment.Events.V1;
 using Weasel.Postgresql;
 using Weasel.Postgresql.Functions;
 using Weasel.Postgresql.Tables;

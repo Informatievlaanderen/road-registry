@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.RoadNode.AddRoadNode;
 
 using AutoFixture;
+using Extensions;
 using FluentAssertions;
 using Framework;
 using RoadRegistry.RoadNode;
@@ -42,10 +43,6 @@ public class AggregateTests : AggregateTestBase
         // Assert
         node.RoadNodeId.Should().Be(evt.RoadNodeId);
         node.Type.Should().Be(evt.Type);
-        node.Geometry.Should().Be(evt.Geometry.ToPoint());
-        node.Origin.Timestamp.Should().Be(evt.Provenance.Timestamp);
-        node.Origin.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
-        node.LastModified.Timestamp.Should().Be(evt.Provenance.Timestamp);
-        node.LastModified.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
+        node.Geometry.Should().Be(evt.Geometry.ToGeometry());
     }
 }

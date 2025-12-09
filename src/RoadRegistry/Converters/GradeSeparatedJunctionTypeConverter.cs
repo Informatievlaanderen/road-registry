@@ -3,14 +3,14 @@ namespace RoadRegistry.Converters;
 using System;
 using Newtonsoft.Json;
 
-public class GradeSeparatedJunctionTypeConverter : JsonConverter<GradeSeparatedJunctionType>
+public class GradeSeparatedJunctionTypeConverter : NullableValueTypeJsonConverter<GradeSeparatedJunctionType>
 {
-    public override GradeSeparatedJunctionType ReadJson(JsonReader reader, Type objectType, GradeSeparatedJunctionType existingValue, bool hasExistingValue, JsonSerializer serializer)
+    protected override GradeSeparatedJunctionType ReadJson(object value, Type objectType, JsonSerializer serializer)
     {
-        return GradeSeparatedJunctionType.Parse(reader.Value?.ToString());
+        return GradeSeparatedJunctionType.Parse((string)value);
     }
 
-    public override void WriteJson(JsonWriter writer, GradeSeparatedJunctionType value, JsonSerializer serializer)
+    protected override void WriteJson(JsonWriter writer, GradeSeparatedJunctionType value, JsonSerializer serializer)
     {
         writer.WriteValue(value.ToString());
     }

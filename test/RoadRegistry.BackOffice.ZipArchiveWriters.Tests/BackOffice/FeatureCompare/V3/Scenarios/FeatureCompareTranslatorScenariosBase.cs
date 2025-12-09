@@ -78,7 +78,7 @@ public abstract class FeatureCompareTranslatorScenariosBase
         }
 
         return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
-            .Add(null, null, RoadSegmentAttributeSide.Left, leftSideStreetNameId ?? StreetNameLocalId.NotApplicable)
-            .Add(null, null, RoadSegmentAttributeSide.Right, rightSideStreetNameId ?? StreetNameLocalId.NotApplicable);
+            .Add(null, RoadSegmentAttributeSide.Left, leftSideStreetNameId ?? StreetNameLocalId.NotApplicable)
+            .Add(null, RoadSegmentAttributeSide.Right, rightSideStreetNameId ?? StreetNameLocalId.NotApplicable);
     }
 }

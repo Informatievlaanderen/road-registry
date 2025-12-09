@@ -9,11 +9,4 @@ public record RoadSegmentAddedToEuropeanRoad : IMartenEvent
     public required EuropeanRoadNumber Number { get; init; }
 
     public required ProvenanceData Provenance { get; init; }
-
-    public RoadSegmentAddedToEuropeanRoad()
-    {
-    }
-    protected RoadSegmentAddedToEuropeanRoad(RoadSegmentAddedToEuropeanRoad other) // Needed for Marten
-    {
-    }
 }

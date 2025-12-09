@@ -52,9 +52,5 @@ public class AggregateTests : AggregateTestBase
         node.LowerRoadSegmentId.Should().Be(evt.LowerRoadSegmentId!.Value);
         node.UpperRoadSegmentId.Should().Be(evt.UpperRoadSegmentId!.Value);
         node.Type.Should().Be(evt.Type);
-        node.Origin.Timestamp.Should().Be(nodeAdded.Provenance.Timestamp);
-        node.Origin.OrganizationId.Should().Be(new OrganizationId(nodeAdded.Provenance.Operator));
-        node.LastModified.Timestamp.Should().Be(evt.Provenance.Timestamp);
-        node.LastModified.OrganizationId.Should().Be(new OrganizationId(evt.Provenance.Operator));
     }
 }

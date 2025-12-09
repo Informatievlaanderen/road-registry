@@ -42,7 +42,7 @@ public class RoadSegmentSurfaceAttributesZipArchiveWriter : IZipArchiveWriter
         foreach (var featureType in featureTypes)
         {
             var records = roadSegments
-                .SelectMany(x => x.Attributes.SurfaceType.Values.Select(attribute =>
+                .SelectMany(x => x.SurfaceType.Values.Select(attribute =>
                     (RoadSegment: x, attribute.From, attribute.To, SurfaceType: attribute.Value)))
                 .OrderBy(x => x.RoadSegment.Id)
                 .ThenBy(x => x.SurfaceType)

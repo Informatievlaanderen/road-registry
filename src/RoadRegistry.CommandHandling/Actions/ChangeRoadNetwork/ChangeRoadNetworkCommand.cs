@@ -54,6 +54,9 @@ public class ChangeRoadNetworkCommand
                 case AddGradeSeparatedJunctionChange command:
                     roadNetworkChanges.Add(command);
                     break;
+                case ModifyGradeSeparatedJunctionChange command:
+                    roadNetworkChanges.Add(command);
+                    break;
                 case RemoveGradeSeparatedJunctionChange command:
                     roadNetworkChanges.Add(command);
                     break;
@@ -81,5 +84,6 @@ public class ChangeRoadNetworkCommandItem
     public RemoveRoadSegmentFromNationalRoadChange? RemoveRoadSegmentFromNationalRoad { get; set; }
 
     public AddGradeSeparatedJunctionChange? AddGradeSeparatedJunction { get; set; }
+    public ModifyGradeSeparatedJunctionChange? ModifyGradeSeparatedJunction { get; set; }
     public RemoveGradeSeparatedJunctionChange? RemoveGradeSeparatedJunction { get; set; }
 }

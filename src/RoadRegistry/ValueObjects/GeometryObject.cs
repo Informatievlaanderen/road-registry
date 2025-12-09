@@ -1,6 +1,8 @@
 ﻿namespace RoadRegistry.ValueObjects;
 
-public sealed record GeometryObject
+using NetTopologySuite.Geometries;
+
+public record GeometryObject
 {
     public int SRID { get; }
     public string WKT { get; }
@@ -9,5 +11,9 @@ public sealed record GeometryObject
     {
         SRID = srid;
         WKT = wkt;
+    }
+    protected GeometryObject(Geometry geometry)
+        : this(geometry.SRID, geometry.AsText())
+    {
     }
 }

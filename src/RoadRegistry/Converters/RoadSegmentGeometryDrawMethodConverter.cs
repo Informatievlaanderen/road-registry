@@ -3,14 +3,14 @@ namespace RoadRegistry.Converters;
 using System;
 using Newtonsoft.Json;
 
-public class RoadSegmentGeometryDrawMethodConverter : JsonConverter<RoadSegmentGeometryDrawMethod>
+public class RoadSegmentGeometryDrawMethodConverter : NullableValueTypeJsonConverter<RoadSegmentGeometryDrawMethod>
 {
-    public override RoadSegmentGeometryDrawMethod ReadJson(JsonReader reader, Type objectType, RoadSegmentGeometryDrawMethod existingValue, bool hasExistingValue, JsonSerializer serializer)
+    protected override RoadSegmentGeometryDrawMethod ReadJson(object value, Type objectType, JsonSerializer serializer)
     {
-        return RoadSegmentGeometryDrawMethod.Parse((string)reader.Value!);
+        return RoadSegmentGeometryDrawMethod.Parse((string)value);
     }
 
-    public override void WriteJson(JsonWriter writer, RoadSegmentGeometryDrawMethod value, JsonSerializer serializer)
+    protected override void WriteJson(JsonWriter writer, RoadSegmentGeometryDrawMethod value, JsonSerializer serializer)
     {
         writer.WriteValue(value.ToString());
     }

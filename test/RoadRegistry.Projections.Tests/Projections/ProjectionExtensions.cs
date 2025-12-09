@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Projections.Tests.Projections.Template;
+﻿namespace RoadRegistry.Projections.Tests.Projections;
 
 using System.Text;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -7,6 +7,7 @@ using JasperFx.Events;
 using KellermanSoftware.CompareNetObjects;
 using Marten;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
+using RoadRegistry.Projections.Tests.Projections.Template;
 using RoadRegistry.Tests.Framework.Projections;
 using Xunit.Sdk;
 
@@ -43,9 +44,8 @@ public static class ProjectionExtensions
                 MaxDifferences = 10,
                 CustomComparers =
                 [
-                    new GeometryLineStringComparer(RootComparerFactory.GetRootComparer()),
-                    new DateTimeComparer(RootComparerFactory.GetRootComparer()),
-                    new GeometryPolygonComparer(RootComparerFactory.GetRootComparer())
+                    new GeometryComparer(RootComparerFactory.GetRootComparer()),
+                    new DateTimeComparer(RootComparerFactory.GetRootComparer())
                 ]
             };
             var comparer = new CompareLogic(comparisonConfig);

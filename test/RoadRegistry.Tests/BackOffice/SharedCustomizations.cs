@@ -2,6 +2,7 @@ namespace RoadRegistry.Tests.BackOffice;
 
 using AutoFixture;
 using AutoFixture.Dsl;
+using AutoFixture.Kernel;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
@@ -585,7 +586,7 @@ public static class SharedCustomizations
     public static void CustomizeRoadSegmentId(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentId>(composer =>
-            composer.FromFactory<int>(value => new RoadSegmentId(Math.Abs(value)))
+            composer.FromFactory<int>(_ => new RoadSegmentId(fixture.Create<IntegerValue>()))
         );
     }
 
@@ -906,5 +907,34 @@ public static class SharedCustomizations
     public static IPostprocessComposer<T> FromFactory<T>(this IFactoryComposer<T> composer, Func<Random, T> factory)
     {
         return composer.FromFactory<int>(value => factory(new Random(value)));
+    }
+
+    private sealed record IntegerValue(int Value)
+    {
+        public static implicit operator int(IntegerValue integerValue)
+        {
+            return integerValue.Value;
+        }
+    }
+    public static void CustomizeUniqueInteger(this IFixture fixture)
+    {
+        fixture.Customizations.Add(new WithUniqueIntegerValue());
+    }
+    private sealed class WithUniqueIntegerValue : ISpecimenBuilder
+    {
+        private int _lastInt;
+
+        public object Create(object request, ISpecimenContext context)
+        {
+            if (request is not Type type || type != typeof(IntegerValue))
+            {
+                return new NoSpecimen();
+            }
+
+            var nextInt = _lastInt + 1;
+            _lastInt = nextInt;
+
+            return new IntegerValue(nextInt);
+        }
     }
 }

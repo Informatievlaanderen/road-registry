@@ -4,6 +4,11 @@ using System;
 
 internal static class NumericExtensions
 {
+    public static bool IsReasonablyEqualTo(this RoadSegmentPosition value, double other)
+    {
+        return IsReasonablyEqualTo(value.ToDouble(), other, DefaultTolerances.GeometryTolerance);
+    }
+
     public static bool IsReasonablyEqualTo(this double value, double other, double tolerance)
     {
         return Math.Abs(value - other) <= tolerance;

@@ -3,8 +3,8 @@
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
 using Events.V2;
+using Extensions;
 using RoadRegistry.ValueObjects.Problems;
-using ValueObjects;
 
 public partial class RoadSegment
 {
@@ -18,18 +18,25 @@ public partial class RoadSegment
 
         problems += new RoadSegmentGeometryValidator().Validate(originalId, geometryDrawMethod, geometry);
 
-        var attributes = new RoadSegmentAttributes
+        var segmentLength = geometry.Length;
+        var accessRestriction = change.AccessRestriction?.TryCleanEntireLengthCoverages(segmentLength);
+        var category = change.Category?.TryCleanEntireLengthCoverages(segmentLength);
+        var morphology = change.Morphology?.TryCleanEntireLengthCoverages(segmentLength);
+        var status = change.Status?.TryCleanEntireLengthCoverages(segmentLength);
+        var streetNameId = change.StreetNameId?.TryCleanEntireLengthCoverages(segmentLength);
+        var maintenanceAuthorityId = change.MaintenanceAuthorityId?.TryCleanEntireLengthCoverages(segmentLength);
+        var surfaceType = change.SurfaceType?.TryCleanEntireLengthCoverages(segmentLength);
+        var attributes = Attributes with
         {
             GeometryDrawMethod = change.GeometryDrawMethod ?? Attributes.GeometryDrawMethod,
-            AccessRestriction = change.AccessRestriction ?? Attributes.AccessRestriction,
-            Category = change.Category ?? Attributes.Category,
-            Morphology = change.Morphology ?? Attributes.Morphology,
-            Status = change.Status ?? Attributes.Status,
-            StreetNameId = change.StreetNameId ?? Attributes.StreetNameId,
-            MaintenanceAuthorityId = change.MaintenanceAuthorityId ?? Attributes.MaintenanceAuthorityId,
-            SurfaceType = change.SurfaceType ?? Attributes.SurfaceType
+            AccessRestriction = accessRestriction ?? Attributes.AccessRestriction,
+            Category = category ?? Attributes.Category,
+            Morphology = morphology ?? Attributes.Morphology,
+            Status = status ?? Attributes.Status,
+            StreetNameId = streetNameId ?? Attributes.StreetNameId,
+            MaintenanceAuthorityId = maintenanceAuthorityId ?? Attributes.MaintenanceAuthorityId,
+            SurfaceType = surfaceType ?? Attributes.SurfaceType
         };
-        var segmentLength = geometry.Length;
         problems += new RoadSegmentAttributesValidator().Validate(originalId, attributes, segmentLength);
 
         if (problems.HasError())
@@ -45,13 +52,13 @@ public partial class RoadSegment
             EndNodeId = change.EndNodeId,
             Geometry = change.Geometry?.ToGeometryObject(),
             GeometryDrawMethod = change.GeometryDrawMethod,
-            AccessRestriction = change.AccessRestriction,
-            Category = change.Category,
-            Morphology = change.Morphology,
-            Status = change.Status,
-            StreetNameId = change.StreetNameId,
-            MaintenanceAuthorityId = change.MaintenanceAuthorityId,
-            SurfaceType = change.SurfaceType,
+            AccessRestriction = accessRestriction,
+            Category = category,
+            Morphology = morphology,
+            Status = status,
+            StreetNameId = streetNameId,
+            MaintenanceAuthorityId = maintenanceAuthorityId,
+            SurfaceType = surfaceType,
             Provenance = new ProvenanceData(provenance)
         });
 

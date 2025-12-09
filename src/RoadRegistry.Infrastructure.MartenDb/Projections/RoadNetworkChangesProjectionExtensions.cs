@@ -5,15 +5,14 @@ using Marten;
 
 public static class RoadNetworkChangesProjectionExtensions
 {
-    public static StoreOptions AddRoadNetworkChangesProjection(this StoreOptions options,
-        IReadOnlyCollection<IRoadNetworkChangesProjection> projections)
+    public static StoreOptions AddRoadNetworkChangesProjection<T>(this StoreOptions options, T projection)
+        where T : RoadNetworkChangesProjection
     {
-        options.Projections.Add(new RoadNetworkChangeProjection(projections),
+        projection.Configure(options);
+
+        options.Projections.Add(projection,
             ProjectionLifecycle.Async,
-            asyncConfiguration: opts =>
-            {
-                opts.BatchSize = 1;
-            });
+            asyncConfiguration: opts => { opts.BatchSize = 1; });
 
         return options;
     }

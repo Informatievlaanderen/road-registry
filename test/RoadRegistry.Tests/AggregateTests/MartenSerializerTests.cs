@@ -5,11 +5,11 @@ using Framework;
 using Marten;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 
-public class SerializerTests
+public class MartenSerializerTests
 {
     private readonly ITestOutputHelper _testOutputHelper;
 
-    public SerializerTests(ITestOutputHelper testOutputHelper)
+    public MartenSerializerTests(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
     }
@@ -29,15 +29,15 @@ public class SerializerTests
         {
             _testOutputHelper.WriteLine(eventType.Name);
 
-            var evt = fixture.Create(eventType);
+            var original = fixture.Create(eventType);
 
-            var json = serializer.ToJson(evt);
-            var deserializedEvent = serializer.FromJson(eventType, json);
+            var originalAsJson = serializer.ToJson(original);
+            var deserialized = serializer.FromJson(eventType, originalAsJson);
 
-            _testOutputHelper.WriteLine($"Expected:\n{serializer.ToJson(evt)}");
-            _testOutputHelper.WriteLine($"\nActual:\n{serializer.ToJson(deserializedEvent)}");
+            _testOutputHelper.WriteLine($"Expected:\n{serializer.ToJson(original)}");
+            _testOutputHelper.WriteLine($"\nActual:\n{serializer.ToJson(deserialized)}");
 
-            deserializedEvent.Should().BeEquivalentTo(evt);
+            deserialized.Should().BeEquivalentTo(original);
         }
     }
 }
