@@ -31,7 +31,7 @@ export const ExtractRoutes = [
     ],
   },
   {
-    path: "extractaanvraag",
+    path: "/extractaanvraag",
     component: RequestExtract,
     name: "requestExtract",
     meta: {

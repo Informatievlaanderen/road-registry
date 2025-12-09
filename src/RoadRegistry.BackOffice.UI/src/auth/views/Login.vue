@@ -62,10 +62,11 @@ export default defineComponent({
     },
   },
   methods: {
-    async loginApiKey() {
+   async loginApiKey() {
       this.isLoginInProgress = true;
       try {
-        let isLoggedIn = await AuthService.loginApiKey(this.apiKey, this.$route.query.redirect?.toString());
+        const redirect = this.$route.query.redirect?.toString() ?? '';
+        let isLoggedIn = await AuthService.loginApiKey(this.apiKey, redirect);
         if (!isLoggedIn) {
           this.loginFailed = true;
         }
@@ -75,7 +76,8 @@ export default defineComponent({
     },
     async loginAcmIdm() {
       try {
-        await AuthService.loginAcmIdm(this.$route.query.redirect?.toString());
+        const redirect = this.$route.query.redirect?.toString() ?? '';
+        await AuthService.loginAcmIdm(redirect);
       } catch (err) {
         this.acmIdmLoginFailed = true;
       }

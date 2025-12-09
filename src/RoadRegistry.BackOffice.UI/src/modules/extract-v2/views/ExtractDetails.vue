@@ -151,7 +151,7 @@ export default defineComponent({
       }`;
     },
     downloadId(): string {
-      return this.$route.params.downloadId;
+      return this.$route.params.downloadId[0];
     },
     status() {
       if (!this.extract) {
