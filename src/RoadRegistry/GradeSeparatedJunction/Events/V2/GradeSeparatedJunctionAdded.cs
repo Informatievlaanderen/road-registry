@@ -1,4 +1,4 @@
-namespace RoadRegistry.GradeSeparatedJunction.Events;
+namespace RoadRegistry.GradeSeparatedJunction.Events.V2;
 
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 

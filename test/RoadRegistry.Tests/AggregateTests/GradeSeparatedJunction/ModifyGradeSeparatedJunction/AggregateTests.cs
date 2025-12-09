@@ -4,7 +4,7 @@ using AutoFixture;
 using FluentAssertions;
 using Framework;
 using RoadRegistry.GradeSeparatedJunction.Changes;
-using RoadRegistry.GradeSeparatedJunction.Events;
+using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using GradeSeparatedJunction = RoadRegistry.GradeSeparatedJunction.GradeSeparatedJunction;
 
 public class AggregateTests : AggregateTestBase

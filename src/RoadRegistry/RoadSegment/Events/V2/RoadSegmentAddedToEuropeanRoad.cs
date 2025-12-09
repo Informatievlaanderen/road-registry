@@ -1,19 +1,19 @@
-namespace RoadRegistry.RoadSegment.Events;
+namespace RoadRegistry.RoadSegment.Events.V2;
 
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using RoadRegistry.ValueObjects;
 
-public record RoadSegmentRemovedFromEuropeanRoad : IMartenEvent
+public record RoadSegmentAddedToEuropeanRoad : IMartenEvent
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
     public required EuropeanRoadNumber Number { get; init; }
 
     public required ProvenanceData Provenance { get; init; }
 
-    public RoadSegmentRemovedFromEuropeanRoad()
+    public RoadSegmentAddedToEuropeanRoad()
     {
     }
-    protected RoadSegmentRemovedFromEuropeanRoad(RoadSegmentRemovedFromEuropeanRoad other) // Needed for Marten
+    protected RoadSegmentAddedToEuropeanRoad(RoadSegmentAddedToEuropeanRoad other) // Needed for Marten
     {
     }
 }

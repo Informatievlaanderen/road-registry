@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
 using RoadRegistry.GradeSeparatedJunction;
 using RoadRegistry.GradeSeparatedJunction.Events;
+using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 
 public class SerializerTests

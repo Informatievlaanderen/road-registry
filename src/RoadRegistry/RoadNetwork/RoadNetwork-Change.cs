@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using Events;
+using Events.V2;
 using GradeSeparatedJunction.Changes;
 using RoadNode.Changes;
 using RoadRegistry.ValueObjects.Problems;

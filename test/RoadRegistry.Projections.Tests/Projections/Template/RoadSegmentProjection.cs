@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using JasperFx.Events;
 using Marten;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
-using RoadRegistry.RoadSegment.Events;
+using RoadSegment.Events.V2;
 
 public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 {

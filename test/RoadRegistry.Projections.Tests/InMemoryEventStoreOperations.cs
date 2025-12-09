@@ -9,7 +9,12 @@ public class InMemoryEventStoreOperations : IEventStoreOperations
     private readonly List<StreamAction> _streamActions = [];
     private readonly HashSet<object> _streamKeys = [];
 
-    public IReadOnlyCollection<StreamAction> GetStreamActions() => _streamActions.AsReadOnly();
+    public IReadOnlyCollection<StreamAction> GetAndClearStreamActions()
+    {
+        var result = _streamActions.ToList().AsReadOnly();
+        _streamActions.Clear();
+        return result;
+    }
 
     public StreamAction Append(Guid stream, IEnumerable<object> events)
     {

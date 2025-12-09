@@ -108,13 +108,6 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j ON 
     {
         await using var session = Store.LightweightSession();
 
-        AddChangesToSession(session, roadNetwork, commandName);
-
-        await session.SaveChangesAsync(cancellationToken);
-    }
-
-    public void AddChangesToSession(IDocumentSession session, RoadNetwork roadNetwork, string commandName)
-    {
         session.CorrelationId ??= Guid.NewGuid().ToString();
         session.CausationId = commandName;
 
@@ -126,6 +119,8 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j ON 
             EnsureEventHasProvenance(evt);
             session.Events.Append(roadNetwork.Id, evt);
         }
+
+        await session.SaveChangesAsync(cancellationToken);
     }
 
     private static void SaveEntities<TKey, TEntity>(IReadOnlyDictionary<TKey, TEntity> entities, IDocumentSession session)

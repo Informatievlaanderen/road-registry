@@ -2,9 +2,8 @@
 
 using AutoFixture;
 using RoadRegistry.Projections.IntegrationTests.Infrastructure;
-using RoadRegistry.RoadSegment.Events;
-using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadSegment.Events.V2;
 
 [Collection(nameof(DockerFixtureCollection))]
 public class RoadSegmentProjectionTests : IClassFixture<DatabaseFixture>

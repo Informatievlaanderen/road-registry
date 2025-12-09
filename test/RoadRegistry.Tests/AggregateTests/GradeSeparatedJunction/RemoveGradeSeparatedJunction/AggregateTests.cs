@@ -3,9 +3,8 @@
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using FluentAssertions;
-using RoadRegistry.BackOffice;
 using RoadRegistry.GradeSeparatedJunction;
-using RoadRegistry.GradeSeparatedJunction.Events;
+using RoadRegistry.GradeSeparatedJunction.Events.V2;
 using RoadRegistry.Tests.AggregateTests.Framework;
 
 public class AggregateTests : AggregateTestBase

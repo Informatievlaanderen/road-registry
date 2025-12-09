@@ -1,9 +1,8 @@
 ﻿namespace RoadRegistry.Projections.Tests.Projections.Template;
 
 using AutoFixture;
-using RoadRegistry.RoadSegment.Events;
-using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadSegment.Events.V2;
 
 public class RoadSegmentProjectionTests
 {

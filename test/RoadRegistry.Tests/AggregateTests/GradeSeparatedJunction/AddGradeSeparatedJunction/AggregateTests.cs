@@ -6,7 +6,7 @@ using Framework;
 using RoadNetwork;
 using RoadRegistry.GradeSeparatedJunction;
 using RoadRegistry.GradeSeparatedJunction.Changes;
-using RoadRegistry.GradeSeparatedJunction.Events;
+using RoadRegistry.GradeSeparatedJunction.Events.V2;
 
 public class AggregateTests : AggregateTestBase
 {

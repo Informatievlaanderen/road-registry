@@ -24,6 +24,8 @@
             _editorContext = editorContext;
         }
 
+        //TODO-pr latest: data uit (nieuwe) marten projectie halen ipv aggregate snapshots inladen
+
         public async Task<IReadOnlyList<RoadNode>> GetRoadNodes(
             IPolygonal contour,
             CancellationToken cancellationToken)

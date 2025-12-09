@@ -8,7 +8,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Framework;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
-using RoadRegistry.BackOffice;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment;
@@ -16,8 +15,8 @@ using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.ValueObjects;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
-using RoadNodeAdded = RoadRegistry.RoadNode.Events.RoadNodeAdded;
-using RoadSegmentAdded = RoadRegistry.RoadSegment.Events.RoadSegmentAdded;
+using RoadNodeAdded = RoadRegistry.RoadNode.Events.V2.RoadNodeAdded;
+using RoadSegmentAdded = RoadRegistry.RoadSegment.Events.V2.RoadSegmentAdded;
 
 public class RoadNetworkTestData
 {

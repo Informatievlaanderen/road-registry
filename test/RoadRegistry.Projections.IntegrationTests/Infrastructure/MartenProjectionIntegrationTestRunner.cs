@@ -2,18 +2,16 @@
 
 using System.Text;
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
 using KellermanSoftware.CompareNetObjects;
 using Marten;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RoadNetwork;
-using RoadNetwork.Events;
+using RoadNetwork.Events.V2;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
-using RoadRegistry.Projections.IntegrationTests;
-using RoadRegistry.Tests.Framework.Projections;
+using Tests.Framework.Projections;
 using Xunit.Sdk;
 
 public class MartenProjectionIntegrationTestRunner
@@ -134,7 +132,6 @@ public class MartenProjectionIntegrationTestRunner
 
             session.Events.Append(StreamKeyFactory.Create(typeof(RoadNetwork), RoadNetwork.GlobalIdentifier), new RoadNetworkChanged
             {
-                ScopeGeometry = null!,
                 Provenance = new RoadRegistryProvenanceData()
             });
 

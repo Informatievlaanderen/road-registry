@@ -3,7 +3,7 @@
 using System.Collections.Immutable;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Changes;
-using Events;
+using Events.V2;
 using RoadNetwork;
 using RoadRegistry.ValueObjects.Problems;
 using ValueObjects;

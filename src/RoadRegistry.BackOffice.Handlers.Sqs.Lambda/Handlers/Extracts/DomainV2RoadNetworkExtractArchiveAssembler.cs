@@ -43,6 +43,8 @@ public class DomainV2RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArc
 
         var stream = _manager.GetStream();
 
+        //TODO-pr wacht op extract projectie
+
         await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
         await using var editorContext = _editorContextFactory();
 

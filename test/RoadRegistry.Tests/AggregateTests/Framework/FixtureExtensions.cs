@@ -1,18 +1,17 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
 
 using AutoFixture;
+using BackOffice;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice;
 using RoadRegistry.RoadNode;
-using RoadRegistry.RoadNode.Events;
+using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment;
-using RoadRegistry.RoadSegment.Events;
+using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
-using RoadRegistry.Tests.BackOffice;
 using Point = NetTopologySuite.Geometries.Point;
-using RoadNodeAdded = RoadRegistry.RoadNode.Events.RoadNodeAdded;
-using RoadSegmentAdded = RoadRegistry.RoadSegment.Events.RoadSegmentAdded;
+using RoadNodeAdded = RoadRegistry.RoadNode.Events.V2.RoadNodeAdded;
+using RoadSegmentAdded = RoadRegistry.RoadSegment.Events.V2.RoadSegmentAdded;
 
 public static class FixtureExtensions
 {

@@ -5,7 +5,7 @@ using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using RoadSegment.Events;
+using RoadSegment.Events.V2;
 using Tests.BackOffice.Scenarios;
 
 [Collection(nameof(DockerFixtureCollection))]

@@ -1,12 +1,13 @@
 ﻿namespace RoadRegistry.Projections.IntegrationTests.Infrastructure;
 
-using BackOffice;
 using Marten;
-using RoadNetwork.Events;
+using RoadNetwork;
+using RoadNetwork.Events.V2;
+using RoadNode;
+using RoadNode.Events.V2;
 using RoadRegistry.Infrastructure.MartenDb.Projections;
-using RoadRegistry.RoadNode.Events;
-using RoadRegistry.RoadSegment.Events;
-using RoadRegistry.RoadSegment.ValueObjects;
+using RoadSegment;
+using RoadSegment.Events.V2;
 
 public static class MartenProjectionIntegrationTestRunnerExtensions
 {
@@ -63,19 +64,19 @@ public static class MartenProjectionIntegrationTestRunnerExtensions
             switch (evt)
             {
                 case RoadNetworkChanged @event:
-                    runner.Given<RoadRegistry.RoadNetwork.RoadNetwork, string>(RoadRegistry.RoadNetwork.RoadNetwork.GlobalIdentifier, @event);
+                    runner.Given<RoadNetwork, string>(RoadNetwork.GlobalIdentifier, @event);
                     break;
                 case RoadNodeAdded @event:
-                    runner.Given<RoadRegistry.RoadNode.RoadNode, RoadNodeId>(@event.RoadNodeId, @event);
+                    runner.Given<RoadNode, RoadNodeId>(@event.RoadNodeId, @event);
                     break;
                 case RoadSegmentAdded @event:
-                    runner.Given<RoadRegistry.RoadSegment.RoadSegment, RoadSegmentId>(@event.RoadSegmentId, @event);
+                    runner.Given<RoadSegment, RoadSegmentId>(@event.RoadSegmentId, @event);
                     break;
                 case RoadSegmentModified @event:
-                    runner.Given<RoadRegistry.RoadSegment.RoadSegment, RoadSegmentId>(@event.RoadSegmentId, @event);
+                    runner.Given<RoadSegment, RoadSegmentId>(@event.RoadSegmentId, @event);
                     break;
                 case RoadSegmentRemoved @event:
-                    runner.Given<RoadRegistry.RoadSegment.RoadSegment, RoadSegmentId>(@event.RoadSegmentId, @event);
+                    runner.Given<RoadSegment, RoadSegmentId>(@event.RoadSegmentId, @event);
                     break;
                 default:
                     throw new NotImplementedException($"Unhandled event type: {evt.GetType().Name}");

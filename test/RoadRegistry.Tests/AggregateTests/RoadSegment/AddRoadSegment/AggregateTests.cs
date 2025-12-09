@@ -9,6 +9,7 @@ using RoadNetwork;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events;
+using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using ValueObjects.Problems;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;

@@ -1,9 +1,9 @@
-namespace RoadRegistry.RoadSegment.Events;
+namespace RoadRegistry.RoadSegment.Events.V2;
 
 using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using RoadRegistry.RoadSegment.ValueObjects;
 using RoadRegistry.ValueObjects;
-using ValueObjects;
 
 public record RoadSegmentAdded: IMartenEvent, ICreatedEvent
 {

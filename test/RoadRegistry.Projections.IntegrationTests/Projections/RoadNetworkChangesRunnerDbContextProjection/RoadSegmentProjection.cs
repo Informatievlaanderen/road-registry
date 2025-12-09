@@ -3,7 +3,7 @@
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using JasperFx.Events;
-using RoadRegistry.RoadSegment.Events;
+using RoadSegment.Events.V2;
 
 public class RoadSegmentProjection : ConnectedProjection<TestDbContext>
 {

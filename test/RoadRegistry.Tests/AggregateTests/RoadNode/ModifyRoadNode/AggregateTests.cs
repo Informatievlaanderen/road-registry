@@ -8,6 +8,7 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadNode.Events;
+using RoadRegistry.RoadNode.Events.V2;
 using RoadNode = RoadRegistry.RoadNode.RoadNode;
 
 public class AggregateTests : AggregateTestBase

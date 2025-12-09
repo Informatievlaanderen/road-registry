@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.GradeSeparatedJunction;
 
-using Events;
+using Events.V2;
 using Newtonsoft.Json;
 
 public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSeparatedJunctionId>

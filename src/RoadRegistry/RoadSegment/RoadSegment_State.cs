@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Events;
+using Events.V2;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using ValueObjects;

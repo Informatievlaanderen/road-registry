@@ -282,7 +282,7 @@ public class InMemoryDocumentStoreSession : IDocumentStore, IDocumentSession
 
     public Task SaveChangesAsync(CancellationToken token = new CancellationToken())
     {
-        _streamActions.AddRange(_eventsStoreOperations.GetStreamActions());
+        _streamActions.AddRange(_eventsStoreOperations.GetAndClearStreamActions());
         return Task.CompletedTask;
     }
 

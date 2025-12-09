@@ -1,9 +1,13 @@
 ﻿namespace RoadRegistry.Infrastructure.MartenDb.Projections;
 
+using GradeSeparatedJunction.Events.V1;
 using JasperFx.Events;
 using Marten;
 using Marten.Events.Projections;
-using RoadNetwork.Events;
+using RoadNetwork.Events.V1;
+using RoadNetwork.Events.V2;
+using RoadNode.Events.V1;
+using RoadSegment.Events.V1;
 
 public class RoadNetworkChangeProjection : EventProjection
 {
@@ -12,10 +16,40 @@ public class RoadNetworkChangeProjection : EventProjection
     public RoadNetworkChangeProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections)
     {
         _projections = projections;
+
+        // V1
+        IncludeType<ImportedRoadNode>();
+        IncludeType<ImportedRoadSegment>();
+        IncludeType<ImportedGradeSeparatedJunction>();
+        IncludeType<RoadNetworkChangesAccepted>();
+
+        // V2
         IncludeType<RoadNetworkChanged>();
     }
 
-    public async Task Project(IEvent<RoadNetworkChanged> e, IDocumentOperations operations, CancellationToken cancellation)
+    public Task Project(IEvent<ImportedRoadNode> e, IDocumentOperations operations, CancellationToken cancellation)
+    {
+        return ProjectCorrelatedEvents(e, operations, cancellation);
+    }
+    public Task Project(IEvent<ImportedRoadSegment> e, IDocumentOperations operations, CancellationToken cancellation)
+    {
+        return ProjectCorrelatedEvents(e, operations, cancellation);
+    }
+    public Task Project(IEvent<ImportedGradeSeparatedJunction> e, IDocumentOperations operations, CancellationToken cancellation)
+    {
+        return ProjectCorrelatedEvents(e, operations, cancellation);
+    }
+    public Task Project(IEvent<RoadNetworkChangesAccepted> e, IDocumentOperations operations, CancellationToken cancellation)
+    {
+        return ProjectCorrelatedEvents(e, operations, cancellation);
+    }
+
+    public Task Project(IEvent<RoadNetworkChanged> e, IDocumentOperations operations, CancellationToken cancellation)
+    {
+        return ProjectCorrelatedEvents(e, operations, cancellation);
+    }
+
+    private async Task ProjectCorrelatedEvents(IEvent e, IDocumentOperations operations, CancellationToken cancellation)
     {
         var correlationId = e.CorrelationId!;
 

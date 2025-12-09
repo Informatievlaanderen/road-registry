@@ -1,4 +1,4 @@
-namespace RoadRegistry.RoadNode.Events;
+namespace RoadRegistry.RoadNode.Events.V2;
 
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 

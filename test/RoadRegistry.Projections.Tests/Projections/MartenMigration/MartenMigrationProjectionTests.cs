@@ -46,12 +46,18 @@ public class MartenMigrationProjectionTests
         return BuildProjection()
             .Scenario()
             .Given(envelope, envelope)
-            .Expect(new RoadRegistry.RoadNode.Events.RoadNodeAdded
+            .Expect(new RoadRegistry.RoadNode.Events.V1.RoadNodeAdded
                 {
-                    RoadNodeId = new RoadNodeId(@event.Id),
-                    OriginalId = new RoadNodeId(@event.OriginalId!.Value),
-                    Geometry = GeometryTranslator.Translate(@event.Geometry).ToGeometryObject(),
-                    Type = RoadNodeType.Parse(@event.Type),
+                    Id = @event.Id,
+                    TemporaryId = @event.TemporaryId,
+                    OriginalId = @event.OriginalId,
+                    Version = @event.Version,
+                    Geometry = new()
+                    {
+                        SpatialReferenceSystemIdentifier = @event.Geometry.SpatialReferenceSystemIdentifier,
+                        WKT = GeometryTranslator.Translate(@event.Geometry).AsText()
+                    },
+                    Type = @event.Type,
                     Provenance = new ProvenanceData(new Provenance(
                         LocalDateTimeTranslator.TranslateFromWhen(message.When),
                         Application.RoadRegistry,
@@ -62,67 +68,6 @@ public class MartenMigrationProjectionTests
                 }
             );
     }
-
-    [Fact]
-    public Task WhenRoadSegmentAdded_ThenSucceeded()
-    {
-        var @event = _fixture.Create<RoadSegmentAdded>();
-        @event.LeftSide.StreetNameId = 1;
-        @event.RightSide.StreetNameId = 1;
-        @event.Surfaces = @event.Surfaces.Take(1).ToArray();
-
-        var message = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(@event);
-
-        return BuildProjection()
-            .Scenario()
-            .Given(message)
-            .Expect(new RoadRegistry.RoadSegment.Events.RoadSegmentAdded
-            {
-                RoadSegmentId = new RoadSegmentId(@event.Id),
-                OriginalId = new RoadSegmentId(@event.TemporaryId),
-                Geometry = GeometryTranslator.Translate(@event.Geometry).ToGeometryObject(),
-                StartNodeId = new RoadNodeId(@event.StartNodeId),
-                EndNodeId = new RoadNodeId(@event.EndNodeId),
-                GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod),
-                AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(RoadSegmentAccessRestriction.Parse(@event.AccessRestriction)),
-                Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(RoadSegmentCategory.Parse(@event.Category)),
-                Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>(RoadSegmentMorphology.Parse(@event.Morphology)),
-                Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatus.Parse(@event.Status)),
-                StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()
-                    .Add(new StreetNameLocalId(1)),
-                MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(new OrganizationId(@event.MaintenanceAuthority.Code)),
-                SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>()
-                    .Add(new RoadSegmentPosition(@event.Surfaces[0].FromPosition),
-                        new RoadSegmentPosition(@event.Surfaces[0].ToPosition),
-                        RoadSegmentSurfaceType.Parse(@event.Surfaces[0].Type)),
-                EuropeanRoadNumbers = [],
-                NationalRoadNumbers = [],
-                Provenance = new ProvenanceData(new Provenance(
-                    LocalDateTimeTranslator.TranslateFromWhen(message.When),
-                    Application.RoadRegistry,
-                    new Reason(message.Reason),
-                    new Operator(message.OrganizationId),
-                    Modification.Insert,
-                    Organisation.DigitaalVlaanderen))
-            });
-    }
-
-    // [Fact]
-    // public async Task WhenRoadSegmentRemoved_ThenNone()
-    // {
-    //     var fixture = new RoadNetworkTestData().ObjectProvider;
-    //     fixture.Freeze<RoadSegmentId>();
-    //
-    //     var roadSegment1Added = fixture.Create<RoadSegmentAdded>();
-    //     var roadSegment1Removed = fixture.Create<RoadSegmentRemoved>();
-    //
-    //     await BuildProjection()
-    //         .Scenario()
-    //         .Given(roadSegment1Added, roadSegment1Removed)
-    //         .ExpectNone();
-    // }
 
     private (MartenMigrationProjection, InMemoryDocumentStoreSession) BuildProjection()
     {

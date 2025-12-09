@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Events;
+using Events.V2;
 using GradeSeparatedJunction;
 using RoadNode;
 using RoadSegment;

@@ -6,6 +6,7 @@ using FluentAssertions;
 using Framework;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events;
+using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 

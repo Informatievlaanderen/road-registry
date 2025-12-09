@@ -9,6 +9,7 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.RoadNode;
 using RoadRegistry.RoadNode.Events;
+using RoadRegistry.RoadNode.Events.V2;
 
 public class SerializerTests
 {

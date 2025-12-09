@@ -13,6 +13,7 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.Events;
+using RoadRegistry.RoadSegment.Events.V2;
 using Weasel.Core;
 
 public class SerializerTests

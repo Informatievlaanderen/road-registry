@@ -5,6 +5,7 @@ using FluentAssertions;
 using Framework;
 using RoadRegistry.RoadSegment.Changes;
 using RoadRegistry.RoadSegment.Events;
+using RoadRegistry.RoadSegment.Events.V2;
 using RoadSegment = RoadRegistry.RoadSegment.RoadSegment;
 
 public class AggregateTests : AggregateTestBase
