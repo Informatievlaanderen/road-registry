@@ -1,9 +1,9 @@
 import { jwtDecode } from "jwt-decode";
-import RoadRegistry from '@/types/road-registry';
+import RoadRegistry from "@/types/road-registry";
 
 const convertUserInfoToToken = (userInfo: RoadRegistry.UserInfo) => {
   return userInfo.claims.reduce((target: any, item: RoadRegistry.UserClaim) => {
-    let targetValue = target[item.type];
+    const targetValue = target[item.type];
     let itemValue: any = item.value;
     if (itemValue === "True") {
       itemValue = true;
@@ -19,7 +19,7 @@ const convertUserInfoToToken = (userInfo: RoadRegistry.UserInfo) => {
     }
     return target;
   }, {});
-}
+};
 
 export default class UserTokenResult {
   constructor(decodedJwtToken?: any) {
@@ -48,8 +48,8 @@ export default class UserTokenResult {
   }
 
   parseContexts(): string[] {
-    let dvWegenregister = this.token.dv_wegenregister ?? [];
-    let dvWegenregisterClaims = (Array.isArray(dvWegenregister) ? dvWegenregister : [dvWegenregister]).filter(
+    const dvWegenregister = this.token.dv_wegenregister ?? [];
+    const dvWegenregisterClaims = (Array.isArray(dvWegenregister) ? dvWegenregister : [dvWegenregister]).filter(
       (x: string) => x.startsWith("DVWegenregister-")
     );
     return dvWegenregisterClaims.map((x: string) => x.split("-")[1].split(":")[0]);
@@ -69,5 +69,5 @@ export default class UserTokenResult {
 
   static fromUserInfo(userInfo: RoadRegistry.UserInfo) {
     return new UserTokenResult(convertUserInfoToToken(userInfo));
-  }  
+  }
 }

@@ -44,13 +44,13 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "vue";
 import { orderBy } from "lodash";
 import { PublicApi } from "@/services";
 import ActivityProblems from "../../activity/components/ActivityProblems.vue";
 import ActivitySummary from "../../activity/components/ActivitySummary.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     ActivityProblems,
     ActivitySummary,
@@ -163,7 +163,7 @@ export default Vue.extend({
       return status;
     },
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.endUpload();
   },
   methods: {

@@ -13,10 +13,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "vue";
 import { AuthService } from "@/services/auth-service";
 
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       isLogoutInProgress: false,

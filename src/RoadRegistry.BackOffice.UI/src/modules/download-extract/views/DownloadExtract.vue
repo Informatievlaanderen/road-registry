@@ -11,8 +11,8 @@
           WKT-formaat?
         </p>
         <vl-action-group>
-          <vl-button v-on:click="currentStep = steps.Step2_Municipality">Gemeentecontour</vl-button>
-          <vl-button v-on:click="currentStep = steps.Step2_Contour">Eigen contour</vl-button>
+          <vl-button @click="currentStep = steps.Step2_Municipality">Gemeentecontour</vl-button>
+          <vl-button @click="currentStep = steps.Step2_Contour">Eigen contour</vl-button>
         </vl-action-group>
       </div>
 
@@ -41,9 +41,9 @@
           </div>
           <div class="vl-form-col--9-12"></div>
           <vl-action-group>
-            <vl-button v-on:click="currentStep = steps.Step1">Vorige</vl-button>
+            <vl-button @click="currentStep = steps.Step1">Vorige</vl-button>
             <vl-button v-if="municipalityFlow.nisCode == ''" mod-disabled>Volgende</vl-button>
-            <vl-button v-else v-on:click="currentStep = steps.Step3_Municipality">Volgende</vl-button>
+            <vl-button v-else @click="currentStep = steps.Step3_Municipality">Volgende</vl-button>
           </vl-action-group>
         </div>
       </div>
@@ -327,10 +327,7 @@
             </vl-alert>
             <vl-alert v-if="contourFlow.hasValidationErrors" mod-error title="Validatie fouten" mod-small>
               <ul>
-                <li
-                  v-for="contourValidationError in contourFlow.validationErrors"
-                  :key="contourValidationError.code"
-                >
+                <li v-for="contourValidationError in contourFlow.validationErrors" :key="contourValidationError.code">
                   {{ contourValidationError.reason }}
                 </li>
               </ul>
@@ -350,7 +347,7 @@ import RoadRegistry from "../../../types/road-registry";
 import RoadRegistryExceptions from "../../../types/road-registry-exceptions";
 import { featureToggles, WR_ENV } from "@/environment";
 
-import Vue from "vue";
+import { defineComponent } from "vue";
 import { debounce } from "lodash";
 
 enum WizardSteps {
@@ -361,7 +358,7 @@ enum WizardSteps {
   Step3_Contour,
 }
 
-export default Vue.extend({
+export default defineComponent({
   data() {
     const contourTypes = ["shp", "wkt"];
 
@@ -624,7 +621,7 @@ export default Vue.extend({
 
         let downloadExtractResponse = await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
 
-        this.$router.push({ name: "extractDetails", params: { downloadId: downloadExtractResponse.downloadId} });
+        this.$router.push({ name: "extractDetails", params: { downloadId: downloadExtractResponse.downloadId } });
       } catch (error) {
         console.error("Submit municipality failed", error);
         this.municipalityFlow.hasGenericError = true;
@@ -675,11 +672,13 @@ export default Vue.extend({
             throw new Error(`Not implemented contour type: ${this.contourFlow.contourType}`);
         }
 
-        this.$router.push({ name: "extractDetails", params: { downloadId: downloadExtractResponse.downloadId} });
+        this.$router.push({ name: "extractDetails", params: { downloadId: downloadExtractResponse.downloadId } });
       } catch (exception) {
         if (exception instanceof RoadRegistryExceptions.BadRequestError) {
           this.contourFlow.hasValidationErrors = true;
-          this.contourFlow.validationErrors = ValidationUtils.convertValidationErrorsToArray(exception.error.validationErrors);
+          this.contourFlow.validationErrors = ValidationUtils.convertValidationErrorsToArray(
+            exception.error.validationErrors
+          );
         } else {
           console.error("Submit contour failed", exception);
           this.contourFlow.hasGenericError = true;

@@ -15,7 +15,7 @@
                 :mod-warning="alertInfo.warning"
                 :mod-error="alertInfo.error"
               >
-              {{ alertInfo.text }}
+                {{ alertInfo.text }}
               </vl-alert>
             </div>
 
@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "vue";
 import { orderBy, uniq, uniqBy, camelCase } from "lodash";
 import { PublicApi } from "@/services";
 import ActivityProblems from "../../activity/components/ActivityProblems.vue";
@@ -69,7 +69,7 @@ const camelizeKeys: any = (obj: any) => {
   return obj;
 };
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     ActivityProblems,
     ActivitySummary,
@@ -157,7 +157,7 @@ export default Vue.extend({
   mounted() {
     this.waitForTicketComplete();
   },
-  destroyed() {
+  unmounted() {
     this.trackProgress = false;
   },
   methods: {

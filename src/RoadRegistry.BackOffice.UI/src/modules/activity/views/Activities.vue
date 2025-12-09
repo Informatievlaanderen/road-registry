@@ -59,7 +59,7 @@
                         mod-icon
                         mod-naked
                         v-if="activity.hasContent()"
-                        v-on:click="activity.toggleContentVisibility()"
+                        @click="activity.toggleContentVisibility()"
                       ></vl-button>
                     </div>
                   </div>
@@ -91,9 +91,7 @@
                             )
                           "
                         >
-                          <vl-button
-                            @click="redirectToUploadStatusPage(activity.changeFeedContent.content.ticketId)"
-                          >
+                          <vl-button @click="redirectToUploadStatusPage(activity.changeFeedContent.content.ticketId)">
                             Status
                           </vl-button>
                         </span>
@@ -199,7 +197,7 @@
         <vl-column>
           <div v-vl-flex v-vl-flex:align-center>
             <vl-button mod-loading v-if="pagination.isLoading"></vl-button>
-            <vl-button v-else-if="activities.length >= pagination.pageSize" v-on:click="loadNextPage()">
+            <vl-button v-else-if="activities.length >= pagination.pageSize" @click="loadNextPage()">
               Meer ...
             </vl-button>
           </div>
@@ -210,7 +208,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "vue";
 import { debounce } from "lodash";
 import { BackOfficeApi, PublicApi } from "../../../services";
 import RoadRegistry from "../../../types/road-registry";
@@ -218,7 +216,7 @@ import ActivityProblems from "../components/ActivityProblems.vue";
 import ActivitySummary from "../components/ActivitySummary.vue";
 import { featureToggles } from "@/environment";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     ActivityProblems,
     ActivitySummary,
@@ -246,7 +244,7 @@ export default Vue.extend({
     this.filter = (this.$route.query.filter ?? "").toString();
     this.loadToTop();
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.stopAutoRefresh();
   },
   methods: {
@@ -362,7 +360,7 @@ export default Vue.extend({
 class Activity {
   _changeFeedEntry: RoadRegistry.ChangeFeedEntry;
   _lazyChangeFeedContent?: RoadRegistry.ChangeFeedContent;
-  _isChangeFeedContentVisible: boolean = false;
+  _isChangeFeedContentVisible = false;
 
   constructor(changeFeedEntry: RoadRegistry.ChangeFeedEntry) {
     this._changeFeedEntry = changeFeedEntry;

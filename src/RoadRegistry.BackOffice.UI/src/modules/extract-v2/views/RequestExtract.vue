@@ -11,8 +11,8 @@
           WKT-formaat?
         </p>
         <vl-action-group>
-          <vl-button v-on:click="currentStep = steps.Step2_Municipality">Gemeentecontour</vl-button>
-          <vl-button v-on:click="currentStep = steps.Step2_Contour">Eigen contour</vl-button>
+          <vl-button @click="currentStep = steps.Step2_Municipality">Gemeentecontour</vl-button>
+          <vl-button @click="currentStep = steps.Step2_Contour">Eigen contour</vl-button>
         </vl-action-group>
       </div>
 
@@ -41,9 +41,9 @@
           </div>
           <div class="vl-form-col--9-12"></div>
           <vl-action-group>
-            <vl-button v-on:click="currentStep = steps.Step1">Vorige</vl-button>
+            <vl-button @click="currentStep = steps.Step1">Vorige</vl-button>
             <vl-button v-if="municipalityFlow.nisCode == ''" mod-disabled>Volgende</vl-button>
-            <vl-button v-else v-on:click="currentStep = steps.Step3_Municipality">Volgende</vl-button>
+            <vl-button v-else @click="currentStep = steps.Step3_Municipality">Volgende</vl-button>
           </vl-action-group>
         </div>
       </div>
@@ -354,7 +354,7 @@ import RoadRegistry from "../../../types/road-registry";
 import RoadRegistryExceptions from "../../../types/road-registry-exceptions";
 import { featureToggles, WR_ENV } from "@/environment";
 
-import Vue from "vue";
+import { defineComponent } from "vue";
 import { debounce } from "lodash";
 
 enum WizardSteps {
@@ -365,7 +365,7 @@ enum WizardSteps {
   Step3_Contour,
 }
 
-export default Vue.extend({
+export default defineComponent({
   data() {
     const contourTypes = ["shp", "wkt"];
 

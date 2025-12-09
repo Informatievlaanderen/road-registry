@@ -13,7 +13,7 @@
           <vl-map-tile-layer :opacity="0.8">
             <vl-map-tile-wms-source :url="roadRegistryWmsUrl" :layers="[layerTransactionZones]" />
           </vl-map-tile-layer>
-          
+
           <vl-map-tile-layer :opacity="0.4">
             <vl-map-tile-wms-source :url="roadRegistryWmsUrl" :layers="[layerOverlappingTransactionZones]" />
           </vl-map-tile-layer>
@@ -24,11 +24,11 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "vue";
 import Map from "ol/Map";
 import { WMS_URL, WMS_LAYER_OVERLAPPINGTRANSACTIONZONES, WMS_LAYER_TRANSACTIONZONES } from "@/environment";
 
-export default Vue.extend({
+export default defineComponent({
   computed: {
     olMap(): Map {
       return (this.$refs.map as any).olMap as Map;
@@ -41,8 +41,8 @@ export default Vue.extend({
     },
     layerTransactionZones(): string {
       return WMS_LAYER_TRANSACTIONZONES;
-    }
-  }
+    },
+  },
 });
 </script>
 
