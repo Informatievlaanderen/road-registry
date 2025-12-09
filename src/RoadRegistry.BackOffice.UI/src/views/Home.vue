@@ -15,16 +15,14 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "vue";
 
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {};
   },
-  async mounted() {
-  },
+  async mounted() {},
 });
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

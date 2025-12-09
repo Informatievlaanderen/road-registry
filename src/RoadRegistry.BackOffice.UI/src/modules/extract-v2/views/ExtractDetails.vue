@@ -47,7 +47,7 @@
               <br />
               <UploadComponent
                 v-if="userCanUpload"
-                :downloadId="downloadId"
+                :download-id="downloadId"
                 @upload-start="handleUploadStart"
                 @upload-complete="handleUploadComplete"
               />
@@ -93,7 +93,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "vue";
 import { orderBy, uniq, uniqBy, camelCase } from "lodash";
 import { PublicApi } from "../../../services";
 import ActivityProblems from "../../activity/components/ActivityProblems.vue";
@@ -117,7 +117,7 @@ const camelizeKeys: any = (obj: any) => {
   return obj;
 };
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     ActivityProblems,
     ActivitySummary,
@@ -262,7 +262,7 @@ export default Vue.extend({
     await this.waitForTicketComplete();
     await this.loadExtractDetails();
   },
-  destroyed() {
+  unmounted() {
     this.trackProgress = false;
   },
   methods: {
@@ -294,11 +294,11 @@ export default Vue.extend({
                 message: "",
               }
             : details.downloadStatus == "Error"
-            ? {
-                error: true,
-                message: "Er was een probleem bij het aanmaken van het extract, gelieve een nieuwe aan te vragen.",
-              }
-            : undefined;
+              ? {
+                  error: true,
+                  message: "Er was een probleem bij het aanmaken van het extract, gelieve een nieuwe aan te vragen.",
+                }
+              : undefined;
       } catch (err: any) {
         console.error("Error getting extract details", err);
 

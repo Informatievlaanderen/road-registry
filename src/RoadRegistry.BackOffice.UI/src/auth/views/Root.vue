@@ -1,19 +1,16 @@
-
 <template>
-    <div>
-      <router-view></router-view>
-    </div>
+  <div>
+    <router-view></router-view>
+  </div>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "vue";
 
-export default Vue.extend({
-  name: "auth",
+export default defineComponent({
+  name: "Auth",
   data() {
-    return {
- 
-    };
+    return {};
   },
 });
 </script>

@@ -19,7 +19,7 @@
       <div class="vl-form-col--12-12">
         <vl-action-group>
           <vl-button v-if="isLoginInProgress" mod-loader mod-disabled>Aanmelden</vl-button>
-          <vl-button v-else v-on:click="loginApiKey">Aanmelden</vl-button>
+          <vl-button v-else @click="loginApiKey">Aanmelden</vl-button>
           <vl-button v-if="useAcmIdm" @click="loginAcmIdm">Aanmelden met ACM/IDM</vl-button>
         </vl-action-group>
       </div>
@@ -39,11 +39,11 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "vue";
 import { AuthService } from "@/services/auth-service";
 import { featureToggles } from "@/environment";
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     error: String,
   },
