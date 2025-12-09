@@ -47,7 +47,7 @@
                     >
                       Download Extract
                     </router-link>
-                    <router-link :to="`/download-product`" class="vl-tab" role="tab">Download Product</router-link>
+                    <a @click="downloadProduct" class="vl-tab" role="tab" style="cursor: pointer;">Download Product</a>
                     <router-link
                       v-if="userCanEdit && !featureToggles.useExtractsV2"
                       :to="`/uploads`"
@@ -120,6 +120,9 @@ export default defineComponent({
   methods: {
     logout() {
       AuthService.logout();
+    },
+    downloadProduct() {
+      window.open(environment.DOWNLOAD_WEGENREGISTER_URL, "_blank");
     },
   },
 });

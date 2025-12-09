@@ -17,15 +17,15 @@ const routes: RouteRecordRaw[] = [
     path: "/",
     redirect: { name: defaultRedirect },
   },
-  ...AuthRoutes,
-  ...ActivityRoutes,
-  ...ExtractRoutes,
-  ...ExtractRoutesV2,
-  ...InformationRoutes,
-  ...DownloadExtractRoutes,
-  ...DownloadProductRoutes,
-  ...UploadRoutes,
-  ...TransactionZonesRoutes,
+  ...(AuthRoutes as RouteRecordRaw[]),
+  ...(ActivityRoutes as RouteRecordRaw[]),
+  ...(ExtractRoutes as RouteRecordRaw[]),
+  ...(ExtractRoutesV2 as RouteRecordRaw[]),
+  ...(InformationRoutes as RouteRecordRaw[]),
+  ...(DownloadExtractRoutes as RouteRecordRaw[]),
+  //...(DownloadProductRoutes as RouteRecordRaw[]),
+  ...(UploadRoutes as RouteRecordRaw[]),
+  ...(TransactionZonesRoutes as RouteRecordRaw[]),
 ];
 
 routes.push({
@@ -39,7 +39,7 @@ export const router = createRouter({
     if (savedPosition) {
       return savedPosition;
     } else {
-      return { x: 0, y: 0 };
+      return { top: 0, left: 0 };
     }
   },
   routes,
@@ -59,7 +59,7 @@ const userHasAccessToRoute = (to: RouteLocationNormalized): boolean => {
     requiresContexts?: string[];
   };
 
-  if (meta.requiresContexts?.length > 0) {
+  if (meta.requiresContexts && meta.requiresContexts.length > 0) {
     return AuthService.userHasAnyContext(meta.requiresContexts);
   }
 

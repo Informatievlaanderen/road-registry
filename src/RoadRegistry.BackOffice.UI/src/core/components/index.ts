@@ -3,7 +3,7 @@ import Header from "./Header.vue";
 import H2 from "./H2.vue";
 import H3 from "./H3.vue";
 import Footer from "./Footer.vue";
-const VlUiVueComponents = require("@govflanders/vl-ui-vue-components");
+import VlUiVueComponents from '@govflanders/vl-ui-design-system-vue3';
 
 // configuration of the built-in validator
 const validatorConfig = {
@@ -18,9 +18,5 @@ export const registerComponents = (app: App): void => {
   app.component("wr-h3", H3);
 
   // install the component library with config
-  app.use(VlUiVueComponents, {
-    validation: validatorConfig,
-  });
-
-  app.directive("vl-modal-toggle", VlUiVueComponents.VlModalToggle);
+  app.use(VlUiVueComponents);
 };
