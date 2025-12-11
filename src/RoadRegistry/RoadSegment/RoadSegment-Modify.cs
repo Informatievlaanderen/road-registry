@@ -44,7 +44,7 @@ public partial class RoadSegment
             return problems;
         }
 
-        Apply(new RoadSegmentModified
+        Apply(new RoadSegmentWasModified
         {
             RoadSegmentId = RoadSegmentId,
             OriginalId = change.OriginalId,

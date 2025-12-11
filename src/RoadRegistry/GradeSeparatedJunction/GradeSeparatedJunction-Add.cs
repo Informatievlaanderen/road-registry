@@ -12,7 +12,7 @@ public partial class GradeSeparatedJunction
     {
         var problems = Problems.None;
 
-        var junction = Create(new GradeSeparatedJunctionAdded
+        var junction = Create(new GradeSeparatedJunctionWasAdded
         {
             GradeSeparatedJunctionId = idGenerator.NewGradeSeparatedJunctionId(),
             OriginalId = change.TemporaryId,

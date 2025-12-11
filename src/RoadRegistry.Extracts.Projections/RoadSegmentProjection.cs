@@ -261,7 +261,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
         When<IEvent<RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromNumberedRoad>>((_, _, _) => Task.CompletedTask); // Do nothing
 
         // V2
-        When<IEvent<RoadSegmentAdded>>((session, e, ct) =>
+        When<IEvent<RoadSegmentWasAdded>>((session, e, ct) =>
         {
             var roadSegmentId = e.Data.RoadSegmentId;
 
@@ -288,7 +288,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
             return Task.CompletedTask;
         });
-        When<IEvent<RoadSegmentModified>>((session, e, ct) =>
+        When<IEvent<RoadSegmentWasModified>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
             {
@@ -333,7 +333,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 }
             }, e.Data);
         });
-        When<IEvent<RoadSegmentRemoved>>(async (session, e, ct) =>
+        When<IEvent<RoadSegmentWasRemoved>>(async (session, e, ct) =>
         {
             var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
             if (roadSegment is null)
@@ -343,28 +343,28 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
             session.Delete(roadSegment);
         });
-        When<IEvent<RoadSegmentAddedToEuropeanRoad>>((session, e, ct) =>
+        When<IEvent<RoadSegmentWasAddedToEuropeanRoad>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
             {
                 segment.EuropeanRoadNumbers.Add(e.Data.Number);
             }, e.Data);
         });
-        When<IEvent<RoadSegmentAddedToNationalRoad>>((session, e, ct) =>
+        When<IEvent<RoadSegmentWasAddedToNationalRoad>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
             {
                 segment.NationalRoadNumbers.Add(e.Data.Number);
             }, e.Data);
         });
-        When<IEvent<RoadSegmentRemovedFromEuropeanRoad>>((session, e, ct) =>
+        When<IEvent<RoadSegmentWasRemovedFromEuropeanRoad>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
             {
                 segment.EuropeanRoadNumbers.Remove(e.Data.Number);
             }, e.Data);
         });
-        When<IEvent<RoadSegmentRemovedFromNationalRoad>>((session, e, ct) =>
+        When<IEvent<RoadSegmentWasRemovedFromNationalRoad>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
             {

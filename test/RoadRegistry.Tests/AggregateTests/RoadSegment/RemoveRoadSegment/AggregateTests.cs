@@ -16,7 +16,7 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
 
-        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentAdded>())
+        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>())
             .WithoutChanges();
 
         // Act
@@ -26,7 +26,7 @@ public class AggregateTests : AggregateTestBase
         problems.Should().HaveNoError();
         segment.GetChanges().Should().HaveCount(1);
 
-        var segmentRemoved = (RoadSegmentRemoved)segment.GetChanges().Single();
+        var segmentRemoved = (RoadSegmentWasRemoved)segment.GetChanges().Single();
         segmentRemoved.RoadSegmentId.Should().Be(segment.RoadSegmentId);
     }
 
@@ -36,10 +36,10 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
 
-        var segmentAdded = Fixture.Create<RoadSegmentAdded>();
+        var segmentAdded = Fixture.Create<RoadSegmentWasAdded>();
         var segment = RoadSegment.Create(segmentAdded);
 
-        var evt = Fixture.Create<RoadSegmentRemoved>();
+        var evt = Fixture.Create<RoadSegmentWasRemoved>();
 
         // Act
         segment.Apply(evt);

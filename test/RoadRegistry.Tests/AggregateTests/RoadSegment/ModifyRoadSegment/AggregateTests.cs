@@ -22,7 +22,7 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
 
-        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentAdded>())
+        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>())
             .WithoutChanges();
         var change = Fixture.Create<ModifyRoadSegmentChange>() with
         {
@@ -37,7 +37,7 @@ public class AggregateTests : AggregateTestBase
         problems.Should().HaveNoError();
         segment.GetChanges().Should().HaveCount(1);
 
-        var segmentModified = (RoadSegmentModified)segment.GetChanges().Single();
+        var segmentModified = (RoadSegmentWasModified)segment.GetChanges().Single();
         segmentModified.RoadSegmentId.Should().Be(change.RoadSegmentId);
         segmentModified.Geometry.Should().Be(change.Geometry.ToGeometryObject());
         segmentModified.OriginalId.Should().Be(change.OriginalId);
@@ -59,7 +59,7 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
 
-        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentAdded>())
+        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>())
             .WithoutChanges();
         var change = Fixture.Create<ModifyRoadSegmentChange>() with
         {
@@ -74,7 +74,7 @@ public class AggregateTests : AggregateTestBase
         problems.Should().HaveNoError();
         segment.GetChanges().Should().HaveCount(1);
 
-        var segmentModified = (RoadSegmentModified)segment.GetChanges().Single();
+        var segmentModified = (RoadSegmentWasModified)segment.GetChanges().Single();
         segmentModified.RoadSegmentId.Should().Be(change.RoadSegmentId);
         segmentModified.Geometry.Should().Be(change.Geometry.ToGeometryObject());
         segmentModified.OriginalId.Should().Be(change.OriginalId);
@@ -96,7 +96,7 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
 
-        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentAdded>())
+        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>())
             .WithoutChanges();
         var change = Fixture.Create<ModifyRoadSegmentChange>() with
         {
@@ -116,7 +116,7 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
 
-        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentAdded>())
+        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>())
             .WithoutChanges();
         var change = Fixture.Create<ModifyRoadSegmentChange>() with
         {
@@ -139,9 +139,9 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
 
-        var segmentAdded = Fixture.Create<RoadSegmentAdded>();
+        var segmentAdded = Fixture.Create<RoadSegmentWasAdded>();
         var segment = RoadSegment.Create(segmentAdded);
-        var evt = Fixture.Create<RoadSegmentModified>();
+        var evt = Fixture.Create<RoadSegmentWasModified>();
 
         // Act
         segment.Apply(evt);

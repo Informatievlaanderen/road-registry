@@ -8,7 +8,7 @@ public partial class GradeSeparatedJunction
 {
     public Problems Remove(Provenance provenance)
     {
-        Apply(new GradeSeparatedJunctionRemoved
+        Apply(new GradeSeparatedJunctionWasRemoved
         {
             GradeSeparatedJunctionId = GradeSeparatedJunctionId,
             Provenance = new ProvenanceData(provenance)

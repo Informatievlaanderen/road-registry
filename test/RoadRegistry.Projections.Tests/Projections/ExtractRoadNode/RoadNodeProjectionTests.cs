@@ -35,16 +35,16 @@ public class RoadNodeProjectionTests
             typeof(GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionRemoved),
 
             typeof(RoadRegistry.RoadNetwork.Events.V2.RoadNetworkChanged),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentAdded),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentAddedToEuropeanRoad),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentAddedToNationalRoad),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentModified),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentRemoved),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentRemovedFromEuropeanRoad),
-            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentRemovedFromNationalRoad),
-            typeof(GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionAdded),
-            typeof(GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionModified),
-            typeof(GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionRemoved)
+            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAdded),
+            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAddedToEuropeanRoad),
+            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAddedToNationalRoad),
+            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasModified),
+            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRemoved),
+            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRemovedFromEuropeanRoad),
+            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRemovedFromNationalRoad),
+            typeof(GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAdded),
+            typeof(GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasModified),
+            typeof(GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasRemoved)
         };
 
         var allEventTypes = typeof(IMartenEvent).Assembly
@@ -71,8 +71,8 @@ public class RoadNodeProjectionTests
     {
         var fixture = new RoadNetworkTestData().Fixture;
 
-        var roadNode1Added = fixture.Create<RoadNodeAdded>();
-        var roadNode2Added = fixture.Create<RoadNodeAdded>();
+        var roadNode1Added = fixture.Create<RoadNodeWasAdded>();
+        var roadNode2Added = fixture.Create<RoadNodeWasAdded>();
 
         var expectedRoadNode1 = new RoadNodeExtractItem
         {
@@ -103,8 +103,8 @@ public class RoadNodeProjectionTests
         var fixture = new RoadNetworkTestData().Fixture;
         fixture.Freeze<RoadNodeId>();
 
-        var roadNodeAdded = fixture.Create<RoadNodeAdded>();
-        var roadNodeModified = fixture.Create<RoadNodeModified>();
+        var roadNodeAdded = fixture.Create<RoadNodeWasAdded>();
+        var roadNodeModified = fixture.Create<RoadNodeWasModified>();
 
         var expectedRoadNode = new RoadNodeExtractItem
         {
@@ -127,8 +127,8 @@ public class RoadNodeProjectionTests
         var fixture = new RoadNetworkTestData().Fixture;
         fixture.Freeze<RoadNodeId>();
 
-        var roadNode1Added = fixture.Create<RoadNodeAdded>();
-        var roadNode1Removed = fixture.Create<RoadNodeRemoved>();
+        var roadNode1Added = fixture.Create<RoadNodeWasAdded>();
+        var roadNode1Removed = fixture.Create<RoadNodeWasRemoved>();
 
         await BuildProjection()
             .Scenario()

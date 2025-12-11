@@ -15,7 +15,7 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<GradeSeparatedJunctionId>();
 
-        var junction = GradeSeparatedJunction.Create(Fixture.Create<GradeSeparatedJunctionAdded>())
+        var junction = GradeSeparatedJunction.Create(Fixture.Create<GradeSeparatedJunctionWasAdded>())
             .WithoutChanges();
 
         // Act
@@ -25,7 +25,7 @@ public class AggregateTests : AggregateTestBase
         problems.Should().HaveNoError();
         junction.GetChanges().Should().HaveCount(1);
 
-        var junctionRemoved = (GradeSeparatedJunctionRemoved)junction.GetChanges().Single();
+        var junctionRemoved = (GradeSeparatedJunctionWasRemoved)junction.GetChanges().Single();
         junctionRemoved.GradeSeparatedJunctionId.Should().Be(junction.GradeSeparatedJunctionId);
     }
 
@@ -35,10 +35,10 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<GradeSeparatedJunctionId>();
 
-        var junctionAdded = Fixture.Create<GradeSeparatedJunctionAdded>();
+        var junctionAdded = Fixture.Create<GradeSeparatedJunctionWasAdded>();
         var junction = GradeSeparatedJunction.Create(junctionAdded);
 
-        var evt = Fixture.Create<GradeSeparatedJunctionRemoved>();
+        var evt = Fixture.Create<GradeSeparatedJunctionWasRemoved>();
 
         // Act
         junction.Apply(evt);

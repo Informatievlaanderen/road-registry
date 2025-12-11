@@ -30,7 +30,7 @@ public class MartenSerializerTests
     {
         var fixture = new RoadNetworkTestData().Fixture;
 
-        var original = RoadSegment.Create(fixture.Create<RoadSegmentAdded>());
+        var original = RoadSegment.Create(fixture.Create<RoadSegmentWasAdded>());
 
         var serializer = new StoreOptions().ConfigureSerializer().Serializer();
         var originalAsJson = serializer.ToJson(original);

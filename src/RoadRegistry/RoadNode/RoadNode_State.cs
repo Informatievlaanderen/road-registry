@@ -34,7 +34,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         IsRemoved = isRemoved;
     }
 
-    public static RoadNode Create(RoadNodeAdded @event)
+    public static RoadNode Create(RoadNodeWasAdded @event)
     {
         var roadNode = new RoadNode(@event.RoadNodeId)
         {
@@ -45,7 +45,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         return roadNode;
     }
 
-    public void Apply(RoadNodeModified @event)
+    public void Apply(RoadNodeWasModified @event)
     {
         UncommittedEvents.Add(@event);
 
@@ -53,7 +53,7 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         Type = @event.Type ?? Type;
     }
 
-    public void Apply(RoadNodeRemoved @event)
+    public void Apply(RoadNodeWasRemoved @event)
     {
         if (IsRemoved)
         {

@@ -8,7 +8,7 @@ public partial class RoadSegment
 {
     public Problems Remove(Provenance provenance)
     {
-        Apply(new RoadSegmentRemoved
+        Apply(new RoadSegmentWasRemoved
         {
             RoadSegmentId = RoadSegmentId,
             Provenance = new ProvenanceData(provenance)

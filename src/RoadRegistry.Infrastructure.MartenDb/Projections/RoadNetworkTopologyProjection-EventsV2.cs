@@ -9,7 +9,7 @@ using RoadSegment.Events.V2;
 
 public partial class RoadNetworkTopologyProjection
 {
-    public void Project(IEvent<RoadNodeAdded> e, IDocumentOperations ops)
+    public void Project(IEvent<RoadNodeWasAdded> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand($"INSERT INTO {RoadNodesTableName} (id, geometry, timestamp, is_v2) VALUES (?, ST_GeomFromText(?, ?), ?, TRUE)",
             e.Data.RoadNodeId.ToInt32(),
@@ -19,7 +19,7 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<RoadNodeModified> e, IDocumentOperations ops)
+    public void Project(IEvent<RoadNodeWasModified> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?);",
             e.Data.RoadNodeId.ToInt32(),
@@ -29,7 +29,7 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<RoadNodeRemoved> e, IDocumentOperations ops)
+    public void Project(IEvent<RoadNodeWasRemoved> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadnode(?, ?);",
             e.Data.RoadNodeId.ToInt32(),
@@ -37,7 +37,7 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<RoadSegmentAdded> e, IDocumentOperations ops)
+    public void Project(IEvent<RoadSegmentWasAdded> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand($"INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp, is_v2) VALUES (?, ST_GeomFromText(?, ?), ?, ?, ?, TRUE)",
             e.Data.RoadSegmentId.ToInt32(),
@@ -49,7 +49,7 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<RoadSegmentModified> e, IDocumentOperations ops)
+    public void Project(IEvent<RoadSegmentWasModified> e, IDocumentOperations ops)
     {
         if (e.Data.Geometry is null && e.Data.StartNodeId is null && e.Data.EndNodeId is null)
         {
@@ -66,7 +66,7 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<RoadSegmentRemoved> e, IDocumentOperations ops)
+    public void Project(IEvent<RoadSegmentWasRemoved> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadsegment(?, ?);",
             e.Data.RoadSegmentId.ToInt32(),
@@ -74,7 +74,7 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<GradeSeparatedJunctionAdded> e, IDocumentOperations ops)
+    public void Project(IEvent<GradeSeparatedJunctionWasAdded> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand($"INSERT INTO {GradeSeparatedJunctionsTableName} (id, lower_road_segment_id, upper_road_segment_id, timestamp, is_v2) VALUES (?, ?, ?, ?, TRUE)",
             e.Data.GradeSeparatedJunctionId.ToInt32(),
@@ -84,7 +84,7 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<GradeSeparatedJunctionModified> e, IDocumentOperations ops)
+    public void Project(IEvent<GradeSeparatedJunctionWasModified> e, IDocumentOperations ops)
     {
         if (e.Data.LowerRoadSegmentId is null && e.Data.UpperRoadSegmentId is null)
         {
@@ -99,7 +99,7 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
-    public void Project(IEvent<GradeSeparatedJunctionRemoved> e, IDocumentOperations ops)
+    public void Project(IEvent<GradeSeparatedJunctionWasRemoved> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_delete_gradeseparatedjunction(?, ?);",
             e.Data.GradeSeparatedJunctionId.ToInt32(),
@@ -111,19 +111,19 @@ public partial class RoadNetworkTopologyProjection
     {
         // Do nothing
     }
-    public void Project(IEvent<RoadSegmentAddedToEuropeanRoad> e, IDocumentOperations ops)
+    public void Project(IEvent<RoadSegmentWasAddedToEuropeanRoad> e, IDocumentOperations ops)
     {
         // Do nothing
     }
-    public void Project(IEvent<RoadSegmentAddedToNationalRoad> e, IDocumentOperations ops)
+    public void Project(IEvent<RoadSegmentWasAddedToNationalRoad> e, IDocumentOperations ops)
     {
         // Do nothing
     }
-    public void Project(IEvent<RoadSegmentRemovedFromEuropeanRoad> e, IDocumentOperations ops)
+    public void Project(IEvent<RoadSegmentWasRemovedFromEuropeanRoad> e, IDocumentOperations ops)
     {
         // Do nothing
     }
-    public void Project(IEvent<RoadSegmentRemovedFromNationalRoad> e, IDocumentOperations ops)
+    public void Project(IEvent<RoadSegmentWasRemovedFromNationalRoad> e, IDocumentOperations ops)
     {
         // Do nothing
     }

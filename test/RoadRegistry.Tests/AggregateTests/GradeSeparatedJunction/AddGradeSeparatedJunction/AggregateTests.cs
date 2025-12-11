@@ -27,7 +27,7 @@ public class AggregateTests : AggregateTestBase
         problems.Should().HaveNoError();
         junction.GetChanges().Should().HaveCount(1);
 
-        var junctionAdded = (GradeSeparatedJunctionAdded)junction.GetChanges().Single();
+        var junctionAdded = (GradeSeparatedJunctionWasAdded)junction.GetChanges().Single();
         junctionAdded.GradeSeparatedJunctionId.Should().Be(new GradeSeparatedJunctionId(1));
         junctionAdded.Type.Should().Be(change.Type);
         junctionAdded.LowerRoadSegmentId.Should().Be(actualLowerRoadSegmentId);
@@ -38,7 +38,7 @@ public class AggregateTests : AggregateTestBase
     public void StateCheck()
     {
         // Arrange
-        var evt = Fixture.Create<GradeSeparatedJunctionAdded>();
+        var evt = Fixture.Create<GradeSeparatedJunctionWasAdded>();
 
         // Act
         var junction = GradeSeparatedJunction.Create(evt);

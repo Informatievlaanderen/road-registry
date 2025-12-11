@@ -75,16 +75,16 @@ public static class MartenProjectionIntegrationTestRunnerExtensions
                 case RoadNetworkChanged @event:
                     runner.Given<RoadNetwork, string>(RoadNetwork.GlobalIdentifier, @event);
                     break;
-                case RoadNodeAdded @event:
+                case RoadNodeWasAdded @event:
                     runner.Given<RoadNode, RoadNodeId>(@event.RoadNodeId, @event);
                     break;
-                case RoadSegmentAdded @event:
+                case RoadSegmentWasAdded @event:
                     runner.Given<RoadSegment, RoadSegmentId>(@event.RoadSegmentId, @event);
                     break;
-                case RoadSegmentModified @event:
+                case RoadSegmentWasModified @event:
                     runner.Given<RoadSegment, RoadSegmentId>(@event.RoadSegmentId, @event);
                     break;
-                case RoadSegmentRemoved @event:
+                case RoadSegmentWasRemoved @event:
                     runner.Given<RoadSegment, RoadSegmentId>(@event.RoadSegmentId, @event);
                     break;
                 default:

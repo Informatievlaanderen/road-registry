@@ -11,8 +11,8 @@ public class RoadSegmentProjectionTests
     {
         var fixture = new RoadNetworkTestData().ObjectProvider;
 
-        var roadSegment1Added = fixture.Create<RoadSegmentAdded>();
-        var roadSegment2Added = fixture.Create<RoadSegmentAdded>();
+        var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>();
+        var roadSegment2Added = fixture.Create<RoadSegmentWasAdded>();
 
         var expectedRoadSegment1 = new RoadSegmentProjectionItem
         {
@@ -37,8 +37,8 @@ public class RoadSegmentProjectionTests
         var fixture = new RoadNetworkTestData().ObjectProvider;
         fixture.Freeze<RoadSegmentId>();
 
-        var roadSegment1Added = fixture.Create<RoadSegmentAdded>();
-        var roadSegment1Removed = fixture.Create<RoadSegmentRemoved>();
+        var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>();
+        var roadSegment1Removed = fixture.Create<RoadSegmentWasRemoved>();
 
         await BuildProjection()
             .Scenario()

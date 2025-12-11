@@ -10,12 +10,12 @@ using Framework;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using RoadRegistry.RoadNode.Changes;
+using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Changes;
+using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
-using RoadNodeAdded = RoadRegistry.RoadNode.Events.V2.RoadNodeAdded;
-using RoadSegmentAdded = RoadRegistry.RoadSegment.Events.V2.RoadSegmentAdded;
 
 public class RoadNetworkTestData
 {
@@ -36,25 +36,25 @@ public class RoadNetworkTestData
     public MultiLineString MultiLineString3 { get; }
 
     public AddRoadNodeChange AddSegment1StartNode { get; }
-    public RoadNodeAdded Segment1StartNodeAdded { get; }
+    public RoadNodeWasAdded Segment1StartNodeAdded { get; }
     public AddRoadNodeChange AddSegment2StartNode { get; }
-    public RoadNodeAdded Segment2StartNodeAdded { get; }
+    public RoadNodeWasAdded Segment2StartNodeAdded { get; }
     public AddRoadNodeChange AddSegment3StartNode { get; }
-    public RoadNodeAdded Segment3StartNodeAdded { get; }
+    public RoadNodeWasAdded Segment3StartNodeAdded { get; }
 
     public AddRoadNodeChange AddSegment1EndNode { get; }
-    public RoadNodeAdded Segment1EndNodeAdded { get; }
+    public RoadNodeWasAdded Segment1EndNodeAdded { get; }
     public AddRoadNodeChange AddSegment2EndNode { get; }
-    public RoadNodeAdded Segment2EndNodeAdded { get; }
+    public RoadNodeWasAdded Segment2EndNodeAdded { get; }
     public AddRoadNodeChange AddSegment3EndNode { get; }
-    public RoadNodeAdded Segment3EndNodeAdded { get; }
+    public RoadNodeWasAdded Segment3EndNodeAdded { get; }
 
     public AddRoadSegmentChange AddSegment1 { get; }
-    public RoadSegmentAdded Segment1Added { get; }
+    public RoadSegmentWasAdded Segment1Added { get; }
     public AddRoadSegmentChange AddSegment2 { get; }
-    public RoadSegmentAdded Segment2Added { get; }
+    public RoadSegmentWasAdded Segment2Added { get; }
     public AddRoadSegmentChange AddSegment3 { get; }
-    public RoadSegmentAdded Segment3Added { get; }
+    public RoadSegmentWasAdded Segment3Added { get; }
 
     public RoadNetworkTestData(Action<Fixture> customize = null)
     {
@@ -189,7 +189,7 @@ public class RoadNetworkTestData
             Type = RoadNodeType.EndNode
         };
 
-        Segment1StartNodeAdded = new RoadNodeAdded
+        Segment1StartNodeAdded = new RoadNodeWasAdded
         {
             RoadNodeId = new RoadNodeId(1),
             OriginalId = AddSegment1StartNode.TemporaryId,
@@ -220,7 +220,7 @@ public class RoadNetworkTestData
             Type = RoadNodeType.EndNode
         };
 
-        Segment1EndNodeAdded = new RoadNodeAdded
+        Segment1EndNodeAdded = new RoadNodeWasAdded
         {
             RoadNodeId = new RoadNodeId(2),
             OriginalId = AddSegment1EndNode.TemporaryId,
@@ -251,7 +251,7 @@ public class RoadNetworkTestData
             Type = RoadNodeType.EndNode
         };
 
-        Segment2StartNodeAdded = new RoadNodeAdded
+        Segment2StartNodeAdded = new RoadNodeWasAdded
         {
             RoadNodeId = new RoadNodeId(3),
             OriginalId = AddSegment2StartNode.TemporaryId,
@@ -268,7 +268,7 @@ public class RoadNetworkTestData
             Type = RoadNodeType.EndNode
         };
 
-        Segment2EndNodeAdded = new RoadNodeAdded
+        Segment2EndNodeAdded = new RoadNodeWasAdded
         {
             RoadNodeId = new RoadNodeId(4),
             OriginalId = AddSegment2EndNode.TemporaryId,
@@ -285,7 +285,7 @@ public class RoadNetworkTestData
             Type = RoadNodeType.EndNode
         };
 
-        Segment3StartNodeAdded = new RoadNodeAdded
+        Segment3StartNodeAdded = new RoadNodeWasAdded
         {
             RoadNodeId = new RoadNodeId(5),
             OriginalId = AddSegment3StartNode.TemporaryId,
@@ -302,7 +302,7 @@ public class RoadNetworkTestData
             Type = RoadNodeType.EndNode
         };
 
-        Segment3EndNodeAdded = new RoadNodeAdded
+        Segment3EndNodeAdded = new RoadNodeWasAdded
         {
             RoadNodeId = new RoadNodeId(6),
             OriginalId = AddSegment3EndNode.TemporaryId,
@@ -331,7 +331,7 @@ public class RoadNetworkTestData
             NationalRoadNumbers = [Fixture.Create<NationalRoadNumber>()]
         };
 
-        Segment1Added = new RoadSegmentAdded
+        Segment1Added = new RoadSegmentWasAdded
         {
             RoadSegmentId = new RoadSegmentId(1),
             OriginalId = AddSegment1.OriginalId,
@@ -370,7 +370,7 @@ public class RoadNetworkTestData
             NationalRoadNumbers = []
         };
 
-        Segment2Added = new RoadSegmentAdded
+        Segment2Added = new RoadSegmentWasAdded
         {
             RoadSegmentId = new RoadSegmentId(2),
             OriginalId = AddSegment2.OriginalId,
@@ -409,7 +409,7 @@ public class RoadNetworkTestData
             NationalRoadNumbers = []
         };
 
-        Segment3Added = new RoadSegmentAdded
+        Segment3Added = new RoadSegmentWasAdded
         {
             RoadSegmentId = new RoadSegmentId(3),
             OriginalId = AddSegment3.OriginalId,

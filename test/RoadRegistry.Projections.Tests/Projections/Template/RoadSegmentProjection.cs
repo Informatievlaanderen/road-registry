@@ -17,7 +17,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
     public RoadSegmentProjection()
     {
-        When<IEvent<RoadSegmentAdded>>((session, e, ct) =>
+        When<IEvent<RoadSegmentWasAdded>>((session, e, ct) =>
         {
             session.Store(new RoadSegmentProjectionItem
             {
@@ -27,7 +27,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             return Task.CompletedTask;
         });
 
-        When<IEvent<RoadSegmentModified>>(async (session, e, ct) =>
+        When<IEvent<RoadSegmentWasModified>>(async (session, e, ct) =>
         {
             var roadSegment = await session.LoadAsync<RoadSegmentProjectionItem>(e.Data.RoadSegmentId);
             if (roadSegment is null)
@@ -40,7 +40,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             session.Store(roadSegment);
         });
 
-        When<IEvent<RoadSegmentRemoved>>(async (session, e, ct) =>
+        When<IEvent<RoadSegmentWasRemoved>>(async (session, e, ct) =>
         {
             var roadSegment = await session.LoadAsync<RoadSegmentProjectionItem>(e.Data.RoadSegmentId);
             if (roadSegment is null)

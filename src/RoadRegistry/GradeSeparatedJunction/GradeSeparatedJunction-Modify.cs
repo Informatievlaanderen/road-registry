@@ -11,7 +11,7 @@ public partial class GradeSeparatedJunction
     {
         var problems = Problems.None;
 
-        Apply(new GradeSeparatedJunctionModified
+        Apply(new GradeSeparatedJunctionWasModified
         {
             GradeSeparatedJunctionId = GradeSeparatedJunctionId,
             LowerRoadSegmentId = change.LowerRoadSegmentId,

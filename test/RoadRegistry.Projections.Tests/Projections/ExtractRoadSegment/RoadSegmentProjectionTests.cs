@@ -25,12 +25,12 @@ public class RoadSegmentProjectionTests
             typeof(GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionRemoved),
 
             typeof(RoadRegistry.RoadNetwork.Events.V2.RoadNetworkChanged),
-            typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeAdded),
-            typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeModified),
-            typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeRemoved),
-            typeof(GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionAdded),
-            typeof(GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionModified),
-            typeof(GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionRemoved)
+            typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasAdded),
+            typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasModified),
+            typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasRemoved),
+            typeof(GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAdded),
+            typeof(GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasModified),
+            typeof(GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasRemoved)
         };
         var allEventTypes = typeof(IMartenEvent).Assembly
             .GetTypes()
@@ -57,8 +57,8 @@ public class RoadSegmentProjectionTests
         var fixture = new RoadNetworkTestData().Fixture;
         fixture.CustomizeUniqueInteger();
 
-        var roadSegment1Added = fixture.Create<RoadSegmentAdded>();
-        var roadSegment2Added = fixture.Create<RoadSegmentAdded>();
+        var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>();
+        var roadSegment2Added = fixture.Create<RoadSegmentWasAdded>();
 
         var expectedRoadSegment1 = new RoadSegmentExtractItem
         {
@@ -111,8 +111,8 @@ public class RoadSegmentProjectionTests
         var fixture = new RoadNetworkTestData().Fixture;
         fixture.Freeze<RoadSegmentId>();
 
-        var roadSegmentAdded = fixture.Create<RoadSegmentAdded>();
-        var roadSegmentModified = fixture.Create<RoadSegmentModified>();
+        var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>();
+        var roadSegmentModified = fixture.Create<RoadSegmentWasModified>();
 
         var expectedRoadSegment = new RoadSegmentExtractItem
         {
@@ -146,8 +146,8 @@ public class RoadSegmentProjectionTests
         var fixture = new RoadNetworkTestData().Fixture;
         fixture.Freeze<RoadSegmentId>();
 
-        var roadSegment1Added = fixture.Create<RoadSegmentAdded>();
-        var roadSegment1Removed = fixture.Create<RoadSegmentRemoved>();
+        var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>();
+        var roadSegment1Removed = fixture.Create<RoadSegmentWasRemoved>();
 
         await BuildProjection()
             .Scenario()
@@ -161,11 +161,11 @@ public class RoadSegmentProjectionTests
         var fixture = new RoadNetworkTestData().Fixture;
         fixture.Freeze<RoadSegmentId>();
 
-        var roadSegmentAdded = fixture.Create<RoadSegmentAdded>() with
+        var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>() with
         {
             EuropeanRoadNumbers = []
         };
-        var roadSegmentModified = fixture.Create<RoadSegmentAddedToEuropeanRoad>();
+        var roadSegmentModified = fixture.Create<RoadSegmentWasAddedToEuropeanRoad>();
 
         var expectedRoadSegment = new RoadSegmentExtractItem
         {
@@ -199,11 +199,11 @@ public class RoadSegmentProjectionTests
         var fixture = new RoadNetworkTestData().Fixture;
         fixture.Freeze<RoadSegmentId>();
 
-        var roadSegmentAdded = fixture.Create<RoadSegmentAdded>() with
+        var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>() with
         {
             NationalRoadNumbers = []
         };
-        var roadSegmentModified = fixture.Create<RoadSegmentAddedToNationalRoad>();
+        var roadSegmentModified = fixture.Create<RoadSegmentWasAddedToNationalRoad>();
 
         var expectedRoadSegment = new RoadSegmentExtractItem
         {
@@ -238,11 +238,11 @@ public class RoadSegmentProjectionTests
         fixture.Freeze<RoadSegmentId>();
         fixture.Freeze<EuropeanRoadNumber>();
 
-        var roadSegmentAdded = fixture.Create<RoadSegmentAdded>() with
+        var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>() with
         {
             EuropeanRoadNumbers = [fixture.Create<EuropeanRoadNumber>()]
         };
-        var roadSegmentModified = fixture.Create<RoadSegmentRemovedFromEuropeanRoad>();
+        var roadSegmentModified = fixture.Create<RoadSegmentWasRemovedFromEuropeanRoad>();
 
         var expectedRoadSegment = new RoadSegmentExtractItem
         {
@@ -277,11 +277,11 @@ public class RoadSegmentProjectionTests
         fixture.Freeze<RoadSegmentId>();
         fixture.Freeze<NationalRoadNumber>();
 
-        var roadSegmentAdded = fixture.Create<RoadSegmentAdded>() with
+        var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>() with
         {
             NationalRoadNumbers = [fixture.Create<NationalRoadNumber>()]
         };
-        var roadSegmentModified = fixture.Create<RoadSegmentRemovedFromNationalRoad>();
+        var roadSegmentModified = fixture.Create<RoadSegmentWasRemovedFromNationalRoad>();
 
         var expectedRoadSegment = new RoadSegmentExtractItem
         {

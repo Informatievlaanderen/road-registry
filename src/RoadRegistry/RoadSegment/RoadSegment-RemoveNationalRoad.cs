@@ -11,7 +11,7 @@ public partial class RoadSegment
     {
         if (Attributes.NationalRoadNumbers.Contains(change.Number))
         {
-            Apply(new RoadSegmentRemovedFromNationalRoad
+            Apply(new RoadSegmentWasRemovedFromNationalRoad
             {
                 RoadSegmentId = change.RoadSegmentId,
                 Number = change.Number,

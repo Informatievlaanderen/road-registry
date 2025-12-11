@@ -9,16 +9,14 @@ using RoadRegistry.RoadNode.Events.V2;
 using RoadRegistry.RoadSegment.Events.V2;
 using RoadRegistry.RoadSegment.ValueObjects;
 using Point = NetTopologySuite.Geometries.Point;
-using RoadNodeAdded = RoadRegistry.RoadNode.Events.V2.RoadNodeAdded;
-using RoadSegmentAdded = RoadRegistry.RoadSegment.Events.V2.RoadSegmentAdded;
 
 public static class FixtureExtensions
 {
     public static void CustomizeRoadNodeAdded(this IFixture fixture)
     {
-        fixture.Customize<RoadNodeAdded>(composer =>
+        fixture.Customize<RoadNodeWasAdded>(composer =>
             composer.FromFactory(_ =>
-                new RoadNodeAdded
+                new RoadNodeWasAdded
                 {
                     RoadNodeId = fixture.Create<RoadNodeId>(),
                     OriginalId = fixture.Create<RoadNodeId>(),
@@ -32,9 +30,9 @@ public static class FixtureExtensions
 
     public static void CustomizeRoadNodeModified(this IFixture fixture)
     {
-        fixture.Customize<RoadNodeModified>(composer =>
+        fixture.Customize<RoadNodeWasModified>(composer =>
             composer.FromFactory(_ =>
-                new RoadNodeModified
+                new RoadNodeWasModified
                 {
                     RoadNodeId = fixture.Create<RoadNodeId>(),
                     Geometry = fixture.Create<Point>().ToGeometryObject(),
@@ -47,9 +45,9 @@ public static class FixtureExtensions
 
     public static void CustomizeRoadSegmentAdded(this IFixture fixture)
     {
-        fixture.Customize<RoadSegmentAdded>(composer =>
+        fixture.Customize<RoadSegmentWasAdded>(composer =>
             composer.FromFactory(_ =>
-                new RoadSegmentAdded
+                new RoadSegmentWasAdded
                 {
                     RoadSegmentId = fixture.Create<RoadSegmentId>(),
                     OriginalId = fixture.Create<RoadSegmentId>(),
@@ -74,12 +72,12 @@ public static class FixtureExtensions
 
     public static void CustomizeRoadSegmentModified(this IFixture fixture)
     {
-        fixture.Customize<RoadSegmentModified>(composer =>
+        fixture.Customize<RoadSegmentWasModified>(composer =>
             composer.FromFactory(_ =>
                 {
                     var roadSegmentId = fixture.Create<RoadSegmentId>();
 
-                    return new RoadSegmentModified
+                    return new RoadSegmentWasModified
                     {
                         RoadSegmentId = fixture.Create<RoadSegmentId>(),
                         OriginalId = roadSegmentId,

@@ -3,7 +3,7 @@ namespace RoadRegistry.RoadSegment.Events.V2;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using ValueObjects;
 
-public record RoadSegmentModified : IMartenEvent
+public record RoadSegmentWasModified : IMartenEvent
 {
     public required RoadSegmentId RoadSegmentId { get; init; }
     public RoadSegmentId? OriginalId { get; init; }

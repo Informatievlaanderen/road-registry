@@ -38,7 +38,7 @@ public partial class RoadSegment
             return (null, problems);
         }
 
-        var segment = Create(new RoadSegmentMerged
+        var segment = Create(new RoadSegmentWasMerged
         {
             RoadSegmentId = idGenerator.NewRoadSegmentId(),
             OriginalIds = change.OriginalIds,

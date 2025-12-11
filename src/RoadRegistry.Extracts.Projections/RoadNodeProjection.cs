@@ -71,7 +71,7 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
         });
 
         // V2
-        When<IEvent<RoadNode.Events.V2.RoadNodeAdded>>((session, e, _) =>
+        When<IEvent<RoadNode.Events.V2.RoadNodeWasAdded>>((session, e, _) =>
         {
             session.Store(new RoadNodeExtractItem
             {
@@ -83,7 +83,7 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
             });
             return Task.CompletedTask;
         });
-        When<IEvent<RoadNode.Events.V2.RoadNodeModified>>(async (session, e, _) =>
+        When<IEvent<RoadNode.Events.V2.RoadNodeWasModified>>(async (session, e, _) =>
         {
             var node = await session.LoadAsync<RoadNodeExtractItem>(e.Data.RoadNodeId);
             if (node is null)
@@ -97,7 +97,7 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
 
             session.Store(node);
         });
-        When<IEvent<RoadNode.Events.V2.RoadNodeRemoved>>(async (session, e, _) =>
+        When<IEvent<RoadNode.Events.V2.RoadNodeWasRemoved>>(async (session, e, _) =>
         {
             var node = await session.LoadAsync<RoadNodeExtractItem>(e.Data.RoadNodeId);
             if (node is null)

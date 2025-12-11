@@ -2,7 +2,7 @@ namespace RoadRegistry.RoadNode.Events.V2;
 
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 
-public record RoadNodeAdded: IMartenEvent, ICreatedEvent
+public record RoadNodeWasAdded: IMartenEvent, ICreatedEvent
 {
     public required RoadNodeId RoadNodeId { get; init; }
     public RoadNodeId? OriginalId { get; init; }

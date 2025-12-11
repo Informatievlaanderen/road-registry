@@ -10,7 +10,7 @@ public partial class RoadSegment
     {
         //TODO-pr enkel voor measured segments? if yes, add validation + unit test
 
-        Apply(new RoadSegmentRetiredBecauseOfMerger
+        Apply(new RoadSegmentWasRetiredBecauseOfMerger
         {
             RoadSegmentId = RoadSegmentId,
             MergedRoadSegmentId = mergedRoadSegmentId,

@@ -60,13 +60,13 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         IsRemoved = isRemoved;
     }
 
-    public static RoadSegment Create(RoadSegmentAdded @event)
+    public static RoadSegment Create(RoadSegmentWasAdded @event)
     {
         var segment = new RoadSegment(@event.RoadSegmentId);
         segment.Apply(@event);
         return segment;
     }
-    private void Apply(RoadSegmentAdded @event)
+    private void Apply(RoadSegmentWasAdded @event)
     {
         UncommittedEvents.Add(@event);
 
@@ -89,13 +89,13 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         };
     }
 
-    public static RoadSegment Create(RoadSegmentMerged @event)
+    public static RoadSegment Create(RoadSegmentWasMerged @event)
     {
         var segment = new RoadSegment(@event.RoadSegmentId);
         segment.Apply(@event);
         return segment;
     }
-    private void Apply(RoadSegmentMerged @event)
+    private void Apply(RoadSegmentWasMerged @event)
     {
         UncommittedEvents.Add(@event);
 
@@ -118,7 +118,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         };
     }
 
-    public void Apply(RoadSegmentModified @event)
+    public void Apply(RoadSegmentWasModified @event)
     {
         UncommittedEvents.Add(@event);
 
@@ -138,7 +138,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         };
     }
 
-    public void Apply(RoadSegmentRemoved @event)
+    public void Apply(RoadSegmentWasRemoved @event)
     {
         if (IsRemoved)
         {
@@ -150,7 +150,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         IsRemoved = true;
     }
 
-    public void Apply(RoadSegmentRetiredBecauseOfMerger @event)
+    public void Apply(RoadSegmentWasRetiredBecauseOfMerger @event)
     {
         UncommittedEvents.Add(@event);
 
@@ -161,7 +161,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         };
     }
 
-    public void Apply(RoadSegmentAddedToEuropeanRoad @event)
+    public void Apply(RoadSegmentWasAddedToEuropeanRoad @event)
     {
         UncommittedEvents.Add(@event);
 
@@ -170,7 +170,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
             EuropeanRoadNumbers = Attributes.EuropeanRoadNumbers.Add(@event.Number)
         };
     }
-    public void Apply(RoadSegmentRemovedFromEuropeanRoad @event)
+    public void Apply(RoadSegmentWasRemovedFromEuropeanRoad @event)
     {
         UncommittedEvents.Add(@event);
 
@@ -180,7 +180,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         };
     }
 
-    public void Apply(RoadSegmentAddedToNationalRoad @event)
+    public void Apply(RoadSegmentWasAddedToNationalRoad @event)
     {
         UncommittedEvents.Add(@event);
 
@@ -189,7 +189,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
             NationalRoadNumbers = Attributes.NationalRoadNumbers.Add(@event.Number)
         };
     }
-    public void Apply(RoadSegmentRemovedFromNationalRoad @event)
+    public void Apply(RoadSegmentWasRemovedFromNationalRoad @event)
     {
         UncommittedEvents.Add(@event);
 

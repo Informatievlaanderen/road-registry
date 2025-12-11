@@ -10,7 +10,7 @@ public partial class RoadNode
     {
         var problems = Problems.None;
 
-        Apply(new RoadNodeRemoved
+        Apply(new RoadNodeWasRemoved
         {
             RoadNodeId = RoadNodeId,
             Provenance = new ProvenanceData(provenance)

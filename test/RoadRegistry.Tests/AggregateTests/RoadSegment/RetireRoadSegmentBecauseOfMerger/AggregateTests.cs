@@ -15,7 +15,7 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadSegmentId>();
 
-        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentAdded>())
+        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentWasAdded>())
             .WithoutChanges();
         var mergedRoadSegmentId = segment.RoadSegmentId.Next();
 
@@ -26,7 +26,7 @@ public class AggregateTests : AggregateTestBase
         problems.Should().HaveNoError();
         segment.GetChanges().Should().HaveCount(1);
 
-        var segmentRetired = (RoadSegmentRetiredBecauseOfMerger)segment.GetChanges().Single();
+        var segmentRetired = (RoadSegmentWasRetiredBecauseOfMerger)segment.GetChanges().Single();
         segmentRetired.RoadSegmentId.Should().Be(segment.RoadSegmentId);
         segmentRetired.MergedRoadSegmentId.Should().Be(mergedRoadSegmentId);
     }
@@ -35,9 +35,9 @@ public class AggregateTests : AggregateTestBase
     public void StateCheck()
     {
         // Arrange
-        var segmentAdded = Fixture.Create<RoadSegmentAdded>();
+        var segmentAdded = Fixture.Create<RoadSegmentWasAdded>();
         var segment = RoadSegment.Create(segmentAdded);
-        var evt = Fixture.Create<RoadSegmentRetiredBecauseOfMerger>() with
+        var evt = Fixture.Create<RoadSegmentWasRetiredBecauseOfMerger>() with
         {
             RoadSegmentId = segmentAdded.RoadSegmentId
         };

@@ -16,7 +16,7 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadNodeId>();
 
-        var node = RoadNode.Create(Fixture.Create<RoadNodeAdded>())
+        var node = RoadNode.Create(Fixture.Create<RoadNodeWasAdded>())
             .WithoutChanges();
 
         // Act
@@ -26,7 +26,7 @@ public class AggregateTests : AggregateTestBase
         problems.Should().HaveNoError();
         node.GetChanges().Should().HaveCount(1);
 
-        var nodeRemoved = (RoadNodeRemoved)node.GetChanges().Single();
+        var nodeRemoved = (RoadNodeWasRemoved)node.GetChanges().Single();
         nodeRemoved.RoadNodeId.Should().Be(node.RoadNodeId);
     }
 
@@ -36,10 +36,10 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         Fixture.Freeze<RoadNodeId>();
 
-        var nodeAdded = Fixture.Create<RoadNodeAdded>();
+        var nodeAdded = Fixture.Create<RoadNodeWasAdded>();
         var node = RoadNode.Create(nodeAdded);
 
-        var evt = Fixture.Create<RoadNodeRemoved>();
+        var evt = Fixture.Create<RoadNodeWasRemoved>();
 
         // Act
         node.Apply(evt);

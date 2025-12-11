@@ -34,7 +34,7 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
         IsRemoved = isRemoved;
     }
 
-    public static GradeSeparatedJunction Create(GradeSeparatedJunctionAdded @event)
+    public static GradeSeparatedJunction Create(GradeSeparatedJunctionWasAdded @event)
     {
         var junction = new GradeSeparatedJunction(@event.GradeSeparatedJunctionId)
         {
@@ -46,7 +46,7 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
         return junction;
     }
 
-    public void Apply(GradeSeparatedJunctionModified @event)
+    public void Apply(GradeSeparatedJunctionWasModified @event)
     {
         UncommittedEvents.Add(@event);
 
@@ -55,7 +55,7 @@ public partial class GradeSeparatedJunction : MartenAggregateRootEntity<GradeSep
         Type = @event.Type ?? Type;
     }
 
-    public void Apply(GradeSeparatedJunctionRemoved @event)
+    public void Apply(GradeSeparatedJunctionWasRemoved @event)
     {
         if (IsRemoved)
         {

@@ -37,7 +37,7 @@ public class AggregateTests : AggregateTestBase
         problems.Should().HaveNoError();
         segment.GetChanges().Should().HaveCount(1);
 
-        var segmentAdded = (RoadSegmentMerged)segment.GetChanges().Single();
+        var segmentAdded = (RoadSegmentWasMerged)segment.GetChanges().Single();
         segmentAdded.RoadSegmentId.Should().Be(new RoadSegmentId(1));
         segmentAdded.Geometry.Should().Be(change.Geometry.ToGeometryObject());
         segmentAdded.OriginalIds.Should().BeEquivalentTo(change.OriginalIds);
@@ -74,7 +74,7 @@ public class AggregateTests : AggregateTestBase
         problems.Should().HaveNoError();
         segment.GetChanges().Should().HaveCount(1);
 
-        var segmentAdded = (RoadSegmentMerged)segment.GetChanges().Single();
+        var segmentAdded = (RoadSegmentWasMerged)segment.GetChanges().Single();
         segmentAdded.RoadSegmentId.Should().Be(new RoadSegmentId(1));
         segmentAdded.Geometry.Should().Be(change.Geometry.ToGeometryObject());
         segmentAdded.OriginalIds.Should().BeEquivalentTo(change.OriginalIds);
@@ -131,7 +131,7 @@ public class AggregateTests : AggregateTestBase
     public void StateCheck()
     {
         // Arrange
-        var evt = Fixture.Create<RoadSegmentMerged>();
+        var evt = Fixture.Create<RoadSegmentWasMerged>();
 
         // Act
         var segment = RoadSegment.Create(evt);

@@ -22,7 +22,7 @@ public class MartenSerializerTests
     {
         var fixture = new RoadNetworkTestData().Fixture;
 
-        var original = GradeSeparatedJunction.Create(fixture.Create<GradeSeparatedJunctionAdded>());
+        var original = GradeSeparatedJunction.Create(fixture.Create<GradeSeparatedJunctionWasAdded>());
 
         var serializer = new StoreOptions().ConfigureSerializer().Serializer();
         var originalAsJson = serializer.ToJson(original);
