@@ -212,7 +212,7 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
             .AddSingleton(_extractRequestsMock.Object);
 
         services
-            .AddMartenRoad(options => options.AddRoadNetworkTopologyProjection())
+            .AddMartenRoad(options => options.AddRoadNetworkTopologyProjection().AddRoadAggregatesSnapshots())
             .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
             .AddRoadRegistryCommandHandlers()
             .AddScoped<ChangeRoadNetworkCommandSqsLambdaRequestHandler>()

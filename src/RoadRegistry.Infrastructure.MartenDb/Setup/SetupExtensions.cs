@@ -100,7 +100,10 @@ public static class SetupExtensions
     public static StoreOptions AddRoadNetworkTopologyProjection(this StoreOptions options)
     {
         options.Projections.Add<RoadNetworkTopologyProjection>(ProjectionLifecycle.Inline);
-
+        return options;
+    }
+    public static StoreOptions AddRoadAggregatesSnapshots(this StoreOptions options)
+    {
         options.Projections.Snapshot<RoadSegment>(SnapshotLifecycle.Inline);
         options.Projections.Snapshot<RoadNode>(SnapshotLifecycle.Inline);
         options.Projections.Snapshot<GradeSeparatedJunction>(SnapshotLifecycle.Inline);
