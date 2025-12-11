@@ -16,6 +16,7 @@ using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
+using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = RoadRegistry.BackOffice.Messages.Point;
 using Polygon = RoadRegistry.BackOffice.Messages.Polygon;
@@ -544,6 +545,14 @@ public static class SharedCustomizations
 
     public static void CustomizeRoadSegmentGeometry(this IFixture fixture)
     {
+        fixture.Customize<RoadRegistry.ValueObjects.RoadSegmentGeometry>(customizer =>
+            customizer.FromFactory(_ =>
+            {
+                var geometry = GeometryTranslator.Translate(fixture.Create<RoadSegmentGeometry>());
+
+                return RoadRegistry.ValueObjects.RoadSegmentGeometry.Create(geometry);
+            }).OmitAutoProperties());
+
         fixture.Customize<RoadSegmentGeometry>(customizer =>
             customizer.FromFactory(_ =>
             {

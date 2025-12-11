@@ -15,6 +15,7 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     public RoadNodeId StartNodeId { get; private set; }
     public RoadNodeId EndNodeId { get; private set; }
     public RoadSegmentAttributes Attributes { get; private set; }
+    public RoadSegmentId? MergedRoadSegmentId { get; private set; }
 
     [JsonIgnore]
     public IEnumerable<RoadNodeId> Nodes
@@ -65,8 +66,36 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         segment.Apply(@event);
         return segment;
     }
+    private void Apply(RoadSegmentAdded @event)
+    {
+        UncommittedEvents.Add(@event);
 
-    public void Apply(RoadSegmentAdded @event)
+        IsRemoved = false;
+        Geometry = @event.Geometry.ToGeometry();
+        StartNodeId = @event.StartNodeId;
+        EndNodeId = @event.EndNodeId;
+        Attributes = new RoadSegmentAttributes
+        {
+            GeometryDrawMethod = @event.GeometryDrawMethod,
+            AccessRestriction = @event.AccessRestriction,
+            Category = @event.Category,
+            Morphology = @event.Morphology,
+            Status = @event.Status,
+            StreetNameId = @event.StreetNameId,
+            MaintenanceAuthorityId = @event.MaintenanceAuthorityId,
+            SurfaceType = @event.SurfaceType,
+            EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
+            NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
+        };
+    }
+
+    public static RoadSegment Create(RoadSegmentMerged @event)
+    {
+        var segment = new RoadSegment(@event.RoadSegmentId);
+        segment.Apply(@event);
+        return segment;
+    }
+    private void Apply(RoadSegmentMerged @event)
     {
         UncommittedEvents.Add(@event);
 
@@ -119,6 +148,17 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         UncommittedEvents.Add(@event);
 
         IsRemoved = true;
+    }
+
+    public void Apply(RoadSegmentRetiredBecauseOfMerger @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        MergedRoadSegmentId = @event.MergedRoadSegmentId;
+        Attributes = Attributes with
+        {
+            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatus.Retired)
+        };
     }
 
     public void Apply(RoadSegmentAddedToEuropeanRoad @event)

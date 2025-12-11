@@ -8,26 +8,6 @@ using RoadRegistry.Extensions;
 
 public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToString
 {
-    public static readonly RoadSegmentStatus InUse =
-        new(
-            nameof(InUse),
-            new DutchTranslation(
-                4,
-                "in gebruik",
-                "Werken zijn opgeleverd."
-            )
-        );
-
-    public static readonly RoadSegmentStatus OutOfUse =
-        new(
-            nameof(OutOfUse),
-            new DutchTranslation(
-                5,
-                "buiten gebruik",
-                "Fysieke weg is buiten gebruik gesteld maar niet gesloopt."
-            )
-        );
-
     public static readonly RoadSegmentStatus PermitRequested =
         new(
             "PermitRequested",
@@ -55,6 +35,36 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
                 3,
                 "in aanbouw",
                 "Aanvang der werken is gemeld."
+            )
+        );
+
+    public static readonly RoadSegmentStatus InUse =
+        new(
+            nameof(InUse),
+            new DutchTranslation(
+                4,
+                "in gebruik",
+                "Werken zijn opgeleverd."
+            )
+        );
+
+    public static readonly RoadSegmentStatus OutOfUse =
+        new(
+            nameof(OutOfUse),
+            new DutchTranslation(
+                5,
+                "buiten gebruik",
+                "Fysieke weg is buiten gebruik gesteld maar niet gesloopt."
+            )
+        );
+
+    public static readonly RoadSegmentStatus Retired =
+        new(
+            nameof(Retired),
+            new DutchTranslation(
+                6,
+                "TODO-pr",
+                "TODO-pr"
             )
         );
 

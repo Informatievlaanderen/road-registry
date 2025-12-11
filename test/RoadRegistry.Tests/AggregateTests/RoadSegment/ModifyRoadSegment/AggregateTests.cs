@@ -94,13 +94,17 @@ public class AggregateTests : AggregateTestBase
     public void EnsureGeometryValidatorIsUsed()
     {
         // Arrange
-        var change = Fixture.Create<AddRoadSegmentChange>() with
+        Fixture.Freeze<RoadSegmentId>();
+
+        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentAdded>())
+            .WithoutChanges();
+        var change = Fixture.Create<ModifyRoadSegmentChange>() with
         {
             Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString()
         };
 
         // Act
-        var (_, problems) = RoadSegment.Add(change, TestData.Provenance, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
+        var problems = segment.Modify(change, TestData.Provenance);
 
         // Assert
         problems.Should().ContainEquivalentOf(new RoadSegmentGeometryLengthIsZero(change.OriginalId!.Value));
@@ -110,7 +114,11 @@ public class AggregateTests : AggregateTestBase
     public void EnsureAttributesValidatorIsUsed()
     {
         // Arrange
-        var change = Fixture.Create<AddRoadSegmentChange>() with
+        Fixture.Freeze<RoadSegmentId>();
+
+        var segment = RoadSegment.Create(Fixture.Create<RoadSegmentAdded>())
+            .WithoutChanges();
+        var change = Fixture.Create<ModifyRoadSegmentChange>() with
         {
             Geometry = new LineString([new Coordinate(0, 0), new Coordinate(0.0001, 0)]).ToMultiLineString(),
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>()
@@ -119,7 +127,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         // Act
-        var (_, problems) = RoadSegment.Add(change, TestData.Provenance, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
+        var problems = segment.Modify(change, TestData.Provenance);
 
         // Assert
         problems.Should().Contain(x => x.Reason == "RoadSegmentCategoryValueNotUniqueWithinSegment");
@@ -152,5 +160,4 @@ public class AggregateTests : AggregateTestBase
         segment.Attributes.MaintenanceAuthorityId.Should().Be(evt.MaintenanceAuthorityId);
         segment.Attributes.SurfaceType.Should().Be(evt.SurfaceType);
     }
-
 }

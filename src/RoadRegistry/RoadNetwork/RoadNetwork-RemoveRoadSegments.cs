@@ -197,12 +197,10 @@ public partial class RoadNetwork
 
         var geometry = MergeGeometries(segment1, segment2, segment1HasIdealDirection, segment2HasIdealDirection, startNodeId, endNodeId, commonNodeId);
 
-        //TODO-pr aparte change voor MergeRoadSegmentChange waarbij de originele ids worden meegegeven -> event RoadSegmentMerged
-        //+ bij de remove vd wegsegmenten de nieuwe merged id aan meegeven (dit ook als aparte change beschouwen)
-        // dit als aparte event: RoadSegmentRetiredBecauseOfMerger
-        var mergedSegment = new AddRoadSegmentChange
+        var mergedSegment = new MergeRoadSegmentChange
         {
             TemporaryId = _roadSegments.Keys.Max().Next(),
+            OriginalIds = [segment1.RoadSegmentId, segment2.RoadSegmentId],
             StartNodeId = startNodeId,
             EndNodeId = endNodeId,
             Geometry = geometry,
@@ -218,7 +216,7 @@ public partial class RoadNetwork
             NationalRoadNumbers = segment1.Attributes.NationalRoadNumbers
         };
 
-        var (roadSegment, problems) = RoadSegment.Add(mergedSegment, provenance, idGenerator, idTranslator);
+        var (roadSegment, problems) = RoadSegment.Merge(mergedSegment, provenance, idGenerator, idTranslator);
         if (problems.HasError())
         {
             return problems;
@@ -227,8 +225,8 @@ public partial class RoadNetwork
         problems += idTranslator.RegisterMapping(mergedSegment.TemporaryId, roadSegment!.RoadSegmentId);
         _roadSegments.Add(roadSegment.RoadSegmentId, roadSegment);
 
-        problems += segment1.Remove(provenance);
-        problems += segment2.Remove(provenance);
+        problems += segment1.RetireBecauseOfMerger(roadSegment.RoadSegmentId, provenance);
+        problems += segment2.RetireBecauseOfMerger(roadSegment.RoadSegmentId, provenance);
         problems += _roadNodes[commonNodeId].Remove(provenance);
 
         var nodeSegmentIds = new[] { segment1.RoadSegmentId, segment2.RoadSegmentId };

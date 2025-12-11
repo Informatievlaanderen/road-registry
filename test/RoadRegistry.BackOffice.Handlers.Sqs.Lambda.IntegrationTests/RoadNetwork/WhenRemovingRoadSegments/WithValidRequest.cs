@@ -3,31 +3,31 @@
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using CommandHandling;
 using CommandHandling.Actions.RemoveRoadSegments;
+using CommandHandling.Extracts;
 using FeatureCompare.V3;
 using FluentAssertions;
+using GradeSeparatedJunction.Changes;
+using Handlers.RoadNetwork;
+using Hosts;
 using Marten;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NetTopologySuite.Geometries;
-using Product.Schema;
+using Requests.RoadNetwork;
 using RoadNode.Changes;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers.RoadNetwork;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests.RoadNetwork;
-using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
-using RoadRegistry.CommandHandling;
-using RoadRegistry.CommandHandling.Extracts;
 using RoadRegistry.Extensions;
-using RoadRegistry.Hosts;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.RoadNetwork;
-using RoadRegistry.Tests.AggregateTests;
-using RoadRegistry.Tests.BackOffice;
-using RoadRegistry.Tests.Framework;
 using RoadSegment.Changes;
 using RoadSegment.ValueObjects;
+using Sqs.RoadNetwork;
+using Tests.AggregateTests;
+using Tests.BackOffice;
+using Tests.Framework;
 using TicketingService.Abstractions;
 
 [Collection(nameof(DockerFixtureCollection))]
@@ -113,8 +113,15 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
             Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(RoadSegmentCategory.RegionalRoad)
         };
 
-        //TODO-pr add junction + verify it gets removed
-        var changes = TranslatedChanges.Empty
+        var junction = new AddGradeSeparatedJunctionChange
+        {
+            TemporaryId = new(1),
+            Type = fixture.Create<GradeSeparatedJunctionType>(),
+            LowerRoadSegmentId = segment1_node_1_2.TemporaryId,
+            UpperRoadSegmentId = segment2_node_2_3.TemporaryId
+        };
+
+        await Given(sp, TranslatedChanges.Empty
             .AppendChange(node1)
             .AppendChange(node2)
             .AppendChange(node3)
@@ -123,9 +130,7 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
             .AppendChange(node4)
             .AppendChange(node5)
             .AppendChange(segment3)
-            ;
-
-        await Given(sp, changes);
+            .AppendChange(junction));
 
         var command = new RemoveRoadSegmentsCommand
         {
@@ -165,6 +170,10 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
         roadSegments.Single(x => x.RoadSegmentId == testData.Segment1Added.RoadSegmentId).IsRemoved.Should().BeTrue();
         roadSegments.Single(x => x.RoadSegmentId == testData.Segment2Added.RoadSegmentId).IsRemoved.Should().BeFalse();
         roadSegments.Single(x => x.RoadSegmentId == testData.Segment3Added.RoadSegmentId).IsRemoved.Should().BeFalse();
+
+        var junctions = await session.LoadManyAsync([junction.TemporaryId]);
+        junctions.Should().HaveCount(1);
+        junctions.Single(x => x.GradeSeparatedJunctionId == junction.TemporaryId).IsRemoved.Should().BeTrue();
     }
 
     private async Task Given(IServiceProvider sp, TranslatedChanges changes)
