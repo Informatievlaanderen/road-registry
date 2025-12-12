@@ -1,3 +1,11 @@
+## [4.38.10](https://github.com/informatievlaanderen/road-registry/compare/v4.38.9...v4.38.10) (2025-12-12)
+
+
+### Bug Fixes
+
+* show date of most recent requested extract for a given extractrequestid ([837deb8](https://github.com/informatievlaanderen/road-registry/commit/837deb843651223ccfd6ff92267aa16d6e45fc24))
+* unit test ([28cacea](https://github.com/informatievlaanderen/road-registry/commit/28cacea192854f2cb5f6165270d33fbecdf92eab))
+
 ## [4.38.9](https://github.com/informatievlaanderen/road-registry/compare/v4.38.8...v4.38.9) (2025-12-04)
 
 
