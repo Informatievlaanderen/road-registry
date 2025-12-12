@@ -40,7 +40,7 @@ public class ExtractListRequestHandler : EndpointRequestHandler<ExtractListReque
         var query =
                 from extractRequest in extractRequestQuery
                 join extractDownload in _extractsDbContext.ExtractDownloads on extractRequest.CurrentDownloadId equals extractDownload.DownloadId
-                where extractRequest.RequestedOn > now.AddYears(-1)
+                where extractDownload.RequestedOn > now.AddYears(-1)
                 select new { Extract = extractRequest, Download = extractDownload }
             ;
 
@@ -67,7 +67,7 @@ public class ExtractListRequestHandler : EndpointRequestHandler<ExtractListReque
                     DownloadId = new DownloadId(record.Download.DownloadId),
                     Description = record.Extract.Description,
                     ExtractRequestId = ExtractRequestId.FromString(record.Extract.ExtractRequestId),
-                    RequestedOn = record.Extract.RequestedOn,
+                    RequestedOn = record.Download.RequestedOn,
                     IsInformative = record.Download.IsInformative,
                     DownloadStatus = record.Download.DownloadStatus.ToString(),
                     UploadStatus = record.Download.UploadStatus?.ToString(),
