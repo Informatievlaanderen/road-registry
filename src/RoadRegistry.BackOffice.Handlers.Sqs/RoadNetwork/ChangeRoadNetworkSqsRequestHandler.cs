@@ -4,20 +4,20 @@ using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
 using RoadSegments;
 using TicketingService.Abstractions;
 
-public class ChangeRoadNetworkCommandSqsRequestHandler : SqsHandler<ChangeRoadNetworkCommandSqsRequest>
+public class ChangeRoadNetworkSqsRequestHandler : SqsHandler<ChangeRoadNetworkSqsRequest>
 {
     public const string Action = "ChangeRoadNetwork";
 
-    public ChangeRoadNetworkCommandSqsRequestHandler(IBackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
+    public ChangeRoadNetworkSqsRequestHandler(IBackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
     {
     }
 
-    protected override string WithAggregateId(ChangeRoadNetworkCommandSqsRequest request)
+    protected override string WithAggregateId(ChangeRoadNetworkSqsRequest request)
     {
         return RoadRegistry.RoadNetwork.RoadNetwork.GlobalIdentifier;
     }
 
-    protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, ChangeRoadNetworkCommandSqsRequest sqsRequest)
+    protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, ChangeRoadNetworkSqsRequest sqsRequest)
     {
         return new Dictionary<string, string>
         {

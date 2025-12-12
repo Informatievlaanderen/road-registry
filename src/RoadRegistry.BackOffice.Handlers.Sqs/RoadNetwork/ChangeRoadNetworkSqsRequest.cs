@@ -5,7 +5,7 @@ using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
 
 [BlobRequest]
-public sealed class ChangeRoadNetworkCommandSqsRequest : SqsRequest, IHasBackOfficeRequest<ChangeRoadNetworkCommand>
+public sealed class ChangeRoadNetworkSqsRequest : SqsRequest, IHasBackOfficeRequest<ChangeRoadNetworkCommand>
 {
     public ChangeRoadNetworkCommand Request { get; init; }
 }

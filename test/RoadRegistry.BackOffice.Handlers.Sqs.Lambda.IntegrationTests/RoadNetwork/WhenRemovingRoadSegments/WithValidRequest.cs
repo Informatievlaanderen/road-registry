@@ -138,7 +138,7 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
         };
 
         var provenanceData = new RoadRegistryProvenanceData();
-        var sqsRequest = new RemoveRoadSegmentsCommandSqsRequest
+        var sqsRequest = new RemoveRoadSegmentsSqsRequest
         {
             Request = command,
             ProvenanceData = provenanceData,
@@ -182,7 +182,7 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
         var command = changes.ToChangeRoadNetworkCommand(fixture.Create<DownloadId>(), fixture.Create<TicketId>());
 
         var provenanceData = new RoadRegistryProvenanceData();
-        var sqsRequest = new ChangeRoadNetworkCommandSqsRequest
+        var sqsRequest = new ChangeRoadNetworkSqsRequest
         {
             Request = command,
             ProvenanceData = provenanceData

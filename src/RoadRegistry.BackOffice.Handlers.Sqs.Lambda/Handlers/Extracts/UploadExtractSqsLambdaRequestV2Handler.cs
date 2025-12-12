@@ -153,7 +153,7 @@ public sealed class UploadExtractSqsLambdaRequestV2Handler : SqsLambdaHandler<Up
 
             var translatedChanges = await _featureCompareTranslator.TranslateAsync(archive, ZipArchiveMetadata.Empty.WithDownloadId(downloadId), cancellationToken);
 
-            var changeRoadNetworkSqsRequest = new ChangeRoadNetworkCommandSqsRequest
+            var changeRoadNetworkSqsRequest = new ChangeRoadNetworkSqsRequest
             {
                 Request = translatedChanges.ToChangeRoadNetworkCommand(downloadId, ticketId),
                 ProvenanceData = new ProvenanceData(request.Provenance)

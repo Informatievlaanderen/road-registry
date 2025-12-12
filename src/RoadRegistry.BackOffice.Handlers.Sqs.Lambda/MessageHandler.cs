@@ -53,7 +53,8 @@ public sealed class MessageHandler : BlobMessageHandler
             RequestExtractSqsRequest request => new RequestExtractSqsLambdaRequest(groupId, request),
             UploadExtractSqsRequest request => new UploadExtractSqsLambdaRequest(groupId, request),
             CloseExtractSqsRequest request => new CloseExtractSqsLambdaRequest(groupId, request),
-            ChangeRoadNetworkCommandSqsRequest request => new ChangeRoadNetworkCommandSqsLambdaRequest(groupId, request),
+            ChangeRoadNetworkSqsRequest request => new ChangeRoadNetworkCommandSqsLambdaRequest(groupId, request),
+            RemoveRoadSegmentsSqsRequest request => new RemoveRoadSegmentsCommandSqsLambdaRequest(groupId, request),
             _ => throw new NotImplementedException(
                 $"{sqsRequest.GetType().Name} has no corresponding {nameof(SqsLambdaRequest)} defined.")
         };

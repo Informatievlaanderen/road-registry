@@ -9,7 +9,7 @@ public sealed record ChangeRoadNetworkCommandSqsLambdaRequest :
     SqsLambdaRequest,
     IHasBackOfficeRequest<ChangeRoadNetworkCommand>
 {
-    public ChangeRoadNetworkCommandSqsLambdaRequest(string groupId, ChangeRoadNetworkCommandSqsRequest sqsRequest)
+    public ChangeRoadNetworkCommandSqsLambdaRequest(string groupId, ChangeRoadNetworkSqsRequest sqsRequest)
         : base(
             groupId,
             sqsRequest.TicketId,

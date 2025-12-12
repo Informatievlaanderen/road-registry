@@ -65,7 +65,7 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
                 }
             ]
         };
-        var sqsRequest = new ChangeRoadNetworkCommandSqsRequest
+        var sqsRequest = new ChangeRoadNetworkSqsRequest
         {
             Request = command,
             ProvenanceData = provenanceData

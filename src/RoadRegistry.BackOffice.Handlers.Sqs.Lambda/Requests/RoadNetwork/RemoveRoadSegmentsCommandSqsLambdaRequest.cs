@@ -10,7 +10,7 @@ public sealed record RemoveRoadSegmentsCommandSqsLambdaRequest :
     SqsLambdaRequest,
     IHasBackOfficeRequest<RemoveRoadSegmentsCommand>
 {
-    public RemoveRoadSegmentsCommandSqsLambdaRequest(string groupId, RemoveRoadSegmentsCommandSqsRequest sqsRequest)
+    public RemoveRoadSegmentsCommandSqsLambdaRequest(string groupId, RemoveRoadSegmentsSqsRequest sqsRequest)
         : base(
             groupId,
             sqsRequest.TicketId,
