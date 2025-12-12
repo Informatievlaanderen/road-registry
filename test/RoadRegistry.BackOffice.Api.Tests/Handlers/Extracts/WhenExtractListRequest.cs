@@ -39,14 +39,14 @@ public class WhenExtractListRequest
         {
             ExtractRequestId = extractRequestId,
             Description = _fixture.Create<string>(),
-            CurrentDownloadId = downloadId,
-            RequestedOn = _clock.GetCurrentInstant().ToDateTimeOffset()
+            CurrentDownloadId = downloadId
         });
         extractsDbContext.ExtractDownloads.Add(new ExtractDownload
         {
             DownloadId = downloadId,
             Contour = Polygon.Empty,
-            ExtractRequestId = extractRequestId
+            ExtractRequestId = extractRequestId,
+            RequestedOn = _clock.GetCurrentInstant().ToDateTimeOffset()
         });
         await extractsDbContext.SaveChangesAsync();
 
@@ -80,14 +80,14 @@ public class WhenExtractListRequest
                 ExtractRequestId = extractRequestId1,
                 Description = _fixture.Create<string>(),
                 CurrentDownloadId = downloadId1,
-                RequestedOn = _clock.GetCurrentInstant().ToDateTimeOffset(),
                 OrganizationCode = organizationCode
             });
             extractsDbContext.ExtractDownloads.Add(new ExtractDownload
             {
                 DownloadId = downloadId1,
                 Contour = Polygon.Empty,
-                ExtractRequestId = extractRequestId1
+                ExtractRequestId = extractRequestId1,
+                RequestedOn = _clock.GetCurrentInstant().ToDateTimeOffset()
             });
         }
         {
@@ -96,14 +96,14 @@ public class WhenExtractListRequest
                 ExtractRequestId = extractRequestId2,
                 Description = _fixture.Create<string>(),
                 CurrentDownloadId = downloadId2,
-                RequestedOn = _clock.GetCurrentInstant().ToDateTimeOffset(),
                 OrganizationCode = _fixture.Create<string>()
             });
             extractsDbContext.ExtractDownloads.Add(new ExtractDownload
             {
                 DownloadId = downloadId2,
                 Contour = Polygon.Empty,
-                ExtractRequestId = extractRequestId2
+                ExtractRequestId = extractRequestId2,
+                RequestedOn = _clock.GetCurrentInstant().ToDateTimeOffset()
             });
         }
 
@@ -137,14 +137,14 @@ public class WhenExtractListRequest
             {
                 ExtractRequestId = extractRequestId1,
                 Description = _fixture.Create<string>(),
-                CurrentDownloadId = downloadId1,
-                RequestedOn = _clock.GetCurrentInstant().ToDateTimeOffset()
+                CurrentDownloadId = downloadId1
             });
             extractsDbContext.ExtractDownloads.Add(new ExtractDownload
             {
                 DownloadId = downloadId1,
                 Contour = Polygon.Empty,
-                ExtractRequestId = extractRequestId1
+                ExtractRequestId = extractRequestId1,
+                RequestedOn = _clock.GetCurrentInstant().ToDateTimeOffset()
             });
         }
         {
@@ -152,14 +152,14 @@ public class WhenExtractListRequest
             {
                 ExtractRequestId = extractRequestId2,
                 Description = _fixture.Create<string>(),
-                CurrentDownloadId = downloadId2,
-                RequestedOn = _clock.GetCurrentInstant().ToDateTimeOffset()
+                CurrentDownloadId = downloadId2
             });
             extractsDbContext.ExtractDownloads.Add(new ExtractDownload
             {
                 DownloadId = downloadId2,
                 Contour = Polygon.Empty,
-                ExtractRequestId = extractRequestId2
+                ExtractRequestId = extractRequestId2,
+                RequestedOn = _clock.GetCurrentInstant().ToDateTimeOffset()
             });
         }
 
@@ -193,14 +193,14 @@ public class WhenExtractListRequest
             {
                 ExtractRequestId = extractRequestId1,
                 Description = _fixture.Create<string>(),
-                CurrentDownloadId = downloadId1,
-                RequestedOn = _clock.GetCurrentInstant().ToDateTimeOffset()
+                CurrentDownloadId = downloadId1
             });
             extractsDbContext.ExtractDownloads.Add(new ExtractDownload
             {
                 DownloadId = downloadId1,
                 Contour = Polygon.Empty,
-                ExtractRequestId = extractRequestId1
+                ExtractRequestId = extractRequestId1,
+                RequestedOn = _clock.GetCurrentInstant().ToDateTimeOffset()
             });
         }
         {
@@ -208,14 +208,14 @@ public class WhenExtractListRequest
             {
                 ExtractRequestId = extractRequestId2,
                 Description = _fixture.Create<string>(),
-                CurrentDownloadId = downloadId2,
-                RequestedOn = _clock.GetCurrentInstant().ToDateTimeOffset()
+                CurrentDownloadId = downloadId2
             });
             extractsDbContext.ExtractDownloads.Add(new ExtractDownload
             {
                 DownloadId = downloadId2,
                 Contour = Polygon.Empty,
-                ExtractRequestId = extractRequestId2
+                ExtractRequestId = extractRequestId2,
+                RequestedOn = _clock.GetCurrentInstant().ToDateTimeOffset()
             });
         }
 
