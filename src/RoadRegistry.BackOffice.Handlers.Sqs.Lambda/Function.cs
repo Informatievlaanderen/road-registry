@@ -27,6 +27,7 @@ using Microsoft.IO;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.RoadNetwork;
+using SqlStreamStore;
 using StreetName;
 using ZipArchiveWriters.Cleaning;
 using ZipArchiveWriters.ExtractHost.V2;
@@ -101,17 +102,20 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .RegisterOptions<ZipArchiveWriterOptions>()
             .AddScoped<IRoadNetworkExtractArchiveAssembler>(sp =>
                 sp.GetService<UseDomainV2FeatureToggle>().FeatureEnabled
-                    ? new DomainV2RoadNetworkExtractArchiveAssembler(
+                    ? new RoadNetworkExtractArchiveAssemblerForDomainV2(
                         sp.GetService<RecyclableMemoryStreamManager>(),
                         sp.GetService<RoadRegistry.BackOffice.ZipArchiveWriters.DomainV2.IZipArchiveWriterFactory>(),
                         sp.GetRequiredService<IDocumentStore>(),
                         sp.GetRequiredService<IRoadNetworkRepository>(),
-                        sp.GetService<Func<EditorContext>>()
+                        sp.GetService<Func<EditorContext>>(),
+                        sp.GetRequiredService<ILoggerFactory>()
                     )
-                    : new RoadNetworkExtractArchiveAssembler(
+                    : new RoadNetworkExtractArchiveAssemblerForDomainV1(
                         sp.GetService<RecyclableMemoryStreamManager>(),
                         sp.GetService<Func<EditorContext>>(),
-                        sp.GetService<RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.IZipArchiveWriterFactory>()
+                        sp.GetService<RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.IZipArchiveWriterFactory>(),
+                        sp.GetRequiredService<IStreamStore>(),
+                        sp.GetRequiredService<ILoggerFactory>()
                     ))
 
             .AddFeatureCompare()

@@ -8,6 +8,11 @@ public partial class GradeSeparatedJunction
 {
     public Problems Remove(Provenance provenance)
     {
+        if (IsRemoved)
+        {
+            return Problems.None;
+        }
+
         Apply(new GradeSeparatedJunctionWasRemoved
         {
             GradeSeparatedJunctionId = GradeSeparatedJunctionId,

@@ -38,6 +38,7 @@ public sealed class MessageHandler : BlobMessageHandler
         await mediator.Send(sqsLambdaRequest, cancellationToken);
     }
 
+    //TODO-pr separate out to add unit test to ensure all SqsRequests in assembly can be converted
     private static SqsLambdaRequest ConvertToLambdaRequest(SqsRequest sqsRequest, string groupId)
     {
         return sqsRequest switch
@@ -51,6 +52,7 @@ public sealed class MessageHandler : BlobMessageHandler
             ChangeRoadSegmentOutlineGeometrySqsRequest request => new ChangeRoadSegmentOutlineGeometrySqsLambdaRequest(groupId, request),
             ChangeRoadSegmentsDynamicAttributesSqsRequest request => new ChangeRoadSegmentsDynamicAttributesSqsLambdaRequest(groupId, request),
             RequestExtractSqsRequest request => new RequestExtractSqsLambdaRequest(groupId, request),
+            RequestInwinningExtractSqsRequest request => new RequestInwinningExtractSqsLambdaRequest(groupId, request),
             UploadExtractSqsRequest request => new UploadExtractSqsLambdaRequest(groupId, request),
             CloseExtractSqsRequest request => new CloseExtractSqsLambdaRequest(groupId, request),
             ChangeRoadNetworkSqsRequest request => new ChangeRoadNetworkCommandSqsLambdaRequest(groupId, request),

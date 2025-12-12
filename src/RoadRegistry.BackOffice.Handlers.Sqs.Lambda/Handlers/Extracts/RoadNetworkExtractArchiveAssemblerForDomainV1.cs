@@ -7,36 +7,51 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Extensions;
+using SqlStreamStore;
 
-public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAssembler
+public class RoadNetworkExtractArchiveAssemblerForDomainV1 : IRoadNetworkExtractArchiveAssembler
 {
-    private readonly Func<EditorContext> _contextFactory;
     private readonly RecyclableMemoryStreamManager _manager;
+    private readonly Func<EditorContext> _contextFactory;
     private readonly IZipArchiveWriterFactory _writerFactory;
+    private readonly IStreamStore _streamStore;
+    private readonly ILogger _logger;
 
-    public RoadNetworkExtractArchiveAssembler(
+    public RoadNetworkExtractArchiveAssemblerForDomainV1(
         RecyclableMemoryStreamManager manager,
         Func<EditorContext> contextFactory,
-        IZipArchiveWriterFactory writerFactory)
+        IZipArchiveWriterFactory writerFactory,
+        IStreamStore streamStore,
+        ILoggerFactory loggerFactory)
     {
         _manager = manager.ThrowIfNull();
         _contextFactory = contextFactory.ThrowIfNull();
         _writerFactory = writerFactory.ThrowIfNull();
+        _streamStore = streamStore;
+        _logger = loggerFactory.CreateLogger(GetType());
     }
 
     public async Task<MemoryStream> AssembleArchive(RoadNetworkExtractAssemblyRequest request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var stream = _manager.GetStream();
         await using var context = _contextFactory();
 
+        await context.WaitForProjectionsToBeAtStoreHeadPosition(_streamStore, [
+            WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost,
+            WellKnownProjectionStateNames.RoadRegistryEditorOrganizationV2ProjectionHost,
+            WellKnownProjectionStateNames.RoadRegistryEditorExtractRequestProjectionHost
+        ], _logger, cancellationToken);
+
+        var stream = _manager.GetStream();
         await using var tr = await context.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
         using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);

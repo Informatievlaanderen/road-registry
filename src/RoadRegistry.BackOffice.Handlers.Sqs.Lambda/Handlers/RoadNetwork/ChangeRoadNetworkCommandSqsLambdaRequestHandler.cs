@@ -59,6 +59,8 @@ public sealed class ChangeRoadNetworkCommandSqsLambdaRequestHandler : SqsLambdaH
 
             await Ticketing.Error(command.TicketId, new TicketError(errors), cancellationToken);
             await _extractRequests.UploadRejectedAsync(downloadId, cancellationToken);
+
+            //TODO-pr send failed email IExtractUploadFailedEmailClient if external extract (grb) (of GRB logica in aparte lambda handler steken?)
         }
         else
         {

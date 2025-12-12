@@ -8,7 +8,10 @@ public partial class RoadNode
 {
     public Problems Remove(Provenance provenance)
     {
-        var problems = Problems.None;
+        if (IsRemoved)
+        {
+            return Problems.None;
+        }
 
         Apply(new RoadNodeWasRemoved
         {
@@ -16,6 +19,6 @@ public partial class RoadNode
             Provenance = new ProvenanceData(provenance)
         });
 
-        return problems;
+        return Problems.None;
     }
 }

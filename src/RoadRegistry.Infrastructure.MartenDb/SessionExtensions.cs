@@ -4,6 +4,8 @@ using Marten;
 using GradeSeparatedJunction;
 using JasperFx.Events;
 using Marten.Events;
+using Microsoft.Extensions.Logging;
+using Polly;
 using RoadNode;
 using RoadSegment;
 
@@ -71,5 +73,36 @@ public static class SessionExtensions
         }
 
         return aggregates.AsReadOnly();
+    }
+
+    public static async Task WaitForNonStaleProjection(this IDocumentStore store, string projectionName, ILogger logger, CancellationToken cancellationToken)
+    {
+        await using var session = store.LightweightSession();
+
+        var highWaterMarkSequenceId = (await session.AdvancedSql.QueryAsync<long>("SELECT last_seq_id FROM eventstore.mt_event_progression WHERE name = 'HighWaterMark'", cancellationToken)).SingleOrDefault();
+        if (highWaterMarkSequenceId == 0)
+        {
+            throw new InvalidOperationException("No projection state found for HighWaterMark.");
+        }
+
+        await Policy
+            .HandleResult<long>(projectionSequenceId => projectionSequenceId < highWaterMarkSequenceId)
+            .WaitAndRetryForeverAsync(retryAttempt =>
+            {
+                if (retryAttempt == 1)
+                {
+                    logger.LogInformation("Projection '{projectionName}' is stale, waiting...", projectionName);
+                }
+
+                return TimeSpan.FromSeconds(1);
+            })
+            .ExecuteAsync(
+                async token =>
+                {
+                    var projectionSequenceId = (await session.AdvancedSql.QueryAsync<long>("SELECT last_seq_id FROM eventstore.mt_event_progression WHERE name = ?", token, projectionName)).Single();
+                    return projectionSequenceId;
+                },
+                cancellationToken
+            );
     }
 }

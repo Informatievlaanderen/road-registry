@@ -5,7 +5,6 @@ using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using FeatureToggles;
 using FluentValidation;
 using FluentValidation.Results;
 using Hosts;
@@ -20,15 +19,14 @@ using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schema;
 using TicketingService.Abstractions;
 
-public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<RequestExtractSqsLambdaRequest>
+public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHandler<RequestInwinningExtractSqsLambdaRequest>
 {
     private readonly WKTReader _wktReader;
     private readonly ExtractsDbContext _extractsDbContext;
     private readonly RoadNetworkExtractDownloadsBlobClient _downloadsBlobClient;
     private readonly IRoadNetworkExtractArchiveAssembler _assembler;
-    private readonly UseDomainV2FeatureToggle _useDomainV2FeatureToggle;
 
-    public RequestExtractSqsLambdaRequestHandler(
+    public RequestInwinningExtractSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
@@ -37,7 +35,6 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
         ExtractsDbContext extractsDbContext,
         RoadNetworkExtractDownloadsBlobClient downloadsBlobClient,
         IRoadNetworkExtractArchiveAssembler assembler,
-        UseDomainV2FeatureToggle useDomainV2FeatureToggle,
         ILoggerFactory loggerFactory)
         : base(
             options,
@@ -45,24 +42,47 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
             ticketing,
             idempotentCommandHandler,
             roadRegistryContext,
-            loggerFactory.CreateLogger<RequestExtractSqsLambdaRequestHandler>())
+            loggerFactory.CreateLogger<RequestInwinningExtractSqsLambdaRequestHandler>())
     {
         _wktReader = new WKTReader();
         _extractsDbContext = extractsDbContext;
         _downloadsBlobClient = downloadsBlobClient;
         _assembler = assembler;
-        _useDomainV2FeatureToggle = useDomainV2FeatureToggle;
     }
 
-    protected override async Task<object> InnerHandle(RequestExtractSqsLambdaRequest request, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(RequestInwinningExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        var extractRequestId = ExtractRequestId.FromString(request.Request.ExtractRequestId);
+        var niscode = request.Request.NisCode;
+        var inwinningsZone = await _extractsDbContext.Inwinningszones.FindAsync([niscode], cancellationToken);
+        if (inwinningsZone is not null)
+        {
+            //TODO-pr wat als er al een inwinning is gestart? dan zou er ook nog geen extractRequest mogen bestaan (logica mee aanpassen)
+            throw new ValidationException([
+                new ValidationFailure
+                {
+                    PropertyName = string.Empty,
+                    ErrorCode = "Inwinningszone",
+                    ErrorMessage = $"Inwinning is al bezig voor {niscode}."
+                }
+            ]);
+        }
+
         var contour = _wktReader.Read(request.Request.Contour).ToMultiPolygon();
         // ensure SRID is filled in
         contour = (MultiPolygon)GeometryTranslator.Translate(GeometryTranslator.TranslateToRoadNetworkExtractGeometry(contour));
+
+        inwinningsZone = new Inwinningszone
+        {
+            NisCode = niscode,
+            Contour = contour,
+            Completed = false
+        };
+        _extractsDbContext.Inwinningszones.Add(inwinningsZone);
+
+        var extractRequestId = ExtractRequestId.FromString(request.Request.ExtractRequestId);
         var downloadId = new DownloadId(request.Request.DownloadId);
-        var extractDescription = new ExtractDescription(request.Request.Description);
-        var isInformative = request.Request.IsInformative;
+        var extractDescription = new ExtractDescription($"Data-inwinning {niscode}");
+        var isInformative = false;
 
         var extractRequest = await _extractsDbContext.ExtractRequests.FindAsync([extractRequestId.ToString()], cancellationToken);
         if (extractRequest is null)
@@ -72,7 +92,7 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
                 ExtractRequestId = extractRequestId,
                 OrganizationCode = request.Provenance.Operator,
                 Description = extractDescription,
-                ExternalRequestId = request.Request.ExternalRequestId,
+                ExternalRequestId = null,
                 RequestedOn = DateTimeOffset.UtcNow,
                 CurrentDownloadId = downloadId
             };
@@ -104,9 +124,7 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
                 TicketId = request.TicketId,
                 DownloadStatus = ExtractDownloadStatus.Preparing,
                 Closed = isInformative,
-                ZipArchiveWriterVersion = _useDomainV2FeatureToggle.FeatureEnabled
-                    ? WellKnownZipArchiveWriterVersions.DomainV2
-                    : WellKnownZipArchiveWriterVersions.V2
+                ZipArchiveWriterVersion = WellKnownZipArchiveWriterVersions.DomainV2
             };
             _extractsDbContext.ExtractDownloads.Add(extractDownload);
         }
@@ -132,7 +150,7 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
         return new RequestExtractResponse(downloadId);
     }
 
-    protected override Task ValidateIfMatchHeaderValue(RequestExtractSqsLambdaRequest request, CancellationToken cancellationToken)
+    protected override Task ValidateIfMatchHeaderValue(RequestInwinningExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }

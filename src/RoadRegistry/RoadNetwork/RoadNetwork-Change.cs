@@ -100,6 +100,7 @@ public partial class RoadNetwork
         {
             ScopeGeometry = changes.BuildScopeGeometry().ToGeometryObject(),
             DownloadId = downloadId,
+            //TODO-pr add summary to this event
             Provenance = new ProvenanceData(changes.Provenance)
         });
 

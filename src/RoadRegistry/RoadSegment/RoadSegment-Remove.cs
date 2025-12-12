@@ -8,6 +8,11 @@ public partial class RoadSegment
 {
     public Problems Remove(Provenance provenance)
     {
+        if (IsRemoved)
+        {
+            return Problems.None;
+        }
+
         Apply(new RoadSegmentWasRemoved
         {
             RoadSegmentId = RoadSegmentId,
