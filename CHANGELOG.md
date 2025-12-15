@@ -1,3 +1,10 @@
+## [4.38.11](https://github.com/informatievlaanderen/road-registry/compare/v4.38.10...v4.38.11) (2025-12-15)
+
+
+### Bug Fixes
+
+* **ui:** final fixes ([d67633f](https://github.com/informatievlaanderen/road-registry/commit/d67633f67d71f06ad96a0ef82b7088276a7c449e))
+
 ## [4.38.10](https://github.com/informatievlaanderen/road-registry/compare/v4.38.9...v4.38.10) (2025-12-12)
 
 
