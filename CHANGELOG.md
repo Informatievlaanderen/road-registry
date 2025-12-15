@@ -1,3 +1,10 @@
+## [4.38.13](https://github.com/informatievlaanderen/road-registry/compare/v4.38.12...v4.38.13) (2025-12-15)
+
+
+### Bug Fixes
+
+* **ui:** vue upgrade transaction zones ([a1decda](https://github.com/informatievlaanderen/road-registry/commit/a1decda53ab5db4ee729c3b8bbfa2ff40c5a2ba5))
+
 ## [4.38.12](https://github.com/informatievlaanderen/road-registry/compare/v4.38.11...v4.38.12) (2025-12-15)
 
 
