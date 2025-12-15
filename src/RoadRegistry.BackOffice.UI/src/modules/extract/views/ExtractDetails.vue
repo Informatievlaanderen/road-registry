@@ -142,7 +142,7 @@ export default defineComponent({
   },
   computed: {
     downloadId(): string {
-      return this.$route.params.downloadId[0];
+      return this.$route.params.downloadId as string;
     },
     uploadStatus(): {
       success: boolean;

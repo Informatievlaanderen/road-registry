@@ -165,7 +165,7 @@ export default defineComponent({
       try {
         while (this.trackProgress) {
           try {
-            var ticketResult = await PublicApi.Ticketing.get(this.$route.params.ticketId[0]);
+            var ticketResult = await PublicApi.Ticketing.get(this.$route.params.ticketId as string);
             this.ticketStatus = ticketResult.status;
 
             switch (ticketResult.status) {
