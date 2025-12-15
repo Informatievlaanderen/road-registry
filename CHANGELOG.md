@@ -1,3 +1,10 @@
+## [4.38.12](https://github.com/informatievlaanderen/road-registry/compare/v4.38.11...v4.38.12) (2025-12-15)
+
+
+### Bug Fixes
+
+* **ui:** vue 3 params in routes ([d9f541c](https://github.com/informatievlaanderen/road-registry/commit/d9f541c0143418141e0506697247b036f0568824))
+
 ## [4.38.11](https://github.com/informatievlaanderen/road-registry/compare/v4.38.10...v4.38.11) (2025-12-15)
 
 
