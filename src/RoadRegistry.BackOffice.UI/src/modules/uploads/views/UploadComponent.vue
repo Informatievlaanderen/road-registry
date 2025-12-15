@@ -76,7 +76,7 @@ export default defineComponent({
         autoProcessQueue: false,
         maxFiles: 1,
         maxFilesize: 28672000, //28MB
-        acceptedFiles: "application/zip",
+        acceptedFiles: "application/zip,application/x-zip-compressed",
         paramName: "archive",
         headers: {},
       };
