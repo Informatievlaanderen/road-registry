@@ -16,7 +16,6 @@
       @upload-complete="isUploading = false"
       @upload-canceled="isUploading = false"
       @upload-file-added="processing"
-      @upload-file-added-manually="processing"
     />
 
     <div v-if="uploadResult.uploadResponseCode && alertInfo.text">
