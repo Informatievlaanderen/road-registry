@@ -26,7 +26,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
         var request = new RequestExtractRequest(
             ObjectProvider.Create<ExtractRequestId>(),
             downloadId,
-            MultiPolygon.Empty.AsText(),
+            MultiPolygon.Empty,
             ObjectProvider.Create<string>(),
             false,
             ObjectProvider.Create<string>()
@@ -49,7 +49,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
         var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
         extractDownload.ExtractRequestId.Should().Be(request.ExtractRequestId);
         extractDownload.Closed.Should().BeFalse();
-        extractDownload.Contour.AsText().Should().Be(request.Contour);
+        extractDownload.Contour.Should().BeEquivalentTo(request.Contour);
         extractDownload.Contour.SRID.Should().NotBe(0);
         extractDownload.TicketId.Should().Be(sqsRequest.TicketId);
         extractDownload.DownloadStatus.Should().Be(ExtractDownloadStatus.Available);
@@ -74,7 +74,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
         var request = new RequestExtractRequest(
             ObjectProvider.Create<ExtractRequestId>(),
             downloadId,
-            MultiPolygon.Empty.AsText(),
+            MultiPolygon.Empty,
             ObjectProvider.Create<string>(),
             true,
             ObjectProvider.Create<string>()
@@ -100,7 +100,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
         var request = new RequestExtractRequest(
             ObjectProvider.Create<ExtractRequestId>(),
             downloadId,
-            MultiPolygon.Empty.AsText(),
+            MultiPolygon.Empty,
             ObjectProvider.Create<string>(),
             false,
             ObjectProvider.Create<string>()
@@ -139,7 +139,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
         var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
         extractDownload.ExtractRequestId.Should().Be(request.ExtractRequestId);
         extractDownload.Closed.Should().BeFalse();
-        extractDownload.Contour.AsText().Should().Be(request.Contour);
+        extractDownload.Contour.Should().BeEquivalentTo(request.Contour);
         extractDownload.TicketId.Should().Be(sqsRequest.TicketId);
         extractDownload.DownloadStatus.Should().Be(ExtractDownloadStatus.Available);
         extractDownload.IsInformative.Should().Be(request.IsInformative);
@@ -161,7 +161,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
         var request = new RequestExtractRequest(
             ObjectProvider.Create<ExtractRequestId>(),
             downloadId,
-            MultiPolygon.Empty.AsText(),
+            MultiPolygon.Empty,
             ObjectProvider.Create<string>(),
             false,
             ObjectProvider.Create<string>()
@@ -202,7 +202,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
         var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
         extractDownload.ExtractRequestId.Should().Be(request.ExtractRequestId);
         extractDownload.Closed.Should().BeFalse();
-        extractDownload.Contour.AsText().Should().Be(request.Contour);
+        extractDownload.Contour.Should().BeEquivalentTo(request.Contour);
         extractDownload.TicketId.Should().Be(sqsRequest.TicketId);
         extractDownload.DownloadStatus.Should().Be(ExtractDownloadStatus.Available);
         extractDownload.IsInformative.Should().Be(request.IsInformative);
@@ -219,7 +219,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
         var request = new RequestExtractRequest(
             ObjectProvider.Create<ExtractRequestId>(),
             downloadId,
-            MultiPolygon.Empty.AsText(),
+            MultiPolygon.Empty,
             ObjectProvider.Create<string>(),
             ObjectProvider.Create<bool>(),
             ObjectProvider.Create<string>()
@@ -245,7 +245,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
         var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
         extractDownload.ExtractRequestId.Should().Be(request.ExtractRequestId);
         extractDownload.Closed.Should().Be(request.IsInformative);
-        extractDownload.Contour.AsText().Should().Be(request.Contour);
+        extractDownload.Contour.Should().BeEquivalentTo(request.Contour);
         extractDownload.TicketId.Should().Be(sqsRequest.TicketId);
         extractDownload.DownloadStatus.Should().Be(ExtractDownloadStatus.Error);
         extractDownload.IsInformative.Should().Be(request.IsInformative);
@@ -262,7 +262,7 @@ public class WithValidRequest : WhenRequestExtractTestBase
         var request = new RequestExtractRequest(
             ObjectProvider.Create<ExtractRequestId>(),
             downloadId,
-            MultiPolygon.Empty.AsText(),
+            MultiPolygon.Empty,
             ObjectProvider.Create<string>(),
             ObjectProvider.Create<bool>(),
             ObjectProvider.Create<string>()

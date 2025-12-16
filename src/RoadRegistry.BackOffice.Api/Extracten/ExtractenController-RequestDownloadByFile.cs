@@ -20,6 +20,7 @@ using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
+using RoadRegistry.Extensions;
 using Swashbuckle.AspNetCore.Annotations;
 using ValueObjects.ProblemCodes;
 
@@ -53,14 +54,14 @@ public partial class ExtractenController
             var request = new ExtractDownloadaanvraagPerBestand(BuildRequestItem(".shp"), BuildRequestItem(".prj"), body.Beschrijving, body.Informatief);
             await validator.ValidateAndThrowAsync(request, cancellationToken);
 
-            var contour = shpFileContourReader.Read(request.ShpFile.ReadStream);
+            var contour = shpFileContourReader.Read(request.ShpFile.ReadStream).ToMultiPolygon();
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
-                Request = new RequestExtractRequest(extractRequestId, downloadId, contour.AsText(), request.Beschrijving, request.Informatief, null)
+                Request = new RequestExtractRequest(extractRequestId, downloadId, contour, request.Beschrijving, request.Informatief, null)
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));

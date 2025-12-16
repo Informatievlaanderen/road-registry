@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Inwinning;
 
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,8 +11,11 @@ using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Extracten;
 using FluentValidation;
 using FluentValidation.Results;
+using Infrastructure.Extensions;
+using Infrastructure.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 using RoadRegistry.CommandHandling;
@@ -28,6 +32,7 @@ public partial class InwinningController
     /// <param name="body">The body.</param>
     /// <param name="validator"></param>
     /// <param name="municipalityContext"></param>
+    /// <param name="options"></param>
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
     ///     of cancellation.
@@ -42,23 +47,34 @@ public partial class InwinningController
         [FromBody] InwinningExtractDownloadaanvraagBody body,
         [FromServices] IValidator<InwinningExtractDownloadaanvraagBody> validator,
         [FromServices] MunicipalityEventConsumerContext municipalityContext,
+        [FromServices] IOptions<InwinningOrganizationNisCodesOptions> options,
         CancellationToken cancellationToken = default)
     {
-        try
+        var @operator = ApiContext.HttpContextAccessor.HttpContext.GetOperatorName();
+        if (@operator is null
+            || !options.Value.TryGetValue(@operator, out var niscodes)
+            || !niscodes.Contains(body.NisCode))
         {
-            await validator.ValidateAndThrowAsync(body, cancellationToken);
+            return Forbid();
+        }
 
-            var municipality = await municipalityContext.FindCurrentMunicipalityByNisCode(body.NisCode, cancellationToken);
-            if (municipality?.Geometry is null)
-            {
-                throw new ValidationException([new ValidationFailure
+        await validator.ValidateAndThrowAsync(body, cancellationToken);
+
+        var municipality = await municipalityContext.FindCurrentMunicipalityByNisCode(body.NisCode, cancellationToken);
+        if (municipality?.Geometry is null)
+        {
+            throw new ValidationException([
+                new ValidationFailure
                 {
                     PropertyName = nameof(body.NisCode),
                     ErrorCode = "NotFound",
                     ErrorMessage = $"Er werd geen gemeente/stad gevonden voor de NIS-code '{body.NisCode}'"
-                }]);
-            }
+                }
+            ]);
+        }
 
+        try
+        {
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(body.NisCode));
             var downloadId = new DownloadId(Guid.NewGuid());
             var contour = municipality.Geometry.ToMultiPolygon();
@@ -66,8 +82,7 @@ public partial class InwinningController
             var result = await _mediator.Send(new RequestInwinningExtractSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
-                //TODO-pr prop toevoegen om expliciet emails te versturen bij failure? dan ook voor GRB flow gebruiken ipv check op externalrequestid?
-                Request = new RequestInwinningExtractRequest(extractRequestId, downloadId, contour.AsText(),body.NisCode)
+                Request = new RequestInwinningExtractRequest(extractRequestId, downloadId, contour, body.NisCode)
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));

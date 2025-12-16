@@ -12,9 +12,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
-using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 using RoadRegistry.Extensions;
 using RoadRegistry.Sync.MunicipalityRegistry;
@@ -67,7 +65,7 @@ public partial class ExtractenController
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
-                Request = new RequestExtractRequest(extractRequestId, downloadId, contour.AsText(), body.Beschrijving, body.Informatief, null)
+                Request = new RequestExtractRequest(extractRequestId, downloadId, contour, body.Beschrijving, body.Informatief, null)
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));

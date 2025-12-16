@@ -10,10 +10,11 @@ using CommandHandling;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
-using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
+using RoadRegistry.Extensions;
 using Swashbuckle.AspNetCore.Annotations;
 
 using ValueObjects.ProblemCodes;
@@ -46,11 +47,14 @@ public partial class ExtractenController
 
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(body.ExterneId ?? Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
+            var contour = new WKTReader().Read(body.Contour).ToMultiPolygon();
+            // ensure SRID is filled in
+            contour = (MultiPolygon)GeometryTranslator.Translate(GeometryTranslator.TranslateToRoadNetworkExtractGeometry(contour));
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
-                Request = new RequestExtractRequest(extractRequestId, downloadId, body.Contour, body.Beschrijving, body.Informatief, body.ExterneId)
+                Request = new RequestExtractRequest(extractRequestId, downloadId, contour, body.Beschrijving, body.Informatief, body.ExterneId)
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));
@@ -101,7 +105,9 @@ public class ExtractDownloadaanvraagPerContourBodyValidator : AbstractValidator<
             {
                 var reader = new WKTReader();
                 var geometry = reader.Read(contour);
-                return geometry.IsValid && geometry.Area <= (SquareKmMaximum * 1000 * 1000);
+                return geometry.IsValid
+                       && (geometry is Polygon || geometry is MultiPolygon)
+                       && geometry.Area <= (SquareKmMaximum * 1000 * 1000);
             }
             catch
             {

@@ -7,9 +7,10 @@ using NetTopologySuite.Geometries;
 
 public class Inwinningszone
 {
-    public string NisCode { get; set; }
-    public Geometry Contour { get; set; }
-    public bool Completed { get; set; }
+    public required string NisCode { get; set; }
+    public required Geometry Contour { get; set; }
+    public required string Operator { get; set; }
+    public required bool Completed { get; set; }
 }
 
 public class InwinningszoneConfiguration : IEntityTypeConfiguration<Inwinningszone>
@@ -29,6 +30,7 @@ public class InwinningszoneConfiguration : IEntityTypeConfiguration<Inwinningszo
         b.Property(p => p.Contour)
             .HasColumnType("Geometry")
             .IsRequired();
+        b.Property(p => p.Operator).IsRequired();
         b.Property(p => p.Completed).IsRequired();
 
         b.HasIndex(x => x.NisCode);

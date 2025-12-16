@@ -55,10 +55,12 @@ public abstract class WhenRequestExtractTestBase : BackOfficeLambdaTest
             TicketingMock.Object,
             Mock.Of<IIdempotentCommandHandler>(),
             RoadRegistryContext,
-            ExtractsDbContext,
-            new RoadNetworkExtractDownloadsBlobClient(blobClient ?? Mock.Of<IBlobClient>()),
-            archiveAssembler ?? archiveAssemblerMock.Object,
-            new UseDomainV2FeatureToggle(true),
+            new ExtractsEngine(
+                ExtractsDbContext,
+                new RoadNetworkExtractDownloadsBlobClient(blobClient ?? Mock.Of<IBlobClient>()),
+                archiveAssembler ?? archiveAssemblerMock.Object,
+                new UseDomainV2FeatureToggle(true),
+                new NullLoggerFactory()),
             new NullLoggerFactory()
         );
 

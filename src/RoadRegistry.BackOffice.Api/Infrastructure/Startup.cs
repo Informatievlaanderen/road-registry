@@ -348,6 +348,10 @@ public class Startup
 
                 return new AmazonS3JobUploadUrlPresigner(sp.GetRequiredService<IAmazonS3Extended>(), sp.GetRequiredService<IOptions<JobsBucketOptions>>());
             })
+
+            // Inwinning
+            .Configure<InwinningOrganizationNisCodesOptions>(_configuration.GetSection(InwinningOrganizationNisCodesOptions.ConfigKey))
+
             .AddDistributedMemoryCache()
             .AddAcmIdmAuthentication(oAuth2IntrospectionOptions, openIdConnectOptions)
             .AddApiKeyAuth()

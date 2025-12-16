@@ -99,6 +99,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             // Extracts
             .AddExtractsDbContext(QueryTrackingBehavior.TrackAll)
             .AddScoped<IExtractRequests, ExtractRequests>()
+            .AddScoped<ExtractsEngine>()
             .RegisterOptions<ZipArchiveWriterOptions>()
             .AddScoped<IRoadNetworkExtractArchiveAssembler>(sp =>
                 sp.GetService<UseDomainV2FeatureToggle>().FeatureEnabled
