@@ -1,3 +1,10 @@
+## [4.38.14](https://github.com/informatievlaanderen/road-registry/compare/v4.38.13...v4.38.14) (2025-12-16)
+
+
+### Bug Fixes
+
+* **ui:** upload component errors vue upgrade ([ecb1d5c](https://github.com/informatievlaanderen/road-registry/commit/ecb1d5c239b0535a4db7545fcb3812bf75887ed1))
+
 ## [4.38.13](https://github.com/informatievlaanderen/road-registry/compare/v4.38.12...v4.38.13) (2025-12-15)
 
 
