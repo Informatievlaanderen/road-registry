@@ -1,19 +1,18 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers.RoadNetwork;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RemoveRoadSegments;
 
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using CommandHandling.Actions.RemoveRoadSegments;
-using Hosts;
-using Infrastructure;
 using Microsoft.Extensions.Logging;
-using Requests.RoadNetwork;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
+using RoadRegistry.CommandHandling.Actions.RemoveRoadSegments;
+using RoadRegistry.Hosts;
 using TicketingService.Abstractions;
 
-public sealed class RemoveRoadSegmentsCommandSqsLambdaRequestHandler : SqsLambdaHandler<RemoveRoadSegmentsCommandSqsLambdaRequest>
+public sealed class RemoveRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler<RemoveRoadSegmentsSqsLambdaRequest>
 {
     private readonly RemoveRoadSegmentsCommandHandler _commandHandler;
 
-    public RemoveRoadSegmentsCommandSqsLambdaRequestHandler(
+    public RemoveRoadSegmentsSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
@@ -32,7 +31,7 @@ public sealed class RemoveRoadSegmentsCommandSqsLambdaRequestHandler : SqsLambda
         _commandHandler = commandHandler;
     }
 
-    protected override async Task<object> InnerHandle(RemoveRoadSegmentsCommandSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(RemoveRoadSegmentsSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
         await _commandHandler.Handle(sqsLambdaRequest.Request, sqsLambdaRequest.Provenance, cancellationToken);
 

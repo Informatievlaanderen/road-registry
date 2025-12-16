@@ -1,31 +1,24 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers.RoadNetwork;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
 
-using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using CommandHandling;
-using CommandHandling.Actions.ChangeRoadNetwork;
-using CommandHandling.Extracts;
-using Core;
-using Hosts;
-using Infrastructure;
-using Messages;
 using Microsoft.Extensions.Logging;
-using Requests.RoadNetwork;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
+using RoadRegistry.CommandHandling;
+using RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
+using RoadRegistry.Hosts;
 using TicketingService.Abstractions;
 
-public sealed class ChangeRoadNetworkCommandSqsLambdaRequestHandler : SqsLambdaHandler<ChangeRoadNetworkCommandSqsLambdaRequest>
+public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<ChangeRoadNetworkSqsLambdaRequest>
 {
-    private readonly IExtractRequests _extractRequests;
     private readonly ChangeRoadNetworkCommandHandler _commandHandler;
 
-    public ChangeRoadNetworkCommandSqsLambdaRequestHandler(
+    public ChangeRoadNetworkSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        IExtractRequests extractRequests,
         ChangeRoadNetworkCommandHandler commandHandler,
         ILoggerFactory loggerFactory)
         : base(
@@ -37,10 +30,9 @@ public sealed class ChangeRoadNetworkCommandSqsLambdaRequestHandler : SqsLambdaH
             loggerFactory)
     {
         _commandHandler = commandHandler;
-        _extractRequests = extractRequests;
     }
 
-    protected override async Task<object> InnerHandle(ChangeRoadNetworkCommandSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(ChangeRoadNetworkSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
         var command = sqsLambdaRequest.Request;
 
@@ -48,7 +40,6 @@ public sealed class ChangeRoadNetworkCommandSqsLambdaRequestHandler : SqsLambdaH
 
         var changeResult = await _commandHandler.Handle(command, sqsLambdaRequest.Provenance, cancellationToken);
 
-        var downloadId = new DownloadId(command.DownloadId);
         var hasError = changeResult.Problems.HasError();
         if (hasError)
         {
@@ -58,9 +49,6 @@ public sealed class ChangeRoadNetworkCommandSqsLambdaRequestHandler : SqsLambdaH
                 .ToArray();
 
             await Ticketing.Error(command.TicketId, new TicketError(errors), cancellationToken);
-            await _extractRequests.UploadRejectedAsync(downloadId, cancellationToken);
-
-            //TODO-pr send failed email IExtractUploadFailedEmailClient if external extract (grb) (of GRB logica in aparte lambda handler steken?)
         }
         else
         {
@@ -88,7 +76,6 @@ public sealed class ChangeRoadNetworkCommandSqsLambdaRequestHandler : SqsLambdaH
                     }
                 }
             }), cancellationToken);
-            await _extractRequests.UploadAcceptedAsync(downloadId, cancellationToken);
         }
 
         return new object();

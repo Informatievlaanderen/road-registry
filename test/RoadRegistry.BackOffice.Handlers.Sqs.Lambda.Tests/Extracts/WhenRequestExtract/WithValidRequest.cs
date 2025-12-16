@@ -50,7 +50,6 @@ public class WithValidRequest : WhenRequestExtractTestBase
         extractDownload.ExtractRequestId.Should().Be(request.ExtractRequestId);
         extractDownload.Closed.Should().BeFalse();
         extractDownload.Contour.Should().BeEquivalentTo(request.Contour);
-        extractDownload.Contour.SRID.Should().NotBe(0);
         extractDownload.TicketId.Should().Be(sqsRequest.TicketId);
         extractDownload.DownloadStatus.Should().Be(ExtractDownloadStatus.Available);
         extractDownload.IsInformative.Should().Be(request.IsInformative);

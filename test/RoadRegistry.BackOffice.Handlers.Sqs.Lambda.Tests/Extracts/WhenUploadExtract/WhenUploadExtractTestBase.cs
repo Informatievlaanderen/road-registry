@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Extracts.WhenUploadExtract;
 
 using System.IO.Compression;
+using Actions.UploadExtract;
 using AutoFixture;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
@@ -11,8 +12,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers.Extracts;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests.Extracts;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Tests.BackOffice;

@@ -49,6 +49,18 @@ public partial class RoadNetworkTopologyProjection
         );
     }
 
+    public void Project(IEvent<RoadSegmentWasMerged> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand($"INSERT INTO {RoadSegmentsTableName} (id, geometry, start_node_id, end_node_id, timestamp, is_v2) VALUES (?, ST_GeomFromText(?, ?), ?, ?, ?, TRUE)",
+            e.Data.RoadSegmentId.ToInt32(),
+            e.Data.Geometry.WKT,
+            e.Data.Geometry.SRID,
+            e.Data.StartNodeId.ToInt32(),
+            e.Data.EndNodeId.ToInt32(),
+            e.Timestamp
+        );
+    }
+
     public void Project(IEvent<RoadSegmentWasModified> e, IDocumentOperations ops)
     {
         if (e.Data.Geometry is null && e.Data.StartNodeId is null && e.Data.EndNodeId is null)
@@ -67,6 +79,14 @@ public partial class RoadNetworkTopologyProjection
     }
 
     public void Project(IEvent<RoadSegmentWasRemoved> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadsegment(?, ?);",
+            e.Data.RoadSegmentId.ToInt32(),
+            e.Timestamp
+        );
+    }
+
+    public void Project(IEvent<RoadSegmentWasRetiredBecauseOfMerger> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadsegment(?, ?);",
             e.Data.RoadSegmentId.ToInt32(),

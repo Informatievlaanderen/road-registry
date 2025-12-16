@@ -17,7 +17,7 @@ public class ChangeRoadNetworkCommand
         var roadNetworkChanges = RoadNetworkChanges.Start()
             .WithProvenance(provenance);
 
-        foreach (var change in Changes.Flatten())
+        foreach (var change in Changes.Select(x => x.Flatten()))
         {
             switch (change)
             {
@@ -86,4 +86,26 @@ public class ChangeRoadNetworkCommandItem
     public AddGradeSeparatedJunctionChange? AddGradeSeparatedJunction { get; set; }
     public ModifyGradeSeparatedJunctionChange? ModifyGradeSeparatedJunction { get; set; }
     public RemoveGradeSeparatedJunctionChange? RemoveGradeSeparatedJunction { get; set; }
+
+    public IRoadNetworkChange Flatten()
+    {
+        return new IRoadNetworkChange[]
+               {
+                   AddRoadNode,
+                   ModifyRoadNode,
+                   RemoveRoadNode,
+                   AddRoadSegment,
+                   ModifyRoadSegment,
+                   RemoveRoadSegment,
+                   AddRoadSegmentToEuropeanRoad,
+                   RemoveRoadSegmentFromEuropeanRoad,
+                   AddRoadSegmentToNationalRoad,
+                   RemoveRoadSegmentFromNationalRoad,
+                   AddGradeSeparatedJunction,
+                   ModifyGradeSeparatedJunction,
+                   RemoveGradeSeparatedJunction
+               }
+               .SingleOrDefault(c => !ReferenceEquals(c, null))
+           ?? throw new InvalidOperationException($"No change found in {nameof(ChangeRoadNetworkCommandItem)}.");
+    }
 }

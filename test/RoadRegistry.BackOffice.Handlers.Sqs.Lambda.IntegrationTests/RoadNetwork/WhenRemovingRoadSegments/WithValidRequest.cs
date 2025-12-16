@@ -1,22 +1,23 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork.WhenRemovingRoadSegments;
 
+using Actions.ChangeRoadNetwork;
+using Actions.RemoveRoadSegments;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using CommandHandling;
+using CommandHandling.Actions.ChangeRoadNetwork;
 using CommandHandling.Actions.RemoveRoadSegments;
 using CommandHandling.Extracts;
 using FeatureCompare.V3;
 using FluentAssertions;
 using GradeSeparatedJunction.Changes;
-using Handlers.RoadNetwork;
 using Hosts;
 using Marten;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using NetTopologySuite.Geometries;
-using Requests.RoadNetwork;
 using RoadNode.Changes;
 using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure.MartenDb;
@@ -146,8 +147,8 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
         };
 
         // Act
-        var handler = sp.GetRequiredService<RemoveRoadSegmentsCommandSqsLambdaRequestHandler>();
-        await handler.Handle(new RemoveRoadSegmentsCommandSqsLambdaRequest(string.Empty, sqsRequest), CancellationToken.None);
+        var handler = sp.GetRequiredService<RemoveRoadSegmentsSqsLambdaRequestHandler>();
+        await handler.Handle(new RemoveRoadSegmentsSqsLambdaRequest(string.Empty, sqsRequest), CancellationToken.None);
 
         // Assert
         var ticketResult = _ticketingMock.Invocations
@@ -188,8 +189,8 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
             ProvenanceData = provenanceData
         };
 
-        var handler = sp.GetRequiredService<ChangeRoadNetworkCommandSqsLambdaRequestHandler>();
-        await handler.Handle(new ChangeRoadNetworkCommandSqsLambdaRequest(string.Empty, sqsRequest), CancellationToken.None);
+        var handler = sp.GetRequiredService<ChangeRoadNetworkSqsLambdaRequestHandler>();
+        await handler.Handle(new ChangeRoadNetworkSqsLambdaRequest(string.Empty, sqsRequest), CancellationToken.None);
 
         var ticketResult = _ticketingMock.Invocations
             .Where(x => x.Method.Name == nameof(ITicketing.Complete) && x.Arguments[0].Equals(command.TicketId))
@@ -224,8 +225,8 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
             .AddMartenRoad(options => options.AddRoadNetworkTopologyProjection().AddRoadAggregatesSnapshots())
             .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
             .AddRoadRegistryCommandHandlers()
-            .AddScoped<ChangeRoadNetworkCommandSqsLambdaRequestHandler>()
-            .AddScoped<RemoveRoadSegmentsCommandSqsLambdaRequestHandler>();
+            .AddScoped<ChangeRoadNetworkSqsLambdaRequestHandler>()
+            .AddScoped<RemoveRoadSegmentsSqsLambdaRequestHandler>();
 
         var sp = services.BuildServiceProvider();
 

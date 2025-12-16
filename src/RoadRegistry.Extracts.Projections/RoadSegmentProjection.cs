@@ -288,6 +288,33 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
             return Task.CompletedTask;
         });
+        When<IEvent<RoadSegmentWasMerged>>((session, e, ct) =>
+        {
+            var roadSegmentId = e.Data.RoadSegmentId;
+
+            var roadSegment = new RoadSegmentExtractItem
+            {
+                RoadSegmentId = roadSegmentId,
+                Geometry = e.Data.Geometry,
+                StartNodeId = new RoadNodeId(e.Data.StartNodeId),
+                EndNodeId = new RoadNodeId(e.Data.EndNodeId),
+                GeometryDrawMethod = e.Data.GeometryDrawMethod,
+                AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(e.Data.AccessRestriction),
+                Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(e.Data.Category),
+                Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>(e.Data.Morphology),
+                Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(e.Data.Status),
+                StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(e.Data.StreetNameId),
+                MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(e.Data.MaintenanceAuthorityId),
+                SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>(e.Data.SurfaceType),
+                EuropeanRoadNumbers = e.Data.EuropeanRoadNumbers.ToList(),
+                NationalRoadNumbers = e.Data.NationalRoadNumbers.ToList(),
+                Origin = e.Data.Provenance.ToEventTimestamp(),
+                LastModified = e.Data.Provenance.ToEventTimestamp()
+            };
+            session.Store(roadSegment);
+
+            return Task.CompletedTask;
+        });
         When<IEvent<RoadSegmentWasModified>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
@@ -334,6 +361,16 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             }, e.Data);
         });
         When<IEvent<RoadSegmentWasRemoved>>(async (session, e, ct) =>
+        {
+            var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
+            if (roadSegment is null)
+            {
+                throw new InvalidOperationException($"No document found for Id {e.Data.RoadSegmentId}");
+            }
+
+            session.Delete(roadSegment);
+        });
+        When<IEvent<RoadSegmentWasRetiredBecauseOfMerger>>(async (session, e, ct) =>
         {
             var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
             if (roadSegment is null)

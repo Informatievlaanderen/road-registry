@@ -1,15 +1,15 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests.RoadNetwork;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
 
-using Abstractions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
-using CommandHandling.Actions.ChangeRoadNetwork;
-using Sqs.RoadNetwork;
+using RoadRegistry.BackOffice.Abstractions;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
+using RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
 
-public sealed record ChangeRoadNetworkCommandSqsLambdaRequest :
+public sealed record ChangeRoadNetworkSqsLambdaRequest :
     SqsLambdaRequest,
     IHasBackOfficeRequest<ChangeRoadNetworkCommand>
 {
-    public ChangeRoadNetworkCommandSqsLambdaRequest(string groupId, ChangeRoadNetworkSqsRequest sqsRequest)
+    public ChangeRoadNetworkSqsLambdaRequest(string groupId, ChangeRoadNetworkSqsRequest sqsRequest)
         : base(
             groupId,
             sqsRequest.TicketId,

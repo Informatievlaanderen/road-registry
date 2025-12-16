@@ -1,14 +1,13 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers.Extracts;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CloseExtract;
 
-using Abstractions.Extracts.V2;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using Exceptions;
-using Hosts;
-using Infrastructure;
 using Microsoft.Extensions.Logging;
-using Requests.Extracts;
+using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
+using RoadRegistry.BackOffice.Exceptions;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Hosts;
 using TicketingService.Abstractions;
 
 public sealed class CloseExtractSqsLambdaRequestHandler : SqsLambdaHandler<CloseExtractSqsLambdaRequest>

@@ -3,6 +3,8 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
 using System.Reflection;
 using Abstractions;
+using Actions.RequestExtract;
+using Actions.UploadExtract;
 using Autofac;
 using BackOffice.Extensions;
 using BackOffice.Extracts;
@@ -15,7 +17,6 @@ using Editor.Schema;
 using FeatureToggles;
 using FluentValidation;
 using Framework;
-using Handlers.Extracts;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Marten;
@@ -99,7 +100,8 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             // Extracts
             .AddExtractsDbContext(QueryTrackingBehavior.TrackAll)
             .AddScoped<IExtractRequests, ExtractRequests>()
-            .AddScoped<ExtractsEngine>()
+            .AddScoped<ExtractRequester>()
+            .AddScoped<ExtractUploader>()
             .RegisterOptions<ZipArchiveWriterOptions>()
             .AddScoped<IRoadNetworkExtractArchiveAssembler>(sp =>
                 sp.GetService<UseDomainV2FeatureToggle>().FeatureEnabled

@@ -4,14 +4,16 @@ using System;
 
 public sealed class ZipArchiveMetadata
 {
-    public static readonly ZipArchiveMetadata Empty = new(null);
+    public static readonly ZipArchiveMetadata Empty = new(null, false);
 
-    private ZipArchiveMetadata(DownloadId? downloadId)
+    private ZipArchiveMetadata(DownloadId? downloadId, bool inwinning)
     {
         DownloadId = downloadId;
+        Inwinning = inwinning;
     }
 
     public DownloadId? DownloadId { get; }
+    public bool Inwinning { get; }
 
     public override bool Equals(object obj)
     {
@@ -34,6 +36,10 @@ public sealed class ZipArchiveMetadata
 
     public ZipArchiveMetadata WithDownloadId(DownloadId downloadId)
     {
-        return new ZipArchiveMetadata(downloadId);
+        return new ZipArchiveMetadata(downloadId, Inwinning);
+    }
+    public ZipArchiveMetadata WithInwinning()
+    {
+        return new ZipArchiveMetadata(DownloadId, true);
     }
 }

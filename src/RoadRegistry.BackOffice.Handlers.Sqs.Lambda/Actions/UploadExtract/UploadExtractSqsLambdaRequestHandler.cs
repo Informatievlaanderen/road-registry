@@ -1,30 +1,28 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers.Extracts;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UploadExtract;
 
 using System.IO.Compression;
-using Abstractions.Exceptions;
-using BackOffice.Extensions;
-using BackOffice.Extracts;
-using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using Core;
-using Exceptions;
-using FeatureCompare;
-using Framework;
-using Hosts;
-using Hosts.Infrastructure.Extensions;
-using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Requests.Extracts;
+using RoadRegistry.BackOffice.Abstractions.Exceptions;
+using RoadRegistry.BackOffice.Exceptions;
+using RoadRegistry.BackOffice.Extensions;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.FeatureCompare;
+using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
+using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Hosts;
+using RoadRegistry.Hosts.Infrastructure.Extensions;
+using RoadRegistry.ValueObjects.ProblemCodes;
+using RoadRegistry.ValueObjects.Problems;
 using SqlStreamStore;
 using TicketingService.Abstractions;
-using ValueObjects.ProblemCodes;
-using ValueObjects.Problems;
-using ZipArchiveWriters.Cleaning;
 
 public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<UploadExtractSqsLambdaRequest>
 {

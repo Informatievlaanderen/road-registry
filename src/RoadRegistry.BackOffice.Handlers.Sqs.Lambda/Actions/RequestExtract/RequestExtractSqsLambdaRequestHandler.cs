@@ -1,17 +1,16 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers.Extracts;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RequestExtract;
 
-using Abstractions.Extracts.V2;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using Hosts;
-using Infrastructure;
 using Microsoft.Extensions.Logging;
-using Requests.Extracts;
+using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
+using RoadRegistry.Hosts;
 using TicketingService.Abstractions;
 
 public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<RequestExtractSqsLambdaRequest>
 {
-    private readonly ExtractsEngine _extractsEngine;
+    private readonly ExtractRequester _extractRequester;
 
     public RequestExtractSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -19,7 +18,7 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        ExtractsEngine extractsEngine,
+        ExtractRequester extractRequester,
         ILoggerFactory loggerFactory)
         : base(
             options,
@@ -29,12 +28,12 @@ public sealed class RequestExtractSqsLambdaRequestHandler : SqsLambdaHandler<Req
             roadRegistryContext,
             loggerFactory.CreateLogger<RequestExtractSqsLambdaRequestHandler>())
     {
-        _extractsEngine = extractsEngine;
+        _extractRequester = extractRequester;
     }
 
     protected override async Task<object> InnerHandle(RequestExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        await _extractsEngine.BuildExtract(request.Request, new TicketId(request.TicketId), request.Provenance, cancellationToken);
+        await _extractRequester.BuildExtract(request.Request, new TicketId(request.TicketId), request.Provenance, cancellationToken);
 
         var downloadId = new DownloadId(request.Request.DownloadId);
         return new RequestExtractResponse(downloadId);

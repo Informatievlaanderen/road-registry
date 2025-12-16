@@ -63,6 +63,7 @@
     </AssemblyAttribute>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Actions\" />
     <Folder Include="Infrastructure\Options\" />
   </ItemGroup>
 </Project>

@@ -1,17 +1,17 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers.Extracts;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RequestExtract;
 
 using System.Data;
 using System.IO.Compression;
 using System.Text;
-using BackOffice.Extracts;
-using Editor.Schema;
 using Marten;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.ZipArchiveWriters.DomainV2;
+using RoadRegistry.Editor.Schema;
 using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.RoadNetwork;
-using ZipArchiveWriters.DomainV2;
 
 public class RoadNetworkExtractArchiveAssemblerForDomainV2 : IRoadNetworkExtractArchiveAssembler
 {

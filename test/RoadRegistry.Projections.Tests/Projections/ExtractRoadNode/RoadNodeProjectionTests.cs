@@ -39,6 +39,8 @@ public class RoadNodeProjectionTests
             typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAddedToEuropeanRoad),
             typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAddedToNationalRoad),
             typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasModified),
+            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasMerged),
+            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRetiredBecauseOfMerger),
             typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRemoved),
             typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRemovedFromEuropeanRoad),
             typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRemovedFromNationalRoad),

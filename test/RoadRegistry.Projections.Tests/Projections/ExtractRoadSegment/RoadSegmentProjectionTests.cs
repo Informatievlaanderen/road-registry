@@ -106,6 +106,60 @@ public class RoadSegmentProjectionTests
     }
 
     [Fact]
+    public Task WhenRoadSegmentWasMerged_ThenSucceeded()
+    {
+        var fixture = new RoadNetworkTestData().Fixture;
+        fixture.CustomizeUniqueInteger();
+
+        var roadSegment1Added = fixture.Create<RoadSegmentWasMerged>();
+        var roadSegment2Added = fixture.Create<RoadSegmentWasMerged>();
+
+        var expectedRoadSegment1 = new RoadSegmentExtractItem
+        {
+            RoadSegmentId = roadSegment1Added.RoadSegmentId,
+            Geometry = roadSegment1Added.Geometry,
+            StartNodeId = roadSegment1Added.StartNodeId,
+            EndNodeId = roadSegment1Added.EndNodeId,
+            GeometryDrawMethod = roadSegment1Added.GeometryDrawMethod,
+            AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(roadSegment1Added.AccessRestriction),
+            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(roadSegment1Added.Category),
+            Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>(roadSegment1Added.Morphology),
+            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(roadSegment1Added.Status),
+            StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(roadSegment1Added.StreetNameId),
+            MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(roadSegment1Added.MaintenanceAuthorityId),
+            SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>(roadSegment1Added.SurfaceType),
+            EuropeanRoadNumbers = roadSegment1Added.EuropeanRoadNumbers.ToList(),
+            NationalRoadNumbers = roadSegment1Added.NationalRoadNumbers.ToList(),
+            Origin = roadSegment1Added.Provenance.ToEventTimestamp(),
+            LastModified = roadSegment1Added.Provenance.ToEventTimestamp()
+        };
+        var expectedRoadSegment2 = new RoadSegmentExtractItem
+        {
+            RoadSegmentId = roadSegment2Added.RoadSegmentId,
+            Geometry = roadSegment2Added.Geometry,
+            StartNodeId = roadSegment2Added.StartNodeId,
+            EndNodeId = roadSegment2Added.EndNodeId,
+            GeometryDrawMethod = roadSegment2Added.GeometryDrawMethod,
+            AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(roadSegment2Added.AccessRestriction),
+            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(roadSegment2Added.Category),
+            Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>(roadSegment2Added.Morphology),
+            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(roadSegment2Added.Status),
+            StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(roadSegment2Added.StreetNameId),
+            MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(roadSegment2Added.MaintenanceAuthorityId),
+            SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>(roadSegment2Added.SurfaceType),
+            EuropeanRoadNumbers = roadSegment2Added.EuropeanRoadNumbers.ToList(),
+            NationalRoadNumbers = roadSegment2Added.NationalRoadNumbers.ToList(),
+            Origin = roadSegment2Added.Provenance.ToEventTimestamp(),
+            LastModified = roadSegment2Added.Provenance.ToEventTimestamp()
+        };
+
+        return BuildProjection()
+            .Scenario()
+            .Given(roadSegment1Added, roadSegment2Added)
+            .Expect(expectedRoadSegment1, expectedRoadSegment2);
+    }
+
+    [Fact]
     public Task WhenRoadSegmentModified_ThenSucceeded()
     {
         var fixture = new RoadNetworkTestData().Fixture;
@@ -148,6 +202,21 @@ public class RoadSegmentProjectionTests
 
         var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>();
         var roadSegment1Removed = fixture.Create<RoadSegmentWasRemoved>();
+
+        await BuildProjection()
+            .Scenario()
+            .Given(roadSegment1Added, roadSegment1Removed)
+            .ExpectNone();
+    }
+
+    [Fact]
+    public async Task WhenRoadSegmentWasRetiredBecauseOfMerger_ThenNone()
+    {
+        var fixture = new RoadNetworkTestData().Fixture;
+        fixture.Freeze<RoadSegmentId>();
+
+        var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>();
+        var roadSegment1Removed = fixture.Create<RoadSegmentWasRetiredBecauseOfMerger>();
 
         await BuildProjection()
             .Scenario()

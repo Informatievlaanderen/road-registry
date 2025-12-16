@@ -1,21 +1,21 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers.Extracts;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RequestInwinningExtract;
 
-using Abstractions.Extracts.V2;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using FluentValidation;
 using FluentValidation.Results;
-using Hosts;
-using Infrastructure;
 using Microsoft.Extensions.Logging;
-using Requests.Extracts;
+using RequestExtract;
+using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Hosts;
 using TicketingService.Abstractions;
 
 public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHandler<RequestInwinningExtractSqsLambdaRequest>
 {
     private readonly ExtractsDbContext _extractsDbContext;
-    private readonly ExtractsEngine _extractsEngine;
+    private readonly ExtractRequester _extractRequester;
 
     public RequestInwinningExtractSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -24,7 +24,7 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         ExtractsDbContext extractsDbContext,
-        ExtractsEngine extractsEngine,
+        ExtractRequester extractRequester,
         ILoggerFactory loggerFactory)
         : base(
             options,
@@ -35,7 +35,7 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
             loggerFactory.CreateLogger<RequestInwinningExtractSqsLambdaRequestHandler>())
     {
         _extractsDbContext = extractsDbContext;
-        _extractsEngine = extractsEngine;
+        _extractRequester = extractRequester;
     }
 
     protected override async Task<object> InnerHandle(RequestInwinningExtractSqsLambdaRequest request, CancellationToken cancellationToken)
@@ -62,19 +62,24 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
                 NisCode = niscode,
                 Contour = request.Request.Contour,
                 Operator = request.Provenance.Operator,
+                DownloadId = request.Request.DownloadId,
                 Completed = false
             };
             _extractsDbContext.Inwinningszones.Add(inwinningsZone);
         }
+        else
+        {
+            inwinningsZone.DownloadId = request.Request.DownloadId;
+        }
 
-        await _extractsEngine.BuildExtract(
+        await _extractRequester.BuildExtract(
             new RequestExtractRequest(
                 request.Request.ExtractRequestId,
                 request.Request.DownloadId,
                 request.Request.Contour,
                 $"Data-inwinning {niscode}",
                 false,
-                $"INWINNING_{niscode}"),
+                $"DATA_INWINNING_V2_{niscode}"),
             new TicketId(request.TicketId), request.Provenance, cancellationToken);
 
         var downloadId = new DownloadId(request.Request.DownloadId);

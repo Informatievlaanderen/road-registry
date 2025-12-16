@@ -1,5 +1,6 @@
 namespace RoadRegistry.Extracts.Schema;
 
+using System;
 using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -10,6 +11,7 @@ public class Inwinningszone
     public required string NisCode { get; set; }
     public required Geometry Contour { get; set; }
     public required string Operator { get; set; }
+    public required Guid DownloadId { get; set; }
     public required bool Completed { get; set; }
 }
 
@@ -31,6 +33,7 @@ public class InwinningszoneConfiguration : IEntityTypeConfiguration<Inwinningszo
             .HasColumnType("Geometry")
             .IsRequired();
         b.Property(p => p.Operator).IsRequired();
+        b.Property(p => p.DownloadId).IsRequired();
         b.Property(p => p.Completed).IsRequired();
 
         b.HasIndex(x => x.NisCode);

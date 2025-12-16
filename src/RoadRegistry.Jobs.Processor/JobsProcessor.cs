@@ -292,6 +292,44 @@ namespace RoadRegistry.Jobs.Processor
                             ExtractRequestId = extractDownload.ExtractRequestId
                         };
                     }
+                case UploadType.Inwinning:
+                    {
+                        if (job.DownloadId is null)
+                        {
+                            throw ToDutchValidationException(ProblemCode.Extract.DownloadIdIsRequired);
+                        }
+
+                        var uploadId = new UploadId(Guid.NewGuid());
+                        var fileNames = blob.Metadata
+                            .Where(pair => pair.Key == new MetadataKey("filename"))
+                            .Select(x => x.Value)
+                            .ToArray();
+                        var fileName = fileNames.Length == 1 ? fileNames.Single() : $"{uploadId}.zip";
+                        var metadata = Metadata.None.Add(
+                            new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), fileName)
+                        );
+
+                        await _uploadsBlobClient.CreateBlobAsync(
+                            new BlobName(uploadId.ToString()),
+                            metadata,
+                            blob.ContentType,
+                            blobStream,
+                            cancellationToken
+                        );
+
+                        var extractDownload = await _extractsDbContext.ExtractDownloads
+                            .SingleAsync(x => x.DownloadId == job.DownloadId.Value, cancellationToken);
+
+                        var extractRequest = await _extractsDbContext.ExtractRequests
+                            .SingleAsync(x => x.ExtractRequestId == extractDownload.ExtractRequestId, cancellationToken);
+
+                        return new UploadInwinningExtractSqsRequest
+                        {
+                            Request = new BackOffice.Abstractions.Extracts.V2.UploadExtractRequest(job.DownloadId.Value, uploadId, job.TicketId),
+                            ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName, reason: extractRequest.Description),
+                            ExtractRequestId = extractDownload.ExtractRequestId
+                        };
+                    }
                 default:
                     throw new NotSupportedException($"{nameof(UploadType)} {job.UploadType} is not supported.");
             }

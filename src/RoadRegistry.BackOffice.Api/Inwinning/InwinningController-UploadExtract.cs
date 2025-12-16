@@ -31,50 +31,48 @@ public partial class InwinningController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    [SwaggerOperation(OperationId = nameof(UploadExtract))]
-    [HttpPost("{downloadId}/upload", Name = nameof(UploadExtract))]
-    public async Task<IActionResult> UploadExtract(
+    [SwaggerOperation(OperationId = nameof(UploadInwinningExtract))]
+    [HttpPost("{downloadId}/upload", Name = nameof(UploadInwinningExtract))]
+    public async Task<IActionResult> UploadInwinningExtract(
         [FromRoute] string downloadId,
         [FromServices] ExtractsDbContext extractsDbContext,
         [FromServices] ITicketing ticketing,
         CancellationToken cancellationToken = default)
     {
-        //TODO-pr implement inwinning upload
-        throw new NotImplementedException();
-        // if (!DownloadId.TryParse(downloadId, out var parsedDownloadId))
-        // {
-        //     throw new InvalidGuidValidationException("DownloadId");
-        // }
-        //
-        // var record = await extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == parsedDownloadId.ToGuid(), cancellationToken);
-        // if (record is null)
-        // {
-        //     return NotFound();
-        // }
-        //
-        // if (record.TicketId is not null)
-        // {
-        //     var ticket = await ticketing.Get(record.TicketId.Value, cancellationToken);
-        //     if (ticket is not null && ticket.Status != TicketStatus.Complete && ticket.Status != TicketStatus.Error)
-        //     {
-        //         throw new ValidationException([
-        //             new ValidationFailure
-        //             {
-        //                 PropertyName = string.Empty,
-        //                 ErrorCode = "UploadNietAfgerond",
-        //                 ErrorMessage = "Er is nog een upload bezig voor dit extract.",
-        //             }
-        //         ]);
-        //     }
-        // }
-        //
-        // var response = await _mediator.Send(GetPresignedUploadUrlRequest.ForInwinning(parsedDownloadId), cancellationToken);
-        // cancellationToken.ThrowIfCancellationRequested();
-        //
-        // record.TicketId = response.TicketId;
-        // await extractsDbContext.SaveChangesAsync(cancellationToken);
-        //
-        // return Ok(new UploadExtractResponse(response.UploadUrl, response.UploadUrlFormData, response.TicketUrl));
+        if (!DownloadId.TryParse(downloadId, out var parsedDownloadId))
+        {
+            throw new InvalidGuidValidationException("DownloadId");
+        }
+
+        var record = await extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == parsedDownloadId.ToGuid(), cancellationToken);
+        if (record is null)
+        {
+            return NotFound();
+        }
+
+        if (record.TicketId is not null)
+        {
+            var ticket = await ticketing.Get(record.TicketId.Value, cancellationToken);
+            if (ticket is not null && ticket.Status != TicketStatus.Complete && ticket.Status != TicketStatus.Error)
+            {
+                throw new ValidationException([
+                    new ValidationFailure
+                    {
+                        PropertyName = string.Empty,
+                        ErrorCode = "UploadNietAfgerond",
+                        ErrorMessage = "Er is nog een upload bezig voor dit extract.",
+                    }
+                ]);
+            }
+        }
+
+        var response = await _mediator.Send(GetPresignedUploadUrlRequest.ForInwinning(parsedDownloadId), cancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        record.TicketId = response.TicketId;
+        await extractsDbContext.SaveChangesAsync(cancellationToken);
+
+        return Ok(new UploadExtractResponse(response.UploadUrl, response.UploadUrlFormData, response.TicketUrl));
     }
 
     public sealed record UploadExtractResponse(string UploadUrl, Dictionary<string, string> UploadUrlFormData, string TicketUrl);

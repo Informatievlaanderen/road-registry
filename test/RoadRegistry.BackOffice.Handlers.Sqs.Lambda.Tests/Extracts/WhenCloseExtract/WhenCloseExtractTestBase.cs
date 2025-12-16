@@ -1,14 +1,13 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Extracts.WhenCloseExtract;
 
 using Abstractions.Extracts.V2;
+using Actions.CloseExtract;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Framework;
-using Handlers.Extracts;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
-using Requests.Extracts;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;

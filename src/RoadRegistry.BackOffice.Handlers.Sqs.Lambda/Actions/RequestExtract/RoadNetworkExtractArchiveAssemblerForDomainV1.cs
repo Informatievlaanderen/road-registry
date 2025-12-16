@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers.Extracts;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RequestExtract;
 
 using System;
 using System.Data;
@@ -7,10 +7,10 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using BackOffice.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 using RoadRegistry.Editor.Schema;

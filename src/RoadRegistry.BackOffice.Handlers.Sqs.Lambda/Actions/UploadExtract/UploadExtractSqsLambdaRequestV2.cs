@@ -1,15 +1,15 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests.Extracts;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UploadExtract;
 
-using Abstractions;
-using Abstractions.Extracts.V2;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
-using Sqs.Extracts;
+using RoadRegistry.BackOffice.Abstractions;
+using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
+using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 
 public sealed record UploadExtractSqsLambdaRequestV2 :
     SqsLambdaRequest,
     IHasBackOfficeRequest<UploadExtractRequest>
 {
-    public UploadExtractSqsLambdaRequestV2(string groupId, UploadExtractSqsRequest sqsRequest)
+    public UploadExtractSqsLambdaRequestV2(string groupId, UploadExtractSqsRequestV2 sqsRequest)
         : base(
             groupId,
             sqsRequest.TicketId,

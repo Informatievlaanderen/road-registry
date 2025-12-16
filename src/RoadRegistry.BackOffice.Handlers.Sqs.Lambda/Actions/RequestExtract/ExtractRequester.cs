@@ -1,19 +1,19 @@
-﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers.Extracts;
+﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RequestExtract;
 
-using Abstractions.Extracts.V2;
-using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using FeatureToggles;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Extracts.Schema;
 
-public class ExtractsEngine
+public class ExtractRequester
 {
     private readonly ExtractsDbContext _extractsDbContext;
     private readonly RoadNetworkExtractDownloadsBlobClient _downloadsBlobClient;
@@ -21,7 +21,7 @@ public class ExtractsEngine
     private readonly UseDomainV2FeatureToggle _useDomainV2FeatureToggle;
     private readonly ILogger _logger;
 
-    public ExtractsEngine(
+    public ExtractRequester(
         ExtractsDbContext extractsDbContext,
         RoadNetworkExtractDownloadsBlobClient downloadsBlobClient,
         IRoadNetworkExtractArchiveAssembler assembler,
@@ -32,7 +32,7 @@ public class ExtractsEngine
         _downloadsBlobClient = downloadsBlobClient;
         _assembler = assembler;
         _useDomainV2FeatureToggle = useDomainV2FeatureToggle;
-        _logger = loggerFactory.CreateLogger<ExtractsEngine>();
+        _logger = loggerFactory.CreateLogger<ExtractRequester>();
     }
 
     public async Task BuildExtract(RequestExtractRequest request, TicketId ticketId, Provenance provenance, CancellationToken cancellationToken)

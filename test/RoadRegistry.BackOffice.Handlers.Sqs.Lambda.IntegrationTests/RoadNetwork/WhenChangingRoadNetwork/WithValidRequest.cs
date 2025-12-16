@@ -1,5 +1,6 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork.WhenChangingRoadNetwork;
 
+using Actions.ChangeRoadNetwork;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
@@ -8,13 +9,11 @@ using CommandHandling.Actions.ChangeRoadNetwork;
 using CommandHandling.Extracts;
 using Core;
 using FluentAssertions;
-using Handlers.RoadNetwork;
 using Hosts;
 using Marten;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using Requests.RoadNetwork;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using RoadRegistry.RoadNetwork;
@@ -72,8 +71,8 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
         };
 
         // Act
-        var handler = sp.GetRequiredService<ChangeRoadNetworkCommandSqsLambdaRequestHandler>();
-        await handler.Handle(new ChangeRoadNetworkCommandSqsLambdaRequest(string.Empty, sqsRequest), CancellationToken.None);
+        var handler = sp.GetRequiredService<ChangeRoadNetworkSqsLambdaRequestHandler>();
+        await handler.Handle(new ChangeRoadNetworkSqsLambdaRequest(string.Empty, sqsRequest), CancellationToken.None);
 
         // Assert
         var ticketResult = _ticketingMock.Invocations
@@ -118,7 +117,7 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
             .AddMartenRoad(options => options.AddRoadNetworkTopologyProjection().AddRoadAggregatesSnapshots())
             .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
             .AddRoadRegistryCommandHandlers()
-            .AddScoped<ChangeRoadNetworkCommandSqsLambdaRequestHandler>();
+            .AddScoped<ChangeRoadNetworkSqsLambdaRequestHandler>();
 
         var sp = services.BuildServiceProvider();
 
