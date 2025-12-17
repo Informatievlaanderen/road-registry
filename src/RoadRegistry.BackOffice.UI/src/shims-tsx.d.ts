@@ -1,9 +1,9 @@
-import Vue, { VNode } from "vue";
+import { ComponentPublicInstance, VNode } from "vue";
 
 declare global {
   namespace JSX {
-    interface Element extends VNode {}
-    interface ElementClass extends Vue {}
+    type Element = VNode;
+    type ElementClass = ComponentPublicInstance;
     interface IntrinsicElements {
       [elem: string]: any;
     }

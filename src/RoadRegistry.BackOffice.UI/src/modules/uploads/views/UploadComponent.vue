@@ -9,8 +9,8 @@
       upload-label="Archief opladen"
       :auto-process="false"
       :options="options"
-      :mod-success="uploadResult.uploadResponseCode && alertInfo.success"
-      :mod-error="uploadResult.uploadResponseCode && (alertInfo.error || alertInfo.warning)"
+      :mod-success="!!(uploadResult.uploadResponseCode && alertInfo.success)"
+      :mod-error="!!(uploadResult.uploadResponseCode && (alertInfo.error || alertInfo.warning))"
       :mod-disabled="isUploading || isProcessing"
       @upload-success="isUploading = false"
       @upload-complete="isUploading = false"
@@ -44,13 +44,13 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "vue";
 import { orderBy } from "lodash";
 import { PublicApi } from "@/services";
 import ActivityProblems from "../../activity/components/ActivityProblems.vue";
 import ActivitySummary from "../../activity/components/ActivitySummary.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     ActivityProblems,
     ActivitySummary,
@@ -76,7 +76,7 @@ export default Vue.extend({
         autoProcessQueue: false,
         maxFiles: 1,
         maxFilesize: 28672000, //28MB
-        acceptedFiles: "application/zip",
+        acceptedFiles: "application/zip,application/x-zip-compressed",
         paramName: "archive",
         headers: {},
       };
@@ -163,7 +163,7 @@ export default Vue.extend({
       return status;
     },
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.endUpload();
   },
   methods: {

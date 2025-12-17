@@ -1,5 +1,5 @@
+import { reactive } from "vue";
 import router from "@/router";
-import Vue from "vue";
 import PublicApi from "./public-api";
 import UserTokenResult from "@/auth/userTokenResult";
 import OidcClient from "@/auth/roadRegistryOidcClient";
@@ -10,11 +10,11 @@ const WR_AUTH_OIDC_VERIFIER = "RoadRegistry.BackOffice.UI.Authentication.OidcVer
 const WR_AUTH_OIDC_TOKEN = "RoadRegistry.BackOffice.UI.Authentication.OidcToken";
 const WR_AUTH_REDIRECT_URL = "RoadRegistry.BackOffice.UI.Authentication.RedirectUrl";
 
-export const isAuthenticated = Vue.observable({
+export const isAuthenticated = reactive({
   state: false,
 });
 
-export const user = Vue.observable({
+export const user = reactive({
   state: UserTokenResult.empty(),
 });
 
@@ -52,7 +52,7 @@ export const AuthService = {
   async loginAcmIdm(url: string): Promise<void> {
     await OidcClient.initialize();
 
-    var request = await OidcClient.instance.createSigninRequest({});
+    const request = await OidcClient.instance.createSigninRequest({});
 
     sessionStorage.setItem(WR_AUTH_OIDC_VERIFIER, request.state.code_verifier as string);
     sessionStorage.setItem(WR_AUTH_REDIRECT_URL, url);

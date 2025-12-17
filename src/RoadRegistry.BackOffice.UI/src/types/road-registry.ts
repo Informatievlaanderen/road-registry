@@ -52,7 +52,7 @@ export namespace RoadRegistry {
   export interface ExtractDownloadaanvraagResponse {
     downloadId: string;
   }
-  
+
   export interface RequestExtractResponse {
     downloadId: string;
     ticketUrl: string;
@@ -84,7 +84,7 @@ export namespace RoadRegistry {
     aangevraagdOp: string;
     downloadStatus: string;
     gedownloadOp: string;
-    uploadStatus: string;    
+    uploadStatus: string;
     gesloten: boolean;
     ticketId: string;
   }
@@ -112,7 +112,7 @@ export namespace RoadRegistry {
   export interface DownloadExtractResponseBody {
     downloadId: string;
     isInformative: boolean;
-  }  
+  }
 
   export interface DownloadExtractByContourRequest {
     contour: string;

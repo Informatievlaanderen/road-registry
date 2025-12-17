@@ -70,16 +70,16 @@ export const BackOfficeApi = {
 
       const data = new FormData();
       if (response.data.uploadUrlFormData) {
-        for (let key in response.data.uploadUrlFormData) {
+        for (const key in response.data.uploadUrlFormData) {
           data.append(key, response.data.uploadUrlFormData[key]);
         }
       }
       data.append("file", file, filename);
 
-      let awsHttp = axios.create();
-      let uploadFileResponse = await awsHttp.post(response.data.uploadUrl, data);
+      const awsHttp = axios.create();
+      const uploadFileResponse = await awsHttp.post(response.data.uploadUrl, data);
 
-      let status = uploadFileResponse.status as any;
+      const status = uploadFileResponse.status as any;
       if (status !== 204) {
         return null;
       }
@@ -199,16 +199,16 @@ export const BackOfficeApi = {
 
         const data = new FormData();
         if (response.data.uploadUrlFormData) {
-          for (let key in response.data.uploadUrlFormData) {
+          for (const key in response.data.uploadUrlFormData) {
             data.append(key, response.data.uploadUrlFormData[key]);
           }
         }
         data.append("file", file, filename);
 
-        let awsHttp = axios.create();
-        let uploadFileResponse = await awsHttp.post(response.data.uploadUrl, data);
-        
-        let status = uploadFileResponse.status as any;
+        const awsHttp = axios.create();
+        const uploadFileResponse = await awsHttp.post(response.data.uploadUrl, data);
+
+        const status = uploadFileResponse.status as any;
         if (status !== 204) {
           return null;
         }

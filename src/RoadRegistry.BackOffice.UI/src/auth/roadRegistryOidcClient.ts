@@ -9,7 +9,7 @@ export default class RoadRegistryOidcClient {
       return;
     }
 
-    let info = await PublicApi.Security.getInfo();
+    const info = await PublicApi.Security.getInfo();
 
     RoadRegistryOidcClient._client = new OidcClient({
       authority: info.authorizationEndpoint,

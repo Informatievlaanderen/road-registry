@@ -37,7 +37,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure
 
         public async Task<CreatePresignedGetResponse> CreatePresignedDownloadUrl(string bucketKey, BlobName blobName, string fileName)
         {
-            var bucketName = _s3BlobClientOptions.GetBucketName(WellKnownBuckets.ExtractDownloadsBucket);
+            var bucketName = _s3BlobClientOptions.GetBucketName(bucketKey);
 
             var preSignedUrl = await _amazonS3.GetPreSignedURLAsync(
                 new GetPreSignedUrlRequest

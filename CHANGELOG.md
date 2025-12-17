@@ -1,3 +1,61 @@
+## [4.38.14](https://github.com/informatievlaanderen/road-registry/compare/v4.38.13...v4.38.14) (2025-12-16)
+
+
+### Bug Fixes
+
+* **ui:** upload component errors vue upgrade ([ecb1d5c](https://github.com/informatievlaanderen/road-registry/commit/ecb1d5c239b0535a4db7545fcb3812bf75887ed1))
+
+## [4.38.13](https://github.com/informatievlaanderen/road-registry/compare/v4.38.12...v4.38.13) (2025-12-15)
+
+
+### Bug Fixes
+
+* **ui:** vue upgrade transaction zones ([a1decda](https://github.com/informatievlaanderen/road-registry/commit/a1decda53ab5db4ee729c3b8bbfa2ff40c5a2ba5))
+
+## [4.38.12](https://github.com/informatievlaanderen/road-registry/compare/v4.38.11...v4.38.12) (2025-12-15)
+
+
+### Bug Fixes
+
+* **ui:** vue 3 params in routes ([d9f541c](https://github.com/informatievlaanderen/road-registry/commit/d9f541c0143418141e0506697247b036f0568824))
+
+## [4.38.11](https://github.com/informatievlaanderen/road-registry/compare/v4.38.10...v4.38.11) (2025-12-15)
+
+
+### Bug Fixes
+
+* **ui:** final fixes ([d67633f](https://github.com/informatievlaanderen/road-registry/commit/d67633f67d71f06ad96a0ef82b7088276a7c449e))
+
+## [4.38.10](https://github.com/informatievlaanderen/road-registry/compare/v4.38.9...v4.38.10) (2025-12-12)
+
+
+### Bug Fixes
+
+* show date of most recent requested extract for a given extractrequestid ([837deb8](https://github.com/informatievlaanderen/road-registry/commit/837deb843651223ccfd6ff92267aa16d6e45fc24))
+* unit test ([28cacea](https://github.com/informatievlaanderen/road-registry/commit/28cacea192854f2cb5f6165270d33fbecdf92eab))
+
+## [4.38.9](https://github.com/informatievlaanderen/road-registry/compare/v4.38.8...v4.38.9) (2025-12-04)
+
+
+### Bug Fixes
+
+* use correct bucket for downloading with presignedurl ([27ba10f](https://github.com/informatievlaanderen/road-registry/commit/27ba10fa4e52c08029b6919c35bbb33ab51622a6))
+
+## [4.38.8](https://github.com/informatievlaanderen/road-registry/compare/v4.38.7...v4.38.8) (2025-12-03)
+
+
+### Bug Fixes
+
+* download uploaded file deal with potentially missing filename tag in s3 ([ff6ae68](https://github.com/informatievlaanderen/road-registry/commit/ff6ae68427f31a050411c09b3396b96729faca92))
+
+## [4.38.7](https://github.com/informatievlaanderen/road-registry/compare/v4.38.6...v4.38.7) (2025-12-03)
+
+
+### Bug Fixes
+
+* GRB extracts projection to new extracts context to update CurrentDownloadId correctly when another extract is requested ([0f4f26a](https://github.com/informatievlaanderen/road-registry/commit/0f4f26a7c632609419f03681c3ed1ff70362536e))
+* show button to download the uploaded extract GAWR-7135 ([86ecdea](https://github.com/informatievlaanderen/road-registry/commit/86ecdea0d5c2b35a028cba5b6eaf80e707735633))
+
 ## [4.38.6](https://github.com/informatievlaanderen/road-registry/compare/v4.38.5...v4.38.6) (2025-11-13)
 
 

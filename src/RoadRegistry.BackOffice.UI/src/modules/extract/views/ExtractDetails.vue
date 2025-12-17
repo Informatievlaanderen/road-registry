@@ -87,7 +87,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "vue";
 import { orderBy, uniq, uniqBy, camelCase } from "lodash";
 import { BackOfficeApi, PublicApi } from "../../../services";
 import { featureToggles } from "@/environment";
@@ -110,7 +110,7 @@ const camelizeKeys: any = (obj: any) => {
   return obj;
 };
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     ActivityProblems,
     ActivitySummary,
@@ -142,7 +142,7 @@ export default Vue.extend({
   },
   computed: {
     downloadId(): string {
-      return this.$route.params.downloadId;
+      return this.$route.params.downloadId as string;
     },
     uploadStatus(): {
       success: boolean;
@@ -217,7 +217,7 @@ export default Vue.extend({
     await this.waitUntilExtractDetailsIsAvailable();
     await this.waitForTicketComplete();
   },
-  destroyed() {
+  unmounted() {
     this.trackProgress = false;
   },
   methods: {
@@ -245,11 +245,11 @@ export default Vue.extend({
               message: "",
             }
           : details.extractDownloadTimeoutOccurred
-          ? {
-              error: true,
-              message: "Er was een probleem bij het aanmaken vah het extract, gelieve een nieuwe aan te vragen.",
-            }
-          : undefined;
+            ? {
+                error: true,
+                message: "Er was een probleem bij het aanmaken vah het extract, gelieve een nieuwe aan te vragen.",
+              }
+            : undefined;
       } catch (err: any) {
         console.error("Error getting extract details", err);
 

@@ -75,7 +75,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "vue";
 import RoadRegistry from "@/types/road-registry";
 import { PublicApi } from "../../../services";
 import DateFormat from "@/core/utils/date-format";
@@ -86,7 +86,7 @@ const waitWhile = async (condition: () => boolean) => {
   }
 };
 
-export default Vue.extend({
+export default defineComponent({
   components: {},
   data() {
     return {
@@ -110,7 +110,7 @@ export default Vue.extend({
     this.initializeCompleted = true;
     this.startAutoRefresh();
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.stopAutoRefresh();
   },
   watch: {

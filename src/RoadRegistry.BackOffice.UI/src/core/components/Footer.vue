@@ -29,7 +29,8 @@
             <a
               itemprop="url"
               href="https://www.vlaanderen.be/nl/contact/adressengids/diensten-van-de-vlaamse-overheid/administratieve-diensten-van-de-vlaamse-overheid/beleidsdomein-kanselarij-en-bestuur/agentschap-informatie-vlaanderen"
-              target="_self">
+              target="_self"
+            >
               <span itemprop="name">Digitaal Vlaanderen</span>
             </a>
           </span>
@@ -41,147 +42,147 @@
 
 <style lang="scss" scoped>
 footer {
-    display: block;
-    font-family: flanders-sans;
-    bottom: 0px;
-    left: 0px;
-    right: 0px;
-    padding: 30px 40px;
-    color: #333332;
-    background: #fff;
-    border-top: 1px solid #cbd2da;
-    width: 100%;
-    box-sizing: border-box;
-    font-size: 18px;
-    -webkit-text-size-adjust: none;
-    -webkit-font-smoothing: antialiased!important;
-    font-smoothing: antialiased!important;
-    text-rendering: optimizeLegibility;
+  display: block;
+  font-family: flanders-sans;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  padding: 30px 40px;
+  color: #333332;
+  background: #fff;
+  border-top: 1px solid #cbd2da;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 18px;
+  -webkit-text-size-adjust: none;
+  -webkit-font-smoothing: antialiased !important;
+  font-smoothing: antialiased !important;
+  text-rendering: optimizeLegibility;
 }
 
 #vlaanderen-footer {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    font: inherit;
-    vertical-align: baseline;
-    height: auto;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-flex: 0;
-    -ms-flex: 0 0 auto;
-    flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  vertical-align: baseline;
+  height: auto;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 0;
+  -ms-flex: 0 0 auto;
+  flex: 0 0 auto;
 }
 
 #vlaanderen-footer-logo {
-    position: relative;
-    display: inline-block;
-    vertical-align: top;
-    margin-right: 7%;
-    white-space: nowrap;
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 7%;
+  white-space: nowrap;
 }
 
 #vlaanderen-footer-logo:before {
-    content: '';
-    display: block;
-    position: absolute;
-    left: 24px;
-    top: -5px;
-    height: 53.21px;
-    width: 1px;
-    background-color: #cbd2da;
-    -webkit-transform: rotate(-20deg);
-    -ms-transform: rotate(-20deg);
-    transform: rotate(-20deg);
-    -webkit-transform-origin: top left;
-    -ms-transform-origin: top left;
-    transform-origin: top left;
+  content: "";
+  display: block;
+  position: absolute;
+  left: 24px;
+  top: -5px;
+  height: 53.21px;
+  width: 1px;
+  background-color: #cbd2da;
+  -webkit-transform: rotate(-20deg);
+  -ms-transform: rotate(-20deg);
+  transform: rotate(-20deg);
+  -webkit-transform-origin: top left;
+  -ms-transform-origin: top left;
+  transform-origin: top left;
 }
 
 #vlaanderen-footer-logo svg {
-    display: inline-block;
-    vertical-align: middle;
-    height: 40px;
-    width: 25px;
-    margin: 0;
-    fill: #333332;
+  display: inline-block;
+  vertical-align: middle;
+  height: 40px;
+  width: 25px;
+  margin: 0;
+  fill: #333332;
 }
 
 #vlaanderen-footer-logo-text {
-    margin-left: 13px;
-    display: inline-block;
-    vertical-align: middle;
-    line-height: 1.2;
-    text-align: left;
+  margin-left: 13px;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1.2;
+  text-align: left;
 }
 
 #vlaanderen-footer-logo-title {
-    font-weight: 500;
-    font-size: 18px;
+  font-weight: 500;
+  font-size: 18px;
 }
 
 #vlaanderen-footer-logo-tagline {
-    font-size: 12px;
-    color: #3b3b3c;
+  font-size: 12px;
+  color: #3b3b3c;
 }
 
 #vlaanderen-footer-info {
-    display: inline-block;
-    vertical-align: top;
-    margin-right: 4%;
-    -webkit-box-flex: 1;
-    -ms-flex-positive: 1;
-    flex-grow: 1;
-    -ms-flex-negative: 1;
-    flex-shrink: 1;
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 4%;
+  -webkit-box-flex: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
+  -ms-flex-negative: 1;
+  flex-shrink: 1;
 }
 
 #vlaanderen-footer-info-title {
-    font-size: 19px;
-    line-height: 1.25;
-    font-weight: 500;
+  font-size: 19px;
+  line-height: 1.25;
+  font-weight: 500;
 }
 
 #vlaanderen-footer-info-publisher {
-    font-size: 14px;
-    line-height: 1.2;
-    overflow: hidden;
-    color: #3b3b3c;
+  font-size: 14px;
+  line-height: 1.2;
+  overflow: hidden;
+  color: #3b3b3c;
 }
 
 #vlaanderen-footer-info-publisher a {
-    text-decoration: none;
-    -webkit-transition: all, 0s;
-    transition: all, 0s;
-    outline: 0;
-    color: #06c;
+  text-decoration: none;
+  -webkit-transition: all, 0s;
+  transition: all, 0s;
+  outline: 0;
+  color: #06c;
 }
 
 #vlaanderen-footer-info-publisher a:hover {
-    color: #3184d6;
-    text-decoration: none;
+  color: #3184d6;
+  text-decoration: none;
 }
 
 @media (max-width: 580px) {
-    #vlaanderen-footer {
-        display: block;
-        text-align: center;
-    }
-    #vlaanderen-footer-logo {
-        margin-right: 0;
-        margin-bottom: 20px;
-    }
-    #vlaanderen-footer-info {
-        display: block;
-    }
-    #vlaanderen-footer-info-title {
-        font-size: 14px;
-        font-weight: 400;
-    }
-    #vlaanderen-footer-info-publisher {
-        margin-top: 5px;
-        font-size: 13px
-    }
+  #vlaanderen-footer {
+    display: block;
+    text-align: center;
+  }
+  #vlaanderen-footer-logo {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+  #vlaanderen-footer-info {
+    display: block;
+  }
+  #vlaanderen-footer-info-title {
+    font-size: 14px;
+    font-weight: 400;
+  }
+  #vlaanderen-footer-info-publisher {
+    margin-top: 5px;
+    font-size: 13px;
+  }
 }
 </style>

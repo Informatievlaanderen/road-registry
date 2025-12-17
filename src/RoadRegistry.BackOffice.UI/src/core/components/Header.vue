@@ -34,14 +34,27 @@
               <div data-vl-tabs data-vl-tabs-responsive-label="Navigatie">
                 <div class="vl-tabs__wrapper">
                   <div class="vl-tabs" data-vl-tabs-list role="tablist">
-                    <router-link v-if="featureToggles.useExtractsV2" :to="`/extracten`" class="vl-tab" role="tab">Extracten</router-link>
+                    <router-link v-if="featureToggles.useExtractsV2" :to="`/extracten`" class="vl-tab" role="tab"
+                      >Extracten</router-link
+                    >
                     <router-link :to="`/activiteit`" class="vl-tab" role="tab">Activiteit</router-link>
                     <router-link :to="`/informatie`" class="vl-tab" role="tab">Informatie</router-link>
-                    <router-link v-if="userCanEdit && !featureToggles.useExtractsV2" :to="`/download-extract`" class="vl-tab" role="tab">
+                    <router-link
+                      v-if="userCanEdit && !featureToggles.useExtractsV2"
+                      :to="`/download-extract`"
+                      class="vl-tab"
+                      role="tab"
+                    >
                       Download Extract
                     </router-link>
-                    <router-link :to="`/download-product`" class="vl-tab" role="tab">Download Product</router-link>
-                    <router-link v-if="userCanEdit && !featureToggles.useExtractsV2" :to="`/uploads`" class="vl-tab" role="tab">Uploads</router-link>
+                    <a @click="downloadProduct" class="vl-tab" role="tab" style="cursor: pointer;">Download Product</a>
+                    <router-link
+                      v-if="userCanEdit && !featureToggles.useExtractsV2"
+                      :to="`/uploads`"
+                      class="vl-tab"
+                      role="tab"
+                      >Uploads</router-link
+                    >
                     <router-link
                       v-if="userCanEdit && featureToggles.useTransactionZonesTab"
                       :to="`/bijwerkingszones`"
@@ -62,12 +75,12 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "vue";
 import { AuthService, isAuthenticated as HasAuth, user } from "@/auth";
 import * as environment from "@/environment";
 import RoadRegistry from "@/types/road-registry";
 
-export default Vue.extend({
+export default defineComponent({
   name: "Header",
   computed: {
     featureToggles() {
@@ -107,6 +120,9 @@ export default Vue.extend({
   methods: {
     logout() {
       AuthService.logout();
+    },
+    downloadProduct() {
+      window.open(environment.DOWNLOAD_WEGENREGISTER_URL, "_blank");
     },
   },
 });

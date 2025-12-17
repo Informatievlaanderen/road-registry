@@ -32,7 +32,7 @@
                   <vl-button v-if="isDownloading" mod-loading> Download extract... </vl-button>
                   <vl-button v-else @click="downloadExtract()"> Download extract </vl-button>
                 </span>
-                <span v-if="archiveId" style="margin-left: 1rem">
+                <span v-if="extract.uploadStatus" style="margin-left: 1rem">
                   <vl-button v-if="isDownloading" mod-loading> Download upload... </vl-button>
                   <vl-button v-else @click="downloadUpload()"> Download upload </vl-button>
                 </span>
@@ -47,7 +47,7 @@
               <br />
               <UploadComponent
                 v-if="userCanUpload"
-                :downloadId="downloadId"
+                :download-id="downloadId"
                 @upload-start="handleUploadStart"
                 @upload-complete="handleUploadComplete"
               />
@@ -93,7 +93,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "vue";
 import { orderBy, uniq, uniqBy, camelCase } from "lodash";
 import { PublicApi } from "../../../services";
 import ActivityProblems from "../../activity/components/ActivityProblems.vue";
@@ -117,7 +117,7 @@ const camelizeKeys: any = (obj: any) => {
   return obj;
 };
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     ActivityProblems,
     ActivitySummary,
@@ -136,7 +136,6 @@ export default Vue.extend({
           }
         | undefined,
       isDownloading: false as boolean,
-      archiveId: "" as string,
       ticketId: "" as string,
       ticketStatus: undefined as string | undefined,
       ticketResponseCode: 0 as number,
@@ -152,7 +151,7 @@ export default Vue.extend({
       }`;
     },
     downloadId(): string {
-      return this.$route.params.downloadId;
+      return this.$route.params.downloadId as string;
     },
     status() {
       if (!this.extract) {
@@ -263,7 +262,7 @@ export default Vue.extend({
     await this.waitForTicketComplete();
     await this.loadExtractDetails();
   },
-  destroyed() {
+  unmounted() {
     this.trackProgress = false;
   },
   methods: {
@@ -295,11 +294,11 @@ export default Vue.extend({
                 message: "",
               }
             : details.downloadStatus == "Error"
-            ? {
-                error: true,
-                message: "Er was een probleem bij het aanmaken van het extract, gelieve een nieuwe aan te vragen.",
-              }
-            : undefined;
+              ? {
+                  error: true,
+                  message: "Er was een probleem bij het aanmaken van het extract, gelieve een nieuwe aan te vragen.",
+                }
+              : undefined;
       } catch (err: any) {
         console.error("Error getting extract details", err);
 

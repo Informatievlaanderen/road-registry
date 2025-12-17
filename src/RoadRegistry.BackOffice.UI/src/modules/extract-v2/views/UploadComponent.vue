@@ -9,6 +9,7 @@
       upload-label="Archief opladen"
       :auto-process="false"
       :options="options"
+      v-bind="options"
       :mod-success="uploadResult.uploadResponseCode > 0 && alertInfo.success"
       :mod-error="uploadResult.uploadResponseCode > 0 && (alertInfo.error || alertInfo.warning)"
       :mod-disabled="isUploading || isProcessing"
@@ -16,7 +17,6 @@
       @upload-complete="isUploading = false"
       @upload-canceled="isUploading = false"
       @upload-file-added="processing"
-      @upload-file-added-manually="processing"
     />
 
     <div v-if="uploadResult.uploadResponseCode && alertInfo.text">
@@ -44,13 +44,13 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "vue";
 import { orderBy } from "lodash";
 import { PublicApi } from "@/services";
 import ActivityProblems from "../../activity/components/ActivityProblems.vue";
 import ActivitySummary from "../../activity/components/ActivitySummary.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     ActivityProblems,
     ActivitySummary,
@@ -58,8 +58,8 @@ export default Vue.extend({
   props: {
     downloadId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
@@ -82,7 +82,7 @@ export default Vue.extend({
         autoProcessQueue: false,
         maxFiles: 1,
         maxFilesize: 28672000, //28MB
-        acceptedFiles: "application/zip",
+        acceptedFiles: "application/zip,application/x-zip-compressed",
         paramName: "archive",
         headers: {},
       };
@@ -169,18 +169,29 @@ export default Vue.extend({
       return status;
     },
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.endUpload();
   },
   methods: {
-    async processing(file: File) {
+    async processing(file: any) {
       this.startUpload();
+      
+      // Tell Dropzone the file is accepted and being uploaded
+      file.accepted = true;
+      file.status = 'uploading';
+      
       try {
         this.uploadResult = {
           uploadResponseCode: 0,
           fileProblems: [],
         };
         this.uploadResult = await this.uploadFile(file);
+        
+        // Mark file as success in Dropzone
+        file.status = 'success';
+      } catch (error) {
+        file.status = 'error';
+        throw error;
       } finally {
         this.endUpload();
       }
@@ -189,7 +200,7 @@ export default Vue.extend({
       uploadResponseCode: number;
       fileProblems: Array<any>;
     }> {
-      const allowedFileTypes = ["application/zip", "application/x-zip-compressed"];
+      const allowedFileTypes = this.options.acceptedFiles.split(',');
       if (!allowedFileTypes.includes(file.type)) {
         return {
           uploadResponseCode: 2,
@@ -279,3 +290,9 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style>
+  .vl-upload__file.dz-error{
+    display: none !important;
+  }
+</style>

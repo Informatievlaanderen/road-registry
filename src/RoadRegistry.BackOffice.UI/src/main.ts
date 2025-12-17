@@ -1,6 +1,6 @@
-import Vue from "vue";
+import { createApp } from "vue";
 import router from "./router";
-import "./core";
+import { registerCore } from "./core";
 import App from "./App.vue";
 import { AuthService } from "@/auth";
 import { featureToggles, WR_ENV, API_VERSION } from "@/environment";
@@ -15,13 +15,14 @@ import { featureToggles, WR_ENV, API_VERSION } from "@/environment";
   try {
     await AuthService.initialize();
   } catch (err) {
-    console.error('Error while initializing auth service', err);
+    console.error("Error while initializing auth service", err);
     router.push({ name: "login", query: { error: "startup_error" } });
   }
 
-  Vue.config.productionTip = false;
-  new Vue({
-    router,
-    render: (h) => h(App),
-  }).$mount("#app");
+  const app = createApp(App);
+
+  registerCore(app);
+  app.use(router);
+
+  app.mount("#app");
 })();

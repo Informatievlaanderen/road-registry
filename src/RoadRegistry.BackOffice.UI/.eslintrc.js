@@ -18,12 +18,10 @@ module.exports = {
     plugins: ["@typescript-eslint", "vue", "prettier"],
     extends: [
       "eslint:recommended",
-      "plugin:@typescript-eslint/eslint-recommended",
       "plugin:@typescript-eslint/recommended",
       "plugin:@typescript-eslint/recommended-requiring-type-checking",
-      "prettier/@typescript-eslint",
+      "plugin:vue/vue3-recommended",
       "plugin:prettier/recommended",
-      "plugin:vue/recommended",
     ],
     rules: {
       "no-useless-escape": "off",

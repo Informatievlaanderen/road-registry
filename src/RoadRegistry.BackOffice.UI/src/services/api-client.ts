@@ -1,4 +1,3 @@
-import Vue from "vue";
 import axios, { AxiosInstance, Method } from "axios";
 import RoadRegistry from "@/types/road-registry";
 import RoadRegistryExceptions from "@/types/road-registry-exceptions";
@@ -6,6 +5,7 @@ import { AuthService } from "@/auth";
 import router from "@/router";
 import { featureToggles } from "@/environment";
 import { downloadFile } from "@/core/utils/file-utils";
+import { reactive } from "vue";
 
 export interface IApiClient {
   get<T = any>(url: string, query?: any, headers?: any, config?: any): Promise<IApiResponse<T>>;
@@ -25,16 +25,16 @@ export interface IApiResponse<T = any> {
   request?: any;
 }
 
-export const apiStats = Vue.observable({
+export const apiStats = reactive({
   pendingRequests: 0,
 });
 
 export class AxiosHttpApiClientOptions {
-  public noRedirectOnUnauthorized: boolean = false;
+  public noRedirectOnUnauthorized = false;
 }
 
 const createAxiosInstance = (options?: AxiosHttpApiClientOptions) => {
-  let http = axios.create();
+  const http = axios.create();
 
   http.interceptors.request.use((config: any) => {
     config.withCredentials = !featureToggles.useDirectApiCalls;
@@ -70,8 +70,8 @@ const createAxiosInstance = (options?: AxiosHttpApiClientOptions) => {
     (error) => {
       if (options?.noRedirectOnUnauthorized !== true) {
         if (error.response?.status == 403 || error.response?.status == 401) {
-          let redirect =
-            router.currentRoute?.name === "login" ? router.currentRoute.query.redirect : router.currentRoute.fullPath;
+          const currentRoute = router.currentRoute.value;
+          const redirect = currentRoute?.name === "login" ? currentRoute?.query?.redirect : currentRoute?.fullPath;
           router.push({
             name: "login",
             query: { redirect },
@@ -121,12 +121,7 @@ export class AxiosHttpApiClient implements IApiClient {
   public async delete(url: string, headers?: any): Promise<IApiResponse> {
     return await this.axios.delete(url, { headers });
   }
-  public async post<T = any>(
-    url: string,
-    data?: any,
-    headers?: any,
-    query?: any
-  ): Promise<IApiResponse<T>> {
+  public async post<T = any>(url: string, data?: any, headers?: any, query?: any): Promise<IApiResponse<T>> {
     return await this.axios.post<T>(url, data, Object.assign({}, { params: query, headers }));
   }
   public async put<T = any>(url: string, data?: any, headers?: any): Promise<IApiResponse<T>> {

@@ -5,21 +5,24 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "vue";
 import { AuthService } from "@/services/auth-service";
 
-export default Vue.extend({
+export default defineComponent({
   props: {
-    code: String,
+    code: String
   },
   async mounted() {
     try {
-      await AuthService.completeAcmIdmLogin(this.code);
+      await AuthService.completeAcmIdmLogin(this.code!);
     } catch (err) {
       console.error("Completing login failed", err);
-      this.$router.push({name: 'login', query: {
-        error: 'acmidm_login_failed'
-      }});
+      this.$router.push({
+        name: "login",
+        query: {
+          error: "acmidm_login_failed",
+        },
+      });
     }
   },
 });

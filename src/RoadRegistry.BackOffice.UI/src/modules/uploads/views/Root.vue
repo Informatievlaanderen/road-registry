@@ -1,19 +1,16 @@
-
 <template>
-    <div>
-      <router-view></router-view>
-    </div>
+  <div>
+    <router-view></router-view>
+  </div>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { defineComponent } from "vue";
 
-export default Vue.extend({
-  name: "download-product",
+export default defineComponent({
+  name: "DownloadProduct",
   data() {
-    return {
- 
-    };
+    return {};
   },
 });
 </script>

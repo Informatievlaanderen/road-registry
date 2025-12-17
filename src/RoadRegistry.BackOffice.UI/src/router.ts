@@ -1,5 +1,4 @@
-import Vue from "vue";
-import Router, { RawLocation, Route, RouteConfig } from "vue-router";
+import { createRouter, createWebHistory, RouteLocationNormalized, RouteRecordRaw } from "vue-router";
 import * as environment from "@/environment";
 import { ActivityRoutes } from "./modules/activity";
 import { ExtractRoutes } from "./modules/extract";
@@ -11,46 +10,43 @@ import { UploadRoutes } from "./modules/uploads";
 import { TransactionZonesRoutes } from "./modules/transaction-zones";
 import { AuthRoutes, AuthService, isAuthenticated } from "./auth";
 
-Vue.use(Router);
+const defaultRedirect = environment.featureToggles.useExtractsV2 ? "extracten" : "activiteit";
 
-const defaultRedirect = environment.featureToggles.useExtractsV2 ? 'extracten' : 'activiteit';
-
-const routes: RouteConfig[] = [
+const routes: RouteRecordRaw[] = [
   {
     path: "/",
     redirect: { name: defaultRedirect },
   },
-  ...AuthRoutes,
-  ...ActivityRoutes,
-  ...ExtractRoutes,
-  ...ExtractRoutesV2,
-  ...InformationRoutes,
-  ...DownloadExtractRoutes,
-  ...DownloadProductRoutes,
-  ...UploadRoutes,
-  ...TransactionZonesRoutes,
+  ...(AuthRoutes as RouteRecordRaw[]),
+  ...(ActivityRoutes as RouteRecordRaw[]),
+  ...(ExtractRoutes as RouteRecordRaw[]),
+  ...(ExtractRoutesV2 as RouteRecordRaw[]),
+  ...(InformationRoutes as RouteRecordRaw[]),
+  ...(DownloadExtractRoutes as RouteRecordRaw[]),
+  //...(DownloadProductRoutes as RouteRecordRaw[]),
+  ...(UploadRoutes as RouteRecordRaw[]),
+  ...(TransactionZonesRoutes as RouteRecordRaw[]),
 ];
 
 routes.push({
-  path: "*",
+  path: "/:pathMatch(.*)*",
   redirect: "/",
 });
 
-export const router = new Router({
-  mode: "history",
-  base: process.env.BASE_URL,
+export const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition;
     } else {
-      return { x: 0, y: 0 };
+      return { top: 0, left: 0 };
     }
   },
   routes,
 });
 
-const userHasAccessToRoute = (to: Route): boolean => {
-  let routeWithAuth = to.matched.find((record) => record.meta.requiresAuth);
+const userHasAccessToRoute = (to: RouteLocationNormalized): boolean => {
+  const routeWithAuth = to.matched.find((record) => record.meta.requiresAuth);
   if (!routeWithAuth) {
     return true;
   }
@@ -59,8 +55,12 @@ const userHasAccessToRoute = (to: Route): boolean => {
     return false;
   }
 
-  if (routeWithAuth.meta.requiresContexts?.length > 0) {
-    return AuthService.userHasAnyContext(routeWithAuth.meta.requiresContexts);
+  const meta = routeWithAuth.meta as {
+    requiresContexts?: string[];
+  };
+
+  if (meta.requiresContexts && meta.requiresContexts.length > 0) {
+    return AuthService.userHasAnyContext(meta.requiresContexts);
   }
 
   return true;
