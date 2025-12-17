@@ -1,11 +1,10 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using Abstractions;
-using Abstractions.Extracts.V2;
 
-public sealed class UploadExtractSqsRequestV2 : SqsRequest, IHasBackOfficeRequest<UploadExtractRequest>
+public sealed class UploadExtractSqsRequestV2 : SqsRequest
 {
-    public UploadExtractRequest Request { get; init; }
-    public string ExtractRequestId { get; init; }
+    public required DownloadId DownloadId { get; init; }
+    public required UploadId UploadId { get; init; }
+    public required ExtractRequestId ExtractRequestId { get; init; }
 }

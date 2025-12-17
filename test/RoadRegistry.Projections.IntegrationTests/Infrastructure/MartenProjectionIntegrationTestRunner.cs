@@ -83,8 +83,13 @@ public class MartenProjectionIntegrationTestRunner
         });
     }
 
-    public void CompareResult(object?[] expected, object?[] actual)
+    public void CompareResult(object?[]? expected, object?[]? actual)
     {
+        if (expected is null && actual is null)
+        {
+            return;
+        }
+
         var comparisonConfig = new ComparisonConfig
         {
             MaxDifferences = 10,

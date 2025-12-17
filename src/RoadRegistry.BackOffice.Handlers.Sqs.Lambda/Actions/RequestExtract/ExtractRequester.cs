@@ -35,11 +35,11 @@ public class ExtractRequester
         _logger = loggerFactory.CreateLogger<ExtractRequester>();
     }
 
-    public async Task BuildExtract(RequestExtractRequest request, TicketId ticketId, Provenance provenance, CancellationToken cancellationToken)
+    public async Task BuildExtract(RequestExtractData request, TicketId ticketId, Provenance provenance, CancellationToken cancellationToken)
     {
-        var extractRequestId = ExtractRequestId.FromString(request.ExtractRequestId);
+        var extractRequestId = request.ExtractRequestId;
         var contour = request.Contour;
-        var downloadId = new DownloadId(request.DownloadId);
+        var downloadId = request.DownloadId;
         var extractDescription = new ExtractDescription(request.Description);
         var isInformative = request.IsInformative;
 

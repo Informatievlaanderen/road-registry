@@ -107,10 +107,10 @@ namespace RoadRegistry.Jobs.Processor.Tests
             blobMetadataFilename.Value.Should().Be(blobFileName);
 
             var executedRequest = Assert.IsType<UploadExtractSqsRequestV2>(mockMediator.Invocations.Single().Arguments.First());
-            executedRequest.Request.TicketId.Should().Be(ticketId);
-            executedRequest.Request.DownloadId.Should().Be(downloadId);
+            executedRequest.TicketId.Should().Be(ticketId);
+            executedRequest.DownloadId.ToGuid().Should().Be(downloadId);
             executedRequest.ProvenanceData!.Operator.Should().Be(job.OperatorName);
-            createBlobInvocation.Arguments.OfType<BlobName>().Single().ToString().Should().Be(new UploadId(executedRequest.Request.UploadId).ToString());
+            createBlobInvocation.Arguments.OfType<BlobName>().Single().ToString().Should().Be(executedRequest.UploadId.ToString());
 
             mockIHostApplicationLifeTime.Verify(x => x.StopApplication(), Times.Once);
         }

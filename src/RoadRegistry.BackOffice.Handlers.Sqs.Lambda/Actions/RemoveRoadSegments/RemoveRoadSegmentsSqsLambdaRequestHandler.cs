@@ -2,13 +2,12 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RemoveRoadSegments
 
 using System.Data;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using CommandHandling.Actions.RemoveRoadSegments;
 using Hosts;
 using Infrastructure;
 using Marten;
 using Microsoft.Extensions.Logging;
+using RoadNetwork;
 using RoadRegistry.RoadNetwork;
 using TicketingService.Abstractions;
 
@@ -43,16 +42,16 @@ public sealed class RemoveRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler
 
     protected override async Task<object> InnerHandle(RemoveRoadSegmentsSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
-        await Handle(sqsLambdaRequest.Request, sqsLambdaRequest.Provenance, cancellationToken);
+        await Handle(sqsLambdaRequest.Request, cancellationToken);
 
         return new object();
     }
 
-    private async Task Handle(RemoveRoadSegmentsCommand command, Provenance provenance, CancellationToken cancellationToken)
+    private async Task Handle(RemoveRoadSegmentsSqsRequest command, CancellationToken cancellationToken)
     {
         var roadNetwork = await Load(command.RoadSegmentIds);
 
-        roadNetwork.RemoveRoadSegments(command.RoadSegmentIds, _roadNetworkIdGenerator, provenance);
+        roadNetwork.RemoveRoadSegments(command.RoadSegmentIds, _roadNetworkIdGenerator, command.ProvenanceData.ToProvenance());
 
         await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
     }

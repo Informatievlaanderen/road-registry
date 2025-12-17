@@ -1,10 +1,12 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using Abstractions;
-using Abstractions.Extracts.V2;
+using NetTopologySuite.Geometries;
 
-public sealed class RequestInwinningExtractSqsRequest : SqsRequest, IHasBackOfficeRequest<RequestInwinningExtractRequest>
+public sealed class RequestInwinningExtractSqsRequest : SqsRequest
 {
-    public RequestInwinningExtractRequest Request { get; init; }
+    public required ExtractRequestId ExtractRequestId { get; init; }
+    public required DownloadId DownloadId { get; init; }
+    public required MultiPolygon Contour { get; init; }
+    public required string NisCode { get; init; }
 }

@@ -39,10 +39,8 @@ public sealed class ExtractUploader
         _extractUploadFailedEmailClient = extractUploadFailedEmailClient;
     }
 
-    public async Task<TranslatedChanges> ProcessUploadAndDetectChanges(UploadExtractRequest request, ZipArchiveMetadata zipArchiveMetadata, CancellationToken cancellationToken)
+    public async Task<TranslatedChanges> ProcessUploadAndDetectChanges(DownloadId downloadId, UploadId uploadId, ZipArchiveMetadata zipArchiveMetadata, CancellationToken cancellationToken)
     {
-        var downloadId = new DownloadId(request.DownloadId);
-        var uploadId = new UploadId(request.UploadId);
         var blobName = new BlobName(uploadId);
 
         var extractDownload = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);

@@ -1,13 +1,9 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.CloseExtract;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
-using RoadRegistry.BackOffice.Abstractions;
-using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 
-public sealed record CloseExtractSqsLambdaRequest :
-    SqsLambdaRequest,
-    IHasBackOfficeRequest<CloseExtractRequest>
+public sealed record CloseExtractSqsLambdaRequest : SqsLambdaRequest
 {
     public CloseExtractSqsLambdaRequest(string groupId, CloseExtractSqsRequest sqsRequest)
         : base(
@@ -17,8 +13,8 @@ public sealed record CloseExtractSqsLambdaRequest :
             sqsRequest.ProvenanceData.ToProvenance(),
             sqsRequest.Metadata)
     {
-        Request = sqsRequest.Request;
+        Request = sqsRequest;
     }
 
-    public CloseExtractRequest Request { get; init; }
+    public CloseExtractSqsRequest Request { get; }
 }

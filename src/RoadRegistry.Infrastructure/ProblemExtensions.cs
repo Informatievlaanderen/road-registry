@@ -5,7 +5,7 @@ using Problem = ValueObjects.Problem;
 using ProblemParameter = ValueObjects.ProblemParameter;
 using ProblemSeverity = ValueObjects.ProblemSeverity;
 
-public static class ValueObjectExtensions
+public static class ProblemExtensions
 {
     public static Problem Translate(this RoadRegistry.ValueObjects.Problems.Problem problem)
     {

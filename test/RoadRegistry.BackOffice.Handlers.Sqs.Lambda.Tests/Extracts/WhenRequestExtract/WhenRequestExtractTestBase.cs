@@ -28,20 +28,25 @@ public abstract class WhenRequestExtractTestBase : BackOfficeLambdaTest
     }
 
     protected async Task<RequestExtractSqsRequest> HandleRequest(
-        RequestExtractRequest request,
+        RequestExtractData request,
         IBlobClient? blobClient = null,
         IRoadNetworkExtractArchiveAssembler? archiveAssembler = null,
         TicketId? ticketId = null)
     {
         var sqsRequest = new RequestExtractSqsRequest
         {
-            Request = request,
+            ExtractRequestId = request.ExtractRequestId,
+            DownloadId = request.DownloadId,
+            Contour = request.Contour,
+            Description = request.Description,
+            IsInformative = request.IsInformative,
+            ExternalRequestId = request.ExternalRequestId,
             TicketId = ticketId ?? Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
-            ProvenanceData = ObjectProvider.Create<ProvenanceData>()
+            ProvenanceData = ObjectProvider.Create<ProvenanceData>(),
         };
 
-        var sqsLambdaRequest = new RequestExtractSqsLambdaRequest(new DownloadId(request.DownloadId), sqsRequest);
+        var sqsLambdaRequest = new RequestExtractSqsLambdaRequest(sqsRequest.DownloadId, sqsRequest);
 
         var archiveAssemblerMock = new Mock<IRoadNetworkExtractArchiveAssembler>();
         archiveAssemblerMock

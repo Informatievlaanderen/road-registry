@@ -4,6 +4,7 @@ using System.IO.Compression;
 using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -61,7 +62,8 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
             ticketing,
             idempotentCommandHandler,
             roadRegistryContext,
-            loggerFactory.CreateLogger<UploadExtractSqsLambdaRequestHandler>())
+            loggerFactory.CreateLogger<UploadExtractSqsLambdaRequestHandler>(),
+            TicketingBehavior.Error)
     {
         _extractsDbContext = extractsDbContext;
         _uploadsBlobClient = uploadsBlobClient;
@@ -74,29 +76,17 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
 
     protected override async Task<object> InnerHandle(UploadExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        var ticketId = new TicketId(request.Request.TicketId); // NOT the one from the SqsRequest
         var downloadId = new DownloadId(request.Request.DownloadId);
 
         try
         {
-            var innerHandleResult = await InnerHandleForCustomTicketId(request, ticketId, cancellationToken);
+            var innerHandleResult = await InnerHandleForCustomTicketId(request, cancellationToken);
             // Do not complete ticket here, it's done by ChangeRoadNetwork handler
 
             return innerHandleResult;
         }
-        catch (Exception exception)
+        catch
         {
-            var ticketError = TryConvertToTicketError(exception, request);
-            if (ticketError.Errors is not null)
-            {
-                Logger.LogInformation($"Upload failed, {ticketError.Errors.Count} errors:{Environment.NewLine}{string.Join(Environment.NewLine, ticketError.Errors.Select(x => $"{x.ErrorCode}: {x.ErrorMessage}"))}");
-            }
-            else
-            {
-                Logger.LogInformation($"Upload failed:{Environment.NewLine}{ticketError.ErrorCode}: {ticketError.ErrorMessage}");
-            }
-            await Ticketing.Error(ticketId, ticketError, cancellationToken);
-
             var extractDownload = await _extractsDbContext.ExtractDownloads.SingleOrDefaultAsync(x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
             if (extractDownload is not null)
             {
@@ -108,7 +98,7 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
         }
     }
 
-    private async Task<object> InnerHandleForCustomTicketId(UploadExtractSqsLambdaRequest request, TicketId ticketId, CancellationToken cancellationToken)
+    private async Task<object> InnerHandleForCustomTicketId(UploadExtractSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         var downloadId = new DownloadId(request.Request.DownloadId);
         var uploadId = new UploadId(request.Request.UploadId);
@@ -182,11 +172,11 @@ public sealed class UploadExtractSqsLambdaRequestHandler : SqsLambdaHandler<Uplo
             var requestId = ChangeRequestId.FromUploadId(uploadId);
             var changeRoadNetwork = await translatedChanges.ToChangeRoadNetworkCommand(
                 Logger,
-                extractRequestId, requestId, downloadId, ticketId, cancellationToken);
+                extractRequestId, requestId, downloadId, request.TicketId, cancellationToken);
             changeRoadNetwork.UseExtractsV2 = true;
 
             var command = new Command(changeRoadNetwork)
-                .WithMessageId(request.Request.TicketId)
+                .WithMessageId(request.TicketId)
                 .WithProvenanceData(request.Request.ProvenanceData);
             var roadNetworkCommandQueueForCommandHost = new RoadNetworkCommandQueue(_store, new ApplicationMetadata(RoadRegistryApplication.BackOffice));
             await roadNetworkCommandQueueForCommandHost.WriteAsync(command, cancellationToken);

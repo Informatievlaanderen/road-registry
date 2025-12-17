@@ -1,13 +1,9 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.RemoveRoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
-using RoadRegistry.BackOffice.Abstractions;
-using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
-using RoadRegistry.CommandHandling.Actions.RemoveRoadSegments;
+using RoadNetwork;
 
-public sealed record RemoveRoadSegmentsSqsLambdaRequest :
-    SqsLambdaRequest,
-    IHasBackOfficeRequest<RemoveRoadSegmentsCommand>
+public sealed record RemoveRoadSegmentsSqsLambdaRequest : SqsLambdaRequest
 {
     public RemoveRoadSegmentsSqsLambdaRequest(string groupId, RemoveRoadSegmentsSqsRequest sqsRequest)
         : base(
@@ -17,8 +13,8 @@ public sealed record RemoveRoadSegmentsSqsLambdaRequest :
             sqsRequest.ProvenanceData.ToProvenance(),
             sqsRequest.Metadata)
     {
-        Request = sqsRequest.Request;
+        Request = sqsRequest;
     }
 
-    public RemoveRoadSegmentsCommand Request { get; init; }
+    public RemoveRoadSegmentsSqsRequest Request { get; }
 }

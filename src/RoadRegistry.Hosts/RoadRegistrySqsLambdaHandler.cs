@@ -5,9 +5,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
-using BackOffice.Core;
 using BackOffice.Exceptions;
-using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
@@ -29,8 +27,9 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        ILoggerFactory loggerFactory)
-        : base(retryPolicy, ticketing, idempotentCommandHandler)
+        ILoggerFactory loggerFactory,
+        TicketingBehavior ticketingBehavior = TicketingBehavior.All)
+        : base(retryPolicy, ticketing, idempotentCommandHandler, ticketingBehavior)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(roadRegistryContext);
@@ -47,8 +46,9 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        ILogger logger)
-        : base(retryPolicy, ticketing, idempotentCommandHandler)
+        ILogger logger,
+        TicketingBehavior ticketingBehavior = TicketingBehavior.All)
+        : base(retryPolicy, ticketing, idempotentCommandHandler, ticketingBehavior)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(roadRegistryContext);

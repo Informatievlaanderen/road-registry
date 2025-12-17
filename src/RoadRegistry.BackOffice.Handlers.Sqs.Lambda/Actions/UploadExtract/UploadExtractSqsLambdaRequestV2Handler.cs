@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.UploadExtract;
 using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -38,7 +39,8 @@ public sealed class UploadExtractSqsLambdaRequestV2Handler : SqsLambdaHandler<Up
             ticketing,
             idempotentCommandHandler,
             roadRegistryContext,
-            loggerFactory.CreateLogger<UploadExtractSqsLambdaRequestV2Handler>())
+            loggerFactory.CreateLogger<UploadExtractSqsLambdaRequestV2Handler>(),
+            TicketingBehavior.Error)
     {
         _extractUploader = extractUploader;
         _mediator = mediator;
@@ -46,29 +48,18 @@ public sealed class UploadExtractSqsLambdaRequestV2Handler : SqsLambdaHandler<Up
 
     protected override async Task<object> InnerHandle(UploadExtractSqsLambdaRequestV2 request, CancellationToken cancellationToken)
     {
-        var ticketId = new TicketId(request.Request.TicketId); // NOT the one from the SqsRequest
-        var downloadId = new DownloadId(request.Request.DownloadId);
+        var translatedChanges = await _extractUploader.ProcessUploadAndDetectChanges(request.Request.DownloadId, request.Request.UploadId, ZipArchiveMetadata.Empty, cancellationToken);
 
-        try
+        var changeRoadNetworkSqsRequest = new ChangeRoadNetworkSqsRequest
         {
-            var translatedChanges = await _extractUploader.ProcessUploadAndDetectChanges(request.Request, ZipArchiveMetadata.Empty, cancellationToken);
+            TicketId = request.TicketId,
+            DownloadId = request.Request.DownloadId,
+            Changes = translatedChanges.Select(ChangeRoadNetworkItem.Create).ToList(),
+            ProvenanceData = new ProvenanceData(request.Provenance)
+        };
+        await _mediator.Send(changeRoadNetworkSqsRequest, cancellationToken);
 
-            var changeRoadNetworkSqsRequest = new ChangeRoadNetworkSqsRequest
-            {
-                Request = translatedChanges.ToChangeRoadNetworkCommand(downloadId, ticketId),
-                ProvenanceData = new ProvenanceData(request.Provenance)
-            };
-            await _mediator.Send(changeRoadNetworkSqsRequest, cancellationToken);
-
-            return new object();
-        }
-        catch (Exception exception)
-        {
-            var ticketError = TryConvertToTicketError(exception, request);
-            await Ticketing.Error(ticketId, ticketError, cancellationToken);
-
-            throw;
-        }
+        return new object();
     }
 
     protected override Task ValidateIfMatchHeaderValue(UploadExtractSqsLambdaRequestV2 request, CancellationToken cancellationToken)

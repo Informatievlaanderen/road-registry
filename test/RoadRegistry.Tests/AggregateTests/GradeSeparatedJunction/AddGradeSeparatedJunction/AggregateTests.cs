@@ -3,10 +3,10 @@
 using AutoFixture;
 using FluentAssertions;
 using Framework;
-using RoadNetwork;
 using RoadRegistry.GradeSeparatedJunction;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.GradeSeparatedJunction.Events.V2;
+using RoadRegistry.RoadNetwork;
 
 public class AggregateTests : AggregateTestBase
 {

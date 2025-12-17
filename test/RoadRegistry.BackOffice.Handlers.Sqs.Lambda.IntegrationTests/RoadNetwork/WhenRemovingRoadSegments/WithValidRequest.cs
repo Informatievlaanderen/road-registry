@@ -5,9 +5,6 @@ using Actions.RemoveRoadSegments;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using CommandHandling;
-using CommandHandling.Actions.ChangeRoadNetwork;
-using CommandHandling.Actions.RemoveRoadSegments;
 using CommandHandling.Extracts;
 using FeatureCompare.V3;
 using FluentAssertions;
@@ -133,15 +130,10 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
             .AppendChange(segment3)
             .AppendChange(junction));
 
-        var command = new RemoveRoadSegmentsCommand
-        {
-            RoadSegmentIds = [testData.Segment1Added.RoadSegmentId]
-        };
-
         var provenanceData = new RoadRegistryProvenanceData();
         var sqsRequest = new RemoveRoadSegmentsSqsRequest
         {
-            Request = command,
+            RoadSegmentIds = [testData.Segment1Added.RoadSegmentId],
             ProvenanceData = provenanceData,
             TicketId = Guid.NewGuid()
         };
@@ -180,12 +172,13 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
     private async Task Given(IServiceProvider sp, TranslatedChanges changes)
     {
         var fixture = new RoadNetworkTestData().Fixture;
-        var command = changes.ToChangeRoadNetworkCommand(fixture.Create<DownloadId>(), fixture.Create<TicketId>());
 
         var provenanceData = new RoadRegistryProvenanceData();
         var sqsRequest = new ChangeRoadNetworkSqsRequest
         {
-            Request = command,
+            DownloadId = fixture.Create<DownloadId>(),
+            TicketId = fixture.Create<TicketId>(),
+            Changes = changes.Select(ChangeRoadNetworkItem.Create).ToList(),
             ProvenanceData = provenanceData
         };
 
@@ -193,7 +186,7 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
         await handler.Handle(new ChangeRoadNetworkSqsLambdaRequest(string.Empty, sqsRequest), CancellationToken.None);
 
         var ticketResult = _ticketingMock.Invocations
-            .Where(x => x.Method.Name == nameof(ITicketing.Complete) && x.Arguments[0].Equals(command.TicketId))
+            .Where(x => x.Method.Name == nameof(ITicketing.Complete) && x.Arguments[0].Equals(sqsRequest.TicketId))
             .Select(x => (TicketResult)x.Arguments[1])
             .SingleOrDefault();
         ticketResult.Should().NotBeNull();

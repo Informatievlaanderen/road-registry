@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Api.Extracten;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
@@ -12,11 +13,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
-using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
-using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 using RoadRegistry.Extensions;
 using Swashbuckle.AspNetCore.Annotations;
-
 using ValueObjects.ProblemCodes;
 
 public partial class ExtractenController
@@ -54,7 +52,12 @@ public partial class ExtractenController
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
-                Request = new RequestExtractRequest(extractRequestId, downloadId, contour, body.Beschrijving, body.Informatief, body.ExterneId)
+                ExtractRequestId = extractRequestId,
+                DownloadId = downloadId,
+                Contour = contour,
+                Description = body.Beschrijving,
+                IsInformative = body.Informatief,
+                ExternalRequestId = body.ExterneId
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));

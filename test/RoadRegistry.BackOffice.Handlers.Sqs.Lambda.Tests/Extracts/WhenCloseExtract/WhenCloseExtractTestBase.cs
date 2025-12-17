@@ -24,17 +24,13 @@ public abstract class WhenCloseExtractTestBase : BackOfficeLambdaTest
         ExtractsDbContext = new FakeExtractsDbContextFactory().CreateDbContext();
     }
 
-    protected async Task HandleRequest(CloseExtractRequest request)
+    protected async Task HandleRequest(CloseExtractSqsRequest sqsRequest)
     {
-        var sqsRequest = new CloseExtractSqsRequest
-        {
-            Request = request,
-            TicketId = Guid.NewGuid(),
-            Metadata = new Dictionary<string, object?>(),
-            ProvenanceData = ObjectProvider.Create<ProvenanceData>()
-        };
+        sqsRequest.TicketId = Guid.NewGuid();
+        sqsRequest.Metadata = new Dictionary<string, object?>();
+        sqsRequest.ProvenanceData = ObjectProvider.Create<ProvenanceData>();
 
-        var sqsLambdaRequest = new CloseExtractSqsLambdaRequest(new DownloadId(request.DownloadId), sqsRequest);
+        var sqsLambdaRequest = new CloseExtractSqsLambdaRequest(sqsRequest.DownloadId, sqsRequest);
 
         var sqsLambdaRequestHandler = new CloseExtractSqsLambdaRequestHandler(
             new FakeSqsLambdaHandlerOptions(),

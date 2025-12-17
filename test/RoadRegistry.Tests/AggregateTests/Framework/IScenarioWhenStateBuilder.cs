@@ -1,6 +1,6 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
 
-using RoadNetwork;
+using RoadRegistry.RoadNetwork;
 
 public interface IScenarioWhenStateBuilder
 {

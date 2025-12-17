@@ -47,7 +47,8 @@ namespace RoadRegistry
                 new GradeSeparatedJunctionIdConverter(),
                 new GradeSeparatedJunctionTypeConverter(),
                 new StreetNameLocalIdConverter(),
-                new DownloadIdConverter()
+                new DownloadIdConverter(),
+                new ExtractRequestIdConverter()
             ];
         }
     }

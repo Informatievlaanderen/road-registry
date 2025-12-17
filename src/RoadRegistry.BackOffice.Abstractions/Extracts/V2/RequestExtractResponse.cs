@@ -1,5 +1,3 @@
 namespace RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 
-public sealed record RequestExtractResponse(DownloadId DownloadId) : EndpointResponse
-{
-}
+public sealed record RequestExtractResponse(DownloadId DownloadId);

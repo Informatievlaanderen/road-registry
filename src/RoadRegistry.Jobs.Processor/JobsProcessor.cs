@@ -271,6 +271,7 @@ namespace RoadRegistry.Jobs.Processor
 
                         var extractDownload = await _extractsDbContext.ExtractDownloads
                             .SingleAsync(x => x.DownloadId == job.DownloadId.Value, cancellationToken);
+                        var extractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId);
 
                         if (extractDownload.ZipArchiveWriterVersion == WellKnownZipArchiveWriterVersions.DomainV2)
                         {
@@ -279,17 +280,21 @@ namespace RoadRegistry.Jobs.Processor
 
                             return new UploadExtractSqsRequestV2
                             {
-                                Request = new BackOffice.Abstractions.Extracts.V2.UploadExtractRequest(job.DownloadId.Value, uploadId, job.TicketId),
-                                ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName, reason: extractRequest.Description),
-                                ExtractRequestId = extractDownload.ExtractRequestId
+                                TicketId = job.TicketId,
+                                DownloadId = new DownloadId(job.DownloadId.Value),
+                                UploadId = uploadId,
+                                ExtractRequestId = extractRequestId,
+                                ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName, reason: extractRequest.Description)
                             };
                         }
 
                         return new UploadExtractSqsRequest
                         {
-                            Request = new BackOffice.Abstractions.Extracts.V2.UploadExtractRequest(job.DownloadId.Value, uploadId, job.TicketId),
-                            ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName),
-                            ExtractRequestId = extractDownload.ExtractRequestId
+                            TicketId = job.TicketId,
+                            DownloadId = new DownloadId(job.DownloadId.Value),
+                            UploadId = uploadId,
+                            ExtractRequestId = extractRequestId,
+                            ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName)
                         };
                     }
                 case UploadType.Inwinning:
@@ -325,9 +330,11 @@ namespace RoadRegistry.Jobs.Processor
 
                         return new UploadInwinningExtractSqsRequest
                         {
-                            Request = new BackOffice.Abstractions.Extracts.V2.UploadExtractRequest(job.DownloadId.Value, uploadId, job.TicketId),
+                            TicketId = job.TicketId,
+                            DownloadId = new DownloadId(job.DownloadId.Value),
+                            UploadId = uploadId,
+                            ExtractRequestId = ExtractRequestId.FromString(extractDownload.ExtractRequestId),
                             ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName, reason: extractRequest.Description),
-                            ExtractRequestId = extractDownload.ExtractRequestId
                         };
                     }
                 default:

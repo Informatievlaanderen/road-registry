@@ -35,19 +35,15 @@ public abstract class WhenUploadExtractTestBase : BackOfficeLambdaTest
     }
 
     protected async Task<UploadExtractSqsRequest> HandleRequest(
-        UploadExtractRequest request,
+        UploadExtractSqsRequest sqsRequest,
         IBlobClient? blobClient = null,
         IExtractUploadFailedEmailClient? extractUploadFailedEmailClient = null)
     {
-        var sqsRequest = new UploadExtractSqsRequest
-        {
-            Request = request,
-            TicketId = Guid.NewGuid(),
-            Metadata = new Dictionary<string, object?>(),
-            ProvenanceData = ObjectProvider.Create<ProvenanceData>()
-        };
+        sqsRequest.TicketId = Guid.NewGuid();
+        sqsRequest.Metadata = new Dictionary<string, object?>();
+        sqsRequest.ProvenanceData = ObjectProvider.Create<ProvenanceData>();
 
-        var sqsLambdaRequest = new UploadExtractSqsLambdaRequest(new DownloadId(request.DownloadId), sqsRequest);
+        var sqsLambdaRequest = new UploadExtractSqsLambdaRequest(sqsRequest.DownloadId, sqsRequest);
 
         var featureCompareValidatorFactory = new FakeZipArchiveBeforeFeatureCompareValidatorFactory(() => new FakeZipArchiveBeforeFeatureCompareValidator());
 

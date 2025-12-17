@@ -5,13 +5,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using CommandHandling.Actions.ChangeRoadNetwork;
 using RoadNetwork;
 using RoadRegistry.Extensions;
 using RoadRegistry.GradeSeparatedJunction.Changes;
 using RoadRegistry.RoadNode.Changes;
 using RoadRegistry.RoadSegment.Changes;
-using RoadRegistry.RoadSegment.ValueObjects;
 
 public class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>, IEquatable<TranslatedChanges>
 {
@@ -133,90 +131,6 @@ public class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>, IEquat
                  ?? (IRoadNetworkChange?)_modifyRoadSegmentChanges.GetValueOrDefault(id)
                  ?? _removeRoadSegmentChanges.GetValueOrDefault(id);
         return change != null;
-    }
-
-    public ChangeRoadNetworkCommand ToChangeRoadNetworkCommand(DownloadId downloadId, TicketId ticketId)
-    {
-        return new ChangeRoadNetworkCommand
-        {
-            DownloadId = downloadId,
-            Changes = _changes.Select(ToChangeRoadNetworkCommandItem).ToList(),
-            TicketId = ticketId
-        };
-    }
-
-    private static ChangeRoadNetworkCommandItem ToChangeRoadNetworkCommandItem(IRoadNetworkChange change)
-    {
-        switch (change)
-        {
-            case AddRoadNodeChange command:
-                return new ChangeRoadNetworkCommandItem
-                {
-                    AddRoadNode = command
-                };
-            case ModifyRoadNodeChange command:
-                return new ChangeRoadNetworkCommandItem
-                {
-                    ModifyRoadNode = command
-                };
-            case RemoveRoadNodeChange command:
-                return new ChangeRoadNetworkCommandItem
-                {
-                    RemoveRoadNode = command
-                };
-            case AddRoadSegmentChange command:
-                return new ChangeRoadNetworkCommandItem
-                {
-                    AddRoadSegment = command
-                };
-            case ModifyRoadSegmentChange command:
-                return new ChangeRoadNetworkCommandItem
-                {
-                    ModifyRoadSegment = command
-                };
-            case RemoveRoadSegmentChange command:
-                return new ChangeRoadNetworkCommandItem
-                {
-                    RemoveRoadSegment = command
-                };
-            case AddRoadSegmentToEuropeanRoadChange command:
-                return new ChangeRoadNetworkCommandItem
-                {
-                    AddRoadSegmentToEuropeanRoad = command
-                };
-            case RemoveRoadSegmentFromEuropeanRoadChange command:
-                return new ChangeRoadNetworkCommandItem
-                {
-                    RemoveRoadSegmentFromEuropeanRoad = command
-                };
-            case AddRoadSegmentToNationalRoadChange command:
-                return new ChangeRoadNetworkCommandItem
-                {
-                    AddRoadSegmentToNationalRoad = command
-                };
-            case RemoveRoadSegmentFromNationalRoadChange command:
-                return new ChangeRoadNetworkCommandItem
-                {
-                    RemoveRoadSegmentFromNationalRoad = command
-                };
-            case AddGradeSeparatedJunctionChange command:
-                return new ChangeRoadNetworkCommandItem
-                {
-                    AddGradeSeparatedJunction = command
-                };
-            case ModifyGradeSeparatedJunctionChange command:
-                return new ChangeRoadNetworkCommandItem
-                {
-                    ModifyGradeSeparatedJunction = command
-                };
-            case RemoveGradeSeparatedJunctionChange command:
-                return new ChangeRoadNetworkCommandItem
-                {
-                    RemoveGradeSeparatedJunction = command
-                };
-            default:
-                throw new NotImplementedException($"No handler for change '{change.GetType().Name}'");
-        }
     }
 
     public bool Equals(TranslatedChanges other)

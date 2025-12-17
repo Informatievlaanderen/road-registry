@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -16,10 +17,6 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
-using RoadRegistry.BackOffice.Exceptions;
-using RoadRegistry.BackOffice.Extensions;
-using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 using RoadRegistry.Extensions;
 using Swashbuckle.AspNetCore.Annotations;
 using ValueObjects.ProblemCodes;
@@ -61,7 +58,12 @@ public partial class ExtractenController
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
-                Request = new RequestExtractRequest(extractRequestId, downloadId, contour, request.Beschrijving, request.Informatief, null)
+                ExtractRequestId = extractRequestId,
+                DownloadId = downloadId,
+                Contour = contour,
+                Description = body.Beschrijving,
+                IsInformative = body.Informatief,
+                ExternalRequestId = null
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));

@@ -11,6 +11,7 @@ using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Tests.BackOffice;
 using SqlStreamStore.Streams;
+using Sqs.Extracts;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 using Polygon = NetTopologySuite.Geometries.Polygon;
@@ -26,23 +27,23 @@ public class WithValidRequest : WhenUploadExtractTestBase
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
-        var request = new UploadExtractRequest(
-            downloadId,
-            ObjectProvider.Create<UploadId>(),
-            ObjectProvider.Create<TicketId>()
-        );
-        var extractRequestId = ObjectProvider.Create<ExtractRequestId>();
+        var request = new UploadExtractSqsRequest
+        {
+            DownloadId = downloadId,
+            UploadId = ObjectProvider.Create<UploadId>(),
+            ExtractRequestId = ObjectProvider.Create<ExtractRequestId>()
+        };
 
         ExtractsDbContext.ExtractRequests.Add(new()
         {
-            ExtractRequestId = extractRequestId,
+            ExtractRequestId = request.ExtractRequestId,
             CurrentDownloadId = downloadId,
             Description = ObjectProvider.Create<string>()
         });
         ExtractsDbContext.ExtractDownloads.Add(new()
         {
             DownloadId = downloadId,
-            ExtractRequestId = extractRequestId,
+            ExtractRequestId = request.ExtractRequestId,
             Contour = Polygon.Empty,
             DownloadedOn = DateTimeOffset.Now
         });
@@ -53,15 +54,14 @@ public class WithValidRequest : WhenUploadExtractTestBase
 
         // Assert
         TicketingMock.Verify(x =>
-            x.Complete(
+            x.Pending(
                 sqsRequest.TicketId,
-                It.IsAny<TicketResult>(),
                 CancellationToken.None
-            )
+            ), Times.Never
         );
         TicketingMock.Verify(x =>
             x.Complete(
-                request.TicketId,
+                sqsRequest.TicketId,
                 It.IsAny<TicketResult>(),
                 CancellationToken.None
             ), Times.Never
@@ -78,9 +78,9 @@ public class WithValidRequest : WhenUploadExtractTestBase
 
         var changeRoadNetworkCommand = JsonConvert.DeserializeObject<ChangeRoadNetwork>(await lastMessage.GetJsonData());
         changeRoadNetworkCommand.Should().NotBeNull();
-        changeRoadNetworkCommand!.ExtractRequestId.Should().Be(extractRequestId);
+        changeRoadNetworkCommand!.ExtractRequestId.Should().Be(request.ExtractRequestId);
         changeRoadNetworkCommand.DownloadId.Should().Be(request.DownloadId);
-        changeRoadNetworkCommand.TicketId.Should().Be(request.TicketId);
+        changeRoadNetworkCommand.TicketId.Should().Be(sqsRequest.TicketId);
         changeRoadNetworkCommand.UseExtractsV2.Should().BeTrue();
     }
 }

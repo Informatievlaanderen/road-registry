@@ -2,7 +2,7 @@
 
 using AutoFixture;
 using FluentAssertions;
-using RoadNetwork;
+using RoadRegistry.RoadNetwork;
 using RoadRegistry.RoadSegment.Changes;
 
 public class RoadNetworkChangesTests

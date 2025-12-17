@@ -1,13 +1,9 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
-using RoadRegistry.BackOffice.Abstractions;
-using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
-using RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
+using RoadNetwork;
 
-public sealed record ChangeRoadNetworkSqsLambdaRequest :
-    SqsLambdaRequest,
-    IHasBackOfficeRequest<ChangeRoadNetworkCommand>
+public sealed record ChangeRoadNetworkSqsLambdaRequest : SqsLambdaRequest
 {
     public ChangeRoadNetworkSqsLambdaRequest(string groupId, ChangeRoadNetworkSqsRequest sqsRequest)
         : base(
@@ -17,8 +13,8 @@ public sealed record ChangeRoadNetworkSqsLambdaRequest :
             sqsRequest.ProvenanceData.ToProvenance(),
             sqsRequest.Metadata)
     {
-        Request = sqsRequest.Request;
+        Request = sqsRequest;
     }
 
-    public ChangeRoadNetworkCommand Request { get; init; }
+    public ChangeRoadNetworkSqsRequest Request { get; }
 }

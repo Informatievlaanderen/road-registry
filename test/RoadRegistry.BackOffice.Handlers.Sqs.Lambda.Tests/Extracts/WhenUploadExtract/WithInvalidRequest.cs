@@ -10,6 +10,7 @@ using Exceptions;
 using FluentAssertions;
 using Moq;
 using RoadRegistry.Extracts.Schema;
+using Sqs.Extracts;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 using Polygon = NetTopologySuite.Geometries.Polygon;
@@ -25,16 +26,17 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
-        var request = new UploadExtractRequest(
-            downloadId,
-            ObjectProvider.Create<UploadId>(),
-            ObjectProvider.Create<TicketId>()
-        );
+        var request = new UploadExtractSqsRequest
+        {
+            DownloadId = downloadId,
+            UploadId = ObjectProvider.Create<UploadId>(),
+            ExtractRequestId = ObjectProvider.Create<ExtractRequestId>()
+        };
 
         ExtractsDbContext.ExtractDownloads.Add(new()
         {
             DownloadId = downloadId,
-            ExtractRequestId = ObjectProvider.Create<ExtractRequestId>(),
+            ExtractRequestId = request.ExtractRequestId,
             Contour = Polygon.Empty,
             DownloadedOn = DateTimeOffset.Now
         });
@@ -49,18 +51,9 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
         var sqsRequest = await HandleRequest(request, blobClient: blobClient.Object);
 
         // Assert
-        sqsRequest.TicketId.Should().NotBe(request.TicketId);
-
         TicketingMock.Verify(x =>
             x.Error(
                 sqsRequest.TicketId,
-                It.IsAny<TicketError>(),
-                CancellationToken.None
-            )
-        );
-        TicketingMock.Verify(x =>
-            x.Error(
-                request.TicketId,
                 It.IsAny<TicketError>(),
                 CancellationToken.None
             )
@@ -77,23 +70,23 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
-        var request = new UploadExtractRequest(
-            downloadId,
-            ObjectProvider.Create<UploadId>(),
-            ObjectProvider.Create<TicketId>()
-        );
-        var extractRequestId = ObjectProvider.Create<ExtractRequestId>();
+        var request = new UploadExtractSqsRequest
+        {
+            DownloadId = downloadId,
+            UploadId = ObjectProvider.Create<UploadId>(),
+            ExtractRequestId = ObjectProvider.Create<ExtractRequestId>()
+        };
 
         ExtractsDbContext.ExtractRequests.Add(new()
         {
-            ExtractRequestId = extractRequestId,
+            ExtractRequestId = request.ExtractRequestId,
             CurrentDownloadId = downloadId,
             Description = ObjectProvider.Create<string>()
         });
         ExtractsDbContext.ExtractDownloads.Add(new()
         {
             DownloadId = downloadId,
-            ExtractRequestId = extractRequestId,
+            ExtractRequestId = request.ExtractRequestId,
             Contour = Polygon.Empty,
             DownloadedOn = DateTimeOffset.Now
         });
@@ -116,23 +109,23 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
-        var request = new UploadExtractRequest(
-            downloadId,
-            ObjectProvider.Create<UploadId>(),
-            ObjectProvider.Create<TicketId>()
-        );
-        var extractRequestId = ObjectProvider.Create<ExtractRequestId>();
+        var request = new UploadExtractSqsRequest
+        {
+            DownloadId = downloadId,
+            UploadId = ObjectProvider.Create<UploadId>(),
+            ExtractRequestId = ObjectProvider.Create<ExtractRequestId>()
+        };
 
         ExtractsDbContext.ExtractRequests.Add(new()
         {
-            ExtractRequestId = extractRequestId,
+            ExtractRequestId = request.ExtractRequestId,
             CurrentDownloadId = downloadId,
             Description = ObjectProvider.Create<string>()
         });
         ExtractsDbContext.ExtractDownloads.Add(new()
         {
             DownloadId = downloadId,
-            ExtractRequestId = extractRequestId,
+            ExtractRequestId = request.ExtractRequestId,
             Contour = Polygon.Empty,
             DownloadedOn = DateTimeOffset.Now
         });
@@ -155,11 +148,12 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
-        var request = new UploadExtractRequest(
-            downloadId,
-            ObjectProvider.Create<UploadId>(),
-            ObjectProvider.Create<TicketId>()
-        );
+        var request = new UploadExtractSqsRequest
+        {
+            DownloadId = downloadId,
+            UploadId = ObjectProvider.Create<UploadId>(),
+            ExtractRequestId = ObjectProvider.Create<ExtractRequestId>()
+        };
 
         // Act
         await HandleRequest(request);
@@ -173,16 +167,17 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
-        var request = new UploadExtractRequest(
-            downloadId,
-            ObjectProvider.Create<UploadId>(),
-            ObjectProvider.Create<TicketId>()
-        );
+        var request = new UploadExtractSqsRequest
+        {
+            DownloadId = downloadId,
+            UploadId = ObjectProvider.Create<UploadId>(),
+            ExtractRequestId = ObjectProvider.Create<ExtractRequestId>()
+        };
 
         ExtractsDbContext.ExtractDownloads.Add(new()
         {
             DownloadId = downloadId,
-            ExtractRequestId = ObjectProvider.Create<ExtractRequestId>(),
+            ExtractRequestId = request.ExtractRequestId,
             Contour = Polygon.Empty,
             DownloadedOn = DateTimeOffset.Now,
             IsInformative = true
@@ -201,16 +196,17 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
-        var request = new UploadExtractRequest(
-            downloadId,
-            ObjectProvider.Create<UploadId>(),
-            ObjectProvider.Create<TicketId>()
-        );
+        var request = new UploadExtractSqsRequest
+        {
+            DownloadId = downloadId,
+            UploadId = ObjectProvider.Create<UploadId>(),
+            ExtractRequestId = ObjectProvider.Create<ExtractRequestId>()
+        };
 
         ExtractsDbContext.ExtractDownloads.Add(new()
         {
             DownloadId = downloadId,
-            ExtractRequestId = ObjectProvider.Create<ExtractRequestId>(),
+            ExtractRequestId = request.ExtractRequestId,
             Contour = Polygon.Empty,
             DownloadedOn = DateTimeOffset.Now,
             Closed = true
@@ -229,16 +225,17 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
-        var request = new UploadExtractRequest(
-            downloadId,
-            ObjectProvider.Create<UploadId>(),
-            ObjectProvider.Create<TicketId>()
-        );
+        var request = new UploadExtractSqsRequest
+        {
+            DownloadId = downloadId,
+            UploadId = ObjectProvider.Create<UploadId>(),
+            ExtractRequestId = ObjectProvider.Create<ExtractRequestId>()
+        };
 
         ExtractsDbContext.ExtractDownloads.Add(new()
         {
             DownloadId = downloadId,
-            ExtractRequestId = ObjectProvider.Create<ExtractRequestId>(),
+            ExtractRequestId = request.ExtractRequestId,
             Contour = Polygon.Empty,
             DownloadedOn = null
         });
@@ -256,23 +253,23 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
-        var request = new UploadExtractRequest(
-            downloadId,
-            ObjectProvider.Create<UploadId>(),
-            ObjectProvider.Create<TicketId>()
-        );
-        var extractRequestId = ObjectProvider.Create<ExtractRequestId>();
+        var request = new UploadExtractSqsRequest
+        {
+            DownloadId = downloadId,
+            UploadId = ObjectProvider.Create<UploadId>(),
+            ExtractRequestId = ObjectProvider.Create<ExtractRequestId>()
+        };
 
         ExtractsDbContext.ExtractRequests.Add(new()
         {
-            ExtractRequestId = extractRequestId,
+            ExtractRequestId = request.ExtractRequestId,
             CurrentDownloadId = Guid.NewGuid(),
             Description = ObjectProvider.Create<string>()
         });
         ExtractsDbContext.ExtractDownloads.Add(new()
         {
             DownloadId = downloadId,
-            ExtractRequestId = extractRequestId,
+            ExtractRequestId = request.ExtractRequestId,
             Contour = Polygon.Empty,
             DownloadedOn = DateTimeOffset.Now,
         });
@@ -290,24 +287,23 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
-        var request = new UploadExtractRequest(
-            downloadId,
-            ObjectProvider.Create<UploadId>(),
-            ObjectProvider.Create<TicketId>()
-        );
-
-        var extractRequestId = ObjectProvider.Create<ExtractRequestId>();
+        var request = new UploadExtractSqsRequest
+        {
+            DownloadId = downloadId,
+            UploadId = ObjectProvider.Create<UploadId>(),
+            ExtractRequestId = ObjectProvider.Create<ExtractRequestId>()
+        };
 
         ExtractsDbContext.ExtractRequests.Add(new()
         {
-            ExtractRequestId = extractRequestId,
+            ExtractRequestId = request.ExtractRequestId,
             CurrentDownloadId = downloadId,
             Description = ObjectProvider.Create<string>()
         });
         ExtractsDbContext.ExtractDownloads.Add(new()
         {
             DownloadId = downloadId,
-            ExtractRequestId = extractRequestId,
+            ExtractRequestId = request.ExtractRequestId,
             Contour = Polygon.Empty,
             DownloadedOn = DateTimeOffset.Now
         });
@@ -330,17 +326,16 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
-        var request = new UploadExtractRequest(
-            downloadId,
-            ObjectProvider.Create<UploadId>(),
-            ObjectProvider.Create<TicketId>()
-        );
-
-        var extractRequestId = ObjectProvider.Create<ExtractRequestId>();
+        var request = new UploadExtractSqsRequest
+        {
+            DownloadId = downloadId,
+            UploadId = ObjectProvider.Create<UploadId>(),
+            ExtractRequestId = ObjectProvider.Create<ExtractRequestId>()
+        };
 
         ExtractsDbContext.ExtractRequests.Add(new()
         {
-            ExtractRequestId = extractRequestId,
+            ExtractRequestId = request.ExtractRequestId,
             CurrentDownloadId = downloadId,
             Description = ObjectProvider.Create<string>(),
             ExternalRequestId = null
@@ -348,7 +343,7 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
         ExtractsDbContext.ExtractDownloads.Add(new()
         {
             DownloadId = downloadId,
-            ExtractRequestId = extractRequestId,
+            ExtractRequestId = request.ExtractRequestId,
             Contour = Polygon.Empty,
             DownloadedOn = DateTimeOffset.Now
         });
@@ -385,13 +380,13 @@ public class WithInvalidRequest : WhenUploadExtractTestBase
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
-        var request = new UploadExtractRequest(
-            downloadId,
-            ObjectProvider.Create<UploadId>(),
-            ObjectProvider.Create<TicketId>()
-        );
-
         var extractRequestId = ObjectProvider.Create<ExtractRequestId>();
+        var request = new UploadExtractSqsRequest
+        {
+            DownloadId = downloadId,
+            UploadId = ObjectProvider.Create<UploadId>(),
+            ExtractRequestId = extractRequestId
+        };
 
         ExtractsDbContext.ExtractRequests.Add(new()
         {

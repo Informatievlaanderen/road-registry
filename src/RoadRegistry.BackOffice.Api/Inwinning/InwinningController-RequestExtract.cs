@@ -16,7 +16,6 @@ using Infrastructure.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 using RoadRegistry.CommandHandling;
 using RoadRegistry.Extensions;
@@ -82,7 +81,10 @@ public partial class InwinningController
             var result = await _mediator.Send(new RequestInwinningExtractSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
-                Request = new RequestInwinningExtractRequest(extractRequestId, downloadId, contour, body.NisCode)
+                ExtractRequestId = extractRequestId,
+                DownloadId = downloadId,
+                Contour = contour,
+                NisCode = body.NisCode
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));

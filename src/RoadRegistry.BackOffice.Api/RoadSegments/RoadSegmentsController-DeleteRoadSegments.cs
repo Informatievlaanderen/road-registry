@@ -12,14 +12,11 @@ using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using CommandHandling;
 using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
-using CommandHandling.Actions.RemoveRoadSegments;
-using Extensions;
 using FeatureToggles;
 using FluentValidation;
 using FluentValidation.Results;
 using Infrastructure;
 using Infrastructure.Authentication;
-using Messages;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -64,10 +61,7 @@ public partial class RoadSegmentsController
             {
                 var sqsRequest = new RemoveRoadSegmentsSqsRequest
                 {
-                    Request = new RemoveRoadSegmentsCommand
-                    {
-                        RoadSegmentIds = parameters.Wegsegmenten.Select(x => new RoadSegmentId(x)).ToList()
-                    }
+                    RoadSegmentIds = parameters.Wegsegmenten.Select(x => new RoadSegmentId(x)).ToList()
                 };
                 var response = await _mediator.Send(sqsRequest, cancellationToken);
 

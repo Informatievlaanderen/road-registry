@@ -73,7 +73,7 @@ public sealed class RequestInwinningExtractSqsLambdaRequestHandler : SqsLambdaHa
         }
 
         await _extractRequester.BuildExtract(
-            new RequestExtractRequest(
+            new RequestExtractData(
                 request.Request.ExtractRequestId,
                 request.Request.DownloadId,
                 request.Request.Contour,

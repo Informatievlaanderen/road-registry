@@ -63,7 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj" />
-    <ProjectReference Include="..\RoadRegistry.CommandHandling\RoadRegistry.CommandHandling.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Infrastructure\RoadRegistry.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="RoadRegistry.ValueObjects" />

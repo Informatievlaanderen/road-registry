@@ -3,6 +3,7 @@
 using Extensions;
 using RoadNetwork;
 using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.RoadNetwork;
 
 public class ExpectEventsScenario
 {

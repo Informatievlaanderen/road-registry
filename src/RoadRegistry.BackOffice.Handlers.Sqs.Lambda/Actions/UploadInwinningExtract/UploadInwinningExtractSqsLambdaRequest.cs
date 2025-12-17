@@ -5,9 +5,7 @@ using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 
-public sealed record UploadInwinningExtractSqsLambdaRequest :
-    SqsLambdaRequest,
-    IHasBackOfficeRequest<UploadExtractRequest>
+public sealed record UploadInwinningExtractSqsLambdaRequest : SqsLambdaRequest
 {
     public UploadInwinningExtractSqsLambdaRequest(string groupId, UploadInwinningExtractSqsRequest sqsRequest)
         : base(
@@ -17,8 +15,8 @@ public sealed record UploadInwinningExtractSqsLambdaRequest :
             sqsRequest.ProvenanceData.ToProvenance(),
             sqsRequest.Metadata)
     {
-        Request = sqsRequest.Request;
+        Request = sqsRequest;
     }
 
-    public UploadExtractRequest Request { get; init; }
+    public UploadInwinningExtractSqsRequest Request { get; }
 }

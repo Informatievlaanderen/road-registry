@@ -1,12 +1,12 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork.WhenChangingRoadNetwork;
 
 using AutoFixture;
-using CommandHandling.Actions.ChangeRoadNetwork;
 using FluentAssertions;
 using GradeSeparatedJunction.Changes;
 using Newtonsoft.Json;
 using RoadNode.Changes;
 using RoadSegment.Changes;
+using Sqs.RoadNetwork;
 using Tests.AggregateTests;
 using Xunit.Abstractions;
 
@@ -24,10 +24,10 @@ public class SqsSerializerTests
     {
         var fixture = new RoadNetworkTestData().Fixture;
 
-        var changes = fixture.CreateMany<ChangeRoadNetworkCommandItem>(1).ToList();
-
+        var original = fixture.Create<ChangeRoadNetworkSqsRequest>();
+        var changes = fixture.CreateMany<ChangeRoadNetworkItem>(1).ToList();
         // ensure null values are properly handled
-        changes.Add(new ChangeRoadNetworkCommandItem
+        changes.Add(new ChangeRoadNetworkItem
         {
             ModifyRoadNode = new ModifyRoadNodeChange
             {
@@ -42,15 +42,15 @@ public class SqsSerializerTests
                 GradeSeparatedJunctionId = new  GradeSeparatedJunctionId(1)
             }
         });
-
+        original.Changes = changes;
 
         var jsonSerializerSettings = SqsJsonSerializerSettingsProvider.CreateSerializerSettings();
-        var changesAsJson = JsonConvert.SerializeObject(changes, jsonSerializerSettings);
-        var deserializedChanges = JsonConvert.DeserializeObject<ChangeRoadNetworkCommandItem[]>(changesAsJson, jsonSerializerSettings);
+        var originalAsJson = JsonConvert.SerializeObject(original, jsonSerializerSettings);
+        var deserialized = JsonConvert.DeserializeObject<ChangeRoadNetworkSqsRequest>(originalAsJson, jsonSerializerSettings);
 
-        _testOutputHelper.WriteLine($"Expected:\n{JsonConvert.SerializeObject(changes, Formatting.Indented, jsonSerializerSettings)}");
-        _testOutputHelper.WriteLine($"\nActual:\n{JsonConvert.SerializeObject(deserializedChanges, Formatting.Indented, jsonSerializerSettings)}");
+        _testOutputHelper.WriteLine($"Expected:\n{JsonConvert.SerializeObject(original, Formatting.Indented, jsonSerializerSettings)}");
+        _testOutputHelper.WriteLine($"\nActual:\n{JsonConvert.SerializeObject(deserialized, Formatting.Indented, jsonSerializerSettings)}");
 
-        deserializedChanges.Should().BeEquivalentTo(changes);
+        deserialized.Should().BeEquivalentTo(original);
     }
 }

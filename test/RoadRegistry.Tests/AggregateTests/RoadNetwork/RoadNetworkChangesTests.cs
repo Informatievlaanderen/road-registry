@@ -1,8 +1,8 @@
-﻿namespace RoadRegistry.CommandHandling.Tests.Actions.ChangeRoadNetwork;
+﻿namespace RoadRegistry.Tests.AggregateTests.RoadNetwork;
 
 using System.Linq;
 using FluentAssertions;
-using RoadNetwork;
+using RoadRegistry.RoadNetwork;
 
 public class RoadNetworkChangesTests
 {

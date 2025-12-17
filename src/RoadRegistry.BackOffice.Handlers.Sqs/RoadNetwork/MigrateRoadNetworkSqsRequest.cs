@@ -1,11 +1,11 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
 
+using Abstractions;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using RoadRegistry.BackOffice.Abstractions;
-using RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
 
 [BlobRequest]
-public sealed class MigrateRoadNetworkSqsRequest : SqsRequest, IHasBackOfficeRequest<ChangeRoadNetworkCommand>
+public sealed class MigrateRoadNetworkSqsRequest : SqsRequest
 {
-    public ChangeRoadNetworkCommand Request { get; init; }
+    public required ICollection<ChangeRoadNetworkItem> Changes { get; set; } = [];
+    public required DownloadId DownloadId { get; set; }
 }

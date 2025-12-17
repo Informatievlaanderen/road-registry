@@ -1,13 +1,10 @@
 ﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork.WhenChangingRoadNetwork;
 
 using Actions.ChangeRoadNetwork;
-using BackOffice.Extracts;
+using AutoFixture;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using CommandHandling;
-using CommandHandling.Actions.ChangeRoadNetwork;
 using CommandHandling.Extracts;
-using Core;
 using FluentAssertions;
 using Hosts;
 using Marten;
@@ -45,34 +42,30 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
         var testData = new RoadNetworkTestData();
 
         var provenanceData = new RoadRegistryProvenanceData();
-        var command = new ChangeRoadNetworkCommand
+        var command = new ChangeRoadNetworkSqsRequest
         {
-            DownloadId = Guid.NewGuid(),
-            TicketId = Guid.NewGuid(),
+            DownloadId = testData.Fixture.Create<DownloadId>(),
+            TicketId = testData.Fixture.Create<TicketId>(),
             Changes = [
-                new ChangeRoadNetworkCommandItem
+                new ChangeRoadNetworkItem
                 {
                     AddRoadNode = testData.AddSegment1StartNode
                 },
-                new ChangeRoadNetworkCommandItem
+                new ChangeRoadNetworkItem
                 {
                     AddRoadNode = testData.AddSegment1EndNode
                 },
-                new ChangeRoadNetworkCommandItem
+                new ChangeRoadNetworkItem
                 {
                     AddRoadSegment = testData.AddSegment1
                 }
-            ]
-        };
-        var sqsRequest = new ChangeRoadNetworkSqsRequest
-        {
-            Request = command,
+            ],
             ProvenanceData = provenanceData
         };
 
         // Act
         var handler = sp.GetRequiredService<ChangeRoadNetworkSqsLambdaRequestHandler>();
-        await handler.Handle(new ChangeRoadNetworkSqsLambdaRequest(string.Empty, sqsRequest), CancellationToken.None);
+        await handler.Handle(new ChangeRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
 
         // Assert
         var ticketResult = _ticketingMock.Invocations

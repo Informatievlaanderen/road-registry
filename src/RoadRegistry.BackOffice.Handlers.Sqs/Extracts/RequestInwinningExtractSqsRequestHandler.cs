@@ -14,7 +14,7 @@ public class RequestInwinningExtractSqsRequestHandler : SqsHandler<RequestInwinn
 
     protected override string WithAggregateId(RequestInwinningExtractSqsRequest request)
     {
-        return request.Request.ExtractRequestId;
+        return request.ExtractRequestId;
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, RequestInwinningExtractSqsRequest sqsRequest)
