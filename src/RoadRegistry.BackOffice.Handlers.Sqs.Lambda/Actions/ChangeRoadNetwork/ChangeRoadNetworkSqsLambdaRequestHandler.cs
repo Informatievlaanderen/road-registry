@@ -1,17 +1,25 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.ChangeRoadNetwork;
 
+using System.Data;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using CommandHandling;
+using CommandHandling.Actions.ChangeRoadNetwork;
+using CommandHandling.Extracts;
+using Hosts;
+using Infrastructure;
+using Marten;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
-using RoadRegistry.CommandHandling;
-using RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
-using RoadRegistry.Hosts;
+using RoadRegistry.RoadNetwork;
 using TicketingService.Abstractions;
 
 public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<ChangeRoadNetworkSqsLambdaRequest>
 {
-    private readonly ChangeRoadNetworkCommandHandler _commandHandler;
+    private readonly IDocumentStore _store;
+    private readonly IRoadNetworkRepository _roadNetworkRepository;
+    private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
+    private readonly IExtractRequests _extractRequests;
 
     public ChangeRoadNetworkSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -19,7 +27,10 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        ChangeRoadNetworkCommandHandler commandHandler,
+        IDocumentStore store,
+        IRoadNetworkRepository roadNetworkRepository,
+        IRoadNetworkIdGenerator roadNetworkIdGenerator,
+        IExtractRequests extractRequests,
         ILoggerFactory loggerFactory)
         : base(
             options,
@@ -29,7 +40,10 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
             roadRegistryContext,
             loggerFactory)
     {
-        _commandHandler = commandHandler;
+        _store = store;
+        _roadNetworkRepository = roadNetworkRepository;
+        _roadNetworkIdGenerator = roadNetworkIdGenerator;
+        _extractRequests = extractRequests;
     }
 
     protected override async Task<object> InnerHandle(ChangeRoadNetworkSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
@@ -38,7 +52,7 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
 
         await Ticketing.Pending(command.TicketId, cancellationToken);
 
-        var changeResult = await _commandHandler.Handle(command, sqsLambdaRequest.Provenance, cancellationToken);
+        var changeResult = await Handle(command, sqsLambdaRequest.Provenance, cancellationToken);
 
         var hasError = changeResult.Problems.HasError();
         if (hasError)
@@ -79,5 +93,42 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
         }
 
         return new object();
+    }
+
+    private async Task<RoadNetworkChangeResult> Handle(ChangeRoadNetworkCommand command, Provenance provenance, CancellationToken cancellationToken)
+    {
+        var roadNetworkChanges = command.ToRoadNetworkChanges(provenance);
+
+        var roadNetwork = await Load(roadNetworkChanges);
+        var downloadId = new DownloadId(command.DownloadId);
+        var changeResult = roadNetwork.Change(roadNetworkChanges, downloadId, _roadNetworkIdGenerator);
+
+        if (!changeResult.Problems.HasError())
+        {
+            await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
+            await _extractRequests.UploadAcceptedAsync(downloadId, cancellationToken);
+        }
+        else
+        {
+            //TODO-pr send failed email IExtractUploadFailedEmailClient if external extract (grb) (of GRB logica in aparte lambda handler steken?)
+            await _extractRequests.UploadRejectedAsync(downloadId, cancellationToken);
+        }
+
+        return changeResult;
+    }
+
+    private async Task<RoadNetwork> Load(RoadNetworkChanges roadNetworkChanges)
+    {
+        await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
+
+        var ids = await _roadNetworkRepository.GetUnderlyingIds(session, roadNetworkChanges.BuildScopeGeometry());
+        return await _roadNetworkRepository.Load(
+            session,
+            new RoadNetworkIds(
+                roadNetworkChanges.RoadNodeIds.Union(ids.RoadNodeIds).ToList(),
+                roadNetworkChanges.RoadSegmentIds.Union(ids.RoadSegmentIds).ToList(),
+                roadNetworkChanges.GradeSeparatedJunctionIds.Union(ids.GradeSeparatedJunctionIds).ToList()
+            )
+        );
     }
 }

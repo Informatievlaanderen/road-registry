@@ -116,7 +116,6 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
         services
             .AddMartenRoad(options => options.AddRoadNetworkTopologyProjection().AddRoadAggregatesSnapshots())
             .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
-            .AddRoadRegistryCommandHandlers()
             .AddScoped<ChangeRoadNetworkSqsLambdaRequestHandler>();
 
         var sp = services.BuildServiceProvider();
