@@ -8,6 +8,8 @@ public partial class RoadSegment
 {
     public Problems RetireBecauseOfMerger(RoadSegmentId mergedRoadSegmentId, Provenance provenance)
     {
+        var problems = Problems.For(RoadSegmentId);
+
         //TODO-pr enkel voor measured segments? if yes, add validation + unit test
 
         Apply(new RoadSegmentWasRetiredBecauseOfMerger
@@ -17,6 +19,6 @@ public partial class RoadSegment
             Provenance = new ProvenanceData(provenance)
         });
 
-        return Problems.None;
+        return problems;
     }
 }

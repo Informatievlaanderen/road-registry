@@ -56,6 +56,7 @@ public sealed class UploadExtractSqsLambdaRequestV2Handler : SqsLambdaHandler<Up
             TicketId = request.TicketId,
             DownloadId = request.Request.DownloadId,
             Changes = translatedChanges.Select(ChangeRoadNetworkItem.Create).ToList(),
+            SendFailedEmail = request.Request.SendFailedEmail,
             ProvenanceData = new ProvenanceData(request.Provenance)
         };
         await _mediator.Send(changeRoadNetworkSqsRequest, cancellationToken);

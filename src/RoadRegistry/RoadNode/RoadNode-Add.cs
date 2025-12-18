@@ -11,7 +11,7 @@ public partial class RoadNode
 {
     public static (RoadNode?, Problems) Add(AddRoadNodeChange change, Provenance provenance, IRoadNetworkIdGenerator idGenerator)
     {
-        var problems = Problems.None;
+        var problems = Problems.For(change.TemporaryId);
 
         var roadNode = Create(new RoadNodeWasAdded
         {

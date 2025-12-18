@@ -8,7 +8,7 @@ public partial class GradeSeparatedJunction
 {
     public Problems VerifyTopology(RoadNetworkVerifyTopologyContext context)
     {
-        var problems = Problems.None;
+        var problems = Problems.For(GradeSeparatedJunctionId);
 
         if (!context.RoadNetwork.RoadSegments.TryGetValue(UpperRoadSegmentId, out var upperSegment) || upperSegment.IsRemoved)
         {

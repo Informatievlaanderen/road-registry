@@ -10,7 +10,7 @@ public partial class GradeSeparatedJunction
 {
     public static (GradeSeparatedJunction?, Problems) Add(AddGradeSeparatedJunctionChange change, Provenance provenance, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator)
     {
-        var problems = Problems.None;
+        var problems = Problems.For(change.TemporaryId);
 
         var junction = Create(new GradeSeparatedJunctionWasAdded
         {

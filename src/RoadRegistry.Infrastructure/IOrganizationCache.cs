@@ -6,7 +6,7 @@ using BackOffice;
 
 public interface IOrganizationCache
 {
-    Task<OrganizationDetail> FindByIdOrOvoCodeOrKboNumberAsync(OrganizationId organizationId, CancellationToken cancellationToken);
+    Task<OrganizationDetail?> FindByIdOrOvoCodeOrKboNumberAsync(OrganizationId organizationId, CancellationToken cancellationToken);
 }
 
 public class OrganizationDetail

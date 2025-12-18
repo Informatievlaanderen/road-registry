@@ -4,6 +4,7 @@ using System.Data;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Exceptions;
 using Hosts;
 using Infrastructure;
 using Marten;
@@ -19,6 +20,7 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
     private readonly IRoadNetworkRepository _roadNetworkRepository;
     private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
     private readonly IExtractRequests _extractRequests;
+    private readonly IExtractUploadFailedEmailClient _extractUploadFailedEmailClient;
 
     public ChangeRoadNetworkSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -30,6 +32,7 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
         IRoadNetworkRepository roadNetworkRepository,
         IRoadNetworkIdGenerator roadNetworkIdGenerator,
         IExtractRequests extractRequests,
+        IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
         ILoggerFactory loggerFactory)
         : base(
             options,
@@ -44,31 +47,30 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
         _roadNetworkRepository = roadNetworkRepository;
         _roadNetworkIdGenerator = roadNetworkIdGenerator;
         _extractRequests = extractRequests;
+        _extractUploadFailedEmailClient = extractUploadFailedEmailClient;
     }
 
     protected override async Task<object> InnerHandle(ChangeRoadNetworkSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
-        var command = sqsLambdaRequest.Request;
+        var changeResult = await Handle(sqsLambdaRequest.Request, cancellationToken);
 
-        var changeResult = await Handle(command, cancellationToken);
-
-        return new
+        return new ChangeRoadNetworkTicketResult
         {
-            Changes = new
+            Changes = new()
             {
-                RoadNodes = new
+                RoadNodes = new()
                 {
                     Added = changeResult.Changes.RoadNodes.Added.Select(x => x.ToInt32()).ToList(),
                     Modified = changeResult.Changes.RoadNodes.Modified.Select(x => x.ToInt32()).ToList(),
                     Removed = changeResult.Changes.RoadNodes.Removed.Select(x => x.ToInt32()).ToList()
                 },
-                RoadSegments = new
+                RoadSegments = new()
                 {
                     Added = changeResult.Changes.RoadSegments.Added.Select(x => x.ToInt32()).ToList(),
                     Modified = changeResult.Changes.RoadSegments.Modified.Select(x => x.ToInt32()).ToList(),
                     Removed = changeResult.Changes.RoadSegments.Removed.Select(x => x.ToInt32()).ToList()
                 },
-                GradeSeparatedJunctions = new
+                GradeSeparatedJunctions = new()
                 {
                     Added = changeResult.Changes.GradeSeparatedJunctions.Added.Select(x => x.ToInt32()).ToList(),
                     Modified = changeResult.Changes.GradeSeparatedJunctions.Modified.Select(x => x.ToInt32()).ToList(),
@@ -83,17 +85,19 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
         var roadNetworkChanges = command.Changes.ToRoadNetworkChanges(command.ProvenanceData);
 
         var roadNetwork = await Load(roadNetworkChanges);
-        var downloadId = new DownloadId(command.DownloadId);
+        var downloadId = command.DownloadId;
         var changeResult = roadNetwork.Change(roadNetworkChanges, downloadId, _roadNetworkIdGenerator);
 
         if (changeResult.Problems.HasError())
         {
-            //TODO-pr send failed email IExtractUploadFailedEmailClient if external extract (grb) (of GRB logica in aparte lambda handler steken?)
             await _extractRequests.UploadRejectedAsync(downloadId, cancellationToken);
 
-            //TODO-pr throw ex dat kan worden vertaald naar ticketerror, met juiste identifier, bvb WegsegmentId, WegknoopId, OngelijkGrondseKruisingId in ErrorContext
-            //await Ticketing.Error(command.TicketId, new TicketError(errors), cancellationToken);
-            throw new NotImplementedException();
+            if (command.SendFailedEmail)
+            {
+                await _extractUploadFailedEmailClient.SendAsync(new (downloadId, command.ProvenanceData.Reason), cancellationToken);
+            }
+
+            throw new RoadRegistryProblemsException(changeResult.Problems);
         }
 
         await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);

@@ -13,7 +13,7 @@ public partial class RoadNode
 {
     public Problems VerifyTopology(RoadNetworkVerifyTopologyContext context)
     {
-        var problems = Problems.None;
+        var problems = Problems.For(RoadNodeId);
 
         var segments = context.RoadNetwork.GetNonRemovedRoadSegments()
             .Where(x => x.StartNodeId == RoadNodeId || x.EndNodeId == RoadNodeId)
@@ -25,12 +25,12 @@ public partial class RoadNode
             {
                 if (segment.StartNodeId == RoadNodeId)
                 {
-                    problems = problems.Add(new RoadSegmentStartNodeMissing(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId)));
+                    problems += new RoadSegmentStartNodeMissing(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId));
                 }
 
                 if (segment.EndNodeId == RoadNodeId)
                 {
-                    problems = problems.Add(new RoadSegmentEndNodeMissing(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId)));
+                    problems += new RoadSegmentEndNodeMissing(context.IdTranslator.TranslateToTemporaryId(segment.RoadSegmentId));
                 }
             }
 

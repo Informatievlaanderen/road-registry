@@ -288,6 +288,7 @@ namespace RoadRegistry.Jobs.Processor
                                 DownloadId = new DownloadId(job.DownloadId.Value),
                                 UploadId = uploadId,
                                 ExtractRequestId = extractRequestId,
+                                SendFailedEmail = extractRequest.ExternalRequestId is not null,
                                 ProvenanceData = new RoadRegistryProvenanceData(operatorName: job.OperatorName, reason: extractRequest.Description)
                             };
                         }

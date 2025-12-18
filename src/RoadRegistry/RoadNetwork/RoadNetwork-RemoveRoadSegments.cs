@@ -21,7 +21,7 @@ public partial class RoadNetwork
         IRoadNetworkIdGenerator idGenerator,
         Provenance provenance)
     {
-        var roadSegmentsProblems = new Dictionary<RoadSegmentId, Problems>();
+        var problems = Problems.None;
 
         var invalidCategories = new[]
         {
@@ -35,16 +35,16 @@ public partial class RoadNetwork
         var idTranslator = new IdentifierTranslator();
         foreach (var roadSegmentId in roadSegmentIds)
         {
-            var problems = TryRemoveRoadSegment(roadSegmentId, invalidCategories, roadSegmentIds, idGenerator, idTranslator, provenance);
-            if (problems.HasError())
+            var segmentProblems = TryRemoveRoadSegment(roadSegmentId, invalidCategories, roadSegmentIds, idGenerator, idTranslator, provenance);
+            if (segmentProblems.HasError())
             {
-                roadSegmentsProblems.Add(roadSegmentId, problems);
+                problems += segmentProblems;
             }
         }
 
-        if (roadSegmentsProblems.Any())
+        if (problems.Any())
         {
-            throw new RoadSegmentsProblemsException(roadSegmentsProblems);
+            throw new RoadRegistryProblemsException(problems);
         }
     }
 
@@ -56,12 +56,12 @@ public partial class RoadNetwork
         IIdentifierTranslator idTranslator,
         Provenance provenance)
     {
+        var problems = Problems.For(roadSegmentId);
+
         if (!_roadSegments.TryGetValue(roadSegmentId, out var segment))
         {
-            return Problems.Single(new RoadSegmentNotFound(roadSegmentId));
+            return problems + new RoadSegmentNotFound(roadSegmentId);
         }
-
-        var problems = Problems.None;
 
         var segmentCategories = segment.Attributes.Category.Values.Select(x => x.Value).ToArray();
         var segmentInvalidCategories = invalidCategories.Intersect(segmentCategories).ToArray();

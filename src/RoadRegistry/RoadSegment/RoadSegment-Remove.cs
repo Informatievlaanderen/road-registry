@@ -8,9 +8,11 @@ public partial class RoadSegment
 {
     public Problems Remove(Provenance provenance)
     {
+        var problems = Problems.For(RoadSegmentId);
+
         if (IsRemoved)
         {
-            return Problems.None;
+            return problems;
         }
 
         Apply(new RoadSegmentWasRemoved
@@ -19,6 +21,6 @@ public partial class RoadSegment
             Provenance = new ProvenanceData(provenance)
         });
 
-        return Problems.None;
+        return problems;
     }
 }

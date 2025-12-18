@@ -212,6 +212,7 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
             .AddSingleton(_ticketingMock.Object)
             .AddSingleton(Mock.Of<IIdempotentCommandHandler>())
             .AddSingleton(Mock.Of<IRoadRegistryContext>())
+            .AddSingleton(Mock.Of<IExtractUploadFailedEmailClient>())
             .AddSingleton(_extractRequestsMock.Object);
 
         services

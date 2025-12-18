@@ -9,9 +9,10 @@ public class GradeSeparatedJunctionNotFound : Error
     {
     }
 
-    public GradeSeparatedJunctionNotFound(GradeSeparatedJunctionId segmentId)
+    public GradeSeparatedJunctionNotFound(GradeSeparatedJunctionId gradeSeparatedJunctionId)
         : base(ProblemCode.GradeSeparatedJunction.NotFound,
-            new ProblemParameter("Identifier", segmentId.ToInt32().ToString()))
+            new ProblemParameter("Identifier", gradeSeparatedJunctionId.ToInt32().ToString()))
     {
+        WithContext(ProblemContext.For(gradeSeparatedJunctionId));
     }
 }

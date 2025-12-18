@@ -13,7 +13,7 @@ public partial class RoadSegment
 {
     public Problems VerifyTopology(RoadNetworkVerifyTopologyContext context)
     {
-        var problems = Problems.None;
+        var problems = Problems.For(RoadSegmentId);
 
         if (IsRemoved || Attributes.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
         {
@@ -28,30 +28,30 @@ public partial class RoadSegment
             segment.Geometry.IsReasonablyEqualTo(Geometry, context.Tolerances));
         if (byOtherSegment is not null)
         {
-            problems = problems.Add(new RoadSegmentGeometryTaken(context.IdTranslator.TranslateToTemporaryId(byOtherSegment.RoadSegmentId)));
+            problems += new RoadSegmentGeometryTaken(context.IdTranslator.TranslateToTemporaryId(byOtherSegment.RoadSegmentId));
         }
 
         if (!context.RoadNetwork.RoadNodes.TryGetValue(StartNodeId, out var startNode) || startNode.IsRemoved)
         {
-            problems = problems.Add(new RoadSegmentStartNodeMissing(originalIdOrId));
+            problems += new RoadSegmentStartNodeMissing(originalIdOrId);
         }
         else
         {
             if (!line.StartPoint.IsReasonablyEqualTo(startNode.Geometry, context.Tolerances))
             {
-                problems = problems.Add(new RoadSegmentStartPointDoesNotMatchNodeGeometry(originalIdOrId));
+                problems += new RoadSegmentStartPointDoesNotMatchNodeGeometry(originalIdOrId);
             }
         }
 
         if (!context.RoadNetwork.RoadNodes.TryGetValue(EndNodeId, out var endNode) || endNode.IsRemoved)
         {
-            problems = problems.Add(new RoadSegmentEndNodeMissing(originalIdOrId));
+            problems += new RoadSegmentEndNodeMissing(originalIdOrId);
         }
         else
         {
             if (!line.EndPoint.IsReasonablyEqualTo(endNode.Geometry, context.Tolerances))
             {
-                problems = problems.Add(new RoadSegmentEndPointDoesNotMatchNodeGeometry(originalIdOrId));
+                problems += new RoadSegmentEndPointDoesNotMatchNodeGeometry(originalIdOrId);
             }
         }
 
@@ -69,7 +69,7 @@ public partial class RoadSegment
                         originalIdOrId,
                         context.IdTranslator.TranslateToTemporaryId(i.RoadSegmentId)));
 
-            problems = problems.AddRange(intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions);
+            problems += intersectingRoadSegmentsDoNotHaveGradeSeparatedJunctions;
         }
 
         return problems;

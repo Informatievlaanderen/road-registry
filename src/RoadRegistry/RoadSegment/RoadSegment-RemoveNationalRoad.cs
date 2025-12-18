@@ -9,6 +9,8 @@ public partial class RoadSegment
 {
     public Problems RemoveNationalRoad(RemoveRoadSegmentFromNationalRoadChange change, Provenance provenance)
     {
+        var problems = Problems.For(RoadSegmentId);
+
         if (Attributes.NationalRoadNumbers.Contains(change.Number))
         {
             Apply(new RoadSegmentWasRemovedFromNationalRoad
@@ -19,6 +21,6 @@ public partial class RoadSegment
             });
         }
 
-        return Problems.None;
+        return problems;
     }
 }

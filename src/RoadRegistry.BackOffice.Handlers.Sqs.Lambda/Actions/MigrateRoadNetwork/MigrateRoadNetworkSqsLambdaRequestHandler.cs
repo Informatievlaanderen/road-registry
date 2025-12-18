@@ -3,8 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Actions.MigrateRoadNetwork
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using CommandHandling;
-using CommandHandling.Actions.ChangeRoadNetwork;
+using ChangeRoadNetwork;
 using Hosts;
 using Infrastructure;
 using Marten;
@@ -48,37 +47,25 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
 
     protected override async Task<object> InnerHandle(MigrateRoadNetworkSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
-        var command = sqsLambdaRequest.Request;
+        var changeResult = await Handle(sqsLambdaRequest.Request, cancellationToken);
 
-        await Ticketing.Pending(command.TicketId, cancellationToken);
-
-        var changeResult = await Handle(command, cancellationToken);
-
-        var hasError = changeResult.Problems.HasError();
-        if (hasError)
+        return new ChangeRoadNetworkTicketResult
         {
-            //TODO-pr throw ex dat kan worden vertaald naar ticketerror, met juiste identifier, bvb WegsegmentId, WegknoopId, OngelijkGrondseKruisingId in ErrorContext
-            //await Ticketing.Error(command.TicketId, new TicketError(errors), cancellationToken);
-            throw new NotImplementedException();
-        }
-
-        return new
-        {
-            Changes = new
+            Changes = new()
             {
-                RoadNodes = new
+                RoadNodes = new()
                 {
                     Added = changeResult.Changes.RoadNodes.Added.Select(x => x.ToInt32()).ToList(),
                     Modified = changeResult.Changes.RoadNodes.Modified.Select(x => x.ToInt32()).ToList(),
                     Removed = changeResult.Changes.RoadNodes.Removed.Select(x => x.ToInt32()).ToList()
                 },
-                RoadSegments = new
+                RoadSegments = new()
                 {
                     Added = changeResult.Changes.RoadSegments.Added.Select(x => x.ToInt32()).ToList(),
                     Modified = changeResult.Changes.RoadSegments.Modified.Select(x => x.ToInt32()).ToList(),
                     Removed = changeResult.Changes.RoadSegments.Removed.Select(x => x.ToInt32()).ToList()
                 },
-                GradeSeparatedJunctions = new
+                GradeSeparatedJunctions = new()
                 {
                     Added = changeResult.Changes.GradeSeparatedJunctions.Added.Select(x => x.ToInt32()).ToList(),
                     Modified = changeResult.Changes.GradeSeparatedJunctions.Modified.Select(x => x.ToInt32()).ToList(),
@@ -106,9 +93,7 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
         //     //TODO-pr send failed email IExtractUploadFailedEmailClient if external extract (grb) (of GRB logica in aparte lambda handler steken?)
         //     await _extractRequests.UploadRejectedAsync(downloadId, cancellationToken);
 
-        //     //TODO-pr throw ex dat kan worden vertaald naar ticketerror, met juiste identifier, bvb WegsegmentId, WegknoopId, OngelijkGrondseKruisingId in ErrorContext
-        //     await Ticketing.Error(command.TicketId, new TicketError(errors), cancellationToken);
-        //     throw new NotImplementedException();
+        //     throw new RoadRegistryProblemsException(changeResult.Problems);
         // }
 
         //await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);

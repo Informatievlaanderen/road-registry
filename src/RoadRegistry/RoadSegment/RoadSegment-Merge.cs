@@ -13,7 +13,7 @@ public partial class RoadSegment
 {
     public static (RoadSegment?, Problems) Merge(MergeRoadSegmentChange change, Provenance provenance, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator)
     {
-        var problems = Problems.None;
+        var problems = Problems.For(change.TemporaryId);
 
         problems += new RoadSegmentGeometryValidator().Validate(change.TemporaryId, change.GeometryDrawMethod, change.Geometry);
 

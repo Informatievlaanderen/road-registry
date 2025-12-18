@@ -13,9 +13,8 @@ public partial class RoadSegment
 {
     public static (RoadSegment?, Problems) Add(AddRoadSegmentChange change, Provenance provenance, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator)
     {
-        var problems = Problems.None;
-
         var originalId = change.OriginalId ?? change.TemporaryId;
+        var problems = Problems.For(originalId);
 
         problems += new RoadSegmentGeometryValidator().Validate(originalId, change.GeometryDrawMethod, change.Geometry);
 

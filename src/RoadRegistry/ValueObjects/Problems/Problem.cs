@@ -4,29 +4,37 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Extensions;
 
 public abstract class Problem : IEquatable<Problem>, IEqualityComparer<Problem>
 {
-    protected Problem(string reason, IReadOnlyCollection<ProblemParameter> parameters)
+    protected Problem(string reason, IReadOnlyCollection<ProblemParameter> parameters, ProblemContext? context)
     {
-        Reason = reason ?? throw new ArgumentNullException(nameof(reason));
-        Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+        Reason = reason.ThrowIfNull();
+        Parameters = parameters.ThrowIfNull();
+        Context = context;
     }
 
     public IReadOnlyCollection<ProblemParameter> Parameters { get; }
     public string Reason { get; }
+    public ProblemContext? Context { get; private set; }
 
-    public override bool Equals(object obj)
+    public Problem WithContext(ProblemContext? context)
+    {
+        Context ??= context;
+        return this;
+    }
+
+    public override bool Equals(object? obj)
     {
         return obj is Problem other && Equals(other);
     }
 
-    public bool Equals(Problem x, Problem y)
+    public bool Equals(Problem? x, Problem? y)
     {
         if (ReferenceEquals(x, y)) return true;
 
         if (x is null) return false;
-
         if (y is null) return false;
 
         if (x.GetType() != y.GetType()) return false;
@@ -35,7 +43,7 @@ public abstract class Problem : IEquatable<Problem>, IEqualityComparer<Problem>
                && Equals(x.Parameters, y.Parameters);
     }
 
-    public virtual bool Equals(Problem other)
+    public virtual bool Equals(Problem? other)
     {
         return other != null
                && string.Equals(Reason, other.Reason)

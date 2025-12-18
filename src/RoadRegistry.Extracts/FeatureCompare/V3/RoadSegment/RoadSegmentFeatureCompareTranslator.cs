@@ -148,7 +148,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 .ToList();
         }
 
-        RoadNodeFeatureCompareRecord FindRoadNodeByOriginalId(RoadNodeId originalId)
+        RoadNodeFeatureCompareRecord? FindRoadNodeByOriginalId(RoadNodeId originalId)
         {
             var matchingFeatures = context.RoadNodeRecords
                 .NotRemoved()
@@ -192,8 +192,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
         }
 
         //TODO-pr FC inwinning changes context.ZipArchiveMetadata.Inwinning
-        /*- FC AddRoadSegment moet bij een merge beide original IDs meegeven
-         */
+        //- FC AddRoadSegment moet bij een merge beide original IDs meegeven
         foreach (var changeFeature in changeFeatures)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -470,11 +469,11 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                             StartNodeId = record.Attributes.StartNodeId!.Value,
                             EndNodeId = record.Attributes.EndNodeId!.Value,
                             GeometryDrawMethod = record.Attributes.Method!,
-                            AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(record.Attributes.AccessRestriction),
-                            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(record.Attributes.Category),
+                            AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(record.Attributes.AccessRestriction!),
+                            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(record.Attributes.Category!),
                             MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(record.Attributes.MaintenanceAuthority!.Value),
-                            Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>(record.Attributes.Morphology),
-                            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(record.Attributes.Status),
+                            Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>(record.Attributes.Morphology!),
+                            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(record.Attributes.Status!),
                             StreetNameId = BuildStreetNameIdAttributes(record.Attributes.LeftSideStreetNameId, record.Attributes.RightSideStreetNameId)!,
                             SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>(),
                             EuropeanRoadNumbers = [],
@@ -505,7 +504,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
         if (leftSideStreetNameId == rightSideStreetNameId)
         {
-            return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(leftSideStreetNameId.Value);
+            return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(leftSideStreetNameId!.Value);
         }
 
         return new RoadSegmentDynamicAttributeValues<StreetNameLocalId>()

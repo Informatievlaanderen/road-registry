@@ -56,11 +56,11 @@ public partial class RoadNetwork
                     problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.AddNationalRoad(change, changes.Provenance), summary.RoadSegments);
                     break;
                 case RemoveRoadSegmentFromNationalRoadChange change:
-                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.RemoveNationalRoad(change, changes.Provenance), summary.RoadSegments);
+                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.RemoveNationalRoad(change, changes.Provenance), summary.RoadSegments) ;
                     break;
 
                 case AddGradeSeparatedJunctionChange change:
-                    problems += AddGradeSeparatedJunction(changes, change, idGenerator, idTranslator, summary.GradeSeparatedJunctions);
+                    problems += AddGradeSeparatedJunction(changes, change, idGenerator, idTranslator, summary.GradeSeparatedJunctions) ;
                     break;
                 case ModifyGradeSeparatedJunctionChange change:
                     problems += ModifyGradeSeparatedJunction(changes, change, summary.GradeSeparatedJunctions);

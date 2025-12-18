@@ -10,9 +10,9 @@ public partial class RoadSegment
 {
     public Problems Modify(ModifyRoadSegmentChange change, Provenance provenance)
     {
-        var problems = Problems.None;
-
         var originalId = change.OriginalId ?? change.RoadSegmentId;
+        var problems = Problems.For(originalId);
+
         var geometryDrawMethod = change.GeometryDrawMethod ?? Attributes.GeometryDrawMethod;
         var geometry = change.Geometry ?? Geometry;
 

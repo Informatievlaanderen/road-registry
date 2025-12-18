@@ -13,5 +13,6 @@ public class RoadNodeNotFound : Error
         : base(ProblemCode.RoadNode.NotFound,
             new ProblemParameter("NodeId", nodeId.ToInt32().ToString()))
     {
+        WithContext(ProblemContext.For(nodeId));
     }
 }

@@ -195,6 +195,7 @@ namespace RoadRegistry.Tests.BackOffice
         private Fixture CreateFixture(ExtractsZipArchiveTestData testData)
         {
             var fixture = testData.Fixture;
+            fixture.CustomizeUniqueInteger();
 
             fixture.Customize<RoadSegmentEuropeanRoadAttributeDbaseRecord>(
                 composer => composer
