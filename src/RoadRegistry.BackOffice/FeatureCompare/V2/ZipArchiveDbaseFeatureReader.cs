@@ -5,9 +5,11 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.V2;
 using Exceptions;
 using Extracts;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.Dbase;
+using RoadRegistry.Extracts.Uploads;
 using Uploads;
 
 public abstract class ZipArchiveDbaseFeatureReader<TDbaseRecord, TFeature> : IZipArchiveFeatureReader<TFeature>

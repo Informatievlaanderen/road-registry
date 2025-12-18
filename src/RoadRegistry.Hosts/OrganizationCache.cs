@@ -11,6 +11,7 @@ namespace RoadRegistry.Hosts
     using Editor.Schema;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
+    using RoadRegistry.Infrastructure;
 
     public class OrganizationCache : IOrganizationCache
     {

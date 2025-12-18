@@ -2,11 +2,11 @@
 
 using System;
 using System.Threading.Tasks;
-using Infrastructure.MartenDb.Projections;
 using JasperFx.Events;
 using Marten;
 using Newtonsoft.Json;
 using RoadNode.Events.V1;
+using RoadRegistry.Infrastructure.MartenDb.Projections;
 
 public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
 {

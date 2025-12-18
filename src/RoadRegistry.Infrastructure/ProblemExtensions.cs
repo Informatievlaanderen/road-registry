@@ -1,9 +1,9 @@
-﻿namespace RoadRegistry.CommandHandling.Actions.ChangeRoadNetwork;
+﻿namespace RoadRegistry.Infrastructure;
 
 using RoadRegistry.ValueObjects.Problems;
-using Problem = ValueObjects.Problem;
-using ProblemParameter = ValueObjects.ProblemParameter;
-using ProblemSeverity = ValueObjects.ProblemSeverity;
+using Problem = Messages.Problem;
+using ProblemParameter = Messages.ProblemParameter;
+using ProblemSeverity = Messages.ProblemSeverity;
 
 public static class ProblemExtensions
 {
@@ -28,10 +28,10 @@ public static class ProblemExtensions
         };
     }
 
-    public static RoadRegistry.ValueObjects.ProblemSeverity Translate(this ProblemSeverity value) => value switch
+    public static ValueObjects.Problems.ProblemSeverity Translate(this ProblemSeverity value) => value switch
     {
-        ProblemSeverity.Error => RoadRegistry.ValueObjects.ProblemSeverity.Error,
-        ProblemSeverity.Warning => RoadRegistry.ValueObjects.ProblemSeverity.Warning,
+        ProblemSeverity.Error => ValueObjects.Problems.ProblemSeverity.Error,
+        ProblemSeverity.Warning => ValueObjects.Problems.ProblemSeverity.Warning,
         _ => throw new NotSupportedException()
     };
 }

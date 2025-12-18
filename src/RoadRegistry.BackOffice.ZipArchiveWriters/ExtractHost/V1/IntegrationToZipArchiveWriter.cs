@@ -7,11 +7,13 @@ using Microsoft.IO;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Extensions;
 using RoadRegistry.Editor.Schema.RoadNodes;
 using RoadRegistry.Editor.Schema.RoadSegments;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadNodes;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+using RoadRegistry.Infrastructure;
 
 public class IntegrationToZipArchiveWriter : IZipArchiveWriter
 {

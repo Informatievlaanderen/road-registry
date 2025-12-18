@@ -6,6 +6,7 @@ using BackOffice.Core;
 using BackOffice.Exceptions;
 using CommandHandling;
 using RoadRegistry.BackOffice.Extensions;
+using RoadRegistry.Infrastructure;
 using TicketingService.Abstractions;
 using ValueObjects.Problems;
 

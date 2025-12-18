@@ -16,7 +16,8 @@ using Sync.StreetNameRegistry;
 using System;
 using System.Linq;
 using RoadNetwork;
-using IStreetNameCache = BackOffice.IStreetNameCache;
+using RoadRegistry.Infrastructure;
+using IStreetNameCache = RoadRegistry.Infrastructure.IStreetNameCache;
 
 public static class ServiceCollectionExtensions
 {

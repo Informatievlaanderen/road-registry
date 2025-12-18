@@ -3,6 +3,7 @@ namespace RoadRegistry.Tests;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Infrastructure.Messages;
 
 public static class RoadNetworkChangeAcceptedExtensions
 {

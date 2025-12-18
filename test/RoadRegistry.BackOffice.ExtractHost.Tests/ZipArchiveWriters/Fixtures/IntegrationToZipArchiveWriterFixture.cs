@@ -10,6 +10,8 @@ using Extracts;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using RoadRegistry.Extracts;
+using RoadRegistry.Infrastructure;
 
 public class IntegrationToZipArchiveWriterFixture : ZipArchiveWriterFixture, IAsyncLifetime
 {

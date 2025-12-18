@@ -15,6 +15,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadNetwork;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Hosts;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
 using RoadRegistry.ValueObjects.ProblemCodes;

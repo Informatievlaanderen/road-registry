@@ -2,18 +2,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
-using Extensions;
-using Infrastructure.MartenDb.Projections;
 using JasperFx.Events;
 using Marten;
-using Marten.Schema;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
 using Newtonsoft.Json;
-using RoadRegistry.RoadSegment.Events.V2;
+using RoadRegistry.Infrastructure.MartenDb.Projections;
+using RoadSegment.Events.V1;
+using RoadSegment.Events.V2;
 using RoadSegment.ValueObjects;
 
 public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
@@ -29,7 +25,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
     public RoadSegmentProjection()
     {
         // V1
-        When<IEvent<RoadRegistry.RoadSegment.Events.V1.ImportedRoadSegment>>((session, e, ct) =>
+        When<IEvent<ImportedRoadSegment>>((session, e, ct) =>
         {
             var roadSegmentId = new RoadSegmentId(e.Data.RoadSegmentId);
             var geometry = e.Data.Geometry;
@@ -73,7 +69,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
             return Task.CompletedTask;
         });
-        When<IEvent<RoadRegistry.RoadSegment.Events.V1.RoadSegmentAdded>>((session, e, ct) =>
+        When<IEvent<RoadSegmentAdded>>((session, e, ct) =>
         {
             var roadSegmentId = new RoadSegmentId(e.Data.RoadSegmentId);
             var status = RoadSegmentStatus.Parse(e.Data.Status);
@@ -111,7 +107,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
             return Task.CompletedTask;
         });
-        When<IEvent<RoadRegistry.RoadSegment.Events.V1.RoadSegmentModified>>((session, e, ct) =>
+        When<IEvent<RoadSegmentModified>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment =>
             {
@@ -140,7 +136,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 );
             }, e.Data);
         });
-        When<IEvent<RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemoved>>(async (session, e, ct) =>
+        When<IEvent<RoadSegmentRemoved>>(async (session, e, ct) =>
         {
             var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
             if (roadSegment is null)
@@ -150,35 +146,35 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
 
             session.Delete(roadSegment);
         });
-        When<IEvent<RoadRegistry.RoadSegment.Events.V1.RoadSegmentAddedToEuropeanRoad>>((session, e, ct) =>
+        When<IEvent<RoadSegmentAddedToEuropeanRoad>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment =>
             {
                 segment.EuropeanRoadNumbers.Add(EuropeanRoadNumber.Parse(e.Data.Number));
             }, e.Data);
         });
-        When<IEvent<RoadRegistry.RoadSegment.Events.V1.RoadSegmentAddedToNationalRoad>>((session, e, ct) =>
+        When<IEvent<RoadSegmentAddedToNationalRoad>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment =>
             {
                 segment.NationalRoadNumbers.Add(NationalRoadNumber.Parse(e.Data.Number));
             }, e.Data);
         });
-        When<IEvent<RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromEuropeanRoad>>((session, e, ct) =>
+        When<IEvent<RoadSegmentRemovedFromEuropeanRoad>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment =>
             {
                 segment.EuropeanRoadNumbers.Remove(EuropeanRoadNumber.Parse(e.Data.Number));
             }, e.Data);
         });
-        When<IEvent<RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromNationalRoad>>((session, e, ct) =>
+        When<IEvent<RoadSegmentRemovedFromNationalRoad>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment =>
             {
                 segment.NationalRoadNumbers.Remove(NationalRoadNumber.Parse(e.Data.Number));
             }, e.Data);
         });
-        When<IEvent<RoadRegistry.RoadSegment.Events.V1.RoadSegmentAttributesModified>>((session, e, ct) =>
+        When<IEvent<RoadSegmentAttributesModified>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment =>
             {
@@ -230,7 +226,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 }
             }, e.Data);
         });
-        When<IEvent<RoadRegistry.RoadSegment.Events.V1.RoadSegmentGeometryModified>>((session, e, ct) =>
+        When<IEvent<RoadSegmentGeometryModified>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment =>
             {
@@ -244,7 +240,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 );
             }, e.Data);
         });
-        When<IEvent<RoadRegistry.RoadSegment.Events.V1.RoadSegmentStreetNamesChanged>>((session, e, ct) =>
+        When<IEvent<RoadSegmentStreetNamesChanged>>((session, e, ct) =>
         {
             return ModifyRoadSegment(session, new RoadSegmentId(e.Data.RoadSegmentId), segment =>
             {
@@ -256,9 +252,9 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 }
             }, e.Data);
         });
-        When<IEvent<RoadRegistry.RoadSegment.Events.V1.OutlinedRoadSegmentRemoved>>((_, _, _) => Task.CompletedTask); // Do nothing
-        When<IEvent<RoadRegistry.RoadSegment.Events.V1.RoadSegmentAddedToNumberedRoad>>((_, _, _) => Task.CompletedTask); // Do nothing
-        When<IEvent<RoadRegistry.RoadSegment.Events.V1.RoadSegmentRemovedFromNumberedRoad>>((_, _, _) => Task.CompletedTask); // Do nothing
+        When<IEvent<OutlinedRoadSegmentRemoved>>((_, _, _) => Task.CompletedTask); // Do nothing
+        When<IEvent<RoadSegmentAddedToNumberedRoad>>((_, _, _) => Task.CompletedTask); // Do nothing
+        When<IEvent<RoadSegmentRemovedFromNumberedRoad>>((_, _, _) => Task.CompletedTask); // Do nothing
 
         // V2
         When<IEvent<RoadSegmentWasAdded>>((session, e, ct) =>
@@ -496,7 +492,7 @@ public sealed class RoadSegmentDynamicAttributeValues<T>
     {
     }
 
-    public RoadSegmentDynamicAttributeValues(RoadRegistry.RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<T> attributes)
+    public RoadSegmentDynamicAttributeValues(RoadSegment.ValueObjects.RoadSegmentDynamicAttributeValues<T> attributes)
         : this(attributes.Values.Select(x => (x.Coverage?.From, x.Coverage?.To, x.Side, x.Value)))
     {
     }

@@ -5,6 +5,8 @@ using RoadRegistry.BackOffice.DutchTranslations;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.FeatureCompare.V1;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extracts.DutchTranslations;
+using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
 using Xunit.Abstractions;
 

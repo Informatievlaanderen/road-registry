@@ -6,15 +6,16 @@ using Exceptions;
 using GradeSeparatedJunction.Changes;
 using Microsoft.Extensions.Logging;
 using RoadNode.Changes;
-using RoadRegistry.BackOffice.FeatureCompare.V3;
+using RoadRegistry.Extracts.FeatureCompare.V3;
+using RoadRegistry.Extracts.Schemas.UploadV2;
+using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
 using RoadSegment.Changes;
 using RoadSegment.ValueObjects;
 using Uploads;
-using Uploads.Dbase.BeforeFeatureCompare.V2.Schema;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using TranslatedChanges = RoadRegistry.BackOffice.FeatureCompare.V3.TranslatedChanges;
+using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.V3.TranslatedChanges;
 
 public class FeaturesReaderTests
 {

@@ -8,6 +8,8 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Producer;
 using Editor.Schema;
 using Editor.Schema.Extensions;
+using Extracts;
+using Extracts.Schemas.ExtractV1.RoadSegments;
 using FluentAssertions;
 using Integration.Schema;
 using Microsoft.Data.SqlClient;
@@ -20,7 +22,6 @@ using Producer.Snapshot.ProjectionHost.Shared;
 using Product.Schema;
 using RoadNetwork.Schema;
 using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Wms.Schema;
 

@@ -54,6 +54,7 @@ using NetTopologySuite.IO;
 using NodaTime;
 using Options;
 using Product.Schema;
+using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
 using RoadSegments;
 using Serilog.Extensions.Logging;

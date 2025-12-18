@@ -3,7 +3,6 @@ namespace RoadRegistry.Editor.Schema;
 using System;
 using System.Collections.Generic;
 using BackOffice;
-using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Metrics;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Extracts;
@@ -17,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetTopologySuite.Geometries;
 using Organizations;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
 
 public class EditorContext : RunnerDbContext<EditorContext>
 {

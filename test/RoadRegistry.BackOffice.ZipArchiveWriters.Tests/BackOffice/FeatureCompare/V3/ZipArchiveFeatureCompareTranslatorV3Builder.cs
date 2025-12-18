@@ -1,17 +1,19 @@
 namespace RoadRegistry.Tests
 {
+    using Extracts;
+    using Extracts.FeatureCompare.V3;
+    using Extracts.FeatureCompare.V3.EuropeanRoad;
+    using Extracts.FeatureCompare.V3.GradeSeparatedJunction;
+    using Extracts.FeatureCompare.V3.NationalRoad;
+    using Extracts.FeatureCompare.V3.RoadNode;
+    using Extracts.FeatureCompare.V3.RoadSegment;
+    using Extracts.FeatureCompare.V3.RoadSegmentSurface;
+    using Extracts.FeatureCompare.V3.TransactionZone;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.Abstractions;
     using RoadRegistry.BackOffice;
-    using RoadRegistry.BackOffice.FeatureCompare.V3;
-    using RoadRegistry.BackOffice.FeatureCompare.V3.EuropeanRoad;
-    using RoadRegistry.BackOffice.FeatureCompare.V3.GradeSeparatedJunction;
-    using RoadRegistry.BackOffice.FeatureCompare.V3.NationalRoad;
-    using RoadRegistry.BackOffice.FeatureCompare.V3.RoadNode;
-    using RoadRegistry.BackOffice.FeatureCompare.V3.RoadSegment;
-    using RoadRegistry.BackOffice.FeatureCompare.V3.RoadSegmentSurface;
-    using RoadRegistry.BackOffice.FeatureCompare.V3.TransactionZone;
-    using IZipArchiveFeatureCompareTranslator = RoadRegistry.BackOffice.FeatureCompare.V3.IZipArchiveFeatureCompareTranslator;
+    using RoadRegistry.Infrastructure;
+    using IZipArchiveFeatureCompareTranslator = Extracts.FeatureCompare.V3.IZipArchiveFeatureCompareTranslator;
 
     public static class ZipArchiveFeatureCompareTranslatorV3Builder
     {

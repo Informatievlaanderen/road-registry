@@ -17,6 +17,8 @@ using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using Polly;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Uploads;
 using SqlStreamStore;
 using TicketingService.Abstractions;
 

@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Messages;
 
 using System;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using RoadRegistry.Extracts.Messages;
 
 [EventName("RoadNetworkExtractChangesArchiveRejected")]
 [EventDescription("Indicates the road network extract changes archive was rejected.")]

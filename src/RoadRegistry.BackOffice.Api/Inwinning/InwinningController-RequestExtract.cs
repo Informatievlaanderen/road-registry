@@ -19,6 +19,7 @@ using Microsoft.Extensions.Options;
 using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 using RoadRegistry.CommandHandling;
 using RoadRegistry.Extensions;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.Sync.MunicipalityRegistry;
 using RoadRegistry.ValueObjects.ProblemCodes;
 using Swashbuckle.AspNetCore.Annotations;

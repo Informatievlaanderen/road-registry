@@ -8,10 +8,12 @@ using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.FeatureCompare.V3;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extracts.FeatureCompare.V3;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
 using RoadRegistry.Extracts.Schema;
-using TranslatedChanges = FeatureCompare.V3.TranslatedChanges;
+using RoadRegistry.Extracts.Uploads;
+using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.V3.TranslatedChanges;
 
 public sealed class ExtractUploader
 {

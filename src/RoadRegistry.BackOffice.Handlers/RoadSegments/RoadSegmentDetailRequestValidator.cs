@@ -5,6 +5,7 @@ using BackOffice.Extensions;
 using CommandHandling;
 using Core;
 using FluentValidation;
+using RoadRegistry.Infrastructure;
 using ValueObjects.ProblemCodes;
 
 public class RoadSegmentDetailRequestValidator : AbstractValidator<RoadSegmentDetailRequest>

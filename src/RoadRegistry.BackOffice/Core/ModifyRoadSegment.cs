@@ -13,6 +13,7 @@ using RoadRegistry.RoadNetwork;
 using RoadRegistry.RoadSegment;
 using RoadRegistry.RoadSegment.ValueObjects;
 using ValueObjects.Problems;
+using Problem = RoadRegistry.Infrastructure.Messages.Problem;
 
 public class ModifyRoadSegment : IRequestedChange, IHaveHash
 {
@@ -236,7 +237,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         return VerifyAfterResult.WithAcceptedChanges(problems, warnings => BuildAcceptedChanges(warnings, context));
     }
 
-    private IEnumerable<Messages.AcceptedChange> BuildAcceptedChanges(CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.Problem[] warnings, AfterVerificationContext context)
+    private IEnumerable<Messages.AcceptedChange> BuildAcceptedChanges(Problem[] warnings, AfterVerificationContext context)
     {
         var afterSegment = context.AfterView.Segments[Id];
 

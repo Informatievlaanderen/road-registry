@@ -7,6 +7,8 @@ using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.FeatureCompare.V2.Translators;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Uploads;
 
 public interface IZipArchiveFeatureReader<TFeature>
 {

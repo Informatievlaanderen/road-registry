@@ -2,6 +2,7 @@ namespace RoadRegistry.Tests.BackOffice.Extracts
 {
     using RoadRegistry.BackOffice.Extracts;
     using RoadRegistry.BackOffice.FeatureCompare;
+    using RoadRegistry.Extracts;
 
     public class ExtractFileNameTests
     {

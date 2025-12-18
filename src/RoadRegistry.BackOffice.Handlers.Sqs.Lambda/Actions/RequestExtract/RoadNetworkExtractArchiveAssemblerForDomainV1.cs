@@ -15,6 +15,7 @@ using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
 using SqlStreamStore;
 
 public class RoadNetworkExtractArchiveAssemblerForDomainV1 : IRoadNetworkExtractArchiveAssembler

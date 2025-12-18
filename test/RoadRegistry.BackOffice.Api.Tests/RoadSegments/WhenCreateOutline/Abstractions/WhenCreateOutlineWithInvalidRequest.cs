@@ -7,6 +7,7 @@ using Extensions;
 using Fixtures;
 using FluentValidation;
 using FluentValidation.Results;
+using RoadRegistry.Infrastructure;
 using Xunit.Abstractions;
 
 public abstract class WhenCreateOutlineWithInvalidRequest<TFixture> : IClassFixture<TFixture>

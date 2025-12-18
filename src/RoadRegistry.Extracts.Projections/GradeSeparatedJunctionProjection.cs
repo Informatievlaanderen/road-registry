@@ -3,10 +3,10 @@
 using System;
 using System.Threading.Tasks;
 using GradeSeparatedJunction.Events.V2;
-using Infrastructure.MartenDb.Projections;
 using JasperFx.Events;
 using Marten;
 using Newtonsoft.Json;
+using RoadRegistry.Infrastructure.MartenDb.Projections;
 
 public class GradeSeparatedJunctionProjection : RoadNetworkChangesConnectedProjection
 {

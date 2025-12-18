@@ -6,6 +6,8 @@ using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.FeatureCompare.V1;
 using RoadRegistry.BackOffice.FeatureCompare.V1.Readers;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Uploads;
 using ValueObjects.ProblemCodes;
 
 internal static class ZipArchiveV1CleanerExtensions

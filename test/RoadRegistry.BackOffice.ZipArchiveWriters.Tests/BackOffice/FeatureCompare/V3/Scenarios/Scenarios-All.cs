@@ -5,14 +5,14 @@ using GradeSeparatedJunction.Changes;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using RoadNode.Changes;
-using RoadRegistry.BackOffice.FeatureCompare.V3;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.FeatureCompare.V3;
 using RoadRegistry.Tests.BackOffice;
 using RoadSegment.Changes;
 using RoadSegment.ValueObjects;
 using Xunit.Abstractions;
 using Point = NetTopologySuite.Geometries.Point;
-using TranslatedChanges = RoadRegistry.BackOffice.FeatureCompare.V3.TranslatedChanges;
+using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.V3.TranslatedChanges;
 
 public class AllScenarios : FeatureCompareTranslatorScenariosBase
 {

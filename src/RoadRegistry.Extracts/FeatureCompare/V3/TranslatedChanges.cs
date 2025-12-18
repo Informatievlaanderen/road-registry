@@ -1,0 +1,175 @@
+namespace RoadRegistry.Extracts.FeatureCompare.V3;
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using RoadRegistry.Extensions;
+using RoadRegistry.GradeSeparatedJunction.Changes;
+using RoadRegistry.RoadNetwork;
+using RoadRegistry.RoadNode.Changes;
+using RoadRegistry.RoadSegment.Changes;
+
+public class TranslatedChanges : IReadOnlyCollection<IRoadNetworkChange>, IEquatable<TranslatedChanges>
+{
+    public static readonly TranslatedChanges Empty = new(
+        ImmutableList<IRoadNetworkChange>.Empty,
+        ImmutableDictionary<RoadSegmentId, AddRoadSegmentChange>.Empty,
+        ImmutableDictionary<RoadSegmentId, ModifyRoadSegmentChange>.Empty,
+        ImmutableDictionary<RoadSegmentId, RemoveRoadSegmentChange>.Empty);
+
+    private readonly ImmutableList<IRoadNetworkChange> _changes;
+    private readonly ImmutableDictionary<RoadSegmentId, AddRoadSegmentChange> _addRoadSegmentChanges;
+    private readonly ImmutableDictionary<RoadSegmentId, ModifyRoadSegmentChange> _modifyRoadSegmentChanges;
+    private readonly ImmutableDictionary<RoadSegmentId, RemoveRoadSegmentChange> _removeRoadSegmentChanges;
+
+    private TranslatedChanges(
+        ImmutableList<IRoadNetworkChange> changes,
+        ImmutableDictionary<RoadSegmentId, AddRoadSegmentChange> addRoadSegmentChanges,
+        ImmutableDictionary<RoadSegmentId, ModifyRoadSegmentChange> modifyRoadSegmentChanges,
+        ImmutableDictionary<RoadSegmentId, RemoveRoadSegmentChange> removeRoadSegmentChanges)
+    {
+        _changes = changes ?? throw new ArgumentNullException(nameof(changes));
+        _addRoadSegmentChanges = addRoadSegmentChanges.ThrowIfNull();
+        _modifyRoadSegmentChanges = modifyRoadSegmentChanges.ThrowIfNull();
+        _removeRoadSegmentChanges = removeRoadSegmentChanges.ThrowIfNull();
+    }
+
+    public int Count => _changes.Count;
+
+    public IEnumerator<IRoadNetworkChange> GetEnumerator()
+    {
+        return _changes.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    public TranslatedChanges AppendChange(AddRoadNodeChange change)
+    {
+        return new TranslatedChanges(_changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges);
+    }
+
+    public TranslatedChanges AppendChange(ModifyRoadNodeChange change)
+    {
+        return new TranslatedChanges(_changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges);
+    }
+
+    public TranslatedChanges AppendChange(RemoveRoadNodeChange change)
+    {
+        return new TranslatedChanges(_changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges);
+    }
+
+    public TranslatedChanges AppendChange(AddRoadSegmentChange change)
+    {
+        return new TranslatedChanges(_changes.Add(change), _addRoadSegmentChanges.SetItem(change.TemporaryId, change), _modifyRoadSegmentChanges, _removeRoadSegmentChanges);
+    }
+
+    public TranslatedChanges AppendChange(ModifyRoadSegmentChange change)
+    {
+        return new TranslatedChanges(_changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges.SetItem(change.RoadSegmentId, change), _removeRoadSegmentChanges);
+    }
+
+    public TranslatedChanges AppendChange(RemoveRoadSegmentChange change)
+    {
+        return new TranslatedChanges(_changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges.SetItem(change.RoadSegmentId, change));
+    }
+
+    public TranslatedChanges AppendChange(AddRoadSegmentToEuropeanRoadChange change)
+    {
+        return new TranslatedChanges(_changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges);
+    }
+
+    public TranslatedChanges AppendChange(RemoveRoadSegmentFromEuropeanRoadChange change)
+    {
+        return new TranslatedChanges(_changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges);
+    }
+
+    public TranslatedChanges AppendChange(AddRoadSegmentToNationalRoadChange change)
+    {
+        return new TranslatedChanges(_changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges);
+    }
+
+    public TranslatedChanges AppendChange(RemoveRoadSegmentFromNationalRoadChange change)
+    {
+        return new TranslatedChanges(_changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges);
+    }
+
+    public TranslatedChanges AppendChange(AddGradeSeparatedJunctionChange change)
+    {
+        return new TranslatedChanges(_changes.Add(change), _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges);
+    }
+
+    public TranslatedChanges AppendChange(RemoveGradeSeparatedJunctionChange change)
+    {
+        return new TranslatedChanges(
+            _changes.Add(change),
+            _addRoadSegmentChanges, _modifyRoadSegmentChanges, _removeRoadSegmentChanges);
+    }
+
+    public TranslatedChanges ReplaceChange(AddRoadSegmentChange before, AddRoadSegmentChange after)
+    {
+        return new TranslatedChanges(
+            _changes.SetItem(_changes.IndexOf(before), after),
+            _addRoadSegmentChanges.SetItem(before.TemporaryId, after), _modifyRoadSegmentChanges, _removeRoadSegmentChanges);
+    }
+
+    public TranslatedChanges ReplaceChange(ModifyRoadSegmentChange before, ModifyRoadSegmentChange after)
+    {
+        //NOTE: ReplaceChange automatically converts a provisional change into a change - by design.
+        return new TranslatedChanges(
+                _changes.SetItem(_changes.IndexOf(before), after),
+                _addRoadSegmentChanges, _modifyRoadSegmentChanges.SetItem(before.RoadSegmentId, after), _removeRoadSegmentChanges);
+    }
+
+    public bool TryFindRoadSegmentChange(RoadSegmentId id, out IRoadNetworkChange change)
+    {
+        change = _addRoadSegmentChanges.GetValueOrDefault(id)
+                 ?? (IRoadNetworkChange?)_modifyRoadSegmentChanges.GetValueOrDefault(id)
+                 ?? _removeRoadSegmentChanges.GetValueOrDefault(id);
+        return change != null;
+    }
+
+    public bool Equals(TranslatedChanges other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+
+        return _changes.SequenceEqual(other._changes);
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is null)
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+
+        if (obj.GetType() != GetType())
+        {
+            return false;
+        }
+
+        return Equals((TranslatedChanges)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return (_changes != null ? _changes.GetHashCode() : 0);
+    }
+}

@@ -13,6 +13,7 @@ using Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using RoadRegistry.Extracts;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using Reason = ValueObjects.Reason;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;

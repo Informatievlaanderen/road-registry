@@ -23,6 +23,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
     using RoadRegistry.BackOffice.FeatureCompare.V1;
     using RoadRegistry.BackOffice.FeatureCompare.V1.Readers;
     using RoadRegistry.Extensions;
+    using RoadRegistry.Extracts;
+    using RoadRegistry.Extracts.Uploads;
     using RoadRegistry.Tests.BackOffice.Scenarios;
     using Uploads;
         using Xunit.Abstractions;

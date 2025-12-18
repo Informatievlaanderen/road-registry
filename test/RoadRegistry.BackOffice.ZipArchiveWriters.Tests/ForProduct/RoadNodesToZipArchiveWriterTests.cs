@@ -3,9 +3,10 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.ForProduct;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Extracts.Dbase.RoadNodes;
 using Framework.Containers;
 using Product.Schema;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadNodes;
 using ZipArchiveWriters.ForProduct;
 
 [Collection(nameof(SqlServerCollection))]

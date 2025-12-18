@@ -7,8 +7,8 @@
         using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Core;
     using RoadRegistry.BackOffice.Messages;
-            using Problem = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.Problem;
-    using ProblemSeverity = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.ProblemSeverity;
+            using Problem = RoadRegistry.Infrastructure.Messages.Problem;
+    using ProblemSeverity = RoadRegistry.Infrastructure.Messages.ProblemSeverity;
     using RemoveRoadSegments = RoadRegistry.BackOffice.Messages.RemoveRoadSegments;
 
     public class IslandCheckTests : RemoveRoadSegmentsTestBase

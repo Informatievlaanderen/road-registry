@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Extracts;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Uploads;
 using Translators;
 using Uploads;
 

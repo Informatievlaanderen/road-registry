@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 using Abstractions.Exceptions;
 using Abstractions.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using CommandHandling.DutchTranslations;
 using Exceptions;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RoadRegistry.Infrastructure.DutchTranslations;
 using Swashbuckle.AspNetCore.Annotations;
 
 public partial class ExtractsController

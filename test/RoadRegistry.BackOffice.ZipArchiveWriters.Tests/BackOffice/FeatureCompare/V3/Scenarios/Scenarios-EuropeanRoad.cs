@@ -3,11 +3,13 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.FeatureComp
 using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.DutchTranslations;
 using RoadRegistry.BackOffice.Exceptions;
-using RoadRegistry.BackOffice.FeatureCompare.V3;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extracts.DutchTranslations;
+using RoadRegistry.Extracts.FeatureCompare.V3;
+using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
 using Xunit.Abstractions;
-using TranslatedChanges = RoadRegistry.BackOffice.FeatureCompare.V3.TranslatedChanges;
+using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.V3.TranslatedChanges;
 
 public class EuropeanRoadScenarios : FeatureCompareTranslatorScenariosBase
 {

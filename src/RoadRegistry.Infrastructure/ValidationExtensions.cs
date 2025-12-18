@@ -1,4 +1,4 @@
-namespace RoadRegistry.CommandHandling;
+namespace RoadRegistry.Infrastructure;
 
 using System;
 using System.Collections.Generic;
@@ -6,15 +6,14 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Actions.ChangeRoadNetwork;
-using Actions.ChangeRoadNetwork.ValueObjects;
 using DutchTranslations;
 using FluentValidation;
 using FluentValidation.Results;
-using ValueObjects.ProblemCodes;
+using RoadRegistry.Infrastructure.Messages;
+using RoadRegistry.ValueObjects.ProblemCodes;
 using Problem = ValueObjects.Problems.Problem;
 using ProblemParameter = ValueObjects.Problems.ProblemParameter;
-using ProblemSeverity = Actions.ChangeRoadNetwork.ValueObjects.ProblemSeverity;
+using ProblemSeverity = Messages.ProblemSeverity;
 
 public static class ValidationExtensions
 {
@@ -73,7 +72,7 @@ public static class ValidationExtensions
             .Select(x => new
             {
                 ValidationFailure = x,
-                Problem = new Actions.ChangeRoadNetwork.ValueObjects.Problem
+                Problem = new Infrastructure.Messages.Problem
                 {
                     Severity = ProblemSeverity.Error,
                     Reason = x.ErrorCode,
@@ -101,12 +100,12 @@ public static class ValidationExtensions
     {
         return problem.Translate().TranslateToDutch();
     }
-    public static ProblemTranslation TranslateToDutch(this Actions.ChangeRoadNetwork.ValueObjects.Problem problem)
+    public static ProblemTranslation TranslateToDutch(this Infrastructure.Messages.Problem problem)
     {
         return ProblemTranslator.Dutch(problem);
     }
 
-    public static ValidationFailure ToValidationFailure(this Actions.ChangeRoadNetwork.ValueObjects.Problem problem, string? propertyName = null)
+    public static ValidationFailure ToValidationFailure(this Infrastructure.Messages.Problem problem, string? propertyName = null)
     {
         return new ValidationFailure
         {
@@ -130,14 +129,14 @@ public static class ValidationExtensions
         }
     }
 
-    private static Actions.ChangeRoadNetwork.ValueObjects.ProblemParameter[] ParseCustomState(object? customState)
+    private static Infrastructure.Messages.ProblemParameter[] ParseCustomState(object? customState)
     {
         if (customState is null)
         {
             return [];
         }
 
-        if (customState is Actions.ChangeRoadNetwork.ValueObjects.ProblemParameter[] problemParameters)
+        if (customState is Infrastructure.Messages.ProblemParameter[] problemParameters)
         {
             return problemParameters;
         }
@@ -147,7 +146,7 @@ public static class ValidationExtensions
             .ToArray();
     }
 
-    private static object ToCustomState(IEnumerable<Actions.ChangeRoadNetwork.ValueObjects.ProblemParameter>? parameters)
+    private static object ToCustomState(IEnumerable<Infrastructure.Messages.ProblemParameter>? parameters)
     {
         return parameters?.ToArray() ?? [];
     }

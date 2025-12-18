@@ -9,6 +9,7 @@ using Extracts;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using RoadRegistry.Extracts;
 
 public class RoadNodesToZipArchiveWriterFixture : ZipArchiveWriterFixture, IAsyncLifetime
 {

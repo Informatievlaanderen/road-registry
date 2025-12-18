@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Messages;
 using ValueObjects.Problems;
+using Problem = RoadRegistry.Infrastructure.Messages.Problem;
 
 public class RemoveRoadNode : IRequestedChange
 {
@@ -14,7 +15,7 @@ public class RemoveRoadNode : IRequestedChange
 
     public RoadNodeId Id { get; }
 
-    public IEnumerable<Messages.AcceptedChange> TranslateTo(CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.Problem[] warnings)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(Problem[] warnings)
     {
         yield return new Messages.AcceptedChange
         {

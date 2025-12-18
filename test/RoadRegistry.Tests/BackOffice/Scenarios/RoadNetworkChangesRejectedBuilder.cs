@@ -6,6 +6,7 @@ using NodaTime;
 using NodaTime.Text;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Infrastructure.Messages;
 using RejectedChange = RoadRegistry.BackOffice.Messages.RejectedChange;
 using RemoveRoadSegments = RoadRegistry.BackOffice.Messages.RemoveRoadSegments;
 

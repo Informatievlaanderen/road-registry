@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Uploads;
 
 public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureCompareValidator
 {

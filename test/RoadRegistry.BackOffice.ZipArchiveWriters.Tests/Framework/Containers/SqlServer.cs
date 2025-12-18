@@ -5,6 +5,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Product.Schema;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.Tests.Framework.Containers;
 
 public class SqlServer : ISqlServerDatabase

@@ -64,8 +64,12 @@
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj" />
     <ProjectReference Include="..\RoadRegistry.Infrastructure\RoadRegistry.Infrastructure.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Extracts\RoadRegistry.Extracts.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="RoadRegistry.ValueObjects" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ShapeFile\" />
   </ItemGroup>
 </Project>

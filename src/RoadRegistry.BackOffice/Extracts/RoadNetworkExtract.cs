@@ -8,6 +8,7 @@ using Messages;
 using NetTopologySuite.Geometries;
 using NodaTime;
 using NodaTime.Text;
+using RoadRegistry.Extracts;
 
 public class RoadNetworkExtract : EventSourcedEntity
 {

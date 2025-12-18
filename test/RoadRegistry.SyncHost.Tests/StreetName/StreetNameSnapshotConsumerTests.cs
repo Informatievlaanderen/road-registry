@@ -12,6 +12,7 @@ namespace RoadRegistry.SyncHost.Tests.StreetName
     using Editor.Schema;
     using Editor.Schema.RoadSegments;
     using Extensions;
+    using Extracts;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Microsoft.IO;

@@ -7,6 +7,7 @@ using Extensions;
 using Fixtures;
 using FluentValidation;
 using FluentValidation.Results;
+using RoadRegistry.Infrastructure;
 
 public abstract class WhenChangeOutlineGeometryWithInvalidRequest<TFixture> : IClassFixture<TFixture>
     where TFixture : WhenChangeOutlineGeometryFixture

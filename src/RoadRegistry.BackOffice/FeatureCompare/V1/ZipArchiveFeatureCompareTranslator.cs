@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.FeatureCompare.V1.Translators;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Uploads;
 
 public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTranslator
 {

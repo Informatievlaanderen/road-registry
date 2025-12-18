@@ -2,6 +2,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Tests.Framework.Containe
 
 using BackOffice;
 using BackOffice.Abstractions;
+using Infrastructure;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;

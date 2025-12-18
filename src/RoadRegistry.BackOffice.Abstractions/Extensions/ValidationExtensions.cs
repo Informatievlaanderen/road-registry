@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandHandling;
+using RoadRegistry.Infrastructure;
 using ValueObjects.ProblemCodes;
 
 public static class ValidationExtensions

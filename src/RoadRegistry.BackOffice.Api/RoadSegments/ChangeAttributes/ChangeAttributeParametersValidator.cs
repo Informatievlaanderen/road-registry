@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using CommandHandling;
 using RoadRegistry.BackOffice.Handlers.Extensions;
 using RoadRegistry.Extensions;
+using RoadRegistry.Infrastructure;
 using ValueObjects.ProblemCodes;
 using ValueObjects.Problems;
 

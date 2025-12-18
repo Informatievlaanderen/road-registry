@@ -4,6 +4,8 @@ using System.IO.Compression;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
 
 public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveCleaner
     where TDbaseRecord : DbaseRecord, new()

@@ -11,11 +11,11 @@ namespace RoadRegistry.Tests.BackOffice
     using Microsoft.IO;
     using NetTopologySuite.Geometries;
         using RoadRegistry.BackOffice;
-    using RoadRegistry.BackOffice.Extracts.Dbase;
-    using RoadRegistry.BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
-    using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
-    using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
-            using Point = NetTopologySuite.Geometries.Point;
+        using RoadRegistry.Extracts.Schemas.ExtractV1;
+        using RoadRegistry.Extracts.Schemas.ExtractV1.GradeSeparatedJuntions;
+        using RoadRegistry.Extracts.Schemas.ExtractV1.RoadNodes;
+        using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+        using Point = NetTopologySuite.Geometries.Point;
 
     public class ExtractsZipArchiveBuilder
     {

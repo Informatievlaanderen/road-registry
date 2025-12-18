@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Uploads;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using RoadRegistry.Extracts.Uploads;
 
 internal class DynamicRoadSegmentAttributeRecord
 {

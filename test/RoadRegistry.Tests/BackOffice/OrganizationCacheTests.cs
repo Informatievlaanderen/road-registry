@@ -14,6 +14,7 @@ namespace RoadRegistry.Tests.BackOffice
     using RoadRegistry.BackOffice.Core;
     using RoadRegistry.BackOffice.Framework;
     using RoadRegistry.BackOffice.Messages;
+    using RoadRegistry.Infrastructure;
     using SqlStreamStore;
 
     public class OrganizationCacheTests

@@ -12,6 +12,8 @@
     using RoadRegistry.BackOffice.Extracts;
     using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
     using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.V1;
+    using RoadRegistry.Extracts;
+    using RoadRegistry.Infrastructure;
     using RoadRegistry.Tests.BackOffice;
     using RoadRegistry.Tests.BackOffice.Scenarios;
 

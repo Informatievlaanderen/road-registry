@@ -3,10 +3,10 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ForProduct;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Extracts.Dbase.GradeSeparatedJuntions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Product.Schema;
+using RoadRegistry.Extracts.Schemas.ExtractV1.GradeSeparatedJuntions;
 
 public class GradeSeparatedJunctionArchiveWriter : IZipArchiveWriter<ProductContext>
 {

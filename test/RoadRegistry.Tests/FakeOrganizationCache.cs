@@ -2,6 +2,7 @@ namespace RoadRegistry.Tests
 {
         using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Core;
+    using RoadRegistry.Infrastructure;
 
     public class FakeOrganizationCache: IOrganizationCache
     {

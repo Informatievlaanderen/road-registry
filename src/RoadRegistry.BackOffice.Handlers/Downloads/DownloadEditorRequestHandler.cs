@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Microsoft.Net.Http.Headers;
+using RoadRegistry.Extracts;
+using RoadRegistry.Infrastructure;
 using ZipArchiveWriters.ForEditor;
 
 public class DownloadEditorRequestHandler : EndpointRequestHandler<DownloadEditorRequest, DownloadEditorResponse>

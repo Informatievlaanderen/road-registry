@@ -4,10 +4,10 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
-using Extracts.Dbase.Organizations;
 using Microsoft.EntityFrameworkCore;
 using Product.Schema;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Schemas.ExtractV1.Organizations;
 
 public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
 {

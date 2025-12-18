@@ -7,6 +7,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.Extensions;
+using RoadRegistry.Infrastructure;
 using ValueObjects.ProblemCodes;
 
 public class ChangeWidthAttributeParametersValidator : AbstractValidator<ChangeWidthAttributeParameters>

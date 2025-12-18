@@ -7,6 +7,8 @@ using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.ShapeFile.V1;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
 
 internal static class ZipArchiveExtensions
 {

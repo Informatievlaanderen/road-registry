@@ -8,6 +8,7 @@ using Fixtures;
 using FluentValidation;
 using FluentValidation.Results;
 using RoadRegistry.BackOffice.Extensions;
+using RoadRegistry.Infrastructure;
 using Xunit.Abstractions;
 
 public abstract class WhenChangeDynamicAttributesWithInvalidRequest<TFixture> : IClassFixture<TFixture>

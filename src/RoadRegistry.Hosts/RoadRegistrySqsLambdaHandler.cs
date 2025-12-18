@@ -15,6 +15,7 @@ using CommandHandling;
 using FluentValidation;
 using Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Infrastructure;
 using TicketingService.Abstractions;
 using ValueObjects.Problems;
 

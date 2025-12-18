@@ -7,6 +7,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Extracts.Schema;
+    using Extracts.Uploads;
     using FluentAssertions;
     using Infrastructure.Options;
     using MediatR;

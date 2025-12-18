@@ -4,9 +4,10 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using FluentAssertions;
-using RoadRegistry.BackOffice.Dbase.V2;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Extracts.Dbase;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.Dbase;
+using RoadRegistry.Extracts.Schemas.ExtractV1;
 
 public class DbaseWriterReaderTests
 {

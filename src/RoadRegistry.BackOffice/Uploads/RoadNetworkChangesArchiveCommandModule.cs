@@ -12,6 +12,7 @@ using System.IO.Compression;
 using System.Linq;
 using Autofac;
 using FeatureCompare;
+using RoadRegistry.Extracts.Uploads;
 using TicketingService.Abstractions;
 
 public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule

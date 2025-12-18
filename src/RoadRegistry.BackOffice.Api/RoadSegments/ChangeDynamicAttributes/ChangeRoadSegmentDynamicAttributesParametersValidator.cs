@@ -8,6 +8,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.Extensions;
+using RoadRegistry.Infrastructure;
 using ValueObjects.ProblemCodes;
 
 public class ChangeRoadSegmentDynamicAttributesParametersValidator : AbstractValidator<ChangeRoadSegmentDynamicAttributesParameters>

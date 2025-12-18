@@ -16,6 +16,7 @@ using RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 using RoadRegistry.BackOffice.Api.RoadSegments;
 using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.CommandHandling;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 
 public abstract class RemoveRoadSegmentsTestBase

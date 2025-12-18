@@ -11,6 +11,7 @@ using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
+using RoadRegistry.Infrastructure;
 using TicketingService.Abstractions;
 using ValueObjects.Problems;
 using AddRoadSegment = BackOffice.Uploads.AddRoadSegment;

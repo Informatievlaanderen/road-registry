@@ -2,11 +2,12 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.V2;
 
 using System.IO.Compression;
 using System.Text;
-using Dbase.V2;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.Dbase;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
 
 public class RoadSegmentLaneAttributesZipArchiveWriter : IZipArchiveWriter
 {

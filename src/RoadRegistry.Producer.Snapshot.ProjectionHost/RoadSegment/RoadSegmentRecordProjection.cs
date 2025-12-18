@@ -12,7 +12,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-        using RoadRegistry.Extensions;
+    using Infrastructure;
+    using RoadRegistry.Extensions;
     using Shared;
 
     public class RoadSegmentRecordProjection : ConnectedProjection<RoadSegmentProducerSnapshotContext>

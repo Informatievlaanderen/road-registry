@@ -4,7 +4,9 @@ using CommandHandling;
 using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using Core;
 using Extensions;
-using Problem = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.Problem;
+using RoadRegistry.Infrastructure;
+using RoadRegistry.Infrastructure.Messages;
+using Problem = RoadRegistry.Infrastructure.Messages.Problem;
 
 public class RoadRegistryValidationException : RoadRegistryException
 {

@@ -11,6 +11,7 @@ using Infrastructure.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RoadRegistry.Infrastructure;
 using Swashbuckle.AspNetCore.Filters;
 using ValueObjects.ProblemCodes;
 using ValueObjects.Problems;

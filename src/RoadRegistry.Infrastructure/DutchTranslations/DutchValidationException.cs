@@ -1,4 +1,4 @@
-namespace RoadRegistry.CommandHandling.DutchTranslations;
+namespace RoadRegistry.Infrastructure.DutchTranslations;
 
 using System.Collections.Generic;
 using FluentValidation;

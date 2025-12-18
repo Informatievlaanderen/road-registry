@@ -12,6 +12,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using EventProcessors;
 using Extensions;
+using Extracts;
 using Hosts;
 using Infrastructure.MartenDb.Setup;
 using MartenMigration.Projections;

@@ -16,7 +16,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NodaTime;
+using RoadRegistry.Extracts.FeatureCompare.V3;
+using RoadRegistry.Extracts.FeatureCompare.V3.EuropeanRoad;
+using RoadRegistry.Extracts.FeatureCompare.V3.GradeSeparatedJunction;
+using RoadRegistry.Extracts.FeatureCompare.V3.NationalRoad;
+using RoadRegistry.Extracts.FeatureCompare.V3.RoadNode;
+using RoadRegistry.Extracts.FeatureCompare.V3.RoadSegment;
+using RoadRegistry.Extracts.FeatureCompare.V3.RoadSegmentSurface;
+using RoadRegistry.Extracts.FeatureCompare.V3.TransactionZone;
 using Uploads;
+using IZipArchiveFeatureCompareTranslator = RoadRegistry.Extracts.FeatureCompare.V3.IZipArchiveFeatureCompareTranslator;
 
 public static class ServiceCollectionExtensions
 {
@@ -270,24 +279,24 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddFeatureCompareV3(this IServiceCollection services)
     {
         return services
-            .AddSingleton<FeatureCompare.V3.TransactionZone.TransactionZoneFeatureCompareFeatureReader>()
-            .AddSingleton<FeatureCompare.V3.RoadNode.RoadNodeFeatureCompareFeatureReader>()
-            .AddSingleton<FeatureCompare.V3.RoadSegment.RoadSegmentFeatureCompareFeatureReader>()
-            .AddSingleton<FeatureCompare.V3.RoadSegmentSurface.RoadSegmentSurfaceFeatureCompareFeatureReader>()
-            .AddSingleton<FeatureCompare.V3.EuropeanRoad.EuropeanRoadFeatureCompareFeatureReader>()
-            .AddSingleton<FeatureCompare.V3.NationalRoad.NationalRoadFeatureCompareFeatureReader>()
-            .AddSingleton<FeatureCompare.V3.GradeSeparatedJunction.GradeSeparatedJunctionFeatureCompareFeatureReader>()
+            .AddSingleton<TransactionZoneFeatureCompareFeatureReader>()
+            .AddSingleton<RoadNodeFeatureCompareFeatureReader>()
+            .AddSingleton<RoadSegmentFeatureCompareFeatureReader>()
+            .AddSingleton<RoadSegmentSurfaceFeatureCompareFeatureReader>()
+            .AddSingleton<EuropeanRoadFeatureCompareFeatureReader>()
+            .AddSingleton<NationalRoadFeatureCompareFeatureReader>()
+            .AddSingleton<GradeSeparatedJunctionFeatureCompareFeatureReader>()
 
-            .AddSingleton<FeatureCompare.V3.TransactionZone.TransactionZoneFeatureCompareTranslator>()
-            .AddSingleton<FeatureCompare.V3.RoadNode.RoadNodeFeatureCompareTranslator>()
-            .AddSingleton<FeatureCompare.V3.RoadSegment.IRoadSegmentFeatureCompareStreetNameContextFactory, FeatureCompare.V3.RoadSegment.RoadSegmentFeatureCompareStreetNameContextFactory>()
-            .AddSingleton<FeatureCompare.V3.RoadSegment.RoadSegmentFeatureCompareTranslator>()
-            .AddSingleton<FeatureCompare.V3.RoadSegmentSurface.RoadSegmentSurfaceFeatureCompareTranslator>()
-            .AddSingleton<FeatureCompare.V3.EuropeanRoad.EuropeanRoadFeatureCompareTranslator>()
-            .AddSingleton<FeatureCompare.V3.NationalRoad.NationalRoadFeatureCompareTranslator>()
-            .AddSingleton<FeatureCompare.V3.GradeSeparatedJunction.GradeSeparatedJunctionFeatureCompareTranslator>()
+            .AddSingleton<TransactionZoneFeatureCompareTranslator>()
+            .AddSingleton<RoadNodeFeatureCompareTranslator>()
+            .AddSingleton<IRoadSegmentFeatureCompareStreetNameContextFactory, RoadSegmentFeatureCompareStreetNameContextFactory>()
+            .AddSingleton<RoadSegmentFeatureCompareTranslator>()
+            .AddSingleton<RoadSegmentSurfaceFeatureCompareTranslator>()
+            .AddSingleton<EuropeanRoadFeatureCompareTranslator>()
+            .AddSingleton<NationalRoadFeatureCompareTranslator>()
+            .AddSingleton<GradeSeparatedJunctionFeatureCompareTranslator>()
 
-            .AddSingleton<FeatureCompare.V3.IZipArchiveFeatureCompareTranslator, FeatureCompare.V3.ZipArchiveFeatureCompareTranslator>()
+            .AddSingleton<IZipArchiveFeatureCompareTranslator, ZipArchiveFeatureCompareTranslator>()
             ;
     }
 }

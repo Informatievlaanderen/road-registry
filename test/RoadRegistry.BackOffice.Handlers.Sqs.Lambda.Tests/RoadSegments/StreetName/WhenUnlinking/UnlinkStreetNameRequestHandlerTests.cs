@@ -15,6 +15,7 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Requests;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;

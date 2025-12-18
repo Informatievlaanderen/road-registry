@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CommandHandling.Actions.ChangeRoadNetwork;
+using RoadRegistry.Infrastructure;
 using ValueObjects.Problems;
+using Problem = RoadRegistry.Infrastructure.Messages.Problem;
 
 public interface IRequestedChange
 {
@@ -29,7 +31,7 @@ public sealed record VerifyAfterResult
     public Problems Problems { get; }
     public List<Messages.AcceptedChange> AcceptedChanges { get; }
 
-    public static VerifyAfterResult WithAcceptedChanges(Problems problems, Func<CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.Problem[], IEnumerable<Messages.AcceptedChange>> getAcceptedChanges)
+    public static VerifyAfterResult WithAcceptedChanges(Problems problems, Func<Problem[], IEnumerable<Messages.AcceptedChange>> getAcceptedChanges)
     {
         if (problems.OfType<Error>().Any())
         {

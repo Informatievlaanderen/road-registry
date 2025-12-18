@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice.Messages
 {
     using DutchTranslations;
+    using RoadRegistry.Extracts.DutchTranslations;
+    using RoadRegistry.Extracts.Messages;
     using TicketingService.Abstractions;
 
     public static class TicketingExtensions

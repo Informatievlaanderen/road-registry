@@ -4,12 +4,12 @@ using System.Data;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using CommandHandling.Extracts;
 using Hosts;
 using Infrastructure;
 using Marten;
 using Microsoft.Extensions.Logging;
 using RoadNetwork;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadNetwork;
 using TicketingService.Abstractions;
 

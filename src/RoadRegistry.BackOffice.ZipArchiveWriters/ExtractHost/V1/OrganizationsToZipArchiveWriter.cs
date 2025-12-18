@@ -5,8 +5,9 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Extracts.Dbase.Organizations;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Schemas.ExtractV1.Organizations;
 
 public class OrganizationsToZipArchiveWriter : IZipArchiveWriter
 {

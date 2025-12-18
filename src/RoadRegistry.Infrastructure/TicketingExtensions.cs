@@ -1,6 +1,6 @@
-namespace RoadRegistry.CommandHandling
+namespace RoadRegistry.Infrastructure
 {
-    using Actions.ChangeRoadNetwork.ValueObjects;
+    using RoadRegistry.Infrastructure.Messages;
     using TicketingService.Abstractions;
 
     public static class TicketingExtensions

@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Core;
 using CommandHandling;
 using Extensions;
 using FluentValidation;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadSegment.ValueObjects;
 using ValueObjects.ProblemCodes;
 

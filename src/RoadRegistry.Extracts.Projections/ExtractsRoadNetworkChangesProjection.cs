@@ -1,7 +1,7 @@
 ﻿namespace RoadRegistry.Extracts.Projections;
 
-using Infrastructure.MartenDb.Projections;
 using Marten;
+using RoadRegistry.Infrastructure.MartenDb.Projections;
 
 public class ExtractsRoadNetworkChangesProjection : RoadNetworkChangesProjection
 {

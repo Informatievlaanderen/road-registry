@@ -7,8 +7,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
 using RoadNode.Changes;
-using RoadRegistry.BackOffice.FeatureCompare.V3;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.FeatureCompare.V3;
+using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
 using RoadSegment.Changes;
 using RoadSegment.ValueObjects;
@@ -16,7 +17,7 @@ using Uploads;
 using Xunit.Abstractions;
 using Point = NetTopologySuite.Geometries.Point;
 using RoadSegmentSurfaceAttribute = Uploads.RoadSegmentSurfaceAttribute;
-using TranslatedChanges = RoadRegistry.BackOffice.FeatureCompare.V3.TranslatedChanges;
+using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.V3.TranslatedChanges;
 
 public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
 {

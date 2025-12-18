@@ -10,6 +10,7 @@ using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.ZipArchiveWriters.DomainV2;
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.RoadNetwork;
 

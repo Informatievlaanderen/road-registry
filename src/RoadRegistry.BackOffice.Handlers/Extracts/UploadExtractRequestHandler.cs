@@ -12,6 +12,7 @@ using Exceptions;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
 
 public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractRequest, UploadExtractResponse>
 {

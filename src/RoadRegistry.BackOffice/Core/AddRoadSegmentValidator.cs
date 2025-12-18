@@ -5,6 +5,7 @@ using CommandHandling;
 using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
+using RoadRegistry.Infrastructure;
 using ValueObjects.ProblemCodes;
 using ValueObjects.Problems;
 

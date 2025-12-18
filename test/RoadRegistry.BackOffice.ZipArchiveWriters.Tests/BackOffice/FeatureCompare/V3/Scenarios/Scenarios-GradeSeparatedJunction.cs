@@ -4,12 +4,13 @@ using Exceptions;
 using GradeSeparatedJunction.Changes;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice.FeatureCompare.V3;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.FeatureCompare.V3;
+using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
 using Uploads;
 using Xunit.Abstractions;
-using TranslatedChanges = RoadRegistry.BackOffice.FeatureCompare.V3.TranslatedChanges;
+using TranslatedChanges = RoadRegistry.Extracts.FeatureCompare.V3.TranslatedChanges;
 
 public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenariosBase
 {

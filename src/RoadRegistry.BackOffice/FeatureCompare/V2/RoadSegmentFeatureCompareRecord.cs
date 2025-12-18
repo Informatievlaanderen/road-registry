@@ -4,6 +4,8 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Models;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Uploads;
 
 public class RoadSegmentFeatureCompareRecord
 {

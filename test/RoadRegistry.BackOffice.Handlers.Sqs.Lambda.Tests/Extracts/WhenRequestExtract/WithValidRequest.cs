@@ -9,6 +9,7 @@ using FluentValidation;
 using Framework;
 using Moq;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
 using Xunit.Abstractions;
 

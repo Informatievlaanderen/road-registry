@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning.V1;
 
+using RoadRegistry.Extracts;
+
 public class BeforeFeatureCompareZipArchiveCleaner : CompositeZipArchiveCleaner, IBeforeFeatureCompareZipArchiveCleaner
 {
     public BeforeFeatureCompareZipArchiveCleaner(FileEncoding encoding)

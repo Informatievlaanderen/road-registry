@@ -10,6 +10,7 @@ using Exceptions;
 using FluentAssertions;
 using Moq;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Extracts.Uploads;
 using Sqs.Extracts;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;

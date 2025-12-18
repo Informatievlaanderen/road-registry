@@ -3,9 +3,10 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.V2;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.V2;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.Dbase;
 
 public class DbaseFileZipArchiveWriter : IZipArchiveWriter
 {

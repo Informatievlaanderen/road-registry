@@ -1,6 +1,5 @@
 namespace RoadRegistry.Editor.Projections;
 
-using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
@@ -13,6 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice.Extensions;
+using Extracts.Schemas.ExtractV1.RoadSegments;
 using Schema.Extensions;
 
 public class RoadSegmentWidthAttributeRecordProjection : ConnectedProjection<EditorContext>

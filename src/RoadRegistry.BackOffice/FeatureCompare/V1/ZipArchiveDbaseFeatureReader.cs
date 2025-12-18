@@ -9,6 +9,9 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
+using RoadRegistry.Extracts.Uploads;
 
 public abstract class ZipArchiveDbaseFeatureReader<TDbaseRecord, TFeature> : IZipArchiveDbaseFeatureReader<TFeature>
     where TDbaseRecord : DbaseRecord, new()

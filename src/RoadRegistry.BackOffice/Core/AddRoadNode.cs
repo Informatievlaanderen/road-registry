@@ -8,6 +8,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.Extensions;
 using ValueObjects.Problems;
 using Point = NetTopologySuite.Geometries.Point;
+using Problem = RoadRegistry.Infrastructure.Messages.Problem;
 
 public class AddRoadNode : IRequestedChange
 {
@@ -27,7 +28,7 @@ public class AddRoadNode : IRequestedChange
     public RoadNodeId? OriginalId { get; }
     public RoadNodeType Type { get; }
 
-    public IEnumerable<Messages.AcceptedChange> TranslateTo(CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.Problem[] warnings)
+    public IEnumerable<Messages.AcceptedChange> TranslateTo(Problem[] warnings)
     {
         yield return new Messages.AcceptedChange
         {

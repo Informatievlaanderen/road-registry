@@ -6,6 +6,7 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
 using Extensions;
+using Infrastructure;
 using Moq;
 using ProjectionHost.Projections;
 using RoadRegistry.RoadSegment.ValueObjects;

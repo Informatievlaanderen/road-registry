@@ -4,6 +4,7 @@ using Framework;
 using Messages;
 using System;
 using System.Linq;
+using RoadRegistry.Extracts.Uploads;
 
 public class RoadNetworkChangesArchive : EventSourcedEntity
 {

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extracts.Uploads;
 using Scenarios;
 
 public class TranslatedChangesTests

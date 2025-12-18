@@ -15,6 +15,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandHandling;
+using RoadRegistry.Infrastructure;
 using ValueObjects.ProblemCodes;
 
 public partial class RoadRegistrySecurityController

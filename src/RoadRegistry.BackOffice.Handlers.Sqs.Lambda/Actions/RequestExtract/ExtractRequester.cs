@@ -11,6 +11,7 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.FeatureToggles;
+using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
 
 public class ExtractRequester

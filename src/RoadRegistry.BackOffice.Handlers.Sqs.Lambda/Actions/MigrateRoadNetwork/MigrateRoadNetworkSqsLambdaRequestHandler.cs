@@ -5,12 +5,12 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using CommandHandling;
 using CommandHandling.Actions.ChangeRoadNetwork;
-using CommandHandling.Extracts;
 using Hosts;
 using Infrastructure;
 using Marten;
 using Microsoft.Extensions.Logging;
 using RoadNetwork;
+using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadNetwork;
 using TicketingService.Abstractions;
 

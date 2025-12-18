@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.Extensions;
+using RoadRegistry.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
 using ValueObjects.ProblemCodes;
 

@@ -1,5 +1,7 @@
 ﻿namespace RoadRegistry.BackOffice.FeatureCompare;
 
+using RoadRegistry.Extracts;
+
 public interface IZipArchiveBeforeFeatureCompareValidatorFactory
 {
     IZipArchiveBeforeFeatureCompareValidator Create(string zipArchiveWriterVersion);

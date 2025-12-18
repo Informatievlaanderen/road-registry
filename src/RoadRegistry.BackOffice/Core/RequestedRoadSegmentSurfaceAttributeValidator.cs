@@ -5,6 +5,7 @@ using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using Extensions;
 using FluentValidation;
 using Messages;
+using RoadRegistry.Infrastructure;
 using ValueObjects.ProblemCodes;
 
 public class RequestedRoadSegmentSurfaceAttributeValidator : AbstractValidator<RequestedRoadSegmentSurfaceAttribute>
