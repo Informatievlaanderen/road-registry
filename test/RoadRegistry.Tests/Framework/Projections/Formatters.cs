@@ -14,6 +14,6 @@ public static class Formatters
 
     public static string NamedJsonMessage<T>(T message)
     {
-        return $"{message.GetType().Name} - {JsonConvert.SerializeObject(message, Formatting.Indented, Converters)}";
+        return message is not null ? $"{message.GetType().Name} - {JsonConvert.SerializeObject(message, Formatting.Indented, Converters)}" : null;
     }
 }

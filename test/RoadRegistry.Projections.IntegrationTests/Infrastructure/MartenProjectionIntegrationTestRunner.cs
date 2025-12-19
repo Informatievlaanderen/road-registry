@@ -7,6 +7,8 @@ using KellermanSoftware.CompareNetObjects;
 using Marten;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using RoadNetwork;
 using RoadNetwork.Events.V2;
 using RoadRegistry.Infrastructure.MartenDb;
@@ -17,14 +19,16 @@ using Xunit.Sdk;
 public class MartenProjectionIntegrationTestRunner
 {
     private readonly DatabaseFixture _databaseFixture;
+    private readonly ILogger? _logger;
     private readonly List<Action<IServiceCollection>> _servicesConfigurations = [];
     private readonly List<Action<StoreOptions>> _storeConfigurations = [];
     private TimeSpan _projectionWaitTimeout;
     private readonly List<List<(string StreamKey, object Event)>> _givenEvents = [];
 
-    public MartenProjectionIntegrationTestRunner(DatabaseFixture databaseFixture)
+    public MartenProjectionIntegrationTestRunner(DatabaseFixture databaseFixture, ILogger? logger = null)
     {
         _databaseFixture = databaseFixture;
+        _logger = logger;
         _projectionWaitTimeout = TimeSpan.FromSeconds(10);
     }
 
@@ -72,10 +76,13 @@ public class MartenProjectionIntegrationTestRunner
         return Expect(async (_, session) =>
         {
             var actualDocuments = new List<TProjectionEntity?>();
+            _logger?.LogInformation("Assert expect");
 
             foreach (var expectedDocument in expectedDocuments)
             {
+                _logger?.LogInformation($"Expected document {expectedDocument.Identifier}: {JsonConvert.SerializeObject(expectedDocument.Document)}");
                 var actualDocument = await session.LoadAsync<TProjectionEntity>(expectedDocument.Identifier);
+                _logger?.LogInformation($"Actual document {expectedDocument.Identifier}: {JsonConvert.SerializeObject(actualDocument)}");
                 actualDocuments.Add(actualDocument);
             }
 

@@ -24,7 +24,7 @@ public abstract class RoadNetworkChangesRunnerDbContextProjection<TDbContext> : 
         _dbContextFactory = dbContextFactory;
     }
 
-    public async Task Project(IReadOnlyList<IEvent> events, IDocumentSession session, CancellationToken cancellationToken)
+    public async Task Project(IReadOnlyList<IEvent> events, IDocumentOperations operations, CancellationToken cancellationToken)
     {
         var eventsWithHandlers = events
             .Select(x => (Event: x, Handlers: _resolver(x)))

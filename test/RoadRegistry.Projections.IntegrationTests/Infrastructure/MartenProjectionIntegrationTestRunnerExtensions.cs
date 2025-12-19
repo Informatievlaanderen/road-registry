@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Projections.IntegrationTests.Infrastructure;
 
 using Marten;
+using Microsoft.Extensions.Logging;
 using RoadNetwork;
 using RoadNetwork.Events.V2;
 using RoadNode;
@@ -11,8 +12,8 @@ using RoadSegment.Events.V2;
 
 public class DummyRoadNetworkChangesProjection : RoadNetworkChangesProjection
 {
-    public DummyRoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections)
-        : base(projections)
+    public DummyRoadNetworkChangesProjection(IReadOnlyCollection<IRoadNetworkChangesProjection> projections, ILogger? logger = null)
+        : base(projections, logger)
     {
     }
 }
@@ -30,13 +31,14 @@ public static class MartenProjectionIntegrationTestRunnerExtensions
     public static MartenProjectionIntegrationTestRunner ConfigureRoadNetworkChangesProjection(
         this MartenProjectionIntegrationTestRunner runner,
         IReadOnlyCollection<IRoadNetworkChangesProjection> projections,
-        Action<StoreOptions>? configureProjection = null)
+        Action<StoreOptions>? configureProjection = null,
+        ILogger? logger = null)
     {
         return runner.ConfigureMarten(options =>
         {
             configureProjection?.Invoke(options);
 
-            options.AddRoadNetworkChangesProjection(new DummyRoadNetworkChangesProjection(projections));
+            options.AddRoadNetworkChangesProjection(new DummyRoadNetworkChangesProjection(projections, logger));
         });
     }
 

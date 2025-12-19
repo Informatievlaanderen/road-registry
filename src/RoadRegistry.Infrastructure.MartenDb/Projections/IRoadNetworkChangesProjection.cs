@@ -5,5 +5,5 @@ using Marten;
 
 public interface IRoadNetworkChangesProjection
 {
-    Task Project(IReadOnlyList<IEvent> events, IDocumentSession session, CancellationToken cancellationToken);
+    Task Project(IReadOnlyList<IEvent> events, IDocumentOperations operations, CancellationToken cancellationToken);
 }

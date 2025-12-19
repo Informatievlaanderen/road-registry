@@ -406,10 +406,10 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
         });
     }
 
-    private async Task ModifyRoadSegment<TEvent>(IDocumentSession session, RoadSegmentId roadSegmentId, Action<RoadSegmentExtractItem> modify, TEvent evt)
+    private async Task ModifyRoadSegment<TEvent>(IDocumentOperations operations, RoadSegmentId roadSegmentId, Action<RoadSegmentExtractItem> modify, TEvent evt)
         where TEvent : IMartenEvent
     {
-        var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(roadSegmentId);
+        var roadSegment = await operations.LoadAsync<RoadSegmentExtractItem>(roadSegmentId);
         if (roadSegment is null)
         {
             throw new InvalidOperationException($"RoadSegment with id {roadSegmentId} is not found");
@@ -418,7 +418,7 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
         modify(roadSegment);
 
         roadSegment.LastModified = evt.Provenance.ToEventTimestamp();
-        session.Store(roadSegment);
+        operations.Store(roadSegment);
     }
 
     private static RoadSegmentDynamicAttributeValues<StreetNameLocalId> BuildStreetNameIdAttributes(int? leftSideStreetNameId, int? rightSideStreetNameId)
