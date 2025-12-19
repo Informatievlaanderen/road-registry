@@ -1,3 +1,10 @@
+## [4.38.15](https://github.com/informatievlaanderen/road-registry/compare/v4.38.14...v4.38.15) (2025-12-19)
+
+
+### Bug Fixes
+
+* UI styling ([1fff726](https://github.com/informatievlaanderen/road-registry/commit/1fff726a870432c79e90d8a5d0bd78c0b8ff6f59))
+
 ## [4.38.14](https://github.com/informatievlaanderen/road-registry/compare/v4.38.13...v4.38.14) (2025-12-16)
 
 
