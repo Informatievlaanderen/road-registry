@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeAttributes;
 
 using FluentValidation;
 using RoadRegistry.Editor.Schema;
+using RoadRegistry.Infrastructure;
 
 public class ChangeRoadSegmentAttributesParametersWrapperValidator : AbstractValidator<ChangeRoadSegmentAttributesParametersWrapper>
 {

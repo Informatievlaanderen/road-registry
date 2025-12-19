@@ -1,5 +1,6 @@
 namespace RoadRegistry.Tests
 {
+    using Extracts;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.Abstractions;
     using RoadRegistry.BackOffice;
@@ -7,6 +8,7 @@ namespace RoadRegistry.Tests
     using RoadRegistry.BackOffice.FeatureCompare.V2;
     using RoadRegistry.BackOffice.FeatureCompare.V2.Readers;
     using RoadRegistry.BackOffice.FeatureCompare.V2.Translators;
+    using RoadRegistry.Infrastructure;
 
     public static class ZipArchiveFeatureCompareTranslatorV2Builder
     {

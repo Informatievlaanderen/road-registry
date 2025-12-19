@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RoadRegistry\RoadRegistry.csproj"/>
+    <ProjectReference Include="..\RoadRegistry.Infrastructure\RoadRegistry.Infrastructure.csproj"/>
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="RoadRegistry.ValueObjects"/>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Infrastructure\" />
+    <Folder Include="Schemas\" />
+  </ItemGroup>
+
+</Project>

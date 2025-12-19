@@ -4,6 +4,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Threading.Tasks;
+using Extensions;
 using Microsoft.Extensions.Hosting;
 
 public abstract class RoadRegistryBackgroundService : BackgroundService, IHostedServiceStatus

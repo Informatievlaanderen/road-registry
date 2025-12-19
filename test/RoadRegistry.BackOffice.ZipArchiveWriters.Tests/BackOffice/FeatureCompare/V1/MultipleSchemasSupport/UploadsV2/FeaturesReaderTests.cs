@@ -6,9 +6,12 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.FeatureCompare.V1;
 using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.BackOffice.Uploads.Dbase.BeforeFeatureCompare.V2.Schema;
+using RoadRegistry.Extracts.Schemas.UploadV2;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
+using RoadSegmentLaneAttribute = Uploads.RoadSegmentLaneAttribute;
+using RoadSegmentSurfaceAttribute = Uploads.RoadSegmentSurfaceAttribute;
+using RoadSegmentWidthAttribute = Uploads.RoadSegmentWidthAttribute;
 
 public class FeaturesReaderTests
 {

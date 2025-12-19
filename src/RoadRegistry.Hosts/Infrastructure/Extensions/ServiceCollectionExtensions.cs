@@ -15,7 +15,9 @@ using SqlStreamStore;
 using Sync.StreetNameRegistry;
 using System;
 using System.Linq;
-using IStreetNameCache = BackOffice.IStreetNameCache;
+using RoadNetwork;
+using RoadRegistry.Infrastructure;
+using IStreetNameCache = RoadRegistry.Infrastructure.IStreetNameCache;
 
 public static class ServiceCollectionExtensions
 {
@@ -148,7 +150,6 @@ public static class ServiceCollectionExtensions
         return services;
     }
 }
-
 
 public class DistributedStreamStoreLockOptionsValidator : OptionsValidator<DistributedStreamStoreLockOptions>
 {

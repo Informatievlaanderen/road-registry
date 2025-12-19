@@ -54,6 +54,7 @@ using NetTopologySuite.IO;
 using NodaTime;
 using Options;
 using Product.Schema;
+using RoadRegistry.Extracts;
 using RoadRegistry.Extracts.Schema;
 using RoadSegments;
 using Serilog.Extensions.Logging;
@@ -348,6 +349,10 @@ public class Startup
 
                 return new AmazonS3JobUploadUrlPresigner(sp.GetRequiredService<IAmazonS3Extended>(), sp.GetRequiredService<IOptions<JobsBucketOptions>>());
             })
+
+            // Inwinning
+            .Configure<InwinningOrganizationNisCodesOptions>(_configuration.GetSection(InwinningOrganizationNisCodesOptions.ConfigKey))
+
             .AddDistributedMemoryCache()
             .AddAcmIdmAuthentication(oAuth2IntrospectionOptions, openIdConnectOptions)
             .AddApiKeyAuth()

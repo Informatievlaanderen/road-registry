@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters;
 using System.IO.Compression;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using RoadRegistry.Extracts;
 
 public class ProjectionFormatFileZipArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext : DbContext
 {

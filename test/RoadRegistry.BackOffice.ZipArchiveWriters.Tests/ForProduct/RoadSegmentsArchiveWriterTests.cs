@@ -4,9 +4,10 @@ using System.IO.Compression;
 using System.Text;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Extracts.Dbase.RoadSegments;
 using Framework.Containers;
 using Product.Schema;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
 using ZipArchiveWriters.ForProduct;
 
 [Collection(nameof(SqlServerCollection))]

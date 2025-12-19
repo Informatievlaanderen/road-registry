@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Uploads;
 
 public static class Feature
 {
@@ -51,6 +53,6 @@ public abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveEnt
 
         return (extractFeatures, changeFeatures, integrationFeatures, problems);
     }
-    
+
     public abstract Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken);
 }

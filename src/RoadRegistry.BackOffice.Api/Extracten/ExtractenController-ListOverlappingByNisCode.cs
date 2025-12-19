@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Abstractions.Extracts;
+using RoadRegistry.Extensions;
 using RoadRegistry.Sync.MunicipalityRegistry;
 using Swashbuckle.AspNetCore.Annotations;
 

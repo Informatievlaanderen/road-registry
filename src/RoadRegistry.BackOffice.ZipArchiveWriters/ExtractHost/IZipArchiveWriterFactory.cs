@@ -1,5 +1,7 @@
 ﻿namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 
+using RoadRegistry.Extracts;
+
 public interface IZipArchiveWriterFactory
 {
     IZipArchiveWriter Create(string zipArchiveWriterVersion);

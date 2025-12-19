@@ -4,6 +4,7 @@ using Api.Grb;
 using AutoFixture;
 using Editor.Schema;
 using Infrastructure;
+using RoadRegistry.Extensions;
 using RoadRegistry.Tests.BackOffice;
 
 public partial class GrbControllerTests : ControllerMinimalTests<GrbController>, IAsyncLifetime

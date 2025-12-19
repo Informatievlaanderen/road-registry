@@ -17,6 +17,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IO;
 using NodaTime.Text;
 using Requests;
+using RoadRegistry.Extracts;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts;
 using RoadRegistry.Tests.BackOffice.Scenarios;

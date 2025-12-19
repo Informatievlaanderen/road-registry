@@ -6,6 +6,7 @@ using Editor.Schema;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using RoadRegistry.Extensions;
 using Sync.MunicipalityRegistry;
 
 public sealed class DownloadExtractByNisCodeRequestValidator : AbstractValidator<DownloadExtractByNisCodeRequest>, IPipelineBehavior<DownloadExtractByNisCodeRequest, DownloadExtractByNisCodeResponse>

@@ -6,6 +6,8 @@ using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.FeatureCompare;
 using RoadRegistry.BackOffice.FeatureCompare.V2;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using Xunit.Abstractions;
 using Xunit.Sdk;

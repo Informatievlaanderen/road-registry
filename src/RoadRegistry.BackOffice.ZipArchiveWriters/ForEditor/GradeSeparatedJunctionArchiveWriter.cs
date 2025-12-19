@@ -4,9 +4,9 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
-using Extracts.Dbase.GradeSeparatedJuntions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
+using RoadRegistry.Extracts.Schemas.ExtractV1.GradeSeparatedJuntions;
 
 public class GradeSeparatedJunctionArchiveWriter : IZipArchiveWriter<EditorContext>
 {

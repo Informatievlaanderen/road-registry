@@ -1,6 +1,7 @@
 namespace RoadRegistry.Tests;
 
 using RoadRegistry.BackOffice;
+using RoadRegistry.Infrastructure;
 
 public class FakeStreetNameCache : IStreetNameCache
 {

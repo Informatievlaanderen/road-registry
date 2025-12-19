@@ -7,10 +7,11 @@ using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
-using RoadRegistry.BackOffice.Extracts.Dbase;
 using RoadRegistry.BackOffice.FeatureCompare;
 using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.BackOffice.Uploads.Dbase.BeforeFeatureCompare.V2.Schema;
+using RoadRegistry.Extracts.Schemas.ExtractV1;
+using RoadRegistry.Extracts.Schemas.UploadV2;
+using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
 using Point = NetTopologySuite.Geometries.Point;
 

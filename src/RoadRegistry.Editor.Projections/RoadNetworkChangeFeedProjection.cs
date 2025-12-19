@@ -11,6 +11,8 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using DutchTranslations;
+using Extracts.DutchTranslations;
+using Infrastructure.DutchTranslations;
 using Newtonsoft.Json;
 using Schema;
 using Schema.RoadNetworkChanges;
@@ -275,7 +277,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                             .Select(problem => new ProblemWithChange
                             {
                                 Severity = problem.Severity.ToString(),
-                                Text = BackOffice.DutchTranslations.ProblemTranslator.Dutch(problem).Message
+                                Text = ProblemTranslator.Dutch(problem).Message
                             })
                             .ToArray()
                             ?? []

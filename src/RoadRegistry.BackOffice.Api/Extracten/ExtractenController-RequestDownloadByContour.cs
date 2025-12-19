@@ -3,18 +3,20 @@ namespace RoadRegistry.BackOffice.Api.Extracten;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using CommandHandling;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
-using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
-using RoadRegistry.BackOffice.Core.ProblemCodes;
-using RoadRegistry.BackOffice.Extensions;
-using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
+using RoadRegistry.Extensions;
+using RoadRegistry.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
+using ValueObjects.ProblemCodes;
 
 public partial class ExtractenController
 {
@@ -44,11 +46,19 @@ public partial class ExtractenController
 
             var extractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(body.ExterneId ?? Guid.NewGuid().ToString("N")));
             var downloadId = new DownloadId(Guid.NewGuid());
+            var contour = new WKTReader().Read(body.Contour).ToMultiPolygon();
+            // ensure SRID is filled in
+            contour = (MultiPolygon)GeometryTranslator.Translate(GeometryTranslator.TranslateToRoadNetworkExtractGeometry(contour));
 
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
-                Request = new RequestExtractRequest(extractRequestId, downloadId, body.Contour, body.Beschrijving, body.Informatief, body.ExterneId)
+                ExtractRequestId = extractRequestId,
+                DownloadId = downloadId,
+                Contour = contour,
+                Description = body.Beschrijving,
+                IsInformative = body.Informatief,
+                ExternalRequestId = body.ExterneId
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));
@@ -99,7 +109,9 @@ public class ExtractDownloadaanvraagPerContourBodyValidator : AbstractValidator<
             {
                 var reader = new WKTReader();
                 var geometry = reader.Read(contour);
-                return geometry.IsValid && geometry.Area <= (SquareKmMaximum * 1000 * 1000);
+                return geometry.IsValid
+                       && (geometry is Polygon || geometry is MultiPolygon)
+                       && geometry.Area <= (SquareKmMaximum * 1000 * 1000);
             }
             catch
             {

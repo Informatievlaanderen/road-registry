@@ -1,0 +1,20 @@
+namespace RoadRegistry.Extracts.Uploads;
+
+using System.Linq;
+using BackOffice.Exceptions;
+
+public class ZipArchiveValidationException : RoadRegistryException
+{
+    public ZipArchiveProblems Problems { get; }
+
+    public ZipArchiveValidationException(ZipArchiveProblems problems)
+        : base("Zip archive is invalid.")
+    {
+        Problems = problems;
+    }
+
+    public override string ToString()
+    {
+        return $"{base.ToString()}\nProblems:\n{string.Join("\n", Problems.Select(x => x.Describe()))}";
+    }
+}

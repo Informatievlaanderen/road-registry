@@ -5,12 +5,12 @@ namespace RoadRegistry.Tests.BackOffice.Extracts
     using Microsoft.IO;
     using NodaTime.Text;
     using RoadRegistry.BackOffice;
-    using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
     using RoadRegistry.BackOffice.Messages;
     using System.Text;
     using Editor.Projections;
     using Editor.Schema.Extensions;
     using NodaTime;
+    using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
 
     public static class DbExtensions
     {

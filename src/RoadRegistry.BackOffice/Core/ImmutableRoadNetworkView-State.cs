@@ -6,6 +6,10 @@ using System.Collections.Immutable;
 using System.Linq;
 using Framework;
 using Messages;
+using RoadRegistry.RoadSegment.ValueObjects;
+using RoadSegmentEuropeanRoadAttribute = BackOffice.RoadSegmentEuropeanRoadAttribute;
+using RoadSegmentNationalRoadAttribute = BackOffice.RoadSegmentNationalRoadAttribute;
+using RoadSegmentNumberedRoadAttribute = BackOffice.RoadSegmentNumberedRoadAttribute;
 
 public partial class ImmutableRoadNetworkView
 {

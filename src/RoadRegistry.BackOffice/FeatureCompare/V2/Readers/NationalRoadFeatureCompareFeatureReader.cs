@@ -6,8 +6,11 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Extracts;
-using Extracts.Dbase.RoadSegments;
 using Models;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+using RoadRegistry.Extracts.Uploads;
 using Translators;
 using Uploads;
 using Validation;
@@ -56,14 +59,14 @@ public class NationalRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
         }
     }
 
-    private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentNationalRoadAttributeDbaseRecord, Feature<NationalRoadFeatureCompareAttributes>>
+    private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<RoadRegistry.Extracts.Schemas.UploadV2.RoadSegmentNationalRoadAttributeDbaseRecord, Feature<NationalRoadFeatureCompareAttributes>>
     {
         public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, NationalRoadFeatureCompareFeatureReader.FileName, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentNationalRoadAttributeDbaseRecord.Schema)
+            : base(encoding, NationalRoadFeatureCompareFeatureReader.FileName, RoadRegistry.Extracts.Schemas.UploadV2.RoadSegmentNationalRoadAttributeDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<NationalRoadFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentNationalRoadAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<NationalRoadFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, RecordNumber recordNumber, RoadRegistry.Extracts.Schemas.UploadV2.RoadSegmentNationalRoadAttributeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {

@@ -73,7 +73,6 @@ public class OrganisatieObject
     public string OvoCode { get; set; }
 }
 
-
 public class GetOrganizationsResponseResponseExamples : IExamplesProvider<GetOrganizationsResponse>
 {
     public GetOrganizationsResponse GetExamples()

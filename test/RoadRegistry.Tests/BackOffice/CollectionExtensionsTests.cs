@@ -1,6 +1,7 @@
 namespace RoadRegistry.Tests.BackOffice;
 
 using RoadRegistry.BackOffice;
+using RoadRegistry.Infrastructure;
 
 public class CollectionExtensionsTests
 {

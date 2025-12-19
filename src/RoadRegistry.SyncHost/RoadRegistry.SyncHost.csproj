@@ -54,6 +54,9 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" />
   </ItemGroup>
   <ItemGroup>
+    <Using Include="RoadRegistry.ValueObjects" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="Dockerfile" CopyToOutputDirectory="Always" />
     <Content Include="init.sh" CopyToOutputDirectory="Always" />
     <Content Include="appsettings.json" CopyToOutputDirectory="Always" />

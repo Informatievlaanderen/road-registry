@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
+using RoadRegistry.Extracts;
 
 public class ProjectionFormatFileZipArchiveWriterTests
 {

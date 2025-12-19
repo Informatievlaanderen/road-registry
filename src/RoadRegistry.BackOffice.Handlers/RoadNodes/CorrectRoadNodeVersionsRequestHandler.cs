@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.Abstractions.RoadNodes;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
@@ -17,8 +16,10 @@ using RoadRegistry.Editor.Projections;
 using RoadRegistry.Editor.Schema;
 using System.Diagnostics;
 using Editor.Schema.Extensions;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadNodes;
 using ModifyRoadNode = BackOffice.Uploads.ModifyRoadNode;
-using Reason = BackOffice.Reason;
+using Reason = ValueObjects.Reason;
 
 public sealed class CorrectRoadNodeVersionsRequestHandler : IRequestHandler<CorrectRoadNodeVersionsRequest, CorrectRoadNodeVersionsResponse>
 {

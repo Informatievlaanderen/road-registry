@@ -4,9 +4,10 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extracts;
-using Extracts.Dbase.RoadNodes;
 using Microsoft.IO;
-using ShapeFile.V2;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.ShapeFile;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadNodes;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public class RoadNodesZipArchiveWriter : IZipArchiveWriter

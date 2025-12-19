@@ -9,7 +9,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using Shared;
+        using Shared;
 
     public class RoadNodeRecordProjection : ConnectedProjection<RoadNodeProducerSnapshotContext>
     {

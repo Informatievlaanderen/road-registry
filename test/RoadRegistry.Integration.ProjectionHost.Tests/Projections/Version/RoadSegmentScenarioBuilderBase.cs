@@ -17,7 +17,7 @@ public class RoadSegmentScenarioBuilderBase
     {
         Fixture = fixture;
     }
-    
+
     protected object[] BuildInitialExpectedRoadSegmentRecords(RoadNetworkChangesAccepted message)
     {
         return message.Changes

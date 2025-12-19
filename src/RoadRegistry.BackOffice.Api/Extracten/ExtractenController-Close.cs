@@ -42,7 +42,7 @@ public partial class ExtractenController
             var result = await _mediator.Send(new CloseExtractSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Update),
-                Request = new CloseExtractRequest(parsedDownloadId)
+                DownloadId = parsedDownloadId
             }, cancellationToken);
 
             return Accepted(result);

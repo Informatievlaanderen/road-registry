@@ -2,7 +2,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning.V1;
 
 using System.IO.Compression;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
 
 public class RoadSegmentWidthAttributeZipArchiveCleaner : VersionedZipArchiveCleaner
 {
@@ -36,15 +37,15 @@ public class RoadSegmentWidthAttributeZipArchiveCleaner : VersionedZipArchiveCle
         }
     }
 
-    private sealed class UploadsV2DbaseZipArchiveCleaner : DbaseZipArchiveCleanerBase<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentWidthAttributeDbaseRecord>
+    private sealed class UploadsV2DbaseZipArchiveCleaner : DbaseZipArchiveCleanerBase<RoadRegistry.Extracts.Schemas.UploadV2.RoadSegmentWidthAttributeDbaseRecord>
     {
         public UploadsV2DbaseZipArchiveCleaner(FileEncoding encoding, ExtractFileName fileName)
-            : base(Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentWidthAttributeDbaseRecord.Schema, encoding, fileName)
+            : base(RoadRegistry.Extracts.Schemas.UploadV2.RoadSegmentWidthAttributeDbaseRecord.Schema, encoding, fileName)
         {
         }
 
         protected override bool FixDataInArchive(ZipArchive archive,
-            IReadOnlyCollection<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentWidthAttributeDbaseRecord> dbfRecords)
+            IReadOnlyCollection<RoadRegistry.Extracts.Schemas.UploadV2.RoadSegmentWidthAttributeDbaseRecord> dbfRecords)
         {
             return archive.UpdateRoadSegmentAttributeMissingFromOrToPositions(dbfRecords,
                 Encoding,

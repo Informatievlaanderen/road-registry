@@ -29,4 +29,7 @@
     <PackageReference Include="SourceLink.Embed.AllSourceFiles" />
     <PackageReference Include="SourceLink.Copy.PdbFiles" />
   </ItemGroup>
+  <ItemGroup>
+    <Using Include="RoadRegistry.ValueObjects" />
+  </ItemGroup>
 </Project>

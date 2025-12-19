@@ -37,12 +37,22 @@ namespace RoadRegistry.BackOffice.Abstractions.Jobs
                 DownloadId = downloadId
             };
         }
+
+        public static GetPresignedUploadUrlRequest ForInwinning(DownloadId downloadId)
+        {
+            return new GetPresignedUploadUrlRequest
+            {
+                UploadType = UploadType.Inwinning,
+                DownloadId = downloadId
+            };
+        }
     }
 
     public enum UploadType
     {
         Uploads,
         Extracts,
-        ExtractsV2
+        ExtractsV2,
+        Inwinning
     }
 }

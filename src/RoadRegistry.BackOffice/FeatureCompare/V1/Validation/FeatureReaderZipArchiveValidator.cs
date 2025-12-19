@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Uploads;
 using Translators;
 
 public abstract class FeatureReaderZipArchiveValidator<TAttributes> : IFeatureReaderZipArchiveValidator

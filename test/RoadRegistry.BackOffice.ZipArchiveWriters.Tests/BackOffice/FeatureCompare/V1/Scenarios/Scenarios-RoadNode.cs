@@ -8,6 +8,8 @@ using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.FeatureCompare.V1;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Editor.Schema.Extensions;
+using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
 using Xunit.Abstractions;
 using AddRoadNode = Uploads.AddRoadNode;

@@ -1,12 +1,14 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning.V2;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Core.ProblemCodes;
 using Extracts;
 using System.IO.Compression;
 using FeatureCompare.V2;
 using FeatureCompare.V2.Readers;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Uploads;
 using Uploads;
+using ValueObjects.ProblemCodes;
 
 internal static class ZipArchiveV2CleanerExtensions
 {

@@ -5,7 +5,8 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Schemas.ExtractV1.GradeSeparatedJuntions;
 
 public class GradeSeparatedJunctionArchiveWriter : IZipArchiveWriter
 {

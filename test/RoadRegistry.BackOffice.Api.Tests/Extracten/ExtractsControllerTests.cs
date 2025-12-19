@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using RoadRegistry.BackOffice.Api.Extracten;
 using RoadRegistry.BackOffice.Api.Tests.Infrastructure;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 

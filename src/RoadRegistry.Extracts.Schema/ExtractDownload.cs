@@ -13,6 +13,7 @@ public class ExtractDownload
     public Geometry Contour { get; set; }
     public bool IsInformative { get; set; }
     public DateTimeOffset RequestedOn { get; set; }
+    public string ZipArchiveWriterVersion { get; set; } = WellKnownZipArchiveWriterVersions.V2;
 
     public ExtractDownloadStatus DownloadStatus { get; set; }
     public DateTimeOffset? DownloadedOn { get; set; }
@@ -65,6 +66,7 @@ public class ExtractDownloadConfiguration : IEntityTypeConfiguration<ExtractDown
         b.Property(p => p.UploadStatus).IsRequired(false);
         b.Property(p => p.TicketId).IsRequired(false);
         b.Property(p => p.Closed).IsRequired();
+        b.Property(p => p.ZipArchiveWriterVersion).IsRequired().HasDefaultValue(WellKnownZipArchiveWriterVersions.V2);
 
         b.HasIndex(x => x.ExtractRequestId);
     }

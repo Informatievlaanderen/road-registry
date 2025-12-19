@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extracts.Uploads;
 
 public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureReaderContext
 {

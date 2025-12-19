@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.Handlers.RoadSegments;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
-using BackOffice.Extracts.Dbase.RoadSegments;
 using Editor.Schema;
 using Editor.Schema.Extensions;
 using Framework;
@@ -12,6 +11,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+using RoadRegistry.Infrastructure;
 
 public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmentDetailRequest, RoadSegmentDetailResponse>
 {

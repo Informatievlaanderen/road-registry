@@ -4,6 +4,8 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
 
 public class DbaseFileArchiveWriter : IZipArchiveWriter
 {

@@ -13,6 +13,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using RoadRegistry.Extensions;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 using SqlStreamStore.Subscriptions;

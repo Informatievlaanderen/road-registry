@@ -8,6 +8,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using RoadRegistry.Extracts.Uploads;
 using TicketingService.Abstractions;
 using Uploads;
 

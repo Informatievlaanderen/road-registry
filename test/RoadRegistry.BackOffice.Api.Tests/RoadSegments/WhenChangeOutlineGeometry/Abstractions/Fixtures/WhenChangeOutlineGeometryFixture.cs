@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeOutlineGeomet
 using Api.Infrastructure.Controllers;
 using Api.RoadSegments;
 using AutoFixture;
-using BackOffice.Extracts.Dbase.Organizations;
 using Editor.Schema;
 using Editor.Schema.Organizations;
 using Infrastructure;

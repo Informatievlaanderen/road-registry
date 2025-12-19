@@ -3,12 +3,13 @@ namespace RoadRegistry.Tests.Debugging;
 using System.Text;
 using Editor.Schema;
 using Editor.Schema.Extensions;
+using Extracts;
+using Extracts.Schemas.ExtractV1.RoadSegments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IO;
 using Product.Schema;
 using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 
 public class FixCategoryInEditorAndProductDbfRecords
 {

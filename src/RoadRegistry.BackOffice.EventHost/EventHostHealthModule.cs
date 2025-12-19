@@ -6,6 +6,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Extensions;
 using TicketingService.Abstractions;
 using Uploads;
 

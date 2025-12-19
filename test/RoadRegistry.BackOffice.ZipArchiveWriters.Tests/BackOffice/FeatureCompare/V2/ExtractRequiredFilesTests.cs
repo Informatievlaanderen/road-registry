@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.FeatureCompare.V2;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
 using Scenarios;
 using Xunit.Abstractions;

@@ -32,15 +32,20 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using EventProcessors;
+using Extracts.Projections;
 using Extracts.Schema;
 using Hosts.Infrastructure.Extensions;
 using Integration.Schema;
+using Marten;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using NodaTime;
+using RoadRegistry.Infrastructure.MartenDb.Projections;
+using RoadRegistry.Infrastructure.MartenDb.Setup;
 using Wfs.Schema;
 using Wms.Schema;
 
@@ -112,6 +117,16 @@ public class Startup
             migratorFactory.CreateMigrator(configuration, loggerFactory)
                 .MigrateAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
         }
+
+        StartMartenProjections(serviceProvider); // Do not await
+    }
+
+    private async Task StartMartenProjections(IServiceProvider sp)
+    {
+        //TODO-pr TBD: hoe gaan we configureren welke agents we willen projecteren en welke niet?
+        var store = sp.GetRequiredService<IDocumentStore>();
+        var projectionDaemon = await store.BuildProjectionDaemonAsync();
+        await projectionDaemon.StartAllAsync();
     }
 
     /// <summary>Configures services for the application.</summary>
@@ -247,6 +262,11 @@ public class Startup
             .AddDbContext<StreetNameEventConsumerContext>(WellKnownConnectionNames.StreetNameEventConsumer)
             .AddDbContext<StreetNameEventProjectionContext>(WellKnownConnectionNames.StreetNameProjections)
             .AddDbContext<IntegrationContext>(WellKnownConnectionNames.IntegrationProjections)
+
+            .AddMartenRoad(options =>
+            {
+                options.AddRoadNetworkChangesProjection(new ExtractsRoadNetworkChangesProjection());
+            })
 
             .AddSingleton(new IDbContextMigratorFactory[]
             {

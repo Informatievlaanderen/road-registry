@@ -7,8 +7,11 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Models;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Extracts.Dbase;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
+using RoadRegistry.Extracts.Schemas.ExtractV1;
+using RoadRegistry.Extracts.Uploads;
 using Translators;
 
 public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<TransactionZoneFeatureCompareAttributes>>

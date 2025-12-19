@@ -90,8 +90,8 @@ public static class IntegrationContextScenarioExtensions
             var comparer = new CompareLogic(comparisonConfig);
             var actualRecords = await context.AllRecords();
             var result = comparer.Compare(
-                actualRecords,
-                records
+                records,
+                actualRecords
             );
 
             return result.AreEqual
@@ -107,8 +107,8 @@ public static class IntegrationContextScenarioExtensions
         {
             var envelope = new Envelope(message, new Dictionary<string, object>
             {
-                { "Position", position },
-                { "StreamId", RoadNetworkStreamNameProvider.Default.ToString() }
+                { Envelope.PositionMetadataKey, position },
+                { Envelope.StreamIdMetadataKey, RoadNetworkStreamNameProvider.Default.ToString() }
             }).ToGenericEnvelope();
             await projector.ProjectAsync(context, envelope);
             position++;
@@ -143,8 +143,8 @@ public static class IntegrationContextScenarioExtensions
             var comparer = new CompareLogic(comparisonConfig);
             var actualRecords = await context.AllRecords();
             var result = comparer.Compare(
-                actualRecords,
-                records
+                records,
+                actualRecords
             );
 
             return result.AreEqual
@@ -160,8 +160,8 @@ public static class IntegrationContextScenarioExtensions
         {
             var envelope = new Envelope(message, new Dictionary<string, object>
             {
-                { "Position", position },
-                { "StreamId", RoadNetworkStreamNameProvider.Default.ToString() }
+                { Envelope.PositionMetadataKey, position },
+                { Envelope.StreamIdMetadataKey, RoadNetworkStreamNameProvider.Default.ToString() }
             }).ToGenericEnvelope();
             await projector.ProjectAsync(context, envelope);
             position++;

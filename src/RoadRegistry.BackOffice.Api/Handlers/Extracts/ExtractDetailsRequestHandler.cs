@@ -10,6 +10,7 @@ using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schema;
 
 public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetailsRequest, ExtractDetailsResponse>

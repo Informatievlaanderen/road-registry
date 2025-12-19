@@ -5,8 +5,8 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
 using Editor.Schema;
-using Extracts.Dbase.Organizations;
 using Framework.Containers;
+using RoadRegistry.Extracts.Schemas.ExtractV1.Organizations;
 using ZipArchiveWriters.ForEditor;
 
 [Collection(nameof(SqlServerCollection))]

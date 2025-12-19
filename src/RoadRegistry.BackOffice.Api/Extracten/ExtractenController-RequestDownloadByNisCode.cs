@@ -4,20 +4,20 @@ using System;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using CommandHandling;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice.Abstractions.Extracts.V2;
-using RoadRegistry.BackOffice.Core.ProblemCodes;
-using RoadRegistry.BackOffice.Extensions;
-using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
-using RoadRegistry.Sync.MunicipalityRegistry;
+using RoadRegistry.Extensions;
+using RoadRegistry.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
+using Sync.MunicipalityRegistry;
+using ValueObjects.ProblemCodes;
 
 public partial class ExtractenController
 {
@@ -65,7 +65,12 @@ public partial class ExtractenController
             var result = await _mediator.Send(new RequestExtractSqsRequest
             {
                 ProvenanceData = CreateProvenanceData(Modification.Insert),
-                Request = new RequestExtractRequest(extractRequestId, downloadId, contour.AsText(), body.Beschrijving, body.Informatief, null)
+                ExtractRequestId = extractRequestId,
+                DownloadId = downloadId,
+                Contour = contour,
+                Description = body.Beschrijving,
+                IsInformative = body.Informatief,
+                ExternalRequestId = null
             }, cancellationToken);
 
             return Accepted(result, new ExtractDownloadaanvraagResponse(downloadId));

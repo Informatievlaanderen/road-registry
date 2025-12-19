@@ -3,6 +3,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
     using AutoFixture;
     using BackOffice.Abstractions.Jobs;
     using BackOffice.Abstractions.Uploads;
+    using BackOffice.FeatureToggles;
     using BackOffice.Uploads;
     using Be.Vlaanderen.Basisregisters.BlobStore;
     using Extracts.Schema;

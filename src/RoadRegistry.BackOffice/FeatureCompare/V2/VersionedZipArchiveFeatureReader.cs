@@ -6,6 +6,9 @@ using System.IO.Compression;
 using System.Linq;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Uploads;
 
 public class VersionedZipArchiveFeatureReader<TFeature> : IZipArchiveFeatureReader<TFeature>
     where TFeature : class

@@ -2,8 +2,8 @@ namespace RoadRegistry.BackOffice.Api.Tests.Infrastructure;
 
 using System.IO;
 using System.Text;
-using BackOffice.Extracts.Dbase;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using RoadRegistry.Extracts.Schemas.ExtractV1;
 
 public class DbaseFileTests
 {

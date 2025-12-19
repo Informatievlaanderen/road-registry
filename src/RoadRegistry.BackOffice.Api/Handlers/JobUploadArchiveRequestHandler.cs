@@ -11,6 +11,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
     using System.Threading;
     using System.Threading.Tasks;
     using Abstractions.Jobs;
+    using RoadRegistry.Extensions;
 
     public sealed class JobUploadArchiveRequestHandler : IRequestHandler<JobUploadArchiveRequest, JobUploadArchiveResponse>
     {
@@ -49,7 +50,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                 request.Archive.ReadStream,
                 cancellationToken
             );
-            
+
             return new JobUploadArchiveResponse();
         }
     }

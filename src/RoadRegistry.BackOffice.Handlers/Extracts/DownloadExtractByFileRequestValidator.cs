@@ -4,6 +4,7 @@ using System.Text;
 using Abstractions.Extracts;
 using FluentValidation;
 using MediatR;
+using RoadRegistry.Extracts;
 
 public sealed class DownloadExtractByFileRequestValidator : AbstractValidator<DownloadExtractByFileRequest>, IPipelineBehavior<DownloadExtractByFileRequest, DownloadExtractByFileResponse>
 {

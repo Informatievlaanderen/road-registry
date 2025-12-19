@@ -4,6 +4,8 @@ using System;
 using System.IO.Compression;
 using System.Linq;
 using Extracts;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Uploads;
 using Uploads;
 
 public interface ITransactionZoneZipArchiveReader
@@ -13,7 +15,7 @@ public interface ITransactionZoneZipArchiveReader
 
 public class TransactionZoneZipArchiveReader: ITransactionZoneZipArchiveReader
 {
-    private const FeatureType FeatureType = Extracts.FeatureType.Change;
+    private const FeatureType FeatureType = RoadRegistry.Extracts.FeatureType.Change;
 
     private readonly V1.Readers.TransactionZoneFeatureCompareFeatureReader _v1;
     private readonly V2.Readers.TransactionZoneFeatureCompareFeatureReader _v2;

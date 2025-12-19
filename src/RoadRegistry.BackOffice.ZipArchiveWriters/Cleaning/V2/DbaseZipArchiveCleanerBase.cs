@@ -3,9 +3,12 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning.V2;
 using System.IO.Compression;
 using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.V2;
 using Exceptions;
 using Extracts;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.Dbase;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
+using RoadRegistry.Extracts.Uploads;
 
 public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveCleaner
     where TDbaseRecord : DbaseRecord, new()

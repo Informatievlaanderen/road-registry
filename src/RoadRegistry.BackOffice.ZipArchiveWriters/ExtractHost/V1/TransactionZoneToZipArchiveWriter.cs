@@ -6,8 +6,10 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Extracts.Dbase;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Extensions;
+using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Schemas.ExtractV1;
 using DbaseFileHeader = Be.Vlaanderen.Basisregisters.Shaperon.DbaseFileHeader;
 
 public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter
@@ -37,7 +39,7 @@ public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter
                 TYPE = { Value = 2 },
                 BESCHRIJV =
                 {
-                    Value = string.IsNullOrEmpty(request.ExtractDescription) ? request.ExternalRequestId : request.ExtractDescription
+                    Value = request.ExtractDescription
                 },
                 OPERATOR = { Value = "" },
                 ORG = { Value = "AGIV" },

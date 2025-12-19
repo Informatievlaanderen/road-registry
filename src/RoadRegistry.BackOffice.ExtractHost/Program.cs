@@ -19,6 +19,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using RoadRegistry.Extracts;
+using RoadRegistry.Infrastructure;
 using SqlStreamStore;
 using ZipArchiveWriters.ExtractHost;
 

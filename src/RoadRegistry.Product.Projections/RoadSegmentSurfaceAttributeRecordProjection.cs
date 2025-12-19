@@ -1,7 +1,6 @@
 namespace RoadRegistry.Product.Projections;
 
 using BackOffice;
-using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
@@ -14,6 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice.Extensions;
+using Extracts.Schemas.ExtractV1.RoadSegments;
 
 public class RoadSegmentSurfaceAttributeRecordProjection : ConnectedProjection<ProductContext>
 {

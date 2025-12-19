@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Models;
+using RoadRegistry.Infrastructure;
 
 public interface IRoadSegmentFeatureCompareStreetNameContextFactory
 {

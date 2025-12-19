@@ -10,6 +10,7 @@ using Infrastructure;
 using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using RoadRegistry.Extensions;
 using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using GeometryTranslator = BackOffice.GeometryTranslator;

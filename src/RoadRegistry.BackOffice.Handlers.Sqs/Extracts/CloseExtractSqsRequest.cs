@@ -4,7 +4,7 @@ using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Abstractions;
 using Abstractions.Extracts.V2;
 
-public sealed class CloseExtractSqsRequest : SqsRequest, IHasBackOfficeRequest<CloseExtractRequest>
+public sealed class CloseExtractSqsRequest : SqsRequest
 {
-    public CloseExtractRequest Request { get; init; }
+    public required DownloadId DownloadId { get; init; }
 }

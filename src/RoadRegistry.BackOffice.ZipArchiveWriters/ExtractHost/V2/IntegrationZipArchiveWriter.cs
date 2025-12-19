@@ -6,11 +6,13 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.Editor.Schema.RoadNodes;
 using RoadRegistry.Editor.Schema.RoadSegments;
-using ShapeFile.V2;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.ShapeFile;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadNodes;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+using RoadRegistry.Infrastructure;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public class IntegrationZipArchiveWriter : IZipArchiveWriter

@@ -16,6 +16,9 @@ using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using Polly;
+using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Uploads;
 using SqlStreamStore;
 using TicketingService.Abstractions;
 
@@ -172,9 +175,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         else
         {
             var request = new RoadNetworkExtractAssemblyRequest(
-                new ExternalExtractRequestId(message.Body.ExternalRequestId),
                 downloadId,
-                new ExtractDescription(extractDescription),
+                new ExtractDescription(!string.IsNullOrEmpty(extractDescription) ? extractDescription : new ExternalExtractRequestId(message.Body.ExternalRequestId)),
                 GeometryTranslator.Translate(message.Body.Contour),
                 message.Body.IsInformative,
                 message.Body.ZipArchiveWriterVersion);

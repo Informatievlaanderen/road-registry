@@ -9,6 +9,7 @@ using BackOffice.Messages;
 using Framework;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
+using RoadSegment.ValueObjects;
 using Schema;
 using Wms.Projections;
 using StreetNameRecord = StreetNameRecord;

@@ -4,10 +4,10 @@ namespace RoadRegistry.BackOffice.CommandHost.Tests
     using AutoFixture;
     using FluentAssertions;
     using Messages;
-    using RoadRegistry.BackOffice.Core;
+        using RoadRegistry.BackOffice.Core;
     using RoadRegistry.Tests.BackOffice;
     using RoadRegistry.Tests.BackOffice.Scenarios;
-    using Xunit.Sdk;
+            using Xunit.Sdk;
     using AddGradeSeparatedJunction = Messages.AddGradeSeparatedJunction;
     using AddRoadNode = Messages.AddRoadNode;
     using ModifyGradeSeparatedJunction = Messages.ModifyGradeSeparatedJunction;

@@ -11,9 +11,9 @@ public static class RoadRegistryRoles
 
     private static readonly Dictionary<string, string[]> RoleToScopeMapping = new()
     {
-        {Admin, new []{Scopes.VoInfo, Scopes.DvWrAttribuutWaardenBeheer, Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer, Scopes.DvWrUitzonderingenBeheer}},
-        {Editor, new []{Scopes.VoInfo, Scopes.DvWrAttribuutWaardenBeheer, Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer}},
-        {Reader, new []{Scopes.VoInfo}}
+        {Admin, [Scopes.VoInfo, Scopes.DvWrAttribuutWaardenBeheer, Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer, Scopes.DvWrUitzonderingenBeheer] },
+        {Editor, [Scopes.VoInfo, Scopes.DvWrAttribuutWaardenBeheer, Scopes.DvWrGeschetsteWegBeheer, Scopes.DvWrIngemetenWegBeheer] },
+        {Reader, [Scopes.VoInfo] }
     };
 
     public static string[] GetScopes(string role)

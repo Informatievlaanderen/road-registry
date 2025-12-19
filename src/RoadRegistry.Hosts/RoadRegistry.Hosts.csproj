@@ -64,4 +64,7 @@
     <PackageReference Include="Serilog.Sinks.Console" />
     <PackageReference Include="SqlStreamStore.MsSql" />
   </ItemGroup>
+  <ItemGroup>
+    <Using Include="RoadRegistry.ValueObjects" />
+  </ItemGroup>
 </Project>

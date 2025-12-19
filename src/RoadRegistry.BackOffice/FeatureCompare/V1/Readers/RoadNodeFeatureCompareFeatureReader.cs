@@ -8,8 +8,11 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Extracts;
-using Extracts.Dbase.RoadNodes;
 using Models;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.Extensions;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadNodes;
+using RoadRegistry.Extracts.Uploads;
 using ShapeFile;
 using ShapeFile.V1;
 using Translators;
@@ -172,14 +175,14 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
         }
     }
 
-    private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadNodeDbaseRecord, Feature<RoadNodeFeatureCompareAttributes>>
+    private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<RoadRegistry.Extracts.Schemas.UploadV2.RoadNodeDbaseRecord, Feature<RoadNodeFeatureCompareAttributes>>
     {
         public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadNodeDbaseRecord.Schema)
+            : base(encoding, RoadRegistry.Extracts.Schemas.UploadV2.RoadNodeDbaseRecord.Schema)
         {
         }
 
-        protected override (Feature<RoadNodeFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadNodeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
+        protected override (Feature<RoadNodeFeatureCompareAttributes>, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, RoadRegistry.Extracts.Schemas.UploadV2.RoadNodeDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context)
         {
             return new DbaseRecordData
             {

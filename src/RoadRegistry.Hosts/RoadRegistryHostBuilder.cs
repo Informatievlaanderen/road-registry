@@ -12,6 +12,7 @@ using BackOffice.Configuration;
 using BackOffice.Extensions;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Extracts;
 using Infrastructure.Extensions;
 using Infrastructure.Modules;
 using Microsoft.AspNetCore.Hosting;

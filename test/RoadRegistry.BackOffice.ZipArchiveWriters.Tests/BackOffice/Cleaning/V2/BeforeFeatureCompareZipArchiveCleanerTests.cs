@@ -4,6 +4,8 @@ using Extracts;
 using FluentAssertions;
 using RoadRegistry.BackOffice.FeatureCompare.V2;
 using RoadRegistry.BackOffice.FeatureCompare.V2.Readers;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Uploads;
 using RoadRegistry.Tests.BackOffice;
 using Uploads;
 using ZipArchiveWriters.Cleaning.V2;

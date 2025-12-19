@@ -8,8 +8,10 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Exceptions;
 using Extracts;
 using NetTopologySuite.Geometries;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.ShapeFile;
+using RoadRegistry.Extracts.Uploads;
 using ShapeFile;
-using ShapeFile.V2;
 using Uploads;
 
 public abstract class ZipArchiveShapeFeatureReader<TDbaseRecord, TFeature> : IZipArchiveFeatureReader<TFeature>

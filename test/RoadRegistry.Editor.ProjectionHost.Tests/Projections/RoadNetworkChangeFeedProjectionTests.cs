@@ -6,13 +6,17 @@ using BackOffice.Messages;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using Editor.Projections;
 using Editor.Schema.RoadNetworkChanges;
+using Extracts.Uploads;
+using Infrastructure.Messages;
 using Newtonsoft.Json;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 using AcceptedChange = BackOffice.Messages.AcceptedChange;
-using FileProblem = BackOffice.Messages.FileProblem;
+using FileProblem = Extracts.Messages.FileProblem;
+using ProblemSeverity = Infrastructure.Messages.ProblemSeverity;
 using RoadNetworkChangeCounters = Editor.Schema.RoadNetworkChanges.RoadNetworkChangeCounters;
 using RoadNetworkChangesSummary = Editor.Schema.RoadNetworkChanges.RoadNetworkChangesSummary;
 

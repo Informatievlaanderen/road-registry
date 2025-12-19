@@ -1,11 +1,12 @@
 namespace RoadRegistry.Tests
 {
-    using Be.Vlaanderen.Basisregisters.GrAr.Contracts.Common;
+    using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+    using NodaTime;
 
     public class FakeProvenance: Provenance
     {
         public FakeProvenance()
-            : base(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty)
+            : base(Instant.MaxValue, Application.RoadRegistry, new Reason(string.Empty), new Operator("TEST"), Modification.Unknown, Organisation.DigitaalVlaanderen)
         {
         }
     }

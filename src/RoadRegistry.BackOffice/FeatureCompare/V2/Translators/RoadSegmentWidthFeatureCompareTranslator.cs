@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.FeatureCompare.V2.Translators;
 using System.Collections.Generic;
 using Models;
 using Readers;
+using RoadRegistry.Extracts.Uploads;
 using Uploads;
 
 public class RoadSegmentWidthFeatureCompareTranslator : RoadSegmentAttributeFeatureCompareTranslatorBase<RoadSegmentWidthFeatureCompareAttributes>

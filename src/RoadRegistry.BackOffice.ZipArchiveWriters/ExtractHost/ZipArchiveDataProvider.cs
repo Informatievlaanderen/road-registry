@@ -6,9 +6,9 @@
     using Editor.Schema.RoadNodes;
     using Editor.Schema.RoadSegments;
     using Extensions;
-    using Extracts.Dbase.RoadSegments;
     using Microsoft.EntityFrameworkCore;
     using NetTopologySuite.Geometries;
+    using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
 
     public interface IZipArchiveDataProvider
     {

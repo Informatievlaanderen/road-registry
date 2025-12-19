@@ -1,5 +1,6 @@
 namespace RoadRegistry.Tests.BackOffice
 {
+    using Extensions;
     using RoadRegistry.BackOffice.Extensions;
 
     public class FormattingExtensionsTests

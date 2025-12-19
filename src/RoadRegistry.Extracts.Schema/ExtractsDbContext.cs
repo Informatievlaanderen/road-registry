@@ -30,6 +30,7 @@ public class ExtractsDbContext : RunnerDbContext<ExtractsDbContext>
 
     public DbSet<ExtractRequest> ExtractRequests { get; set; }
     public DbSet<ExtractDownload> ExtractDownloads { get; set; }
+    public DbSet<Inwinningszone> Inwinningszones { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

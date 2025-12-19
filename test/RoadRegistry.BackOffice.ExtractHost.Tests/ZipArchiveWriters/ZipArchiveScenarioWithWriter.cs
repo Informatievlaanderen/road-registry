@@ -5,6 +5,7 @@ using BackOffice.ZipArchiveWriters.ExtractHost;
 using Editor.Schema;
 using Extracts;
 using Microsoft.IO;
+using RoadRegistry.Extracts;
 
 public class ZipArchiveScenarioWithWriter : ZipArchiveScenario
 {

@@ -4,6 +4,7 @@ using Abstractions.Exceptions;
 using BackOffice.Extracts;
 using Microsoft.EntityFrameworkCore;
 using RoadRegistry.Extracts.Schema;
+using RoadRegistry.Infrastructure;
 
 public class ExtractRequests : IExtractRequests
 {

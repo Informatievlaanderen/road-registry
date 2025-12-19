@@ -2,15 +2,16 @@ namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using Framework.Testing;
 using NodaTime.Text;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using Point = RoadRegistry.BackOffice.Messages.Point;
-using Problem = RoadRegistry.BackOffice.Messages.Problem;
-using ProblemParameter = RoadRegistry.BackOffice.Messages.ProblemParameter;
-using ProblemSeverity = RoadRegistry.BackOffice.Messages.ProblemSeverity;
+using Problem = RoadRegistry.Infrastructure.Messages.Problem;
+using ProblemParameter = RoadRegistry.Infrastructure.Messages.ProblemParameter;
+using ProblemSeverity = RoadRegistry.Infrastructure.Messages.ProblemSeverity;
 using RejectedChange = RoadRegistry.BackOffice.Messages.RejectedChange;
 using RemoveGradeSeparatedJunction = RoadRegistry.BackOffice.Messages.RemoveGradeSeparatedJunction;
 using RemoveRoadNode = RoadRegistry.BackOffice.Messages.RemoveRoadNode;
@@ -18,9 +19,9 @@ using RemoveRoadSegment = RoadRegistry.BackOffice.Messages.RemoveRoadSegment;
 using RemoveRoadSegmentFromEuropeanRoad = RoadRegistry.BackOffice.Messages.RemoveRoadSegmentFromEuropeanRoad;
 using RemoveRoadSegmentFromNationalRoad = RoadRegistry.BackOffice.Messages.RemoveRoadSegmentFromNationalRoad;
 using RemoveRoadSegmentFromNumberedRoad = RoadRegistry.BackOffice.Messages.RemoveRoadSegmentFromNumberedRoad;
-using RequestedRoadSegmentEuropeanRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentEuropeanRoadAttribute;
-using RequestedRoadSegmentNationalRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentNationalRoadAttribute;
-using RequestedRoadSegmentNumberedRoadAttribute = RoadRegistry.BackOffice.Messages.RequestedRoadSegmentNumberedRoadAttribute;
+using RequestedRoadSegmentEuropeanRoadAttribute = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.RequestedRoadSegmentEuropeanRoadAttribute;
+using RequestedRoadSegmentNationalRoadAttribute = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.RequestedRoadSegmentNationalRoadAttribute;
+using RequestedRoadSegmentNumberedRoadAttribute = CommandHandling.Actions.ChangeRoadNetwork.ValueObjects.RequestedRoadSegmentNumberedRoadAttribute;
 
 public class RemoveTheNonExisting : RoadRegistryTestBase
 {

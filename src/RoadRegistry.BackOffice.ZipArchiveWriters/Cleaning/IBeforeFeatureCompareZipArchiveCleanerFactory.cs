@@ -1,5 +1,7 @@
 ﻿namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
 
+using RoadRegistry.Extracts;
+
 public interface IBeforeFeatureCompareZipArchiveCleanerFactory
 {
     IBeforeFeatureCompareZipArchiveCleaner Create(string zipArchiveWriterVersion);

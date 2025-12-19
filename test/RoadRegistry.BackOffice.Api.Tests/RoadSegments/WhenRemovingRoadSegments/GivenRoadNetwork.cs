@@ -1,10 +1,10 @@
 ﻿namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenRemovingRoadSegments;
 
-using Abstractions.Exceptions;
-using Abstractions.RoadSegments;
-using Api.RoadSegments;
+using BackOffice.Handlers.Sqs.RoadNetwork;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using RoadRegistry.BackOffice.Abstractions.Exceptions;
+using RoadRegistry.BackOffice.Api.RoadSegments;
 
 public class GivenRoadNetwork : RemoveRoadSegmentsTestBase
 {
@@ -57,7 +57,7 @@ public class GivenRoadNetwork : RemoveRoadSegmentsTestBase
     public async Task WithNonExistingWegsegmenten_ThenBadRequest()
     {
         Mediator
-            .Setup(x => x.Send(It.IsAny<DeleteRoadSegmentsRequest>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.Send(It.IsAny<RemoveRoadSegmentsSqsRequest>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new RoadSegmentsNotFoundException([new RoadSegmentId(1)]));
 
         await ItShouldHaveExpectedError(new DeleteRoadSegmentsParameters

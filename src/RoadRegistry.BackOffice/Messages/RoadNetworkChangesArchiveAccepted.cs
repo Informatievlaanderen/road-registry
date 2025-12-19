@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Messages;
 
 using System;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using RoadRegistry.Extracts.Messages;
 
 [EventName("RoadNetworkChangesArchiveAccepted")]
 [EventDescription("Indicates the road network changes archive was accepted.")]

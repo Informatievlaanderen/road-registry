@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.IO;
 using Moq;
 using Requests;
+using RoadRegistry.Extracts;
 using RoadRegistry.StreetName;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;

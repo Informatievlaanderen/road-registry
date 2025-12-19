@@ -5,9 +5,9 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Extensions;
-using Extracts.Dbase.RoadNodes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadNodes;
 
 public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {

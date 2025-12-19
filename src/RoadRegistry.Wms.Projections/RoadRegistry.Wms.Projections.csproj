@@ -12,5 +12,6 @@
     <ProjectReference Include="..\RoadRegistry.Wms.Schema\RoadRegistry.Wms.Schema.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Using Include="RoadRegistry.ValueObjects" />
   </ItemGroup>
 </Project>

@@ -10,6 +10,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 using Framework;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using RoadRegistry.RoadSegment.ValueObjects;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 

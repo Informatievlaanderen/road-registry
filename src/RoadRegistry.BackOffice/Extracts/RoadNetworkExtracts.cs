@@ -7,6 +7,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 using Core;
 using Framework;
 using Newtonsoft.Json;
+using RoadRegistry.Extensions;
 using SqlStreamStore;
 
 public class RoadNetworkExtracts : EventSourcedEntityRepository<RoadNetworkExtract, ExtractRequestId>, IRoadNetworkExtracts

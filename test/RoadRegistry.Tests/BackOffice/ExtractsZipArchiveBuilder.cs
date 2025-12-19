@@ -7,14 +7,15 @@ namespace RoadRegistry.Tests.BackOffice
     using System.Text;
     using AutoFixture;
     using Editor.Schema.Extensions;
+    using Extensions;
     using Microsoft.IO;
     using NetTopologySuite.Geometries;
-    using RoadRegistry.BackOffice;
-    using RoadRegistry.BackOffice.Extracts.Dbase;
-    using RoadRegistry.BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
-    using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
-    using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
-    using Point = NetTopologySuite.Geometries.Point;
+        using RoadRegistry.BackOffice;
+        using RoadRegistry.Extracts.Schemas.ExtractV1;
+        using RoadRegistry.Extracts.Schemas.ExtractV1.GradeSeparatedJuntions;
+        using RoadRegistry.Extracts.Schemas.ExtractV1.RoadNodes;
+        using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+        using Point = NetTopologySuite.Geometries.Point;
 
     public class ExtractsZipArchiveBuilder
     {
@@ -194,6 +195,7 @@ namespace RoadRegistry.Tests.BackOffice
         private Fixture CreateFixture(ExtractsZipArchiveTestData testData)
         {
             var fixture = testData.Fixture;
+            fixture.CustomizeUniqueInteger();
 
             fixture.Customize<RoadSegmentEuropeanRoadAttributeDbaseRecord>(
                 composer => composer

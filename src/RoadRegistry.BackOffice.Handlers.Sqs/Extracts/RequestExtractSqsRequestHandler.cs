@@ -14,7 +14,7 @@ public class RequestExtractSqsRequestHandler : SqsHandler<RequestExtractSqsReque
 
     protected override string WithAggregateId(RequestExtractSqsRequest request)
     {
-        return request.Request.ExtractRequestId;
+        return request.ExtractRequestId;
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, RequestExtractSqsRequest sqsRequest)

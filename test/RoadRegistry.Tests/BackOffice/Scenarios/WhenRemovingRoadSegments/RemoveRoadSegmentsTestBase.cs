@@ -1,6 +1,7 @@
 ﻿namespace RoadRegistry.Tests.BackOffice.Scenarios.WhenRemovingRoadSegments;
 
 using AutoFixture;
+using Extensions;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;

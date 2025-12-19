@@ -6,9 +6,10 @@ using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Extensions;
-using Extracts.Dbase.RoadSegments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
+using RoadRegistry.Extracts.Schemas.ExtractV1.RoadSegments;
+using RoadRegistry.Infrastructure;
 
 public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {

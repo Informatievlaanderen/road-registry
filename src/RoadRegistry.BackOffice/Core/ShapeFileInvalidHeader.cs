@@ -1,7 +1,8 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
-using ProblemCodes;
+using ValueObjects.ProblemCodes;
+using ValueObjects.Problems;
 
 public class ShapeFileInvalidHeader : Error
 {

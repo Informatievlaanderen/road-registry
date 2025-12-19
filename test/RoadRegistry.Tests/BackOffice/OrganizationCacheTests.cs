@@ -10,10 +10,11 @@ namespace RoadRegistry.Tests.BackOffice
     using Newtonsoft.Json;
     using NodaTime;
     using NodaTime.Testing;
-    using RoadRegistry.BackOffice;
+        using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Core;
     using RoadRegistry.BackOffice.Framework;
     using RoadRegistry.BackOffice.Messages;
+    using RoadRegistry.Infrastructure;
     using SqlStreamStore;
 
     public class OrganizationCacheTests

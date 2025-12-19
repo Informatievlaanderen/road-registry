@@ -11,8 +11,8 @@ using Be.Vlaanderen.Basisregisters.Auth.AcmIdm;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using CommandHandling;
 using Core;
-using Core.ProblemCodes;
 using Extensions;
 using FluentValidation;
 using Infrastructure;
@@ -22,8 +22,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RoadRegistry.Extensions;
+using RoadRegistry.Infrastructure;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using ValueObjects.ProblemCodes;
+using ValueObjects.Problems;
 
 public partial class RoadSegmentsController
 {

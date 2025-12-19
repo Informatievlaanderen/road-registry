@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Models;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Uploads;
 
 public abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttributes> : FeatureCompareTranslatorBase<TAttributes>
     where TAttributes : RoadSegmentAttributeFeatureCompareAttributes, new()

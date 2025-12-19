@@ -8,8 +8,9 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Extracts.Dbase;
-using RoadRegistry.BackOffice.ShapeFile.V2;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.ShapeFile;
+using RoadRegistry.Extracts.Schemas.ExtractV1;
 
 public class ShapeFileWriterReaderTests
 {

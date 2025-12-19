@@ -24,4 +24,7 @@
     <PackageReference Include="MediatR.Contracts" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
   </ItemGroup>
+  <ItemGroup>
+    <Using Include="RoadRegistry.ValueObjects" />
+  </ItemGroup>
 </Project>

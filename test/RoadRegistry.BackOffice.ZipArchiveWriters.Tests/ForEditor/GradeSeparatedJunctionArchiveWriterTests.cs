@@ -4,8 +4,8 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
-using Extracts.Dbase.GradeSeparatedJuntions;
 using Framework.Containers;
+using RoadRegistry.Extracts.Schemas.ExtractV1.GradeSeparatedJuntions;
 using ZipArchiveWriters.ForEditor;
 
 [Collection(nameof(SqlServerCollection))]

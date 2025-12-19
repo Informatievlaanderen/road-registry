@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Hosts;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Extensions;
 using Sync.MunicipalityRegistry;
 using Resolve = Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Resolve;
 

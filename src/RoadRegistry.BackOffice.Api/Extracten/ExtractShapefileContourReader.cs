@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using CommandHandling;
 using FluentValidation;
 using FluentValidation.Results;
 using NetTopologySuite.Geometries;
@@ -12,9 +13,12 @@ using NetTopologySuite.IO.Esri;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.ShapeFile.V1;
-using RoadRegistry.BackOffice.ShapeFile.V2;
+using RoadRegistry.Extensions;
+using RoadRegistry.Extracts.Infrastructure.ShapeFile;
+using RoadRegistry.Infrastructure;
+using ValueObjects.Problems;
 using Polygon = NetTopologySuite.Geometries.Polygon;
-using Problem = Core.Problem;
+using Problem = ValueObjects.Problems.Problem;
 
 public interface IExtractShapefileContourReader
 {

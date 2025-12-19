@@ -11,9 +11,12 @@ using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Messages;
 using System.IO.Compression;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
 using Moq;
+using RoadRegistry.Infrastructure.Messages;
 using TicketingService.Abstractions;
-using FileProblem = RoadRegistry.BackOffice.Messages.FileProblem;
+using FileProblem = RoadRegistry.Extracts.Messages.FileProblem;
+using ProblemSeverity = RoadRegistry.Infrastructure.Messages.ProblemSeverity;
 
 public class ExtractScenarios : RoadRegistryTestBase
 {

@@ -10,6 +10,7 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Extensions;
 using RoadRegistry.Sync.StreetNameRegistry;
 using RoadRegistry.SyncHost.Infrastructure;
 

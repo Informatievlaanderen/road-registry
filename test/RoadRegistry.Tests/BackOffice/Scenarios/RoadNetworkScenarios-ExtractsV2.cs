@@ -11,6 +11,7 @@ using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Infrastructure;
 using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
 
 public class RoadNetworkScenariosExtractsV2 : RoadNetworkTestBase

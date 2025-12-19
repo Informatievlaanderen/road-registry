@@ -11,6 +11,7 @@ using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using RoadRegistry.Extracts.Uploads;
 using SqlStreamStore;
 using TicketingService.Abstractions;
 

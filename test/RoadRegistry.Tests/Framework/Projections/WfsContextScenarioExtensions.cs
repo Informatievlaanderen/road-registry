@@ -69,8 +69,8 @@ public static class WfsContextScenarioExtensions
             var comparer = new CompareLogic(comparisonConfig);
             var actualRecords = await context.AllRecords();
             var result = comparer.Compare(
-                actualRecords,
-                records
+                records,
+                actualRecords
             );
 
             return result.AreEqual
@@ -84,7 +84,7 @@ public static class WfsContextScenarioExtensions
             var position = 0L;
             foreach (var message in specification.Messages)
             {
-                var envelope = new Envelope(message, new Dictionary<string, object> { { "Position", position } }).ToGenericEnvelope();
+                var envelope = new Envelope(message, new Dictionary<string, object> { { Envelope.PositionMetadataKey, position } }).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
                 position++;
             }

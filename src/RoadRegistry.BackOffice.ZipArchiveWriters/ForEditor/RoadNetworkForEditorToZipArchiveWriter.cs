@@ -4,8 +4,9 @@ using System.IO.Compression;
 using System.Text;
 using Abstractions;
 using Editor.Schema;
-using Extracts.Dbase.Lists;
 using Microsoft.IO;
+using RoadRegistry.Extracts.Schemas.ExtractV1.Lists;
+using RoadRegistry.Infrastructure;
 
 public class RoadNetworkForEditorToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {

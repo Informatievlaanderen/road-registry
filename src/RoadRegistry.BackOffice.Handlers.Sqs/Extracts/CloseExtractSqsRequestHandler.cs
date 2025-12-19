@@ -14,7 +14,7 @@ public class CloseExtractSqsRequestHandler : SqsHandler<CloseExtractSqsRequest>
 
     protected override string WithAggregateId(CloseExtractSqsRequest request)
     {
-        return new DownloadId(request.Request.DownloadId);
+        return request.DownloadId;
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, CloseExtractSqsRequest sqsRequest)

@@ -3,28 +3,37 @@ namespace RoadRegistry.Tests;
 using System.IO.Compression;
 using System.Text;
 using AutoFixture;
+using AutoFixture.Kernel;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using CommandHandling.Actions.ChangeRoadNetwork.ValueObjects;
+using Extensions;
+using Extracts;
+using Extracts.Infrastructure.Dbase;
+using Extracts.Infrastructure.Extensions;
+using Extracts.Infrastructure.ShapeFile;
+using Extracts.Schemas.ExtractV1;
+using Extracts.Schemas.ExtractV1.RoadNodes;
+using Extracts.Schemas.ExtractV1.RoadSegments;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NodaTime;
 using NodaTime.Text;
 using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Dbase.V2;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Extracts.Dbase;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.BackOffice.ShapeFile.V2;
-using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost.V2;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public static class Customizations
 {
+    public static object Create(this IFixture fixture, Type type, object seed = null)
+    {
+        return new SpecimenContext(fixture).Resolve(new SeededRequest(type, seed));
+    }
+
     public static T CreateWith<T>(this IFixture fixture, Action<T> modify)
     {
         var value = fixture.Create<T>();

@@ -4,8 +4,10 @@ using System.IO.Compression;
 using System.Text;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Extracts.Dbase;
-using ShapeFile.V2;
+using RoadRegistry.Extensions;
+using RoadRegistry.Extracts;
+using RoadRegistry.Extracts.Infrastructure.ShapeFile;
+using RoadRegistry.Extracts.Schemas.ExtractV1;
 using ShapeType = NetTopologySuite.IO.Esri.ShapeType;
 
 public class TransactionZoneZipArchiveWriter : IZipArchiveWriter
@@ -34,7 +36,7 @@ public class TransactionZoneZipArchiveWriter : IZipArchiveWriter
             TYPE = { Value = 2 },
             BESCHRIJV =
             {
-                Value = string.IsNullOrEmpty(request.ExtractDescription) ? request.ExternalRequestId : request.ExtractDescription
+                Value = request.ExtractDescription
             },
             OPERATOR = { Value = "" },
             ORG = { Value = "AGIV" },

@@ -1,8 +1,8 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Extracts.WhenCloseExtract;
 
-using Abstractions.Extracts.V2;
 using AutoFixture;
 using FluentAssertions;
+using Sqs.Extracts;
 using Xunit.Abstractions;
 using Polygon = NetTopologySuite.Geometries.Polygon;
 
@@ -17,9 +17,10 @@ public class WithValidRequest : WhenCloseExtractTestBase
     {
         // Arrange
         var downloadId = ObjectProvider.Create<DownloadId>();
-        var request = new CloseExtractRequest(
-            downloadId
-        );
+        var request = new CloseExtractSqsRequest
+        {
+            DownloadId = downloadId
+        };
 
         ExtractsDbContext.ExtractDownloads.Add(new()
         {
@@ -33,7 +34,7 @@ public class WithValidRequest : WhenCloseExtractTestBase
         await HandleRequest(request);
 
         // Assert
-        VerifyThatTicketHasCompleted(new CloseExtractResponse());
+        VerifyThatTicketHasCompleted(new object());
 
         var extractDownload = ExtractsDbContext.ExtractDownloads.Single(x => x.DownloadId == downloadId);
         extractDownload.Closed.Should().BeTrue();
