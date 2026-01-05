@@ -16,7 +16,7 @@ namespace RoadRegistry.Extracts.Schema.Migrations
                 schema: "RoadRegistryExtracts",
                 columns: table => new
                 {
-                    NisCode = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    NisCode = table.Column<string>(type: "nvarchar(5)", nullable: false),
                     Contour = table.Column<Geometry>(type: "Geometry", nullable: false),
                     Completed = table.Column<bool>(type: "bit", nullable: false)
                 },

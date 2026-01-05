@@ -133,7 +133,8 @@ namespace RoadRegistry.Extracts.Schema.Migrations
             modelBuilder.Entity("RoadRegistry.Extracts.Schema.Inwinningszone", b =>
                 {
                     b.Property<string>("NisCode")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
 
                     b.Property<bool>("Completed")
                         .HasColumnType("bit");

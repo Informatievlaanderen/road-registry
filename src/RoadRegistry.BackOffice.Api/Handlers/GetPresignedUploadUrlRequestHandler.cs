@@ -83,7 +83,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
             DownloadId? downloadId,
             CancellationToken cancellationToken)
         {
-            var operatorName = _httpContextAccessor.HttpContext!.GetOperatorName();
+            var @operator = _httpContextAccessor.HttpContext!.GetOperator();
 
             var job = new Job(
                 SystemClock.Instance.GetCurrentInstant().ToDateTimeOffset(),
@@ -92,7 +92,7 @@ namespace RoadRegistry.BackOffice.Api.Handlers
                 Guid.Empty)
             {
                 DownloadId = downloadId,
-                OperatorName = operatorName,
+                OperatorName = @operator,
             };
 
             await _jobsContext.Jobs.AddAsync(job, cancellationToken);

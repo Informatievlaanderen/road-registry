@@ -27,8 +27,8 @@ public partial class ExtractenController
         [FromQuery] int? page = null,
         CancellationToken cancellationToken = default)
     {
-        var organizationCode = ApiContext.HttpContextAccessor.HttpContext.GetOperatorName();
-        if (organizationCode is null)
+        var @operator = ApiContext.HttpContextAccessor.HttpContext.GetOperator();
+        if (@operator is null)
         {
             throw new InvalidOperationException("User is authenticated but no operator could be found.");
         }
@@ -41,7 +41,7 @@ public partial class ExtractenController
         }
         var pageIndex = page.Value;
 
-        var filterByOrganizationCode = (eigenExtracten ?? true) ? organizationCode : null;
+        var filterByOrganizationCode = (eigenExtracten ?? true) ? @operator : null;
 
         var request = new ExtractListRequest(filterByOrganizationCode, pageIndex);
         var response = await _mediator.Send(request, cancellationToken);

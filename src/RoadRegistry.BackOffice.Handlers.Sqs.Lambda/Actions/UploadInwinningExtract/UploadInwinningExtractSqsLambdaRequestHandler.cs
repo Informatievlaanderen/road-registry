@@ -100,7 +100,7 @@ public sealed class UploadInwinningExtractSqsLambdaRequestHandler : SqsLambdaHan
             ExtractDownloadNotFoundException ex => new ExtractNotFound(ex.DownloadId),
             ExtractRequestMarkedInformativeException => new Error(ProblemCode.Extract.CanNotUploadForInformativeExtract),
             ExtractRequestClosedException => new Error(ProblemCode.Extract.CanNotUploadForClosedExtract),
-            InwinningszoneCompletedException => new Error(ProblemCode.Extract.CanNotUploadForClosedExtract), //TODO-pr problemcode+translation
+            InwinningszoneCompletedException => new Error(ProblemCode.Extract.InwinningszoneCompleted),
             CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException => new Error(ProblemCode.Extract.ExtractHasNotBeenDownloaded),
             CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException => new Error(ProblemCode.Extract.CanNotUploadForSupersededDownload),
             _ => null

@@ -41,7 +41,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Behaviors
 
         private ProvenanceData CreateProvenanceData()
         {
-            return new RoadRegistryProvenanceData(Modification.Unknown, _httpContextAccessor.HttpContext!.GetOperatorName());
+            return new RoadRegistryProvenanceData(Modification.Unknown, _httpContextAccessor.HttpContext!.GetOperator());
         }
 
         private IDictionary<string, object> GetMetadata()

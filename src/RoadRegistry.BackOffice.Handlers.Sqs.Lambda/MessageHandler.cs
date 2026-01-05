@@ -43,7 +43,6 @@ public sealed class MessageHandler : BlobMessageHandler
         await mediator.Send(sqsLambdaRequest, cancellationToken);
     }
 
-    //TODO-pr separate out to add unit test to ensure all SqsRequests in assembly can be converted
     private static SqsLambdaRequest ConvertToLambdaRequest(SqsRequest sqsRequest, string groupId)
     {
         return sqsRequest switch

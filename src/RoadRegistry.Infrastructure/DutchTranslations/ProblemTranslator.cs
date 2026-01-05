@@ -110,6 +110,11 @@ public static class ProblemTranslator
                 "Upload is niet toegelaten voor een gesloten extractaanvraag.")
         },
         {
+            ProblemCode.Extract.InwinningszoneCompleted, problem => new(problem.Severity,
+                "InwinningszoneIsGesloten",
+                "Upload is niet toegelaten voor een gesloten inwinningszone.")
+        },
+        {
             ProblemCode.Extract.DownloadIdIsRequired, problem => new(problem.Severity,
                 "DownloadIdVerplicht",
                 "Download id is verplicht.")

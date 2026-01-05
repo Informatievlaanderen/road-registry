@@ -19,5 +19,6 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode CanNotUploadForClosedExtract = new("ExtractCanNotUploadForClosedExtract");
         public static readonly ProblemCode DownloadIdIsRequired = new("ExtractDownloadIdIsRequired");
         public static readonly ProblemCode CorruptArchive = new("ExtractCorruptArchive");
+        public static readonly ProblemCode InwinningszoneCompleted = new("ExtractInwinningszoneCompleted");
     }
 }

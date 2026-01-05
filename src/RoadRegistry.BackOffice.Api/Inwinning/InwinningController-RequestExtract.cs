@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Handlers.Sqs.Extracts;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
@@ -16,13 +17,11 @@ using Infrastructure.Options;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
-using RoadRegistry.CommandHandling;
 using RoadRegistry.Extensions;
 using RoadRegistry.Infrastructure;
-using RoadRegistry.Sync.MunicipalityRegistry;
-using RoadRegistry.ValueObjects.ProblemCodes;
 using Swashbuckle.AspNetCore.Annotations;
+using Sync.MunicipalityRegistry;
+using ValueObjects.ProblemCodes;
 
 public partial class InwinningController
 {
@@ -50,7 +49,7 @@ public partial class InwinningController
         [FromServices] IOptions<InwinningOrganizationNisCodesOptions> options,
         CancellationToken cancellationToken = default)
     {
-        var @operator = ApiContext.HttpContextAccessor.HttpContext.GetOperatorName();
+        var @operator = ApiContext.HttpContextAccessor.HttpContext.GetOperator();
         if (@operator is null
             || !options.Value.TryGetValue(@operator, out var niscodes)
             || !niscodes.Contains(body.NisCode))
