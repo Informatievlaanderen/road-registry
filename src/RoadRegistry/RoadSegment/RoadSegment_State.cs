@@ -89,13 +89,13 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         };
     }
 
-    public static RoadSegment Create(RoadSegmentWasMerged @event)
+    public static RoadSegment Create(RoadSegmentWasMigrated @event)
     {
         var segment = new RoadSegment(@event.RoadSegmentId);
         segment.Apply(@event);
         return segment;
     }
-    private void Apply(RoadSegmentWasMerged @event)
+    private void Apply(RoadSegmentWasMigrated @event)
     {
         UncommittedEvents.Add(@event);
 
@@ -118,13 +118,13 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         };
     }
 
-    public static RoadSegment Create(RoadSegmentWasMigrated @event)
+    public static RoadSegment Create(RoadSegmentWasMerged @event)
     {
         var segment = new RoadSegment(@event.RoadSegmentId);
         segment.Apply(@event);
         return segment;
     }
-    private void Apply(RoadSegmentWasMigrated @event)
+    private void Apply(RoadSegmentWasMerged @event)
     {
         UncommittedEvents.Add(@event);
 

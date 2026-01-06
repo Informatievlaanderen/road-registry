@@ -16,12 +16,8 @@ public class AggregateTests : AggregateTestBase
         // Arrange
         var change = Fixture.Create<AddGradeSeparatedJunctionChange>();
 
-        var actualLowerRoadSegmentId = Fixture.Create<RoadSegmentId>();
-        var idTranslator = new IdentifierTranslator();
-        idTranslator.RegisterMapping(change.LowerRoadSegmentId, actualLowerRoadSegmentId);
-
         // Act
-        var (junction, problems) = GradeSeparatedJunction.Add(change, TestData.Provenance, new FakeRoadNetworkIdGenerator(), idTranslator);
+        var (junction, problems) = GradeSeparatedJunction.Add(change, TestData.Provenance, new FakeRoadNetworkIdGenerator());
 
         // Assert
         problems.Should().HaveNoError();
@@ -30,7 +26,7 @@ public class AggregateTests : AggregateTestBase
         var junctionAdded = (GradeSeparatedJunctionWasAdded)junction.GetChanges().Single();
         junctionAdded.GradeSeparatedJunctionId.Should().Be(new GradeSeparatedJunctionId(1));
         junctionAdded.Type.Should().Be(change.Type);
-        junctionAdded.LowerRoadSegmentId.Should().Be(actualLowerRoadSegmentId);
+        junctionAdded.LowerRoadSegmentId.Should().Be(change.LowerRoadSegmentId);
         junctionAdded.UpperRoadSegmentId.Should().Be(change.UpperRoadSegmentId);
     }
 

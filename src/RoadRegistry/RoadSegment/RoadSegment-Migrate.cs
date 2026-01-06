@@ -6,28 +6,31 @@ using Changes;
 using Events.V2;
 using Extensions;
 using RoadRegistry.ValueObjects.Problems;
+using ValueObjects;
 
 public partial class RoadSegment
 {
-    public Problems Migrate(ModifyRoadSegmentChange change, ImmutableList<EuropeanRoadNumber> europeanRoadNumbers, ImmutableList<NationalRoadNumber> nationalRoadNumbers, Provenance provenance)
+    public static (RoadSegment?, Problems) Migrate(MigrateRoadSegmentChange change, Provenance provenance)
     {
         var originalId = change.OriginalId ?? change.RoadSegmentId;
         var problems = Problems.For(originalId);
 
-        var geometryDrawMethod = change.GeometryDrawMethod!;
-        var geometry = change.Geometry!;
+        var geometryDrawMethod = change.GeometryDrawMethod;
+        var geometry = change.Geometry;
 
         problems += new RoadSegmentGeometryValidator().Validate(originalId, geometryDrawMethod, geometry);
 
         var segmentLength = geometry.Length;
-        var accessRestriction = change.AccessRestriction!.TryCleanEntireLengthCoverages(segmentLength);
-        var category = change.Category!.TryCleanEntireLengthCoverages(segmentLength);
-        var morphology = change.Morphology!.TryCleanEntireLengthCoverages(segmentLength);
-        var status = change.Status!.TryCleanEntireLengthCoverages(segmentLength);
-        var streetNameId = change.StreetNameId!.TryCleanEntireLengthCoverages(segmentLength);
-        var maintenanceAuthorityId = change.MaintenanceAuthorityId!.TryCleanEntireLengthCoverages(segmentLength);
-        var surfaceType = change.SurfaceType!.TryCleanEntireLengthCoverages(segmentLength);
-        var attributes = Attributes with
+        var accessRestriction = change.AccessRestriction.TryCleanEntireLengthCoverages(segmentLength);
+        var category = change.Category.TryCleanEntireLengthCoverages(segmentLength);
+        var morphology = change.Morphology.TryCleanEntireLengthCoverages(segmentLength);
+        var status = change.Status.TryCleanEntireLengthCoverages(segmentLength);
+        var streetNameId = change.StreetNameId.TryCleanEntireLengthCoverages(segmentLength);
+        var maintenanceAuthorityId = change.MaintenanceAuthorityId.TryCleanEntireLengthCoverages(segmentLength);
+        var surfaceType = change.SurfaceType.TryCleanEntireLengthCoverages(segmentLength);
+        var europeanRoadNumbers = change.EuropeanRoadNumbers.ToImmutableList();
+        var nationalRoadNumbers = change.NationalRoadNumbers.ToImmutableList();
+        var attributes = new RoadSegmentAttributes
         {
             GeometryDrawMethod = geometryDrawMethod,
             AccessRestriction = accessRestriction,
@@ -36,21 +39,23 @@ public partial class RoadSegment
             Status = status,
             StreetNameId = streetNameId,
             MaintenanceAuthorityId = maintenanceAuthorityId,
-            SurfaceType = surfaceType
+            SurfaceType = surfaceType,
+            EuropeanRoadNumbers = europeanRoadNumbers,
+            NationalRoadNumbers = nationalRoadNumbers
         };
         problems += new RoadSegmentAttributesValidator().Validate(originalId, attributes, segmentLength);
 
         if (problems.HasError())
         {
-            return problems;
+            return (null, problems);
         }
 
-        Apply(new RoadSegmentWasMigrated
+        var segment = Create(new RoadSegmentWasMigrated
         {
-            RoadSegmentId = RoadSegmentId,
+            RoadSegmentId = change.RoadSegmentId,
             OriginalId = change.OriginalId,
-            StartNodeId = change.StartNodeId!.Value,
-            EndNodeId = change.EndNodeId!.Value,
+            StartNodeId = change.StartNodeId,
+            EndNodeId = change.EndNodeId,
             Geometry = geometry.ToGeometryObject(),
             GeometryDrawMethod = geometryDrawMethod,
             AccessRestriction = accessRestriction,
@@ -60,11 +65,11 @@ public partial class RoadSegment
             StreetNameId = streetNameId,
             MaintenanceAuthorityId = maintenanceAuthorityId,
             SurfaceType = surfaceType,
-            Provenance = new ProvenanceData(provenance),
             EuropeanRoadNumbers = europeanRoadNumbers,
-            NationalRoadNumbers = nationalRoadNumbers
+            NationalRoadNumbers = nationalRoadNumbers,
+            Provenance = new ProvenanceData(provenance)
         });
 
-        return problems;
+        return (segment, problems);
     }
 }

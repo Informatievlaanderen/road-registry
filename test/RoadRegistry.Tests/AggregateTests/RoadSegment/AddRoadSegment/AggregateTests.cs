@@ -26,12 +26,8 @@ public class AggregateTests : AggregateTestBase
             NationalRoadNumbers = [Fixture.Create<NationalRoadNumber>()]
         };
 
-        var actualStartNodeId = Fixture.Create<RoadNodeId>();
-        var idTranslator = new IdentifierTranslator();
-        idTranslator.RegisterMapping(change.StartNodeId, actualStartNodeId);
-
         // Act
-        var (segment, problems) = RoadSegment.Add(change, TestData.Provenance, new FakeRoadNetworkIdGenerator(), idTranslator);
+        var (segment, problems) = RoadSegment.Add(change, TestData.Provenance, new FakeRoadNetworkIdGenerator());
 
         // Assert
         problems.Should().HaveNoError();
@@ -41,7 +37,7 @@ public class AggregateTests : AggregateTestBase
         segmentAdded.RoadSegmentId.Should().Be(new RoadSegmentId(1));
         segmentAdded.Geometry.Should().Be(change.Geometry.ToGeometryObject());
         segmentAdded.OriginalId.Should().Be(change.OriginalId);
-        segmentAdded.StartNodeId.Should().Be(actualStartNodeId);
+        segmentAdded.StartNodeId.Should().Be(change.StartNodeId);
         segmentAdded.EndNodeId.Should().Be(change.EndNodeId);
         segmentAdded.GeometryDrawMethod.Should().Be(change.GeometryDrawMethod);
         segmentAdded.AccessRestriction.Should().Be(change.AccessRestriction);
@@ -68,7 +64,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         // Act
-        var (segment, problems) = RoadSegment.Add(change, TestData.Provenance, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
+        var (segment, problems) = RoadSegment.Add(change, TestData.Provenance, new FakeRoadNetworkIdGenerator());
 
         // Assert
         problems.Should().HaveNoError();
@@ -102,7 +98,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         // Act
-        var (_, problems) = RoadSegment.Add(change, TestData.Provenance, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
+        var (_, problems) = RoadSegment.Add(change, TestData.Provenance, new FakeRoadNetworkIdGenerator());
 
         // Assert
         problems.Should().ContainEquivalentOf(new RoadSegmentGeometryLengthIsZero(change.OriginalId!.Value));
@@ -121,7 +117,7 @@ public class AggregateTests : AggregateTestBase
         };
 
         // Act
-        var (_, problems) = RoadSegment.Add(change, TestData.Provenance, new FakeRoadNetworkIdGenerator(), new IdentifierTranslator());
+        var (_, problems) = RoadSegment.Add(change, TestData.Provenance, new FakeRoadNetworkIdGenerator());
 
         // Assert
         problems.Should().Contain(x => x.Reason == "RoadSegmentCategoryValueNotUniqueWithinSegment");

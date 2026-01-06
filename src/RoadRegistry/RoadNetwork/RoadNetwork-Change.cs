@@ -62,7 +62,7 @@ public partial class RoadNetwork
                     problems += AddGradeSeparatedJunction(changes, change, idGenerator, idTranslator, summary.GradeSeparatedJunctions) ;
                     break;
                 case ModifyGradeSeparatedJunctionChange change:
-                    problems += ModifyGradeSeparatedJunction(changes, change, summary.GradeSeparatedJunctions);
+                    problems += ModifyGradeSeparatedJunction(changes, change, idTranslator, summary.GradeSeparatedJunctions);
                     break;
                 case RemoveGradeSeparatedJunctionChange change:
                     problems += RemoveGradeSeparatedJunction(changes, change, summary.GradeSeparatedJunctions);
@@ -162,7 +162,13 @@ public partial class RoadNetwork
 
     private Problems AddRoadSegment(RoadNetworkChanges changes, AddRoadSegmentChange change, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator, RoadNetworkEntityChangesSummary<RoadSegmentId> summary)
     {
-        var (roadSegment, problems) = RoadSegment.Add(change, changes.Provenance, idGenerator, idTranslator);
+        change = change with
+        {
+            StartNodeId = idTranslator.TranslateToPermanentId(change.StartNodeId),
+            EndNodeId = idTranslator.TranslateToPermanentId(change.EndNodeId)
+        };
+
+        var (roadSegment, problems) = RoadSegment.Add(change, changes.Provenance, idGenerator);
         if (problems.HasError())
         {
             return problems;
@@ -194,6 +200,12 @@ public partial class RoadNetwork
         {
             return problems;
         }
+
+        change = change with
+        {
+            StartNodeId = change.StartNodeId is not null ? idTranslator.TranslateToPermanentId(change.StartNodeId.Value) : null,
+            EndNodeId = change.EndNodeId is not null ? idTranslator.TranslateToPermanentId(change.EndNodeId.Value) : null
+        };
 
         problems = roadSegment.Modify(change, changes.Provenance);
         if (problems.HasError())
@@ -241,7 +253,13 @@ public partial class RoadNetwork
 
     private Problems AddGradeSeparatedJunction(RoadNetworkChanges changes, AddGradeSeparatedJunctionChange change, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator, RoadNetworkEntityChangesSummary<GradeSeparatedJunctionId> summary)
     {
-        var (gradeSeparatedJunction, problems) = GradeSeparatedJunction.Add(change, changes.Provenance, idGenerator, idTranslator);
+        change = change with
+        {
+            LowerRoadSegmentId = idTranslator.TranslateToPermanentId(change.LowerRoadSegmentId),
+            UpperRoadSegmentId = idTranslator.TranslateToPermanentId(change.UpperRoadSegmentId)
+        };
+
+        var (gradeSeparatedJunction, problems) = GradeSeparatedJunction.Add(change, changes.Provenance, idGenerator);
         if (problems.HasError())
         {
             return problems;
@@ -253,12 +271,18 @@ public partial class RoadNetwork
         return problems;
     }
 
-    private Problems ModifyGradeSeparatedJunction(RoadNetworkChanges changes, ModifyGradeSeparatedJunctionChange change, RoadNetworkEntityChangesSummary<GradeSeparatedJunctionId> summary)
+    private Problems ModifyGradeSeparatedJunction(RoadNetworkChanges changes, ModifyGradeSeparatedJunctionChange change, IIdentifierTranslator idTranslator, RoadNetworkEntityChangesSummary<GradeSeparatedJunctionId> summary)
     {
         if (!_gradeSeparatedJunctions.TryGetValue(change.GradeSeparatedJunctionId, out var junction))
         {
             return Problems.Single(new GradeSeparatedJunctionNotFound(change.GradeSeparatedJunctionId));
         }
+
+        change = change with
+        {
+            LowerRoadSegmentId = change.LowerRoadSegmentId is not null ? idTranslator.TranslateToPermanentId(change.LowerRoadSegmentId.Value) : null,
+            UpperRoadSegmentId = change.UpperRoadSegmentId is not null ? idTranslator.TranslateToPermanentId(change.UpperRoadSegmentId.Value) : null
+        };
 
         var problems = junction.Modify(change, changes.Provenance);
         if (problems.HasError())

@@ -11,7 +11,7 @@ using ValueObjects;
 
 public partial class RoadSegment
 {
-    public static (RoadSegment?, Problems) Add(AddRoadSegmentChange change, Provenance provenance, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator)
+    public static (RoadSegment?, Problems) Add(AddRoadSegmentChange change, Provenance provenance, IRoadNetworkIdGenerator idGenerator)
     {
         var originalId = change.OriginalId ?? change.TemporaryId;
         var problems = Problems.For(originalId);
@@ -44,8 +44,8 @@ public partial class RoadSegment
             RoadSegmentId = idGenerator.NewRoadSegmentId(),
             OriginalId = change.OriginalId,
             Geometry = change.Geometry.ToGeometryObject(),
-            StartNodeId = idTranslator.TranslateToPermanentId(change.StartNodeId),
-            EndNodeId = idTranslator.TranslateToPermanentId(change.EndNodeId),
+            StartNodeId = change.StartNodeId,
+            EndNodeId = change.EndNodeId,
             GeometryDrawMethod = attributes.GeometryDrawMethod,
             AccessRestriction = attributes.AccessRestriction,
             Category = attributes.Category,

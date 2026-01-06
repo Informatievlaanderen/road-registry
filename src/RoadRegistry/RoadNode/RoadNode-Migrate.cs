@@ -8,18 +8,18 @@ using ValueObjects.Problems;
 
 public partial class RoadNode
 {
-    public Problems Migrate(ModifyRoadNodeChange change, Provenance provenance)
+    public static (RoadNode?, Problems) Migrate(MigrateRoadNodeChange change, Provenance provenance)
     {
-        var problems = Problems.For(RoadNodeId);
+        var problems = Problems.For(change.RoadNodeId);
 
-        Apply(new RoadNodeWasMigrated
+        var node = Create(new RoadNodeWasMigrated
         {
-            RoadNodeId = RoadNodeId,
-            Geometry = (change.Geometry ?? Geometry).ToGeometryObject(),
-            Type = change.Type ?? Type,
+            RoadNodeId = change.RoadNodeId,
+            Geometry = change.Geometry.ToGeometryObject(),
+            Type = change.Type,
             Provenance = new ProvenanceData(provenance)
         });
 
-        return problems;
+        return (node, problems);
     }
 }

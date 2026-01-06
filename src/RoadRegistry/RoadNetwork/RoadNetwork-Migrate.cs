@@ -7,8 +7,10 @@ using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Events.V2;
 using GradeSeparatedJunction.Changes;
+using RoadNode;
 using RoadNode.Changes;
 using RoadRegistry.ValueObjects.Problems;
+using RoadSegment;
 using RoadSegment.Changes;
 using ValueObjects;
 
@@ -30,7 +32,7 @@ public partial class RoadNetwork
                     problems += AddRoadNode(changes, change, idGenerator, idTranslator, summary.RoadNodes);
                     break;
                 case ModifyRoadNodeChange change:
-                    problems += MigrateRoadNode(changes, change, summary.RoadNodes);
+                    problems += MigrateRoadNode(changes, change, idTranslator, summary.RoadNodes);
                     break;
                 case RemoveRoadNodeChange change:
                     problems += RemoveRoadNode(changes, change, summary.RoadNodes);
@@ -121,20 +123,30 @@ public partial class RoadNetwork
             .ToLookup(x => x.RoadSegmentId, x => x.roadNetworkChange);
     }
 
-    private Problems MigrateRoadNode(RoadNetworkChanges changes, ModifyRoadNodeChange change, RoadNetworkEntityChangesSummary<RoadNodeId> summary)
+    private Problems MigrateRoadNode(RoadNetworkChanges changes, ModifyRoadNodeChange change, IIdentifierTranslator idTranslator, RoadNetworkEntityChangesSummary<RoadNodeId> summary)
     {
-        if (!_roadNodes.TryGetValue(change.RoadNodeId, out var roadNode))
+        var migrateChange = new MigrateRoadNodeChange
         {
-            return Problems.Single(new RoadNodeNotFound(change.RoadNodeId));
-        }
+            RoadNodeId = change.RoadNodeId,
+            Geometry = change.Geometry!,
+            Type = change.Type!
+        };
 
-        var problems = roadNode.Migrate(change, changes.Provenance);
+        var (roadNode, problems) = RoadNode.Migrate(migrateChange, changes.Provenance);
         if (problems.HasError())
         {
             return problems;
         }
 
+        problems += idTranslator.RegisterMapping(change.RoadNodeId, roadNode!.RoadNodeId);
+        if (problems.HasError())
+        {
+            return problems;
+        }
+
+        _roadNodes.Add(roadNode.RoadNodeId, roadNode);
         summary.Modified.Add(roadNode.RoadNodeId);
+
         return problems;
     }
 
@@ -142,33 +154,49 @@ public partial class RoadNetwork
     {
         var originalId = change.OriginalId ?? change.RoadSegmentId;
 
-        if (!_roadSegments.TryGetValue(change.RoadSegmentId, out var roadSegment))
-        {
-            return Problems.Single(new RoadSegmentNotFound(originalId));
-        }
+        var europeanRoadNumbers = ReadEuropeanRoadNumbers(roadSegmentRoadNumberChanges[change.RoadSegmentId]);
+        var nationalRoadNumbers = ReadNationalRoadNumbers(roadSegmentRoadNumberChanges[change.RoadSegmentId]);
 
-        var problems = idTranslator.RegisterMapping(originalId, roadSegment.RoadSegmentId);
+        var migrateChange = new MigrateRoadSegmentChange
+        {
+            RoadSegmentId = change.RoadSegmentId,
+            OriginalId = change.OriginalId,
+            StartNodeId = idTranslator.TranslateToPermanentId(change.StartNodeId!.Value),
+            EndNodeId = idTranslator.TranslateToPermanentId(change.EndNodeId!.Value),
+            Geometry = change.Geometry!,
+            GeometryDrawMethod = change.GeometryDrawMethod!,
+            AccessRestriction = change.AccessRestriction!,
+            Category = change.Category!,
+            Morphology = change.Morphology!,
+            Status = change.Status!,
+            StreetNameId = change.StreetNameId!,
+            MaintenanceAuthorityId = change.MaintenanceAuthorityId!,
+            SurfaceType = change.SurfaceType!,
+            EuropeanRoadNumbers = europeanRoadNumbers,
+            NationalRoadNumbers = nationalRoadNumbers
+        };
+
+        var (roadSegment, problems) = RoadSegment.Migrate(migrateChange, changes.Provenance);
         if (problems.HasError())
         {
             return problems;
         }
 
-        var europeanRoadNumbers = MergeEuropeanRoadNumbers(roadSegment.Attributes.EuropeanRoadNumbers, roadSegmentRoadNumberChanges[change.RoadSegmentId]);
-        var nationalRoadNumbers = MergeNationalRoadNumbers(roadSegment.Attributes.NationalRoadNumbers, roadSegmentRoadNumberChanges[change.RoadSegmentId]);
-
-        problems = roadSegment.Migrate(change, europeanRoadNumbers, nationalRoadNumbers, changes.Provenance);
+        problems += idTranslator.RegisterMapping(originalId, roadSegment!.RoadSegmentId);
         if (problems.HasError())
         {
             return problems;
         }
 
+        _roadSegments.Add(roadSegment.RoadSegmentId, roadSegment);
         summary.Modified.Add(roadSegment.RoadSegmentId);
+
         return problems;
     }
 
-    private ImmutableList<EuropeanRoadNumber> MergeEuropeanRoadNumbers(IEnumerable<EuropeanRoadNumber> roadSegmentNumbers, IEnumerable<IRoadNetworkChange> roadSegmentNumberChanges)
+    private IReadOnlyCollection<EuropeanRoadNumber> ReadEuropeanRoadNumbers(IEnumerable<IRoadNetworkChange> roadSegmentNumberChanges)
     {
-        var list = roadSegmentNumbers.ToList();
+        var list = new List<EuropeanRoadNumber>();
 
         foreach (var roadNetworkChange in roadSegmentNumberChanges)
         {
@@ -185,9 +213,9 @@ public partial class RoadNetwork
 
         return list.Distinct().ToImmutableList();
     }
-    private ImmutableList<NationalRoadNumber> MergeNationalRoadNumbers(IEnumerable<NationalRoadNumber> roadSegmentNumbers, IEnumerable<IRoadNetworkChange> roadSegmentNumberChanges)
+    private ImmutableList<NationalRoadNumber> ReadNationalRoadNumbers(IEnumerable<IRoadNetworkChange> roadSegmentNumberChanges)
     {
-        var list = roadSegmentNumbers.ToList();
+        var list = new List<NationalRoadNumber>();
 
         foreach (var roadNetworkChange in roadSegmentNumberChanges)
         {

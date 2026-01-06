@@ -8,7 +8,7 @@ using RoadRegistry.ValueObjects.Problems;
 
 public partial class GradeSeparatedJunction
 {
-    public static (GradeSeparatedJunction?, Problems) Add(AddGradeSeparatedJunctionChange change, Provenance provenance, IRoadNetworkIdGenerator idGenerator, IIdentifierTranslator idTranslator)
+    public static (GradeSeparatedJunction?, Problems) Add(AddGradeSeparatedJunctionChange change, Provenance provenance, IRoadNetworkIdGenerator idGenerator)
     {
         var problems = Problems.For(change.TemporaryId);
 
@@ -16,8 +16,8 @@ public partial class GradeSeparatedJunction
         {
             GradeSeparatedJunctionId = idGenerator.NewGradeSeparatedJunctionId(),
             OriginalId = change.TemporaryId,
-            LowerRoadSegmentId = idTranslator.TranslateToPermanentId(change.LowerRoadSegmentId),
-            UpperRoadSegmentId = idTranslator.TranslateToPermanentId(change.UpperRoadSegmentId),
+            LowerRoadSegmentId = change.LowerRoadSegmentId,
+            UpperRoadSegmentId = change.UpperRoadSegmentId,
             Type = change.Type,
             Provenance = new ProvenanceData(provenance)
         });

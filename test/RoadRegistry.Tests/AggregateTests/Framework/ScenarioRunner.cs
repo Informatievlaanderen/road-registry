@@ -32,7 +32,8 @@ public class ScenarioRunner
     public async Task<object> RunAsync(ExpectEventsScenario scenario)
     {
         var roadNetwork = BuildRoadNetwork(scenario.Givens);
-        var roadNetworkChanges = (RoadNetworkChanges)scenario.When.Body;
+        var roadNetworkChanges = (scenario.When.Body as MigrateRoadNetwork)?.Changes ?? (RoadNetworkChanges)scenario.When.Body;
+        var runMigrate = scenario.When.Body is MigrateRoadNetwork;
 
         try
         {
@@ -42,7 +43,9 @@ public class ScenarioRunner
                 .Concat(roadNetwork.GradeSeparatedJunctions.SelectMany(x => x.Value.GetChanges()))
                 .ToList();
 
-            var roadNetworkChangeResult = roadNetwork.Change(roadNetworkChanges, null, _roadNetworkIdGenerator);
+            var roadNetworkChangeResult = runMigrate
+                ? roadNetwork.Migrate(roadNetworkChanges, null, _roadNetworkIdGenerator)
+                : roadNetwork.Change(roadNetworkChanges, null, _roadNetworkIdGenerator);
             if (roadNetworkChangeResult.Problems.HasError())
             {
                 if (scenario.Assert is not null)
@@ -88,7 +91,8 @@ public class ScenarioRunner
     public async Task<object> RunAsync(ExpectExceptionScenario scenario)
     {
         var roadNetwork = BuildRoadNetwork(scenario.Givens);
-        var roadNetworkChanges = (RoadNetworkChanges)scenario.When.Body;
+        var roadNetworkChanges = (scenario.When.Body as MigrateRoadNetwork)?.Changes ?? (RoadNetworkChanges)scenario.When.Body;
+        var runMigrate = scenario.When.Body is MigrateRoadNetwork;
 
         try
         {
@@ -98,7 +102,9 @@ public class ScenarioRunner
                 .Concat(roadNetwork.GradeSeparatedJunctions.SelectMany(x => x.Value.GetChanges()))
                 .ToList();
 
-            var roadNetworkChangeResult = roadNetwork.Change(roadNetworkChanges, null, _roadNetworkIdGenerator);
+            var roadNetworkChangeResult = runMigrate
+                ? roadNetwork.Migrate(roadNetworkChanges, null, _roadNetworkIdGenerator)
+                : roadNetwork.Change(roadNetworkChanges, null, _roadNetworkIdGenerator);
             if (roadNetworkChangeResult.Problems.HasError())
             {
                 throw new RoadRegistryProblemsException(roadNetworkChangeResult.Problems);

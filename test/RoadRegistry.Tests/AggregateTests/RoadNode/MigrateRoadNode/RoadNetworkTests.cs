@@ -1,11 +1,10 @@
-﻿namespace RoadRegistry.Tests.AggregateTests.RoadNode.ModifyRoadNode;
+﻿namespace RoadRegistry.Tests.AggregateTests.RoadNode.MigrateRoadNode;
 
 using AutoFixture;
 using FluentAssertions;
-using Framework;
-using RoadRegistry.BackOffice.Core;
 using RoadRegistry.RoadNode.Changes;
-using ValueObjects.Problems;
+using RoadRegistry.Tests.AggregateTests.Framework;
+using RoadRegistry.ValueObjects.Problems;
 
 public class RoadNetworkTests : RoadNetworkTestBase
 {
@@ -18,7 +17,7 @@ public class RoadNetworkTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1EndNode)
                 .Add(TestData.AddSegment1)
             )
-            .When(changes => changes
+            .WhenMigrate(changes => changes
                 .Add(new ModifyRoadNodeChange
                 {
                     RoadNodeId = TestData.Segment1StartNodeAdded.RoadNodeId,
@@ -41,7 +40,7 @@ public class RoadNetworkTests : RoadNetworkTestBase
 
         return Run(scenario => scenario
             .Given(given => given)
-            .When(changes => changes
+            .WhenMigrate(changes => changes
                 .Add(change)
             )
             .ThenProblems(new Error("RoadNodeNotFound", new ProblemParameter("NodeId", change.RoadNodeId.ToString())))

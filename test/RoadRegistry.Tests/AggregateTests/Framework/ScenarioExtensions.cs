@@ -17,6 +17,10 @@ public static class ScenarioExtensions
     {
         return builder.When(new Command(roadNetworkChangesBuilder(RoadNetworkChanges.Start().WithProvenance(new FakeProvenance()))));
     }
+    public static IScenarioWhenStateBuilder WhenMigrate(this IScenarioGivenStateBuilder builder, Func<RoadNetworkChanges, RoadNetworkChanges> roadNetworkChangesBuilder)
+    {
+        return builder.When(new Command(new MigrateRoadNetwork(roadNetworkChangesBuilder(RoadNetworkChanges.Start().WithProvenance(new FakeProvenance())))));
+    }
 
     public static IScenarioThrowsStateBuilder ThenProblems(this IScenarioWhenStateBuilder builder, Problem problem)
     {
@@ -47,3 +51,5 @@ public static class ScenarioExtensions
         });
     }
 }
+
+public sealed record MigrateRoadNetwork(RoadNetworkChanges Changes);

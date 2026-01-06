@@ -20,7 +20,11 @@ public class RoadNetworkTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1EndNode)
                 .Add(TestData.AddSegment1)
             )
-            .Then((result, events) => { result.Summary.RoadSegments.Added.Should().HaveCount(1); })
+            .Then((result, events) =>
+            {
+                result.Problems.HasError().Should().BeFalse();
+                result.Summary.RoadSegments.Added.Should().HaveCount(1);
+            })
         );
     }
 
@@ -37,10 +41,7 @@ public class RoadNetworkTests : RoadNetworkTestBase
                         .Add(Fixture.Create<RoadSegmentCategory>())
                 })
             )
-            .Then((result, events) =>
-            {
-                result.Problems.Should().Contain(x => x.Reason == "RoadSegmentCategoryValueNotUniqueWithinSegment");
-            })
+            .Then((result, events) => { result.Problems.Should().Contain(x => x.Reason == "RoadSegmentCategoryValueNotUniqueWithinSegment"); })
         );
     }
 

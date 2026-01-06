@@ -45,20 +45,23 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         return roadNode;
     }
 
+    public static RoadNode Create(RoadNodeWasMigrated @event)
+    {
+        var roadNode = new RoadNode(@event.RoadNodeId)
+        {
+            Geometry = @event.Geometry.ToGeometry(),
+            Type = @event.Type
+        };
+        roadNode.UncommittedEvents.Add(@event);
+        return roadNode;
+    }
+
     public void Apply(RoadNodeWasModified @event)
     {
         UncommittedEvents.Add(@event);
 
         Geometry = @event.Geometry?.ToGeometry() ?? Geometry;
         Type = @event.Type ?? Type;
-    }
-
-    public void Apply(RoadNodeWasMigrated @event)
-    {
-        UncommittedEvents.Add(@event);
-
-        Geometry = @event.Geometry.ToGeometry();
-        Type = @event.Type;
     }
 
     public void Apply(RoadNodeWasRemoved @event)
