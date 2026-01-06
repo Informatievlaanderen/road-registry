@@ -26,7 +26,7 @@ public class RoadNetworkTests : RoadNetworkTestBase
             )
             .Then((result, events) =>
             {
-                result.Changes.RoadNodes.Removed.Should().HaveCount(1);
+                result.Summary.RoadNodes.Removed.Should().HaveCount(1);
             })
         );
     }

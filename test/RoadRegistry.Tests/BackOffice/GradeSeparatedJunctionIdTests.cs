@@ -13,7 +13,7 @@ public class GradeSeparatedJunctionIdTests
 
     public GradeSeparatedJunctionIdTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
     }
 
     [Theory]

@@ -27,6 +27,7 @@ public class RoadSegmentProjectionTests
             typeof(RoadRegistry.RoadNetwork.Events.V2.RoadNetworkChanged),
             typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasAdded),
             typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasModified),
+            typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasMigrated),
             typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasRemoved),
             typeof(GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasAdded),
             typeof(GradeSeparatedJunction.Events.V2.GradeSeparatedJunctionWasModified),
@@ -195,6 +196,41 @@ public class RoadSegmentProjectionTests
     }
 
     [Fact]
+    public Task WhenRoadSegmentWasMigrated_ThenSucceeded()
+    {
+        var fixture = new RoadNetworkTestData().Fixture;
+        fixture.Freeze<RoadSegmentId>();
+
+        var roadSegmentAdded = fixture.Create<RoadSegmentWasAdded>();
+        var roadSegmentMigrated = fixture.Create<RoadSegmentWasMigrated>();
+
+        var expectedRoadSegment = new RoadSegmentExtractItem
+        {
+            RoadSegmentId = roadSegmentAdded.RoadSegmentId,
+            Geometry = roadSegmentMigrated.Geometry,
+            StartNodeId = roadSegmentMigrated.StartNodeId,
+            EndNodeId = roadSegmentMigrated.EndNodeId,
+            GeometryDrawMethod = roadSegmentMigrated.GeometryDrawMethod,
+            AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(roadSegmentMigrated.AccessRestriction),
+            Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(roadSegmentMigrated.Category),
+            Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>(roadSegmentMigrated.Morphology),
+            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(roadSegmentMigrated.Status),
+            StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(roadSegmentMigrated.StreetNameId),
+            MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(roadSegmentMigrated.MaintenanceAuthorityId),
+            SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>(roadSegmentMigrated.SurfaceType),
+            EuropeanRoadNumbers = roadSegmentMigrated.EuropeanRoadNumbers.ToList(),
+            NationalRoadNumbers = roadSegmentMigrated.NationalRoadNumbers.ToList(),
+            Origin = roadSegmentAdded.Provenance.ToEventTimestamp(),
+            LastModified = roadSegmentMigrated.Provenance.ToEventTimestamp()
+        };
+
+        return BuildProjection()
+            .Scenario()
+            .Given(roadSegmentAdded, roadSegmentMigrated)
+            .Expect(expectedRoadSegment);
+    }
+
+    [Fact]
     public async Task WhenRoadSegmentRemoved_ThenNone()
     {
         var fixture = new RoadNetworkTestData().Fixture;
@@ -217,6 +253,21 @@ public class RoadSegmentProjectionTests
 
         var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>();
         var roadSegment1Removed = fixture.Create<RoadSegmentWasRetiredBecauseOfMerger>();
+
+        await BuildProjection()
+            .Scenario()
+            .Given(roadSegment1Added, roadSegment1Removed)
+            .ExpectNone();
+    }
+
+    [Fact]
+    public async Task WhenRoadSegmentWasRetiredBecauseOfMigration_ThenNone()
+    {
+        var fixture = new RoadNetworkTestData().Fixture;
+        fixture.Freeze<RoadSegmentId>();
+
+        var roadSegment1Added = fixture.Create<RoadSegmentWasAdded>();
+        var roadSegment1Removed = fixture.Create<RoadSegmentWasRetiredBecauseOfMigration>();
 
         await BuildProjection()
             .Scenario()

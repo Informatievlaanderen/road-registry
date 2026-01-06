@@ -12,7 +12,7 @@ public class RoadSegmentSurfaceTypeTests
 
     public RoadSegmentSurfaceTypeTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _knownValues = Array.ConvertAll(RoadSegmentSurfaceType.All, type => type.ToString());
     }
 

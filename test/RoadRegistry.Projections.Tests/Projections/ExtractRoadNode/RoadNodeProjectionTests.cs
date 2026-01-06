@@ -40,7 +40,9 @@ public class RoadNodeProjectionTests
             typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasAddedToNationalRoad),
             typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasModified),
             typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasMerged),
+            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasMigrated),
             typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRetiredBecauseOfMerger),
+            typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRetiredBecauseOfMigration),
             typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRemoved),
             typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRemovedFromEuropeanRoad),
             typeof(RoadRegistry.RoadSegment.Events.V2.RoadSegmentWasRemovedFromNationalRoad),
@@ -120,6 +122,30 @@ public class RoadNodeProjectionTests
         return BuildProjection()
             .Scenario()
             .Given(roadNodeAdded, roadNodeModified)
+            .Expect(expectedRoadNode);
+    }
+
+    [Fact]
+    public Task WhenRoadNodeMigrated_ThenSucceeded()
+    {
+        var fixture = new RoadNetworkTestData().Fixture;
+        fixture.Freeze<RoadNodeId>();
+
+        var roadNodeAdded = fixture.Create<RoadNodeWasAdded>();
+        var roadNodeMigrated = fixture.Create<RoadNodeWasMigrated>();
+
+        var expectedRoadNode = new RoadNodeExtractItem
+        {
+            RoadNodeId = roadNodeAdded.RoadNodeId,
+            Geometry = roadNodeMigrated.Geometry,
+            Type = roadNodeMigrated.Type,
+            Origin = roadNodeAdded.Provenance.ToEventTimestamp(),
+            LastModified = roadNodeMigrated.Provenance.ToEventTimestamp()
+        };
+
+        return BuildProjection()
+            .Scenario()
+            .Given(roadNodeAdded, roadNodeMigrated)
             .Expect(expectedRoadNode);
     }
 

@@ -58,7 +58,7 @@ public class RoadNetworkTestData
 
     public RoadNetworkTestData(Action<Fixture> customize = null)
     {
-        Fixture = new Fixture();
+        Fixture = FixtureFactory.Create();
         Fixture.CustomizePoint();
         Fixture.CustomizePolylineM();
 

@@ -53,6 +53,14 @@ public partial class RoadNode : MartenAggregateRootEntity<RoadNodeId>
         Type = @event.Type ?? Type;
     }
 
+    public void Apply(RoadNodeWasMigrated @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        Geometry = @event.Geometry.ToGeometry();
+        Type = @event.Type;
+    }
+
     public void Apply(RoadNodeWasRemoved @event)
     {
         if (IsRemoved)

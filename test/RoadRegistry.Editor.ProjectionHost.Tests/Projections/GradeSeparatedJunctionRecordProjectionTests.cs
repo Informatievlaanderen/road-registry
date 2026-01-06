@@ -21,7 +21,7 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
 
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeGradeSeparatedJunctionType();
         _fixture.CustomizeGradeSeparatedJunctionId();
         _fixture.CustomizeRoadSegmentId();

@@ -24,7 +24,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
 
         public GivenUploadPreSignedUrlRequest()
         {
-            _fixture = new Fixture();
+            _fixture = FixtureFactory.Create();
 
             _ticketingUrl = new Mock<ITicketingUrl>();
             _ticketing = new Mock<ITicketing>();

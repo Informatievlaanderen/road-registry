@@ -30,7 +30,7 @@ public class TransactionZoneToZipArchiveWriterTests
     public TransactionZoneToZipArchiveWriterTests()
     {
         _sut = new TransactionZoneToZipArchiveWriter(Encoding.UTF8);
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
 
         CustomizeRoadNetworkExtractAssemblyRequestFixture(_fixture);
     }

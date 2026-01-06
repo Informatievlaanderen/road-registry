@@ -4,6 +4,7 @@ using Extensions;
 using RoadNetwork;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.RoadNetwork;
+using RoadRegistry.RoadNetwork.ValueObjects;
 
 public class ExpectEventsScenario
 {

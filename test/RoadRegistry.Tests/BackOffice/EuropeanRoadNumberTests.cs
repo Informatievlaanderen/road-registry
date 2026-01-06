@@ -12,7 +12,7 @@ public class EuropeanRoadNumberTests
 
     public EuropeanRoadNumberTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _knownValues = Array.ConvertAll(EuropeanRoadNumber.All, type => type.ToString());
     }
 

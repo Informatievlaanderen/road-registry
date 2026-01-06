@@ -118,6 +118,35 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
         };
     }
 
+    public static RoadSegment Create(RoadSegmentWasMigrated @event)
+    {
+        var segment = new RoadSegment(@event.RoadSegmentId);
+        segment.Apply(@event);
+        return segment;
+    }
+    private void Apply(RoadSegmentWasMigrated @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        IsRemoved = false;
+        Geometry = @event.Geometry.ToGeometry();
+        StartNodeId = @event.StartNodeId;
+        EndNodeId = @event.EndNodeId;
+        Attributes = new RoadSegmentAttributes
+        {
+            GeometryDrawMethod = @event.GeometryDrawMethod,
+            AccessRestriction = @event.AccessRestriction,
+            Category = @event.Category,
+            Morphology = @event.Morphology,
+            Status = @event.Status,
+            StreetNameId = @event.StreetNameId,
+            MaintenanceAuthorityId = @event.MaintenanceAuthorityId,
+            SurfaceType = @event.SurfaceType,
+            EuropeanRoadNumbers = @event.EuropeanRoadNumbers.ToImmutableList(),
+            NationalRoadNumbers = @event.NationalRoadNumbers.ToImmutableList()
+        };
+    }
+
     public void Apply(RoadSegmentWasModified @event)
     {
         UncommittedEvents.Add(@event);
@@ -151,6 +180,17 @@ public partial class RoadSegment : MartenAggregateRootEntity<RoadSegmentId>
     }
 
     public void Apply(RoadSegmentWasRetiredBecauseOfMerger @event)
+    {
+        UncommittedEvents.Add(@event);
+
+        MergedRoadSegmentId = @event.MergedRoadSegmentId;
+        Attributes = Attributes with
+        {
+            Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatus.Retired)
+        };
+    }
+
+    public void Apply(RoadSegmentWasRetiredBecauseOfMigration @event)
     {
         UncommittedEvents.Add(@event);
 

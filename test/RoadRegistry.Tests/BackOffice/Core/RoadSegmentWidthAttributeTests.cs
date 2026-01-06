@@ -11,7 +11,7 @@ public class RoadSegmentWidthAttributeTests
 
     public RoadSegmentWidthAttributeTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeAttributeId();
         _fixture.CustomizeRoadSegmentWidth();
         _fixture.CustomizeRoadSegmentPosition();

@@ -12,7 +12,7 @@ public abstract class ValidatorTest<TModel, TValidator>
 {
     protected ValidatorTest()
     {
-        Fixture = new Fixture();
+        Fixture = FixtureFactory.Create();
         Validator = new TValidator();
     }
 

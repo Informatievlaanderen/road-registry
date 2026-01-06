@@ -13,7 +13,7 @@ public class RoadSegmentWidthAttributeLatestItemProjectionTests
 
     public RoadSegmentWidthAttributeLatestItemProjectionTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
 
         _fixture.CustomizeArchiveId();
         _fixture.CustomizeAttributeId();

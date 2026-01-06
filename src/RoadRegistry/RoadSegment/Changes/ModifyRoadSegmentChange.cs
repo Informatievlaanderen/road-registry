@@ -1,6 +1,5 @@
 namespace RoadRegistry.RoadSegment.Changes;
 
-using System.Collections.Generic;
 using NetTopologySuite.Geometries;
 using RoadNetwork;
 using RoadRegistry.RoadSegment.ValueObjects;

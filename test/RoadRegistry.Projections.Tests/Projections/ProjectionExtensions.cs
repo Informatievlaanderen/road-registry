@@ -13,7 +13,7 @@ using Xunit.Sdk;
 
 public static class ProjectionExtensions
 {
-    private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<IDocumentSession> specification, VerificationResult result)
+    private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<IDocumentOperations> specification, VerificationResult result)
     {
         var title = string.Empty;
         var exceptionMessage = new StringBuilder()
@@ -25,14 +25,14 @@ public static class ProjectionExtensions
     }
 
     public static Task Expect(
-        this ConnectedProjectionScenario<IDocumentSession> scenario,
+        this ConnectedProjectionScenario<IDocumentOperations> scenario,
         IEnumerable<object> records)
     {
         return scenario.Expect(records.ToArray());
     }
 
     public static async Task Expect(
-        this ConnectedProjectionScenario<IDocumentSession> scenario,
+        this ConnectedProjectionScenario<IDocumentOperations> scenario,
         params object[] records)
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
@@ -61,7 +61,7 @@ public static class ProjectionExtensions
                 : VerificationResult.Fail(result.CreateDifferenceMessage(actualRecords, records));
         });
 
-        var projector = new ConnectedProjector<IDocumentSession>(specification.Resolver);
+        var projector = new ConnectedProjector<IDocumentOperations>(specification.Resolver);
         var position = 0L;
         foreach (var message in specification.Messages)
         {
@@ -78,7 +78,7 @@ public static class ProjectionExtensions
         }
     }
 
-    public static async Task ExpectNone(this ConnectedProjectionScenario<IDocumentSession> scenario)
+    public static async Task ExpectNone(this ConnectedProjectionScenario<IDocumentOperations> scenario)
     {
         var store = new InMemoryDocumentStoreSession(BuildStoreOptions());
 
@@ -90,7 +90,7 @@ public static class ProjectionExtensions
                 : VerificationResult.Fail($"Expected 0 records but found {actualRecords.Length}.");
         });
 
-        var projector = new ConnectedProjector<IDocumentSession>(specification.Resolver);
+        var projector = new ConnectedProjector<IDocumentOperations>(specification.Resolver);
         foreach (var message in specification.Messages)
         {
             var envelope = BuildEvent(message);
@@ -113,9 +113,9 @@ public static class ProjectionExtensions
         return evt;
     }
 
-    public static ConnectedProjectionScenario<IDocumentSession> Scenario(this ConnectedProjection<IDocumentSession> projection)
+    public static ConnectedProjectionScenario<IDocumentOperations> Scenario(this ConnectedProjection<IDocumentOperations> projection)
     {
-        return new ConnectedProjectionScenario<IDocumentSession>(Resolve.WhenAssignableToHandlerMessageType(projection.Handlers));
+        return new ConnectedProjectionScenario<IDocumentOperations>(Resolve.WhenAssignableToHandlerMessageType(projection.Handlers));
     }
 
     private static StoreOptions BuildStoreOptions()

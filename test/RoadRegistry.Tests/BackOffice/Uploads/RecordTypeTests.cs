@@ -13,7 +13,7 @@ public class RecordTypeTests
 
     public RecordTypeTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _knownValues = Array.ConvertAll(RecordType.All, type => type.ToString());
     }
 

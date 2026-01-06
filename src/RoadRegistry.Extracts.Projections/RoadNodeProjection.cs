@@ -97,6 +97,20 @@ public class RoadNodeProjection : RoadNetworkChangesConnectedProjection
 
             session.Store(node);
         });
+        When<IEvent<RoadNode.Events.V2.RoadNodeWasMigrated>>(async (session, e, _) =>
+        {
+            var node = await session.LoadAsync<RoadNodeExtractItem>(e.Data.RoadNodeId);
+            if (node is null)
+            {
+                throw new InvalidOperationException($"No document found for Id {e.Data.RoadNodeId}");
+            }
+
+            node.LastModified = e.Data.Provenance.ToEventTimestamp();
+            node.Type = e.Data.Type;
+            node.Geometry = e.Data.Geometry;
+
+            session.Store(node);
+        });
         When<IEvent<RoadNode.Events.V2.RoadNodeWasRemoved>>(async (session, e, _) =>
         {
             var node = await session.LoadAsync<RoadNodeExtractItem>(e.Data.RoadNodeId);

@@ -20,7 +20,7 @@ namespace RoadRegistry.Jobs.Processor.Tests
         [Fact]
         public async Task FlowTest_Extracts()
         {
-            var fixture = new Fixture();
+            var fixture = FixtureFactory.Create();
             var mockTicketing = new Mock<ITicketing>();
             var mockIBlobClient = new Mock<IBlobClient>();
             var mockMediator = new Mock<IMediator>();

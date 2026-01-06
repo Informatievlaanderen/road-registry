@@ -56,7 +56,7 @@ public class ExtractsZipArchiveTestData : IDisposable
 
     private static Fixture CreateFixture()
     {
-        var fixture = new Fixture();
+        var fixture = FixtureFactory.Create();
 
         fixture.CustomizeRecordType();
         fixture.CustomizeAttributeId();

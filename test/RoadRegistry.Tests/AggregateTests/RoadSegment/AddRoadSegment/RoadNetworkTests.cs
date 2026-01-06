@@ -20,7 +20,7 @@ public class RoadNetworkTests : RoadNetworkTestBase
                 .Add(TestData.AddSegment1EndNode)
                 .Add(TestData.AddSegment1)
             )
-            .Then((result, events) => { result.Changes.RoadSegments.Added.Should().HaveCount(1); })
+            .Then((result, events) => { result.Summary.RoadSegments.Added.Should().HaveCount(1); })
         );
     }
 

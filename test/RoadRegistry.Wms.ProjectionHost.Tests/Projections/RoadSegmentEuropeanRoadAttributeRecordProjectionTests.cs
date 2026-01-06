@@ -14,7 +14,7 @@ public class RoadSegmentEuropeanRoadAttributeRecordProjectionTests
 
     public RoadSegmentEuropeanRoadAttributeRecordProjectionTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeArchiveId();
         _fixture.CustomizeAttributeId();
         _fixture.CustomizeRoadSegmentId();

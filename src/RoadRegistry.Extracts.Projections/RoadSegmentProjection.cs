@@ -356,6 +356,25 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
                 }
             }, e.Data);
         });
+        When<IEvent<RoadSegmentWasMigrated>>((session, e, ct) =>
+        {
+            return ModifyRoadSegment(session, e.Data.RoadSegmentId, segment =>
+            {
+                segment.Geometry = e.Data.Geometry;
+                segment.StartNodeId = e.Data.StartNodeId;
+                segment.EndNodeId = e.Data.EndNodeId;
+                segment.GeometryDrawMethod = e.Data.GeometryDrawMethod;
+                segment.AccessRestriction = new RoadSegmentDynamicAttributeValues<RoadSegmentAccessRestriction>(e.Data.AccessRestriction);
+                segment.Category = new RoadSegmentDynamicAttributeValues<RoadSegmentCategory>(e.Data.Category);
+                segment.Morphology = new RoadSegmentDynamicAttributeValues<RoadSegmentMorphology>(e.Data.Morphology);
+                segment.Status = new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(e.Data.Status);
+                segment.StreetNameId = new RoadSegmentDynamicAttributeValues<StreetNameLocalId>(e.Data.StreetNameId);
+                segment.MaintenanceAuthorityId = new RoadSegmentDynamicAttributeValues<OrganizationId>(e.Data.MaintenanceAuthorityId);
+                segment.SurfaceType = new RoadSegmentDynamicAttributeValues<RoadSegmentSurfaceType>(e.Data.SurfaceType);
+                segment.EuropeanRoadNumbers = e.Data.EuropeanRoadNumbers.ToList();
+                segment.NationalRoadNumbers = e.Data.NationalRoadNumbers.ToList();
+            }, e.Data);
+        });
         When<IEvent<RoadSegmentWasRemoved>>(async (session, e, ct) =>
         {
             var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
@@ -367,6 +386,16 @@ public class RoadSegmentProjection : RoadNetworkChangesConnectedProjection
             session.Delete(roadSegment);
         });
         When<IEvent<RoadSegmentWasRetiredBecauseOfMerger>>(async (session, e, ct) =>
+        {
+            var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
+            if (roadSegment is null)
+            {
+                throw new InvalidOperationException($"No document found for Id {e.Data.RoadSegmentId}");
+            }
+
+            session.Delete(roadSegment);
+        });
+        When<IEvent<RoadSegmentWasRetiredBecauseOfMigration>>(async (session, e, ct) =>
         {
             var roadSegment = await session.LoadAsync<RoadSegmentExtractItem>(e.Data.RoadSegmentId);
             if (roadSegment is null)

@@ -24,7 +24,7 @@ public class RoadNetworkTestData
 {
     public RoadNetworkTestData(Action<Fixture> customize = null)
     {
-        ObjectProvider = new Fixture();
+        ObjectProvider = FixtureFactory.Create();
         ObjectProvider.CustomizePoint();
         ObjectProvider.CustomizePolylineM();
 
@@ -799,7 +799,7 @@ public class RoadNetworkTestData
     {
         get
         {
-            var fixture = new Fixture();
+            var fixture = FixtureFactory.Create();
             fixture.CustomizeAttributeId();
             fixture.CustomizeRoadSegmentLaneCount();
             fixture.CustomizeRoadSegmentLaneDirection();
@@ -933,7 +933,7 @@ public class RoadNetworkTestData
     {
         get
         {
-            var fixture = new Fixture();
+            var fixture = FixtureFactory.Create();
             fixture.CustomizeAttributeId();
             fixture.CustomizeRoadSegmentSurfaceType();
 
@@ -1062,7 +1062,7 @@ public class RoadNetworkTestData
     {
         get
         {
-            var fixture = new Fixture();
+            var fixture = FixtureFactory.Create();
             fixture.CustomizeAttributeId();
             fixture.CustomizeRoadSegmentWidth();
 

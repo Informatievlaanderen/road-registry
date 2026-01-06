@@ -15,7 +15,7 @@ public class AttributeHashTests
 
     public AttributeHashTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeRoadSegmentCategory();
         _fixture.CustomizeRoadSegmentMorphology();
         _fixture.CustomizeRoadSegmentStatus();

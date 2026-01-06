@@ -13,7 +13,7 @@ public class ArchiveIdTests
 
     public ArchiveIdTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeArchiveId();
     }
 
@@ -78,7 +78,7 @@ public class ArchiveIdTests
     [Fact]
     public void VerifyBehavior()
     {
-        var fixture = new Fixture();
+        var fixture = FixtureFactory.Create();
 
         fixture.Customize<string>(customization =>
             customization.FromFactory(_ =>

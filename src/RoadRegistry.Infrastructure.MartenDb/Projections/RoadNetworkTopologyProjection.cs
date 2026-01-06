@@ -59,7 +59,7 @@ END;
 $$ LANGUAGE plpgsql;"));
 
         SchemaObjects.Add(new Function(new PostgresqlObjectName("projections", "networktopology_update_roadnode"), @$"
-CREATE OR REPLACE FUNCTION projections.networktopology_update_roadnode(p_id integer, p_timestamp timestamptz, p_wkt character varying, p_srid integer) RETURNS int AS
+CREATE OR REPLACE FUNCTION projections.networktopology_update_roadnode(p_id integer, p_timestamp timestamptz, p_wkt character varying, p_srid integer, p_is_v2 boolean) RETURNS int AS
 $$
 DECLARE
     updated int;
@@ -67,6 +67,7 @@ BEGIN
 
     UPDATE {RoadNodesTableName}
     SET geometry = (CASE WHEN p_wkt <> '' THEN ST_GeomFromText(p_wkt, p_srid) ELSE geometry END),
+        is_v2 = p_is_v2,
         timestamp = p_timestamp
     WHERE id = p_id
       AND timestamp < p_timestamp;
@@ -129,7 +130,7 @@ END;
 $$ LANGUAGE plpgsql;"));
 
         SchemaObjects.Add(new Function(new PostgresqlObjectName("projections", "networktopology_update_roadsegment"), @$"
-CREATE OR REPLACE FUNCTION projections.networktopology_update_roadsegment(p_id integer, p_timestamp timestamptz, p_wkt character varying, p_srid integer, p_start_node_id integer, p_end_node_id integer) RETURNS int AS
+CREATE OR REPLACE FUNCTION projections.networktopology_update_roadsegment(p_id integer, p_timestamp timestamptz, p_wkt character varying, p_srid integer, p_start_node_id integer, p_end_node_id integer, p_is_v2 boolean) RETURNS int AS
 $$
 DECLARE
     updated int;
@@ -139,6 +140,7 @@ BEGIN
     SET geometry = (CASE WHEN p_wkt <> '' THEN ST_GeomFromText(p_wkt, p_srid) ELSE geometry END),
         start_node_id = (CASE WHEN p_start_node_id > 0 THEN p_start_node_id ELSE start_node_id END),
         end_node_id = (CASE WHEN p_end_node_id > 0 THEN p_end_node_id ELSE end_node_id END),
+        is_v2 = p_is_v2,
         timestamp = p_timestamp
     WHERE id = p_id
       AND timestamp < p_timestamp;

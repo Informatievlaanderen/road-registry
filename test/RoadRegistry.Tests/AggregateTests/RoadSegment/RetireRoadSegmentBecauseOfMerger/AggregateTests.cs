@@ -51,5 +51,4 @@ public class AggregateTests : AggregateTestBase
         segment.Attributes.Status.Should().BeEquivalentTo(
             new RoadSegmentDynamicAttributeValues<RoadSegmentStatus>(RoadSegmentStatus.Retired));
     }
-
 }

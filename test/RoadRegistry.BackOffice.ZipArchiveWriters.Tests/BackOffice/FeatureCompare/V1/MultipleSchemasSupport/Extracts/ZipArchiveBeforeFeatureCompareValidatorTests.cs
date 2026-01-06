@@ -103,7 +103,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
 
     private static Fixture CreateFixture()
     {
-        var fixture = new Fixture();
+        var fixture = FixtureFactory.Create();
 
         fixture.CustomizeRecordType();
         fixture.CustomizeAttributeId();

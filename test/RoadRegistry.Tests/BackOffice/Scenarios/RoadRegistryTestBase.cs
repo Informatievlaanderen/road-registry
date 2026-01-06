@@ -45,7 +45,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     protected RoadRegistryTestBase(ITestOutputHelper testOutputHelper, ComparisonConfig comparisonConfig = null)
         : base(testOutputHelper)
     {
-        ObjectProvider = new Fixture();
+        ObjectProvider = FixtureFactory.Create();
         ObjectProvider.Register(() => (ISnapshotStrategy)NoSnapshotStrategy.Instance);
 
         Client = new MemoryBlobClient();

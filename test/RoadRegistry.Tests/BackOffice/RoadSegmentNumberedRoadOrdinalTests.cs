@@ -12,7 +12,7 @@ public class RoadSegmentNumberedRoadOrdinalTests
 
     public RoadSegmentNumberedRoadOrdinalTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
     }
 
     [Theory]

@@ -31,7 +31,7 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadNodeModified> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?);",
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?, FALSE);",
             e.Data.RoadNodeId,
             e.Timestamp,
             e.Data.Geometry.WKT,
@@ -73,7 +73,7 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadSegmentModified> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?);",
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, FALSE);",
             e.Data.RoadSegmentId,
             e.Timestamp,
             e.Data.Geometry.WKT,
@@ -85,7 +85,7 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadSegmentGeometryModified> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, null, null);",
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, null, null, FALSE);",
             e.Data.RoadSegmentId,
             e.Timestamp,
             e.Data.Geometry.WKT,

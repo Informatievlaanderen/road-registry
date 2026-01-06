@@ -12,7 +12,7 @@ public class NumberedRoadNumberTests
 
     public NumberedRoadNumberTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _knownValues = Array.ConvertAll(NumberedRoadNumbers.All, type => type.ToString());
     }
 

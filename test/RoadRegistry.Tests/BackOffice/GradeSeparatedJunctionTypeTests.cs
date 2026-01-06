@@ -12,7 +12,7 @@ public class GradeSeparatedJunctionTypeTests
 
     public GradeSeparatedJunctionTypeTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _knownValues = Array.ConvertAll(GradeSeparatedJunctionType.All, type => type.ToString());
     }
 

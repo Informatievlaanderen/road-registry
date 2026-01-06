@@ -12,7 +12,7 @@ public class RoadSegmentStatusTests
 
     public RoadSegmentStatusTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _knownValues = Array.ConvertAll(RoadSegmentStatus.All, type => type.ToString());
     }
 

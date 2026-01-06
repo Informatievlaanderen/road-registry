@@ -13,7 +13,7 @@ public class OperatorNameTests
 
     public OperatorNameTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeOperatorName();
     }
 
@@ -67,7 +67,7 @@ public class OperatorNameTests
     [Fact]
     public void VerifyBehavior()
     {
-        var customizedString = new Fixture();
+        var customizedString = FixtureFactory.Create();
         customizedString.Customize<string>(customization =>
             customization.FromFactory(generator =>
                 new string(

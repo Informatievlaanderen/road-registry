@@ -19,7 +19,7 @@ public partial class GrbControllerTests : ControllerMinimalTests<GrbController>,
         : base(controller)
     {
         _dbContextBuilderFixture = dbContextBuilderFixture.ThrowIfNull();
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeExternalExtractRequestId();
         _fixture.CustomizeRoadNetworkExtractGeometry();
         _fixture.CustomizeMultiPolygon();

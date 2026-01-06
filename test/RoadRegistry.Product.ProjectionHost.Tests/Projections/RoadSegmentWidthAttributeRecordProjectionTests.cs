@@ -18,7 +18,7 @@ public class RoadSegmentWidthAttributeRecordProjectionTests : IClassFixture<Proj
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
 
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeArchiveId();
         _fixture.CustomizeAttributeId();
         _fixture.CustomizeRoadSegmentId();

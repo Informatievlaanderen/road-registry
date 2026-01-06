@@ -12,7 +12,7 @@ public class RoadSegmentPositionTests
 
     public RoadSegmentPositionTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
     }
 
     public static IEnumerable<object[]> AcceptsDecimalCases

@@ -19,7 +19,7 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
 
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
 
         _fixture.CustomizeRoadNodeType();
         _fixture.CustomizePoint();

@@ -16,7 +16,7 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
 
     public RoadNetworkInfoProjectionTests(ProjectionTestServices services)
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
 
         _fixture.CustomizeRoadNodeType();
         _fixture.CustomizePoint();

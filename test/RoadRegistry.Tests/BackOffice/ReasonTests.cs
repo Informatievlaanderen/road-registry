@@ -12,7 +12,7 @@ public class ReasonTests
 
     public ReasonTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeReason();
     }
 
@@ -52,7 +52,7 @@ public class ReasonTests
     [Fact]
     public void VerifyBehavior()
     {
-        var customizedString = new Fixture();
+        var customizedString = FixtureFactory.Create();
         customizedString.Customize<string>(customization =>
             customization.FromFactory(generator =>
                 new string(

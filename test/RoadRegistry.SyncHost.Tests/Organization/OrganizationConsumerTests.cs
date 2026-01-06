@@ -35,7 +35,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
 
         public OrganizationConsumerTests()
         {
-            _fixture = new Fixture();
+            _fixture = FixtureFactory.Create();
             _fixture.CustomizeOrganizationId();
             _fixture.CustomizeOrganizationName();
             _fixture.CustomizeOrganizationOvoCode();

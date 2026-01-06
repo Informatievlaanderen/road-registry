@@ -12,7 +12,7 @@ public class RoadSegmentAccessRestrictionTests
 
     public RoadSegmentAccessRestrictionTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _knownValues = Array.ConvertAll(RoadSegmentAccessRestriction.All, type => type.ToString());
     }
 

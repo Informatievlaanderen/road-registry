@@ -968,6 +968,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
         acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded.RightSide = acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded.LeftSide;
 
         var streetNameModified = _fixture.Create<StreetNameModified>();
+        streetNameModified.NameModified = true;
 
         var messages = new object[]
         {

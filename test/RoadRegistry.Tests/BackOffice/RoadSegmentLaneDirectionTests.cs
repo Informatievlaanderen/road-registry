@@ -12,7 +12,7 @@ public class RoadSegmentLaneDirectionTests
 
     public RoadSegmentLaneDirectionTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _knownValues = Array.ConvertAll(RoadSegmentLaneDirection.All, type => type.ToString());
     }
 

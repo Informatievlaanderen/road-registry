@@ -13,7 +13,7 @@
 
         public ApiKeyAuthenticatorTests()
         {
-            _fixture = new Fixture();
+            _fixture = FixtureFactory.Create();
         }
 
         [Theory]

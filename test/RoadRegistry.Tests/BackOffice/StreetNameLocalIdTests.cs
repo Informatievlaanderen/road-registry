@@ -13,7 +13,7 @@ public class StreetNameLocalIdTests
 
     public StreetNameLocalIdTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
     }
 
     [Fact]

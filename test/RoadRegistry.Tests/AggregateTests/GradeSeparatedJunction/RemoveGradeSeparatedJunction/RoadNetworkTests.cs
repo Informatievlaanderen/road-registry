@@ -59,7 +59,7 @@ public class RoadNetworkTests : RoadNetworkTestBase
             )
             .Then((result, events) =>
             {
-                result.Changes.GradeSeparatedJunctions.Removed.Should().HaveCount(1);
+                result.Summary.GradeSeparatedJunctions.Removed.Should().HaveCount(1);
             })
         );
     }

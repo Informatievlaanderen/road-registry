@@ -22,7 +22,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
 
         public GivenCancelJobRequest()
         {
-            _fixture = new Fixture();
+            _fixture = FixtureFactory.Create();
             _jobsContext = new FakeJobsContextFactory().CreateDbContext();
         }
 

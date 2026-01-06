@@ -19,7 +19,7 @@ public class RoadNetworkTests : RoadNetworkTestBase
             )
             .Then((result, events) =>
             {
-                result.Changes.RoadNodes.Added.Should().HaveCount(2);
+                result.Summary.RoadNodes.Added.Should().HaveCount(2);
             })
         );
     }

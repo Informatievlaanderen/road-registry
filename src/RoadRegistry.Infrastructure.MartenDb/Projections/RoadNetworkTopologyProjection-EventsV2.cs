@@ -21,11 +21,21 @@ public partial class RoadNetworkTopologyProjection
 
     public void Project(IEvent<RoadNodeWasModified> e, IDocumentOperations ops)
     {
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?);",
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?, TRUE);",
             e.Data.RoadNodeId.ToInt32(),
             e.Timestamp,
             e.Data.Geometry?.WKT ?? string.Empty,
             e.Data.Geometry?.SRID ?? 0
+        );
+    }
+
+    public void Project(IEvent<RoadNodeWasMigrated> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadnode(?, ?, ?, ?, TRUE);",
+            e.Data.RoadNodeId.ToInt32(),
+            e.Timestamp,
+            e.Data.Geometry.WKT,
+            e.Data.Geometry.SRID
         );
     }
 
@@ -68,13 +78,25 @@ public partial class RoadNetworkTopologyProjection
             return;
         }
 
-        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?);",
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
             e.Data.RoadSegmentId.ToInt32(),
             e.Timestamp,
             e.Data.Geometry?.WKT ?? string.Empty,
             e.Data.Geometry?.SRID ?? 0,
             e.Data.StartNodeId?.ToInt32() ?? 0,
             e.Data.EndNodeId?.ToInt32() ?? 0
+        );
+    }
+
+    public void Project(IEvent<RoadSegmentWasMigrated> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_update_roadsegment(?, ?, ?, ?, ?, ?, TRUE);",
+            e.Data.RoadSegmentId.ToInt32(),
+            e.Timestamp,
+            e.Data.Geometry.WKT ,
+            e.Data.Geometry.SRID,
+            e.Data.StartNodeId.ToInt32(),
+            e.Data.EndNodeId.ToInt32()
         );
     }
 
@@ -87,6 +109,14 @@ public partial class RoadNetworkTopologyProjection
     }
 
     public void Project(IEvent<RoadSegmentWasRetiredBecauseOfMerger> e, IDocumentOperations ops)
+    {
+        ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadsegment(?, ?);",
+            e.Data.RoadSegmentId.ToInt32(),
+            e.Timestamp
+        );
+    }
+
+    public void Project(IEvent<RoadSegmentWasRetiredBecauseOfMigration> e, IDocumentOperations ops)
     {
         ops.QueueSqlCommand("SELECT projections.networktopology_delete_roadsegment(?, ?);",
             e.Data.RoadSegmentId.ToInt32(),

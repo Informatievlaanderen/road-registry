@@ -12,7 +12,7 @@ public class RoadSegmentWidthTests
 
     public RoadSegmentWidthTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeRoadSegmentWidth();
     }
 

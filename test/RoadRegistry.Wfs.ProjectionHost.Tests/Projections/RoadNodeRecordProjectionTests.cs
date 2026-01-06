@@ -14,7 +14,7 @@ public class RoadNodeRecordProjectionTests
 
     public RoadNodeRecordProjectionTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
 
         _fixture.CustomizeArchiveId();
         _fixture.CustomizeRoadNodeId();

@@ -7,7 +7,7 @@ public abstract class ApplicationFixture
 {
     protected ApplicationFixture()
     {
-        ObjectProvider = new Fixture();
+        ObjectProvider = FixtureFactory.Create();
         ObjectProvider.CustomizePolylineM();
         ObjectProvider.CustomizeRoadSegmentId();
         ObjectProvider.CustomizeRoadSegmentCategory();

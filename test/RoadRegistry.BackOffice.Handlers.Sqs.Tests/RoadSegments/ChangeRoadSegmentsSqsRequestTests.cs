@@ -40,7 +40,7 @@ public class ChangeRoadSegmentsSqsRequestTests
 
     private static ChangeRoadSegmentsDynamicAttributesSqsRequest CreateRequest()
     {
-        var fixture = new Fixture();
+        var fixture = FixtureFactory.Create();
         var testData = new RoadNetworkTestData();
         testData.CopyCustomizationsTo(fixture);
 

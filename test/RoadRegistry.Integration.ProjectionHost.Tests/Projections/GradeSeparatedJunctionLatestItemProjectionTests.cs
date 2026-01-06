@@ -14,7 +14,7 @@ public class GradeSeparatedJunctionLatestItemProjectionTests
 
     public GradeSeparatedJunctionLatestItemProjectionTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeGradeSeparatedJunctionType();
         _fixture.CustomizeGradeSeparatedJunctionId();
         _fixture.CustomizeRoadSegmentId();

@@ -12,6 +12,8 @@ using Microsoft.Extensions.Logging;
 using RoadNetwork;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadNetwork;
+using RoadRegistry.RoadNetwork.Events.V2;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
 
 public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<ChangeRoadNetworkSqsLambdaRequest>
@@ -56,27 +58,7 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
 
         return new ChangeRoadNetworkTicketResult
         {
-            Changes = new()
-            {
-                RoadNodes = new()
-                {
-                    Added = changeResult.Changes.RoadNodes.Added.Select(x => x.ToInt32()).ToList(),
-                    Modified = changeResult.Changes.RoadNodes.Modified.Select(x => x.ToInt32()).ToList(),
-                    Removed = changeResult.Changes.RoadNodes.Removed.Select(x => x.ToInt32()).ToList()
-                },
-                RoadSegments = new()
-                {
-                    Added = changeResult.Changes.RoadSegments.Added.Select(x => x.ToInt32()).ToList(),
-                    Modified = changeResult.Changes.RoadSegments.Modified.Select(x => x.ToInt32()).ToList(),
-                    Removed = changeResult.Changes.RoadSegments.Removed.Select(x => x.ToInt32()).ToList()
-                },
-                GradeSeparatedJunctions = new()
-                {
-                    Added = changeResult.Changes.GradeSeparatedJunctions.Added.Select(x => x.ToInt32()).ToList(),
-                    Modified = changeResult.Changes.GradeSeparatedJunctions.Modified.Select(x => x.ToInt32()).ToList(),
-                    Removed = changeResult.Changes.GradeSeparatedJunctions.Removed.Select(x => x.ToInt32()).ToList()
-                }
-            }
+            Summary = new RoadNetworkChangedSummary(changeResult.Summary)
         };
     }
 
@@ -85,23 +67,22 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
         var roadNetworkChanges = command.Changes.ToRoadNetworkChanges(command.ProvenanceData);
 
         var roadNetwork = await Load(roadNetworkChanges);
-        var downloadId = command.DownloadId;
-        var changeResult = roadNetwork.Change(roadNetworkChanges, downloadId, _roadNetworkIdGenerator);
+        var changeResult = roadNetwork.Change(roadNetworkChanges, command.DownloadId, _roadNetworkIdGenerator);
 
         if (changeResult.Problems.HasError())
         {
-            await _extractRequests.UploadRejectedAsync(downloadId, cancellationToken);
+            await _extractRequests.UploadRejectedAsync(command.DownloadId, cancellationToken);
 
             if (command.SendFailedEmail)
             {
-                await _extractUploadFailedEmailClient.SendAsync(new (downloadId, command.ProvenanceData.Reason), cancellationToken);
+                await _extractUploadFailedEmailClient.SendAsync(new (command.DownloadId, command.ProvenanceData.Reason), cancellationToken);
             }
 
             throw new RoadRegistryProblemsException(changeResult.Problems);
         }
 
         await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
-        await _extractRequests.UploadAcceptedAsync(downloadId, cancellationToken);
+        await _extractRequests.UploadAcceptedAsync(command.DownloadId, cancellationToken);
 
         return changeResult;
     }

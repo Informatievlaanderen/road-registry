@@ -20,7 +20,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
 
         public GivenActiveJobsRequest()
         {
-            _fixture = new Fixture();
+            _fixture = FixtureFactory.Create();
             _jobsContext = new FakeJobsContextFactory().CreateDbContext();
             _ticketingUrl = new Mock<ITicketingUrl>();
             _ticketingUrl
@@ -47,7 +47,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
             _jobsContext.Jobs.Add(jobInStatusCancelled);
             _jobsContext.Jobs.Add(jobInStatusCompleted);
             await _jobsContext.SaveChangesAsync(CancellationToken.None);
-            
+
             var handler = new GetActiveJobsRequestHandler(_jobsContext, _ticketingUrl.Object);
             var response = await handler.Handle(new GetActiveJobsRequest(), CancellationToken.None);
 

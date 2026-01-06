@@ -4,13 +4,17 @@ using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using ChangeRoadNetwork;
+using Exceptions;
 using Hosts;
 using Infrastructure;
 using Marten;
 using Microsoft.Extensions.Logging;
 using RoadNetwork;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.RoadNetwork;
+using RoadRegistry.RoadNetwork.Events.V2;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
 
 public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<MigrateRoadNetworkSqsLambdaRequest>
@@ -19,6 +23,8 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
     private readonly IRoadNetworkRepository _roadNetworkRepository;
     private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
     private readonly IExtractRequests _extractRequests;
+    private readonly ExtractsDbContext _extractsDbContext;
+
     public MigrateRoadNetworkSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
@@ -29,6 +35,7 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
         IRoadNetworkRepository roadNetworkRepository,
         IRoadNetworkIdGenerator roadNetworkIdGenerator,
         IExtractRequests extractRequests,
+        ExtractsDbContext extractsDbContext,
         ILoggerFactory loggerFactory)
         : base(
             options,
@@ -43,6 +50,7 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
         _roadNetworkRepository = roadNetworkRepository;
         _roadNetworkIdGenerator = roadNetworkIdGenerator;
         _extractRequests = extractRequests;
+        _extractsDbContext = extractsDbContext;
     }
 
     protected override async Task<object> InnerHandle(MigrateRoadNetworkSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
@@ -51,60 +59,35 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
 
         return new ChangeRoadNetworkTicketResult
         {
-            Changes = new()
-            {
-                RoadNodes = new()
-                {
-                    Added = changeResult.Changes.RoadNodes.Added.Select(x => x.ToInt32()).ToList(),
-                    Modified = changeResult.Changes.RoadNodes.Modified.Select(x => x.ToInt32()).ToList(),
-                    Removed = changeResult.Changes.RoadNodes.Removed.Select(x => x.ToInt32()).ToList()
-                },
-                RoadSegments = new()
-                {
-                    Added = changeResult.Changes.RoadSegments.Added.Select(x => x.ToInt32()).ToList(),
-                    Modified = changeResult.Changes.RoadSegments.Modified.Select(x => x.ToInt32()).ToList(),
-                    Removed = changeResult.Changes.RoadSegments.Removed.Select(x => x.ToInt32()).ToList()
-                },
-                GradeSeparatedJunctions = new()
-                {
-                    Added = changeResult.Changes.GradeSeparatedJunctions.Added.Select(x => x.ToInt32()).ToList(),
-                    Modified = changeResult.Changes.GradeSeparatedJunctions.Modified.Select(x => x.ToInt32()).ToList(),
-                    Removed = changeResult.Changes.GradeSeparatedJunctions.Removed.Select(x => x.ToInt32()).ToList()
-                }
-            }
+            Summary = new RoadNetworkChangedSummary(changeResult.Summary)
         };
     }
 
     private async Task<RoadNetworkChangeResult> Handle(MigrateRoadNetworkSqsRequest command, CancellationToken cancellationToken)
     {
-        //TODO-pr implement domain Migrate handler
-        /*- enkel RoadNetwork opbouwen adv bestaande V2 data
-- Add/Modify RoadSegment changes interpreteren als Migrate/Merged events
-- RemoveRoadSegment interpreteren als RoadSegmentWasRetiredBecauseOfMigration, indien deel van een merge dan de nieuwe ID er aan toevoegen*/
+        var roadNetworkChanges = command.Changes.ToRoadNetworkChanges(command.ProvenanceData);
 
-        throw new NotImplementedException();
-        //
-        // var roadNetwork = await Load(roadNetworkChanges);
-        // var downloadId = new DownloadId(command.DownloadId);
-        // var changeResult = roadNetwork.Change(roadNetworkChanges, downloadId, _roadNetworkIdGenerator);
-        //
-        // if (changeResult.Problems.HasError())
-        // {
-        //     //TODO-pr send failed email IExtractUploadFailedEmailClient if external extract (grb) (of GRB logica in aparte lambda handler steken?)
-        //     await _extractRequests.UploadRejectedAsync(downloadId, cancellationToken);
+         var roadNetwork = await Load(roadNetworkChanges);
+         var changeResult = roadNetwork.Migrate(roadNetworkChanges, command.DownloadId, _roadNetworkIdGenerator);
 
-        //     throw new RoadRegistryProblemsException(changeResult.Problems);
-        // }
+         if (changeResult.Problems.HasError())
+         {
+             await _extractRequests.UploadRejectedAsync(command.DownloadId, cancellationToken);
 
-        //await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
-        //await _extractRequests.UploadAcceptedAsync(downloadId, cancellationToken);
-        ////TODO-pr complete inwinningszone
-        //
-        // return changeResult;
+             throw new RoadRegistryProblemsException(changeResult.Problems);
+         }
+
+        await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
+        await _extractRequests.UploadAcceptedAsync(command.DownloadId, cancellationToken);
+        await CompleteInwinningszone(command.DownloadId, cancellationToken);
+
+         return changeResult;
     }
 
     private async Task<RoadNetwork> Load(RoadNetworkChanges roadNetworkChanges)
     {
+        //TODO-pr enkel RoadNetwork opbouwen adv bestaande V2 data
+
         throw new NotImplementedException();
         // await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
         //
@@ -117,5 +100,13 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
         //         roadNetworkChanges.GradeSeparatedJunctionIds.Union(ids.GradeSeparatedJunctionIds).ToList()
         //     )
         // );
+    }
+
+    private async Task CompleteInwinningszone(DownloadId downloadId, CancellationToken cancellationToken)
+    {
+        var inwinningszone = await _extractsDbContext.Inwinningszones.SingleAsync(x => x.DownloadId == downloadId.ToGuid(), token: cancellationToken);
+
+        inwinningszone.Completed = true;
+        await _extractsDbContext.SaveChangesAsync(cancellationToken);
     }
 }

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RoadNetwork;
 using RoadNetwork.Events.V2;
+using RoadNetwork.ValueObjects;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
 using Tests.Framework.Projections;
@@ -144,6 +145,7 @@ public class MartenProjectionIntegrationTestRunner
 
             session.Events.Append(StreamKeyFactory.Create(typeof(RoadNetwork), RoadNetwork.GlobalIdentifier), new RoadNetworkChanged
             {
+                Summary = new RoadNetworkChangedSummary(new RoadNetworkChangesSummary()),
                 Provenance = new RoadRegistryProvenanceData()
             });
 

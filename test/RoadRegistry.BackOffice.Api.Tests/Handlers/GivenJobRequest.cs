@@ -14,7 +14,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
     using Abstractions.Jobs;
     using TicketingService.Abstractions;
     using Xunit;
-    
+
     public class GivenJobRequest
     {
         private readonly Fixture _fixture;
@@ -23,7 +23,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.Handlers
 
         public GivenJobRequest()
         {
-            _fixture = new Fixture();
+            _fixture = FixtureFactory.Create();
             _jobsContext = new FakeJobsContextFactory().CreateDbContext();
             _ticketingUrl = new Mock<ITicketingUrl>();
             _ticketingUrl

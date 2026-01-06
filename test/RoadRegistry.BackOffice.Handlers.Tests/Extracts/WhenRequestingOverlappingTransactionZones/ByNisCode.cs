@@ -18,7 +18,7 @@ public class ByNisCode
     public async Task WhenUnknownNisCode_ThenNone()
     {
         // Arrange
-        var fixture = new Fixture();
+        var fixture = FixtureFactory.Create();
         await using var editorContext = BuildEditorContext();
         await using var municipalityContext = BuildMunicipalityEventConsumerContext();
 
@@ -51,7 +51,7 @@ public class ByNisCode
     public async Task WhenOverlapWithoutBufferWithInformativeExtract_ThenReturnExpectedResult()
     {
         // Arrange
-        var fixture = new Fixture();
+        var fixture = FixtureFactory.Create();
         await using var editorContext = BuildEditorContext();
         await using var municipalityContext = BuildMunicipalityEventConsumerContext();
 
@@ -103,7 +103,7 @@ public class ByNisCode
     public async Task WhenOverlapWithoutBuffer_ThenReturnExpectedResult()
     {
         // Arrange
-        var fixture = new Fixture();
+        var fixture = FixtureFactory.Create();
         await using var editorContext = BuildEditorContext();
         await using var municipalityContext = BuildMunicipalityEventConsumerContext();
 
@@ -145,7 +145,7 @@ public class ByNisCode
     public async Task WhenOverlapWithBuffer_ThenReturnExpectedResult()
     {
         // Arrange
-        var fixture = new Fixture();
+        var fixture = FixtureFactory.Create();
         await using var editorContext = BuildEditorContext();
         await using var municipalityContext = BuildMunicipalityEventConsumerContext();
 
@@ -188,7 +188,7 @@ public class ByNisCode
     public async Task WhenOnlyBufferedNisCodeOverlaps_ThenReturnExpectedResult()
     {
         // Arrange
-        var fixture = new Fixture();
+        var fixture = FixtureFactory.Create();
         await using var editorContext = BuildEditorContext();
         await using var municipalityContext = BuildMunicipalityEventConsumerContext();
 
@@ -231,7 +231,7 @@ public class ByNisCode
     public async Task WhenNoOverlapWithoutBuffer_ThenNone()
     {
         // Arrange
-        var fixture = new Fixture();
+        var fixture = FixtureFactory.Create();
         await using var editorContext = BuildEditorContext();
         await using var municipalityContext = BuildMunicipalityEventConsumerContext();
 
@@ -270,7 +270,7 @@ public class ByNisCode
     public async Task WhenNoOverlapWithBuffer_ThenNone()
     {
         // Arrange
-        var fixture = new Fixture();
+        var fixture = FixtureFactory.Create();
         await using var editorContext = BuildEditorContext();
         await using var municipalityContext = BuildMunicipalityEventConsumerContext();
 
@@ -308,7 +308,7 @@ public class ByNisCode
     public async Task WhenOverlapOnlyOnTheBorder_ThenNone()
     {
         // Arrange
-        var fixture = new Fixture();
+        var fixture = FixtureFactory.Create();
         await using var editorContext = BuildEditorContext();
         await using var municipalityContext = BuildMunicipalityEventConsumerContext();
 

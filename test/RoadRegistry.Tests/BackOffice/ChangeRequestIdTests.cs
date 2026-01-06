@@ -12,7 +12,7 @@ public class ChangeRequestIdTests
 
     public ChangeRequestIdTests()
     {
-        _fixture = new Fixture();
+        _fixture = FixtureFactory.Create();
         _fixture.CustomizeChangeRequestId();
     }
 
