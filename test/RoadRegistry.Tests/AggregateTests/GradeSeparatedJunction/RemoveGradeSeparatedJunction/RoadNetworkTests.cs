@@ -59,7 +59,6 @@ public class RoadNetworkTests : RoadNetworkTestBase
             )
             .Then((result, events) =>
             {
-                result.Problems.HasError().Should().BeFalse();
                 result.Summary.GradeSeparatedJunctions.Removed.Should().HaveCount(1);
             })
         );

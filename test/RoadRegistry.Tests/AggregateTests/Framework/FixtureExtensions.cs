@@ -20,7 +20,7 @@ public static class FixtureExtensions
                 {
                     RoadNodeId = fixture.Create<RoadNodeId>(),
                     OriginalId = fixture.Create<RoadNodeId>(),
-                    Geometry = fixture.Create<Point>().ToGeometryObject(),
+                    Geometry = fixture.Create<RoadNodeGeometry>(),
                     Type = fixture.Create<RoadNodeType>(),
                     Provenance = fixture.Create<ProvenanceData>()
                 }
@@ -35,7 +35,7 @@ public static class FixtureExtensions
                 new RoadNodeWasModified
                 {
                     RoadNodeId = fixture.Create<RoadNodeId>(),
-                    Geometry = fixture.Create<Point>().ToGeometryObject(),
+                    Geometry = fixture.Create<RoadNodeGeometry>(),
                     Type = fixture.Create<RoadNodeType>(),
                     Provenance = fixture.Create<ProvenanceData>()
                 }
@@ -51,7 +51,7 @@ public static class FixtureExtensions
                 {
                     RoadSegmentId = fixture.Create<RoadSegmentId>(),
                     OriginalId = fixture.Create<RoadSegmentId>(),
-                    Geometry = fixture.Create<MultiLineString>().ToGeometryObject(),
+                    Geometry = fixture.Create<RoadSegmentGeometry>(),
                     StartNodeId = fixture.Create<RoadNodeId>(),
                     EndNodeId = fixture.Create<RoadNodeId>(),
                     GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),
@@ -81,7 +81,7 @@ public static class FixtureExtensions
                     {
                         RoadSegmentId = fixture.Create<RoadSegmentId>(),
                         OriginalId = roadSegmentId,
-                        Geometry = fixture.Create<MultiLineString>().ToGeometryObject(),
+                        Geometry = fixture.Create<RoadSegmentGeometry>(),
                         StartNodeId = fixture.Create<RoadNodeId>(),
                         EndNodeId = fixture.Create<RoadNodeId>(),
                         GeometryDrawMethod = fixture.Create<RoadSegmentGeometryDrawMethod>(),

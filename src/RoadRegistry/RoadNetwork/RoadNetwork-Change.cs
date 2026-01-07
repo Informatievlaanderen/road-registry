@@ -46,16 +46,32 @@ public partial class RoadNetwork
                     problems += RemoveRoadSegment(changes, change.RoadSegmentId, summary.RoadSegments);
                     break;
                 case AddRoadSegmentToEuropeanRoadChange change:
-                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.AddEuropeanRoad(change, changes.Provenance), summary.RoadSegments);
+                    problems += ModifyRoadSegment(change.RoadSegmentId, segment =>
+                        segment.AddEuropeanRoad(change with
+                        {
+                            RoadSegmentId = idTranslator.TranslateToPermanentId(change.RoadSegmentId)
+                        }, changes.Provenance), summary.RoadSegments);
                     break;
                 case RemoveRoadSegmentFromEuropeanRoadChange change:
-                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.RemoveEuropeanRoad(change, changes.Provenance), summary.RoadSegments);
+                    problems += ModifyRoadSegment(change.RoadSegmentId, segment =>
+                        segment.RemoveEuropeanRoad(change with
+                        {
+                            RoadSegmentId = idTranslator.TranslateToPermanentId(change.RoadSegmentId)
+                        }, changes.Provenance), summary.RoadSegments);
                     break;
                 case AddRoadSegmentToNationalRoadChange change:
-                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.AddNationalRoad(change, changes.Provenance), summary.RoadSegments);
+                    problems += ModifyRoadSegment(change.RoadSegmentId, segment =>
+                        segment.AddNationalRoad(change with
+                        {
+                            RoadSegmentId = idTranslator.TranslateToPermanentId(change.RoadSegmentId)
+                        }, changes.Provenance), summary.RoadSegments);
                     break;
                 case RemoveRoadSegmentFromNationalRoadChange change:
-                    problems += ModifyRoadSegment(change.RoadSegmentId, segment => segment.RemoveNationalRoad(change, changes.Provenance), summary.RoadSegments) ;
+                    problems += ModifyRoadSegment(change.RoadSegmentId, segment =>
+                        segment.RemoveNationalRoad(change with
+                        {
+                            RoadSegmentId = idTranslator.TranslateToPermanentId(change.RoadSegmentId)
+                        }, changes.Provenance), summary.RoadSegments) ;
                     break;
 
                 case AddGradeSeparatedJunctionChange change:

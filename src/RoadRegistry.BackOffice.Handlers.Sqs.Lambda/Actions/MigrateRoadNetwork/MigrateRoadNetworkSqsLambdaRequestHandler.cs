@@ -78,6 +78,7 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
          }
 
         await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
+        //TODO-pr: TBD wat als de 1 vd volgende 2 calls falen? dan zouden de changes niet opnieuw mogen geapplied worden
         await _extractRequests.UploadAcceptedAsync(command.DownloadId, cancellationToken);
         await CompleteInwinningszone(command.DownloadId, cancellationToken);
 

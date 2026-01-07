@@ -213,7 +213,7 @@ public partial class RoadNetwork
 
         return list.Distinct().ToImmutableList();
     }
-    private ImmutableList<NationalRoadNumber> ReadNationalRoadNumbers(IEnumerable<IRoadNetworkChange> roadSegmentNumberChanges)
+    private IReadOnlyCollection<NationalRoadNumber> ReadNationalRoadNumbers(IEnumerable<IRoadNetworkChange> roadSegmentNumberChanges)
     {
         var list = new List<NationalRoadNumber>();
 

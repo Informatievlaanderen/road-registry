@@ -544,6 +544,15 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeRoadNodeGeometry(this IFixture fixture)
+    {
+        fixture.Customize<RoadRegistry.ValueObjects.RoadNodeGeometry>(composer =>
+            composer.FromFactory(_ =>
+                fixture.Create<NetTopologySuite.Geometries.Point>().ToGeometryObject()
+            ).OmitAutoProperties()
+        );
+    }
+
     public static void CustomizeRoadSegmentGeometry(this IFixture fixture)
     {
         fixture.Customize<RoadRegistry.ValueObjects.RoadSegmentGeometry>(customizer =>

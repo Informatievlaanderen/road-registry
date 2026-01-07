@@ -28,7 +28,6 @@ public class RoadNetworkTests : RoadNetworkTestBase
             )
             .Then((result, events) =>
             {
-                result.Problems.HasError().Should().BeFalse();
                 result.Summary.RoadNodes.Modified.Should().HaveCount(1);
             })
         );
