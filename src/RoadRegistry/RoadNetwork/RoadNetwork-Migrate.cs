@@ -89,7 +89,7 @@ public partial class RoadNetwork
                 .Aggregate(problems, (p, x) => p + x.VerifyTopology(context));
         }
 
-        Apply(new RoadNetworkChanged
+        Apply(new RoadNetworkWasChanged
         {
             ScopeGeometry = changes.BuildScopeGeometry().ToGeometryObject(),
             DownloadId = downloadId,

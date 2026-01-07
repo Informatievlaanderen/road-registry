@@ -1,11 +1,12 @@
 namespace RoadRegistry.RoadNetwork.Events.V2;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using ValueObjects;
 
-public record RoadNetworkChanged : IMartenEvent
+public record RoadNetworkWasChanged : IMartenEvent
 {
     public RoadNetworkChangeGeometry? ScopeGeometry { get; init; }
     public DownloadId? DownloadId { get; init; }
@@ -45,6 +46,16 @@ public sealed class RoadNetworkChangedSummary
             Removed = summary.GradeSeparatedJunctions.Removed.Select(x => x.ToInt32()).ToList()
         };
     }
+
+    public RoadNetworkChangesSummary ToRoadNetworkChangesSummary()
+    {
+        return new RoadNetworkChangesSummary
+        {
+            RoadNodes = RoadNodes.ToRoadNetworkEntityChangesSummary(x => new RoadNodeId(x)),
+            RoadSegments = RoadSegments.ToRoadNetworkEntityChangesSummary(x => new RoadSegmentId(x)),
+            GradeSeparatedJunctions = GradeSeparatedJunctions.ToRoadNetworkEntityChangesSummary(x => new GradeSeparatedJunctionId(x)),
+        };
+    }
 }
 
 public sealed record RoadNetworkChangedEntitySummary
@@ -52,4 +63,14 @@ public sealed record RoadNetworkChangedEntitySummary
     public required ICollection<int> Added { get; init; }
     public required ICollection<int> Modified { get; init; }
     public required ICollection<int> Removed { get; init; }
+
+    public RoadNetworkEntityChangesSummary<TIdentifier> ToRoadNetworkEntityChangesSummary<TIdentifier>(Func<int, TIdentifier> converter)
+    {
+        return new RoadNetworkEntityChangesSummary<TIdentifier>
+        {
+            Added = new UniqueList<TIdentifier>(Added.Select(converter)),
+            Modified = new UniqueList<TIdentifier>(Modified.Select(converter)),
+            Removed = new UniqueList<TIdentifier>(Removed.Select(converter))
+        };
+    }
 }

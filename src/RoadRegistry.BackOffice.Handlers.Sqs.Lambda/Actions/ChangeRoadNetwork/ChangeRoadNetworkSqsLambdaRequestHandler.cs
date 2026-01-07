@@ -15,6 +15,7 @@ using RoadRegistry.RoadNetwork;
 using RoadRegistry.RoadNetwork.Events.V2;
 using RoadRegistry.RoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
+using ValueObjects.Problems;
 
 public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<ChangeRoadNetworkSqsLambdaRequest>
 {
@@ -66,9 +67,21 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
     {
         var roadNetworkChanges = command.Changes.ToRoadNetworkChanges(command.ProvenanceData);
 
-        var roadNetwork = await Load(roadNetworkChanges);
-        var changeResult = roadNetwork.Change(roadNetworkChanges, command.DownloadId, _roadNetworkIdGenerator);
+        var roadNetwork = await Load(roadNetworkChanges, new RoadNetworkId(command.DownloadId));
 
+        //TODO-pr add test wnr Summary is ingevuld dat de roadnetwork niet mag worden opgeslagen
+        var changeResult = roadNetwork.SummaryOfLastChange is null
+            ? await ChangeRoadNetwork(command, roadNetwork, roadNetworkChanges, cancellationToken)
+            : new RoadNetworkChangeResult(Problems.None, roadNetwork.SummaryOfLastChange);
+
+        await _extractRequests.UploadAcceptedAsync(command.DownloadId, cancellationToken);
+
+        return changeResult;
+    }
+
+    private async Task<RoadNetworkChangeResult> ChangeRoadNetwork(ChangeRoadNetworkSqsRequest command, RoadNetwork roadNetwork, RoadNetworkChanges roadNetworkChanges, CancellationToken cancellationToken)
+    {
+        var changeResult = roadNetwork.Change(roadNetworkChanges, command.DownloadId, _roadNetworkIdGenerator);
         if (changeResult.Problems.HasError())
         {
             await _extractRequests.UploadRejectedAsync(command.DownloadId, cancellationToken);
@@ -82,12 +95,10 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
         }
 
         await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
-        await _extractRequests.UploadAcceptedAsync(command.DownloadId, cancellationToken);
-
         return changeResult;
     }
 
-    private async Task<RoadNetwork> Load(RoadNetworkChanges roadNetworkChanges)
+    private async Task<RoadNetwork> Load(RoadNetworkChanges roadNetworkChanges, RoadNetworkId roadNetworkId)
     {
         await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
 
@@ -98,7 +109,8 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
                 roadNetworkChanges.RoadNodeIds.Union(ids.RoadNodeIds).ToList(),
                 roadNetworkChanges.RoadSegmentIds.Union(ids.RoadSegmentIds).ToList(),
                 roadNetworkChanges.GradeSeparatedJunctionIds.Union(ids.GradeSeparatedJunctionIds).ToList()
-            )
+            ),
+            roadNetworkId
         );
     }
 }

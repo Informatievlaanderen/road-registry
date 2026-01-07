@@ -24,7 +24,7 @@ public class RoadSegmentProjectionTests
             typeof(GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionAdded),
             typeof(GradeSeparatedJunction.Events.V1.GradeSeparatedJunctionRemoved),
 
-            typeof(RoadRegistry.RoadNetwork.Events.V2.RoadNetworkChanged),
+            typeof(RoadRegistry.RoadNetwork.Events.V2.RoadNetworkWasChanged),
             typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasAdded),
             typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasModified),
             typeof(RoadRegistry.RoadNode.Events.V2.RoadNodeWasMigrated),

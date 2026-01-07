@@ -14,7 +14,7 @@ public class MigrateRoadNetworkSqsRequestHandler : SqsHandler<MigrateRoadNetwork
 
     protected override string WithAggregateId(MigrateRoadNetworkSqsRequest request)
     {
-        return RoadNetwork.GlobalIdentifier;
+        return Constants.GlobalMessageGroupId;
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, MigrateRoadNetworkSqsRequest sqsRequest)

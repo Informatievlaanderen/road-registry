@@ -135,15 +135,18 @@ public class MartenProjectionIntegrationTestRunner
         {
             await using var session = store.LightweightSession();
 
+            var roadNetworkId = new RoadNetworkId(Guid.NewGuid());
+            var roadNetworkStreamKey = StreamKeyFactory.Create(typeof(RoadNetwork), roadNetworkId);
+
             session.CausationId = "given";
-            session.CorrelationId = Guid.NewGuid().ToString(); // Ensure events are grouped by correlation id
+            session.CorrelationId = roadNetworkStreamKey; // Ensure events are grouped by correlation id
 
             foreach (var @event in events)
             {
                 session.Events.AppendOrStartStream(@event.StreamKey, @event.Event);
             }
 
-            session.Events.Append(StreamKeyFactory.Create(typeof(RoadNetwork), RoadNetwork.GlobalIdentifier), new RoadNetworkChanged
+            session.Events.Append(roadNetworkStreamKey, new RoadNetworkWasChanged
             {
                 Summary = new RoadNetworkChangedSummary(new RoadNetworkChangesSummary()),
                 Provenance = new RoadRegistryProvenanceData()

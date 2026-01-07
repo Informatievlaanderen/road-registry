@@ -27,7 +27,7 @@ public abstract class RoadNetworkChangesProjection : EventProjection
         IncludeType<RoadNetworkChangesAccepted>();
 
         // V2
-        IncludeType<RoadNetworkChanged>();
+        IncludeType<RoadNetworkWasChanged>();
     }
 
     public virtual void Configure(StoreOptions options)
@@ -51,7 +51,7 @@ public abstract class RoadNetworkChangesProjection : EventProjection
         return ProjectCorrelatedEvents(e, operations, cancellation);
     }
 
-    public Task Project(IEvent<RoadNetworkChanged> e, IDocumentOperations operations, CancellationToken cancellation)
+    public Task Project(IEvent<RoadNetworkWasChanged> e, IDocumentOperations operations, CancellationToken cancellation)
     {
         return ProjectCorrelatedEvents(e, operations, cancellation);
     }

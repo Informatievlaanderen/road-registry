@@ -5,6 +5,7 @@ using Marten;
 using NetTopologySuite.Geometries;
 using Projections;
 using RoadNetwork;
+using RoadNetwork.ValueObjects;
 
 public class RoadNetworkRepository : IRoadNetworkRepository
 {
@@ -95,20 +96,21 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j ON 
         );
     }
 
-    public async Task<RoadNetwork> Load(IDocumentSession session, RoadNetworkIds ids)
+    public async Task<RoadNetwork> Load(IDocumentSession session, RoadNetworkIds ids, RoadNetworkId roadNetworkId)
     {
         var roadNodes = await session.LoadManyAsync(ids.RoadNodeIds);
         var roadSegments = await session.LoadManyAsync(ids.RoadSegmentIds);
         var gradeSeparatedJunctions = await session.LoadManyAsync(ids.GradeSeparatedJunctionIds);
+        var roadNetwork = await session.LoadAsync<RoadNetwork>(StreamKeyFactory.Create(typeof(RoadNetwork), roadNetworkId));
 
-        return new RoadNetwork(roadNodes, roadSegments, gradeSeparatedJunctions);
+        return roadNetwork ?? new RoadNetwork(roadNetworkId, roadNodes, roadSegments, gradeSeparatedJunctions);
     }
 
     public async Task Save(RoadNetwork roadNetwork, string commandName, CancellationToken cancellationToken)
     {
         await using var session = Store.LightweightSession();
 
-        session.CorrelationId ??= Guid.NewGuid().ToString();
+        session.CorrelationId ??= roadNetwork.Id;
         session.CausationId = commandName;
 
         SaveEntities(roadNetwork.RoadSegments, session);

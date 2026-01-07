@@ -77,7 +77,7 @@ public static class MartenMigrationContextScenarioExtensions
             var comparer = new CompareLogic(comparisonConfig);
 
             var actualRecords = store.AllEvents()
-                .Where(x => x is not RoadNetworkChanged && x is not RoadNetworkChangesAccepted)
+                .Where(x => x is not RoadNetworkWasChanged && x is not RoadNetworkChangesAccepted)
                 .ToArray();
             var result = comparer.Compare(
                 expectedEvents,
@@ -140,7 +140,7 @@ public static class MartenMigrationContextScenarioExtensions
             var comparisonConfig = new ComparisonConfig { MaxDifferences = 5, IgnoreCollectionOrder = true };
             var comparer = new CompareLogic(comparisonConfig);
             var actualRecords = store.AllEvents()
-                .Where(x => x is not RoadNetworkChanged && x is not RoadNetworkChangesAccepted)
+                .Where(x => x is not RoadNetworkWasChanged && x is not RoadNetworkChangesAccepted)
                 .ToArray();
             var result = comparer.Compare(
                 records,
@@ -193,7 +193,7 @@ public static class MartenMigrationContextScenarioExtensions
         var specification = scenario.Verify(async _ =>
         {
             var actualRecords = store.AllEvents()
-                .Where(x => x is not RoadNetworkChanged && x is not RoadNetworkChangesAccepted)
+                .Where(x => x is not RoadNetworkWasChanged && x is not RoadNetworkChangesAccepted)
                 .ToArray();
             return actualRecords.Length == 0
                 ? VerificationResult.Pass()

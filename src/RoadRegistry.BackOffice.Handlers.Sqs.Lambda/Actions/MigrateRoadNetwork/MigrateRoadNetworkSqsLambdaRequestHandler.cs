@@ -16,6 +16,7 @@ using RoadRegistry.RoadNetwork;
 using RoadRegistry.RoadNetwork.Events.V2;
 using RoadRegistry.RoadNetwork.ValueObjects;
 using TicketingService.Abstractions;
+using ValueObjects.Problems;
 
 public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<MigrateRoadNetworkSqsLambdaRequest>
 {
@@ -67,25 +68,35 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
     {
         var roadNetworkChanges = command.Changes.ToRoadNetworkChanges(command.ProvenanceData);
 
-         var roadNetwork = await Load(roadNetworkChanges);
-         var changeResult = roadNetwork.Migrate(roadNetworkChanges, command.DownloadId, _roadNetworkIdGenerator);
+        //TODO-pr current: run tests + systeem met roadnetworkid opslaan testen, en het 2e keer inladen als er al een change voor de roadnetworkid is gebeurd
+        var roadNetwork = await Load(roadNetworkChanges, new RoadNetworkId(command.DownloadId));
 
-         if (changeResult.Problems.HasError())
-         {
-             await _extractRequests.UploadRejectedAsync(command.DownloadId, cancellationToken);
+        //TODO-pr add test wnr Summary is ingevuld dat de roadnetwork niet mag worden opgeslagen
+        var changeResult = roadNetwork.SummaryOfLastChange is null
+            ? await ChangeRoadNetwork(command, roadNetwork, roadNetworkChanges, cancellationToken)
+            : new RoadNetworkChangeResult(Problems.None, roadNetwork.SummaryOfLastChange);
 
-             throw new RoadRegistryProblemsException(changeResult.Problems);
-         }
-
-        await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
-        //TODO-pr: TBD wat als de 1 vd volgende 2 calls falen? dan zouden de changes niet opnieuw mogen geapplied worden
         await _extractRequests.UploadAcceptedAsync(command.DownloadId, cancellationToken);
         await CompleteInwinningszone(command.DownloadId, cancellationToken);
 
-         return changeResult;
+        return changeResult;
     }
 
-    private async Task<RoadNetwork> Load(RoadNetworkChanges roadNetworkChanges)
+    private async Task<RoadNetworkChangeResult> ChangeRoadNetwork(MigrateRoadNetworkSqsRequest command, RoadNetwork roadNetwork, RoadNetworkChanges roadNetworkChanges, CancellationToken cancellationToken)
+    {
+        var changeResult = roadNetwork.Migrate(roadNetworkChanges, command.DownloadId, _roadNetworkIdGenerator);
+        if (changeResult.Problems.HasError())
+        {
+            await _extractRequests.UploadRejectedAsync(command.DownloadId, cancellationToken);
+
+            throw new RoadRegistryProblemsException(changeResult.Problems);
+        }
+
+        await _roadNetworkRepository.Save(roadNetwork, command.GetType().Name, cancellationToken);
+        return changeResult;
+    }
+
+    private async Task<RoadNetwork> Load(RoadNetworkChanges roadNetworkChanges, RoadNetworkId roadNetworkId)
     {
         //TODO-pr enkel RoadNetwork opbouwen adv bestaande V2 data
 

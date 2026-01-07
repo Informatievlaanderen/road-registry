@@ -4,13 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using Events.V2;
 using GradeSeparatedJunction;
+using JasperFx.Events;
 using RoadNode;
 using RoadSegment;
+using ValueObjects;
 
-public partial class RoadNetwork : MartenAggregateRootEntity<string>
+public partial class RoadNetwork : MartenAggregateRootEntity<RoadNetworkId>
 {
-    public static RoadNetwork Empty => new();
-    public const string GlobalIdentifier = "0";
+    public RoadNetworkChangesSummary? SummaryOfLastChange { get; private set; } //TODO-pr renamen?
+
     public IReadOnlyDictionary<RoadNodeId, RoadNode> RoadNodes { get; }
     public IReadOnlyDictionary<RoadSegmentId, RoadSegment> RoadSegments { get; }
     public IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; }
@@ -18,16 +20,17 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
     private readonly Dictionary<RoadSegmentId, RoadSegment> _roadSegments;
     private readonly Dictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> _gradeSeparatedJunctions;
 
-    private RoadNetwork()
-        : this([], [], [])
+    public RoadNetwork(RoadNetworkId roadNetworkId)
+        : this(roadNetworkId, [], [], [])
     {
     }
 
     public RoadNetwork(
+        RoadNetworkId roadNetworkId,
         IReadOnlyCollection<RoadNode> roadNodes,
         IReadOnlyCollection<RoadSegment> roadSegments,
         IReadOnlyCollection<GradeSeparatedJunction> gradeSeparatedJunctions)
-        : base(GlobalIdentifier)
+        : base(roadNetworkId)
     {
         _roadNodes = roadNodes.ToDictionary(x => x.RoadNodeId, x => x);
         RoadNodes = _roadNodes.AsReadOnly();
@@ -39,9 +42,20 @@ public partial class RoadNetwork : MartenAggregateRootEntity<string>
         GradeSeparatedJunctions = _gradeSeparatedJunctions.AsReadOnly();
     }
 
-    public void Apply(RoadNetworkChanged @event)
+    public static RoadNetwork Create(IEvent<RoadNetworkWasChanged> @event)
+    {
+        var roadNetwork = new RoadNetwork(RoadNetworkId.FromStreamId(@event.StreamKey))
+        {
+            SummaryOfLastChange = @event.Data.Summary.ToRoadNetworkChangesSummary()
+        };
+        return roadNetwork;
+    }
+
+    public void Apply(RoadNetworkWasChanged @event)
     {
         UncommittedEvents.Add(@event);
+
+        SummaryOfLastChange = @event.Summary.ToRoadNetworkChangesSummary();
     }
 
     public IEnumerable<RoadNode> GetNonRemovedRoadNodes()

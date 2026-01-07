@@ -15,6 +15,7 @@ using GradeSeparatedJunction;
 using NodaTime;
 using NodaTime.Text;
 using RoadNetwork;
+using RoadNetwork.ValueObjects;
 using RoadNode;
 using RoadSegment;
 using ImportedGradeSeparatedJunction = GradeSeparatedJunction.Events.V1.ImportedGradeSeparatedJunction;
@@ -385,7 +386,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
             var provenance = BuildProvenance(envelope, Modification.Unknown);
 
-            var streamKey = StreamKeyFactory.Create(typeof(RoadNetwork), RoadNetwork.GlobalIdentifier);
+            var streamKey = StreamKeyFactory.Create(typeof(RoadNetwork), new RoadNetworkId(new DownloadId(envelope.Message.DownloadId ?? Guid.NewGuid())));
             var legacyEvent = new RoadRegistry.RoadNetwork.Events.V1.RoadNetworkChangesAccepted
             {
                 Operator = envelope.Message.Operator,

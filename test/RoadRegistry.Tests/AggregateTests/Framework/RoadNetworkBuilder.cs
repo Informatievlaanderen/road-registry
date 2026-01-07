@@ -1,8 +1,8 @@
 ﻿namespace RoadRegistry.Tests.AggregateTests.Framework;
 
-using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.RoadNetwork;
+using RoadRegistry.RoadNetwork.ValueObjects;
 using RoadNetwork = RoadRegistry.RoadNetwork.RoadNetwork;
 
 public class RoadNetworkBuilder
@@ -17,7 +17,7 @@ public class RoadNetworkBuilder
 
     public RoadNetwork Build()
     {
-        var roadNetwork = RoadNetwork.Empty;
+        var roadNetwork = new RoadNetwork(new RoadNetworkId(Guid.NewGuid()));
 
         foreach (var change in _changes)
         {

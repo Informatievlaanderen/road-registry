@@ -8,22 +8,34 @@ public sealed record RoadNetworkChangeResult(Problems Problems, RoadNetworkChang
 
 public sealed class RoadNetworkChangesSummary
 {
-    public RoadNetworkEntityChangesSummary<RoadNodeId> RoadNodes { get; } = new();
-    public RoadNetworkEntityChangesSummary<RoadSegmentId> RoadSegments { get; } = new();
-    public RoadNetworkEntityChangesSummary<GradeSeparatedJunctionId> GradeSeparatedJunctions { get; } = new();
+    public RoadNetworkEntityChangesSummary<RoadNodeId> RoadNodes { get; init; } = new();
+    public RoadNetworkEntityChangesSummary<RoadSegmentId> RoadSegments { get; init; } = new();
+    public RoadNetworkEntityChangesSummary<GradeSeparatedJunctionId> GradeSeparatedJunctions { get; init; } = new();
 }
 
 public sealed class RoadNetworkEntityChangesSummary<TIdentifier>
 {
-    public UniqueList<TIdentifier> Added { get; } = [];
-    public UniqueList<TIdentifier> Modified { get; } = [];
-    public UniqueList<TIdentifier> Removed { get; } = [];
+    public UniqueList<TIdentifier> Added { get; init; } = [];
+    public UniqueList<TIdentifier> Modified { get; init;} = [];
+    public UniqueList<TIdentifier> Removed { get; init; } = [];
 }
 
 public sealed class UniqueList<T> : IReadOnlyCollection<T>
 {
     private readonly HashSet<T> _set = [];
     private readonly List<T> _list = [];
+
+    public UniqueList()
+    {
+    }
+
+    public UniqueList(IEnumerable<T> collection)
+    {
+        foreach (var item in collection)
+        {
+            Add(item);
+        }
+    }
 
     public void Add(T item)
     {
