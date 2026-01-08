@@ -101,7 +101,7 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j ON 
         var roadNodes = await session.LoadManyAsync(ids.RoadNodeIds);
         var roadSegments = await session.LoadManyAsync(ids.RoadSegmentIds);
         var gradeSeparatedJunctions = await session.LoadManyAsync(ids.GradeSeparatedJunctionIds);
-        var roadNetwork = await session.LoadAsync<RoadNetwork>(StreamKeyFactory.Create(typeof(RoadNetwork), roadNetworkId));
+        var roadNetwork = await session.Events.AggregateStreamAsync<RoadNetwork>(StreamKeyFactory.Create(typeof(RoadNetwork), roadNetworkId));
 
         return roadNetwork ?? new RoadNetwork(roadNetworkId, roadNodes, roadSegments, gradeSeparatedJunctions);
     }
@@ -113,13 +113,13 @@ LEFT JOIN {RoadNetworkTopologyProjection.GradeSeparatedJunctionsTableName} j ON 
         session.CorrelationId ??= roadNetwork.Id;
         session.CausationId = commandName;
 
-        SaveEntities(roadNetwork.RoadSegments, session);
         SaveEntities(roadNetwork.RoadNodes, session);
+        SaveEntities(roadNetwork.RoadSegments, session);
         SaveEntities(roadNetwork.GradeSeparatedJunctions, session);
         foreach (var evt in roadNetwork.GetChanges())
         {
             EnsureEventHasProvenance(evt);
-            session.Events.Append(roadNetwork.Id, evt);
+            session.Events.StartStream(roadNetwork.Id, evt);
         }
 
         await session.SaveChangesAsync(cancellationToken);

@@ -6,8 +6,9 @@ using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using ValueObjects;
 
-public record RoadNetworkWasChanged : IMartenEvent
+public record RoadNetworkWasChanged : IMartenEvent, ICreatedEvent
 {
+    public required RoadNetworkId RoadNetworkId { get; init; }
     public RoadNetworkChangeGeometry? ScopeGeometry { get; init; }
     public DownloadId? DownloadId { get; init; }
     public required RoadNetworkChangedSummary Summary { get; init; }

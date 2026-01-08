@@ -386,7 +386,7 @@ public class MartenMigrationProjection : ConnectedProjection<MartenMigrationCont
 
             var provenance = BuildProvenance(envelope, Modification.Unknown);
 
-            var streamKey = StreamKeyFactory.Create(typeof(RoadNetwork), new RoadNetworkId(new DownloadId(envelope.Message.DownloadId ?? Guid.NewGuid())));
+            var streamKey = StreamKeyFactory.Create(typeof(RoadNetwork), new RoadNetworkId(envelope.Message.DownloadId ?? Guid.NewGuid()));
             var legacyEvent = new RoadRegistry.RoadNetwork.Events.V1.RoadNetworkChangesAccepted
             {
                 Operator = envelope.Message.Operator,

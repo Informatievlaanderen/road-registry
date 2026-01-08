@@ -8,6 +8,7 @@ using Exceptions;
 using Hosts;
 using Infrastructure;
 using Marten;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RoadNetwork;
 using RoadRegistry.Extracts.Schema;
@@ -68,10 +69,8 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
     {
         var roadNetworkChanges = command.Changes.ToRoadNetworkChanges(command.ProvenanceData);
 
-        //TODO-pr current: run tests + systeem met roadnetworkid opslaan testen, en het 2e keer inladen als er al een change voor de roadnetworkid is gebeurd
-        var roadNetwork = await Load(roadNetworkChanges, new RoadNetworkId(command.DownloadId));
+        var roadNetwork = await Load(roadNetworkChanges, new RoadNetworkId(command.DownloadId.ToGuid()));
 
-        //TODO-pr add test wnr Summary is ingevuld dat de roadnetwork niet mag worden opgeslagen
         var changeResult = roadNetwork.SummaryOfLastChange is null
             ? await ChangeRoadNetwork(command, roadNetwork, roadNetworkChanges, cancellationToken)
             : new RoadNetworkChangeResult(Problems.None, roadNetwork.SummaryOfLastChange);
@@ -98,9 +97,9 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
 
     private async Task<RoadNetwork> Load(RoadNetworkChanges roadNetworkChanges, RoadNetworkId roadNetworkId)
     {
+        return new RoadNetwork(roadNetworkId);
         //TODO-pr enkel RoadNetwork opbouwen adv bestaande V2 data
 
-        throw new NotImplementedException();
         // await using var session = _store.LightweightSession(IsolationLevel.Snapshot);
         //
         // var ids = await _roadNetworkRepository.GetUnderlyingIds(session, roadNetworkChanges.BuildScopeGeometry());
@@ -116,7 +115,7 @@ public sealed class MigrateRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler
 
     private async Task CompleteInwinningszone(DownloadId downloadId, CancellationToken cancellationToken)
     {
-        var inwinningszone = await _extractsDbContext.Inwinningszones.SingleAsync(x => x.DownloadId == downloadId.ToGuid(), token: cancellationToken);
+        var inwinningszone = await EntityFrameworkQueryableExtensions.SingleAsync(_extractsDbContext.Inwinningszones, x => x.DownloadId == downloadId.ToGuid(), cancellationToken);
 
         inwinningszone.Completed = true;
         await _extractsDbContext.SaveChangesAsync(cancellationToken);

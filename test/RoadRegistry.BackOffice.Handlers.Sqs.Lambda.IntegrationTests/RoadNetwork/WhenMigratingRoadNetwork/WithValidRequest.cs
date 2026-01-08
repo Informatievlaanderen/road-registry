@@ -1,6 +1,6 @@
-﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork.WhenChangingRoadNetwork;
+﻿namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.IntegrationTests.RoadNetwork.WhenMigratingRoadNetwork;
 
-using Actions.ChangeRoadNetwork;
+using Actions.MigrateRoadNetwork;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
@@ -10,6 +10,8 @@ using Marten;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using NetTopologySuite.IO;
+using RoadRegistry.Extracts.Schema;
 using RoadRegistry.Infrastructure;
 using RoadRegistry.Infrastructure.MartenDb;
 using RoadRegistry.Infrastructure.MartenDb.Setup;
@@ -42,7 +44,7 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
         var testData = new RoadNetworkTestData();
 
         var provenanceData = new RoadRegistryProvenanceData();
-        var command = new ChangeRoadNetworkSqsRequest
+        var command = new MigrateRoadNetworkSqsRequest
         {
             DownloadId = testData.Fixture.Create<DownloadId>(),
             TicketId = testData.Fixture.Create<TicketId>(),
@@ -63,9 +65,20 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
             ProvenanceData = provenanceData
         };
 
+        var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
+        extractsDbContext.Inwinningszones.Add(new Inwinningszone
+        {
+            DownloadId = command.DownloadId,
+            NisCode = "12345",
+            Contour = new WKTReader().Read(GeometryTranslatorTestCases.ValidPolygon),
+            Operator = provenanceData.Operator,
+            Completed = false
+        });
+        await extractsDbContext.SaveChangesAsync(CancellationToken.None);
+
         // Act
-        var handler = sp.GetRequiredService<ChangeRoadNetworkSqsLambdaRequestHandler>();
-        await handler.Handle(new ChangeRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
+        var handler = sp.GetRequiredService<MigrateRoadNetworkSqsLambdaRequestHandler>();
+        await handler.Handle(new MigrateRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
 
         // Assert
         var ticketResult = _ticketingMock.Invocations
@@ -82,9 +95,10 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
 
         var roadSegments = await session.LoadManyAsync([testData.Segment1Added.RoadSegmentId]);
         roadSegments.Should().HaveCount(1);
-    }
 
-    //TODO-pr add test with Given data
+        var inwinningsZone = extractsDbContext.Inwinningszones.Single(x => x.DownloadId == command.DownloadId.ToGuid());
+        inwinningsZone.Completed.Should().BeTrue();
+    }
 
     [Fact]
     public async Task WithMultipleRunsForTheSameDownloadId_ThenOnlyAppliesChangesOnce()
@@ -95,7 +109,7 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
         var testData = new RoadNetworkTestData();
 
         var provenanceData = new RoadRegistryProvenanceData();
-        var command = new ChangeRoadNetworkSqsRequest
+        var command = new MigrateRoadNetworkSqsRequest
         {
             DownloadId = testData.Fixture.Create<DownloadId>(),
             TicketId = testData.Fixture.Create<TicketId>(),
@@ -115,6 +129,17 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
             ],
             ProvenanceData = provenanceData
         };
+
+        var extractsDbContext = sp.GetRequiredService<ExtractsDbContext>();
+        extractsDbContext.Inwinningszones.Add(new Inwinningszone
+        {
+            DownloadId = command.DownloadId,
+            NisCode = "12345",
+            Contour = new WKTReader().Read(GeometryTranslatorTestCases.ValidPolygon),
+            Operator = provenanceData.Operator,
+            Completed = false
+        });
+        await extractsDbContext.SaveChangesAsync(CancellationToken.None);
 
         var uploadAcceptedCount = 0;
         _extractRequestsMock
@@ -130,13 +155,13 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
 
                 return Task.CompletedTask;
             });
-        var handler = sp.GetRequiredService<ChangeRoadNetworkSqsLambdaRequestHandler>();
+        var handler = sp.GetRequiredService<MigrateRoadNetworkSqsLambdaRequestHandler>();
 
         // Act
-        var actFirstRun = () => handler.Handle(new ChangeRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
+        var actFirstRun = () => handler.Handle(new MigrateRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
         await actFirstRun.Should().ThrowAsync<Exception>();
 
-        await handler.Handle(new ChangeRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
+        await handler.Handle(new MigrateRoadNetworkSqsLambdaRequest(string.Empty, command), CancellationToken.None);
 
         // Assert
         var ticketResult = _ticketingMock.Invocations
@@ -153,6 +178,9 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
 
         var roadSegments = await session.LoadManyAsync([testData.Segment1Added.RoadSegmentId]);
         roadSegments.Should().HaveCount(1);
+
+        var inwinningsZone = extractsDbContext.Inwinningszones.Single(x => x.DownloadId == command.DownloadId.ToGuid());
+        inwinningsZone.Completed.Should().BeTrue();
     }
 
     private async Task<IServiceProvider> BuildServiceProvider()
@@ -176,12 +204,13 @@ public class WithValidRequest : IClassFixture<DatabaseFixture>
             .AddSingleton(Mock.Of<IIdempotentCommandHandler>())
             .AddSingleton(Mock.Of<IRoadRegistryContext>())
             .AddSingleton(Mock.Of<IExtractUploadFailedEmailClient>())
-            .AddSingleton(_extractRequestsMock.Object);
+            .AddSingleton(_extractRequestsMock.Object)
+            .AddSingleton(new FakeExtractsDbContextFactory().CreateDbContext());
 
         services
             .AddMartenRoad(options => options.AddRoadNetworkTopologyProjection().AddRoadAggregatesSnapshots())
             .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
-            .AddScoped<ChangeRoadNetworkSqsLambdaRequestHandler>();
+            .AddScoped<MigrateRoadNetworkSqsLambdaRequestHandler>();
 
         var sp = services.BuildServiceProvider();
 

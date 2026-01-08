@@ -67,9 +67,8 @@ public sealed class ChangeRoadNetworkSqsLambdaRequestHandler : SqsLambdaHandler<
     {
         var roadNetworkChanges = command.Changes.ToRoadNetworkChanges(command.ProvenanceData);
 
-        var roadNetwork = await Load(roadNetworkChanges, new RoadNetworkId(command.DownloadId));
+        var roadNetwork = await Load(roadNetworkChanges, new RoadNetworkId(command.DownloadId.ToGuid()));
 
-        //TODO-pr add test wnr Summary is ingevuld dat de roadnetwork niet mag worden opgeslagen
         var changeResult = roadNetwork.SummaryOfLastChange is null
             ? await ChangeRoadNetwork(command, roadNetwork, roadNetworkChanges, cancellationToken)
             : new RoadNetworkChangeResult(Problems.None, roadNetwork.SummaryOfLastChange);

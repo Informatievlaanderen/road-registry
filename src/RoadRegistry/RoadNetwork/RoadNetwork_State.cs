@@ -11,7 +11,8 @@ using ValueObjects;
 
 public partial class RoadNetwork : MartenAggregateRootEntity<RoadNetworkId>
 {
-    public RoadNetworkChangesSummary? SummaryOfLastChange { get; private set; } //TODO-pr renamen?
+    public RoadNetworkId RoadNetworkId { get; }
+    public RoadNetworkChangesSummary? SummaryOfLastChange { get; private set; }
 
     public IReadOnlyDictionary<RoadNodeId, RoadNode> RoadNodes { get; }
     public IReadOnlyDictionary<RoadSegmentId, RoadSegment> RoadSegments { get; }
@@ -32,6 +33,8 @@ public partial class RoadNetwork : MartenAggregateRootEntity<RoadNetworkId>
         IReadOnlyCollection<GradeSeparatedJunction> gradeSeparatedJunctions)
         : base(roadNetworkId)
     {
+        RoadNetworkId = roadNetworkId;
+
         _roadNodes = roadNodes.ToDictionary(x => x.RoadNodeId, x => x);
         RoadNodes = _roadNodes.AsReadOnly();
 
@@ -42,11 +45,11 @@ public partial class RoadNetwork : MartenAggregateRootEntity<RoadNetworkId>
         GradeSeparatedJunctions = _gradeSeparatedJunctions.AsReadOnly();
     }
 
-    public static RoadNetwork Create(IEvent<RoadNetworkWasChanged> @event)
+    public static RoadNetwork Create(RoadNetworkWasChanged @event)
     {
-        var roadNetwork = new RoadNetwork(RoadNetworkId.FromStreamId(@event.StreamKey))
+        var roadNetwork = new RoadNetwork(@event.RoadNetworkId)
         {
-            SummaryOfLastChange = @event.Data.Summary.ToRoadNetworkChangesSummary()
+            SummaryOfLastChange = @event.Summary.ToRoadNetworkChangesSummary()
         };
         return roadNetwork;
     }
